@@ -11,6 +11,10 @@ import type { Activity, CreateActivityInput, ActivityFilter } from '@/features/s
 import type { ActivityRepository } from '@/features/shared/repositories/activity.repository';
 import { createActivity } from '@/features/shared/factories/moderation.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
+import {
+  logSupabaseError,
+  prepareSupabaseWrite,
+} from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'marketplace_activities';
 
@@ -94,21 +98,24 @@ export class SupabaseActivityRepository implements ActivityRepository {
 
   async create(input: CreateActivityInput): Promise<Activity> {
     const activity = createActivity(input);
-    const { data, error } = await this.supabase
-      .from(TABLE)
-      .insert({
-        id: activity.id,
-        actor_id: activity.actorId,
-        verb: activity.verb,
-        entity_type: activity.entityType,
-        entity_id: activity.entityId,
-        summary: activity.summary,
-        metadata: activity.metadata,
-        is_public: activity.isPublic,
-      })
-      .select('*')
-      .single();
-    if (error) throw error;
+    const row = prepareSupabaseWrite('insert', TABLE, {
+      id: activity.id,
+      actor_id: activity.actorId,
+      verb: activity.verb,
+      entity_type: activity.entityType,
+      entity_id: activity.entityId,
+      summary: activity.summary,
+      metadata: activity.metadata,
+      is_public: activity.isPublic,
+    }, {
+      requiredUuidFields: ['id', 'entity_id'],
+      nullableUuidFields: ['actor_id'],
+    });
+    const { data, error } = await this.supabase.from(TABLE).insert(row).select('*').single();
+    if (error) {
+      logSupabaseError(error, `${TABLE} insert`);
+      throw error;
+    }
     return mapActivityRow(data as ActivityRow);
   }
 

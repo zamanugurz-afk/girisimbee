@@ -147,6 +147,10 @@ CREATE POLICY "marketplace_listings_owner_all"
 CREATE POLICY "marketplace_tags_public_read"
   ON public.marketplace_tags FOR SELECT TO anon, authenticated USING (true);
 
+CREATE POLICY "marketplace_tags_authenticated_insert"
+  ON public.marketplace_tags FOR INSERT TO authenticated
+  WITH CHECK (true);
+
 CREATE POLICY "marketplace_listing_images_public_read"
   ON public.marketplace_listing_images FOR SELECT TO anon, authenticated USING (true);
 

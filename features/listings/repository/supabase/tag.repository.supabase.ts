@@ -11,6 +11,10 @@ import type { Tag, ListingTag, CreateTagInput, UpdateTagInput, TagFilter } from 
 import type { TagRepository } from '@/features/listings/repositories/tag.repository';
 import { createTag } from '@/features/listings/factories/tag.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
+import {
+  logSupabaseError,
+  prepareSupabaseWrite,
+} from '@/lib/persistence/supabase-payload';
 
 const TAGS = 'marketplace_tags';
 const JUNCTION = 'marketplace_listing_tags';
@@ -106,12 +110,18 @@ export class SupabaseTagRepository implements TagRepository {
 
   async create(input: CreateTagInput): Promise<Tag> {
     const tag = createTag(input);
-    const { data, error } = await this.supabase
-      .from(TAGS)
-      .insert({ id: tag.id, slug: tag.slug, name: tag.name, usage_count: 0, status: 'active' })
-      .select('*')
-      .single();
-    if (error) throw error;
+    const row = prepareSupabaseWrite('insert', TAGS, {
+      id: tag.id,
+      slug: tag.slug,
+      name: tag.name,
+      usage_count: 0,
+      status: 'active',
+    }, { requiredUuidFields: ['id'] });
+    const { data, error } = await this.supabase.from(TAGS).insert(row).select('*').single();
+    if (error) {
+      logSupabaseError(error, `${TAGS} insert`);
+      throw error;
+    }
     return mapTagRow(data as TagRow);
   }
 
@@ -147,9 +157,15 @@ export class SupabaseTagRepository implements TagRepository {
   }
 
   async attachToListing(listingId: ListingId, tagId: TagId): Promise<ListingTag> {
-    const junction = { listing_id: listingId, tag_id: tagId };
+    const junction = prepareSupabaseWrite('upsert', JUNCTION, {
+      listing_id: listingId,
+      tag_id: tagId,
+    }, { requiredUuidFields: ['listing_id', 'tag_id'] });
     const { error } = await this.supabase.from(JUNCTION).upsert(junction);
-    if (error) throw error;
+    if (error) {
+      logSupabaseError(error, `${JUNCTION} upsert`);
+      throw error;
+    }
     return { listingId, tagId, createdAt: now() };
   }
 
@@ -176,9 +192,15 @@ export class SupabaseTagRepository implements TagRepository {
     await this.supabase.from(JUNCTION).delete().eq('listing_id', listingId);
     const tags = await Promise.all(tagNames.map((name) => this.findOrCreateByName(name)));
     if (tags.length) {
-      const rows = tags.map((tag) => ({ listing_id: listingId, tag_id: tag.id }));
+      const rows = tags.map((tag) => prepareSupabaseWrite('insert', JUNCTION, {
+        listing_id: listingId,
+        tag_id: tag.id,
+      }, { requiredUuidFields: ['listing_id', 'tag_id'] }));
       const { error } = await this.supabase.from(JUNCTION).insert(rows);
-      if (error) throw error;
+      if (error) {
+        logSupabaseError(error, `${JUNCTION} insert batch`);
+        throw error;
+      }
     }
     return tags;
   }

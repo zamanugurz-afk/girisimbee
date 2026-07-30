@@ -5,57 +5,92 @@
 import { ids } from '@/lib/domain/ids';
 import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
+import {
+  CURRENCY_OPTIONS,
+  EXPERIENCE_LEVELS,
+  INVESTMENT_AMOUNT_RANGES,
+  SALARY_RANGES,
+  STARTUP_STAGES,
+  STARTUP_STAGES_WITH_ALL,
+} from '@/features/listings/config/listing-field-options';
 
 export const CATEGORY_IDS = {
-  yatirimBul: ids.category('c1000001-0001-4000-8000-000000000001'),
-  yatirimYap: ids.category('c1000001-0001-4000-8000-000000000002'),
-  isBul: ids.category('c1000001-0001-4000-8000-000000000003'),
-  iseAl: ids.category('c1000001-0001-4000-8000-000000000004'),
-  ortakBul: ids.category('c1000001-0001-4000-8000-000000000005'),
+  yatirimBul: ids.category('e1000001-0001-4000-8000-000000000001'),
+  yatirimYap: ids.category('e1000001-0001-4000-8000-000000000002'),
+  isBul: ids.category('e1000001-0001-4000-8000-000000000003'),
+  iseAl: ids.category('e1000001-0001-4000-8000-000000000004'),
+  ortakBul: ids.category('e1000001-0001-4000-8000-000000000005'),
 } as const satisfies Record<string, CategoryId>;
 
 export const LISTING_TYPE_IDS = {
-  yatirimBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000001'),
-  yatirimYapDefault: ids.listingType('lt000001-0001-4000-8000-000000000002'),
-  isBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000003'),
-  iseAlDefault: ids.listingType('lt000001-0001-4000-8000-000000000004'),
-  ortakBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000005'),
+  yatirimBulDefault: ids.listingType('e1000001-0001-4000-8000-000000000001'),
+  yatirimYapDefault: ids.listingType('e1000001-0001-4000-8000-000000000002'),
+  isBulDefault: ids.listingType('e1000001-0001-4000-8000-000000000003'),
+  iseAlDefault: ids.listingType('e1000001-0001-4000-8000-000000000004'),
+  ortakBulDefault: ids.listingType('e1000001-0001-4000-8000-000000000005'),
 } as const satisfies Record<string, ListingTypeId>;
 
 /** Yatırım Arıyorum — girişim yatırım ihtiyacı */
 export const SEEKING_INVESTMENT_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
-    { key: 'investmentAmount', label: 'Aranan Yatırım Tutarı', type: 'currency', required: true, min: 0 },
+    {
+      key: 'investmentAmount',
+      label: 'Aranan Yatırım Tutarı',
+      type: 'enum',
+      required: true,
+      options: [...INVESTMENT_AMOUNT_RANGES],
+    },
     { key: 'equityOffered', label: 'Sunulan Hisse (%)', type: 'percentage', required: true, min: 0, max: 100 },
     {
       key: 'stage',
       label: 'Girişim Aşaması',
       type: 'enum',
       required: true,
-      options: ['Fikir aşaması', 'Pre-seed', 'Seed', 'Series A', 'Series B+'],
+      options: [...STARTUP_STAGES],
     },
-    { key: 'minInvestment', label: 'Minimum Yatırımcı Katkısı', type: 'currency', min: 0 },
-    { key: 'maxInvestment', label: 'Maksimum Yatırımcı Katkısı', type: 'currency', min: 0 },
+    {
+      key: 'minInvestment',
+      label: 'Minimum Yatırımcı Katkısı',
+      type: 'enum',
+      options: [...INVESTMENT_AMOUNT_RANGES],
+    },
+    {
+      key: 'maxInvestment',
+      label: 'Maksimum Yatırımcı Katkısı',
+      type: 'enum',
+      options: [...INVESTMENT_AMOUNT_RANGES],
+    },
     { key: 'useOfFunds', label: 'Yatırımın Kullanım Alanı', type: 'string' },
-    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: ['TRY', 'USD', 'EUR'] },
+    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: [...CURRENCY_OPTIONS] },
   ],
 };
 
 /** Yatırım Yapacağım — yatırımcı profili */
 export const INVESTOR_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
-    { key: 'ticketSizeMin', label: 'Minimum Bilet Boyutu', type: 'currency', required: true, min: 0 },
-    { key: 'ticketSizeMax', label: 'Maksimum Bilet Boyutu', type: 'currency', min: 0 },
+    {
+      key: 'ticketSizeMin',
+      label: 'Minimum Bilet Boyutu',
+      type: 'enum',
+      required: true,
+      options: [...INVESTMENT_AMOUNT_RANGES],
+    },
+    {
+      key: 'ticketSizeMax',
+      label: 'Maksimum Bilet Boyutu',
+      type: 'enum',
+      options: [...INVESTMENT_AMOUNT_RANGES],
+    },
     {
       key: 'preferredStages',
       label: 'Tercih Edilen Aşama',
       type: 'enum',
       required: true,
-      options: ['Pre-seed', 'Seed', 'Series A', 'Series B+', 'Tüm aşamalar'],
+      options: [...STARTUP_STAGES_WITH_ALL],
     },
     { key: 'sectors', label: 'İlgi Alanları / Sektörler', type: 'string', required: true },
     { key: 'investmentFocus', label: 'Yatırım Odağı', type: 'string' },
-    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: ['TRY', 'USD', 'EUR'] },
+    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: [...CURRENCY_OPTIONS] },
   ],
 };
 
@@ -65,7 +100,12 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
     { key: 'desiredRole', label: 'Aranan Pozisyon', type: 'string', required: true },
     { key: 'experienceYears', label: 'Deneyim (Yıl)', type: 'number', required: true, min: 0, max: 50 },
     { key: 'skills', label: 'Yetenekler', type: 'string' },
-    { key: 'salaryExpectation', label: 'Maaş Beklentisi', type: 'currency', min: 0 },
+    {
+      key: 'salaryExpectation',
+      label: 'Maaş Beklentisi',
+      type: 'enum',
+      options: [...SALARY_RANGES],
+    },
     {
       key: 'workType',
       label: 'Çalışma Tipi',
@@ -86,8 +126,18 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
 export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     { key: 'positionTitle', label: 'Pozisyon Adı', type: 'string', required: true },
-    { key: 'salaryMin', label: 'Minimum Maaş', type: 'currency', min: 0 },
-    { key: 'salaryMax', label: 'Maksimum Maaş', type: 'currency', min: 0 },
+    {
+      key: 'salaryMin',
+      label: 'Minimum Maaş',
+      type: 'enum',
+      options: [...SALARY_RANGES],
+    },
+    {
+      key: 'salaryMax',
+      label: 'Maksimum Maaş',
+      type: 'enum',
+      options: [...SALARY_RANGES],
+    },
     {
       key: 'workType',
       label: 'Çalışma Tipi',
@@ -99,10 +149,10 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       key: 'experienceLevel',
       label: 'Deneyim Seviyesi',
       type: 'enum',
-      options: ['Junior', 'Mid', 'Senior', 'Lead', 'Director'],
+      options: [...EXPERIENCE_LEVELS],
     },
     { key: 'requiredSkills', label: 'Aranan Yetenekler', type: 'string' },
-    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: ['TRY', 'USD', 'EUR'] },
+    { key: 'currency', label: 'Para Birimi', type: 'enum', required: true, options: [...CURRENCY_OPTIONS] },
   ],
 };
 
@@ -124,7 +174,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       options: ['Tam zamanlı', 'Yarı zamanlı', 'Danışmanlık'],
     },
     { key: 'requiredSkills', label: 'Aranan Yetenekler', type: 'string', required: true },
-    { key: 'projectStage', label: 'Proje Aşaması', type: 'enum', options: ['Fikir', 'MVP', 'Büyüme', 'Ölçeklenme'] },
+    { key: 'projectStage', label: 'Proje Aşaması', type: 'enum', options: [...STARTUP_STAGES] },
   ],
 };
 
