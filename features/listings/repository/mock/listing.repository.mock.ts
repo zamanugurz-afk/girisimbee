@@ -1,0 +1,169 @@
+/**
+ * Mock listing repository — in-memory implementation for tests and offline dev.
+ */
+import { now, slugify } from '@/lib/domain/factory';
+import { canTransition } from '@/lib/domain/base';
+import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import { normalizePagination, paginatedResult, offset } from '@/lib/domain/pagination';
+import { NotFoundError, InvalidTransitionError, ConflictError } from '@/lib/domain/errors';
+import type { ListingId } from '@/lib/domain/ids';
+import type { Listing, ListingFilter, ListingStatus, CreateListingInput, UpdateListingInput } from '@/features/listings/types/listing.entity.types';
+import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
+import type { PaginationParams, PaginatedResult } from '@/lib/domain/pagination';
+import type { RepositoryFilter } from '@/lib/domain/pagination';
+import { LISTING_LIFECYCLE } from '@/features/listings/types/listing.entity.types';
+import { createListing } from '@/features/listings/factories/listing.factory';
+import { sortListings } from '@/features/listings/utils/listing-sort';
+
+export class MockListingRepository implements ListingRepository {
+  private listings = new Map<ListingId, Listing>();
+  private slugIndex = new Map<string, ListingId>();
+
+  async findById(id: ListingId, filter?: RepositoryFilter): Promise<Listing | null> {
+    const listing = this.listings.get(id);
+    if (!listing) return null;
+    if (!filter?.includeDeleted && listing.deletedAt) return null;
+    return listing;
+  }
+
+  async findBySlug(slug: string): Promise<Listing | null> {
+    const id = this.slugIndex.get(slug);
+    if (!id) return null;
+    return this.findById(id);
+  }
+
+  async findMany(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
+    const { page, limit } = normalizePagination(pagination);
+    let results = [...this.listings.values()];
+
+    if (!filter.includeDeleted) results = results.filter((l) => !l.deletedAt);
+    if (filter.ownerId) results = results.filter((l) => l.ownerId === filter.ownerId);
+    if (filter.categoryId) results = results.filter((l) => l.categoryId === filter.categoryId);
+    if (filter.listingTypeId) results = results.filter((l) => l.listingTypeId === filter.listingTypeId);
+    if (filter.companyId) results = results.filter((l) => l.companyId === filter.companyId);
+    if (filter.city) results = results.filter((l) => l.city === filter.city);
+    if (filter.isVerified !== undefined) results = results.filter((l) => l.isVerified === filter.isVerified);
+    if (filter.isFeatured !== undefined) results = results.filter((l) => l.isFeatured === filter.isFeatured);
+    if (filter.remotePolicy) results = results.filter((l) => l.remotePolicy === filter.remotePolicy);
+    if (filter.status) {
+      const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
+      results = results.filter((l) => statuses.includes(l.status));
+    }
+    if (filter.query) {
+      const q = filter.query.toLowerCase();
+      results = results.filter(
+        (l) => l.title.toLowerCase().includes(q) || l.shortDescription.toLowerCase().includes(q),
+      );
+    }
+
+    results = sortListings(results, filter.sortBy);
+    const total = results.length;
+    const start = offset(page, limit);
+    return paginatedResult(results.slice(start, start + limit), total, page, limit);
+  }
+
+  async paginate(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
+    return this.findMany(filter, pagination);
+  }
+
+  async search(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
+    return this.findMany(filter, pagination);
+  }
+
+  async findPublished(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
+    return this.findMany({ ...filter, status: 'published' }, pagination);
+  }
+
+  async count(filter: ListingFilter): Promise<number> {
+    const { total } = await this.findMany(filter, { page: 1, limit: 1 });
+    return total;
+  }
+
+  async exists(id: ListingId): Promise<boolean> {
+    return this.listings.has(id);
+  }
+
+  async create(input: CreateListingInput): Promise<Listing> {
+    const slug = this.uniqueSlug(input.title);
+    const listing = createListing({ ...input, slug, status: 'draft' });
+    this.save(listing);
+    return listing;
+  }
+
+  async update(id: ListingId, input: UpdateListingInput): Promise<Listing> {
+    const existing = await this.findById(id, { includeDeleted: true });
+    if (!existing) throw new NotFoundError('Listing', id);
+    const updated: Listing = { ...existing, ...input, updatedAt: now() };
+    this.save(updated);
+    return updated;
+  }
+
+  async softDelete(id: ListingId): Promise<void> {
+    await this.transitionStatus(id, 'deleted');
+    const listing = this.listings.get(id)!;
+    this.save({ ...listing, deletedAt: now() });
+  }
+
+  async delete(id: ListingId): Promise<void> {
+    return this.softDelete(id);
+  }
+
+  async restore(id: ListingId): Promise<Listing> {
+    const listing = await this.findById(id, { includeDeleted: true });
+    if (!listing) throw new NotFoundError('Listing', id);
+    if (!listing.deletedAt) throw new ConflictError('Listing is not deleted');
+    const updated: Listing = { ...listing, status: 'draft', deletedAt: null, updatedAt: now() };
+    this.save(updated);
+    return updated;
+  }
+
+  async incrementViewCount(id: ListingId): Promise<void> {
+    const listing = await this.findById(id, { includeDeleted: true });
+    if (!listing) throw new NotFoundError('Listing', id);
+    this.save({ ...listing, viewCount: listing.viewCount + 1, updatedAt: now() });
+  }
+
+  async incrementApplicationCount(id: ListingId): Promise<void> {
+    const listing = await this.findById(id, { includeDeleted: true });
+    if (!listing) throw new NotFoundError('Listing', id);
+    this.save({ ...listing, applicationCount: listing.applicationCount + 1, updatedAt: now() });
+  }
+
+  async transitionStatus(id: ListingId, to: ListingStatus): Promise<Listing> {
+    const listing = await this.findById(id, { includeDeleted: true });
+    if (!listing) throw new NotFoundError('Listing', id);
+    if (!canTransition(LISTING_LIFECYCLE, listing.status, to)) {
+      throw new InvalidTransitionError(listing.status, to);
+    }
+    const updated: Listing = {
+      ...listing,
+      status: to,
+      updatedAt: now(),
+      publishedAt: to === 'published' ? (listing.publishedAt ?? now()) : listing.publishedAt,
+      expiresAt: to === 'published' ? computeListingExpiry() : listing.expiresAt,
+      rejectedReason: to === 'pending_review' || to === 'published' ? null : listing.rejectedReason,
+    };
+    this.save(updated);
+    return updated;
+  }
+
+  /** Internal — save entity and maintain slug index */
+  save(listing: Listing): Listing {
+    this.listings.set(listing.id, listing);
+    this.slugIndex.set(listing.slug, listing.id);
+    return listing;
+  }
+
+  uniqueSlug(base: string): string {
+    let slug = slugify(base);
+    let attempt = slug;
+    let i = 1;
+    while (this.slugIndex.has(attempt)) {
+      attempt = `${slug}-${i}`;
+      i += 1;
+    }
+    return attempt;
+  }
+}
+
+export const mockListingRepository = new MockListingRepository();

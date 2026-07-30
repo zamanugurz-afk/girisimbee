@@ -1,0 +1,18 @@
+export {
+  gcColors,
+  gcCategoryColors,
+  gcTypography,
+  gcRadius,
+  gcShadows,
+  gcSpacing,
+  gcAnimation,
+  gcIconSize,
+  gcClasses,
+  gcPagePadding,
+  gcPageMaxWidth,
+  gcHeaderHeight,
+  GC_ACCENT,
+  getCategoryColor,
+  type GCCategorySlug,
+  type GcIconSize,
+} from '@/lib/design-system/tokens';

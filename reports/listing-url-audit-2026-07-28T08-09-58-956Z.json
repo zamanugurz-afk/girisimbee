@@ -1,0 +1,3585 @@
+{
+  "generated_at": "2026-07-28T08:09:58.954Z",
+  "total": 376,
+  "valid": 20,
+  "invalid": 356,
+  "by_issue": {
+    "invalid_marketplace_path": 356
+  },
+  "by_provider": {
+    "dolap": {
+      "total": 124,
+      "invalid": 104
+    },
+    "letgo": {
+      "total": 123,
+      "invalid": 123
+    },
+    "sahibinden": {
+      "total": 129,
+      "invalid": 129
+    }
+  },
+  "invalid_listings": [
+    {
+      "id": "35e01285-b216-49d5-b1be-1858219ecd7e",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 sıfır ayarında",
+      "external_listing_id": "dolap-1785159070290-10",
+      "source_url": "https://www.dolap.com/item/300010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "00a21c1b-f318-4d6e-9c89-530a3902d90f",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 ay kullanıldı",
+      "external_listing_id": "dolap-1785159070290-9",
+      "source_url": "https://www.dolap.com/item/300009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a01a2f95-2a5b-4dcf-b177-56ec1e4bf4f1",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED garantili",
+      "external_listing_id": "dolap-1785159070290-8",
+      "source_url": "https://www.dolap.com/item/300008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d0d5c7fe-42a8-4f8b-860e-dab159cdbdde",
+      "provider": "dolap",
+      "title": "Nintendo Switch mükemmel durumda",
+      "external_listing_id": "dolap-1785159070290-7",
+      "source_url": "https://www.dolap.com/item/300007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d8293585-1e7a-4b8c-a5b6-783042fedaf3",
+      "provider": "dolap",
+      "title": "Xbox Series S kutulu",
+      "external_listing_id": "dolap-1785159070290-6",
+      "source_url": "https://www.dolap.com/item/300006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d095d281-f64d-46eb-a918-4e5c3eb5f94a",
+      "provider": "dolap",
+      "title": "Xbox Series X faturalı",
+      "external_listing_id": "dolap-1785159070290-5",
+      "source_url": "https://www.dolap.com/item/300005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e2db9593-d819-443b-b009-333bc7b60f8b",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro sıfır ayarında",
+      "external_listing_id": "dolap-1785159070290-4",
+      "source_url": "https://www.dolap.com/item/300004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "37e98e0e-1d82-44b2-9210-599392541a69",
+      "provider": "dolap",
+      "title": "PlayStation 4 2 ay kullanıldı",
+      "external_listing_id": "dolap-1785159070290-3",
+      "source_url": "https://www.dolap.com/item/300003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "caef8864-65dc-4695-a99b-0a7ce194bd31",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro garantili",
+      "external_listing_id": "dolap-1785159070290-2",
+      "source_url": "https://www.dolap.com/item/300002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "36689eae-7119-4e22-8ecd-4b8cac188a50",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim mükemmel durumda",
+      "external_listing_id": "dolap-1785159070290-1",
+      "source_url": "https://www.dolap.com/item/300001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3f6294b5-eddc-42a4-81b3-26392fe477f4",
+      "provider": "dolap",
+      "title": "PlayStation 5 kutulu",
+      "external_listing_id": "dolap-1785159070290-0",
+      "source_url": "https://www.dolap.com/item/300000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b1dee625-2689-4a05-adbd-f038333338bd",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED takaslı",
+      "external_listing_id": "letgo-1785159059539-22",
+      "source_url": "https://www.letgo.com/item/200022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "b7ae3c4c-e61e-4ee2-9431-008ddfe593cc",
+      "provider": "letgo",
+      "title": "Nintendo Switch 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159059539-21",
+      "source_url": "https://www.letgo.com/item/200021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "bfee2a0a-04a9-4b29-bc40-90d86f38cff4",
+      "provider": "letgo",
+      "title": "Xbox Series S kutulu",
+      "external_listing_id": "letgo-1785159059539-20",
+      "source_url": "https://www.letgo.com/item/200020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "f0878b7e-3a45-4fc1-908c-2356a6f77025",
+      "provider": "letgo",
+      "title": "Xbox Series X temiz",
+      "external_listing_id": "letgo-1785159059539-19",
+      "source_url": "https://www.letgo.com/item/200019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "7a398e9e-d175-4b8f-b83c-dc88ef7981ac",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro acil satılık",
+      "external_listing_id": "letgo-1785159059539-18",
+      "source_url": "https://www.letgo.com/item/200018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "ad953f00-fb1e-48ee-8b2d-43686f388c8c",
+      "provider": "letgo",
+      "title": "PlayStation 4 pazarlık",
+      "external_listing_id": "letgo-1785159059539-17",
+      "source_url": "https://www.letgo.com/item/200017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "cd14fcb0-0250-4abb-bf2b-35fdea630030",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro takaslı",
+      "external_listing_id": "letgo-1785159059539-16",
+      "source_url": "https://www.letgo.com/item/200016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "a3d4816b-5f53-4b79-9e8f-e984bf0a9519",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159059539-15",
+      "source_url": "https://www.letgo.com/item/200015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "a20a37a6-75ba-442f-ab97-b8b9f7da0273",
+      "provider": "letgo",
+      "title": "PlayStation 5 kutulu",
+      "external_listing_id": "letgo-1785159059539-14",
+      "source_url": "https://www.letgo.com/item/200014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "037aa0e7-eeea-41a0-a791-5166cc07650c",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra acil satılık",
+      "external_listing_id": "letgo-1785159059539-12",
+      "source_url": "https://www.letgo.com/item/200012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "7164b2a1-bcc1-46f3-ac1f-06865cb5caae",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 pazarlık",
+      "external_listing_id": "letgo-1785159059539-11",
+      "source_url": "https://www.letgo.com/item/200011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "973f2670-7ae7-4c40-b119-7d4d8ad6e2a3",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 takaslı",
+      "external_listing_id": "letgo-1785159059539-10",
+      "source_url": "https://www.letgo.com/item/200010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "09efea84-f45a-498d-b8ed-bca5de81b31f",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159059539-9",
+      "source_url": "https://www.letgo.com/item/200009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "62c4fa1c-2f21-4e5b-8dfb-a057679ba637",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED kutulu",
+      "external_listing_id": "letgo-1785159059539-8",
+      "source_url": "https://www.letgo.com/item/200008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "a1d22ede-e93e-4d4d-b730-7d63cef5e12d",
+      "provider": "letgo",
+      "title": "Nintendo Switch temiz",
+      "external_listing_id": "letgo-1785159059539-7",
+      "source_url": "https://www.letgo.com/item/200007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "c90ed548-e154-4650-8466-05bcee0eea38",
+      "provider": "letgo",
+      "title": "Xbox Series S acil satılık",
+      "external_listing_id": "letgo-1785159059539-6",
+      "source_url": "https://www.letgo.com/item/200006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "9aab25c2-e540-4135-8a6b-4e7faefd7f29",
+      "provider": "letgo",
+      "title": "Xbox Series X pazarlık",
+      "external_listing_id": "letgo-1785159059539-5",
+      "source_url": "https://www.letgo.com/item/200005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "55fbc746-8a4d-4263-ab39-53f18da53afd",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro takaslı",
+      "external_listing_id": "letgo-1785159059539-4",
+      "source_url": "https://www.letgo.com/item/200004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "98610656-da45-4591-8e45-9618508105a7",
+      "provider": "letgo",
+      "title": "PlayStation 4 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159059539-3",
+      "source_url": "https://www.letgo.com/item/200003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "62baa088-8c79-4cbc-80fd-e45ccb23c47e",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro kutulu",
+      "external_listing_id": "letgo-1785159059539-2",
+      "source_url": "https://www.letgo.com/item/200002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "a1a80039-d434-4a1e-817d-0574a1173708",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim temiz",
+      "external_listing_id": "letgo-1785159059539-1",
+      "source_url": "https://www.letgo.com/item/200001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "f9fe088a-b579-40ba-9219-1310248362c5",
+      "provider": "letgo",
+      "title": "PlayStation 5 acil satılık",
+      "external_listing_id": "letgo-1785159059538-0",
+      "source_url": "https://www.letgo.com/item/200000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "d94a3b6f-117d-453d-a142-950aa809c1ca",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra kutusuz",
+      "external_listing_id": "sahibinden-1785159046736-23",
+      "source_url": "https://www.sahibinden.com/il/100023",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "abad68e4-4744-4eaa-816d-213e18be9c1d",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED az kullanılmış",
+      "external_listing_id": "sahibinden-1785159046736-22",
+      "source_url": "https://www.sahibinden.com/il/100022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "a106e59b-4a59-4a5d-85fc-ff2fc555e93c",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch garantili",
+      "external_listing_id": "sahibinden-1785159046736-21",
+      "source_url": "https://www.sahibinden.com/il/100021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "4036be71-86c3-4885-a78f-42e066a2baa0",
+      "provider": "sahibinden",
+      "title": "Xbox Series S faturalı",
+      "external_listing_id": "sahibinden-1785159046736-20",
+      "source_url": "https://www.sahibinden.com/il/100020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "fa6a7f0c-2be3-4e0f-8910-20f32207f7cf",
+      "provider": "sahibinden",
+      "title": "Xbox Series X sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159046736-19",
+      "source_url": "https://www.sahibinden.com/il/100019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "fafb4692-bd24-4a12-aa44-5186426c151a",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159046736-18",
+      "source_url": "https://www.sahibinden.com/il/100018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "b368e7c0-9e9c-4093-81cc-0e03bdec17ce",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159046736-17",
+      "source_url": "https://www.sahibinden.com/il/100017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "fb0e135a-26f9-484e-a8b9-9cfd4b839b67",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro 1 kol",
+      "external_listing_id": "sahibinden-1785159046736-16",
+      "source_url": "https://www.sahibinden.com/il/100016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "33782902-8225-4bc4-aa94-60fdfba903c0",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim kutusuz",
+      "external_listing_id": "sahibinden-1785159046736-15",
+      "source_url": "https://www.sahibinden.com/il/100015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "7ac262d9-14c3-436a-be48-20c305c122ea",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 az kullanılmış",
+      "external_listing_id": "sahibinden-1785159046736-14",
+      "source_url": "https://www.sahibinden.com/il/100014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "145005aa-0770-46fc-8ab4-3e179bceb06c",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra faturalı",
+      "external_listing_id": "sahibinden-1785159046736-12",
+      "source_url": "https://www.sahibinden.com/il/100012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "1c067b64-9a9c-41be-b06a-1c8aa1e45bcc",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159046736-11",
+      "source_url": "https://www.sahibinden.com/il/100011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "c1d0602f-4869-432d-b31a-bcd67d0066ec",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159046736-10",
+      "source_url": "https://www.sahibinden.com/il/100010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "d1797175-aad8-41d7-a862-d3dbbc65d979",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159046736-9",
+      "source_url": "https://www.sahibinden.com/il/100009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "e3ec7d2b-420b-4986-8d99-6b5fee01ed99",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED 1 kol",
+      "external_listing_id": "sahibinden-1785159046736-8",
+      "source_url": "https://www.sahibinden.com/il/100008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "1e8e00df-0163-489a-9abd-8f60ec933a32",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch kutusuz",
+      "external_listing_id": "sahibinden-1785159046736-7",
+      "source_url": "https://www.sahibinden.com/il/100007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "fadeac09-6054-4fe3-b669-e42977702d51",
+      "provider": "sahibinden",
+      "title": "Xbox Series S az kullanılmış",
+      "external_listing_id": "sahibinden-1785159046736-6",
+      "source_url": "https://www.sahibinden.com/il/100006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "4ccac9f8-5648-4da7-a925-d9cbe87e550a",
+      "provider": "sahibinden",
+      "title": "Xbox Series X garantili",
+      "external_listing_id": "sahibinden-1785159046736-5",
+      "source_url": "https://www.sahibinden.com/il/100005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "9feb97ec-a967-43f8-907e-8d5febb81c4d",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro faturalı",
+      "external_listing_id": "sahibinden-1785159046736-4",
+      "source_url": "https://www.sahibinden.com/il/100004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "4ddce286-da90-4a7d-8ffc-63ab88cfed10",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159046736-3",
+      "source_url": "https://www.sahibinden.com/il/100003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "3b9de32d-4fd4-4e45-9d33-801c1cee3466",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159046736-2",
+      "source_url": "https://www.sahibinden.com/il/100002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "e1a9b8d3-1a27-42a3-9ab3-ebd3d13efbf2",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159046736-1",
+      "source_url": "https://www.sahibinden.com/il/100001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "92ba1a44-597a-441a-837d-69a0084a160c",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 1 kol",
+      "external_listing_id": "sahibinden-1785159046736-0",
+      "source_url": "https://www.sahibinden.com/il/100000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": true
+    },
+    {
+      "id": "31e19496-f229-4550-9ad2-fbf1f6489b48",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra faturalı",
+      "external_listing_id": "dolap-1785159024466-11",
+      "source_url": "https://www.dolap.com/item/300011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d6e65880-d5ac-4ef6-ac60-d6ffe87e5c8c",
+      "provider": "dolap",
+      "title": "Xbox Series X sıfır ayarında",
+      "external_listing_id": "dolap-1785159024466-10",
+      "source_url": "https://www.dolap.com/item/300010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "72309516-8cf1-4b39-aae8-4ae7f6dd2dc7",
+      "provider": "dolap",
+      "title": "PlayStation 5 2 ay kullanıldı",
+      "external_listing_id": "dolap-1785159024466-9",
+      "source_url": "https://www.dolap.com/item/300009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "dbddc5f1-837e-44e7-bba9-3405fb4f4539",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra garantili",
+      "external_listing_id": "dolap-1785159024466-8",
+      "source_url": "https://www.dolap.com/item/300008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2d284df2-9149-42ed-a199-fe43ab71c8e6",
+      "provider": "dolap",
+      "title": "Xbox Series X mükemmel durumda",
+      "external_listing_id": "dolap-1785159024466-7",
+      "source_url": "https://www.dolap.com/item/300007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a3d8ace0-ca68-4273-b5aa-6383a87f2ed3",
+      "provider": "dolap",
+      "title": "PlayStation 5 kutulu",
+      "external_listing_id": "dolap-1785159024466-6",
+      "source_url": "https://www.dolap.com/item/300006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1223ebbb-8586-4803-b158-bd04846e8ba3",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra faturalı",
+      "external_listing_id": "dolap-1785159024466-5",
+      "source_url": "https://www.dolap.com/item/300005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "22d032fd-b8ca-4acf-aad1-6a27bad44a44",
+      "provider": "dolap",
+      "title": "Xbox Series X sıfır ayarında",
+      "external_listing_id": "dolap-1785159024466-4",
+      "source_url": "https://www.dolap.com/item/300004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f77d8de1-cde0-4f7f-82a1-f2e6a90d1da5",
+      "provider": "dolap",
+      "title": "PlayStation 5 2 ay kullanıldı",
+      "external_listing_id": "dolap-1785159024466-3",
+      "source_url": "https://www.dolap.com/item/300003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "bf10f8dc-24b9-4764-af10-e7169ebadd0c",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra garantili",
+      "external_listing_id": "dolap-1785159024466-2",
+      "source_url": "https://www.dolap.com/item/300002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2adf1bb7-3451-4de3-a091-0a3d78383e07",
+      "provider": "dolap",
+      "title": "Xbox Series X mükemmel durumda",
+      "external_listing_id": "dolap-1785159024466-1",
+      "source_url": "https://www.dolap.com/item/300001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cc0e914a-2379-4ed3-84be-db8a00cef08d",
+      "provider": "dolap",
+      "title": "PlayStation 5 kutulu",
+      "external_listing_id": "dolap-1785159024466-0",
+      "source_url": "https://www.dolap.com/item/300000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9f087f01-323a-427a-a25a-5ab0b5be1e38",
+      "provider": "letgo",
+      "title": "Xbox Series X temiz",
+      "external_listing_id": "letgo-1785159014948-19",
+      "source_url": "https://www.letgo.com/item/200019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3bb5ef53-a0f1-4ca8-9b97-f99c14d0dec2",
+      "provider": "letgo",
+      "title": "PlayStation 5 acil satılık",
+      "external_listing_id": "letgo-1785159014948-18",
+      "source_url": "https://www.letgo.com/item/200018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ed50234b-74ce-4120-8077-477b1be94a38",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra pazarlık",
+      "external_listing_id": "letgo-1785159014948-17",
+      "source_url": "https://www.letgo.com/item/200017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "938f7f8a-3f5e-4848-b62f-e58ba632c484",
+      "provider": "letgo",
+      "title": "Xbox Series X takaslı",
+      "external_listing_id": "letgo-1785159014948-16",
+      "source_url": "https://www.letgo.com/item/200016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8ab01669-e72c-40e5-864d-939ae97b2f67",
+      "provider": "letgo",
+      "title": "PlayStation 5 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159014948-15",
+      "source_url": "https://www.letgo.com/item/200015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9240ffd2-970c-44b7-8722-0acacecdd908",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra kutulu",
+      "external_listing_id": "letgo-1785159014948-14",
+      "source_url": "https://www.letgo.com/item/200014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "248ea665-66ae-452c-a72d-711025056f61",
+      "provider": "letgo",
+      "title": "Xbox Series X temiz",
+      "external_listing_id": "letgo-1785159014948-13",
+      "source_url": "https://www.letgo.com/item/200013",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "175f5500-26a0-4b2d-af7a-865f1ee21e07",
+      "provider": "letgo",
+      "title": "PlayStation 5 acil satılık",
+      "external_listing_id": "letgo-1785159014948-12",
+      "source_url": "https://www.letgo.com/item/200012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "dacf1ea0-4a29-4185-8833-8ff48d081496",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra pazarlık",
+      "external_listing_id": "letgo-1785159014948-11",
+      "source_url": "https://www.letgo.com/item/200011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1783d941-6814-43f0-9bd3-18298a1464ed",
+      "provider": "letgo",
+      "title": "Xbox Series X takaslı",
+      "external_listing_id": "letgo-1785159014948-10",
+      "source_url": "https://www.letgo.com/item/200010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "60d82ca8-498f-4d13-96c9-03a1f5398df3",
+      "provider": "letgo",
+      "title": "PlayStation 5 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159014948-9",
+      "source_url": "https://www.letgo.com/item/200009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ee16792d-7d3c-43f9-a0cc-704b0520dcf4",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra kutulu",
+      "external_listing_id": "letgo-1785159014948-8",
+      "source_url": "https://www.letgo.com/item/200008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "60b24e25-da29-45f6-bdf8-28e3a949090d",
+      "provider": "letgo",
+      "title": "Xbox Series X temiz",
+      "external_listing_id": "letgo-1785159014948-7",
+      "source_url": "https://www.letgo.com/item/200007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "74b2035a-7983-4fea-be96-f8568a3bd6fe",
+      "provider": "letgo",
+      "title": "PlayStation 5 acil satılık",
+      "external_listing_id": "letgo-1785159014948-6",
+      "source_url": "https://www.letgo.com/item/200006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "df89c0b1-fc0d-4fdd-b406-63bdf3faa1d2",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra pazarlık",
+      "external_listing_id": "letgo-1785159014948-5",
+      "source_url": "https://www.letgo.com/item/200005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6f0bd812-a5a6-4d72-b8b2-167d9c0d5407",
+      "provider": "letgo",
+      "title": "Xbox Series X takaslı",
+      "external_listing_id": "letgo-1785159014948-4",
+      "source_url": "https://www.letgo.com/item/200004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a5253288-d07c-410f-9b0e-89718afe77ee",
+      "provider": "letgo",
+      "title": "PlayStation 5 5 Ay Kullanıldı",
+      "external_listing_id": "letgo-1785159014948-3",
+      "source_url": "https://www.letgo.com/item/200003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c950dbc6-f793-4fef-8955-0372319aaf8f",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra kutulu",
+      "external_listing_id": "letgo-1785159014948-2",
+      "source_url": "https://www.letgo.com/item/200002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6a70b24b-a44a-48d2-9f5a-fe8e2583a581",
+      "provider": "letgo",
+      "title": "Xbox Series X temiz",
+      "external_listing_id": "letgo-1785159014948-1",
+      "source_url": "https://www.letgo.com/item/200001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "21e42d68-512a-4c91-834f-72c1ab6a9906",
+      "provider": "letgo",
+      "title": "PlayStation 5 acil satılık",
+      "external_listing_id": "letgo-1785159014948-0",
+      "source_url": "https://www.letgo.com/item/200000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b5a95f3d-b834-4254-95ad-eb453cfb9d0e",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 1 kol",
+      "external_listing_id": "sahibinden-1785159000637-24",
+      "source_url": "https://www.sahibinden.com/il/100024",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "877b295f-be0a-43ca-a757-fdfaa33dbd7e",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra kutusuz",
+      "external_listing_id": "sahibinden-1785159000637-23",
+      "source_url": "https://www.sahibinden.com/il/100023",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "349ac7ae-0faf-4fbd-99d8-cad195161082",
+      "provider": "sahibinden",
+      "title": "Xbox Series X az kullanılmış",
+      "external_listing_id": "sahibinden-1785159000637-22",
+      "source_url": "https://www.sahibinden.com/il/100022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3beba380-3ae2-4905-9d99-219e87505d2b",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 garantili",
+      "external_listing_id": "sahibinden-1785159000637-21",
+      "source_url": "https://www.sahibinden.com/il/100021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ff82aaac-f730-4003-9460-c64aae794cbd",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra faturalı",
+      "external_listing_id": "sahibinden-1785159000637-20",
+      "source_url": "https://www.sahibinden.com/il/100020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6796cd84-453d-4202-9d7f-0fe3b6296a81",
+      "provider": "sahibinden",
+      "title": "Xbox Series X sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159000637-19",
+      "source_url": "https://www.sahibinden.com/il/100019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "277aee86-fd61-44b4-ba98-81757695670a",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159000637-18",
+      "source_url": "https://www.sahibinden.com/il/100018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d5306928-f9f9-4e26-ac0e-9436e60585a9",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159000637-17",
+      "source_url": "https://www.sahibinden.com/il/100017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "883aea68-eaa8-4a3c-b98d-16ef36beddb4",
+      "provider": "sahibinden",
+      "title": "Xbox Series X 1 kol",
+      "external_listing_id": "sahibinden-1785159000637-16",
+      "source_url": "https://www.sahibinden.com/il/100016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9beafc2d-d97e-4754-8e47-a7936fabf66c",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 kutusuz",
+      "external_listing_id": "sahibinden-1785159000637-15",
+      "source_url": "https://www.sahibinden.com/il/100015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3e07f282-b165-4923-9d1e-e7a7572c459a",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra az kullanılmış",
+      "external_listing_id": "sahibinden-1785159000637-14",
+      "source_url": "https://www.sahibinden.com/il/100014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "895d2c69-b244-4a7f-9ebb-0ef33da21a85",
+      "provider": "sahibinden",
+      "title": "Xbox Series X garantili",
+      "external_listing_id": "sahibinden-1785159000637-13",
+      "source_url": "https://www.sahibinden.com/il/100013",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "72602dd2-9cf4-44eb-939c-9f75ce9cf1ce",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 faturalı",
+      "external_listing_id": "sahibinden-1785159000636-12",
+      "source_url": "https://www.sahibinden.com/il/100012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "66c89b54-53af-4f9b-a6b4-a4a9fd8bc352",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159000636-11",
+      "source_url": "https://www.sahibinden.com/il/100011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "99b2c141-1aaa-4743-9aa3-275a0b1d60cf",
+      "provider": "sahibinden",
+      "title": "Xbox Series X kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159000636-10",
+      "source_url": "https://www.sahibinden.com/il/100010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ea2ad7e6-6f01-4566-bc1c-58f2df999f95",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159000636-9",
+      "source_url": "https://www.sahibinden.com/il/100009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "acaaadf9-8d09-4e13-9a22-a4a59f808339",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 1 kol",
+      "external_listing_id": "sahibinden-1785159000636-8",
+      "source_url": "https://www.sahibinden.com/il/100008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "fe06ab3f-ad65-46b0-9675-3d1adde2fa65",
+      "provider": "sahibinden",
+      "title": "Xbox Series X kutusuz",
+      "external_listing_id": "sahibinden-1785159000636-7",
+      "source_url": "https://www.sahibinden.com/il/100007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "12e8c858-537e-4940-b2c8-a3650310b305",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 az kullanılmış",
+      "external_listing_id": "sahibinden-1785159000636-6",
+      "source_url": "https://www.sahibinden.com/il/100006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a98e9616-c995-49c3-8126-168b1582bdd5",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra garantili",
+      "external_listing_id": "sahibinden-1785159000636-5",
+      "source_url": "https://www.sahibinden.com/il/100005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "275991bd-577d-470e-a6a0-f9613c0c7b81",
+      "provider": "sahibinden",
+      "title": "Xbox Series X faturalı",
+      "external_listing_id": "sahibinden-1785159000636-4",
+      "source_url": "https://www.sahibinden.com/il/100004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "54ca78f2-d877-4559-884d-a9452e981d50",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 sıfır ayarında",
+      "external_listing_id": "sahibinden-1785159000636-3",
+      "source_url": "https://www.sahibinden.com/il/100003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "aec89216-008e-454c-aeeb-6a6753ad6cc6",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra kutulu + kablolu",
+      "external_listing_id": "sahibinden-1785159000636-2",
+      "source_url": "https://www.sahibinden.com/il/100002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7f8a59d8-db30-45f0-9210-9138e0772242",
+      "provider": "sahibinden",
+      "title": "Xbox Series X 2 kol + kutu",
+      "external_listing_id": "sahibinden-1785159000635-1",
+      "source_url": "https://www.sahibinden.com/il/100001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8af9d8aa-0760-4e09-a56e-2e0eee74f76a",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 1 kol",
+      "external_listing_id": "sahibinden-1785159000634-0",
+      "source_url": "https://www.sahibinden.com/il/100000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "dab6fd6c-fc6c-4832-9ead-e2973a849ad2",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim - mint condition",
+      "external_listing_id": "dolap-ext-fa010f63-b873-47f0-9e8c-cc0eb9f647d0",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "05e652a5-c6fe-4319-bdef-6c040f15f1e8",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro - mint condition",
+      "external_listing_id": "dolap-ext-2844efad-28e6-4f33-af0e-6395dee86e12",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b762a33d-9b39-40c5-ba5d-b4104e85f0fb",
+      "provider": "dolap",
+      "title": "PlayStation 4 - mint condition",
+      "external_listing_id": "dolap-ext-deb9e6cd-293b-4fbb-ac79-70a409a960de",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "56ae9558-067a-49bb-82ce-48dd0eb9ce42",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro - mint condition",
+      "external_listing_id": "dolap-ext-63ada58c-bfcb-40ef-b4ea-205f8e206401",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a7717e01-69ca-4a4d-82fd-074cefb22bb8",
+      "provider": "dolap",
+      "title": "Xbox Series X - mint condition",
+      "external_listing_id": "dolap-ext-d90feb75-ca1f-49d8-99a4-64dfb93cc40f",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "06915a6a-3931-49f2-8714-4fcd5b11b88b",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra - 1 controller",
+      "external_listing_id": "letgo-ext-8cb3cda7-45f8-4177-bddc-456654319858",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "fb419fde-63c8-41dc-b4a0-c4a7b0d1f1d2",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 - 1 controller",
+      "external_listing_id": "letgo-ext-83293fae-2ad5-4da5-9608-fa8319cb064f",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5237bb83-8317-4a8d-9dbd-a3e79178b59b",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra - 1 controller",
+      "external_listing_id": "letgo-ext-f042b34b-515e-4358-ba1d-181e74f7c8d1",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "97630873-1c57-4f6f-a030-d61d3abca09b",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 - 1 controller",
+      "external_listing_id": "letgo-ext-5ce247e5-1e3f-4fc0-974b-22052f4cc781",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7296e38b-8ca0-4320-a03d-b5411064c2c1",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED - 1 controller",
+      "external_listing_id": "letgo-ext-c21b4b3b-f7b5-4bcb-af2a-0a75fa317b8c",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6191ed1b-0c72-48ff-a015-0acc60dca54c",
+      "provider": "letgo",
+      "title": "Nintendo Switch - mint condition",
+      "external_listing_id": "letgo-ext-c47bc9f9-ef7d-4377-9a2f-f41f6d9ac8fe",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c2f4e105-e099-4cfe-aa62-036bad431879",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED - mint condition",
+      "external_listing_id": "letgo-ext-f9b56d95-13ce-49fa-8d70-928025416055",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3198e8de-4d9c-4446-afe5-75fd267d0873",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 - mint condition",
+      "external_listing_id": "letgo-ext-b92eb5c7-925f-4ef3-ba00-17ae5b24485f",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "41eeca07-3c4e-4771-a6bc-0319528912b9",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra - mint condition",
+      "external_listing_id": "letgo-ext-720769f9-442e-4094-938b-3dae464ff7d2",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "bb65cf47-dcaf-4b2a-a0b1-04a81fa61254",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 - mint condition",
+      "external_listing_id": "letgo-ext-9a74b740-b6eb-48c0-9c4f-05212cbf798f",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "46e671ea-dc37-40f9-bc4e-48bea76d4a2d",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra - mint condition",
+      "external_listing_id": "letgo-ext-ddf3c2eb-c742-4753-8ad5-bde62294b65e",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ed8d4d13-6e8f-4d06-b6a0-f3254b3595b3",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch 8 - mint condition",
+      "external_listing_id": "letgo-ext-2751153b-199b-482d-bbf3-5ff611d5a1b1",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d3456dd6-9cea-4aa8-88ba-c3e904b0ac6d",
+      "provider": "dolap",
+      "title": "Nintendo Switch - mint condition",
+      "external_listing_id": "dolap-ext-5dcc5cde-97f2-4aee-96d6-f7caafbe1f4e",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "95be7b8f-d812-4196-8185-0beae39e847c",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED - mint condition",
+      "external_listing_id": "dolap-ext-4cc1f084-8a03-4407-a6c3-d69b4ae98dde",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d11a815d-ca00-4261-92e2-b153c945d4a5",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 - mint condition",
+      "external_listing_id": "dolap-ext-c3ebaffd-1468-4241-9014-3174bb327ec2",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "4dd6046f-fbe5-4b42-b15f-da79bc8e2f14",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra - mint condition",
+      "external_listing_id": "dolap-ext-625ee2aa-fdd9-4960-9773-78a6088893a9",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a76039c3-a137-4356-8e4c-822342c28446",
+      "provider": "dolap",
+      "title": "Apple Watch Series 10 - mint condition",
+      "external_listing_id": "dolap-ext-6c548a5d-2a80-4253-be6e-471aa8cb748e",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c974fe96-ac3f-4cc4-980b-94957ce45451",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch Ultra - mint condition",
+      "external_listing_id": "dolap-ext-12fc9b70-67fe-41e3-bbdc-6f8f2cb1bd59",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "08d463a4-3fe3-400a-9f03-f236c3602822",
+      "provider": "letgo",
+      "title": "Nintendo Switch - 1 controller",
+      "external_listing_id": "letgo-ext-0a2f2681-7ebc-4b61-9b6e-cefa8f600a55",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "599a79ec-f03c-45c7-a5fb-790ae286b55c",
+      "provider": "letgo",
+      "title": "Xbox Series S - 1 controller",
+      "external_listing_id": "letgo-ext-15a8e4a7-ae22-48cc-b031-99a03edb880d",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c37cc585-a1cf-4a57-99f9-19c975cf1a3e",
+      "provider": "letgo",
+      "title": "PlayStation 5 - used - good",
+      "external_listing_id": "letgo-ext-671e5ce4-8203-4d99-8390-ee1e2a2e48b9",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1e19ecc3-03e5-4ea6-812a-eddba931cad7",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim - used - good",
+      "external_listing_id": "letgo-ext-f80cfabb-d3bc-42e5-99ba-9db30adbdb89",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "94be7435-1ef4-457e-a427-5239dfdcd495",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro - used - good",
+      "external_listing_id": "letgo-ext-5abc3c9d-7ba2-4b00-9387-f3306928d365",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "4d8b68c5-74cb-473c-8ea6-064a6c798c03",
+      "provider": "letgo",
+      "title": "PlayStation 4 - used - good",
+      "external_listing_id": "letgo-ext-d144e9a6-b310-4f73-9cab-940f586a5974",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f3068f7e-3c8d-4287-989d-3d8ba762d39c",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro - used - good",
+      "external_listing_id": "letgo-ext-d402c393-c4bf-497c-a18e-f95752b6551c",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d433e98c-8abb-4f9c-8d59-650ba3448a6f",
+      "provider": "letgo",
+      "title": "Xbox Series X - used - good",
+      "external_listing_id": "letgo-ext-78fb9218-32e3-4b36-b259-74e80f05ea31",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "0cfb63f1-d947-4e1f-89a5-6a1b6e283401",
+      "provider": "letgo",
+      "title": "Xbox Series S - used - good",
+      "external_listing_id": "letgo-ext-6e9fdc62-5fd8-4219-8ab9-21a465f50ded",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a44a1811-145e-4161-a5fe-9558144edcaa",
+      "provider": "letgo",
+      "title": "Nintendo Switch - used - good",
+      "external_listing_id": "letgo-ext-9917c601-c677-4853-9186-304a9c31074b",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e42674ec-5406-414e-a288-93982cea407f",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED - used - good",
+      "external_listing_id": "letgo-ext-1cc7b6f8-9397-47c8-acc1-e6e1c6be2449",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7653640b-a4fe-4c5d-ba06-d245cfa3d2b4",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch 8 - mint condition",
+      "external_listing_id": "dolap-ext-63cca69f-3655-4dd1-8885-a04fceab0d70",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c1f067fc-8ef6-46b8-8210-afcfc5125a5b",
+      "provider": "dolap",
+      "title": "PlayStation 5 - used - good",
+      "external_listing_id": "dolap-ext-85cc9c00-6b76-4d6b-b270-368439b8d37c",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "125adc60-3103-482f-9cb2-60e8d215c63f",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim - used - good",
+      "external_listing_id": "dolap-ext-6ccd9e13-901d-4cb6-aa9b-814b56f81694",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8ef054c9-73ec-4014-bed7-e05e0274c793",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro - used - good",
+      "external_listing_id": "dolap-ext-b89e3457-83f7-4d19-bc5a-ea877d856533",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2d202447-f5d2-4fff-9978-85ba9f1184ff",
+      "provider": "dolap",
+      "title": "PlayStation 4 - used - good",
+      "external_listing_id": "dolap-ext-fccefd73-90c4-4dd3-bd4c-9e81deba9cd6",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1bfc87a8-4b8f-414f-9c54-86ceb31406fb",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro - used - good",
+      "external_listing_id": "dolap-ext-551a4daf-d209-46a3-b06f-8ec3c55910c0",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "328e6c88-adad-469c-bd47-ddb5dd56a284",
+      "provider": "dolap",
+      "title": "Xbox Series X - used - good",
+      "external_listing_id": "dolap-ext-f12f7170-e687-40a3-84e9-8f78a10b9f85",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f738f707-fc49-449e-9e22-e9ec4a481f35",
+      "provider": "dolap",
+      "title": "Xbox Series S - used - good",
+      "external_listing_id": "dolap-ext-2bec97aa-aa10-4e28-8afc-1a553cc8e34e",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "75a53be1-6fc6-4261-b4ea-1fba09a403c8",
+      "provider": "letgo",
+      "title": "Xbox Series X - 1 controller",
+      "external_listing_id": "letgo-ext-5f315953-b388-4ec2-b4b8-ec843e5cd4e9",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "49ae3c81-b7de-47d3-bfbe-1843d5058edf",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 - used - good",
+      "external_listing_id": "letgo-ext-4f3923c1-71e6-471e-adbc-a5d2efcf78d5",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "93fa0ce0-4ef2-478c-8e84-b9149058a61d",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra - used - good",
+      "external_listing_id": "letgo-ext-43941512-d439-4461-94f8-752c5d6d07d8",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8e060680-20a4-425c-aa66-dd2af2ace294",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 - used - good",
+      "external_listing_id": "letgo-ext-d9dc9418-dcd1-4982-b797-dc6f7828993d",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "483ae933-2cd7-4d79-a472-7ae5bb80e89b",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra - used - good",
+      "external_listing_id": "letgo-ext-83685b98-d329-43c7-a96b-1bab9f2f34ba",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "52d92297-8d11-4967-a061-c7bc597db2c8",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 - used - good",
+      "external_listing_id": "dolap-ext-bf2de34b-84e9-49ed-a7bd-685eb9430867",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1d00e6f2-741e-4ad5-9375-6f659a840947",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra - used - good",
+      "external_listing_id": "dolap-ext-a4482478-3a43-4684-850b-c6822341316b",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "bfe4020a-a8a9-4869-9815-23885733158b",
+      "provider": "dolap",
+      "title": "Apple Watch Series 10 - used - good",
+      "external_listing_id": "dolap-ext-48c5eb87-de00-4a53-b557-07ec5f63a64c",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d864dd9f-dddb-48f1-8c5c-df78de0ec1c8",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch Ultra - used - good",
+      "external_listing_id": "dolap-ext-619ec741-193f-40d0-81b6-dce5048b6d32",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "4a2961c6-ea70-4203-b7c6-c77fe893b6c1",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch 8 - used - good",
+      "external_listing_id": "dolap-ext-43954f19-ae19-4091-8342-b1385d747b6c",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d53470fa-36bd-4aed-9078-3b0921a64098",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro - 1 controller",
+      "external_listing_id": "letgo-ext-b6172ed1-62dd-4b4b-930c-de3726d8b7d7",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9ae711c6-499a-4576-882c-7c760f9ad0fa",
+      "provider": "letgo",
+      "title": "PlayStation 4 - 1 controller",
+      "external_listing_id": "letgo-ext-8ab067df-6cf4-49c9-8087-f2ec73ecfa62",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c07ecb1b-8407-4ba1-add8-bd13ea68b615",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro - 1 controller",
+      "external_listing_id": "letgo-ext-a829e915-5c18-4bec-b4da-39524b23b1a2",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f3e5d33a-bb66-4496-ab5b-95e13ec87ca6",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim - 1 controller",
+      "external_listing_id": "letgo-ext-7cfeae28-25ed-44d6-9af9-5ea5ed7d1bcc",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "0726d7ad-4d2b-4417-aefb-b5c3c67ce343",
+      "provider": "letgo",
+      "title": "PlayStation 5 - 1 controller",
+      "external_listing_id": "letgo-ext-085ca75b-4c3f-445c-9459-1a3ee2a482fc",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c1867ed8-ba41-4a9f-bb0c-760ff8b10f34",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 - mint condition",
+      "external_listing_id": "sahibinden-ext-ed3c0815-6e5d-4571-b1d4-df656eb0db0e",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c416a1c5-c1ec-415d-a31e-61f5ebb18619",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro - 2 controllers + box",
+      "external_listing_id": "letgo-ext-ec287672-3c86-41c6-9ab9-f9a5dbeeaf25",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9113b083-b43b-45ce-bd31-0542e1d4a7ed",
+      "provider": "letgo",
+      "title": "PlayStation 4 - 2 controllers + box",
+      "external_listing_id": "letgo-ext-769857c9-c46c-426b-9432-d5ae2e884170",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cfef18c3-f454-4675-990c-4a0b24234c87",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro - 2 controllers + box",
+      "external_listing_id": "letgo-ext-ae6ec1f6-0f7d-4b3b-8a2b-673d2725f8f0",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "898025d1-9e1c-4915-851f-d7b442243db3",
+      "provider": "letgo",
+      "title": "Xbox Series X - 2 controllers + box",
+      "external_listing_id": "letgo-ext-4ed30507-729f-4c43-9363-9ff94fa8c0b0",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d8483581-756c-465b-9edc-dbea7170522b",
+      "provider": "letgo",
+      "title": "Xbox Series S - 2 controllers + box",
+      "external_listing_id": "letgo-ext-4acbb390-2f66-4b0b-82ce-79722345459a",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a90bf5bf-0d89-4cd9-a751-44dc269b1552",
+      "provider": "dolap",
+      "title": "PlayStation 5 - 2 controllers + box",
+      "external_listing_id": "dolap-ext-23202152-ae08-49c8-b821-c591624a0fd4",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b4d8f9f0-5f90-42b1-bb00-0a6f2da27c08",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim - 2 controllers + box",
+      "external_listing_id": "dolap-ext-9ca9381f-edfa-49d7-b52f-04e6278014e7",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f1c91e29-dee5-4b56-a329-e9834a8d31cc",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro - 2 controllers + box",
+      "external_listing_id": "dolap-ext-7746967e-7829-4cab-97ef-e6ef99ff8a6c",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f497efe9-b6cd-420e-a8d0-cc69d67a32a4",
+      "provider": "dolap",
+      "title": "PlayStation 4 - 2 controllers + box",
+      "external_listing_id": "dolap-ext-38c3ecfc-72fe-4734-b13a-38519af61848",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a634c3b0-53f9-494d-b947-b8d30957faa5",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro - 2 controllers + box",
+      "external_listing_id": "dolap-ext-d473c685-d6c9-4e60-bfb1-c2e1935c26b7",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3721a7d5-7471-473c-b1f5-aec25eede379",
+      "provider": "dolap",
+      "title": "Xbox Series X - 2 controllers + box",
+      "external_listing_id": "dolap-ext-db650bd8-a0f0-4a7c-b12f-2525545f03b6",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8de9b537-3899-4fe6-a1ac-679eabf9e6fe",
+      "provider": "dolap",
+      "title": "Xbox Series S - 2 controllers + box",
+      "external_listing_id": "dolap-ext-31df850f-e53d-460d-8537-ae6037eaa134",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "345c9d45-1d82-44fc-bb49-407bace2e5da",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch 8 - 1 controller",
+      "external_listing_id": "dolap-ext-e9c74beb-f154-4888-875d-baf52cbfd5d8",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "81be9bf2-aa59-4943-8916-0e32178bff6d",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch Ultra - 1 controller",
+      "external_listing_id": "dolap-ext-0509b42f-a096-4453-bb3a-79ae39b876f5",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9663fdd4-ece1-41e6-b091-074fd45f8242",
+      "provider": "dolap",
+      "title": "Apple Watch Series 10 - 1 controller",
+      "external_listing_id": "dolap-ext-6087f8ff-6eb2-4d76-b955-456a5d4b704a",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ced2d958-98f9-46f5-aad6-a568498be279",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra - 1 controller",
+      "external_listing_id": "dolap-ext-84007f00-25f6-4fe3-a1f3-b292e3caf427",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "44d5ec09-2b78-4dcc-ad75-f47dba9ad020",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 - 1 controller",
+      "external_listing_id": "dolap-ext-5143f4c1-deaa-4c9b-aee1-0b9018f60d6f",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f1b61a10-dabf-4dcc-ac53-646270c09d14",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED - 1 controller",
+      "external_listing_id": "dolap-ext-d93b5d0c-034b-4fba-8717-dafb9c4ed3ea",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f2b81b33-8109-4a3a-91f3-190fd5d8a72b",
+      "provider": "letgo",
+      "title": "Nintendo Switch - 2 controllers + box",
+      "external_listing_id": "letgo-ext-50d3ba16-ac9f-48a5-9458-47cfbb0c5ab1",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9376ee62-87b3-4365-8abb-21aa176465bb",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED - 2 controllers + box",
+      "external_listing_id": "letgo-ext-f3efabf7-2bca-4af7-8ed4-05aba5c902e2",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "481d12ca-0cc2-40fe-9c54-61dfc60312e7",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 - 2 controllers + box",
+      "external_listing_id": "letgo-ext-e5638715-5b03-4bd7-9c5e-b37f80c96c86",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9d5d67da-c99f-4791-be1c-3392d245abfa",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra - 2 controllers + box",
+      "external_listing_id": "letgo-ext-696de79d-05ba-4bae-9472-63aedd558cc7",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "609da87b-ba6e-4036-93cb-ac397820c7b8",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 - 2 controllers + box",
+      "external_listing_id": "letgo-ext-42034865-10e6-44da-b9f0-029ce80cbc9b",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3e775ae9-a85a-4433-a035-02b40fb5b8de",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra - 2 controllers + box",
+      "external_listing_id": "letgo-ext-fb78aca8-2068-4d5d-88d9-15d35817beef",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "08ccee43-f631-46f0-accc-fcf89534a53b",
+      "provider": "dolap",
+      "title": "Nintendo Switch - 2 controllers + box",
+      "external_listing_id": "dolap-ext-3f42497a-d946-4b6b-9c63-f0417c94964a",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b95a18bd-155b-47e6-be9a-c250567142bf",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED - 2 controllers + box",
+      "external_listing_id": "dolap-ext-3423f5dd-f8c5-45cf-a791-7743d30dae6e",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3216819f-d4ba-4bc6-96d6-8805005616ef",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 - 2 controllers + box",
+      "external_listing_id": "dolap-ext-4066168c-c151-4f83-9947-7f331635224c",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "382d5028-bf7d-40c1-97a1-3f8634ff2995",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra - 2 controllers + box",
+      "external_listing_id": "dolap-ext-20cfdcb4-a790-4579-b2d1-ae63f55bfbf0",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cfe4257e-39b8-480e-89c3-c0821c474927",
+      "provider": "dolap",
+      "title": "Apple Watch Series 10 - 2 controllers + box",
+      "external_listing_id": "dolap-ext-0b75884c-d811-45bf-bc53-a68782d0b0fd",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "19c09fba-d7c3-43ab-95df-948aa1476ad9",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch Ultra - 2 controllers + box",
+      "external_listing_id": "dolap-ext-c71126cb-4494-4929-b7a4-8818cb281613",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "01e5cc8c-b93b-4d75-9ad3-d481ff0d78f8",
+      "provider": "dolap",
+      "title": "Nintendo Switch - 1 controller",
+      "external_listing_id": "dolap-ext-3501f31c-25a7-4fe0-9fb6-b2898d28bd72",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "92ac27c9-721f-4e57-b535-65bef6b850a7",
+      "provider": "dolap",
+      "title": "Xbox Series S - 1 controller",
+      "external_listing_id": "dolap-ext-6039febb-8e5f-4b07-9f13-af653568ddab",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "4a1cb65f-f277-4f5a-a0f3-6ba47fd783ed",
+      "provider": "dolap",
+      "title": "Xbox Series X - 1 controller",
+      "external_listing_id": "dolap-ext-6b5641ed-6197-41c2-bb8f-b3fee08ef136",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6d9098e1-9b64-43f5-b112-8b9f7313ab2c",
+      "provider": "letgo",
+      "title": "PlayStation 5 - 2 controllers + box",
+      "external_listing_id": "letgo-ext-81d323f9-a960-473e-94d9-b0fc10fe7ed0",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3f5df88f-592a-4073-b458-b92f36ee7e2a",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch 8 - 1 controller",
+      "external_listing_id": "letgo-ext-f293083e-c2ae-4edd-8c98-542d9d17abd4",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d8db8632-d758-4ce4-b874-6e1d4a52e9e4",
+      "provider": "letgo",
+      "title": "PlayStation 5 - mint condition",
+      "external_listing_id": "letgo-ext-6e5a3901-c95b-40d0-be6a-9c7daea4a2db",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1baf603e-6b67-4f33-8cd2-50ca5963a958",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim - mint condition",
+      "external_listing_id": "letgo-ext-a2811c21-68a9-4bed-a0f6-cbeefb263cec",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "de333e9f-4be0-4030-9d50-4416cd35a1f1",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro - mint condition",
+      "external_listing_id": "letgo-ext-d6c6ac9e-e408-43a5-bdda-6404f08da3c8",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c48f0af1-b7ca-4993-98b1-0f5d39573932",
+      "provider": "letgo",
+      "title": "PlayStation 4 - mint condition",
+      "external_listing_id": "letgo-ext-8258e991-daa3-46a2-a17c-e273537b5b78",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e7d753cb-123b-4770-ae6b-703e12422e7d",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro - mint condition",
+      "external_listing_id": "letgo-ext-7dc84e97-8ff8-44d5-a2b2-36ec71aabce5",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "08b65610-2cf4-4d63-b723-46bbb4ca9afc",
+      "provider": "letgo",
+      "title": "Xbox Series X - mint condition",
+      "external_listing_id": "letgo-ext-14496a54-3e9e-48f0-b633-9ab5277da830",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "35374f7a-f223-4706-815e-89d5d14e53dd",
+      "provider": "letgo",
+      "title": "Xbox Series S - mint condition",
+      "external_listing_id": "letgo-ext-e2ee279d-0074-4c14-8135-054bdfead6c6",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6b3edaf9-ccea-4b09-8013-9c26d172aa35",
+      "provider": "dolap",
+      "title": "PlayStation 5 - mint condition",
+      "external_listing_id": "dolap-ext-11ee7626-47b0-4d20-b248-3e3d244988b1",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cb31b7e3-7da7-45e8-a90a-52a84f4320f1",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 - 1 controller",
+      "external_listing_id": "sahibinden-ext-b268a0c9-6d43-49bb-9d31-257bcce652d2",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "816f33f6-c035-4325-915f-dffe692b6376",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim - 1 controller",
+      "external_listing_id": "sahibinden-ext-82a59488-976f-471d-9201-c325e52a5576",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1689cd82-dc40-4d52-a545-69911e21ed98",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro - 1 controller",
+      "external_listing_id": "sahibinden-ext-79696a65-ec28-4eaa-a66d-d2dcae40a92b",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a8eab3a5-08bd-4367-be52-9ed00a3db116",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 - 1 controller",
+      "external_listing_id": "sahibinden-ext-c4fef6fb-5bce-477e-8adb-cadbef7429cd",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6360c0aa-7660-49a1-8b7d-d2fefcba3124",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro - 1 controller",
+      "external_listing_id": "sahibinden-ext-7bc2b8cf-830e-4c9b-894a-88569b2f15ca",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b9d10acc-19d0-40eb-b64f-dab15900c9c5",
+      "provider": "sahibinden",
+      "title": "Xbox Series X - 1 controller",
+      "external_listing_id": "sahibinden-ext-ec3a88b4-d54d-45ab-a15f-a341ddfc747a",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2d3ce1e5-c2b3-42fa-aa41-5c3da1769ab5",
+      "provider": "sahibinden",
+      "title": "Xbox Series S - 1 controller",
+      "external_listing_id": "sahibinden-ext-24b8918b-35b3-4a86-a00d-8dc8ffd36bbd",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e6f2185a-0254-41ab-99ac-90e371b124e6",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch - 1 controller",
+      "external_listing_id": "sahibinden-ext-fbc4fca1-ecc9-4016-bc0c-3c407c0ba917",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c69ac534-2990-49f5-80b7-3a8aa9cc2caa",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED - 1 controller",
+      "external_listing_id": "sahibinden-ext-8a3ecad2-2813-44d1-85f4-bb074a2dddd9",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8b3e3fa4-7cf9-45c4-b3da-247269cc00b5",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 - 1 controller",
+      "external_listing_id": "sahibinden-ext-1557cf24-253b-4b9b-82e5-fb81934733db",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2cadbfcc-f5e7-4296-aa32-41e40b1a0cb7",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra - 1 controller",
+      "external_listing_id": "sahibinden-ext-b77f7d10-de23-4b17-95d2-ee1660dc6eb8",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6b281195-db5e-47f2-aa3c-162203ae2fcd",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 - 1 controller",
+      "external_listing_id": "sahibinden-ext-6a37463c-d40e-4647-a16d-c0ad2250f4f3",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "4ef583d2-2559-4273-81cc-e5210025a9bb",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra - 1 controller",
+      "external_listing_id": "sahibinden-ext-3ccac271-435a-40ab-a8b3-3ffec9d66bbc",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d6fd1589-2517-461f-8327-580ba72e3cbe",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch 8 - 1 controller",
+      "external_listing_id": "sahibinden-ext-49380fa4-3af4-4603-a9dc-fb9b12f5f7c2",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "67b19425-4bbb-4dd0-a495-4b2274ffac5f",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-b6360f70-7d83-477c-a25a-21adbe54cc78",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c5d9989b-6f35-432a-b0ea-0460551ff4fe",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-ff1cb101-2481-42ec-845f-65693869d1cd",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "61c62608-852c-4d96-833b-c064904091fe",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-c9e29ca9-2a41-4359-ad6e-ea40b79a29c8",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d9ceeeb1-b572-4d84-9425-2e3cf9bb16f5",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-b9334945-d939-4ada-89c6-8caf4b5cb034",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "32f1995e-f9c4-41ea-bfc4-162dfb085089",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-8a3c9a2d-99cf-4b35-8b75-62616f732f99",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9334c765-0d78-4ec4-848b-9a2cb3b7f191",
+      "provider": "sahibinden",
+      "title": "Xbox Series X - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-5f40fafd-0391-4f6c-993e-04b38c8787f8",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a97b5b5c-e35f-4f00-8690-9bf5f4022f7c",
+      "provider": "sahibinden",
+      "title": "Xbox Series S - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-0ea8922e-f44e-46d4-8126-6c392b8a1611",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "83556654-e888-4bd2-8d1f-aff7e894ba1b",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-570218eb-2a05-4ae9-a624-48bf5b3fa039",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "34b8cce2-8865-47f3-b54d-467fbf326766",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-d5871c03-63d1-41dc-b96a-7530528e1fa2",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1b5e580c-4e1e-4653-953d-c14bf18bb753",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-28eb63fd-0631-4029-8374-16f9b4a7e38a",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5d27e56d-95db-4c7c-ad27-a1ecf06481ce",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-aa596f8d-7b99-4eb6-b738-827f6737b4c6",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "96e90c14-0bcb-43bd-89ff-6d8010f2fa6e",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-f41997da-9a96-445d-8259-cafd82b42dc9",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "aed573e0-b753-47c3-b990-2fe224fcb341",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-0c48f773-8077-4b7f-86a7-9f068af70aaa",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f509dcb7-5c8b-41e3-ab8b-f058561e69d0",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch 8 - 2 controllers + box",
+      "external_listing_id": "sahibinden-ext-9af330e6-d509-43a0-aa72-cc351909340a",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "da137ae0-79ef-4122-bf52-71963595617d",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 - mint condition",
+      "external_listing_id": "sahibinden-ext-265cbd56-d216-4db9-afbd-36d4b74403db",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "280c1177-925f-41bd-8a38-17b57c8f7b17",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim - mint condition",
+      "external_listing_id": "sahibinden-ext-47d38ca6-234c-42a9-8552-9883a2bc42d4",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "46bf56de-29aa-4374-9d59-b72802547484",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro - mint condition",
+      "external_listing_id": "sahibinden-ext-d902a791-452c-404e-ba2f-ead551d3ac2a",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "321c01a1-e470-47c3-a454-08a911f7802a",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 - mint condition",
+      "external_listing_id": "sahibinden-ext-1deece78-8994-4313-9efc-40fef1ee0779",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d3f5b09e-c597-4a0a-bc01-570e0158f1f5",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro - mint condition",
+      "external_listing_id": "sahibinden-ext-05c0ff73-62cf-4951-bd9c-292835b22dfa",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "590673c6-6ab4-499b-a99b-61407a6154a3",
+      "provider": "sahibinden",
+      "title": "Xbox Series X - mint condition",
+      "external_listing_id": "sahibinden-ext-989853dd-6a34-4ca7-8908-2ff95d437f1a",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d86bce68-3341-4737-a7e0-94530ffb77e0",
+      "provider": "sahibinden",
+      "title": "Xbox Series S - mint condition",
+      "external_listing_id": "sahibinden-ext-44db22ef-d757-4a06-a292-c15facbe31aa",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3034ce3a-1d2d-4c36-a61b-39d15de5f789",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch - mint condition",
+      "external_listing_id": "sahibinden-ext-c27df77f-1016-4739-89b7-c6d1d81b15e0",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "fb8262e5-c480-4273-8ff5-b88df54dd124",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED - mint condition",
+      "external_listing_id": "sahibinden-ext-70cb68b1-bc35-4de8-9871-b8371a984863",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3e1d521c-2b5d-4e76-bfe7-77b2a3ad63cc",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 - mint condition",
+      "external_listing_id": "sahibinden-ext-02ed823a-4458-4635-8f04-4c3c5cd4f598",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "82c3bdb1-aab0-4846-99f9-e20b599ffdce",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra - mint condition",
+      "external_listing_id": "sahibinden-ext-26b63832-64d6-4da0-81d2-6bf781f180b9",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3dfda399-65c3-4140-b8e3-0a8d86e8dfa9",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim - 2 controllers + box",
+      "external_listing_id": "letgo-ext-2feddf03-4661-411d-9ec4-f3059611c024",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e86199c9-dad2-42de-b15d-48bcd32d4acf",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra - mint condition",
+      "external_listing_id": "sahibinden-ext-a89392b4-9f08-4e12-8049-7a719b46e491",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "eff98c81-c091-4f5c-8a8b-0afae59eeba1",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch 8 - mint condition",
+      "external_listing_id": "sahibinden-ext-2a4b9154-1e28-4791-a992-4cce8be308d8",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f260c716-59c6-47fb-8d5a-908b551c4d4a",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 - used - good",
+      "external_listing_id": "sahibinden-ext-98240cf2-80d3-4877-8873-f82b9038661e",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3573b6f4-f572-4af5-9c4d-433ac313cb23",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 - used - good",
+      "external_listing_id": "sahibinden-ext-662d4c19-0bd6-4184-976b-f3ecdd52361c",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "f1bc88ee-ca97-4dbb-97dc-382b0dc2ecd8",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim - used - good",
+      "external_listing_id": "sahibinden-ext-71f18bab-441d-4b1b-a4bb-0911b066a4a4",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "75dab973-5e79-4e75-87a7-1c62f858086d",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro - used - good",
+      "external_listing_id": "sahibinden-ext-1b51cf8e-ae32-4a55-bd70-2ba5ef107830",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1fb8f6da-5c05-47f0-8370-67b93252ce90",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 - used - good",
+      "external_listing_id": "sahibinden-ext-9636cb7d-329c-46fc-a11c-516502384ee0",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7b69ea2b-c09f-4fb8-94ab-098593aae24d",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro - used - good",
+      "external_listing_id": "sahibinden-ext-8152a18e-a43b-4c49-a343-310dd982e7fc",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2ffb96ef-c8ac-4d90-affb-d2b63c37663c",
+      "provider": "sahibinden",
+      "title": "Xbox Series X - used - good",
+      "external_listing_id": "sahibinden-ext-58d6c596-d358-4372-ae4f-0d5f9141bcfb",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a95bffd8-f073-48fc-a0c1-3796b7638ad2",
+      "provider": "sahibinden",
+      "title": "Xbox Series S - used - good",
+      "external_listing_id": "sahibinden-ext-41ace51f-7491-457f-ae1e-eb2ec8bf0083",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "159d29b3-25b9-40e8-8100-e890509f6bf8",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch - used - good",
+      "external_listing_id": "sahibinden-ext-9465b6a1-fda1-4e66-b6f5-d8a0560fb27f",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "33bff5da-a5c8-4fad-9475-a05c30b747ad",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED - used - good",
+      "external_listing_id": "sahibinden-ext-5190e8d3-4c19-42f9-9a70-f9ec3d0be178",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2783c504-cdfd-4319-8095-e5ece13afbea",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra - used - good",
+      "external_listing_id": "sahibinden-ext-ee92fc05-6c0a-4113-b832-6b3ea1cb7da6",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9f0e0814-3f5a-407d-b525-255a63560a3a",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 - used - good",
+      "external_listing_id": "sahibinden-ext-5eea6d79-00fd-4bf5-b9be-b5980d4f61b8",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d241eaa7-86c6-49d5-95f8-5d4b55e1b8ac",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra - used - good",
+      "external_listing_id": "sahibinden-ext-99282e7e-44b5-4a80-a4e4-9d0ad6099055",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9a00bb43-6a35-48b8-b9aa-791a21b4a9e5",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch 8 - used - good",
+      "external_listing_id": "sahibinden-ext-74940339-6042-415d-a29e-115dd70a35ab",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "76c9f1b2-9565-4434-a4a3-e80f51643869",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch 8 - 2 controllers + box",
+      "external_listing_id": "letgo-ext-aae0f5c3-2125-4265-adc1-aa6a2a5dd32c",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ee7854f9-0a4a-44f0-9b6e-77a9b675f663",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch 8 - used - good",
+      "external_listing_id": "letgo-ext-8ecc33b0-b3c4-46b0-b5c5-a66ffd7c3f47",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d516a4cf-7a77-4fdb-b380-8f807a3aab3c",
+      "provider": "dolap",
+      "title": "PlayStation 5 - 1 controller",
+      "external_listing_id": "dolap-ext-458c788c-ef29-4d55-84db-dccb779e548e",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3b5ad120-19d1-41b1-a1f4-7b0d4e3fd5dd",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim - 1 controller",
+      "external_listing_id": "dolap-ext-75230ded-6729-4a04-a53f-aafd07113088",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8663fe84-d117-445e-b6a3-49a6331a240b",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro - 1 controller",
+      "external_listing_id": "dolap-ext-3470eb88-36d1-4085-ac1f-4fcf06d400fa",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "935ad17f-365b-43c4-a13e-b850675b05f3",
+      "provider": "dolap",
+      "title": "PlayStation 4 - 1 controller",
+      "external_listing_id": "dolap-ext-d2c85c88-d6b9-4628-b700-afcbe8ac19d8",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "86b9fa28-c70d-4543-a33f-5971e3760f68",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro - 1 controller",
+      "external_listing_id": "dolap-ext-6298beec-dbf3-4110-a259-6dee065d7644",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a77af8dd-d72d-4204-8cea-9f4b8fdd3096",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch 8 - 2 controllers + box",
+      "external_listing_id": "dolap-ext-7672752e-54fe-4492-8a16-81639f69dcf0",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "8110b4dd-6863-4f78-9fbe-0d62eb5dc127",
+      "provider": "dolap",
+      "title": "Xbox Series S - mint condition",
+      "external_listing_id": "dolap-ext-d5e0ba9b-d6ff-4dba-9630-37664b3d4032",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "18ecb43b-a7bf-417c-ba46-5d99dbb7b3af",
+      "provider": "dolap",
+      "title": "Nintendo Switch - used - good",
+      "external_listing_id": "dolap-ext-70064f21-f1bf-45d5-b83a-d59c7364f48c",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6f4a47ab-f2ce-459c-b127-be01f07731c6",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED - used - good",
+      "external_listing_id": "dolap-ext-09aa6850-0c9c-4d1b-bdfe-034c9bac01e3",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "328bbe85-7810-41bd-92b1-b0e626819d87",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 1 controller",
+      "external_listing_id": "dolap-ext-1785158304515-24",
+      "source_url": "https://www.dolap.com/item/1024",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1679b222-4122-4cf9-844b-74ecddce7f30",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra warranty included",
+      "external_listing_id": "dolap-ext-1785158304515-23",
+      "source_url": "https://www.dolap.com/item/1023",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c22e6589-9482-493f-8e55-1ba17199b760",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED like new",
+      "external_listing_id": "dolap-ext-1785158304515-22",
+      "source_url": "https://www.dolap.com/item/1022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ef6b9b2b-c4cd-48ad-80d4-af9ff92cbc3b",
+      "provider": "dolap",
+      "title": "Nintendo Switch used - good",
+      "external_listing_id": "dolap-ext-1785158304515-21",
+      "source_url": "https://www.dolap.com/item/1021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "def6c270-1636-4668-956a-5977d0eb5b20",
+      "provider": "dolap",
+      "title": "Xbox Series S sealed",
+      "external_listing_id": "dolap-ext-1785158304515-20",
+      "source_url": "https://www.dolap.com/item/1020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c84e0477-a200-4305-b21f-27009078b6e4",
+      "provider": "dolap",
+      "title": "Xbox Series X mint condition",
+      "external_listing_id": "dolap-ext-1785158304515-19",
+      "source_url": "https://www.dolap.com/item/1019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6a70ad00-c397-49c5-96ae-3b2eb5c2a2ce",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro box + cable",
+      "external_listing_id": "dolap-ext-1785158304515-18",
+      "source_url": "https://www.dolap.com/item/1018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6e022ee3-36ac-4cc0-be9f-c22b80a9e323",
+      "provider": "dolap",
+      "title": "PlayStation 4 2 controllers",
+      "external_listing_id": "dolap-ext-1785158304515-17",
+      "source_url": "https://www.dolap.com/item/1017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "245cc7fa-8841-487c-a9f9-058eaa5c87fe",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro 1 controller",
+      "external_listing_id": "dolap-ext-1785158304515-16",
+      "source_url": "https://www.dolap.com/item/1016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ff4df732-853f-4ae5-a7e6-4e36d143b928",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim warranty included",
+      "external_listing_id": "dolap-ext-1785158304515-15",
+      "source_url": "https://www.dolap.com/item/1015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e5a6be79-2084-4277-99b4-45d4ea0da3e5",
+      "provider": "dolap",
+      "title": "PlayStation 5 like new",
+      "external_listing_id": "dolap-ext-1785158304515-14",
+      "source_url": "https://www.dolap.com/item/1014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "57b430ba-e763-406e-a275-e5e2f11d2d06",
+      "provider": "dolap",
+      "title": "Galaxy Watch 8 used - good",
+      "external_listing_id": "dolap-ext-1785158304515-13",
+      "source_url": "https://www.dolap.com/item/1013",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d082fe56-fad2-4e78-8b3a-e78b8083d614",
+      "provider": "dolap",
+      "title": "Samsung Galaxy Watch Ultra sealed",
+      "external_listing_id": "dolap-ext-1785158304515-12",
+      "source_url": "https://www.dolap.com/item/1012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7fa8aef9-e77d-4b3a-a3dc-2210583efad1",
+      "provider": "dolap",
+      "title": "Apple Watch Series 10 mint condition",
+      "external_listing_id": "dolap-ext-1785158304515-11",
+      "source_url": "https://www.dolap.com/item/1011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d4a2ec1b-3215-4c11-87ba-4279e5a83a72",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 box + cable",
+      "external_listing_id": "dolap-ext-1785158304515-10",
+      "source_url": "https://www.dolap.com/item/1010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "72747754-f448-4c94-9819-e721439d0425",
+      "provider": "dolap",
+      "title": "Apple Watch Ultra 2 controllers",
+      "external_listing_id": "dolap-ext-1785158304515-9",
+      "source_url": "https://www.dolap.com/item/1009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6244f84f-079f-4496-af85-3ad3ce5b6005",
+      "provider": "dolap",
+      "title": "Nintendo Switch OLED 1 controller",
+      "external_listing_id": "dolap-ext-1785158304515-8",
+      "source_url": "https://www.dolap.com/item/1008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "25d3f17c-ca4e-4d87-965c-f36ea9388669",
+      "provider": "dolap",
+      "title": "Nintendo Switch warranty included",
+      "external_listing_id": "dolap-ext-1785158304515-7",
+      "source_url": "https://www.dolap.com/item/1007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "81b79ec6-f952-4643-af34-e91091b4b70b",
+      "provider": "dolap",
+      "title": "Xbox Series S like new",
+      "external_listing_id": "dolap-ext-1785158304515-6",
+      "source_url": "https://www.dolap.com/item/1006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "55cfa638-5058-432f-ab40-a5160cc8764c",
+      "provider": "dolap",
+      "title": "Xbox Series X used - good",
+      "external_listing_id": "dolap-ext-1785158304515-5",
+      "source_url": "https://www.dolap.com/item/1005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "9da0b10c-d1b1-47f2-9138-dee01b9fa749",
+      "provider": "dolap",
+      "title": "PlayStation 4 Pro sealed",
+      "external_listing_id": "dolap-ext-1785158304515-4",
+      "source_url": "https://www.dolap.com/item/1004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "0e7254c2-04a5-40d9-b48f-301b2ca7268f",
+      "provider": "dolap",
+      "title": "PlayStation 4 mint condition",
+      "external_listing_id": "dolap-ext-1785158304515-3",
+      "source_url": "https://www.dolap.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5e22479b-299d-422b-a171-8476ac6c61cd",
+      "provider": "dolap",
+      "title": "PlayStation 5 Pro box + cable",
+      "external_listing_id": "dolap-ext-1785158304515-2",
+      "source_url": "https://www.dolap.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "07ba1245-776d-47e0-b030-6176ed5f8be0",
+      "provider": "dolap",
+      "title": "PlayStation 5 Slim 2 controllers",
+      "external_listing_id": "dolap-ext-1785158304515-1",
+      "source_url": "https://www.dolap.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ab9a58ad-800e-4232-b1ab-2d2bf5d02b68",
+      "provider": "dolap",
+      "title": "PlayStation 5 1 controller",
+      "external_listing_id": "dolap-ext-1785158304514-0",
+      "source_url": "https://www.dolap.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e86b4c9b-97d2-464e-9832-0580115a9620",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 1 controller",
+      "external_listing_id": "letgo-ext-1785158288383-24",
+      "source_url": "https://www.letgo.com/item/1024",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "010bab65-0926-4049-8a78-bf0d26afb525",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra warranty included",
+      "external_listing_id": "letgo-ext-1785158288383-23",
+      "source_url": "https://www.letgo.com/item/1023",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "683f2ce6-8590-4a97-b21d-607bf8cf120f",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED like new",
+      "external_listing_id": "letgo-ext-1785158288383-22",
+      "source_url": "https://www.letgo.com/item/1022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "14cc2550-0edd-422e-934c-0fde2b4c2f41",
+      "provider": "letgo",
+      "title": "Nintendo Switch used - good",
+      "external_listing_id": "letgo-ext-1785158288383-21",
+      "source_url": "https://www.letgo.com/item/1021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cc47c204-e27e-4f34-9c02-cae950c1e8ec",
+      "provider": "letgo",
+      "title": "Xbox Series S sealed",
+      "external_listing_id": "letgo-ext-1785158288383-20",
+      "source_url": "https://www.letgo.com/item/1020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cb6973cf-5b24-4f8a-ae1b-2728f9993469",
+      "provider": "letgo",
+      "title": "Xbox Series X mint condition",
+      "external_listing_id": "letgo-ext-1785158288383-19",
+      "source_url": "https://www.letgo.com/item/1019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5c8e039d-31cb-4a9a-8995-d13906e76079",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro box + cable",
+      "external_listing_id": "letgo-ext-1785158288383-18",
+      "source_url": "https://www.letgo.com/item/1018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "555916b8-4ac4-4a79-8fcc-8871bb3ec047",
+      "provider": "letgo",
+      "title": "PlayStation 4 2 controllers",
+      "external_listing_id": "letgo-ext-1785158288383-17",
+      "source_url": "https://www.letgo.com/item/1017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "31bf8cd2-6c1b-4aa9-899b-e399007d4b58",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro 1 controller",
+      "external_listing_id": "letgo-ext-1785158288383-16",
+      "source_url": "https://www.letgo.com/item/1016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "1ac1224d-ecfc-439f-a939-767bb5e2d16b",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim warranty included",
+      "external_listing_id": "letgo-ext-1785158288383-15",
+      "source_url": "https://www.letgo.com/item/1015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "3bdc7b8f-d2a1-41f8-a35c-52a25583a3f7",
+      "provider": "letgo",
+      "title": "PlayStation 5 like new",
+      "external_listing_id": "letgo-ext-1785158288383-14",
+      "source_url": "https://www.letgo.com/item/1014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c7bf5310-ad91-4351-8b3c-d4585b7109d8",
+      "provider": "letgo",
+      "title": "Galaxy Watch 8 used - good",
+      "external_listing_id": "letgo-ext-1785158288383-13",
+      "source_url": "https://www.letgo.com/item/1013",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "34d5fabe-9b74-4bf0-96d2-e652a68e1414",
+      "provider": "letgo",
+      "title": "Samsung Galaxy Watch Ultra sealed",
+      "external_listing_id": "letgo-ext-1785158288383-12",
+      "source_url": "https://www.letgo.com/item/1012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "58f5b2e5-ecf1-4d82-a6ed-7d2b9bb85198",
+      "provider": "letgo",
+      "title": "Apple Watch Series 10 mint condition",
+      "external_listing_id": "letgo-ext-1785158288383-11",
+      "source_url": "https://www.letgo.com/item/1011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b9ea15f4-3abd-4d11-b7b9-81030dc7a3c6",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 box + cable",
+      "external_listing_id": "letgo-ext-1785158288383-10",
+      "source_url": "https://www.letgo.com/item/1010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "714484ec-16cd-460e-87f7-9cb5467b8039",
+      "provider": "letgo",
+      "title": "Apple Watch Ultra 2 controllers",
+      "external_listing_id": "letgo-ext-1785158288383-9",
+      "source_url": "https://www.letgo.com/item/1009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "281ca744-c6a6-4c5a-b224-ba21d80a1b0a",
+      "provider": "letgo",
+      "title": "Nintendo Switch OLED 1 controller",
+      "external_listing_id": "letgo-ext-1785158288383-8",
+      "source_url": "https://www.letgo.com/item/1008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "295dd27f-3ec9-4f18-bca3-9a078308ca8c",
+      "provider": "letgo",
+      "title": "Nintendo Switch warranty included",
+      "external_listing_id": "letgo-ext-1785158288383-7",
+      "source_url": "https://www.letgo.com/item/1007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5ac44d36-cbfa-48a3-8723-4523e6bf821a",
+      "provider": "letgo",
+      "title": "Xbox Series S like new",
+      "external_listing_id": "letgo-ext-1785158288383-6",
+      "source_url": "https://www.letgo.com/item/1006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "339a353d-f6fc-4205-b3fe-6a75d2044255",
+      "provider": "letgo",
+      "title": "Xbox Series X used - good",
+      "external_listing_id": "letgo-ext-1785158288383-5",
+      "source_url": "https://www.letgo.com/item/1005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "5ffec735-576b-47a9-8eff-ddc11f08a08f",
+      "provider": "letgo",
+      "title": "PlayStation 4 Pro sealed",
+      "external_listing_id": "letgo-ext-1785158288383-4",
+      "source_url": "https://www.letgo.com/item/1004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "01b8cbff-f35a-4b15-910d-34558e16becc",
+      "provider": "letgo",
+      "title": "PlayStation 4 mint condition",
+      "external_listing_id": "letgo-ext-1785158288383-3",
+      "source_url": "https://www.letgo.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a687b18d-6c00-496d-97d2-b007d800a941",
+      "provider": "letgo",
+      "title": "PlayStation 5 Pro box + cable",
+      "external_listing_id": "letgo-ext-1785158288383-2",
+      "source_url": "https://www.letgo.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7a87e498-fe08-4293-9702-a5920dc3c157",
+      "provider": "letgo",
+      "title": "PlayStation 5 Slim 2 controllers",
+      "external_listing_id": "letgo-ext-1785158288383-1",
+      "source_url": "https://www.letgo.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "db243fc2-a60c-4ee1-b950-81a5f8bc49e8",
+      "provider": "letgo",
+      "title": "PlayStation 5 1 controller",
+      "external_listing_id": "letgo-ext-1785158288383-0",
+      "source_url": "https://www.letgo.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a4252f35-6120-4495-b23b-0e142c2f35cb",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 1 controller",
+      "external_listing_id": "sahibinden-ext-1785158270875-24",
+      "source_url": "https://www.sahibinden.com/item/1024",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "448f407e-6100-455a-8bcb-da61ba2c1369",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra warranty included",
+      "external_listing_id": "sahibinden-ext-1785158270875-23",
+      "source_url": "https://www.sahibinden.com/item/1023",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "35c14f26-5d86-46f3-86e1-958e7354a9e8",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED like new",
+      "external_listing_id": "sahibinden-ext-1785158270875-22",
+      "source_url": "https://www.sahibinden.com/item/1022",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c8f82ca0-afc8-40a9-b81a-049245cd20c7",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch used - good",
+      "external_listing_id": "sahibinden-ext-1785158270875-21",
+      "source_url": "https://www.sahibinden.com/item/1021",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ddec723b-c666-41a8-811d-e70891a0380e",
+      "provider": "sahibinden",
+      "title": "Xbox Series S sealed",
+      "external_listing_id": "sahibinden-ext-1785158270875-20",
+      "source_url": "https://www.sahibinden.com/item/1020",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6ffad026-a749-4655-802d-870ffc124b9b",
+      "provider": "sahibinden",
+      "title": "Xbox Series X mint condition",
+      "external_listing_id": "sahibinden-ext-1785158270875-19",
+      "source_url": "https://www.sahibinden.com/item/1019",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "cc39d523-8637-430c-b70d-5ef3649f2122",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro box + cable",
+      "external_listing_id": "sahibinden-ext-1785158270875-18",
+      "source_url": "https://www.sahibinden.com/item/1018",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "c139e1cf-7c93-421f-897f-ae0bb404fcbb",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 2 controllers",
+      "external_listing_id": "sahibinden-ext-1785158270875-17",
+      "source_url": "https://www.sahibinden.com/item/1017",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "63610d9c-2ae7-494d-aab6-25ca38d1b024",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro 1 controller",
+      "external_listing_id": "sahibinden-ext-1785158270875-16",
+      "source_url": "https://www.sahibinden.com/item/1016",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "ea5d0f0e-1a80-4dc3-8529-7518cddee7ce",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim warranty included",
+      "external_listing_id": "sahibinden-ext-1785158270875-15",
+      "source_url": "https://www.sahibinden.com/item/1015",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a35f1f18-6a66-41c3-978a-33cd2d2fbfe1",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 like new",
+      "external_listing_id": "sahibinden-ext-1785158270875-14",
+      "source_url": "https://www.sahibinden.com/item/1014",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "93788d9f-c19b-4614-bac2-7669fd737d8a",
+      "provider": "sahibinden",
+      "title": "Galaxy Watch 8 used - good",
+      "external_listing_id": "sahibinden-ext-1785158270875-13",
+      "source_url": "https://www.sahibinden.com/item/1013",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "dd8f864f-f1d8-4f43-a4b6-b4e69bbc7ee2",
+      "provider": "sahibinden",
+      "title": "Samsung Galaxy Watch Ultra sealed",
+      "external_listing_id": "sahibinden-ext-1785158270875-12",
+      "source_url": "https://www.sahibinden.com/item/1012",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "13ed0467-0cdc-4c69-89b4-0a550631a56c",
+      "provider": "sahibinden",
+      "title": "Apple Watch Series 10 mint condition",
+      "external_listing_id": "sahibinden-ext-1785158270875-11",
+      "source_url": "https://www.sahibinden.com/item/1011",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "d8ff0627-5981-4fea-951f-6ed7af42deba",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 box + cable",
+      "external_listing_id": "sahibinden-ext-1785158270875-10",
+      "source_url": "https://www.sahibinden.com/item/1010",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "a4a58dd6-e7f6-40ab-9d47-a6295c084db8",
+      "provider": "sahibinden",
+      "title": "Apple Watch Ultra 2 controllers",
+      "external_listing_id": "sahibinden-ext-1785158270875-9",
+      "source_url": "https://www.sahibinden.com/item/1009",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "2c6911a8-76c0-44a6-9e16-bbe27f4ecd75",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch OLED 1 controller",
+      "external_listing_id": "sahibinden-ext-1785158270875-8",
+      "source_url": "https://www.sahibinden.com/item/1008",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "b9abda92-0472-4854-9b3b-6db4fe7dff12",
+      "provider": "sahibinden",
+      "title": "Nintendo Switch warranty included",
+      "external_listing_id": "sahibinden-ext-1785158270875-7",
+      "source_url": "https://www.sahibinden.com/item/1007",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "679bc003-b9cc-447a-8b56-d5be93444d04",
+      "provider": "sahibinden",
+      "title": "Xbox Series S like new",
+      "external_listing_id": "sahibinden-ext-1785158270875-6",
+      "source_url": "https://www.sahibinden.com/item/1006",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "36f1924c-3a17-4cc2-ad3f-efa282debc7e",
+      "provider": "sahibinden",
+      "title": "Xbox Series X used - good",
+      "external_listing_id": "sahibinden-ext-1785158270875-5",
+      "source_url": "https://www.sahibinden.com/item/1005",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "7e6d4610-a8f0-46fb-8e3e-e5b7a78ce0b5",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 Pro sealed",
+      "external_listing_id": "sahibinden-ext-1785158270875-4",
+      "source_url": "https://www.sahibinden.com/item/1004",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "400e7bcd-ac7b-4037-be71-f26706b0435e",
+      "provider": "sahibinden",
+      "title": "PlayStation 4 mint condition",
+      "external_listing_id": "sahibinden-ext-1785158270875-3",
+      "source_url": "https://www.sahibinden.com/item/1003",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "bea3f9b9-46a8-4de0-83f1-ed728e963139",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Pro box + cable",
+      "external_listing_id": "sahibinden-ext-1785158270875-2",
+      "source_url": "https://www.sahibinden.com/item/1002",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "6ebe0208-e258-485b-b385-f4313a585c05",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 Slim 2 controllers",
+      "external_listing_id": "sahibinden-ext-1785158270875-1",
+      "source_url": "https://www.sahibinden.com/item/1001",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    },
+    {
+      "id": "e8ed8d44-eb29-4c5a-9ee1-f56deff44504",
+      "provider": "sahibinden",
+      "title": "PlayStation 5 1 controller",
+      "external_listing_id": "sahibinden-ext-1785158270875-0",
+      "source_url": "https://www.sahibinden.com/item/1000",
+      "issue": "invalid_marketplace_path",
+      "http_status": null,
+      "is_active": false
+    }
+  ]
+}

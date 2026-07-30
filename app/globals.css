@@ -1,0 +1,328 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Girisimco Design System — Aurora Ink
+ * ─────────────────────────────────────
+ * Tokens: lib/design-system/tokens.ts
+ * Components: components/girisimco/ui/
+ */
+
+@layer base {
+  :root {
+    /* Layout */
+    --gc-header-height: 3.75rem;
+
+    /* Surfaces */
+    --background: 220 33% 98.5%;
+    --foreground: 228 20% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 20% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 20% 14%;
+
+    /* Brand */
+    --primary: 234 72% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 234 100% 97%;
+
+    /* Neutrals */
+    --secondary: 220 25% 96%;
+    --secondary-foreground: 228 18% 22%;
+    --muted: 220 22% 95%;
+    --muted-foreground: 220 12% 48%;
+    --accent: 234 60% 96%;
+    --accent-foreground: 234 55% 38%;
+
+    /* Semantic */
+    --success: 158 64% 42%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 152 60% 95%;
+    --warning: 32 95% 48%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 38 92% 95%;
+    --danger: 0 72% 55%;
+    --danger-foreground: 0 0% 100%;
+    --danger-soft: 0 80% 96%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Lines & focus */
+    --border: 220 22% 91%;
+    --input: 220 20% 88%;
+    --ring: 234 72% 58%;
+
+    /* Chart */
+    --chart-1: 234 72% 58%;
+    --chart-2: 158 64% 42%;
+    --chart-3: 32 95% 48%;
+    --chart-4: 0 72% 55%;
+    --chart-5: 199 80% 48%;
+
+    /* Sidebar (admin) */
+    --sidebar: 220 33% 98%;
+    --sidebar-foreground: 228 18% 18%;
+    --sidebar-border: 220 22% 92%;
+    --sidebar-accent: 220 25% 94%;
+
+    /* Radius — base 12px; sm/md/lg/xl derived in tailwind.config */
+    --radius: 0.75rem;
+
+    /* Shadows */
+    --shadow-color: 228 20% 14%;
+    --shadow-soft: 0 1px 2px 0 hsl(var(--shadow-color) / 0.03), 0 2px 8px -2px hsl(var(--shadow-color) / 0.06);
+    --shadow-card: 0 1px 2px 0 hsl(var(--shadow-color) / 0.04), 0 8px 24px -6px hsl(var(--shadow-color) / 0.08);
+    --shadow-pop: 0 4px 20px -4px hsl(var(--shadow-color) / 0.10), 0 16px 48px -12px hsl(var(--shadow-color) / 0.14);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 8px 32px -8px hsl(var(--primary) / 0.22);
+
+    /* Motion */
+    --gc-duration-fast: 120ms;
+    --gc-duration-normal: 120ms;
+    --gc-duration-slow: 120ms;
+    --gc-duration-reveal: 120ms;
+    --gc-ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    --gc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    --background: 228 22% 7%;
+    --foreground: 220 18% 96%;
+    --card: 228 20% 10%;
+    --card-foreground: 220 18% 96%;
+    --popover: 228 20% 11%;
+    --popover-foreground: 220 18% 96%;
+
+    --primary: 234 78% 68%;
+    --primary-foreground: 228 22% 8%;
+    --primary-soft: 234 40% 16%;
+
+    --secondary: 228 16% 15%;
+    --secondary-foreground: 220 16% 92%;
+    --muted: 228 16% 14%;
+    --muted-foreground: 220 10% 58%;
+    --accent: 234 30% 16%;
+    --accent-foreground: 234 70% 82%;
+
+    --success: 158 55% 48%;
+    --success-soft: 158 35% 14%;
+    --warning: 36 90% 55%;
+    --warning-soft: 34 50% 14%;
+    --danger: 0 65% 58%;
+    --danger-soft: 0 45% 14%;
+    --destructive: 0 65% 58%;
+
+    --border: 228 14% 18%;
+    --input: 228 14% 20%;
+    --ring: 234 78% 68%;
+
+    --sidebar: 228 22% 5%;
+    --sidebar-foreground: 220 16% 90%;
+    --sidebar-border: 228 14% 14%;
+    --sidebar-accent: 228 16% 12%;
+
+    --shadow-color: 0 0% 0%;
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 8px 32px -8px hsl(var(--primary) / 0.25);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground text-gc-base;
+    font-feature-settings: 'cv11', 'ss01', 'ss03', 'liga', 'kern';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1 { @apply font-display text-gc-2xl font-semibold tracking-tight text-foreground; }
+  h2 { @apply font-display text-gc-xl font-semibold tracking-tight text-foreground; }
+  h3 { @apply font-display text-gc-lg font-semibold tracking-tight text-foreground; }
+  h4 { @apply font-display text-gc-md font-semibold tracking-tight text-foreground; }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.16);
+    color: hsl(var(--foreground));
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.4);
+  }
+}
+
+@layer components {
+  /* ── Cards ── */
+  .gc-card {
+    @apply rounded-2xl border border-border/80 bg-card text-card-foreground;
+    box-shadow: var(--shadow-soft);
+    transition: transform var(--gc-duration-normal) var(--gc-ease-smooth),
+                box-shadow var(--gc-duration-normal) var(--gc-ease-smooth),
+                border-color var(--gc-duration-normal) var(--gc-ease-smooth);
+  }
+  .gc-card-interactive {
+    @apply gc-card cursor-pointer hover:-translate-y-0.5 hover:border-primary/20;
+  }
+  .gc-card-interactive:hover {
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Legacy alias — admin/dashboard */
+  .ib-card { @apply gc-card rounded-xl; }
+  .ib-card-hover { @apply gc-card-interactive rounded-xl; }
+
+  /* ── Surfaces ── */
+  .gc-glass {
+    @apply border-border/60 backdrop-blur-xl backdrop-saturate-150;
+    background: hsl(var(--background) / 0.72);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+  }
+  .dark .gc-glass {
+    background: hsl(var(--background) / 0.78);
+    @apply border-border/50;
+  }
+  .gc-dot-grid {
+    background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* ── Typography roles ── */
+  .gc-page-heading {
+    @apply font-display text-gc-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem];
+  }
+  .gc-section-title {
+    @apply font-display text-gc-md font-semibold tracking-tight text-foreground;
+  }
+  .gc-section-desc {
+    @apply text-gc-md leading-relaxed text-muted-foreground;
+  }
+  .gc-label {
+    @apply text-gc-sm font-medium text-foreground;
+  }
+  .gc-caption {
+    @apply text-gc-xs text-muted-foreground;
+  }
+
+  /* ── Navigation ── */
+  .gc-nav-link {
+    @apply relative rounded-lg px-3 py-1.5 text-gc-base font-medium text-muted-foreground;
+    transition: color var(--gc-duration-normal) var(--gc-ease-smooth),
+                background-color var(--gc-duration-normal) var(--gc-ease-smooth);
+  }
+  .gc-nav-link:hover {
+    @apply bg-muted/70 text-foreground;
+  }
+
+  /* ── Inputs (extends shadcn Input) ── */
+  .gc-input {
+    @apply flex h-10 w-full rounded-lg border border-border/80 bg-card px-3.5 text-gc-base text-foreground shadow-soft placeholder:text-muted-foreground;
+    transition: border-color var(--gc-duration-normal) var(--gc-ease-smooth),
+                box-shadow var(--gc-duration-normal) var(--gc-ease-smooth);
+  }
+  .gc-input:focus-visible {
+    @apply outline-none ring-2 ring-ring/60 ring-offset-2 ring-offset-background;
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  /* ── Buttons (extends shadcn Button) ── */
+  .gc-btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-primary px-4 text-gc-base font-medium text-primary-foreground shadow-soft;
+    transition: transform var(--gc-duration-fast) var(--gc-ease-smooth),
+                background-color var(--gc-duration-normal) var(--gc-ease-smooth),
+                box-shadow var(--gc-duration-normal) var(--gc-ease-smooth);
+  }
+  .gc-btn-primary:hover { @apply bg-primary/90; box-shadow: var(--shadow-card); }
+  .gc-btn-primary:active { transform: scale(0.98); }
+
+  /* ── Tags & badges ── */
+  .gc-tag {
+    @apply inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-gc-xs font-medium text-primary;
+  }
+  .gc-badge {
+    @apply inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-gc-xs font-medium text-primary;
+  }
+
+  /* ── Empty states ── */
+  .gc-empty {
+    @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-muted/30 text-center;
+  }
+
+  /* ── Skeletons ── */
+  .gc-shimmer {
+    @apply relative overflow-hidden;
+  }
+  .gc-shimmer::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10;
+  }
+
+  /* ── Scroll reveal ── */
+  .gc-reveal {
+    @apply translate-y-3 opacity-0;
+    transition: opacity var(--gc-duration-reveal) var(--gc-ease-smooth),
+                transform var(--gc-duration-reveal) var(--gc-ease-smooth);
+  }
+  .gc-reveal-visible {
+    @apply translate-y-0 opacity-100;
+  }
+  .gc-reveal-instant {
+    @apply translate-y-0 opacity-100;
+    transition: none;
+  }
+
+  /* ── Focus (accessibility) ── */
+  .ib-focus-ring,
+  .gc-focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* ── Admin grid ── */
+  .ib-grid-fade {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.45) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.45) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 100%);
+  }
+
+  .text-balance { text-wrap: balance; }
+}
+
+@layer utilities {
+  /* Typography scale */
+  .text-gc-xs   { font-size: 0.6875rem; line-height: 1rem; }
+  .text-gc-sm   { font-size: 0.8125rem; line-height: 1.25rem; }
+  .text-gc-base { font-size: 0.875rem; line-height: 1.375rem; }
+  .text-gc-md   { font-size: 0.9375rem; line-height: 1.5rem; letter-spacing: -0.01em; }
+  .text-gc-lg   { font-size: 1.125rem; line-height: 1.75rem; letter-spacing: -0.02em; }
+  .text-gc-xl   { font-size: 1.5rem; line-height: 2rem; letter-spacing: -0.025em; }
+  .text-gc-2xl  { font-size: 1.75rem; line-height: 2.25rem; letter-spacing: -0.03em; }
+  .text-gc-3xl  { font-size: 2rem; line-height: 2.5rem; letter-spacing: -0.035em; }
+
+  .ib-scrollbar-none { scrollbar-width: none; }
+  .ib-scrollbar-none::-webkit-scrollbar { display: none; }
+  .ib-mask-fade-r { mask-image: linear-gradient(to right, #000 80%, transparent 100%); }
+
+  .gc-shadow-soft  { box-shadow: var(--shadow-soft); }
+  .gc-shadow-hover { box-shadow: var(--shadow-card); }
+  .gc-shadow-pop   { box-shadow: var(--shadow-pop); }
+  .gc-shadow-glow  { box-shadow: var(--shadow-glow); }
+
+  .gc-header-offset { padding-top: var(--gc-header-height); }
+}
