@@ -18,8 +18,11 @@ export function useListingEngine() {
   const ctx = { actorId: (user?.id ?? '00000000-0000-4000-8000-000000000000') as UserId };
 
   const createListing = useCallback(
-    (payload: Omit<CreateListingPayload, 'ownerId'>) =>
-      getListingEngine().createListing({ ...payload, ownerId: ctx.actorId }, ctx),
+    (payload: Omit<CreateListingPayload, 'ownerId'>) => {
+      const fullPayload = { ...payload, ownerId: ctx.actorId };
+      console.log('[useListingEngine] createListing payload', JSON.stringify(fullPayload, null, 2));
+      return getListingEngine().createListing(fullPayload, ctx);
+    },
     [ctx.actorId],
   );
 
@@ -30,7 +33,10 @@ export function useListingEngine() {
   );
 
   const publishListing = useCallback(
-    (id: ListingId) => getListingEngine().publishListing(id, ctx),
+    (id: ListingId) => {
+      console.log('[useListingEngine] publishListing payload', JSON.stringify({ listingId: id, actorId: ctx.actorId }, null, 2));
+      return getListingEngine().publishListing(id, ctx);
+    },
     [ctx.actorId],
   );
 

@@ -2,7 +2,6 @@
 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -11,6 +10,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
+import { CitySelect } from '@/features/listings/form/fields/city-select';
+import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
+import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
+import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
+import { getCoreFieldUi } from '@/features/listings/form/listing-field-metadata';
 
 const REMOTE_OPTIONS = ['onsite', 'hybrid', 'remote'] as const;
 
@@ -21,6 +25,8 @@ export interface CoreFieldsProps {
   disabled?: boolean;
   /** Show only these core fields — for step-based forms */
   include?: (keyof CoreListingFieldsInput)[];
+  /** Use extended city list with Istanbul sub-regions */
+  extendedCities?: boolean;
 }
 
 const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
@@ -34,98 +40,144 @@ const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
   'companyId',
 ];
 
-export function CoreListingFields({ values, onChange, errors, disabled, include }: CoreFieldsProps) {
+export function CoreListingFields({ values, onChange, errors, disabled, include, extendedCities }: CoreFieldsProps) {
   const fields = include ?? ALL_CORE_FIELDS;
   const show = (key: keyof CoreListingFieldsInput) => fields.includes(key);
+
   function set<K extends keyof CoreListingFieldsInput>(key: K, val: CoreListingFieldsInput[K]) {
     onChange({ ...values, [key]: val });
   }
 
   return (
     <div className="space-y-4">
-      {show('title') && (
-      <div className="space-y-2">
-        <Label htmlFor="core-title">
-          Başlık <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="core-title"
-          value={values.title}
-          onChange={(e) => set('title', e.target.value)}
-          disabled={disabled}
-          placeholder="İlan başlığı"
-        />
-        {errors?.title && <p className="text-xs text-destructive">{errors.title}</p>}
-      </div>
-      )}
+      {show('title') && (() => {
+        const ui = getCoreFieldUi('title');
+        return (
+          <div className="space-y-2">
+            <FieldLabelWithTooltip htmlFor="core-title" label="Başlık" required />
+            <Input
+              id="core-title"
+              value={values.title}
+              onChange={(e) => set('title', e.target.value)}
+              disabled={disabled}
+              placeholder={ui.placeholder}
+              maxLength={ui.maxLength}
+              className={formControlErrorClass(errors?.title)}
+            />
+            <FormFieldFooter
+              helperText={ui.helperText}
+              error={errors?.title}
+              currentLength={values.title.length}
+              maxLength={ui.maxLength}
+            />
+          </div>
+        );
+      })()}
 
-      {show('shortDescription') && (
-      <div className="space-y-2">
-        <Label htmlFor="core-short">
-          Kısa Açıklama <span className="text-destructive">*</span>
-        </Label>
-        <Textarea
-          id="core-short"
-          value={values.shortDescription}
-          onChange={(e) => set('shortDescription', e.target.value)}
-          disabled={disabled}
-          rows={3}
-          placeholder="İlanınızı kısaca tanımlayın (min. 20 karakter)"
-        />
-        {errors?.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
-      </div>
-      )}
+      {show('shortDescription') && (() => {
+        const ui = getCoreFieldUi('shortDescription');
+        return (
+          <div className="space-y-2">
+            <FieldLabelWithTooltip htmlFor="core-short" label="Kısa Açıklama" required />
+            <Textarea
+              id="core-short"
+              value={values.shortDescription}
+              onChange={(e) => set('shortDescription', e.target.value)}
+              disabled={disabled}
+              rows={3}
+              placeholder={ui.placeholder}
+              maxLength={ui.maxLength}
+              className={formControlErrorClass(errors?.shortDescription)}
+            />
+            <FormFieldFooter
+              helperText={ui.helperText}
+              error={errors?.shortDescription}
+              currentLength={values.shortDescription.length}
+              maxLength={ui.maxLength}
+            />
+          </div>
+        );
+      })()}
 
-      {show('longDescription') && (
-      <div className="space-y-2">
-        <Label htmlFor="core-long">Detaylı Açıklama</Label>
-        <Textarea
-          id="core-long"
-          value={values.longDescription ?? ''}
-          onChange={(e) => set('longDescription', e.target.value)}
-          disabled={disabled}
-          rows={6}
-          placeholder="Detaylı açıklama, vizyon, beklentiler..."
-        />
-      </div>
-      )}
+      {show('longDescription') && (() => {
+        const ui = getCoreFieldUi('longDescription');
+        const length = (values.longDescription ?? '').length;
+        return (
+          <div className="space-y-2">
+            <FieldLabelWithTooltip htmlFor="core-long" label="Detaylı Açıklama" required />
+            <Textarea
+              id="core-long"
+              value={values.longDescription ?? ''}
+              onChange={(e) => set('longDescription', e.target.value)}
+              disabled={disabled}
+              rows={6}
+              placeholder={ui.placeholder}
+              maxLength={ui.maxLength}
+              className={formControlErrorClass(errors?.longDescription)}
+            />
+            <FormFieldFooter
+              helperText={ui.helperText}
+              error={errors?.longDescription}
+              currentLength={length}
+              maxLength={ui.maxLength}
+            />
+          </div>
+        );
+      })()}
 
       {(show('city') || show('remotePolicy')) && (
-      <div className="grid gap-4 sm:grid-cols-2">
-        {show('city') && (
-        <div className="space-y-2">
-          <Label htmlFor="core-city">Şehir</Label>
-          <Input
-            id="core-city"
-            value={values.city ?? ''}
-            onChange={(e) => set('city', e.target.value || null)}
-            disabled={disabled}
-            placeholder="İstanbul"
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {show('city') && (() => {
+            const ui = getCoreFieldUi('city');
+            return (
+              <div className="space-y-2">
+                <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" />
+                <CitySelect
+                  id="core-city"
+                  value={values.city ?? null}
+                  onChange={(city) => set('city', city)}
+                  disabled={disabled}
+                  error={errors?.city}
+                  placeholder={ui.placeholder}
+                  extended={extendedCities}
+                />
+                {!errors?.city && ui.helperText && (
+                  <p className="text-xs text-muted-foreground">{ui.helperText}</p>
+                )}
+              </div>
+            );
+          })()}
+          {show('remotePolicy') && (() => {
+            const ui = getCoreFieldUi('remotePolicy');
+            return (
+              <div className="space-y-2">
+                <FieldLabelWithTooltip htmlFor="core-remote" label="Çalışma Modeli" />
+                <Select
+                  value={values.remotePolicy ?? ''}
+                  onValueChange={(v) =>
+                    set('remotePolicy', v as CoreListingFieldsInput['remotePolicy'])
+                  }
+                  disabled={disabled}
+                >
+                  <SelectTrigger
+                    id="core-remote"
+                    className={formControlErrorClass(errors?.remotePolicy)}
+                  >
+                    <SelectValue placeholder={ui.placeholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REMOTE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt === 'onsite' ? 'Ofis' : opt === 'hybrid' ? 'Hibrit' : 'Uzaktan'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormFieldFooter helperText={ui.helperText} error={errors?.remotePolicy} />
+              </div>
+            );
+          })()}
         </div>
-        )}
-        {show('remotePolicy') && (
-        <div className="space-y-2">
-          <Label htmlFor="core-remote">Çalışma Modeli</Label>
-          <Select
-            value={values.remotePolicy ?? ''}
-            onValueChange={(v) => set('remotePolicy', v as CoreListingFieldsInput['remotePolicy'])}
-            disabled={disabled}
-          >
-            <SelectTrigger id="core-remote">
-              <SelectValue placeholder="Seçin" />
-            </SelectTrigger>
-            <SelectContent>
-              {REMOTE_OPTIONS.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt === 'onsite' ? 'Ofis' : opt === 'hybrid' ? 'Hibrit' : 'Uzaktan'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        )}
-      </div>
       )}
     </div>
   );

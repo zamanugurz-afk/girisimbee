@@ -19,6 +19,20 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string> = {
   'calisan-ariyorum': 'ise-al',
 };
 
+/** Canonical English route paths for category browse pages. */
+export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
+  'yatirim-bul': '/investors',
+  'yatirim-yap': '/invest',
+  'is-bul': '/jobs',
+  'ise-al': '/hire',
+  'ortak-bul': '/partners',
+};
+
+/** English route path → canonical category slug. */
+export const ROUTE_PATH_TO_CATEGORY_SLUG: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_ROUTE_PATHS).map(([slug, path]) => [path, slug]),
+);
+
 /** Category slug → page metadata for SEO and card rendering. */
 export const CATEGORY_PAGE_CONFIG: Record<string, CategoryPageMeta> = {
   'yatirim-bul': {
@@ -126,4 +140,17 @@ export function getAllCategorySlugs(): string[] {
 
 export function getCategorySlugFromIntent(intentId: CategoryIntentId): string {
   return INTENT_TO_CATEGORY_SLUG[intentId];
+}
+
+export function getCategoryRoutePath(categorySlug: string): string {
+  const canonical = resolveCanonicalCategorySlug(categorySlug);
+  return CATEGORY_ROUTE_PATHS[canonical] ?? `/kategori/${categorySlug}`;
+}
+
+export function resolveCategorySlugFromRoute(routePath: string): string | null {
+  return ROUTE_PATH_TO_CATEGORY_SLUG[routePath] ?? null;
+}
+
+export function getAllCategoryRoutePaths(): string[] {
+  return Object.values(CATEGORY_ROUTE_PATHS);
 }

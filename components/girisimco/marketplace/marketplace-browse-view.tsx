@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { resolveCategorySlug } from '@/features/listings/config/marketplace.config';
+import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
@@ -119,7 +119,7 @@ export function MarketplaceBrowseView({
                 return (
                   <Link
                     key={slug}
-                    href={`/kategori/${slug}`}
+                    href={getCategoryRoutePath(slug)}
                     className="rounded-full border border-border/80 px-3 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-primary/25 hover:bg-muted/50 hover:text-foreground"
                   >
                     {meta.label}

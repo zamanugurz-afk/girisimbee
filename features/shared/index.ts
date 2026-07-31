@@ -7,6 +7,13 @@ export {
 } from '@/features/shared/config/features';
 
 export { NAV_LINKS, getFooterLinks } from '@/features/shared/constants/navigation';
+export {
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  BRAND_TAGLINE_HIGHLIGHT,
+  BRAND_PAGE_TITLE,
+  BRAND_COLORS,
+} from '@/features/shared/constants/brand';
 
 export { Header as SiteHeader } from '@/components/girisimco/header';
 export { Footer as SiteFooter } from '@/components/girisimco/footer';

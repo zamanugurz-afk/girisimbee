@@ -1,5 +1,7 @@
 export * from '@/lib/domain/base';
 export * from '@/lib/domain/ids';
+export * from '@/lib/domain/modules';
+export * from '@/lib/domain/marketplace-enums';
 export * from '@/lib/domain/pagination';
 export * from '@/lib/domain/errors';
 export * from '@/lib/domain/repository';

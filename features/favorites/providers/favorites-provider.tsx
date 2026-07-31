@@ -37,8 +37,12 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       setFavoriteIds(new Set());
       return;
     }
-    const ids = await listingBrowseService.getListingIdsForFavorites(userId);
-    setFavoriteIds(new Set([...ids]));
+    try {
+      const ids = await listingBrowseService.getListingIdsForFavorites(userId);
+      setFavoriteIds(new Set([...ids]));
+    } catch {
+      setFavoriteIds(new Set());
+    }
   }, [userId, listingBrowseService]);
 
   useEffect(() => {

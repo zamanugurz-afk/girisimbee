@@ -10,6 +10,7 @@ import type {
 import { isStoredRole } from '@/features/authentication/constants/roles';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { resolveSiteUrl } from '@/lib/site-url';
+import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 type ProfileRow = {
   id: string;
@@ -59,7 +60,11 @@ export async function fetchProfile(
     .eq('id', userId)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    if (isMissingRelationError(error)) return null;
+    return null;
+  }
+  if (!data) return null;
   return mapProfile(data as ProfileRow);
 }
 

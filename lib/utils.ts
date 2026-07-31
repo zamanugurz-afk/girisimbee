@@ -18,6 +18,19 @@ export function formatTry(value: number): string {
   return TRY.format(value);
 }
 
+/** Formats a number as plain Turkish lira text, e.g. "2.500.000 TL". */
+export function formatTryPlain(value: number): string {
+  return `${NUM.format(value)} TL`;
+}
+
+/** Parses Turkish-locale currency input into a number. */
+export function parseTryInput(value: string): number | undefined {
+  const digits = value.replace(/[^\d]/g, '');
+  if (!digits) return undefined;
+  const parsed = Number(digits);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
 export function formatNumber(value: number): string {
   return NUM.format(value);
 }

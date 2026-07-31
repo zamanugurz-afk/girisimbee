@@ -1,67 +1,16 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { GripVertical, ImagePlus, Plus, Star, X } from 'lucide-react';
+import { GripVertical, ImagePlus, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { ListingImageInput } from '@/features/listings/types/listing-engine.types';
 import { uploadListingMedia } from '@/features/listings/lib/upload-listing-media';
 import { cn } from '@/lib/utils';
-
-export interface TagsInputProps {
-  value: string[];
-  onChange: (tags: string[]) => void;
-  disabled?: boolean;
-  max?: number;
-}
-
-export function TagsInput({ value, onChange, disabled, max = 20 }: TagsInputProps) {
-  const [input, setInput] = useState('');
-
-  function addTag() {
-    const tag = input.trim();
-    if (!tag || value.includes(tag) || value.length >= max) return;
-    onChange([...value, tag]);
-    setInput('');
-  }
-
-  function removeTag(tag: string) {
-    onChange(value.filter((t) => t !== tag));
-  }
-
-  return (
-    <div className="space-y-2">
-      <Label>Etiketler</Label>
-      <div className="flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-          disabled={disabled}
-          placeholder="Etiket ekle..."
-        />
-        <Button type="button" variant="outline" size="icon" onClick={addTag} disabled={disabled}>
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-      {value.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {value.map((tag) => (
-            <Badge key={tag} variant="secondary" className="gap-1 pr-1">
-              {tag}
-              <button type="button" onClick={() => removeTag(tag)} disabled={disabled}>
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
+import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
+import { META_FIELD_UI } from '@/features/listings/form/listing-field-metadata';
 
 function normalizeSortOrder(images: ListingImageInput[]): ListingImageInput[] {
   return images.map((img, index) => ({ ...img, sortOrder: index }));
@@ -147,7 +96,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <Label>Görseller</Label>
+        <FieldLabelWithTooltip label="Görseller" />
         <span className="text-xs text-muted-foreground">{sorted.length}/{max}</span>
       </div>
 
@@ -172,9 +121,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
         {uploading ? 'Yükleniyor…' : 'Görsel Yükle'}
       </Button>
 
-      <p className="text-xs text-muted-foreground">
-        Sürükleyerek sıralayın. İlk görsel kapak olarak kullanılır.
-      </p>
+      <FormFieldFooter helperText={META_FIELD_UI.images.helperText} />
 
       {sorted.length > 0 && (
         <ul className="space-y-2">

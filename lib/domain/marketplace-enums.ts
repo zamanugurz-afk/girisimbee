@@ -1,0 +1,114 @@
+/**
+ * TypeScript mirrors of PostgreSQL marketplace enums.
+ * Keep in sync with supabase/migrations/20260801120000_ecosystem_enums.sql
+ */
+
+import type { ModuleKey } from '@/lib/domain/modules';
+
+export type MatchStatus =
+  | 'requested'
+  | 'accepted'
+  | 'declined'
+  | 'contacted'
+  | 'closed_won'
+  | 'closed_lost';
+
+export type ApplicationStatus =
+  | 'submitted'
+  | 'reviewing'
+  | 'unlocked'
+  | 'contacted'
+  | 'accepted'
+  | 'rejected'
+  | 'withdrawn'
+  | 'hired';
+
+export type PaymentStatus =
+  | 'pending'
+  | 'processing'
+  | 'succeeded'
+  | 'failed'
+  | 'refunded'
+  | 'cancelled';
+
+export type PaymentProvider = 'iyzico' | 'stripe' | 'paytr';
+
+export type PaymentPurpose =
+  | 'publish'
+  | 'unlock_candidate'
+  | 'featured'
+  | 'urgent'
+  | 'package_purchase';
+
+export type DocumentType =
+  | 'pitch_deck'
+  | 'cv'
+  | 'contract'
+  | 'franchise_brochure'
+  | 'other';
+
+export type DocumentVisibility =
+  | 'private'
+  | 'match_only'
+  | 'application_only'
+  | 'public';
+
+export type WorkflowStatus =
+  | 'draft'
+  | 'profile_created'
+  | 'onboarding'
+  | 'ready'
+  | 'published'
+  | 'matching'
+  | 'reviewing'
+  | 'negotiating'
+  | 'completed'
+  | 'archived';
+
+export type ProfileModuleStatus = 'inactive' | 'onboarding' | 'active' | 'suspended';
+
+export type SubcategoryStatus = 'active' | 'archived';
+
+export type { ModuleKey };
+
+/** External contact channels (v1 — no internal messaging) */
+export interface ExternalContactInfo {
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  website: string | null;
+}
+
+/** Fields visible in anonymous job application preview */
+export interface AnonymousApplicationSnapshot {
+  city: string | null;
+  district: string | null;
+  industry: string | null;
+  experienceYears: number | null;
+  educationLevel: string | null;
+  skills: string[];
+  profileScore: number;
+}
+
+export const MATCH_STATUS_TRANSITIONS: Record<MatchStatus, readonly MatchStatus[]> = {
+  requested: ['accepted', 'declined'],
+  accepted: ['contacted', 'declined', 'closed_lost'],
+  declined: [],
+  contacted: ['closed_won', 'closed_lost'],
+  closed_won: [],
+  closed_lost: [],
+};
+
+export const APPLICATION_STATUS_TRANSITIONS: Record<
+  ApplicationStatus,
+  readonly ApplicationStatus[]
+> = {
+  submitted: ['reviewing', 'withdrawn'],
+  reviewing: ['unlocked', 'contacted', 'accepted', 'rejected', 'withdrawn'],
+  unlocked: ['contacted', 'hired', 'rejected', 'withdrawn'],
+  contacted: ['hired', 'accepted', 'rejected', 'withdrawn'],
+  accepted: ['withdrawn'],
+  rejected: [],
+  withdrawn: [],
+  hired: [],
+};

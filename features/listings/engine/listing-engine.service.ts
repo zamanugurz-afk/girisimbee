@@ -19,6 +19,7 @@ import {
 } from '@/features/listings/form/build-dynamic-schema';
 import { buildListingEntity } from '@/features/listings/engine/listing-store';
 import { ZodError } from 'zod';
+import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
 import type { IListingEngineService } from '@/features/listings/services/listing-engine.service.interface';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { TagRepository } from '@/features/listings/repositories/tag.repository';
@@ -75,38 +76,47 @@ export class ListingEngine implements IListingEngineService {
       throw e;
     }
 
+    const sanitizedCompanyId = coerceCompanyId(payload.core.companyId);
+    const createInput = {
+      ownerId: payload.ownerId,
+      categoryId: payload.categoryId,
+      listingTypeId: payload.listingTypeId,
+      title: payload.core.title,
+      shortDescription: payload.core.shortDescription,
+      longDescription: payload.core.longDescription,
+      location: payload.core.location,
+      city: payload.core.city,
+      country: payload.core.country,
+      remotePolicy: payload.core.remotePolicy,
+      companyId: sanitizedCompanyId,
+      customFields: payload.customFields,
+    };
+
+    console.log('[ListingEngine] createListing payload', JSON.stringify({
+      ...payload,
+      core: { ...payload.core, companyId: sanitizedCompanyId },
+    }, null, 2));
+
     let listing: Listing;
 
     if (isMockListingRepo(this.listingRepo)) {
       listing = buildListingEntity({
-        ownerId: payload.ownerId,
-        categoryId: payload.categoryId,
-        listingTypeId: payload.listingTypeId,
-        title: payload.core.title,
-        shortDescription: payload.core.shortDescription,
-        longDescription: payload.core.longDescription,
-        location: payload.core.location,
-        city: payload.core.city,
-        country: payload.core.country,
-        remotePolicy: payload.core.remotePolicy,
-        companyId: payload.core.companyId,
-        customFields: payload.customFields,
+        ownerId: createInput.ownerId,
+        categoryId: createInput.categoryId,
+        listingTypeId: createInput.listingTypeId,
+        title: createInput.title,
+        shortDescription: createInput.shortDescription,
+        longDescription: createInput.longDescription,
+        location: createInput.location,
+        city: createInput.city,
+        country: createInput.country,
+        remotePolicy: createInput.remotePolicy,
+        companyId: createInput.companyId,
+        customFields: createInput.customFields,
       });
       this.listingRepo.save(listing);
     } else {
-      listing = await this.listingRepo.create({
-        ownerId: payload.ownerId,
-        categoryId: payload.categoryId,
-        listingTypeId: payload.listingTypeId,
-        title: payload.core.title,
-        shortDescription: payload.core.shortDescription,
-        longDescription: payload.core.longDescription,
-        location: payload.core.location,
-        city: payload.core.city,
-        country: payload.core.country,
-        companyId: payload.core.companyId,
-        customFields: payload.customFields,
-      });
+      listing = await this.listingRepo.create(createInput);
     }
 
     if (payload.tags?.length) {
@@ -171,6 +181,8 @@ export class ListingEngine implements IListingEngineService {
       }
     }
 
+    console.log('[ListingEngine] updateListing payload', JSON.stringify({ listingId: id, ...payload }, null, 2));
+
     await this.listingRepo.update(id, {
       ...(payload.core?.title !== undefined && { title: payload.core.title }),
       ...(payload.core?.shortDescription !== undefined && { shortDescription: payload.core.shortDescription }),
@@ -179,7 +191,9 @@ export class ListingEngine implements IListingEngineService {
       ...(payload.core?.city !== undefined && { city: payload.core.city }),
       ...(payload.core?.country !== undefined && { country: payload.core.country }),
       ...(payload.core?.remotePolicy !== undefined && { remotePolicy: payload.core.remotePolicy }),
-      ...(payload.core?.companyId !== undefined && { companyId: payload.core.companyId }),
+      ...(payload.core?.companyId !== undefined && {
+        companyId: coerceCompanyId(payload.core.companyId),
+      }),
       ...(payload.customFields !== undefined && { customFields: payload.customFields }),
     });
 
@@ -202,6 +216,11 @@ export class ListingEngine implements IListingEngineService {
   }
 
   async publishListing(id: ListingId, ctx: ListingEngineContext): Promise<ListingAggregate> {
+    console.log('[ListingEngine] publishListing payload', JSON.stringify({
+      listingId: id,
+      actorId: ctx.actorId,
+    }, null, 2));
+
     const existing = await this.listingRepo.findById(id);
     if (!existing) throw new NotFoundError('Listing', id);
     this.assertOwner(existing, ctx.actorId);
@@ -252,8 +271,12 @@ export class ListingEngine implements IListingEngineService {
 
     const listing = await this.listingRepo.transitionStatus(id, targetStatus);
 
-    if (listing.status === 'published' && isFirstPublish && this.packageService && entitlement) {
-      await this.packageService.onListingPublished(ctx.actorId, existing, entitlement);
+    if (isFirstPublish && this.packageService && entitlement) {
+      try {
+        await this.packageService.onListingPublished(ctx.actorId, existing, entitlement);
+      } catch (error) {
+        console.error('[ListingEngine] post-publish statistics update failed — continuing', error);
+      }
     }
 
     const successMessage =

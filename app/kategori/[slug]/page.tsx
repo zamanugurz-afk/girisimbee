@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { MarketplaceBrowseView } from '@/components/girisimco/marketplace/marketplace-browse-view';
-import { resolveCategorySlug, resolveCanonicalCategorySlug, getAllCategorySlugs } from '@/features/listings/config/marketplace.config';
+import {
+  buildCategoryMetadata,
+  CategoryMarketplacePage,
+} from '@/features/listings/components/category-marketplace-page';
+import { getAllCategorySlugs, resolveCategorySlug } from '@/features/listings/config/marketplace.config';
 
 interface PageProps {
   params: { slug: string };
@@ -12,27 +15,10 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const meta = resolveCategorySlug(params.slug);
-  if (!meta) return { title: 'Kategori Bulunamadı — Girisimco' };
-
-  return {
-    title: meta.seoTitle,
-    description: meta.seoDescription,
-    openGraph: {
-      title: meta.seoTitle,
-      description: meta.seoDescription,
-    },
-  };
+  return buildCategoryMetadata(params.slug);
 }
 
 export default function CategoryPage({ params }: PageProps) {
-  const meta = resolveCategorySlug(params.slug);
-  if (!meta) notFound();
-
-  return (
-    <MarketplaceBrowseView
-      categorySlug={resolveCanonicalCategorySlug(params.slug)}
-      hideCategoryFilter
-    />
-  );
+  if (!resolveCategorySlug(params.slug)) notFound();
+  return <CategoryMarketplacePage categorySlug={params.slug} />;
 }

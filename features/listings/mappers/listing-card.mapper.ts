@@ -8,6 +8,7 @@ import {
   CATEGORY_EMOJI,
   CATEGORY_PAGE_CONFIG,
 } from '@/features/listings/config/marketplace.config';
+import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
 
 function formatTimeAgo(isoDate: string | null): string | undefined {
   if (!isoDate) return undefined;
@@ -22,23 +23,32 @@ function formatTimeAgo(isoDate: string | null): string | undefined {
 
 function formatDetail(listing: Listing, categorySlug: string): string | undefined {
   const cf = listing.customFields;
+
   if (categorySlug === 'yatirim-bul' || categorySlug === 'yatirim-yap') {
-    const amount = cf.investmentAmount as number | undefined;
-    const currency = (cf.currency as string) ?? 'TRY';
-    if (amount) return `${amount.toLocaleString('tr-TR')} ${currency}`;
+    const amount = toDisplayValue(cf.investmentAmount) || toDisplayValue(cf.ticketSizeMin);
+    if (amount) return amount;
     if (listing.investmentDetails?.amountSought) {
       return `${listing.investmentDetails.amountSought.toLocaleString('tr-TR')} ${listing.investmentDetails.currency}`;
     }
   }
-  if (categorySlug === 'ise-al' || categorySlug === 'is-bul') {
-    const min = cf.salaryMin as number | undefined;
-    const max = cf.salaryMax as number | undefined;
-    if (min && max) return `${min.toLocaleString('tr-TR')} – ${max.toLocaleString('tr-TR')} TRY`;
-    if (cf.salaryExpectation) return `${Number(cf.salaryExpectation).toLocaleString('tr-TR')} TRY`;
+
+  if (categorySlug === 'ise-al') {
+    const salary = toDisplayValue(cf.salaryRange);
+    if (salary) return salary;
   }
+
+  if (categorySlug === 'is-bul') {
+    const salary = toDisplayValue(cf.salaryExpectation);
+    if (salary) return salary;
+    const role = toDisplayValue(cf.desiredRole);
+    if (role) return role;
+  }
+
   if (categorySlug === 'ortak-bul') {
-    return (cf.partnershipType as string) ?? listing.partnerDetails?.partnerType ?? undefined;
+    const partnership = toDisplayValue(cf.partnershipType) || toDisplayValue(listing.partnerDetails?.partnerType);
+    if (partnership) return partnership;
   }
+
   return listing.shortDescription.slice(0, 60);
 }
 
@@ -49,9 +59,9 @@ export function listingToContentItem(listing: Listing, trust?: TrustBadges): Con
   const meta = CATEGORY_PAGE_CONFIG[slug];
   const contentType = CATEGORY_CONTENT_TYPE[slug] ?? 'startup';
 
-  const location = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
-    .filter(Boolean)
-    .join(', ');
+  const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
+    .filter((part) => !isEmptyDisplayValue(part));
+  const location = locationParts.join(', ') || toDisplayValue(listing.location) || undefined;
 
   return {
     id: listing.slug,
@@ -60,14 +70,16 @@ export function listingToContentItem(listing: Listing, trust?: TrustBadges): Con
     title: listing.title,
     subtitle: meta?.label,
     detail: formatDetail(listing, slug),
-    location: location || listing.location || undefined,
+    location,
     tag: hasAnyTrustBadge(trust ?? { user: false, company: false, investor: false })
       ? undefined
-      : listing.isVerified
-        ? 'Doğrulanmış'
-        : listing.isFeatured
-          ? 'Öne Çıkan'
-          : meta?.label,
+        : listing.isVerified
+          ? 'Doğrulanmış'
+          : listing.isUrgent
+            ? 'Acil'
+            : listing.isFeatured
+              ? 'Öne Çıkan'
+              : meta?.label,
     trust,
     timeAgo: formatTimeAgo(listing.publishedAt ?? listing.createdAt),
     emoji: CATEGORY_EMOJI[slug],

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 
 interface DetailCardProps {
   children: ReactNode;
@@ -52,10 +53,12 @@ interface FactRowProps {
 }
 
 export function FactRow({ label, value, href }: FactRowProps) {
+  if (isEmptyDisplayValue(value)) return null;
+
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <span className="text-sm text-muted-foreground">{label}</span>
-      {href ? (
+      {href && !isEmptyDisplayValue(href) ? (
         <a
           href={href.startsWith('http') ? href : `https://${href}`}
           target="_blank"
@@ -74,5 +77,25 @@ export function FactRow({ label, value, href }: FactRowProps) {
 export function FactGrid({ children }: { children: ReactNode }) {
   return (
     <div className="divide-y divide-border/80 dark:divide-white/10">{children}</div>
+  );
+}
+
+/** Renders a section only when it has visible child content. */
+export function DetailSectionIf({
+  title,
+  visible,
+  children,
+  className,
+}: {
+  title: string;
+  visible: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
+  if (!visible) return null;
+  return (
+    <DetailSection title={title} className={className}>
+      {children}
+    </DetailSection>
   );
 }

@@ -4,6 +4,7 @@ import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
+import { BRAND_PAGE_TITLE } from '@/features/shared';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Plus_Jakarta_Sans({
@@ -20,15 +21,15 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(resolveSiteUrl()),
-  title: 'Girisimco — Doğru Kişi, Doğru Fırsat',
+  title: BRAND_PAGE_TITLE,
   description:
     'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAFBFD' },
+    { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
     { media: '(prefers-color-scheme: dark)', color: '#12151C' },
   ],
   openGraph: {
-    title: 'Girisimco — Doğru Kişi, Doğru Fırsat',
+    title: BRAND_PAGE_TITLE,
     description:
       'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
     type: 'website',

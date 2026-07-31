@@ -17,6 +17,7 @@ import {
   ListingPublisherSelect,
   type ListingPublisherMode,
 } from '@/features/listings/components/listing-publisher-select';
+import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
 
 const EDITABLE_STATUSES: ListingStatus[] = [
   'draft',
@@ -101,22 +102,32 @@ export default function EditListingPage() {
   const showDraftButton = listingStatus === 'draft' || listingStatus === 'rejected';
 
   function buildPayload(values: ListingFormValues, asDraft = false) {
-    return {
+    const companyId =
+      publisherMode === 'company'
+        ? coerceCompanyId(publisherCompanyId)
+        : null;
+
+    const payload = {
       core: {
         ...values.core,
-        companyId: publisherMode === 'company' ? publisherCompanyId : null,
+        companyId,
       },
       customFields: values.customFields,
       tags: values.tags,
       images: values.images,
       asDraft,
     };
+
+    console.log('[EditListingPage] buildPayload', JSON.stringify(payload, null, 2));
+    return payload;
   }
 
   async function handleSave(values: ListingFormValues) {
     if (!isAuthenticated) {
-      toast.error('İlan düzenlemek için giriş yapmalısınız');
-      return;
+      throw new Error('İlan düzenlemek için giriş yapmalısınız.');
+    }
+    if (publisherMode === 'company' && !publisherCompanyId) {
+      throw new Error('Şirket ilanı için bir şirket seçin.');
     }
 
     await updateListing(listingId, buildPayload(values, false));
@@ -125,7 +136,12 @@ export default function EditListingPage() {
   }
 
   async function handleSaveDraft(values: ListingFormValues) {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      throw new Error('Oturum açmanız gerekiyor.');
+    }
+    if (publisherMode === 'company' && !publisherCompanyId) {
+      throw new Error('Şirket ilanı için bir şirket seçin.');
+    }
 
     await updateListing(listingId, buildPayload(values, true));
     toast.success('Taslak kaydedildi');
@@ -133,7 +149,12 @@ export default function EditListingPage() {
   }
 
   async function handlePublish(values: ListingFormValues) {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      throw new Error('Oturum açmanız gerekiyor.');
+    }
+    if (publisherMode === 'company' && !publisherCompanyId) {
+      throw new Error('Şirket ilanı için bir şirket seçin.');
+    }
 
     await updateListing(listingId, buildPayload(values, false));
     const published = await publishListing(listingId);
@@ -193,6 +214,7 @@ export default function EditListingPage() {
             <CategoryListingForm
               listingType={listingType}
               categoryId={categoryId}
+              listingId={listingId}
               initialValues={formInitialValues}
               userId={actorId}
               onSubmit={handleSave}

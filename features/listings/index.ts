@@ -155,7 +155,15 @@ export type { CoreListingFieldsInput, ListingMetaInput } from '@/features/listin
 
 export { DynamicField } from '@/features/listings/form/fields/dynamic-field';
 export { CoreListingFields as CoreListingFieldsForm } from '@/features/listings/form/fields/core-fields';
-export { TagsInput, ImagesInput } from '@/features/listings/form/fields/meta-fields';
+export { ImagesInput } from '@/features/listings/form/fields/meta-fields';
+export {
+  StructuredTagsSelect,
+  TagsInput,
+} from '@/features/listings/form/fields/structured-tags-select';
+export {
+  getListingTagGroups,
+  LISTING_TAG_MAX,
+} from '@/features/listings/config/listing-tag-options.config';
 export { DynamicListingForm, CategoryListingForm } from '@/features/listings/form/dynamic-listing-form';
 export type { ListingFormValues, CategoryListingFormProps } from '@/features/listings/form/dynamic-listing-form';
 export {
@@ -181,6 +189,7 @@ export {
   CATEGORY_PAGE_CONFIG,
   LISTING_SORT_OPTIONS,
   getCategorySlugFromIntent,
+  getCategoryRoutePath,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 export type { ListingSortBy, MarketplaceBrowseParams, MarketplaceFilterState } from '@/features/listings/types/marketplace.types';

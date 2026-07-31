@@ -93,6 +93,8 @@ export interface ListingDetail {
   publisher: ListingPublisher;
   activity: { id: string; text: string; time: string }[];
   similar: ListingSimilar[];
+  /** Category-specific detail rows derived from custom fields. */
+  customFacts?: { label: string; value: string }[];
 }
 
 export interface ListingSummary {

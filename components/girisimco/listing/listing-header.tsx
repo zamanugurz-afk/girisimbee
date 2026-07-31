@@ -15,6 +15,7 @@ import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge'
 import type { ListingDetail } from '@/features/listings';
 import type { ListingId } from '@/lib/domain/ids';
 import { cn } from '@/lib/utils';
+import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 
 interface ListingHeaderProps {
   listing: ListingDetail;
@@ -64,13 +65,21 @@ export function ListingHeader({ listing }: ListingHeaderProps) {
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5" />
-            {listing.location}
-          </span>
-          <Separator orientation="vertical" className="hidden h-3.5 sm:block" />
-          <span>{listing.publishedAt}</span>
-          <Separator orientation="vertical" className="hidden h-3.5 sm:block" />
+          {!isEmptyDisplayValue(listing.location) && (
+            <>
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                {listing.location}
+              </span>
+              <Separator orientation="vertical" className="hidden h-3.5 sm:block" />
+            </>
+          )}
+          {!isEmptyDisplayValue(listing.publishedAt) && (
+            <>
+              <span>{listing.publishedAt}</span>
+              <Separator orientation="vertical" className="hidden h-3.5 sm:block" />
+            </>
+          )}
           <span className="inline-flex items-center gap-1.5">
             <Eye className="h-3.5 w-3.5" />
             {listing.views.toLocaleString('tr-TR')} görüntülenme

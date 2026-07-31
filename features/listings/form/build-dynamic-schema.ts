@@ -4,8 +4,42 @@
  */
 import { z } from 'zod';
 import type { ListingFieldDefinition, ListingFieldSchema } from '@/features/listings/types/listing-type.types';
+import {
+  resolveStepCustomFields,
+  type ListingFormStepDef,
+} from '@/features/listings/config/listing-form-steps.config';
 import { remotePolicySchema } from '@/features/listings/validation/listing.schema';
 import { uuidSchema } from '@/lib/domain/validation';
+
+const STAGE_FIELD_KEY = 'stage';
+
+function normalizeEnumValue(value: string): string {
+  return value.trim().normalize('NFC');
+}
+
+/** Match a stored enum value to its canonical option (trim + Unicode NFC). */
+export function resolveEnumOption(
+  value: unknown,
+  options: readonly string[],
+): string | undefined {
+  if (value === null || value === undefined || value === '') return undefined;
+
+  const normalized = normalizeEnumValue(String(value));
+  return options.find((option) => normalizeEnumValue(option) === normalized);
+}
+
+function logStagePipeline(
+  step: string,
+  data: {
+    'payload.customFields.stage'?: unknown;
+    'defaults.stage'?: unknown;
+    'merged.stage'?: unknown;
+    'picked.stage'?: unknown;
+    'schema.stage'?: unknown;
+  },
+) {
+  console.log(`[ListingForm:stage] ${step}`, data);
+}
 
 function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
   let schema: z.ZodTypeAny;
@@ -30,13 +64,78 @@ function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
     case 'date':
       schema = z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/));
       break;
-    case 'enum':
-      if (!field.options?.length) {
+    case 'enum': {
+      const options = field.options ?? [];
+      const message = `${field.label} seçilmelidir.`;
+
+      if (!options.length) {
         schema = z.string();
+        break;
+      }
+
+      const enumSchema = z
+        .string()
+        .superRefine((val, ctx) => {
+          if (!val) {
+            if (field.required) {
+              ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+            }
+            return;
+          }
+
+          if (!resolveEnumOption(val, options)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+          }
+        })
+        .transform((val) => resolveEnumOption(val, options) ?? val);
+
+      if (field.required) {
+        schema = z.preprocess(
+          (val) => (val === undefined || val === null ? '' : String(val)),
+          enumSchema,
+        );
       } else {
-        schema = z.enum(field.options as [string, ...string[]]);
+        schema = z.preprocess(
+          (val) => {
+            if (val === undefined || val === null || val === '') return undefined;
+            return String(val);
+          },
+          enumSchema.optional(),
+        );
       }
       break;
+    }
+    case 'multi-enum': {
+      const options = field.options ?? [];
+      const message = `${field.label} için en az bir seçenek işaretleyin.`;
+
+      const multiSchema = z
+        .array(z.string())
+        .superRefine((values, ctx) => {
+          const normalized = values
+            .map((value) => resolveEnumOption(value, options) ?? value.trim())
+            .filter(Boolean);
+
+          if (field.required && normalized.length === 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+            return;
+          }
+
+          for (const value of normalized) {
+            if (options.length && !resolveEnumOption(value, options)) {
+              ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+            }
+          }
+        })
+        .transform((values) =>
+          values
+            .map((value) => resolveEnumOption(value, options) ?? value.trim())
+            .filter(Boolean),
+        );
+
+      schema = field.required ? multiSchema : multiSchema.optional();
+      break;
+    }
     default:
       schema = z.unknown();
   }
@@ -48,13 +147,26 @@ function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
   return schema;
 }
 
-/** Build Zod object schema for customFields from a field schema config. */
-export function buildDynamicFieldsSchema(fieldSchema: ListingFieldSchema): z.ZodObject<Record<string, z.ZodTypeAny>> {
+/** Build Zod object schema for a subset of custom fields. */
+export function buildPartialDynamicFieldsSchema(
+  fieldSchema: ListingFieldSchema,
+  fieldKeys: string[],
+): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of fieldSchema.fields) {
-    shape[field.key] = fieldToZod(field);
+    if (fieldKeys.includes(field.key)) {
+      shape[field.key] = fieldToZod(field);
+    }
   }
   return z.object(shape);
+}
+
+/** Build Zod object schema for customFields from a field schema config. */
+export function buildDynamicFieldsSchema(fieldSchema: ListingFieldSchema): z.ZodObject<Record<string, z.ZodTypeAny>> {
+  return buildPartialDynamicFieldsSchema(
+    fieldSchema,
+    fieldSchema.fields.map((field) => field.key),
+  );
 }
 
 /** Accept http(s) URLs and data URLs (mock/local uploads). */
@@ -74,8 +186,13 @@ export const listingImageUrlSchema = z.string().refine(
 /** Core listing fields — shared across all categories. */
 export const coreListingFieldsSchema = z.object({
   title: z.string().min(5, 'Başlık en az 5 karakter olmalı.').max(200),
-  shortDescription: z.string().min(20, 'Kısa açıklama en az 20 karakter olmalı.').max(500),
-  longDescription: z.string().max(10000).optional().default(''),
+  shortDescription: z.string().min(30, 'Kısa açıklama en az 30 karakter olmalı.').max(500),
+  longDescription: z
+    .string()
+    .min(100, 'Detaylı açıklama en az 100 karakter olmalı.')
+    .max(10000)
+    .optional()
+    .default(''),
   location: z.string().max(200).nullable().optional(),
   city: z.string().max(100).nullable().optional(),
   country: z.string().default('TR'),
@@ -99,7 +216,7 @@ export type CoreListingFieldsInput = z.infer<typeof coreListingFieldsSchema>;
 
 /** Tags and images — optional metadata on create/update */
 export const listingMetaSchema = z.object({
-  tags: z.array(z.string().min(2).max(50)).max(20).optional().default([]),
+  tags: z.array(z.string().min(1).max(50)).max(10).optional().default([]),
   images: z.array(z.object({
     url: listingImageUrlSchema,
     alt: z.string().max(200).nullable().optional(),
@@ -108,6 +225,51 @@ export const listingMetaSchema = z.object({
 });
 
 export type ListingMetaInput = z.infer<typeof listingMetaSchema>;
+
+/**
+ * Build create-listing schema limited to fields shown in the wizard.
+ * Hidden/system fields are excluded from validation.
+ */
+export function buildWizardVisibleListingFormSchema(
+  fieldSchema: ListingFieldSchema,
+  steps: ListingFormStepDef[],
+  allFieldKeys: string[],
+) {
+  const visibleCore = new Set<keyof CoreListingFieldsInput>();
+  const visibleCustom = new Set<string>();
+  let includeTags = false;
+  let includeImages = false;
+
+  for (const step of steps) {
+    if (step.preview || step.publish) continue;
+    step.coreFields?.forEach((key) => visibleCore.add(key));
+    resolveStepCustomFields(step, allFieldKeys).forEach((key) => visibleCustom.add(key));
+    if (step.meta?.includes('tags')) includeTags = true;
+    if (step.meta?.includes('images')) includeImages = true;
+  }
+
+  const coreShape: Record<string, z.ZodTypeAny> = {};
+  for (const key of visibleCore) {
+    const coreField = coreListingFieldsSchema.shape[key];
+    if (coreField) {
+      coreShape[key] = coreField;
+    }
+  }
+
+  const shape: Record<string, z.ZodTypeAny> = {
+    core: z.object(coreShape),
+    customFields: buildPartialDynamicFieldsSchema(fieldSchema, [...visibleCustom]),
+  };
+
+  if (includeTags) {
+    shape.tags = listingMetaSchema.shape.tags;
+  }
+  if (includeImages) {
+    shape.images = listingMetaSchema.shape.images;
+  }
+
+  return z.object(shape);
+}
 
 /**
  * Build draft create-listing schema — relaxed validation for partial saves.
@@ -199,13 +361,86 @@ export function getDynamicFieldDefaults(fieldSchema: ListingFieldSchema): Record
         defaults[field.key] = field.min ?? undefined;
         break;
       case 'enum':
-        defaults[field.key] = field.options?.[0] ?? '';
+        defaults[field.key] = field.required ? '' : undefined;
+        break;
+      case 'multi-enum':
+        defaults[field.key] = [];
         break;
       default:
         defaults[field.key] = '';
     }
   }
   return defaults;
+}
+
+/** Merge persisted custom field values onto category defaults (keeps every schema key). */
+export function mergeCustomFieldDefaults(
+  fieldSchema: ListingFieldSchema,
+  customFields: Record<string, unknown>,
+): Record<string, unknown> {
+  const defaults = getDynamicFieldDefaults(fieldSchema);
+  const merged: Record<string, unknown> = { ...defaults };
+
+  for (const field of fieldSchema.fields) {
+    const incoming = customFields[field.key];
+    const hasIncoming =
+      field.type === 'multi-enum'
+        ? Array.isArray(incoming) && incoming.length > 0
+        : incoming !== undefined
+          && incoming !== null
+          && !(typeof incoming === 'string' && incoming === '');
+
+    if (hasIncoming) {
+      merged[field.key] = incoming;
+    }
+  }
+
+  for (const field of fieldSchema.fields) {
+    if (field.type === 'multi-enum' && field.options?.length) {
+      const raw = merged[field.key];
+      if (!Array.isArray(raw)) {
+        if (!field.required) merged[field.key] = [];
+        continue;
+      }
+      merged[field.key] = raw
+        .map((value) => resolveEnumOption(value, field.options!) ?? String(value).trim())
+        .filter(Boolean);
+      continue;
+    }
+
+    if (field.type !== 'enum' || !field.options?.length) continue;
+
+    const raw = merged[field.key];
+    if (raw === null || raw === undefined || raw === '') {
+      if (!field.required) {
+        merged[field.key] = undefined;
+      }
+      continue;
+    }
+
+    const canonical = resolveEnumOption(raw, field.options);
+    if (canonical) {
+      merged[field.key] = canonical;
+      continue;
+    }
+
+    // Keep non-empty user values — do not silently replace with undefined.
+    merged[field.key] = String(raw);
+  }
+
+  if (STAGE_FIELD_KEY in defaults || STAGE_FIELD_KEY in customFields) {
+    const stageField = fieldSchema.fields.find((field) => field.key === STAGE_FIELD_KEY);
+    logStagePipeline('mergeCustomFieldDefaults', {
+      'payload.customFields.stage': customFields[STAGE_FIELD_KEY],
+      'defaults.stage': defaults[STAGE_FIELD_KEY],
+      'merged.stage': merged[STAGE_FIELD_KEY],
+      'schema.stage': stageField
+        ? { type: stageField.type, required: stageField.required, options: stageField.options }
+        : undefined,
+    });
+  }
+
+  return merged;
 }
 
 /** Default values for core fields */
@@ -265,6 +500,8 @@ export function validateListingFormStep(
   }
 
   if (step.customFieldKeys?.length) {
+    const defaults = getDynamicFieldDefaults(fieldSchema);
+    const mergedCustomFields = mergeCustomFieldDefaults(fieldSchema, payload.customFields);
     const subset: ListingFieldSchema = {
       fields: fieldSchema.fields.filter((f) => step.customFieldKeys!.includes(f.key)),
     };
@@ -275,8 +512,26 @@ export function validateListingFormStep(
           : buildDynamicFieldsSchema(subset);
       const picked: Record<string, unknown> = {};
       for (const key of step.customFieldKeys) {
-        picked[key] = payload.customFields[key];
+        const mergedValue = mergedCustomFields[key];
+        picked[key] =
+          mergedValue !== undefined && mergedValue !== null
+            ? mergedValue
+            : defaults[key];
       }
+
+      if (step.customFieldKeys.includes(STAGE_FIELD_KEY)) {
+        const stageField = fieldSchema.fields.find((field) => field.key === STAGE_FIELD_KEY);
+        logStagePipeline('validateListingFormStep', {
+          'payload.customFields.stage': payload.customFields[STAGE_FIELD_KEY],
+          'defaults.stage': defaults[STAGE_FIELD_KEY],
+          'merged.stage': mergedCustomFields[STAGE_FIELD_KEY],
+          'picked.stage': picked[STAGE_FIELD_KEY],
+          'schema.stage': stageField
+            ? { type: stageField.type, required: stageField.required, options: stageField.options }
+            : undefined,
+        });
+      }
+
       schema.parse(picked);
     }
   }

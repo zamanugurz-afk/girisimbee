@@ -4,6 +4,7 @@ import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 export const HOME_CATEGORIES = [
   {
     slug: 'yatirim-bul',
+    href: '/investors',
     label: 'Yatırım Bul',
     color: GC_CATEGORY_COLORS['yatirim-bul'],
     audience: 'Girişimciler',
@@ -11,6 +12,7 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'yatirim-yap',
+    href: '/invest',
     label: 'Yatırım Yap',
     color: GC_CATEGORY_COLORS['yatirim-yap'],
     audience: 'Yatırımcılar',
@@ -18,6 +20,7 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'is-bul',
+    href: '/jobs',
     label: 'İş Bul',
     color: GC_CATEGORY_COLORS['is-bul'],
     audience: 'İş arayanlar',
@@ -25,6 +28,7 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'ise-al',
+    href: '/hire',
     label: 'İşe Al',
     color: GC_CATEGORY_COLORS['ise-al'],
     audience: 'İşverenler',
@@ -32,6 +36,7 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'ortak-bul',
+    href: '/partners',
     label: 'Ortak Bul',
     color: GC_CATEGORY_COLORS['ortak-bul'],
     audience: 'Kurucular',
@@ -61,6 +66,6 @@ export const HOME_STEPS = [
   {
     step: '3',
     title: 'Eşleşin ve ilerleyin',
-    description: 'Doğru kişiyle buluşun; yatırım, iş veya ortaklık sürecinizi başlatın.',
+    description: 'Doğru kişilerle buluşun; yatırım, iş veya ortaklık sürecinizi başlatın.',
   },
 ] as const;

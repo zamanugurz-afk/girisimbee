@@ -1,5 +1,6 @@
 import { ids } from '@/lib/domain/ids';
 import { timestamps, softDeletable, slugify } from '@/lib/domain/factory';
+import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
 import type { Listing, CreateListingInput } from '@/features/listings/types/listing.entity.types';
 
 export function createListing(
@@ -11,17 +12,27 @@ export function createListing(
     id: overrides.id ?? ids.listing(crypto.randomUUID()),
     slug,
     ownerId: overrides.ownerId,
-    companyId: overrides.companyId ?? null,
+    companyId: coerceCompanyId(overrides.companyId),
     categoryId: overrides.categoryId,
     listingTypeId: overrides.listingTypeId,
+    subcategoryId: overrides.subcategoryId ?? null,
+    moduleKey: overrides.moduleKey ?? null,
     title: overrides.title,
     shortDescription: overrides.shortDescription,
     longDescription: overrides.longDescription ?? '',
     status: overrides.status ?? 'draft',
     location: overrides.location ?? null,
     city: overrides.city ?? null,
+    district: overrides.district ?? null,
+    industry: overrides.industry ?? null,
     country: overrides.country ?? 'TR',
     remotePolicy: overrides.remotePolicy ?? null,
+    anonymousMode: overrides.anonymousMode ?? false,
+    workflowStatus: overrides.workflowStatus ?? 'draft',
+    contactPhone: overrides.contactPhone ?? null,
+    contactWhatsapp: overrides.contactWhatsapp ?? null,
+    contactEmail: overrides.contactEmail ?? null,
+    contactWebsite: overrides.contactWebsite ?? null,
     investmentDetails: overrides.investmentDetails ?? null,
     jobDetails: overrides.jobDetails ?? null,
     partnerDetails: overrides.partnerDetails ?? null,
@@ -31,6 +42,9 @@ export function createListing(
     applicationCount: overrides.applicationCount ?? 0,
     isVerified: overrides.isVerified ?? false,
     isFeatured: overrides.isFeatured ?? false,
+    isUrgent: overrides.isUrgent ?? false,
+    featuredUntil: overrides.featuredUntil ?? null,
+    urgentUntil: overrides.urgentUntil ?? null,
     publishedAt: overrides.publishedAt ?? null,
     expiresAt: overrides.expiresAt ?? null,
     rejectedReason: overrides.rejectedReason ?? null,

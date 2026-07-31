@@ -8,13 +8,13 @@
 
 export const gcColors = {
   /** Brand periwinkle indigo — primary actions, links, focus */
-  primary: 'hsl(234 72% 58%)',
+  primary: 'hsl(243 89% 66%)',
   /** Deep ink — body text */
-  foreground: 'hsl(228 20% 14%)',
+  foreground: 'hsl(222 47% 11%)',
   /** Secondary text — captions, meta */
-  muted: 'hsl(220 12% 48%)',
+  muted: 'hsl(215 25% 27%)',
   /** Page background */
-  background: 'hsl(220 33% 98.5%)',
+  background: 'hsl(210 40% 98%)',
   /** Elevated surfaces */
   card: 'hsl(0 0% 100%)',
   /** Dividers, input borders */
@@ -26,10 +26,10 @@ export const gcColors = {
 
 /** Marketplace category accent palette */
 export const gcCategoryColors = {
-  'yatirim-bul': '#5B9BF8',
-  'yatirim-yap': '#7C6CF0',
-  'is-bul': '#38BDF8',
-  'ise-al': '#34D399',
+  'yatirim-bul': '#60A5FA',
+  'yatirim-yap': '#6C63FF',
+  'is-bul': '#5B5CF6',
+  'ise-al': '#22C55E',
   'ortak-bul': '#F59E0B',
 } as const;
 

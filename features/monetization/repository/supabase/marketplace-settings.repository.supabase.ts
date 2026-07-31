@@ -55,16 +55,25 @@ export class SupabaseMarketplaceSettingsRepository implements MarketplaceSetting
 
   async incrementPublishedCount(): Promise<MarketplaceSettings> {
     const current = await this.get();
-    const { data, error } = await this.supabase
-      .from(TABLE)
-      .update({
-        current_published_count: current.currentPublishedCount + 1,
-        updated_at: now(),
-      })
-      .eq('id', ROW_ID)
-      .select('*')
-      .single();
-    if (error) throw error;
-    return mapRow(data as SettingsRow);
+    try {
+      const { data, error } = await this.supabase
+        .from(TABLE)
+        .update({
+          current_published_count: current.currentPublishedCount + 1,
+          updated_at: now(),
+        })
+        .eq('id', ROW_ID)
+        .select('*')
+        .single();
+      if (error) throw error;
+      return mapRow(data as SettingsRow);
+    } catch (error) {
+      const supabaseError = error as { message?: string; details?: string; code?: string };
+      console.error('[Supabase] marketplace_settings incrementPublishedCount failed — table:', TABLE);
+      console.error('error.message:', supabaseError.message);
+      console.error('error.details:', supabaseError.details);
+      console.error('error.code:', supabaseError.code);
+      return current;
+    }
   }
 }

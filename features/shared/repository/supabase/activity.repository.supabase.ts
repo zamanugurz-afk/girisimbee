@@ -12,6 +12,7 @@ import type { ActivityRepository } from '@/features/shared/repositories/activity
 import { createActivity } from '@/features/shared/factories/moderation.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
 import {
+  isValidUuidValue,
   logSupabaseError,
   prepareSupabaseWrite,
 } from '@/lib/persistence/supabase-payload';
@@ -21,9 +22,11 @@ const TABLE = 'marketplace_activities';
 interface ActivityRow {
   id: string;
   actor_id: string | null;
-  verb: string;
+  verb: string | null;
+  activity_type: string | null;
   entity_type: string;
   entity_id: string;
+  listing_id: string | null;
   summary: string;
   metadata: Record<string, unknown>;
   is_public: boolean;
@@ -36,7 +39,7 @@ function mapActivityRow(row: ActivityRow): Activity {
   return {
     id: row.id as ActivityId,
     actorId: row.actor_id as Activity['actorId'],
-    verb: row.verb as Activity['verb'],
+    verb: (row.verb ?? row.activity_type ?? 'listing.created') as Activity['verb'],
     entityType: row.entity_type as Activity['entityType'],
     entityId: row.entity_id,
     summary: row.summary,
@@ -45,6 +48,27 @@ function mapActivityRow(row: ActivityRow): Activity {
     ...fromTimestamps(row),
     ...fromSoftDeletable(row),
   };
+}
+
+/** Map domain activity to live marketplace_activities columns. */
+function toActivityInsertRow(activity: Activity): Record<string, unknown> {
+  const row: Record<string, unknown> = {
+    id: activity.id,
+    actor_id: activity.actorId,
+    verb: activity.verb,
+    activity_type: activity.verb,
+    entity_type: activity.entityType,
+    entity_id: activity.entityId,
+    summary: activity.summary,
+    metadata: activity.metadata,
+    is_public: activity.isPublic,
+  };
+
+  if (activity.entityType === 'listing' && isValidUuidValue(activity.entityId)) {
+    row.listing_id = activity.entityId;
+  }
+
+  return row;
 }
 
 export class SupabaseActivityRepository implements ActivityRepository {
@@ -98,16 +122,7 @@ export class SupabaseActivityRepository implements ActivityRepository {
 
   async create(input: CreateActivityInput): Promise<Activity> {
     const activity = createActivity(input);
-    const row = prepareSupabaseWrite('insert', TABLE, {
-      id: activity.id,
-      actor_id: activity.actorId,
-      verb: activity.verb,
-      entity_type: activity.entityType,
-      entity_id: activity.entityId,
-      summary: activity.summary,
-      metadata: activity.metadata,
-      is_public: activity.isPublic,
-    }, {
+    const row = prepareSupabaseWrite('insert', TABLE, toActivityInsertRow(activity), {
       requiredUuidFields: ['id', 'entity_id'],
       nullableUuidFields: ['actor_id'],
     });

@@ -21,6 +21,10 @@ import { createListing } from '@/features/listings/factories/listing.factory';
 import { mapListingRow, toListingRow, toListingUpdateRow, type ListingRow } from '@/features/listings/repository/supabase/listing.mapper';
 import { getSortColumn } from '@/features/listings/utils/listing-sort';
 import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import {
+  logSupabaseError,
+  prepareSupabaseWrite,
+} from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'marketplace_listings';
 
@@ -55,10 +59,27 @@ export class SupabaseListingRepository implements ListingRepository {
     if (filter.ownerId) q = q.eq('owner_id', filter.ownerId);
     if (filter.categoryId) q = q.eq('category_id', filter.categoryId);
     if (filter.listingTypeId) q = q.eq('listing_type_id', filter.listingTypeId);
+    if (filter.subcategoryId) q = q.eq('subcategory_id', filter.subcategoryId);
+    if (filter.moduleKey) q = q.eq('module_key', filter.moduleKey);
     if (filter.companyId) q = q.eq('company_id', filter.companyId);
     if (filter.city) q = q.eq('city', filter.city);
+    if (filter.district) q = q.eq('district', filter.district);
+    if (filter.industry) q = q.eq('industry', filter.industry);
+    if (filter.anonymousMode !== undefined) q = q.eq('anonymous_mode', filter.anonymousMode);
+    if (filter.workflowStatus) q = q.eq('workflow_status', filter.workflowStatus);
     if (filter.isVerified !== undefined) q = q.eq('is_verified', filter.isVerified);
     if (filter.isFeatured !== undefined) q = q.eq('is_featured', filter.isFeatured);
+    if (filter.isUrgent !== undefined) q = q.eq('is_urgent', filter.isUrgent);
+    if (filter.activeFeaturedOnly) {
+      const now = new Date().toISOString();
+      q = q.or(`featured_until.is.null,featured_until.gt.${now}`);
+    }
+    if (filter.activeUrgentOnly) {
+      const now = new Date().toISOString();
+      q = q.or(`urgent_until.is.null,urgent_until.gt.${now}`);
+    }
+    if (filter.publishedAfter) q = q.gte('published_at', filter.publishedAfter);
+    if (filter.publishedBefore) q = q.lte('published_at', filter.publishedBefore);
     if (filter.remotePolicy) q = q.eq('remote_policy', filter.remotePolicy);
     if (filter.status) {
       const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
@@ -119,17 +140,42 @@ export class SupabaseListingRepository implements ListingRepository {
   async create(input: CreateListingInput): Promise<Listing> {
     const slug = await this.uniqueSlug(input.title);
     const entity = createListing({ ...input, slug, status: 'draft' });
-    const row = { id: entity.id, ...toListingRow(entity) };
-    const { data, error } = await this.supabase.from(TABLE).insert(row).select('*').single();
-    if (error) throw error;
-    return mapListingRow(data as ListingRow);
+    const row = prepareSupabaseWrite('insert', TABLE, { id: entity.id, ...toListingRow(entity) }, {
+      requiredUuidFields: ['id', 'owner_id', 'category_id', 'listing_type_id'],
+      nullableUuidFields: ['company_id'],
+    });
+
+    console.log('Supabase insert table:', TABLE);
+    console.log('userId:', row.owner_id);
+    console.log('companyId:', row.company_id);
+    console.log(JSON.stringify(row, null, 2));
+
+    try {
+      const { data, error } = await this.supabase.from(TABLE).insert(row).select('*').single();
+      if (error) throw error;
+      return mapListingRow(data as ListingRow);
+    } catch (error) {
+      const supabaseError = error as { message?: string; details?: string; code?: string };
+      console.error('Supabase insert failed — table:', TABLE);
+      console.error('error.message:', supabaseError.message);
+      console.error('error.details:', supabaseError.details);
+      console.error('error.code:', supabaseError.code);
+      console.error('failing payload:', JSON.stringify(row, null, 2));
+      logSupabaseError(error, `${TABLE} insert`);
+      throw error;
+    }
   }
 
   async update(id: ListingId, input: UpdateListingInput): Promise<Listing> {
-    const row = toListingUpdateRow(input);
+    const row = prepareSupabaseWrite('update', TABLE, toListingUpdateRow(input), {
+      nullableUuidFields: ['company_id'],
+    });
     row.updated_at = now();
     const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select('*').single();
-    if (error) throw error;
+    if (error) {
+      logSupabaseError(error, `${TABLE} update ${id}`);
+      throw error;
+    }
     if (!data) throw new NotFoundError('Listing', id);
     return mapListingRow(data as ListingRow);
   }
@@ -185,17 +231,23 @@ export class SupabaseListingRepository implements ListingRepository {
     if (!canTransition(LISTING_LIFECYCLE, listing.status, to)) {
       throw new InvalidTransitionError(listing.status, to);
     }
-    const update: Record<string, unknown> = { status: to, updated_at: now() };
-    if (to === 'published') {
-      update.published_at = listing.publishedAt ?? now();
-      update.expires_at = computeListingExpiry();
-      update.rejected_reason = null;
-    }
-    if (to === 'pending_review') {
-      update.rejected_reason = null;
-    }
+    const update = prepareSupabaseWrite('update', TABLE, {
+      status: to,
+      updated_at: now(),
+      ...(to === 'published'
+        ? {
+            published_at: listing.publishedAt ?? now(),
+            expires_at: computeListingExpiry(),
+            rejected_reason: null,
+          }
+        : {}),
+      ...(to === 'pending_review' ? { rejected_reason: null } : {}),
+    });
     const { data, error } = await this.supabase.from(TABLE).update(update).eq('id', id).select('*').single();
-    if (error) throw error;
+    if (error) {
+      logSupabaseError(error, `${TABLE} transitionStatus ${id} → ${to}`);
+      throw error;
+    }
     return mapListingRow(data as ListingRow);
   }
 

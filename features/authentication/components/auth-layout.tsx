@@ -18,8 +18,8 @@ export function AuthLayout({
       <div className="pointer-events-none absolute inset-0 gc-dot-grid opacity-40" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-primary/5 to-transparent" />
 
-      <header className="relative border-b border-border/60 px-5 py-4">
-        <div className="mx-auto max-w-md">
+      <header className="relative border-b border-border/60 px-5 py-5">
+        <div className="mx-auto flex max-w-md justify-center">
           <SiteLogo />
         </div>
       </header>

@@ -40,10 +40,43 @@ export class MockListingRepository implements ListingRepository {
     if (filter.ownerId) results = results.filter((l) => l.ownerId === filter.ownerId);
     if (filter.categoryId) results = results.filter((l) => l.categoryId === filter.categoryId);
     if (filter.listingTypeId) results = results.filter((l) => l.listingTypeId === filter.listingTypeId);
+    if (filter.subcategoryId) results = results.filter((l) => l.subcategoryId === filter.subcategoryId);
+    if (filter.moduleKey) results = results.filter((l) => l.moduleKey === filter.moduleKey);
     if (filter.companyId) results = results.filter((l) => l.companyId === filter.companyId);
     if (filter.city) results = results.filter((l) => l.city === filter.city);
+    if (filter.district) results = results.filter((l) => l.district === filter.district);
+    if (filter.industry) results = results.filter((l) => l.industry === filter.industry);
+    if (filter.anonymousMode !== undefined) results = results.filter((l) => l.anonymousMode === filter.anonymousMode);
+    if (filter.workflowStatus) results = results.filter((l) => l.workflowStatus === filter.workflowStatus);
     if (filter.isVerified !== undefined) results = results.filter((l) => l.isVerified === filter.isVerified);
     if (filter.isFeatured !== undefined) results = results.filter((l) => l.isFeatured === filter.isFeatured);
+    if (filter.isUrgent !== undefined) results = results.filter((l) => l.isUrgent === filter.isUrgent);
+    if (filter.activeFeaturedOnly) {
+      const now = Date.now();
+      results = results.filter(
+        (l) => !l.featuredUntil || new Date(l.featuredUntil).getTime() > now,
+      );
+    }
+    if (filter.activeUrgentOnly) {
+      const now = Date.now();
+      results = results.filter(
+        (l) => !l.urgentUntil || new Date(l.urgentUntil).getTime() > now,
+      );
+    }
+    if (filter.publishedAfter) {
+      const after = new Date(filter.publishedAfter).getTime();
+      results = results.filter((l) => {
+        const published = l.publishedAt ?? l.createdAt;
+        return published ? new Date(published).getTime() >= after : false;
+      });
+    }
+    if (filter.publishedBefore) {
+      const before = new Date(filter.publishedBefore).getTime();
+      results = results.filter((l) => {
+        const published = l.publishedAt ?? l.createdAt;
+        return published ? new Date(published).getTime() <= before : false;
+      });
+    }
     if (filter.remotePolicy) results = results.filter((l) => l.remotePolicy === filter.remotePolicy);
     if (filter.status) {
       const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
@@ -85,7 +118,7 @@ export class MockListingRepository implements ListingRepository {
 
   async create(input: CreateListingInput): Promise<Listing> {
     const slug = this.uniqueSlug(input.title);
-    const listing = createListing({ ...input, slug, status: 'draft' });
+    const listing = createListing({ ...input, slug, status: input.status ?? 'draft' });
     this.save(listing);
     return listing;
   }

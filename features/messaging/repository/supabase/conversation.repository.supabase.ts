@@ -17,6 +17,7 @@ import type {
 import type { ConversationRepository } from '@/features/messaging/repositories/conversation.repository';
 import { createConversation } from '@/features/messaging/factories/messaging.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
+import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 import type { MessageRepository } from '@/features/messaging/repositories/message.repository';
 
 const TABLE = 'marketplace_conversations';
@@ -73,7 +74,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
       .from(PARTICIPANTS)
       .select('user_id')
       .eq('conversation_id', conversationId);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return [];
+      throw error;
+    }
     return sortParticipantIds((data ?? []).map((r) => r.user_id as UserId));
   }
 
@@ -110,7 +114,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
         .from(PARTICIPANTS)
         .select('conversation_id')
         .eq('user_id', filter.participantId);
-      if (pErr) throw pErr;
+      if (pErr) {
+        if (isMissingRelationError(pErr)) return paginatedResult([], 0, page, limit);
+        throw pErr;
+      }
       const ids = (participantRows ?? []).map((r) => r.conversation_id);
       if (ids.length === 0) return paginatedResult([], 0, page, limit);
 
@@ -232,7 +239,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
   async findByParticipants(participantIds: Conversation['participantIds']): Promise<Conversation | null> {
     const sorted = sortParticipantIds(participantIds);
     const { data: rows, error } = await this.supabase.from(PARTICIPANTS).select('conversation_id').in('user_id', sorted);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return null;
+      throw error;
+    }
     const counts = new Map<string, number>();
     for (const row of rows ?? []) {
       counts.set(row.conversation_id, (counts.get(row.conversation_id) ?? 0) + 1);
@@ -279,7 +289,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
 
   async getParticipants(conversationId: ConversationId): Promise<ConversationParticipant[]> {
     const { data, error } = await this.supabase.from(PARTICIPANTS).select('*').eq('conversation_id', conversationId);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return [];
+      throw error;
+    }
     return (data ?? []).map((r) => mapParticipantRow(r as ParticipantRow));
   }
 
@@ -310,7 +323,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
   async countUnreadForUser(userId: UserId): Promise<number> {
     if (!this.messageRepo) return 0;
     const { data, error } = await this.supabase.from(PARTICIPANTS).select('conversation_id').eq('user_id', userId);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return 0;
+      throw error;
+    }
     let total = 0;
     for (const row of data ?? []) {
       total += await this.messageRepo.countUnread(row.conversation_id as ConversationId, userId);

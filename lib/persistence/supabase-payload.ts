@@ -165,6 +165,23 @@ export function isSupabaseError(error: unknown): error is SupabaseErrorLike {
   return typeof error === 'object' && error !== null && 'message' in error;
 }
 
+/** True when PostgREST/Postgres reports a missing table or schema-cache miss. */
+export function isMissingRelationError(error: unknown): boolean {
+  if (!isSupabaseError(error)) return false;
+  const code = error.code ?? '';
+  const message = (error.message ?? '').toLowerCase();
+  const details = (error.details ?? '').toLowerCase();
+  return (
+    code === '42P01' ||
+    code === 'PGRST205' ||
+    code === 'PGRST204' ||
+    message.includes('does not exist') ||
+    message.includes('could not find the table') ||
+    message.includes('schema cache') ||
+    details.includes('does not exist')
+  );
+}
+
 /** Full Supabase/PostgREST error text for UI and logs. */
 export function formatSupabaseErrorMessages(error: unknown): string[] {
   if (!isSupabaseError(error)) {

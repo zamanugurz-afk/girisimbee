@@ -11,8 +11,14 @@ import type { Favorite, CreateFavoriteInput, UpdateFavoriteInput, FavoriteFilter
 import type { FavoriteRepository } from '@/features/favorites/repositories/favorite.repository';
 import { createFavorite } from '@/features/favorites/factories/favorite.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
+import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'marketplace_favorites';
+
+function emptyFavoritePage(pagination?: PaginationParams): PaginatedResult<Favorite> {
+  const { page, limit } = normalizePagination(pagination);
+  return paginatedResult([], 0, page, limit);
+}
 
 interface FavoriteRow {
   id: string;
@@ -44,7 +50,10 @@ export class SupabaseFavoriteRepository implements FavoriteRepository {
     let query = this.supabase.from(TABLE).select('*').eq('id', id);
     if (!filter?.includeDeleted) query = query.is('deleted_at', null);
     const { data, error } = await query.maybeSingle();
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return null;
+      throw error;
+    }
     return data ? mapFavoriteRow(data as FavoriteRow) : null;
   }
 
@@ -56,7 +65,10 @@ export class SupabaseFavoriteRepository implements FavoriteRepository {
       .eq('listing_id', listingId)
       .is('deleted_at', null)
       .maybeSingle();
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return null;
+      throw error;
+    }
     return data ? mapFavoriteRow(data as FavoriteRow) : null;
   }
 
@@ -70,7 +82,10 @@ export class SupabaseFavoriteRepository implements FavoriteRepository {
     if (filter.listingId) query = query.eq('listing_id', filter.listingId);
     if (filter.status) query = query.eq('status', filter.status);
     const { data, error, count } = await query.order('created_at', { ascending: false }).range(start, end);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return emptyFavoritePage(pagination);
+      throw error;
+    }
     return paginatedResult((data ?? []).map((r) => mapFavoriteRow(r as FavoriteRow)), count ?? 0, page, limit);
   }
 
@@ -88,12 +103,20 @@ export class SupabaseFavoriteRepository implements FavoriteRepository {
   }
 
   async countByListingId(listingId: ListingId): Promise<number> {
-    return this.count({ listingId, status: 'active' });
+    try {
+      return await this.count({ listingId, status: 'active' });
+    } catch (error) {
+      if (isMissingRelationError(error)) return 0;
+      throw error;
+    }
   }
 
   async exists(id: FavoriteId): Promise<boolean> {
     const { count, error } = await this.supabase.from(TABLE).select('*', { count: 'exact', head: true }).eq('id', id);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return false;
+      throw error;
+    }
     return (count ?? 0) > 0;
   }
 

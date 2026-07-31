@@ -13,6 +13,7 @@ import type { ProfileRepository } from '@/features/profiles/repositories/profile
 import { PROFILE_LIFECYCLE } from '@/features/profiles/types/profile.types';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
+import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'marketplace_profiles';
 
@@ -176,7 +177,10 @@ export class SupabaseProfileRepository implements ProfileRepository {
       .select('*')
       .in('user_id', userIds)
       .is('deleted_at', null);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return [];
+      throw error;
+    }
     return (data ?? []).map((row) => mapProfileRow(row as ProfileRow));
   }
 

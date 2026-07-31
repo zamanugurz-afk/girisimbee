@@ -23,6 +23,11 @@ export type ActivityId = Brand<string, 'ActivityId'>;
 export type VerificationId = Brand<string, 'VerificationId'>;
 export type SubscriptionId = Brand<string, 'SubscriptionId'>;
 export type ListingPackageId = Brand<string, 'ListingPackageId'>;
+export type SubcategoryId = Brand<string, 'SubcategoryId'>;
+export type MatchId = Brand<string, 'MatchId'>;
+export type DocumentId = Brand<string, 'DocumentId'>;
+export type PaymentId = Brand<string, 'PaymentId'>;
+export type ProfileModuleId = Brand<string, 'ProfileModuleId'>;
 
 export function id<T extends string>(value: string): Brand<string, T> {
   return value as Brand<string, T>;
@@ -47,4 +52,9 @@ export const ids = {
   verification: (v: string) => v as VerificationId,
   subscription: (v: string) => v as SubscriptionId,
   listingPackage: (v: string) => v as ListingPackageId,
+  subcategory: (v: string) => v as SubcategoryId,
+  match: (v: string) => v as MatchId,
+  document: (v: string) => v as DocumentId,
+  payment: (v: string) => v as PaymentId,
+  profileModule: (v: string) => v as ProfileModuleId,
 };

@@ -2,6 +2,7 @@ import type { PaginatedResult } from '@/lib/domain/pagination';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { FavoriteRepository } from '@/features/favorites/repositories/favorite.repository';
+import type { Favorite } from '@/features/favorites/types/favorite.types';
 import type { ProfileRepository } from '@/features/profiles/repositories/profile.repository';
 import type { CompanyRepository } from '@/features/companies/repositories/company.repository';
 import type { MarketplaceBrowseParams } from '@/features/listings/types/marketplace.types';
@@ -32,9 +33,14 @@ export class ListingBrowseService {
     let result = await this.listingRepo.findPublished(filter, { page, limit });
 
     if (params.sortBy === 'most_favorited' && result.data.length > 0) {
-      const counts = await Promise.all(
-        result.data.map((l) => this.favoriteRepo.countByListingId(l.id)),
-      );
+      let counts: number[] = [];
+      try {
+        counts = await Promise.all(
+          result.data.map((l) => this.favoriteRepo.countByListingId(l.id)),
+        );
+      } catch {
+        counts = result.data.map(() => 0);
+      }
       const favoriteCounts = new Map<string, number>(
         result.data.map((l, i) => [l.id, counts[i]]),
       );
@@ -59,10 +65,21 @@ export class ListingBrowseService {
     const page = params.page ?? 1;
     const limit = params.limit ?? BROWSE_PAGE_SIZE;
 
-    const favorites = await this.favoriteRepo.paginate(
-      { userId, status: 'active' },
-      { page, limit },
-    );
+    let favorites: PaginatedResult<Favorite>;
+    try {
+      favorites = await this.favoriteRepo.paginate(
+        { userId, status: 'active' },
+        { page, limit },
+      );
+    } catch {
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        hasMore: false,
+      };
+    }
 
     const listings = (
       await Promise.all(
@@ -91,8 +108,8 @@ export class ListingBrowseService {
     ] as CompanyId[];
 
     const [profiles, companies] = await Promise.all([
-      this.profileRepo.findByUserIds(ownerIds),
-      this.companyRepo.findByIds(companyIds),
+      this.profileRepo.findByUserIds(ownerIds).catch(() => [] as Awaited<ReturnType<ProfileRepository['findByUserIds']>>),
+      this.companyRepo.findByIds(companyIds).catch(() => [] as Awaited<ReturnType<CompanyRepository['findByIds']>>),
     ]);
 
     const profileByUser = new Map(profiles.map((p) => [p.userId, p]));
@@ -118,6 +135,11 @@ export class ListingBrowseService {
       remotePolicy: params.remotePolicy,
       isVerified: params.isVerified,
       isFeatured: params.isFeatured,
+      isUrgent: params.isUrgent,
+      activeFeaturedOnly: params.activeFeaturedOnly,
+      activeUrgentOnly: params.activeUrgentOnly,
+      publishedAfter: params.publishedAfter,
+      publishedBefore: params.publishedBefore,
       sortBy: params.sortBy,
     };
 
@@ -132,10 +154,14 @@ export class ListingBrowseService {
   }
 
   async getListingIdsForFavorites(userId: UserId): Promise<Set<ListingId>> {
-    const { data } = await this.favoriteRepo.paginate(
-      { userId, status: 'active' },
-      { page: 1, limit: 500 },
-    );
-    return new Set(data.map((f) => f.listingId));
+    try {
+      const { data } = await this.favoriteRepo.paginate(
+        { userId, status: 'active' },
+        { page: 1, limit: 500 },
+      );
+      return new Set(data.map((f) => f.listingId));
+    } catch {
+      return new Set();
+    }
   }
 }

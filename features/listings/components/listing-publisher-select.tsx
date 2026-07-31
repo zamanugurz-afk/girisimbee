@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -14,6 +15,7 @@ import { getCompanyService } from '@/lib/persistence/container';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { Company } from '@/features/companies/types/company.types';
 import type { CompanyId, UserId } from '@/lib/domain/ids';
+import { cn } from '@/lib/utils';
 
 export type ListingPublisherMode = 'personal' | 'company';
 
@@ -24,6 +26,11 @@ interface ListingPublisherSelectProps {
   disabled?: boolean;
 }
 
+const PUBLISHER_OPTIONS: { value: ListingPublisherMode; id: string; label: string }[] = [
+  { value: 'personal', id: 'publisher-personal', label: 'Kişisel' },
+  { value: 'company', id: 'publisher-company', label: 'Şirket' },
+];
+
 export function ListingPublisherSelect({
   mode,
   companyId,
@@ -32,53 +39,92 @@ export function ListingPublisherSelect({
 }: ListingPublisherSelectProps) {
   const { user } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setCompanies([]);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingCompanies(true);
+
     void getCompanyService()
       .listByOwner(user.id as UserId)
-      .then(setCompanies);
+      .then((results) => {
+        if (!cancelled) setCompanies(results);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingCompanies(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
+
+  function handleModeChange(next: ListingPublisherMode) {
+    onChange(
+      next,
+      next === 'company' ? companyId ?? companies[0]?.id ?? null : null,
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-xl border border-border/80 p-4 dark:border-white/10">
       <div>
         <Label className="text-sm font-medium">Yayınlayan</Label>
-        <p className="mt-1 text-xs text-muted-foreground">İlan kişisel adınıza mı yoksa şirket adına mı yayınlanacak?</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          İlan kişisel adınıza mı yoksa şirket adına mı yayınlanacak?
+        </p>
       </div>
       <RadioGroup
         value={mode}
-        onValueChange={(v) => {
-          const next = v as ListingPublisherMode;
-          onChange(next, next === 'company' ? companyId ?? companies[0]?.id ?? null : null);
-        }}
+        onValueChange={(value) => handleModeChange(value as ListingPublisherMode)}
         disabled={disabled}
         className="grid gap-3 sm:grid-cols-2"
       >
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border/80 p-3 dark:border-white/10">
-          <RadioGroupItem value="personal" id="publisher-personal" />
-          <span className="text-sm">Kişisel</span>
-        </label>
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border/80 p-3 dark:border-white/10">
-          <RadioGroupItem value="company" id="publisher-company" disabled={companies.length === 0} />
-          <span className="text-sm">Şirket</span>
-        </label>
+        {PUBLISHER_OPTIONS.map((option) => (
+          <label
+            key={option.value}
+            htmlFor={option.id}
+            className={cn(
+              'flex cursor-pointer items-center gap-2 rounded-lg border border-border/80 p-3 dark:border-white/10',
+              mode === option.value && 'border-primary/30 ring-1 ring-primary/15',
+            )}
+          >
+            <RadioGroupItem value={option.value} id={option.id} />
+            <span className="flex-1 text-sm font-normal leading-none">{option.label}</span>
+          </label>
+        ))}
       </RadioGroup>
       {mode === 'company' && (
         <div className="space-y-2">
           <Label>Şirket</Label>
-          {companies.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Önce bir şirket oluşturmalısınız.</p>
+          {isLoadingCompanies ? (
+            <p className="text-xs text-muted-foreground">Şirketler yükleniyor…</p>
+          ) : companies.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Önce bir şirket oluşturmalısınız.{' '}
+              <Link href="/company/create" className="font-medium text-primary hover:text-primary/80">
+                Şirket oluştur
+              </Link>
+            </p>
           ) : (
             <Select
               value={companyId ?? ''}
-              onValueChange={(v) => onChange('company', v as CompanyId)}
+              onValueChange={(value) => onChange('company', value as CompanyId)}
               disabled={disabled}
             >
-              <SelectTrigger><SelectValue placeholder="Şirket seçin" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Şirket seçin" />
+              </SelectTrigger>
               <SelectContent>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                {companies.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

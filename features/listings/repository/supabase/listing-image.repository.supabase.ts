@@ -5,6 +5,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ListingId } from '@/lib/domain/ids';
 import type { ListingImage } from '@/features/listings/types/listing-engine.types';
 import type { ListingImageRepository } from '@/features/listings/repository/listing-image.repository';
+import {
+  logSupabaseError,
+  prepareSupabaseWrite,
+} from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'marketplace_listing_images';
 
@@ -45,14 +49,17 @@ export class SupabaseListingImageRepository implements ListingImageRepository {
   ): Promise<ListingImage[]> {
     await this.deleteByListingId(listingId);
     if (!images.length) return [];
-    const rows = images.map((img, i) => ({
+    const rows = images.map((img, i) => prepareSupabaseWrite('insert', TABLE, {
       listing_id: listingId,
       url: img.url,
       alt: img.alt ?? null,
       sort_order: img.sortOrder ?? i,
-    }));
+    }, { requiredUuidFields: ['listing_id'] }));
     const { data, error } = await this.supabase.from(TABLE).insert(rows).select('*');
-    if (error) throw error;
+    if (error) {
+      logSupabaseError(error, `${TABLE} insert batch`);
+      throw error;
+    }
     return (data ?? []).map((row) => mapImageRow(row as ImageRow));
   }
 

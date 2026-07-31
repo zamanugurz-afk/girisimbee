@@ -16,6 +16,7 @@ import {
   type ListingPublisherMode,
 } from '@/features/listings/components/listing-publisher-select';
 import { LISTING_TYPE_CONFIGS } from '@/features/listings/config/listing-type-config';
+import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
 import { cn } from '@/lib/utils';
 
 function CreateListingContent() {
@@ -53,40 +54,44 @@ function CreateListingContent() {
   function buildPayload(values: ListingFormValues, asDraft = false) {
     if (!categoryId || !listingTypeId) throw new Error('Kategori seçilmedi');
 
-    return {
+    const companyId =
+      publisherMode === 'company'
+        ? coerceCompanyId(publisherCompanyId)
+        : null;
+
+    const payload = {
       categoryId,
       listingTypeId,
       core: {
         ...values.core,
-        companyId: publisherMode === 'company' ? publisherCompanyId : null,
+        companyId,
       },
       customFields: values.customFields,
       tags: values.tags,
       images: values.images,
       asDraft,
     };
-  }
 
-  function validatePublisher() {
-    if (publisherMode === 'company' && !publisherCompanyId) {
-      toast.error('Şirket ilanı için bir şirket seçin');
-      return false;
-    }
-    return true;
-  }
-
-  async function handleSaveDraft(values: ListingFormValues) {
-    if (!isAuthenticated || !validatePublisher()) return;
-
-    const aggregate = await createListing(buildPayload(values, true));
-    toast.success('Taslak kaydedildi');
-    router.push(`/ilanlarim/${aggregate.listing.id}/duzenle`);
+    console.log('[CreateListingPage] buildPayload', JSON.stringify(payload, null, 2));
+    return payload;
   }
 
   async function handlePublish(values: ListingFormValues) {
-    if (!isAuthenticated || !validatePublisher()) return;
+    if (!isAuthenticated) {
+      throw new Error('Oturum açmanız gerekiyor.');
+    }
+    if (publisherMode === 'company' && !publisherCompanyId) {
+      throw new Error('Şirket ilanı için bir şirket seçin.');
+    }
 
-    const aggregate = await createListing(buildPayload(values, false));
+    const payload = buildPayload(values, false);
+    console.log('publisherMode:', publisherMode);
+    console.log('publisherCompanyId:', publisherCompanyId);
+    console.log('companyId:', payload.core.companyId);
+    console.log('userId:', actorId);
+    console.log(JSON.stringify(payload, null, 2));
+
+    const aggregate = await createListing(payload);
     const published = await publishListing(aggregate.listing.id);
 
     if (published.listing.status === 'pending_review') {
@@ -176,9 +181,7 @@ function CreateListingContent() {
               listingType={listingType}
               categoryId={categoryId}
               userId={actorId}
-              onSaveDraft={handleSaveDraft}
               onPublish={handlePublish}
-              showDraftButton
               showPreviewButton
               showPublishButton
             />

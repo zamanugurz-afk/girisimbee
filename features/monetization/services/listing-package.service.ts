@@ -107,13 +107,21 @@ export class ListingPackageService implements IListingPackageService {
   async onListingPublished(userId: UserId, listing: Listing, entitlement: PublishEntitlementResult): Promise<void> {
     if (!isFirstPublish(listing)) return;
 
-    await this.settingsRepo.incrementPublishedCount();
+    try {
+      await this.settingsRepo.incrementPublishedCount();
+    } catch (error) {
+      console.error('[ListingPackageService] marketplace_settings increment failed — continuing publish', error);
+    }
 
     if (entitlement.source === 'single_listing') {
-      const active = await this.packageRepo.findActiveByUser({ userId, packageSlug: 'single_listing' });
-      const single = active.find((p) => (p.creditsRemaining ?? 0) > 0);
-      if (single) {
-        await this.packageRepo.consumeCredit(single.id, listing.id);
+      try {
+        const active = await this.packageRepo.findActiveByUser({ userId, packageSlug: 'single_listing' });
+        const single = active.find((p) => (p.creditsRemaining ?? 0) > 0);
+        if (single) {
+          await this.packageRepo.consumeCredit(single.id, listing.id);
+        }
+      } catch (error) {
+        console.error('[ListingPackageService] marketplace_user_packages consumeCredit failed — continuing publish', error);
       }
     }
   }

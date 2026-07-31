@@ -3,10 +3,8 @@
 @tailwind utilities;
 
 /*
- * Girisimco Design System — Aurora Ink
- * ─────────────────────────────────────
+ * Girisimco Design System — Premium Linear / Stripe-inspired
  * Tokens: lib/design-system/tokens.ts
- * Components: components/girisimco/ui/
  */
 
 @layer base {
@@ -14,32 +12,32 @@
     /* Layout */
     --gc-header-height: 3.75rem;
 
-    /* Surfaces */
-    --background: 220 33% 98.5%;
-    --foreground: 228 20% 14%;
+    /* Surfaces — #F8FAFC / #FFFFFF */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 228 20% 14%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 228 20% 14%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Brand */
-    --primary: 234 72% 58%;
+    /* Brand — #5B5CF6 / #6C63FF */
+    --primary: 243 89% 66%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 234 100% 97%;
+    --primary-soft: 243 100% 97%;
 
-    /* Neutrals */
-    --secondary: 220 25% 96%;
-    --secondary-foreground: 228 18% 22%;
-    --muted: 220 22% 95%;
-    --muted-foreground: 220 12% 48%;
-    --accent: 234 60% 96%;
-    --accent-foreground: 234 55% 38%;
+    /* Neutrals — #334155 */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 25% 27%;
+    --accent: 243 60% 96%;
+    --accent-foreground: 243 75% 45%;
 
-    /* Semantic */
-    --success: 158 64% 42%;
+    /* Semantic accents */
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-    --success-soft: 152 60% 95%;
-    --warning: 32 95% 48%;
+    --success-soft: 142 60% 95%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     --warning-soft: 38 92% 95%;
     --danger: 0 72% 55%;
@@ -48,41 +46,45 @@
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Lines & focus */
-    --border: 220 22% 91%;
-    --input: 220 20% 88%;
-    --ring: 234 72% 58%;
+    /* Lines — #E2E8F0 */
+    --border: 214 32% 91%;
+    --input: 214 32% 88%;
+    --ring: 243 89% 66%;
 
     /* Chart */
-    --chart-1: 234 72% 58%;
-    --chart-2: 158 64% 42%;
-    --chart-3: 32 95% 48%;
-    --chart-4: 0 72% 55%;
-    --chart-5: 199 80% 48%;
+    --chart-1: 243 89% 66%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 213 94% 68%;
 
     /* Sidebar (admin) */
-    --sidebar: 220 33% 98%;
-    --sidebar-foreground: 228 18% 18%;
-    --sidebar-border: 220 22% 92%;
-    --sidebar-accent: 220 25% 94%;
+    --sidebar: 210 33% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-accent: 210 40% 96%;
 
-    /* Radius — base 12px; sm/md/lg/xl derived in tailwind.config */
     --radius: 0.75rem;
 
-    /* Shadows */
-    --shadow-color: 228 20% 14%;
-    --shadow-soft: 0 1px 2px 0 hsl(var(--shadow-color) / 0.03), 0 2px 8px -2px hsl(var(--shadow-color) / 0.06);
-    --shadow-card: 0 1px 2px 0 hsl(var(--shadow-color) / 0.04), 0 8px 24px -6px hsl(var(--shadow-color) / 0.08);
-    --shadow-pop: 0 4px 20px -4px hsl(var(--shadow-color) / 0.10), 0 16px 48px -12px hsl(var(--shadow-color) / 0.14);
-    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 8px 32px -8px hsl(var(--primary) / 0.22);
+    /* Soft shadows */
+    --shadow-color: 222 47% 11%;
+    --shadow-soft: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+    --shadow-card: 0 4px 6px -1px rgb(15 23 42 / 0.05), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+    --shadow-pop: 0 10px 15px -3px rgb(15 23 42 / 0.06), 0 4px 6px -4px rgb(15 23 42 / 0.06);
+    --shadow-glow: 0 0 0 1px rgb(91 92 246 / 0.1), 0 8px 24px -6px rgb(91 92 246 / 0.3);
 
-    /* Motion */
-    --gc-duration-fast: 120ms;
-    --gc-duration-normal: 120ms;
-    --gc-duration-slow: 120ms;
-    --gc-duration-reveal: 120ms;
+    /* Motion — 200–300ms */
+    --gc-duration-fast: 200ms;
+    --gc-duration-normal: 250ms;
+    --gc-duration-slow: 300ms;
+    --gc-duration-reveal: 300ms;
     --gc-ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
     --gc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Brand gradient stops */
+    --gc-gradient-from: #60A5FA;
+    --gc-gradient-via: #5B5CF6;
+    --gc-gradient-to: #6C63FF;
   }
 
   .dark {
@@ -177,10 +179,19 @@
                 border-color var(--gc-duration-normal) var(--gc-ease-smooth);
   }
   .gc-card-interactive {
-    @apply gc-card cursor-pointer hover:-translate-y-0.5 hover:border-primary/20;
+    @apply gc-card cursor-pointer transition-all duration-300 ease-smooth hover:scale-[1.02] hover:border-primary/20;
   }
   .gc-card-interactive:hover {
     box-shadow: var(--shadow-card);
+  }
+
+  .gc-gradient-primary {
+    background: linear-gradient(135deg, var(--gc-gradient-from), var(--gc-gradient-via), var(--gc-gradient-to));
+  }
+
+  .gc-gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--gc-gradient-from), var(--gc-gradient-via), var(--gc-gradient-to));
   }
 
   /* Legacy alias — admin/dashboard */
@@ -189,8 +200,8 @@
 
   /* ── Surfaces ── */
   .gc-glass {
-    @apply border-border/60 backdrop-blur-xl backdrop-saturate-150;
-    background: hsl(var(--background) / 0.72);
+    @apply border-border/50 backdrop-blur-xl backdrop-saturate-150;
+    background: hsl(0 0% 100% / 0.72);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
   }
   .dark .gc-glass {
@@ -221,7 +232,7 @@
 
   /* ── Navigation ── */
   .gc-nav-link {
-    @apply relative rounded-lg px-3 py-1.5 text-gc-base font-medium text-muted-foreground;
+    @apply relative rounded-xl px-3 py-1.5 text-gc-base font-medium text-muted-foreground;
     transition: color var(--gc-duration-normal) var(--gc-ease-smooth),
                 background-color var(--gc-duration-normal) var(--gc-ease-smooth);
   }
@@ -231,7 +242,7 @@
 
   /* ── Inputs (extends shadcn Input) ── */
   .gc-input {
-    @apply flex h-10 w-full rounded-lg border border-border/80 bg-card px-3.5 text-gc-base text-foreground shadow-soft placeholder:text-muted-foreground;
+    @apply flex h-10 w-full rounded-xl border border-border/80 bg-card px-3.5 text-gc-base text-foreground shadow-sm placeholder:text-muted-foreground;
     transition: border-color var(--gc-duration-normal) var(--gc-ease-smooth),
                 box-shadow var(--gc-duration-normal) var(--gc-ease-smooth);
   }
@@ -242,7 +253,7 @@
 
   /* ── Buttons (extends shadcn Button) ── */
   .gc-btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-primary px-4 text-gc-base font-medium text-primary-foreground shadow-soft;
+    @apply inline-flex items-center justify-center rounded-xl bg-primary px-4 text-gc-base font-medium text-primary-foreground shadow-sm;
     transition: transform var(--gc-duration-fast) var(--gc-ease-smooth),
                 background-color var(--gc-duration-normal) var(--gc-ease-smooth),
                 box-shadow var(--gc-duration-normal) var(--gc-ease-smooth);

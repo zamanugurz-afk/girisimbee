@@ -12,7 +12,10 @@ import type {
   ListingId,
   CategoryId,
   ListingTypeId,
+  SubcategoryId,
 } from '@/lib/domain/ids';
+import type { ExternalContactInfo, WorkflowStatus } from '@/lib/domain/marketplace-enums';
+import type { ModuleKey } from '@/lib/domain/modules';
 
 export type ListingStatus =
   | 'draft'
@@ -59,14 +62,24 @@ export interface Listing extends Timestamps, SoftDeletable {
   companyId: CompanyId | null;
   categoryId: CategoryId;
   listingTypeId: ListingTypeId;
+  subcategoryId: SubcategoryId | null;
+  moduleKey: ModuleKey | null;
   title: string;
   shortDescription: string;
   longDescription: string;
   status: ListingStatus;
   location: string | null;
   city: string | null;
+  district: string | null;
+  industry: string | null;
   country: string;
   remotePolicy: RemotePolicy | null;
+  anonymousMode: boolean;
+  workflowStatus: WorkflowStatus;
+  contactPhone: string | null;
+  contactWhatsapp: string | null;
+  contactEmail: string | null;
+  contactWebsite: string | null;
   investmentDetails: InvestmentDetails | null;
   jobDetails: JobDetails | null;
   partnerDetails: PartnerDetails | null;
@@ -76,21 +89,38 @@ export interface Listing extends Timestamps, SoftDeletable {
   applicationCount: number;
   isVerified: boolean;
   isFeatured: boolean;
+  isUrgent: boolean;
+  featuredUntil: string | null;
+  urgentUntil: string | null;
   publishedAt: string | null;
   expiresAt: string | null;
   rejectedReason: string | null;
 }
+
+/** External contact channels exposed on listings (v1 — no internal messaging). */
+export type ListingContactInfo = ExternalContactInfo;
 
 export type CreateListingInput = Pick<
   Listing,
   'ownerId' | 'categoryId' | 'listingTypeId' | 'title' | 'shortDescription'
 > & {
   companyId?: CompanyId | null;
+  subcategoryId?: SubcategoryId | null;
+  moduleKey?: ModuleKey | null;
   longDescription?: string;
   location?: string | null;
   city?: string | null;
+  district?: string | null;
+  industry?: string | null;
   country?: string;
   remotePolicy?: RemotePolicy | null;
+  anonymousMode?: boolean;
+  workflowStatus?: WorkflowStatus;
+  status?: ListingStatus;
+  contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  contactEmail?: string | null;
+  contactWebsite?: string | null;
   investmentDetails?: InvestmentDetails | null;
   jobDetails?: JobDetails | null;
   partnerDetails?: PartnerDetails | null;
@@ -106,11 +136,22 @@ export interface ListingFilter {
   companyId?: CompanyId;
   categoryId?: CategoryId;
   listingTypeId?: ListingTypeId;
+  subcategoryId?: SubcategoryId;
+  moduleKey?: ModuleKey;
   status?: ListingStatus | ListingStatus[];
   city?: string;
+  district?: string;
+  industry?: string;
+  anonymousMode?: boolean;
+  workflowStatus?: WorkflowStatus;
   remotePolicy?: RemotePolicy;
   isVerified?: boolean;
   isFeatured?: boolean;
+  isUrgent?: boolean;
+  activeFeaturedOnly?: boolean;
+  activeUrgentOnly?: boolean;
+  publishedAfter?: string;
+  publishedBefore?: string;
   tagIds?: string[];
   query?: string;
   salaryMin?: number;
@@ -127,6 +168,7 @@ export const LISTING_INDEXES: IndexDefinition[] = [
   { name: 'listings_status_published_at_idx', columns: ['status', 'published_at'], where: "status = 'published'" },
   { name: 'listings_city_idx', columns: ['city'], where: 'city IS NOT NULL' },
   { name: 'listings_featured_idx', columns: ['is_featured', 'published_at'], where: 'is_featured = true' },
+  { name: 'listings_urgent_idx', columns: ['is_urgent', 'published_at'], where: 'is_urgent = true' },
   { name: 'listings_title_trgm', columns: ['title'], type: 'gin' },
   { name: 'listings_custom_fields_gin', columns: ['custom_fields'], type: 'gin' },
 ];

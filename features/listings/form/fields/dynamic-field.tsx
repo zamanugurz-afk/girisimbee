@@ -12,6 +12,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
+import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
+import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
+import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
 
 export interface DynamicFieldProps {
   field: ListingFieldDefinition;
@@ -23,6 +28,7 @@ export interface DynamicFieldProps {
 
 export function DynamicField({ field, value, onChange, error, disabled }: DynamicFieldProps) {
   const id = `field-${field.key}`;
+  const ui = getCustomFieldUi(field.key);
 
   return (
     <div className="space-y-2">
@@ -37,9 +43,9 @@ export function DynamicField({ field, value, onChange, error, disabled }: Dynami
         value={value}
         onChange={onChange}
         disabled={disabled}
+        error={error}
+        ui={ui}
       />
-
-      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -50,91 +56,188 @@ function FieldControl({
   value,
   onChange,
   disabled,
+  error,
+  ui,
 }: {
   id: string;
   field: ListingFieldDefinition;
   value: unknown;
   onChange: (value: unknown) => void;
   disabled?: boolean;
+  error?: string;
+  ui: ReturnType<typeof getCustomFieldUi>;
 }) {
+  const stringValue = String(value ?? '');
+  const stringLength = stringValue.length;
+
   switch (field.type) {
     case 'string':
       return (
-        <Input
-          id={id}
-          value={String(value ?? '')}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          placeholder={field.label}
-        />
+        <>
+          <Input
+            id={id}
+            value={stringValue}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            placeholder={ui.placeholder ?? `${field.label} girin`}
+            maxLength={ui.maxLength}
+            className={formControlErrorClass(error)}
+          />
+          <FormFieldFooter
+            helperText={ui.helperText}
+            error={error}
+            currentLength={ui.maxLength ? stringLength : undefined}
+            maxLength={ui.maxLength}
+          />
+        </>
       );
 
     case 'number':
-    case 'currency':
     case 'percentage':
       return (
-        <Input
+        <>
+          <Input
+            id={id}
+            type="number"
+            value={value === undefined || value === null ? '' : String(value)}
+            onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+            disabled={disabled}
+            min={field.min}
+            max={field.max}
+            step={field.type === 'percentage' ? 0.1 : 'any'}
+            placeholder={
+              ui.placeholder
+              ?? (field.type === 'percentage' ? '0-100' : `${field.label} girin`)
+            }
+            className={formControlErrorClass(error)}
+          />
+          <FormFieldFooter helperText={ui.helperText} error={error} />
+        </>
+      );
+
+    case 'currency':
+      return (
+        <CurrencyInput
           id={id}
-          type="number"
-          value={value === undefined || value === null ? '' : String(value)}
-          onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+          value={value}
+          onChange={onChange}
           disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? '0 TL'}
           min={field.min}
           max={field.max}
-          step={field.type === 'percentage' ? 0.1 : field.type === 'currency' ? 1 : 'any'}
-          placeholder={field.type === 'currency' ? '0' : field.type === 'percentage' ? '0-100' : undefined}
         />
       );
 
     case 'boolean':
       return (
-        <Switch
-          id={id}
-          checked={Boolean(value)}
-          onCheckedChange={onChange}
-          disabled={disabled}
-        />
+        <>
+          <Switch
+            id={id}
+            checked={Boolean(value)}
+            onCheckedChange={onChange}
+            disabled={disabled}
+          />
+          <FormFieldFooter helperText={ui.helperText} error={error} />
+        </>
       );
 
     case 'date':
       return (
-        <Input
-          id={id}
-          type="date"
-          value={String(value ?? '')}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-        />
+        <>
+          <Input
+            id={id}
+            type="date"
+            value={stringValue}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            placeholder={ui.placeholder}
+            className={formControlErrorClass(error)}
+          />
+          <FormFieldFooter helperText={ui.helperText} error={error} />
+        </>
       );
 
     case 'enum':
       return (
-        <Select
-          value={String(value ?? '')}
-          onValueChange={onChange}
-          disabled={disabled}
-        >
-          <SelectTrigger id={id}>
-            <SelectValue placeholder={`${field.label} seçin`} />
-          </SelectTrigger>
-          <SelectContent>
-            {(field.options ?? []).map((opt) => (
-              <SelectItem key={opt} value={opt}>
-                {opt}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <>
+          <Select
+            value={value ? String(value) : ''}
+            onValueChange={onChange}
+            disabled={disabled}
+          >
+            <SelectTrigger id={id} className={formControlErrorClass(error)}>
+              <SelectValue placeholder={ui.placeholder ?? `${field.label} seçin`} />
+            </SelectTrigger>
+            <SelectContent>
+              {(field.options ?? []).map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormFieldFooter helperText={ui.helperText} error={error} />
+        </>
       );
+
+    case 'multi-enum': {
+      const selected = Array.isArray(value) ? value.map(String) : [];
+      const options = field.options ?? [];
+
+      function toggleOption(option: string, checked: boolean) {
+        const next = checked
+          ? [...selected, option]
+          : selected.filter((item) => item !== option);
+        onChange(next);
+      }
+
+      return (
+        <>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {options.map((option) => {
+              const checked = selected.includes(option);
+              return (
+                <label
+                  key={option}
+                  htmlFor={`${id}-${option}`}
+                  className="flex cursor-pointer items-start gap-2 rounded-lg border border-border/80 px-3 py-2.5 text-sm transition-colors hover:bg-muted/30"
+                >
+                  <Checkbox
+                    id={`${id}-${option}`}
+                    checked={checked}
+                    onCheckedChange={(next) => toggleOption(option, next === true)}
+                    disabled={disabled}
+                  />
+                  <span className="leading-snug text-foreground">{option}</span>
+                </label>
+              );
+            })}
+          </div>
+          <FormFieldFooter helperText={ui.helperText} error={error} />
+        </>
+      );
+    }
 
     default:
       return (
-        <Textarea
-          id={id}
-          value={String(value ?? '')}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-        />
+        <>
+          <Textarea
+            id={id}
+            value={stringValue}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            placeholder={ui.placeholder ?? `${field.label} girin`}
+            maxLength={ui.maxLength}
+            className={formControlErrorClass(error)}
+          />
+          <FormFieldFooter
+            helperText={ui.helperText}
+            error={error}
+            currentLength={ui.maxLength ? stringLength : undefined}
+            maxLength={ui.maxLength}
+          />
+        </>
       );
   }
 }

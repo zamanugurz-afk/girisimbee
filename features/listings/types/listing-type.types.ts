@@ -18,7 +18,7 @@ export interface ListingFieldSchema {
 export interface ListingFieldDefinition {
   key: string;
   label: string;
-  type: 'string' | 'number' | 'boolean' | 'enum' | 'currency' | 'percentage' | 'date';
+  type: 'string' | 'number' | 'boolean' | 'enum' | 'multi-enum' | 'currency' | 'percentage' | 'date';
   required?: boolean;
   options?: string[];
   min?: number;

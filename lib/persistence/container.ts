@@ -67,15 +67,31 @@ import { NotificationService } from '@/features/notifications/services/notificat
 import { MessagingService } from '@/features/messaging/services/messaging.service';
 import { AdminService } from '@/features/admin/services/admin.service';
 import { ListingPackageService } from '@/features/monetization/services/listing-package.service';
-import { UnimplementedPaymentService } from '@/features/monetization/services/payment.service.interface';
 import type { IListingPackageService } from '@/features/monetization/services/listing-package.service';
 import type { IPaymentService } from '@/features/monetization/services/payment.service.interface';
 import type { MarketplaceSettingsRepository } from '@/features/monetization/repositories/marketplace-settings.repository';
 import type { ListingPackageRepository } from '@/features/monetization/repositories/listing-package.repository';
+import type { ModuleProfileRepository } from '@/features/profiles/repositories/module-profile.repository';
+import type { MatchRepository } from '@/features/matching/repositories/match.repository';
+import type { ApplicationRepository } from '@/features/matching/repositories/application.repository';
+import type { DocumentRepository } from '@/features/documents/repositories/document.repository';
+import type { PaymentRepository } from '@/features/monetization/repositories/payment.repository';
 import { MockMarketplaceSettingsRepository } from '@/features/monetization/repository/mock/marketplace-settings.repository.mock';
 import { MockListingPackageRepository } from '@/features/monetization/repository/mock/listing-package.repository.mock';
+import { MockModuleProfileRepository } from '@/features/profiles/repository/mock/module-profile.repository.mock';
+import { MockMatchRepository } from '@/features/matching/repository/mock/match.repository.mock';
+import { MockApplicationRepository } from '@/features/matching/repository/mock/application.repository.mock';
+import { MockDocumentRepository } from '@/features/documents/repository/mock/document.repository.mock';
+import { MockPaymentRepository } from '@/features/monetization/repository/mock/payment.repository.mock';
 import { SupabaseMarketplaceSettingsRepository } from '@/features/monetization/repository/supabase/marketplace-settings.repository.supabase';
 import { SupabaseListingPackageRepository } from '@/features/monetization/repository/supabase/listing-package.repository.supabase';
+import { SupabaseModuleProfileRepository } from '@/features/profiles/repository/supabase/module-profile.repository.supabase';
+import { SupabaseMatchRepository } from '@/features/matching/repository/supabase/match.repository.supabase';
+import { SupabaseApplicationRepository } from '@/features/matching/repository/supabase/application.repository.supabase';
+import { SupabaseDocumentRepository } from '@/features/documents/repository/supabase/document.repository.supabase';
+import { SupabasePaymentRepository } from '@/features/monetization/repository/supabase/payment.repository.supabase';
+
+import { wireEcosystemServices, type EcosystemServices } from '@/lib/persistence/ecosystem-services';
 
 import type { IProfileService } from '@/features/profiles/services/profile.service.interface';
 import type { ICompanyService } from '@/features/companies/services/company.service.interface';
@@ -114,6 +130,12 @@ export interface PersistenceContainer {
   marketplaceSettingsRepository: MarketplaceSettingsRepository;
   listingPackageRepository: ListingPackageRepository;
   verificationService: IVerificationService;
+  moduleProfileRepository: ModuleProfileRepository;
+  matchRepository: MatchRepository;
+  applicationRepository: ApplicationRepository;
+  documentRepository: DocumentRepository;
+  paymentRepository: PaymentRepository;
+  ecosystem: EcosystemServices;
 }
 
 export function createMemoryContainer(): PersistenceContainer {
@@ -135,6 +157,11 @@ export function createMemoryContainer(): PersistenceContainer {
   const verificationRepository = new MockVerificationRepository();
   const marketplaceSettingsRepository = new MockMarketplaceSettingsRepository();
   const listingPackageRepository = new MockListingPackageRepository();
+  const moduleProfileRepository = new MockModuleProfileRepository();
+  const matchRepository = new MockMatchRepository();
+  const applicationRepository = new MockApplicationRepository();
+  const documentRepository = new MockDocumentRepository();
+  const paymentRepository = new MockPaymentRepository();
 
   return wireContainer({
     listingRepository,
@@ -155,6 +182,11 @@ export function createMemoryContainer(): PersistenceContainer {
     verificationRepository,
     marketplaceSettingsRepository,
     listingPackageRepository,
+    moduleProfileRepository,
+    matchRepository,
+    applicationRepository,
+    documentRepository,
+    paymentRepository,
   });
 }
 
@@ -177,6 +209,11 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const verificationRepository = new SupabaseVerificationRepository(supabase);
   const marketplaceSettingsRepository = new SupabaseMarketplaceSettingsRepository(supabase);
   const listingPackageRepository = new SupabaseListingPackageRepository(supabase);
+  const moduleProfileRepository = new SupabaseModuleProfileRepository(supabase);
+  const matchRepository = new SupabaseMatchRepository(supabase);
+  const applicationRepository = new SupabaseApplicationRepository(supabase);
+  const documentRepository = new SupabaseDocumentRepository(supabase);
+  const paymentRepository = new SupabasePaymentRepository(supabase);
 
   return wireContainer({
     listingRepository,
@@ -197,6 +234,11 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     verificationRepository,
     marketplaceSettingsRepository,
     listingPackageRepository,
+    moduleProfileRepository,
+    matchRepository,
+    applicationRepository,
+    documentRepository,
+    paymentRepository,
   });
 }
 
@@ -219,12 +261,29 @@ function wireContainer(repos: {
   verificationRepository: VerificationRepository;
   marketplaceSettingsRepository: MarketplaceSettingsRepository;
   listingPackageRepository: ListingPackageRepository;
+  moduleProfileRepository: ModuleProfileRepository;
+  matchRepository: MatchRepository;
+  applicationRepository: ApplicationRepository;
+  documentRepository: DocumentRepository;
+  paymentRepository: PaymentRepository;
 }): PersistenceContainer {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
     repos.listingPackageRepository,
   );
-  const paymentService = new UnimplementedPaymentService();
+
+  const ecosystem = wireEcosystemServices({
+    listingRepository: repos.listingRepository,
+    profileRepository: repos.profileRepository,
+    moduleProfileRepository: repos.moduleProfileRepository,
+    matchRepository: repos.matchRepository,
+    applicationRepository: repos.applicationRepository,
+    documentRepository: repos.documentRepository,
+    paymentRepository: repos.paymentRepository,
+    listingPackageRepository: repos.listingPackageRepository,
+  });
+
+  const paymentService = ecosystem.paymentService;
 
   const listingEngine = new ListingEngine(
     repos.listingRepository,
@@ -301,6 +360,12 @@ function wireContainer(repos: {
     marketplaceSettingsRepository: repos.marketplaceSettingsRepository,
     listingPackageRepository: repos.listingPackageRepository,
     verificationService,
+    moduleProfileRepository: repos.moduleProfileRepository,
+    matchRepository: repos.matchRepository,
+    applicationRepository: repos.applicationRepository,
+    documentRepository: repos.documentRepository,
+    paymentRepository: repos.paymentRepository,
+    ecosystem,
   };
 }
 
@@ -380,4 +445,44 @@ export function getPaymentService(): IPaymentService {
 
 export function getVerificationService(): IVerificationService {
   return getClientContainer().verificationService;
+}
+
+export function getEcosystemServices(): EcosystemServices {
+  return getClientContainer().ecosystem;
+}
+
+export function getEntrepreneurListingService() {
+  return getClientContainer().ecosystem.entrepreneurListingService;
+}
+
+export function getInvestorListingService() {
+  return getClientContainer().ecosystem.investorListingService;
+}
+
+export function getCandidateService() {
+  return getClientContainer().ecosystem.candidateService;
+}
+
+export function getEmployerJobService() {
+  return getClientContainer().ecosystem.employerJobService;
+}
+
+export function getFounderService() {
+  return getClientContainer().ecosystem.founderService;
+}
+
+export function getFranchiseService() {
+  return getClientContainer().ecosystem.franchiseService;
+}
+
+export function getMatchService() {
+  return getClientContainer().ecosystem.matchService;
+}
+
+export function getApplicationService() {
+  return getClientContainer().ecosystem.applicationService;
+}
+
+export function getDocumentService() {
+  return getClientContainer().ecosystem.documentService;
 }

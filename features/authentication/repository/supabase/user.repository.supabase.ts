@@ -12,6 +12,7 @@ import type { User, CreateUserInput, UpdateUserInput, UserFilter, UserStatus, Do
 import type { UserRepository } from '@/features/authentication/repositories/user.repository';
 import { USER_LIFECYCLE } from '@/features/authentication/types/user.types';
 import type { StoredUserRole } from '@/features/authentication/types/auth.types';
+import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'profiles';
 
@@ -27,6 +28,11 @@ interface ProfileRow {
   last_active_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+function emptyUserPage(pagination?: PaginationParams): PaginatedResult<User> {
+  const { page, limit } = normalizePagination(pagination);
+  return paginatedResult([], 0, page, limit);
 }
 
 function mapAuthRole(role: string): DomainUserRole {
@@ -62,7 +68,10 @@ export class SupabaseUserRepository implements UserRepository {
     let query = this.supabase.from(TABLE).select('*').eq('id', id);
     if (!filter?.includeDeleted) query = query.neq('account_status', 'deleted');
     const { data, error } = await query.maybeSingle();
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return null;
+      throw error;
+    }
     return data ? mapProfileRow(data as ProfileRow) : null;
   }
 
@@ -90,7 +99,10 @@ export class SupabaseUserRepository implements UserRepository {
     }
     if (filter.activeSince) query = query.gte('last_active_at', filter.activeSince);
     const { data, error, count } = await query.order('created_at', { ascending: false }).range(start, end);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return emptyUserPage(pagination);
+      throw error;
+    }
     return paginatedResult((data ?? []).map((r) => mapProfileRow(r as ProfileRow)), count ?? 0, page, limit);
   }
 
@@ -109,7 +121,10 @@ export class SupabaseUserRepository implements UserRepository {
 
   async exists(id: UserId): Promise<boolean> {
     const { count, error } = await this.supabase.from(TABLE).select('*', { count: 'exact', head: true }).eq('id', id);
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return false;
+      throw error;
+    }
     return (count ?? 0) > 0;
   }
 
@@ -145,7 +160,10 @@ export class SupabaseUserRepository implements UserRepository {
       .ilike('email', email)
       .neq('account_status', 'deleted')
       .maybeSingle();
-    if (error) throw error;
+    if (error) {
+      if (isMissingRelationError(error)) return null;
+      throw error;
+    }
     return data ? mapProfileRow(data as ProfileRow) : null;
   }
 

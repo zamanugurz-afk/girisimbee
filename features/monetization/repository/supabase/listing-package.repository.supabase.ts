@@ -18,6 +18,10 @@ import type {
 } from '@/features/monetization/types/listing-package.types';
 import type { ListingPackageRepository } from '@/features/monetization/repositories/listing-package.repository';
 import type { PaginationParams, PaginatedResult } from '@/lib/domain/pagination';
+import {
+  logSupabaseError,
+  prepareSupabaseWrite,
+} from '@/lib/persistence/supabase-payload';
 
 const CATALOG_TABLE = 'marketplace_listing_package_catalog';
 const PACKAGES_TABLE = 'marketplace_user_packages';
@@ -148,21 +152,25 @@ export class SupabaseListingPackageRepository implements ListingPackageRepositor
       ? new Date(Date.now() + cat.duration_days * 86400000).toISOString()
       : null;
 
-    const { data, error } = await this.supabase
-      .from(PACKAGES_TABLE)
-      .insert({
-        user_id: input.userId,
-        company_id: input.companyId ?? null,
-        package_slug: input.packageSlug,
-        credits_remaining: cat.credits,
-        starts_at: startsAt,
-        expires_at: expiresAt,
-        status: 'active',
-        granted_by: input.grantedBy ?? 'admin',
-      })
-      .select('*')
-      .single();
-    if (error) throw error;
+    const row = prepareSupabaseWrite('insert', PACKAGES_TABLE, {
+      user_id: input.userId,
+      company_id: input.companyId ?? null,
+      package_slug: input.packageSlug,
+      credits_remaining: cat.credits,
+      starts_at: startsAt,
+      expires_at: expiresAt,
+      status: 'active',
+      granted_by: input.grantedBy ?? 'admin',
+    }, {
+      requiredUuidFields: ['user_id'],
+      nullableUuidFields: ['company_id'],
+    });
+
+    const { data, error } = await this.supabase.from(PACKAGES_TABLE).insert(row).select('*').single();
+    if (error) {
+      logSupabaseError(error, `${PACKAGES_TABLE} insert`);
+      throw error;
+    }
     return mapPackage(data as PackageRow);
   }
 
@@ -173,18 +181,24 @@ export class SupabaseListingPackageRepository implements ListingPackageRepositor
     if (existing.packageSlug !== 'single_listing') return existing;
 
     const remaining = (existing.creditsRemaining ?? 0) - 1;
+    const update = prepareSupabaseWrite('update', PACKAGES_TABLE, {
+      credits_remaining: remaining,
+      status: remaining <= 0 ? 'consumed' : 'active',
+      consumed_listing_id: listingId,
+      updated_at: now(),
+    }, {
+      requiredUuidFields: ['consumed_listing_id'],
+    });
     const { data, error } = await this.supabase
       .from(PACKAGES_TABLE)
-      .update({
-        credits_remaining: remaining,
-        status: remaining <= 0 ? 'consumed' : 'active',
-        consumed_listing_id: listingId,
-        updated_at: now(),
-      })
+      .update(update)
       .eq('id', packageId)
       .select('*')
       .single();
-    if (error) throw error;
+    if (error) {
+      logSupabaseError(error, `${PACKAGES_TABLE} update consumeCredit`);
+      throw error;
+    }
     return mapPackage(data as PackageRow);
   }
 
