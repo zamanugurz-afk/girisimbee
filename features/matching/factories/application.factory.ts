@@ -31,6 +31,7 @@ export function createApplication(
     unlockedAt: overrides.unlockedAt ?? null,
     paymentId: overrides.paymentId ?? null,
     contactedAt: overrides.contactedAt ?? null,
+    reviewedAt: overrides.reviewedAt ?? null,
     metadata: overrides.metadata ?? {},
     ...timestamps(overrides.createdAt),
     ...softDeletable(overrides.deletedAt ?? null),

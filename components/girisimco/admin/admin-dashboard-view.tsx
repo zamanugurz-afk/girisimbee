@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAdminService } from '@/lib/persistence/container';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type { AdminDashboardStats } from '@/features/admin/services/admin.service.interface';
 import { formatNumber } from '@/lib/utils';
 
 export function AdminDashboardView() {
-  const service = useMemo(() => getAdminService(), []);
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +16,7 @@ export function AdminDashboardView() {
       setLoading(true);
       setError(null);
       try {
-        setStats(await service.getDashboardStats());
+        setStats(await adminApi.getDashboard());
       } catch (e) {
         setError(e instanceof Error ? e.message : 'İstatistikler yüklenemedi');
       } finally {
@@ -25,7 +24,7 @@ export function AdminDashboardView() {
       }
     }
     void load();
-  }, [service]);
+  }, []);
 
   if (loading) {
     return (

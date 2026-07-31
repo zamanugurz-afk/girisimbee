@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { getAdminService } from '@/lib/persistence/container';
-import { useAuth } from '@/features/authentication/hooks/use-auth';
-import type { Report, ReportEntityType } from '@/features/shared/types/report.types';
-import type { ReportId, UserId } from '@/lib/domain/ids';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
+import type { AdminReportCategory, AdminReportPeriod, AdminReportSnapshot } from '@/features/admin/types/admin.types';
+import { formatNumber } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -14,89 +13,79 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { formatDate } from '@/lib/utils';
 
-const ENTITY_FILTERS: { value: string; label: string }[] = [
-  { value: 'all', label: 'Tümü' },
-  { value: 'user', label: 'Kullanıcılar' },
-  { value: 'listing', label: 'İlanlar' },
-  { value: 'company', label: 'Şirketler' },
-  { value: 'profile', label: 'Profiller' },
+const PERIOD_FILTERS: { value: AdminReportPeriod; label: string }[] = [
+  { value: 'daily', label: 'Günlük' },
+  { value: 'monthly', label: 'Aylık' },
 ];
 
-const ENTITY_LABELS: Record<ReportEntityType, string> = {
-  user: 'Kullanıcı',
-  listing: 'İlan',
-  company: 'Şirket',
-  message: 'Mesaj',
-  profile: 'Profil',
+const CATEGORY_FILTERS: { value: string; label: string }[] = [
+  { value: 'all', label: 'Tümü' },
+  { value: 'users', label: 'Kullanıcılar' },
+  { value: 'listings', label: 'İlanlar' },
+  { value: 'applications', label: 'Başvurular' },
+  { value: 'payments', label: 'Ödemeler' },
+  { value: 'reports', label: 'Bildirimler' },
+];
+
+const METRIC_LABELS: Record<string, string> = {
+  newUsers: 'Yeni Kullanıcı',
+  newListings: 'Yeni İlan',
+  newApplications: 'Yeni Başvuru',
+  revenueCents: 'Gelir (kuruş)',
+  visitors: 'Ziyaretçi',
+  totalUsers: 'Toplam Kullanıcı',
+  activeUsers: 'Aktif Kullanıcı',
+  totalListings: 'Toplam İlan',
+  publishedListings: 'Yayında İlan',
+  totalApplications: 'Toplam Başvuru',
+  succeededPayments: 'Başarılı Ödeme',
+  openReports: 'Açık Bildirim',
+  resolvedReports: 'Çözülen Bildirim',
 };
 
 export function AdminReportsView() {
-  const { user } = useAuth();
-  const service = useMemo(() => getAdminService(), []);
-  const [items, setItems] = useState<Report[]>([]);
-  const [entityType, setEntityType] = useState('all');
+  const [report, setReport] = useState<AdminReportSnapshot | null>(null);
+  const [period, setPeriod] = useState<AdminReportPeriod>('daily');
+  const [category, setCategory] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await service.listReports({
-        entityType: entityType === 'all' ? undefined : (entityType as ReportEntityType),
-        status: ['submitted', 'in_review'],
-      });
-      setItems(result.data);
+      setReport(
+        await adminApi.generateReport(period, category as AdminReportCategory | 'all'),
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Raporlar yüklenemedi');
     } finally {
       setLoading(false);
     }
-  }, [service, entityType]);
+  }, [period, category]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  async function resolve(id: ReportId) {
-    if (!user) return;
-    setBusyId(id);
-    try {
-      await service.resolveReport(id, user.id as UserId, 'Admin tarafından çözüldü');
-      toast.success('Rapor çözüldü');
-      await load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'İşlem başarısız');
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function dismiss(id: ReportId) {
-    if (!user) return;
-    setBusyId(id);
-    try {
-      await service.dismissReport(id, user.id as UserId);
-      toast.success('Rapor reddedildi');
-      await load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'İşlem başarısız');
-    } finally {
-      setBusyId(null);
-    }
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
-        <Select value={entityType} onValueChange={setEntityType}>
+        <Select value={period} onValueChange={(v) => setPeriod(v as AdminReportPeriod)}>
+          <SelectTrigger className="w-36 rounded-lg">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PERIOD_FILTERS.map((f) => (
+              <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-44 rounded-lg">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {ENTITY_FILTERS.map((f) => (
+            {CATEGORY_FILTERS.map((f) => (
               <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
             ))}
           </SelectContent>
@@ -108,45 +97,25 @@ export function AdminReportsView() {
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Yükleniyor…</p>
-      ) : items.length === 0 ? (
+      ) : !report ? (
         <div className="rounded-xl border border-dashed border-border/80 px-6 py-12 text-center dark:border-white/10">
-          <p className="text-sm text-muted-foreground">Bekleyen rapor yok.</p>
+          <p className="text-sm text-muted-foreground">Rapor oluşturulamadı.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border/80">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.02]">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tür</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Hedef</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Sebep</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Durum</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tarih</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((report) => (
-                <tr key={report.id} className="border-b border-border/80 last:border-0 dark:border-white/10">
-                  <td className="px-4 py-3">{ENTITY_LABELS[report.entityType]}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{report.entityId}</td>
-                  <td className="px-4 py-3">{report.reason}</td>
-                  <td className="px-4 py-3"><Badge variant="outline">{report.status}</Badge></td>
-                  <td className="px-4 py-3 text-muted-foreground">{formatDate(report.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs" disabled={busyId === report.id} onClick={() => void resolve(report.id)}>
-                        Çöz
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-8 rounded-lg text-xs" disabled={busyId === report.id} onClick={() => void dismiss(report.id)}>
-                        Reddet
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Oluşturulma: {new Date(report.generatedAt).toLocaleString('tr-TR')}
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(report.metrics).map(([key, value]) => (
+              <div key={key} className="rounded-xl border border-border/80 p-5 dark:border-white/10">
+                <p className="text-sm text-muted-foreground">{METRIC_LABELS[key] ?? key}</p>
+                <p className="mt-2 font-display text-2xl font-semibold text-foreground">
+                  {formatNumber(value)}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

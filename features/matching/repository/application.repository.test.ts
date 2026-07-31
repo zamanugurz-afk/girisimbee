@@ -52,6 +52,36 @@ describe('ApplicationRepository (mock)', () => {
     expect(await repo.findForApplicant(applicant)).toHaveLength(1);
   });
 
+  it('transitions franchise status without unlock gate', async () => {
+    const app = await repo.create({
+      moduleKey: 'franchise',
+      listingId,
+      applicantProfileId: applicant,
+    });
+    await repo.transitionFranchiseStatus(app.id, 'reviewing');
+    const contacted = await repo.transitionFranchiseStatus(app.id, 'contacted');
+    expect(contacted.status).toBe('contacted');
+    expect(contacted.contactedAt).not.toBeNull();
+    const approved = await repo.transitionFranchiseStatus(app.id, 'accepted');
+    expect(approved.status).toBe('accepted');
+  });
+
+  it('filters applications by submitted date range', async () => {
+    const app = await repo.create({
+      moduleKey: 'franchise',
+      listingId,
+      applicantProfileId: applicant,
+    });
+    await repo.update(app.id, { metadata: { seededAt: '2026-06-01' } });
+    const { data: all } = await repo.findMany({ moduleKey: 'franchise' });
+    expect(all.length).toBeGreaterThan(0);
+    const { data: filtered } = await repo.findMany({
+      moduleKey: 'franchise',
+      submittedAfter: '2099-01-01T00:00:00.000Z',
+    });
+    expect(filtered).toHaveLength(0);
+  });
+
   it('soft deletes application', async () => {
     const app = await repo.create({
       moduleKey: 'candidates',

@@ -23,4 +23,8 @@ export interface ApplicationRepository
     id: ApplicationId,
     status: MarketplaceApplication['status'],
   ): Promise<MarketplaceApplication>;
+  transitionFranchiseStatus(
+    id: ApplicationId,
+    status: MarketplaceApplication['status'],
+  ): Promise<MarketplaceApplication>;
 }

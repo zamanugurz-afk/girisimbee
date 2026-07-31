@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { getAdminService } from '@/lib/persistence/container';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type { AdminSearchResults } from '@/features/admin/services/admin.service.interface';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export function AdminSearchView() {
-  const service = useMemo(() => getAdminService(), []);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<AdminSearchResults | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +17,7 @@ export function AdminSearchView() {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      setResults(await service.globalSearch(query.trim()));
+      setResults(await adminApi.globalSearch(query.trim()));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Arama başarısız');
     } finally {

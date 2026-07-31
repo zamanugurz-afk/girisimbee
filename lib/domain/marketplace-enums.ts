@@ -38,7 +38,13 @@ export type PaymentPurpose =
   | 'unlock_candidate'
   | 'featured'
   | 'urgent'
-  | 'package_purchase';
+  | 'package_purchase'
+  | 'franchise_package'
+  | 'employer_package'
+  | 'candidate_package'
+  | 'entrepreneur_package'
+  | 'investor_package'
+  | 'founder_package';
 
 export type DocumentType =
   | 'pitch_deck'
@@ -107,6 +113,21 @@ export const APPLICATION_STATUS_TRANSITIONS: Record<
   reviewing: ['unlocked', 'contacted', 'accepted', 'rejected', 'withdrawn'],
   unlocked: ['contacted', 'hired', 'rejected', 'withdrawn'],
   contacted: ['hired', 'accepted', 'rejected', 'withdrawn'],
+  accepted: ['withdrawn'],
+  rejected: [],
+  withdrawn: [],
+  hired: [],
+};
+
+/** Franchise workflow — no unlock/payment gate; external contact only */
+export const FRANCHISE_APPLICATION_STATUS_TRANSITIONS: Record<
+  ApplicationStatus,
+  readonly ApplicationStatus[]
+> = {
+  submitted: ['reviewing', 'contacted', 'accepted', 'rejected', 'withdrawn'],
+  reviewing: ['contacted', 'accepted', 'rejected', 'withdrawn'],
+  unlocked: ['contacted', 'accepted', 'rejected', 'withdrawn'],
+  contacted: ['accepted', 'rejected', 'withdrawn'],
   accepted: ['withdrawn'],
   rejected: [],
   withdrawn: [],

@@ -16,12 +16,17 @@ import type {
 
 export interface AdminDashboardStats {
   totalUsers: number;
+  activeUsers: number;
+  dailyVisitors: number;
   totalCompanies: number;
   totalListings: number;
+  totalApplications: number;
   totalMessages: number;
   publishedListings: number;
   draftListings: number;
   activeToday: number;
+  revenueCents: number;
+  conversionRate: number;
 }
 
 export interface AdminUserView {
@@ -43,6 +48,7 @@ export interface IAdminService {
   searchUsers(filter: UserFilter, pagination?: PaginationParams): Promise<PaginatedResult<AdminUserView>>;
   suspendUser(id: UserId): Promise<User>;
   activateUser(id: UserId): Promise<User>;
+  deactivateUser(id: UserId): Promise<User>;
   deleteUser(id: UserId): Promise<void>;
 
   searchCompanies(filter: CompanyFilter, pagination?: PaginationParams): Promise<PaginatedResult<Company>>;
@@ -52,8 +58,14 @@ export interface IAdminService {
   deleteCompany(id: CompanyId): Promise<void>;
 
   searchListings(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>>;
+  listFeaturedListings(pagination?: PaginationParams): Promise<PaginatedResult<Listing>>;
+  listUrgentListings(pagination?: PaginationParams): Promise<PaginatedResult<Listing>>;
   publishListing(id: ListingId): Promise<Listing>;
   rejectListing(id: ListingId, reason: string): Promise<Listing>;
+  featureListing(id: ListingId, featuredUntil?: string): Promise<Listing>;
+  unfeatureListing(id: ListingId): Promise<Listing>;
+  markListingUrgent(id: ListingId, urgentUntil?: string): Promise<Listing>;
+  removeListingUrgent(id: ListingId): Promise<Listing>;
   unpublishListing(id: ListingId): Promise<Listing>;
   archiveListing(id: ListingId): Promise<Listing>;
   deleteListing(id: ListingId): Promise<void>;

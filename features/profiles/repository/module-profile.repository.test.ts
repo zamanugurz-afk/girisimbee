@@ -55,9 +55,55 @@ describe('ModuleProfileRepository (mock)', () => {
     await repo.upsertFranchiseProfile({
       profileId,
       subcategorySlug: 'franchise-buy',
-      sector: 'Food',
+      sektor: 'Food',
     });
     await repo.deleteFranchiseProfile(profileId);
     expect(await repo.findFranchiseProfile(profileId)).toBeNull();
+  });
+
+  it('upserts franchise buy profile with extended fields', async () => {
+    const profile = await repo.upsertFranchiseProfile({
+      profileId,
+      subcategorySlug: 'franchise-buy',
+      adSoyad: 'Ali Yılmaz',
+      sehir: 'Istanbul',
+      ilce: 'Kadıköy',
+      sektor: 'Food',
+      minimumYatirim: 100000,
+      maksimumYatirim: 500000,
+      telefon: '+905551234567',
+      eposta: 'ali@example.com',
+    });
+
+    expect(profile.adSoyad).toBe('Ali Yılmaz');
+    expect(profile.sehir).toBe('Istanbul');
+    expect(profile.minimumYatirim).toBe(100000);
+
+    const updated = await repo.upsertFranchiseProfile({
+      profileId,
+      tercihEdilenLokasyon: 'Marmara',
+    });
+    expect(updated.adSoyad).toBe('Ali Yılmaz');
+    expect(updated.tercihEdilenLokasyon).toBe('Marmara');
+  });
+
+  it('upserts franchise give profile with extended fields', async () => {
+    const profile = await repo.upsertFranchiseProfile({
+      profileId,
+      subcategorySlug: 'franchise-give',
+      markaAdi: 'KafeX',
+      sektor: 'Food',
+      sehir: 'Ankara',
+      franchiseBedeli: 250000,
+      minimumSermaye: 500000,
+      subeSayisi: 8,
+      egitimDestegi: true,
+      operasyonDestegi: true,
+      pazarlamaDestegi: false,
+    });
+
+    expect(profile.markaAdi).toBe('KafeX');
+    expect(profile.franchiseBedeli).toBe(250000);
+    expect(profile.egitimDestegi).toBe(true);
   });
 });

@@ -18,6 +18,7 @@ export interface ApplicationRow {
   unlocked_at: string | null;
   payment_id: string | null;
   contacted_at: string | null;
+  reviewed_at: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -44,6 +45,7 @@ export function mapApplicationRow(row: ApplicationRow): MarketplaceApplication {
     unlockedAt: row.unlocked_at,
     paymentId: row.payment_id as PaymentId | null,
     contactedAt: row.contacted_at,
+    reviewedAt: row.reviewed_at,
     metadata: row.metadata ?? {},
     ...fromTimestamps(row),
     ...fromSoftDeletable(row),
@@ -61,6 +63,7 @@ export function toApplicationRow(input: Partial<MarketplaceApplication>): Record
   if (input.unlockedAt !== undefined) row.unlocked_at = input.unlockedAt;
   if (input.paymentId !== undefined) row.payment_id = input.paymentId;
   if (input.contactedAt !== undefined) row.contacted_at = input.contactedAt;
+  if (input.reviewedAt !== undefined) row.reviewed_at = input.reviewedAt;
   if (input.metadata !== undefined) row.metadata = input.metadata;
   if (input.deletedAt !== undefined) row.deleted_at = input.deletedAt;
   return row;

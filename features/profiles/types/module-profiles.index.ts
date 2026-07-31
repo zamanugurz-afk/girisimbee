@@ -4,7 +4,16 @@ export type { InvestorProfile, UpsertInvestorProfileInput } from './investor-pro
 export type { CandidateProfile, UpsertCandidateProfileInput } from './candidate-profile.types';
 export type { EmployerProfile, UpsertEmployerProfileInput } from './employer-profile.types';
 export type { FounderProfile, UpsertFounderProfileInput } from './founder-profile.types';
-export type { FranchiseProfile, UpsertFranchiseProfileInput } from './franchise-profile.types';
+export type {
+  FranchiseProfile,
+  FranchiseBuyProfile,
+  FranchiseGiveProfile,
+  FranchiseBuyProfileFields,
+  FranchiseGiveProfileFields,
+  UpsertFranchiseProfileInput,
+  UpsertFranchiseBuyProfileInput,
+  UpsertFranchiseGiveProfileInput,
+} from './franchise-profile.types';
 
 import type { EntrepreneurProfile } from './entrepreneur-profile.types';
 import type { InvestorProfile } from './investor-profile.types';

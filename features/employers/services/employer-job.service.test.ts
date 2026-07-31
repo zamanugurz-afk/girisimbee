@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createEcosystemTestHarness, TEST_USER, TEST_PROFILE, TEST_PROFILE_2 } from '@/lib/testing/ecosystem-test-fixtures';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
+import { createCandidateProfile } from '@/features/profiles/factories/module-profile.factory';
 import { EmployerJobService } from '@/features/employers/services/employer-job.service';
+import { EmployerService } from '@/features/employers/services/employer.service';
+import { EmployerApplicationService } from '@/features/employers/services/employer-application.service';
 import { MarketplacePaymentService } from '@/features/monetization/services/payment.service';
 import { PaymentService as IyzicoGateway } from '@/lib/payments/services/payment-service';
 
@@ -20,15 +23,21 @@ function mockGateway(): IyzicoGateway {
   } as unknown as IyzicoGateway;
 }
 
-describe('EmployerJobService', () => {
+describe('EmployerJobService (facade)', () => {
   let harness: ReturnType<typeof createEcosystemTestHarness>;
   let employerJobService: EmployerJobService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     harness = createEcosystemTestHarness();
-    employerJobService = new EmployerJobService(
+    const employerService = new EmployerService(
       harness.repos.moduleProfileRepository,
       harness.repos.listingRepository,
+    );
+    const employerApplicationService = new EmployerApplicationService(
+      harness.repos.applicationRepository,
+      harness.repos.listingRepository,
+      harness.repos.moduleProfileRepository,
+      harness.repos.profileRepository,
       harness.services.applicationService,
       new MarketplacePaymentService(
         harness.repos.paymentRepository,
@@ -38,15 +47,23 @@ describe('EmployerJobService', () => {
         mockGateway(),
       ),
     );
+    employerJobService = new EmployerJobService(employerService, employerApplicationService);
+
+    await harness.repos.profileRepository.create(
+      createProfile({ userId: TEST_USER, displayName: 'Employer', id: TEST_PROFILE }),
+    );
+    await harness.repos.moduleProfileRepository.upsertCandidateProfile(
+      createCandidateProfile({ profileId: TEST_PROFILE_2 }),
+    );
   });
 
-  it('publishes anonymous job listing', async () => {
+  it('publishes anonymous job listing via facade', async () => {
     await employerJobService.activateProfile(TEST_PROFILE);
 
     const listing = await employerJobService.publishJob({
       ownerId: TEST_USER,
       profileId: TEST_PROFILE,
-      listing: { title: 'Senior Dev', shortDescription: 'Full-time', city: 'Ankara' },
+      listing: { title: 'Senior Dev', shortDescription: 'Full-time position available', city: 'Ankara' },
     });
 
     expect(listing.anonymousMode).toBe(true);
@@ -55,13 +72,11 @@ describe('EmployerJobService', () => {
 
   it('creates unlock checkout via iyzico', async () => {
     const { applicationService } = harness.services;
-    const { profileRepository } = harness.repos;
 
-    await profileRepository.create(createProfile({ userId: TEST_USER, displayName: 'Employer', id: TEST_PROFILE }));
     const listing = await employerJobService.publishJob({
       ownerId: TEST_USER,
       profileId: TEST_PROFILE,
-      listing: { title: 'Dev', shortDescription: 'Remote' },
+      listing: { title: 'Dev Role', shortDescription: 'Remote developer position', city: 'Ankara' },
     });
 
     const app = await applicationService.submit({

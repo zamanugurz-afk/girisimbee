@@ -42,7 +42,20 @@ export const HOME_CATEGORIES = [
     audience: 'Kurucular',
     hint: 'Kurucu ortak ve iş ortaklığı',
   },
+  {
+    slug: 'franchise',
+    href: '/franchise/buy',
+    label: 'Franchise',
+    color: GC_CATEGORY_COLORS.franchise,
+    audience: 'Bayilik Al',
+    hint: 'Türkiye genelindeki franchise fırsatlarını keşfedin.',
+  },
 ] as const;
+
+export const FRANCHISE_FLOW_ROUTES = {
+  buy: '/franchise/buy',
+  give: '/franchise/give',
+} as const;
 
 export type HomeCategorySlug = (typeof HOME_CATEGORIES)[number]['slug'];
 

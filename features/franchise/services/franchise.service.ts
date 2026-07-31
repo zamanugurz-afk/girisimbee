@@ -1,32 +1,64 @@
-import { ValidationError, ForbiddenError } from '@/lib/domain/errors';
+import { ValidationError, ForbiddenError, NotFoundError } from '@/lib/domain/errors';
 import type { ProfileId, UserId, ListingId } from '@/lib/domain/ids';
 import type { ExternalContactInfo } from '@/lib/domain/marketplace-enums';
 import type { FranchiseSubcategorySlug } from '@/lib/domain/modules';
 import type { ModuleProfileRepository } from '@/features/profiles/repositories/module-profile.repository';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { ApplicationService } from '@/features/matching/services/application.service';
-import type { UpsertFranchiseProfileInput } from '@/features/profiles/types/franchise-profile.types';
+import type {
+  FranchiseBuyProfile,
+  FranchiseGiveProfile,
+  FranchiseProfile,
+  UpsertFranchiseBuyProfileInput,
+  UpsertFranchiseGiveProfileInput,
+  UpsertFranchiseProfileInput,
+} from '@/features/profiles/types/franchise-profile.types';
 import type { CreateListingInput, Listing } from '@/features/listings/types/listing.entity.types';
+import type {
+  FranchiseFlow,
+  FranchiseListingFilter,
+  FranchiseListingPayload,
+  FranchiseListingDetailViewModel,
+} from '@/features/franchise/types/franchise-listing.types';
+import {
+  extractFranchiseListingDetails,
+  flowFromSubcategoryId,
+  franchisePayloadToCreateInput,
+  franchisePayloadToUpdateInput,
+} from '@/features/franchise/lib/franchise-listing.mapper';
 import { activateModule } from '@/features/shared/lib/module-activation';
+import { contactFromFranchiseProfile, contactFromListing } from '@/features/shared/lib/external-contact';
+import { now } from '@/lib/domain/factory';
+import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
   ECOSYSTEM_CATEGORY_IDS,
   FRANCHISE_SUBCATEGORY_IDS,
   FRANCHISE_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
-import { slugify } from '@/lib/domain/factory';
-
-export type FranchiseFlow = 'buy' | 'give';
 
 const FLOW_TO_SUBCATEGORY: Record<FranchiseFlow, FranchiseSubcategorySlug> = {
   buy: 'franchise-buy',
   give: 'franchise-give',
 };
 
+export type { FranchiseFlow };
+
 export interface PublishFranchiseListingInput {
   ownerId: UserId;
   profileId: ProfileId;
   flow: FranchiseFlow;
-  listing: Omit<CreateListingInput, 'ownerId' | 'categoryId' | 'listingTypeId' | 'moduleKey' | 'subcategoryId'>;
+  listing: FranchiseListingPayload;
+}
+
+export interface CreateFranchiseListingInput extends PublishFranchiseListingInput {
+  asDraft?: boolean;
+}
+
+export interface UpdateFranchiseListingInput {
+  ownerId: UserId;
+  listingId: ListingId;
+  flow: FranchiseFlow;
+  listing: Partial<FranchiseListingPayload>;
 }
 
 export class FranchiseService {
@@ -48,51 +80,157 @@ export class FranchiseService {
     return this.moduleProfileRepo.upsertFranchiseProfile(input);
   }
 
+  upsertBuyProfile(
+    profileId: ProfileId,
+    input: Omit<UpsertFranchiseBuyProfileInput, 'profileId' | 'subcategorySlug'>,
+  ) {
+    return this.moduleProfileRepo.upsertFranchiseProfile({
+      profileId,
+      subcategorySlug: 'franchise-buy',
+      ...input,
+    });
+  }
+
+  upsertGiveProfile(
+    profileId: ProfileId,
+    input: Omit<UpsertFranchiseGiveProfileInput, 'profileId' | 'subcategorySlug'>,
+  ) {
+    return this.moduleProfileRepo.upsertFranchiseProfile({
+      profileId,
+      subcategorySlug: 'franchise-give',
+      ...input,
+    });
+  }
+
   getProfile(profileId: ProfileId) {
     return this.moduleProfileRepo.findFranchiseProfile(profileId);
   }
 
+  async getBuyProfile(profileId: ProfileId): Promise<FranchiseBuyProfile | null> {
+    const profile = await this.getProfile(profileId);
+    if (!profile || profile.subcategorySlug !== 'franchise-buy') return null;
+    return profile as FranchiseBuyProfile;
+  }
+
+  async getGiveProfile(profileId: ProfileId): Promise<FranchiseGiveProfile | null> {
+    const profile = await this.getProfile(profileId);
+    if (!profile || profile.subcategorySlug !== 'franchise-give') return null;
+    return profile as FranchiseGiveProfile;
+  }
+
+  getExternalContact(profile: FranchiseProfile): ExternalContactInfo {
+    return contactFromFranchiseProfile(profile);
+  }
+
+  getListingContact(listing: Listing): ExternalContactInfo {
+    return contactFromListing(listing);
+  }
+
   /** Bayilik Al — browse franchise-give listings */
-  browseBuyOpportunities(filter: { city?: string; sector?: string } = {}) {
+  browseBuyOpportunities(filter: FranchiseListingFilter = {}) {
     return this.listingRepo.findPublished({
       moduleKey: 'franchise',
       subcategoryId: FRANCHISE_SUBCATEGORY_IDS['franchise-give'],
       city: filter.city,
+      district: filter.district,
       industry: filter.sector,
     });
   }
 
   /** Bayilik Ver — browse franchise-buy seekers */
-  browseGiveSeekers(filter: { city?: string } = {}) {
+  browseGiveSeekers(filter: FranchiseListingFilter = {}) {
     return this.listingRepo.findPublished({
       moduleKey: 'franchise',
       subcategoryId: FRANCHISE_SUBCATEGORY_IDS['franchise-buy'],
       city: filter.city,
+      district: filter.district,
+      industry: filter.sector,
     });
   }
 
-  async publishListing(input: PublishFranchiseListingInput): Promise<Listing> {
+  async createListing(input: CreateFranchiseListingInput): Promise<Listing> {
     await this.activateProfile(input.profileId, input.flow);
-    const subcategorySlug = FLOW_TO_SUBCATEGORY[input.flow];
-    const subcategoryId = FRANCHISE_SUBCATEGORY_IDS[subcategorySlug];
-    const listingTypeId = input.flow === 'buy' ? FRANCHISE_LISTING_TYPE_IDS.buy : FRANCHISE_LISTING_TYPE_IDS.give;
+    const mapped = this.buildCreateInput(input.flow, input.listing);
+    const publishNow = !input.asDraft;
 
-    await this.moduleProfileRepo.upsertFranchiseProfile({
-      profileId: input.profileId,
-      subcategorySlug,
-      workflowStatus: 'published',
-    });
+    if (publishNow) {
+      await this.moduleProfileRepo.upsertFranchiseProfile({
+        profileId: input.profileId,
+        subcategorySlug: FLOW_TO_SUBCATEGORY[input.flow],
+        workflowStatus: 'published',
+      });
+    }
 
     return this.listingRepo.create({
-      ...input.listing,
+      ...mapped,
       ownerId: input.ownerId,
-      categoryId: ECOSYSTEM_CATEGORY_IDS.franchise,
-      listingTypeId,
-      subcategoryId,
-      moduleKey: 'franchise',
-      workflowStatus: 'published',
-      status: 'published',
+      status: publishNow ? 'published' : 'draft',
+      workflowStatus: publishNow ? 'published' : 'draft',
     });
+  }
+
+  async publishBuyListing(input: PublishFranchiseListingInput): Promise<Listing> {
+    return this.publishListing({ ...input, flow: 'buy' });
+  }
+
+  async publishGiveListing(input: PublishFranchiseListingInput): Promise<Listing> {
+    return this.publishListing({ ...input, flow: 'give' });
+  }
+
+  async publishListing(input: PublishFranchiseListingInput): Promise<Listing> {
+    return this.createListing({ ...input, asDraft: false });
+  }
+
+  async updateListing(input: UpdateFranchiseListingInput): Promise<Listing> {
+    const existing = await this.assertOwnedFranchiseListing(input.ownerId, input.listingId);
+    const flow = flowFromSubcategoryId(existing.subcategoryId) ?? input.flow;
+    const update = franchisePayloadToUpdateInput(flow, input.listing, existing);
+    return this.listingRepo.update(input.listingId, update);
+  }
+
+  async publishListingDraft(
+    ownerId: UserId,
+    profileId: ProfileId,
+    listingId: ListingId,
+    flow: FranchiseFlow,
+  ): Promise<Listing> {
+    const listing = await this.assertOwnedFranchiseListing(ownerId, listingId);
+    if (listing.status === 'published') return listing;
+
+    await this.activateProfile(profileId, flow);
+    await this.moduleProfileRepo.upsertFranchiseProfile({
+      profileId,
+      subcategorySlug: FLOW_TO_SUBCATEGORY[flow],
+      workflowStatus: 'published',
+    });
+
+    return this.listingRepo.update(listingId, {
+      status: 'published',
+      workflowStatus: 'published',
+      publishedAt: listing.publishedAt ?? now(),
+      expiresAt: listing.expiresAt ?? computeListingExpiry(),
+    });
+  }
+
+  async getListingDetail(
+    idOrSlug: string,
+    options: { trackView?: boolean } = {},
+  ): Promise<FranchiseListingDetailViewModel | null> {
+    const listing = await this.resolveListing(idOrSlug);
+    if (!listing || listing.moduleKey !== 'franchise') return null;
+
+    const flow = flowFromSubcategoryId(listing.subcategoryId);
+    if (!flow) return null;
+
+    if (options.trackView && listing.status === 'published') {
+      await this.listingRepo.incrementViewCount(listing.id);
+    }
+
+    return {
+      listing,
+      flow,
+      details: extractFranchiseListingDetails(listing),
+    };
   }
 
   /** Apply to opposite flow listing (buy→give listing, give→buy listing) */
@@ -128,5 +266,37 @@ export class FranchiseService {
       }
       return profile;
     });
+  }
+
+  private buildCreateInput(
+    flow: FranchiseFlow,
+    listing: FranchiseListingPayload,
+  ): Omit<CreateListingInput, 'ownerId'> {
+    const subcategorySlug = FLOW_TO_SUBCATEGORY[flow];
+    return {
+      ...franchisePayloadToCreateInput(flow, listing),
+      categoryId: ECOSYSTEM_CATEGORY_IDS.franchise,
+      listingTypeId: flow === 'buy' ? FRANCHISE_LISTING_TYPE_IDS.buy : FRANCHISE_LISTING_TYPE_IDS.give,
+      subcategoryId: FRANCHISE_SUBCATEGORY_IDS[subcategorySlug],
+      moduleKey: 'franchise',
+    };
+  }
+
+  private async resolveListing(idOrSlug: string): Promise<Listing | null> {
+    const bySlug = await this.listingRepo.findBySlug(idOrSlug);
+    if (bySlug) return bySlug;
+    return this.listingRepo.findById(idOrSlug as ListingId);
+  }
+
+  private async assertOwnedFranchiseListing(ownerId: UserId, listingId: ListingId): Promise<Listing> {
+    const listing = await this.listingRepo.findById(listingId);
+    if (!listing) throw new NotFoundError('Listing', listingId);
+    if (listing.moduleKey !== 'franchise') {
+      throw new ValidationError('Geçersiz franchise ilanı.', { listingId: ['Franchise ilanı bulunamadı.'] });
+    }
+    if (listing.ownerId !== ownerId) {
+      throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
+    }
+    return listing;
   }
 }

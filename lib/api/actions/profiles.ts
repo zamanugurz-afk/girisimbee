@@ -3,7 +3,7 @@
 import type { ModuleKey } from '@/lib/domain/modules';
 import { runAuthenticatedAction } from '@/lib/api/action-handler';
 import { getModuleProfileService } from '@/lib/api/module-services';
-import { profileUpsertSchemas, profileActivateSchema } from '@/lib/api/validation';
+import { profileUpsertSchemas, profileActivateSchema, parseFranchiseProfileUpsert } from '@/lib/api/validation';
 
 export async function getModuleProfileAction(module: ModuleKey) {
   return runAuthenticatedAction(async (ctx) => {
@@ -15,8 +15,10 @@ export async function getModuleProfileAction(module: ModuleKey) {
 
 export async function upsertModuleProfileAction(module: ModuleKey, input: unknown) {
   return runAuthenticatedAction(async (ctx) => {
-    const schema = profileUpsertSchemas[module];
-    const parsed = schema.parse(input);
+    const parsed =
+      module === 'franchise'
+        ? parseFranchiseProfileUpsert(input)
+        : profileUpsertSchemas[module].parse(input);
     const service = getModuleProfileService(module, ctx.container.ecosystem);
     const profile = await service.upsertProfile({ profileId: ctx.profileId, ...parsed });
     return { module, profile };

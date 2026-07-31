@@ -32,6 +32,7 @@ export interface MarketplaceApplication extends Timestamps, SoftDeletable {
   unlockedAt: string | null;
   paymentId: PaymentId | null;
   contactedAt: string | null;
+  reviewedAt: string | null;
   metadata: Record<string, unknown>;
 }
 
@@ -52,6 +53,7 @@ export type UpdateApplicationInput = Partial<
     | 'unlockedAt'
     | 'paymentId'
     | 'contactedAt'
+    | 'reviewedAt'
     | 'metadata'
   >
 >;
@@ -61,5 +63,7 @@ export interface ApplicationFilter {
   listingId?: ListingId;
   applicantProfileId?: ProfileId;
   status?: ApplicationStatus | ApplicationStatus[];
+  submittedAfter?: string;
+  submittedBefore?: string;
   includeDeleted?: boolean;
 }

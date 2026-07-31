@@ -21,13 +21,15 @@ export interface UnlockedApplicationView extends AnonymousApplicationView {
 
 export class AnonymizationService {
   buildSnapshot(candidate: CandidateProfile, industry?: string | null): AnonymousApplicationSnapshot {
+    const skills =
+      candidate.skills.length > 0 ? candidate.skills : candidate.languages;
     return {
-      city: candidate.city,
-      district: candidate.district,
+      city: candidate.sehir ?? candidate.city,
+      district: candidate.ilce ?? candidate.district,
       industry: industry ?? null,
       experienceYears: candidate.experienceYears,
-      educationLevel: candidate.educationLevel,
-      skills: candidate.languages,
+      educationLevel: candidate.education ?? candidate.educationLevel,
+      skills,
       profileScore: candidate.profileScore,
     };
   }

@@ -2,7 +2,7 @@ import { now } from '@/lib/domain/factory';
 import { canTransition } from '@/lib/domain/base';
 import { normalizePagination, paginatedResult, offset } from '@/lib/domain/pagination';
 import { NotFoundError, InvalidTransitionError } from '@/lib/domain/errors';
-import { APPLICATION_STATUS_TRANSITIONS } from '@/lib/domain/marketplace-enums';
+import { APPLICATION_STATUS_TRANSITIONS, FRANCHISE_APPLICATION_STATUS_TRANSITIONS } from '@/lib/domain/marketplace-enums';
 import type { ApplicationId, ProfileId, ListingId } from '@/lib/domain/ids';
 import type {
   MarketplaceApplication,
@@ -34,6 +34,12 @@ export class MockApplicationRepository implements ApplicationRepository {
     if (filter.status) {
       const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
       results = results.filter((a) => statuses.includes(a.status));
+    }
+    if (filter.submittedAfter) {
+      results = results.filter((a) => a.createdAt >= filter.submittedAfter!);
+    }
+    if (filter.submittedBefore) {
+      results = results.filter((a) => a.createdAt <= filter.submittedBefore!);
     }
     const total = results.length;
     const start = offset(page, limit);
@@ -100,9 +106,24 @@ export class MockApplicationRepository implements ApplicationRepository {
   }
 
   async transitionStatus(id: ApplicationId, status: MarketplaceApplication['status']): Promise<MarketplaceApplication> {
+    return this.doTransition(id, status, APPLICATION_STATUS_TRANSITIONS);
+  }
+
+  async transitionFranchiseStatus(
+    id: ApplicationId,
+    status: MarketplaceApplication['status'],
+  ): Promise<MarketplaceApplication> {
+    return this.doTransition(id, status, FRANCHISE_APPLICATION_STATUS_TRANSITIONS);
+  }
+
+  private async doTransition(
+    id: ApplicationId,
+    status: MarketplaceApplication['status'],
+    transitions: typeof APPLICATION_STATUS_TRANSITIONS,
+  ): Promise<MarketplaceApplication> {
     const app = this.applications.get(id);
     if (!app) throw new NotFoundError('Application', id);
-    if (!canTransition(APPLICATION_STATUS_TRANSITIONS, app.status, status)) {
+    if (!canTransition(transitions, app.status, status)) {
       throw new InvalidTransitionError(app.status, status);
     }
     const updated = {
@@ -110,6 +131,7 @@ export class MockApplicationRepository implements ApplicationRepository {
       status,
       unlockedAt: status === 'unlocked' ? now() : app.unlockedAt,
       contactedAt: status === 'contacted' ? now() : app.contactedAt,
+      reviewedAt: status === 'reviewing' && !app.reviewedAt ? now() : app.reviewedAt,
       updatedAt: now(),
     };
     this.applications.set(id, updated);

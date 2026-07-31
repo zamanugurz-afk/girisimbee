@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { getAdminService } from '@/lib/persistence/container';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type { AdminUserView } from '@/features/admin/services/admin.service.interface';
 import type { UserStatus } from '@/features/authentication/types/user.types';
 import type { UserId } from '@/lib/domain/ids';
@@ -27,7 +27,6 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 ];
 
 export function AdminUsersView() {
-  const service = useMemo(() => getAdminService(), []);
   const [items, setItems] = useState<AdminUserView[]>([]);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('all');
@@ -37,7 +36,7 @@ export function AdminUsersView() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await service.searchUsers({
+      const result = await adminApi.searchUsers({
         query: query.trim() || undefined,
         status: status === 'all' ? undefined : (status as UserStatus),
       });
@@ -47,7 +46,7 @@ export function AdminUsersView() {
     } finally {
       setLoading(false);
     }
-  }, [service, query, status]);
+  }, [query, status]);
 
   useEffect(() => {
     void load();
@@ -56,11 +55,11 @@ export function AdminUsersView() {
   async function runAction(id: UserId, action: 'suspend' | 'activate' | 'delete') {
     setBusyId(id);
     try {
-      if (action === 'suspend') await service.suspendUser(id);
-      else if (action === 'activate') await service.activateUser(id);
+      if (action === 'suspend') await adminApi.patchUser(id, { action: 'suspend' });
+      else if (action === 'activate') await adminApi.patchUser(id, { action: 'activate' });
       else if (action === 'delete') {
         if (!window.confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
-        await service.deleteUser(id);
+        await adminApi.patchUser(id, { action: 'delete' });
       }
       toast.success('İşlem tamamlandı');
       await load();

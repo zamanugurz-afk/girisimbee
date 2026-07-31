@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { getAdminService } from '@/lib/persistence/container';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type { Listing, ListingStatus } from '@/features/listings/types/listing.entity.types';
 import type { ListingId } from '@/lib/domain/ids';
 import { getListingStatusLabel } from '@/features/listings/utils/listing-status-labels';
@@ -32,7 +32,6 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 ];
 
 export function AdminListingsView() {
-  const service = useMemo(() => getAdminService(), []);
   const [items, setItems] = useState<Listing[]>([]);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('all');
@@ -42,7 +41,7 @@ export function AdminListingsView() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await service.searchListings({
+      const result = await adminApi.searchListings({
         query: query.trim() || undefined,
         status: status === 'all' ? undefined : (status as ListingStatus),
       });
@@ -52,7 +51,7 @@ export function AdminListingsView() {
     } finally {
       setLoading(false);
     }
-  }, [service, query, status]);
+  }, [query, status]);
 
   useEffect(() => {
     void load();
@@ -64,16 +63,16 @@ export function AdminListingsView() {
   ) {
     setBusyId(id);
     try {
-      if (action === 'publish') await service.publishListing(id);
+      if (action === 'publish') await adminApi.patchListing(id, { action: 'approve' });
       else if (action === 'reject') {
         const reason = window.prompt('Red nedeni girin:');
         if (!reason?.trim()) return;
-        await service.rejectListing(id, reason.trim());
-      } else if (action === 'unpublish') await service.unpublishListing(id);
-      else if (action === 'archive') await service.archiveListing(id);
+        await adminApi.patchListing(id, { action: 'reject', reason: reason.trim() });
+      } else if (action === 'unpublish') await adminApi.patchListing(id, { action: 'unpublish' });
+      else if (action === 'archive') await adminApi.patchListing(id, { action: 'archive' });
       else if (action === 'delete') {
         if (!window.confirm('İlanı silmek istediğinize emin misiniz?')) return;
-        await service.deleteListing(id);
+        await adminApi.patchListing(id, { action: 'delete' });
       }
       toast.success('İşlem tamamlandı');
       await load();

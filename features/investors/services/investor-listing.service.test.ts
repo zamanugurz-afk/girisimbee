@@ -10,7 +10,7 @@ describe('InvestorListingService', () => {
   });
 
   it('browses entrepreneur startups', async () => {
-    const { investorListingService } = harness.services;
+    const { investorService } = harness.services;
     const { listingRepository } = harness.repos;
 
     await listingRepository.create({
@@ -24,15 +24,15 @@ describe('InvestorListingService', () => {
       workflowStatus: 'published',
     });
 
-    const results = await investorListingService.browseStartups({ city: undefined });
+    const results = await investorService.browseStartups({ city: undefined });
     expect(results.total).toBeGreaterThanOrEqual(1);
   });
 
   it('requests meeting via match workflow', async () => {
-    const { investorListingService } = harness.services;
+    const { investorService } = harness.services;
 
-    await investorListingService.activateProfile(TEST_PROFILE_2);
-    const match = await investorListingService.requestMeeting({
+    await investorService.activateProfile(TEST_PROFILE_2);
+    const match = await investorService.requestMeeting({
       moduleKey: 'investors',
       initiatorProfileId: TEST_PROFILE_2,
       targetProfileId: TEST_PROFILE,

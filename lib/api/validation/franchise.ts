@@ -4,6 +4,7 @@ import { listingPublishBodySchema } from '@/lib/api/validation/common';
 
 export const franchiseBrowseQuerySchema = z.object({
   city: z.string().optional(),
+  district: z.string().optional(),
   sector: z.string().optional(),
 });
 
@@ -18,4 +19,12 @@ export const franchisePublishSchema = listingPublishBodySchema.extend({
 
 export const franchiseApplicationsQuerySchema = z.object({
   listingId: uuidSchema,
+  status: z
+    .union([
+      z.enum(['pending', 'reviewing', 'contacted', 'approved', 'rejected', 'withdrawn']),
+      z.array(z.enum(['pending', 'reviewing', 'contacted', 'approved', 'rejected', 'withdrawn'])),
+    ])
+    .optional(),
+  submittedAfter: z.string().datetime().optional(),
+  submittedBefore: z.string().datetime().optional(),
 });

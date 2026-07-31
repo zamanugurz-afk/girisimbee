@@ -49,27 +49,18 @@ export const employerProfileSchema = z.object({
   onboardingStep: z.number().int().min(0).optional(),
 });
 
-export const founderProfileSchema = z.object({
-  city: z.string().max(100).nullable().optional(),
-  district: z.string().max(100).nullable().optional(),
-  requiredSkills: z.array(z.string()).optional(),
-  equityPercentage: z.number().min(0).max(100).nullable().optional(),
-  specialization: z.string().max(200).nullable().optional(),
-  ideaTitle: z.string().max(200).nullable().optional(),
-  ideaDescription: z.string().max(5000).nullable().optional(),
-  onboardingStep: z.number().int().min(0).optional(),
-});
+import { founderModuleProfileUpsertSchema } from '@/lib/api/validation/founder-profiles';
 
-export const franchiseProfileSchema = z.object({
-  subcategorySlug: z.enum(['franchise-buy', 'franchise-give']).nullable().optional(),
-  city: z.string().max(100).nullable().optional(),
-  district: z.string().max(100).nullable().optional(),
-  franchiseFee: z.number().int().min(0).nullable().optional(),
-  investmentAmount: z.number().int().min(0).nullable().optional(),
-  returnPeriodMonths: z.number().int().min(0).nullable().optional(),
-  sector: z.string().max(100).nullable().optional(),
-  onboardingStep: z.number().int().min(0).optional(),
-});
+export const founderProfileSchema = founderModuleProfileUpsertSchema;
+
+import { franchiseProfileSchema } from '@/lib/api/validation/franchise-profiles';
+
+export {
+  franchiseProfileSchema,
+  franchiseBuyProfileSchema,
+  franchiseGiveProfileSchema,
+  parseFranchiseProfileUpsert,
+} from '@/lib/api/validation/franchise-profiles';
 
 export const profileActivateSchema = z.object({
   flow: z.enum(['buy', 'give']).optional(),

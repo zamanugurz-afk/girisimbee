@@ -66,6 +66,17 @@ import { FavoriteService } from '@/features/favorites/services/favorite.service'
 import { NotificationService } from '@/features/notifications/services/notification.service';
 import { MessagingService } from '@/features/messaging/services/messaging.service';
 import { AdminService } from '@/features/admin/services/admin.service';
+import { AdminDashboardService } from '@/features/admin/services/admin-dashboard.service';
+import { AdminProfilesService } from '@/features/admin/services/admin-profiles.service';
+import { AdminApplicationsService } from '@/features/admin/services/admin-applications.service';
+import { AdminPaymentsService } from '@/features/admin/services/admin-payments.service';
+import { AdminPackagesService } from '@/features/admin/services/admin-packages.service';
+import {
+  AdminCouponsService,
+  AdminReportService,
+  AdminSettingsService,
+} from '@/features/admin/services/admin-coupons.service';
+import type { AdminServices } from '@/features/admin/services/admin-services.types';
 import { ListingPackageService } from '@/features/monetization/services/listing-package.service';
 import type { IListingPackageService } from '@/features/monetization/services/listing-package.service';
 import type { IPaymentService } from '@/features/monetization/services/payment.service.interface';
@@ -76,6 +87,12 @@ import type { MatchRepository } from '@/features/matching/repositories/match.rep
 import type { ApplicationRepository } from '@/features/matching/repositories/application.repository';
 import type { DocumentRepository } from '@/features/documents/repositories/document.repository';
 import type { PaymentRepository } from '@/features/monetization/repositories/payment.repository';
+import type { FranchisePackageRepository } from '@/features/franchise/repositories/franchise-package.repository';
+import type { EmployerPackageRepository } from '@/features/employers/repositories/employer-package.repository';
+import type { CandidatePackageRepository } from '@/features/candidates/repositories/candidate-package.repository';
+import type { EntrepreneurPackageRepository } from '@/features/entrepreneurs/repositories/entrepreneur-package.repository';
+import type { InvestorPackageRepository } from '@/features/investors/repositories/investor-package.repository';
+import type { FounderPackageRepository } from '@/features/founders/repositories/founder-package.repository';
 import { MockMarketplaceSettingsRepository } from '@/features/monetization/repository/mock/marketplace-settings.repository.mock';
 import { MockListingPackageRepository } from '@/features/monetization/repository/mock/listing-package.repository.mock';
 import { MockModuleProfileRepository } from '@/features/profiles/repository/mock/module-profile.repository.mock';
@@ -83,6 +100,12 @@ import { MockMatchRepository } from '@/features/matching/repository/mock/match.r
 import { MockApplicationRepository } from '@/features/matching/repository/mock/application.repository.mock';
 import { MockDocumentRepository } from '@/features/documents/repository/mock/document.repository.mock';
 import { MockPaymentRepository } from '@/features/monetization/repository/mock/payment.repository.mock';
+import { MockFranchisePackageRepository } from '@/features/franchise/repository/mock/franchise-package.repository.mock';
+import { MockEmployerPackageRepository } from '@/features/employers/repository/mock/employer-package.repository.mock';
+import { MockCandidatePackageRepository } from '@/features/candidates/repository/mock/candidate-package.repository.mock';
+import { MockEntrepreneurPackageRepository } from '@/features/entrepreneurs/repository/mock/entrepreneur-package.repository.mock';
+import { MockInvestorPackageRepository } from '@/features/investors/repository/mock/investor-package.repository.mock';
+import { MockFounderPackageRepository } from '@/features/founders/repository/mock/founder-package.repository.mock';
 import { SupabaseMarketplaceSettingsRepository } from '@/features/monetization/repository/supabase/marketplace-settings.repository.supabase';
 import { SupabaseListingPackageRepository } from '@/features/monetization/repository/supabase/listing-package.repository.supabase';
 import { SupabaseModuleProfileRepository } from '@/features/profiles/repository/supabase/module-profile.repository.supabase';
@@ -90,6 +113,12 @@ import { SupabaseMatchRepository } from '@/features/matching/repository/supabase
 import { SupabaseApplicationRepository } from '@/features/matching/repository/supabase/application.repository.supabase';
 import { SupabaseDocumentRepository } from '@/features/documents/repository/supabase/document.repository.supabase';
 import { SupabasePaymentRepository } from '@/features/monetization/repository/supabase/payment.repository.supabase';
+import { SupabaseFranchisePackageRepository } from '@/features/franchise/repository/supabase/franchise-package.repository.supabase';
+import { SupabaseEmployerPackageRepository } from '@/features/employers/repository/supabase/employer-package.repository.supabase';
+import { SupabaseCandidatePackageRepository } from '@/features/candidates/repository/supabase/candidate-package.repository.supabase';
+import { SupabaseEntrepreneurPackageRepository } from '@/features/entrepreneurs/repository/supabase/entrepreneur-package.repository.supabase';
+import { SupabaseInvestorPackageRepository } from '@/features/investors/repository/supabase/investor-package.repository.supabase';
+import { SupabaseFounderPackageRepository } from '@/features/founders/repository/supabase/founder-package.repository.supabase';
 
 import { wireEcosystemServices, type EcosystemServices } from '@/lib/persistence/ecosystem-services';
 
@@ -125,6 +154,7 @@ export interface PersistenceContainer {
   notificationService: INotificationService;
   messagingService: IMessagingService;
   adminService: IAdminService;
+  adminServices: AdminServices;
   listingPackageService: IListingPackageService;
   paymentService: IPaymentService;
   marketplaceSettingsRepository: MarketplaceSettingsRepository;
@@ -135,6 +165,12 @@ export interface PersistenceContainer {
   applicationRepository: ApplicationRepository;
   documentRepository: DocumentRepository;
   paymentRepository: PaymentRepository;
+  franchisePackageRepository: FranchisePackageRepository;
+  employerPackageRepository: EmployerPackageRepository;
+  candidatePackageRepository: CandidatePackageRepository;
+  entrepreneurPackageRepository: EntrepreneurPackageRepository;
+  investorPackageRepository: InvestorPackageRepository;
+  founderPackageRepository: FounderPackageRepository;
   ecosystem: EcosystemServices;
 }
 
@@ -162,6 +198,12 @@ export function createMemoryContainer(): PersistenceContainer {
   const applicationRepository = new MockApplicationRepository();
   const documentRepository = new MockDocumentRepository();
   const paymentRepository = new MockPaymentRepository();
+  const franchisePackageRepository = new MockFranchisePackageRepository();
+  const employerPackageRepository = new MockEmployerPackageRepository();
+  const candidatePackageRepository = new MockCandidatePackageRepository();
+  const entrepreneurPackageRepository = new MockEntrepreneurPackageRepository();
+  const investorPackageRepository = new MockInvestorPackageRepository();
+  const founderPackageRepository = new MockFounderPackageRepository();
 
   return wireContainer({
     listingRepository,
@@ -187,6 +229,12 @@ export function createMemoryContainer(): PersistenceContainer {
     applicationRepository,
     documentRepository,
     paymentRepository,
+    franchisePackageRepository,
+    employerPackageRepository,
+    candidatePackageRepository,
+    entrepreneurPackageRepository,
+    investorPackageRepository,
+    founderPackageRepository,
   });
 }
 
@@ -214,6 +262,12 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const applicationRepository = new SupabaseApplicationRepository(supabase);
   const documentRepository = new SupabaseDocumentRepository(supabase);
   const paymentRepository = new SupabasePaymentRepository(supabase);
+  const franchisePackageRepository = new SupabaseFranchisePackageRepository(supabase);
+  const employerPackageRepository = new SupabaseEmployerPackageRepository(supabase);
+  const candidatePackageRepository = new SupabaseCandidatePackageRepository(supabase);
+  const entrepreneurPackageRepository = new SupabaseEntrepreneurPackageRepository(supabase);
+  const investorPackageRepository = new SupabaseInvestorPackageRepository(supabase);
+  const founderPackageRepository = new SupabaseFounderPackageRepository(supabase);
 
   return wireContainer({
     listingRepository,
@@ -239,6 +293,12 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     applicationRepository,
     documentRepository,
     paymentRepository,
+    franchisePackageRepository,
+    employerPackageRepository,
+    candidatePackageRepository,
+    entrepreneurPackageRepository,
+    investorPackageRepository,
+    founderPackageRepository,
   });
 }
 
@@ -266,6 +326,12 @@ function wireContainer(repos: {
   applicationRepository: ApplicationRepository;
   documentRepository: DocumentRepository;
   paymentRepository: PaymentRepository;
+  franchisePackageRepository: FranchisePackageRepository;
+  employerPackageRepository: EmployerPackageRepository;
+  candidatePackageRepository: CandidatePackageRepository;
+  entrepreneurPackageRepository: EntrepreneurPackageRepository;
+  investorPackageRepository: InvestorPackageRepository;
+  founderPackageRepository: FounderPackageRepository;
 }): PersistenceContainer {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
@@ -281,6 +347,13 @@ function wireContainer(repos: {
     documentRepository: repos.documentRepository,
     paymentRepository: repos.paymentRepository,
     listingPackageRepository: repos.listingPackageRepository,
+    franchisePackageRepository: repos.franchisePackageRepository,
+    employerPackageRepository: repos.employerPackageRepository,
+    candidatePackageRepository: repos.candidatePackageRepository,
+    entrepreneurPackageRepository: repos.entrepreneurPackageRepository,
+    investorPackageRepository: repos.investorPackageRepository,
+    founderPackageRepository: repos.founderPackageRepository,
+    favoriteRepository: repos.favoriteRepository,
   });
 
   const paymentService = ecosystem.paymentService;
@@ -305,6 +378,50 @@ function wireContainer(repos: {
     repos.profileRepository,
     repos.companyRepository,
   );
+
+  const adminService = new AdminService(
+    repos.userRepository,
+    repos.profileRepository,
+    repos.companyRepository,
+    repos.listingRepository,
+    repos.messageRepository,
+    repos.reportRepository,
+    repos.verificationRepository,
+    listingPackageService,
+    verificationService,
+    repos.applicationRepository,
+    repos.paymentRepository,
+    repos.activityRepository,
+  );
+
+  const adminDashboardService = new AdminDashboardService(
+    repos.userRepository,
+    repos.companyRepository,
+    repos.listingRepository,
+    repos.messageRepository,
+    repos.applicationRepository,
+    repos.paymentRepository,
+    repos.activityRepository,
+  );
+
+  const adminServices: AdminServices = {
+    core: adminService,
+    dashboard: adminDashboardService,
+    profiles: new AdminProfilesService(repos.profileRepository, repos.moduleProfileRepository),
+    applications: new AdminApplicationsService(repos.applicationRepository),
+    payments: new AdminPaymentsService(repos.paymentRepository, paymentService, ecosystem),
+    packages: new AdminPackagesService(listingPackageService, ecosystem),
+    coupons: AdminCouponsService.fromPackageRepos(repos),
+    reports: new AdminReportService(
+      adminDashboardService,
+      repos.userRepository,
+      repos.listingRepository,
+      repos.applicationRepository,
+      repos.paymentRepository,
+      repos.reportRepository,
+    ),
+    settings: new AdminSettingsService(repos.marketplaceSettingsRepository),
+  };
 
   return {
     listingRepository: repos.listingRepository,
@@ -344,17 +461,8 @@ function wireContainer(repos: {
       repos.profileRepository,
       repos.companyRepository,
     ),
-    adminService: new AdminService(
-      repos.userRepository,
-      repos.profileRepository,
-      repos.companyRepository,
-      repos.listingRepository,
-      repos.messageRepository,
-      repos.reportRepository,
-      repos.verificationRepository,
-      listingPackageService,
-      verificationService,
-    ),
+    adminService,
+    adminServices,
     listingPackageService,
     paymentService,
     marketplaceSettingsRepository: repos.marketplaceSettingsRepository,
@@ -365,6 +473,12 @@ function wireContainer(repos: {
     applicationRepository: repos.applicationRepository,
     documentRepository: repos.documentRepository,
     paymentRepository: repos.paymentRepository,
+    franchisePackageRepository: repos.franchisePackageRepository,
+    employerPackageRepository: repos.employerPackageRepository,
+    candidatePackageRepository: repos.candidatePackageRepository,
+    entrepreneurPackageRepository: repos.entrepreneurPackageRepository,
+    investorPackageRepository: repos.investorPackageRepository,
+    founderPackageRepository: repos.founderPackageRepository,
     ecosystem,
   };
 }
@@ -435,6 +549,10 @@ export function getAdminService(): IAdminService {
   return getClientContainer().adminService;
 }
 
+export function getAdminServices(): AdminServices {
+  return getClientContainer().adminServices;
+}
+
 export function getListingPackageService(): IListingPackageService {
   return getClientContainer().listingPackageService;
 }
@@ -451,12 +569,36 @@ export function getEcosystemServices(): EcosystemServices {
   return getClientContainer().ecosystem;
 }
 
+export function getEntrepreneurService() {
+  return getClientContainer().ecosystem.entrepreneurService;
+}
+
 export function getEntrepreneurListingService() {
   return getClientContainer().ecosystem.entrepreneurListingService;
 }
 
+export function getEntrepreneurApplicationService() {
+  return getClientContainer().ecosystem.entrepreneurApplicationService;
+}
+
+export function getEntrepreneurMonetizationService() {
+  return getClientContainer().ecosystem.entrepreneurMonetizationService;
+}
+
 export function getInvestorListingService() {
   return getClientContainer().ecosystem.investorListingService;
+}
+
+export function getInvestorService() {
+  return getClientContainer().ecosystem.investorService;
+}
+
+export function getInvestorApplicationService() {
+  return getClientContainer().ecosystem.investorApplicationService;
+}
+
+export function getInvestorMonetizationService() {
+  return getClientContainer().ecosystem.investorMonetizationService;
 }
 
 export function getCandidateService() {
@@ -467,8 +609,28 @@ export function getEmployerJobService() {
   return getClientContainer().ecosystem.employerJobService;
 }
 
+export function getEmployerService() {
+  return getClientContainer().ecosystem.employerService;
+}
+
+export function getEmployerApplicationService() {
+  return getClientContainer().ecosystem.employerApplicationService;
+}
+
+export function getEmployerMonetizationService() {
+  return getClientContainer().ecosystem.employerMonetizationService;
+}
+
 export function getFounderService() {
   return getClientContainer().ecosystem.founderService;
+}
+
+export function getFounderApplicationService() {
+  return getClientContainer().ecosystem.founderApplicationService;
+}
+
+export function getFounderMonetizationService() {
+  return getClientContainer().ecosystem.founderMonetizationService;
 }
 
 export function getFranchiseService() {

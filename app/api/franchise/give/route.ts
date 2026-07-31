@@ -1,10 +1,10 @@
 import { withOptionalAuth, withAuth, parseJsonBody } from '@/lib/api/with-auth';
 import { ok, created } from '@/lib/api/response';
 import {
-  franchiseBrowseQuerySchema,
   franchisePublishSchema,
   franchiseApplicationsQuerySchema,
 } from '@/lib/api/validation';
+import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 import { ids } from '@/lib/domain/ids';
 
 /** Bayilik Ver — browse franchise-buy seekers or list applications for own listing */
@@ -13,16 +13,28 @@ export const GET = withOptionalAuth(async (ctx, request) => {
   const params = Object.fromEntries(url.searchParams);
   const supabase = (await import('@/lib/supabase/server')).createClient();
   const container = ctx?.container ?? (await import('@/lib/persistence/container')).getServerContainer(supabase);
-  const { franchiseService, applicationService } = container.ecosystem;
+  const { franchiseService } = container.ecosystem;
 
   const appsQuery = franchiseApplicationsQuerySchema.safeParse(params);
   if (appsQuery.success && ctx) {
-    const applications = await applicationService.listForListing(ids.listing(appsQuery.data.listingId));
+    const applications = await container.ecosystem.franchiseApplicationService.listApplicationsForListing(
+      ids.listing(appsQuery.data.listingId),
+      ctx.profileId,
+      {
+        status: appsQuery.data.status,
+        submittedAfter: appsQuery.data.submittedAfter,
+        submittedBefore: appsQuery.data.submittedBefore,
+      },
+    );
     return ok({ applications });
   }
 
-  const query = franchiseBrowseQuerySchema.parse(params);
-  const listings = await franchiseService.browseGiveSeekers({ city: query.city });
+  const query = franchiseListingBrowseQuerySchema.parse(params);
+  const listings = await franchiseService.browseGiveSeekers({
+    city: query.city,
+    district: query.district,
+    sector: query.sector,
+  });
   return ok({ listings });
 });
 

@@ -17,7 +17,7 @@ export function getModuleProfileService(
     case 'entrepreneurs':
       return ecosystem.entrepreneurListingService as unknown as ModuleProfileService;
     case 'investors':
-      return ecosystem.investorListingService as unknown as ModuleProfileService;
+      return ecosystem.investorService as unknown as ModuleProfileService;
     case 'candidates':
       return ecosystem.candidateService as unknown as ModuleProfileService;
     case 'employers':

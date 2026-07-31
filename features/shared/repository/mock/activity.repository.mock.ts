@@ -28,6 +28,8 @@ export class MockActivityRepository implements ActivityRepository {
     if (filter.entityType) results = results.filter((a) => a.entityType === filter.entityType);
     if (filter.entityId) results = results.filter((a) => a.entityId === filter.entityId);
     if (filter.isPublic !== undefined) results = results.filter((a) => a.isPublic === filter.isPublic);
+    if (filter.after) results = results.filter((a) => a.createdAt >= filter.after!);
+    if (filter.before) results = results.filter((a) => a.createdAt <= filter.before!);
     if (filter.verb) {
       const verbs = Array.isArray(filter.verb) ? filter.verb : [filter.verb];
       results = results.filter((a) => verbs.includes(a.verb));

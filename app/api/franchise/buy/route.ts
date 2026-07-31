@@ -1,17 +1,19 @@
 import { withOptionalAuth, withAuth, parseJsonBody } from '@/lib/api/with-auth';
 import { ok, created } from '@/lib/api/response';
-import { franchiseBrowseQuerySchema, franchiseApplySchema } from '@/lib/api/validation';
+import { franchiseApplySchema } from '@/lib/api/validation';
+import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 import { ids } from '@/lib/domain/ids';
 
 /** Bayilik Al — browse franchise-give opportunities */
 export const GET = withOptionalAuth(async (ctx, request) => {
   const url = new URL(request.url);
-  const query = franchiseBrowseQuerySchema.parse(Object.fromEntries(url.searchParams));
+  const query = franchiseListingBrowseQuerySchema.parse(Object.fromEntries(url.searchParams));
 
   const supabase = (await import('@/lib/supabase/server')).createClient();
   const container = ctx?.container ?? (await import('@/lib/persistence/container')).getServerContainer(supabase);
   const listings = await container.ecosystem.franchiseService.browseBuyOpportunities({
     city: query.city,
+    district: query.district,
     sector: query.sector,
   });
 

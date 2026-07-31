@@ -11,6 +11,13 @@ import { MockApplicationRepository } from '@/features/matching/repository/mock/a
 import { MockDocumentRepository } from '@/features/documents/repository/mock/document.repository.mock';
 import { MockPaymentRepository } from '@/features/monetization/repository/mock/payment.repository.mock';
 import { MockListingPackageRepository } from '@/features/monetization/repository/mock/listing-package.repository.mock';
+import { MockFranchisePackageRepository } from '@/features/franchise/repository/mock/franchise-package.repository.mock';
+import { MockEmployerPackageRepository } from '@/features/employers/repository/mock/employer-package.repository.mock';
+import { MockCandidatePackageRepository } from '@/features/candidates/repository/mock/candidate-package.repository.mock';
+import { MockEntrepreneurPackageRepository } from '@/features/entrepreneurs/repository/mock/entrepreneur-package.repository.mock';
+import { MockInvestorPackageRepository } from '@/features/investors/repository/mock/investor-package.repository.mock';
+import { MockFounderPackageRepository } from '@/features/founders/repository/mock/founder-package.repository.mock';
+import { MockFavoriteRepository } from '@/features/favorites/repository/mock/favorite.repository.mock';
 import { wireEcosystemServices } from '@/lib/persistence/ecosystem-services';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
 
@@ -23,6 +30,13 @@ export function createEcosystemTestHarness() {
   const documentRepository = new MockDocumentRepository();
   const paymentRepository = new MockPaymentRepository();
   const listingPackageRepository = new MockListingPackageRepository();
+  const franchisePackageRepository = new MockFranchisePackageRepository();
+  const employerPackageRepository = new MockEmployerPackageRepository();
+  const candidatePackageRepository = new MockCandidatePackageRepository();
+  const entrepreneurPackageRepository = new MockEntrepreneurPackageRepository();
+  const investorPackageRepository = new MockInvestorPackageRepository();
+  const founderPackageRepository = new MockFounderPackageRepository();
+  const favoriteRepository = new MockFavoriteRepository();
 
   const services = wireEcosystemServices({
     listingRepository,
@@ -33,6 +47,13 @@ export function createEcosystemTestHarness() {
     documentRepository,
     paymentRepository,
     listingPackageRepository,
+    franchisePackageRepository,
+    employerPackageRepository,
+    candidatePackageRepository,
+    entrepreneurPackageRepository,
+    investorPackageRepository,
+    founderPackageRepository,
+    favoriteRepository,
   });
 
   return {
@@ -45,6 +66,13 @@ export function createEcosystemTestHarness() {
       documentRepository,
       paymentRepository,
       listingPackageRepository,
+      franchisePackageRepository,
+      employerPackageRepository,
+      candidatePackageRepository,
+      entrepreneurPackageRepository,
+      investorPackageRepository,
+      founderPackageRepository,
+      favoriteRepository,
     },
     services,
   };

@@ -31,6 +31,7 @@ export const gcCategoryColors = {
   'is-bul': '#5B5CF6',
   'ise-al': '#22C55E',
   'ortak-bul': '#F59E0B',
+  franchise: '#EC4899',
 } as const;
 
 export type GCCategorySlug = keyof typeof gcCategoryColors;
