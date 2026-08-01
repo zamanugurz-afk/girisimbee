@@ -26,6 +26,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',
+  '/yasal',
   '/auth/callback',
   '/auth/signout',
 ] as const;

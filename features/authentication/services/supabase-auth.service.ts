@@ -90,11 +90,30 @@ export function getSiteUrl(): string {
 
 export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInput) {
   const siteUrl = getSiteUrl();
+  const displayName =
+    input.displayName?.trim()
+    || `${input.firstName} ${input.lastName}`.trim();
+
   return supabase.auth.signUp({
     email: input.email,
     password: input.password,
     options: {
-      data: { display_name: input.displayName },
+      // Stored in auth.users.raw_user_meta_data only — no DB/schema writes.
+      data: {
+        display_name: displayName,
+        first_name: input.firstName,
+        last_name: input.lastName,
+        username: input.username,
+        phone: input.phone,
+        accept_terms: input.consents.acceptTerms,
+        accept_kvkk: input.consents.acceptKvkk,
+        accept_privacy: input.consents.acceptPrivacy,
+        accept_cookies: input.consents.acceptCookies,
+        consent_commercial: input.consents.consentCommercial,
+        consent_sms: input.consents.consentSms,
+        consent_email: input.consents.consentEmail,
+        consented_at: new Date().toISOString(),
+      },
       emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.dashboard)}`,
     },
   });

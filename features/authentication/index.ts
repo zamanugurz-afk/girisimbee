@@ -6,10 +6,13 @@ export type {
   SessionUser,
   AuthState,
   SignUpInput,
+  SignUpConsents,
   SignInInput,
   ResetPasswordInput,
   UpdatePasswordInput,
 } from '@/features/authentication/types/auth.types';
+
+export { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 
 // Domain types (persistence layer — not runtime auth roles)
 export type {

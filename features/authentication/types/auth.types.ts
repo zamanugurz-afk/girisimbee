@@ -41,9 +41,25 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
+export interface SignUpConsents {
+  acceptTerms: boolean;
+  acceptKvkk: boolean;
+  acceptPrivacy: boolean;
+  acceptCookies: boolean;
+  consentCommercial: boolean;
+  consentSms: boolean;
+  consentEmail: boolean;
+}
+
 export interface SignUpInput {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  phone: string;
+  consents: SignUpConsents;
+  /** Derived: `${firstName} ${lastName}` — kept for profiles.trigger compatibility */
   displayName?: string;
 }
 

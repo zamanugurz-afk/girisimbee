@@ -52,8 +52,10 @@ export function VerifyEmailPanel() {
         </Button>
       )}
       <p className="text-center text-sm text-muted-foreground">
-        Doğruladıktan sonra{' '}
-        <AuthLink href={AUTH_ROUTES.login}>giriş yapabilirsiniz</AuthLink>.
+        E-postadaki bağlantıya tıkladığınızda hesabınız doğrulanır ve{' '}
+        <AuthLink href={AUTH_ROUTES.dashboard}>kullanıcı paneline</AuthLink> yönlendirilirsiniz.
+        Bağlantı çalışmazsa{' '}
+        <AuthLink href={AUTH_ROUTES.login}>giriş</AuthLink> yapmayı deneyin.
       </p>
     </div>
   );
