@@ -11,7 +11,15 @@ import {
   InvalidTransitionError,
 } from '@/lib/domain/errors';
 import type { AuthContext } from '@/lib/api/with-auth';
+import { resolveProfileForUser } from '@/lib/api/resolve-profile';
 import { actionOk, actionFail, type ActionResult } from '@/lib/api/action-result';
+import { traceValidationFailure } from '@/lib/debug/validation-trace';
+import { tracePublishFailure } from '@/lib/debug/listing-publish-trace';
+import {
+  formatSupabaseErrorMessages,
+  isSupabaseError,
+  logSupabaseError,
+} from '@/lib/persistence/supabase-payload';
 
 export async function resolveActionContext(): Promise<ActionResult<AuthContext>> {
   const supabase = createClient();
@@ -24,10 +32,7 @@ export async function resolveActionContext(): Promise<ActionResult<AuthContext>>
   }
 
   const container = getServerContainer(supabase);
-  const profile = await container.profileRepository.findByUserId(ids.user(user.id));
-  if (!profile) {
-    return actionFail('Profil bulunamadı.', 404, { code: 'PROFILE_NOT_FOUND' });
-  }
+  const profile = await resolveProfileForUser(user, container);
 
   return actionOk({
     user,
@@ -84,6 +89,7 @@ export async function runOptionalAuthAction<T>(
 
 export function handleActionError(err: unknown): ActionResult<never> {
   if (err instanceof ZodError) {
+    traceValidationFailure('action', err);
     return actionFail('Doğrulama hatası.', 400, {
       code: 'VALIDATION_ERROR',
       fieldErrors: err.flatten().fieldErrors,
@@ -114,6 +120,18 @@ export function handleActionError(err: unknown): ActionResult<never> {
     return actionFail(err.message, err.statusCode, { code: err.code });
   }
 
-  const message = err instanceof Error ? err.message : 'Sunucu hatası.';
-  return actionFail(message, 500, { code: 'INTERNAL_ERROR' });
+  if (isSupabaseError(err)) {
+    tracePublishFailure('action', 'handleActionError', err);
+    logSupabaseError(err, 'handleActionError');
+    const [message] = formatSupabaseErrorMessages(err);
+    return actionFail(message, 500, { code: err.code ?? 'INTERNAL_ERROR' });
+  }
+
+  if (err instanceof Error) {
+    tracePublishFailure('action', 'handleActionError', err);
+    return actionFail(err.message, 500, { code: 'INTERNAL_ERROR' });
+  }
+
+  tracePublishFailure('action', 'handleActionError', err);
+  return actionFail('Sunucu hatası.', 500, { code: 'INTERNAL_ERROR' });
 }

@@ -3,11 +3,12 @@ import { filterPremiumLabels } from '@/features/shared/config/features';
 export const NAV_LINKS = [
   { label: 'Keşfet', href: '/kesfet' },
   { label: 'İlanlar', href: '/kesfet' },
-  { label: 'Yatırımcılar', href: '/invest' },
-  { label: 'Girişimciler', href: '/investors' },
+  { label: 'Girişimciler', href: '/invest' },
+  { label: 'Yatırımcılar', href: '/investors' },
   { label: 'İş Arayanlar', href: '/jobs' },
   { label: 'İş Verenler', href: '/hire' },
   { label: 'Ortaklıklar', href: '/partners' },
+  { label: 'Franchise', href: '/franchise/buy' },
 ] as const;
 
 const FOOTER_LINKS_ALL = {

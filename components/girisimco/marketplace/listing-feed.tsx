@@ -22,6 +22,7 @@ export function ListingFeed({
   emptyVariant = 'listings',
   emptyMessage,
 }: ListingFeedProps) {
+  console.log('[listing-feed] rendered rows:', items.length, items.map((i) => i.listingId ?? i.id));
   if (items.length === 0) {
     return (
       <MarketplaceEmptyState

@@ -31,8 +31,18 @@ import {
   type KvkkConsentValues,
 } from '@/features/listings/form/fields/kvkk-consent-fields';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
+import {
+  DEFAULT_PACKAGE_SELECTION,
+  ListingPackageSelectionStep,
+  type ListingPackageSelectionValue,
+} from '@/features/listings/form/listing-package-selection-step';
 import { ListingPreviewDialog } from '@/features/listings/components/listing-preview-dialog';
 import { ListingFormPreviewContent } from '@/features/listings/components/listing-form-preview-content';
+import {
+  PLACEMENT_PACKAGE_CONFIG,
+  STANDARD_PUBLISH_CONFIG,
+  formatPlacementPriceTry,
+} from '@/features/monetization/types/listing-placement.types';
 import {
   buildListingDraftStorageKey,
   useListingFormAutosave,
@@ -41,6 +51,7 @@ import {
   filterErrorsToCurrentStep,
   logValidationErrors,
   resolvePublishErrorMessages,
+  validateListingFormBeforePublish,
   parseZodErrors,
   resolveFieldError,
   scheduleScrollToFirstError,
@@ -55,6 +66,8 @@ export interface ListingFormValues {
   images: { url: string; alt?: string | null; sortOrder?: number }[];
   cvUrl?: string | null;
   kvkkConsents?: KvkkConsentValues;
+  /** Homepage placement selection — simulated payment only in Phase 2 */
+  packageSelection?: ListingPackageSelectionValue;
 }
 
 export interface CategoryListingFormProps {
@@ -129,6 +142,7 @@ export function CategoryListingForm({
       images: initialValues?.images ?? base.images,
       cvUrl: initialValues?.cvUrl ?? null,
       kvkkConsents: initialValues?.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS },
+      packageSelection: initialValues?.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION },
     };
   }, [listingType.fieldSchema, initialValues]);
 
@@ -143,6 +157,9 @@ export function CategoryListingForm({
   const [kvkkConsents, setKvkkConsents] = useState<KvkkConsentValues>(
     defaults.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS },
   );
+  const [packageSelection, setPackageSelection] = useState<ListingPackageSelectionValue>(
+    defaults.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION },
+  );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [publishErrors, setPublishErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<'save' | 'draft' | 'publish' | null>(null);
@@ -152,13 +169,15 @@ export function CategoryListingForm({
 
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
+  const isPackageStep = Boolean(currentStep.package);
   const isPublishStep = Boolean(currentStep.publish);
   const isCvStep = Boolean(currentStep.cv);
   const isKvkkStep = Boolean(currentStep.kvkk);
-  const isFormStep = !isPreviewStep && !isPublishStep;
+  const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
-    || categoryId === CATEGORY_IDS.iseAl;
+    || categoryId === CATEGORY_IDS.iseAl
+    || categoryId === CATEGORY_IDS.bayilikAl;
   const isLastStep = stepIndex === steps.length - 1;
   const isFirstStep = stepIndex === 0;
 
@@ -175,18 +194,34 @@ export function CategoryListingForm({
       images,
       cvUrl,
       kvkkConsents,
+      packageSelection,
     }),
-    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents],
+    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents, packageSelection],
   );
 
   const validationSnapshot = useMemo(
-    (): ValidationFormSnapshot => ({ core, customFields: mergedCustomFields, tags, images }),
-    [core, mergedCustomFields, tags, images],
+    (): ValidationFormSnapshot => ({
+      core,
+      customFields: mergedCustomFields,
+      tags,
+      images,
+      cvUrl,
+      kvkkConsents,
+    }),
+    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents],
   );
 
   const stepCustomKeys = useMemo(
     () => resolveStepCustomFields(currentStep, allFieldKeys),
     [currentStep, allFieldKeys],
+  );
+  const leadCustomKeys = useMemo(() => {
+    const lead = currentStep.leadCustomFieldKeys ?? [];
+    return lead.filter((key) => stepCustomKeys.includes(key));
+  }, [currentStep.leadCustomFieldKeys, stepCustomKeys]);
+  const restCustomKeys = useMemo(
+    () => stepCustomKeys.filter((key) => !leadCustomKeys.includes(key)),
+    [stepCustomKeys, leadCustomKeys],
   );
 
   const { clearDraft, restoreDraft } = useListingFormAutosave({
@@ -211,6 +246,7 @@ export function CategoryListingForm({
     setImages(draft.images);
     setCvUrl(draft.cvUrl ?? null);
     setKvkkConsents(draft.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS });
+    setPackageSelection(draft.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION });
     setRestoredDraft(true);
     toast.message('Kaydedilmiş taslak geri yüklendi.');
   }, [initialValues, listingType.fieldSchema, restoreDraft, restoredDraft]);
@@ -261,15 +297,34 @@ export function CategoryListingForm({
     const clamped = Math.max(0, Math.min(index, steps.length - 1));
 
     if (fromDef?.preview) {
+      const packageIndex = currentStepIndex + 1;
+      const allowedForward =
+        clamped === packageIndex
+        && steps[packageIndex]?.package
+        && reason === 'goNext:previewToPackage';
+      const allowedBack = clamped === currentStepIndex - 1 && reason === 'goBack';
+      const allowedValidationFix = reason.startsWith('validate') && clamped < currentStepIndex;
+      if (!allowedForward && !allowedBack && !allowedValidationFix) {
+        console.warn('[ListingForm] goToStep blocked from preview — only next package or goBack', {
+          from: currentStepIndex,
+          to: clamped,
+          packageIndex,
+          reason,
+        });
+        return;
+      }
+    }
+
+    if (fromDef?.package) {
       const publishIndex = currentStepIndex + 1;
       const allowedForward =
         clamped === publishIndex
         && steps[publishIndex]?.publish
-        && reason === 'goNext:previewToPublish';
+        && reason === 'goNext:packageToPublish';
       const allowedBack = clamped === currentStepIndex - 1 && reason === 'goBack';
       const allowedValidationFix = reason.startsWith('validate') && clamped < currentStepIndex;
       if (!allowedForward && !allowedBack && !allowedValidationFix) {
-        console.warn('[ListingForm] goToStep blocked from preview — only next publish or goBack', {
+        console.warn('[ListingForm] goToStep blocked from package — only next publish or goBack', {
           from: currentStepIndex,
           to: clamped,
           publishIndex,
@@ -315,6 +370,25 @@ export function CategoryListingForm({
         stepIndex,
         stepId: currentStep?.id,
       });
+      return true;
+    }
+
+    if (isPackageStep) {
+      if (packageSelection.simulationStatus !== 'ready') {
+        setFieldErrors({
+          packageSelection:
+            packageSelection.placements.length > 0
+              ? 'Ücretli paket seçtiniz. Devam etmeden önce ödemeyi simüle edin.'
+              : 'Paket seçimini tamamlayın.',
+        });
+        toast.error(
+          packageSelection.placements.length > 0
+            ? 'Devam etmeden önce ödemeyi simüle edin.'
+            : 'Lütfen bir paket seçin.',
+        );
+        return false;
+      }
+      setFieldErrors({});
       return true;
     }
 
@@ -397,21 +471,37 @@ export function CategoryListingForm({
       stepIndex,
       stepId: currentStep?.id,
       isPreviewStep,
+      isPackageStep,
       isPublishStep,
       isFormStep,
     });
 
     if (isPreviewStep) {
+      const packageIndex = stepIndex + 1;
+      if (packageIndex >= steps.length || !steps[packageIndex]?.package) {
+        console.error('[ListingForm] goNext: package step must be immediately after preview', {
+          stepIndex,
+          packageIndex,
+        });
+        return;
+      }
+      setFieldErrors({});
+      goToStep(packageIndex, 'goNext:previewToPackage');
+      return;
+    }
+
+    if (isPackageStep) {
+      if (!validateCurrentStep()) return;
       const publishIndex = stepIndex + 1;
       if (publishIndex >= steps.length || !steps[publishIndex]?.publish) {
-        console.error('[ListingForm] goNext: publish step must be immediately after preview', {
+        console.error('[ListingForm] goNext: publish step must be immediately after package', {
           stepIndex,
           publishIndex,
         });
         return;
       }
       setFieldErrors({});
-      goToStep(publishIndex, 'goNext:previewToPublish');
+      goToStep(publishIndex, 'goNext:packageToPublish');
       return;
     }
 
@@ -425,8 +515,6 @@ export function CategoryListingForm({
       console.log('[ListingForm] goNext ignored — no next step');
       return;
     }
-
-    const nextStep = steps[nextIndex];
 
     if (isFormStep) {
       if (!validateCurrentStep()) return;
@@ -456,15 +544,18 @@ export function CategoryListingForm({
         .map((img, index) => ({ ...img, sortOrder: index })),
       cvUrl,
       kvkkConsents,
+      packageSelection,
     };
   }
 
-  /** Publish/draft from the final step — no re-validation, never reset wizard step. */
+  /** Publish/draft from the final step — validates on publish, never reset wizard step. */
   async function runFinalStepAction(
     mode: 'draft' | 'publish' | 'save',
     handler?: (values: ListingFormValues) => Promise<void>,
   ) {
     if (!handler) return;
+
+    const formData = buildHandlerValues();
 
     console.log('[ListingForm] runFinalStepAction start', {
       mode,
@@ -472,14 +563,51 @@ export function CategoryListingForm({
       stepId: currentStep.id,
     });
 
+    if (mode === 'publish') {
+      if (packageSelection.simulationStatus !== 'ready') {
+        setPublishErrors(['Paket seçimi tamamlanmadı. Lütfen paket adımına dönün.']);
+        return;
+      }
+
+      const validationErrors = validateListingFormBeforePublish({
+        categoryId,
+        fieldSchema: listingType.fieldSchema,
+        steps,
+        allFieldKeys,
+        snapshot: validationSnapshot,
+        cvUrl,
+        kvkkConsents,
+      });
+
+      console.log(formData);
+      console.log(validationErrors);
+      console.log(currentStep);
+      console.log(categoryId);
+
+      if (Object.keys(validationErrors).length > 0) {
+        const messages = [...new Set(Object.values(validationErrors))];
+        console.error('[ListingForm] publish blocked by validation', {
+          validationErrors,
+          messages,
+        });
+        setPublishErrors(messages);
+        return;
+      }
+    }
+
     setPublishErrors([]);
     setSubmitting(mode);
 
     try {
-      await handler(buildHandlerValues());
+      await handler(formData);
       console.log('[ListingForm] runFinalStepAction success', { mode });
       clearDraft();
     } catch (err) {
+      console.log(formData);
+      console.log(validationSnapshot);
+      console.log(currentStep);
+      console.log(categoryId);
+
       const publishErrorMessages = resolvePublishErrorMessages(
         err,
         steps,
@@ -507,9 +635,12 @@ export function CategoryListingForm({
 
   return (
     <>
-      <FormStepIndicator steps={steps} currentIndex={stepIndex} />
+      <div className="gc-card overflow-hidden">
+        <div className="border-b border-border/60 px-4 py-5 sm:px-6 sm:py-6">
+          <FormStepIndicator steps={steps} currentIndex={stepIndex} />
+        </div>
 
-      <div className="gc-card p-6 sm:p-8">
+        <div className="p-6 sm:p-8">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-gc-xs font-medium uppercase tracking-wide text-primary">
@@ -539,11 +670,44 @@ export function CategoryListingForm({
             />
           )}
 
+          {isPackageStep && (
+            <ListingPackageSelectionStep
+              value={packageSelection}
+              onChange={setPackageSelection}
+              disabled={disabled || isBusy}
+              error={resolveFieldError(fieldErrors, 'packageSelection')}
+            />
+          )}
+
           {isPublishStep && (
             <div className="space-y-3">
               <p className="text-gc-sm text-muted-foreground">
                 Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.
               </p>
+              <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
+                <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
+                  Seçilen paket
+                </p>
+                <p className="mt-1 text-gc-sm font-medium text-foreground">
+                  {packageSelection.placements.length === 0
+                    ? STANDARD_PUBLISH_CONFIG.name
+                    : packageSelection.placements
+                        .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
+                        .join(' + ')}
+                </p>
+                {packageSelection.placements.length > 0 && (
+                  <p className="mt-0.5 text-gc-xs text-muted-foreground">
+                    Toplam:{' '}
+                    {formatPlacementPriceTry(
+                      packageSelection.placements.reduce(
+                        (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+                        0,
+                      ),
+                    )}{' '}
+                    · ödeme simülasyonu tamamlandı
+                  </p>
+                )}
+              </div>
               {publishErrors.length > 0 && (
                 <div
                   role="alert"
@@ -561,12 +725,46 @@ export function CategoryListingForm({
 
           {isFormStep && (
             <>
+              {leadCustomKeys.map((key) => {
+                const field = fieldByKey.get(key);
+                if (!field) return null;
+                return (
+                  <DynamicField
+                    key={key}
+                    field={field}
+                    value={mergedCustomFields[key]}
+                    onChange={(val) => setCustomField(key, val)}
+                    error={resolveFieldError(fieldErrors, key)}
+                    disabled={disabled || isBusy}
+                  />
+                );
+              })}
+
               {currentStep.coreFields && currentStep.coreFields.length > 0 && (
                 <CoreListingFields
                   values={core}
                   onChange={handleCoreChange}
                   include={currentStep.coreFields}
                   extendedCities={usesExtendedCities && currentStep.coreFields.includes('city')}
+                  labels={
+                    categoryId === CATEGORY_IDS.isBul
+                      ? { longDescription: 'Kariyer özetim' }
+                      : categoryId === CATEGORY_IDS.bayilikAl
+                        ? { shortDescription: 'Firma Hakkında' }
+                        : undefined
+                  }
+                  fieldUi={
+                    categoryId === CATEGORY_IDS.bayilikAl
+                      ? {
+                          shortDescription: {
+                            placeholder:
+                              'Firmanızın kısa tarihçesini, ne zaman kurulduğunu ve bugüne nasıl geldiğini 2-3 cümlede anlatın…',
+                            helperText:
+                              'Kısa bir firma tarihçesi yazın. Arama sonuçlarında görünür; en az 30 karakter.',
+                          },
+                        }
+                      : undefined
+                  }
                   errors={{
                     title: resolveFieldError(fieldErrors, 'title'),
                     shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
@@ -578,7 +776,7 @@ export function CategoryListingForm({
                 />
               )}
 
-              {stepCustomKeys.map((key) => {
+              {restCustomKeys.map((key) => {
                 const field = fieldByKey.get(key);
                 if (!field) return null;
                 return (
@@ -607,6 +805,12 @@ export function CategoryListingForm({
                   onChange={setImages}
                   disabled={disabled || isBusy}
                   userId={userId}
+                  label={categoryId === CATEGORY_IDS.iseAl ? 'Firma Görseli' : undefined}
+                  helperText={
+                    categoryId === CATEGORY_IDS.iseAl
+                      ? 'Firma logosu veya ofis görseli ekleyebilirsiniz. İlk görsel kapak olarak kullanılır.'
+                      : undefined
+                  }
                 />
               )}
 
@@ -702,6 +906,7 @@ export function CategoryListingForm({
         <p className="mt-4 text-center text-gc-xs text-muted-foreground">
           Adım {stepIndex + 1} / {steps.length}
         </p>
+        </div>
       </div>
 
       <ListingPreviewDialog

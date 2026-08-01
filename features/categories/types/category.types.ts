@@ -28,6 +28,18 @@ export interface ContentItem {
   initials?: string;
   meta?: string;
   trust?: TrustBadges;
+  /** Listing card — colored type badge (e.g. YATIRIM ARIYORUM). */
+  listingTypeLabel?: string;
+  /** Listing card — group accent color hex. */
+  listingGroupColor?: string;
+  /** Listing card — footer category name (Yatırım, İş, …). */
+  listingGroupLabel?: string;
+  /** Listing card — short description body. */
+  description?: string;
+  /** Listing card — price or investment amount line. */
+  price?: string;
+  /** Listing card — uploaded cover or category fallback. */
+  coverUrl?: string;
 }
 
 export interface CategorySection {

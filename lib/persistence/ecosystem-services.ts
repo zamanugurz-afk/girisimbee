@@ -40,6 +40,8 @@ import type { FavoriteRepository } from '@/features/favorites/repositories/favor
 import { FranchiseService } from '@/features/franchise/services/franchise.service';
 import { FranchiseApplicationService } from '@/features/franchise/services/franchise-application.service';
 import { FranchiseMonetizationService } from '@/features/franchise/services/franchise-monetization.service';
+import type { KvkkConsentRepository } from '@/features/kvkk/repositories/kvkk-consent.repository';
+import { KvkkConsentService } from '@/features/kvkk/services/kvkk-consent.service';
 
 export interface EcosystemServices {
   documentService: DocumentService;
@@ -70,10 +72,13 @@ export interface EcosystemServices {
   franchiseService: FranchiseService;
   franchiseApplicationService: FranchiseApplicationService;
   franchiseMonetizationService: FranchiseMonetizationService;
+  kvkkConsentService: KvkkConsentService;
 }
 
 export interface EcosystemRepositories {
   listingRepository: ListingRepository;
+  /** When set, used by EmployerService.create to insert canonical category FKs. */
+  employerListingRepository?: ListingRepository;
   profileRepository: ProfileRepository;
   moduleProfileRepository: ModuleProfileRepository;
   matchRepository: MatchRepository;
@@ -88,6 +93,7 @@ export interface EcosystemRepositories {
   investorPackageRepository: InvestorPackageRepository;
   founderPackageRepository: FounderPackageRepository;
   favoriteRepository: FavoriteRepository;
+  kvkkConsentRepository: KvkkConsentRepository;
 }
 
 export function wireEcosystemServices(repos: EcosystemRepositories): EcosystemServices {
@@ -177,7 +183,7 @@ export function wireEcosystemServices(repos: EcosystemRepositories): EcosystemSe
 
   const employerService = new EmployerService(
     repos.moduleProfileRepository,
-    repos.listingRepository,
+    repos.employerListingRepository ?? repos.listingRepository,
   );
 
   const employerApplicationService = new EmployerApplicationService(
@@ -202,6 +208,8 @@ export function wireEcosystemServices(repos: EcosystemRepositories): EcosystemSe
     applicationService,
   );
 
+  const kvkkConsentService = new KvkkConsentService(repos.kvkkConsentRepository);
+
   return {
     documentService,
     matchService,
@@ -219,10 +227,13 @@ export function wireEcosystemServices(repos: EcosystemRepositories): EcosystemSe
       repos.moduleProfileRepository,
       applicationService,
       documentService,
+      repos.listingRepository,
+      kvkkConsentService,
     ),
     candidateCvService,
     candidateApplicationService,
     candidateMonetizationService,
+    kvkkConsentService,
     employerService,
     employerApplicationService,
     employerMonetizationService,

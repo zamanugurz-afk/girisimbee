@@ -57,6 +57,20 @@ export class MockFavoriteRepository implements FavoriteRepository {
     return this.count({ listingId, status: 'active' });
   }
 
+  /** Returns only listings with at least one active favorite (count > 0). */
+  async countActiveByListingIds(listingIds: ListingId[]): Promise<Map<ListingId, number>> {
+    const allowed = new Set(listingIds);
+    const counts = new Map<ListingId, number>();
+
+    for (const favorite of this.favorites.values()) {
+      if (favorite.deletedAt || favorite.status !== 'active') continue;
+      if (!allowed.has(favorite.listingId)) continue;
+      counts.set(favorite.listingId, (counts.get(favorite.listingId) ?? 0) + 1);
+    }
+
+    return counts;
+  }
+
   async exists(id: FavoriteId): Promise<boolean> {
     return this.favorites.has(id);
   }

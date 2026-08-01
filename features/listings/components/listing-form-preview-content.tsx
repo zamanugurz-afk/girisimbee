@@ -9,6 +9,13 @@ import type { ListingType } from '@/features/listings/types/listing-type.types';
 
 import { cn } from '@/lib/utils';
 import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import {
+  formatMoney,
+  formatPercentage,
+  formatSupportFlags,
+  formatBoolean,
+} from '@/features/franchise/lib/franchise-listing.mapper';
 
 const REMOTE_LABELS: Record<string, string> = {
   onsite: 'Ofis',
@@ -47,6 +54,30 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
   const customEntries = Object.entries(values.customFields).filter(
     ([key, val]) => !['kvkkConsents'].includes(key) && !isEmptyDisplayValue(val),
   );
+
+  const isFranchiseGive = listingType.categoryId === CATEGORY_IDS.bayilikAl;
+
+  function formatPreviewValue(key: string, val: unknown): string {
+    if (isFranchiseGive) {
+      if (['entryFee', 'franchiseFee', 'totalInvestment', 'minCapitalRequirement'].includes(key)) {
+        return formatMoney(typeof val === 'number' ? val : Number(val));
+      }
+      if (['royaltyFee', 'advertisingFee', 'profitMargin'].includes(key)) {
+        return formatPercentage(typeof val === 'number' ? val : Number(val));
+      }
+      if (key === 'minSquareMeters') {
+        const num = typeof val === 'number' ? val : Number(val);
+        return Number.isFinite(num) ? `${num} m²` : toDisplayValue(val);
+      }
+      if (['mallAvailable', 'streetStoreAvailable', 'companyEstablishmentRequired', 'trainingSupport', 'operationalSupport', 'marketingSupport'].includes(key)) {
+        return formatBoolean(typeof val === 'boolean' ? val : Boolean(val));
+      }
+      if (key === 'availableCities' && Array.isArray(val)) {
+        return val.join(', ');
+      }
+    }
+    return toDisplayValue(val);
+  }
 
   const tagGroups = useMemo(
     () => getListingTagGroups(listingType.categoryId),
@@ -103,7 +134,7 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
           <PreviewRow
             key={key}
             label={fieldLabels.get(key) ?? key}
-            value={toDisplayValue(val)}
+            value={formatPreviewValue(key, val)}
           />
         ))}
         <PreviewRow label="Özgeçmiş" value={values.cvUrl ? 'Yüklendi' : null} />
@@ -144,7 +175,9 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
 
       {values.core.longDescription && (
         <div className="rounded-xl border border-border/80 p-4 dark:border-white/10">
-          <h3 className="mb-2 text-sm font-semibold text-foreground">Detaylı Açıklama</h3>
+          <h3 className="mb-2 text-sm font-semibold text-foreground">
+            {listingType.categoryId === CATEGORY_IDS.isBul ? 'Kariyer özetim' : 'Detaylı Açıklama'}
+          </h3>
           <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
             {values.core.longDescription}
           </p>

@@ -9,20 +9,23 @@ import {
   useListingEngine,
   categoryRegistry,
 } from '@/features/listings';
-import type { CategoryId, ListingTypeId, CompanyId } from '@/lib/domain/ids';
+import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFormValues } from '@/features/listings/form/category-listing-form';
-import {
-  ListingPublisherSelect,
-  type ListingPublisherMode,
-} from '@/features/listings/components/listing-publisher-select';
 import { LISTING_TYPE_CONFIGS } from '@/features/listings/config/listing-type-config';
-import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
+import {
+  getModuleListingDetailPath,
+  usesModulePublish,
+} from '@/features/listings/config/listing-category-module.config';
+import { listingFormValuesToModulePayload } from '@/features/listings/lib/listing-form-publish.mapper';
+import { publishModuleListing } from '@/features/listings/lib/listing-module-api-client';
+import { saveListingImages } from '@/features/listings/lib/save-listing-images';
+import { traceListingPublish } from '@/lib/debug/listing-publish-trace';
 import { cn } from '@/lib/utils';
 
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { createListing, publishListing, isAuthenticated, actorId } = useListingEngine();
+  const { isAuthenticated, actorId } = useListingEngine();
 
   const initialCategory = categoryRegistry.resolveCategoryId(
     searchParams.get('category') ?? searchParams.get('intent') ?? '',
@@ -33,9 +36,6 @@ function CreateListingContent() {
     if (!initialCategory) return null;
     return categoryRegistry.getDefaultListingType(initialCategory)?.id ?? null;
   });
-
-  const [publisherMode, setPublisherMode] = useState<ListingPublisherMode>('personal');
-  const [publisherCompanyId, setPublisherCompanyId] = useState<CompanyId | null>(null);
 
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);
 
@@ -51,59 +51,45 @@ function CreateListingContent() {
     setListingTypeId(defaultType?.id ?? null);
   }
 
-  function buildPayload(values: ListingFormValues, asDraft = false) {
-    if (!categoryId || !listingTypeId) throw new Error('Kategori seçilmedi');
-
-    const companyId =
-      publisherMode === 'company'
-        ? coerceCompanyId(publisherCompanyId)
-        : null;
-
-    const payload = {
-      categoryId,
-      listingTypeId,
-      core: {
-        ...values.core,
-        companyId,
-      },
-      customFields: values.customFields,
-      tags: values.tags,
-      images: values.images,
-      asDraft,
-    };
-
-    console.log('[CreateListingPage] buildPayload', JSON.stringify(payload, null, 2));
-    return payload;
-  }
-
   async function handlePublish(values: ListingFormValues) {
     if (!isAuthenticated) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
-    if (publisherMode === 'company' && !publisherCompanyId) {
-      throw new Error('Şirket ilanı için bir şirket seçin.');
+    if (!categoryId) {
+      throw new Error('Kategori seçilmedi.');
+    }
+    if (!usesModulePublish(categoryId)) {
+      throw new Error('Bu kategori için modül yayın yolu tanımlı değil.');
     }
 
-    const payload = buildPayload(values, false);
-    console.log('publisherMode:', publisherMode);
-    console.log('publisherCompanyId:', publisherCompanyId);
-    console.log('companyId:', payload.core.companyId);
-    console.log('userId:', actorId);
-    console.log(JSON.stringify(payload, null, 2));
+    const moduleKey = LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.slug ?? categoryId;
+    traceListingPublish(String(moduleKey), 'form_submit', { input: values });
 
-    const aggregate = await createListing(payload);
-    const published = await publishListing(aggregate.listing.id);
+    let payload: Record<string, unknown>;
+    try {
+      payload = listingFormValuesToModulePayload(categoryId, values);
+      traceListingPublish(String(moduleKey), 'mapper', { payload });
+    } catch (error) {
+      traceListingPublish(String(moduleKey), 'mapper_exception', { error });
+      throw error;
+    }
 
-    if (published.listing.status === 'pending_review') {
-      toast.success('İlan incelemeye gönderildi', {
-        description: 'Onaylandığında yayına alınacaktır.',
+    let listing;
+    try {
+      listing = await publishModuleListing(categoryId, payload);
+      if (values.images.length > 0) {
+        await saveListingImages(listing.id, values.images);
+      }
+      traceListingPublish(String(moduleKey), 'redirect', {
+        response: { slug: listing.slug, status: listing.status, moduleKey: listing.moduleKey },
       });
-      router.push('/ilanlarim');
-      return;
+    } catch (error) {
+      traceListingPublish(String(moduleKey), 'action_exception', { error });
+      throw error;
     }
 
     toast.success('İlanınız yayınlandı');
-    router.push(`/ilan/${published.listing.slug}`);
+    router.push(getModuleListingDetailPath(categoryId, listing.slug));
   }
 
   return (
@@ -169,14 +155,6 @@ function CreateListingContent() {
 
         {isReady && listingType && categoryId ? (
           <>
-            <ListingPublisherSelect
-              mode={publisherMode}
-              companyId={publisherCompanyId}
-              onChange={(mode, companyId) => {
-                setPublisherMode(mode);
-                setPublisherCompanyId(companyId);
-              }}
-            />
             <CategoryListingForm
               listingType={listingType}
               categoryId={categoryId}

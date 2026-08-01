@@ -14,6 +14,7 @@ import { PROFILE_LIFECYCLE } from '@/features/profiles/types/profile.types';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
 import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
 import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
+import { traceProfileAuth } from '@/lib/debug/profile-auth-trace';
 
 const TABLE = 'marketplace_profiles';
 
@@ -166,6 +167,14 @@ export class SupabaseProfileRepository implements ProfileRepository {
 
   async findByUserId(userId: UserId): Promise<Profile | null> {
     const { data, error } = await this.supabase.from(TABLE).select('*').eq('user_id', userId).is('deleted_at', null).maybeSingle();
+    traceProfileAuth('marketplace_profiles_query', {
+      userId,
+      query: `${TABLE}?user_id=eq.${userId}&deleted_at=is.null`,
+      response: {
+        row: data ? { id: data.id, user_id: data.user_id, display_name: data.display_name } : null,
+        error: error ? { message: error.message, code: error.code } : null,
+      },
+    });
     if (error) throw error;
     return data ? mapProfileRow(data as ProfileRow) : null;
   }

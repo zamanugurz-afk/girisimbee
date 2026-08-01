@@ -43,10 +43,109 @@ function TypeIcon({ type }: { type: ContentItem['type'] }) {
 
 export function ContentCard({ item, accent }: ContentCardProps) {
   const isArticle = item.type === 'article' || item.type === 'story';
+  const isListingCard = Boolean(item.listingId && item.listingTypeLabel);
   const listingLink = item.listingId ? listingHref(item.id) : null;
-  const resolvedAccent = accent ?? GC_ACCENT;
+  const resolvedAccent = accent ?? item.listingGroupColor ?? GC_ACCENT;
 
-  const card = (
+  const card = isListingCard ? (
+    <ListingCardLayout item={item} listingLink={listingLink} />
+  ) : (
+    <LegacyContentCardLayout
+      item={item}
+      isArticle={isArticle}
+      listingLink={listingLink}
+      resolvedAccent={resolvedAccent}
+    />
+  );
+
+  if (listingLink) {
+    return (
+      <Link href={listingLink} className="block h-full">
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
+}
+
+function ListingCardLayout({
+  item,
+  listingLink,
+}: {
+  item: ContentItem;
+  listingLink: string | null;
+}) {
+  const groupColor = item.listingGroupColor ?? GC_ACCENT;
+
+  return (
+    <article
+      className={cn(
+        'group flex h-full flex-col overflow-hidden gc-card-interactive',
+        listingLink && 'cursor-pointer',
+      )}
+    >
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.coverUrl ?? '/covers/default.jpg'}
+          alt=""
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+        {item.listingTypeLabel && (
+          <span
+            className="absolute left-2.5 top-2.5 inline-flex max-w-[calc(100%-3.5rem)] items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm"
+            style={{ color: groupColor }}
+          >
+            {item.emoji && (
+              <span className="shrink-0 text-xs" role="img" aria-hidden>
+                {item.emoji}
+              </span>
+            )}
+            <span className="truncate">{item.listingTypeLabel}</span>
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-3.5">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
+          {item.title}
+        </h3>
+
+        {(item.price || item.location) && (
+          <p className="mt-1.5 truncate text-xs text-muted-foreground">
+            {[item.price, item.location].filter(Boolean).join(' · ')}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between pt-3">
+          <span className="truncate text-xs font-medium text-muted-foreground">
+            {item.listingGroupLabel ?? item.subtitle}
+          </span>
+          {listingLink && (
+            <span className="ml-2 inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-primary">
+              Detay
+              <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px" />
+            </span>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function LegacyContentCardLayout({
+  item,
+  isArticle,
+  listingLink,
+  resolvedAccent,
+}: {
+  item: ContentItem;
+  isArticle: boolean;
+  listingLink: string | null;
+  resolvedAccent: string;
+}) {
+  return (
     <article
       className={cn(
         'group flex h-full flex-col gc-card-interactive p-4',
@@ -91,16 +190,6 @@ export function ContentCard({ item, accent }: ContentCardProps) {
       )}
     </article>
   );
-
-  if (listingLink) {
-    return (
-      <Link href={listingLink} className="block h-full">
-        {card}
-      </Link>
-    );
-  }
-
-  return card;
 }
 
 function CardHeader({ item }: { item: ContentItem }) {

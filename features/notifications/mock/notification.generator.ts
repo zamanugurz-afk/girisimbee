@@ -18,6 +18,9 @@ const TITLES: Record<NotificationType, string> = {
   match_suggested: 'Size uygun bir eşleşme',
   verification_approved: 'Doğrulama onaylandı',
   verification_rejected: 'Doğrulama reddedildi',
+  package_payment_pending: 'Bekleyen ödeme',
+  package_payment_succeeded: 'Ödeme başarılı',
+  package_activated: 'Paket aktif',
   system: 'Sistem bildirimi',
 };
 

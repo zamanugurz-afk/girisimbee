@@ -72,9 +72,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Yatırım yapmayı tercih ettiğiniz girişim aşamaları.',
   },
   sectors: {
-    placeholder: 'Örn. Fintech, SaaS, E-ticaret, Yapay Zeka…',
-    helperText: 'İlgilendiğiniz sektörleri virgülle ayırarak yazın.',
-    maxLength: 500,
+    helperText: 'İlgilendiğiniz sektörleri seçin (birden fazla seçebilirsiniz).',
   },
   investmentFocus: {
     placeholder: 'Örn. B2B SaaS, erken aşama, Türkiye odaklı…',
@@ -123,6 +121,105 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   projectStage: {
     placeholder: 'Proje aşaması seçin',
     helperText: 'Projenizin mevcut gelişim aşaması.',
+  },
+  companyName: {
+    placeholder: 'Örn. ABC Gıda A.Ş.',
+    helperText: 'Franchise veren şirketin resmi unvanı.',
+    maxLength: 200,
+  },
+  establishmentYear: {
+    placeholder: 'Örn. 2010',
+    helperText: 'Markanın veya şirketin kuruluş yılı.',
+  },
+  branchCount: {
+    placeholder: 'Örn. 25',
+    helperText: 'Mevcut şube veya lokasyon sayısı.',
+  },
+  website: {
+    placeholder: 'https://marka.com',
+    helperText: 'Marka veya şirket web sitesi.',
+    maxLength: 500,
+  },
+  entryFee: {
+    placeholder: '0 TL',
+    helperText: 'Franchise sistemine giriş için talep edilen bedel.',
+  },
+  franchiseFee: {
+    placeholder: '0 TL',
+    helperText: 'Marka / isim hakkı kullanım bedeli.',
+  },
+  totalInvestment: {
+    placeholder: '0 TL',
+    helperText: 'Açılış dahil toplam yatırım bütçesi.',
+  },
+  profitMargin: {
+    placeholder: 'Örn. 25',
+    helperText: 'Beklenen ortalama kar marjı (%).',
+  },
+  royaltyFee: {
+    placeholder: 'Örn. 5',
+    helperText: 'Ciro üzerinden alınan pay oranı (%).',
+  },
+  advertisingFee: {
+    placeholder: 'Örn. 2',
+    helperText: 'Reklam ve pazarlama fonu katkı oranı (%).',
+  },
+  returnPeriod: {
+    placeholder: 'Geri dönüş süresi seçin',
+    helperText: 'Yatırımın geri kazanılması için tahmini süre.',
+  },
+  averageSetupDuration: {
+    placeholder: 'Kurulum süresi seçin',
+    helperText: 'Şube açılışına kadar ortalama kurulum süresi.',
+  },
+  minSquareMeters: {
+    placeholder: 'Örn. 80',
+    helperText: 'Franchise noktasında aranan minimum alan (m²).',
+  },
+  availableCities: {
+    helperText: 'Franchise verilebilecek şehirleri seçin.',
+  },
+  districts: {
+    placeholder: 'Örn. Kadıköy, Beşiktaş',
+    helperText: 'Tercih edilen ilçeler (virgülle ayırın).',
+    maxLength: 500,
+  },
+  minPopulation: {
+    placeholder: 'Örn. 100000',
+    helperText: 'Lokasyonda aranan minimum nüfus.',
+  },
+  storeSize: {
+    placeholder: 'Mağaza büyüklüğü seçin',
+    helperText: 'Hedef mağaza alanı aralığı.',
+  },
+  businessCategory: {
+    placeholder: 'İş kategorisi seçin',
+    helperText: 'Franchise işletme modeli.',
+  },
+  workingHours: {
+    placeholder: 'Örn. 09:00 – 22:00',
+    helperText: 'Günlük çalışma saatleri.',
+    maxLength: 200,
+  },
+  guaranteeRequirement: {
+    placeholder: 'Örn. 100.000 TL teminat mektubu',
+    helperText: 'Teminat veya kefalet gereksinimleri.',
+    maxLength: 500,
+  },
+  introductionVideoUrl: {
+    placeholder: 'https://youtube.com/...',
+    helperText: 'YouTube veya Vimeo tanıtım videosu bağlantısı.',
+    maxLength: 500,
+  },
+  presentationPdfUrl: {
+    placeholder: 'https://...',
+    helperText: 'Franchise sunum PDF bağlantısı (dosya yükleme desteklenmiyorsa URL).',
+    maxLength: 500,
+  },
+  sampleContractUrl: {
+    placeholder: 'https://...',
+    helperText: 'Örnek franchise sözleşmesi bağlantısı.',
+    maxLength: 500,
   },
 };
 

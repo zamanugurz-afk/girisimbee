@@ -4,7 +4,7 @@ import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 export const HOME_CATEGORIES = [
   {
     slug: 'yatirim-bul',
-    href: '/investors',
+    href: '/invest',
     label: 'Yatırım Bul',
     color: GC_CATEGORY_COLORS['yatirim-bul'],
     audience: 'Girişimciler',
@@ -12,7 +12,7 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'yatirim-yap',
-    href: '/invest',
+    href: '/investors',
     label: 'Yatırım Yap',
     color: GC_CATEGORY_COLORS['yatirim-yap'],
     audience: 'Yatırımcılar',

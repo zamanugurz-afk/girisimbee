@@ -22,9 +22,19 @@ export interface ImagesInputProps {
   disabled?: boolean;
   max?: number;
   userId?: string;
+  label?: string;
+  helperText?: string;
 }
 
-export function ImagesInput({ value, onChange, disabled, max = 10, userId }: ImagesInputProps) {
+export function ImagesInput({
+  value,
+  onChange,
+  disabled,
+  max = 10,
+  userId,
+  label = 'Görseller',
+  helperText = META_FIELD_UI.images.helperText,
+}: ImagesInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -96,7 +106,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <FieldLabelWithTooltip label="Görseller" />
+        <FieldLabelWithTooltip label={label} />
         <span className="text-xs text-muted-foreground">{sorted.length}/{max}</span>
       </div>
 
@@ -121,7 +131,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
         {uploading ? 'Yükleniyor…' : 'Görsel Yükle'}
       </Button>
 
-      <FormFieldFooter helperText={META_FIELD_UI.images.helperText} />
+      <FormFieldFooter helperText={helperText} />
 
       {sorted.length > 0 && (
         <ul className="space-y-2">

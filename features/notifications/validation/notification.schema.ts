@@ -4,7 +4,9 @@ import { timestampsSchema, softDeletableSchema, uuidSchema, metadataSchema } fro
 export const notificationTypeSchema = z.enum([
   'application_received', 'application_accepted', 'application_rejected',
   'new_message', 'listing_published', 'listing_expired', 'match_suggested',
-  'verification_approved', 'verification_rejected', 'system',
+  'verification_approved', 'verification_rejected',
+  'package_payment_pending', 'package_payment_succeeded', 'package_activated',
+  'system',
 ]);
 
 export const notificationStatusSchema = z.enum(['pending', 'delivered', 'read', 'failed', 'deleted']);

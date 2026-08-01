@@ -18,6 +18,7 @@ import {
   type ListingPublisherMode,
 } from '@/features/listings/components/listing-publisher-select';
 import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
+import { supportsCompanyPublisher } from '@/features/listings/config/listing-category-module.config';
 
 const EDITABLE_STATUSES: ListingStatus[] = [
   'draft',
@@ -100,6 +101,7 @@ export default function EditListingPage() {
 
   const canPublish = listingStatus === 'draft' || listingStatus === 'rejected';
   const showDraftButton = listingStatus === 'draft' || listingStatus === 'rejected';
+  const showCompanyPublisher = categoryId ? supportsCompanyPublisher(categoryId) : false;
 
   function buildPayload(values: ListingFormValues, asDraft = false) {
     const companyId =
@@ -126,7 +128,7 @@ export default function EditListingPage() {
     if (!isAuthenticated) {
       throw new Error('İlan düzenlemek için giriş yapmalısınız.');
     }
-    if (publisherMode === 'company' && !publisherCompanyId) {
+    if (showCompanyPublisher && publisherMode === 'company' && !publisherCompanyId) {
       throw new Error('Şirket ilanı için bir şirket seçin.');
     }
 
@@ -139,7 +141,7 @@ export default function EditListingPage() {
     if (!isAuthenticated) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
-    if (publisherMode === 'company' && !publisherCompanyId) {
+    if (showCompanyPublisher && publisherMode === 'company' && !publisherCompanyId) {
       throw new Error('Şirket ilanı için bir şirket seçin.');
     }
 
@@ -152,7 +154,7 @@ export default function EditListingPage() {
     if (!isAuthenticated) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
-    if (publisherMode === 'company' && !publisherCompanyId) {
+    if (showCompanyPublisher && publisherMode === 'company' && !publisherCompanyId) {
       throw new Error('Şirket ilanı için bir şirket seçin.');
     }
 
@@ -203,14 +205,16 @@ export default function EditListingPage() {
 
         {!isLoading && !loadError && isReady && listingType && categoryId && formInitialValues && (
           <>
-            <ListingPublisherSelect
-              mode={publisherMode}
-              companyId={publisherCompanyId}
-              onChange={(mode, companyId) => {
-                setPublisherMode(mode);
-                setPublisherCompanyId(companyId);
-              }}
-            />
+            {showCompanyPublisher && (
+              <ListingPublisherSelect
+                mode={publisherMode}
+                companyId={publisherCompanyId}
+                onChange={(mode, companyId) => {
+                  setPublisherMode(mode);
+                  setPublisherCompanyId(companyId);
+                }}
+              />
+            )}
             <CategoryListingForm
               listingType={listingType}
               categoryId={categoryId}

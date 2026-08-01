@@ -241,7 +241,7 @@ export function buildWizardVisibleListingFormSchema(
   let includeImages = false;
 
   for (const step of steps) {
-    if (step.preview || step.publish) continue;
+    if (step.preview || step.publish || step.package) continue;
     step.coreFields?.forEach((key) => visibleCore.add(key));
     resolveStepCustomFields(step, allFieldKeys).forEach((key) => visibleCustom.add(key));
     if (step.meta?.includes('tags')) includeTags = true;
@@ -397,12 +397,16 @@ export function mergeCustomFieldDefaults(
 
   for (const field of fieldSchema.fields) {
     if (field.type === 'multi-enum' && field.options?.length) {
-      const raw = merged[field.key];
+      let raw = merged[field.key];
+      if (typeof raw === 'string' && raw.trim()) {
+        raw = raw.split(',').map((value) => value.trim()).filter(Boolean);
+        merged[field.key] = raw;
+      }
       if (!Array.isArray(raw)) {
         if (!field.required) merged[field.key] = [];
         continue;
       }
-      merged[field.key] = raw
+      merged[field.key] = (raw as unknown[])
         .map((value) => resolveEnumOption(value, field.options!) ?? String(value).trim())
         .filter(Boolean);
       continue;

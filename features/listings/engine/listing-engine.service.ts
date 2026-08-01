@@ -3,7 +3,7 @@
  */
 import { NotFoundError, ValidationError, ForbiddenError } from '@/lib/domain/errors';
 import type { ListingId, UserId } from '@/lib/domain/ids';
-import type { Listing, ListingFilter } from '@/features/listings/types/listing.entity.types';
+import type { Listing, ListingFilter, ListingStatus } from '@/features/listings/types/listing.entity.types';
 import type {
   CreateListingPayload,
   UpdateListingPayload,
@@ -253,12 +253,7 @@ export class ListingEngine implements IListingEngineService {
       throw e;
     }
 
-    const targetStatus =
-      existing.status === 'draft' || existing.status === 'rejected'
-        ? 'pending_review'
-        : existing.status === 'paused' || existing.status === 'expired' || existing.status === 'archived'
-          ? 'published'
-          : 'published';
+    const targetStatus: ListingStatus = 'published';
 
     const isFirstPublish = existing.publishedAt === null;
     const requiresEntitlementCheck =

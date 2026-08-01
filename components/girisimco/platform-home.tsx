@@ -12,14 +12,10 @@ import {
   UserPlus,
   type LucideIcon,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ListingFeed } from '@/components/girisimco/marketplace/listing-feed';
-import { ListingFeedSkeleton } from '@/components/girisimco/ui/listing-card-skeleton';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { HomeListingsModule } from '@/components/girisimco/home/HomeListingsModule';
 import { FranchiseFlowDialog } from '@/components/girisimco/home/franchise-flow-dialog';
-import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import {
   HOME_CATEGORIES,
   type HomeCategorySlug,
@@ -140,35 +136,7 @@ function CategoryCard({
   );
 }
 
-function ListingsSectionHeader({ total }: { total: number }) {
-  return (
-    <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h2 className="gc-section-title">Güncel ilanlar</h2>
-        <p className="mt-1 text-gc-sm text-muted-foreground">
-          Platformdaki son yayınlanan fırsatlar
-        </p>
-      </div>
-      <div className="flex items-center gap-3">
-        {total > 0 && (
-          <span className="text-gc-xs text-muted-foreground">
-            {total.toLocaleString('tr-TR')} ilan
-          </span>
-        )}
-        <Link
-          href="/kesfet"
-          className="inline-flex items-center gap-1 text-gc-sm font-medium text-primary transition-colors hover:text-primary/80"
-        >
-          Tümünü gör
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 export function PlatformHome() {
-  const { items, total, isLoading } = useMarketplaceBrowse();
   const [franchiseDialogOpen, setFranchiseDialogOpen] = useState(false);
 
   return (
@@ -176,7 +144,7 @@ export function PlatformHome() {
       <PlatformHero />
 
       {/* ── Intent gateway: category cards ── */}
-      <section className="-mt-7 border-b border-border/60">
+      <section className="-mt-12 border-b border-border/60">
         <div className="mx-auto max-w-7xl px-5 pb-8 lg:px-8 lg:pb-10">
           <ScrollReveal>
             <div className="mb-4 max-w-lg">
@@ -203,28 +171,6 @@ export function PlatformHome() {
       <FranchiseFlowDialog open={franchiseDialogOpen} onOpenChange={setFranchiseDialogOpen} />
 
       <HomeListingsModule />
-
-      {/* ── Live listings ── */}
-      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
-        <ScrollReveal as="section">
-          <ListingsSectionHeader total={total} />
-          {isLoading ? (
-            <ListingFeedSkeleton count={4} />
-          ) : (
-            <ListingFeed items={items.slice(0, 8)} />
-          )}
-          {!isLoading && items.length > 0 && (
-            <div className="mt-8 text-center">
-              <Button asChild variant="outline">
-                <Link href="/kesfet">
-                  Daha fazla ilan gör
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          )}
-        </ScrollReveal>
-      </div>
     </div>
   );
 }

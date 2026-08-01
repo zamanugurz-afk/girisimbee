@@ -12,6 +12,9 @@ const DETAIL_KEYS = [
   'teamSize',
   'businessModel',
   'pitchDeckDocumentId',
+  'investmentAmount',
+  'equityOffered',
+  'useOfFunds',
 ] as const;
 
 export function extractEntrepreneurListingDetails(listing: Listing): EntrepreneurListingDetails {
@@ -27,7 +30,7 @@ export function extractEntrepreneurListingDetails(listing: Listing): Entrepreneu
   };
 }
 
-function buildCustomFields(payload: EntrepreneurListingPayload): Record<string, unknown> {
+function buildCustomFields(payload: Record<string, unknown>): Record<string, unknown> {
   const customFields: Record<string, unknown> = {};
   for (const key of DETAIL_KEYS) {
     if (payload[key] !== undefined) {
@@ -66,7 +69,7 @@ export function entrepreneurPayloadToCreateInput(
     contactEmail: payload.contactEmail ?? null,
     contactWebsite: payload.contactWebsite ?? null,
     anonymousMode: true,
-    customFields: buildCustomFields(payload),
+    customFields: buildCustomFields(payload as unknown as Record<string, unknown>),
   };
 }
 
@@ -86,7 +89,7 @@ export function entrepreneurPayloadToUpdateInput(
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;
   if (payload.contactWebsite !== undefined) update.contactWebsite = payload.contactWebsite;
 
-  const customPatch = buildCustomFields(payload as EntrepreneurListingPayload);
+  const customPatch = buildCustomFields(payload as unknown as Record<string, unknown>);
   if (Object.keys(customPatch).length > 0) {
     update.customFields = { ...existing.customFields, ...customPatch };
   }

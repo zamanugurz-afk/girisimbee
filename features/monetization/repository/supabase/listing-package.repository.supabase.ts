@@ -36,6 +36,9 @@ interface CatalogRow {
   duration_days: number | null;
   sort_order: number;
   status: string;
+  package_kind?: string | null;
+  featured_listing?: boolean | null;
+  urgent_listing?: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -66,6 +69,10 @@ function mapCatalog(row: CatalogRow): ListingPackageCatalogItem {
     durationDays: row.duration_days,
     sortOrder: row.sort_order,
     status: row.status as 'active' | 'inactive',
+    packageKind:
+      row.package_kind === 'homepage_placement' ? 'homepage_placement' : 'publish_quota',
+    featuredListing: row.featured_listing ?? false,
+    urgentListing: row.urgent_listing ?? false,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

@@ -27,7 +27,8 @@ export const investorListingCreateSchema = z
     portfolioSize: z.number().int().min(0).nullable().optional(),
     sectors: z.array(z.string()).optional(),
   })
-  .merge(externalContactSchema);
+  .merge(externalContactSchema)
+  .passthrough();
 
 export const investorListingUpdateSchema = investorListingCreateSchema.partial();
 

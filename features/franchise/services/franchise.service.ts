@@ -35,6 +35,10 @@ import {
   FRANCHISE_SUBCATEGORY_IDS,
   FRANCHISE_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
+import {
+  toPersistedCategoryId,
+  toPersistedListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
 
 const FLOW_TO_SUBCATEGORY: Record<FranchiseFlow, FranchiseSubcategorySlug> = {
   buy: 'franchise-buy',
@@ -161,6 +165,11 @@ export class FranchiseService {
       });
     }
 
+    console.log('[franchise] listingRepo.create', {
+      category_id: toPersistedCategoryId(mapped.categoryId),
+      listing_type_id: toPersistedListingTypeId(mapped.listingTypeId),
+      moduleKey: mapped.moduleKey,
+    });
     return this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,

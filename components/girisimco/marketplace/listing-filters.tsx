@@ -4,7 +4,6 @@ import type { MarketplaceFilterState } from '@/features/listings/types/marketpla
 import {
   LISTING_SORT_OPTIONS,
   MARKETPLACE_CITY_OPTIONS,
-  REMOTE_POLICY_OPTIONS,
   getAllCategorySlugs,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
@@ -46,62 +45,32 @@ export function ListingFilters({
       )}
 
       <select
-        value={filters.remotePolicy === 'remote' && !filters.city ? 'remote-city' : (filters.city ?? '')}
-        onChange={(e) => {
-          if (e.target.value === 'remote-city') {
-            onChange({ city: undefined, remotePolicy: 'remote' });
-          } else {
-            onChange({
-              city: e.target.value || undefined,
-              remotePolicy: e.target.value ? undefined : filters.remotePolicy,
-            });
-          }
-        }}
+        value={filters.city ?? ''}
+        onChange={(e) =>
+          onChange({
+            city: e.target.value || undefined,
+          })
+        }
         className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
         aria-label="Şehir"
       >
         <option value="">Tüm Şehirler</option>
         {MARKETPLACE_CITY_OPTIONS.map((city) => (
-          <option key={city} value={city === 'Remote' ? 'remote-city' : city}>
+          <option key={city} value={city}>
             {city}
           </option>
         ))}
       </select>
 
       <select
-        value={filters.remotePolicy ?? ''}
-        onChange={(e) =>
-          onChange({
-            remotePolicy: (e.target.value || undefined) as MarketplaceFilterState['remotePolicy'],
-          })
-        }
-        className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
-        aria-label="Çalışma modeli"
-      >
-        <option value="">Çalışma Modeli</option>
-        {REMOTE_POLICY_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-
-      <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background">
-        <input
-          type="checkbox"
-          checked={Boolean(filters.isVerified)}
-          onChange={(e) => onChange({ isVerified: e.target.checked || undefined })}
-          className="rounded border-border/80"
-        />
-        Doğrulanmış
-      </label>
-
-      <select
         value={filters.sortBy}
-        onChange={(e) =>
-          onChange({ sortBy: e.target.value as MarketplaceFilterState['sortBy'] })
-        }
-        className="ml-auto h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
+        onChange={(e) => {
+          const selectedSort = e.target.value as MarketplaceFilterState['sortBy'];
+          console.log('[listing-filters] selected sort option:', e.target.selectedOptions[0]?.text);
+          console.log('[listing-filters] selectedSort value:', selectedSort);
+          onChange({ sortBy: selectedSort });
+        }}
+        className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
         aria-label="Sıralama"
       >
         {LISTING_SORT_OPTIONS.map((opt) => (

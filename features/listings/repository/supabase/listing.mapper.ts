@@ -7,6 +7,10 @@ import type { ListingId, UserId, CompanyId, CategoryId, ListingTypeId, Subcatego
 import type { ModuleKey } from '@/lib/domain/modules';
 import type { WorkflowStatus } from '@/lib/domain/marketplace-enums';
 import { coerceUuidValue } from '@/lib/persistence/supabase-payload';
+import {
+  resolveDbCategoryId,
+  resolveDbListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
 
 export interface ListingRow {
   id: string;
@@ -103,8 +107,8 @@ export function toListingRow(
     slug: listing.slug,
     owner_id: listing.ownerId,
     company_id: coerceUuidValue(listing.companyId),
-    category_id: listing.categoryId,
-    listing_type_id: listing.listingTypeId,
+    category_id: resolveDbCategoryId(listing.categoryId),
+    listing_type_id: resolveDbListingTypeId(listing.listingTypeId),
     subcategory_id: coerceUuidValue(listing.subcategoryId),
     module_key: listing.moduleKey ?? null,
     title: listing.title,
@@ -142,6 +146,8 @@ export function toListingUpdateRow(input: Partial<Listing>): Record<string, unkn
   const row: Record<string, unknown> = {};
   if (input.slug !== undefined) row.slug = input.slug;
   if (input.companyId !== undefined) row.company_id = coerceUuidValue(input.companyId);
+  if (input.categoryId !== undefined) row.category_id = resolveDbCategoryId(input.categoryId);
+  if (input.listingTypeId !== undefined) row.listing_type_id = resolveDbListingTypeId(input.listingTypeId);
   if (input.title !== undefined) row.title = input.title;
   if (input.shortDescription !== undefined) row.short_description = input.shortDescription;
   if (input.longDescription !== undefined) row.long_description = input.longDescription;

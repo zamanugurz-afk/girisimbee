@@ -20,6 +20,10 @@ import {
   SEEKING_INVESTMENT_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
+import type { Listing } from '@/features/listings/types/listing.entity.types';
+import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
+import type { ModuleKey } from '@/lib/domain/modules';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
@@ -32,6 +36,66 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'ise-al': HIRING_FIELD_SCHEMA,
   'ortak-bul': PARTNER_FIELD_SCHEMA,
 };
+
+const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
+  [LISTING_TYPE_IDS.yatirimBulDefault]: 'yatirim-bul',
+  [LISTING_TYPE_IDS.yatirimYapDefault]: 'yatirim-yap',
+  [LISTING_TYPE_IDS.isBulDefault]: 'is-bul',
+  [LISTING_TYPE_IDS.iseAlDefault]: 'ise-al',
+  [LISTING_TYPE_IDS.ortakBulDefault]: 'ortak-bul',
+  [LISTING_TYPE_IDS.franchiseGiveDefault]: 'bayilik-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: 'yatirim-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.yatirimYapiyorum]: 'yatirim-yap',
+  [MARKETPLACE_LISTING_TYPE_IDS.isAriyorum]: 'is-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum]: 'ise-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum]: 'ortak-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.bayilikAl]: 'bayilik-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.bayilikVer]: 'bayilik-al',
+};
+
+const MODULE_KEY_TO_BROWSE_SLUG: Record<ModuleKey, string> = {
+  entrepreneurs: 'yatirim-bul',
+  investors: 'yatirim-yap',
+  candidates: 'is-bul',
+  employers: 'ise-al',
+  founders: 'ortak-bul',
+  franchise: 'bayilik-al',
+};
+
+const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
+  'yatirim-ariyorum': 'yatirim-bul',
+  'yatirim-yapiyorum': 'yatirim-yap',
+  'is-ariyorum': 'is-bul',
+  'ise-aliyorum': 'ise-al',
+  'ortak-ariyorum': 'ortak-bul',
+  'franchise-ilan-ver': 'bayilik-al',
+  'bayilik-al': 'bayilik-al',
+  'bayilik-ver': 'bayilik-al',
+};
+
+function resolveDetailCategorySlug(listing: Listing): string {
+  const byTypeId = LISTING_TYPE_ID_TO_BROWSE_SLUG[listing.listingTypeId];
+  if (byTypeId) return byTypeId;
+
+  if (listing.moduleKey && MODULE_KEY_TO_BROWSE_SLUG[listing.moduleKey]) {
+    return MODULE_KEY_TO_BROWSE_SLUG[listing.moduleKey];
+  }
+
+  const listingType = categoryRegistry.getListingType(listing.listingTypeId);
+  if (listingType?.slug && LISTING_TYPE_SLUG_TO_BROWSE_SLUG[listingType.slug]) {
+    return LISTING_TYPE_SLUG_TO_BROWSE_SLUG[listingType.slug];
+  }
+
+  const category = categoryRegistry.getCategory(listing.categoryId);
+  if (category?.slug && CATEGORY_FIELD_SCHEMAS[category.slug]) {
+    return category.slug;
+  }
+  if (category?.slug && LISTING_TYPE_SLUG_TO_BROWSE_SLUG[category.slug]) {
+    return LISTING_TYPE_SLUG_TO_BROWSE_SLUG[category.slug];
+  }
+
+  return 'yatirim-bul';
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return '';
@@ -64,7 +128,7 @@ export function aggregateToListingDetail(
 ): ListingDetail {
   const { listing, tags, images, activityHistory } = aggregate;
   const category = categoryRegistry.getCategory(listing.categoryId);
-  const categorySlug = category?.slug ?? 'yatirim-bul';
+  const categorySlug = resolveDetailCategorySlug(listing);
   const meta = CATEGORY_PAGE_CONFIG[categorySlug];
   const intentId = SLUG_TO_INTENT[categorySlug] ?? 'find-investment';
   const cf = listing.customFields;

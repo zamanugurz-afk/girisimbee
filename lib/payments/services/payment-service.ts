@@ -9,6 +9,7 @@ import type {
 import { IyzicoPaymentProvider } from '@/lib/payments/providers/iyzico';
 import { StripePaymentProvider } from '@/lib/payments/providers/stripe';
 import { PaytrPaymentProvider } from '@/lib/payments/providers/paytr';
+import { SimulatedPaymentProvider } from '@/lib/payments/providers/simulated';
 import { PaymentProviderNotImplementedError } from '@/lib/payments/interfaces/payment-provider';
 
 export interface PaymentServiceConfig {
@@ -28,6 +29,7 @@ export class PaymentService {
       ['iyzico', new IyzicoPaymentProvider()],
       ['stripe', new StripePaymentProvider()],
       ['paytr', new PaytrPaymentProvider()],
+      ['simulated', new SimulatedPaymentProvider()],
     ]);
     this.defaultProvider = config.defaultProvider ?? 'iyzico';
   }

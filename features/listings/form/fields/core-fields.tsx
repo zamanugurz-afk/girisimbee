@@ -27,6 +27,10 @@ export interface CoreFieldsProps {
   include?: (keyof CoreListingFieldsInput)[];
   /** Use extended city list with Istanbul sub-regions */
   extendedCities?: boolean;
+  /** Override labels for core fields (e.g. job seeker long description). */
+  labels?: Partial<Record<keyof CoreListingFieldsInput, string>>;
+  /** Override helper / placeholder text for core fields. */
+  fieldUi?: Partial<Record<keyof CoreListingFieldsInput, { helperText?: string; placeholder?: string }>>;
 }
 
 const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
@@ -40,9 +44,28 @@ const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
   'companyId',
 ];
 
-export function CoreListingFields({ values, onChange, errors, disabled, include, extendedCities }: CoreFieldsProps) {
+export function CoreListingFields({
+  values,
+  onChange,
+  errors,
+  disabled,
+  include,
+  extendedCities,
+  labels,
+  fieldUi,
+}: CoreFieldsProps) {
   const fields = include ?? ALL_CORE_FIELDS;
   const show = (key: keyof CoreListingFieldsInput) => fields.includes(key);
+  const labelFor = (key: keyof CoreListingFieldsInput, fallback: string) =>
+    labels?.[key] ?? fallback;
+  const uiFor = (key: keyof CoreListingFieldsInput) => {
+    const base = getCoreFieldUi(key);
+    const override = fieldUi?.[key];
+    return {
+      ...base,
+      ...override,
+    };
+  };
 
   function set<K extends keyof CoreListingFieldsInput>(key: K, val: CoreListingFieldsInput[K]) {
     onChange({ ...values, [key]: val });
@@ -51,10 +74,10 @@ export function CoreListingFields({ values, onChange, errors, disabled, include,
   return (
     <div className="space-y-4">
       {show('title') && (() => {
-        const ui = getCoreFieldUi('title');
+        const ui = uiFor('title');
         return (
           <div className="space-y-2">
-            <FieldLabelWithTooltip htmlFor="core-title" label="Başlık" required />
+            <FieldLabelWithTooltip htmlFor="core-title" label={labelFor('title', 'Başlık')} required />
             <Input
               id="core-title"
               value={values.title}
@@ -75,16 +98,20 @@ export function CoreListingFields({ values, onChange, errors, disabled, include,
       })()}
 
       {show('shortDescription') && (() => {
-        const ui = getCoreFieldUi('shortDescription');
+        const ui = uiFor('shortDescription');
         return (
           <div className="space-y-2">
-            <FieldLabelWithTooltip htmlFor="core-short" label="Kısa Açıklama" required />
+            <FieldLabelWithTooltip
+              htmlFor="core-short"
+              label={labelFor('shortDescription', 'Kısa Açıklama')}
+              required
+            />
             <Textarea
               id="core-short"
               value={values.shortDescription}
               onChange={(e) => set('shortDescription', e.target.value)}
               disabled={disabled}
-              rows={3}
+              rows={4}
               placeholder={ui.placeholder}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.shortDescription)}
@@ -104,7 +131,11 @@ export function CoreListingFields({ values, onChange, errors, disabled, include,
         const length = (values.longDescription ?? '').length;
         return (
           <div className="space-y-2">
-            <FieldLabelWithTooltip htmlFor="core-long" label="Detaylı Açıklama" required />
+            <FieldLabelWithTooltip
+              htmlFor="core-long"
+              label={labelFor('longDescription', 'Detaylı Açıklama')}
+              required
+            />
             <Textarea
               id="core-long"
               value={values.longDescription ?? ''}

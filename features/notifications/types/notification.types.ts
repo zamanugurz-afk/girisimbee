@@ -18,6 +18,9 @@ export type NotificationType =
   | 'match_suggested'
   | 'verification_approved'
   | 'verification_rejected'
+  | 'package_payment_pending'
+  | 'package_payment_succeeded'
+  | 'package_activated'
   | 'system';
 
 export type NotificationStatus = 'pending' | 'delivered' | 'read' | 'failed' | 'deleted';

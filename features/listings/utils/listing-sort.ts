@@ -32,7 +32,8 @@ export function getSortColumn(sortBy: ListingSortBy): { column: string; ascendin
     case 'recently_updated':
       return { column: 'updated_at', ascending: false };
     case 'most_favorited':
-      return { column: 'interested_count', ascending: false };
+      // Favorite counts live in marketplace_favorites; browse service sorts in memory.
+      return { column: 'created_at', ascending: false };
     case 'newest':
     default:
       return { column: 'created_at', ascending: false };

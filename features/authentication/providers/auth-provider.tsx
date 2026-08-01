@@ -13,6 +13,8 @@ import { createClient } from '@/lib/supabase/client';
 import type { AuthState, SessionUser, SignInInput, SignUpInput } from '@/features/authentication/types/auth.types';
 import {
   fetchSessionUser,
+  fetchProfile,
+  mapSessionUser,
   signInWithEmail,
   signOut as authSignOut,
   signUpWithEmail,
@@ -47,27 +49,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    (async () => {
-      try {
-        const sessionUser = await fetchSessionUser(supabase);
-        if (mounted) setUser(sessionUser);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!mounted) return;
+    async function applySession(session: { user: { id: string; email?: string; email_confirmed_at?: string | null } } | null) {
       if (!session?.user) {
-        setUser(null);
+        if (mounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      const profile = await fetchProfile(supabase, session.user.id);
+      if (!mounted) return;
+
+      setUser(
+        mapSessionUser(
+          {
+            id: session.user.id,
+            email: session.user.email,
+            email_confirmed_at: session.user.email_confirmed_at,
+          },
+          profile,
+        ),
+      );
+      setIsLoading(false);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      // Token refresh does not change profile data — skip redundant profile fetch.
+      if (event === 'TOKEN_REFRESHED') {
         setIsLoading(false);
         return;
       }
-      const sessionUser = await fetchSessionUser(supabase);
-      if (mounted) {
-        setUser(sessionUser);
-        setIsLoading(false);
-      }
+
+      await applySession(session);
     });
 
     return () => {

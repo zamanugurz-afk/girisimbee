@@ -192,4 +192,9 @@ export {
   getCategoryRoutePath,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
+export {
+  resolveListingTypeIdsFromBrowseSlug,
+  resolveBrowseCategory,
+  getBrowseCategorySlugs,
+} from '@/features/listings/config/marketplace-category-map';
 export type { ListingSortBy, MarketplaceBrowseParams, MarketplaceFilterState } from '@/features/listings/types/marketplace.types';

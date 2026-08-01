@@ -50,7 +50,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showCustomFacts = (listing.customFacts?.length ?? 0) > 0;
   const showCompany = hasCompanyFacts(listing);
   const showAttachments = listing.attachments.length > 0;
-  const showGallery = listing.gallery.some((item) => !isEmptyDisplayValue(item.imageUrl));
+  const galleryItems = listing.gallery.filter((item) => !isEmptyDisplayValue(item.imageUrl));
+  const showGallery = galleryItems.length > 0;
+  const coverImage = galleryItems[0];
+  const extraImages = galleryItems.slice(1);
   const showTimeline = listing.timeline.length > 0;
   const showAbout = !isEmptyDisplayValue(listing.longDescription);
 
@@ -63,6 +66,38 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
 
   return (
     <div className="space-y-10">
+      {showGallery && coverImage && (
+        <DetailSectionIf title="Görseller" visible={showGallery}>
+          <div className="space-y-3">
+            <div className="overflow-hidden rounded-[24px] border border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.03]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverImage.imageUrl}
+                alt={coverImage.label}
+                className="aspect-[16/10] w-full object-cover"
+              />
+            </div>
+            {extraImages.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {extraImages.map((item) => (
+                  <div
+                    key={item.id}
+                    className="overflow-hidden rounded-[20px] border border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.imageUrl}
+                      alt={item.label}
+                      className="aspect-[4/3] w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DetailSectionIf>
+      )}
+
       {showAbout && (
         <DetailSectionIf title="Hakkında" visible={showAbout}>
           <DetailCard>
@@ -164,29 +199,6 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
                 </button>
               );
             })}
-          </div>
-        </DetailSectionIf>
-      )}
-
-      {showGallery && (
-        <DetailSectionIf title="Galeri" visible={showGallery}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {listing.gallery.map((item) => (
-              !isEmptyDisplayValue(item.imageUrl) ? (
-                <div
-                  key={item.id}
-                  className="flex aspect-[4/3] flex-col overflow-hidden rounded-[24px] border border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.03]"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={item.imageUrl}
-                    alt={item.label}
-                    className="h-full w-full object-cover"
-                  />
-                  <p className="truncate px-2 py-1.5 text-xs font-medium text-muted-foreground">{item.label}</p>
-                </div>
-              ) : null
-            ))}
           </div>
         </DetailSectionIf>
       )}

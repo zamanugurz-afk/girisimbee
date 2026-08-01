@@ -18,6 +18,7 @@ import { MockEntrepreneurPackageRepository } from '@/features/entrepreneurs/repo
 import { MockInvestorPackageRepository } from '@/features/investors/repository/mock/investor-package.repository.mock';
 import { MockFounderPackageRepository } from '@/features/founders/repository/mock/founder-package.repository.mock';
 import { MockFavoriteRepository } from '@/features/favorites/repository/mock/favorite.repository.mock';
+import { MockKvkkConsentRepository } from '@/features/kvkk/repository/mock/kvkk-consent.repository.mock';
 import { wireEcosystemServices } from '@/lib/persistence/ecosystem-services';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
 
@@ -37,6 +38,7 @@ export function createEcosystemTestHarness() {
   const investorPackageRepository = new MockInvestorPackageRepository();
   const founderPackageRepository = new MockFounderPackageRepository();
   const favoriteRepository = new MockFavoriteRepository();
+  const kvkkConsentRepository = new MockKvkkConsentRepository();
 
   const services = wireEcosystemServices({
     listingRepository,
@@ -54,6 +56,7 @@ export function createEcosystemTestHarness() {
     investorPackageRepository,
     founderPackageRepository,
     favoriteRepository,
+    kvkkConsentRepository,
   });
 
   return {
@@ -73,6 +76,7 @@ export function createEcosystemTestHarness() {
       investorPackageRepository,
       founderPackageRepository,
       favoriteRepository,
+      kvkkConsentRepository,
     },
     services,
   };

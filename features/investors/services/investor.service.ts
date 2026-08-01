@@ -31,6 +31,12 @@ import {
   ECOSYSTEM_CATEGORY_IDS,
   DEFAULT_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
+import {
+  toPersistedCategoryId,
+  toPersistedListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
+import { LISTING_TYPE_CONFIGS } from '@/features/listings/config/listing-type-config';
+import { traceListingPublish, tracePublishFailure } from '@/lib/debug/listing-publish-trace';
 
 export interface PublishThesisInput {
   ownerId: UserId;
@@ -122,15 +128,41 @@ export class InvestorService {
       });
     }
 
-    return this.listingRepo.create({
-      ...mapped,
-      ownerId: input.ownerId,
-      categoryId: ECOSYSTEM_CATEGORY_IDS.investors,
-      listingTypeId: DEFAULT_LISTING_TYPE_IDS.investors,
-      moduleKey: 'investors',
-      status: publishNow ? 'published' : 'draft',
-      workflowStatus: publishNow ? 'published' : 'draft',
+    const listingTypeConfig = LISTING_TYPE_CONFIGS.find(
+      (c) => c.categoryId === ECOSYSTEM_CATEGORY_IDS.investors,
+    );
+    traceListingPublish('investors', 'service_create', {
+      payload: {
+        category_id: ECOSYSTEM_CATEGORY_IDS.investors,
+        listing_type_id: DEFAULT_LISTING_TYPE_IDS.investors,
+        'listingType.id': listingTypeConfig?.listingTypeId ?? null,
+        'listingType.slug': listingTypeConfig?.slug ?? null,
+      },
     });
+
+    console.log('[investors] listingRepo.create', {
+      category_id: toPersistedCategoryId(ECOSYSTEM_CATEGORY_IDS.investors),
+      listing_type_id: toPersistedListingTypeId(DEFAULT_LISTING_TYPE_IDS.investors),
+      moduleKey: 'investors',
+    });
+    try {
+      return await this.listingRepo.create({
+        ...mapped,
+        ownerId: input.ownerId,
+        categoryId: ECOSYSTEM_CATEGORY_IDS.investors,
+        listingTypeId: DEFAULT_LISTING_TYPE_IDS.investors,
+        moduleKey: 'investors',
+        status: publishNow ? 'published' : 'draft',
+        workflowStatus: publishNow ? 'published' : 'draft',
+      });
+    } catch (error) {
+      tracePublishFailure('investors', 'service_create', error, {
+        categoryId: ECOSYSTEM_CATEGORY_IDS.investors,
+        listingTypeId: DEFAULT_LISTING_TYPE_IDS.investors,
+        publishNow,
+      });
+      throw error;
+    }
   }
 
   async publishThesis(input: PublishThesisInput): Promise<Listing> {

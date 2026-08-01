@@ -11,6 +11,8 @@ const DETAIL_KEYS = [
   'maximumInvestment',
   'portfolioSize',
   'sectors',
+  'investmentAmount',
+  'preferredStages',
 ] as const;
 
 export function extractInvestorListingDetails(listing: Listing): InvestorListingDetails {
@@ -25,7 +27,7 @@ export function extractInvestorListingDetails(listing: Listing): InvestorListing
   };
 }
 
-function buildCustomFields(payload: InvestorListingPayload): Record<string, unknown> {
+function buildCustomFields(payload: Record<string, unknown>): Record<string, unknown> {
   const customFields: Record<string, unknown> = {};
   for (const key of DETAIL_KEYS) {
     if (payload[key] !== undefined) {
@@ -64,7 +66,7 @@ export function investorPayloadToCreateInput(
     contactEmail: payload.contactEmail ?? null,
     contactWebsite: payload.contactWebsite ?? null,
     anonymousMode: true,
-    customFields: buildCustomFields(payload),
+    customFields: buildCustomFields(payload as unknown as Record<string, unknown>),
   };
 }
 
@@ -84,7 +86,7 @@ export function investorPayloadToUpdateInput(
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;
   if (payload.contactWebsite !== undefined) update.contactWebsite = payload.contactWebsite;
 
-  const customPatch = buildCustomFields(payload as InvestorListingPayload);
+  const customPatch = buildCustomFields(payload as unknown as Record<string, unknown>);
   if (Object.keys(customPatch).length > 0) {
     update.customFields = { ...existing.customFields, ...customPatch };
   }

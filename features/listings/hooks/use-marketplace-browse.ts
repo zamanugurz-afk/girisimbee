@@ -21,13 +21,29 @@ type BrowseCacheEntry = {
   fetchedAt: number;
 };
 
+type BrowseFetchResult = {
+  items: ContentItem[];
+  total: number;
+  hasMore: boolean;
+};
+
 const browseCache = new Map<string, BrowseCacheEntry>();
-const BROWSE_CACHE_TTL_MS = 30_000;
-/** Tracks last successfully loaded filter key across hook instances (remounts). */
-let lastLoadedFiltersKey: string | null = null;
+const browseInflight = new Map<string, Promise<BrowseFetchResult>>();
+const BROWSE_CACHE_TTL_MS = 300_000;
 
 function browseCacheKey(params: MarketplaceBrowseParams): string {
   return JSON.stringify(params);
+}
+
+function toErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  if (error && typeof error === 'object') {
+    const maybe = error as { message?: unknown; error?: unknown; details?: unknown };
+    if (typeof maybe.message === 'string' && maybe.message.trim()) return maybe.message;
+    if (typeof maybe.error === 'string' && maybe.error.trim()) return maybe.error;
+    if (typeof maybe.details === 'string' && maybe.details.trim()) return maybe.details;
+  }
+  return fallback;
 }
 
 function readBrowseCache(params: MarketplaceBrowseParams): BrowseCacheEntry | null {
@@ -45,14 +61,48 @@ function writeBrowseCache(params: MarketplaceBrowseParams, entry: Omit<BrowseCac
   browseCache.set(browseCacheKey(params), { ...entry, fetchedAt: Date.now() });
 }
 
+async function fetchFirstPageDeduped(
+  browseService: ReturnType<typeof getClientContainer>['listingBrowseService'],
+  params: MarketplaceBrowseParams,
+): Promise<BrowseFetchResult> {
+  const cached = readBrowseCache(params);
+  if (cached) {
+    return {
+      items: cached.items,
+      total: cached.total,
+      hasMore: cached.hasMore,
+    };
+  }
+
+  const key = browseCacheKey(params);
+  const inflight = browseInflight.get(key);
+  if (inflight) return inflight;
+
+  const promise = browseService
+    .browse(params)
+    .then((result) => {
+      const fetched: BrowseFetchResult = {
+        items: result.data,
+        total: result.total,
+        hasMore: result.hasMore,
+      };
+      writeBrowseCache(params, fetched);
+      return fetched;
+    })
+    .finally(() => {
+      browseInflight.delete(key);
+    });
+
+  browseInflight.set(key, promise);
+  return promise;
+}
+
 function buildInitialFilters(options: UseMarketplaceBrowseOptions): MarketplaceFilterState {
   return {
     query: options.initialQuery,
     categorySlug: options.initialCategorySlug,
     sortBy: options.initialFilters?.sortBy ?? DEFAULT_SORT,
     city: options.initialFilters?.city,
-    remotePolicy: options.initialFilters?.remotePolicy,
-    isVerified: options.initialFilters?.isVerified,
   };
 }
 
@@ -63,8 +113,6 @@ function buildParamsFromFilters(filters: MarketplaceFilterState, pageNum: number
     query: filters.query,
     categorySlug: filters.categorySlug,
     city: filters.city,
-    remotePolicy: filters.remotePolicy,
-    isVerified: filters.isVerified,
     sortBy: filters.sortBy,
   };
 }
@@ -85,8 +133,6 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
   const initialFilters = useMemo(() => buildInitialFilters(options), [
     options.initialCategorySlug,
     options.initialFilters?.city,
-    options.initialFilters?.isVerified,
-    options.initialFilters?.remotePolicy,
     options.initialFilters?.sortBy,
     options.initialQuery,
   ]);
@@ -106,6 +152,9 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
   const filtersRef = useRef(filters);
   filtersRef.current = filters;
 
+  /** Bumped on every filter-key change so in-flight requests can be ignored. */
+  const fetchGenerationRef = useRef(0);
+
   const filtersKey = useMemo(() => browseCacheKey(buildParamsFromFilters(filters, 1)), [filters]);
 
   const buildParams = useCallback(
@@ -113,7 +162,36 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     [],
   );
 
-  const applyCachedPage = useCallback((params: MarketplaceBrowseParams) => {
+  const currentListKey = useCallback(
+    () => browseCacheKey(buildParamsFromFilters(filtersRef.current, 1)),
+    [],
+  );
+
+  const isStaleGeneration = useCallback((generation: number) => {
+    return generation !== fetchGenerationRef.current;
+  }, []);
+
+  const resetListState = useCallback(() => {
+    setItems([]);
+    setPage(1);
+    setTotal(0);
+    setHasMore(false);
+    setError(null);
+    setIsLoading(true);
+    setIsLoadingMore(false);
+  }, []);
+
+  const prepareFirstPageFetch = useCallback(() => {
+    setError(null);
+    setIsLoadingMore(false);
+    setIsLoading(true);
+    setItems((prev) => (prev.length > 0 ? [] : prev));
+    setTotal((prev) => (prev > 0 ? 0 : prev));
+    setHasMore((prev) => (prev ? false : prev));
+    setPage((prev) => (prev !== 1 ? 1 : prev));
+  }, []);
+
+  const applyCachedFirstPage = useCallback((params: MarketplaceBrowseParams) => {
     const cached = readBrowseCache(params);
     if (!cached) return false;
 
@@ -124,64 +202,96 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     setIsLoading(false);
     setIsLoadingMore(false);
     setError(null);
-    lastLoadedFiltersKey = browseCacheKey(params);
     return true;
   }, []);
 
   const loadPage = useCallback(
-    async (pageNum: number, append = false) => {
+    async (pageNum: number, append = false, generation?: number) => {
       const params = buildParams(pageNum);
+      const listKeyAtStart = browseCacheKey(buildParamsFromFilters(filtersRef.current, 1));
 
-      if (pageNum === 1 && !append && applyCachedPage(params)) {
+      if (generation !== undefined && isStaleGeneration(generation)) {
         return;
       }
 
-      if (pageNum === 1) setIsLoading(true);
-      else setIsLoadingMore(true);
+      if (pageNum === 1 && !append) {
+        // Skip cache for filter-triggered fetches (generation set) to avoid stale results.
+        if (generation === undefined && applyCachedFirstPage(params)) {
+          return;
+        }
+      }
+
+      if (pageNum === 1 && !append) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
       setError(null);
 
       try {
-        const result = await browseService.browse(params);
+        console.log('[use-marketplace-browse] query parameters:', params);
+        console.log('[use-marketplace-browse] repository method:', 'ListingBrowseService.browse');
+        const result =
+          pageNum === 1 && !append
+            ? await fetchFirstPageDeduped(browseService, params).then((fetched) => ({
+                data: fetched.items,
+                total: fetched.total,
+                hasMore: fetched.hasMore,
+              }))
+            : await browseService.browse(params);
+        console.log('[use-marketplace-browse] returned rows:', result.data.length, result.data.map((i) => i.listingId ?? i.id));
+
+        if (generation !== undefined && isStaleGeneration(generation)) {
+          return;
+        }
+        if (append && currentListKey() !== listKeyAtStart) {
+          return;
+        }
+
         setItems((prev) => (append ? [...prev, ...result.data] : result.data));
+        console.log('[use-marketplace-browse] rendered rows:', append ? 'append' : result.data.length, result.data.map((i) => i.listingId ?? i.id));
         setTotal(result.total);
         setHasMore(result.hasMore);
         setPage(pageNum);
-
-        if (pageNum === 1 && !append) {
-          writeBrowseCache(params, {
-            items: result.data,
-            total: result.total,
-            hasMore: result.hasMore,
-          });
-          lastLoadedFiltersKey = browseCacheKey(params);
-        }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'İlanlar yüklenemedi');
+        if (generation !== undefined && isStaleGeneration(generation)) {
+          return;
+        }
+        if (!append) {
+          setItems([]);
+          setTotal(0);
+          setHasMore(false);
+        }
+        setError(toErrorMessage(e, 'İlanlar yüklenemedi'));
       } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
+        if (generation === undefined || !isStaleGeneration(generation)) {
+          setIsLoading(false);
+          setIsLoadingMore(false);
+        }
       }
     },
-    [applyCachedPage, browseService, buildParams],
+    [applyCachedFirstPage, browseService, buildParams, currentListKey, isStaleGeneration],
   );
 
   const loadPageRef = useRef(loadPage);
   loadPageRef.current = loadPage;
 
   useEffect(() => {
-    const params = buildParamsFromFilters(filters, 1);
-    const key = browseCacheKey(params);
+    fetchGenerationRef.current += 1;
+    const generation = fetchGenerationRef.current;
 
-    if (key === lastLoadedFiltersKey && applyCachedPage(params)) {
+    const params = buildParamsFromFilters(filtersRef.current, 1);
+    if (applyCachedFirstPage(params)) {
       return;
     }
+
+    prepareFirstPageFetch();
 
     let cancelled = false;
 
     const run = () => {
-      if (cancelled) return;
-      setPage(1);
-      void loadPageRef.current(1, false);
+      if (cancelled || isStaleGeneration(generation)) return;
+      void loadPageRef.current(1, false, generation);
     };
 
     if (deferInitialLoad) {
@@ -204,7 +314,7 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     return () => {
       cancelled = true;
     };
-  }, [filtersKey, deferInitialLoad, applyCachedPage]);
+  }, [filtersKey, deferInitialLoad, prepareFirstPageFetch, isStaleGeneration, applyCachedFirstPage]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || isLoadingMore || isLoading) return;
@@ -235,6 +345,15 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     });
   }, [options.initialCategorySlug, options.initialQuery]);
 
+  const refresh = useCallback(() => {
+    const params = buildParamsFromFilters(filtersRef.current, 1);
+    browseCache.delete(browseCacheKey(params));
+    fetchGenerationRef.current += 1;
+    const generation = fetchGenerationRef.current;
+    resetListState();
+    void loadPage(1, false, generation);
+  }, [loadPage, resetListState]);
+
   return {
     items,
     total,
@@ -246,6 +365,6 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     updateFilters,
     resetFilters,
     loadMore,
-    refresh: () => loadPage(1, false),
+    refresh,
   };
 }

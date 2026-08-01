@@ -92,6 +92,8 @@ class CategoryRegistry {
       'find-job': CATEGORY_IDS.isBul,
       hire: CATEGORY_IDS.iseAl,
       'find-partner': CATEGORY_IDS.ortakBul,
+      franchise: CATEGORY_IDS.bayilikAl,
+      'bayilik-al': CATEGORY_IDS.bayilikAl,
     };
     return intentMap[slugOrId] ?? CATEGORY_SLUG_TO_ID[slugOrId] ?? null;
   }

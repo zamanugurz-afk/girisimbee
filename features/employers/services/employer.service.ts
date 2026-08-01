@@ -20,9 +20,11 @@ import { contactFromEmployerProfile, contactFromListing } from '@/features/share
 import { now } from '@/lib/domain/factory';
 import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
-  ECOSYSTEM_CATEGORY_IDS,
-  DEFAULT_LISTING_TYPE_IDS,
-} from '@/features/shared/constants/ecosystem';
+  EMPLOYER_CATEGORY_ID,
+  EMPLOYER_LISTING_TYPE_ID,
+  EMPLOYER_PERSISTED_CATEGORY_ID,
+  EMPLOYER_PERSISTED_LISTING_TYPE_ID,
+} from '@/features/employers/constants/employer-listing-ids';
 
 export interface PublishJobListingInput {
   ownerId: UserId;
@@ -87,11 +89,16 @@ export class EmployerService {
       });
     }
 
+    console.log('[employers] listingRepo.create', {
+      moduleKey: 'employers',
+      category_id: EMPLOYER_PERSISTED_CATEGORY_ID,
+      listing_type_id: EMPLOYER_PERSISTED_LISTING_TYPE_ID,
+    });
     return this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,
-      categoryId: ECOSYSTEM_CATEGORY_IDS.employers,
-      listingTypeId: DEFAULT_LISTING_TYPE_IDS.employers,
+      categoryId: EMPLOYER_CATEGORY_ID,
+      listingTypeId: EMPLOYER_LISTING_TYPE_ID,
       moduleKey: 'employers',
       anonymousMode: true,
       status: publishNow ? 'published' : 'draft',

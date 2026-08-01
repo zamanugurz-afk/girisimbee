@@ -4,6 +4,14 @@
 import { uuidSchema } from '@/lib/domain/validation';
 import { ids, type CompanyId } from '@/lib/domain/ids';
 
+/** Deterministic listing-type seed IDs stored in Postgres (lt000001-*). */
+const SEED_LISTING_TYPE_UUID = /^lt000001-[0-9a-f]{4}-4000-8000-[0-9a-f]{12}$/i;
+
+function acceptsAsUuid(value: string): boolean {
+  const trimmed = value.trim();
+  return uuidSchema.safeParse(trimmed).success || SEED_LISTING_TYPE_UUID.test(trimmed);
+}
+
 const EXPLICIT_UUID_FIELD_KEYS = new Set([
   'user_id',
   'userId',
@@ -47,7 +55,7 @@ export function isValidUuidValue(value: unknown): value is string {
   const trimmed = value.trim();
   if (!trimmed || trimmed === '0') return false;
 
-  return uuidSchema.safeParse(trimmed).success;
+  return acceptsAsUuid(trimmed);
 }
 
 /** Normalize a UUID value or return null when empty/invalid. */
@@ -62,7 +70,7 @@ export function coerceUuidValue(value: unknown): string | null {
   const trimmed = value.trim();
   if (!trimmed || trimmed === '0') return null;
 
-  return uuidSchema.safeParse(trimmed).success ? trimmed : null;
+  return acceptsAsUuid(trimmed) ? trimmed : null;
 }
 
 export function coerceCompanyId(value: unknown): CompanyId | null {

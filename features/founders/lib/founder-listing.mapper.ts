@@ -10,6 +10,11 @@ const DETAIL_KEYS = [
   'requiredSkills',
   'offeredSkills',
   'sectors',
+  'equityOffered',
+  'commitment',
+  'partnershipType',
+  'expertise',
+  'projectStage',
 ] as const;
 
 export function extractFounderListingDetails(listing: Listing): FounderListingDetails {
@@ -23,7 +28,7 @@ export function extractFounderListingDetails(listing: Listing): FounderListingDe
   };
 }
 
-function buildCustomFields(payload: FounderListingPayload): Record<string, unknown> {
+function buildCustomFields(payload: Record<string, unknown>): Record<string, unknown> {
   const customFields: Record<string, unknown> = {};
   for (const key of DETAIL_KEYS) {
     if (payload[key] !== undefined) {
@@ -62,7 +67,7 @@ export function founderPayloadToCreateInput(
     contactEmail: payload.contactEmail ?? null,
     contactWebsite: payload.contactWebsite ?? null,
     anonymousMode: true,
-    customFields: buildCustomFields(payload),
+    customFields: buildCustomFields(payload as unknown as Record<string, unknown>),
   };
 }
 
@@ -82,7 +87,7 @@ export function founderPayloadToUpdateInput(
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;
   if (payload.contactWebsite !== undefined) update.contactWebsite = payload.contactWebsite;
 
-  const customPatch = buildCustomFields(payload as FounderListingPayload);
+  const customPatch = buildCustomFields(payload as unknown as Record<string, unknown>);
   if (Object.keys(customPatch).length > 0) {
     update.customFields = { ...existing.customFields, ...customPatch };
   }

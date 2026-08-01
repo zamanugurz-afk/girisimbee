@@ -25,7 +25,8 @@ export const entrepreneurListingCreateSchema = z
     businessModel: z.string().max(500).nullable().optional(),
     pitchDeckDocumentId: uuidSchema.nullable().optional(),
   })
-  .merge(externalContactSchema);
+  .merge(externalContactSchema)
+  .passthrough();
 
 export const entrepreneurListingUpdateSchema = entrepreneurListingCreateSchema.partial();
 

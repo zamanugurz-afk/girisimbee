@@ -40,6 +40,7 @@ import { MockReportRepository } from '@/features/shared/repository/mock/report.r
 import { MockVerificationRepository } from '@/features/authentication/repository/mock/verification.repository.mock';
 
 import { SupabaseListingRepository } from '@/features/listings/repository/supabase/listing.repository.supabase';
+import { EmployerListingRepository } from '@/features/employers/repository/supabase/employer-listing.repository.supabase';
 import { SupabaseTagRepository } from '@/features/listings/repository/supabase/tag.repository.supabase';
 import { SupabaseListingImageRepository } from '@/features/listings/repository/supabase/listing-image.repository.supabase';
 import { SupabaseActivityRepository } from '@/features/shared/repository/supabase/activity.repository.supabase';
@@ -119,6 +120,9 @@ import { SupabaseCandidatePackageRepository } from '@/features/candidates/reposi
 import { SupabaseEntrepreneurPackageRepository } from '@/features/entrepreneurs/repository/supabase/entrepreneur-package.repository.supabase';
 import { SupabaseInvestorPackageRepository } from '@/features/investors/repository/supabase/investor-package.repository.supabase';
 import { SupabaseFounderPackageRepository } from '@/features/founders/repository/supabase/founder-package.repository.supabase';
+import { MockKvkkConsentRepository } from '@/features/kvkk/repository/mock/kvkk-consent.repository.mock';
+import { SupabaseKvkkConsentRepository } from '@/features/kvkk/repository/supabase/kvkk-consent.repository.supabase';
+import type { KvkkConsentRepository } from '@/features/kvkk/repositories/kvkk-consent.repository';
 
 import { wireEcosystemServices, type EcosystemServices } from '@/lib/persistence/ecosystem-services';
 
@@ -171,6 +175,7 @@ export interface PersistenceContainer {
   entrepreneurPackageRepository: EntrepreneurPackageRepository;
   investorPackageRepository: InvestorPackageRepository;
   founderPackageRepository: FounderPackageRepository;
+  kvkkConsentRepository: KvkkConsentRepository;
   ecosystem: EcosystemServices;
 }
 
@@ -204,6 +209,7 @@ export function createMemoryContainer(): PersistenceContainer {
   const entrepreneurPackageRepository = new MockEntrepreneurPackageRepository();
   const investorPackageRepository = new MockInvestorPackageRepository();
   const founderPackageRepository = new MockFounderPackageRepository();
+  const kvkkConsentRepository = new MockKvkkConsentRepository();
 
   return wireContainer({
     listingRepository,
@@ -235,11 +241,13 @@ export function createMemoryContainer(): PersistenceContainer {
     entrepreneurPackageRepository,
     investorPackageRepository,
     founderPackageRepository,
+    kvkkConsentRepository,
   });
 }
 
 export function createSupabaseContainer(supabase: SupabaseClient): PersistenceContainer {
   const listingRepository = new SupabaseListingRepository(supabase);
+  const employerListingRepository = new EmployerListingRepository(supabase);
   const tagRepository = new SupabaseTagRepository(supabase);
   const listingImageRepository = new SupabaseListingImageRepository(supabase);
   const activityRepository = new SupabaseActivityRepository(supabase);
@@ -268,9 +276,11 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const entrepreneurPackageRepository = new SupabaseEntrepreneurPackageRepository(supabase);
   const investorPackageRepository = new SupabaseInvestorPackageRepository(supabase);
   const founderPackageRepository = new SupabaseFounderPackageRepository(supabase);
+  const kvkkConsentRepository = new SupabaseKvkkConsentRepository(supabase);
 
   return wireContainer({
     listingRepository,
+    employerListingRepository,
     tagRepository,
     listingImageRepository,
     activityRepository,
@@ -299,11 +309,13 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     entrepreneurPackageRepository,
     investorPackageRepository,
     founderPackageRepository,
+    kvkkConsentRepository,
   });
 }
 
 function wireContainer(repos: {
   listingRepository: ListingRepository;
+  employerListingRepository?: ListingRepository;
   tagRepository: TagRepository;
   listingImageRepository: ListingImageRepository;
   activityRepository: ActivityRepository;
@@ -332,6 +344,7 @@ function wireContainer(repos: {
   entrepreneurPackageRepository: EntrepreneurPackageRepository;
   investorPackageRepository: InvestorPackageRepository;
   founderPackageRepository: FounderPackageRepository;
+  kvkkConsentRepository: KvkkConsentRepository;
 }): PersistenceContainer {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
@@ -340,6 +353,7 @@ function wireContainer(repos: {
 
   const ecosystem = wireEcosystemServices({
     listingRepository: repos.listingRepository,
+    employerListingRepository: repos.employerListingRepository,
     profileRepository: repos.profileRepository,
     moduleProfileRepository: repos.moduleProfileRepository,
     matchRepository: repos.matchRepository,
@@ -354,6 +368,7 @@ function wireContainer(repos: {
     investorPackageRepository: repos.investorPackageRepository,
     founderPackageRepository: repos.founderPackageRepository,
     favoriteRepository: repos.favoriteRepository,
+    kvkkConsentRepository: repos.kvkkConsentRepository,
   });
 
   const paymentService = ecosystem.paymentService;
@@ -371,6 +386,7 @@ function wireContainer(repos: {
     repos.favoriteRepository,
     repos.profileRepository,
     repos.companyRepository,
+    repos.listingImageRepository,
   );
 
   const verificationService = new VerificationService(
@@ -479,6 +495,7 @@ function wireContainer(repos: {
     entrepreneurPackageRepository: repos.entrepreneurPackageRepository,
     investorPackageRepository: repos.investorPackageRepository,
     founderPackageRepository: repos.founderPackageRepository,
+    kvkkConsentRepository: repos.kvkkConsentRepository,
     ecosystem,
   };
 }

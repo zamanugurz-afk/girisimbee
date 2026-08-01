@@ -27,7 +27,8 @@ export const employerJobListingCreateSchema = z
     salaryMin: z.number().int().min(0).nullable().optional(),
     salaryMax: z.number().int().min(0).nullable().optional(),
   })
-  .merge(externalContactSchema);
+  .merge(externalContactSchema)
+  .passthrough();
 
 export const employerJobListingUpdateSchema = employerJobListingCreateSchema.partial();
 

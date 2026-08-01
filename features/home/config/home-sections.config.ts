@@ -14,6 +14,8 @@ export interface HomeListingSectionConfig {
   badge: string;
   badgeClassName: string;
   viewAllHref: string;
+  /** Empty-state copy when the section has no listings */
+  emptyMessage: string;
   resolveBrowseParams: () => MarketplaceBrowseParams;
 }
 
@@ -23,10 +25,11 @@ export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
   {
     id: 'featured',
     title: 'Öne Çıkan İlanlar',
-    description: 'Editoryal olarak öne çıkarılan fırsatlar ve güvenilir ilanlar.',
+    description: 'Vitrin paketi ile ana sayfada öne çıkan ilanlar.',
     badge: 'Öne Çıkan',
     badgeClassName: 'bg-[#6366f1]/10 text-[#6366f1] border-[#6366f1]/20',
     viewAllHref: '/kesfet?featured=1',
+    emptyMessage: 'Henüz vitrine alınmış bir ilan bulunmuyor.',
     resolveBrowseParams: () => ({
       page: 1,
       limit: SECTION_LIMIT,
@@ -42,6 +45,7 @@ export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
     badge: 'Bugün',
     badgeClassName: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
     viewAllHref: '/kesfet?today=1',
+    emptyMessage: 'Bugün henüz ilan yayınlanmadı.',
     resolveBrowseParams: () => ({
       page: 1,
       limit: SECTION_LIMIT,
@@ -57,6 +61,7 @@ export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
     badge: 'Popüler',
     badgeClassName: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
     viewAllHref: '/kesfet?sort=most_viewed',
+    emptyMessage: 'Henüz görüntülenen ilan bulunmuyor.',
     resolveBrowseParams: () => ({
       page: 1,
       limit: SECTION_LIMIT,
@@ -66,10 +71,11 @@ export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
   {
     id: 'urgent',
     title: 'Acil İlanlar',
-    description: 'Hızlı karar gerektiren acil fırsatlar ve ilanlar.',
+    description: 'Acil Vitrin paketi ile hızlandırılmış ilanlar.',
     badge: 'Acil',
     badgeClassName: 'bg-rose-500/10 text-rose-700 border-rose-500/20',
     viewAllHref: '/kesfet?urgent=1',
+    emptyMessage: 'Henüz acil vitrine eklenmiş bir ilan bulunmuyor.',
     resolveBrowseParams: () => ({
       page: 1,
       limit: SECTION_LIMIT,

@@ -9,6 +9,7 @@ export const SEED_CATEGORIES: CreateCategoryInput[] = [
   { slug: 'is-bul', name: 'İş Bul', accentColor: '#0EA5E9', icon: 'Briefcase', sortOrder: 3 },
   { slug: 'ise-al', name: 'İşe Al', accentColor: '#10B981', icon: 'Users', sortOrder: 4 },
   { slug: 'ortak-bul', name: 'Ortak Bul', accentColor: '#F59E0B', icon: 'Handshake', sortOrder: 5 },
+  { slug: 'franchise', name: 'Franchise', accentColor: '#EC4899', icon: 'Store', sortOrder: 6 },
 ];
 
 export function createCategory(overrides: Partial<Category> & Pick<Category, 'slug' | 'name' | 'accentColor'>): Category {

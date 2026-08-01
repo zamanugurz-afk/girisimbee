@@ -14,6 +14,11 @@ import type { RepositoryFilter } from '@/lib/domain/pagination';
 import { LISTING_LIFECYCLE } from '@/features/listings/types/listing.entity.types';
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { sortListings } from '@/features/listings/utils/listing-sort';
+import {
+  expandCategoryIdFilter,
+  expandListingTypeIdFilter,
+} from '@/lib/domain/legacy-category-ids';
+import { listingMatchesCityFilter } from '@/features/listings/utils/city-filter';
 
 export class MockListingRepository implements ListingRepository {
   private listings = new Map<ListingId, Listing>();
@@ -38,12 +43,23 @@ export class MockListingRepository implements ListingRepository {
 
     if (!filter.includeDeleted) results = results.filter((l) => !l.deletedAt);
     if (filter.ownerId) results = results.filter((l) => l.ownerId === filter.ownerId);
-    if (filter.categoryId) results = results.filter((l) => l.categoryId === filter.categoryId);
-    if (filter.listingTypeId) results = results.filter((l) => l.listingTypeId === filter.listingTypeId);
+    if (filter.categoryId) {
+      const categoryIds = expandCategoryIdFilter(filter.categoryId);
+      results = results.filter((l) => categoryIds.includes(l.categoryId));
+    }
+    if (filter.listingTypeIds?.length) {
+      const listingTypeIds = [
+        ...new Set(filter.listingTypeIds.flatMap((id) => expandListingTypeIdFilter(id))),
+      ];
+      results = results.filter((l) => listingTypeIds.includes(l.listingTypeId));
+    } else if (filter.listingTypeId) {
+      const listingTypeIds = expandListingTypeIdFilter(filter.listingTypeId);
+      results = results.filter((l) => listingTypeIds.includes(l.listingTypeId));
+    }
     if (filter.subcategoryId) results = results.filter((l) => l.subcategoryId === filter.subcategoryId);
     if (filter.moduleKey) results = results.filter((l) => l.moduleKey === filter.moduleKey);
     if (filter.companyId) results = results.filter((l) => l.companyId === filter.companyId);
-    if (filter.city) results = results.filter((l) => l.city === filter.city);
+    if (filter.city) results = results.filter((l) => listingMatchesCityFilter(l, filter.city!));
     if (filter.district) results = results.filter((l) => l.district === filter.district);
     if (filter.industry) results = results.filter((l) => l.industry === filter.industry);
     if (filter.anonymousMode !== undefined) results = results.filter((l) => l.anonymousMode === filter.anonymousMode);
@@ -54,13 +70,13 @@ export class MockListingRepository implements ListingRepository {
     if (filter.activeFeaturedOnly) {
       const now = Date.now();
       results = results.filter(
-        (l) => !l.featuredUntil || new Date(l.featuredUntil).getTime() > now,
+        (l) => Boolean(l.featuredUntil) && new Date(l.featuredUntil!).getTime() > now,
       );
     }
     if (filter.activeUrgentOnly) {
       const now = Date.now();
       results = results.filter(
-        (l) => !l.urgentUntil || new Date(l.urgentUntil).getTime() > now,
+        (l) => Boolean(l.urgentUntil) && new Date(l.urgentUntil!).getTime() > now,
       );
     }
     if (filter.publishedAfter) {

@@ -4,7 +4,7 @@ import {
   CategoryMarketplacePage,
 } from '@/features/listings/components/category-marketplace-page';
 
-const CATEGORY_SLUG = 'yatirim-yap';
+const CATEGORY_SLUG = 'yatirim-bul';
 
 export const metadata: Metadata = buildCategoryMetadata(CATEGORY_SLUG);
 
