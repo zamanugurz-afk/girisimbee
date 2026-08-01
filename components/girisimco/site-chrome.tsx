@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 const AUTH_PAGES = new Set([
   '/giris',
   '/kayit',
+  '/sifremi-unuttum',
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',

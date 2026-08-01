@@ -15,22 +15,33 @@ import {
   fetchSessionUser,
   fetchProfile,
   mapSessionUser,
-  signInWithEmail,
-  signOut as authSignOut,
+  login as authLogin,
+  logout as authLogout,
   signUpWithEmail,
-  requestPasswordReset,
-  updatePassword,
+  forgotPassword as authForgotPassword,
+  resetPassword as authResetPassword,
+  refreshSession as authRefreshSession,
   resendVerificationEmail,
 } from '@/features/authentication/services/supabase-auth.service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 interface AuthContextValue extends AuthState {
-  signIn: (input: SignInInput) => Promise<{ error: string | null }>;
+  login: (input: SignInInput) => Promise<{ error: string | null }>;
+  logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ error: string | null }>;
+  resetPassword: (password: string) => Promise<{ error: string | null }>;
+  refreshSession: () => Promise<{ error: string | null }>;
   signUp: (input: SignUpInput) => Promise<{ error: string | null; needsVerification: boolean }>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: string | null }>;
-  setNewPassword: (password: string) => Promise<{ error: string | null }>;
   resendVerification: (email: string) => Promise<{ error: string | null }>;
+  /** @deprecated Prefer login() */
+  signIn: (input: SignInInput) => Promise<{ error: string | null }>;
+  /** @deprecated Prefer logout() */
+  signOut: () => Promise<void>;
+  /** @deprecated Prefer forgotPassword() */
+  requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
+  /** @deprecated Prefer resetPassword() */
+  setNewPassword: (password: string) => Promise<{ error: string | null }>;
+  /** @deprecated Prefer refreshSession() */
   refresh: () => Promise<void>;
 }
 
@@ -40,6 +51,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<SessionUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const refreshSession = useCallback(async () => {
+    const { user: sessionUser, error } = await authRefreshSession(supabase);
+    if (!error) {
+      setUser(sessionUser);
+    }
+    return { error };
+  }, [supabase]);
 
   const refresh = useCallback(async () => {
     const sessionUser = await fetchSessionUser(supabase);
@@ -92,8 +111,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase]);
 
-  const signIn = useCallback(async (input: SignInInput) => {
-    const { error } = await signInWithEmail(supabase, input);
+  const login = useCallback(async (input: SignInInput) => {
+    const { error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
     await refresh();
     return { error: null };
@@ -107,19 +126,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null, needsVerification };
   }, [supabase, refresh]);
 
-  const signOut = useCallback(async () => {
-    await authSignOut(supabase);
+  const logout = useCallback(async () => {
+    await authLogout(supabase);
     setUser(null);
     window.location.href = AUTH_ROUTES.login;
   }, [supabase]);
 
-  const resetPassword = useCallback(async (email: string) => {
-    const { error } = await requestPasswordReset(supabase, email);
+  const forgotPassword = useCallback(async (email: string) => {
+    const { error } = await authForgotPassword(supabase, email);
     return { error: error?.message ?? null };
   }, [supabase]);
 
-  const setNewPassword = useCallback(async (password: string) => {
-    const { error } = await updatePassword(supabase, password);
+  const resetPassword = useCallback(async (password: string) => {
+    const { error } = await authResetPassword(supabase, password);
     if (!error) await refresh();
     return { error: error?.message ?? null };
   }, [supabase, refresh]);
@@ -133,14 +152,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isLoading,
     isAuthenticated: Boolean(user),
-    signIn,
-    signUp,
-    signOut,
+    login,
+    logout,
+    forgotPassword,
     resetPassword,
-    setNewPassword,
+    refreshSession,
+    signUp,
+    resendVerification,
+    signIn: login,
+    signOut: logout,
+    requestPasswordReset: forgotPassword,
+    setNewPassword: resetPassword,
+    refresh,
+  }), [
+    user,
+    isLoading,
+    login,
+    logout,
+    forgotPassword,
+    resetPassword,
+    refreshSession,
+    signUp,
     resendVerification,
     refresh,
-  }), [user, isLoading, signIn, signUp, signOut, resetPassword, setNewPassword, resendVerification, refresh]);
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,8 +1,10 @@
 export const AUTH_ROUTES = {
   login: '/giris',
   register: '/kayit',
-  forgotPassword: '/sifre-sifirla',
-  resetPassword: '/sifre-yenile',
+  forgotPassword: '/sifremi-unuttum',
+  resetPassword: '/sifre-sifirla',
+  /** @deprecated Use AUTH_ROUTES.resetPassword — kept for old email links */
+  resetPasswordLegacy: '/sifre-yenile',
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
   dashboard: '/dashboard',
@@ -23,6 +25,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/kesfet',
   '/giris',
   '/kayit',
+  '/sifremi-unuttum',
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',

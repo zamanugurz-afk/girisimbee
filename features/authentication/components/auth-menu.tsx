@@ -29,7 +29,7 @@ function initials(name: string | null, email: string): string {
 }
 
 export function AuthMenu() {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const { role, isAdmin } = useAuthorization();
 
   if (isLoading) {
@@ -117,7 +117,7 @@ export function AuthMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
-          onClick={() => signOut()}
+          onClick={() => logout()}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Çıkış Yap

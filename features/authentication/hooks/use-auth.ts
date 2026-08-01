@@ -11,12 +11,22 @@ export function useAuth() {
     user: ctx.user,
     isLoading: ctx.isLoading,
     isAuthenticated: ctx.isAuthenticated,
-    signIn: ctx.signIn,
-    signUp: ctx.signUp,
-    signOut: ctx.signOut,
+    login: ctx.login,
+    logout: ctx.logout,
+    forgotPassword: ctx.forgotPassword,
     resetPassword: ctx.resetPassword,
-    setNewPassword: ctx.setNewPassword,
+    refreshSession: ctx.refreshSession,
+    signUp: ctx.signUp,
     resendVerification: ctx.resendVerification,
+    /** @deprecated Prefer login() */
+    signIn: ctx.signIn,
+    /** @deprecated Prefer logout() */
+    signOut: ctx.signOut,
+    /** @deprecated Prefer forgotPassword() */
+    requestPasswordReset: ctx.requestPasswordReset,
+    /** @deprecated Prefer resetPassword() */
+    setNewPassword: ctx.setNewPassword,
+    /** @deprecated Prefer refreshSession() */
     refresh: ctx.refresh,
   };
 }

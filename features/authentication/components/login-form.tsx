@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,7 +23,7 @@ import { AuthLink } from '@/features/authentication/components/auth-layout';
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn } = useAuth();
+  const { login } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const authError = searchParams.get('error');
 
@@ -40,7 +40,7 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginSchema) {
     setSubmitting(true);
-    const { error } = await signIn(values);
+    const { error } = await login(values);
     setSubmitting(false);
 
     if (error) {

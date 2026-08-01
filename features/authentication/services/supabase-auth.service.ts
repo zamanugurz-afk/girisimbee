@@ -126,8 +126,18 @@ export async function signInWithEmail(supabase: SupabaseClient, input: SignInInp
   });
 }
 
+/** STEP 2: email/password login */
+export async function login(supabase: SupabaseClient, input: SignInInput) {
+  return signInWithEmail(supabase, input);
+}
+
 export async function signOut(supabase: SupabaseClient) {
   return supabase.auth.signOut();
+}
+
+/** STEP 2: end session */
+export async function logout(supabase: SupabaseClient) {
+  return signOut(supabase);
 }
 
 export async function requestPasswordReset(supabase: SupabaseClient, email: string) {
@@ -137,8 +147,31 @@ export async function requestPasswordReset(supabase: SupabaseClient, email: stri
   });
 }
 
+/** STEP 2: send password-reset email */
+export async function forgotPassword(supabase: SupabaseClient, email: string) {
+  return requestPasswordReset(supabase, email);
+}
+
 export async function updatePassword(supabase: SupabaseClient, password: string) {
   return supabase.auth.updateUser({ password });
+}
+
+/** STEP 2: set a new password after recovery link */
+export async function resetPassword(supabase: SupabaseClient, password: string) {
+  return updatePassword(supabase, password);
+}
+
+/** STEP 2: refresh auth tokens + return fresh session user */
+export async function refreshSession(supabase: SupabaseClient): Promise<{
+  user: SessionUser | null;
+  error: string | null;
+}> {
+  const { error } = await supabase.auth.refreshSession();
+  if (error) {
+    return { user: null, error: error.message };
+  }
+  const user = await fetchSessionUser(supabase);
+  return { user, error: null };
 }
 
 export async function resendVerificationEmail(supabase: SupabaseClient, email: string) {

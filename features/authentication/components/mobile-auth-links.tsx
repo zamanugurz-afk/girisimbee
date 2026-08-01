@@ -8,7 +8,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { ROLE_LABELS } from '@/features/authentication/constants/roles';
 
 export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const { role } = useAuthorization();
 
   if (isLoading) return null;
@@ -41,7 +41,7 @@ export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
         className="w-full justify-start rounded-lg text-destructive"
         onClick={() => {
           onNavigate?.();
-          signOut();
+          logout();
         }}
       >
         <LogOut className="mr-2 h-4 w-4" />

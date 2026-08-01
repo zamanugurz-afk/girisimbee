@@ -21,7 +21,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export function ResetPasswordForm() {
   const router = useRouter();
-  const { setNewPassword } = useAuth();
+  const { resetPassword } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<NewPasswordSchema>({
@@ -31,7 +31,7 @@ export function ResetPasswordForm() {
 
   async function onSubmit(values: NewPasswordSchema) {
     setSubmitting(true);
-    const { error } = await setNewPassword(values.password);
+    const { error } = await resetPassword(values.password);
     setSubmitting(false);
 
     if (error) {
