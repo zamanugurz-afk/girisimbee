@@ -112,9 +112,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   const login = useCallback(async (input: SignInInput) => {
-    const { error } = await authLogin(supabase, input);
+    const { data, error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
     await refresh();
+    const userId = data.user?.id;
+    if (userId) {
+      try {
+        const { getAccountService } = await import('@/lib/persistence/container');
+        const { ids } = await import('@/lib/domain/ids');
+        await getAccountService().recordLogin(ids.user(userId), {
+          browser: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        });
+      } catch {
+        // Account tables may not be migrated yet — ignore.
+      }
+    }
     return { error: null };
   }, [supabase, refresh]);
 
@@ -123,14 +135,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) return { error: error.message, needsVerification: false };
     const needsVerification = !data.session;
     if (data.session) await refresh();
+    const userId = data.user?.id;
+    if (userId) {
+      try {
+        const { getAccountService } = await import('@/lib/persistence/container');
+        const { ids } = await import('@/lib/domain/ids');
+        await getAccountService().bootstrapFromSignup({
+          userId: ids.user(userId),
+          email: input.email,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          username: input.username,
+          phone: input.phone,
+          emailVerified: Boolean(data.user?.email_confirmed_at),
+          consents: input.consents,
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        });
+      } catch {
+        // Account tables may not be migrated yet — metadata still holds consents.
+      }
+    }
     return { error: null, needsVerification };
   }, [supabase, refresh]);
 
   const logout = useCallback(async () => {
+    const userId = user?.id;
+    try {
+      if (userId) {
+        const { getAccountService } = await import('@/lib/persistence/container');
+        await getAccountService().logSecurity({
+          userId,
+          action: 'logout',
+          browser: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        });
+      }
+    } catch {
+      // ignore until security log table exists
+    }
     await authLogout(supabase);
     setUser(null);
     window.location.href = AUTH_ROUTES.login;
-  }, [supabase]);
+  }, [supabase, user?.id]);
 
   const forgotPassword = useCallback(async (email: string) => {
     const { error } = await authForgotPassword(supabase, email);

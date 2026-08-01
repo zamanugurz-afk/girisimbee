@@ -35,6 +35,10 @@ export type MatchId = Brand<string, 'MatchId'>;
 export type DocumentId = Brand<string, 'DocumentId'>;
 export type PaymentId = Brand<string, 'PaymentId'>;
 export type ProfileModuleId = Brand<string, 'ProfileModuleId'>;
+export type AccountProfileId = Brand<string, 'AccountProfileId'>;
+export type UserConsentId = Brand<string, 'UserConsentId'>;
+export type UserSettingsId = Brand<string, 'UserSettingsId'>;
+export type UserSecurityLogId = Brand<string, 'UserSecurityLogId'>;
 
 export function id<T extends string>(value: string): Brand<string, T> {
   return value as Brand<string, T>;
@@ -71,4 +75,8 @@ export const ids = {
   document: (v: string) => v as DocumentId,
   payment: (v: string) => v as PaymentId,
   profileModule: (v: string) => v as ProfileModuleId,
+  accountProfile: (v: string) => v as AccountProfileId,
+  userConsent: (v: string) => v as UserConsentId,
+  userSettings: (v: string) => v as UserSettingsId,
+  userSecurityLog: (v: string) => v as UserSecurityLogId,
 };

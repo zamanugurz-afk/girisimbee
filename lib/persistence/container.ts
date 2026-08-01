@@ -123,6 +123,19 @@ import { SupabaseFounderPackageRepository } from '@/features/founders/repository
 import { MockKvkkConsentRepository } from '@/features/kvkk/repository/mock/kvkk-consent.repository.mock';
 import { SupabaseKvkkConsentRepository } from '@/features/kvkk/repository/supabase/kvkk-consent.repository.supabase';
 import type { KvkkConsentRepository } from '@/features/kvkk/repositories/kvkk-consent.repository';
+import type { AccountProfileRepository } from '@/features/account/repositories/account-profile.repository';
+import type { UserConsentRepository } from '@/features/account/repositories/user-consent.repository';
+import type { UserSettingsRepository } from '@/features/account/repositories/user-settings.repository';
+import type { UserSecurityLogRepository } from '@/features/account/repositories/user-security-log.repository';
+import { AccountService } from '@/features/account/services/account.service';
+import { MockAccountProfileRepository } from '@/features/account/repository/mock/account-profile.repository.mock';
+import { MockUserConsentRepository } from '@/features/account/repository/mock/user-consent.repository.mock';
+import { MockUserSettingsRepository } from '@/features/account/repository/mock/user-settings.repository.mock';
+import { MockUserSecurityLogRepository } from '@/features/account/repository/mock/user-security-log.repository.mock';
+import { SupabaseAccountProfileRepository } from '@/features/account/repository/supabase/account-profile.repository.supabase';
+import { SupabaseUserConsentRepository } from '@/features/account/repository/supabase/user-consent.repository.supabase';
+import { SupabaseUserSettingsRepository } from '@/features/account/repository/supabase/user-settings.repository.supabase';
+import { SupabaseUserSecurityLogRepository } from '@/features/account/repository/supabase/user-security-log.repository.supabase';
 
 import { wireEcosystemServices, type EcosystemServices } from '@/lib/persistence/ecosystem-services';
 
@@ -176,6 +189,11 @@ export interface PersistenceContainer {
   investorPackageRepository: InvestorPackageRepository;
   founderPackageRepository: FounderPackageRepository;
   kvkkConsentRepository: KvkkConsentRepository;
+  accountProfileRepository: AccountProfileRepository;
+  userConsentRepository: UserConsentRepository;
+  userSettingsRepository: UserSettingsRepository;
+  userSecurityLogRepository: UserSecurityLogRepository;
+  accountService: AccountService;
   ecosystem: EcosystemServices;
 }
 
@@ -210,6 +228,10 @@ export function createMemoryContainer(): PersistenceContainer {
   const investorPackageRepository = new MockInvestorPackageRepository();
   const founderPackageRepository = new MockFounderPackageRepository();
   const kvkkConsentRepository = new MockKvkkConsentRepository();
+  const accountProfileRepository = new MockAccountProfileRepository();
+  const userConsentRepository = new MockUserConsentRepository();
+  const userSettingsRepository = new MockUserSettingsRepository();
+  const userSecurityLogRepository = new MockUserSecurityLogRepository();
 
   return wireContainer({
     listingRepository,
@@ -242,6 +264,10 @@ export function createMemoryContainer(): PersistenceContainer {
     investorPackageRepository,
     founderPackageRepository,
     kvkkConsentRepository,
+    accountProfileRepository,
+    userConsentRepository,
+    userSettingsRepository,
+    userSecurityLogRepository,
   });
 }
 
@@ -277,6 +303,10 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const investorPackageRepository = new SupabaseInvestorPackageRepository(supabase);
   const founderPackageRepository = new SupabaseFounderPackageRepository(supabase);
   const kvkkConsentRepository = new SupabaseKvkkConsentRepository(supabase);
+  const accountProfileRepository = new SupabaseAccountProfileRepository(supabase);
+  const userConsentRepository = new SupabaseUserConsentRepository(supabase);
+  const userSettingsRepository = new SupabaseUserSettingsRepository(supabase);
+  const userSecurityLogRepository = new SupabaseUserSecurityLogRepository(supabase);
 
   return wireContainer({
     listingRepository,
@@ -310,6 +340,10 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     investorPackageRepository,
     founderPackageRepository,
     kvkkConsentRepository,
+    accountProfileRepository,
+    userConsentRepository,
+    userSettingsRepository,
+    userSecurityLogRepository,
   });
 }
 
@@ -345,10 +379,21 @@ function wireContainer(repos: {
   investorPackageRepository: InvestorPackageRepository;
   founderPackageRepository: FounderPackageRepository;
   kvkkConsentRepository: KvkkConsentRepository;
+  accountProfileRepository: AccountProfileRepository;
+  userConsentRepository: UserConsentRepository;
+  userSettingsRepository: UserSettingsRepository;
+  userSecurityLogRepository: UserSecurityLogRepository;
 }): PersistenceContainer {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
     repos.listingPackageRepository,
+  );
+
+  const accountService = new AccountService(
+    repos.accountProfileRepository,
+    repos.userConsentRepository,
+    repos.userSettingsRepository,
+    repos.userSecurityLogRepository,
   );
 
   const ecosystem = wireEcosystemServices({
@@ -496,6 +541,11 @@ function wireContainer(repos: {
     investorPackageRepository: repos.investorPackageRepository,
     founderPackageRepository: repos.founderPackageRepository,
     kvkkConsentRepository: repos.kvkkConsentRepository,
+    accountProfileRepository: repos.accountProfileRepository,
+    userConsentRepository: repos.userConsentRepository,
+    userSettingsRepository: repos.userSettingsRepository,
+    userSecurityLogRepository: repos.userSecurityLogRepository,
+    accountService,
     ecosystem,
   };
 }
@@ -540,6 +590,10 @@ export function getListingEngine(): ListingEngine {
 
 export function getProfileService(): IProfileService {
   return getClientContainer().profileService;
+}
+
+export function getAccountService(): AccountService {
+  return getClientContainer().accountService;
 }
 
 export function getCompanyService(): ICompanyService {
