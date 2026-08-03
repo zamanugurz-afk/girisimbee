@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bell, CheckCheck, CreditCard, Package, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Bell, CheckCheck, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -10,13 +11,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { getClientContainer } from '@/lib/persistence/container';
 import { ids, type NotificationId, type UserId } from '@/lib/domain/ids';
 import type { Notification } from '@/features/notifications/types/notification.types';
 import {
   formatPendingPaymentLabel,
   listOpenPendingPackagePayments,
-  listPendingPackagePayments,
   type PendingPackagePayment,
 } from '@/features/monetization/lib/pending-package-payments';
 import { formatPlacementPriceTry } from '@/features/monetization/types/listing-placement.types';
@@ -24,12 +25,6 @@ import { cn } from '@/lib/utils';
 
 const iconBtnClass =
   'flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 bg-white/80 text-[#334155] shadow-sm transition-all duration-300 ease-smooth hover:scale-[1.04] hover:border-primary/20 hover:bg-white hover:text-[#0F172A] hover:shadow-md';
-
-const PACKAGE_TYPES = new Set([
-  'package_payment_pending',
-  'package_payment_succeeded',
-  'package_activated',
-]);
 
 function timeLabel(iso: string): string {
   try {
@@ -60,22 +55,20 @@ function statusLabel(status: PendingPackagePayment['status']): string {
 }
 
 export function MarketplaceNotificationsBell({ className }: { className?: string }) {
+  const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [pendingPayments, setPendingPayments] = useState<PendingPackagePayment[]>([]);
   const [openPayments, setOpenPayments] = useState<PendingPackagePayment[]>([]);
 
   const refresh = useCallback(async () => {
     if (!user?.id) {
       setNotifications([]);
-      setPendingPayments([]);
       setOpenPayments([]);
       return;
     }
 
-    setPendingPayments(listPendingPackagePayments(user.id).slice(0, 8));
     setOpenPayments(listOpenPendingPackagePayments(user.id));
 
     setLoading(true);
@@ -101,7 +94,6 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
   useEffect(() => {
     const onPaymentsChanged = () => {
       if (!user?.id) return;
-      setPendingPayments(listPendingPackagePayments(user.id).slice(0, 8));
       setOpenPayments(listOpenPendingPackagePayments(user.id));
     };
     window.addEventListener('girisimco:pending-payments-changed', onPaymentsChanged);
@@ -112,7 +104,7 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
     if (open) void refresh();
   }, [open, refresh]);
 
-  const packageNotifications = notifications.filter((n) => PACKAGE_TYPES.has(n.type));
+  const recent = notifications.slice(0, 8);
   const unreadCount =
     notifications.filter((n) => n.status !== 'read').length + openPayments.length;
 
@@ -148,9 +140,13 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
 
   if (!isAuthenticated) {
     return (
-      <button type="button" className={cn(iconBtnClass, className)} aria-label="Bildirimler" disabled>
-        <Bell className="h-4 w-4 opacity-50" />
-      </button>
+      <Link
+        href={`${AUTH_ROUTES.login}?redirect=/dashboard/bildirimlerim`}
+        className={cn(iconBtnClass, className)}
+        aria-label="Bildirimler — giriş yapın"
+      >
+        <Bell className="h-4 w-4" />
+      </Link>
     );
   }
 
@@ -178,15 +174,12 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
         </div>
 
         <div className="max-h-[24rem] overflow-y-auto">
-          {/* Bekleyen ödemeler */}
-          <section className="border-b border-border/60 px-4 py-3">
-            <div className="mb-2 flex items-center gap-1.5 text-primary">
-              <CreditCard className="h-3.5 w-3.5" />
-              <p className="text-gc-xs font-semibold uppercase tracking-wide">Bekleyen ödemeler</p>
-            </div>
-            {openPayments.length === 0 ? (
-              <p className="text-gc-xs text-muted-foreground">Bekleyen paket ödemesi yok.</p>
-            ) : (
+          {openPayments.length > 0 ? (
+            <section className="border-b border-border/60 px-4 py-3">
+              <div className="mb-2 flex items-center gap-1.5 text-primary">
+                <CreditCard className="h-3.5 w-3.5" />
+                <p className="text-gc-xs font-semibold uppercase tracking-wide">Bekleyen ödemeler</p>
+              </div>
               <ul className="space-y-2">
                 {openPayments.map((payment) => (
                   <li key={payment.id}>
@@ -205,25 +198,23 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
                   </li>
                 ))}
               </ul>
-            )}
-          </section>
+            </section>
+          ) : null}
 
-          {/* Paket bildirimleri */}
-          <section className="border-b border-border/60 px-4 py-3">
-            <div className="mb-2 flex items-center gap-1.5 text-primary">
-              <Package className="h-3.5 w-3.5" />
-              <p className="text-gc-xs font-semibold uppercase tracking-wide">Paket bildirimleri</p>
-            </div>
+          <section className="px-4 py-3">
+            <p className="mb-2 text-gc-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Son bildirimler
+            </p>
             {loading ? (
               <div className="flex items-center gap-2 py-2 text-gc-xs text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Yükleniyor…
               </div>
-            ) : packageNotifications.length === 0 ? (
-              <p className="text-gc-xs text-muted-foreground">Henüz paket bildirimi yok.</p>
+            ) : recent.length === 0 ? (
+              <p className="text-gc-xs text-muted-foreground">Henüz bildiriminiz yok.</p>
             ) : (
               <ul className="space-y-1.5">
-                {packageNotifications.slice(0, 8).map((n) => (
+                {recent.map((n) => (
                   <li key={n.id}>
                     <button
                       type="button"
@@ -233,9 +224,11 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
                       )}
                       onClick={() => {
                         void markOneRead(n.id);
+                        setOpen(false);
                         if (n.actionUrl) {
-                          setOpen(false);
-                          window.location.href = n.actionUrl;
+                          router.push(n.actionUrl);
+                        } else {
+                          router.push('/dashboard/bildirimlerim');
                         }
                       }}
                     >
@@ -248,26 +241,16 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
               </ul>
             )}
           </section>
+        </div>
 
-          {/* Son ödemeler (geçmiş) */}
-          {pendingPayments.some((p) => p.status === 'succeeded') && (
-            <section className="px-4 py-3">
-              <p className="mb-2 text-gc-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Son paket ödemeleri
-              </p>
-              <ul className="space-y-1.5">
-                {pendingPayments
-                  .filter((p) => p.status === 'succeeded')
-                  .slice(0, 4)
-                  .map((payment) => (
-                    <li key={payment.id} className="rounded-lg px-2 py-1.5 text-gc-xs text-muted-foreground">
-                      {formatPendingPaymentLabel(payment)} · {formatPlacementPriceTry(payment.amountCents)} ·{' '}
-                      {timeLabel(payment.updatedAt)}
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          )}
+        <div className="border-t border-border/70 px-4 py-2.5">
+          <Link
+            href="/dashboard/bildirimlerim"
+            onClick={() => setOpen(false)}
+            className="block text-center text-xs font-medium text-primary hover:underline"
+          >
+            Tüm bildirimleri gör
+          </Link>
         </div>
       </PopoverContent>
     </Popover>

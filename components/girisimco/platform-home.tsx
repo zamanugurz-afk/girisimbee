@@ -8,13 +8,13 @@ import {
   Handshake,
   Rocket,
   Store,
-  TrendingUp,
   UserPlus,
   type LucideIcon,
 } from 'lucide-react';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { HomeListingsModule } from '@/components/girisimco/home/HomeListingsModule';
+import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 import { FranchiseFlowDialog } from '@/components/girisimco/home/franchise-flow-dialog';
 import {
   HOME_CATEGORIES,
@@ -24,7 +24,6 @@ import { cn } from '@/lib/utils';
 
 const CATEGORY_ICONS: Record<HomeCategorySlug, LucideIcon> = {
   'yatirim-bul': Rocket,
-  'yatirim-yap': TrendingUp,
   'is-bul': Briefcase,
   'ise-al': UserPlus,
   'ortak-bul': Handshake,
@@ -39,11 +38,6 @@ const CATEGORY_CARD_STYLES: Record<
     tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
     border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
     glow: 'group-hover:shadow-[0_8px_24px_-8px_#60A5FA40]',
-  },
-  'yatirim-yap': {
-    tint: 'from-[#6C63FF]/12 via-[#6C63FF]/4 to-transparent',
-    border: 'border-[#6C63FF]/25 group-hover:border-[#6C63FF]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#6C63FF40]',
   },
   'is-bul': {
     tint: 'from-[#5B5CF6]/12 via-[#5B5CF6]/4 to-transparent',
@@ -150,12 +144,12 @@ export function PlatformHome() {
             <div className="mb-4 max-w-lg">
               <h2 className="gc-page-heading text-gc-lg sm:text-gc-xl">Size uygun yolu seçin</h2>
               <p className="mt-1.5 text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
-                Altı farklı amaç, tek platform. Bir kategori seçerek ilgili ilanları keşfedin.
+                Beş farklı amaç, tek platform. Bir kategori seçerek ilgili ilanları keşfedin.
               </p>
             </div>
           </ScrollReveal>
 
-          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {HOME_CATEGORIES.map((cat, index) => (
               <ScrollReveal key={cat.slug} delay={Math.min(index * 30, 90)}>
                 <CategoryCard
@@ -169,6 +163,8 @@ export function PlatformHome() {
       </section>
 
       <FranchiseFlowDialog open={franchiseDialogOpen} onOpenChange={setFranchiseDialogOpen} />
+
+      <HomeMarketSection />
 
       <HomeListingsModule />
     </div>

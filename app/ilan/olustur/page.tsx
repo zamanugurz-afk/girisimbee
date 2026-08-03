@@ -21,11 +21,18 @@ import { publishModuleListing } from '@/features/listings/lib/listing-module-api
 import { saveListingImages } from '@/features/listings/lib/save-listing-images';
 import { traceListingPublish } from '@/lib/debug/listing-publish-trace';
 import { cn } from '@/lib/utils';
+import {
+  createPendingPackagePayment,
+  updatePendingPackagePayment,
+} from '@/features/monetization/lib/pending-package-payments';
+import { notifyPackageActivated } from '@/features/monetization/lib/package-payment-notifications';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
 
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, actorId } = useListingEngine();
+  const { user } = useAuth();
 
   const initialCategory = categoryRegistry.resolveCategoryId(
     searchParams.get('category') ?? searchParams.get('intent') ?? '',
@@ -88,7 +95,36 @@ function CreateListingContent() {
       throw error;
     }
 
-    toast.success('İlanınız yayınlandı');
+    const placements = values.packageSelection?.placements ?? [];
+    const simulationReady = values.packageSelection?.simulationStatus === 'ready';
+    const ownerId = user?.id ?? String(actorId);
+
+    if (placements.length > 0 && simulationReady && ownerId) {
+      try {
+        const pending = createPendingPackagePayment({
+          userId: ownerId,
+          listingId: listing.id,
+          listingTitle: values.core?.title,
+          packages: placements,
+        });
+        const succeeded =
+          updatePendingPackagePayment(pending.id, 'succeeded') ?? {
+            ...pending,
+            status: 'succeeded' as const,
+          };
+        void notifyPackageActivated(ownerId, succeeded).catch(() => undefined);
+        toast.success(
+          'İlanınız yayınlandı. Seçtiğiniz paketler kaydedildi (ödeme simülasyonu).',
+        );
+      } catch {
+        toast.success(
+          'İlanınız yayınlandı. Paket kaydı tamamlanamadı — ilan detayından tekrar deneyebilirsiniz.',
+        );
+      }
+    } else {
+      toast.success('İlanınız yayınlandı');
+    }
+
     router.push(getModuleListingDetailPath(categoryId, listing.slug));
   }
 
@@ -177,7 +213,17 @@ function CreateListingContent() {
 
 export default function CreateListingPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-2xl px-5 pb-16 pt-20 lg:px-8">
+          <div className="mb-8 space-y-2">
+            <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
+            <div className="h-4 w-72 animate-pulse rounded bg-muted" />
+          </div>
+          <div className="h-40 animate-pulse rounded-xl border border-border/80 bg-muted/40" />
+        </main>
+      }
+    >
       <CreateListingContent />
     </Suspense>
   );

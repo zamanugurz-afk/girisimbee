@@ -13,8 +13,9 @@ import {
 } from '@/features/authentication/constants/routes';
 import { fetchProfile } from '@/features/authentication/services/supabase-auth.service';
 import { validatePublishRequest } from '@/features/monetization/middleware/publish-guard';
-import { hasMinimumRole, isStoredRole } from '@/features/authentication/constants/roles';
 import type { UserRole } from '@/features/authentication/types/auth.types';
+import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
+import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 
 function nowMs(): number {
@@ -60,8 +61,7 @@ export async function middleware(request: NextRequest) {
   let role: UserRole = 'guest';
   if (user && needsMiddlewareRole(pathname)) {
     const profile = await fetchProfile(supabase, user.id);
-    role = profile?.role ?? 'member';
-    if (profile && !isStoredRole(profile.role)) role = 'member';
+    role = profile ? normalizeAppRole(profile.role) : 'user';
   }
 
   if (user && isGuestOnlyRoute(pathname)) {
@@ -73,11 +73,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(loginUrl(pathname), request.url));
   }
 
-  if (user && matchesPrefix(pathname, MODERATOR_ROUTE_PREFIXES) && !hasMinimumRole(role, 'moderator')) {
+  if (user && matchesPrefix(pathname, MODERATOR_ROUTE_PREFIXES) && !canAccess(role, pathname)) {
     return NextResponse.redirect(new URL(AUTH_ROUTES.dashboard, request.url));
   }
 
-  if (user && matchesPrefix(pathname, ADMIN_ROUTE_PREFIXES) && role !== 'admin') {
+  if (user && matchesPrefix(pathname, ADMIN_ROUTE_PREFIXES) && !isAdmin(role)) {
     return NextResponse.redirect(new URL(AUTH_ROUTES.dashboard, request.url));
   }
 

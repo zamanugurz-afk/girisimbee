@@ -4,7 +4,10 @@ import type { AccountProfileRepository } from '@/features/account/repositories/a
 import type { UserConsentRepository } from '@/features/account/repositories/user-consent.repository';
 import type { UserSettingsRepository } from '@/features/account/repositories/user-settings.repository';
 import type { UserSecurityLogRepository } from '@/features/account/repositories/user-security-log.repository';
-import type { CreateAccountProfileInput } from '@/features/account/types/account-profile.types';
+import type {
+  CreateAccountProfileInput,
+  UpdateAccountProfileInput,
+} from '@/features/account/types/account-profile.types';
 import type { CreateUserSecurityLogInput } from '@/features/account/types/user-security-log.types';
 import type { UpdateUserSettingsInput } from '@/features/account/types/user-settings.types';
 
@@ -16,6 +19,8 @@ export interface BootstrapAccountInput {
   username?: string | null;
   phone?: string | null;
   emailVerified?: boolean;
+  /** Stored on profiles.role — OAuth defaults to `user` */
+  role?: string;
   consents?: SignUpConsents;
   ipAddress?: string | null;
   userAgent?: string | null;
@@ -51,6 +56,20 @@ export class AccountService {
     return this.settings.findByUserId(userId);
   }
 
+  /** Profilim page: profiles + latest consents + settings */
+  async getProfilePageData(userId: UserId) {
+    const [profile, consent, settings] = await Promise.all([
+      this.profiles.findByUserId(userId),
+      this.consents.findLatestByUserId(userId),
+      this.settings.findByUserId(userId),
+    ]);
+    return { profile, consent, settings };
+  }
+
+  updateProfile(userId: UserId, input: UpdateAccountProfileInput) {
+    return this.profiles.update(userId, input);
+  }
+
   updateSettings(userId: UserId, input: UpdateUserSettingsInput) {
     return this.settings.update(userId, input);
   }
@@ -83,6 +102,29 @@ export class AccountService {
    * Safe no-op path when tables are not migrated yet (repos degrade gracefully).
    */
   async bootstrapFromSignup(input: BootstrapAccountInput) {
+    const existing = await this.profiles.findByUserId(input.userId);
+    if (existing) {
+      // Never overwrite an elevated role (admin / super_admin) with signup default.
+      if (existing.role === 'super_admin' || existing.role === 'admin') {
+        return {
+          profile: existing,
+          consent: null,
+          settings: await this.settings.upsert({
+            userId: input.userId,
+            emailNotifications: input.consents?.consentEmail ?? true,
+            smsNotifications: input.consents?.consentSms ?? false,
+          }),
+          securityLog: await this.securityLogs.create({
+            userId: input.userId,
+            action: 'register',
+            device: input.device,
+            browser: input.browser,
+            ipAddress: input.ipAddress,
+          }),
+        };
+      }
+    }
+
     const profile = await this.profiles.upsert({
       userId: input.userId,
       firstName: input.firstName,
@@ -91,6 +133,7 @@ export class AccountService {
       email: input.email,
       phone: input.phone,
       emailVerified: input.emailVerified ?? false,
+      role: input.role ?? 'user',
       status: 'active',
     });
 

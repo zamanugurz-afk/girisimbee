@@ -136,6 +136,22 @@ import { SupabaseAccountProfileRepository } from '@/features/account/repository/
 import { SupabaseUserConsentRepository } from '@/features/account/repository/supabase/user-consent.repository.supabase';
 import { SupabaseUserSettingsRepository } from '@/features/account/repository/supabase/user-settings.repository.supabase';
 import { SupabaseUserSecurityLogRepository } from '@/features/account/repository/supabase/user-security-log.repository.supabase';
+import type { FavoriteListingRepository } from '@/features/favorites/repositories/favorite-listing.repository';
+import { FavoriteListingService } from '@/features/favorites/services/favorite-listing.service';
+import { MockFavoriteListingRepository } from '@/features/favorites/repository/mock/favorite-listing.repository.mock';
+import { SupabaseFavoriteListingRepository } from '@/features/favorites/repository/supabase/favorite-listing.repository.supabase';
+import type { InboxNotificationRepository } from '@/features/notifications/repositories/inbox-notification.repository';
+import { InboxNotificationService } from '@/features/notifications/services/inbox-notification.service';
+import { MockInboxNotificationRepository } from '@/features/notifications/repository/mock/inbox-notification.repository.mock';
+import { SupabaseInboxNotificationRepository } from '@/features/notifications/repository/supabase/inbox-notification.repository.supabase';
+import type { ListingViewRepository } from '@/features/listings/repositories/listing-view.repository';
+import { ListingViewService } from '@/features/listings/services/listing-view.service';
+import { MockListingViewRepository } from '@/features/listings/repository/mock/listing-view.repository.mock';
+import { SupabaseListingViewRepository } from '@/features/listings/repository/supabase/listing-view.repository.supabase';
+import type { ListingPlacementRepository } from '@/features/monetization/repositories/listing-placement.repository';
+import { ListingPlacementService } from '@/features/monetization/services/listing-placement.service';
+import { MockListingPlacementRepository } from '@/features/monetization/repository/mock/listing-placement.repository.mock';
+import { SupabaseListingPlacementRepository } from '@/features/monetization/repository/supabase/listing-placement.repository.supabase';
 
 import { wireEcosystemServices, type EcosystemServices } from '@/lib/persistence/ecosystem-services';
 
@@ -194,6 +210,14 @@ export interface PersistenceContainer {
   userSettingsRepository: UserSettingsRepository;
   userSecurityLogRepository: UserSecurityLogRepository;
   accountService: AccountService;
+  favoriteListingRepository: FavoriteListingRepository;
+  favoriteListingService: FavoriteListingService;
+  inboxNotificationRepository: InboxNotificationRepository;
+  inboxNotificationService: InboxNotificationService;
+  listingViewRepository: ListingViewRepository;
+  listingViewService: ListingViewService;
+  listingPlacementRepository: ListingPlacementRepository;
+  listingPlacementService: ListingPlacementService;
   ecosystem: EcosystemServices;
 }
 
@@ -232,6 +256,10 @@ export function createMemoryContainer(): PersistenceContainer {
   const userConsentRepository = new MockUserConsentRepository();
   const userSettingsRepository = new MockUserSettingsRepository();
   const userSecurityLogRepository = new MockUserSecurityLogRepository();
+  const favoriteListingRepository = new MockFavoriteListingRepository();
+  const inboxNotificationRepository = new MockInboxNotificationRepository();
+  const listingViewRepository = new MockListingViewRepository();
+  const listingPlacementRepository = new MockListingPlacementRepository();
 
   return wireContainer({
     listingRepository,
@@ -244,6 +272,10 @@ export function createMemoryContainer(): PersistenceContainer {
     companyMemberRepository,
     companyFollowRepository,
     favoriteRepository,
+    favoriteListingRepository,
+    inboxNotificationRepository,
+    listingViewRepository,
+    listingPlacementRepository,
     notificationRepository,
     conversationRepository,
     messageRepository,
@@ -307,6 +339,10 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const userConsentRepository = new SupabaseUserConsentRepository(supabase);
   const userSettingsRepository = new SupabaseUserSettingsRepository(supabase);
   const userSecurityLogRepository = new SupabaseUserSecurityLogRepository(supabase);
+  const favoriteListingRepository = new SupabaseFavoriteListingRepository(supabase);
+  const inboxNotificationRepository = new SupabaseInboxNotificationRepository(supabase);
+  const listingViewRepository = new SupabaseListingViewRepository(supabase);
+  const listingPlacementRepository = new SupabaseListingPlacementRepository(supabase);
 
   return wireContainer({
     listingRepository,
@@ -320,6 +356,10 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     companyMemberRepository,
     companyFollowRepository,
     favoriteRepository,
+    favoriteListingRepository,
+    inboxNotificationRepository,
+    listingViewRepository,
+    listingPlacementRepository,
     notificationRepository,
     conversationRepository,
     messageRepository,
@@ -359,6 +399,10 @@ function wireContainer(repos: {
   companyMemberRepository: CompanyMemberRepository;
   companyFollowRepository: CompanyFollowRepository;
   favoriteRepository: FavoriteRepository;
+  favoriteListingRepository: FavoriteListingRepository;
+  inboxNotificationRepository: InboxNotificationRepository;
+  listingViewRepository: ListingViewRepository;
+  listingPlacementRepository: ListingPlacementRepository;
   notificationRepository: NotificationRepository;
   conversationRepository: ConversationRepository;
   messageRepository: MessageRepository;
@@ -394,6 +438,24 @@ function wireContainer(repos: {
     repos.userConsentRepository,
     repos.userSettingsRepository,
     repos.userSecurityLogRepository,
+  );
+
+  const favoriteListingService = new FavoriteListingService(
+    repos.favoriteListingRepository,
+  );
+
+  const inboxNotificationService = new InboxNotificationService(
+    repos.inboxNotificationRepository,
+  );
+
+  const listingViewService = new ListingViewService(
+    repos.listingViewRepository,
+    repos.listingRepository,
+  );
+
+  const listingPlacementService = new ListingPlacementService(
+    repos.listingPlacementRepository,
+    repos.listingRepository,
   );
 
   const ecosystem = wireEcosystemServices({
@@ -514,6 +576,14 @@ function wireContainer(repos: {
       repos.profileRepository,
     ),
     favoriteService: new FavoriteService(repos.favoriteRepository),
+    favoriteListingRepository: repos.favoriteListingRepository,
+    favoriteListingService,
+    inboxNotificationRepository: repos.inboxNotificationRepository,
+    inboxNotificationService,
+    listingViewRepository: repos.listingViewRepository,
+    listingViewService,
+    listingPlacementRepository: repos.listingPlacementRepository,
+    listingPlacementService,
     notificationService: new NotificationService(repos.notificationRepository),
     messagingService: new MessagingService(
       repos.conversationRepository,
@@ -604,12 +674,28 @@ export function getFavoriteService(): IFavoriteService {
   return getClientContainer().favoriteService;
 }
 
+export function getFavoriteListingService(): FavoriteListingService {
+  return getClientContainer().favoriteListingService;
+}
+
 export function getListingBrowseService(): ListingBrowseService {
   return getClientContainer().listingBrowseService;
 }
 
 export function getNotificationService(): INotificationService {
   return getClientContainer().notificationService;
+}
+
+export function getInboxNotificationService(): InboxNotificationService {
+  return getClientContainer().inboxNotificationService;
+}
+
+export function getListingViewService(): ListingViewService {
+  return getClientContainer().listingViewService;
+}
+
+export function getListingPlacementService(): ListingPlacementService {
+  return getClientContainer().listingPlacementService;
 }
 
 export function getMessagingService(): IMessagingService {

@@ -9,3 +9,9 @@ export { MockListingImageRepository } from '@/features/listings/repository/mock/
 export { SupabaseListingRepository } from '@/features/listings/repository/supabase/listing.repository.supabase';
 export { SupabaseTagRepository } from '@/features/listings/repository/supabase/tag.repository.supabase';
 export { SupabaseListingImageRepository } from '@/features/listings/repository/supabase/listing-image.repository.supabase';
+export { MockListingViewRepository } from '@/features/listings/repository/mock/listing-view.repository.mock';
+export { SupabaseListingViewRepository } from '@/features/listings/repository/supabase/listing-view.repository.supabase';
+export {
+  mapListingViewRow,
+  toListingViewInsert,
+} from '@/features/listings/repository/supabase/listing-view.mapper';

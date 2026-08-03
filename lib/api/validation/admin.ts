@@ -9,7 +9,7 @@ export const adminModuleKeySchema = z.enum(MODULE_KEYS);
 export const adminUserListQuerySchema = paginationSchema.extend({
   query: z.string().max(200).optional(),
   status: z.enum(['pending', 'active', 'suspended', 'deactivated', 'deleted']).optional(),
-  role: z.enum(['user', 'admin', 'moderator']).optional(),
+  role: z.enum(['user', 'admin', 'super_admin']).optional(),
 });
 
 export const adminUserActionSchema = z.discriminatedUnion('action', [

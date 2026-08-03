@@ -50,10 +50,6 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showCustomFacts = (listing.customFacts?.length ?? 0) > 0;
   const showCompany = hasCompanyFacts(listing);
   const showAttachments = listing.attachments.length > 0;
-  const galleryItems = listing.gallery.filter((item) => !isEmptyDisplayValue(item.imageUrl));
-  const showGallery = galleryItems.length > 0;
-  const coverImage = galleryItems[0];
-  const extraImages = galleryItems.slice(1);
   const showTimeline = listing.timeline.length > 0;
   const showAbout = !isEmptyDisplayValue(listing.longDescription);
 
@@ -65,51 +61,22 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         : 'Detaylar';
 
   return (
-    <div className="space-y-10">
-      {showGallery && coverImage && (
-        <DetailSectionIf title="Görseller" visible={showGallery}>
-          <div className="space-y-3">
-            <div className="overflow-hidden rounded-[24px] border border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.03]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={coverImage.imageUrl}
-                alt={coverImage.label}
-                className="aspect-[16/10] w-full object-cover"
-              />
-            </div>
-            {extraImages.length > 0 && (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {extraImages.map((item) => (
-                  <div
-                    key={item.id}
-                    className="overflow-hidden rounded-[20px] border border-border/80 bg-muted/40 dark:border-white/10 dark:bg-white/[0.03]"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.imageUrl}
-                      alt={item.label}
-                      className="aspect-[4/3] w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DetailSectionIf>
-      )}
-
-      {showAbout && (
-        <DetailSectionIf title="Hakkında" visible={showAbout}>
+    <div className="space-y-8">
+      {showAbout ? (
+        <DetailSectionIf title="İlan içeriği" visible={showAbout}>
           <DetailCard>
-            <p className="whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">
+            <h3 className="font-display text-base font-semibold text-foreground">
+              {listing.title}
+            </h3>
+            <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">
               {listing.longDescription}
             </p>
           </DetailCard>
         </DetailSectionIf>
-      )}
+      ) : null}
 
-      {showInvestment && (
-        <DetailSectionIf title="Yatırım Bilgileri" visible={showInvestment}>
+      {showInvestment ? (
+        <DetailSectionIf title="Yatırım bilgileri" visible={showInvestment}>
           <DetailCard>
             <FactGrid>
               <FactRow label="Aranan yatırım" value={listing.investment.requested} />
@@ -125,9 +92,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
             </FactGrid>
           </DetailCard>
         </DetailSectionIf>
-      )}
+      ) : null}
 
-      {showCustomFacts && (
+      {showCustomFacts ? (
         <DetailSectionIf title={customFactsTitle} visible={showCustomFacts}>
           <DetailCard>
             <FactGrid>
@@ -137,12 +104,12 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
             </FactGrid>
           </DetailCard>
         </DetailSectionIf>
-      )}
+      ) : null}
 
-      {showCompany && (
-        <DetailSectionIf title="Şirket Bilgileri" visible={showCompany}>
+      {showCompany ? (
+        <DetailSectionIf title="Şirket bilgileri" visible={showCompany}>
           <DetailCard>
-            {!isEmptyDisplayValue(listing.company.name) && (
+            {!isEmptyDisplayValue(listing.company.name) ? (
               <div className="flex items-start gap-4">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-muted/40 text-2xl dark:bg-white/5">
                   {listing.company.emoji}
@@ -151,13 +118,20 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
                   <h3 className="text-base font-semibold text-foreground">
                     {listing.company.name}
                   </h3>
-                  {!isEmptyDisplayValue(listing.company.summary) && (
-                    <p className="mt-1 text-sm text-muted-foreground">{listing.company.summary}</p>
-                  )}
+                  {!isEmptyDisplayValue(listing.company.summary) ? (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {listing.company.summary}
+                    </p>
+                  ) : null}
                 </div>
               </div>
-            )}
-            <div className={cn(!isEmptyDisplayValue(listing.company.name) && 'mt-5 border-t border-border/80 pt-4 dark:border-white/10')}>
+            ) : null}
+            <div
+              className={cn(
+                !isEmptyDisplayValue(listing.company.name) &&
+                  'mt-5 border-t border-border/80 pt-4 dark:border-white/10',
+              )}
+            >
               <FactGrid>
                 <FactRow label="Şehir" value={listing.company.city} />
                 <FactRow
@@ -171,9 +145,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
             </div>
           </DetailCard>
         </DetailSectionIf>
-      )}
+      ) : null}
 
-      {showAttachments && (
+      {showAttachments ? (
         <DetailSectionIf title="Dökümanlar" visible={showAttachments}>
           <div className="grid gap-3 sm:grid-cols-2">
             {listing.attachments.map((file) => {
@@ -183,54 +157,59 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
                   key={file.id}
                   type="button"
                   className={cn(
-                    'flex items-center gap-3 rounded-[24px] border border-border/80 bg-white p-4 text-left transition-colors',
-                    'hover:gc-shadow-soft dark:border-white/10 dark:bg-card/90',
+                    'flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left transition-all duration-200',
+                    'hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md',
+                    'dark:border-white/10 dark:bg-card/90',
                   )}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/40 dark:bg-white/5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-muted/40 dark:bg-white/5">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground">{file.name}</p>
-                    {!isEmptyDisplayValue(file.meta) && (
+                    {!isEmptyDisplayValue(file.meta) ? (
                       <p className="text-xs text-muted-foreground">{file.meta}</p>
-                    )}
+                    ) : null}
                   </div>
                 </button>
               );
             })}
           </div>
         </DetailSectionIf>
-      )}
+      ) : null}
 
-      {showTimeline && (
-        <DetailSectionIf title="Zaman Çizelgesi" visible={showTimeline}>
+      {showTimeline ? (
+        <DetailSectionIf title="Zaman çizelgesi" visible={showTimeline}>
           <DetailCard padding="lg">
             <ol className="relative space-y-0">
               {listing.timeline.map((event, i) => (
                 <li key={event.id} className="relative flex gap-4 pb-8 last:pb-0">
-                  {i < listing.timeline.length - 1 && (
+                  {i < listing.timeline.length - 1 ? (
                     <span className="absolute left-[7px] top-4 h-full w-px bg-muted dark:bg-white/10" />
-                  )}
+                  ) : null}
                   <span
                     className="relative z-10 mt-1.5 h-[15px] w-[15px] shrink-0 rounded-full border-2 border-primary bg-white dark:border-white dark:bg-background"
-                    style={{ borderColor: listing.category.accent, backgroundColor: i === listing.timeline.length - 1 ? listing.category.accent : undefined }}
+                    style={{
+                      borderColor: listing.category.accent,
+                      backgroundColor:
+                        i === listing.timeline.length - 1
+                          ? listing.category.accent
+                          : undefined,
+                    }}
                   />
                   <div className="min-w-0 flex-1 pt-0.5">
                     <p className="text-xs font-medium text-muted-foreground">{event.date}</p>
-                    <p className="mt-0.5 text-sm font-semibold text-foreground">
-                      {event.title}
-                    </p>
-                    {!isEmptyDisplayValue(event.description) && (
+                    <p className="mt-0.5 text-sm font-semibold text-foreground">{event.title}</p>
+                    {!isEmptyDisplayValue(event.description) ? (
                       <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
-                    )}
+                    ) : null}
                   </div>
                 </li>
               ))}
             </ol>
           </DetailCard>
         </DetailSectionIf>
-      )}
+      ) : null}
     </div>
   );
 }

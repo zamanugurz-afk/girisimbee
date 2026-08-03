@@ -1,5 +1,5 @@
 import { ids } from '@/lib/domain/ids';
-import { isStoredRole } from '@/features/authentication/constants/roles';
+import { coerceStoredRole } from '@/features/authentication/constants/roles';
 import type {
   AccountProfile,
   AccountProfileStatus,
@@ -17,8 +17,10 @@ export interface AccountProfileRow {
   role: string;
   status?: string | null;
   account_status?: string | null;
-  email_verified: boolean | null;
-  phone_verified: boolean | null;
+  email_verified?: boolean | null;
+  phone_verified?: boolean | null;
+  is_email_verified?: boolean | null;
+  is_phone_verified?: boolean | null;
   created_at: string;
   updated_at: string;
   last_login_at: string | null;
@@ -49,10 +51,10 @@ export function mapAccountProfileRow(row: AccountProfileRow): AccountProfile {
     username: row.username,
     email: row.email,
     phone: row.phone,
-    role: isStoredRole(row.role) ? row.role : 'member',
+    role: coerceStoredRole(row.role),
     status: mapStatus(row.status ?? row.account_status),
-    emailVerified: Boolean(row.email_verified),
-    phoneVerified: Boolean(row.phone_verified),
+    emailVerified: Boolean(row.is_email_verified ?? row.email_verified),
+    phoneVerified: Boolean(row.is_phone_verified ?? row.phone_verified),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lastLoginAt: row.last_login_at,
@@ -70,11 +72,13 @@ export function toAccountProfileUpsert(input: CreateAccountProfileInput) {
     username: input.username ?? null,
     email: input.email ?? null,
     phone: input.phone ?? null,
-    role: input.role ?? 'member',
+    role: input.role ?? 'user',
     status: input.status ?? 'active',
     account_status: input.status ?? 'active',
     email_verified: input.emailVerified ?? false,
     phone_verified: input.phoneVerified ?? false,
+    is_email_verified: input.emailVerified ?? false,
+    is_phone_verified: input.phoneVerified ?? false,
     last_login_at: null,
     updated_at: now,
   };
@@ -90,7 +94,7 @@ export function createAccountProfileEntity(input: CreateAccountProfileInput): Ac
     username: input.username ?? null,
     email: input.email ?? null,
     phone: input.phone ?? null,
-    role: input.role ?? 'member',
+    role: input.role ?? 'user',
     status: input.status ?? 'active',
     emailVerified: input.emailVerified ?? false,
     phoneVerified: input.phoneVerified ?? false,

@@ -21,6 +21,10 @@ import { registerSchema, type RegisterSchema } from '@/features/authentication/v
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
+import {
+  AuthSocialDivider,
+  GoogleOAuthButton,
+} from '@/features/authentication/components/google-oauth-button';
 
 export function RegisterForm() {
   const router = useRouter();
@@ -87,6 +91,8 @@ export function RegisterForm() {
 
   return (
     <Form {...form}>
+      <GoogleOAuthButton label="Google ile kayıt ol" next={AUTH_ROUTES.account} />
+      <AuthSocialDivider />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField

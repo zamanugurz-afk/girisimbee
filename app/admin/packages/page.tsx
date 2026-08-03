@@ -1,17 +1,17 @@
-import { AdminShell } from '@/components/girisimco/admin/admin-shell';
-import { AdminPackagesView } from '@/components/girisimco/admin/admin-packages-view';
+import { Package } from 'lucide-react';
+import { AdminModulePlaceholder } from '@/features/admin/panel/views/AdminModulePlaceholder';
 
-export const metadata = {
-  title: 'Paketler — Yönetim',
-};
+export const metadata = { title: 'Paketler — Yönetim' };
 
+/** Skeleton entry for packages module (legacy packages UI remains available for later migration). */
 export default function AdminPackagesPage() {
   return (
-    <AdminShell
-      title="İlan Paketleri"
-      description="Ücretsiz ilan limiti, yayın sayacı ve kullanıcı paketlerini yönetin."
-    >
-      <AdminPackagesView />
-    </AdminShell>
+    <AdminModulePlaceholder
+      title="Paketler"
+      description="Abonelik ve vitrin paketlerinin yönetimi."
+      emptyTitle="Paket yönetimi yakında"
+      emptyDescription="Paket tanımları, fiyatlandırma ve aktivasyon akışları bu ekranda geliştirilecek."
+      icon={Package}
+    />
   );
 }

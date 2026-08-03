@@ -19,6 +19,10 @@ import { loginSchema, type LoginSchema } from '@/features/authentication/validat
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { AuthLink } from '@/features/authentication/components/auth-layout';
+import {
+  AuthSocialDivider,
+  GoogleOAuthButton,
+} from '@/features/authentication/components/google-oauth-button';
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,7 +33,7 @@ export function LoginForm() {
 
   useEffect(() => {
     if (authError === 'auth_callback_failed') {
-      toast.error('E-posta doğrulama bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.');
+      toast.error('Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.');
     }
   }, [authError]);
 
@@ -57,9 +61,14 @@ export function LoginForm() {
     <Form {...form}>
       {authError === 'auth_callback_failed' && (
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          Doğrulama bağlantısı çalışmadı. Giriş yapın veya kayıt sırasında e-postayı yeniden gönderin.
+          Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.
         </div>
       )}
+      <GoogleOAuthButton
+        label="Google ile giriş yap"
+        next={searchParams.get('next') ?? AUTH_ROUTES.account}
+      />
+      <AuthSocialDivider />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}

@@ -1,21 +1,11 @@
 import type { UserRole } from '@/features/authentication/types/auth.types';
 import { hasMinimumRole, hasAnyRole } from '@/features/authentication/constants/roles';
-import {
-  ADMIN_ROUTE_PREFIXES,
-  MODERATOR_ROUTE_PREFIXES,
-  matchesPrefix,
-} from '@/features/authentication/constants/routes';
+import { canAccess } from '@/features/authorization/rbac.service';
 
 export { hasMinimumRole, hasAnyRole };
 
 export function canAccessRoute(role: UserRole, pathname: string): boolean {
-  if (matchesPrefix(pathname, ADMIN_ROUTE_PREFIXES)) {
-    return role === 'admin';
-  }
-  if (matchesPrefix(pathname, MODERATOR_ROUTE_PREFIXES)) {
-    return hasMinimumRole(role, 'moderator');
-  }
-  return true;
+  return canAccess(role, pathname);
 }
 
 export function requireRole(role: UserRole, minimum: UserRole): void {

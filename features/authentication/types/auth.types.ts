@@ -1,23 +1,22 @@
 /**
  * Runtime auth types — mapped from Supabase Auth + profiles table.
  * Guest = unauthenticated (no session).
+ * Stored roles: user | admin | super_admin (AUTHORIZATION STEP 1).
  */
 import type { UserId } from '@/lib/domain/ids';
+import type { AppRole, SessionRole } from '@/features/authorization/role.constants';
 
-export type UserRole =
-  | 'guest'
-  | 'member'
-  | 'verified'
-  | 'company'
-  | 'moderator'
-  | 'admin';
+/** @deprecated Prefer SessionRole from authorization — kept as alias during migration */
+export type UserRole = SessionRole;
 
 /** Authenticated roles stored in profiles.role */
-export type StoredUserRole = Exclude<UserRole, 'guest'>;
+export type StoredUserRole = AppRole;
 
 export interface UserProfile {
   id: UserId;
   role: StoredUserRole;
+  /** Unmodified profiles.role from the database */
+  rawRole: string;
   displayName: string | null;
   username: string | null;
   avatarUrl: string | null;
@@ -30,6 +29,11 @@ export interface SessionUser {
   email: string;
   emailVerified: boolean;
   role: UserRole;
+  /**
+   * Original `profiles.role` (or app_metadata.role) before RBAC coercion.
+   * Used for UI labels so legacy names (member/verified/company) can still display.
+   */
+  rawRole?: string | null;
   displayName: string | null;
   username: string | null;
   avatarUrl: string | null;

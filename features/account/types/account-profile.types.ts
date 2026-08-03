@@ -5,6 +5,9 @@
 import type { AccountProfileId, UserId } from '@/lib/domain/ids';
 import type { StoredUserRole } from '@/features/authentication/types/auth.types';
 
+/** Roles written to profiles.role */
+export type AccountStoredRole = StoredUserRole;
+
 export type AccountProfileStatus =
   | 'pending'
   | 'active'
@@ -20,7 +23,7 @@ export interface AccountProfile {
   username: string | null;
   email: string | null;
   phone: string | null;
-  role: StoredUserRole;
+  role: AccountStoredRole;
   status: AccountProfileStatus;
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -36,7 +39,7 @@ export type CreateAccountProfileInput = {
   username?: string | null;
   email?: string | null;
   phone?: string | null;
-  role?: StoredUserRole;
+  role?: AccountStoredRole;
   status?: AccountProfileStatus;
   emailVerified?: boolean;
   phoneVerified?: boolean;

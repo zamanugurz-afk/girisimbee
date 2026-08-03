@@ -8,9 +8,16 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { GcPageTransition } from '@/components/girisimco/ui/gc-page-transition';
 import { SiteChrome } from '@/components/girisimco/site-chrome';
 import { AuthProvider } from '@/features/authentication/providers/auth-provider';
+import type { SessionUser } from '@/features/authentication/types/auth.types';
 import { FavoritesProvider } from '@/features/favorites/providers/favorites-provider';
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export function AppProviders({
+  children,
+  initialUser = null,
+}: {
+  children: ReactNode;
+  initialUser?: SessionUser | null;
+}) {
   const [client] = useState(
     () =>
       new QueryClient({
@@ -32,25 +39,25 @@ export function AppProviders({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={client}>
-        <AuthProvider>
+        <AuthProvider initialUser={initialUser}>
           <FavoritesProvider>
-          <TooltipProvider delayDuration={150}>
-            <SiteChrome>
-              <GcPageTransition>{children}</GcPageTransition>
-            </SiteChrome>
-            <Toaster
-            position="bottom-right"
-            theme="system"
-            richColors
-            closeButton
-            toastOptions={{
-              classNames: {
-                toast:
-                  'rounded-xl border border-border bg-card text-card-foreground shadow-pop',
-              },
-            }}
-          />
-        </TooltipProvider>
+            <TooltipProvider delayDuration={150}>
+              <SiteChrome>
+                <GcPageTransition>{children}</GcPageTransition>
+              </SiteChrome>
+              <Toaster
+                position="bottom-right"
+                theme="system"
+                richColors
+                closeButton
+                toastOptions={{
+                  classNames: {
+                    toast:
+                      'rounded-xl border border-border bg-card text-card-foreground shadow-pop',
+                  },
+                }}
+              />
+            </TooltipProvider>
           </FavoritesProvider>
         </AuthProvider>
       </QueryClientProvider>

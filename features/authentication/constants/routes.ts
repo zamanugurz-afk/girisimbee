@@ -8,6 +8,7 @@ export const AUTH_ROUTES = {
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
   dashboard: '/dashboard',
+  account: '/hesabim',
   logout: '/auth/signout',
 } as const;
 
@@ -44,6 +45,7 @@ export const GUEST_ONLY_ROUTES = [
 /** Require authentication */
 export const PROTECTED_ROUTE_PREFIXES = [
   '/dashboard',
+  '/hesabim',
   '/mesajlar',
   '/ilan/olustur',
   '/ilanlarim',

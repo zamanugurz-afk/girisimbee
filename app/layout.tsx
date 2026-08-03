@@ -5,6 +5,7 @@ import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
 import { BRAND_PAGE_TITLE } from '@/features/shared';
+import { getServerSession } from '@/features/authentication/lib/get-session';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Plus_Jakarta_Sans({
@@ -36,13 +37,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialUser = await getServerSession();
   const body = (
-    <AppProviders>{children}</AppProviders>
+    <AppProviders initialUser={initialUser}>{children}</AppProviders>
   );
 
   return (

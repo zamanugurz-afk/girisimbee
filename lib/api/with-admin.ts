@@ -21,7 +21,7 @@ type AdminHandler = (
 
 async function assertAdmin(ctx: AuthContext): Promise<AdminContext | NextResponse> {
   const domainUser = await ctx.container.userRepository.findById(ctx.userId);
-  if (!domainUser || domainUser.role !== 'admin') {
+  if (!domainUser || (domainUser.role !== 'admin' && domainUser.role !== 'super_admin')) {
     return apiError('Bu işlem için yönetici yetkisi gerekli.', 403, { code: 'FORBIDDEN' });
   }
 
@@ -62,7 +62,7 @@ export async function requireAdminFromContainer(
   user: User,
 ): Promise<AdminContext | null> {
   const domainUser = await container.userRepository.findById(ids.user(user.id));
-  if (!domainUser || domainUser.role !== 'admin') return null;
+  if (!domainUser || (domainUser.role !== 'admin' && domainUser.role !== 'super_admin')) return null;
   return {
     user,
     userId: ids.user(user.id),

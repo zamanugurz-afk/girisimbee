@@ -137,6 +137,7 @@ export function ListingHeader({ listing }: ListingHeaderProps) {
             {listing.listingId && (
               <FavoriteButton
                 listingId={listing.listingId as ListingId}
+                title={listing.title}
                 className="h-11 w-11 rounded-xl border-border/80"
               />
             )}

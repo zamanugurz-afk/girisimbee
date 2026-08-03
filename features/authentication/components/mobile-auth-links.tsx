@@ -1,15 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
+import {
+  Bell,
+  Heart,
+  LayoutDashboard,
+  LayoutList,
+  LogOut,
+  MessageSquare,
+  Settings,
+  User,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth, useAuthorization } from '@/features/authentication/hooks/use-auth';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
-import { ROLE_LABELS } from '@/features/authentication/constants/roles';
+import { getRoleLabel } from '@/features/authentication/constants/roles';
 
 export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { user, isLoading, logout } = useAuth();
-  const { role } = useAuthorization();
 
   if (isLoading) return null;
 
@@ -26,15 +34,43 @@ export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
+  const links = [
+    { href: AUTH_ROUTES.dashboard, label: 'Panel', icon: LayoutDashboard },
+    {
+      href: user.username ? `/profil/${user.username}` : '/dashboard/profil',
+      label: 'Profilim',
+      icon: User,
+    },
+    { href: '/dashboard/ilanlarim', label: 'İlanlarım', icon: LayoutList },
+    { href: '/dashboard/favorilerim', label: 'Favorilerim', icon: Heart },
+    { href: '/dashboard/mesajlarim', label: 'Mesajlarım', icon: MessageSquare },
+    { href: '/dashboard/bildirimlerim', label: 'Bildirimlerim', icon: Bell },
+    { href: '/ayarlar', label: 'Profili Düzenle', icon: Settings },
+  ] as const;
+
   return (
-    <div className="mt-3 space-y-2 border-t border-border/80 pt-3 dark:border-white/10">
+    <div className="mt-3 space-y-1 border-t border-border/80 pt-3 dark:border-white/10">
       <p className="px-3 text-sm font-medium text-foreground">
         {user.displayName ?? user.email}
       </p>
-      <p className="px-3 text-xs text-muted-foreground">{ROLE_LABELS[role]}</p>
-      <Button variant="ghost" size="sm" className="w-full justify-start rounded-lg" asChild onClick={onNavigate}>
-        <Link href={AUTH_ROUTES.dashboard}>Panel</Link>
-      </Button>
+      <p className="mb-2 px-3 text-xs text-muted-foreground">
+        {getRoleLabel(user.rawRole ?? user.role)}
+      </p>
+      {links.map(({ href, label, icon: Icon }) => (
+        <Button
+          key={href}
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start rounded-lg"
+          asChild
+          onClick={onNavigate}
+        >
+          <Link href={href}>
+            <Icon className="mr-2 h-4 w-4" />
+            {label}
+          </Link>
+        </Button>
+      ))}
       <Button
         variant="ghost"
         size="sm"

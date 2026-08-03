@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -24,6 +25,8 @@ import {
   resendVerificationEmail,
 } from '@/features/authentication/services/supabase-auth.service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
+import { normalizeAppRole, roleRank } from '@/features/authorization/roles';
+import { roleTrace } from '@/features/authorization/lib/role-trace';
 
 interface AuthContextValue extends AuthState {
   login: (input: SignInInput) => Promise<{ error: string | null }>;
@@ -47,28 +50,113 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+function preferHigherRole(prev: SessionUser | null, next: SessionUser): SessionUser {
+  if (!prev || prev.id !== next.id) {
+    roleTrace('preferHigherRole:takeNext', {
+      prevRole: prev?.role ?? null,
+      nextRole: next.role,
+      nextRaw: next.rawRole,
+    });
+    return next;
+  }
+  const prevRank = roleRank(prev.role === 'guest' ? 'guest' : normalizeAppRole(prev.role));
+  const nextRank = roleRank(next.role === 'guest' ? 'guest' : normalizeAppRole(next.role));
+  // Transient profile miss must not downgrade admin / super_admin → user in the header.
+  if (prevRank > nextRank && next.role === 'user' && !next.rawRole) {
+    roleTrace('preferHigherRole:keepPrev (block downgrade)', {
+      prevRole: prev.role,
+      nextRole: next.role,
+    });
+    return {
+      ...next,
+      role: prev.role,
+      rawRole: prev.rawRole ?? prev.role,
+    };
+  }
+  // Never let a later event demote super_admin → user/member.
+  if (prev.role === 'super_admin' && next.role !== 'super_admin') {
+    roleTrace('preferHigherRole:keepSuperAdmin', {
+      prevRole: prev.role,
+      nextRole: next.role,
+      nextRaw: next.rawRole,
+    });
+    return {
+      ...next,
+      role: 'super_admin',
+      rawRole: prev.rawRole ?? 'super_admin',
+    };
+  }
+  roleTrace('preferHigherRole:takeNext', {
+    prevRole: prev.role,
+    nextRole: next.role,
+    nextRaw: next.rawRole,
+  });
+  return next;
+}
+
+export function AuthProvider({
+  children,
+  initialUser = null,
+}: {
+  children: ReactNode;
+  /** Server-resolved session — keeps header role in sync with dashboard SSR. */
+  initialUser?: SessionUser | null;
+}) {
   const supabase = useMemo(() => createClient(), []);
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<SessionUser | null>(initialUser);
+  const [isLoading, setIsLoading] = useState(!initialUser);
+  const userRef = useRef(user);
+  userRef.current = user;
+
+  useEffect(() => {
+    roleTrace('AuthProvider:initialUser', {
+      role: initialUser?.role ?? null,
+      rawRole: initialUser?.rawRole ?? null,
+      email: initialUser?.email ?? null,
+    });
+  }, [initialUser]);
+
+  useEffect(() => {
+    roleTrace('AuthProvider:userState', {
+      role: user?.role ?? null,
+      rawRole: user?.rawRole ?? null,
+      email: user?.email ?? null,
+      isLoading,
+    });
+  }, [user, isLoading]);
 
   const refreshSession = useCallback(async () => {
     const { user: sessionUser, error } = await authRefreshSession(supabase);
-    if (!error) {
-      setUser(sessionUser);
+    if (!error && sessionUser) {
+      setUser((prev) => preferHigherRole(prev, sessionUser));
+    } else if (!error) {
+      setUser(null);
     }
     return { error };
   }, [supabase]);
 
   const refresh = useCallback(async () => {
     const sessionUser = await fetchSessionUser(supabase);
-    setUser(sessionUser);
+    if (sessionUser) {
+      setUser((prev) => preferHigherRole(prev, sessionUser));
+    } else {
+      setUser(null);
+    }
   }, [supabase]);
 
   useEffect(() => {
     let mounted = true;
 
-    async function applySession(session: { user: { id: string; email?: string; email_confirmed_at?: string | null } } | null) {
+    async function applySession(
+      session: {
+        user: {
+          id: string;
+          email?: string;
+          email_confirmed_at?: string | null;
+          app_metadata?: Record<string, unknown>;
+        };
+      } | null,
+    ) {
       if (!session?.user) {
         if (mounted) {
           setUser(null);
@@ -77,27 +165,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // eslint-disable-next-line no-console -- role/RLS debug
+      console.log('SESSION USER ID', session?.user?.id);
+
       const profile = await fetchProfile(supabase, session.user.id);
       if (!mounted) return;
 
-      setUser(
-        mapSessionUser(
-          {
-            id: session.user.id,
-            email: session.user.email,
-            email_confirmed_at: session.user.email_confirmed_at,
-          },
-          profile,
-        ),
+      // eslint-disable-next-line no-console -- role/RLS debug
+      console.log('PROFILE RESULT', profile);
+      if (!profile) {
+        // eslint-disable-next-line no-console -- role/RLS debug
+        console.log(
+          'AuthProvider: profile null after query — RLS deny or profiles.id !== session.user.id',
+          { sessionUserId: session.user.id },
+        );
+      }
+
+      const next = mapSessionUser(
+        {
+          id: session.user.id,
+          email: session.user.email,
+          email_confirmed_at: session.user.email_confirmed_at,
+          app_metadata: session.user.app_metadata,
+        },
+        profile,
       );
+
+      roleTrace('AuthProvider:applySession', {
+        eventUserId: session.user.id,
+        profileRole: profile?.role ?? null,
+        profileRawRole: profile?.rawRole ?? null,
+        nextRole: next.role,
+        nextRawRole: next.rawRole,
+      });
+
+      setUser((prev) => preferHigherRole(prev, next));
       setIsLoading(false);
     }
+
+    // Explicit client hydrate — do not rely solely on onAuthStateChange ordering.
+    void fetchSessionUser(supabase).then((sessionUser) => {
+      if (!mounted) return;
+      if (sessionUser) {
+        setUser((prev) => preferHigherRole(prev, sessionUser));
+      }
+      setIsLoading(false);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      // Token refresh does not change profile data — skip redundant profile fetch.
+      // Token refresh: keep existing profile/role; only clear loading.
+      // If we never hydrated a user, still apply the session.
       if (event === 'TOKEN_REFRESHED') {
+        if (!userRef.current && session) {
+          await applySession(session);
+          return;
+        }
         setIsLoading(false);
         return;
       }

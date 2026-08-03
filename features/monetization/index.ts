@@ -19,6 +19,11 @@ export type {
   ListingPlacementStatus,
   CreateListingPlacementInput,
 } from '@/features/monetization/types/listing-placement.types';
+export type {
+  ListingPlacementRecord,
+  PlacementType,
+  ExtendPlacementInput,
+} from '@/features/monetization/types/listing-placement-record.types';
 export {
   PLACEMENT_PACKAGE_SLUGS,
   PLACEMENT_PACKAGE_CONFIG,
@@ -27,6 +32,9 @@ export {
   isPlacementPackageSlug,
   formatPlacementPriceTry,
 } from '@/features/monetization/types/listing-placement.types';
+export { ListingPlacementService, remainingDays } from '@/features/monetization/services/listing-placement.service';
+export type { ListingPlacementRepository } from '@/features/monetization/repositories/listing-placement.repository';
+export { getListingPlacementService } from '@/lib/persistence/container';
 export {
   simulatePlacementPayment,
   PLACEMENT_SIMULATION_STATUS_LABELS,

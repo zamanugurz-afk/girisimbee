@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SiteLogo, getFooterLinks, MVP_COPY } from '@/features/shared';
 
 export function Footer() {
@@ -21,13 +22,22 @@ export function Footer() {
                 <h4 className="text-xs font-semibold tracking-wide text-foreground">{title}</h4>
                 <ul className="mt-3 space-y-2">
                   {links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                      >
-                        {link}
-                      </a>
+                    <li key={link.label}>
+                      {link.href.startsWith('mailto:') ? (
+                        <a
+                          href={link.href}
+                          className="text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>

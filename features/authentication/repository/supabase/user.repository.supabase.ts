@@ -11,7 +11,6 @@ import type { UserId } from '@/lib/domain/ids';
 import type { User, CreateUserInput, UpdateUserInput, UserFilter, UserStatus, DomainUserRole } from '@/features/authentication/types/user.types';
 import type { UserRepository } from '@/features/authentication/repositories/user.repository';
 import { USER_LIFECYCLE } from '@/features/authentication/types/user.types';
-import type { StoredUserRole } from '@/features/authentication/types/auth.types';
 import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'profiles';
@@ -36,8 +35,8 @@ function emptyUserPage(pagination?: PaginationParams): PaginatedResult<User> {
 }
 
 function mapAuthRole(role: string): DomainUserRole {
-  if (role === 'admin') return 'admin';
-  if (role === 'moderator') return 'moderator';
+  if (role === 'super_admin') return 'super_admin';
+  if (role === 'admin' || role === 'moderator') return 'admin';
   return 'user';
 }
 
@@ -87,10 +86,11 @@ export class SupabaseUserRepository implements UserRepository {
     }
     if (filter.role) {
       if (filter.role === 'user') {
-        query = query.in('role', ['member', 'verified', 'company']);
+        query = query.in('role', ['user', 'member', 'verified', 'company']);
+      } else if (filter.role === 'super_admin') {
+        query = query.eq('role', 'super_admin');
       } else {
-        const authRole: StoredUserRole = filter.role === 'admin' ? 'admin' : 'moderator';
-        query = query.eq('role', authRole);
+        query = query.in('role', ['admin', 'moderator']);
       }
     }
     if (filter.query) {

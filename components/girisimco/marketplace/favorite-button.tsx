@@ -1,18 +1,24 @@
 'use client';
 
 import { Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useFavoritesContext } from '@/features/favorites/providers/favorites-provider';
+import {
+  pushFavoriteAddedFeedback,
+  pushFavoriteRemovedFeedback,
+} from '@/features/favorites/lib/favorite-ux-feedback';
 import type { ListingId } from '@/lib/domain/ids';
 import { loginUrl } from '@/features/authentication/constants/routes';
-import { useRouter } from 'next/navigation';
 
 interface FavoriteButtonProps {
   listingId?: ListingId;
   className?: string;
+  /** Optional listing title used in favorite UX feedback. */
+  title?: string;
 }
 
-export function FavoriteButton({ listingId, className }: FavoriteButtonProps) {
+export function FavoriteButton({ listingId, className, title }: FavoriteButtonProps) {
   const router = useRouter();
   const { isAuthenticated, isFavorited, toggleFavorite } = useFavoritesContext();
 
@@ -25,11 +31,24 @@ export function FavoriteButton({ listingId, className }: FavoriteButtonProps) {
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      router.push(loginUrl(typeof window !== 'undefined' ? window.location.pathname : '/favoriler'));
+      router.push(
+        loginUrl(
+          typeof window !== 'undefined' ? window.location.pathname : '/dashboard/favorilerim',
+        ),
+      );
       return;
     }
 
-    await toggleFavorite(listingId);
+    try {
+      const nowFavorited = await toggleFavorite(listingId);
+      if (nowFavorited) {
+        pushFavoriteAddedFeedback({ listingId, title });
+      } else {
+        pushFavoriteRemovedFeedback();
+      }
+    } catch {
+      // Provider/service already surfaces failures; keep button silent on throw
+    }
   };
 
   return (

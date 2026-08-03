@@ -20,14 +20,47 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
   constructor(private readonly supabase: SupabaseClient) {}
 
   private async selectOne(column: 'id' | 'user_id' | 'username', value: string) {
-    const { data, error } = await this.supabase.from(TABLE).select('*').eq(column, value).maybeSingle();
+    // eslint-disable-next-line no-console -- role/RLS debug
+    console.log('PROFILE QUERY ID', value, { column });
+
+    const { data: profile, error } = await this.supabase
+      .from(TABLE)
+      .select('*')
+      .eq(column, value)
+      .single();
+
+    // eslint-disable-next-line no-console -- role/RLS debug
+    console.log('PROFILE RESULT', profile);
+    // eslint-disable-next-line no-console -- role/RLS debug
+    console.log('PROFILE ERROR', error);
+
+    if (profile) {
+      const row = profile as Record<string, unknown>;
+      // eslint-disable-next-line no-console -- role/RLS debug
+      console.log('SESSION↔PROFILE ID CHECK (account repo)', {
+        queryColumn: column,
+        queryValue: value,
+        profilesId: row.id,
+        profilesUserId: row.user_id ?? null,
+        role: row.role ?? null,
+      });
+      return mapAccountProfileRow(normalizeLegacyRow(row));
+    }
+
     if (error) {
       if (isMissingRelationError(error)) return null;
-      // Missing column (pre-migration) — treat as not found for optional lookups
       if (error.code === '42703' || /column/i.test(error.message)) return null;
+      if (error.code === 'PGRST116' || /row-level security|permission denied|42501/i.test(error.message)) {
+        // eslint-disable-next-line no-console -- role/RLS debug
+        console.log(
+          'PROFILE RLS OR ID MISMATCH (account repo): no visible profiles row',
+          { column, value, code: error.code, message: error.message },
+        );
+        return null;
+      }
       throw error;
     }
-    return data ? mapAccountProfileRow(normalizeLegacyRow(data as Record<string, unknown>)) : null;
+    return null;
   }
 
   findById(id: AccountProfileId) {
@@ -43,15 +76,36 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
   }
 
   async upsert(input: CreateAccountProfileInput): Promise<AccountProfile> {
+    // Never upsert-overwrite role: a blind upsert with role:'user' would
+    // downgrade admin / super_admin on every bootstrap conflict.
+    const existing = await this.findByUserId(input.userId);
+    if (existing) {
+      return this.update(input.userId, {
+        firstName: input.firstName,
+        lastName: input.lastName,
+        username: input.username,
+        email: input.email,
+        phone: input.phone,
+        emailVerified: input.emailVerified,
+        phoneVerified: input.phoneVerified,
+        status: input.status,
+      });
+    }
+
     const row = toAccountProfileUpsert(input);
     const { data, error } = await this.supabase
       .from(TABLE)
-      .upsert(row, { onConflict: 'id' })
+      .insert(row)
       .select('*')
       .single();
     if (error) {
       if (isMissingRelationError(error) || error.code === '42703') {
         return createAccountProfileEntity(input);
+      }
+      // Concurrent insert (trigger + bootstrap): load existing, do not overwrite role.
+      if (error.code === '23505') {
+        const raced = await this.findByUserId(input.userId);
+        if (raced) return raced;
       }
       throw error;
     }
@@ -70,17 +124,41 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
       patch.status = input.status;
       patch.account_status = input.status;
     }
-    if (input.emailVerified !== undefined) patch.email_verified = input.emailVerified;
-    if (input.phoneVerified !== undefined) patch.phone_verified = input.phoneVerified;
+    if (input.emailVerified !== undefined) {
+      patch.email_verified = input.emailVerified;
+      patch.is_email_verified = input.emailVerified;
+    }
+    if (input.phoneVerified !== undefined) {
+      patch.phone_verified = input.phoneVerified;
+      patch.is_phone_verified = input.phoneVerified;
+    }
     if (input.lastLoginAt !== undefined) patch.last_login_at = input.lastLoginAt;
 
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .update(patch)
       .eq('id', userId)
       .select('*')
-      .single();
-    if (error) throw error;
+      .maybeSingle();
+
+    if ((!data && !error) || (error && error.code === 'PGRST116')) {
+      ({ data, error } = await this.supabase
+        .from(TABLE)
+        .update(patch)
+        .eq('user_id', userId)
+        .select('*')
+        .maybeSingle());
+    }
+
+    if (error) {
+      if (isMissingRelationError(error) || error.code === '42703') {
+        throw new Error('Profil tablosu henüz hazır değil. Migration uygulanmalı.');
+      }
+      throw error;
+    }
+    if (!data) {
+      throw new Error('Profil kaydı bulunamadı.');
+    }
     return mapAccountProfileRow(normalizeLegacyRow(data as Record<string, unknown>));
   }
 
@@ -99,11 +177,13 @@ function normalizeLegacyRow(data: Record<string, unknown>): AccountProfileRow {
     username: (data.username as string | null) ?? null,
     email: (data.email as string | null) ?? null,
     phone: (data.phone as string | null) ?? null,
-    role: String(data.role ?? 'member'),
+    role: String(data.role ?? 'user'),
     status: (data.status as string | null) ?? null,
     account_status: (data.account_status as string | null) ?? null,
-    email_verified: Boolean(data.email_verified),
-    phone_verified: Boolean(data.phone_verified),
+    email_verified: Boolean(data.email_verified ?? data.is_email_verified),
+    phone_verified: Boolean(data.phone_verified ?? data.is_phone_verified),
+    is_email_verified: Boolean(data.is_email_verified ?? data.email_verified),
+    is_phone_verified: Boolean(data.is_phone_verified ?? data.phone_verified),
     created_at: String(data.created_at),
     updated_at: String(data.updated_at),
     last_login_at: (data.last_login_at as string | null) ?? null,

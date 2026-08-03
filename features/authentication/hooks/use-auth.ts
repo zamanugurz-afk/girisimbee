@@ -47,15 +47,18 @@ export function useRole(): UserRole {
 
 export function useAuthorization() {
   const role = useRole();
+  const signedIn = role !== 'guest';
 
   return {
     role,
     isGuest: role === 'guest',
-    isMember: hasMinimumRole(role, 'member'),
-    isVerified: hasMinimumRole(role, 'verified'),
-    isCompany: hasMinimumRole(role, 'company'),
-    isModerator: hasMinimumRole(role, 'moderator'),
-    isAdmin: role === 'admin',
+    /** Authenticated user (any app role) — replaces legacy member/verified/company checks */
+    isMember: signedIn,
+    isVerified: signedIn,
+    isCompany: signedIn,
+    isModerator: hasMinimumRole(role, 'admin'),
+    isAdmin: hasMinimumRole(role, 'admin'),
+    isSuperAdmin: role === 'super_admin',
     hasMinimumRole: (minimum: UserRole) => hasMinimumRole(role, minimum),
     hasAnyRole: (allowed: UserRole[]) => hasAnyRole(role, allowed),
     canAccessRoute: (pathname: string) => canAccessRoute(role, pathname),
