@@ -30,8 +30,17 @@ import {
   validateKvkkConsents,
   type KvkkConsentValues,
 } from '@/features/listings/form/fields/kvkk-consent-fields';
+import {
+  EMPTY_PUBLISH_CONSENTS,
+  PublishConsentFields,
+  validatePublishConsents,
+  type PublishConsentValues,
+} from '@/features/listings/form/fields/publish-consent-fields';
+import { getProfileService } from '@/lib/persistence/container';
+import type { UserId } from '@/lib/domain/ids';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
 import {
+  DEFAULT_FRANCHISE_PACKAGE_SELECTION,
   DEFAULT_PACKAGE_SELECTION,
   ListingPackageSelectionStep,
   type ListingPackageSelectionValue,
@@ -39,6 +48,7 @@ import {
 import { ListingPreviewDialog } from '@/features/listings/components/listing-preview-dialog';
 import { ListingFormPreviewContent } from '@/features/listings/components/listing-form-preview-content';
 import {
+  FRANCHISE_PUBLISH_CONFIG,
   PLACEMENT_PACKAGE_CONFIG,
   STANDARD_PUBLISH_CONFIG,
   formatPlacementPriceTry,
@@ -66,6 +76,10 @@ export interface ListingFormValues {
   images: { url: string; alt?: string | null; sortOrder?: number }[];
   cvUrl?: string | null;
   kvkkConsents?: KvkkConsentValues;
+  /** Phone-only contact V1 — publish consents for all categories */
+  publishConsents?: PublishConsentValues;
+  /** Copied from profile at publish — shown on listing detail */
+  contactPhone?: string | null;
   /** Homepage placement selection — simulated payment only in Phase 2 */
   packageSelection?: ListingPackageSelectionValue;
 }
@@ -142,9 +156,15 @@ export function CategoryListingForm({
       images: initialValues?.images ?? base.images,
       cvUrl: initialValues?.cvUrl ?? null,
       kvkkConsents: initialValues?.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS },
-      packageSelection: initialValues?.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION },
+      publishConsents: initialValues?.publishConsents ?? { ...EMPTY_PUBLISH_CONSENTS },
+      contactPhone: initialValues?.contactPhone ?? null,
+      packageSelection:
+        initialValues?.packageSelection ??
+        (categoryId === CATEGORY_IDS.bayilikAl
+          ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
+          : { ...DEFAULT_PACKAGE_SELECTION }),
     };
-  }, [listingType.fieldSchema, initialValues]);
+  }, [listingType.fieldSchema, initialValues, categoryId]);
 
   const storageKey = buildListingDraftStorageKey(categoryId, listingType.id, listingId);
 
@@ -157,8 +177,17 @@ export function CategoryListingForm({
   const [kvkkConsents, setKvkkConsents] = useState<KvkkConsentValues>(
     defaults.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS },
   );
+  const [publishConsents, setPublishConsents] = useState<PublishConsentValues>(
+    defaults.publishConsents ?? { ...EMPTY_PUBLISH_CONSENTS },
+  );
+  const [contactPhone, setContactPhone] = useState<string | null>(
+    defaults.contactPhone ?? null,
+  );
   const [packageSelection, setPackageSelection] = useState<ListingPackageSelectionValue>(
-    defaults.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION },
+    defaults.packageSelection ??
+      (categoryId === CATEGORY_IDS.bayilikAl
+        ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
+        : { ...DEFAULT_PACKAGE_SELECTION }),
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [publishErrors, setPublishErrors] = useState<string[]>([]);
@@ -194,9 +223,21 @@ export function CategoryListingForm({
       images,
       cvUrl,
       kvkkConsents,
+      publishConsents,
+      contactPhone,
       packageSelection,
     }),
-    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents, packageSelection],
+    [
+      core,
+      mergedCustomFields,
+      tags,
+      images,
+      cvUrl,
+      kvkkConsents,
+      publishConsents,
+      contactPhone,
+      packageSelection,
+    ],
   );
 
   const validationSnapshot = useMemo(
@@ -207,8 +248,10 @@ export function CategoryListingForm({
       images,
       cvUrl,
       kvkkConsents,
+      publishConsents,
+      contactPhone,
     }),
-    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents],
+    [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents, publishConsents, contactPhone],
   );
 
   const stepCustomKeys = useMemo(
@@ -246,14 +289,40 @@ export function CategoryListingForm({
     setImages(draft.images);
     setCvUrl(draft.cvUrl ?? null);
     setKvkkConsents(draft.kvkkConsents ?? { ...EMPTY_KVKK_CONSENTS });
-    setPackageSelection(draft.packageSelection ?? { ...DEFAULT_PACKAGE_SELECTION });
+    setPublishConsents(draft.publishConsents ?? { ...EMPTY_PUBLISH_CONSENTS });
+    if (draft.contactPhone) setContactPhone(draft.contactPhone);
+    setPackageSelection(
+      draft.packageSelection ??
+        (categoryId === CATEGORY_IDS.bayilikAl
+          ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
+          : { ...DEFAULT_PACKAGE_SELECTION }),
+    );
     setRestoredDraft(true);
     toast.message('Kaydedilmiş taslak geri yüklendi.');
-  }, [initialValues, listingType.fieldSchema, restoreDraft, restoredDraft]);
+  }, [initialValues, listingType.fieldSchema, restoreDraft, restoredDraft, defaults.core, categoryId]);
 
   useEffect(() => {
     setCustomFields((prev) => mergeCustomFieldDefaults(listingType.fieldSchema, prev));
   }, [listingType.fieldSchema]);
+
+  /** Load profile phone for publish lock + ilan contactPhone write. */
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const profile = await getProfileService().getByUserId(userId as UserId);
+        if (cancelled || !profile) return;
+        const phone = profile.phone?.trim() || null;
+        setContactPhone(phone);
+      } catch {
+        /* profile optional during draft */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const setCustomField = useCallback((key: string, value: unknown) => {
     const field = fieldByKey.get(key);
@@ -374,18 +443,29 @@ export function CategoryListingForm({
     }
 
     if (isPackageStep) {
+      const isFranchisePackage = categoryId === CATEGORY_IDS.bayilikAl;
       if (packageSelection.simulationStatus !== 'ready') {
         setFieldErrors({
-          packageSelection:
-            packageSelection.placements.length > 0
+          packageSelection: isFranchisePackage
+            ? 'Franchise ilanı için 1.000 TL ödemeyi tamamlayın.'
+            : packageSelection.placements.length > 0
               ? 'Ücretli paket seçtiniz. Devam etmeden önce ödemeyi simüle edin.'
               : 'Paket seçimini tamamlayın.',
         });
         toast.error(
-          packageSelection.placements.length > 0
-            ? 'Devam etmeden önce ödemeyi simüle edin.'
-            : 'Lütfen bir paket seçin.',
+          isFranchisePackage
+            ? 'Devam etmeden önce 1.000 TL ödemeyi simüle edin.'
+            : packageSelection.placements.length > 0
+              ? 'Devam etmeden önce ödemeyi simüle edin.'
+              : 'Lütfen bir paket seçin.',
         );
+        return false;
+      }
+      if (isFranchisePackage && !packageSelection.franchisePublishPaid) {
+        setFieldErrors({
+          packageSelection: 'Franchise ilanı için 1.000 TL ödemeyi tamamlayın.',
+        });
+        toast.error('Devam etmeden önce 1.000 TL ödemeyi simüle edin.');
         return false;
       }
       setFieldErrors({});
@@ -403,9 +483,24 @@ export function CategoryListingForm({
     }
 
     if (isKvkkStep) {
-      if (!validateKvkkConsents(kvkkConsents)) {
+      const isJobSeeker = categoryId === CATEGORY_IDS.isBul;
+      if (isJobSeeker && !validateKvkkConsents(kvkkConsents)) {
         setFieldErrors({ kvkkConsents: 'Tüm KVKK onay kutularını işaretlemeniz gerekmektedir.' });
         toast.error('Lütfen tüm KVKK onaylarını tamamlayın.');
+        return false;
+      }
+      if (!validatePublishConsents(publishConsents)) {
+        setFieldErrors({
+          publishConsents: 'Tüm yayın onay kutularını işaretlemeniz gerekmektedir.',
+        });
+        toast.error('Lütfen tüm yayın onaylarını tamamlayın.');
+        return false;
+      }
+      if (!contactPhone?.trim()) {
+        setFieldErrors({
+          contactPhone: 'Yayınlamak için profilinizde telefon numarası gerekli.',
+        });
+        toast.error('Profilinize telefon ekleyin, ardından tekrar deneyin.');
         return false;
       }
       setFieldErrors({});
@@ -544,6 +639,8 @@ export function CategoryListingForm({
         .map((img, index) => ({ ...img, sortOrder: index })),
       cvUrl,
       kvkkConsents,
+      publishConsents,
+      contactPhone,
       packageSelection,
     };
   }
@@ -568,6 +665,15 @@ export function CategoryListingForm({
         setPublishErrors(['Paket seçimi tamamlanmadı. Lütfen paket adımına dönün.']);
         return;
       }
+      if (
+        categoryId === CATEGORY_IDS.bayilikAl &&
+        !packageSelection.franchisePublishPaid
+      ) {
+        setPublishErrors([
+          'Franchise ilanı için 1.000 TL paket ödemesi zorunludur. Lütfen paket adımına dönün.',
+        ]);
+        return;
+      }
 
       const validationErrors = validateListingFormBeforePublish({
         categoryId,
@@ -577,12 +683,16 @@ export function CategoryListingForm({
         snapshot: validationSnapshot,
         cvUrl,
         kvkkConsents,
+        publishConsents,
+        contactPhone,
       });
 
-      console.log(formData);
-      console.log(validationErrors);
-      console.log(currentStep);
-      console.log(categoryId);
+      if (!contactPhone?.trim()) {
+        setPublishErrors([
+          'Yayınlamak için profilinizde telefon numarası olmalı. Profil → Telefon ekleyin.',
+        ]);
+        return;
+      }
 
       if (Object.keys(validationErrors).length > 0) {
         const messages = [...new Set(Object.values(validationErrors))];
@@ -676,35 +786,45 @@ export function CategoryListingForm({
               onChange={setPackageSelection}
               disabled={disabled || isBusy}
               error={resolveFieldError(fieldErrors, 'packageSelection')}
+              variant={categoryId === CATEGORY_IDS.bayilikAl ? 'franchise' : 'placement'}
             />
           )}
 
           {isPublishStep && (
             <div className="space-y-3">
               <p className="text-gc-sm text-muted-foreground">
-                Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.
+                {categoryId === CATEGORY_IDS.bayilikAl
+                  ? 'Ödeme tamamlandı. Franchise ilanınızı 60 gün süreyle yayınlayabilirsiniz.'
+                  : 'Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.'}
               </p>
               <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
                 <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
                   Seçilen paket
                 </p>
                 <p className="mt-1 text-gc-sm font-medium text-foreground">
-                  {packageSelection.placements.length === 0
-                    ? STANDARD_PUBLISH_CONFIG.name
-                    : packageSelection.placements
-                        .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
-                        .join(' + ')}
+                  {categoryId === CATEGORY_IDS.bayilikAl
+                    ? FRANCHISE_PUBLISH_CONFIG.name
+                    : packageSelection.placements.length === 0
+                      ? STANDARD_PUBLISH_CONFIG.name
+                      : packageSelection.placements
+                          .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
+                          .join(' + ')}
                 </p>
-                {packageSelection.placements.length > 0 && (
+                {(categoryId === CATEGORY_IDS.bayilikAl ||
+                  packageSelection.placements.length > 0) && (
                   <p className="mt-0.5 text-gc-xs text-muted-foreground">
                     Toplam:{' '}
                     {formatPlacementPriceTry(
-                      packageSelection.placements.reduce(
-                        (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
-                        0,
-                      ),
-                    )}{' '}
-                    · ödeme simülasyonu tamamlandı
+                      categoryId === CATEGORY_IDS.bayilikAl
+                        ? FRANCHISE_PUBLISH_CONFIG.priceCents
+                        : packageSelection.placements.reduce(
+                            (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+                            0,
+                          ),
+                    )}
+                    {categoryId === CATEGORY_IDS.bayilikAl
+                      ? ' · 60 gün · ödeme simülasyonu tamamlandı'
+                      : ' · ödeme simülasyonu tamamlandı'}
                   </p>
                 )}
               </div>
@@ -824,12 +944,25 @@ export function CategoryListingForm({
                 />
               )}
 
-              {isKvkkStep && (
+              {isKvkkStep && categoryId === CATEGORY_IDS.isBul && (
                 <KvkkConsentFields
                   value={kvkkConsents}
                   onChange={setKvkkConsents}
                   disabled={disabled || isBusy}
                   error={resolveFieldError(fieldErrors, 'kvkkConsents')}
+                />
+              )}
+
+              {isKvkkStep && (
+                <PublishConsentFields
+                  value={publishConsents}
+                  onChange={setPublishConsents}
+                  disabled={disabled || isBusy}
+                  error={
+                    resolveFieldError(fieldErrors, 'publishConsents')
+                    || resolveFieldError(fieldErrors, 'contactPhone')
+                  }
+                  phoneHint={contactPhone}
                 />
               )}
             </>

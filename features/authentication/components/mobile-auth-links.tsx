@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   LayoutList,
   LogOut,
-  MessageSquare,
   Settings,
   User,
 } from 'lucide-react';
@@ -43,7 +42,6 @@ export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
     },
     { href: '/dashboard/ilanlarim', label: 'İlanlarım', icon: LayoutList },
     { href: '/dashboard/favorilerim', label: 'Favorilerim', icon: Heart },
-    { href: '/dashboard/mesajlarim', label: 'Mesajlarım', icon: MessageSquare },
     { href: '/dashboard/bildirimlerim', label: 'Bildirimlerim', icon: Bell },
     { href: '/ayarlar', label: 'Profili Düzenle', icon: Settings },
   ] as const;

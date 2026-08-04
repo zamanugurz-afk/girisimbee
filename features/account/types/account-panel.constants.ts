@@ -115,12 +115,6 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
     ],
   },
   {
-    id: 'messages',
-    label: 'Mesajlarım',
-    href: '/dashboard/mesajlarim',
-    icon: 'MessageSquare',
-  },
-  {
     id: 'notifications',
     label: 'Bildirimlerim',
     href: `${ACCOUNT_PANEL_BASE}/bildirimlerim`,

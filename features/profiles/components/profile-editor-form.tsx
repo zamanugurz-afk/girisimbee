@@ -24,6 +24,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ValidationError } from '@/lib/domain/errors';
 import { VerificationRequestPanel } from '@/components/girisimco/trust/verification-request-panel';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
 
 function toFormValues(profile: Profile): ProfileEditorForm {
   return {
@@ -205,7 +206,18 @@ export function ProfileEditorForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="displayName">Ad Soyad</Label>
-            <Input id="displayName" {...form.register('displayName')} />
+            <Input
+              id="displayName"
+              lang="tr"
+              spellCheck
+              {...form.register('displayName')}
+              onBlur={(e) => {
+                const corrected = autoCorrectTurkishText(e.target.value, 'title');
+                if (corrected !== e.target.value) {
+                  form.setValue('displayName', corrected, { shouldDirty: true, shouldValidate: true });
+                }
+              }}
+            />
             {form.formState.errors.displayName && (
               <p className="text-xs text-destructive">{form.formState.errors.displayName.message}</p>
             )}

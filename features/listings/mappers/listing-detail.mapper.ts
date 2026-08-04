@@ -18,16 +18,63 @@ import {
   JOB_SEEKER_FIELD_SCHEMA,
   PARTNER_FIELD_SCHEMA,
   SEEKING_INVESTMENT_FIELD_SCHEMA,
+  FRANCHISE_GIVE_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
 import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 import type { ModuleKey } from '@/lib/domain/modules';
+import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
+import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
+import { formatListingNumber } from '@/features/listings/utils/listing-number';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
 ) as Record<string, CategoryIntentId>;
+
+/** Fields shown in the company/brand block — omit from flat customFacts to avoid duplicates. */
+const COMPANY_BLOCK_CUSTOM_KEYS = new Set([
+  'companyName',
+  'establishmentYear',
+  'website',
+  'sector',
+  'branchCount',
+  'employeeCount',
+]);
+
+/** Investment block keys for seeking/offering — omit from customFacts when investment section is shown. */
+const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
+  'investmentAmount',
+  'equityOffered',
+  'stage',
+  'investmentStage',
+  'preferredStages',
+  'sectors',
+  'ticketSizeMin',
+  'useOfFunds',
+]);
+
+/** Form schema key → possible stored aliases after module publish remap. */
+const CUSTOM_FIELD_ALIASES: Record<string, string[]> = {
+  stage: ['stage', 'investmentStage'],
+  workType: ['workType', 'employmentType'],
+  partnershipType: ['partnershipType', 'founderType'],
+  expertise: ['expertise', 'requiredSkills'],
+  preferredStages: ['preferredStages', 'investmentStage'],
+};
+
+function readCf(customFields: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const key of keys) {
+    const value = customFields[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+}
+
+function readCfDisplay(customFields: Record<string, unknown>, ...keys: string[]): string {
+  return toDisplayValue(readCf(customFields, ...keys));
+}
 
 const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'yatirim-bul': SEEKING_INVESTMENT_FIELD_SCHEMA,
@@ -35,6 +82,8 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'is-bul': JOB_SEEKER_FIELD_SCHEMA,
   'ise-al': HIRING_FIELD_SCHEMA,
   'ortak-bul': PARTNER_FIELD_SCHEMA,
+  'bayilik-al': FRANCHISE_GIVE_FIELD_SCHEMA,
+  franchise: FRANCHISE_GIVE_FIELD_SCHEMA,
 };
 
 const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
@@ -113,12 +162,30 @@ function buildCustomFacts(
   const schema = CATEGORY_FIELD_SCHEMAS[categorySlug];
   if (!schema) return [];
 
-  return schema.fields
-    .map((field) => ({
-      label: field.label,
-      value: toDisplayValue(customFields[field.key]),
-    }))
+  const hideInvestmentKeys =
+    categorySlug === 'yatirim-bul' || categorySlug === 'yatirim-yap';
+
+  const facts = schema.fields
+    .filter((field) => !COMPANY_BLOCK_CUSTOM_KEYS.has(field.key))
+    .filter((field) => !(hideInvestmentKeys && INVESTMENT_BLOCK_CUSTOM_KEYS.has(field.key)))
+    .map((field) => {
+      const aliases = CUSTOM_FIELD_ALIASES[field.key] ?? [field.key];
+      return {
+        label: field.label,
+        value: readCfDisplay(customFields, ...aliases),
+      };
+    })
     .filter((row) => row.value.length > 0);
+
+  // Employer language tags are stored as languageTags (not in hiring schema).
+  if (categorySlug === 'ise-al') {
+    const languages = readCfDisplay(customFields, 'languageTags');
+    if (languages) {
+      facts.push({ label: 'Dil gereksinimleri', value: languages });
+    }
+  }
+
+  return facts;
 }
 
 /** Map engine aggregate → UI ListingDetail (existing detail view). */
@@ -130,7 +197,6 @@ export function aggregateToListingDetail(
   const category = categoryRegistry.getCategory(listing.categoryId);
   const categorySlug = resolveDetailCategorySlug(listing);
   const meta = CATEGORY_PAGE_CONFIG[categorySlug];
-  const intentId = SLUG_TO_INTENT[categorySlug] ?? 'find-investment';
   const cf = listing.customFields;
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
@@ -140,41 +206,96 @@ export function aggregateToListingDetail(
   const publisher = buildPublisher(listing.companyId, context);
   const customFacts = buildCustomFacts(categorySlug, cf);
 
-  const equityDisplay = cf.equityOffered != null && cf.equityOffered !== ''
-    ? `${toDisplayValue(cf.equityOffered)}%`
+  const equityRaw = readCf(cf, 'equityOffered');
+  const equityDisplay = equityRaw != null && equityRaw !== ''
+    ? `${toDisplayValue(equityRaw)}%`
     : '';
 
-  const galleryItems = images.length
-    ? images
-        .slice()
-        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-        .map((img, i) => ({
-          id: img.id,
-          label: img.alt ?? `Görsel ${i + 1}`,
-          emoji: '🖼️',
-          imageUrl: img.url,
-        }))
-    : [];
+  const uploadedGallery = images
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    .filter((img) => !isEmptyDisplayValue(img.url))
+    .map((img, i) => ({
+      id: img.id,
+      label: img.alt ?? `Görsel ${i + 1}`,
+      emoji: '🖼️',
+      imageUrl: img.url,
+    }));
 
-  const attachments = toDisplayValue(cf.cvUrl)
+  // Cards always show a type/cover fallback; detail must match so photos aren't empty.
+  const cardDisplay = resolveListingCardDisplay(listing);
+  const listingTypeSlug = categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null;
+  const galleryItems =
+    uploadedGallery.length > 0
+      ? uploadedGallery
+      : [
+          {
+            id: 'cover-fallback',
+            label: listing.title,
+            emoji: cardDisplay.typeEmoji,
+            imageUrl: resolveListingCoverUrl({
+              listingTypeSlug,
+              group: cardDisplay.group,
+            }),
+          },
+        ];
+
+  const cvRef = toDisplayValue(cf.cvUrl);
+  const attachments = cvRef
     ? [{
         id: 'cv',
         name: 'Özgeçmiş',
         type: 'pdf' as const,
         meta: 'CV',
+        url: /^https?:\/\//i.test(cvRef) ? cvRef : undefined,
       }]
     : [];
 
-  const companyName = context?.company?.name ?? '';
-  const companySummary = context?.company?.description ?? listing.shortDescription;
+  const companyName =
+    context?.company?.name
+    || toDisplayValue(cf.companyName)
+    || '';
+  const companySummary = context?.company?.description ?? '';
+  const companyCity = toDisplayValue(context?.company?.city);
+  const companyWebsite =
+    toDisplayValue(context?.company?.website) || toDisplayValue(cf.website);
+  const companyFounded = context?.company?.foundedYear
+    ? String(context.company.foundedYear)
+    : toDisplayValue(cf.establishmentYear);
+  const companyEmployees =
+    toDisplayValue(context?.company?.employeeCount) || toDisplayValue(cf.employeeCount);
+  const companySector =
+    toDisplayValue(cf.sector) || toDisplayValue(listing.industry);
+  const companyBranchCount = toDisplayValue(cf.branchCount);
+
+  const resolvedIntent: CategoryIntentId =
+    SLUG_TO_INTENT[categorySlug]
+    ?? (categorySlug === 'bayilik-al' || categorySlug === 'franchise'
+      ? 'franchise'
+      : 'find-investment');
+
+  const languageTags = Array.isArray(cf.languageTags)
+    ? (cf.languageTags as unknown[]).map((t) => String(t).trim()).filter(Boolean)
+    : typeof cf.languageTags === 'string' && cf.languageTags.trim()
+      ? String(cf.languageTags).split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+  const displayTags = [
+    ...tags.map((t) => t.name),
+    ...languageTags.filter((tag) => !tags.some((t) => t.name === tag)),
+  ];
 
   return {
     id: listing.slug,
     listingId: listing.id,
+    listingNumber: formatListingNumber(listing.id),
     ownerUserId: listing.ownerId,
+    contactPhone:
+      toDisplayValue(listing.contactPhone)
+      || toDisplayValue(context?.profile?.phone)
+      || null,
     companyId: listing.companyId,
     category: {
-      id: intentId,
+      id: resolvedIntent,
       label: meta?.label ?? category?.name ?? 'İlan',
       accent: meta?.accent ?? category?.accentColor ?? '#6366F1',
     },
@@ -183,27 +304,32 @@ export function aggregateToListingDetail(
     longDescription: listing.longDescription || listing.shortDescription,
     location,
     publishedAt: formatDate(listing.publishedAt),
+    updatedAt: formatDate(listing.updatedAt),
     views: listing.viewCount,
     interestedCount: listing.interestedCount,
     verified: listing.isVerified || hasAnyTrustBadge(publisher.trust),
     emoji: CATEGORY_EMOJI[categorySlug] ?? '📋',
-    tags: tags.map((t) => t.name),
+    tags: displayTags,
     investment: {
-      requested: toDisplayValue(cf.investmentAmount) || toDisplayValue(cf.ticketSizeMin),
+      requested: readCfDisplay(cf, 'investmentAmount', 'ticketSizeMin'),
       equity: equityDisplay,
-      stage: toDisplayValue(cf.stage) || toDisplayValue(cf.preferredStages),
-      industry: toDisplayValue(cf.sectors),
+      stage: readCfDisplay(cf, 'stage', 'investmentStage', 'preferredStages'),
+      industry: readCfDisplay(cf, 'sectors'),
+      useOfFunds: readCfDisplay(cf, 'useOfFunds'),
       companyAge: '',
-      website: toDisplayValue(context?.company?.website),
+      website: categorySlug === 'yatirim-yap' ? companyWebsite : '',
     },
     company: {
       name: companyName,
       emoji: '🏢',
-      city: toDisplayValue(context?.company?.city ?? listing.city),
-      website: toDisplayValue(context?.company?.website),
-      employees: toDisplayValue(context?.company?.employeeCount),
-      founded: context?.company?.foundedYear ? String(context.company.foundedYear) : '',
+      // Only real company HQ city — never fall back to listing.city (ilan konumu).
+      city: companyCity,
+      website: companyWebsite,
+      employees: companyEmployees,
+      founded: companyFounded,
       summary: companySummary,
+      sector: companySector,
+      branchCount: companyBranchCount,
     },
     attachments,
     gallery: galleryItems,

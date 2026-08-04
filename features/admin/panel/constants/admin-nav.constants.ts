@@ -118,6 +118,8 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.listings]: 'İlanlar',
   [ADMIN_ROUTES.verifications]: 'Doğrulamalar',
   [ADMIN_ROUTES.moderation]: 'Moderasyon',
+  [`${ADMIN_PANEL_BASE}/moderation/words`]: 'Küfür Listesi',
+  [`${ADMIN_PANEL_BASE}/moderation/content`]: 'Şüpheli İçerik',
   [ADMIN_ROUTES.payments]: 'Ödemeler',
   [ADMIN_ROUTES.packages]: 'Paketler',
   [ADMIN_ROUTES.market]: 'MARKET',

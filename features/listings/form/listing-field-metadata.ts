@@ -7,18 +7,21 @@ export interface FieldUiMeta {
 
 export const CORE_FIELD_UI: Record<string, FieldUiMeta> = {
   title: {
-    placeholder: 'Örn. Fintech SaaS platformu — Seri A yatırım turu',
-    helperText: 'Net ve dikkat çekici bir başlık ilanınızın keşfedilmesini kolaylaştırır.',
+    placeholder: 'Örn: SaaS Girişimine Yatırımcı Arıyoruz',
+    helperText:
+      'Her kelimenin ilk harfi büyük. Alanı terk edince yazım otomatik düzeltilir. E-posta/telefon/küfür yasak.',
     maxLength: 200,
   },
   shortDescription: {
     placeholder: 'Girişiminizi, rolünüzü veya aradığınız fırsatı 2-3 cümlede özetleyin…',
-    helperText: 'Arama sonuçlarında görünür. En az 30 karakter yazın.',
+    helperText:
+      'Arama sonuçlarında görünür. Alanı terk edince yazım düzeltilir. E-posta, telefon veya dış link yok. En az 30 karakter.',
     maxLength: 500,
   },
   longDescription: {
     placeholder: 'Detaylı açıklama, vizyon, beklentiler ve ek bilgiler…',
-    helperText: 'İlan detay sayfasında gösterilir. En az 100 karakter yazın.',
+    helperText:
+      'Detay sayfasında gösterilir. Alanı terk edince yazım düzeltilir. İletişim platform üzerinden. En az 100 karakter.',
     maxLength: 10000,
   },
   city: {
@@ -123,8 +126,8 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Projenizin mevcut gelişim aşaması.',
   },
   companyName: {
-    placeholder: 'Örn. ABC Gıda A.Ş.',
-    helperText: 'Franchise veren şirketin resmi unvanı.',
+    placeholder: 'Örn. Abc Gıda A.Ş.',
+    helperText: 'Franchise veren şirketin resmi unvanı. Her kelimenin ilk harfi büyük.',
     maxLength: 200,
   },
   establishmentYear: {
@@ -228,7 +231,8 @@ export const META_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Kategorinize uygun etiketleri seçin. En fazla 10 etiket.',
   },
   images: {
-    helperText: 'Sürükleyerek sıralayın. İlk görsel kapak olarak kullanılır. En fazla 10 görsel.',
+    helperText:
+      'Sürükleyerek sıralayın. İlk görsel kapak olur. En az 640×360 px; en fazla 10 görsel.',
   },
 };
 

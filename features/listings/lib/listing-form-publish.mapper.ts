@@ -28,6 +28,7 @@ function basePayload(values: ListingFormValues) {
     shortDescription: core.shortDescription,
     longDescription: core.longDescription || undefined,
     city: core.city ?? null,
+    contactPhone: values.contactPhone?.trim() || null,
   };
 }
 
@@ -49,6 +50,7 @@ export function listingFormValuesToModulePayload(
       return {
         ...base,
         investmentStage: readString(customFields.stage),
+        stage: readString(customFields.stage),
         investmentAmount: customFields.investmentAmount,
         equityOffered: customFields.equityOffered,
         useOfFunds: customFields.useOfFunds,
@@ -80,6 +82,7 @@ export function listingFormValuesToModulePayload(
       return {
         ...base,
         employmentType: readString(customFields.workType),
+        workType: readString(customFields.workType),
         salaryRange: readString(customFields.salaryRange),
         positionTitle: readString(customFields.positionTitle),
         languageTags: values.tags,
@@ -89,8 +92,10 @@ export function listingFormValuesToModulePayload(
       return {
         ...base,
         founderType: readString(customFields.partnershipType),
+        partnershipType: readString(customFields.partnershipType),
         startupStage: readString(customFields.projectStage),
         requiredSkills: readStringArray(customFields.expertise),
+        expertise: readStringArray(customFields.expertise),
         equityOffered: customFields.equityOffered,
         commitment: readString(customFields.commitment),
       };

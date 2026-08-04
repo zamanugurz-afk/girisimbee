@@ -375,6 +375,11 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
   },
 ];
 
+/** Categories selectable on /ilan/olustur (investor self-listing removed from create flow). */
+export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS.filter(
+  (config) => config.categoryId !== CATEGORY_IDS.yatirimYap,
+);
+
 /** Map category slug → category ID */
 export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   'yatirim-bul': CATEGORY_IDS.yatirimBul,

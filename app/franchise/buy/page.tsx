@@ -5,8 +5,8 @@ import { FranchiseBrowseView } from '@/features/franchise/components/franchise-b
 import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 
 export const metadata: Metadata = {
-  title: 'Bayilik Al — Franchise Fırsatları | Girisimco',
-  description: 'Türkiye genelindeki franchise fırsatlarını keşfedin.',
+  title: 'Franchise İlanları | Girisimco',
+  description: 'Yayınlanan franchise fırsatlarını keşfedin.',
 };
 
 interface PageProps {
@@ -21,14 +21,15 @@ export default async function FranchiseBuyPage({ searchParams }: PageProps) {
   });
 
   const container = getServerContainer(createClient());
+  // Posted franchise ads only (franchise-give / ilan ver).
   const result = await container.ecosystem.franchiseService.browseBuyOpportunities(filters);
 
   return (
     <FranchiseBrowseView
       flow="buy"
       listings={result.data}
-      title="Bayilik Al"
-      description="Franchise fırsatlarını keşfedin."
+      title="Franchise"
+      description="Yayınlanan franchise ilanlarını keşfedin."
       filters={filters}
     />
   );

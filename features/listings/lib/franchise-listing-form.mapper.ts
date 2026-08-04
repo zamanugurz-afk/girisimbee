@@ -54,6 +54,7 @@ export function listingFormValuesToFranchiseGivePayload(
     shortDescription: core.shortDescription,
     longDescription: core.longDescription || undefined,
     city: primaryCity,
+    contactPhone: values.contactPhone?.trim() || null,
     district: readString(customFields.districts),
     sector: readString(customFields.sector),
     contactWebsite: readContactWebsite(customFields.website),

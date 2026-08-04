@@ -6,6 +6,7 @@ import type {
 
 const DETAIL_KEYS = [
   'investmentStage',
+  'stage',
   'investmentTarget',
   'valuation',
   'monthlyRevenue',

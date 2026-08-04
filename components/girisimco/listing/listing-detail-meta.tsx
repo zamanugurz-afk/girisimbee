@@ -4,7 +4,9 @@ import {
   Calendar,
   CircleDot,
   Eye,
+  Hash,
   Heart,
+  MapPin,
   RefreshCw,
   Tag,
   Users,
@@ -38,6 +40,9 @@ function MetaRow({
 export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
   const subcategory =
     listing.tags.find((tag) => tag.trim().length > 0) ?? null;
+  const showLocation =
+    (listing.category.id === 'find-job' || listing.category.id === 'hire')
+    && !isEmptyDisplayValue(listing.location);
 
   return (
     <div className="flex h-full flex-col">
@@ -80,18 +85,32 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
       ) : null}
 
       <div className="mt-6 grid flex-1 grid-cols-1 gap-2.5 sm:grid-cols-2">
+        {listing.listingNumber ? (
+          <MetaRow icon={Hash} label="İlan no" value={listing.listingNumber} />
+        ) : null}
         <MetaRow icon={Tag} label="Kategori" value={listing.category.label} />
-        <MetaRow
-          icon={Tag}
-          label="Alt kategori"
-          value={subcategory ?? '—'}
-        />
+        {showLocation ? (
+          <MetaRow icon={MapPin} label="Konum" value={listing.location} />
+        ) : (
+          <MetaRow
+            icon={Tag}
+            label="Alt kategori"
+            value={subcategory ?? '—'}
+          />
+        )}
+        {showLocation && subcategory ? (
+          <MetaRow icon={Tag} label="Dil / etiket" value={subcategory} />
+        ) : null}
         <MetaRow
           icon={Calendar}
           label="Yayın tarihi"
           value={!isEmptyDisplayValue(listing.publishedAt) ? listing.publishedAt : '—'}
         />
-        <MetaRow icon={RefreshCw} label="Son güncelleme" value="—" />
+        <MetaRow
+          icon={RefreshCw}
+          label="Son güncelleme"
+          value={!isEmptyDisplayValue(listing.updatedAt) ? listing.updatedAt! : '—'}
+        />
         <MetaRow icon={CircleDot} label="İlan durumu" value="Yayında" />
         <MetaRow icon={Eye} label="Görüntülenme" value={listing.views.toLocaleString('tr-TR')} />
         <MetaRow

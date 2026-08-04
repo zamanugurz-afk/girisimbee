@@ -253,7 +253,7 @@ export class ListingEngine implements IListingEngineService {
       throw e;
     }
 
-    const targetStatus: ListingStatus = 'published';
+    const targetStatus: ListingStatus = 'pending_review';
 
     const isFirstPublish = existing.publishedAt === null;
     const requiresEntitlementCheck =

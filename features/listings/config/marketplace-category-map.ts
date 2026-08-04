@@ -101,7 +101,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'bayilik-al': {
     slug: 'bayilik-al',
-    label: 'Bayilik Al',
+    label: 'Franchise',
     listingTypeSlug: 'franchise-ilan-ver',
     appCategoryId: CATEGORY_IDS.bayilikAl,
     appListingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,

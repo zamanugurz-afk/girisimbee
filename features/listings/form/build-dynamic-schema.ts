@@ -10,6 +10,10 @@ import {
 } from '@/features/listings/config/listing-form-steps.config';
 import { remotePolicySchema } from '@/features/listings/validation/listing.schema';
 import { uuidSchema } from '@/lib/domain/validation';
+import {
+  contentPolicyIssuesToFieldErrors,
+  validateListingContentPolicy,
+} from '@/features/listings/lib/listing-content-policy';
 
 const STAGE_FIELD_KEY = 'stage';
 
@@ -545,5 +549,31 @@ export function validateListingFormStep(
   }
   if (step.meta?.includes('images')) {
     listingMetaSchema.shape.images.parse(payload.images);
+  }
+
+  if (mode === 'full' && step.coreFields?.length) {
+    const policyIssues = validateListingContentPolicy({
+      title: step.coreFields.includes('title') ? payload.core.title : undefined,
+      shortDescription: step.coreFields.includes('shortDescription')
+        ? payload.core.shortDescription
+        : undefined,
+      longDescription: step.coreFields.includes('longDescription')
+        ? payload.core.longDescription
+        : undefined,
+      tags: step.meta?.includes('tags') ? payload.tags : undefined,
+      imageFileNames: step.meta?.includes('images')
+        ? payload.images.map((img) => img.alt ?? '').filter(Boolean)
+        : undefined,
+    });
+    const fieldErrors = contentPolicyIssuesToFieldErrors(policyIssues);
+    if (Object.keys(fieldErrors).length > 0) {
+      throw new z.ZodError(
+        Object.entries(fieldErrors).map(([path, message]) => ({
+          code: z.ZodIssueCode.custom,
+          path: path.includes('.') ? path.split('.') : [path],
+          message,
+        })),
+      );
+    }
   }
 }

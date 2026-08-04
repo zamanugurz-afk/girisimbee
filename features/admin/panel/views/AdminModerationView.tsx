@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -218,6 +219,14 @@ export function AdminModerationView() {
       description="Reports & Complaints — mock veri"
       toolbar={
         <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" asChild>
+              <Link href="/admin/moderation/content">Şüpheli içerik kuyruğu</Link>
+            </Button>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <Link href="/admin/moderation/words">Küfür listesi</Link>
+            </Button>
+          </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <AdminSearch
               value={query}

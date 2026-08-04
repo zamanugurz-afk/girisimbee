@@ -15,6 +15,8 @@ import { formControlErrorClass } from '@/features/listings/form/field-error-styl
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
 import { getCoreFieldUi } from '@/features/listings/form/listing-field-metadata';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
+import { toast } from 'sonner';
 
 const REMOTE_OPTIONS = ['onsite', 'hybrid', 'remote'] as const;
 
@@ -71,6 +73,22 @@ export function CoreListingFields({
     onChange({ ...values, [key]: val });
   }
 
+  function applyAutoCorrect(
+    key: 'title' | 'shortDescription' | 'longDescription',
+    mode: 'title' | 'body',
+  ) {
+    const current = String(values[key] ?? '');
+    if (!current.trim()) return;
+    const next = autoCorrectTurkishText(current, mode);
+    if (next !== current) {
+      set(key, next);
+      toast.message('Yazım otomatik düzeltildi', {
+        description: 'Türkçe yazım ve biçim kurallarına göre düzenlendi.',
+        duration: 2200,
+      });
+    }
+  }
+
   return (
     <div className="space-y-4">
       {show('title') && (() => {
@@ -80,15 +98,21 @@ export function CoreListingFields({
             <FieldLabelWithTooltip htmlFor="core-title" label={labelFor('title', 'Başlık')} required />
             <Input
               id="core-title"
+              lang="tr"
+              spellCheck
               value={values.title}
               onChange={(e) => set('title', e.target.value)}
+              onBlur={() => applyAutoCorrect('title', 'title')}
               disabled={disabled}
-              placeholder={ui.placeholder}
+              placeholder={ui.placeholder ?? 'Örn: SaaS Girişimine Yatırımcı Arıyoruz'}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.title)}
             />
             <FormFieldFooter
-              helperText={ui.helperText}
+              helperText={
+                ui.helperText ??
+                'Her kelimenin ilk harfi büyük olmalıdır. Alanı terk edince yazım otomatik düzeltilir.'
+              }
               error={errors?.title}
               currentLength={values.title.length}
               maxLength={ui.maxLength}
@@ -108,8 +132,11 @@ export function CoreListingFields({
             />
             <Textarea
               id="core-short"
+              lang="tr"
+              spellCheck
               value={values.shortDescription}
               onChange={(e) => set('shortDescription', e.target.value)}
+              onBlur={() => applyAutoCorrect('shortDescription', 'body')}
               disabled={disabled}
               rows={4}
               placeholder={ui.placeholder}
@@ -117,7 +144,10 @@ export function CoreListingFields({
               className={formControlErrorClass(errors?.shortDescription)}
             />
             <FormFieldFooter
-              helperText={ui.helperText}
+              helperText={
+                ui.helperText ??
+                'Alanı terk edince sık yazım hataları ve cümle başları otomatik düzeltilir.'
+              }
               error={errors?.shortDescription}
               currentLength={values.shortDescription.length}
               maxLength={ui.maxLength}
@@ -138,8 +168,11 @@ export function CoreListingFields({
             />
             <Textarea
               id="core-long"
+              lang="tr"
+              spellCheck
               value={values.longDescription ?? ''}
               onChange={(e) => set('longDescription', e.target.value)}
+              onBlur={() => applyAutoCorrect('longDescription', 'body')}
               disabled={disabled}
               rows={6}
               placeholder={ui.placeholder}
@@ -147,7 +180,10 @@ export function CoreListingFields({
               className={formControlErrorClass(errors?.longDescription)}
             />
             <FormFieldFooter
-              helperText={ui.helperText}
+              helperText={
+                ui.helperText ??
+                'Alanı terk edince sık yazım hataları ve cümle başları otomatik düzeltilir.'
+              }
               error={errors?.longDescription}
               currentLength={length}
               maxLength={ui.maxLength}

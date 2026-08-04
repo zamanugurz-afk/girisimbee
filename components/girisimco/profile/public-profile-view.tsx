@@ -6,7 +6,7 @@ import { ContentCard as ListingCard } from '@/components/girisimco/content-card'
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import type { PublicProfileView } from '@/features/profiles/types/profile-public.types';
-import { StartConversationButton } from '@/features/messaging/components/start-conversation-button';
+import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatNumber, initials } from '@/lib/utils';
 
@@ -82,16 +82,13 @@ export function PublicProfilePageView({ data }: PublicProfilePageViewProps) {
                   Profili Düzenle
                 </Link>
               </Button>
-            ) : contactListing ? (
-              <StartConversationButton
-                listingId={contactListing.id}
-                ownerUserId={contactListing.ownerId}
-                label="Mesaj Gönder"
-                size="default"
-                variant="outline"
+            ) : (
+              <ListingCallButton
+                phone={showPhone ? profile.phone : contactListing?.contactPhone}
                 className="rounded-lg"
+                label="Ara"
               />
-            ) : null}
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted-foreground">

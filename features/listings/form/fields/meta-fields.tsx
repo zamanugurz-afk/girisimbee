@@ -11,6 +11,11 @@ import { cn } from '@/lib/utils';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
 import { META_FIELD_UI } from '@/features/listings/form/listing-field-metadata';
+import {
+  assertListingImageDimensions,
+  assertSafeListingImageName,
+  readImageDimensions,
+} from '@/features/listings/lib/listing-content-policy';
 
 function normalizeSortOrder(images: ListingImageInput[]): ListingImageInput[] {
   return images.map((img, index) => ({ ...img, sortOrder: index }));
@@ -60,10 +65,28 @@ export function ImagesInput({
     try {
       const uploaded: ListingImageInput[] = [];
       for (const file of batch) {
+        const unsafe = assertSafeListingImageName(file.name);
+        if (unsafe) {
+          toast.error(unsafe.message);
+          continue;
+        }
+        try {
+          const { width, height } = await readImageDimensions(file);
+          const dimIssue = assertListingImageDimensions(width, height);
+          if (dimIssue) {
+            toast.error(dimIssue.message);
+            continue;
+          }
+        } catch {
+          toast.error('Görsel boyutları okunamadı. Farklı bir dosya deneyin.');
+          continue;
+        }
         const url = await uploadListingMedia(userId, file);
         uploaded.push({ url, alt: file.name, sortOrder: value.length + uploaded.length });
       }
-      onChange(normalizeSortOrder([...value, ...uploaded]));
+      if (uploaded.length > 0) {
+        onChange(normalizeSortOrder([...value, ...uploaded]));
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Görsel yüklenemedi');
     } finally {

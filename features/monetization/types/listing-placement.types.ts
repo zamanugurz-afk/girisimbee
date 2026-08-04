@@ -52,6 +52,19 @@ export const STANDARD_PUBLISH_CONFIG = {
   benefits: ['Normal listeleme', 'Arama sonuçlarında görünme'],
 };
 
+/** Required fee to publish / renew a franchise listing (60 days). */
+export const FRANCHISE_PUBLISH_CONFIG = {
+  slug: 'franchise_publish' as const,
+  name: 'Franchise İlan Paketi',
+  priceCents: 100_000,
+  durationDays: 60,
+  benefits: [
+    'Franchise kategorisinde yayın',
+    '60 gün yayında kalma',
+    'Süre sonunda 1.000 TL ile yeniden 60 gün',
+  ],
+} as const;
+
 export const PLACEMENT_PACKAGE_CONFIG: Record<
   PlacementPackageSlug,
   {

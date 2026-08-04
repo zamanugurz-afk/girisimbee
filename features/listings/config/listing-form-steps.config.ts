@@ -81,8 +81,8 @@ const STEP_CV: ListingFormStepDef = {
 
 const STEP_KVKK: ListingFormStepDef = {
   id: 'kvkk',
-  title: 'KVKK Onayları',
-  description: 'Kişisel verilerinizin işlenmesi için gerekli onaylar',
+  title: 'Yayın Onayları',
+  description: 'Telefon paylaşımı ve KVKK onayları — iletişim yalnızca telefon ile yapılır',
   kvkk: true,
 };
 
@@ -107,9 +107,16 @@ const STEP_PUBLISH: ListingFormStepDef = {
   publish: true,
 };
 
-/** Terminal flow shared by all categories: preview → package → publish */
+/** Terminal flow shared by all categories: kvkk (if missing) → preview → package → publish */
 function withPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
-  return [...steps, STEP_PREVIEW, STEP_PACKAGE, STEP_PUBLISH];
+  const hasKvkk = steps.some((step) => step.kvkk);
+  return [
+    ...steps,
+    ...(hasKvkk ? [] : [STEP_KVKK]),
+    STEP_PREVIEW,
+    STEP_PACKAGE,
+    STEP_PUBLISH,
+  ];
 }
 
 /** Category-specific wizard steps keyed by category ID */

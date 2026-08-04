@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${data.listing.title} — Bayilik Al | Girisimco`,
+    title: `${data.listing.title} — Franchise | Girisimco`,
     description: data.listing.shortDescription,
   };
 }
@@ -33,7 +33,7 @@ export default async function FranchiseBuyDetailPage({ params }: PageProps) {
     <FranchiseListingDetailView
       data={data}
       backHref="/franchise/buy"
-      backLabel="Bayilik Al"
+      backLabel="Franchise"
     />
   );
 }

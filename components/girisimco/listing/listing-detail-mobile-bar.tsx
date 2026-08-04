@@ -1,10 +1,10 @@
 'use client';
 
-import { Heart, MessageCircle, UserPlus } from 'lucide-react';
+import { Heart, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
-import { StartConversationButton } from '@/features/messaging/components/start-conversation-button';
+import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
 import type { ListingId } from '@/lib/domain/ids';
@@ -50,19 +50,15 @@ export function ListingDetailMobileBar({ listing }: { listing: ListingDetail }) 
           </Button>
         ) : null}
 
-        {listing.listingId && listing.ownerUserId && !isOwner ? (
-          <StartConversationButton
-            listingId={listing.listingId}
-            ownerUserId={listing.ownerUserId}
-            label="Mesaj gönder"
-            size="default"
+        {!isOwner ? (
+          <ListingCallButton
+            phone={listing.contactPhone}
             className="h-11 flex-[1.4] rounded-2xl"
-            listingTitle={listing.title}
+            label="Ara"
           />
         ) : (
           <Button type="button" className="h-11 flex-1 rounded-2xl" disabled>
-            <MessageCircle className="mr-1.5 h-4 w-4" />
-            Mesaj
+            Sizin ilanınız
           </Button>
         )}
       </div>

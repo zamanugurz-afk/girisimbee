@@ -17,6 +17,7 @@ export const INTENT_TO_CATEGORY_SLUG: Record<CategoryIntentId, string> = {
   'find-job': 'is-bul',
   hire: 'ise-al',
   'find-partner': 'ortak-bul',
+  franchise: 'bayilik-al',
 };
 
 /** Legacy/alternate URL slugs → canonical category slug. */
@@ -66,9 +67,9 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoDescription: 'Kurucu ortak ve iş ortaklığı fırsatları.',
   },
   'bayilik-al': {
-    description: 'Franchise ve bayilik fırsatlarını keşfedin',
-    seoTitle: 'Bayilik Al — Franchise İlanları | Girisimco',
-    seoDescription: 'Türkiye genelinde franchise ve bayilik fırsatlarını keşfedin.',
+    description: 'Yayınlanan franchise fırsatlarını keşfedin',
+    seoTitle: 'Franchise İlanları | Girisimco',
+    seoDescription: 'Türkiye genelinde yayınlanan franchise fırsatlarını keşfedin.',
   },
 };
 

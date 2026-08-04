@@ -40,10 +40,14 @@ export function HomeListingSectionRow({ config, state }: HomeListingSectionRowPr
         </div>
         <Link
           href={config.viewAllHref}
-          className="inline-flex shrink-0 items-center gap-1 text-gc-sm font-medium text-primary transition-colors hover:text-primary/80"
+          className={cn(
+            'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/25',
+            'bg-background/80 px-3 py-1.5 text-gc-sm font-semibold text-primary shadow-sm backdrop-blur-sm',
+            'transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md',
+          )}
         >
           Tümünü gör
-          <ArrowRight className="h-3.5 w-3.5" />
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
 

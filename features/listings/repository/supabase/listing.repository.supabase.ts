@@ -20,7 +20,7 @@ import { LISTING_LIFECYCLE } from '@/features/listings/types/listing.entity.type
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { mapListingRow, toListingRow, toListingUpdateRow, type ListingRow } from '@/features/listings/repository/supabase/listing.mapper';
 import { getSortColumn } from '@/features/listings/utils/listing-sort';
-import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import { computeFranchiseListingExpiry, computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
   logSupabaseError,
   prepareSupabaseWrite,
@@ -39,6 +39,7 @@ import {
   describeSupabaseOtherCityFilter,
   isOtherCityFilter,
 } from '@/features/listings/utils/city-filter';
+import { listingIdRangeFromNumberHex, parseListingNumberQuery } from '@/features/listings/utils/listing-number';
 import { traceListingPublish, logPublicationState, tracePublishFailure } from '@/lib/debug/listing-publish-trace';
 
 const TABLE = 'marketplace_listings';
@@ -228,8 +229,18 @@ export class SupabaseListingRepository implements ListingRepository {
     }
     if (filter.query) {
       const qstr = filter.query.trim();
-      q = q.or(`title.ilike.%${qstr}%,short_description.ilike.%${qstr}%`);
-      supabaseFilterParts.push(`or(title.ilike.%${qstr}%,short_description.ilike.%${qstr}%)`);
+      const numberHex = parseListingNumberQuery(qstr);
+      // Escape commas/periods that break PostgREST `or()` filter strings.
+      const safe = qstr.replace(/[%_,.()]/g, ' ').trim();
+      if (numberHex) {
+        // UUID columns don't support LIKE (`uuid ~~ unknown`). Use id range on first segment.
+        const { lo, hi } = listingIdRangeFromNumberHex(numberHex);
+        q = q.gte('id', lo).lte('id', hi);
+        supabaseFilterParts.push(`id.gte.${lo}`, `id.lte.${hi}`);
+      } else if (safe) {
+        q = q.or(`title.ilike.%${safe}%,short_description.ilike.%${safe}%`);
+        supabaseFilterParts.push(`or(title.ilike.%${safe}%,short_description.ilike.%${safe}%)`);
+      }
     }
 
     if (
@@ -336,13 +347,19 @@ export class SupabaseListingRepository implements ListingRepository {
     const slug = await this.uniqueSlug(input.title);
     const status = input.status ?? 'draft';
     const publishNow = status === 'published';
+    const expiry =
+      publishNow
+        ? input.moduleKey === 'franchise'
+          ? computeFranchiseListingExpiry()
+          : computeListingExpiry()
+        : null;
     const entity = createListing({
       ...input,
       slug,
       status,
       workflowStatus: input.workflowStatus ?? (publishNow ? 'published' : 'draft'),
       publishedAt: publishNow ? now() : null,
-      expiresAt: publishNow ? computeListingExpiry() : null,
+      expiresAt: expiry,
     });
     const row = prepareSupabaseWrite('insert', TABLE, { id: entity.id, ...toListingRow(entity) }, {
       requiredUuidFields: ['id', 'owner_id', 'category_id', 'listing_type_id'],
@@ -453,7 +470,10 @@ export class SupabaseListingRepository implements ListingRepository {
       ...(to === 'published'
         ? {
             published_at: listing.publishedAt ?? now(),
-            expires_at: computeListingExpiry(),
+            expires_at:
+              listing.moduleKey === 'franchise'
+                ? computeFranchiseListingExpiry()
+                : computeListingExpiry(),
             rejected_reason: null,
           }
         : {}),

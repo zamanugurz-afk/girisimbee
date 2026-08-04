@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, MapPin, Phone, Globe, MessageCircle, ExternalLink } from 'lucide-react';
+import { MapPin, ExternalLink } from 'lucide-react';
 import {
   DetailCard,
   DetailSection,
@@ -8,7 +8,6 @@ import {
   DetailSectionIf,
 } from '@/components/girisimco/listing/detail-primitives';
 import type { ExternalContactInfo } from '@/lib/domain/marketplace-enums';
-import { hasExternalContact } from '@/features/shared/lib/external-contact';
 import {
   formatMoney,
   formatPercentage,
@@ -17,65 +16,24 @@ import {
 } from '@/features/franchise/lib/franchise-listing.mapper';
 import type { FranchiseListingDetailViewModel } from '@/features/franchise/types/franchise-listing.types';
 import { toDisplayValue } from '@/features/listings/utils/display-value';
-import { Button } from '@/components/ui/button';
+import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
 
 interface ExternalContactPanelProps {
   contact: ExternalContactInfo;
 }
 
+/** V1: phone-only contact on franchise detail. */
 export function ExternalContactPanel({ contact }: ExternalContactPanelProps) {
-  if (!hasExternalContact(contact)) {
-    return (
-      <DetailCard>
-        <p className="text-sm text-muted-foreground">İletişim bilgisi paylaşılmamış.</p>
-      </DetailCard>
-    );
-  }
-
-  const whatsappHref = contact.whatsapp
-    ? `https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`
-    : null;
+  const phone = contact.phone?.trim() || null;
 
   return (
     <DetailCard>
       <h3 className="text-sm font-semibold text-foreground">İletişim</h3>
-      <div className="mt-4 space-y-2">
-        {contact.phone && (
-          <Button asChild variant="outline" className="w-full justify-start rounded-xl">
-            <a href={`tel:${contact.phone}`}>
-              <Phone className="mr-2 h-4 w-4" />
-              {contact.phone}
-            </a>
-          </Button>
-        )}
-        {whatsappHref && (
-          <Button asChild variant="outline" className="w-full justify-start rounded-xl">
-            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              WhatsApp
-            </a>
-          </Button>
-        )}
-        {contact.email && (
-          <Button asChild variant="outline" className="w-full justify-start rounded-xl">
-            <a href={`mailto:${contact.email}`}>
-              <Mail className="mr-2 h-4 w-4" />
-              {contact.email}
-            </a>
-          </Button>
-        )}
-        {contact.website && (
-          <Button asChild variant="outline" className="w-full justify-start rounded-xl">
-            <a
-              href={contact.website.startsWith('http') ? contact.website : `https://${contact.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Globe className="mr-2 h-4 w-4" />
-              Web sitesi
-            </a>
-          </Button>
-        )}
+      <p className="mt-1 text-xs text-muted-foreground">
+        İlan sahiplerine yalnızca telefon ile ulaşabilirsiniz.
+      </p>
+      <div className="mt-4">
+        <ListingCallButton phone={phone} fullWidth />
       </div>
     </DetailCard>
   );

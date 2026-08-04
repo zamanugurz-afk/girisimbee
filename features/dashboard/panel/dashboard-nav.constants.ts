@@ -94,12 +94,7 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     href: DASHBOARD_ROUTES.favorilerim,
     icon: 'Star',
   },
-  {
-    id: 'mesajlarim',
-    label: 'Mesajlarım',
-    href: DASHBOARD_ROUTES.mesajlarim,
-    icon: 'MessageSquare',
-  },
+  // V1: messaging deferred — phone-only contact on listings
   {
     id: 'bildirimlerim',
     label: 'Bildirimlerim',

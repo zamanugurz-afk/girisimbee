@@ -23,8 +23,8 @@ export const HOME_CATEGORIES = [
     href: '/franchise/buy',
     label: 'Franchise',
     color: GC_CATEGORY_COLORS.franchise,
-    audience: 'Bayilik Al',
-    hint: 'Güvenilir franchise fırsatlarını inceleyin.',
+    audience: 'Franchise fırsatları',
+    hint: 'Yayınlanan franchise ilanlarını keşfedin.',
   },
   {
     slug: 'is-bul',
@@ -45,16 +45,18 @@ export const HOME_CATEGORIES = [
 ] as const;
 
 export const FRANCHISE_FLOW_ROUTES = {
+  /** Unified franchise listings (posted franchise ads only). */
+  listings: '/franchise/buy',
   buy: '/franchise/buy',
-  give: '/franchise/give',
+  give: '/franchise/buy',
 } as const;
 
 export type HomeCategorySlug = (typeof HOME_CATEGORIES)[number]['slug'];
 
 export const HOME_TRUST_SIGNALS = [
   { label: 'Ücretsiz kayıt' },
-  { label: 'Doğrulanmış profiller' },
-  { label: 'Güvenli mesajlaşma' },
+  { label: 'Doğrulanmış telefon' },
+  { label: 'Doğrudan arama' },
 ] as const;
 
 export const HOME_STEPS = [
@@ -65,8 +67,8 @@ export const HOME_STEPS = [
   },
   {
     step: '2',
-    title: 'Doğrudan iletişime geçin',
-    description: 'İlan sahibiyle platform üzerinden mesajlaşın. Aracı yok, gizli ücret yok.',
+    title: 'Doğrudan arayın',
+    description: 'İlan sahibinin doğrulanmış telefonunu arayın. Platform üzerinden mesajlaşma yoktur.',
   },
   {
     step: '3',

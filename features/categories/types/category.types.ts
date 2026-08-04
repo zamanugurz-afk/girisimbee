@@ -3,7 +3,8 @@ export type CategoryIntentId =
   | 'invest'
   | 'find-job'
   | 'hire'
-  | 'find-partner';
+  | 'find-partner'
+  | 'franchise';
 
 /** @deprecated Use CategoryIntentId */
 export type IntentId = CategoryIntentId;

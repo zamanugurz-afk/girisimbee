@@ -29,7 +29,7 @@ import {
 import { activateModule } from '@/features/shared/lib/module-activation';
 import { contactFromFranchiseProfile, contactFromListing } from '@/features/shared/lib/external-contact';
 import { now } from '@/lib/domain/factory';
-import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import { computeFranchiseListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
   ECOSYSTEM_CATEGORY_IDS,
   FRANCHISE_SUBCATEGORY_IDS,
@@ -130,7 +130,7 @@ export class FranchiseService {
     return contactFromListing(listing);
   }
 
-  /** Bayilik Al — browse franchise-give listings */
+  /** Franchise listings — browse published franchise-give ads */
   browseBuyOpportunities(filter: FranchiseListingFilter = {}) {
     return this.listingRepo.findPublished({
       moduleKey: 'franchise',
@@ -141,15 +141,9 @@ export class FranchiseService {
     });
   }
 
-  /** Bayilik Ver — browse franchise-buy seekers */
+  /** @deprecated Prefer browseBuyOpportunities — Al/Ver split removed */
   browseGiveSeekers(filter: FranchiseListingFilter = {}) {
-    return this.listingRepo.findPublished({
-      moduleKey: 'franchise',
-      subcategoryId: FRANCHISE_SUBCATEGORY_IDS['franchise-buy'],
-      city: filter.city,
-      district: filter.district,
-      industry: filter.sector,
-    });
+    return this.browseBuyOpportunities(filter);
   }
 
   async createListing(input: CreateFranchiseListingInput): Promise<Listing> {
@@ -217,7 +211,7 @@ export class FranchiseService {
       status: 'published',
       workflowStatus: 'published',
       publishedAt: listing.publishedAt ?? now(),
-      expiresAt: listing.expiresAt ?? computeListingExpiry(),
+      expiresAt: listing.expiresAt ?? computeFranchiseListingExpiry(),
     });
   }
 

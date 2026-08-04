@@ -17,6 +17,14 @@ import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
+
+/** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
+const TITLE_CASE_FIELD_KEYS = new Set([
+  'companyName',
+  'brandName',
+  'displayName',
+]);
 
 export interface DynamicFieldProps {
   field: ListingFieldDefinition;
@@ -70,21 +78,36 @@ function FieldControl({
   const stringValue = String(value ?? '');
   const stringLength = stringValue.length;
 
+  function applyTitleCaseIfNeeded() {
+    if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
+    const next = autoCorrectTurkishText(stringValue, 'title');
+    if (next !== stringValue) onChange(next);
+  }
+
   switch (field.type) {
     case 'string':
       return (
         <>
           <Input
             id={id}
+            lang="tr"
+            spellCheck
             value={stringValue}
             onChange={(e) => onChange(e.target.value)}
+            onBlur={applyTitleCaseIfNeeded}
             disabled={disabled}
             placeholder={ui.placeholder ?? `${field.label} girin`}
             maxLength={ui.maxLength}
             className={formControlErrorClass(error)}
           />
           <FormFieldFooter
-            helperText={ui.helperText}
+            helperText={
+              TITLE_CASE_FIELD_KEYS.has(field.key)
+                ? (ui.helperText
+                    ? `${ui.helperText} Her kelimenin ilk harfi büyük olur.`
+                    : 'Her kelimenin ilk harfi büyük olmalıdır. Alanı terk edince otomatik düzeltilir.')
+                : ui.helperText
+            }
             error={error}
             currentLength={ui.maxLength ? stringLength : undefined}
             maxLength={ui.maxLength}

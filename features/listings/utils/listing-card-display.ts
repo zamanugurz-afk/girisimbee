@@ -41,9 +41,9 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   'is-ariyorum': { emoji: '💼', label: 'İŞ ARIYORUM', group: 'is' },
   'ise-aliyorum': { emoji: '🏢', label: 'İŞ VERİYORUM', group: 'is' },
   'ortak-ariyorum': { emoji: '🤝', label: 'ORTAK ARIYORUM', group: 'ortaklik' },
-  'franchise-ilan-ver': { emoji: '🏪', label: 'BAYİLİK VERİYORUM', group: 'franchise' },
-  'bayilik-al': { emoji: '🏪', label: 'BAYİLİK ARIYORUM', group: 'franchise' },
-  'bayilik-ver': { emoji: '🏪', label: 'BAYİLİK VERİYORUM', group: 'franchise' },
+  'franchise-ilan-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
+  'bayilik-al': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
+  'bayilik-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
 };
 
 /** Intent category IDs (c-prefix) → display. Parent marketplace categories are ambiguous. */

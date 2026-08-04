@@ -28,6 +28,7 @@ function hasInvestmentFacts(listing: ListingDetail): boolean {
     investment.equity,
     investment.stage,
     investment.industry,
+    investment.useOfFunds,
     investment.companyAge,
     investment.website,
   ].some((value) => !isEmptyDisplayValue(value));
@@ -42,23 +43,47 @@ function hasCompanyFacts(listing: ListingDetail): boolean {
     company.website,
     company.employees,
     company.founded,
+    company.sector,
+    company.branchCount,
   ].some((value) => !isEmptyDisplayValue(value));
+}
+
+function isFranchiseBrandListing(listing: ListingDetail): boolean {
+  return listing.category.id === 'franchise'
+    || Boolean(listing.company.branchCount)
+    || Boolean(listing.company.sector && listing.company.founded);
+}
+
+function customFactsSectionTitle(listing: ListingDetail): string {
+  switch (listing.category.id) {
+    case 'find-job':
+      return 'Kariyer Bilgileri';
+    case 'hire':
+      return 'Pozisyon Detayları';
+    case 'find-partner':
+      return 'Ortaklık Bilgileri';
+    case 'find-investment':
+    case 'invest':
+      return 'Ek Bilgiler';
+    case 'franchise':
+      return 'Marka Detayları';
+    default:
+      return 'Detaylar';
+  }
 }
 
 export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showInvestment = INVESTMENT_CATEGORIES.has(listing.category.id) && hasInvestmentFacts(listing);
   const showCustomFacts = (listing.customFacts?.length ?? 0) > 0;
-  const showCompany = hasCompanyFacts(listing);
+  const showCompany = hasCompanyFacts(listing) && listing.category.id !== 'find-investment';
+  const companySectionTitle = isFranchiseBrandListing(listing)
+    ? 'Marka bilgileri'
+    : 'Şirket bilgileri';
   const showAttachments = listing.attachments.length > 0;
   const showTimeline = listing.timeline.length > 0;
   const showAbout = !isEmptyDisplayValue(listing.longDescription);
-
-  const customFactsTitle =
-    listing.category.id === 'find-job' || listing.category.id === 'hire'
-      ? 'Kariyer Bilgileri'
-      : listing.category.id === 'find-partner'
-        ? 'Ortaklık Bilgileri'
-        : 'Detaylar';
+  const customFactsTitle = customFactsSectionTitle(listing);
+  const isSeekingInvestment = listing.category.id === 'find-investment';
 
   return (
     <div className="space-y-8">
@@ -79,16 +104,24 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         <DetailSectionIf title="Yatırım bilgileri" visible={showInvestment}>
           <DetailCard>
             <FactGrid>
-              <FactRow label="Aranan yatırım" value={listing.investment.requested} />
+              <FactRow
+                label={isSeekingInvestment ? 'Aranan yatırım' : 'Yatırım tutarı'}
+                value={listing.investment.requested}
+              />
               <FactRow label="Sunulan hisse" value={listing.investment.equity} />
               <FactRow label="Aşama" value={listing.investment.stage} />
-              <FactRow label="Sektör" value={listing.investment.industry} />
-              <FactRow label="Şirket yaşı" value={listing.investment.companyAge} />
-              <FactRow
-                label="Website"
-                value={listing.investment.website}
-                href={listing.investment.website}
-              />
+              {isSeekingInvestment ? (
+                <FactRow label="Fon kullanımı" value={listing.investment.useOfFunds} />
+              ) : (
+                <FactRow label="Sektörler" value={listing.investment.industry} />
+              )}
+              {!isSeekingInvestment ? (
+                <FactRow
+                  label="Website"
+                  value={listing.investment.website}
+                  href={listing.investment.website}
+                />
+              ) : null}
             </FactGrid>
           </DetailCard>
         </DetailSectionIf>
@@ -107,7 +140,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
       ) : null}
 
       {showCompany ? (
-        <DetailSectionIf title="Şirket bilgileri" visible={showCompany}>
+        <DetailSectionIf title={companySectionTitle} visible={showCompany}>
           <DetailCard>
             {!isEmptyDisplayValue(listing.company.name) ? (
               <div className="flex items-start gap-4">
@@ -133,14 +166,16 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
               )}
             >
               <FactGrid>
-                <FactRow label="Şehir" value={listing.company.city} />
+                <FactRow label="Sektör" value={listing.company.sector} />
+                <FactRow label="Kuruluş yılı" value={listing.company.founded} />
+                <FactRow label="Şube sayısı" value={listing.company.branchCount} />
                 <FactRow
                   label="Website"
                   value={listing.company.website}
                   href={listing.company.website}
                 />
                 <FactRow label="Çalışan sayısı" value={listing.company.employees} />
-                <FactRow label="Kuruluş" value={listing.company.founded} />
+                <FactRow label="Merkez şehir" value={listing.company.city} />
               </FactGrid>
             </div>
           </DetailCard>
@@ -152,16 +187,8 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
           <div className="grid gap-3 sm:grid-cols-2">
             {listing.attachments.map((file) => {
               const Icon = attachmentIcons[file.type];
-              return (
-                <button
-                  key={file.id}
-                  type="button"
-                  className={cn(
-                    'flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left transition-all duration-200',
-                    'hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md',
-                    'dark:border-white/10 dark:bg-card/90',
-                  )}
-                >
+              const content = (
+                <>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-muted/40 dark:bg-white/5">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                   </div>
@@ -171,7 +198,32 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
                       <p className="text-xs text-muted-foreground">{file.meta}</p>
                     ) : null}
                   </div>
-                </button>
+                </>
+              );
+              const className = cn(
+                'flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left transition-all duration-200',
+                'hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md',
+                'dark:border-white/10 dark:bg-card/90',
+              );
+
+              if (file.url) {
+                return (
+                  <a
+                    key={file.id}
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                  >
+                    {content}
+                  </a>
+                );
+              }
+
+              return (
+                <div key={file.id} className={className}>
+                  {content}
+                </div>
               );
             })}
           </div>

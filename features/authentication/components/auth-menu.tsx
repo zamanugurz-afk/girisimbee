@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   LayoutList,
   LogOut,
-  MessageSquare,
   Settings,
   Shield,
   User,
@@ -128,12 +127,6 @@ export function AuthMenu() {
           <Link href="/dashboard/favorilerim" className="cursor-pointer">
             <Heart className="mr-2 h-4 w-4" />
             Favorilerim
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/mesajlarim" className="cursor-pointer">
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Mesajlarım
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

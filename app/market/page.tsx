@@ -1,17 +1,12 @@
 import type { Metadata } from 'next';
-import { MarketplaceBrowseView } from '@/components/girisimco/marketplace/marketplace-browse-view';
+import { MarketCatalogView } from '@/components/girisimco/market/MarketCatalogView';
 
 export const metadata: Metadata = {
-  title: 'MARKET — Güncel İlanlar — Girisimco',
+  title: 'MARKET — Fırsat ve İşbirlikleri — Girisimco',
   description:
-    'Girişimco MARKET üzerinden platformdaki tüm güncel yatırım, kariyer, ortaklık ve franchise ilanlarını keşfedin.',
+    'Girişimco MARKET üzerindeki seçili fırsat ve iş birliği reklamlarını keşfedin.',
 };
 
 export default function MarketPage() {
-  return (
-    <MarketplaceBrowseView
-      title="Girişimco MARKET"
-      description="Platformdaki tüm güncel yatırım, ortaklık, kariyer ve franchise ilanlarını keşfedin."
-    />
-  );
+  return <MarketCatalogView />;
 }

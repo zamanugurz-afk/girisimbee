@@ -6,6 +6,7 @@ import type { ListingDetail } from '@/features/listings/types/listing.types';
 import type { ListingId } from '@/lib/domain/ids';
 import { uuidSchema } from '@/lib/domain/validation';
 import { profileSpan, recordCacheMiss } from '@/lib/perf/navigation-profile';
+import { parseListingNumberQuery } from '@/features/listings/utils/listing-number';
 
 /** Shared loader for listing page + generateMetadata. */
 export const loadListingDetail = cache(async (idOrSlug: string): Promise<ListingDetail | null> => {
@@ -13,10 +14,24 @@ export const loadListingDetail = cache(async (idOrSlug: string): Promise<Listing
   return profileSpan('loadListingDetail', async () => {
     try {
       const container = getServerContainer(createClient());
-      const isUuid = uuidSchema.safeParse(idOrSlug.trim()).success;
-      const aggregate = isUuid
-        ? await container.listingEngine.getListing(idOrSlug as ListingId)
-        : await container.listingEngine.getListingBySlug(idOrSlug);
+      const raw = idOrSlug.trim();
+      const isUuid = uuidSchema.safeParse(raw).success;
+
+      let aggregate = isUuid
+        ? await container.listingEngine.getListing(raw as ListingId)
+        : await container.listingEngine.getListingBySlug(raw);
+
+      // Allow opening detail via listing number (e.g. /ilan/GC-A1B2C3D4).
+      if (!aggregate && parseListingNumberQuery(raw)) {
+        const byNumber = await container.listingRepository.findMany(
+          { query: raw, status: 'published', includeDeleted: false },
+          { page: 1, limit: 1 },
+        );
+        const hit = byNumber.items[0];
+        if (hit) {
+          aggregate = await container.listingEngine.getListing(hit.id);
+        }
+      }
 
       if (!aggregate) return null;
 

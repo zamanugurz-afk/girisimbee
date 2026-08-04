@@ -10,6 +10,7 @@ const DETAIL_KEYS = [
   'experienceYearsMax',
   'educationLevel',
   'employmentType',
+  'workType',
   'salaryMin',
   'salaryMax',
   'positionTitle',

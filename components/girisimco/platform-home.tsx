@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   ArrowRight,
   Briefcase,
@@ -15,7 +14,6 @@ import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { HomeListingsModule } from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
-import { FranchiseFlowDialog } from '@/components/girisimco/home/franchise-flow-dialog';
 import {
   HOME_CATEGORIES,
   type HomeCategorySlug,
@@ -61,13 +59,7 @@ const CATEGORY_CARD_STYLES: Record<
   },
 };
 
-function CategoryCard({
-  cat,
-  onFranchiseClick,
-}: {
-  cat: (typeof HOME_CATEGORIES)[number];
-  onFranchiseClick?: () => void;
-}) {
+function CategoryCard({ cat }: { cat: (typeof HOME_CATEGORIES)[number] }) {
   const Icon = CATEGORY_ICONS[cat.slug];
   const styles = CATEGORY_CARD_STYLES[cat.slug];
   const className = cn(
@@ -77,8 +69,9 @@ function CategoryCard({
     styles.border,
     styles.glow,
   );
-  const content = (
-    <>
+
+  return (
+    <Link href={cat.href} className={className}>
       <div
         className={cn(
           'pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b',
@@ -112,32 +105,15 @@ function CategoryCard({
         Keşfet
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </span>
-    </>
-  );
-
-  if (cat.slug === 'franchise') {
-    return (
-      <button type="button" onClick={onFranchiseClick} className={className}>
-        {content}
-      </button>
-    );
-  }
-
-  return (
-    <Link href={cat.href} className={className}>
-      {content}
     </Link>
   );
 }
 
 export function PlatformHome() {
-  const [franchiseDialogOpen, setFranchiseDialogOpen] = useState(false);
-
   return (
     <div className="gc-header-offset">
       <PlatformHero />
 
-      {/* ── Intent gateway: category cards ── */}
       <section className="-mt-12 border-b border-border/60">
         <div className="mx-auto max-w-7xl px-5 pb-8 lg:px-8 lg:pb-10">
           <ScrollReveal>
@@ -152,17 +128,12 @@ export function PlatformHome() {
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {HOME_CATEGORIES.map((cat, index) => (
               <ScrollReveal key={cat.slug} delay={Math.min(index * 30, 90)}>
-                <CategoryCard
-                  cat={cat}
-                  onFranchiseClick={() => setFranchiseDialogOpen(true)}
-                />
+                <CategoryCard cat={cat} />
               </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
-
-      <FranchiseFlowDialog open={franchiseDialogOpen} onOpenChange={setFranchiseDialogOpen} />
 
       <HomeMarketSection />
 

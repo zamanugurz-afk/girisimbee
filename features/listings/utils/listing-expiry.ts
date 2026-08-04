@@ -1,7 +1,15 @@
 export const LISTING_EXPIRY_DAYS = 90;
+export const FRANCHISE_LISTING_EXPIRY_DAYS = 60;
 
-export function computeListingExpiry(from: Date = new Date()): string {
+export function computeListingExpiry(
+  from: Date = new Date(),
+  days: number = LISTING_EXPIRY_DAYS,
+): string {
   const expiry = new Date(from);
-  expiry.setDate(expiry.getDate() + LISTING_EXPIRY_DAYS);
+  expiry.setDate(expiry.getDate() + days);
   return expiry.toISOString();
+}
+
+export function computeFranchiseListingExpiry(from: Date = new Date()): string {
+  return computeListingExpiry(from, FRANCHISE_LISTING_EXPIRY_DAYS);
 }

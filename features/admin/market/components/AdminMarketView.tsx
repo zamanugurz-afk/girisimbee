@@ -214,7 +214,7 @@ export function AdminMarketView() {
   return (
     <AdminPageShell
       title="MARKET"
-      description="Ana sayfada gösterilecek MARKET kartlarını yönetin. En fazla 5 kart yayınlanabilir. Şimdilik mock veri kullanılıyor; veritabanı bağlantısı sonra eklenecek."
+      description="Sponsorlu MARKET reklamlarını yönetin. Yalnızca admin ve süper admin reklam oluşturabilir; kullanıcılar reklam veremez. En fazla 5 kart yayınlanabilir. Şimdilik mock veri kullanılıyor."
       toolbar={
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
@@ -222,6 +222,9 @@ export function AdminMarketView() {
             {MARKET_MAX_PUBLISHED}
             <span className="ml-2 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">
               Mock veri
+            </span>
+            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+              Admin / süper admin
             </span>
             {!canWrite ? (
               <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
@@ -393,7 +396,7 @@ export function AdminMarketView() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="market-link">Bağlantı URL</Label>
+              <Label htmlFor="market-link">Fırsat bağlantısı URL</Label>
               <Input
                 id="market-link"
                 value={form.linkUrl}
