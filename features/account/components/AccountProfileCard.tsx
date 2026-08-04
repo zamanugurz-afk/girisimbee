@@ -13,18 +13,63 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+function VerificationRow({
+  label,
+  verified,
+  onVerify,
+  verifyLabel,
+}: {
+  label: string;
+  verified: boolean;
+  onVerify?: () => void;
+  verifyLabel: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <dt className="w-44 shrink-0 text-sm text-muted-foreground">{label}</dt>
+      <dd className="flex flex-wrap items-center gap-2">
+        <Badge variant={verified ? 'default' : 'outline'}>
+          {verified ? 'Doğrulandı' : 'Doğrulanmadı'}
+        </Badge>
+        {!verified && onVerify ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="h-7 rounded-lg px-2.5 text-xs"
+            onClick={onVerify}
+          >
+            {verifyLabel}
+          </Button>
+        ) : null}
+      </dd>
+    </div>
+  );
+}
+
 export function AccountProfileCard({
   profile,
   onEdit,
+  onVerifyEmail,
+  onVerifyPhone,
+  emailVerified,
+  emailDisplay,
 }: {
   profile: AccountProfile;
   onEdit: () => void;
+  onVerifyEmail?: () => void;
+  onVerifyPhone?: () => void;
+  /** Supabase Auth `email_confirmed_at` — source of truth for the badge. */
+  emailVerified: boolean;
+  /** Prefer Auth session email when account profile email is empty. */
+  emailDisplay?: string;
   onChangeEmail?: () => void;
   onChangePhone?: () => void;
   onFreeze?: () => void;
   onDelete?: () => void;
 }) {
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+  const email = (emailDisplay ?? profile.email ?? '').trim();
 
   return (
     <AccountPanelCard>
@@ -34,7 +79,7 @@ export function AccountProfileCard({
             Profil bilgileri
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Hesabınıza ait temel kimlik bilgileri.
+            Hesabınıza ait temel kimlik bilgileri. E-posta ve telefon doğrulamasını buradan yapabilirsiniz.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -51,23 +96,19 @@ export function AccountProfileCard({
         <Row label="Ad soyad" value={fullName} />
         <Row label="Kullanıcı adı" value={profile.username ? `@${profile.username}` : ''} />
         <Row label="Telefon" value={profile.phone ?? ''} />
-        <Row label="E-posta" value={profile.email ?? ''} />
-        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
-          <dt className="w-44 shrink-0 text-sm text-muted-foreground">E-posta doğrulama</dt>
-          <dd>
-            <Badge variant={profile.emailVerified ? 'default' : 'outline'}>
-              {profile.emailVerified ? 'Doğrulandı' : 'Doğrulanmadı'}
-            </Badge>
-          </dd>
-        </div>
-        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
-          <dt className="w-44 shrink-0 text-sm text-muted-foreground">Telefon doğrulama</dt>
-          <dd>
-            <Badge variant={profile.phoneVerified ? 'default' : 'outline'}>
-              {profile.phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı'}
-            </Badge>
-          </dd>
-        </div>
+        <Row label="E-posta" value={email} />
+        <VerificationRow
+          label="E-posta doğrulama"
+          verified={emailVerified}
+          onVerify={onVerifyEmail}
+          verifyLabel="Doğrula"
+        />
+        <VerificationRow
+          label="Telefon doğrulama"
+          verified={profile.phoneVerified}
+          onVerify={onVerifyPhone}
+          verifyLabel={profile.phone ? 'Doğrula' : 'Telefon ekle / doğrula'}
+        />
       </dl>
     </AccountPanelCard>
   );

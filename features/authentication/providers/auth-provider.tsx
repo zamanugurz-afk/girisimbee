@@ -215,12 +215,25 @@ export function AuthProvider({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      // Token refresh: keep existing profile/role; only clear loading.
-      // If we never hydrated a user, still apply the session.
+      // Token refresh: keep role, but sync email_confirmed_at for verification badge.
       if (event === 'TOKEN_REFRESHED') {
         if (!userRef.current && session) {
           await applySession(session);
           return;
+        }
+        if (session?.user && userRef.current) {
+          const confirmed = Boolean(session.user.email_confirmed_at);
+          const email = session.user.email ?? userRef.current.email;
+          if (
+            confirmed !== userRef.current.emailVerified
+            || (email && email !== userRef.current.email)
+          ) {
+            setUser((prev) =>
+              prev
+                ? { ...prev, emailVerified: confirmed, email: email || prev.email }
+                : prev,
+            );
+          }
         }
         setIsLoading(false);
         return;
