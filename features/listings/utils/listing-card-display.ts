@@ -7,7 +7,7 @@ import {
 } from '@/features/listings/config/marketplace-category-map';
 import { toDisplayValue } from '@/features/listings/utils/display-value';
 
-export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise';
+export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise' | 'genel' | 'dijital';
 
 /** Group accent colors — sourced from existing Girisimco palette. */
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
@@ -15,6 +15,8 @@ export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
   is: '#60A5FA',
   ortaklik: '#F59E0B',
   franchise: '#22C55E',
+  genel: '#0EA5E9',
+  dijital: '#8B5CF6',
 };
 
 export const LISTING_CARD_GROUP_LABELS: Record<ListingCardGroup, string> = {
@@ -22,6 +24,8 @@ export const LISTING_CARD_GROUP_LABELS: Record<ListingCardGroup, string> = {
   is: 'İş',
   ortaklik: 'Ortaklık',
   franchise: 'Franchise',
+  genel: 'İlan',
+  dijital: 'Dijital & AI',
 };
 
 interface ListingTypeDisplay {
@@ -39,11 +43,13 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   'yatirim-ariyorum': { emoji: '🚀', label: 'YATIRIM ARIYORUM', group: 'yatirim' },
   'yatirim-yapiyorum': { emoji: '💰', label: 'YATIRIM YAPIYORUM', group: 'yatirim' },
   'is-ariyorum': { emoji: '💼', label: 'İŞ ARIYORUM', group: 'is' },
-  'ise-aliyorum': { emoji: '🏢', label: 'İŞ VERİYORUM', group: 'is' },
+  'ise-aliyorum': { emoji: '🏢', label: 'İŞ İLANI', group: 'is' },
   'ortak-ariyorum': { emoji: '🤝', label: 'ORTAK ARIYORUM', group: 'ortaklik' },
   'franchise-ilan-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
   'bayilik-al': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
   'bayilik-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
+  'genel-ilan': { emoji: '📢', label: 'İLAN', group: 'genel' },
+  'dijital-ai-cozum': { emoji: '✨', label: 'DİJİTAL & AI', group: 'dijital' },
 };
 
 /** Intent category IDs (c-prefix) → display. Parent marketplace categories are ambiguous. */
@@ -54,6 +60,8 @@ const CATEGORY_ID_DISPLAY: Record<string, ListingTypeDisplay> = {
   [CATEGORY_IDS.iseAl]: LISTING_TYPE_SLUG_DISPLAY['ise-aliyorum'],
   [CATEGORY_IDS.ortakBul]: LISTING_TYPE_SLUG_DISPLAY['ortak-ariyorum'],
   [CATEGORY_IDS.bayilikAl]: LISTING_TYPE_SLUG_DISPLAY['franchise-ilan-ver'],
+  [CATEGORY_IDS.genelIlan]: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
+  [CATEGORY_IDS.dijitalAi]: LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
 };
 
 /** App + live DB listing type IDs → display (unambiguous). */
@@ -64,6 +72,8 @@ const LISTING_TYPE_ID_DISPLAY: Record<string, ListingTypeDisplay> = {
   [LISTING_TYPE_IDS.iseAlDefault]: LISTING_TYPE_SLUG_DISPLAY['ise-aliyorum'],
   [LISTING_TYPE_IDS.ortakBulDefault]: LISTING_TYPE_SLUG_DISPLAY['ortak-ariyorum'],
   [LISTING_TYPE_IDS.franchiseGiveDefault]: LISTING_TYPE_SLUG_DISPLAY['bayilik-ver'],
+  [LISTING_TYPE_IDS.genelIlanDefault]: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
+  [LISTING_TYPE_IDS.dijitalAiDefault]: LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: LISTING_TYPE_SLUG_DISPLAY['yatirim-ariyorum'],
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimYapiyorum]: LISTING_TYPE_SLUG_DISPLAY['yatirim-yapiyorum'],
   [MARKETPLACE_LISTING_TYPE_IDS.isAriyorum]: LISTING_TYPE_SLUG_DISPLAY['is-ariyorum'],
@@ -82,6 +92,8 @@ const CATEGORY_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   franchise: LISTING_TYPE_SLUG_DISPLAY['franchise-ilan-ver'],
   'bayilik-al': LISTING_TYPE_SLUG_DISPLAY['bayilik-al'],
   'bayilik-ver': LISTING_TYPE_SLUG_DISPLAY['bayilik-ver'],
+  ilan: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
+  'dijital-ai': LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
 };
 
 const MODULE_KEY_DISPLAY: Record<ModuleKey, ListingTypeDisplay> = {
@@ -173,6 +185,11 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
   if (group === 'ortaklik') {
     const partnership = toDisplayValue(cf.partnershipType) || toDisplayValue(listing.partnerDetails?.partnerType);
     if (partnership) return partnership;
+  }
+
+  if (group === 'dijital' || group === 'genel') {
+    const price = toDisplayValue(cf.priceRange);
+    if (price) return price;
   }
 
   return undefined;

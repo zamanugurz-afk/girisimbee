@@ -1,5 +1,7 @@
 import type { ListingAggregate } from '@/features/listings/types/listing-engine.types';
 import type { ListingDetail, ListingPublisher } from '@/features/listings/types/listing.types';
+import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
+import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
 import type { Profile } from '@/features/profiles/types/profile.types';
 import type { Company } from '@/features/companies/types/company.types';
@@ -19,6 +21,8 @@ import {
   PARTNER_FIELD_SCHEMA,
   SEEKING_INVESTMENT_FIELD_SCHEMA,
   FRANCHISE_GIVE_FIELD_SCHEMA,
+  GENERAL_LISTING_FIELD_SCHEMA,
+  DIGITAL_AI_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
@@ -55,6 +59,9 @@ const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
   'useOfFunds',
 ]);
 
+/** Shown as feature cards on Digital & AI detail — omit from flat fact rows. */
+const DIGITAL_AI_CAPABILITY_FACT_KEYS = new Set(['capabilities']);
+
 /** Form schema key → possible stored aliases after module publish remap. */
 const CUSTOM_FIELD_ALIASES: Record<string, string[]> = {
   stage: ['stage', 'investmentStage'],
@@ -84,6 +91,8 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'ortak-bul': PARTNER_FIELD_SCHEMA,
   'bayilik-al': FRANCHISE_GIVE_FIELD_SCHEMA,
   franchise: FRANCHISE_GIVE_FIELD_SCHEMA,
+  ilan: GENERAL_LISTING_FIELD_SCHEMA,
+  'dijital-ai': DIGITAL_AI_FIELD_SCHEMA,
 };
 
 const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
@@ -93,6 +102,8 @@ const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
   [LISTING_TYPE_IDS.iseAlDefault]: 'ise-al',
   [LISTING_TYPE_IDS.ortakBulDefault]: 'ortak-bul',
   [LISTING_TYPE_IDS.franchiseGiveDefault]: 'bayilik-al',
+  [LISTING_TYPE_IDS.genelIlanDefault]: 'ilan',
+  [LISTING_TYPE_IDS.dijitalAiDefault]: 'dijital-ai',
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: 'yatirim-bul',
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimYapiyorum]: 'yatirim-yap',
   [MARKETPLACE_LISTING_TYPE_IDS.isAriyorum]: 'is-bul',
@@ -120,6 +131,8 @@ const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
   'franchise-ilan-ver': 'bayilik-al',
   'bayilik-al': 'bayilik-al',
   'bayilik-ver': 'bayilik-al',
+  'genel-ilan': 'ilan',
+  'dijital-ai-cozum': 'dijital-ai',
 };
 
 function resolveDetailCategorySlug(listing: Listing): string {
@@ -168,6 +181,7 @@ function buildCustomFacts(
   const facts = schema.fields
     .filter((field) => !COMPANY_BLOCK_CUSTOM_KEYS.has(field.key))
     .filter((field) => !(hideInvestmentKeys && INVESTMENT_BLOCK_CUSTOM_KEYS.has(field.key)))
+    .filter((field) => !(categorySlug === 'dijital-ai' && DIGITAL_AI_CAPABILITY_FACT_KEYS.has(field.key)))
     .map((field) => {
       const aliases = CUSTOM_FIELD_ALIASES[field.key] ?? [field.key];
       return {
@@ -203,8 +217,10 @@ export function aggregateToListingDetail(
     .filter((part) => !isEmptyDisplayValue(part));
   const location = locationParts.join(', ') || toDisplayValue(listing.location);
 
-  const publisher = buildPublisher(listing.companyId, context);
+  const publisher = buildPublisher(listing.companyId, listing.ownerId, context);
   const customFacts = buildCustomFacts(categorySlug, cf);
+  const capabilityModules: DigitalAiCapability[] =
+    categorySlug === 'dijital-ai' ? resolveDigitalAiCapabilities(cf.capabilities) : [];
 
   const equityRaw = readCf(cf, 'equityOffered');
   const equityDisplay = equityRaw != null && equityRaw !== ''
@@ -270,9 +286,15 @@ export function aggregateToListingDetail(
 
   const resolvedIntent: CategoryIntentId =
     SLUG_TO_INTENT[categorySlug]
-    ?? (categorySlug === 'bayilik-al' || categorySlug === 'franchise'
-      ? 'franchise'
-      : 'find-investment');
+    ?? (categorySlug === 'is-bul'
+      ? 'find-job'
+      : categorySlug === 'bayilik-al' || categorySlug === 'franchise'
+        ? 'franchise'
+        : 'find-investment');
+
+  const metaLabel =
+    CATEGORY_PAGE_CONFIG[categorySlug]?.label
+    ?? (categorySlug === 'is-bul' ? 'İş İlanı' : undefined);
 
   const languageTags = Array.isArray(cf.languageTags)
     ? (cf.languageTags as unknown[]).map((t) => String(t).trim()).filter(Boolean)
@@ -290,13 +312,14 @@ export function aggregateToListingDetail(
     listingNumber: formatListingNumber(listing.id),
     ownerUserId: listing.ownerId,
     contactPhone:
-      toDisplayValue(listing.contactPhone)
-      || toDisplayValue(context?.profile?.phone)
+      // Membership phone is source of truth; listing snapshot is fallback for older ads.
+      toDisplayValue(context?.profile?.phone)
+      || toDisplayValue(listing.contactPhone)
       || null,
     companyId: listing.companyId,
     category: {
       id: resolvedIntent,
-      label: meta?.label ?? category?.name ?? 'İlan',
+      label: metaLabel ?? meta?.label ?? category?.name ?? 'İlan',
       accent: meta?.accent ?? category?.accentColor ?? '#6366F1',
     },
     title: listing.title,
@@ -349,11 +372,13 @@ export function aggregateToListingDetail(
     })),
     similar: [],
     customFacts,
+    capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
   };
 }
 
 function buildPublisher(
   companyId: string | null,
+  ownerUserId: string,
   context?: { profile?: Profile | null; company?: Company | null },
 ): ListingPublisher {
   const profileTrust = trustFromProfile(context?.profile);
@@ -390,7 +415,11 @@ function buildPublisher(
     initials: (profile?.displayName ?? 'K').slice(0, 2).toUpperCase(),
     verified: hasAnyTrustBadge(trust),
     trust,
-    href: profile?.username ? `/profil/${profile.username}` : '#',
+    href: profile?.username
+      ? `/profil/${profile.username}`
+      : ownerUserId
+        ? `/uye/${ownerUserId}`
+        : '#',
     subtitle: profile?.headline ?? 'Kişisel ilan',
   };
 }

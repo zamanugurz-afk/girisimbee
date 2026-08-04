@@ -22,6 +22,9 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/jobs',
   '/hire',
   '/partners',
+  '/dijital-ai',
+  '/franchise',
+  '/market',
   '/ara',
   '/kesfet',
   '/giris',
@@ -55,9 +58,9 @@ export const PROTECTED_ROUTE_PREFIXES = [
   '/admin',
 ] as const;
 
-/** Public profile pages: /profil/[username] */
+/** Public profile pages: /profil/[username] or /uye/[userId] */
 export function isPublicProfileRoute(pathname: string): boolean {
-  return /^\/profil\/[^/]+$/.test(pathname);
+  return /^\/profil\/[^/]+$/.test(pathname) || /^\/uye\/[^/]+$/.test(pathname);
 }
 
 export function isProtectedProfileRoute(pathname: string): boolean {

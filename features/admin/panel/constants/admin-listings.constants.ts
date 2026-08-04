@@ -16,12 +16,14 @@ export const ADMIN_LISTING_STATUS_LABELS: Record<AdminListingStatus, string> = {
   deleted: 'Silindi',
 };
 
+/** Must match LISTING_CARD_GROUP_LABELS used by map-live-admin. */
 export const ADMIN_LISTING_CATEGORIES = [
   'Yatırım',
-  'Franchise',
-  'İş ilanı',
-  'Startup',
+  'İş',
   'Ortaklık',
+  'Franchise',
+  'Dijital & AI',
+  'İlan',
 ] as const;
 
 export type AdminListingCategory = (typeof ADMIN_LISTING_CATEGORIES)[number];

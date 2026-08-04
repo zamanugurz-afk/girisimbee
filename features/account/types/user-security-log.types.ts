@@ -7,6 +7,8 @@ export type UserSecurityAction =
   | 'password_reset_request'
   | 'password_reset_complete'
   | 'email_verified'
+  | 'phone_otp_sent'
+  | 'phone_verified'
   | 'session_refresh'
   | 'profile_update'
   | 'settings_update'

@@ -8,6 +8,15 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? AUTH_ROUTES.dashboard;
+  const oauthError = searchParams.get('error');
+  const oauthDesc = searchParams.get('error_description');
+
+  if (oauthError) {
+    const msg = encodeURIComponent(oauthDesc || oauthError);
+    return NextResponse.redirect(
+      `${origin}${AUTH_ROUTES.login}?error=oauth_provider&message=${msg}`,
+    );
+  }
 
   if (code) {
     const supabase = createClient();
@@ -20,13 +29,22 @@ export async function GET(request: Request) {
         if (user) {
           await ensureOAuthAccountBootstrap(user);
         }
-      } catch {
-        // Profile bootstrap may fail if tables are not migrated — session still valid.
+      } catch (bootstrapError) {
+        const message =
+          bootstrapError instanceof Error
+            ? bootstrapError.message
+            : 'Hesap profili oluşturulamadı';
+        return NextResponse.redirect(
+          `${origin}${AUTH_ROUTES.login}?error=oauth_bootstrap&message=${encodeURIComponent(message)}`,
+        );
       }
 
-      // Google OAuth defaults to /hesabim when next points there; email verify may use dashboard.
       return NextResponse.redirect(`${origin}${next}`);
     }
+
+    return NextResponse.redirect(
+      `${origin}${AUTH_ROUTES.login}?error=auth_callback_failed&message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   return NextResponse.redirect(`${origin}${AUTH_ROUTES.login}?error=auth_callback_failed`);

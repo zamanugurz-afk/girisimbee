@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Building2, Globe, Linkedin, MapPin, Pencil } from 'lucide-react';
 import { ContentCard as ListingCard } from '@/components/girisimco/content-card';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
+import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import type { PublicProfileView } from '@/features/profiles/types/profile-public.types';
 import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
@@ -14,7 +16,8 @@ interface PublicProfilePageViewProps {
   data: PublicProfileView;
 }
 
-export function PublicProfilePageView({ data }: PublicProfilePageViewProps) {
+export function PublicProfilePageView({ data: initialData }: PublicProfilePageViewProps) {
+  const [data, setData] = useState(initialData);
   const { profile, stats, listings, isOwner } = data;
   const listingItems = listingsToContentItems(
     listings,
@@ -83,11 +86,31 @@ export function PublicProfilePageView({ data }: PublicProfilePageViewProps) {
                 </Link>
               </Button>
             ) : (
-              <ListingCallButton
-                phone={showPhone ? profile.phone : contactListing?.contactPhone}
-                className="rounded-lg"
-                label="Ara"
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <FollowUserButton
+                  targetUserId={profile.userId}
+                  initialFollowing={data.isFollowing}
+                  className="rounded-lg"
+                  onFollowChange={(next) => {
+                    setData((prev) => ({
+                      ...prev,
+                      isFollowing: next,
+                      stats: {
+                        ...prev.stats,
+                        followersCount: Math.max(
+                          0,
+                          prev.stats.followersCount + (next ? 1 : -1),
+                        ),
+                      },
+                    }));
+                  }}
+                />
+                <ListingCallButton
+                  phone={showPhone ? profile.phone : contactListing?.contactPhone}
+                  className="rounded-lg"
+                  label="Ara"
+                />
+              </div>
             )}
           </div>
 

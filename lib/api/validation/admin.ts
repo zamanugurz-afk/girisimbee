@@ -125,8 +125,10 @@ export const adminCouponBodySchema = z.object({
 export const adminCouponUpdateSchema = adminCouponBodySchema.partial().omit({ code: true });
 
 export const adminReportQuerySchema = z.object({
-  period: z.enum(['daily', 'monthly']).default('daily'),
+  period: z.enum(['daily', 'weekly', 'monthly', 'custom']).default('daily'),
   category: z.enum(['users', 'listings', 'applications', 'payments', 'reports', 'all']).optional(),
+  from: z.string().datetime({ offset: true }).optional(),
+  to: z.string().datetime({ offset: true }).optional(),
 });
 
 export const adminSettingsPatchSchema = z.object({

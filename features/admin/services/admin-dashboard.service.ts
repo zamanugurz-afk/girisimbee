@@ -13,11 +13,30 @@ function startOfTodayIso(): string {
   return d.toISOString();
 }
 
+function startOfWeekIso(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = day === 0 ? 6 : day - 1; // Monday start
+  d.setDate(d.getDate() - diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
 function startOfMonthIso(): string {
   const d = new Date();
   d.setDate(1);
   d.setHours(0, 0, 0, 0);
   return d.toISOString();
+}
+
+function resolvePeriodSince(
+  period: 'daily' | 'weekly' | 'monthly' | 'custom',
+  from?: string,
+): string {
+  if (period === 'custom' && from) return from;
+  if (period === 'weekly') return startOfWeekIso();
+  if (period === 'monthly') return startOfMonthIso();
+  return startOfTodayIso();
 }
 
 export class AdminDashboardService {
@@ -79,8 +98,13 @@ export class AdminDashboardService {
     };
   }
 
-  async getPeriodMetrics(period: 'daily' | 'monthly'): Promise<Record<string, number>> {
-    const since = period === 'daily' ? startOfTodayIso() : startOfMonthIso();
+  async getPeriodMetrics(
+    period: 'daily' | 'weekly' | 'monthly' | 'custom',
+    range?: { from?: string; to?: string },
+  ): Promise<Record<string, number>> {
+    const since = resolvePeriodSince(period, range?.from);
+    const until = period === 'custom' && range?.to ? range.to : undefined;
+
     const [newUsers, newListings, newApplications, payments, visitors] = await Promise.all([
       this.userRepo.count({ activeSince: since }),
       this.listingRepo.count({ publishedAfter: since }),
@@ -90,7 +114,11 @@ export class AdminDashboardService {
     ]);
 
     const revenueCents = payments.data
-      .filter((p) => p.paidAt && p.paidAt >= since)
+      .filter((p) => {
+        if (!p.paidAt || p.paidAt < since) return false;
+        if (until && p.paidAt > until) return false;
+        return true;
+      })
       .reduce((sum, p) => sum + p.amountCents, 0);
 
     return {

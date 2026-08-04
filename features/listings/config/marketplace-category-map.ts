@@ -63,21 +63,9 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
       MARKETPLACE_LISTING_TYPE_IDS.yatirimYapiyorum,
     ],
   },
-  'is-bul': {
-    slug: 'is-bul',
-    label: 'İş Bul',
-    listingTypeSlug: 'is-ariyorum',
-    appCategoryId: CATEGORY_IDS.isBul,
-    appListingTypeId: LISTING_TYPE_IDS.isBulDefault,
-    dbCategoryId: MARKETPLACE_CATEGORY_IDS.is,
-    dbListingTypeId: MARKETPLACE_LISTING_TYPE_IDS.isAriyorum,
-    filterListingTypeIds: [
-      MARKETPLACE_LISTING_TYPE_IDS.isAriyorum,
-    ],
-  },
   'ise-al': {
     slug: 'ise-al',
-    label: 'İşe Al',
+    label: 'İş İlanları',
     listingTypeSlug: 'ise-aliyorum',
     appCategoryId: CATEGORY_IDS.iseAl,
     appListingTypeId: LISTING_TYPE_IDS.iseAlDefault,
@@ -114,12 +102,26 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
       MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
     ],
   },
+  'dijital-ai': {
+    slug: 'dijital-ai',
+    label: 'Dijital ve AI Çözümleri',
+    listingTypeSlug: 'dijital-ai-cozum',
+    appCategoryId: CATEGORY_IDS.dijitalAi,
+    appListingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
+    dbCategoryId: CATEGORY_IDS.dijitalAi,
+    dbListingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
+    filterListingTypeIds: [LISTING_TYPE_IDS.dijitalAiDefault],
+  },
 };
 
 /** Alternate slugs → canonical browse slug */
 export const BROWSE_CATEGORY_SLUG_ALIASES: Record<string, string> = {
   franchise: 'bayilik-al',
   'calisan-ariyorum': 'ise-al',
+  /** Job-seeker browse removed — legacy URLs land on job listings */
+  'is-bul': 'ise-al',
+  'is-ariyorum': 'ise-al',
+  'dijital-ai-cozum': 'dijital-ai',
 };
 
 const APP_CATEGORY_ID_TO_DB: Record<string, CategoryId> = {
@@ -129,6 +131,8 @@ const APP_CATEGORY_ID_TO_DB: Record<string, CategoryId> = {
   [CATEGORY_IDS.iseAl]: MARKETPLACE_CATEGORY_IDS.is,
   [CATEGORY_IDS.ortakBul]: MARKETPLACE_CATEGORY_IDS.ortaklik,
   [CATEGORY_IDS.bayilikAl]: MARKETPLACE_CATEGORY_IDS.franchise,
+  [CATEGORY_IDS.genelIlan]: CATEGORY_IDS.genelIlan,
+  [CATEGORY_IDS.dijitalAi]: CATEGORY_IDS.dijitalAi,
   [MARKETPLACE_CATEGORY_IDS.yatirim]: MARKETPLACE_CATEGORY_IDS.yatirim,
   [MARKETPLACE_CATEGORY_IDS.is]: MARKETPLACE_CATEGORY_IDS.is,
   [MARKETPLACE_CATEGORY_IDS.ortaklik]: MARKETPLACE_CATEGORY_IDS.ortaklik,
@@ -142,6 +146,8 @@ const APP_LISTING_TYPE_ID_TO_DB: Record<string, ListingTypeId> = {
   [LISTING_TYPE_IDS.iseAlDefault]: MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
   [LISTING_TYPE_IDS.ortakBulDefault]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
   [LISTING_TYPE_IDS.franchiseGiveDefault]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
+  [LISTING_TYPE_IDS.genelIlanDefault]: LISTING_TYPE_IDS.genelIlanDefault,
+  [LISTING_TYPE_IDS.dijitalAiDefault]: LISTING_TYPE_IDS.dijitalAiDefault,
   [FRANCHISE_LISTING_TYPE_IDS.give]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
   [FRANCHISE_LISTING_TYPE_IDS.buy]: MARKETPLACE_LISTING_TYPE_IDS.bayilikAl,
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum,

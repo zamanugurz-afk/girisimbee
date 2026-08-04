@@ -16,7 +16,7 @@ import {
 } from '@/features/franchise/lib/franchise-listing.mapper';
 import type { FranchiseListingDetailViewModel } from '@/features/franchise/types/franchise-listing.types';
 import { toDisplayValue } from '@/features/listings/utils/display-value';
-import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
+import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
 
 interface ExternalContactPanelProps {
   contact: ExternalContactInfo;
@@ -24,18 +24,8 @@ interface ExternalContactPanelProps {
 
 /** V1: phone-only contact on franchise detail. */
 export function ExternalContactPanel({ contact }: ExternalContactPanelProps) {
-  const phone = contact.phone?.trim() || null;
-
   return (
-    <DetailCard>
-      <h3 className="text-sm font-semibold text-foreground">İletişim</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        İlan sahiplerine yalnızca telefon ile ulaşabilirsiniz.
-      </p>
-      <div className="mt-4">
-        <ListingCallButton phone={phone} fullWidth />
-      </div>
-    </DetailCard>
+    <ListingContactPhone phone={contact.phone} variant="sidebar" />
   );
 }
 

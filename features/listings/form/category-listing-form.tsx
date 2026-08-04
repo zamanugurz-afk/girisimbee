@@ -19,6 +19,10 @@ import {
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import {
+  getCoreFieldLabelsForCategory,
+  getCoreFieldUiOverridesForCategory,
+} from '@/features/listings/form/listing-field-metadata';
 import { DynamicField } from '@/features/listings/form/fields/dynamic-field';
 import { CoreListingFields } from '@/features/listings/form/fields/core-fields';
 import { ImagesInput } from '@/features/listings/form/fields/meta-fields';
@@ -40,7 +44,7 @@ import { getProfileService } from '@/lib/persistence/container';
 import type { UserId } from '@/lib/domain/ids';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
 import {
-  DEFAULT_FRANCHISE_PACKAGE_SELECTION,
+  DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION,
   DEFAULT_PACKAGE_SELECTION,
   ListingPackageSelectionStep,
   type ListingPackageSelectionValue,
@@ -48,11 +52,40 @@ import {
 import { ListingPreviewDialog } from '@/features/listings/components/listing-preview-dialog';
 import { ListingFormPreviewContent } from '@/features/listings/components/listing-form-preview-content';
 import {
+  DIGITAL_AI_PUBLISH_CONFIG,
   FRANCHISE_PUBLISH_CONFIG,
+  JOB_PUBLISH_CONFIG,
   PLACEMENT_PACKAGE_CONFIG,
   STANDARD_PUBLISH_CONFIG,
   formatPlacementPriceTry,
 } from '@/features/monetization/types/listing-placement.types';
+
+function packageVariantForCategory(
+  categoryId: CategoryId,
+): 'placement' | 'franchise' | 'dijital_ai' | 'job' {
+  if (categoryId === CATEGORY_IDS.bayilikAl) return 'franchise';
+  if (categoryId === CATEGORY_IDS.dijitalAi) return 'dijital_ai';
+  if (categoryId === CATEGORY_IDS.iseAl) return 'job';
+  return 'placement';
+}
+
+function isPaidPublishCategory(categoryId: CategoryId): boolean {
+  return packageVariantForCategory(categoryId) !== 'placement';
+}
+
+function defaultPackageSelectionFor(categoryId: CategoryId): ListingPackageSelectionValue {
+  return isPaidPublishCategory(categoryId)
+    ? { ...DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION }
+    : { ...DEFAULT_PACKAGE_SELECTION };
+}
+
+function publishConfigForCategory(categoryId: CategoryId) {
+  const variant = packageVariantForCategory(categoryId);
+  if (variant === 'franchise') return FRANCHISE_PUBLISH_CONFIG;
+  if (variant === 'dijital_ai') return DIGITAL_AI_PUBLISH_CONFIG;
+  if (variant === 'job') return JOB_PUBLISH_CONFIG;
+  return null;
+}
 import {
   buildListingDraftStorageKey,
   useListingFormAutosave,
@@ -159,10 +192,7 @@ export function CategoryListingForm({
       publishConsents: initialValues?.publishConsents ?? { ...EMPTY_PUBLISH_CONSENTS },
       contactPhone: initialValues?.contactPhone ?? null,
       packageSelection:
-        initialValues?.packageSelection ??
-        (categoryId === CATEGORY_IDS.bayilikAl
-          ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
-          : { ...DEFAULT_PACKAGE_SELECTION }),
+        initialValues?.packageSelection ?? defaultPackageSelectionFor(categoryId),
     };
   }, [listingType.fieldSchema, initialValues, categoryId]);
 
@@ -184,10 +214,7 @@ export function CategoryListingForm({
     defaults.contactPhone ?? null,
   );
   const [packageSelection, setPackageSelection] = useState<ListingPackageSelectionValue>(
-    defaults.packageSelection ??
-      (categoryId === CATEGORY_IDS.bayilikAl
-        ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
-        : { ...DEFAULT_PACKAGE_SELECTION }),
+    defaults.packageSelection ?? defaultPackageSelectionFor(categoryId),
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [publishErrors, setPublishErrors] = useState<string[]>([]);
@@ -292,10 +319,7 @@ export function CategoryListingForm({
     setPublishConsents(draft.publishConsents ?? { ...EMPTY_PUBLISH_CONSENTS });
     if (draft.contactPhone) setContactPhone(draft.contactPhone);
     setPackageSelection(
-      draft.packageSelection ??
-        (categoryId === CATEGORY_IDS.bayilikAl
-          ? { ...DEFAULT_FRANCHISE_PACKAGE_SELECTION }
-          : { ...DEFAULT_PACKAGE_SELECTION }),
+      draft.packageSelection ?? defaultPackageSelectionFor(categoryId),
     );
     setRestoredDraft(true);
     toast.message('Kaydedilmiş taslak geri yüklendi.');
@@ -443,29 +467,32 @@ export function CategoryListingForm({
     }
 
     if (isPackageStep) {
-      const isFranchisePackage = categoryId === CATEGORY_IDS.bayilikAl;
+      const paidPublish = isPaidPublishCategory(categoryId);
+      const publishPaid = Boolean(
+        packageSelection.publishFeePaid || packageSelection.franchisePublishPaid,
+      );
       if (packageSelection.simulationStatus !== 'ready') {
         setFieldErrors({
-          packageSelection: isFranchisePackage
-            ? 'Franchise ilanı için 1.000 TL ödemeyi tamamlayın.'
+          packageSelection: paidPublish
+            ? 'Yayın paketi ödemesini tamamlayın.'
             : packageSelection.placements.length > 0
               ? 'Ücretli paket seçtiniz. Devam etmeden önce ödemeyi simüle edin.'
               : 'Paket seçimini tamamlayın.',
         });
         toast.error(
-          isFranchisePackage
-            ? 'Devam etmeden önce 1.000 TL ödemeyi simüle edin.'
+          paidPublish
+            ? 'Devam etmeden önce yayın paketi ödemesini simüle edin.'
             : packageSelection.placements.length > 0
               ? 'Devam etmeden önce ödemeyi simüle edin.'
               : 'Lütfen bir paket seçin.',
         );
         return false;
       }
-      if (isFranchisePackage && !packageSelection.franchisePublishPaid) {
+      if (paidPublish && !publishPaid) {
         setFieldErrors({
-          packageSelection: 'Franchise ilanı için 1.000 TL ödemeyi tamamlayın.',
+          packageSelection: 'Yayın paketi ödemesini tamamlayın.',
         });
-        toast.error('Devam etmeden önce 1.000 TL ödemeyi simüle edin.');
+        toast.error('Devam etmeden önce yayın paketi ödemesini simüle edin.');
         return false;
       }
       setFieldErrors({});
@@ -666,11 +693,11 @@ export function CategoryListingForm({
         return;
       }
       if (
-        categoryId === CATEGORY_IDS.bayilikAl &&
-        !packageSelection.franchisePublishPaid
+        isPaidPublishCategory(categoryId) &&
+        !(packageSelection.publishFeePaid || packageSelection.franchisePublishPaid)
       ) {
         setPublishErrors([
-          'Franchise ilanı için 1.000 TL paket ödemesi zorunludur. Lütfen paket adımına dönün.',
+          'Yayın paketi ödemesi zorunludur. Lütfen paket adımına dönün.',
         ]);
         return;
       }
@@ -786,45 +813,55 @@ export function CategoryListingForm({
               onChange={setPackageSelection}
               disabled={disabled || isBusy}
               error={resolveFieldError(fieldErrors, 'packageSelection')}
-              variant={categoryId === CATEGORY_IDS.bayilikAl ? 'franchise' : 'placement'}
+              variant={packageVariantForCategory(categoryId)}
             />
           )}
 
           {isPublishStep && (
             <div className="space-y-3">
               <p className="text-gc-sm text-muted-foreground">
-                {categoryId === CATEGORY_IDS.bayilikAl
-                  ? 'Ödeme tamamlandı. Franchise ilanınızı 60 gün süreyle yayınlayabilirsiniz.'
-                  : 'Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.'}
+                {(() => {
+                  const cfg = publishConfigForCategory(categoryId);
+                  if (!cfg) return 'Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.';
+                  const duration =
+                    cfg.durationDays != null
+                      ? `${cfg.durationDays} gün süreyle`
+                      : 'ilan başına ücretle';
+                  return `Ödeme tamamlandı. İlanınızı ${duration} yayınlayabilirsiniz.`;
+                })()}
               </p>
               <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
                 <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
                   Seçilen paket
                 </p>
                 <p className="mt-1 text-gc-sm font-medium text-foreground">
-                  {categoryId === CATEGORY_IDS.bayilikAl
-                    ? FRANCHISE_PUBLISH_CONFIG.name
-                    : packageSelection.placements.length === 0
+                  {(() => {
+                    const cfg = publishConfigForCategory(categoryId);
+                    if (cfg) {
+                      const extras = packageSelection.placements
+                        .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
+                        .join(' + ');
+                      return extras ? `${cfg.name} + ${extras}` : cfg.name;
+                    }
+                    return packageSelection.placements.length === 0
                       ? STANDARD_PUBLISH_CONFIG.name
                       : packageSelection.placements
                           .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
-                          .join(' + ')}
+                          .join(' + ');
+                  })()}
                 </p>
-                {(categoryId === CATEGORY_IDS.bayilikAl ||
+                {(isPaidPublishCategory(categoryId) ||
                   packageSelection.placements.length > 0) && (
                   <p className="mt-0.5 text-gc-xs text-muted-foreground">
                     Toplam:{' '}
                     {formatPlacementPriceTry(
-                      categoryId === CATEGORY_IDS.bayilikAl
-                        ? FRANCHISE_PUBLISH_CONFIG.priceCents
-                        : packageSelection.placements.reduce(
-                            (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
-                            0,
-                          ),
+                      (publishConfigForCategory(categoryId)?.priceCents ?? 0) +
+                        packageSelection.placements.reduce(
+                          (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+                          0,
+                        ),
                     )}
-                    {categoryId === CATEGORY_IDS.bayilikAl
-                      ? ' · 60 gün · ödeme simülasyonu tamamlandı'
-                      : ' · ödeme simülasyonu tamamlandı'}
+                    {' · ödeme simülasyonu tamamlandı'}
                   </p>
                 )}
               </div>
@@ -866,25 +903,8 @@ export function CategoryListingForm({
                   onChange={handleCoreChange}
                   include={currentStep.coreFields}
                   extendedCities={usesExtendedCities && currentStep.coreFields.includes('city')}
-                  labels={
-                    categoryId === CATEGORY_IDS.isBul
-                      ? { longDescription: 'Kariyer özetim' }
-                      : categoryId === CATEGORY_IDS.bayilikAl
-                        ? { shortDescription: 'Firma Hakkında' }
-                        : undefined
-                  }
-                  fieldUi={
-                    categoryId === CATEGORY_IDS.bayilikAl
-                      ? {
-                          shortDescription: {
-                            placeholder:
-                              'Firmanızın kısa tarihçesini, ne zaman kurulduğunu ve bugüne nasıl geldiğini 2-3 cümlede anlatın…',
-                            helperText:
-                              'Kısa bir firma tarihçesi yazın. Arama sonuçlarında görünür; en az 30 karakter.',
-                          },
-                        }
-                      : undefined
-                  }
+                  labels={getCoreFieldLabelsForCategory(categoryId)}
+                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
                   errors={{
                     title: resolveFieldError(fieldErrors, 'title'),
                     shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),

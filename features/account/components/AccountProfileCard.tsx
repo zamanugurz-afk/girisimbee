@@ -7,8 +7,8 @@ import Link from 'next/link';
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-      <dt className="w-44 shrink-0 text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-medium text-foreground">{value || '—'}</dd>
+      <dt className="w-44 shrink-0 text-sm font-semibold text-foreground/70">{label}</dt>
+      <dd className="text-sm font-semibold text-foreground">{value || '—'}</dd>
     </div>
   );
 }
@@ -26,9 +26,9 @@ function VerificationRow({
 }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-      <dt className="w-44 shrink-0 text-sm text-muted-foreground">{label}</dt>
+      <dt className="w-44 shrink-0 text-sm font-semibold text-foreground/70">{label}</dt>
       <dd className="flex flex-wrap items-center gap-2">
-        <Badge variant={verified ? 'default' : 'outline'}>
+        <Badge variant={verified ? 'default' : 'outline'} className="font-semibold">
           {verified ? 'Doğrulandı' : 'Doğrulanmadı'}
         </Badge>
         {!verified && onVerify ? (
@@ -36,7 +36,7 @@ function VerificationRow({
             type="button"
             size="sm"
             variant="secondary"
-            className="h-7 rounded-lg px-2.5 text-xs"
+            className="h-7 rounded-lg px-2.5 text-xs font-semibold"
             onClick={onVerify}
           >
             {verifyLabel}
@@ -75,11 +75,11 @@ export function AccountProfileCard({
     <AccountPanelCard>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-display text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-bold tracking-tight text-foreground">
             Profil bilgileri
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Hesabınıza ait temel kimlik bilgileri. E-posta ve telefon doğrulamasını buradan yapabilirsiniz.
+          <p className="mt-1 text-sm font-medium leading-relaxed text-foreground/70">
+            Kayıt sırasında alınan kimlik bilgileri. E-posta ve SMS doğrulamasını buradan yönetebilirsiniz.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -104,7 +104,7 @@ export function AccountProfileCard({
           verifyLabel="Doğrula"
         />
         <VerificationRow
-          label="Telefon doğrulama"
+          label="SMS / telefon doğrulama"
           verified={profile.phoneVerified}
           onVerify={onVerifyPhone}
           verifyLabel={profile.phone ? 'Doğrula' : 'Telefon ekle / doğrula'}

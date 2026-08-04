@@ -1,27 +1,32 @@
 /** UI metadata for listing form fields — helpers, placeholders, limits, tooltips. */
+import type { CategoryId } from '@/lib/domain/ids';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
+
 export interface FieldUiMeta {
   helperText?: string;
   placeholder?: string;
   maxLength?: number;
 }
 
+/** Neutral defaults — prefer category overrides via getCoreFieldUiForCategory. */
 export const CORE_FIELD_UI: Record<string, FieldUiMeta> = {
   title: {
-    placeholder: 'Örn: SaaS Girişimine Yatırımcı Arıyoruz',
+    placeholder: 'Örn: İlan başlığınızı yazın',
     helperText:
       'Her kelimenin ilk harfi büyük. Alanı terk edince yazım otomatik düzeltilir. E-posta/telefon/küfür yasak.',
     maxLength: 200,
   },
   shortDescription: {
-    placeholder: 'Girişiminizi, rolünüzü veya aradığınız fırsatı 2-3 cümlede özetleyin…',
+    placeholder: 'İlanınızı 2-3 cümlede özetleyin…',
     helperText:
-      'Arama sonuçlarında görünür. Alanı terk edince yazım düzeltilir. E-posta, telefon veya dış link yok. En az 30 karakter.',
+      'Kartlarda ve arama sonuçlarında görünür. Alanı terk edince yazım düzeltilir. E-posta, telefon veya dış link yok. En az 30 karakter.',
     maxLength: 500,
   },
   longDescription: {
-    placeholder: 'Detaylı açıklama, vizyon, beklentiler ve ek bilgiler…',
+    placeholder: 'Detaylı açıklama, kapsam ve ek bilgiler…',
     helperText:
-      'Detay sayfasında gösterilir. Alanı terk edince yazım düzeltilir. İletişim platform üzerinden. En az 100 karakter.',
+      'Detay sayfasında gösterilir. Alanı terk edince yazım düzeltilir. İletişim telefon ile yapılır. En az 100 karakter.',
     maxLength: 10000,
   },
   city: {
@@ -31,6 +36,229 @@ export const CORE_FIELD_UI: Record<string, FieldUiMeta> = {
   remotePolicy: {
     placeholder: 'Çalışma modeli seçin',
     helperText: 'Ofis, hibrit veya tam uzaktan çalışma tercihiniz.',
+  },
+};
+
+type CoreFieldUiMap = Partial<Record<keyof CoreListingFieldsInput, FieldUiMeta>>;
+
+/** Category-specific placeholders & helpers for core listing fields (cards + form). */
+export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMap>> = {
+  [CATEGORY_IDS.yatirimBul]: {
+    title: {
+      placeholder: 'Örn: B2B SaaS Girişimine Seed Yatırım Arıyoruz',
+      helperText:
+        'Yatırım arayışınızı net yazın. Her kelimenin ilk harfi büyük; e-posta/telefon/küfür yasak.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Girişiminizi, aşamasını ve aradığınız yatırım tutarını 2-3 cümlede özetleyin…',
+      helperText:
+        'Kartlarda görünür. En az 30 karakter; iletişim bilgisi veya dış link yazmayın.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Ürünü, pazarı, ekibi, kullanım alanını ve yatırımcıdan beklentilerinizi detaylı anlatın…',
+      helperText:
+        'Detay sayfasında gösterilir. En az 100 karakter; iletişim telefon ile yapılır.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+      helperText: 'Girişiminizin merkezi veya faaliyet şehri.',
+    },
+  },
+  [CATEGORY_IDS.yatirimYap]: {
+    title: {
+      placeholder: 'Örn: Erken Aşama Fintech Yatırımlarına Odaklıyım',
+      helperText:
+        'Yatırımcı profilinizi özetleyen bir başlık yazın. Her kelimenin ilk harfi büyük.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Bilet büyüklüğünüzü, tercih ettiğiniz aşama ve sektörleri 2-3 cümlede yazın…',
+      helperText: 'Kartlarda görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Yatırım stratejinizi, geçmiş deneyiminizi ve kuruculara sunduğunuz değeri anlatın…',
+      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+      maxLength: 10000,
+    },
+  },
+  [CATEGORY_IDS.iseAl]: {
+    title: {
+      placeholder: 'Örn: Senior Frontend Developer — Tam Zamanlı',
+      helperText:
+        'Pozisyon adını net yazın. Her kelimenin ilk harfi büyük; e-posta/telefon yasak.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Rolü, çalışma modelini ve kısa beklentileri 2-3 cümlede özetleyin…',
+      helperText:
+        'İş ilanı kartlarında görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Sorumluluklar, aranan nitelikler, yan haklar ve süreç hakkında detay yazın…',
+      helperText:
+        'Detay sayfasında gösterilir. Adaylar telefon ile ulaşır. En az 100 karakter.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+      helperText: 'Pozisyonun lokasyonu veya ofis şehri.',
+    },
+    remotePolicy: {
+      placeholder: 'Çalışma modeli seçin',
+      helperText: 'Ofis, hibrit veya uzaktan çalışma modeli.',
+    },
+  },
+  [CATEGORY_IDS.isBul]: {
+    title: {
+      placeholder: 'Örn: Full-stack Geliştirici — Uzaktan Çalışmaya Açık',
+      helperText:
+        'Hedeflediğiniz rolü yazın. Her kelimenin ilk harfi büyük.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Deneyiminizi, uzmanlığınızı ve aradığınız rolü 2-3 cümlede özetleyin…',
+      helperText: 'Profil kartında görünür. En az 30 karakter.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Kariyer özetinizi, öne çıkan projelerinizi ve hedeflerinizi anlatın…',
+      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+      maxLength: 10000,
+    },
+  },
+  [CATEGORY_IDS.ortakBul]: {
+    title: {
+      placeholder: 'Örn: Teknik Kurucu Ortak Arıyoruz — SaaS',
+      helperText:
+        'Aradığınız ortaklık tipini başlığa yansıtın. Her kelimenin ilk harfi büyük.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Projenizi, aradığınız uzmanlığı ve ortaklık modelini 2-3 cümlede yazın…',
+      helperText:
+        'Ortaklık kartlarında görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Vizyonu, mevcut ekibi, equity/taahhüt beklentisini ve neden ortak aradığınızı anlatın…',
+      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+      helperText: 'Ortaklığın yürütüleceği şehir veya uzaktan çalışma notu için konum.',
+    },
+  },
+  [CATEGORY_IDS.bayilikAl]: {
+    title: {
+      placeholder: 'Örn: Premium Kahve Markası Franchise Fırsatı',
+      helperText:
+        'Marka ve fırsat türünü net yazın. Her kelimenin ilk harfi büyük.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Firmanızın kısa tarihçesini, ne zaman kurulduğunu ve bugüne nasıl geldiğini 2-3 cümlede anlatın…',
+      helperText:
+        'Kısa bir firma tarihçesi yazın. Kartlarda görünür; en az 30 karakter.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Marka hikayesini, destek paketini, yatırım aralığını ve franchise modelini detaylı anlatın…',
+      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+      helperText: 'Markanın merkezi veya öncelikli franchise şehri.',
+    },
+  },
+  [CATEGORY_IDS.dijitalAi]: {
+    title: {
+      placeholder: 'Örn: Kobi Satışları İçin AI Chatbot',
+      helperText:
+        'Ürün veya çözüm adını yazın — kart başlığında görünür. Her kelimenin ilk harfi büyük; e-posta/telefon yasak.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Çözümün ne yaptığını, kime hitap ettiğini ve temel faydasını 2-3 cümlede yazın…',
+      helperText:
+        'Dijital & AI kartlarında bu metin görünür. En az 30 karakter; link veya iletişim bilgisi yazmayın.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Kapsamı, kullanım senaryolarını, entegrasyonları ve teslim modelini detaylı anlatın…',
+      helperText:
+        'Detay sayfasında “ilan içeriği” olarak gösterilir. En az 100 karakter; iletişim telefon ile yapılır.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+      helperText: 'Ekibinizin veya şirketinizin şehri (uzaktan çözümlerde de belirtilebilir).',
+    },
+  },
+  [CATEGORY_IDS.genelIlan]: {
+    title: {
+      placeholder: 'Örn: Ofis Mobilyası Seti — Teklif Alınır',
+      helperText: 'İlan konusunu net yazın. Her kelimenin ilk harfi büyük.',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder: 'Ürün veya hizmeti 2-3 cümlede özetleyin…',
+      helperText: 'Kartlarda görünür. En az 30 karakter.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder: 'Durum, teslimat, fiyat ve ek koşulları detaylı yazın…',
+      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+      maxLength: 10000,
+    },
+  },
+};
+
+export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
+  Record<CategoryId, Partial<Record<keyof CoreListingFieldsInput, string>>>
+> = {
+  [CATEGORY_IDS.isBul]: {
+    longDescription: 'Kariyer özetim',
+  },
+  [CATEGORY_IDS.bayilikAl]: {
+    shortDescription: 'Firma Hakkında',
+  },
+  [CATEGORY_IDS.dijitalAi]: {
+    title: 'Ürün / çözüm adı',
+    shortDescription: 'Kısa tanıtım',
+    longDescription: 'Detaylı kapsam',
+  },
+  [CATEGORY_IDS.iseAl]: {
+    title: 'Pozisyon başlığı',
+    shortDescription: 'Kısa ilan özeti',
+  },
+  [CATEGORY_IDS.yatirimBul]: {
+    title: 'Yatırım ilanı başlığı',
+    shortDescription: 'Kısa özet',
+  },
+  [CATEGORY_IDS.ortakBul]: {
+    title: 'Ortaklık ilanı başlığı',
+    shortDescription: 'Kısa özet',
   },
 };
 
@@ -224,6 +452,33 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Örnek franchise sözleşmesi bağlantısı.',
     maxLength: 500,
   },
+  solutionType: {
+    placeholder: 'Çözüm türünü seçin',
+    helperText: 'Ürününüzün ana kategorisi — kart ve filtrelerde görünür.',
+  },
+  deliveryModel: {
+    placeholder: 'Teslim modelini seçin',
+    helperText: 'Nasıl satıldığını / teslim edildiğini belirtin.',
+  },
+  targetAudience: {
+    placeholder: 'Hedef kitleyi seçin',
+    helperText: 'Çözümünüzün öncelikli müşteri profili.',
+  },
+  priceRange: {
+    placeholder: 'Fiyat / bütçe aralığı seçin',
+    helperText: 'Kartlarda ve detayda gösterilir.',
+  },
+  demoUrl: {
+    placeholder: 'https://demo.ornek.com',
+    helperText: 'Canlı demo, landing veya ürün sayfası bağlantısı.',
+    maxLength: 500,
+  },
+  capabilities: {
+    helperText: 'Çözümünüzün sunduğu yetenekleri seçin. Her kart detayda aynı şekilde listelenir.',
+  },
+  supportedLanguages: {
+    helperText: 'Ürün veya destek dilini seçin (birden fazla olabilir).',
+  },
 };
 
 export const META_FIELD_UI: Record<string, FieldUiMeta> = {
@@ -238,6 +493,31 @@ export const META_FIELD_UI: Record<string, FieldUiMeta> = {
 
 export function getCoreFieldUi(key: string): FieldUiMeta {
   return CORE_FIELD_UI[key] ?? {};
+}
+
+export function getCoreFieldUiForCategory(
+  categoryId: CategoryId | null | undefined,
+  key: keyof CoreListingFieldsInput | string,
+): FieldUiMeta {
+  const base = getCoreFieldUi(key);
+  if (!categoryId) return base;
+  const override = CORE_FIELD_UI_BY_CATEGORY[categoryId]?.[key as keyof CoreListingFieldsInput];
+  return override ? { ...base, ...override } : base;
+}
+
+export function getCoreFieldLabelsForCategory(
+  categoryId: CategoryId | null | undefined,
+): Partial<Record<keyof CoreListingFieldsInput, string>> | undefined {
+  if (!categoryId) return undefined;
+  return CORE_FIELD_LABELS_BY_CATEGORY[categoryId];
+}
+
+/** Build fieldUi prop for CoreListingFields from category overrides. */
+export function getCoreFieldUiOverridesForCategory(
+  categoryId: CategoryId | null | undefined,
+): Partial<Record<keyof CoreListingFieldsInput, FieldUiMeta>> | undefined {
+  if (!categoryId) return undefined;
+  return CORE_FIELD_UI_BY_CATEGORY[categoryId];
 }
 
 export function getCustomFieldUi(key: string): FieldUiMeta {

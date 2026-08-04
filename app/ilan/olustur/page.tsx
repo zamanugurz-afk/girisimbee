@@ -45,7 +45,7 @@ import {
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, actorId } = useListingEngine();
+  const { isAuthenticated, actorId, createListing, publishListing } = useListingEngine();
   const { user } = useAuth();
 
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
@@ -84,34 +84,62 @@ function CreateListingContent() {
     if (!categoryId) {
       throw new Error('Kategori seçilmedi.');
     }
-    if (!usesModulePublish(categoryId)) {
-      throw new Error('Bu kategori için modül yayın yolu tanımlı değil.');
+    if (!listingTypeId) {
+      throw new Error('İlan tipi seçilmedi.');
     }
 
     const moduleKey = LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.slug ?? categoryId;
     traceListingPublish(String(moduleKey), 'form_submit', { input: values });
 
-    let payload: Record<string, unknown>;
-    try {
-      payload = listingFormValuesToModulePayload(categoryId, values);
-      traceListingPublish(String(moduleKey), 'mapper', { payload });
-    } catch (error) {
-      traceListingPublish(String(moduleKey), 'mapper_exception', { error });
-      throw error;
-    }
-
     let listing;
-    try {
-      listing = await publishModuleListing(categoryId, payload);
-      if (values.images.length > 0) {
-        await saveListingImages(listing.id, values.images);
+
+    if (usesModulePublish(categoryId)) {
+      let payload: Record<string, unknown>;
+      try {
+        payload = listingFormValuesToModulePayload(categoryId, values);
+        traceListingPublish(String(moduleKey), 'mapper', { payload });
+      } catch (error) {
+        traceListingPublish(String(moduleKey), 'mapper_exception', { error });
+        throw error;
       }
-      traceListingPublish(String(moduleKey), 'redirect', {
-        response: { slug: listing.slug, status: listing.status, moduleKey: listing.moduleKey },
-      });
-    } catch (error) {
-      traceListingPublish(String(moduleKey), 'action_exception', { error });
-      throw error;
+
+      try {
+        listing = await publishModuleListing(categoryId, payload);
+        if (values.images.length > 0) {
+          await saveListingImages(listing.id, values.images);
+        }
+        traceListingPublish(String(moduleKey), 'redirect', {
+          response: { slug: listing.slug, status: listing.status, moduleKey: listing.moduleKey },
+        });
+      } catch (error) {
+        traceListingPublish(String(moduleKey), 'action_exception', { error });
+        throw error;
+      }
+    } else {
+      try {
+        const aggregate = await createListing({
+          categoryId,
+          listingTypeId,
+          core: {
+            title: values.core.title,
+            shortDescription: values.core.shortDescription,
+            longDescription: values.core.longDescription,
+            city: values.core.city ?? null,
+          },
+          customFields: values.customFields,
+          tags: values.tags,
+          images: values.images,
+          asDraft: true,
+        });
+        const published = await publishListing(aggregate.listing.id);
+        listing = published.listing;
+        traceListingPublish(String(moduleKey), 'redirect', {
+          response: { slug: listing.slug, status: listing.status, moduleKey: listing.moduleKey },
+        });
+      } catch (error) {
+        traceListingPublish(String(moduleKey), 'action_exception', { error });
+        throw error;
+      }
     }
 
     const placements = values.packageSelection?.placements ?? [];

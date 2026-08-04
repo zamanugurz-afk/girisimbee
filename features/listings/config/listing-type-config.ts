@@ -24,6 +24,14 @@ import {
   STARTUP_STAGES,
   STARTUP_STAGES_WITH_ALL,
   USE_OF_FUNDS_OPTIONS,
+  GENERAL_LISTING_TYPE_OPTIONS,
+  GENERAL_LISTING_CONDITION_OPTIONS,
+  GENERAL_LISTING_PRICE_OPTIONS,
+  DIGITAL_AI_SOLUTION_TYPE_OPTIONS,
+  DIGITAL_AI_DELIVERY_OPTIONS,
+  DIGITAL_AI_AUDIENCE_OPTIONS,
+  DIGITAL_AI_CAPABILITY_OPTIONS,
+  DIGITAL_AI_LANGUAGE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
 import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
 
@@ -34,6 +42,8 @@ export const CATEGORY_IDS = {
   iseAl: ids.category('c1000001-0001-4000-8000-000000000004'),
   ortakBul: ids.category('c1000001-0001-4000-8000-000000000005'),
   bayilikAl: ids.category('c1000001-0001-4000-8000-000000000006'),
+  genelIlan: ids.category('c1000001-0001-4000-8000-000000000007'),
+  dijitalAi: ids.category('c1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, CategoryId>;
 
 export const LISTING_TYPE_IDS = {
@@ -43,6 +53,8 @@ export const LISTING_TYPE_IDS = {
   iseAlDefault: ids.listingType('lt000001-0001-4000-8000-000000000004'),
   ortakBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000005'),
   franchiseGiveDefault: FRANCHISE_LISTING_TYPE_IDS.give,
+  genelIlanDefault: ids.listingType('lt000001-0001-4000-8000-000000000007'),
+  dijitalAiDefault: ids.listingType('d1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, ListingTypeId>;
 
 /** Yatırım Arıyorum — girişim yatırım ihtiyacı */
@@ -133,7 +145,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
-/** İşe Alıyorum — işveren ilanı */
+/** İş İlanları — işveren açık pozisyon ilanı */
 export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -308,6 +320,95 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
 /** @deprecated Use category-specific schemas */
 export const INVESTMENT_FIELD_SCHEMA = SEEKING_INVESTMENT_FIELD_SCHEMA;
 
+/** Genel İlan — ürün, hizmet, duyuru ve fırsat ilanları */
+export const GENERAL_LISTING_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'listingKind',
+      label: 'İlan türü',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_TYPE_OPTIONS],
+    },
+    {
+      key: 'condition',
+      label: 'Durum',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_CONDITION_OPTIONS],
+    },
+    {
+      key: 'priceRange',
+      label: 'Fiyat / bütçe',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_PRICE_OPTIONS],
+    },
+    {
+      key: 'sector',
+      label: 'Sektör / alan',
+      type: 'enum',
+      required: false,
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+  ],
+};
+
+/** Dijital ve AI Çözümleri — yetenek kartları + ürün kimliği */
+export const DIGITAL_AI_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'solutionType',
+      label: 'Çözüm türü',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_SOLUTION_TYPE_OPTIONS],
+    },
+    {
+      key: 'deliveryModel',
+      label: 'Teslim / iş modeli',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_DELIVERY_OPTIONS],
+    },
+    {
+      key: 'targetAudience',
+      label: 'Hedef kitle',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_AUDIENCE_OPTIONS],
+    },
+    {
+      key: 'priceRange',
+      label: 'Fiyat modeli / bütçe',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_PRICE_OPTIONS],
+    },
+    {
+      key: 'demoUrl',
+      label: 'Demo / ürün linki',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+    {
+      key: 'capabilities',
+      label: 'Çözüm yetenekleri',
+      type: 'multi-enum',
+      required: true,
+      options: [...DIGITAL_AI_CAPABILITY_OPTIONS],
+    },
+    {
+      key: 'supportedLanguages',
+      label: 'Desteklenen diller',
+      type: 'multi-enum',
+      required: false,
+      options: [...DIGITAL_AI_LANGUAGE_OPTIONS],
+    },
+  ],
+};
+
 export interface CategoryListingTypeConfig {
   listingTypeId: ListingTypeId;
   categoryId: CategoryId;
@@ -324,7 +425,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.yatirimBul,
     slug: 'yatirim-ariyorum',
     name: 'Yatırım Arıyorum',
-    description: 'Girişiminiz için yatırımcı arayın',
+    description: 'Girişiminiz için yatırımcı bulun; tutar, aşama ve kullanım alanını paylaşın',
     fieldSchema: SEEKING_INVESTMENT_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -333,7 +434,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.yatirimYap,
     slug: 'yatirim-yapiyorum',
     name: 'Yatırım Yapacağım',
-    description: 'Yatırım yapmak isteyen profil',
+    description: 'Yatırımcı profilinizi ve tercih ettiğiniz fırsatları yayınlayın',
     fieldSchema: INVESTOR_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -342,7 +443,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.isBul,
     slug: 'is-ariyorum',
     name: 'İş Arıyorum',
-    description: 'Kariyer fırsatı arayan profil',
+    description: 'Kariyer profilinizi paylaşın; işverenler sizi bulsun',
     fieldSchema: JOB_SEEKER_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -350,8 +451,8 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
     categoryId: CATEGORY_IDS.iseAl,
     slug: 'ise-aliyorum',
-    name: 'İşe Alıyorum',
-    description: 'Ekibinize yetenek arayın',
+    name: 'İş İlanları',
+    description: 'Açık pozisyon yayınlayın; adaylar telefon ile ulaşır',
     fieldSchema: HIRING_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -360,7 +461,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.ortakBul,
     slug: 'ortak-ariyorum',
     name: 'Ortak Arıyorum',
-    description: 'Kurucu veya iş ortağı arayın',
+    description: 'Kurucu veya iş ortağı arayın; uzmanlık ve taahhüt beklentinizi belirtin',
     fieldSchema: PARTNER_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -369,15 +470,26 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.bayilikAl,
     slug: 'franchise-ilan-ver',
     name: 'Franchise İlan Ver',
-    description: 'Markanızı büyütün ve yeni yatırımcılarla buluşun.',
+    description: 'Marka, yatırım ve lokasyon bilgileriyle franchise fırsatınızı yayınlayın',
     fieldSchema: FRANCHISE_GIVE_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
+  {
+    listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
+    categoryId: CATEGORY_IDS.dijitalAi,
+    slug: 'dijital-ai-cozum',
+    name: 'Dijital ve AI Çözümleri',
+    description: 'Ürün adını, kısa tanıtımı ve yetenek kartlarını ekleyerek çözümünüzü yayınlayın',
+    fieldSchema: DIGITAL_AI_FIELD_SCHEMA,
     sortOrder: 1,
   },
 ];
 
-/** Categories selectable on /ilan/olustur (investor self-listing removed from create flow). */
+/** Categories selectable on /ilan/olustur (investor + job-seeker removed). */
 export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS.filter(
-  (config) => config.categoryId !== CATEGORY_IDS.yatirimYap,
+  (config) =>
+    config.categoryId !== CATEGORY_IDS.yatirimYap
+    && config.categoryId !== CATEGORY_IDS.isBul,
 );
 
 /** Map category slug → category ID */
@@ -389,4 +501,5 @@ export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   'ortak-bul': CATEGORY_IDS.ortakBul,
   franchise: CATEGORY_IDS.bayilikAl,
   'bayilik-al': CATEGORY_IDS.bayilikAl,
+  'dijital-ai': CATEGORY_IDS.dijitalAi,
 };

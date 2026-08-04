@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, Loader2, Sparkles, Store, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
+  DIGITAL_AI_PUBLISH_CONFIG,
   FRANCHISE_PUBLISH_CONFIG,
+  JOB_PUBLISH_CONFIG,
   PLACEMENT_PACKAGE_CONFIG,
   PLACEMENT_PACKAGE_SLUGS,
   STANDARD_PUBLISH_CONFIG,
@@ -19,33 +21,42 @@ import {
 } from '@/features/monetization/lib/simulate-placement-payment';
 
 export interface ListingPackageSelectionValue {
-  /** Paid add-ons; empty = Standart Yayın only (non-franchise) */
   placements: PlacementPackageSlug[];
   simulationStatus: PlacementPaymentSimulationStatus;
-  /** Franchise publish fee paid (1.000 TL / 60 gün) */
+  publishFeePaid?: boolean;
+  /** @deprecated use publishFeePaid */
   franchisePublishPaid?: boolean;
 }
 
 export const DEFAULT_PACKAGE_SELECTION: ListingPackageSelectionValue = {
   placements: [],
   simulationStatus: 'ready',
+  publishFeePaid: false,
   franchisePublishPaid: false,
 };
 
-/** Franchise: payment required before continuing. */
-export const DEFAULT_FRANCHISE_PACKAGE_SELECTION: ListingPackageSelectionValue = {
+export const DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION: ListingPackageSelectionValue = {
   placements: [],
   simulationStatus: 'selected',
+  publishFeePaid: false,
   franchisePublishPaid: false,
 };
+
+/** @deprecated Prefer DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION */
+export const DEFAULT_FRANCHISE_PACKAGE_SELECTION = DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION;
 
 interface ListingPackageSelectionStepProps {
   value: ListingPackageSelectionValue;
   onChange: (next: ListingPackageSelectionValue) => void;
   disabled?: boolean;
   error?: string;
-  /** Franchise: single required 1.000 TL / 60-day package (no free publish). */
-  variant?: 'placement' | 'franchise';
+  variant?: 'placement' | 'franchise' | 'dijital_ai' | 'job';
+}
+
+function publishConfigFor(variant: 'franchise' | 'dijital_ai' | 'job') {
+  if (variant === 'dijital_ai') return DIGITAL_AI_PUBLISH_CONFIG;
+  if (variant === 'job') return JOB_PUBLISH_CONFIG;
+  return FRANCHISE_PUBLISH_CONFIG;
 }
 
 function togglePlacement(
@@ -66,17 +77,18 @@ export function ListingPackageSelectionStep({
 }: ListingPackageSelectionStepProps) {
   const [simulating, setSimulating] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
-  const isFranchise = variant === 'franchise';
+  const isPaidPublish =
+    variant === 'franchise' || variant === 'dijital_ai' || variant === 'job';
+  const publishConfig = isPaidPublish ? publishConfigFor(variant) : null;
 
-  const isStandard = !isFranchise && value.placements.length === 0;
-  const totalCents = useMemo(() => {
-    if (isFranchise) return FRANCHISE_PUBLISH_CONFIG.priceCents;
-    return value.placements.reduce(
-      (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
-      0,
-    );
-  }, [isFranchise, value.placements]);
-  const needsPayment = isFranchise || totalCents > 0;
+  const isStandard = !isPaidPublish && value.placements.length === 0;
+  const placementCents = value.placements.reduce(
+    (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+    0,
+  );
+  const totalCents = (publishConfig?.priceCents ?? 0) + placementCents;
+  const needsPayment = totalCents > 0;
+  const publishPaid = Boolean(value.publishFeePaid || value.franchisePublishPaid);
   const status = value.simulationStatus;
   const statusLabel = PLACEMENT_SIMULATION_STATUS_LABELS[status];
 
@@ -87,21 +99,27 @@ export function ListingPackageSelectionStep({
   }, []);
 
   function selectStandard() {
-    if (isFranchise) return;
+    if (isPaidPublish) return;
     abortRef.current?.abort();
     setSimulating(false);
-    onChange({ placements: [], simulationStatus: 'ready', franchisePublishPaid: false });
+    onChange({
+      placements: [],
+      simulationStatus: 'ready',
+      publishFeePaid: false,
+      franchisePublishPaid: false,
+    });
   }
 
   function selectPlacement(slug: PlacementPackageSlug) {
-    if (isFranchise) return;
     abortRef.current?.abort();
     setSimulating(false);
     const nextPlacements = togglePlacement(value.placements, slug);
     onChange({
       placements: nextPlacements,
-      simulationStatus: nextPlacements.length === 0 ? 'ready' : 'selected',
-      franchisePublishPaid: false,
+      simulationStatus:
+        isPaidPublish || nextPlacements.length > 0 ? 'selected' : 'ready',
+      publishFeePaid: publishPaid,
+      franchisePublishPaid: publishPaid,
     });
   }
 
@@ -116,6 +134,7 @@ export function ListingPackageSelectionStep({
     onChange({
       placements: placementsSnapshot,
       simulationStatus: 'selected',
+      publishFeePaid: false,
       franchisePublishPaid: false,
     });
 
@@ -123,10 +142,12 @@ export function ListingPackageSelectionStep({
       await simulatePlacementPayment({
         signal: controller.signal,
         onStatus: (nextStatus) => {
+          const paid = nextStatus === 'ready';
           onChange({
             placements: placementsSnapshot,
             simulationStatus: nextStatus,
-            franchisePublishPaid: isFranchise && nextStatus === 'ready',
+            publishFeePaid: isPaidPublish ? paid : paid && placementsSnapshot.length > 0,
+            franchisePublishPaid: isPaidPublish ? paid : false,
           });
         },
       });
@@ -135,6 +156,7 @@ export function ListingPackageSelectionStep({
       onChange({
         placements: placementsSnapshot,
         simulationStatus: 'selected',
+        publishFeePaid: false,
         franchisePublishPaid: false,
       });
     } finally {
@@ -142,13 +164,25 @@ export function ListingPackageSelectionStep({
     }
   }
 
-  if (isFranchise) {
-    const paid = value.franchisePublishPaid && status === 'ready';
+  if (isPaidPublish && publishConfig) {
+    const paid = publishPaid && status === 'ready';
+    const durationLabel =
+      publishConfig.durationDays != null
+        ? `${publishConfig.durationDays} gün`
+        : 'İlan başına';
+
     return (
       <div className="space-y-5">
         <p className="text-gc-sm text-muted-foreground">
-          Franchise ilanı yayınlamak için 1.000 TL paket ücreti zorunludur. İlan en fazla 60 gün
-          yayında kalır; süre bitince aynı ücretle yeniden 60 gün uzatılabilir.
+          {variant === 'franchise'
+            ? 'Franchise ilanı yayınlamak için 1.000 TL paket ücreti zorunludur. Süre 30 gündür; bitince yeniden ödeme gerekir. Vitrin ve Acil dopingleri ayrıca alınabilir.'
+            : null}
+          {variant === 'dijital_ai'
+            ? 'Dijital & AI ilanı yayınlamak için 1.000 TL paket ücreti zorunludur. Süre 30 gündür; bitince yeniden ödeme gerekir. Vitrin ve Acil dopingleri ayrıca alınabilir.'
+            : null}
+          {variant === 'job'
+            ? 'İş ilanı vermek ilan başına 250 TL’dir. Vitrin ve Acil dopingleri ayrıca alınabilir.'
+            : null}
         </p>
 
         <div
@@ -163,24 +197,57 @@ export function ListingPackageSelectionStep({
             </span>
             <div>
               <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
-                {FRANCHISE_PUBLISH_CONFIG.durationDays} gün
+                {durationLabel}
               </p>
               <h3 className="mt-1 font-display text-gc-lg font-semibold text-foreground">
-                {FRANCHISE_PUBLISH_CONFIG.name}
+                {publishConfig.name}
               </h3>
             </div>
           </div>
           <p className="mb-4 font-display text-2xl font-semibold text-foreground">
-            {formatPlacementPriceTry(FRANCHISE_PUBLISH_CONFIG.priceCents)}
+            {formatPlacementPriceTry(publishConfig.priceCents)}
           </p>
           <ul className="space-y-2">
-            {FRANCHISE_PUBLISH_CONFIG.benefits.map((benefit) => (
+            {publishConfig.benefits.map((benefit) => (
               <li key={benefit} className="flex gap-2 text-gc-sm text-muted-foreground">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span>{benefit}</span>
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {PLACEMENT_PACKAGE_SLUGS.map((slug) => {
+            const pkg = PLACEMENT_PACKAGE_CONFIG[slug];
+            const selected = value.placements.includes(slug);
+            const Icon = slug === 'vitrin' ? Sparkles : Zap;
+            return (
+              <button
+                key={slug}
+                type="button"
+                disabled={disabled}
+                onClick={() => selectPlacement(slug)}
+                className={cn(
+                  'rounded-2xl border-2 p-4 text-left transition',
+                  selected
+                    ? 'border-primary bg-primary/[0.06]'
+                    : 'border-border/70 bg-card hover:border-primary/40',
+                )}
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">{pkg.name}</span>
+                </div>
+                <p className="font-display text-xl font-semibold">
+                  {formatPlacementPriceTry(pkg.priceCents)}
+                </p>
+                <p className="mt-1 text-gc-xs text-muted-foreground">
+                  {pkg.durationDays} gün doping
+                </p>
+              </button>
+            );
+          })}
         </div>
 
         <div
@@ -197,12 +264,10 @@ export function ListingPackageSelectionStep({
             <div>
               <p className="text-gc-sm font-semibold text-foreground">{statusLabel}</p>
               <p className="mt-0.5 text-gc-xs text-muted-foreground">
-                Paket tutarı: {formatPlacementPriceTry(FRANCHISE_PUBLISH_CONFIG.priceCents)}{' '}
-                (simülasyon — gerçek ödeme alınmaz)
+                Toplam: {formatPlacementPriceTry(totalCents)} (simülasyon — gerçek ödeme alınmaz)
               </p>
             </div>
-
-            {!paid && (
+            {!paid ? (
               <Button
                 type="button"
                 onClick={() => void runSimulation()}
@@ -215,25 +280,13 @@ export function ListingPackageSelectionStep({
                     Ödeme simüle ediliyor…
                   </>
                 ) : (
-                  '1.000 TL Ödemeyi Simüle Et'
+                  `${formatPlacementPriceTry(totalCents)} Ödemeyi Simüle Et`
                 )}
               </Button>
-            )}
-
-            {paid && (
-              <p className="inline-flex items-center gap-1.5 text-gc-sm font-medium text-primary">
-                <Check className="h-4 w-4" />
-                Yayınlamaya hazır
-              </p>
-            )}
+            ) : null}
           </div>
         </div>
-
-        {error && (
-          <p role="alert" className="text-gc-sm text-destructive">
-            {error}
-          </p>
-        )}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </div>
     );
   }
@@ -241,197 +294,84 @@ export function ListingPackageSelectionStep({
   return (
     <div className="space-y-5">
       <p className="text-gc-sm text-muted-foreground">
-        İlanınız her durumda yayınlanır. İsterseniz ana sayfa görünürlüğü için Vitrin ve Acil Vitrin
-        paketlerini birlikte seçebilirsiniz.
+        Bu kategoride ilan açmak ücretsizdir. İsterseniz Vitrin (99 TL) veya Acil Vitrin (99 TL)
+        dopingi ekleyebilirsiniz.
       </p>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <button
           type="button"
-          disabled={disabled || simulating}
+          disabled={disabled}
           onClick={selectStandard}
           className={cn(
-            'relative flex h-full flex-col rounded-2xl border-2 p-5 text-left transition-all',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
+            'rounded-2xl border-2 p-4 text-left transition',
             isStandard
-              ? 'border-primary bg-primary/[0.06] shadow-sm shadow-primary/10'
-              : 'border-border/70 bg-background hover:border-primary/35 hover:bg-primary/[0.03]',
+              ? 'border-primary bg-primary/[0.06]'
+              : 'border-border/70 bg-card hover:border-primary/40',
           )}
         >
-          <div className="mb-4 flex items-start justify-between gap-2">
-            <div>
-              <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
-                Temel
-              </p>
-              <h3 className="mt-1 font-display text-gc-lg font-semibold text-foreground">
-                {STANDARD_PUBLISH_CONFIG.name}
-              </h3>
-            </div>
-            <span
-              className={cn(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
-                isStandard
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border bg-background',
-              )}
-            >
-              {isStandard && <Check className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            </span>
-          </div>
-          <p className="mb-4 font-display text-2xl font-semibold text-foreground">Ücretsiz</p>
-          <ul className="mt-auto space-y-2">
-            {STANDARD_PUBLISH_CONFIG.benefits.map((benefit) => (
-              <li key={benefit} className="flex gap-2 text-gc-sm text-muted-foreground">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>{benefit}</span>
-              </li>
-            ))}
-          </ul>
+          <p className="font-semibold">{STANDARD_PUBLISH_CONFIG.name}</p>
+          <p className="mt-2 font-display text-xl font-semibold">Ücretsiz</p>
         </button>
 
         {PLACEMENT_PACKAGE_SLUGS.map((slug) => {
           const pkg = PLACEMENT_PACKAGE_CONFIG[slug];
           const selected = value.placements.includes(slug);
           const Icon = slug === 'vitrin' ? Sparkles : Zap;
-
           return (
             <button
               key={slug}
               type="button"
-              disabled={disabled || simulating}
+              disabled={disabled}
               onClick={() => selectPlacement(slug)}
               className={cn(
-                'relative flex h-full flex-col rounded-2xl border-2 p-5 text-left transition-all',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
+                'rounded-2xl border-2 p-4 text-left transition',
                 selected
-                  ? 'border-primary bg-gradient-to-b from-primary/[0.12] to-primary/[0.04] shadow-md shadow-primary/15'
-                  : 'border-border/70 bg-background hover:border-primary/35 hover:bg-primary/[0.03]',
+                  ? 'border-primary bg-primary/[0.06]'
+                  : 'border-border/70 bg-card hover:border-primary/40',
               )}
             >
-              <div className="mb-4 flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2.5">
-                  <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
-                      {pkg.durationDays} gün
-                    </p>
-                    <h3 className="mt-1 font-display text-gc-lg font-semibold text-foreground">
-                      {pkg.name}
-                    </h3>
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2',
-                    selected
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-border bg-background',
-                  )}
-                >
-                  {selected && <Check className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                </span>
+              <div className="mb-2 flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{pkg.name}</span>
               </div>
-              <p className="mb-4 font-display text-2xl font-semibold text-foreground">
+              <p className="font-display text-xl font-semibold">
                 {formatPlacementPriceTry(pkg.priceCents)}
               </p>
-              <ul className="mt-auto space-y-2">
-                {pkg.benefits.map((benefit) => (
-                  <li key={benefit} className="flex gap-2 text-gc-sm text-muted-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
             </button>
           );
         })}
       </div>
 
-      <div
-        className={cn(
-          'rounded-xl border px-4 py-3 sm:px-5 sm:py-4',
-          status === 'ready'
-            ? 'border-primary/30 bg-primary/[0.06]'
-            : status === 'pending'
-              ? 'border-primary/20 bg-primary/[0.04]'
-              : 'border-border/70 bg-muted/30',
-        )}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-gc-sm font-semibold text-foreground">{statusLabel}</p>
-            <p className="mt-0.5 text-gc-xs text-muted-foreground">
-              {needsPayment
-                ? `Seçili paket tutarı: ${formatPlacementPriceTry(totalCents)} (simülasyon — gerçek ödeme alınmaz)`
-                : 'Standart yayın seçildi. Ek ödeme gerekmez.'}
-            </p>
+      {needsPayment ? (
+        <div className="rounded-xl border border-border/70 bg-muted/30 px-4 py-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-gc-sm font-semibold text-foreground">{statusLabel}</p>
+              <p className="mt-0.5 text-gc-xs text-muted-foreground">
+                Toplam: {formatPlacementPriceTry(totalCents)} (simülasyon)
+              </p>
+            </div>
+            {status !== 'ready' ? (
+              <Button
+                type="button"
+                onClick={() => void runSimulation()}
+                disabled={disabled || simulating}
+              >
+                {simulating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Simüle ediliyor…
+                  </>
+                ) : (
+                  'Ödemeyi Simüle Et'
+                )}
+              </Button>
+            ) : null}
           </div>
-
-          {needsPayment && status !== 'ready' && (
-            <Button
-              type="button"
-              onClick={() => void runSimulation()}
-              disabled={disabled || simulating}
-              className="shrink-0"
-            >
-              {simulating || status === 'pending' ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Ödeme simüle ediliyor…
-                </>
-              ) : (
-                'Ödemeyi Simüle Et'
-              )}
-            </Button>
-          )}
-
-          {status === 'ready' && (
-            <p className="inline-flex items-center gap-1.5 text-gc-sm font-medium text-primary">
-              <Check className="h-4 w-4" />
-              Devam edebilirsiniz
-            </p>
-          )}
         </div>
-
-        {needsPayment && (
-          <ol className="mt-3 flex flex-wrap gap-2 text-gc-xs">
-            {(
-              [
-                ['selected', 'Paket seçildi'],
-                ['pending', 'Ödeme bekleniyor'],
-                ['ready', 'Yayınlanmaya hazır'],
-              ] as const
-            ).map(([key, label]) => {
-              const order = { idle: 0, selected: 1, pending: 2, ready: 3 } as const;
-              const current = order[status] ?? 0;
-              const step = order[key];
-              const done = current > step || (status === 'ready' && key === 'ready');
-              const active = status === key;
-              return (
-                <li
-                  key={key}
-                  className={cn(
-                    'rounded-full border px-2.5 py-1',
-                    done || active
-                      ? 'border-primary/40 bg-primary/10 text-primary'
-                      : 'border-border/60 text-muted-foreground',
-                  )}
-                >
-                  {label}
-                </li>
-              );
-            })}
-          </ol>
-        )}
-      </div>
-
-      {error && (
-        <p role="alert" className="text-gc-sm text-destructive">
-          {error}
-        </p>
-      )}
+      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

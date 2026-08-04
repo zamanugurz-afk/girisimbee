@@ -57,8 +57,9 @@ export interface AccountNavItem {
 export interface AccountHubStats {
   listings: number;
   favorites: number;
-  messages: number;
   followers: number;
+  /** Users this account follows — marketplace_follows foundation */
+  following: number;
 }
 
 /** @deprecated Use AccountHubStats — kept for older AccountStats consumers */

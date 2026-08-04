@@ -72,7 +72,10 @@ export type { UserSecurityLogRepository } from '@/features/account/repositories/
 export { AccountService } from '@/features/account/services/account.service';
 export type { BootstrapAccountInput } from '@/features/account/services/account.service';
 
-export { MockAccountProfileRepository } from '@/features/account/repository/mock/account-profile.repository.mock';
+export {
+  MockAccountProfileRepository,
+  createEmptyAccountProfile,
+} from '@/features/account/repository/mock/account-profile.repository.mock';
 export { MockUserConsentRepository } from '@/features/account/repository/mock/user-consent.repository.mock';
 export { MockUserSettingsRepository } from '@/features/account/repository/mock/user-settings.repository.mock';
 export { MockUserSecurityLogRepository } from '@/features/account/repository/mock/user-security-log.repository.mock';

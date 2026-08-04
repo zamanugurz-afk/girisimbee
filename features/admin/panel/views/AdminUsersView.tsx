@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
 import { AdminTable } from '@/features/admin/panel/components/AdminTable';
@@ -17,67 +18,117 @@ import {
   AdminUserEditDialog,
   type AdminUserEditDraft,
 } from '@/features/admin/panel/components/AdminUserEditDialog';
+import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import {
   ADMIN_USER_ROLE_LABELS,
   ADMIN_USER_STATUS_LABELS,
   ADMIN_USERS_PAGE_SIZE,
 } from '@/features/admin/panel/constants/admin-users.constants';
 import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
-import { MOCK_ADMIN_USERS } from '@/features/admin/panel/mock/admin-panel.mock';
+import { mapAdminUserView } from '@/features/admin/panel/lib/map-live-admin';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type {
   AdminMockUser,
   AdminTableColumn,
   AdminUserStatus,
 } from '@/features/admin/panel/types/admin-panel.types';
+import type { UserId } from '@/lib/domain/ids';
+import type { DomainUserRole, UserStatus } from '@/features/authentication/types/user.types';
 
-function cloneUsers(): AdminMockUser[] {
-  return MOCK_ADMIN_USERS.map((user) => ({ ...user }));
+function toApiStatus(filter: AdminUserStatusFilter): UserStatus | undefined {
+  if (filter === 'all') return undefined;
+  if (filter === 'suspended') return 'suspended';
+  if (filter === 'deleted') return 'deleted';
+  return 'active';
+}
+
+function toApiRole(filter: AdminUserRoleFilter): DomainUserRole | undefined {
+  if (filter === 'all') return undefined;
+  return filter;
 }
 
 export function AdminUsersView() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
-  const [users, setUsers] = useState<AdminMockUser[]>(cloneUsers);
+  const [users, setUsers] = useState<AdminMockUser[]>([]);
+  const [total, setTotal] = useState(0);
   const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [roleFilter, setRoleFilter] = useState<AdminUserRoleFilter>('all');
   const [statusFilter, setStatusFilter] = useState<AdminUserStatusFilter>('all');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [detailUser, setDetailUser] = useState<AdminMockUser | null>(null);
   const [editUser, setEditUser] = useState<AdminMockUser | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return users.filter((user) => {
-      if (roleFilter !== 'all' && user.role !== roleFilter) return false;
-      if (statusFilter !== 'all' && user.status !== statusFilter) return false;
-      if (!q) return true;
-      return (
-        user.id.toLowerCase().includes(q)
-        || user.full_name.toLowerCase().includes(q)
-        || user.username.toLowerCase().includes(q)
-        || user.email.toLowerCase().includes(q)
-        || user.role.includes(q)
-        || user.status.includes(q)
-      );
-    });
-  }, [users, query, roleFilter, statusFilter]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query), 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / ADMIN_USERS_PAGE_SIZE));
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await adminApi.searchUsers(
+        {
+          query: debouncedQuery.trim() || undefined,
+          status: toApiStatus(statusFilter),
+          role: toApiRole(roleFilter),
+        },
+        { page, limit: ADMIN_USERS_PAGE_SIZE },
+      );
+      setUsers(result.data.map(mapAdminUserView));
+      setTotal(result.total);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Kullanıcılar yüklenemedi');
+      setUsers([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedQuery, statusFilter, roleFilter, page]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const pageCount = Math.max(1, Math.ceil(total / ADMIN_USERS_PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount);
-  const rows = filtered.slice(
-    (pageSafe - 1) * ADMIN_USERS_PAGE_SIZE,
-    pageSafe * ADMIN_USERS_PAGE_SIZE,
+
+  const detailUserLive = useMemo(
+    () => (detailUser ? users.find((user) => user.id === detailUser.id) ?? detailUser : null),
+    [detailUser, users],
+  );
+  const editUserLive = useMemo(
+    () => (editUser ? users.find((user) => user.id === editUser.id) ?? editUser : null),
+    [editUser, users],
   );
 
-  function setStatus(userId: string, status: AdminUserStatus) {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === userId ? { ...user, status } : user)),
-    );
+  async function setStatus(userId: string, status: AdminUserStatus) {
+    setBusyId(userId);
+    try {
+      if (status === 'suspended') {
+        await adminApi.patchUser(userId as UserId, { action: 'suspend' });
+      } else if (status === 'active') {
+        await adminApi.patchUser(userId as UserId, { action: 'activate' });
+      } else if (status === 'deleted') {
+        if (!window.confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
+        await adminApi.patchUser(userId as UserId, { action: 'delete' });
+      }
+      toast.success('İşlem tamamlandı');
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'İşlem başarısız');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   function handleSave(userId: string, draft: AdminUserEditDraft) {
+    // Role/profile edits need dedicated API — for now update local + toast.
     setUsers((prev) =>
       prev.map((user) =>
         user.id === userId
@@ -92,24 +143,8 @@ export function AdminUsersView() {
           : user,
       ),
     );
+    toast.message('Profil alanları yerel olarak güncellendi. Durum için Pasife al / Etkinleştir kullanın.');
   }
-
-  function openDetail(user: AdminMockUser) {
-    setDetailUser(user);
-    setDetailOpen(true);
-  }
-
-  function openEdit(user: AdminMockUser) {
-    setEditUser(user);
-    setEditOpen(true);
-  }
-
-  const detailUserLive = detailUser
-    ? users.find((user) => user.id === detailUser.id) ?? detailUser
-    : null;
-  const editUserLive = editUser
-    ? users.find((user) => user.id === editUser.id) ?? editUser
-    : null;
 
   const columns: AdminTableColumn<AdminMockUser>[] = [
     {
@@ -146,10 +181,16 @@ export function AdminUsersView() {
       header: 'İşlemler',
       render: (row) => (
         <div className="flex flex-wrap gap-1.5">
-          <Button type="button" size="sm" variant="outline" onClick={() => openDetail(row)}>
+          <Button type="button" size="sm" variant="outline" onClick={() => {
+            setDetailUser(row);
+            setDetailOpen(true);
+          }}>
             Detay
           </Button>
-          <Button type="button" size="sm" variant="outline" onClick={() => openEdit(row)}>
+          <Button type="button" size="sm" variant="outline" onClick={() => {
+            setEditUser(row);
+            setEditOpen(true);
+          }}>
             Düzenle
           </Button>
           {row.status === 'active' ? (
@@ -157,7 +198,8 @@ export function AdminUsersView() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => setStatus(row.id, 'suspended')}
+              disabled={busyId === row.id}
+              onClick={() => void setStatus(row.id, 'suspended')}
             >
               Pasife al
             </Button>
@@ -167,16 +209,18 @@ export function AdminUsersView() {
               type="button"
               size="sm"
               variant="destructive"
-              onClick={() => setStatus(row.id, 'deleted')}
+              disabled={busyId === row.id}
+              onClick={() => void setStatus(row.id, 'deleted')}
             >
-              Yasakla
+              Sil
             </Button>
           ) : null}
           {row.status !== 'active' ? (
             <Button
               type="button"
               size="sm"
-              onClick={() => setStatus(row.id, 'active')}
+              disabled={busyId === row.id}
+              onClick={() => void setStatus(row.id, 'active')}
             >
               Etkinleştir
             </Button>
@@ -189,7 +233,7 @@ export function AdminUsersView() {
   return (
     <AdminPageShell
       title="Kullanıcılar"
-      description="Kullanıcı yönetimi — mock veri (arama, filtre, düzenleme, durum)"
+      description="Canlı kullanıcı listesi — profiles + Auth üzerinden."
       toolbar={
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <AdminSearch
@@ -212,25 +256,32 @@ export function AdminUsersView() {
               setPage(1);
             }}
           />
-          <p className="text-sm text-muted-foreground">
-            {filtered.length} kayıt
-          </p>
+          <p className="text-sm text-muted-foreground">{total} kayıt</p>
         </div>
       }
     >
-      <AdminTable
-        columns={columns}
-        rows={rows}
-        emptyTitle="Kullanıcı bulunamadı"
-        emptyDescription="Arama veya filtre kriterlerinize uygun kullanıcı yok."
-      />
-      <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+      {loading ? (
+        <AdminLoadingState />
+      ) : (
+        <>
+          <AdminTable
+            columns={columns}
+            rows={users}
+            emptyTitle="Kullanıcı bulunamadı"
+            emptyDescription="Arama veya filtre kriterlerinize uygun kullanıcı yok."
+          />
+          <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+        </>
+      )}
 
       <AdminUserDetailDialog
         user={detailUserLive}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        onEdit={(user) => openEdit(user)}
+        onEdit={(user) => {
+          setEditUser(user);
+          setEditOpen(true);
+        }}
       />
       <AdminUserEditDialog
         user={editUserLive}

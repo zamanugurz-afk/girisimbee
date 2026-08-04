@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import {
   Archive,
@@ -27,18 +27,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AdminEmptyState } from '@/features/admin/panel/components/AdminEmptyState';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
+import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { canManageMarket } from '@/features/admin/market/lib/market-permissions';
+import { marketAdminApi } from '@/features/admin/market/lib/market-admin-api';
 import {
   MARKET_MAX_PUBLISHED,
   MARKET_STATUS_LABELS,
   type MarketItem,
   type MarketItemStatus,
 } from '@/features/admin/market/types/market.types';
-import {
-  cloneMockMarketItems,
-  createMockMarketId,
-} from '@/features/admin/market/mock/market.mock';
 import { cn } from '@/lib/utils';
 
 type FormState = {
@@ -73,14 +71,11 @@ function toForm(item: MarketItem): FormState {
   };
 }
 
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
 export function AdminMarketView() {
   const { user } = useAuth();
   const canWrite = canManageMarket(user?.role, user?.rawRole);
-  const [items, setItems] = useState<MarketItem[]>(() => cloneMockMarketItems());
+  const [items, setItems] = useState<MarketItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<MarketItem | null>(null);
@@ -91,6 +86,23 @@ export function AdminMarketView() {
     () => items.filter((item) => item.status === 'published').length,
     [items],
   );
+
+  async function load() {
+    setLoading(true);
+    try {
+      const next = await marketAdminApi.list();
+      setItems(next);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'MARKET kartları yüklenemedi');
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, []);
 
   function openCreate() {
     setEditing(null);
@@ -104,7 +116,7 @@ export function AdminMarketView() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!canWrite) return;
     if (!form.title.trim()) {
       toast.error('Başlık zorunludur.');
@@ -122,57 +134,33 @@ export function AdminMarketView() {
     }
 
     setSaving(true);
-    const stamp = nowIso();
     try {
+      const payload = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        imageUrl: form.imageUrl.trim() || null,
+        linkUrl: form.linkUrl.trim() || null,
+        ctaLabel: form.ctaLabel.trim() || 'İncele',
+        sortOrder: Number(form.sortOrder) || 0,
+        status: nextStatus,
+      };
       if (editing) {
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === editing.id
-              ? {
-                  ...item,
-                  title: form.title.trim(),
-                  description: form.description.trim(),
-                  imageUrl: form.imageUrl.trim() || null,
-                  linkUrl: form.linkUrl.trim() || null,
-                  ctaLabel: form.ctaLabel.trim() || 'İncele',
-                  sortOrder: Number(form.sortOrder) || 0,
-                  status: nextStatus,
-                  publishedAt:
-                    nextStatus === 'published'
-                      ? item.publishedAt ?? stamp
-                      : item.publishedAt,
-                  updatedAt: stamp,
-                }
-              : item,
-          ),
-        );
-        toast.success('Kart güncellendi (mock)');
+        await marketAdminApi.update(editing.id, payload);
+        toast.success('Kart güncellendi');
       } else {
-        const created: MarketItem = {
-          id: createMockMarketId(),
-          title: form.title.trim(),
-          description: form.description.trim(),
-          imageUrl: form.imageUrl.trim() || null,
-          linkUrl: form.linkUrl.trim() || null,
-          ctaLabel: form.ctaLabel.trim() || 'İncele',
-          sortOrder: Number(form.sortOrder) || 0,
-          status: nextStatus,
-          publishedAt: nextStatus === 'published' ? stamp : null,
-          createdBy: user?.id ?? null,
-          createdAt: stamp,
-          updatedAt: stamp,
-          deletedAt: null,
-        };
-        setItems((prev) => [created, ...prev]);
-        toast.success('Kart oluşturuldu (mock)');
+        await marketAdminApi.create(payload);
+        toast.success('Kart oluşturuldu');
       }
       setDialogOpen(false);
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Kayıt başarısız');
     } finally {
       setSaving(false);
     }
   }
 
-  function handlePublish(item: MarketItem, publish: boolean) {
+  async function handlePublish(item: MarketItem, publish: boolean) {
     if (!canWrite) return;
     if (publish) {
       const publishedOthers = items.filter(
@@ -185,50 +173,50 @@ export function AdminMarketView() {
     }
 
     setBusyId(item.id);
-    const stamp = nowIso();
-    setItems((prev) =>
-      prev.map((row) =>
-        row.id === item.id
-          ? {
-              ...row,
-              status: publish ? 'published' : 'draft',
-              publishedAt: publish ? row.publishedAt ?? stamp : row.publishedAt,
-              updatedAt: stamp,
-            }
-          : row,
-      ),
-    );
-    toast.success(publish ? 'Kart yayınlandı (mock)' : 'Kart taslağa alındı (mock)');
-    setBusyId(null);
+    try {
+      await marketAdminApi.publish(item.id, publish);
+      toast.success(publish ? 'Kart yayınlandı' : 'Kart taslağa alındı');
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Yayın işlemi başarısız');
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  function handleDelete(item: MarketItem) {
+  async function handleDelete(item: MarketItem) {
     if (!canWrite) return;
     if (!window.confirm(`“${item.title}” silinsin mi?`)) return;
     setBusyId(item.id);
-    setItems((prev) => prev.filter((row) => row.id !== item.id));
-    toast.success('Kart silindi (mock)');
-    setBusyId(null);
+    try {
+      await marketAdminApi.remove(item.id);
+      toast.success('Kart silindi');
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Silme başarısız');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
     <AdminPageShell
       title="MARKET"
-      description="Sponsorlu MARKET reklamlarını yönetin. Yalnızca admin ve süper admin reklam oluşturabilir; kullanıcılar reklam veremez. En fazla 5 kart yayınlanabilir. Şimdilik mock veri kullanılıyor."
+      description="Sponsorlu MARKET reklamlarını yönetin. Yalnızca admin ve süper admin reklam oluşturabilir. En fazla 5 kart yayınlanabilir."
       toolbar={
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
             Yayında: <span className="font-medium text-foreground">{publishedCount}</span> /{' '}
             {MARKET_MAX_PUBLISHED}
-            <span className="ml-2 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">
-              Mock veri
+            <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-400">
+              Canlı veri
             </span>
             <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
               Admin / süper admin
             </span>
             {!canWrite ? (
               <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
-                Salt okunur (moderator)
+                Salt okunur
               </span>
             ) : null}
           </p>
@@ -241,7 +229,9 @@ export function AdminMarketView() {
         </div>
       }
     >
-      {items.length === 0 ? (
+      {loading ? (
+        <AdminLoadingState />
+      ) : items.length === 0 ? (
         <AdminEmptyState
           icon={Store}
           title="Henüz MARKET kartı yok"
@@ -281,79 +271,63 @@ export function AdminMarketView() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-1 flex-col gap-3 p-4">
+              <div className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h3 className="truncate font-display text-base font-semibold text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                      {item.description || 'Açıklama yok'}
-                    </p>
-                  </div>
-                  <Badge variant={item.status === 'published' ? 'default' : 'secondary'}>
+                  <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{item.title}</h3>
+                  <Badge variant="outline" className="shrink-0 text-[10px]">
                     {MARKET_STATUS_LABELS[item.status]}
                   </Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Sıra: {item.sortOrder}
-                  {item.linkUrl ? ` · ${item.linkUrl}` : ''}
-                </p>
-                {canWrite ? (
-                  <div className="mt-auto flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg"
-                      disabled={busyId === item.id}
-                      onClick={() => openEdit(item)}
-                    >
-                      <Pencil className="mr-1 h-3.5 w-3.5" />
-                      Düzenle
-                    </Button>
-                    {item.status === 'published' ? (
+                {item.description ? (
+                  <p className="line-clamp-2 text-xs text-muted-foreground">{item.description}</p>
+                ) : null}
+                <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
+                  {canWrite ? (
+                    <>
+                      <Button type="button" size="sm" variant="outline" onClick={() => openEdit(item)}>
+                        <Pencil className="mr-1 h-3.5 w-3.5" />
+                        Düzenle
+                      </Button>
+                      {item.status === 'published' ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={busyId === item.id}
+                          onClick={() => void handlePublish(item, false)}
+                        >
+                          {busyId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Archive className="mr-1 h-3.5 w-3.5" />}
+                          Taslak
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={busyId === item.id}
+                          onClick={() => void handlePublish(item, true)}
+                        >
+                          {busyId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="mr-1 h-3.5 w-3.5" />}
+                          Yayınla
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         size="sm"
-                        variant="outline"
-                        className="rounded-lg"
+                        variant="destructive"
                         disabled={busyId === item.id}
-                        onClick={() => handlePublish(item, false)}
+                        onClick={() => void handleDelete(item)}
                       >
-                        <Archive className="mr-1 h-3.5 w-3.5" />
-                        Yayından kaldır
+                        <Trash2 className="mr-1 h-3.5 w-3.5" />
+                        Sil
                       </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="rounded-lg"
-                        disabled={busyId === item.id}
-                        onClick={() => handlePublish(item, true)}
-                      >
-                        <Upload className="mr-1 h-3.5 w-3.5" />
-                        Yayınla
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg text-destructive"
-                      disabled={busyId === item.id}
-                      onClick={() => handleDelete(item)}
-                    >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      Sil
+                    </>
+                  ) : (
+                    <Button type="button" size="sm" variant="outline" disabled>
+                      <Eye className="mr-1 h-3.5 w-3.5" />
+                      Salt okunur
                     </Button>
-                  </div>
-                ) : (
-                  <p className="mt-auto inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Eye className="h-3.5 w-3.5" />
-                    Görüntüleme modu
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
             </article>
           ))}
@@ -361,81 +335,74 @@ export function AdminMarketView() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl sm:max-w-lg">
+        <DialogContent className="max-w-lg rounded-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Kartı düzenle' : 'Yeni MARKET kartı'}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
+          <div className="grid gap-3 py-2">
+            <div className="space-y-1.5">
               <Label htmlFor="market-title">Başlık</Label>
               <Input
                 id="market-title"
                 value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                className="rounded-xl"
+                onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="market-desc">Açıklama</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="market-description">Açıklama</Label>
               <Textarea
-                id="market-desc"
+                id="market-description"
                 value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                 rows={3}
-                className="rounded-xl"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="market-image">Görsel URL</Label>
               <Input
                 id="market-image"
                 value={form.imageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
                 placeholder="https://..."
-                className="rounded-xl"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="market-link">Fırsat bağlantısı URL</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="market-link">Bağlantı</Label>
               <Input
                 id="market-link"
                 value={form.linkUrl}
-                onChange={(e) => setForm((f) => ({ ...f, linkUrl: e.target.value }))}
-                placeholder="/kesfet veya https://..."
-                className="rounded-xl"
+                onChange={(e) => setForm((prev) => ({ ...prev, linkUrl: e.target.value }))}
+                placeholder="/invest veya https://..."
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="market-cta">CTA metni</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="market-cta">CTA</Label>
                 <Input
                   id="market-cta"
                   value={form.ctaLabel}
-                  onChange={(e) => setForm((f) => ({ ...f, ctaLabel: e.target.value }))}
-                  className="rounded-xl"
+                  onChange={(e) => setForm((prev) => ({ ...prev, ctaLabel: e.target.value }))}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="market-sort">Sıra</Label>
                 <Input
                   id="market-sort"
                   type="number"
-                  min={0}
                   value={form.sortOrder}
-                  onChange={(e) => setForm((f) => ({ ...f, sortOrder: e.target.value }))}
-                  className="rounded-xl"
+                  onChange={(e) => setForm((prev) => ({ ...prev, sortOrder: e.target.value }))}
                 />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="market-status">Durum</Label>
               <select
                 id="market-status"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={form.status}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value as MarketItemStatus }))
+                  setForm((prev) => ({ ...prev, status: e.target.value as MarketItemStatus }))
                 }
-                className="flex h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
               >
                 <option value="draft">Taslak</option>
                 <option value="published">Yayında</option>
@@ -443,22 +410,11 @@ export function AdminMarketView() {
               </select>
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => setDialogOpen(false)}
-              disabled={saving}
-            >
-              Vazgeç
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              İptal
             </Button>
-            <Button
-              type="button"
-              className="rounded-xl"
-              onClick={() => handleSave()}
-              disabled={saving || !canWrite}
-            >
+            <Button type="button" disabled={saving} onClick={() => void handleSave()}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Kaydet
             </Button>
@@ -468,4 +424,3 @@ export function AdminMarketView() {
     </AdminPageShell>
   );
 }
-

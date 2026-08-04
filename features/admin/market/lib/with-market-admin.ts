@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service';
+import { getServerContainer } from '@/lib/persistence/container';
 import { ids, type UserId } from '@/lib/domain/ids';
 import { apiError } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
@@ -45,8 +47,18 @@ async function resolveMarketAdmin(
     });
   }
 
+  let container = ctx.container;
+  if (canWrite) {
+    try {
+      container = getServerContainer(createServiceRoleClient());
+    } catch {
+      container = ctx.container;
+    }
+  }
+
   return {
     ...ctx,
+    container,
     adminUserId: ids.user(ctx.userId) as UserId,
     rawRole,
     canWrite,

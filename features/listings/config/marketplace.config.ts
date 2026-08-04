@@ -14,10 +14,11 @@ import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 export const INTENT_TO_CATEGORY_SLUG: Record<CategoryIntentId, string> = {
   'find-investment': 'yatirim-bul',
   invest: 'yatirim-yap',
-  'find-job': 'is-bul',
+  'find-job': 'ise-al',
   hire: 'ise-al',
   'find-partner': 'ortak-bul',
   franchise: 'bayilik-al',
+  'digital-ai': 'dijital-ai',
 };
 
 /** Legacy/alternate URL slugs → canonical category slug. */
@@ -29,10 +30,10 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string> = {
 export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'yatirim-bul': '/invest',
   'yatirim-yap': '/investors',
-  'is-bul': '/jobs',
   'ise-al': '/hire',
   'ortak-bul': '/partners',
   'bayilik-al': '/franchise',
+  'dijital-ai': '/dijital-ai',
 };
 
 /** English route path → canonical category slug. */
@@ -51,15 +52,10 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoTitle: 'Yatırım Yap — Yatırımcı Profilleri | Girisimco',
     seoDescription: 'Yatırım yapmak isteyen melek yatırımcı ve fon profilleri.',
   },
-  'is-bul': {
-    description: 'Kariyer fırsatlarını keşfedin',
-    seoTitle: 'İş Bul — Kariyer İlanları | Girisimco',
-    seoDescription: 'Startup ve teknoloji şirketlerinde kariyer fırsatları.',
-  },
   'ise-al': {
-    description: 'Ekibinize yetenek arayın',
-    seoTitle: 'İşe Al — Açık Pozisyonlar | Girisimco',
-    seoDescription: 'Ekibinize katılacak yetenekleri bulun.',
+    description: 'Açık pozisyonları inceleyin; telefon ile iletişime geçin',
+    seoTitle: 'İş İlanları — Açık Pozisyonlar | Girisimco',
+    seoDescription: 'Startup ve şirketlerde açık iş ilanlarını keşfedin; doğrudan arayın.',
   },
   'ortak-bul': {
     description: 'Kurucu veya iş ortağı arayın',
@@ -71,15 +67,20 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoTitle: 'Franchise İlanları | Girisimco',
     seoDescription: 'Türkiye genelinde yayınlanan franchise fırsatlarını keşfedin.',
   },
+  'dijital-ai': {
+    description: 'Yazılım, otomasyon ve yapay zeka çözümleri',
+    seoTitle: 'Dijital ve AI Çözümleri | Girisimco',
+    seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
+  },
 };
 
 const CATEGORY_ACCENT_KEYS: Record<string, keyof typeof GC_CATEGORY_COLORS> = {
   'yatirim-bul': 'yatirim-bul',
   'yatirim-yap': 'yatirim-yap',
-  'is-bul': 'is-bul',
   'ise-al': 'ise-al',
   'ortak-bul': 'ortak-bul',
   'bayilik-al': 'franchise',
+  'dijital-ai': 'dijital-ai',
 };
 
 /** Category slug → page metadata for SEO and card rendering. */
@@ -107,20 +108,20 @@ export const CATEGORY_PAGE_CONFIG: Record<string, CategoryPageMeta> = Object.fro
 export const CATEGORY_CONTENT_TYPE: Record<string, ContentType> = {
   'yatirim-bul': 'startup',
   'yatirim-yap': 'person',
-  'is-bul': 'person',
   'ise-al': 'job',
   'ortak-bul': 'startup',
   'bayilik-al': 'startup',
+  'dijital-ai': 'startup',
 };
 
 /** Category slug → display emoji for cards without images. */
 export const CATEGORY_EMOJI: Record<string, string> = {
   'yatirim-bul': '🚀',
   'yatirim-yap': '💼',
-  'is-bul': '👤',
   'ise-al': '📋',
   'ortak-bul': '🤝',
   'bayilik-al': '🏪',
+  'dijital-ai': '✨',
 };
 
 export const LISTING_SORT_OPTIONS: { value: ListingSortBy; label: string }[] = [

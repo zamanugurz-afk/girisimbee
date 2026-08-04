@@ -4,7 +4,8 @@ export type CategoryIntentId =
   | 'find-job'
   | 'hire'
   | 'find-partner'
-  | 'franchise';
+  | 'franchise'
+  | 'digital-ai';
 
 /** @deprecated Use CategoryIntentId */
 export type IntentId = CategoryIntentId;

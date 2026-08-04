@@ -13,9 +13,11 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
+import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import type { LucideIcon } from 'lucide-react';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
 
 function MetaRow({
   icon: Icon,
@@ -38,6 +40,9 @@ function MetaRow({
 }
 
 export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
+  const { user } = useAuth();
+  const isOwner =
+    Boolean(user?.id && listing.ownerUserId && user.id === listing.ownerUserId);
   const subcategory =
     listing.tags.find((tag) => tag.trim().length > 0) ?? null;
   const showLocation =
@@ -83,6 +88,12 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
           {listing.shortDescription}
         </p>
       ) : null}
+
+      <ListingContactPhone
+        phone={listing.contactPhone}
+        variant="hero"
+        hideCallButton={isOwner}
+      />
 
       <div className="mt-6 grid flex-1 grid-cols-1 gap-2.5 sm:grid-cols-2">
         {listing.listingNumber ? (

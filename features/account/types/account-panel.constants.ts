@@ -36,16 +36,11 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
         href: `${ACCOUNT_PANEL_BASE}/guvenlik`,
         icon: 'Shield',
       },
-      {
-        id: 'privacy',
-        label: 'Gizlilik',
-        href: `${ACCOUNT_PANEL_BASE}/ayarlar#gizlilik`,
-        icon: 'Lock',
-      },
+      // Privacy UI deferred — hide from nav for now
       {
         id: 'verifications',
         label: 'Doğrulamalarım',
-        href: '/ayarlar#dogrulama',
+        href: '/dashboard/dogrulamalar',
         icon: 'BadgeCheck',
       },
     ],
@@ -144,8 +139,8 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
 export const EMPTY_ACCOUNT_HUB_STATS: AccountHubStats = {
   listings: 0,
   favorites: 0,
-  messages: 0,
   followers: 0,
+  following: 0,
 };
 
 /** Mock dashboard stats — legacy AccountStats */

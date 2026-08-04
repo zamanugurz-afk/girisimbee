@@ -335,10 +335,11 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const investorPackageRepository = new SupabaseInvestorPackageRepository(supabase);
   const founderPackageRepository = new SupabaseFounderPackageRepository(supabase);
   const kvkkConsentRepository = new SupabaseKvkkConsentRepository(supabase);
-  const accountProfileRepository = new SupabaseAccountProfileRepository(supabase);
-  const userConsentRepository = new SupabaseUserConsentRepository(supabase);
-  const userSettingsRepository = new SupabaseUserSettingsRepository(supabase);
-  const userSecurityLogRepository = new SupabaseUserSecurityLogRepository(supabase);
+  /** Account profile stack stays in-memory — avoids profiles/consents/settings DB dependency. */
+  const accountProfileRepository = new MockAccountProfileRepository();
+  const userConsentRepository = new MockUserConsentRepository();
+  const userSettingsRepository = new MockUserSettingsRepository();
+  const userSecurityLogRepository = new MockUserSecurityLogRepository();
   const favoriteListingRepository = new SupabaseFavoriteListingRepository(supabase);
   const inboxNotificationRepository = new SupabaseInboxNotificationRepository(supabase);
   const listingViewRepository = new SupabaseListingViewRepository(supabase);

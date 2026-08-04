@@ -10,7 +10,27 @@ interface PageProps {
 
 async function loadDetail(slug: string, trackView = false) {
   const container = getServerContainer(createClient());
-  return container.ecosystem.franchiseService.getListingDetail(slug, { trackView });
+  const data = await container.ecosystem.franchiseService.getListingDetail(slug, { trackView });
+  if (!data) return null;
+
+  // Prefer membership/profile phone on franchise detail (same as /ilan pages).
+  const [marketplaceProfile, accountProfile] = await Promise.all([
+    container.profileService.getByUserId(data.listing.ownerId),
+    container.accountService.getProfile(data.listing.ownerId),
+  ]);
+  const membershipPhone =
+    marketplaceProfile?.phone?.trim()
+    || accountProfile?.phone?.trim()
+    || null;
+  if (!membershipPhone) return data;
+
+  return {
+    ...data,
+    listing: {
+      ...data.listing,
+      contactPhone: membershipPhone,
+    },
+  };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -15,6 +15,10 @@ import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 
 const TABLE = 'profiles';
 
+/** Live public.profiles columns only */
+const PROFILE_COLUMNS =
+  'id, role, display_name, avatar_url, email, account_status, suspended_at, suspension_reason, last_active_at, created_at, updated_at';
+
 interface ProfileRow {
   id: string;
   role: string;
@@ -45,7 +49,8 @@ function mapProfileRow(row: ProfileRow): User {
   return {
     id: row.id as UserId,
     email: row.email ?? '',
-    emailVerified: true,
+    // Not on profiles — session layer uses auth.users.email_confirmed_at
+    emailVerified: false,
     phone: null,
     phoneVerified: false,
     passwordHash: '',
@@ -64,7 +69,7 @@ export class SupabaseUserRepository implements UserRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findById(id: UserId, filter?: RepositoryFilter): Promise<User | null> {
-    let query = this.supabase.from(TABLE).select('*').eq('id', id);
+    let query = this.supabase.from(TABLE).select(PROFILE_COLUMNS).eq('id', id);
     if (!filter?.includeDeleted) query = query.neq('account_status', 'deleted');
     const { data, error } = await query.maybeSingle();
     if (error) {
@@ -78,7 +83,7 @@ export class SupabaseUserRepository implements UserRepository {
     const { page, limit } = normalizePagination(pagination);
     const start = offset(page, limit);
     const end = start + limit - 1;
-    let query = this.supabase.from(TABLE).select('*', { count: 'exact' });
+    let query = this.supabase.from(TABLE).select(PROFILE_COLUMNS, { count: 'exact' });
     if (!filter.includeDeleted) query = query.neq('account_status', 'deleted');
     if (filter.status) {
       const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
@@ -120,7 +125,7 @@ export class SupabaseUserRepository implements UserRepository {
   }
 
   async exists(id: UserId): Promise<boolean> {
-    const { count, error } = await this.supabase.from(TABLE).select('*', { count: 'exact', head: true }).eq('id', id);
+    const { count, error } = await this.supabase.from(TABLE).select('id', { count: 'exact', head: true }).eq('id', id);
     if (error) {
       if (isMissingRelationError(error)) return false;
       throw error;
@@ -136,7 +141,7 @@ export class SupabaseUserRepository implements UserRepository {
     const row: Record<string, unknown> = { updated_at: now() };
     if (input.email !== undefined) row.email = input.email;
     if (input.status !== undefined) row.account_status = input.status;
-    const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select('*').single();
+    const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select(PROFILE_COLUMNS).single();
     if (error) throw error;
     return mapProfileRow(data as ProfileRow);
   }
@@ -156,7 +161,7 @@ export class SupabaseUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const { data, error } = await this.supabase
       .from(TABLE)
-      .select('*')
+      .select(PROFILE_COLUMNS)
       .ilike('email', email)
       .neq('account_status', 'deleted')
       .maybeSingle();
@@ -188,7 +193,7 @@ export class SupabaseUserRepository implements UserRepository {
       row.suspended_at = null;
       row.suspension_reason = null;
     }
-    const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select('*').single();
+    const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select(PROFILE_COLUMNS).single();
     if (error) throw error;
     return mapProfileRow(data as ProfileRow);
   }

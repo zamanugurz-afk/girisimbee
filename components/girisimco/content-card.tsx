@@ -5,12 +5,26 @@ import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
+import { DigitalAiCapabilityIconBadge } from '@/components/girisimco/listing/digital-ai-capability-icons';
+import {
+  DIGITAL_AI_CAPABILITIES,
+  type DigitalAiCapabilityIcon,
+} from '@/features/listings/config/digital-ai-capabilities';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
 interface ContentCardProps {
   item: ContentItem;
   accent?: string;
+}
+
+function pickDigitalAiIcon(seed: string): DigitalAiCapabilityIcon {
+  if (!seed || DIGITAL_AI_CAPABILITIES.length === 0) return 'Sparkles';
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash + seed.charCodeAt(i) * (i + 1)) % DIGITAL_AI_CAPABILITIES.length;
+  }
+  return DIGITAL_AI_CAPABILITIES[hash]?.icon ?? 'Sparkles';
 }
 
 function Avatar({ initials, accent }: { initials: string; accent?: string }) {
@@ -48,7 +62,7 @@ export function ContentCard({ item, accent }: ContentCardProps) {
   const resolvedAccent = accent ?? item.listingGroupColor ?? GC_ACCENT;
 
   const card = isListingCard ? (
-    <ListingCardLayout item={item} listingLink={listingLink} />
+    <TextListingCardLayout item={item} listingLink={listingLink} />
   ) : (
     <LegacyContentCardLayout
       item={item}
@@ -69,66 +83,67 @@ export function ContentCard({ item, accent }: ContentCardProps) {
   return card;
 }
 
-function ListingCardLayout({
+/** Browse cards are text-first (no cover). Detail pages still show gallery images. */
+function TextListingCardLayout({
   item,
   listingLink,
 }: {
   item: ContentItem;
   listingLink: string | null;
 }) {
-  const groupColor = item.listingGroupColor ?? GC_ACCENT;
+  const accent = item.listingGroupColor ?? GC_ACCENT;
+  const isDigitalAi = item.listingGroupLabel === 'Dijital & AI';
+  const digitalIcon = isDigitalAi
+    ? pickDigitalAiIcon(item.listingId ?? item.id ?? item.title)
+    : null;
 
   return (
     <article
       className={cn(
-        'group flex h-full flex-col overflow-hidden gc-card-interactive',
+        'group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.28)] transition-all duration-300',
+        'hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-18px_rgba(15,23,42,0.35)]',
         listingLink && 'cursor-pointer',
       )}
+      style={{ ['--card-accent' as string]: accent }}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={item.coverUrl ?? '/covers/default.jpg'}
-          alt=""
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-        />
-        {item.listingTypeLabel && (
-          <span
-            className="absolute left-2.5 top-2.5 inline-flex max-w-[calc(100%-3.5rem)] items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm"
-            style={{ color: groupColor }}
-          >
-            {item.emoji && (
-              <span className="shrink-0 text-xs" role="img" aria-hidden>
-                {item.emoji}
-              </span>
-            )}
-            <span className="truncate">{item.listingTypeLabel}</span>
+      {digitalIcon ? (
+        <DigitalAiCapabilityIconBadge icon={digitalIcon} size="sm" />
+      ) : (
+        <span
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-base"
+          style={{ backgroundColor: `${accent}1F`, color: accent }}
+          aria-hidden
+        >
+          {item.emoji ?? '📋'}
+        </span>
+      )}
+
+      <p className="mt-4 text-[10px] font-semibold uppercase tracking-wide" style={{ color: accent }}>
+        {item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan'}
+      </p>
+
+      <h3 className="mt-1.5 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-foreground">
+        {item.title}
+      </h3>
+
+      {item.description ? (
+        <p className="mt-2 line-clamp-3 flex-1 text-[13px] leading-relaxed text-muted-foreground">
+          {item.description}
+        </p>
+      ) : (
+        <div className="flex-1" />
+      )}
+
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+        <span className="truncate text-xs text-muted-foreground">
+          {[item.price, item.location].filter(Boolean).join(' · ') || item.listingGroupLabel}
+        </span>
+        {listingLink ? (
+          <span className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors group-hover:text-[color:var(--card-accent)]">
+            İncele
+            <ArrowUpRight className="h-3 w-3" />
           </span>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-col p-3.5">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
-          {item.title}
-        </h3>
-
-        {(item.price || item.location) && (
-          <p className="mt-1.5 truncate text-xs text-muted-foreground">
-            {[item.price, item.location].filter(Boolean).join(' · ')}
-          </p>
-        )}
-
-        <div className="mt-auto flex items-center justify-between pt-3">
-          <span className="truncate text-xs font-medium text-muted-foreground">
-            {item.listingGroupLabel ?? item.subtitle}
-          </span>
-          {listingLink && (
-            <span className="ml-2 inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-primary">
-              Detay
-              <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px" />
-            </span>
-          )}
-        </div>
+        ) : null}
       </div>
     </article>
   );

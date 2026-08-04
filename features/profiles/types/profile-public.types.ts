@@ -12,4 +12,6 @@ export interface PublicProfileView {
   stats: ProfileStats;
   listings: Listing[];
   isOwner: boolean;
+  /** Whether the current viewer follows this profile owner. */
+  isFollowing: boolean;
 }

@@ -13,16 +13,19 @@ import { resolveSiteUrl } from '@/lib/site-url';
 import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
 
+/** Live `public.profiles` columns only (no user_id / first_name / username / status / …). */
 type ProfileRow = {
   id: string;
   role?: string | null;
-  user_id?: string | null;
   display_name?: string | null;
-  username?: string | null;
   avatar_url?: string | null;
+  email?: string | null;
+  account_status?: string | null;
+  suspended_at?: string | null;
+  suspension_reason?: string | null;
+  last_active_at?: string | null;
   created_at?: string;
   updated_at?: string;
-  [key: string]: unknown;
 };
 
 function mapProfile(row: ProfileRow): UserProfile {
@@ -36,6 +39,7 @@ function mapProfile(row: ProfileRow): UserProfile {
     dbRoleJson: JSON.stringify(dbRole),
     rawRole,
     coercedRole: role,
+    accountStatus: row.account_status ?? null,
     keys: Object.keys(row),
   });
   if (/super_admin/i.test(rawRole) && role !== 'super_admin') {
@@ -45,9 +49,11 @@ function mapProfile(row: ProfileRow): UserProfile {
     id: ids.user(row.id),
     role,
     rawRole,
-    displayName: (row.display_name as string | null) ?? null,
-    username: (row.username as string | null) ?? null,
-    avatarUrl: (row.avatar_url as string | null) ?? null,
+    displayName: row.display_name ?? null,
+    // `username` is not a profiles column — keep null; UI falls back to /dashboard/profil
+    username: null,
+    avatarUrl: row.avatar_url ?? null,
+    accountStatus: row.account_status ?? null,
     createdAt: String(row.created_at ?? ''),
     updatedAt: String(row.updated_at ?? ''),
   };
@@ -121,7 +127,9 @@ export function mapSessionUser(
   };
 }
 
-const PROFILE_SELECT = '*';
+/** Explicit live columns — avoids selecting missing user_id / first_name / … */
+const PROFILE_SELECT =
+  'id, role, display_name, avatar_url, email, account_status, suspended_at, suspension_reason, last_active_at, created_at, updated_at';
 
 function isRlsOrMissingProfileError(error: { code?: string; message?: string } | null): boolean {
   if (!error) return false;
@@ -142,7 +150,7 @@ export async function fetchProfile(
     .from('profiles')
     .select(PROFILE_SELECT)
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   // eslint-disable-next-line no-console -- role/RLS debug
   console.log('PROFILE RESULT', profile);
@@ -155,10 +163,9 @@ export async function fetchProfile(
     console.log('SESSION↔PROFILE ID CHECK', {
       sessionUserId: userId,
       profilesId: row.id,
-      profilesUserId: row.user_id ?? null,
       idEqualsSession: row.id === userId,
-      userIdEqualsSession: (row.user_id ?? null) === userId,
       role: row.role ?? null,
+      accountStatus: row.account_status ?? null,
     });
     return mapProfile(row);
   }
@@ -179,45 +186,6 @@ export async function fetchProfile(
   } else if (error) {
     // eslint-disable-next-line no-console -- role/RLS debug
     console.log('PROFILE QUERY FAILED', { sessionUserId: userId, error });
-  }
-
-  // Secondary lookup: some rows key off user_id instead of id
-  const byUserId = await supabase
-    .from('profiles')
-    .select(PROFILE_SELECT)
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  // eslint-disable-next-line no-console -- role/RLS debug
-  console.log('PROFILE FALLBACK by user_id', {
-    PROFILE_QUERY_ID: userId,
-    PROFILE_RESULT: byUserId.data,
-    PROFILE_ERROR: byUserId.error,
-  });
-
-  if (!byUserId.error && byUserId.data) {
-    const row = byUserId.data as ProfileRow;
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log('SESSION↔PROFILE ID CHECK (via user_id)', {
-      sessionUserId: userId,
-      profilesId: row.id,
-      profilesUserId: row.user_id ?? null,
-      idEqualsSession: row.id === userId,
-      userIdEqualsSession: (row.user_id ?? null) === userId,
-      role: row.role ?? null,
-      note: row.id !== userId
-        ? 'MISMATCH: profiles.id !== session.user.id — auth fetch by id will miss this row'
-        : 'ids match',
-    });
-    return mapProfile(row);
-  }
-
-  if (isRlsOrMissingProfileError(byUserId.error) || (!byUserId.data && !byUserId.error)) {
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log(
-      'PROFILE UNREADABLE AFTER id + user_id LOOKUPS — likely RLS deny or no profile row',
-      { sessionUserId: userId },
-    );
   }
 
   return null;
@@ -277,7 +245,9 @@ export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInp
     email: input.email,
     password: input.password,
     options: {
-      // Stored in auth.users.raw_user_meta_data only — no DB/schema writes.
+      // Auth metadata only — live profiles columns are filled by handle_new_user
+      // (id, role, display_name, email, last_active_at). Form first/last/username/phone
+      // stay in raw_user_meta_data for display_name coalescing, not as profiles columns.
       data: {
         display_name: displayName,
         first_name: input.firstName,

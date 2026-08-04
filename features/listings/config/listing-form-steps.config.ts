@@ -33,21 +33,21 @@ export interface ListingFormStepDef {
 const STEP_BASICS: ListingFormStepDef = {
   id: 'basics',
   title: 'Temel Bilgiler',
-  description: 'İlanınızı tanıtan başlık ve kısa özet',
+  description: 'Başlık ve kısa özet — kartlarda bu metinler görünür',
   coreFields: ['title', 'shortDescription'],
 };
 
 const STEP_DETAILS: ListingFormStepDef = {
   id: 'details',
   title: 'Detaylı Açıklama',
-  description: 'Vizyonunuzu ve beklentilerinizi anlatın',
+  description: 'Kapsamı ve beklentileri detaylı anlatın',
   coreFields: ['longDescription'],
 };
 
 const STEP_DETAILS_WITH_CITY: ListingFormStepDef = {
   id: 'details',
   title: 'Detaylı Açıklama',
-  description: 'Vizyonunuzu, beklentilerinizi ve konum bilgisini girin',
+  description: 'Kapsamı, beklentileri ve konum bilgisini girin',
   coreFields: ['longDescription', 'city'],
 };
 
@@ -122,8 +122,18 @@ function withPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
 /** Category-specific wizard steps keyed by category ID */
 export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
   [CATEGORY_IDS.yatirimBul]: withPublishFlow(
-    STEP_BASICS,
-    STEP_DETAILS,
+    {
+      id: 'basics',
+      title: 'Temel Bilgiler',
+      description: 'Yatırım ilanı başlığı ve kısa özet — kartlarda görünür',
+      coreFields: ['title', 'shortDescription'],
+    },
+    {
+      id: 'details',
+      title: 'Detaylı Açıklama',
+      description: 'Ürün, pazar, ekip ve yatırımcıya vaadinizi anlatın',
+      coreFields: ['longDescription'],
+    },
     {
       id: 'investment-seeking',
       title: 'Yatırım Detayları',
@@ -133,8 +143,18 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     STEP_IMAGES,
   ),
   [CATEGORY_IDS.yatirimYap]: withPublishFlow(
-    STEP_BASICS,
-    STEP_DETAILS,
+    {
+      id: 'basics',
+      title: 'Temel Bilgiler',
+      description: 'Yatırımcı profil başlığı ve kısa özet — kartlarda görünür',
+      coreFields: ['title', 'shortDescription'],
+    },
+    {
+      id: 'details',
+      title: 'Detaylı Açıklama',
+      description: 'Stratejinizi ve kuruculara sunduğunuz değeri anlatın',
+      coreFields: ['longDescription'],
+    },
     {
       id: 'investment-offering',
       title: 'Yatırım Profiliniz',
@@ -144,8 +164,18 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     STEP_IMAGES,
   ),
   [CATEGORY_IDS.ortakBul]: withPublishFlow(
-    STEP_BASICS,
-    STEP_DETAILS,
+    {
+      id: 'basics',
+      title: 'Temel Bilgiler',
+      description: 'Ortaklık ilanı başlığı ve kısa özet — kartlarda görünür',
+      coreFields: ['title', 'shortDescription'],
+    },
+    {
+      id: 'details',
+      title: 'Detaylı Açıklama',
+      description: 'Vizyon, ekip ve ortaklık beklentinizi anlatın',
+      coreFields: ['longDescription'],
+    },
     {
       id: 'partnership',
       title: 'Ortaklık Detayları',
@@ -155,7 +185,12 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     STEP_IMAGES,
   ),
   [CATEGORY_IDS.isBul]: withPublishFlow(
-    STEP_BASICS,
+    {
+      id: 'basics',
+      title: 'Temel Bilgiler',
+      description: 'Hedef rol başlığı ve kısa profil özeti',
+      coreFields: ['title', 'shortDescription'],
+    },
     {
       id: 'details',
       title: 'Kariyer özetim',
@@ -173,8 +208,18 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     STEP_KVKK,
   ),
   [CATEGORY_IDS.iseAl]: withPublishFlow(
-    STEP_BASICS,
-    STEP_DETAILS_WITH_CITY,
+    {
+      id: 'basics',
+      title: 'Temel Bilgiler',
+      description: 'Pozisyon başlığı ve kısa özet — iş ilanı kartlarında görünür',
+      coreFields: ['title', 'shortDescription'],
+    },
+    {
+      id: 'details',
+      title: 'Detaylı Açıklama',
+      description: 'Sorumluluklar, nitelikler ve süreç detaylarını yazın',
+      coreFields: ['longDescription', 'city'],
+    },
     {
       id: 'hiring',
       title: 'Pozisyon Detayları',
@@ -193,7 +238,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'brand',
       title: 'Marka Bilgileri',
-      description: 'Şirketinizi ve markanızı tanıtan temel bilgiler',
+      description: 'Marka adı, kısa tarihçe ve şirket bilgileri — kartlarda özet görünür',
       leadCustomFieldKeys: ['companyName'],
       coreFields: ['title', 'shortDescription', 'longDescription'],
       customFieldKeys: ['companyName', 'establishmentYear', 'sector', 'branchCount', 'website'],
@@ -254,6 +299,52 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       meta: ['images'],
       customFieldKeys: ['introductionVideoUrl', 'presentationPdfUrl', 'sampleContractUrl'],
     },
+  ),
+  [CATEGORY_IDS.genelIlan]: withPublishFlow(
+    STEP_BASICS,
+    STEP_DETAILS_WITH_CITY,
+    {
+      id: 'general-details',
+      title: 'İlan Detayları',
+      description: 'Tür, durum, fiyat ve sektör bilgileri',
+      customFieldKeys: 'all',
+    },
+    STEP_IMAGES,
+  ),
+  [CATEGORY_IDS.dijitalAi]: withPublishFlow(
+    {
+      id: 'basics',
+      title: 'Ürün özeti',
+      description: 'Çözümünüzün adı ve kısa tanıtımı — kartlarda bu metin görünür',
+      coreFields: ['title', 'shortDescription'],
+    },
+    {
+      id: 'digital-ai-identity',
+      title: 'Çözüm kimliği',
+      description: 'Tür, teslim modeli, hedef kitle, fiyat ve demo bağlantısı',
+      customFieldKeys: [
+        'solutionType',
+        'deliveryModel',
+        'targetAudience',
+        'priceRange',
+        'demoUrl',
+      ],
+    },
+    {
+      id: 'digital-ai-capabilities',
+      title: 'Yetenekler',
+      description:
+        'Örnekteki gibi: her yetenek ikon + başlık + açıklama kartıdır. En az birini seçin',
+      customFieldKeys: ['capabilities'],
+    },
+    {
+      id: 'digital-ai-scope',
+      title: 'Kapsam ve dil',
+      description: 'Detaylı açıklama, şehir ve desteklenen diller',
+      coreFields: ['longDescription', 'city'],
+      customFieldKeys: ['supportedLanguages'],
+    },
+    STEP_IMAGES,
   ),
 };
 

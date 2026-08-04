@@ -11,6 +11,7 @@ export const DASHBOARD_ROUTES = {
   ilanlarim: `${DASHBOARD_BASE}/ilanlarim`,
   favorilerim: `${DASHBOARD_BASE}/favorilerim`,
   mesajlarim: `${DASHBOARD_BASE}/mesajlarim`,
+  takipcilerim: `${DASHBOARD_BASE}/takipcilerim`,
   bildirimlerim: `${DASHBOARD_BASE}/bildirimlerim`,
   odemelerim: `${DASHBOARD_BASE}/odemelerim`,
   paketlerim: `${DASHBOARD_BASE}/paketlerim`,
@@ -27,6 +28,7 @@ export type DashboardNavId =
   | 'ilanlarim'
   | 'favorilerim'
   | 'mesajlarim'
+  | 'takipcilerim'
   | 'bildirimlerim'
   | 'odemelerim'
   | 'paketlerim'
@@ -41,6 +43,7 @@ export type DashboardNavIcon =
   | 'Megaphone'
   | 'Star'
   | 'MessageSquare'
+  | 'Users'
   | 'Bell'
   | 'CreditCard'
   | 'Package'
@@ -73,7 +76,7 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     children: [
       { id: 'profil', label: 'Profil', href: DASHBOARD_ROUTES.profil, icon: 'User' },
       { id: 'guvenlik', label: 'Güvenlik', href: DASHBOARD_ROUTES.guvenlik, icon: 'Shield' },
-      { id: 'gizlilik', label: 'Gizlilik', href: DASHBOARD_ROUTES.gizlilik, icon: 'Lock' },
+      // Gizlilik deferred — hide from nav for now
       {
         id: 'dogrulamalar',
         label: 'Doğrulamalar',
@@ -93,6 +96,12 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     label: 'Favorilerim',
     href: DASHBOARD_ROUTES.favorilerim,
     icon: 'Star',
+  },
+  {
+    id: 'takipcilerim',
+    label: 'Takipçilerim',
+    href: DASHBOARD_ROUTES.takipcilerim,
+    icon: 'Users',
   },
   // V1: messaging deferred — phone-only contact on listings
   {

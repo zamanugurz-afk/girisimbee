@@ -2,7 +2,6 @@ import { AccountHubProfileHero } from '@/features/account/components/AccountHubP
 import { AccountHubStatsGrid } from '@/features/account/components/AccountHubStatsGrid';
 import { AccountHubProfileInfo } from '@/features/account/components/AccountHubProfileInfo';
 import { AccountHubVerification } from '@/features/account/components/AccountHubVerification';
-import { AccountHubPrivacy } from '@/features/account/components/AccountHubPrivacy';
 import type { AccountHubStats } from '@/features/account/types/account-panel.types';
 import type { AccountHubViewModel } from '@/features/account/types/account-hub.types';
 
@@ -18,8 +17,8 @@ export function AccountDashboard({
       <AccountHubProfileHero
         displayName={view.displayName}
         username={view.username}
-        avatarUrl={view.avatarUrl}
         coverUrl={view.coverUrl}
+        emailVerified={view.emailVerified}
       />
 
       <AccountHubStatsGrid stats={stats} />
@@ -28,24 +27,14 @@ export function AccountDashboard({
         <AccountHubProfileInfo
           fullName={view.displayName}
           username={view.username}
+          email={view.email}
           phone={view.phone}
-          linkedIn={view.linkedInUrl}
-          website={view.website}
         />
         <AccountHubVerification
           emailVerified={view.emailVerified}
           phoneVerified={view.phoneVerified}
-          userVerified={view.userVerified}
-          investorVerified={view.investorVerified}
         />
       </div>
-
-      <AccountHubPrivacy
-        emailVisible={view.emailVisible}
-        phoneVisible={view.phoneVisible}
-        linkedInVisible={view.linkedInVisible}
-        websiteVisible={view.websiteVisible}
-      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import { hasAnyTrustBadge } from '@/features/authentication/types/trust.types';
+import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
 
 export interface ListingAttachment {
   id: string;
@@ -108,6 +109,8 @@ export interface ListingDetail {
   similar: ListingSimilar[];
   /** Category-specific detail rows derived from custom fields. */
   customFacts?: { label: string; value: string }[];
+  /** Digital & AI capability modules for feature-card detail section. */
+  capabilityModules?: DigitalAiCapability[];
 }
 
 export interface ListingSummary {

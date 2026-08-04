@@ -5,6 +5,7 @@ import {
   FactGrid,
   FactRow,
 } from '@/components/girisimco/listing/detail-primitives';
+import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -67,6 +68,10 @@ function customFactsSectionTitle(listing: ListingDetail): string {
       return 'Ek Bilgiler';
     case 'franchise':
       return 'Marka Detayları';
+    case 'general-listing':
+      return 'İlan Detayları';
+    case 'digital-ai':
+      return 'Çözüm Detayları';
     default:
       return 'Detaylar';
   }
@@ -75,6 +80,7 @@ function customFactsSectionTitle(listing: ListingDetail): string {
 export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showInvestment = INVESTMENT_CATEGORIES.has(listing.category.id) && hasInvestmentFacts(listing);
   const showCustomFacts = (listing.customFacts?.length ?? 0) > 0;
+  const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
   const showCompany = hasCompanyFacts(listing) && listing.category.id !== 'find-investment';
   const companySectionTitle = isFranchiseBrandListing(listing)
     ? 'Marka bilgileri'
@@ -124,6 +130,12 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
               ) : null}
             </FactGrid>
           </DetailCard>
+        </DetailSectionIf>
+      ) : null}
+
+      {showCapabilities ? (
+        <DetailSectionIf title="Çözüm yetenekleri" visible={showCapabilities}>
+          <DigitalAiCapabilityGrid capabilities={listing.capabilityModules ?? []} />
         </DetailSectionIf>
       ) : null}
 

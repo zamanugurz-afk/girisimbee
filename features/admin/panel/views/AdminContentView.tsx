@@ -449,7 +449,7 @@ export function AdminContentView() {
   return (
     <AdminPageShell
       title="İçerik Yönetimi (CMS)"
-      description="Content Management — mock veri"
+      description="Blog, menü ve banner düzenleme henüz mock — canlı site navigasyonu kod içinden yönetilir. Kalıcı CMS tablosu sonraki aşamada bağlanacak."
       toolbar={
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {section !== 'seo' ? (

@@ -104,7 +104,7 @@ export function CoreListingFields({
               onChange={(e) => set('title', e.target.value)}
               onBlur={() => applyAutoCorrect('title', 'title')}
               disabled={disabled}
-              placeholder={ui.placeholder ?? 'Örn: SaaS Girişimine Yatırımcı Arıyoruz'}
+              placeholder={ui.placeholder ?? 'Örn: İlan başlığınızı yazın'}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.title)}
             />

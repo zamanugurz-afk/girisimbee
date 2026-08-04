@@ -1,107 +1,191 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
-import { AdminReportCard } from '@/features/admin/panel/components/AdminReportCard';
-import { AdminMetricCard } from '@/features/admin/panel/components/AdminMetricCard';
-import { AdminChart } from '@/features/admin/panel/components/AdminChart';
-import { AdminTopListingsTable } from '@/features/admin/panel/components/AdminTopListingsTable';
-import { AdminTopUsersTable } from '@/features/admin/panel/components/AdminTopUsersTable';
-import { AdminReportPeriodFilter } from '@/features/admin/panel/components/AdminReportPeriodFilter';
-import { ADMIN_REPORT_PERIOD_LABELS } from '@/features/admin/panel/constants/admin-reports.constants';
-import { getMockAdminReportSnapshot } from '@/features/admin/panel/mock/admin-panel.mock';
-import type { AdminReportPeriod } from '@/features/admin/panel/types/admin-panel.types';
+import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
+import type { AdminReportPeriod, AdminReportSnapshot } from '@/features/admin/types/admin.types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
 
-function formatCount(value: number): string {
+const PERIOD_LABELS: Record<AdminReportPeriod, string> = {
+  daily: 'Günlük',
+  weekly: 'Haftalık',
+  monthly: 'Aylık',
+  custom: 'Özel aralık',
+};
+
+const METRIC_LABELS: Record<string, string> = {
+  newUsers: 'Yeni kullanıcılar',
+  newListings: 'Yeni ilanlar',
+  newApplications: 'Yeni başvurular',
+  revenueCents: 'Gelir (TL)',
+  visitors: 'Ziyaretçi / aktivite',
+  totalUsers: 'Toplam kullanıcı',
+  activeUsers: 'Aktif kullanıcı',
+  totalListings: 'Toplam ilan',
+  publishedListings: 'Yayındaki ilan',
+  totalApplications: 'Toplam başvuru',
+  succeededPayments: 'Başarılı ödeme',
+  openReports: 'Açık şikayet',
+  resolvedReports: 'Çözülen şikayet',
+};
+
+function formatMetricValue(key: string, value: number | string): string {
+  if (typeof value !== 'number') return String(value);
+  if (key === 'revenueCents') {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+      maximumFractionDigits: 0,
+    }).format(value / 100);
+  }
   return new Intl.NumberFormat('tr-TR').format(value);
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: 'TRY',
-    maximumFractionDigits: 0,
-  }).format(value);
+function toStartOfDayIso(dateStr: string): string | undefined {
+  if (!dateStr) return undefined;
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toISOString();
+}
+
+function toEndOfDayIso(dateStr: string): string | undefined {
+  if (!dateStr) return undefined;
+  const d = new Date(`${dateStr}T23:59:59.999`);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toISOString();
 }
 
 export function AdminReportsView() {
-  const [period, setPeriod] = useState<AdminReportPeriod>('weekly');
-  const snapshot = useMemo(() => getMockAdminReportSnapshot(period), [period]);
-  const { metrics } = snapshot;
+  const [period, setPeriod] = useState<AdminReportPeriod>('daily');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [report, setReport] = useState<AdminReportSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const metricCards = [
-    { id: 'total_users', label: 'Toplam kullanıcı sayısı', value: formatCount(metrics.total_users) },
-    { id: 'total_listings', label: 'Toplam ilan sayısı', value: formatCount(metrics.total_listings) },
-    { id: 'daily_listings', label: 'Günlük ilan sayısı', value: formatCount(metrics.daily_listings) },
-    {
-      id: 'total_views',
-      label: 'Toplam görüntülenme sayısı',
-      value: formatCount(metrics.total_views),
-    },
-    {
-      id: 'total_favorites',
-      label: 'Toplam favori sayısı',
-      value: formatCount(metrics.total_favorites),
-    },
-    {
-      id: 'total_placements',
-      label: 'Toplam vitrin sayısı',
-      value: formatCount(metrics.total_placements),
-    },
-    {
-      id: 'total_urgent_placements',
-      label: 'Toplam acil vitrin sayısı',
-      value: formatCount(metrics.total_urgent_placements),
-    },
-    {
-      id: 'daily_revenue',
-      label: 'Günlük gelir',
-      value: formatCurrency(metrics.daily_revenue),
-    },
-    {
-      id: 'monthly_revenue',
-      label: 'Aylık gelir',
-      value: formatCurrency(metrics.monthly_revenue),
-    },
-  ];
+  useEffect(() => {
+    if (period === 'custom' && (!fromDate || !toDate)) {
+      setLoading(false);
+      setReport(null);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const next = await adminApi.generateReport(
+          period,
+          undefined,
+          period === 'custom'
+            ? { from: toStartOfDayIso(fromDate), to: toEndOfDayIso(toDate) }
+            : undefined,
+        );
+        if (!cancelled) setReport(next);
+      } catch (error) {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : 'Rapor yüklenemedi');
+          setReport(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [period, fromDate, toDate]);
+
+  const metrics = report?.metrics ?? {};
 
   return (
     <AdminPageShell
       title="Raporlar"
-      description={`Platform metrikleri — mock veri (${ADMIN_REPORT_PERIOD_LABELS[period]})`}
+      description="Günlük, haftalık, aylık ve özel tarih aralığında kullanıcı, ilan, başvuru ve gelir takibi."
       toolbar={
-        <AdminReportPeriodFilter value={period} onChange={setPeriod} />
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
+            {(['daily', 'weekly', 'monthly', 'custom'] as const).map((p) => (
+              <Button
+                key={p}
+                type="button"
+                size="sm"
+                variant={period === p ? 'default' : 'outline'}
+                onClick={() => setPeriod(p)}
+              >
+                {PERIOD_LABELS[p]}
+              </Button>
+            ))}
+          </div>
+          {period === 'custom' ? (
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="report-from" className="text-xs">
+                  Başlangıç
+                </Label>
+                <Input
+                  id="report-from"
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-[160px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="report-to" className="text-xs">
+                  Bitiş
+                </Label>
+                <Input
+                  id="report-to"
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-[160px]"
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
       }
     >
-      <section aria-label="Özet metrikler" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {metricCards.map((card) => (
-          <AdminMetricCard key={card.id} label={card.label} value={card.value} />
-        ))}
-      </section>
-
-      <AdminReportCard
-        title="Trend grafiği"
-        description="Görüntülenme, ilan ve gelir — seçili dönem"
-      >
-        <AdminChart data={snapshot.chart} title={ADMIN_REPORT_PERIOD_LABELS[period]} />
-      </AdminReportCard>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <AdminReportCard title="En çok görüntülenen ilanlar">
-          <AdminTopListingsTable rows={snapshot.top_viewed_listings} />
-        </AdminReportCard>
-        <AdminReportCard title="En çok favorilenen ilanlar">
-          <AdminTopListingsTable
-            rows={[...snapshot.top_favorited_listings].sort(
-              (a, b) => b.favorite_count - a.favorite_count,
-            )}
-          />
-        </AdminReportCard>
-      </div>
-
-      <AdminReportCard title="En aktif kullanıcılar">
-        <AdminTopUsersTable rows={snapshot.top_active_users} />
-      </AdminReportCard>
+      {loading ? (
+        <AdminLoadingState />
+      ) : (
+        <div className="space-y-4">
+          {report ? (
+            <p className="text-xs text-muted-foreground">
+              Oluşturulma: {formatAdminDateTime(report.generatedAt)} · dönem:{' '}
+              {PERIOD_LABELS[report.period] ?? report.period}
+            </p>
+          ) : period === 'custom' ? (
+            <p className="text-sm text-muted-foreground">
+              Özel rapor için başlangıç ve bitiş tarihlerini seçin.
+            </p>
+          ) : null}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(metrics).map(([key, value]) => (
+              <div
+                key={key}
+                className="rounded-2xl border border-border/80 bg-card p-4 dark:border-white/10"
+              >
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {METRIC_LABELS[key] ?? key}
+                </p>
+                <p className="mt-2 font-display text-2xl font-semibold tabular-nums text-foreground">
+                  {formatMetricValue(key, value)}
+                </p>
+              </div>
+            ))}
+          </div>
+          {Object.keys(metrics).length === 0 && period !== 'custom' ? (
+            <p className="text-sm text-muted-foreground">Bu dönem için metrik bulunamadı.</p>
+          ) : null}
+        </div>
+      )}
     </AdminPageShell>
   );
 }

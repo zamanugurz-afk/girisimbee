@@ -1,10 +1,13 @@
 'use client';
 
-import { Flag, Heart, Link2, UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { Flag, Heart, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
+import { ListingReportDialog } from '@/components/girisimco/listing/listing-report-dialog';
+import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
 import type { ListingId } from '@/lib/domain/ids';
@@ -18,6 +21,7 @@ export function ListingDetailActions({
   className?: string;
 }) {
   const { user } = useAuth();
+  const [reportOpen, setReportOpen] = useState(false);
   const isOwner =
     Boolean(user?.id && listing.ownerUserId && user.id === listing.ownerUserId);
 
@@ -33,18 +37,6 @@ export function ListingDetailActions({
     } catch {
       toast.message('Paylaşım iptal edildi');
     }
-  }
-
-  function handleFollow() {
-    if (listing.publisher.href && listing.publisher.href !== '#') {
-      window.location.href = listing.publisher.href;
-      return;
-    }
-    toast.message('Takip için yayınlayan profiline gidin');
-  }
-
-  function handleReport() {
-    toast.message('İlan bildirimi yakında aktif olacak');
   }
 
   return (
@@ -70,16 +62,8 @@ export function ListingDetailActions({
         </Button>
       )}
 
-      {!isOwner ? (
-        <Button
-          type="button"
-          variant="outline"
-          className="h-10 rounded-2xl"
-          onClick={handleFollow}
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          Takip et
-        </Button>
+      {!isOwner && listing.ownerUserId ? (
+        <FollowUserButton targetUserId={listing.ownerUserId} className="h-10" />
       ) : null}
 
       {!isOwner ? (
@@ -94,21 +78,31 @@ export function ListingDetailActions({
         type="button"
         variant="outline"
         className="h-10 rounded-2xl"
-        onClick={handleShare}
+        onClick={() => void handleShare()}
       >
         <Link2 className="mr-2 h-4 w-4" />
         Paylaş
       </Button>
 
-      <Button
-        type="button"
-        variant="ghost"
-        className="h-10 rounded-2xl text-muted-foreground hover:text-destructive"
-        onClick={handleReport}
-      >
-        <Flag className="mr-2 h-4 w-4" />
-        İlanı bildir
-      </Button>
+      {!isOwner && listing.listingId ? (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-10 rounded-2xl text-muted-foreground hover:text-destructive"
+            onClick={() => setReportOpen(true)}
+          >
+            <Flag className="mr-2 h-4 w-4" />
+            İlanı bildir
+          </Button>
+          <ListingReportDialog
+            open={reportOpen}
+            onOpenChange={setReportOpen}
+            listingId={listing.listingId}
+            listingTitle={listing.title}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

@@ -29,6 +29,9 @@ export {
   PLACEMENT_PACKAGE_CONFIG,
   PLACEMENT_PACKAGE_LABELS,
   STANDARD_PUBLISH_CONFIG,
+  FRANCHISE_PUBLISH_CONFIG,
+  DIGITAL_AI_PUBLISH_CONFIG,
+  JOB_PUBLISH_CONFIG,
   isPlacementPackageSlug,
   formatPlacementPriceTry,
 } from '@/features/monetization/types/listing-placement.types';

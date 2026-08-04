@@ -1,39 +1,74 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, ListChecks, UserPlus, Users } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
+import { FileText, ListChecks, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
+import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
+import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import {
   DetailCard,
   FactGrid,
   FactRow,
 } from '@/components/girisimco/listing/detail-primitives';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { getProfileService } from '@/lib/persistence/container';
 import type { ListingDetail } from '@/features/listings';
+import type { UserId } from '@/lib/domain/ids';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
+import { formatNumber } from '@/lib/utils';
 
 interface ListingSidebarProps {
   listing: ListingDetail;
 }
 
 export function ListingSidebar({ listing }: ListingSidebarProps) {
+  const { user } = useAuth();
+  const ownerId = listing.ownerUserId;
+  const isOwner = Boolean(user?.id && ownerId && user.id === ownerId);
   const profileHref =
     listing.publisher.href && listing.publisher.href !== '#'
       ? listing.publisher.href
       : null;
 
-  function handleFollow() {
-    if (profileHref) {
-      window.location.href = profileHref;
-      return;
-    }
-    toast.message('Takip için yayınlayan profiline gidin');
-  }
+  const [followersCount, setFollowersCount] = useState<number | null>(null);
+  const [listingsCount, setListingsCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!ownerId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const service = getProfileService();
+        const view = await service.getPublicProfileByUserId(
+          ownerId as UserId,
+          user?.id as UserId | undefined,
+        );
+        if (cancelled || !view) return;
+        setFollowersCount(view.stats.followersCount);
+        setListingsCount(view.stats.listingsCount);
+      } catch {
+        if (!cancelled) {
+          setFollowersCount(null);
+          setListingsCount(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ownerId, user?.id]);
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+      <ListingContactPhone
+        phone={listing.contactPhone}
+        variant="sidebar"
+        hideCallButton={isOwner}
+      />
+
       <DetailCard className="!p-0 overflow-hidden">
         <div className="border-b border-border/70 bg-gradient-to-br from-primary/[0.06] via-transparent to-transparent px-5 py-5 dark:border-white/10 dark:from-primary/10">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -87,14 +122,18 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
                 <Users className="h-3.5 w-3.5" aria-hidden />
                 <span className="text-[11px]">Takipçi</span>
               </div>
-              <p className="mt-1 text-sm font-semibold text-foreground">—</p>
+              <p className="mt-1 text-sm font-semibold text-foreground">
+                {followersCount == null ? '—' : formatNumber(followersCount)}
+              </p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-muted/20 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.03]">
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <ListChecks className="h-3.5 w-3.5" aria-hidden />
                 <span className="text-[11px]">İlan</span>
               </div>
-              <p className="mt-1 text-sm font-semibold text-foreground">—</p>
+              <p className="mt-1 text-sm font-semibold text-foreground">
+                {listingsCount == null ? '—' : formatNumber(listingsCount)}
+              </p>
             </div>
           </div>
 
@@ -108,15 +147,18 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
           </p>
 
           <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-10 w-full rounded-2xl"
-              onClick={handleFollow}
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Takip et
-            </Button>
+            {!isOwner && ownerId ? (
+              <FollowUserButton
+                targetUserId={ownerId}
+                className="h-10 w-full"
+                onFollowChange={(next) => {
+                  setFollowersCount((prev) => {
+                    if (prev == null) return prev;
+                    return Math.max(0, prev + (next ? 1 : -1));
+                  });
+                }}
+              />
+            ) : null}
             {profileHref ? (
               <Button asChild className="h-10 w-full rounded-2xl">
                 <Link href={profileHref}>Profili gör</Link>

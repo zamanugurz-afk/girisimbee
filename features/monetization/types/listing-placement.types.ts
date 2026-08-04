@@ -52,18 +52,46 @@ export const STANDARD_PUBLISH_CONFIG = {
   benefits: ['Normal listeleme', 'Arama sonuçlarında görünme'],
 };
 
-/** Required fee to publish / renew a franchise listing (60 days). */
+/** Required fee to publish / renew a franchise listing (30 days). */
 export const FRANCHISE_PUBLISH_CONFIG = {
   slug: 'franchise_publish' as const,
   name: 'Franchise İlan Paketi',
   priceCents: 100_000,
-  durationDays: 60,
+  durationDays: 30,
   benefits: [
     'Franchise kategorisinde yayın',
-    '60 gün yayında kalma',
-    'Süre sonunda 1.000 TL ile yeniden 60 gün',
+    '30 gün yayında kalma',
+    'Süre sonunda 1.000 TL ile yeniden yayın',
   ],
 } as const;
+
+/** Dijital & AI listing publish fee (30 days). */
+export const DIGITAL_AI_PUBLISH_CONFIG = {
+  slug: 'dijital_ai_publish' as const,
+  name: 'Dijital & AI İlan Paketi',
+  priceCents: 100_000,
+  durationDays: 30,
+  benefits: [
+    'Dijital & AI kategorisinde yayın',
+    '30 gün yayında kalma',
+    'Süre sonunda 1.000 TL ile yeniden yayın',
+  ],
+} as const;
+
+/** Job listing publish fee (per listing). */
+export const JOB_PUBLISH_CONFIG = {
+  slug: 'job_publish' as const,
+  name: 'İş İlanı Paketi',
+  priceCents: 25_000,
+  durationDays: null as number | null,
+  benefits: [
+    'İş ilanı başına yayın hakkı',
+    'İlan başına 250 TL',
+  ],
+} as const;
+
+/** Free publish modules (Yatırım Bul / Ortak Bul). */
+export const FREE_PUBLISH_MODULES = ['entrepreneurs', 'investors', 'founders'] as const;
 
 export const PLACEMENT_PACKAGE_CONFIG: Record<
   PlacementPackageSlug,
@@ -80,27 +108,27 @@ export const PLACEMENT_PACKAGE_CONFIG: Record<
   vitrin: {
     slug: 'vitrin',
     name: 'Vitrin Paketi',
-    priceCents: 2900,
+    priceCents: 9900,
     durationDays: 30,
     featuredListing: true,
     urgentListing: false,
     benefits: [
       'Ana sayfadaki Öne Çıkanlar alanında görünme',
       'Daha fazla görüntülenme',
-      '30 gün süre',
+      '30 gün süre — süre sonunda yeniden ödeme gerekir',
     ],
   },
   hizli_erisim: {
     slug: 'hizli_erisim',
     name: 'Acil Vitrin Paketi',
-    priceCents: 3900,
+    priceCents: 9900,
     durationDays: 30,
     featuredListing: false,
     urgentListing: true,
     benefits: [
       'Ana sayfadaki Acil İlanlar alanında görünme',
       'Daha üst sıralarda gösterilme',
-      '30 gün süre',
+      '30 gün süre — süre sonunda yeniden ödeme gerekir',
     ],
   },
 };

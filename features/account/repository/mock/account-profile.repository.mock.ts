@@ -1,4 +1,4 @@
-import type { AccountProfileId, UserId } from '@/lib/domain/ids';
+import { ids, type AccountProfileId, type UserId } from '@/lib/domain/ids';
 import type { AccountProfileRepository } from '@/features/account/repositories/account-profile.repository';
 import type {
   AccountProfile,
@@ -7,15 +7,41 @@ import type {
 } from '@/features/account/types/account-profile.types';
 import { createAccountProfileEntity } from '@/features/account/repository/supabase/account-profile.mapper';
 
+/** Safe empty account profile for missing rows (no DB). */
+export function createEmptyAccountProfile(userId: UserId): AccountProfile {
+  return createAccountProfileEntity({
+    userId,
+    firstName: null,
+    lastName: null,
+    username: null,
+    email: null,
+    phone: null,
+    role: 'user',
+    status: 'active',
+    emailVerified: false,
+    phoneVerified: false,
+  });
+}
+
 export class MockAccountProfileRepository implements AccountProfileRepository {
   private rows = new Map<string, AccountProfile>();
 
+  private ensureByUserId(userId: UserId): AccountProfile {
+    const existing = [...this.rows.values()].find((row) => row.userId === userId);
+    if (existing) return existing;
+    const created = createEmptyAccountProfile(userId);
+    this.rows.set(created.id, created);
+    return created;
+  }
+
   async findById(id: AccountProfileId) {
-    return this.rows.get(id) ?? null;
+    const hit = this.rows.get(id);
+    if (hit) return hit;
+    return this.ensureByUserId(ids.user(String(id)));
   }
 
   async findByUserId(userId: UserId) {
-    return [...this.rows.values()].find((row) => row.userId === userId) ?? null;
+    return this.ensureByUserId(userId);
   }
 
   async findByUsername(username: string) {
@@ -24,29 +50,27 @@ export class MockAccountProfileRepository implements AccountProfileRepository {
   }
 
   async upsert(input: CreateAccountProfileInput) {
-    const existing = await this.findByUserId(input.userId);
-    const next = existing
-      ? {
-          ...existing,
-          ...input,
-          updatedAt: new Date().toISOString(),
-        }
-      : createAccountProfileEntity(input);
-    this.rows.set(next.id, next as AccountProfile);
-    return next as AccountProfile;
+    const existing = this.ensureByUserId(input.userId);
+    const next = {
+      ...existing,
+      ...input,
+      id: existing.id,
+      userId: existing.userId,
+      updatedAt: new Date().toISOString(),
+    } as AccountProfile;
+    this.rows.set(next.id, next);
+    return next;
   }
 
   async update(userId: UserId, input: UpdateAccountProfileInput) {
-    const existing = await this.findByUserId(userId);
-    if (!existing) throw new Error('Account profile not found');
+    const existing = this.ensureByUserId(userId);
     const next = { ...existing, ...input, updatedAt: new Date().toISOString() };
     this.rows.set(next.id, next);
     return next;
   }
 
   async touchLastLogin(userId: UserId) {
-    const existing = await this.findByUserId(userId);
-    if (!existing) return;
+    const existing = this.ensureByUserId(userId);
     const next = {
       ...existing,
       lastLoginAt: new Date().toISOString(),

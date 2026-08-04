@@ -14,6 +14,7 @@ import {
   Shield,
   Star,
   User,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,6 +34,7 @@ const ICONS: Record<DashboardNavIcon, LucideIcon> = {
   Megaphone,
   Star,
   MessageSquare,
+  Users,
   Bell,
   CreditCard,
   Package,
@@ -55,7 +57,7 @@ export function DashboardSidebar() {
         >
           Girişimco
         </Link>
-        <p className="mt-1 text-xs text-muted-foreground">Kullanıcı paneli · Hesabınızı yönetin</p>
+        <p className="mt-1 text-gc-xs text-muted-foreground">Kullanıcı paneli · Hesabınızı yönetin</p>
         <Link
           href="/kesfet"
           className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"

@@ -6,8 +6,8 @@ import {
   Briefcase,
   Handshake,
   Rocket,
+  Sparkles,
   Store,
-  UserPlus,
   type LucideIcon,
 } from 'lucide-react';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
@@ -22,10 +22,10 @@ import { cn } from '@/lib/utils';
 
 const CATEGORY_ICONS: Record<HomeCategorySlug, LucideIcon> = {
   'yatirim-bul': Rocket,
-  'is-bul': Briefcase,
-  'ise-al': UserPlus,
+  'ise-al': Briefcase,
   'ortak-bul': Handshake,
   franchise: Store,
+  'dijital-ai': Sparkles,
 };
 
 const CATEGORY_CARD_STYLES: Record<
@@ -36,11 +36,6 @@ const CATEGORY_CARD_STYLES: Record<
     tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
     border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
     glow: 'group-hover:shadow-[0_8px_24px_-8px_#60A5FA40]',
-  },
-  'is-bul': {
-    tint: 'from-[#5B5CF6]/12 via-[#5B5CF6]/4 to-transparent',
-    border: 'border-[#5B5CF6]/25 group-hover:border-[#5B5CF6]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#5B5CF640]',
   },
   'ise-al': {
     tint: 'from-[#22C55E]/12 via-[#22C55E]/4 to-transparent',
@@ -56,6 +51,11 @@ const CATEGORY_CARD_STYLES: Record<
     tint: 'from-[#EC4899]/12 via-[#EC4899]/4 to-transparent',
     border: 'border-[#EC4899]/25 group-hover:border-[#EC4899]/45',
     glow: 'group-hover:shadow-[0_8px_24px_-8px_#EC489940]',
+  },
+  'dijital-ai': {
+    tint: 'from-[#8B5CF6]/12 via-[#8B5CF6]/4 to-transparent',
+    border: 'border-[#8B5CF6]/25 group-hover:border-[#8B5CF6]/45',
+    glow: 'group-hover:shadow-[0_8px_24px_-8px_#8B5CF640]',
   },
 };
 

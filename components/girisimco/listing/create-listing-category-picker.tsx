@@ -5,8 +5,8 @@ import {
   Briefcase,
   Handshake,
   Rocket,
+  Sparkles,
   Store,
-  UserPlus,
   type LucideIcon,
 } from 'lucide-react';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
@@ -18,7 +18,12 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-type CreateVisualSlug = 'yatirim-bul' | 'is-bul' | 'ise-al' | 'ortak-bul' | 'franchise';
+type CreateVisualSlug =
+  | 'yatirim-bul'
+  | 'ise-al'
+  | 'ortak-bul'
+  | 'franchise'
+  | 'dijital-ai';
 
 const CATEGORY_VISUAL: Record<
   string,
@@ -34,26 +39,17 @@ const CATEGORY_VISUAL: Record<
 > = {
   [CATEGORY_IDS.yatirimBul]: {
     slug: 'yatirim-bul',
-    audience: 'Girişimciler',
+    audience: 'Yatırım arayanlar',
     Icon: Rocket,
     color: GC_CATEGORY_COLORS['yatirim-bul'],
     tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
     border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
     glow: 'group-hover:shadow-[0_8px_24px_-8px_#60A5FA40]',
   },
-  [CATEGORY_IDS.isBul]: {
-    slug: 'is-bul',
-    audience: 'İş arayanlar',
-    Icon: Briefcase,
-    color: GC_CATEGORY_COLORS['is-bul'],
-    tint: 'from-[#5B5CF6]/12 via-[#5B5CF6]/4 to-transparent',
-    border: 'border-[#5B5CF6]/25 group-hover:border-[#5B5CF6]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#5B5CF640]',
-  },
   [CATEGORY_IDS.iseAl]: {
     slug: 'ise-al',
     audience: 'İşverenler',
-    Icon: UserPlus,
+    Icon: Briefcase,
     color: GC_CATEGORY_COLORS['ise-al'],
     tint: 'from-[#22C55E]/12 via-[#22C55E]/4 to-transparent',
     border: 'border-[#22C55E]/25 group-hover:border-[#22C55E]/45',
@@ -61,7 +57,7 @@ const CATEGORY_VISUAL: Record<
   },
   [CATEGORY_IDS.ortakBul]: {
     slug: 'ortak-bul',
-    audience: 'Kurucular',
+    audience: 'Kurucu ortaklık',
     Icon: Handshake,
     color: GC_CATEGORY_COLORS['ortak-bul'],
     tint: 'from-[#F59E0B]/12 via-[#F59E0B]/4 to-transparent',
@@ -70,12 +66,21 @@ const CATEGORY_VISUAL: Record<
   },
   [CATEGORY_IDS.bayilikAl]: {
     slug: 'franchise',
-    audience: 'Franchise',
+    audience: 'Franchise veren',
     Icon: Store,
     color: GC_CATEGORY_COLORS.franchise,
     tint: 'from-[#EC4899]/12 via-[#EC4899]/4 to-transparent',
     border: 'border-[#EC4899]/25 group-hover:border-[#EC4899]/45',
     glow: 'group-hover:shadow-[0_8px_24px_-8px_#EC489940]',
+  },
+  [CATEGORY_IDS.dijitalAi]: {
+    slug: 'dijital-ai',
+    audience: 'Ürün & yetenekler',
+    Icon: Sparkles,
+    color: GC_CATEGORY_COLORS['dijital-ai'],
+    tint: 'from-[#8B5CF6]/12 via-[#8B5CF6]/4 to-transparent',
+    border: 'border-[#8B5CF6]/25 group-hover:border-[#8B5CF6]/45',
+    glow: 'group-hover:shadow-[0_8px_24px_-8px_#8B5CF640]',
   },
 };
 

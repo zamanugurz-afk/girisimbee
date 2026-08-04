@@ -17,9 +17,16 @@ export interface UserProfile {
   role: StoredUserRole;
   /** Unmodified profiles.role from the database */
   rawRole: string;
+  /** profiles.display_name — not first_name/last_name */
   displayName: string | null;
-  username: string | null;
+  /**
+   * Not stored on live `profiles` — always null for Auth session mapping.
+   * Kept optional for UI links that fall back when absent.
+   */
+  username?: string | null;
   avatarUrl: string | null;
+  /** profiles.account_status (not `status`) */
+  accountStatus?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +34,7 @@ export interface UserProfile {
 export interface SessionUser {
   id: UserId;
   email: string;
+  /** From auth.users.email_confirmed_at — not a profiles column */
   emailVerified: boolean;
   role: UserRole;
   /**
@@ -35,7 +43,8 @@ export interface SessionUser {
    */
   rawRole?: string | null;
   displayName: string | null;
-  username: string | null;
+  /** Optional — live profiles has no username column */
+  username?: string | null;
   avatarUrl: string | null;
 }
 
@@ -58,12 +67,13 @@ export interface SignUpConsents {
 export interface SignUpInput {
   email: string;
   password: string;
+  /** Form fields — stored in auth.users.raw_user_meta_data only (not profiles columns). */
   firstName: string;
   lastName: string;
   username: string;
   phone: string;
   consents: SignUpConsents;
-  /** Derived: `${firstName} ${lastName}` — kept for profiles.trigger compatibility */
+  /** Written to auth metadata + used by handle_new_user → profiles.display_name */
   displayName?: string;
 }
 

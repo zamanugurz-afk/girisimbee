@@ -288,3 +288,80 @@ export const FRANCHISE_CITY_OPTIONS = [
   'Diyarbakır',
   'Tüm Türkiye',
 ] as const;
+
+/** Genel ilan — tür seçenekleri */
+export const GENERAL_LISTING_TYPE_OPTIONS = [
+  'Ürün',
+  'Hizmet',
+  'Duyuru',
+  'Fırsat / kampanya',
+  'Etkinlik',
+  'Diğer',
+] as const;
+
+/** Genel ilan — durum / koşul */
+export const GENERAL_LISTING_CONDITION_OPTIONS = [
+  'Yeni',
+  'Az kullanılmış',
+  'İkinci el',
+  'Hizmet (fiziksel ürün yok)',
+] as const;
+
+/** Genel ilan — fiyat modeli */
+export const GENERAL_LISTING_PRICE_OPTIONS = [
+  'Ücretsiz',
+  '1.000 TL\'ye kadar',
+  '1.000 - 5.000 TL',
+  '5.000 - 25.000 TL',
+  '25.000 - 100.000 TL',
+  '100.000 TL ve üzeri',
+  'Teklif alınır',
+] as const;
+
+/** Dijital / AI çözüm türleri */
+export const DIGITAL_AI_SOLUTION_TYPE_OPTIONS = [
+  'Yapay zeka asistanı / ajan',
+  'Chatbot & müşteri desteği',
+  'SaaS ürünü',
+  'Otomasyon & RPA',
+  'Veri analitiği & BI',
+  'Bilgisayarlı görü',
+  'NLP / metin işleme',
+  'Özel yazılım geliştirme',
+  'AI danışmanlık',
+  'Entegrasyon & API',
+  'Diğer',
+] as const;
+
+/** Dijital / AI teslim modeli */
+export const DIGITAL_AI_DELIVERY_OPTIONS = [
+  'Abonelik (SaaS)',
+  'Proje bazlı',
+  'Kurulum + bakım',
+  'White-label',
+  'API kullanımı',
+  'Danışmanlık paketi',
+] as const;
+
+/** Dijital / AI hedef kitle */
+export const DIGITAL_AI_AUDIENCE_OPTIONS = [
+  'Startup',
+  'KOBİ',
+  'Kurumsal',
+  'Ajans / yazılım evi',
+  'Bireysel girişimci',
+] as const;
+
+/** Dijital / AI yetenek modülleri — titles from digital-ai-capabilities catalog */
+export { DIGITAL_AI_CAPABILITY_TITLES as DIGITAL_AI_CAPABILITY_OPTIONS } from '@/features/listings/config/digital-ai-capabilities';
+
+/** Dijital / AI desteklenen diller */
+export const DIGITAL_AI_LANGUAGE_OPTIONS = [
+  'Türkçe',
+  'İngilizce',
+  'Almanca',
+  'Fransızca',
+  'Arapça',
+  'Rusça',
+  'İspanyolça',
+] as const;

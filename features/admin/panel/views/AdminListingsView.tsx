@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
 import { AdminTable } from '@/features/admin/panel/components/AdminTable';
@@ -18,90 +19,112 @@ import {
   AdminListingEditDialog,
   type AdminListingEditDraft,
 } from '@/features/admin/panel/components/AdminListingEditDialog';
+import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import {
   ADMIN_LISTING_STATUS_LABELS,
   ADMIN_LISTINGS_PAGE_SIZE,
 } from '@/features/admin/panel/constants/admin-listings.constants';
 import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
-import { MOCK_ADMIN_LISTINGS } from '@/features/admin/panel/mock/admin-panel.mock';
+import { mapListingToAdminRow } from '@/features/admin/panel/lib/map-live-admin';
+import { adminApi } from '@/features/admin/lib/admin-api-client';
 import type {
-  AdminListingStatus,
   AdminMockListing,
   AdminTableColumn,
 } from '@/features/admin/panel/types/admin-panel.types';
+import type { ListingStatus } from '@/features/listings/types/listing.entity.types';
+import type { ListingId } from '@/lib/domain/ids';
 
-function cloneListings(): AdminMockListing[] {
-  return MOCK_ADMIN_LISTINGS.map((listing) => ({ ...listing }));
-}
-
-function toDayStart(value: string): number | null {
-  if (!value) return null;
-  const date = new Date(`${value}T00:00:00.000Z`);
-  return Number.isNaN(date.getTime()) ? null : date.getTime();
-}
-
-function toDayEnd(value: string): number | null {
-  if (!value) return null;
-  const date = new Date(`${value}T23:59:59.999Z`);
-  return Number.isNaN(date.getTime()) ? null : date.getTime();
-}
-
-function touch(listing: AdminMockListing): AdminMockListing {
-  return { ...listing, updated_at: new Date().toISOString() };
+function toApiListingStatus(filter: AdminListingStatusFilter): ListingStatus | undefined {
+  switch (filter) {
+    case 'active':
+      return 'published';
+    case 'pending':
+      return 'pending_review';
+    case 'draft':
+      return 'draft';
+    case 'suspended':
+      return 'paused';
+    case 'deleted':
+      return 'archived';
+    default:
+      return undefined;
+  }
 }
 
 export function AdminListingsView() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
-  const [listings, setListings] = useState<AdminMockListing[]>(cloneListings);
+  const [listings, setListings] = useState<AdminMockListing[]>([]);
+  const [total, setTotal] = useState(0);
   const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [categoryFilter, setCategoryFilter] = useState<AdminListingCategoryFilter>('all');
   const [statusFilter, setStatusFilter] = useState<AdminListingStatusFilter>('all');
   const [ownerFilter, setOwnerFilter] = useState<AdminListingOwnerFilter>('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [detailListing, setDetailListing] = useState<AdminMockListing | null>(null);
   const [editListing, setEditListing] = useState<AdminMockListing | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query), 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await adminApi.searchListings(
+        {
+          query: debouncedQuery.trim() || undefined,
+          status: toApiListingStatus(statusFilter),
+        },
+        { page, limit: ADMIN_LISTINGS_PAGE_SIZE },
+      );
+      let rows = result.data.map(mapListingToAdminRow);
+
+      if (categoryFilter !== 'all') {
+        rows = rows.filter((row) => row.category === categoryFilter);
+      }
+      if (ownerFilter !== 'all') {
+        rows = rows.filter((row) => row.owner === ownerFilter);
+      }
+      if (dateFrom) {
+        const fromTs = new Date(`${dateFrom}T00:00:00.000Z`).getTime();
+        rows = rows.filter((row) => new Date(row.created_at).getTime() >= fromTs);
+      }
+      if (dateTo) {
+        const toTs = new Date(`${dateTo}T23:59:59.999Z`).getTime();
+        rows = rows.filter((row) => new Date(row.created_at).getTime() <= toTs);
+      }
+
+      setListings(rows);
+      setTotal(result.total);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'İlanlar yüklenemedi');
+      setListings([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedQuery, statusFilter, categoryFilter, ownerFilter, dateFrom, dateTo, page]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const owners = useMemo(
     () => [...new Set(listings.map((listing) => listing.owner))].sort((a, b) => a.localeCompare(b, 'tr')),
     [listings],
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const fromTs = toDayStart(dateFrom);
-    const toTs = toDayEnd(dateTo);
-
-    return listings.filter((listing) => {
-      if (categoryFilter !== 'all' && listing.category !== categoryFilter) return false;
-      if (statusFilter !== 'all' && listing.status !== statusFilter) return false;
-      if (ownerFilter !== 'all' && listing.owner !== ownerFilter) return false;
-
-      const createdTs = new Date(listing.created_at).getTime();
-      if (fromTs !== null && createdTs < fromTs) return false;
-      if (toTs !== null && createdTs > toTs) return false;
-
-      if (!q) return true;
-      return (
-        listing.id.toLowerCase().includes(q)
-        || listing.title.toLowerCase().includes(q)
-        || listing.category.toLowerCase().includes(q)
-        || listing.owner.toLowerCase().includes(q)
-        || listing.status.includes(q)
-      );
-    });
-  }, [listings, query, categoryFilter, statusFilter, ownerFilter, dateFrom, dateTo]);
-
-  const pageCount = Math.max(1, Math.ceil(filtered.length / ADMIN_LISTINGS_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(total / ADMIN_LISTINGS_PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount);
-  const rows = filtered.slice(
-    (pageSafe - 1) * ADMIN_LISTINGS_PAGE_SIZE,
-    pageSafe * ADMIN_LISTINGS_PAGE_SIZE,
-  );
 
   const detailLive = detailListing
     ? listings.find((item) => item.id === detailListing.id) ?? detailListing
@@ -110,73 +133,63 @@ export function AdminListingsView() {
     ? listings.find((item) => item.id === editListing.id) ?? editListing
     : null;
 
-  function patchListing(
+  async function runListingAction(
     listingId: string,
-    updater: (listing: AdminMockListing) => AdminMockListing,
+    action:
+      | { action: 'approve' }
+      | { action: 'unpublish' }
+      | { action: 'delete' }
+      | { action: 'feature'; featuredUntil?: string }
+      | { action: 'mark_urgent'; urgentUntil?: string },
   ) {
-    setListings((prev) =>
-      prev.map((listing) =>
-        listing.id === listingId ? touch(updater(listing)) : listing,
-      ),
-    );
+    setBusyId(listingId);
+    try {
+      await adminApi.patchListing(listingId as ListingId, action);
+      toast.success('İşlem tamamlandı');
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'İşlem başarısız');
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  function setStatus(listingId: string, status: AdminListingStatus) {
-    patchListing(listingId, (listing) => ({ ...listing, status }));
-  }
-
-  function handleSave(listingId: string, draft: AdminListingEditDraft) {
-    patchListing(listingId, (listing) => ({
-      ...listing,
-      title: draft.title.trim() || listing.title,
-      category: draft.category || listing.category,
-      owner: draft.owner || listing.owner,
-      status: draft.status,
-    }));
-  }
-
-  function openDetail(listing: AdminMockListing) {
-    setDetailListing(listing);
-    setDetailOpen(true);
-  }
-
-  function openEdit(listing: AdminMockListing) {
-    setEditListing(listing);
-    setEditOpen(true);
+  function handleSave(_listingId: string, _draft: AdminListingEditDraft) {
+    toast.message('Başlık/kategori düzenleme için ilan detay sayfasını kullanın. Durum aksiyonları canlıdır.');
   }
 
   const columns: AdminTableColumn<AdminMockListing>[] = [
     {
       key: 'id',
-      header: 'id',
+      header: 'ID',
       className: 'max-w-[110px] truncate font-mono text-xs',
     },
-    { key: 'title', header: 'title', className: 'min-w-[180px]' },
-    { key: 'category', header: 'category' },
-    { key: 'owner', header: 'owner' },
+    { key: 'title', header: 'Başlık', className: 'min-w-[180px]' },
+    { key: 'category', header: 'Kategori' },
+    { key: 'owner', header: 'Sahip', className: 'max-w-[120px] truncate font-mono text-xs' },
     {
       key: 'status',
-      header: 'status',
+      header: 'Durum',
       render: (row) => ADMIN_LISTING_STATUS_LABELS[row.status],
     },
     {
       key: 'view_count',
-      header: 'view_count',
+      header: 'Görüntülenme',
       className: 'tabular-nums',
     },
     {
       key: 'favorite_count',
-      header: 'favorite_count',
+      header: 'Favori',
       className: 'tabular-nums',
     },
     {
       key: 'created_at',
-      header: 'created_at',
+      header: 'Oluşturulma',
       render: (row) => formatAdminDateTime(row.created_at),
     },
     {
       key: 'updated_at',
-      header: 'updated_at',
+      header: 'Güncelleme',
       render: (row) => formatAdminDateTime(row.updated_at),
     },
     {
@@ -185,25 +198,36 @@ export function AdminListingsView() {
       header: 'İşlemler',
       render: (row) => (
         <div className="flex max-w-[320px] flex-wrap gap-1.5">
-          <Button type="button" size="sm" variant="outline" onClick={() => openDetail(row)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setDetailListing(row);
+              setDetailOpen(true);
+            }}
+          >
             Detay
           </Button>
-          <Button type="button" size="sm" variant="outline" onClick={() => openEdit(row)}>
-            Düzenle
-          </Button>
-          {row.status === 'active' || row.status === 'pending' ? (
+          {(row.status === 'active' || row.status === 'pending') ? (
             <Button
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => setStatus(row.id, 'suspended')}
+              disabled={busyId === row.id}
+              onClick={() => void runListingAction(row.id, { action: 'unpublish' })}
             >
               Yayından kaldır
             </Button>
           ) : null}
           {row.status !== 'active' && row.status !== 'deleted' ? (
-            <Button type="button" size="sm" onClick={() => setStatus(row.id, 'active')}>
-              Yeniden yayınla
+            <Button
+              type="button"
+              size="sm"
+              disabled={busyId === row.id}
+              onClick={() => void runListingAction(row.id, { action: 'approve' })}
+            >
+              Yayınla
             </Button>
           ) : null}
           {!row.is_featured ? (
@@ -211,13 +235,8 @@ export function AdminListingsView() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() =>
-                patchListing(row.id, (listing) => ({
-                  ...listing,
-                  is_featured: true,
-                  status: listing.status === 'deleted' ? listing.status : 'active',
-                }))
-              }
+              disabled={busyId === row.id}
+              onClick={() => void runListingAction(row.id, { action: 'feature' })}
             >
               Vitrine taşı
             </Button>
@@ -227,13 +246,8 @@ export function AdminListingsView() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() =>
-                patchListing(row.id, (listing) => ({
-                  ...listing,
-                  is_urgent: true,
-                  status: listing.status === 'deleted' ? listing.status : 'active',
-                }))
-              }
+              disabled={busyId === row.id}
+              onClick={() => void runListingAction(row.id, { action: 'mark_urgent' })}
             >
               Acil vitrin
             </Button>
@@ -243,14 +257,11 @@ export function AdminListingsView() {
               type="button"
               size="sm"
               variant="destructive"
-              onClick={() =>
-                patchListing(row.id, (listing) => ({
-                  ...listing,
-                  status: 'deleted',
-                  is_featured: false,
-                  is_urgent: false,
-                }))
-              }
+              disabled={busyId === row.id}
+              onClick={() => {
+                if (!window.confirm('İlanı silmek istediğinize emin misiniz?')) return;
+                void runListingAction(row.id, { action: 'delete' });
+              }}
             >
               Sil
             </Button>
@@ -263,7 +274,7 @@ export function AdminListingsView() {
   return (
     <AdminPageShell
       title="İlanlar"
-      description="İlan yönetimi — mock veri (arama, filtre, düzenleme, vitrin aksiyonları)"
+      description="Canlı ilan yönetimi — marketplace_listings üzerinden."
       toolbar={
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -275,7 +286,7 @@ export function AdminListingsView() {
               }}
               placeholder="id, başlık, kategori veya sahip ara…"
             />
-            <p className="text-sm text-muted-foreground">{filtered.length} kayıt</p>
+            <p className="text-sm text-muted-foreground">{total} kayıt</p>
           </div>
           <AdminListingFilters
             category={categoryFilter}
@@ -308,19 +319,28 @@ export function AdminListingsView() {
         </div>
       }
     >
-      <AdminTable
-        columns={columns}
-        rows={rows}
-        emptyTitle="İlan bulunamadı"
-        emptyDescription="Arama veya filtre kriterlerinize uygun ilan yok."
-      />
-      <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+      {loading ? (
+        <AdminLoadingState />
+      ) : (
+        <>
+          <AdminTable
+            columns={columns}
+            rows={listings}
+            emptyTitle="İlan bulunamadı"
+            emptyDescription="Arama veya filtre kriterlerinize uygun ilan yok."
+          />
+          <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+        </>
+      )}
 
       <AdminListingDetailDialog
         listing={detailLive}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        onEdit={(listing) => openEdit(listing)}
+        onEdit={(listing) => {
+          setEditListing(listing);
+          setEditOpen(true);
+        }}
       />
       <AdminListingEditDialog
         listing={editLive}

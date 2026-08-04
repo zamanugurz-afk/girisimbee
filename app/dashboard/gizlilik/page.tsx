@@ -1,59 +1,39 @@
-'use client';
-
-import { useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { AccountPrivacySettings } from '@/features/account/components/AccountPrivacySettings';
-import {
-  getDefaultAccountPanelSettings,
-  getMockAccountPanelSettings,
-} from '@/features/account/services/account-settings-mock.service';
-import type { AccountPanelSettingsData } from '@/features/account/types/account-settings.types';
+import Link from 'next/link';
+import { Lock } from 'lucide-react';
+import { AccountPanelCard } from '@/features/account/components/AccountPanelCard';
 import { DashboardPageHeader } from '@/features/dashboard/panel';
+import { Button } from '@/components/ui/button';
 
+export const metadata = {
+  title: 'Gizlilik — Kullanıcı Paneli — Girisimco',
+};
+
+/** Privacy settings are deferred — kept route for bookmarks, UI closed for now. */
 export default function DashboardGizlilikPage() {
-  const initial = useMemo(() => getMockAccountPanelSettings(), []);
-  const [settings, setSettings] = useState<AccountPanelSettingsData>(initial);
-  const [saved, setSaved] = useState<AccountPanelSettingsData>(initial);
-  const dirty = JSON.stringify(settings) !== JSON.stringify(saved);
-
   return (
     <>
       <DashboardPageHeader
         title="Gizlilik"
-        description="Profilinizde hangi bilgilerin görüneceğini yönetin."
+        description="Gizlilik ayarları şimdilik kapalı. İleride yeniden açılabilir."
       />
-      <div className="space-y-6 px-5 py-8 sm:px-8">
-        <AccountPrivacySettings
-          value={settings.privacy}
-          onChange={(privacy) => setSettings({ ...settings, privacy })}
-        />
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            className="rounded-2xl"
-            disabled={!dirty}
-            onClick={() => {
-              setSaved(settings);
-              toast.success('Gizlilik ayarları kaydedildi (geçici)');
-            }}
-          >
-            Kaydet
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-2xl"
-            onClick={() => {
-              const defaults = getDefaultAccountPanelSettings();
-              setSettings(defaults);
-              setSaved(defaults);
-              toast.message('Varsayılanlara dönüldü');
-            }}
-          >
-            Varsayılanlar
-          </Button>
-        </div>
+      <div className="px-5 py-8 sm:px-8">
+        <AccountPanelCard>
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-200">
+              <Lock className="h-6 w-6" aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base font-bold text-foreground">Geçici olarak kapalı</h2>
+              <p className="mt-1 text-sm leading-relaxed text-foreground/70">
+                Profil görünürlük tercihleri bu sürümde gösterilmiyor. Temel hesap
+                yönetimi için genel bakış veya profil sayfasını kullanabilirsiniz.
+              </p>
+            </div>
+            <Button asChild className="rounded-xl font-semibold">
+              <Link href="/dashboard">Genel bakışa dön</Link>
+            </Button>
+          </div>
+        </AccountPanelCard>
       </div>
     </>
   );

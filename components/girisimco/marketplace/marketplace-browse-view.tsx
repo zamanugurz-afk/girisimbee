@@ -111,7 +111,7 @@ export function MarketplaceBrowseView({
         {categorySlug && (
           <div className="mt-10 flex flex-wrap gap-2 border-t border-border/80 pt-8 dark:border-white/10">
             <span className="text-xs text-muted-foreground">Diğer kategoriler:</span>
-            {['yatirim-bul', 'ortak-bul', 'bayilik-al', 'is-bul', 'ise-al']
+            {['yatirim-bul', 'ortak-bul', 'bayilik-al', 'ise-al', 'dijital-ai']
               .filter((s) => s !== categorySlug)
               .map((slug) => {
                 const meta = resolveCategorySlug(slug);

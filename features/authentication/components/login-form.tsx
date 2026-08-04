@@ -30,12 +30,17 @@ export function LoginForm() {
   const { login } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const authError = searchParams.get('error');
+  const authMessage = searchParams.get('message');
 
   useEffect(() => {
     if (authError === 'auth_callback_failed') {
-      toast.error('Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.');
+      toast.error(authMessage || 'Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.');
+    } else if (authError === 'oauth_bootstrap') {
+      toast.error(authMessage || 'Google hesabı bağlandı fakat profil oluşturulamadı.');
+    } else if (authError === 'oauth_provider') {
+      toast.error(authMessage || 'Google girişi iptal edildi veya başarısız oldu.');
     }
-  }, [authError]);
+  }, [authError, authMessage]);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -59,9 +64,14 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      {authError === 'auth_callback_failed' && (
+      {(authError === 'auth_callback_failed'
+        || authError === 'oauth_bootstrap'
+        || authError === 'oauth_provider') && (
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.
+          {authMessage
+            || (authError === 'oauth_bootstrap'
+              ? 'Google oturumu açıldı ancak profil oluşturulamadı. Tekrar deneyin veya e-posta ile kayıt olun.'
+              : 'Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.')}
         </div>
       )}
       <GoogleOAuthButton

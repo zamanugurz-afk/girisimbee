@@ -8,7 +8,7 @@ export const HOME_CATEGORIES = [
     label: 'Yatırım Bul',
     color: GC_CATEGORY_COLORS['yatirim-bul'],
     audience: 'Girişimciler',
-    hint: 'Fikirlerinizi büyütecek yatırım fırsatlarını keşfedin.',
+    hint: 'Yatırım tutarı, aşama ve kullanım alanıyla ilan yayınlayın veya keşfedin.',
   },
   {
     slug: 'ortak-bul',
@@ -16,7 +16,7 @@ export const HOME_CATEGORIES = [
     label: 'Ortak Bul',
     color: GC_CATEGORY_COLORS['ortak-bul'],
     audience: 'Kurucular',
-    hint: 'Hedeflerinize ulaşmak için doğru iş ortaklarıyla tanışın.',
+    hint: 'Uzmanlık ve taahhüt beklentisiyle ortaklık ilanlarını inceleyin.',
   },
   {
     slug: 'franchise',
@@ -24,23 +24,23 @@ export const HOME_CATEGORIES = [
     label: 'Franchise',
     color: GC_CATEGORY_COLORS.franchise,
     audience: 'Franchise fırsatları',
-    hint: 'Yayınlanan franchise ilanlarını keşfedin.',
-  },
-  {
-    slug: 'is-bul',
-    href: '/jobs',
-    label: 'İş Bul',
-    color: GC_CATEGORY_COLORS['is-bul'],
-    audience: 'İş arayanlar',
-    hint: 'Kariyer yolculuğunuz için doğru fırsatları keşfedin.',
+    hint: 'Marka, yatırım ve lokasyon bilgisiyle franchise ilanlarını keşfedin.',
   },
   {
     slug: 'ise-al',
     href: '/hire',
-    label: 'İşe Al',
+    label: 'İş İlanları',
     color: GC_CATEGORY_COLORS['ise-al'],
-    audience: 'İşverenler',
-    hint: 'Ekibinizi güçlendirecek yeteneklerle tanışın.',
+    audience: 'Açık pozisyonlar',
+    hint: 'Pozisyon özeti ve maaş aralığıyla iş ilanlarını inceleyin; telefon ile arayın.',
+  },
+  {
+    slug: 'dijital-ai',
+    href: '/dijital-ai',
+    label: 'Dijital ve AI Çözümleri',
+    color: GC_CATEGORY_COLORS['dijital-ai'],
+    audience: 'Ürün & yetenekler',
+    hint: 'Ürün adı, kısa tanıtım ve yetenek kartlarıyla AI / yazılım çözümlerini inceleyin.',
   },
 ] as const;
 
@@ -63,12 +63,12 @@ export const HOME_STEPS = [
   {
     step: '1',
     title: 'Yolunuzu seçin',
-    description: 'Yatırım, kariyer veya ortaklık — size uygun kategoride ilanları inceleyin.',
+    description: 'Yatırım, iş ilanı veya ortaklık — size uygun kategoride ilanları inceleyin.',
   },
   {
     step: '2',
     title: 'Doğrudan arayın',
-    description: 'İlan sahibinin doğrulanmış telefonunu arayın. Platform üzerinden mesajlaşma yoktur.',
+    description: 'İlan sahibinin telefonunu arayın. Platform üzerinden mesajlaşma yoktur.',
   },
   {
     step: '3',

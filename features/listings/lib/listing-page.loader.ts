@@ -3,10 +3,28 @@ import { createClient } from '@/lib/supabase/server';
 import { getServerContainer } from '@/lib/persistence/container';
 import { aggregateToListingDetail } from '@/features/listings/mappers/listing-detail.mapper';
 import type { ListingDetail } from '@/features/listings/types/listing.types';
+import type { Profile } from '@/features/profiles/types/profile.types';
 import type { ListingId } from '@/lib/domain/ids';
 import { uuidSchema } from '@/lib/domain/validation';
 import { profileSpan, recordCacheMiss } from '@/lib/perf/navigation-profile';
 import { parseListingNumberQuery } from '@/features/listings/utils/listing-number';
+
+/** Resolve membership phone from marketplace or account profile. */
+function resolveOwnerPhone(
+  marketplace: Profile | null,
+  accountPhone: string | null | undefined,
+): Profile | null {
+  const phone =
+    marketplace?.phone?.trim()
+    || accountPhone?.trim()
+    || null;
+  if (!phone && !marketplace) return null;
+  if (!marketplace) {
+    return { phone } as Profile;
+  }
+  if (marketplace.phone?.trim() === phone) return marketplace;
+  return { ...marketplace, phone };
+}
 
 /** Shared loader for listing page + generateMetadata. */
 export const loadListingDetail = cache(async (idOrSlug: string): Promise<ListingDetail | null> => {
@@ -35,14 +53,18 @@ export const loadListingDetail = cache(async (idOrSlug: string): Promise<Listing
 
       if (!aggregate) return null;
 
-      const [profile, company] = await Promise.all([
+      const [profile, accountProfile, company] = await Promise.all([
         container.profileService.getByUserId(aggregate.listing.ownerId),
+        container.accountService.getProfile(aggregate.listing.ownerId),
         aggregate.listing.companyId
           ? container.companyService.getById(aggregate.listing.companyId)
           : Promise.resolve(null),
       ]);
 
-      return aggregateToListingDetail(aggregate, { profile, company });
+      return aggregateToListingDetail(aggregate, {
+        profile: resolveOwnerPhone(profile, accountProfile?.phone),
+        company,
+      });
     } catch (error: any) {
       console.error('MESSAGE:', error?.message);
       console.error('DETAILS:', error?.details);

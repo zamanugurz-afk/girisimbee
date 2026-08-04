@@ -7,7 +7,7 @@ import type { AccountHubStats } from '@/features/account/types/account-panel.typ
 import { EMPTY_ACCOUNT_HUB_STATS } from '@/features/account/types/account-panel.constants';
 import type { SessionUser } from '@/features/authentication/types/auth.types';
 
-/** Assemble hub overview from existing account + marketplace profile services. */
+/** Assemble hub overview from Auth session + account + marketplace profile services. */
 export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
   view: AccountHubViewModel;
   stats: AccountHubStats;
@@ -19,50 +19,38 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
     username: string | null;
     displayName: string;
     phone: string | null;
-    linkedInUrl: string | null;
-    website: string | null;
     avatarUrl: string | null;
     coverUrl: string | null;
-    isVerified: boolean;
-    investorVerified: boolean;
-    emailVisible: boolean;
-    phoneVisible: boolean;
-    websiteVisible: boolean;
   } | null = null;
 
   const stats: AccountHubStats = { ...EMPTY_ACCOUNT_HUB_STATS };
+  const userId = ids.user(sessionUser.id);
 
   try {
     const supabase = createClient();
     const container = getServerContainer(supabase);
-    const userId = ids.user(sessionUser.id);
-    const profile = await container.profileService.findByUserId(userId);
+    const profile = await container.profileService.getByUserId(userId);
     if (profile) {
       marketplace = {
         username: profile.username,
         displayName: profile.displayName,
         phone: profile.phone,
-        linkedInUrl: profile.linkedInUrl,
-        website: profile.website,
         avatarUrl: profile.avatarUrl,
         coverUrl: profile.coverUrl,
-        isVerified: profile.isVerified,
-        investorVerified: profile.investorVerified,
-        emailVisible: profile.emailVisible,
-        phoneVisible: profile.phoneVisible,
-        websiteVisible: profile.websiteVisible,
       };
-
-      const [listings, favorites, followers] = await Promise.all([
-        container.listingRepository.count({ ownerId: userId }).catch(() => 0),
-        container.favoriteRepository.count({ userId }).catch(() => 0),
-        container.followRepository.countFollowers(userId).catch(() => 0),
-      ]);
-
-      stats.listings = typeof listings === 'number' ? listings : 0;
-      stats.favorites = typeof favorites === 'number' ? favorites : 0;
-      stats.followers = typeof followers === 'number' ? followers : 0;
     }
+
+    const [listings, favorites, followers, following] = await Promise.all([
+      container.listingRepository.count({ ownerId: userId }).catch(() => 0),
+      container.favoriteRepository.count({ userId }).catch(() => 0),
+      container.followRepository.countFollowers(userId).catch(() => 0),
+      container.followRepository.countFollowing(userId).catch(() => 0),
+    ]);
+
+    stats.listings = typeof listings === 'number' ? listings : 0;
+    stats.favorites = typeof favorites === 'number' ? favorites : 0;
+    stats.followers = typeof followers === 'number' ? followers : 0;
+    stats.following = typeof following === 'number' ? following : 0;
   } catch {
     // Keep zeros / account-only view when marketplace tables are unavailable.
   }
@@ -71,6 +59,11 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
     .filter(Boolean)
     .join(' ')
     .trim();
+
+  // Auth email confirmation is source of truth for the hub badge.
+  const emailVerified = Boolean(
+    sessionUser.emailVerified || accountProfile?.emailVerified,
+  );
 
   const view: AccountHubViewModel = {
     displayName:
@@ -84,19 +77,14 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
       || accountProfile?.username
       || sessionUser.username
       || null,
+    email: sessionUser.email || accountProfile?.email || null,
     phone: marketplace?.phone || accountProfile?.phone || null,
-    linkedInUrl: marketplace?.linkedInUrl || null,
-    website: marketplace?.website || null,
     avatarUrl: marketplace?.avatarUrl || sessionUser.avatarUrl || null,
     coverUrl: marketplace?.coverUrl || null,
-    emailVerified: accountProfile?.emailVerified ?? sessionUser.emailVerified,
+    emailVerified,
     phoneVerified: accountProfile?.phoneVerified ?? false,
-    userVerified: marketplace?.isVerified ?? false,
-    investorVerified: marketplace?.investorVerified ?? false,
-    emailVisible: marketplace?.emailVisible ?? false,
-    phoneVisible: marketplace?.phoneVisible ?? false,
-    linkedInVisible: marketplace?.websiteVisible ?? false,
-    websiteVisible: marketplace?.websiteVisible ?? true,
+    followersCount: stats.followers,
+    followingCount: stats.following,
   };
 
   return { view, stats };

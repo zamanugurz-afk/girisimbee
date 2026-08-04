@@ -16,6 +16,8 @@ import {
   formatSupportFlags,
   formatBoolean,
 } from '@/features/franchise/lib/franchise-listing.mapper';
+import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
+import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 
 const REMOTE_LABELS: Record<string, string> = {
   onsite: 'Ofis',
@@ -52,10 +54,15 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
   );
 
   const customEntries = Object.entries(values.customFields).filter(
-    ([key, val]) => !['kvkkConsents'].includes(key) && !isEmptyDisplayValue(val),
+    ([key, val]) =>
+      !['kvkkConsents', 'capabilities'].includes(key) && !isEmptyDisplayValue(val),
   );
 
   const isFranchiseGive = listingType.categoryId === CATEGORY_IDS.bayilikAl;
+  const capabilityModules =
+    listingType.categoryId === CATEGORY_IDS.dijitalAi
+      ? resolveDigitalAiCapabilities(values.customFields.capabilities)
+      : [];
 
   function formatPreviewValue(key: string, val: unknown): string {
     if (isFranchiseGive) {
@@ -139,6 +146,13 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
         ))}
         <PreviewRow label="Özgeçmiş" value={values.cvUrl ? 'Yüklendi' : null} />
       </dl>
+
+      {capabilityModules.length > 0 ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Çözüm yetenekleri</h3>
+          <DigitalAiCapabilityGrid capabilities={capabilityModules} />
+        </div>
+      ) : null}
 
       {values.tags.length > 0 && (
         <div className="space-y-4">
