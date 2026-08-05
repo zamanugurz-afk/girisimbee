@@ -146,6 +146,7 @@ export function AuthProvider({
 
   useEffect(() => {
     let mounted = true;
+    const hadInitialUser = Boolean(initialUser);
 
     async function applySession(
       session: {
@@ -156,6 +157,7 @@ export function AuthProvider({
           app_metadata?: Record<string, unknown>;
         };
       } | null,
+      options?: { skipIfSameUser?: boolean },
     ) {
       if (!session?.user) {
         if (mounted) {
@@ -165,21 +167,30 @@ export function AuthProvider({
         return;
       }
 
-      // eslint-disable-next-line no-console -- role/RLS debug
-      console.log('SESSION USER ID', session?.user?.id);
+      // Avoid duplicate profiles round-trips when SSR already hydrated the same user.
+      if (
+        options?.skipIfSameUser
+        && userRef.current?.id
+        && userRef.current.id === session.user.id
+      ) {
+        const confirmed = Boolean(session.user.email_confirmed_at);
+        const email = session.user.email ?? userRef.current.email;
+        if (
+          confirmed !== userRef.current.emailVerified
+          || (email && email !== userRef.current.email)
+        ) {
+          setUser((prev) =>
+            prev
+              ? { ...prev, emailVerified: confirmed, email: email || prev.email }
+              : prev,
+          );
+        }
+        setIsLoading(false);
+        return;
+      }
 
       const profile = await fetchProfile(supabase, session.user.id);
       if (!mounted) return;
-
-      // eslint-disable-next-line no-console -- role/RLS debug
-      console.log('PROFILE RESULT', profile);
-      if (!profile) {
-        // eslint-disable-next-line no-console -- role/RLS debug
-        console.log(
-          'AuthProvider: profile null after query — RLS deny or profiles.id !== session.user.id',
-          { sessionUserId: session.user.id },
-        );
-      }
 
       const next = mapSessionUser(
         {
@@ -203,14 +214,18 @@ export function AuthProvider({
       setIsLoading(false);
     }
 
-    // Explicit client hydrate — do not rely solely on onAuthStateChange ordering.
-    void fetchSessionUser(supabase).then((sessionUser) => {
-      if (!mounted) return;
-      if (sessionUser) {
-        setUser((prev) => preferHigherRole(prev, sessionUser));
-      }
+    // Skip client hydrate when layout already passed a server session — halves profile queries.
+    if (!hadInitialUser) {
+      void fetchSessionUser(supabase).then((sessionUser) => {
+        if (!mounted) return;
+        if (sessionUser) {
+          setUser((prev) => preferHigherRole(prev, sessionUser));
+        }
+        setIsLoading(false);
+      });
+    } else {
       setIsLoading(false);
-    });
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
@@ -239,6 +254,11 @@ export function AuthProvider({
         return;
       }
 
+      if (event === 'INITIAL_SESSION') {
+        await applySession(session, { skipIfSameUser: hadInitialUser });
+        return;
+      }
+
       await applySession(session);
     });
 
@@ -246,26 +266,49 @@ export function AuthProvider({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, initialUser?.id]);
 
   const login = useCallback(async (input: SignInInput) => {
     const { data, error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
-    await refresh();
+
+    // Paint auth state immediately — do not await profile refresh or recordLogin.
+    if (data.user) {
+      setUser((prev) =>
+        preferHigherRole(
+          prev,
+          mapSessionUser(
+            {
+              id: data.user!.id,
+              email: data.user!.email,
+              email_confirmed_at: data.user!.email_confirmed_at,
+              app_metadata: data.user!.app_metadata as Record<string, unknown> | undefined,
+            },
+            null,
+          ),
+        ),
+      );
+      setIsLoading(false);
+    }
+
     const userId = data.user?.id;
     if (userId) {
-      try {
-        const { getAccountService } = await import('@/lib/persistence/container');
-        const { ids } = await import('@/lib/domain/ids');
-        await getAccountService().recordLogin(ids.user(userId), {
-          browser: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-        });
-      } catch {
-        // Account tables may not be migrated yet — ignore.
-      }
+      void (async () => {
+        try {
+          const { getAccountService } = await import('@/lib/persistence/container');
+          const { ids } = await import('@/lib/domain/ids');
+          await getAccountService().recordLogin(ids.user(userId), {
+            browser: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          });
+        } catch {
+          // Account tables may not be migrated yet — ignore.
+        }
+      })();
     }
+
+    // Profile/role enrichment happens via onAuthStateChange SIGNED_IN (non-blocking for navigation).
     return { error: null };
-  }, [supabase, refresh]);
+  }, [supabase]);
 
   const signUp = useCallback(async (input: SignUpInput) => {
     const { data, error } = await signUpWithEmail(supabase, input);

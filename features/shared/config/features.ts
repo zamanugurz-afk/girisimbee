@@ -18,7 +18,8 @@ export function filterPremiumLabels<T extends string>(labels: readonly T[]): T[]
 }
 
 export const MVP_COPY = {
-  communicationNote: 'Tüm iletişim ücretsiz — sınırsız mesajlaşma ve eşleşme.',
+  communicationNote:
+    'İlan sahipleriyle iletişim telefon üzerinden yapılır — platform içi mesajlaşma yoktur.',
   joinCta: 'Ücretsiz Katıl',
   postCta: 'İlan Ver',
 } as const;

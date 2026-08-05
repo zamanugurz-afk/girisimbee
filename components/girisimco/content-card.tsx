@@ -6,25 +6,15 @@ import type { ContentItem } from '@/features/categories';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
 import { DigitalAiCapabilityIconBadge } from '@/components/girisimco/listing/digital-ai-capability-icons';
-import {
-  DIGITAL_AI_CAPABILITIES,
-  type DigitalAiCapabilityIcon,
-} from '@/features/listings/config/digital-ai-capabilities';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
+
+/** Kartlarda Dijital & AI kategorisi için tek standart ikon */
+const DIGITAL_AI_CARD_ICON = 'Sparkles' as const;
 
 interface ContentCardProps {
   item: ContentItem;
   accent?: string;
-}
-
-function pickDigitalAiIcon(seed: string): DigitalAiCapabilityIcon {
-  if (!seed || DIGITAL_AI_CAPABILITIES.length === 0) return 'Sparkles';
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash + seed.charCodeAt(i) * (i + 1)) % DIGITAL_AI_CAPABILITIES.length;
-  }
-  return DIGITAL_AI_CAPABILITIES[hash]?.icon ?? 'Sparkles';
 }
 
 function Avatar({ initials, accent }: { initials: string; accent?: string }) {
@@ -58,7 +48,7 @@ function TypeIcon({ type }: { type: ContentItem['type'] }) {
 export function ContentCard({ item, accent }: ContentCardProps) {
   const isArticle = item.type === 'article' || item.type === 'story';
   const isListingCard = Boolean(item.listingId && item.listingTypeLabel);
-  const listingLink = item.listingId ? listingHref(item.id) : null;
+  const listingLink = item.href ?? (item.listingId ? listingHref(item.id) : null);
   const resolvedAccent = accent ?? item.listingGroupColor ?? GC_ACCENT;
 
   const card = isListingCard ? (
@@ -93,9 +83,6 @@ function TextListingCardLayout({
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
   const isDigitalAi = item.listingGroupLabel === 'Dijital & AI';
-  const digitalIcon = isDigitalAi
-    ? pickDigitalAiIcon(item.listingId ?? item.id ?? item.title)
-    : null;
 
   return (
     <article
@@ -106,8 +93,8 @@ function TextListingCardLayout({
       )}
       style={{ ['--card-accent' as string]: accent }}
     >
-      {digitalIcon ? (
-        <DigitalAiCapabilityIconBadge icon={digitalIcon} size="sm" />
+      {isDigitalAi ? (
+        <DigitalAiCapabilityIconBadge icon={DIGITAL_AI_CARD_ICON} size="sm" />
       ) : (
         <span
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-base"

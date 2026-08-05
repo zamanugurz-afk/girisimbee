@@ -14,6 +14,12 @@ export interface MarketplaceFilterState {
   categorySlug?: string;
   city?: string;
   sortBy: ListingSortBy;
+  isFeatured?: boolean;
+  activeFeaturedOnly?: boolean;
+  isUrgent?: boolean;
+  activeUrgentOnly?: boolean;
+  publishedAfter?: string;
+  publishedBefore?: string;
 }
 
 export interface CategoryPageMeta {

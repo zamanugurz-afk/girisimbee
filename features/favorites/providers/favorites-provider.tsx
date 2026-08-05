@@ -57,14 +57,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     };
 
     if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(run, { timeout: 1500 });
+      const idleId = window.requestIdleCallback(run, { timeout: 4000 });
       return () => {
         cancelled = true;
         window.cancelIdleCallback(idleId);
       };
     }
 
-    const timeoutId = window.setTimeout(run, 0);
+    const timeoutId = window.setTimeout(run, 2500);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);

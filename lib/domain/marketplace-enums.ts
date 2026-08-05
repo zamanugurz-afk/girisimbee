@@ -45,7 +45,8 @@ export type PaymentPurpose =
   | 'candidate_package'
   | 'entrepreneur_package'
   | 'investor_package'
-  | 'founder_package';
+  | 'founder_package'
+  | 'market_ad';
 
 export type DocumentType =
   | 'pitch_deck'

@@ -7,8 +7,10 @@ export const AUTH_ROUTES = {
   resetPasswordLegacy: '/sifre-yenile',
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
+  /** Marketplace home — default destination after login / register / OAuth */
+  home: '/',
   dashboard: '/dashboard',
-  account: '/hesabim',
+  account: '/dashboard',
   logout: '/auth/signout',
 } as const;
 
@@ -25,6 +27,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/dijital-ai',
   '/franchise',
   '/market',
+  '/reklam',
   '/ara',
   '/kesfet',
   '/giris',
@@ -36,6 +39,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/yasal',
   '/auth/callback',
   '/auth/signout',
+  '/auth/google-setup',
 ] as const;
 
 /** Redirect authenticated users away from these */
@@ -113,7 +117,11 @@ export function isGuestOnlyRoute(pathname: string): boolean {
 /** Skip Supabase auth in middleware for fully public document routes. */
 export function needsMiddlewareAuth(pathname: string): boolean {
   if (pathname.startsWith('/api/')) {
-    return /^\/api\/listings\/[^/]+\/publish$/.test(pathname);
+    // Refresh session cookies on admin API + publish so Route Handlers see a valid user.
+    return (
+      pathname.startsWith('/api/admin')
+      || /^\/api\/listings\/[^/]+\/publish$/.test(pathname)
+    );
   }
   if (isPublicRoute(pathname)) return false;
   if (isPublicProfileRoute(pathname)) return false;

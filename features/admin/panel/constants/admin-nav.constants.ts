@@ -4,12 +4,10 @@ import {
   Bell,
   CreditCard,
   FileText,
+  Handshake,
   LayoutDashboard,
   Megaphone,
   Package,
-  PenLine,
-  ScrollText,
-  Search,
   Settings,
   Shield,
   Store,
@@ -28,6 +26,7 @@ export type AdminNavId =
   | 'payments'
   | 'packages'
   | 'market'
+  | 'ad_inquiries'
   | 'notifications'
   | 'reports'
   | 'coupons'
@@ -53,6 +52,7 @@ export const ADMIN_ROUTES = {
   payments: `${ADMIN_PANEL_BASE}/payments`,
   packages: `${ADMIN_PANEL_BASE}/packages`,
   market: `${ADMIN_PANEL_BASE}/market`,
+  adInquiries: `${ADMIN_PANEL_BASE}/reklam`,
   notifications: `${ADMIN_PANEL_BASE}/notifications`,
   reports: `${ADMIN_PANEL_BASE}/reports`,
   coupons: `${ADMIN_PANEL_BASE}/coupons`,
@@ -89,6 +89,12 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { id: 'packages', label: 'Paketler', href: ADMIN_ROUTES.packages, icon: Package },
   { id: 'market', label: 'MARKET', href: ADMIN_ROUTES.market, icon: Store },
   {
+    id: 'ad_inquiries',
+    label: 'Reklam & İşbirliği',
+    href: ADMIN_ROUTES.adInquiries,
+    icon: Handshake,
+  },
+  {
     id: 'notifications',
     label: 'Bildirimler',
     href: ADMIN_ROUTES.notifications,
@@ -96,20 +102,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   },
   { id: 'reports', label: 'Raporlar', href: ADMIN_ROUTES.reports, icon: FileText, exact: true },
   { id: 'coupons', label: 'Kuponlar', href: ADMIN_ROUTES.coupons, icon: Ticket },
-  {
-    id: 'content',
-    label: 'İçerik Yönetimi',
-    href: ADMIN_ROUTES.content,
-    icon: PenLine,
-  },
-  { id: 'seo', label: 'SEO', href: ADMIN_ROUTES.seo, icon: Search },
   { id: 'settings', label: 'Ayarlar', href: ADMIN_ROUTES.settings, icon: Settings },
-  {
-    id: 'logs',
-    label: 'Sistem Günlükleri',
-    href: ADMIN_ROUTES.logs,
-    icon: ScrollText,
-  },
 ] as const;
 
 export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
@@ -123,6 +116,7 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.payments]: 'Ödemeler',
   [ADMIN_ROUTES.packages]: 'Paketler',
   [ADMIN_ROUTES.market]: 'MARKET',
+  [ADMIN_ROUTES.adInquiries]: 'Reklam & İşbirliği',
   [ADMIN_ROUTES.notifications]: 'Bildirimler',
   [ADMIN_ROUTES.reports]: 'Raporlar',
   [ADMIN_ROUTES.coupons]: 'Kuponlar',

@@ -24,6 +24,18 @@ export function createClient() {
         // Server Component — cookie writes ignored
       }
     },
+    getAll() {
+      return cookieStore.getAll();
+    },
+    setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+      try {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set({ name, value, ...options });
+        });
+      } catch {
+        // Server Component — cookie writes ignored
+      }
+    },
   };
 
   if (isNavProfilingEnabled()) {

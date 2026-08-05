@@ -5,7 +5,7 @@ import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
 import { BRAND_PAGE_TITLE } from '@/features/shared';
-import { getServerSession } from '@/features/authentication/lib/get-session';
+import type { ReactNode } from 'react';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Plus_Jakarta_Sans({
@@ -34,18 +34,29 @@ export const metadata: Metadata = {
     description:
       'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
     type: 'website',
+    locale: 'tr_TR',
+    siteName: 'Girisimco',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: BRAND_PAGE_TITLE,
+    description:
+      'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-  const initialUser = await getServerSession();
-  const body = (
-    <AppProviders initialUser={initialUser}>{children}</AppProviders>
-  );
+  // Do not await getServerSession here — it adds a Supabase Auth RTT to every navigation.
+  // Protected routes still resolve session in their own layouts/pages; AuthProvider hydrates client-side.
+  const body = <AppProviders initialUser={null}>{children}</AppProviders>;
 
   return (
     <html lang="tr" suppressHydrationWarning>

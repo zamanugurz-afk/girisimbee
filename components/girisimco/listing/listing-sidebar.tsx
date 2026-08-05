@@ -39,27 +39,48 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
   useEffect(() => {
     if (!ownerId) return;
     let cancelled = false;
-    (async () => {
+    const run = async () => {
       try {
         const service = getProfileService();
-        const view = await service.getPublicProfileByUserId(
-          ownerId as UserId,
-          user?.id as UserId | undefined,
-        );
-        if (cancelled || !view) return;
-        setFollowersCount(view.stats.followersCount);
-        setListingsCount(view.stats.listingsCount);
+        const { getClientContainer } = await import('@/lib/persistence/container');
+        const { listingRepository } = getClientContainer();
+        const [followers, listingsResult] = await Promise.all([
+          service.countFollowers(ownerId as UserId),
+          listingRepository.search(
+            { ownerId: ownerId as UserId, status: 'published' },
+            { page: 1, limit: 1 },
+          ),
+        ]);
+        if (cancelled) return;
+        setFollowersCount(followers);
+        setListingsCount(listingsResult.total);
       } catch {
         if (!cancelled) {
           setFollowersCount(null);
           setListingsCount(null);
         }
       }
-    })();
+    };
+    // Defer sidebar stats so they don't compete with first paint / hydration.
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(() => {
+        void run();
+      }, { timeout: 1500 });
+    } else {
+      timeoutId = setTimeout(() => {
+        void run();
+      }, 200);
+    }
     return () => {
       cancelled = true;
+      if (idleId !== undefined && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [ownerId, user?.id]);
+  }, [ownerId]);
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">

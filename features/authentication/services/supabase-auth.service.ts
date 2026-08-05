@@ -143,49 +143,26 @@ export async function fetchProfile(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<UserProfile | null> {
-  // eslint-disable-next-line no-console -- role/RLS debug
-  console.log('PROFILE QUERY ID', userId);
-
   const { data: profile, error } = await supabase
     .from('profiles')
     .select(PROFILE_SELECT)
     .eq('id', userId)
     .maybeSingle();
 
-  // eslint-disable-next-line no-console -- role/RLS debug
-  console.log('PROFILE RESULT', profile);
-  // eslint-disable-next-line no-console -- role/RLS debug
-  console.log('PROFILE ERROR', error);
-
   if (profile) {
-    const row = profile as ProfileRow;
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log('SESSION↔PROFILE ID CHECK', {
-      sessionUserId: userId,
-      profilesId: row.id,
-      idEqualsSession: row.id === userId,
-      role: row.role ?? null,
-      accountStatus: row.account_status ?? null,
-    });
-    return mapProfile(row);
+    return mapProfile(profile as ProfileRow);
   }
 
   if (error && isMissingRelationError(error)) {
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log('PROFILE TABLE MISSING (relation error)', error.message);
     return null;
   }
 
-  if (isRlsOrMissingProfileError(error)) {
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log(
-      'PROFILE RLS OR ID MISMATCH: no visible row for profiles.id = session.user.id. '
-      + 'Either RLS blocks SELECT, or public.profiles.id does not equal auth uid.',
-      { sessionUserId: userId, code: error?.code, message: error?.message },
-    );
-  } else if (error) {
-    // eslint-disable-next-line no-console -- role/RLS debug
-    console.log('PROFILE QUERY FAILED', { sessionUserId: userId, error });
+  if (error && !isRlsOrMissingProfileError(error)) {
+    roleTrace('fetchProfile:failed', {
+      sessionUserId: userId,
+      code: error.code ?? null,
+      message: error.message,
+    });
   }
 
   return null;
@@ -193,8 +170,6 @@ export async function fetchProfile(
 
 export async function fetchSessionUser(supabase: SupabaseClient): Promise<SessionUser | null> {
   const { data: { user }, error } = await supabase.auth.getUser();
-  // eslint-disable-next-line no-console -- role/RLS debug
-  console.log('SESSION USER ID', user?.id ?? null);
 
   if (error || !user) {
     roleTrace('fetchSessionUser:noAuthUser', {
@@ -263,7 +238,7 @@ export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInp
         consent_email: input.consents.consentEmail,
         consented_at: new Date().toISOString(),
       },
-      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.dashboard)}`,
+      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.home)}`,
     },
   });
 }
@@ -329,7 +304,7 @@ export async function resendVerificationEmail(supabase: SupabaseClient, email: s
     type: 'signup',
     email,
     options: {
-      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.dashboard)}`,
+      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.home)}`,
     },
   });
 }
@@ -346,16 +321,13 @@ export async function signInWithOAuth(
   provider: OAuthProvider,
   options?: { next?: string },
 ) {
+  // Keep redirectTo free of query params so it matches Supabase allow-list exactly.
   const siteUrl = getSiteUrl();
-  const next = options?.next ?? AUTH_ROUTES.account;
   return supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(next)}`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'select_account',
-      },
+      redirectTo: `${siteUrl}${AUTH_ROUTES.callback}`,
+      skipBrowserRedirect: true,
     },
   });
 }

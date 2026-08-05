@@ -86,12 +86,12 @@ export function RegisterForm() {
     }
 
     toast.success('Hesap oluşturuldu');
-    router.push(AUTH_ROUTES.dashboard);
+    router.push(AUTH_ROUTES.home);
   }
 
   return (
     <Form {...form}>
-      <GoogleOAuthButton label="Google ile kayıt ol" next={AUTH_ROUTES.account} />
+      <GoogleOAuthButton label="Google ile kayıt ol" next={AUTH_ROUTES.home} />
       <AuthSocialDivider />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">

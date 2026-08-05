@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getServerContainer } from '@/lib/persistence/container';
 import { ids } from '@/lib/domain/ids';
 import { loadAccountProfilePage } from '@/features/account/lib/load-account-profile-page';
+import type { AccountProfilePageLoadResult } from '@/features/account/types/account-profile-page.types';
 import type { AccountHubViewModel } from '@/features/account/types/account-hub.types';
 import type { AccountHubStats } from '@/features/account/types/account-panel.types';
 import { EMPTY_ACCOUNT_HUB_STATS } from '@/features/account/types/account-panel.constants';
@@ -12,9 +13,13 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
   view: AccountHubViewModel;
   stats: AccountHubStats;
 }> {
-  const account = await loadAccountProfilePage(sessionUser.id);
-  const accountProfile = account.ok ? account.data.profile : null;
+  const userId = ids.user(sessionUser.id);
+  const stats: AccountHubStats = { ...EMPTY_ACCOUNT_HUB_STATS };
 
+  let account: AccountProfilePageLoadResult = {
+    ok: false,
+    error: 'unavailable',
+  };
   let marketplace: {
     username: string | null;
     displayName: string;
@@ -23,13 +28,21 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
     coverUrl: string | null;
   } | null = null;
 
-  const stats: AccountHubStats = { ...EMPTY_ACCOUNT_HUB_STATS };
-  const userId = ids.user(sessionUser.id);
-
   try {
     const supabase = createClient();
     const container = getServerContainer(supabase);
-    const profile = await container.profileService.getByUserId(userId);
+
+    const [accountResult, profile, listings, favorites, followers, following] = await Promise.all([
+      loadAccountProfilePage(sessionUser.id),
+      container.profileService.getByUserId(userId).catch(() => null),
+      container.listingRepository.count({ ownerId: userId }).catch(() => 0),
+      container.favoriteRepository.count({ userId }).catch(() => 0),
+      container.followRepository.countFollowers(userId).catch(() => 0),
+      container.followRepository.countFollowing(userId).catch(() => 0),
+    ]);
+
+    account = accountResult;
+
     if (profile) {
       marketplace = {
         username: profile.username,
@@ -40,20 +53,16 @@ export async function loadAccountHubPage(sessionUser: SessionUser): Promise<{
       };
     }
 
-    const [listings, favorites, followers, following] = await Promise.all([
-      container.listingRepository.count({ ownerId: userId }).catch(() => 0),
-      container.favoriteRepository.count({ userId }).catch(() => 0),
-      container.followRepository.countFollowers(userId).catch(() => 0),
-      container.followRepository.countFollowing(userId).catch(() => 0),
-    ]);
-
     stats.listings = typeof listings === 'number' ? listings : 0;
     stats.favorites = typeof favorites === 'number' ? favorites : 0;
     stats.followers = typeof followers === 'number' ? followers : 0;
     stats.following = typeof following === 'number' ? following : 0;
   } catch {
     // Keep zeros / account-only view when marketplace tables are unavailable.
+    account = await loadAccountProfilePage(sessionUser.id).catch(() => account);
   }
+
+  const accountProfile = account.ok ? account.data.profile : null;
 
   const firstLast = [accountProfile?.firstName, accountProfile?.lastName]
     .filter(Boolean)

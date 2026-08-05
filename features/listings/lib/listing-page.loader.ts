@@ -3,11 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 import { getServerContainer } from '@/lib/persistence/container';
 import { aggregateToListingDetail } from '@/features/listings/mappers/listing-detail.mapper';
 import type { ListingDetail } from '@/features/listings/types/listing.types';
+import type { Listing } from '@/features/listings/types/listing.entity.types';
 import type { Profile } from '@/features/profiles/types/profile.types';
 import type { ListingId } from '@/lib/domain/ids';
 import { uuidSchema } from '@/lib/domain/validation';
 import { profileSpan, recordCacheMiss } from '@/lib/perf/navigation-profile';
 import { parseListingNumberQuery } from '@/features/listings/utils/listing-number';
+
+export type ListingPagePayload =
+  | { kind: 'detail'; listing: ListingDetail }
+  | { kind: 'franchise-redirect'; href: string };
 
 /** Resolve membership phone from marketplace or account profile. */
 function resolveOwnerPhone(
@@ -26,52 +31,94 @@ function resolveOwnerPhone(
   return { ...marketplace, phone };
 }
 
-/** Shared loader for listing page + generateMetadata. */
-export const loadListingDetail = cache(async (idOrSlug: string): Promise<ListingDetail | null> => {
-  recordCacheMiss();
-  return profileSpan('loadListingDetail', async () => {
-    try {
-      const container = getServerContainer(createClient());
-      const raw = idOrSlug.trim();
-      const isUuid = uuidSchema.safeParse(raw).success;
+async function resolveListingRow(
+  idOrSlug: string,
+  container: ReturnType<typeof getServerContainer>,
+): Promise<Listing | null> {
+  const raw = idOrSlug.trim();
+  const isUuid = uuidSchema.safeParse(raw).success;
 
-      let aggregate = isUuid
-        ? await container.listingEngine.getListing(raw as ListingId)
-        : await container.listingEngine.getListingBySlug(raw);
+  let listing = isUuid
+    ? await container.listingRepository.findById(raw as ListingId)
+    : await container.listingRepository.findBySlug(raw);
 
-      // Allow opening detail via listing number (e.g. /ilan/GC-A1B2C3D4).
-      if (!aggregate && parseListingNumberQuery(raw)) {
-        const byNumber = await container.listingRepository.findMany(
-          { query: raw, status: 'published', includeDeleted: false },
-          { page: 1, limit: 1 },
-        );
-        const hit = byNumber.items[0];
-        if (hit) {
-          aggregate = await container.listingEngine.getListing(hit.id);
+  if (!listing && parseListingNumberQuery(raw)) {
+    const byNumber = await container.listingRepository.findMany(
+      { query: raw, status: 'published', includeDeleted: false },
+      { page: 1, limit: 1 },
+    );
+    listing = byNumber.data[0] ?? null;
+  }
+
+  return listing;
+}
+
+/**
+ * Single cached load for /ilan/[id] page + metadata.
+ * One listing-row fetch; franchise redirects without tags/images/profile.
+ * Detail path loads tags, images, profile, and company in one parallel wave.
+ */
+export const loadListingPagePayload = cache(
+  async (idOrSlug: string): Promise<ListingPagePayload | null> => {
+    recordCacheMiss();
+    return profileSpan('loadListingPagePayload', async () => {
+      try {
+        const container = getServerContainer(createClient());
+        const listing = await resolveListingRow(idOrSlug, container);
+        if (!listing) return null;
+
+        if (listing.moduleKey === 'franchise' && listing.slug) {
+          return {
+            kind: 'franchise-redirect',
+            href: `/franchise/buy/${listing.slug}`,
+          };
         }
+
+        const [tags, images, profile, company] = await Promise.all([
+          container.tagRepository.findByListingId(listing.id),
+          container.listingImageRepository.findByListingId(listing.id),
+          container.profileService.getByUserId(listing.ownerId),
+          listing.companyId
+            ? container.companyService.getById(listing.companyId)
+            : Promise.resolve(null),
+        ]);
+
+        const accountProfile = !profile?.phone?.trim()
+          ? await container.accountService.getProfile(listing.ownerId)
+          : null;
+
+        return {
+          kind: 'detail',
+          listing: aggregateToListingDetail(
+            {
+              listing,
+              tags,
+              images,
+              attachments: [],
+              activityHistory: [],
+            },
+            {
+              profile: resolveOwnerPhone(profile, accountProfile?.phone),
+              company,
+            },
+          ),
+        };
+      } catch (error: unknown) {
+        const err = error as { message?: string; details?: string; hint?: string; code?: string };
+        console.error('MESSAGE:', err?.message);
+        console.error('DETAILS:', err?.details);
+        console.error('HINT:', err?.hint);
+        console.error('CODE:', err?.code);
+        console.error('FULL ERROR:', error);
+        throw error;
       }
+    });
+  },
+);
 
-      if (!aggregate) return null;
-
-      const [profile, accountProfile, company] = await Promise.all([
-        container.profileService.getByUserId(aggregate.listing.ownerId),
-        container.accountService.getProfile(aggregate.listing.ownerId),
-        aggregate.listing.companyId
-          ? container.companyService.getById(aggregate.listing.companyId)
-          : Promise.resolve(null),
-      ]);
-
-      return aggregateToListingDetail(aggregate, {
-        profile: resolveOwnerPhone(profile, accountProfile?.phone),
-        company,
-      });
-    } catch (error: any) {
-      console.error('MESSAGE:', error?.message);
-      console.error('DETAILS:', error?.details);
-      console.error('HINT:', error?.hint);
-      console.error('CODE:', error?.code);
-      console.error('FULL ERROR:', error);
-      throw error;
-    }
-  });
+/** Shared loader for callers that only need the detail DTO. */
+export const loadListingDetail = cache(async (idOrSlug: string): Promise<ListingDetail | null> => {
+  const payload = await loadListingPagePayload(idOrSlug);
+  if (!payload || payload.kind !== 'detail') return null;
+  return payload.listing;
 });

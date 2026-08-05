@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, ExternalLink, Store } from 'lucide-react';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
-import { getMockHomeMarketAds } from '@/features/admin/market/mock/market.mock';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
+import { ADS_ROUTES } from '@/features/ads/constants/ad-inquiry.constants';
 import { cn } from '@/lib/utils';
 
 /**
@@ -17,16 +17,90 @@ import { cn } from '@/lib/utils';
  */
 export const HOME_MARKET_SECTION_LAYOUT: 'framed' | 'classic' = 'framed';
 
-export function HomeMarketSection() {
-  const items = useMemo(() => getMockHomeMarketAds(), []);
+const HOME_MARKET_LIMIT = 6;
 
-  if (items.length === 0) return null;
+export function HomeMarketSection() {
+  const [items, setItems] = useState<MarketItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch('/api/market');
+        if (!res.ok) throw new Error('load failed');
+        const json = (await res.json()) as { data?: { items?: MarketItem[] } };
+        const live = json.data?.items ?? [];
+        if (!cancelled) setItems(live.slice(0, HOME_MARKET_LIMIT));
+      } catch {
+        if (!cancelled) setItems([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="border-b border-border/60 bg-muted/20">
+        <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+          <p className="text-sm text-muted-foreground">MARKET yükleniyor…</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) {
+    return <HomeMarketEmptyState />;
+  }
 
   if (HOME_MARKET_SECTION_LAYOUT === 'classic') {
     return <HomeMarketSectionClassic items={items} />;
   }
 
   return <HomeMarketSectionFramed items={items} />;
+}
+
+function HomeMarketEmptyState() {
+  return (
+    <section className="border-b border-border/60 bg-muted/20">
+      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+        <ScrollReveal>
+          <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-border/80 bg-card/60 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="max-w-xl">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
+                <Store className="h-3.5 w-3.5" aria-hidden />
+                Girişimco MARKET
+              </p>
+              <h2 className="gc-page-heading mt-1.5 text-gc-lg">Henüz yayınlanmış fırsat yok</h2>
+              <p className="mt-1.5 text-gc-sm text-muted-foreground">
+                MARKET’te yer almak veya özel işbirliği için reklam formunu kullanabilirsiniz.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/market"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+              >
+                MARKET’e bak
+              </Link>
+              <Link
+                href={ADS_ROUTES.public}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Reklam ver
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
 }
 
 function MarketAdsGrid({ items }: { items: MarketItem[] }) {

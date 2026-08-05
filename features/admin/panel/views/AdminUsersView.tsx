@@ -108,6 +108,10 @@ export function AdminUsersView() {
   );
 
   async function setStatus(userId: string, status: AdminUserStatus) {
+    if (status === 'deleted') {
+      if (!window.confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
+    }
+
     setBusyId(userId);
     try {
       if (status === 'suspended') {
@@ -115,7 +119,6 @@ export function AdminUsersView() {
       } else if (status === 'active') {
         await adminApi.patchUser(userId as UserId, { action: 'activate' });
       } else if (status === 'deleted') {
-        if (!window.confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
         await adminApi.patchUser(userId as UserId, { action: 'delete' });
       }
       toast.success('İşlem tamamlandı');

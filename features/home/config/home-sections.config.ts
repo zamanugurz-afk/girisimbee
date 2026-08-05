@@ -19,7 +19,7 @@ export interface HomeListingSectionConfig {
   resolveBrowseParams: () => MarketplaceBrowseParams;
 }
 
-const SECTION_LIMIT = 12;
+const SECTION_LIMIT = 8;
 
 export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
   {

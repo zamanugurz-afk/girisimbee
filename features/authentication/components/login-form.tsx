@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -25,7 +25,6 @@ import {
 } from '@/features/authentication/components/google-oauth-button';
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +33,14 @@ export function LoginForm() {
 
   useEffect(() => {
     if (authError === 'auth_callback_failed') {
-      toast.error(authMessage || 'Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.');
+      const msg = authMessage || 'Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.';
+      if (/exchange external code/i.test(msg)) {
+        toast.error(
+          'Google bağlantısı başarısız. Supabase Client ID/Secret ve Google Redirect URI ayarlarını kontrol edin.',
+        );
+      } else {
+        toast.error(msg);
+      }
     } else if (authError === 'oauth_bootstrap') {
       toast.error(authMessage || 'Google hesabı bağlandı fakat profil oluşturulamadı.');
     } else if (authError === 'oauth_provider') {
@@ -58,8 +64,9 @@ export function LoginForm() {
     }
 
     toast.success('Giriş başarılı');
-    const next = searchParams.get('next') ?? AUTH_ROUTES.dashboard;
-    router.push(next);
+    const next = searchParams.get('next') ?? AUTH_ROUTES.home;
+    // Hard navigation avoids waiting on soft RSC + keeps cookie session in sync.
+    window.location.assign(next);
   }
 
   return (
@@ -67,16 +74,23 @@ export function LoginForm() {
       {(authError === 'auth_callback_failed'
         || authError === 'oauth_bootstrap'
         || authError === 'oauth_provider') && (
-        <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          {authMessage
-            || (authError === 'oauth_bootstrap'
-              ? 'Google oturumu açıldı ancak profil oluşturulamadı. Tekrar deneyin veya e-posta ile kayıt olun.'
-              : 'Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.')}
+        <div className="mb-4 space-y-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <p>
+            {authMessage
+              || (authError === 'oauth_bootstrap'
+                ? 'Google oturumu açıldı ancak profil oluşturulamadı. Tekrar deneyin veya e-posta ile giriş yapın.'
+                : 'Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.')}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Daha önce e-posta ile kayıt olduysan Google ayrı hesap açmaz — şifrenle giriş yap
+            veya “Şifremi unuttum” kullan. Google ayarı:{' '}
+            <AuthLink href="/auth/google-setup">kurulum kontrolü</AuthLink>
+          </p>
         </div>
       )}
       <GoogleOAuthButton
         label="Google ile giriş yap"
-        next={searchParams.get('next') ?? AUTH_ROUTES.account}
+        next={searchParams.get('next') ?? AUTH_ROUTES.home}
       />
       <AuthSocialDivider />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

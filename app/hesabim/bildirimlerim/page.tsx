@@ -21,7 +21,7 @@ export default async function HesabimBildirimlerimPage() {
     <>
       <AccountHeader
         title="Bildirimlerim"
-        description="Favoriler, mesajlar, takipler, ilanlar, ödemeler ve doğrulamalarla ilgili anlık bildirimleriniz."
+        description="Favoriler, takipler, ilanlar, ödemeler ve doğrulamalarla ilgili anlık bildirimleriniz."
       />
       <div className="px-5 py-8 sm:px-8">
         <AccountNotifications userId={user.id} initial={initial} />

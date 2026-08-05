@@ -118,7 +118,9 @@ type BrowseQueryLog = {
 };
 
 function logBrowseQuery(filter: ListingFilter, log: BrowseQueryLog): void {
-  if (process.env.NODE_ENV === 'production') return;
+  if (process.env.DEBUG_LISTINGS !== '1' && process.env.NEXT_PUBLIC_DEBUG_LISTINGS !== '1') {
+    return;
+  }
   console.log('[listingRepo.browse]', {
     categoryId: log.categoryId,
     listingTypeId: log.listingTypeId,
@@ -269,17 +271,15 @@ export class SupabaseListingRepository implements ListingRepository {
 
     const { column, ascending } = getSortColumn(filter.sortBy ?? 'newest');
 
-    const [listResult, total] = await Promise.all([
-      this.applyFilter(this.supabase.from(TABLE), filter, { mode: 'browse' })
-        .order(column, { ascending })
-        .range(start, end),
-      this.count(filter),
-    ]);
+    // Single round-trip: browse select already requests count:'exact'.
+    const listResult = await this.applyFilter(this.supabase.from(TABLE), filter, { mode: 'browse' })
+      .order(column, { ascending })
+      .range(start, end);
 
-    const { data, error } = listResult;
+    const { data, error, count } = listResult;
     if (error) throw error;
     const listings = (data ?? []).map((row) => mapListingBrowseRow(row as ListingBrowseRow));
-    return paginatedResult(listings, total, page, limit);
+    return paginatedResult(listings, count ?? 0, page, limit);
   }
 
   async paginate(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
@@ -294,7 +294,7 @@ export class SupabaseListingRepository implements ListingRepository {
     const merged = { ...filter, status: 'published' as const };
     const result = await this.findMany(merged, pagination);
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1') {
       logPublicationState(
         String(filter.moduleKey ?? filter.categoryId ?? 'browse'),
         'browse_query',

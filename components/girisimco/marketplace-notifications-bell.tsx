@@ -87,9 +87,15 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
     }
   }, [user?.id]);
 
+  // Defer network work until the popover opens — keeps nav clicks snappy.
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    if (!user?.id) {
+      setNotifications([]);
+      setOpenPayments([]);
+      return;
+    }
+    setOpenPayments(listOpenPendingPackagePayments(user.id));
+  }, [user?.id]);
 
   useEffect(() => {
     const onPaymentsChanged = () => {

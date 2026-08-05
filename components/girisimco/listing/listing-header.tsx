@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
+import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
 import type { ListingId } from '@/lib/domain/ids';
@@ -147,7 +148,9 @@ export function ListingHeader({ listing }: ListingHeaderProps) {
 
       {!isLoading && isOwner && listing.listingId && (
         <div id="owner-package-panel">
-          <ListingOwnerPackagePanel listingId={listing.listingId} />
+          <PremiumGate>
+            <ListingOwnerPackagePanel listingId={listing.listingId} />
+          </PremiumGate>
         </div>
       )}
     </div>

@@ -178,7 +178,11 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
   }
 
   if (group === 'franchise') {
-    const fee = toDisplayValue(cf.franchiseFee) || toDisplayValue(cf.totalInvestment);
+    const fee =
+      toDisplayValue(cf.franchiseFee)
+      || toDisplayValue(cf.franchiseBedeli)
+      || toDisplayValue(cf.totalInvestment)
+      || toDisplayValue(cf.minimumSermaye);
     if (fee) return fee;
   }
 

@@ -9,6 +9,7 @@ import { ListingMainContent } from '@/components/girisimco/listing/listing-main-
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
 import { ListingSidebar } from '@/components/girisimco/listing/listing-sidebar';
 import { ListingSimilar } from '@/components/girisimco/listing/listing-similar';
+import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
 
@@ -37,7 +38,9 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
 
         {!isLoading && isOwner && listing.listingId ? (
           <div id="owner-package-panel" className="mt-6">
-            <ListingOwnerPackagePanel listingId={listing.listingId} />
+            <PremiumGate>
+              <ListingOwnerPackagePanel listingId={listing.listingId} />
+            </PremiumGate>
           </div>
         ) : null}
 

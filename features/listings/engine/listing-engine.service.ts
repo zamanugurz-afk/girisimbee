@@ -92,10 +92,12 @@ export class ListingEngine implements IListingEngineService {
       customFields: payload.customFields,
     };
 
-    console.log('[ListingEngine] createListing payload', JSON.stringify({
-      ...payload,
-      core: { ...payload.core, companyId: sanitizedCompanyId },
-    }, null, 2));
+    if (process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1') {
+      console.log('[ListingEngine] createListing payload', JSON.stringify({
+        ...payload,
+        core: { ...payload.core, companyId: sanitizedCompanyId },
+      }, null, 2));
+    }
 
     let listing: Listing;
 
@@ -181,7 +183,9 @@ export class ListingEngine implements IListingEngineService {
       }
     }
 
-    console.log('[ListingEngine] updateListing payload', JSON.stringify({ listingId: id, ...payload }, null, 2));
+    if (process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1') {
+      console.log('[ListingEngine] updateListing payload', JSON.stringify({ listingId: id, ...payload }, null, 2));
+    }
 
     await this.listingRepo.update(id, {
       ...(payload.core?.title !== undefined && { title: payload.core.title }),
@@ -216,10 +220,12 @@ export class ListingEngine implements IListingEngineService {
   }
 
   async publishListing(id: ListingId, ctx: ListingEngineContext): Promise<ListingAggregate> {
-    console.log('[ListingEngine] publishListing payload', JSON.stringify({
-      listingId: id,
-      actorId: ctx.actorId,
-    }, null, 2));
+    if (process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1') {
+      console.log('[ListingEngine] publishListing payload', JSON.stringify({
+        listingId: id,
+        actorId: ctx.actorId,
+      }, null, 2));
+    }
 
     const existing = await this.listingRepo.findById(id);
     if (!existing) throw new NotFoundError('Listing', id);
@@ -507,13 +513,13 @@ export class ListingEngine implements IListingEngineService {
   async getListing(id: ListingId): Promise<ListingAggregate | null> {
     const listing = await this.listingRepo.findById(id);
     if (!listing) return null;
-    return this.toAggregate(id);
+    return this.toAggregate(listing, { includeActivity: false });
   }
 
   async getListingBySlug(slug: string): Promise<ListingAggregate | null> {
     const listing = await this.listingRepo.findBySlug(slug);
     if (!listing) return null;
-    return this.toAggregate(listing.id);
+    return this.toAggregate(listing, { includeActivity: false });
   }
 
   async searchListings(
@@ -528,15 +534,35 @@ export class ListingEngine implements IListingEngineService {
     return data;
   }
 
-  private async toAggregate(id: ListingId): Promise<ListingAggregate> {
-    const listing = (await this.listingRepo.findById(id, { includeDeleted: true }))!;
-    const tags = await this.tagRepo.findByListingId(id);
-    const images = await this.imageRepo.findByListingId(id);
-    const { data: activityHistory } = await this.activityRepo.findMany(
-      { entityType: 'listing', entityId: id },
-      { page: 1, limit: 100 },
-    );
-    return { listing, tags, images, attachments: [], activityHistory };
+  private async toAggregate(
+    listingOrId: Listing | ListingId,
+    options?: { includeActivity?: boolean },
+  ): Promise<ListingAggregate> {
+    const includeActivity = options?.includeActivity ?? true;
+    const listing =
+      typeof listingOrId === 'string'
+        ? (await this.listingRepo.findById(listingOrId as ListingId, { includeDeleted: true }))!
+        : listingOrId;
+    const id = listing.id;
+
+    const [tags, images, activityResult] = await Promise.all([
+      this.tagRepo.findByListingId(id),
+      this.imageRepo.findByListingId(id),
+      includeActivity
+        ? this.activityRepo.findMany(
+            { entityType: 'listing', entityId: id },
+            { page: 1, limit: 5 },
+          )
+        : Promise.resolve({ data: [] as import('@/features/shared/types/activity.types').Activity[] }),
+    ]);
+
+    return {
+      listing,
+      tags,
+      images,
+      attachments: [],
+      activityHistory: activityResult.data,
+    };
   }
 
   private assertOwner(listing: Listing, actorId: UserId): void {

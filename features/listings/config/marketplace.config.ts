@@ -32,7 +32,7 @@ export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'yatirim-yap': '/investors',
   'ise-al': '/hire',
   'ortak-bul': '/partners',
-  'bayilik-al': '/franchise',
+  'bayilik-al': '/franchise/buy',
   'dijital-ai': '/dijital-ai',
 };
 

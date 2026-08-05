@@ -155,10 +155,16 @@ export function prepareSupabaseWrite(
   payload: Record<string, unknown>,
   options: SanitizeSupabaseRowOptions = {},
 ): Record<string, unknown> {
-  console.log(`[Supabase] ${operation} ${table}`, JSON.stringify(payload, null, 2));
+  const debug =
+    process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1';
+  if (debug) {
+    console.log(`[Supabase] ${operation} ${table}`, JSON.stringify(payload, null, 2));
+  }
   const sanitized = sanitizeSupabaseRow(payload, options);
   logInvalidUuidFields(payload, sanitized);
-  console.log(`[Supabase] ${operation} ${table} (sanitized)`, JSON.stringify(sanitized, null, 2));
+  if (debug) {
+    console.log(`[Supabase] ${operation} ${table} (sanitized)`, JSON.stringify(sanitized, null, 2));
+  }
   return sanitized;
 }
 

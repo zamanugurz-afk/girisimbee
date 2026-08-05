@@ -33,7 +33,8 @@ export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<v
 
   const existing = await accountService.getProfile(userId);
   if (existing) {
-    await accountService.recordLogin(userId).catch(() => undefined);
+    // Don't block OAuth redirect on analytics writes.
+    void accountService.recordLogin(userId).catch(() => undefined);
     return;
   }
 

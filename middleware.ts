@@ -23,18 +23,22 @@ function nowMs(): number {
 }
 
 function attachTiming(response: NextResponse, middlewareMs: number): NextResponse {
-  if (!isNavProfilingEnabled()) return response;
-  response.headers.set('Server-Timing', `middleware;dur=${middlewareMs.toFixed(1)}`);
+  if (isNavProfilingEnabled()) {
+    response.headers.set('Server-Timing', `middleware;dur=${middlewareMs.toFixed(1)}`);
+  }
   return response;
 }
 
-function forwardHeaders(request: NextRequest, pathname: string, middlewareMs?: number): Headers {
+function withProfileHeaders(
+  request: NextRequest,
+  pathname: string,
+  middlewareMs?: number,
+): NextRequest {
+  if (!isNavProfilingEnabled()) return request;
   const headers = new Headers(request.headers);
-  if (isNavProfilingEnabled()) {
-    headers.set('x-pathname', pathname);
-    if (middlewareMs !== undefined) headers.set('x-middleware-ms', middlewareMs.toFixed(1));
-  }
-  return headers;
+  headers.set('x-pathname', pathname);
+  if (middlewareMs !== undefined) headers.set('x-middleware-ms', middlewareMs.toFixed(1));
+  return new NextRequest(request.url, { headers });
 }
 
 export async function middleware(request: NextRequest) {
@@ -46,17 +50,15 @@ export async function middleware(request: NextRequest) {
 
   if (!needsMiddlewareAuth(pathname)) {
     const ms = nowMs() - mwStart;
-    return attachTiming(
-      NextResponse.next({ request: { headers: forwardHeaders(request, pathname, ms) } }),
-      ms,
-    );
+    const passthrough = withProfileHeaders(request, pathname, ms);
+    return attachTiming(NextResponse.next({ request: passthrough }), ms);
   }
 
-  const headers = forwardHeaders(request, pathname);
-  const profiledRequest = new NextRequest(request.url, { headers });
-
-  const { supabase, response } = createClient(profiledRequest);
-  const { data: { user } } = await supabase.auth.getUser();
+  // Mutates request cookies in place when the session is refreshed.
+  const { supabase, response } = createClient(request);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   let role: UserRole = 'guest';
   if (user && needsMiddlewareRole(pathname)) {
@@ -65,7 +67,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && isGuestOnlyRoute(pathname)) {
-    const next = request.nextUrl.searchParams.get('next') ?? AUTH_ROUTES.dashboard;
+    const next = request.nextUrl.searchParams.get('next') ?? AUTH_ROUTES.home;
     return NextResponse.redirect(new URL(next, request.url));
   }
 
@@ -82,10 +84,13 @@ export async function middleware(request: NextRequest) {
   }
 
   const ms = nowMs() - mwStart;
-  const reqHeaders = forwardHeaders(request, pathname, ms);
-  const out = NextResponse.next({ request: { headers: reqHeaders } });
-  response.cookies.getAll().forEach((cookie) => out.cookies.set(cookie));
-  return attachTiming(out, ms);
+  // Prefer the auth client response — it carries refreshed Set-Cookie for the browser
+  // and was built from the cookie-updated request used by getUser().
+  if (isNavProfilingEnabled()) {
+    response.headers.set('x-pathname', pathname);
+    response.headers.set('x-middleware-ms', ms.toFixed(1));
+  }
+  return attachTiming(response, ms);
 }
 
 export const config = {

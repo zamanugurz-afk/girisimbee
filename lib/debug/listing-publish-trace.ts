@@ -3,6 +3,7 @@ import {
   isSupabaseError,
   type SupabaseErrorLike,
 } from '@/lib/persistence/supabase-payload';
+import { isListingDebugEnabled } from '@/lib/debug/debug-flags';
 
 /** Dev-only structured logging for listing publish pipeline tracing. */
 export function traceListingPublish(
@@ -15,7 +16,7 @@ export function traceListingPublish(
     error?: unknown;
   },
 ) {
-  if (process.env.NODE_ENV === 'production') return;
+  if (!isListingDebugEnabled()) return;
 
   const entry = {
     module,
@@ -50,7 +51,7 @@ export function tracePublishFailure(
   error: unknown,
   extra?: Record<string, unknown>,
 ): void {
-  if (process.env.NODE_ENV === 'production') return;
+  if (!isListingDebugEnabled()) return;
 
   const trace: PublishFailureTrace = { module, step, ...extra };
 
@@ -102,7 +103,7 @@ export function logPublicationState(
   row: Record<string, unknown>,
   extra?: Record<string, unknown>,
 ) {
-  if (process.env.NODE_ENV === 'production') return;
+  if (!isListingDebugEnabled()) return;
 
   console.log(
     `[PublicationState:${module}:${phase}]`,

@@ -30,6 +30,7 @@ import {
   updatePendingPackagePayment,
 } from '@/features/monetization/lib/pending-package-payments';
 import { notifyPackageActivated } from '@/features/monetization/lib/package-payment-notifications';
+import { isPremiumEnabled } from '@/features/shared/config/features';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import {
   collectSuspiciousFlags,
@@ -167,7 +168,7 @@ function CreateListingContent() {
       });
     }
 
-    if (placements.length > 0 && simulationReady && ownerId) {
+    if (isPremiumEnabled() && placements.length > 0 && simulationReady && ownerId) {
       try {
         const pending = createPendingPackagePayment({
           userId: ownerId,

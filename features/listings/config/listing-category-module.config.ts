@@ -1,5 +1,8 @@
 /**
  * Maps listing creation categories to ecosystem module keys and publish routes.
+ *
+ * Note: `dijital-ai` intentionally has no entry here — it publishes via the
+ * shared listing-engine path (`createListing` / `publishListing`), not a module REST API.
  */
 import type { CategoryId } from '@/lib/domain/ids';
 import type { ModuleKey } from '@/lib/domain/modules';

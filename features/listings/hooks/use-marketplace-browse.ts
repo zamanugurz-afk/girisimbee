@@ -103,6 +103,12 @@ function buildInitialFilters(options: UseMarketplaceBrowseOptions): MarketplaceF
     categorySlug: options.initialCategorySlug,
     sortBy: options.initialFilters?.sortBy ?? DEFAULT_SORT,
     city: options.initialFilters?.city,
+    isFeatured: options.initialFilters?.isFeatured,
+    activeFeaturedOnly: options.initialFilters?.activeFeaturedOnly,
+    isUrgent: options.initialFilters?.isUrgent,
+    activeUrgentOnly: options.initialFilters?.activeUrgentOnly,
+    publishedAfter: options.initialFilters?.publishedAfter,
+    publishedBefore: options.initialFilters?.publishedBefore,
   };
 }
 
@@ -114,6 +120,12 @@ function buildParamsFromFilters(filters: MarketplaceFilterState, pageNum: number
     categorySlug: filters.categorySlug,
     city: filters.city,
     sortBy: filters.sortBy,
+    isFeatured: filters.isFeatured,
+    activeFeaturedOnly: filters.activeFeaturedOnly,
+    isUrgent: filters.isUrgent,
+    activeUrgentOnly: filters.activeUrgentOnly,
+    publishedAfter: filters.publishedAfter,
+    publishedBefore: filters.publishedBefore,
   };
 }
 
@@ -134,6 +146,12 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
     options.initialCategorySlug,
     options.initialFilters?.city,
     options.initialFilters?.sortBy,
+    options.initialFilters?.isFeatured,
+    options.initialFilters?.activeFeaturedOnly,
+    options.initialFilters?.isUrgent,
+    options.initialFilters?.activeUrgentOnly,
+    options.initialFilters?.publishedAfter,
+    options.initialFilters?.publishedBefore,
     options.initialQuery,
   ]);
 
@@ -229,8 +247,6 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
       setError(null);
 
       try {
-        console.log('[use-marketplace-browse] query parameters:', params);
-        console.log('[use-marketplace-browse] repository method:', 'ListingBrowseService.browse');
         const result =
           pageNum === 1 && !append
             ? await fetchFirstPageDeduped(browseService, params).then((fetched) => ({
@@ -239,7 +255,6 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
                 hasMore: fetched.hasMore,
               }))
             : await browseService.browse(params);
-        console.log('[use-marketplace-browse] returned rows:', result.data.length, result.data.map((i) => i.listingId ?? i.id));
 
         if (generation !== undefined && isStaleGeneration(generation)) {
           return;
@@ -249,7 +264,6 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
         }
 
         setItems((prev) => (append ? [...prev, ...result.data] : result.data));
-        console.log('[use-marketplace-browse] rendered rows:', append ? 'append' : result.data.length, result.data.map((i) => i.listingId ?? i.id));
         setTotal(result.total);
         setHasMore(result.hasMore);
         setPage(pageNum);

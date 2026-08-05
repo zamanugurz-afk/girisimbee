@@ -24,9 +24,6 @@ export function AccountNotificationsEmpty({
           <Link href={DASHBOARD_ROUTES.ilanlarim}>İlanlarım</Link>
         </Button>
         <Button asChild size="sm" variant="outline" className="rounded-2xl">
-          <Link href={DASHBOARD_ROUTES.mesajlarim}>Mesajlar</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline" className="rounded-2xl">
           <Link href={DASHBOARD_ROUTES.favorilerim}>Favoriler</Link>
         </Button>
       </div>

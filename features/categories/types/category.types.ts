@@ -19,6 +19,8 @@ export interface ContentItem {
   id: string;
   /** Domain listing UUID — used for favorites persistence. */
   listingId?: string;
+  /** Optional override for card link (e.g. franchise detail routes). */
+  href?: string;
   type: ContentType;
   title: string;
   subtitle?: string;

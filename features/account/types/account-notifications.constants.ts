@@ -29,7 +29,6 @@ export const ACCOUNT_NOTIFICATIONS_TABS: {
 }[] = [
   { id: 'all', label: 'Tümü', icon: Bell },
   { id: 'favorites', label: 'Favoriler', icon: Star },
-  { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
   { id: 'follows', label: 'Takipler', icon: Users },
   { id: 'listings', label: 'İlanlar', icon: Megaphone },
   { id: 'payments', label: 'Ödemeler', icon: CreditCard },
@@ -71,7 +70,7 @@ export const ACCOUNT_NOTIFICATION_ICON_MAP: Record<AccountNotificationIconKey, L
 
 export const ACCOUNT_NOTIFICATION_DEFAULT_HREF: Record<AccountNotificationType, string> = {
   favorites: DASHBOARD_ROUTES.favorilerim,
-  messages: DASHBOARD_ROUTES.mesajlarim,
+  messages: DASHBOARD_ROUTES.bildirimlerim,
   follows: DASHBOARD_ROUTES.profil,
   listings: DASHBOARD_ROUTES.ilanlarim,
   payments: DASHBOARD_ROUTES.odemelerim,
@@ -135,7 +134,7 @@ export const ACCOUNT_NOTIFICATION_EVENT_CATALOG = [
     type: 'messages' as const,
     iconKey: 'message' as const,
     title: 'Bir kullanıcı size mesaj gönderdi.',
-    href: DASHBOARD_ROUTES.mesajlarim,
+    href: DASHBOARD_ROUTES.bildirimlerim,
   },
   {
     key: 'payment_approved',

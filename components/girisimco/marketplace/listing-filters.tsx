@@ -66,8 +66,6 @@ export function ListingFilters({
         value={filters.sortBy}
         onChange={(e) => {
           const selectedSort = e.target.value as MarketplaceFilterState['sortBy'];
-          console.log('[listing-filters] selected sort option:', e.target.selectedOptions[0]?.text);
-          console.log('[listing-filters] selectedSort value:', selectedSort);
           onChange({ sortBy: selectedSort });
         }}
         className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"

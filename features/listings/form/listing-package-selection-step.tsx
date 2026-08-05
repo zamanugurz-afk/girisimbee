@@ -19,6 +19,7 @@ import {
   simulatePlacementPayment,
   type PlacementPaymentSimulationStatus,
 } from '@/features/monetization/lib/simulate-placement-payment';
+import { isPremiumEnabled } from '@/features/shared/config/features';
 
 export interface ListingPackageSelectionValue {
   placements: PlacementPackageSlug[];
@@ -77,9 +78,29 @@ export function ListingPackageSelectionStep({
 }: ListingPackageSelectionStepProps) {
   const [simulating, setSimulating] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const premiumOn = isPremiumEnabled();
   const isPaidPublish =
-    variant === 'franchise' || variant === 'dijital_ai' || variant === 'job';
+    premiumOn && (variant === 'franchise' || variant === 'dijital_ai' || variant === 'job');
   const publishConfig = isPaidPublish ? publishConfigFor(variant) : null;
+
+  useEffect(() => {
+    if (premiumOn) return;
+    if (
+      value.placements.length === 0 &&
+      value.simulationStatus === 'ready' &&
+      !value.publishFeePaid &&
+      !value.franchisePublishPaid
+    ) {
+      return;
+    }
+    onChange(DEFAULT_PACKAGE_SELECTION);
+  }, [premiumOn, onChange, value.placements.length, value.simulationStatus, value.publishFeePaid, value.franchisePublishPaid]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const isStandard = !isPaidPublish && value.placements.length === 0;
   const placementCents = value.placements.reduce(
@@ -92,11 +113,28 @@ export function ListingPackageSelectionStep({
   const status = value.simulationStatus;
   const statusLabel = PLACEMENT_SIMULATION_STATUS_LABELS[status];
 
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
+  if (!premiumOn) {
+    return (
+      <div className="space-y-3 rounded-2xl border border-border/80 bg-muted/20 p-5">
+        <h3 className="font-display text-base font-semibold text-foreground">
+          {STANDARD_PUBLISH_CONFIG.name}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          İlanınız ücretsiz standart paket ile yayınlanır. Ücretli vitrin, acil doping ve kategori
+          yayın paketleri henüz açılmadı — canlı ödeme geldiğinde burada görünecek.
+        </p>
+        <ul className="space-y-2">
+          {STANDARD_PUBLISH_CONFIG.benefits.map((benefit) => (
+            <li key={benefit} className="flex gap-2 text-sm text-muted-foreground">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>{benefit}</span>
+            </li>
+          ))}
+        </ul>
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </div>
+    );
+  }
 
   function selectStandard() {
     if (isPaidPublish) return;

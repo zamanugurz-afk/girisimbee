@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { signInWithOAuth } from '@/features/authentication/services/supabase-auth.service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
+import { setOAuthNextCookie } from '@/features/authentication/lib/oauth-next';
 
 export function GoogleOAuthButton({
   label = 'Google ile devam et',
-  next = AUTH_ROUTES.account,
+  next = AUTH_ROUTES.home,
 }: {
   label?: string;
   next?: string;
@@ -19,12 +20,20 @@ export function GoogleOAuthButton({
   async function handleClick() {
     setLoading(true);
     try {
+      setOAuthNextCookie(next);
       const supabase = createClient();
-      const { error } = await signInWithOAuth(supabase, 'google', { next });
+      const { data, error } = await signInWithOAuth(supabase, 'google', { next });
       if (error) {
         toast.error(error.message);
         setLoading(false);
+        return;
       }
+      if (data.url) {
+        window.location.assign(data.url);
+        return;
+      }
+      toast.error('Google girişi başlatılamadı.');
+      setLoading(false);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Google girişi başlatılamadı.',

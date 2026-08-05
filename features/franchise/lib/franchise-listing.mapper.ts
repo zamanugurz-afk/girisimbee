@@ -4,7 +4,8 @@ import type {
   FranchiseListingDetails,
   FranchiseListingPayload,
 } from '@/features/franchise/types/franchise-listing.types';
-import { FRANCHISE_SUBCATEGORY_IDS } from '@/features/shared/constants/ecosystem';
+import { FRANCHISE_SUBCATEGORY_IDS, FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
+import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 
 const BUY_DETAIL_KEYS = [
   'minimumYatirim',
@@ -64,6 +65,30 @@ export function flowFromSubcategoryId(subcategoryId: Listing['subcategoryId']): 
   if (!subcategoryId) return null;
   if (subcategoryId === FRANCHISE_SUBCATEGORY_IDS['franchise-buy']) return 'buy';
   if (subcategoryId === FRANCHISE_SUBCATEGORY_IDS['franchise-give']) return 'give';
+  return null;
+}
+
+/** Resolve buy/give when subcategory_id is missing (legacy/seed rows). */
+export function resolveFranchiseFlow(listing: Listing): FranchiseFlow | null {
+  const fromSubcategory = flowFromSubcategoryId(listing.subcategoryId);
+  if (fromSubcategory) return fromSubcategory;
+
+  const typeId = listing.listingTypeId;
+  if (
+    typeId === FRANCHISE_LISTING_TYPE_IDS.buy
+    || typeId === MARKETPLACE_LISTING_TYPE_IDS.bayilikAl
+  ) {
+    return 'buy';
+  }
+  if (
+    typeId === FRANCHISE_LISTING_TYPE_IDS.give
+    || typeId === MARKETPLACE_LISTING_TYPE_IDS.bayilikVer
+  ) {
+    return 'give';
+  }
+
+  // Published franchise module rows without subcategory/type mapping default to give (opportunity ads).
+  if (listing.moduleKey === 'franchise') return 'give';
   return null;
 }
 

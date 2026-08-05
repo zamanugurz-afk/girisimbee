@@ -16,6 +16,8 @@ import { HomeListingsModule } from '@/components/girisimco/home/HomeListingsModu
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 import {
   HOME_CATEGORIES,
+  HOME_STEPS,
+  HOME_TRUST_SIGNALS,
   type HomeCategorySlug,
 } from '@/components/girisimco/home/home-marketplace.data';
 import { cn } from '@/lib/utils';
@@ -132,6 +134,46 @@ export function PlatformHome() {
               </ScrollReveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border/60 bg-muted/15">
+        <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+          <ScrollReveal>
+            <div className="mb-6 max-w-xl">
+              <h2 className="gc-page-heading text-gc-lg sm:text-gc-xl">Nasıl çalışır?</h2>
+              <p className="mt-1.5 text-gc-sm text-muted-foreground sm:text-gc-base">
+                İlanları keşfedin, doğrudan telefonla iletişime geçin.
+              </p>
+            </div>
+          </ScrollReveal>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {HOME_STEPS.map((step, index) => (
+              <ScrollReveal key={step.step} delay={Math.min(index * 40, 120)}>
+                <div className="rounded-2xl border border-border/70 bg-card/80 p-4 sm:p-5">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
+                    {step.step}
+                  </span>
+                  <h3 className="mt-3 font-display text-base font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {step.description}
+                  </p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+          <ScrollReveal delay={80}>
+            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+              {HOME_TRUST_SIGNALS.map((signal) => (
+                <li key={signal.label} className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary/70" aria-hidden />
+                  {signal.label}
+                </li>
+              ))}
+            </ul>
+          </ScrollReveal>
         </div>
       </section>
 
