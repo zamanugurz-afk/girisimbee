@@ -20,6 +20,8 @@ const COVER_BY_GROUP: Record<ListingCardGroup, string> = {
   is: '/covers/ise-aliyorum.jpg',
   ortaklik: '/covers/ortak-ariyorum.jpg',
   franchise: '/covers/franchise.jpg',
+  genel: '/covers/default.jpg',
+  dijital: '/covers/default.jpg',
 };
 
 export const DEFAULT_LISTING_COVER = '/covers/default.jpg';

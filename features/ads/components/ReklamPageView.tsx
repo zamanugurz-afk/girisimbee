@@ -63,7 +63,7 @@ const emptyPartnership = {
 };
 
 export function ReklamPageView() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [tab, setTab] = useState<Tab>('market_ad');
   const [market, setMarket] = useState(emptyMarket);
   const [partnership, setPartnership] = useState(emptyPartnership);
@@ -178,7 +178,7 @@ export function ReklamPageView() {
               Reklam & işbirliği
             </p>
             <h1 className="gc-page-heading mt-2 max-w-2xl text-gc-xl sm:text-gc-2xl">
-              Markanızı Girişimco’da öne çıkarın
+              Markanızı GirisimBee’da öne çıkarın
             </h1>
             <p className="mt-3 max-w-xl text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
               MARKET reklamını {MARKET_AD_PRICE_LABEL} ödeyerek hemen yayınlayın veya özel işbirliği

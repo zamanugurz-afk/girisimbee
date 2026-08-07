@@ -68,8 +68,6 @@ function customFactsSectionTitle(listing: ListingDetail): string {
       return 'Ek Bilgiler';
     case 'franchise':
       return 'Marka Detayları';
-    case 'general-listing':
-      return 'İlan Detayları';
     case 'digital-ai':
       return 'Çözüm Detayları';
     default:
@@ -117,7 +115,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
               <FactRow label="Sunulan hisse" value={listing.investment.equity} />
               <FactRow label="Aşama" value={listing.investment.stage} />
               {isSeekingInvestment ? (
-                <FactRow label="Fon kullanımı" value={listing.investment.useOfFunds} />
+                <FactRow label="Fon kullanımı" value={listing.investment.useOfFunds ?? ''} />
               ) : (
                 <FactRow label="Sektörler" value={listing.investment.industry} />
               )}
@@ -178,9 +176,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
               )}
             >
               <FactGrid>
-                <FactRow label="Sektör" value={listing.company.sector} />
+                <FactRow label="Sektör" value={listing.company.sector ?? ''} />
                 <FactRow label="Kuruluş yılı" value={listing.company.founded} />
-                <FactRow label="Şube sayısı" value={listing.company.branchCount} />
+                <FactRow label="Şube sayısı" value={listing.company.branchCount ?? ''} />
                 <FactRow
                   label="Website"
                   value={listing.company.website}

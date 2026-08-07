@@ -262,8 +262,7 @@ export class ListingEngine implements IListingEngineService {
     const targetStatus: ListingStatus = 'pending_review';
 
     const isFirstPublish = existing.publishedAt === null;
-    const requiresEntitlementCheck =
-      isFirstPublish && (targetStatus === 'published' || targetStatus === 'pending_review');
+    const requiresEntitlementCheck = isFirstPublish;
 
     let entitlement: PublishEntitlementResult | null = null;
     if (requiresEntitlementCheck && this.packageService) {

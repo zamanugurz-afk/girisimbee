@@ -52,7 +52,7 @@ export const GET = withAdmin(async (ctx, request) => {
     total: query.query?.trim() ? data.length : result.total,
     totalPages: query.query?.trim()
       ? Math.max(1, Math.ceil(data.length / (result.limit || 20)))
-      : result.totalPages,
+      : Math.max(1, Math.ceil(result.total / (result.limit || 20))),
   });
 });
 

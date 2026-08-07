@@ -81,32 +81,33 @@ export async function createAdInquiry(
     created_by: createdBy ?? null,
   };
 
-  const payload =
-    input.kind === 'market_ad'
-      ? {
-          ...base,
-          title: input.title.trim(),
-          description: input.description?.trim() || '',
-          image_url: input.imageUrl?.trim() || null,
-          link_url: input.linkUrl?.trim() || null,
-          cta_label: input.ctaLabel?.trim() || 'İncele',
-          price_tl: MARKET_AD_PRICE_TL,
-          partnership_type: null,
-          message: null,
-        }
-      : {
-          ...base,
-          title: null,
-          description: null,
-          image_url: null,
-          link_url: null,
-          cta_label: null,
-          price_tl: null,
-          partnership_type: input.partnershipType,
-          message: input.message.trim(),
-        };
+  if (input.kind === 'market_ad') {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .insert({
+        ...base,
+        title: input.title.trim(),
+        description: input.description?.trim() || '',
+        image_url: input.imageUrl?.trim() || null,
+        link_url: input.linkUrl?.trim() || null,
+        cta_label: input.ctaLabel?.trim() || 'İncele',
+        price_tl: MARKET_AD_PRICE_TL,
+      })
+      .select('*')
+      .single();
+    if (error) throw new Error(error.message);
+    return mapRow(data as AdInquiryRow);
+  }
 
-  const { data, error } = await supabase.from(TABLE).insert(payload).select('*').single();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert({
+      ...base,
+      partnership_type: input.partnershipType,
+      message: input.message.trim(),
+    })
+    .select('*')
+    .single();
   if (error) throw new Error(error.message);
   return mapRow(data as AdInquiryRow);
 }

@@ -182,14 +182,14 @@ export class ProfileService implements IProfileService {
 
   async follow(followerId: UserId, followingId: UserId): Promise<void> {
     if (followerId === followingId) {
-      throw new ValidationError('Kendinizi takip edemezsiniz');
+      throw new ValidationError('Kendinizi takip edemezsiniz', {});
     }
-    if (!this.followRepo) throw new ValidationError('Takip servisi kullanılamıyor');
+    if (!this.followRepo) throw new ValidationError('Takip servisi kullanılamıyor', {});
     await this.followRepo.follow(followerId, followingId);
   }
 
   async unfollow(followerId: UserId, followingId: UserId): Promise<void> {
-    if (!this.followRepo) throw new ValidationError('Takip servisi kullanılamıyor');
+    if (!this.followRepo) throw new ValidationError('Takip servisi kullanılamıyor', {});
     await this.followRepo.unfollow(followerId, followingId);
   }
 

@@ -5,6 +5,7 @@ import type { UserConsentRepository } from '@/features/account/repositories/user
 import type { UserSettingsRepository } from '@/features/account/repositories/user-settings.repository';
 import type { UserSecurityLogRepository } from '@/features/account/repositories/user-security-log.repository';
 import type {
+  AccountStoredRole,
   CreateAccountProfileInput,
   UpdateAccountProfileInput,
 } from '@/features/account/types/account-profile.types';
@@ -20,7 +21,7 @@ export interface BootstrapAccountInput {
   phone?: string | null;
   emailVerified?: boolean;
   /** Stored on profiles.role — OAuth defaults to `user` */
-  role?: string;
+  role?: AccountStoredRole;
   consents?: SignUpConsents;
   ipAddress?: string | null;
   userAgent?: string | null;
