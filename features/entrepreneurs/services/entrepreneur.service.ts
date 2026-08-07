@@ -32,6 +32,10 @@ import {
   ECOSYSTEM_CATEGORY_IDS,
   DEFAULT_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
+import {
+  toPersistedCategoryId,
+  toPersistedListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
 
 export interface PublishStartupInput {
   ownerId: UserId;
@@ -106,6 +110,11 @@ export class EntrepreneurService {
       });
     }
 
+    console.log('[entrepreneurs] listingRepo.create', {
+      category_id: toPersistedCategoryId(ECOSYSTEM_CATEGORY_IDS.entrepreneurs),
+      listing_type_id: toPersistedListingTypeId(DEFAULT_LISTING_TYPE_IDS.entrepreneurs),
+      moduleKey: 'entrepreneurs',
+    });
     return this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,

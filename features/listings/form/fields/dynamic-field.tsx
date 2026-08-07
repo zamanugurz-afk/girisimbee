@@ -14,9 +14,18 @@ import {
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
+import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digital-ai-capability-picker';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
+
+/** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
+const TITLE_CASE_FIELD_KEYS = new Set([
+  'companyName',
+  'brandName',
+  'displayName',
+]);
 
 export interface DynamicFieldProps {
   field: ListingFieldDefinition;
@@ -29,6 +38,23 @@ export interface DynamicFieldProps {
 export function DynamicField({ field, value, onChange, error, disabled }: DynamicFieldProps) {
   const id = `field-${field.key}`;
   const ui = getCustomFieldUi(field.key);
+
+  if (field.key === 'capabilities') {
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        <DigitalAiCapabilityPicker
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          error={error}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -70,21 +96,36 @@ function FieldControl({
   const stringValue = String(value ?? '');
   const stringLength = stringValue.length;
 
+  function applyTitleCaseIfNeeded() {
+    if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
+    const next = autoCorrectTurkishText(stringValue, 'title');
+    if (next !== stringValue) onChange(next);
+  }
+
   switch (field.type) {
     case 'string':
       return (
         <>
           <Input
             id={id}
+            lang="tr"
+            spellCheck
             value={stringValue}
             onChange={(e) => onChange(e.target.value)}
+            onBlur={applyTitleCaseIfNeeded}
             disabled={disabled}
             placeholder={ui.placeholder ?? `${field.label} girin`}
             maxLength={ui.maxLength}
             className={formControlErrorClass(error)}
           />
           <FormFieldFooter
-            helperText={ui.helperText}
+            helperText={
+              TITLE_CASE_FIELD_KEYS.has(field.key)
+                ? (ui.helperText
+                    ? `${ui.helperText} Her kelimenin ilk harfi büyük olur.`
+                    : 'Her kelimenin ilk harfi büyük olmalıdır. Alanı terk edince otomatik düzeltilir.')
+                : ui.helperText
+            }
             error={error}
             currentLength={ui.maxLength ? stringLength : undefined}
             maxLength={ui.maxLength}

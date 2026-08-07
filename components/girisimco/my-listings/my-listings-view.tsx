@@ -226,7 +226,15 @@ export function MyListingsView() {
                   viewMode={viewMode}
                   isBusy={actionId === item.listing.id}
                   onPublish={() => handlePublish(item.listing.id)}
-                  onRenew={() => handleRenew(item.listing.id)}
+                  onRenew={() => {
+                    if (item.listing.moduleKey === 'franchise') {
+                      const confirmed = window.confirm(
+                        'Franchise ilanını yenilemek 1.000 TL tutarındadır ve 60 gün süre ekler. Devam edilsin mi?',
+                      );
+                      if (!confirmed) return;
+                    }
+                    handleRenew(item.listing.id);
+                  }}
                   onMarkSold={() => handleMarkSold(item.listing.id)}
                   onPause={() => handlePause(item.listing.id)}
                   onArchive={() => handleArchive(item.listing.id)}

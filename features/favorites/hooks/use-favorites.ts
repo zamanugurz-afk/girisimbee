@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getClientContainer } from '@/lib/persistence/container';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import { useFavoritesContext } from '@/features/favorites/providers/favorites-provider';
@@ -23,10 +23,15 @@ export function useFavoritesList() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const listingBrowseService = useMemo(
-    () => getClientContainer().listingBrowseService,
-    [],
-  );
+  const listingBrowseServiceRef = useRef<ReturnType<
+    typeof getClientContainer
+  >['listingBrowseService'] | null>(null);
+  const getListingBrowseService = useCallback(() => {
+    if (!listingBrowseServiceRef.current) {
+      listingBrowseServiceRef.current = getClientContainer().listingBrowseService;
+    }
+    return listingBrowseServiceRef.current;
+  }, []);
 
   const loadFavorites = useCallback(
     async (pageNum: number, append = false, sortBy: ListingSortBy = DEFAULT_SORT) => {
@@ -36,7 +41,7 @@ export function useFavoritesList() {
       setError(null);
 
       try {
-        const result = await listingBrowseService.browseFavorites(userId, {
+        const result = await getListingBrowseService().browseFavorites(userId, {
           page: pageNum,
           limit: BROWSE_PAGE_SIZE,
           sortBy,
@@ -52,7 +57,7 @@ export function useFavoritesList() {
         setIsLoadingMore(false);
       }
     },
-    [userId, listingBrowseService],
+    [userId, getListingBrowseService],
   );
 
   const loadMore = useCallback(() => {

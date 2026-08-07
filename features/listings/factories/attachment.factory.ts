@@ -30,7 +30,7 @@ export function createAttachmentInput(overrides: Partial<CreateAttachmentInput> 
     name: overrides.name ?? 'pitch-deck.pdf',
     type: overrides.type ?? 'pdf',
     mimeType: overrides.mimeType ?? 'application/pdf',
-    url: overrides.url ?? 'https://storage.girisimco.test/attachments/pitch-deck.pdf',
+    url: overrides.url ?? 'https://storage.girisimbee.test/attachments/pitch-deck.pdf',
     sizeBytes: overrides.sizeBytes ?? 1024000,
     sortOrder: overrides.sortOrder,
   };

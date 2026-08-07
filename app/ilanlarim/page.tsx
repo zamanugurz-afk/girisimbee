@@ -4,7 +4,7 @@ import { getServerSession } from '@/features/authentication/lib/get-session';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'İlanlarım — Girisimco',
+  title: 'İlanlarım — Girisimbee',
   description: 'Oluşturduğunuz ilanları yönetin.',
 };
 

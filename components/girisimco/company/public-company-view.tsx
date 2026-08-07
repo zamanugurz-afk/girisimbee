@@ -20,7 +20,7 @@ import { listingsToContentItems } from '@/features/listings/mappers/listing-card
 import type { PublicCompanyView } from '@/features/companies/types/company-public.types';
 import { getCompanyService } from '@/lib/persistence/container';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
-import { StartConversationButton } from '@/features/messaging/components/start-conversation-button';
+import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatDate, formatNumber, initials } from '@/lib/utils';
@@ -170,13 +170,10 @@ export function PublicCompanyPageView({ data: initialData }: PublicCompanyPageVi
                 </Button>
               )}
               {!data.isOwner && contactListing && (
-                <StartConversationButton
-                  listingId={contactListing.id}
-                  ownerUserId={contactListing.ownerId}
-                  label="Mesaj Gönder"
-                  size="default"
-                  variant="outline"
+                <ListingCallButton
+                  phone={contactListing.contactPhone}
                   className="rounded-lg"
+                  label="Ara"
                 />
               )}
               {data.isMember && !data.isOwner && (

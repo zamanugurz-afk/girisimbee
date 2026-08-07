@@ -1,5 +1,5 @@
-import type { CategoryId } from '@/lib/domain/ids';
-import type { ListingFilter, RemotePolicy } from '@/features/listings/types/listing.entity.types';
+import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
+import type { ListingFilter } from '@/features/listings/types/listing.entity.types';
 import type { PaginationParams } from '@/lib/domain/pagination';
 
 export type ListingSortBy = 'newest' | 'most_viewed' | 'most_favorited' | 'recently_updated';
@@ -13,14 +13,19 @@ export interface MarketplaceFilterState {
   query?: string;
   categorySlug?: string;
   city?: string;
-  remotePolicy?: RemotePolicy;
-  isVerified?: boolean;
   sortBy: ListingSortBy;
+  isFeatured?: boolean;
+  activeFeaturedOnly?: boolean;
+  isUrgent?: boolean;
+  activeUrgentOnly?: boolean;
+  publishedAfter?: string;
+  publishedBefore?: string;
 }
 
 export interface CategoryPageMeta {
   slug: string;
   categoryId: CategoryId;
+  listingTypeId: ListingTypeId;
   label: string;
   description: string;
   accent: string;

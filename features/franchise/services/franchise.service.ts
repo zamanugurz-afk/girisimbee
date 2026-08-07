@@ -22,19 +22,24 @@ import type {
 } from '@/features/franchise/types/franchise-listing.types';
 import {
   extractFranchiseListingDetails,
-  flowFromSubcategoryId,
+  resolveFranchiseFlow,
   franchisePayloadToCreateInput,
   franchisePayloadToUpdateInput,
 } from '@/features/franchise/lib/franchise-listing.mapper';
 import { activateModule } from '@/features/shared/lib/module-activation';
 import { contactFromFranchiseProfile, contactFromListing } from '@/features/shared/lib/external-contact';
 import { now } from '@/lib/domain/factory';
-import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import { computeFranchiseListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
   ECOSYSTEM_CATEGORY_IDS,
   FRANCHISE_SUBCATEGORY_IDS,
   FRANCHISE_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
+import {
+  toPersistedCategoryId,
+  toPersistedListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
+import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 
 const FLOW_TO_SUBCATEGORY: Record<FranchiseFlow, FranchiseSubcategorySlug> = {
   buy: 'franchise-buy',
@@ -126,26 +131,24 @@ export class FranchiseService {
     return contactFromListing(listing);
   }
 
-  /** Bayilik Al — browse franchise-give listings */
+  /** Franchise listings — match marketplace bayilik browse (type IDs), not subcategory_id. */
   browseBuyOpportunities(filter: FranchiseListingFilter = {}) {
     return this.listingRepo.findPublished({
-      moduleKey: 'franchise',
-      subcategoryId: FRANCHISE_SUBCATEGORY_IDS['franchise-give'],
+      listingTypeIds: [
+        FRANCHISE_LISTING_TYPE_IDS.give,
+        FRANCHISE_LISTING_TYPE_IDS.buy,
+        MARKETPLACE_LISTING_TYPE_IDS.bayilikAl,
+        MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
+      ],
       city: filter.city,
       district: filter.district,
       industry: filter.sector,
     });
   }
 
-  /** Bayilik Ver — browse franchise-buy seekers */
+  /** @deprecated Prefer browseBuyOpportunities — Al/Ver split removed */
   browseGiveSeekers(filter: FranchiseListingFilter = {}) {
-    return this.listingRepo.findPublished({
-      moduleKey: 'franchise',
-      subcategoryId: FRANCHISE_SUBCATEGORY_IDS['franchise-buy'],
-      city: filter.city,
-      district: filter.district,
-      industry: filter.sector,
-    });
+    return this.browseBuyOpportunities(filter);
   }
 
   async createListing(input: CreateFranchiseListingInput): Promise<Listing> {
@@ -161,6 +164,11 @@ export class FranchiseService {
       });
     }
 
+    console.log('[franchise] listingRepo.create', {
+      category_id: toPersistedCategoryId(mapped.categoryId),
+      listing_type_id: toPersistedListingTypeId(mapped.listingTypeId),
+      moduleKey: mapped.moduleKey,
+    });
     return this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,
@@ -183,7 +191,7 @@ export class FranchiseService {
 
   async updateListing(input: UpdateFranchiseListingInput): Promise<Listing> {
     const existing = await this.assertOwnedFranchiseListing(input.ownerId, input.listingId);
-    const flow = flowFromSubcategoryId(existing.subcategoryId) ?? input.flow;
+    const flow = resolveFranchiseFlow(existing) ?? input.flow;
     const update = franchisePayloadToUpdateInput(flow, input.listing, existing);
     return this.listingRepo.update(input.listingId, update);
   }
@@ -208,7 +216,7 @@ export class FranchiseService {
       status: 'published',
       workflowStatus: 'published',
       publishedAt: listing.publishedAt ?? now(),
-      expiresAt: listing.expiresAt ?? computeListingExpiry(),
+      expiresAt: listing.expiresAt ?? computeFranchiseListingExpiry(),
     });
   }
 
@@ -219,11 +227,12 @@ export class FranchiseService {
     const listing = await this.resolveListing(idOrSlug);
     if (!listing || listing.moduleKey !== 'franchise') return null;
 
-    const flow = flowFromSubcategoryId(listing.subcategoryId);
+    const flow = resolveFranchiseFlow(listing);
     if (!flow) return null;
 
     if (options.trackView && listing.status === 'published') {
-      await this.listingRepo.incrementViewCount(listing.id);
+      // Don't block TTFB on analytics write.
+      void this.listingRepo.incrementViewCount(listing.id).catch(() => undefined);
     }
 
     return {

@@ -1,18 +1,40 @@
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
+import { buildWizardVisibleListingFormSchema } from '@/features/listings/form/build-dynamic-schema';
+import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import {
   collectWizardVisibleFieldPaths,
   resolveStepCustomFields,
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import type { CategoryId } from '@/lib/domain/ids';
 import { ValidationError } from '@/lib/domain/errors';
 import { formatSupabaseErrorMessages, isSupabaseError } from '@/lib/persistence/supabase-payload';
 import { ZodError } from 'zod';
+import {
+  validateKvkkConsents,
+  type KvkkConsentValues,
+} from '@/features/listings/form/fields/kvkk-consent-fields';
+import {
+  validatePublishConsents,
+  type PublishConsentValues,
+} from '@/features/listings/form/fields/publish-consent-fields';
+import { isValidCvStorageRef } from '@/features/listings/lib/normalize-cv-storage-ref';
+import {
+  contentPolicyIssuesToFieldErrors,
+  validateListingContentPolicy,
+} from '@/features/listings/lib/listing-content-policy';
+import { getListingTextFingerprints } from '@/features/listings/lib/listing-duplicate-registry';
 
 export interface ValidationFormSnapshot {
   core: Record<string, unknown>;
   customFields: Record<string, unknown>;
   tags?: unknown;
   images?: unknown;
+  cvUrl?: unknown;
+  kvkkConsents?: unknown;
+  publishConsents?: unknown;
+  contactPhone?: unknown;
 }
 
 const HIDDEN_SYSTEM_PATHS = new Set(['categoryId', 'listingTypeId']);
@@ -187,9 +209,19 @@ export function findStepIndexForErrors(
     return null;
   }
 
+  if (fieldKey === 'cvUrl') {
+    const cvStep = steps.findIndex((step) => step.cv);
+    return cvStep >= 0 ? cvStep : null;
+  }
+
+  if (fieldKey === 'kvkkConsents' || fieldKey === 'publishConsents' || fieldKey === 'contactPhone') {
+    const kvkkStep = steps.findIndex((step) => step.kvkk);
+    return kvkkStep >= 0 ? kvkkStep : null;
+  }
+
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
-    if (step.preview || step.publish) continue;
+    if (step.preview || step.publish || step.package) continue;
 
     if (step.coreFields?.includes(fieldKey as keyof CoreListingFieldsInput)) {
       return i;
@@ -221,6 +253,18 @@ export function getFieldValueFromSnapshot(
   if (path.startsWith('images') || fieldKey === 'images') {
     return snapshot.images;
   }
+  if (fieldKey === 'cvUrl') {
+    return snapshot.cvUrl;
+  }
+  if (fieldKey === 'kvkkConsents') {
+    return snapshot.kvkkConsents;
+  }
+  if (fieldKey === 'publishConsents') {
+    return snapshot.publishConsents;
+  }
+  if (fieldKey === 'contactPhone') {
+    return snapshot.contactPhone;
+  }
   return snapshot.customFields[fieldKey] ?? snapshot.core[fieldKey];
 }
 
@@ -243,7 +287,48 @@ const CORE_FIELD_LABELS: Record<string, string> = {
   companyId: 'Şirket',
   tags: 'Etiketler',
   images: 'Görseller',
+  cvUrl: 'Özgeçmiş',
+  kvkkConsents: 'KVKK onayları',
+  publishConsents: 'Yayın onayları',
+  contactPhone: 'Telefon',
+  desiredRole: 'Aranan pozisyon',
+  experienceLevel: 'Deneyim seviyesi',
+  salaryExpectation: 'Maaş beklentisi',
+  workType: 'Çalışma tipi',
 };
+
+/** User-facing publish hints — shown instead of generic "Doğrulama hatası". */
+const PUBLISH_FIELD_HINTS: Record<string, string> = {
+  cvUrl: 'Özgeçmiş yüklenmedi.',
+  kvkkConsents: 'KVKK onayları tamamlanmadı.',
+  publishConsents: 'Yayın onayları tamamlanmadı.',
+  contactPhone: 'Profil telefon numarası eksik.',
+  desiredRole: 'Aranan pozisyon eksik.',
+  experienceLevel: 'Deneyim bilgileri eksik.',
+  workType: 'Çalışma tipi eksik.',
+  salaryExpectation: 'Maaş beklentisi eksik.',
+  title: 'Başlık eksik veya çok kısa.',
+  shortDescription: 'Kısa açıklama eksik veya çok kısa.',
+  longDescription: 'Detaylı açıklama eksik veya çok kısa.',
+  city: 'Şehir seçilmedi.',
+  'core.title': 'Başlık eksik veya çok kısa.',
+  'core.shortDescription': 'Kısa açıklama eksik veya çok kısa.',
+  'core.longDescription': 'Detaylı açıklama eksik veya çok kısa.',
+  'core.city': 'Şehir seçilmedi.',
+  'customFields.desiredRole': 'Aranan pozisyon eksik.',
+  'customFields.experienceLevel': 'Deneyim bilgileri eksik.',
+  'customFields.workType': 'Çalışma tipi eksik.',
+};
+
+const GENERIC_VALIDATION_MESSAGES = new Set([
+  'Doğrulama hatası',
+  'Doğrulama hatası.',
+  'Validation error',
+]);
+
+export function formatPublishFieldMessage(path: string, fallback: string): string {
+  return PUBLISH_FIELD_HINTS[path] ?? PUBLISH_FIELD_HINTS[errorFieldKey(path)] ?? fallback;
+}
 
 export function flattenFieldErrors(fieldErrors: Record<string, string[]>): Record<string, string> {
   const flat: Record<string, string> = {};
@@ -261,6 +346,16 @@ export function extractValidationErrorMap(error: unknown): Record<string, string
 
   if (error instanceof ValidationError) {
     return flattenFieldErrors(error.fieldErrors);
+  }
+
+  if (error && typeof error === 'object' && 'fieldErrors' in error) {
+    const fieldErrors = (error as { fieldErrors?: Record<string, string[]> }).fieldErrors;
+    if (fieldErrors && typeof fieldErrors === 'object') {
+      const flat = flattenFieldErrors(fieldErrors);
+      if (Object.keys(flat).length > 0) {
+        return flat;
+      }
+    }
   }
 
   return null;
@@ -298,7 +393,7 @@ export function buildValidationErrorDetails(
       path,
       fieldName: resolveValidationFieldLabel(path, customFieldLabels),
       value: getFieldValueFromSnapshot(snapshot, path, fieldKey),
-      message,
+      message: formatPublishFieldMessage(path, message),
       stepNumber: errorStep !== null ? errorStep + 1 : null,
     };
   });
@@ -368,11 +463,95 @@ export function resolvePublishErrorMessages(
     return formatSupabaseErrorMessages(error);
   }
 
-  if (error instanceof Error && error.message) {
+  if (error instanceof Error && error.message && !GENERIC_VALIDATION_MESSAGES.has(error.message)) {
     return [error.message];
   }
 
-  return ['İşlem başarısız oldu. Lütfen tekrar deneyin.'];
+  return ['Yayınlama tamamlanamadı. Lütfen zorunlu alanları kontrol edin.'];
+}
+
+/** Full publish-time validation for wizard + job-seeker CV/KVKK + phone consents. */
+export function validateListingFormBeforePublish(options: {
+  categoryId: CategoryId;
+  fieldSchema: ListingFieldSchema;
+  steps: ListingFormStepDef[];
+  allFieldKeys: string[];
+  snapshot: ValidationFormSnapshot;
+  cvUrl?: string | null;
+  kvkkConsents?: KvkkConsentValues;
+  publishConsents?: PublishConsentValues;
+  contactPhone?: string | null;
+}): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (options.categoryId === CATEGORY_IDS.isBul) {
+    if (!options.cvUrl) {
+      errors.cvUrl = PUBLISH_FIELD_HINTS.cvUrl;
+    } else if (!isValidCvStorageRef(options.cvUrl)) {
+      errors.cvUrl = 'Özgeçmiş geçersiz. Lütfen yeniden yükleyin.';
+    }
+    if (!options.kvkkConsents || !validateKvkkConsents(options.kvkkConsents)) {
+      errors.kvkkConsents = PUBLISH_FIELD_HINTS.kvkkConsents;
+    }
+  }
+
+  if (!options.publishConsents || !validatePublishConsents(options.publishConsents)) {
+    errors.publishConsents = PUBLISH_FIELD_HINTS.publishConsents;
+  }
+
+  if (!options.contactPhone?.trim()) {
+    errors.contactPhone = PUBLISH_FIELD_HINTS.contactPhone;
+  }
+
+  try {
+    const schema = buildWizardVisibleListingFormSchema(
+      options.fieldSchema,
+      options.steps,
+      options.allFieldKeys,
+    );
+    schema.parse({
+      core: options.snapshot.core,
+      customFields: options.snapshot.customFields,
+      tags: options.snapshot.tags ?? [],
+      images: options.snapshot.images ?? [],
+    });
+  } catch (err) {
+    if (err instanceof ZodError) {
+      Object.assign(errors, parseZodErrors(err));
+    }
+  }
+
+  const core = options.snapshot.core ?? {};
+  const images = Array.isArray(options.snapshot.images) ? options.snapshot.images : [];
+  const tags = Array.isArray(options.snapshot.tags)
+    ? options.snapshot.tags.map((t) => String(t))
+    : [];
+
+  const policyIssues = validateListingContentPolicy({
+    title: typeof core.title === 'string' ? core.title : undefined,
+    shortDescription:
+      typeof core.shortDescription === 'string' ? core.shortDescription : undefined,
+    longDescription:
+      typeof core.longDescription === 'string' ? core.longDescription : undefined,
+    tags,
+    imageFileNames: images
+      .map((img) => {
+        if (img && typeof img === 'object' && 'alt' in img && typeof (img as { alt?: unknown }).alt === 'string') {
+          return (img as { alt: string }).alt;
+        }
+        return '';
+      })
+      .filter(Boolean),
+    existingFingerprints: getListingTextFingerprints(),
+  });
+
+  Object.assign(errors, contentPolicyIssuesToFieldErrors(policyIssues));
+
+  const friendly: Record<string, string> = {};
+  for (const [path, message] of Object.entries(errors)) {
+    friendly[path] = formatPublishFieldMessage(path, message);
+  }
+  return friendly;
 }
 
 /** Keep only errors belonging to the active wizard step. */

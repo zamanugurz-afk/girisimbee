@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -27,10 +28,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const userId = user?.id as UserId | undefined;
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
-  const { favoriteService, listingBrowseService } = useMemo(
-    () => getClientContainer(),
-    [],
-  );
+  // Lazy: avoid createBrowserClient via getClientContainer during SSR/prerender.
+  const containerRef = useRef<ReturnType<typeof getClientContainer> | null>(null);
+  const getContainer = useCallback(() => {
+    if (!containerRef.current) {
+      containerRef.current = getClientContainer();
+    }
+    return containerRef.current;
+  }, []);
 
   const refreshFavoriteIds = useCallback(async () => {
     if (!userId) {
@@ -38,12 +43,13 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
+      const { listingBrowseService } = getContainer();
       const ids = await listingBrowseService.getListingIdsForFavorites(userId);
       setFavoriteIds(new Set([...ids]));
     } catch {
       setFavoriteIds(new Set());
     }
-  }, [userId, listingBrowseService]);
+  }, [userId, getContainer]);
 
   useEffect(() => {
     if (!userId) {
@@ -57,14 +63,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     };
 
     if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(run, { timeout: 1500 });
+      const idleId = window.requestIdleCallback(run, { timeout: 4000 });
       return () => {
         cancelled = true;
         window.cancelIdleCallback(idleId);
       };
     }
 
-    const timeoutId = window.setTimeout(run, 0);
+    const timeoutId = window.setTimeout(run, 2500);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
@@ -80,6 +86,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     async (listingId: ListingId) => {
       if (!userId) return false;
 
+      const { favoriteService } = getContainer();
       const isFav = favoriteIds.has(listingId);
       if (isFav) {
         await favoriteService.remove(userId, listingId);
@@ -94,7 +101,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       }
       return !isFav;
     },
-    [userId, favoriteIds, favoriteService],
+    [userId, favoriteIds, getContainer],
   );
 
   const value = useMemo(

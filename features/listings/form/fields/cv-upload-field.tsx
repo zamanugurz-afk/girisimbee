@@ -34,13 +34,22 @@ export function CvUploadField({
       return;
     }
 
+    const formData = new FormData();
+    formData.append('cv', file, file.name);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[CvUploadField] FormData entries:', [...formData.entries()].map(([k, v]) => [k, v instanceof File ? { name: v.name, type: v.type, size: v.size } : v]));
+    }
+
     setUploading(true);
     try {
       const url = await uploadListingCv(userId, file);
       onChange(url);
       setFileName(file.name);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Özgeçmiş yüklenemedi');
+      const message = err instanceof Error ? err.message : 'Dosya yüklenemedi.';
+      toast.error(message === 'Dosya yüklenemedi.' ? message : 'Dosya yüklenemedi.', {
+        description: message !== 'Dosya yüklenemedi.' ? message : 'Desteklenen formatlar: PDF, DOC, DOCX.',
+      });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -59,7 +68,7 @@ export function CvUploadField({
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        accept=".pdf,.doc,.docx"
         className="hidden"
         disabled={disabled || uploading}
         onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
@@ -75,7 +84,7 @@ export function CvUploadField({
               <p className="truncate text-sm font-medium text-foreground">
                 {fileName ?? 'Yüklenen özgeçmiş'}
               </p>
-              <p className="text-xs text-muted-foreground">PDF veya DOCX</p>
+              <p className="text-xs text-muted-foreground">PDF, DOC veya DOCX</p>
             </div>
           </div>
           <Button
@@ -103,7 +112,7 @@ export function CvUploadField({
       )}
 
       <FormFieldFooter
-        helperText="Kabul edilen formatlar: PDF, DOCX. Maksimum 10 MB."
+        helperText="Kabul edilen formatlar: PDF, DOC, DOCX. Maksimum 10 MB."
         error={error}
       />
     </div>

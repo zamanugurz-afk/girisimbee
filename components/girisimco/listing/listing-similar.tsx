@@ -1,51 +1,128 @@
 import Link from 'next/link';
-import { ArrowUpRight, MapPin } from 'lucide-react';
+import { ArrowUpRight, Clock3, Layers3, MapPin, type LucideIcon } from 'lucide-react';
 import { DetailSection } from '@/components/girisimco/listing/detail-primitives';
-import { listingHref, type ListingDetail } from '@/features/listings';
+import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
+import { listingHref, type ListingDetail, type ListingSimilar as SimilarItem } from '@/features/listings';
+import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
 interface ListingSimilarProps {
   listing: ListingDetail;
 }
 
+function SimilarCard({
+  item,
+  accent,
+}: {
+  item: SimilarItem;
+  accent: string;
+}) {
+  return (
+    <Link
+      href={listingHref(item.id)}
+      className={cn(
+        'group flex flex-col rounded-2xl border border-border/80 bg-card p-4 transition-all duration-200',
+        'hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md',
+        'dark:border-white/10 dark:bg-card/90',
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <ListingTypeIconBadge
+            iconKey={item.listingIconKey ?? 'general'}
+            color={accent}
+            size="sm"
+          />
+          <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
+        </div>
+        <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
+      </div>
+      <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+        <MapPin className="h-3 w-3" />
+        {item.location}
+      </div>
+      <p className="mt-2 text-sm font-medium text-foreground/80">{item.detail}</p>
+      <span className="mt-3 self-start rounded-2xl bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+        {item.tag}
+      </span>
+    </Link>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-4 py-8 text-center dark:border-white/10 dark:bg-white/[0.02]">
+      <p className="text-sm text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
+function RelatedBlock({
+  title,
+  icon: Icon,
+  description,
+  items,
+  emptyMessage,
+  accent,
+}: {
+  title: string;
+  icon: LucideIcon;
+  description: string;
+  items: SimilarItem[];
+  emptyMessage: string;
+  accent: string;
+}) {
+  return (
+    <DetailSection title={title} description={description}>
+      <div className="mb-3 flex items-center gap-2 text-muted-foreground">
+        <Icon className="h-4 w-4" aria-hidden />
+        <span className="text-xs">{items.length} ilan</span>
+      </div>
+      {items.length === 0 ? (
+        <EmptyState message={emptyMessage} />
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((item) => (
+            <SimilarCard key={item.id} item={item} accent={accent} />
+          ))}
+        </div>
+      )}
+    </DetailSection>
+  );
+}
+
 export function ListingSimilar({ listing }: ListingSimilarProps) {
-  if (listing.similar.length === 0) return null;
+  const similar = listing.similar;
+  const sameCategory = similar.filter((item) => item.tag === listing.category.label);
+  const latest = similar.slice(0, 4);
+  const accent = listing.category.accent || GC_ACCENT;
 
   return (
-    <DetailSection title="Benzer İlanlar" className="mt-14 border-t border-border/80 pt-10 dark:border-white/10">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {listing.similar.map((item) => (
-          <Link
-            key={item.id}
-            href={listingHref(item.id)}
-            className={cn(
-              'group flex flex-col rounded-[24px] border border-border/80 bg-white p-4 transition-all duration-200',
-              'hover:gc-shadow-soft hover:-translate-y-0.5',
-              'dark:border-white/10 dark:bg-card/90',
-            )}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-lg shrink-0" role="img" aria-hidden>
-                  {item.emoji}
-                </span>
-                <h3 className="truncate text-sm font-semibold text-foreground">
-                  {item.title}
-                </h3>
-              </div>
-              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              {item.location}
-            </div>
-            <p className="mt-2 text-sm font-medium text-[#16A34A]">{item.detail}</p>
-            <span className="mt-3 self-start rounded-md bg-[#22C55E]/8 px-2 py-0.5 text-[11px] font-medium text-[#16A34A]">
-              {item.tag}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </DetailSection>
+    <div className="mt-14 space-y-12 border-t border-border/80 pt-10 dark:border-white/10">
+      <RelatedBlock
+        title="Benzer ilanlar"
+        icon={Layers3}
+        description="Bu ilana yakın fırsatlar"
+        items={similar}
+        emptyMessage="Henüz benzer ilan bulunmuyor."
+        accent={accent}
+      />
+      <RelatedBlock
+        title="Aynı kategorideki ilanlar"
+        icon={Layers3}
+        description={`${listing.category.label} kategorisinden seçkiler`}
+        items={sameCategory.length > 0 ? sameCategory : similar}
+        emptyMessage="Bu kategoride başka ilan gösterilemiyor."
+        accent={accent}
+      />
+      <RelatedBlock
+        title="Son eklenen ilanlar"
+        icon={Clock3}
+        description="Yeni yayınlanan fırsatlar"
+        items={latest}
+        emptyMessage="Son eklenen ilanlar yakında burada listelenecek."
+        accent={accent}
+      />
+    </div>
   );
 }

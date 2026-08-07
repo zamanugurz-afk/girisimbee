@@ -7,15 +7,33 @@ import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import {
   EXPERIENCE_LEVELS,
+  FRANCHISE_BUSINESS_CATEGORY_OPTIONS,
+  FRANCHISE_CITY_OPTIONS,
+  FRANCHISE_EDUCATION_OPTIONS,
+  FRANCHISE_EXPERIENCE_OPTIONS,
+  FRANCHISE_RETURN_PERIOD_OPTIONS,
+  FRANCHISE_SECTOR_OPTIONS,
+  FRANCHISE_SETUP_DURATION_OPTIONS,
+  FRANCHISE_STORE_SIZE_OPTIONS,
   HIRING_SALARY_RANGES,
   INVESTMENT_AMOUNT_RANGES,
+  INVESTOR_SECTOR_OPTIONS,
   JOB_POSITION_OPTIONS,
   PARTNER_EXPERTISE_OPTIONS,
   SALARY_RANGES,
   STARTUP_STAGES,
   STARTUP_STAGES_WITH_ALL,
   USE_OF_FUNDS_OPTIONS,
+  GENERAL_LISTING_TYPE_OPTIONS,
+  GENERAL_LISTING_CONDITION_OPTIONS,
+  GENERAL_LISTING_PRICE_OPTIONS,
+  DIGITAL_AI_SOLUTION_TYPE_OPTIONS,
+  DIGITAL_AI_DELIVERY_OPTIONS,
+  DIGITAL_AI_AUDIENCE_OPTIONS,
+  DIGITAL_AI_CAPABILITY_OPTIONS,
+  DIGITAL_AI_LANGUAGE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
+import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
 
 export const CATEGORY_IDS = {
   yatirimBul: ids.category('c1000001-0001-4000-8000-000000000001'),
@@ -23,6 +41,9 @@ export const CATEGORY_IDS = {
   isBul: ids.category('c1000001-0001-4000-8000-000000000003'),
   iseAl: ids.category('c1000001-0001-4000-8000-000000000004'),
   ortakBul: ids.category('c1000001-0001-4000-8000-000000000005'),
+  bayilikAl: ids.category('c1000001-0001-4000-8000-000000000006'),
+  genelIlan: ids.category('c1000001-0001-4000-8000-000000000007'),
+  dijitalAi: ids.category('c1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, CategoryId>;
 
 export const LISTING_TYPE_IDS = {
@@ -31,6 +52,9 @@ export const LISTING_TYPE_IDS = {
   isBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000003'),
   iseAlDefault: ids.listingType('lt000001-0001-4000-8000-000000000004'),
   ortakBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000005'),
+  franchiseGiveDefault: FRANCHISE_LISTING_TYPE_IDS.give,
+  genelIlanDefault: ids.listingType('lt000001-0001-4000-8000-000000000007'),
+  dijitalAiDefault: ids.listingType('d1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, ListingTypeId>;
 
 /** Yatırım Arıyorum — girişim yatırım ihtiyacı */
@@ -78,7 +102,13 @@ export const INVESTOR_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: [...STARTUP_STAGES_WITH_ALL],
     },
-    { key: 'sectors', label: 'İlgi Alanları / Sektörler', type: 'string', required: true },
+    {
+      key: 'sectors',
+      label: 'İlgi Alanları / Sektörler',
+      type: 'multi-enum',
+      required: true,
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
   ],
 };
 
@@ -115,7 +145,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
-/** İşe Alıyorum — işveren ilanı */
+/** İş İlanları — işveren açık pozisyon ilanı */
 export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -139,6 +169,124 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: ['Tam zamanlı', 'Yarı zamanlı', 'Sözleşmeli', 'Staj'],
     },
+  ],
+};
+
+/** Franchise İlan Ver — franchise owner offering opportunity */
+export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    { key: 'companyName', label: 'Şirket Adı', type: 'string', required: true, max: 200 },
+    { key: 'establishmentYear', label: 'Kuruluş Yılı', type: 'number', required: true, min: 1900, max: 2030 },
+    {
+      key: 'sector',
+      label: 'Sektör',
+      type: 'enum',
+      required: true,
+      options: [...FRANCHISE_SECTOR_OPTIONS],
+    },
+    { key: 'branchCount', label: 'Şube Sayısı', type: 'number', required: true, min: 1 },
+    { key: 'website', label: 'Web Sitesi', type: 'string', max: 500 },
+    { key: 'entryFee', label: 'Giriş Bedeli (₺)', type: 'currency', min: 0 },
+    {
+      key: 'totalInvestment',
+      label: 'Toplam Yatırım Bütçesi (₺)',
+      type: 'currency',
+      required: true,
+      min: 0,
+    },
+    {
+      key: 'franchiseFee',
+      label: 'İsim Hakkı Bedeli (₺)',
+      type: 'currency',
+      required: true,
+      min: 0,
+    },
+    {
+      key: 'profitMargin',
+      label: 'Kar Marjı (%)',
+      type: 'percentage',
+      required: true,
+      min: 0,
+      max: 100,
+    },
+    {
+      key: 'royaltyFee',
+      label: 'Cirodan Alınan Pay (%)',
+      type: 'percentage',
+      required: true,
+      min: 0,
+      max: 100,
+    },
+    {
+      key: 'returnPeriod',
+      label: 'Yatırımın Geri Dönüş Süresi',
+      type: 'enum',
+      required: true,
+      options: [...FRANCHISE_RETURN_PERIOD_OPTIONS],
+    },
+    {
+      key: 'averageSetupDuration',
+      label: 'Ortalama Kurulum Süresi',
+      type: 'enum',
+      required: true,
+      options: [...FRANCHISE_SETUP_DURATION_OPTIONS],
+    },
+    {
+      key: 'minSquareMeters',
+      label: 'Minimum M²',
+      type: 'number',
+      required: true,
+      min: 1,
+    },
+    { key: 'advertisingFee', label: 'Reklam Katkı Payı (%)', type: 'percentage', min: 0, max: 100 },
+    {
+      key: 'availableCities',
+      label: 'Uygun Şehirler',
+      type: 'multi-enum',
+      required: true,
+      options: [...FRANCHISE_CITY_OPTIONS],
+    },
+    { key: 'districts', label: 'İlçeler', type: 'string', max: 500 },
+    { key: 'minPopulation', label: 'Minimum Nüfus Şartı', type: 'number', min: 0 },
+    {
+      key: 'storeSize',
+      label: 'Mağaza Büyüklüğü',
+      type: 'enum',
+      options: [...FRANCHISE_STORE_SIZE_OPTIONS],
+    },
+    { key: 'mallAvailable', label: 'AVM\'de Açılabilir', type: 'boolean' },
+    { key: 'streetStoreAvailable', label: 'Cadde Mağazası Açılabilir', type: 'boolean' },
+    {
+      key: 'businessCategory',
+      label: 'İş Kategorisi',
+      type: 'enum',
+      required: true,
+      options: [...FRANCHISE_BUSINESS_CATEGORY_OPTIONS],
+    },
+    { key: 'employeeCount', label: 'Çalışan Sayısı', type: 'number', min: 0 },
+    { key: 'dailyCustomerCapacity', label: 'Günlük Müşteri Kapasitesi', type: 'number', min: 0 },
+    { key: 'workingHours', label: 'Çalışma Saatleri', type: 'string', max: 200 },
+    { key: 'trainingSupport', label: 'Eğitim Desteği', type: 'boolean' },
+    { key: 'operationalSupport', label: 'Operasyon Desteği', type: 'boolean' },
+    { key: 'marketingSupport', label: 'Pazarlama Desteği', type: 'boolean' },
+    { key: 'minCapitalRequirement', label: 'Minimum Sermaye Gereksinimi (₺)', type: 'currency', required: true, min: 0 },
+    {
+      key: 'experienceRequirement',
+      label: 'Deneyim Gereksinimi',
+      type: 'enum',
+      options: [...FRANCHISE_EXPERIENCE_OPTIONS],
+    },
+    {
+      key: 'educationRequirement',
+      label: 'Eğitim Gereksinimi',
+      type: 'enum',
+      options: [...FRANCHISE_EDUCATION_OPTIONS],
+    },
+    { key: 'companyEstablishmentRequired', label: 'Şirket Kuruluş Gereksinimi', type: 'boolean' },
+    { key: 'guaranteeRequirement', label: 'Teminat Gereksinimi', type: 'string', max: 500 },
+    { key: 'introductionVideoUrl', label: 'Tanıtım Videosu (URL)', type: 'string', max: 500 },
+    { key: 'presentationPdfUrl', label: 'Franchise Sunum PDF (URL)', type: 'string', max: 500 },
+    { key: 'sampleContractUrl', label: 'Örnek Sözleşme (URL)', type: 'string', max: 500 },
   ],
 };
 
@@ -166,12 +314,100 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: [...PARTNER_EXPERTISE_OPTIONS],
     },
-    { key: 'projectStage', label: 'Proje Aşaması', type: 'enum', options: [...STARTUP_STAGES] },
   ],
 };
 
 /** @deprecated Use category-specific schemas */
 export const INVESTMENT_FIELD_SCHEMA = SEEKING_INVESTMENT_FIELD_SCHEMA;
+
+/** Genel İlan — ürün, hizmet, duyuru ve fırsat ilanları */
+export const GENERAL_LISTING_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'listingKind',
+      label: 'İlan türü',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_TYPE_OPTIONS],
+    },
+    {
+      key: 'condition',
+      label: 'Durum',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_CONDITION_OPTIONS],
+    },
+    {
+      key: 'priceRange',
+      label: 'Fiyat / bütçe',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_PRICE_OPTIONS],
+    },
+    {
+      key: 'sector',
+      label: 'Sektör / alan',
+      type: 'enum',
+      required: false,
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+  ],
+};
+
+/** Dijital ve AI Çözümleri — yetenek kartları + ürün kimliği */
+export const DIGITAL_AI_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'solutionType',
+      label: 'Çözüm türü',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_SOLUTION_TYPE_OPTIONS],
+    },
+    {
+      key: 'deliveryModel',
+      label: 'Teslim / iş modeli',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_DELIVERY_OPTIONS],
+    },
+    {
+      key: 'targetAudience',
+      label: 'Hedef kitle',
+      type: 'enum',
+      required: true,
+      options: [...DIGITAL_AI_AUDIENCE_OPTIONS],
+    },
+    {
+      key: 'priceRange',
+      label: 'Fiyat modeli / bütçe',
+      type: 'enum',
+      required: true,
+      options: [...GENERAL_LISTING_PRICE_OPTIONS],
+    },
+    {
+      key: 'demoUrl',
+      label: 'Demo / ürün linki',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+    {
+      key: 'capabilities',
+      label: 'Çözüm yetenekleri',
+      type: 'multi-enum',
+      required: true,
+      options: [...DIGITAL_AI_CAPABILITY_OPTIONS],
+    },
+    {
+      key: 'supportedLanguages',
+      label: 'Desteklenen diller',
+      type: 'multi-enum',
+      required: false,
+      options: [...DIGITAL_AI_LANGUAGE_OPTIONS],
+    },
+  ],
+};
 
 export interface CategoryListingTypeConfig {
   listingTypeId: ListingTypeId;
@@ -189,7 +425,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.yatirimBul,
     slug: 'yatirim-ariyorum',
     name: 'Yatırım Arıyorum',
-    description: 'Girişiminiz için yatırımcı arayın',
+    description: 'Girişiminiz için yatırımcı bulun; tutar, aşama ve kullanım alanını paylaşın',
     fieldSchema: SEEKING_INVESTMENT_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -198,7 +434,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.yatirimYap,
     slug: 'yatirim-yapiyorum',
     name: 'Yatırım Yapacağım',
-    description: 'Yatırım yapmak isteyen profil',
+    description: 'Yatırımcı profilinizi ve tercih ettiğiniz fırsatları yayınlayın',
     fieldSchema: INVESTOR_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -207,7 +443,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.isBul,
     slug: 'is-ariyorum',
     name: 'İş Arıyorum',
-    description: 'Kariyer fırsatı arayan profil',
+    description: 'Kariyer profilinizi paylaşın; işverenler sizi bulsun',
     fieldSchema: JOB_SEEKER_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -215,8 +451,8 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
     categoryId: CATEGORY_IDS.iseAl,
     slug: 'ise-aliyorum',
-    name: 'İşe Alıyorum',
-    description: 'Ekibinize yetenek arayın',
+    name: 'İş İlanları',
+    description: 'Açık pozisyon yayınlayın; adaylar telefon ile ulaşır',
     fieldSchema: HIRING_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -225,11 +461,36 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.ortakBul,
     slug: 'ortak-ariyorum',
     name: 'Ortak Arıyorum',
-    description: 'Kurucu veya iş ortağı arayın',
+    description: 'Kurucu veya iş ortağı arayın; uzmanlık ve taahhüt beklentinizi belirtin',
     fieldSchema: PARTNER_FIELD_SCHEMA,
     sortOrder: 1,
   },
+  {
+    listingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,
+    categoryId: CATEGORY_IDS.bayilikAl,
+    slug: 'franchise-ilan-ver',
+    name: 'Franchise İlan Ver',
+    description: 'Marka, yatırım ve lokasyon bilgileriyle franchise fırsatınızı yayınlayın',
+    fieldSchema: FRANCHISE_GIVE_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
+  {
+    listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
+    categoryId: CATEGORY_IDS.dijitalAi,
+    slug: 'dijital-ai-cozum',
+    name: 'Dijital ve AI Çözümleri',
+    description: 'Ürün adını, kısa tanıtımı ve yetenek kartlarını ekleyerek çözümünüzü yayınlayın',
+    fieldSchema: DIGITAL_AI_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
 ];
+
+/** Categories selectable on /ilan/olustur (investor + job-seeker removed). */
+export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS.filter(
+  (config) =>
+    config.categoryId !== CATEGORY_IDS.yatirimYap
+    && config.categoryId !== CATEGORY_IDS.isBul,
+);
 
 /** Map category slug → category ID */
 export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
@@ -238,4 +499,7 @@ export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   'is-bul': CATEGORY_IDS.isBul,
   'ise-al': CATEGORY_IDS.iseAl,
   'ortak-bul': CATEGORY_IDS.ortakBul,
+  franchise: CATEGORY_IDS.bayilikAl,
+  'bayilik-al': CATEGORY_IDS.bayilikAl,
+  'dijital-ai': CATEGORY_IDS.dijitalAi,
 };

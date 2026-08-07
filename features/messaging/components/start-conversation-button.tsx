@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { useStartConversation } from '@/features/messaging/hooks/use-conversation-messages';
+import { pushConversationStartedFeedback } from '@/features/messaging/lib/messaging-ux-feedback';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { cn } from '@/lib/utils';
 
 interface StartConversationButtonProps {
@@ -17,6 +19,7 @@ interface StartConversationButtonProps {
   size?: 'default' | 'sm' | 'lg';
   variant?: 'default' | 'outline';
   fullWidth?: boolean;
+  listingTitle?: string;
 }
 
 export function StartConversationButton({
@@ -27,6 +30,7 @@ export function StartConversationButton({
   size = 'lg',
   variant = 'default',
   fullWidth,
+  listingTitle,
 }: StartConversationButtonProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -41,7 +45,13 @@ export function StartConversationButton({
     }
     try {
       const conversationId = await start(listingId, ownerUserId);
-      if (conversationId) router.push(`/mesajlar/${conversationId}`);
+      if (conversationId) {
+        pushConversationStartedFeedback({
+          conversationId,
+          listingTitle,
+        });
+        router.push(`${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Konuşma başlatılamadı');
     }

@@ -1,12 +1,12 @@
-import { AdminShell } from '@/components/girisimco/admin/admin-shell';
-import { AdminListingsView } from '@/components/girisimco/admin/admin-listings-view';
+import { Suspense } from 'react';
+import { AdminListingsView } from '@/features/admin/panel/views/AdminListingsView';
 
 export const metadata = { title: 'İlanlar — Yönetim' };
 
 export default function AdminListingsPage() {
   return (
-    <AdminShell title="İlanlar" description="Yayınla, durdur, arşivle ve yönet">
+    <Suspense fallback={<div className="px-5 py-6 text-sm text-muted-foreground lg:px-8">Yükleniyor…</div>}>
       <AdminListingsView />
-    </AdminShell>
+    </Suspense>
   );
 }

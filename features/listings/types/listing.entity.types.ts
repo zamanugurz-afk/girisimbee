@@ -136,6 +136,8 @@ export interface ListingFilter {
   companyId?: CompanyId;
   categoryId?: CategoryId;
   listingTypeId?: ListingTypeId;
+  /** Expanded listing type IDs for browse filters (app + DB legacy rows). */
+  listingTypeIds?: ListingTypeId[];
   subcategoryId?: SubcategoryId;
   moduleKey?: ModuleKey;
   status?: ListingStatus | ListingStatus[];

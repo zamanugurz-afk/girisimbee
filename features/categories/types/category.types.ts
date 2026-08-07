@@ -3,7 +3,9 @@ export type CategoryIntentId =
   | 'invest'
   | 'find-job'
   | 'hire'
-  | 'find-partner';
+  | 'find-partner'
+  | 'franchise'
+  | 'digital-ai';
 
 /** @deprecated Use CategoryIntentId */
 export type IntentId = CategoryIntentId;
@@ -17,6 +19,8 @@ export interface ContentItem {
   id: string;
   /** Domain listing UUID — used for favorites persistence. */
   listingId?: string;
+  /** Optional override for card link (e.g. franchise detail routes). */
+  href?: string;
   type: ContentType;
   title: string;
   subtitle?: string;
@@ -28,6 +32,28 @@ export interface ContentItem {
   initials?: string;
   meta?: string;
   trust?: TrustBadges;
+  /** Listing card — colored type badge (e.g. YATIRIM ARIYORUM). */
+  listingTypeLabel?: string;
+  /** Listing card — group accent color hex. */
+  listingGroupColor?: string;
+  /** Listing card — footer category name (Yatırım, İş, …). */
+  listingGroupLabel?: string;
+  /** Listing card — Lucide semantic icon key. */
+  listingIconKey?:
+    | 'investment'
+    | 'investor'
+    | 'job-seeker'
+    | 'employer'
+    | 'partner'
+    | 'franchise'
+    | 'digital'
+    | 'general';
+  /** Listing card — short description body. */
+  description?: string;
+  /** Listing card — price or investment amount line. */
+  price?: string;
+  /** Listing card — uploaded cover or category fallback. */
+  coverUrl?: string;
 }
 
 export interface CategorySection {

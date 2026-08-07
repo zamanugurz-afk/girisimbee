@@ -1,5 +1,7 @@
 import type { ListingAggregate } from '@/features/listings/types/listing-engine.types';
 import type { ListingDetail, ListingPublisher } from '@/features/listings/types/listing.types';
+import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
+import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
 import type { Profile } from '@/features/profiles/types/profile.types';
 import type { Company } from '@/features/companies/types/company.types';
@@ -18,12 +20,68 @@ import {
   JOB_SEEKER_FIELD_SCHEMA,
   PARTNER_FIELD_SCHEMA,
   SEEKING_INVESTMENT_FIELD_SCHEMA,
+  FRANCHISE_GIVE_FIELD_SCHEMA,
+  GENERAL_LISTING_FIELD_SCHEMA,
+  DIGITAL_AI_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
+import type { Listing } from '@/features/listings/types/listing.entity.types';
+import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
+import type { ModuleKey } from '@/lib/domain/modules';
+import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
+import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
+import { formatListingNumber } from '@/features/listings/utils/listing-number';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
 ) as Record<string, CategoryIntentId>;
+
+/** Fields shown in the company/brand block — omit from flat customFacts to avoid duplicates. */
+const COMPANY_BLOCK_CUSTOM_KEYS = new Set([
+  'companyName',
+  'establishmentYear',
+  'website',
+  'sector',
+  'branchCount',
+  'employeeCount',
+]);
+
+/** Investment block keys for seeking/offering — omit from customFacts when investment section is shown. */
+const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
+  'investmentAmount',
+  'equityOffered',
+  'stage',
+  'investmentStage',
+  'preferredStages',
+  'sectors',
+  'ticketSizeMin',
+  'useOfFunds',
+]);
+
+/** Shown as feature cards on Digital & AI detail — omit from flat fact rows. */
+const DIGITAL_AI_CAPABILITY_FACT_KEYS = new Set(['capabilities']);
+
+/** Form schema key → possible stored aliases after module publish remap. */
+const CUSTOM_FIELD_ALIASES: Record<string, string[]> = {
+  stage: ['stage', 'investmentStage'],
+  workType: ['workType', 'employmentType'],
+  partnershipType: ['partnershipType', 'founderType'],
+  expertise: ['expertise', 'requiredSkills'],
+  preferredStages: ['preferredStages', 'investmentStage'],
+};
+
+function readCf(customFields: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const key of keys) {
+    const value = customFields[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+}
+
+function readCfDisplay(customFields: Record<string, unknown>, ...keys: string[]): string {
+  return toDisplayValue(readCf(customFields, ...keys));
+}
 
 const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'yatirim-bul': SEEKING_INVESTMENT_FIELD_SCHEMA,
@@ -31,7 +89,75 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'is-bul': JOB_SEEKER_FIELD_SCHEMA,
   'ise-al': HIRING_FIELD_SCHEMA,
   'ortak-bul': PARTNER_FIELD_SCHEMA,
+  'bayilik-al': FRANCHISE_GIVE_FIELD_SCHEMA,
+  franchise: FRANCHISE_GIVE_FIELD_SCHEMA,
+  ilan: GENERAL_LISTING_FIELD_SCHEMA,
+  'dijital-ai': DIGITAL_AI_FIELD_SCHEMA,
 };
+
+const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
+  [LISTING_TYPE_IDS.yatirimBulDefault]: 'yatirim-bul',
+  [LISTING_TYPE_IDS.yatirimYapDefault]: 'yatirim-yap',
+  [LISTING_TYPE_IDS.isBulDefault]: 'is-bul',
+  [LISTING_TYPE_IDS.iseAlDefault]: 'ise-al',
+  [LISTING_TYPE_IDS.ortakBulDefault]: 'ortak-bul',
+  [LISTING_TYPE_IDS.franchiseGiveDefault]: 'bayilik-al',
+  [LISTING_TYPE_IDS.genelIlanDefault]: 'ilan',
+  [LISTING_TYPE_IDS.dijitalAiDefault]: 'dijital-ai',
+  [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: 'yatirim-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.yatirimYapiyorum]: 'yatirim-yap',
+  [MARKETPLACE_LISTING_TYPE_IDS.isAriyorum]: 'is-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum]: 'ise-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum]: 'ortak-bul',
+  [MARKETPLACE_LISTING_TYPE_IDS.bayilikAl]: 'bayilik-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.bayilikVer]: 'bayilik-al',
+};
+
+const MODULE_KEY_TO_BROWSE_SLUG: Record<ModuleKey, string> = {
+  entrepreneurs: 'yatirim-bul',
+  investors: 'yatirim-yap',
+  candidates: 'is-bul',
+  employers: 'ise-al',
+  founders: 'ortak-bul',
+  franchise: 'bayilik-al',
+};
+
+const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
+  'yatirim-ariyorum': 'yatirim-bul',
+  'yatirim-yapiyorum': 'yatirim-yap',
+  'is-ariyorum': 'is-bul',
+  'ise-aliyorum': 'ise-al',
+  'ortak-ariyorum': 'ortak-bul',
+  'franchise-ilan-ver': 'bayilik-al',
+  'bayilik-al': 'bayilik-al',
+  'bayilik-ver': 'bayilik-al',
+  'genel-ilan': 'ilan',
+  'dijital-ai-cozum': 'dijital-ai',
+};
+
+function resolveDetailCategorySlug(listing: Listing): string {
+  const byTypeId = LISTING_TYPE_ID_TO_BROWSE_SLUG[listing.listingTypeId];
+  if (byTypeId) return byTypeId;
+
+  if (listing.moduleKey && MODULE_KEY_TO_BROWSE_SLUG[listing.moduleKey]) {
+    return MODULE_KEY_TO_BROWSE_SLUG[listing.moduleKey];
+  }
+
+  const listingType = categoryRegistry.getListingType(listing.listingTypeId);
+  if (listingType?.slug && LISTING_TYPE_SLUG_TO_BROWSE_SLUG[listingType.slug]) {
+    return LISTING_TYPE_SLUG_TO_BROWSE_SLUG[listingType.slug];
+  }
+
+  const category = categoryRegistry.getCategory(listing.categoryId);
+  if (category?.slug && CATEGORY_FIELD_SCHEMAS[category.slug]) {
+    return category.slug;
+  }
+  if (category?.slug && LISTING_TYPE_SLUG_TO_BROWSE_SLUG[category.slug]) {
+    return LISTING_TYPE_SLUG_TO_BROWSE_SLUG[category.slug];
+  }
+
+  return 'yatirim-bul';
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return '';
@@ -49,12 +175,31 @@ function buildCustomFacts(
   const schema = CATEGORY_FIELD_SCHEMAS[categorySlug];
   if (!schema) return [];
 
-  return schema.fields
-    .map((field) => ({
-      label: field.label,
-      value: toDisplayValue(customFields[field.key]),
-    }))
+  const hideInvestmentKeys =
+    categorySlug === 'yatirim-bul' || categorySlug === 'yatirim-yap';
+
+  const facts = schema.fields
+    .filter((field) => !COMPANY_BLOCK_CUSTOM_KEYS.has(field.key))
+    .filter((field) => !(hideInvestmentKeys && INVESTMENT_BLOCK_CUSTOM_KEYS.has(field.key)))
+    .filter((field) => !(categorySlug === 'dijital-ai' && DIGITAL_AI_CAPABILITY_FACT_KEYS.has(field.key)))
+    .map((field) => {
+      const aliases = CUSTOM_FIELD_ALIASES[field.key] ?? [field.key];
+      return {
+        label: field.label,
+        value: readCfDisplay(customFields, ...aliases),
+      };
+    })
     .filter((row) => row.value.length > 0);
+
+  // Employer language tags are stored as languageTags (not in hiring schema).
+  if (categorySlug === 'ise-al') {
+    const languages = readCfDisplay(customFields, 'languageTags');
+    if (languages) {
+      facts.push({ label: 'Dil gereksinimleri', value: languages });
+    }
+  }
+
+  return facts;
 }
 
 /** Map engine aggregate → UI ListingDetail (existing detail view). */
@@ -64,54 +209,117 @@ export function aggregateToListingDetail(
 ): ListingDetail {
   const { listing, tags, images, activityHistory } = aggregate;
   const category = categoryRegistry.getCategory(listing.categoryId);
-  const categorySlug = category?.slug ?? 'yatirim-bul';
+  const categorySlug = resolveDetailCategorySlug(listing);
   const meta = CATEGORY_PAGE_CONFIG[categorySlug];
-  const intentId = SLUG_TO_INTENT[categorySlug] ?? 'find-investment';
   const cf = listing.customFields;
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
     .filter((part) => !isEmptyDisplayValue(part));
   const location = locationParts.join(', ') || toDisplayValue(listing.location);
 
-  const publisher = buildPublisher(listing.companyId, context);
+  const publisher = buildPublisher(listing.companyId, listing.ownerId, context);
   const customFacts = buildCustomFacts(categorySlug, cf);
+  const capabilityModules: DigitalAiCapability[] =
+    categorySlug === 'dijital-ai' ? resolveDigitalAiCapabilities(cf.capabilities) : [];
 
-  const equityDisplay = cf.equityOffered != null && cf.equityOffered !== ''
-    ? `${toDisplayValue(cf.equityOffered)}%`
+  const equityRaw = readCf(cf, 'equityOffered');
+  const equityDisplay = equityRaw != null && equityRaw !== ''
+    ? `${toDisplayValue(equityRaw)}%`
     : '';
 
-  const galleryItems = images.length
-    ? images
-        .slice()
-        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-        .map((img, i) => ({
-          id: img.id,
-          label: img.alt ?? `Görsel ${i + 1}`,
-          emoji: '🖼️',
-          imageUrl: img.url,
-        }))
-    : [];
+  const uploadedGallery = images
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    .filter((img) => !isEmptyDisplayValue(img.url))
+    .map((img, i) => ({
+      id: img.id,
+      label: img.alt ?? `Görsel ${i + 1}`,
+      emoji: '🖼️',
+      imageUrl: img.url,
+    }));
 
-  const attachments = toDisplayValue(cf.cvUrl)
+  // Cards always show a type/cover fallback; detail must match so photos aren't empty.
+  const cardDisplay = resolveListingCardDisplay(listing);
+  const listingTypeSlug = categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null;
+  const galleryItems =
+    uploadedGallery.length > 0
+      ? uploadedGallery
+      : [
+          {
+            id: 'cover-fallback',
+            label: listing.title,
+            emoji: cardDisplay.typeEmoji,
+            imageUrl: resolveListingCoverUrl({
+              listingTypeSlug,
+              group: cardDisplay.group,
+            }),
+          },
+        ];
+
+  const cvRef = toDisplayValue(cf.cvUrl);
+  const attachments = cvRef
     ? [{
         id: 'cv',
         name: 'Özgeçmiş',
         type: 'pdf' as const,
         meta: 'CV',
+        url: /^https?:\/\//i.test(cvRef) ? cvRef : undefined,
       }]
     : [];
 
-  const companyName = context?.company?.name ?? '';
-  const companySummary = context?.company?.description ?? listing.shortDescription;
+  const companyName =
+    context?.company?.name
+    || toDisplayValue(cf.companyName)
+    || '';
+  const companySummary = context?.company?.description ?? '';
+  const companyCity = toDisplayValue(context?.company?.city);
+  const companyWebsite =
+    toDisplayValue(context?.company?.website) || toDisplayValue(cf.website);
+  const companyFounded = context?.company?.foundedYear
+    ? String(context.company.foundedYear)
+    : toDisplayValue(cf.establishmentYear);
+  const companyEmployees =
+    toDisplayValue(context?.company?.employeeCount) || toDisplayValue(cf.employeeCount);
+  const companySector =
+    toDisplayValue(cf.sector) || toDisplayValue(listing.industry);
+  const companyBranchCount = toDisplayValue(cf.branchCount);
+
+  const resolvedIntent: CategoryIntentId =
+    SLUG_TO_INTENT[categorySlug]
+    ?? (categorySlug === 'is-bul'
+      ? 'find-job'
+      : categorySlug === 'bayilik-al' || categorySlug === 'franchise'
+        ? 'franchise'
+        : 'find-investment');
+
+  const metaLabel =
+    CATEGORY_PAGE_CONFIG[categorySlug]?.label
+    ?? (categorySlug === 'is-bul' ? 'İş İlanı' : undefined);
+
+  const languageTags = Array.isArray(cf.languageTags)
+    ? (cf.languageTags as unknown[]).map((t) => String(t).trim()).filter(Boolean)
+    : typeof cf.languageTags === 'string' && cf.languageTags.trim()
+      ? String(cf.languageTags).split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+  const displayTags = [
+    ...tags.map((t) => t.name),
+    ...languageTags.filter((tag) => !tags.some((t) => t.name === tag)),
+  ];
 
   return {
     id: listing.slug,
     listingId: listing.id,
+    listingNumber: formatListingNumber(listing.id),
     ownerUserId: listing.ownerId,
+    contactPhone:
+      // Membership phone is source of truth; listing snapshot is fallback for older ads.
+      toDisplayValue(context?.profile?.phone)
+      || toDisplayValue(listing.contactPhone)
+      || null,
     companyId: listing.companyId,
     category: {
-      id: intentId,
-      label: meta?.label ?? category?.name ?? 'İlan',
+      id: resolvedIntent,
+      label: metaLabel ?? meta?.label ?? category?.name ?? 'İlan',
       accent: meta?.accent ?? category?.accentColor ?? '#6366F1',
     },
     title: listing.title,
@@ -119,27 +327,33 @@ export function aggregateToListingDetail(
     longDescription: listing.longDescription || listing.shortDescription,
     location,
     publishedAt: formatDate(listing.publishedAt),
+    updatedAt: formatDate(listing.updatedAt),
     views: listing.viewCount,
     interestedCount: listing.interestedCount,
     verified: listing.isVerified || hasAnyTrustBadge(publisher.trust),
     emoji: CATEGORY_EMOJI[categorySlug] ?? '📋',
-    tags: tags.map((t) => t.name),
+    listingIconKey: cardDisplay.iconKey,
+    tags: displayTags,
     investment: {
-      requested: toDisplayValue(cf.investmentAmount) || toDisplayValue(cf.ticketSizeMin),
+      requested: readCfDisplay(cf, 'investmentAmount', 'ticketSizeMin'),
       equity: equityDisplay,
-      stage: toDisplayValue(cf.stage) || toDisplayValue(cf.preferredStages),
-      industry: toDisplayValue(cf.sectors),
+      stage: readCfDisplay(cf, 'stage', 'investmentStage', 'preferredStages'),
+      industry: readCfDisplay(cf, 'sectors'),
+      useOfFunds: readCfDisplay(cf, 'useOfFunds'),
       companyAge: '',
-      website: toDisplayValue(context?.company?.website),
+      website: categorySlug === 'yatirim-yap' ? companyWebsite : '',
     },
     company: {
       name: companyName,
       emoji: '🏢',
-      city: toDisplayValue(context?.company?.city ?? listing.city),
-      website: toDisplayValue(context?.company?.website),
-      employees: toDisplayValue(context?.company?.employeeCount),
-      founded: context?.company?.foundedYear ? String(context.company.foundedYear) : '',
+      // Only real company HQ city — never fall back to listing.city (ilan konumu).
+      city: companyCity,
+      website: companyWebsite,
+      employees: companyEmployees,
+      founded: companyFounded,
       summary: companySummary,
+      sector: companySector,
+      branchCount: companyBranchCount,
     },
     attachments,
     gallery: galleryItems,
@@ -159,11 +373,13 @@ export function aggregateToListingDetail(
     })),
     similar: [],
     customFacts,
+    capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
   };
 }
 
 function buildPublisher(
   companyId: string | null,
+  ownerUserId: string,
   context?: { profile?: Profile | null; company?: Company | null },
 ): ListingPublisher {
   const profileTrust = trustFromProfile(context?.profile);
@@ -200,7 +416,11 @@ function buildPublisher(
     initials: (profile?.displayName ?? 'K').slice(0, 2).toUpperCase(),
     verified: hasAnyTrustBadge(trust),
     trust,
-    href: profile?.username ? `/profil/${profile.username}` : '#',
+    href: profile?.username
+      ? `/profil/${profile.username}`
+      : ownerUserId
+        ? `/uye/${ownerUserId}`
+        : '#',
     subtitle: profile?.headline ?? 'Kişisel ilan',
   };
 }

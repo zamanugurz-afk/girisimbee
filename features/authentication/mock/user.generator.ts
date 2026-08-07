@@ -9,7 +9,7 @@ export function generateMockUser(index = 1, overrides: Partial<User> = {}): User
   const id = ids.user(mockUuid('a0000001'));
   return createUser({
     id,
-    email: `user${index}@girisimco.test`,
+    email: `user${index}@girisimbee.test`,
     passwordHash: '$2b$12$mock_hash_for_testing_only_xxxxxxxxxxxxxxxxxxxx',
     emailVerified: index % 3 !== 0,
     phone: index % 2 === 0 ? `+905551234${String(index).padStart(3, '0')}` : null,

@@ -8,7 +8,7 @@ import {
 
 export function buildCategoryMetadata(categorySlug: string): Metadata {
   const meta = resolveCategorySlug(categorySlug);
-  if (!meta) return { title: 'Kategori Bulunamadı — Girisimco' };
+  if (!meta) return { title: 'Kategori Bulunamadı — Girisimbee' };
 
   return {
     title: meta.seoTitle,

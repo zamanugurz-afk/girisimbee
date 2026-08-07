@@ -1,5 +1,5 @@
 /**
- * Girisimco listing detail mock data (UI view model).
+ * Girisimbee listing detail mock data (UI view model).
  * Source of truth for demo listing pages at /ilan/[id].
  */
 import type { ListingDetail } from '@/features/listings/types/listing.types';
@@ -20,7 +20,8 @@ Yatırım, ürün geliştirme ekibini genişletmek, enterprise satış kanalın�
   views: 1248,
   interestedCount: 34,
   verified: true,
-  emoji: '🚀',
+  emoji: '💰',
+  listingIconKey: 'investment',
   tags: ['SaaS', 'B2B', 'Yapay Zeka', 'CRM', 'Series A'],
   investment: {
     requested: '5.000.000 TL',
@@ -32,7 +33,7 @@ Yatırım, ürün geliştirme ekibini genişletmek, enterprise satış kanalın�
   },
   company: {
     name: 'PayFlow AI',
-    emoji: '🚀',
+    emoji: '🏢',
     city: 'İstanbul',
     website: 'payflow.ai',
     employees: '8–15',
@@ -83,10 +84,10 @@ Yatırım, ürün geliştirme ekibini genişletmek, enterprise satış kanalın�
     { id: 'act4', text: 'İlan görüntülendi · +48', time: 'Bugün' },
   ],
   similar: [
-    { id: 'logichain', emoji: '📦', title: 'LogiChain', location: 'Ankara', detail: '2.5M TL · Seed', tag: 'Logistics' },
-    { id: 'eduverse', emoji: '📚', title: 'EduVerse', location: 'İzmir', detail: '800K TL · Pre-seed', tag: 'EdTech' },
-    { id: 'secureid', emoji: '🔐', title: 'SecureID', location: 'İstanbul', detail: '3M TL · Seed', tag: 'CyberSec' },
-    { id: 'farmsense', emoji: '🌾', title: 'FarmSense', location: 'Konya', detail: '1.2M TL · Pre-seed', tag: 'AgTech' },
+    { id: 'logichain', emoji: '💰', listingIconKey: 'investment', title: 'LogiChain', location: 'Ankara', detail: '2.5M TL · Seed', tag: 'Logistics' },
+    { id: 'eduverse', emoji: '💰', listingIconKey: 'investment', title: 'EduVerse', location: 'İzmir', detail: '800K TL · Pre-seed', tag: 'EdTech' },
+    { id: 'secureid', emoji: '💰', listingIconKey: 'investment', title: 'SecureID', location: 'İstanbul', detail: '3M TL · Seed', tag: 'CyberSec' },
+    { id: 'farmsense', emoji: '💰', listingIconKey: 'investment', title: 'FarmSense', location: 'Konya', detail: '1.2M TL · Pre-seed', tag: 'AgTech' },
   ],
 };
 

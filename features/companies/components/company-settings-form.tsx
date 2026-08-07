@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ValidationError } from '@/lib/domain/errors';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
 
 interface CompanySettingsFormProps {
   slug: string;
@@ -127,7 +128,17 @@ export function CompanySettingsForm({ slug }: CompanySettingsFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <Label>Şirket Adı</Label>
-          <Input {...form.register('name')} />
+          <Input
+            lang="tr"
+            spellCheck
+            {...form.register('name')}
+            onBlur={(e) => {
+              const corrected = autoCorrectTurkishText(e.target.value, 'title');
+              if (corrected !== e.target.value) {
+                form.setValue('name', corrected, { shouldDirty: true, shouldValidate: true });
+              }
+            }}
+          />
         </div>
         <div className="space-y-2">
           <Label>Kullanıcı Adı</Label>

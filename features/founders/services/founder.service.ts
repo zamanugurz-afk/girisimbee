@@ -31,6 +31,10 @@ import {
   ECOSYSTEM_CATEGORY_IDS,
   DEFAULT_LISTING_TYPE_IDS,
 } from '@/features/shared/constants/ecosystem';
+import {
+  toPersistedCategoryId,
+  toPersistedListingTypeId,
+} from '@/lib/domain/legacy-category-ids';
 
 export interface PublishFounderSearchInput {
   ownerId: UserId;
@@ -122,6 +126,11 @@ export class FounderService {
       });
     }
 
+    console.log('[founders] listingRepo.create', {
+      category_id: toPersistedCategoryId(ECOSYSTEM_CATEGORY_IDS.founders),
+      listing_type_id: toPersistedListingTypeId(DEFAULT_LISTING_TYPE_IDS.founders),
+      moduleKey: 'founders',
+    });
     return this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,
@@ -141,6 +150,11 @@ export class FounderService {
       workflowStatus: 'published',
     });
 
+    console.log('[founders] listingRepo.create', {
+      category_id: toPersistedCategoryId(ECOSYSTEM_CATEGORY_IDS.founders),
+      listing_type_id: toPersistedListingTypeId(DEFAULT_LISTING_TYPE_IDS.founders),
+      moduleKey: 'founders',
+    });
     return this.listingRepo.create({
       ...input.listing,
       ownerId: input.ownerId,

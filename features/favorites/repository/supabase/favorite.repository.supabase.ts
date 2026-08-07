@@ -111,6 +111,35 @@ export class SupabaseFavoriteRepository implements FavoriteRepository {
     }
   }
 
+  /** Returns only listings with at least one active favorite (count > 0). */
+  async countActiveByListingIds(listingIds: ListingId[]): Promise<Map<ListingId, number>> {
+    const counts = new Map<ListingId, number>();
+    if (listingIds.length === 0) return counts;
+
+    const chunkSize = 200;
+    for (let i = 0; i < listingIds.length; i += chunkSize) {
+      const chunk = listingIds.slice(i, i + chunkSize);
+      const { data, error } = await this.supabase
+        .from(TABLE)
+        .select('listing_id')
+        .in('listing_id', chunk)
+        .eq('status', 'active')
+        .is('deleted_at', null);
+
+      if (error) {
+        if (isMissingRelationError(error)) return counts;
+        throw error;
+      }
+
+      for (const row of data ?? []) {
+        const listingId = row.listing_id as ListingId;
+        counts.set(listingId, (counts.get(listingId) ?? 0) + 1);
+      }
+    }
+
+    return counts;
+  }
+
   async exists(id: FavoriteId): Promise<boolean> {
     const { count, error } = await this.supabase.from(TABLE).select('*', { count: 'exact', head: true }).eq('id', id);
     if (error) {

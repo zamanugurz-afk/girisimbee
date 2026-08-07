@@ -4,6 +4,7 @@ import {
   investorListingBrowseQuerySchema,
   parseInvestorListingCreate,
 } from '@/lib/api/validation/investor-listings';
+import { traceListingPublish, logPublicationState, tracePublishFailure } from '@/lib/debug/listing-publish-trace';
 
 /** GET — browse thesis listings or entrepreneur startups; POST — create thesis listing */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -35,16 +36,34 @@ export const GET = withOptionalAuth(async (ctx, request) => {
 
 export const POST = withAuth(async (ctx, request) => {
   const body = await parseJsonBody(request);
+  traceListingPublish('investors', 'api_input', { input: body });
+
   const parsed = parseInvestorListingCreate(body);
+  traceListingPublish('investors', 'api_validated', { payload: parsed });
+
   const url = new URL(request.url);
   const publishNow = url.searchParams.get('publish') === 'true';
-
-  const listing = await ctx.container.ecosystem.investorService.createThesisListing({
-    ownerId: ctx.userId,
-    profileId: ctx.profileId,
-    listing: parsed,
-    asDraft: !publishNow,
+  traceListingPublish('investors', 'publish_intent', {
+    payload: { publishNow, expected_status: publishNow ? 'published' : 'draft' },
   });
 
-  return created({ listing });
+  try {
+    const listing = await ctx.container.ecosystem.investorService.createThesisListing({
+      ownerId: ctx.userId,
+      profileId: ctx.profileId,
+      listing: parsed,
+      asDraft: !publishNow,
+    });
+
+    logPublicationState('investors', 'after_insert', {
+      status: listing.status,
+      published_at: listing.publishedAt,
+      reviewed_at: null,
+      deleted_at: listing.deletedAt,
+    });
+    return created({ listing });
+  } catch (error) {
+    tracePublishFailure('investors', 'api_create', error, { publishNow });
+    throw error;
+  }
 });

@@ -14,6 +14,7 @@ export {
 export { IyzicoPaymentProvider } from '@/lib/payments/providers/iyzico';
 export { StripePaymentProvider } from '@/lib/payments/providers/stripe';
 export { PaytrPaymentProvider } from '@/lib/payments/providers/paytr';
+export { SimulatedPaymentProvider } from '@/lib/payments/providers/simulated';
 
 export {
   PaymentService,

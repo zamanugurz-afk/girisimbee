@@ -9,12 +9,25 @@ import {
   InvalidTransitionError,
 } from '@/lib/domain/errors';
 import { apiError } from '@/lib/api/response';
+import { traceValidationFailure } from '@/lib/debug/validation-trace';
+import { tracePublishFailure } from '@/lib/debug/listing-publish-trace';
+import {
+  formatSupabaseErrorMessages,
+  isSupabaseError,
+  logSupabaseError,
+} from '@/lib/persistence/supabase-payload';
 
 export function handleApiError(err: unknown): NextResponse {
   if (err instanceof ZodError) {
-    return apiError('Doğrulama hatası.', 400, {
+    traceValidationFailure('api', err);
+    const fieldErrors = err.flatten().fieldErrors;
+    const firstEntry = Object.entries(fieldErrors).find(
+      ([key, messages]) => key !== '_errors' && Array.isArray(messages) && messages.length > 0,
+    );
+    const detail = firstEntry?.[1]?.[0];
+    return apiError(detail ?? 'Doğrulama hatası.', 400, {
       code: 'VALIDATION_ERROR',
-      fieldErrors: err.flatten().fieldErrors,
+      fieldErrors,
     });
   }
 
@@ -45,6 +58,18 @@ export function handleApiError(err: unknown): NextResponse {
     return apiError(err.message, err.statusCode, { code: err.code });
   }
 
-  const message = err instanceof Error ? err.message : 'Sunucu hatası.';
-  return apiError(message, 500, { code: 'INTERNAL_ERROR' });
+  if (isSupabaseError(err)) {
+    tracePublishFailure('api', 'handleApiError', err);
+    logSupabaseError(err, 'handleApiError');
+    const [message] = formatSupabaseErrorMessages(err);
+    return apiError(message, 500, { code: err.code ?? 'INTERNAL_ERROR' });
+  }
+
+  if (err instanceof Error) {
+    tracePublishFailure('api', 'handleApiError', err);
+    return apiError(err.message, 500, { code: 'INTERNAL_ERROR' });
+  }
+
+  tracePublishFailure('api', 'handleApiError', err);
+  return apiError('Sunucu hatası.', 500, { code: 'INTERNAL_ERROR' });
 }

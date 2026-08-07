@@ -23,6 +23,7 @@ export type ActivityId = Brand<string, 'ActivityId'>;
 export type VerificationId = Brand<string, 'VerificationId'>;
 export type SubscriptionId = Brand<string, 'SubscriptionId'>;
 export type ListingPackageId = Brand<string, 'ListingPackageId'>;
+export type ListingPlacementId = Brand<string, 'ListingPlacementId'>;
 export type FranchisePackageId = Brand<string, 'FranchisePackageId'>;
 export type EmployerPackageId = Brand<string, 'EmployerPackageId'>;
 export type CandidatePackageId = Brand<string, 'CandidatePackageId'>;
@@ -34,6 +35,11 @@ export type MatchId = Brand<string, 'MatchId'>;
 export type DocumentId = Brand<string, 'DocumentId'>;
 export type PaymentId = Brand<string, 'PaymentId'>;
 export type ProfileModuleId = Brand<string, 'ProfileModuleId'>;
+export type AccountProfileId = Brand<string, 'AccountProfileId'>;
+export type UserConsentId = Brand<string, 'UserConsentId'>;
+export type UserSettingsId = Brand<string, 'UserSettingsId'>;
+export type UserSecurityLogId = Brand<string, 'UserSecurityLogId'>;
+export type ListingViewId = Brand<string, 'ListingViewId'>;
 
 export function id<T extends string>(value: string): Brand<string, T> {
   return value as Brand<string, T>;
@@ -58,6 +64,7 @@ export const ids = {
   verification: (v: string) => v as VerificationId,
   subscription: (v: string) => v as SubscriptionId,
   listingPackage: (v: string) => v as ListingPackageId,
+  listingPlacement: (v: string) => v as ListingPlacementId,
   franchisePackage: (v: string) => v as FranchisePackageId,
   employerPackage: (v: string) => v as EmployerPackageId,
   candidatePackage: (v: string) => v as CandidatePackageId,
@@ -69,4 +76,9 @@ export const ids = {
   document: (v: string) => v as DocumentId,
   payment: (v: string) => v as PaymentId,
   profileModule: (v: string) => v as ProfileModuleId,
+  accountProfile: (v: string) => v as AccountProfileId,
+  userConsent: (v: string) => v as UserConsentId,
+  userSettings: (v: string) => v as UserSettingsId,
+  userSecurityLog: (v: string) => v as UserSecurityLogId,
+  listingView: (v: string) => v as ListingViewId,
 };

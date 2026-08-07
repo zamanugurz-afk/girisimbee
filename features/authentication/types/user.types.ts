@@ -8,7 +8,7 @@
 import type { Timestamps, SoftDeletable, IndexDefinition, ValidationRule } from '@/lib/domain/base';
 import type { UserId } from '@/lib/domain/ids';
 
-export type DomainUserRole = 'user' | 'admin' | 'moderator';
+export type DomainUserRole = 'user' | 'admin' | 'super_admin';
 export type UserStatus = 'pending' | 'active' | 'suspended' | 'deactivated' | 'deleted';
 
 export interface User extends Timestamps, SoftDeletable {

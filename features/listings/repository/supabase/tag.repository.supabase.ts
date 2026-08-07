@@ -61,16 +61,20 @@ export class SupabaseTagRepository implements TagRepository {
   }
 
   async findByListingId(listingId: ListingId): Promise<Tag[]> {
-    const { data: junctions, error: jErr } = await this.supabase
+    const { data, error } = await this.supabase
       .from(JUNCTION)
-      .select('tag_id')
+      .select('marketplace_tags(*)')
       .eq('listing_id', listingId);
-    if (jErr) throw jErr;
-    if (!junctions?.length) return [];
-    const tagIds = junctions.map((j) => j.tag_id);
-    const { data, error } = await this.supabase.from(TAGS).select('*').in('id', tagIds).is('deleted_at', null);
     if (error) throw error;
-    return (data ?? []).map((row) => mapTagRow(row as TagRow));
+    if (!data?.length) return [];
+    return data
+      .map((row) => {
+        const tag = (row as { marketplace_tags?: TagRow | TagRow[] | null }).marketplace_tags;
+        const resolved = Array.isArray(tag) ? tag[0] : tag;
+        if (!resolved || resolved.deleted_at) return null;
+        return mapTagRow(resolved);
+      })
+      .filter((tag): tag is Tag => Boolean(tag));
   }
 
   async findMany(filter: TagFilter, pagination?: PaginationParams): Promise<PaginatedResult<Tag>> {

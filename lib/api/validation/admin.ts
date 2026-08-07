@@ -9,7 +9,7 @@ export const adminModuleKeySchema = z.enum(MODULE_KEYS);
 export const adminUserListQuerySchema = paginationSchema.extend({
   query: z.string().max(200).optional(),
   status: z.enum(['pending', 'active', 'suspended', 'deactivated', 'deleted']).optional(),
-  role: z.enum(['user', 'admin', 'moderator']).optional(),
+  role: z.enum(['user', 'admin', 'super_admin']).optional(),
 });
 
 export const adminUserActionSchema = z.discriminatedUnion('action', [
@@ -125,8 +125,10 @@ export const adminCouponBodySchema = z.object({
 export const adminCouponUpdateSchema = adminCouponBodySchema.partial().omit({ code: true });
 
 export const adminReportQuerySchema = z.object({
-  period: z.enum(['daily', 'monthly']).default('daily'),
+  period: z.enum(['daily', 'weekly', 'monthly', 'custom']).default('daily'),
   category: z.enum(['users', 'listings', 'applications', 'payments', 'reports', 'all']).optional(),
+  from: z.string().datetime({ offset: true }).optional(),
+  to: z.string().datetime({ offset: true }).optional(),
 });
 
 export const adminSettingsPatchSchema = z.object({

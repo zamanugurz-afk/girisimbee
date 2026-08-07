@@ -8,17 +8,19 @@ interface ListingCardSkeletonProps {
 
 export function ListingCardSkeleton({ className, compact }: ListingCardSkeletonProps) {
   return (
-    <div className={cn('gc-card overflow-hidden p-4', compact ? 'rounded-xl' : 'rounded-2xl', className)}>
-      <div className="flex items-start gap-3">
-        <GcSkeleton variant="circular" className="h-10 w-10 shrink-0" />
-        <div className="min-w-0 flex-1 space-y-2.5">
-          <GcSkeleton variant="text" className="h-4 w-3/5" />
-          <GcSkeleton variant="text" className="h-3 w-2/5" />
-          <GcSkeleton variant="text" className="h-3 w-full" />
-        </div>
+    <div className={cn('gc-card flex min-h-[15.5rem] flex-col overflow-hidden p-4', compact ? 'rounded-xl' : 'rounded-2xl', className)}>
+      <GcSkeleton variant="text" className="mb-3 h-5 w-32" />
+      <GcSkeleton variant="text" className="h-4 w-4/5" />
+      <div className="mt-2 space-y-1.5">
+        <GcSkeleton variant="text" className="h-3 w-full" />
+        <GcSkeleton variant="text" className="h-3 w-11/12" />
       </div>
-      <div className="mt-4 flex items-center justify-between">
-        <GcSkeleton variant="text" className="h-5 w-16" />
+      <div className="mt-2 space-y-1.5">
+        <GcSkeleton variant="text" className="h-3 w-2/5" />
+        <GcSkeleton variant="text" className="h-3 w-1/3" />
+      </div>
+      <div className="mt-auto flex items-center justify-between pt-3">
+        <GcSkeleton variant="text" className="h-3 w-16" />
         <GcSkeleton variant="text" className="h-3 w-12" />
       </div>
     </div>

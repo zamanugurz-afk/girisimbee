@@ -8,7 +8,6 @@ import {
   Rocket,
   Sparkles,
   TrendingUp,
-  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,18 +55,11 @@ const FIXED_STEP_LABELS = [
 
 const FIXED_AUDIENCE_LABELS = [
   {
-    label: 'İş Arayanlar',
+    label: 'İş İlanları',
     icon: Briefcase,
-    color: '#5B5CF6',
+    color: '#22C55E',
     delay: '0.6s',
     className: 'bottom-0 left-1/2 z-20 -translate-x-1/2 translate-y-full pt-1.5',
-  },
-  {
-    label: 'İş Verenler',
-    icon: Users,
-    color: '#22C55E',
-    delay: '0.85s',
-    className: 'left-0 top-1/2 z-20 -translate-x-full -translate-y-1/2 pr-2.5',
   },
   {
     label: 'Ortak Arayanlar',

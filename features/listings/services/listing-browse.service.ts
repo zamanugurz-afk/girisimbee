@@ -1,21 +1,58 @@
 import type { PaginatedResult } from '@/lib/domain/pagination';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
+import type { ListingImageRepository } from '@/features/listings/repository/listing-image.repository';
 import type { FavoriteRepository } from '@/features/favorites/repositories/favorite.repository';
 import type { Favorite } from '@/features/favorites/types/favorite.types';
 import type { ProfileRepository } from '@/features/profiles/repositories/profile.repository';
 import type { CompanyRepository } from '@/features/companies/repositories/company.repository';
 import type { MarketplaceBrowseParams } from '@/features/listings/types/marketplace.types';
-import type { ListingFilter } from '@/features/listings/types/listing.entity.types';
+import type { Listing, ListingFilter } from '@/features/listings/types/listing.entity.types';
 import type { ListingId, UserId, CompanyId } from '@/lib/domain/ids';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
-import { categoryRegistry } from '@/features/listings/config/category-registry';
 import {
+  resolveListingTypeIdsFromBrowseSlug,
+} from '@/features/listings/config/marketplace-category-map';
+import {
+  BROWSE_FAVORITE_SORT_CAP,
   BROWSE_PAGE_SIZE,
-  resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
+import { loadListingCoverUrlsByIds } from '@/features/listings/utils/load-listing-cover-urls';
 import { sortListings } from '@/features/listings/utils/listing-sort';
+
+type MostFavoritedCacheEntry = {
+  sorted: Listing[];
+  cachedAt: number;
+};
+
+/** Published listings fetched per loop iteration for most_favorited global sort. */
+const MOST_FAVORITED_FETCH_PAGE_LIMIT = 500;
+
+/** Shared TTL with use-marketplace-browse first-page cache. */
+const MOST_FAVORITED_CACHE_TTL_MS = 30_000;
+
+const mostFavoritedCache = new Map<string, MostFavoritedCacheEntry>();
+const mostFavoritedInflight = new Map<string, Promise<Listing[]>>();
+
+function mostFavoritedCacheKey(filter: ListingFilter): string {
+  return JSON.stringify(filter);
+}
+
+function readMostFavoritedCache(filter: ListingFilter): Listing[] | null {
+  const key = mostFavoritedCacheKey(filter);
+  const hit = mostFavoritedCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.cachedAt > MOST_FAVORITED_CACHE_TTL_MS) {
+    mostFavoritedCache.delete(key);
+    return null;
+  }
+  return hit.sorted;
+}
+
+function writeMostFavoritedCache(filter: ListingFilter, sorted: Listing[]): void {
+  mostFavoritedCache.set(mostFavoritedCacheKey(filter), { sorted, cachedAt: Date.now() });
+}
 
 export class ListingBrowseService {
   constructor(
@@ -23,39 +60,112 @@ export class ListingBrowseService {
     private favoriteRepo: FavoriteRepository,
     private profileRepo: ProfileRepository,
     private companyRepo: CompanyRepository,
+    private imageRepo: ListingImageRepository,
   ) {}
+
+  async countPublished(params: MarketplaceBrowseParams = {}): Promise<number> {
+    const filter = this.buildFilter(params);
+    return this.listingRepo.count({ ...filter, status: 'published' });
+  }
 
   async browse(params: MarketplaceBrowseParams = {}): Promise<PaginatedResult<ContentItem>> {
     const filter = this.buildFilter(params);
     const page = params.page ?? 1;
     const limit = params.limit ?? BROWSE_PAGE_SIZE;
 
-    let result = await this.listingRepo.findPublished(filter, { page, limit });
+    let result =
+      (params.sortBy ?? filter.sortBy) === 'most_favorited'
+        ? await this.browseMostFavorited(filter, page, limit)
+        : await this.listingRepo.findPublished(filter, { page, limit });
 
-    if (params.sortBy === 'most_favorited' && result.data.length > 0) {
-      let counts: number[] = [];
-      try {
-        counts = await Promise.all(
-          result.data.map((l) => this.favoriteRepo.countByListingId(l.id)),
-        );
-      } catch {
-        counts = result.data.map(() => 0);
-      }
-      const favoriteCounts = new Map<string, number>(
-        result.data.map((l, i) => [l.id, counts[i]]),
-      );
-      result = {
-        ...result,
-        data: sortListings(result.data, 'most_favorited', favoriteCounts),
-      };
-    }
-
-    const trustByListingId = await this.buildTrustMap(result.data);
+    const [trustByListingId, coverByListingId] = await Promise.all([
+      this.buildTrustMap(result.data),
+      this.buildCoverMap(result.data),
+    ]);
 
     return {
       ...result,
-      data: listingsToContentItems(result.data, trustByListingId),
+      data: listingsToContentItems(result.data, trustByListingId, coverByListingId),
     };
+  }
+
+  private async browseMostFavorited(
+    filter: ListingFilter,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<Listing>> {
+    const sorted = await this.resolveMostFavoritedSortedListings(filter);
+    const total = sorted.length;
+    const start = (page - 1) * limit;
+    const data = sorted.slice(start, start + limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      hasMore: start + limit < total,
+    };
+  }
+
+  private async resolveMostFavoritedSortedListings(filter: ListingFilter): Promise<Listing[]> {
+    const cached = readMostFavoritedCache(filter);
+    if (cached) return cached;
+
+    const key = mostFavoritedCacheKey(filter);
+    const inflight = mostFavoritedInflight.get(key);
+    if (inflight) return inflight;
+
+    const promise = this.computeMostFavoritedSortedListings(filter)
+      .then((sorted) => {
+        writeMostFavoritedCache(filter, sorted);
+        return sorted;
+      })
+      .finally(() => {
+        mostFavoritedInflight.delete(key);
+      });
+
+    mostFavoritedInflight.set(key, promise);
+    return promise;
+  }
+
+  private async computeMostFavoritedSortedListings(filter: ListingFilter): Promise<Listing[]> {
+    const { listings } = await this.fetchPublishedUpToCap(filter, BROWSE_FAVORITE_SORT_CAP);
+
+    let favoriteCounts = new Map<string, number>();
+    if (listings.length > 0) {
+      try {
+        favoriteCounts = await this.favoriteRepo.countActiveByListingIds(listings.map((l) => l.id));
+      } catch {
+        favoriteCounts = new Map();
+      }
+    }
+
+    const withFavorites = listings.filter((l) => (favoriteCounts.get(l.id) ?? 0) > 0);
+    return sortListings(withFavorites, 'most_favorited', favoriteCounts);
+  }
+
+  /** Fetch all published listings matching filter, up to cap (respects MAX_LIMIT per page). */
+  private async fetchPublishedUpToCap(
+    filter: ListingFilter,
+    cap: number,
+  ): Promise<{ listings: Listing[]; total: number }> {
+    const listings: Listing[] = [];
+    let total = 0;
+    let fetchPage = 1;
+
+    while (listings.length < cap) {
+      const batch = await this.listingRepo.findPublished(filter, {
+        page: fetchPage,
+        limit: MOST_FAVORITED_FETCH_PAGE_LIMIT,
+      });
+      total = batch.total;
+      listings.push(...batch.data);
+      if (!batch.hasMore || batch.data.length === 0) break;
+      fetchPage += 1;
+    }
+
+    return { listings: listings.slice(0, cap), total };
   }
 
   async browseFavorites(
@@ -88,10 +198,13 @@ export class ListingBrowseService {
     ).filter((l): l is NonNullable<typeof l> => Boolean(l));
 
     const sorted = sortListings(listings, params.sortBy ?? 'newest');
-    const trustByListingId = await this.buildTrustMap(sorted);
+    const [trustByListingId, coverByListingId] = await Promise.all([
+      this.buildTrustMap(sorted),
+      this.buildCoverMap(sorted),
+    ]);
 
     return {
-      data: listingsToContentItems(sorted, trustByListingId),
+      data: listingsToContentItems(sorted, trustByListingId, coverByListingId),
       total: favorites.total,
       page: favorites.page,
       limit: favorites.limit,
@@ -99,8 +212,19 @@ export class ListingBrowseService {
     };
   }
 
+  private async buildCoverMap(listings: Listing[]): Promise<Map<ListingId, string>> {
+    try {
+      return await loadListingCoverUrlsByIds(
+        listings.map((listing) => listing.id),
+        this.imageRepo,
+      );
+    } catch {
+      return new Map();
+    }
+  }
+
   private async buildTrustMap(
-    listings: Awaited<ReturnType<ListingRepository['findPublished']>>['data'],
+    listings: Listing[],
   ): Promise<Map<ListingId, TrustBadges>> {
     const ownerIds = [...new Set(listings.map((l) => l.ownerId))];
     const companyIds = [
@@ -132,8 +256,6 @@ export class ListingBrowseService {
     const filter: ListingFilter = {
       query: params.query,
       city: params.city,
-      remotePolicy: params.remotePolicy,
-      isVerified: params.isVerified,
       isFeatured: params.isFeatured,
       isUrgent: params.isUrgent,
       activeFeaturedOnly: params.activeFeaturedOnly,
@@ -144,8 +266,14 @@ export class ListingBrowseService {
     };
 
     if (params.categorySlug) {
-      const meta = resolveCategorySlug(params.categorySlug);
-      if (meta) filter.categoryId = meta.categoryId;
+      const listingTypeIds = resolveListingTypeIdsFromBrowseSlug(params.categorySlug);
+      if (listingTypeIds.length === 1) {
+        filter.listingTypeId = listingTypeIds[0];
+      } else if (listingTypeIds.length > 1) {
+        filter.listingTypeIds = listingTypeIds;
+      }
+    } else if (params.listingTypeId) {
+      filter.listingTypeId = params.listingTypeId;
     } else if (params.categoryId) {
       filter.categoryId = params.categoryId;
     }

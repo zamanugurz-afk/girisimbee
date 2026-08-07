@@ -5,3 +5,21 @@ export { AdminService } from '@/features/admin/services/admin.service';
 export { AdminDashboardService } from '@/features/admin/services/admin-dashboard.service';
 export { requireAdminSession } from '@/features/admin/lib/require-admin';
 export { adminApi } from '@/features/admin/lib/admin-api-client';
+
+export {
+  AdminLayout,
+  AdminSidebar,
+  AdminHeader,
+  AdminBreadcrumb,
+  AdminLoadingState,
+  AdminPageShell,
+  AdminStatsCard,
+  AdminTable,
+  AdminSearch,
+  AdminPagination,
+  AdminEmptyState,
+  AdminModulePlaceholder,
+  ADMIN_NAV_ITEMS,
+  ADMIN_PANEL_BASE,
+  ADMIN_ROUTES,
+} from '@/features/admin/panel';

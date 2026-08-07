@@ -11,9 +11,9 @@ interface CompanyPublicPageProps {
 export async function generateMetadata({ params }: CompanyPublicPageProps) {
   const { username } = await params;
   const data = await loadPublicCompany(username);
-  if (!data) return { title: 'Şirket — Girisimco' };
+  if (!data) return { title: 'Şirket — Girisimbee' };
   return {
-    title: `${data.company.name} — Girisimco`,
+    title: `${data.company.name} — Girisimbee`,
     description: data.company.description?.slice(0, 160),
   };
 }

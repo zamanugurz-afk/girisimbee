@@ -60,6 +60,11 @@ export class ListingPackageService implements IListingPackageService {
     if (input.packageSlug === 'free') {
       throw new ForbiddenError('Ücretsiz paket manuel olarak atanamaz.');
     }
+    if (input.packageSlug === 'vitrin' || input.packageSlug === 'hizli_erisim') {
+      throw new ForbiddenError(
+        'Vitrin ve Acil Vitrin paketleri yayın kotası olarak atanamaz; yerleşim akışını kullanın.',
+      );
+    }
     return this.packageRepo.grant(input);
   }
 

@@ -129,6 +129,7 @@ export {
   CATEGORY_IDS,
   LISTING_TYPE_IDS,
   LISTING_TYPE_CONFIGS,
+  CREATE_LISTING_TYPE_CONFIGS,
   CATEGORY_SLUG_TO_ID,
   INVESTMENT_FIELD_SCHEMA,
   HIRING_FIELD_SCHEMA,
@@ -192,4 +193,9 @@ export {
   getCategoryRoutePath,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
+export {
+  resolveListingTypeIdsFromBrowseSlug,
+  resolveBrowseCategory,
+  getBrowseCategorySlugs,
+} from '@/features/listings/config/marketplace-category-map';
 export type { ListingSortBy, MarketplaceBrowseParams, MarketplaceFilterState } from '@/features/listings/types/marketplace.types';

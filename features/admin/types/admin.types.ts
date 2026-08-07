@@ -59,7 +59,7 @@ export interface AdminPackageCatalogView {
   activeEntitlements: unknown[];
 }
 
-export type AdminReportPeriod = 'daily' | 'monthly';
+export type AdminReportPeriod = 'daily' | 'weekly' | 'monthly' | 'custom';
 
 export type AdminReportCategory =
   | 'users'

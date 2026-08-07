@@ -1,26 +1,32 @@
 /**
  * Runtime auth types — mapped from Supabase Auth + profiles table.
  * Guest = unauthenticated (no session).
+ * Stored roles: user | admin | super_admin (AUTHORIZATION STEP 1).
  */
 import type { UserId } from '@/lib/domain/ids';
+import type { AppRole, SessionRole } from '@/features/authorization/role.constants';
 
-export type UserRole =
-  | 'guest'
-  | 'member'
-  | 'verified'
-  | 'company'
-  | 'moderator'
-  | 'admin';
+/** @deprecated Prefer SessionRole from authorization — kept as alias during migration */
+export type UserRole = SessionRole;
 
 /** Authenticated roles stored in profiles.role */
-export type StoredUserRole = Exclude<UserRole, 'guest'>;
+export type StoredUserRole = AppRole;
 
 export interface UserProfile {
   id: UserId;
   role: StoredUserRole;
+  /** Unmodified profiles.role from the database */
+  rawRole: string;
+  /** profiles.display_name — not first_name/last_name */
   displayName: string | null;
-  username: string | null;
+  /**
+   * Not stored on live `profiles` — always null for Auth session mapping.
+   * Kept optional for UI links that fall back when absent.
+   */
+  username?: string | null;
   avatarUrl: string | null;
+  /** profiles.account_status (not `status`) */
+  accountStatus?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,10 +34,17 @@ export interface UserProfile {
 export interface SessionUser {
   id: UserId;
   email: string;
+  /** From auth.users.email_confirmed_at — not a profiles column */
   emailVerified: boolean;
   role: UserRole;
+  /**
+   * Original `profiles.role` (or app_metadata.role) before RBAC coercion.
+   * Used for UI labels so legacy names (member/verified/company) can still display.
+   */
+  rawRole?: string | null;
   displayName: string | null;
-  username: string | null;
+  /** Optional — live profiles has no username column */
+  username?: string | null;
   avatarUrl: string | null;
 }
 
@@ -41,9 +54,26 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
+export interface SignUpConsents {
+  acceptTerms: boolean;
+  acceptKvkk: boolean;
+  acceptPrivacy: boolean;
+  acceptCookies: boolean;
+  consentCommercial: boolean;
+  consentSms: boolean;
+  consentEmail: boolean;
+}
+
 export interface SignUpInput {
   email: string;
   password: string;
+  /** Form fields — stored in auth.users.raw_user_meta_data only (not profiles columns). */
+  firstName: string;
+  lastName: string;
+  username: string;
+  phone: string;
+  consents: SignUpConsents;
+  /** Written to auth metadata + used by handle_new_user → profiles.display_name */
   displayName?: string;
 }
 

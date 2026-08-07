@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { emailSchema, phoneSchema, timestampsSchema, softDeletableSchema, uuidSchema } from '@/lib/domain/validation';
 
-export const domainUserRoleSchema = z.enum(['user', 'admin', 'moderator']);
+export const domainUserRoleSchema = z.enum(['user', 'admin', 'super_admin']);
 export const userStatusSchema = z.enum(['pending', 'active', 'suspended', 'deactivated', 'deleted']);
 
 export const userSchema = timestampsSchema.merge(softDeletableSchema).extend({

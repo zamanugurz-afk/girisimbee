@@ -14,7 +14,7 @@ interface MarketplaceSearchBarProps {
 
 export function MarketplaceSearchBar({
   defaultQuery = '',
-  placeholder = 'İlan, şirket veya yetenek ara…',
+  placeholder = 'İlan no, başlık veya şirket ara…',
   className,
   autoFocus,
 }: MarketplaceSearchBarProps) {

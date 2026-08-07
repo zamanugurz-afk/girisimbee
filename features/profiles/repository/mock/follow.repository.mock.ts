@@ -36,4 +36,20 @@ export class MockFollowRepository implements FollowRepository {
   async countFollowing(userId: UserId): Promise<number> {
     return [...this.follows.values()].filter((f) => f.followerId === userId).length;
   }
+
+  async listFollowingIds(userId: UserId, limit = 50): Promise<UserId[]> {
+    return [...this.follows.values()]
+      .filter((f) => f.followerId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit)
+      .map((f) => f.followingId);
+  }
+
+  async listFollowerIds(userId: UserId, limit = 50): Promise<UserId[]> {
+    return [...this.follows.values()]
+      .filter((f) => f.followingId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit)
+      .map((f) => f.followerId);
+  }
 }

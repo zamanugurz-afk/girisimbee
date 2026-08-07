@@ -1,23 +1,23 @@
 import { AuthLayout, AuthLink } from '@/features/authentication/components/auth-layout';
-import { ForgotPasswordForm } from '@/features/authentication/components/forgot-password-form';
+import { ResetPasswordForm } from '@/features/authentication/components/reset-password-form';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'Şifre Sıfırla — Girisimco',
+  title: 'Şifre Sıfırla — Girisimbee',
 };
 
-export default function ForgotPasswordPage() {
+export default function ResetPasswordPage() {
   return (
     <AuthLayout
-      title="Şifremi Unuttum"
-      description="E-posta adresinize şifre sıfırlama bağlantısı göndereceğiz."
+      title="Şifre Sıfırla"
+      description="Hesabınız için yeni bir şifre oluşturun."
       footer={
         <>
           <AuthLink href={AUTH_ROUTES.login}>Giriş sayfasına dön</AuthLink>
         </>
       }
     >
-      <ForgotPasswordForm />
+      <ResetPasswordForm />
     </AuthLayout>
   );
 }

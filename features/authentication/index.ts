@@ -6,10 +6,13 @@ export type {
   SessionUser,
   AuthState,
   SignUpInput,
+  SignUpConsents,
   SignInInput,
   ResetPasswordInput,
   UpdatePasswordInput,
 } from '@/features/authentication/types/auth.types';
+
+export { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 
 // Domain types (persistence layer — not runtime auth roles)
 export type {
@@ -55,11 +58,18 @@ export {
   mapSessionUser,
   signUpWithEmail,
   signInWithEmail,
+  signInWithOAuth,
   signOut,
+  login,
+  logout,
+  forgotPassword,
+  resetPassword,
+  refreshSession,
   requestPasswordReset,
   updatePassword,
   resendVerificationEmail,
 } from '@/features/authentication/services/supabase-auth.service';
+export type { OAuthProvider } from '@/features/authentication/services/supabase-auth.service';
 
 export type {
   IUserService,
@@ -82,6 +92,10 @@ export {
 export { AuthLayout, AuthLink } from '@/features/authentication/components/auth-layout';
 export { LoginForm } from '@/features/authentication/components/login-form';
 export { RegisterForm } from '@/features/authentication/components/register-form';
+export {
+  GoogleOAuthButton,
+  AuthSocialDivider,
+} from '@/features/authentication/components/google-oauth-button';
 export { ForgotPasswordForm } from '@/features/authentication/components/forgot-password-form';
 export { ResetPasswordForm } from '@/features/authentication/components/reset-password-form';
 export { VerifyEmailPanel } from '@/features/authentication/components/verify-email-panel';

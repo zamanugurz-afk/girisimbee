@@ -40,43 +40,75 @@ export function HomeListingSectionRow({ config, state }: HomeListingSectionRowPr
         </div>
         <Link
           href={config.viewAllHref}
-          className="inline-flex shrink-0 items-center gap-1 text-gc-sm font-medium text-primary transition-colors hover:text-primary/80"
+          className={cn(
+            'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/25',
+            'bg-background/80 px-3 py-1.5 text-gc-sm font-semibold text-primary shadow-sm backdrop-blur-sm',
+            'transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md',
+          )}
         >
           Tümünü gör
-          <ArrowRight className="h-3.5 w-3.5" />
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
 
       {state.isLoading ? (
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="w-[17.5rem] shrink-0">
-              <ListingCardSkeleton />
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 lg:hidden">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="w-[17.5rem] shrink-0 snap-start">
+                <ListingCardSkeleton />
+              </div>
+            ))}
+          </div>
+          <div className="hidden gap-2.5 overflow-hidden lg:grid lg:grid-cols-3 xl:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="min-w-0">
+                <ListingCardSkeleton />
+              </div>
+            ))}
+          </div>
+        </>
       ) : state.error ? (
         <p className="rounded-xl border border-dashed border-border/80 bg-muted/20 px-4 py-6 text-gc-sm text-muted-foreground">
           {state.error}
         </p>
       ) : state.items.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border/80 bg-muted/20 px-4 py-6 text-gc-sm text-muted-foreground">
-          Bu bölümde henüz ilan bulunmuyor.
+          {config.emptyMessage}
         </p>
       ) : (
-        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 snap-x snap-mandatory ib-scrollbar-none">
-          {state.items.map((item) => (
-            <HomeSectionCard key={item.id} item={item} />
-          ))}
-        </div>
+        <>
+          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 snap-x snap-mandatory ib-scrollbar-none lg:hidden">
+            {state.items.map((item) => (
+              <HomeSectionCard key={item.id} item={item} layout="scroll" />
+            ))}
+          </div>
+          <div className="hidden gap-2.5 overflow-hidden lg:grid lg:grid-cols-3 xl:grid-cols-6">
+            {state.items.slice(0, 6).map((item) => (
+              <HomeSectionCard key={item.id} item={item} layout="grid" />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
 }
 
-function HomeSectionCard({ item }: { item: ContentItem }) {
+function HomeSectionCard({
+  item,
+  layout,
+}: {
+  item: ContentItem;
+  layout: 'scroll' | 'grid';
+}) {
   return (
-    <div className="relative w-[17.5rem] shrink-0 snap-start">
+    <div
+      className={cn(
+        'relative',
+        layout === 'scroll' && 'w-[17.5rem] shrink-0 snap-start',
+        layout === 'grid' && 'min-w-0',
+      )}
+    >
       <ContentCard item={item} />
       {item.listingId && (
         <div className="absolute right-3 top-3 z-10">

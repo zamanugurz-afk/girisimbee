@@ -6,18 +6,19 @@ export function createNotification(
   overrides: Partial<Notification> & Pick<Notification, 'userId' | 'type' | 'title' | 'body'>,
 ): Notification {
   const ts = timestamps(overrides.createdAt);
+  const status = overrides.status ?? 'delivered';
   return {
     id: overrides.id ?? ids.notification(crypto.randomUUID()),
     userId: overrides.userId,
     type: overrides.type,
-    status: overrides.status ?? 'pending',
+    status,
     title: overrides.title,
     body: overrides.body,
     actionUrl: overrides.actionUrl ?? null,
     entityType: overrides.entityType ?? null,
     entityId: overrides.entityId ?? null,
     readAt: overrides.readAt ?? null,
-    deliveredAt: overrides.deliveredAt ?? null,
+    deliveredAt: overrides.deliveredAt ?? (status === 'delivered' ? ts.createdAt : null),
     metadata: overrides.metadata ?? {},
     ...ts,
     ...softDeletable(overrides.deletedAt ?? null),

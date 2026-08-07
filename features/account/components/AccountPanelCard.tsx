@@ -1,0 +1,27 @@
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
+
+/** Shared Hesap Merkezi card — mirrors site `.gc-card` language. */
+export function AccountPanelCard({
+  children,
+  className,
+  as: Comp = 'section',
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: 'section' | 'div' | 'article';
+  id?: string;
+}) {
+  return (
+    <Comp
+      id={id}
+      className={cn(
+        'gc-card p-5',
+        className,
+      )}
+    >
+      {children}
+    </Comp>
+  );
+}

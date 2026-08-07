@@ -37,18 +37,27 @@ describe('franchise listing validation', () => {
       shortDescription: '50 şubelik marka franchise veriyor',
       longDescription: 'Detaylı açıklama en az yirmi karakter olmalıdır.',
       city: 'Ankara',
-      sector: 'Food',
-      franchiseBedeli: 300000,
-      minimumSermaye: 600000,
-      tahminiAylikCiro: 150000,
-      egitimDestegi: true,
-      operasyonDestegi: true,
-      pazarlamaDestegi: false,
+      sector: 'Gıda & İçecek',
+      companyName: 'ABC Gıda A.Ş.',
+      establishmentYear: 2010,
+      branchCount: 50,
+      entryFee: 100000,
+      franchiseFee: 300000,
+      totalInvestment: 800000,
+      royaltyFee: 5,
+      advertisingFee: 2,
+      returnPeriod: '18-24 ay',
+      availableCities: ['İstanbul', 'Ankara'],
+      minCapitalRequirement: 600000,
+      trainingSupport: true,
+      operationalSupport: true,
+      marketingSupport: false,
       ...baseContact,
     });
 
-    expect(parsed.franchiseBedeli).toBe(300000);
-    expect(parsed.egitimDestegi).toBe(true);
+    expect(parsed.franchiseFee).toBe(300000);
+    expect(parsed.trainingSupport).toBe(true);
+    expect(parsed.availableCities).toEqual(['İstanbul', 'Ankara']);
   });
 
   it('requires flow for discriminated create schema', () => {

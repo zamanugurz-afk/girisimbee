@@ -1,14 +1,29 @@
 import type { Listing } from '@/features/listings/types/listing.entity.types';
-import type { ContentItem } from '@/features/categories/types/category.types';
+import type { ContentItem, ContentType } from '@/features/categories/types/category.types';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import { hasAnyTrustBadge } from '@/features/authentication/types/trust.types';
 import { categoryRegistry } from '@/features/listings/config/category-registry';
-import {
-  CATEGORY_CONTENT_TYPE,
-  CATEGORY_EMOJI,
-  CATEGORY_PAGE_CONFIG,
-} from '@/features/listings/config/marketplace.config';
+import { CATEGORY_PAGE_CONFIG } from '@/features/listings/config/marketplace.config';
+import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
+import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
+
+type ListingWithDbMeta = Listing & {
+  listingTypeSlug?: string | null;
+  categorySlug?: string | null;
+};
+
+/** Content type derived from DB listing type slug (marketplace_listing_types.slug). */
+const LISTING_TYPE_SLUG_CONTENT_TYPE: Record<string, ContentType> = {
+  'yatirim-ariyorum': 'startup',
+  'yatirim-yapiyorum': 'person',
+  'is-ariyorum': 'person',
+  'ise-aliyorum': 'job',
+  'ortak-ariyorum': 'startup',
+  'franchise-ilan-ver': 'startup',
+  'bayilik-al': 'startup',
+  'bayilik-ver': 'startup',
+};
 
 function formatTimeAgo(isoDate: string | null): string | undefined {
   if (!isoDate) return undefined;
@@ -21,43 +36,36 @@ function formatTimeAgo(isoDate: string | null): string | undefined {
   return `${Math.floor(days / 30)} ay önce`;
 }
 
-function formatDetail(listing: Listing, categorySlug: string): string | undefined {
-  const cf = listing.customFields;
+function resolveDbListingTypeSlug(listing: ListingWithDbMeta): string | undefined {
+  if (listing.listingTypeSlug) return listing.listingTypeSlug;
+  return categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? undefined;
+}
 
-  if (categorySlug === 'yatirim-bul' || categorySlug === 'yatirim-yap') {
-    const amount = toDisplayValue(cf.investmentAmount) || toDisplayValue(cf.ticketSizeMin);
-    if (amount) return amount;
-    if (listing.investmentDetails?.amountSought) {
-      return `${listing.investmentDetails.amountSought.toLocaleString('tr-TR')} ${listing.investmentDetails.currency}`;
-    }
+function resolveDbCategorySlug(listing: ListingWithDbMeta): string | undefined {
+  if (listing.categorySlug) return listing.categorySlug;
+  return categoryRegistry.getCategory(listing.categoryId)?.slug ?? undefined;
+}
+
+function resolveContentTypeFromDb(listing: ListingWithDbMeta): ContentType {
+  const listingTypeSlug = resolveDbListingTypeSlug(listing);
+  if (listingTypeSlug && LISTING_TYPE_SLUG_CONTENT_TYPE[listingTypeSlug]) {
+    return LISTING_TYPE_SLUG_CONTENT_TYPE[listingTypeSlug];
   }
-
-  if (categorySlug === 'ise-al') {
-    const salary = toDisplayValue(cf.salaryRange);
-    if (salary) return salary;
-  }
-
-  if (categorySlug === 'is-bul') {
-    const salary = toDisplayValue(cf.salaryExpectation);
-    if (salary) return salary;
-    const role = toDisplayValue(cf.desiredRole);
-    if (role) return role;
-  }
-
-  if (categorySlug === 'ortak-bul') {
-    const partnership = toDisplayValue(cf.partnershipType) || toDisplayValue(listing.partnerDetails?.partnerType);
-    if (partnership) return partnership;
-  }
-
-  return listing.shortDescription.slice(0, 60);
+  return 'startup';
 }
 
 /** Map domain Listing → ContentItem for ListingCard (ContentCard). */
-export function listingToContentItem(listing: Listing, trust?: TrustBadges): ContentItem {
-  const category = categoryRegistry.getCategory(listing.categoryId);
-  const slug = category?.slug ?? 'yatirim-bul';
-  const meta = CATEGORY_PAGE_CONFIG[slug];
-  const contentType = CATEGORY_CONTENT_TYPE[slug] ?? 'startup';
+export function listingToContentItem(
+  listing: Listing,
+  trust?: TrustBadges,
+  uploadedCoverUrl?: string | null,
+): ContentItem {
+  const dbListing = listing as ListingWithDbMeta;
+  const categorySlug = resolveDbCategorySlug(dbListing);
+  const meta = categorySlug ? CATEGORY_PAGE_CONFIG[categorySlug] : undefined;
+  const contentType = resolveContentTypeFromDb(dbListing);
+  const cardDisplay = resolveListingCardDisplay(listing);
+  const listingTypeSlug = resolveDbListingTypeSlug(dbListing);
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
     .filter((part) => !isEmptyDisplayValue(part));
@@ -69,8 +77,19 @@ export function listingToContentItem(listing: Listing, trust?: TrustBadges): Con
     type: contentType,
     title: listing.title,
     subtitle: meta?.label,
-    detail: formatDetail(listing, slug),
+    detail: cardDisplay.price,
     location,
+    description: listing.shortDescription.trim() || undefined,
+    price: cardDisplay.price,
+    listingTypeLabel: cardDisplay.typeLabel,
+    listingGroupColor: cardDisplay.groupColor,
+    listingGroupLabel: cardDisplay.groupLabel,
+    listingIconKey: cardDisplay.iconKey,
+    coverUrl: resolveListingCoverUrl({
+      uploadedUrl: uploadedCoverUrl,
+      listingTypeSlug,
+      group: cardDisplay.group,
+    }),
     tag: hasAnyTrustBadge(trust ?? { user: false, company: false, investor: false })
       ? undefined
         : listing.isVerified
@@ -79,10 +98,10 @@ export function listingToContentItem(listing: Listing, trust?: TrustBadges): Con
             ? 'Acil'
             : listing.isFeatured
               ? 'Öne Çıkan'
-              : meta?.label,
+              : undefined,
     trust,
     timeAgo: formatTimeAgo(listing.publishedAt ?? listing.createdAt),
-    emoji: CATEGORY_EMOJI[slug],
+    emoji: cardDisplay.typeEmoji,
     initials: contentType === 'person' ? listing.title.slice(0, 2).toUpperCase() : undefined,
   };
 }
@@ -90,8 +109,13 @@ export function listingToContentItem(listing: Listing, trust?: TrustBadges): Con
 export function listingsToContentItems(
   listings: Listing[],
   trustByListingId?: Map<string, TrustBadges>,
+  coverByListingId?: Map<string, string>,
 ): ContentItem[] {
   return listings.map((listing) =>
-    listingToContentItem(listing, trustByListingId?.get(listing.id)),
+    listingToContentItem(
+      listing,
+      trustByListingId?.get(listing.id),
+      coverByListingId?.get(listing.id),
+    ),
   );
 }

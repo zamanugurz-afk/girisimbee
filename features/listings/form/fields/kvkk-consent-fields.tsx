@@ -4,54 +4,16 @@ import Link from 'next/link';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
+import {
+  EMPTY_KVKK_CONSENTS,
+  KVKK_CONSENT_POLICY_ITEMS,
+  areAllKvkkConsentsAccepted,
+  type KvkkConsentKey,
+  type KvkkConsentValues,
+} from '@/features/kvkk/constants/kvkk-consent-policy';
 
-export interface KvkkConsentValues {
-  cvSharing: boolean;
-  thirdPartySharing: boolean;
-  employerSharing: boolean;
-  clarificationText: boolean;
-  explicitConsent: boolean;
-}
-
-export const EMPTY_KVKK_CONSENTS: KvkkConsentValues = {
-  cvSharing: false,
-  thirdPartySharing: false,
-  employerSharing: false,
-  clarificationText: false,
-  explicitConsent: false,
-};
-
-const CONSENT_ITEMS: {
-  key: keyof KvkkConsentValues;
-  label: string;
-  description: string;
-}[] = [
-  {
-    key: 'cvSharing',
-    label: 'CV paylaşım izni',
-    description: 'Özgeçmişimin ilan sahipleri ve platform tarafından görüntülenmesine izin veriyorum.',
-  },
-  {
-    key: 'thirdPartySharing',
-    label: 'Üçüncü taraf paylaşım izni',
-    description: 'Verilerimin iş ortakları ve hizmet sağlayıcılarla paylaşılmasına izin veriyorum.',
-  },
-  {
-    key: 'employerSharing',
-    label: 'İşveren paylaşım izni',
-    description: 'Profil ve CV bilgilerimin ilgili işverenlerle paylaşılmasına izin veriyorum.',
-  },
-  {
-    key: 'clarificationText',
-    label: 'Aydınlatma metni onayı',
-    description: 'Kişisel verilerin işlenmesine ilişkin aydınlatma metnini okudum ve anladım.',
-  },
-  {
-    key: 'explicitConsent',
-    label: 'Açık rıza onayı',
-    description: 'Kişisel verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyorum.',
-  },
-];
+export type { KvkkConsentValues };
+export { EMPTY_KVKK_CONSENTS };
 
 export interface KvkkConsentFieldsProps {
   value: KvkkConsentValues;
@@ -66,7 +28,7 @@ export function KvkkConsentFields({
   disabled,
   error,
 }: KvkkConsentFieldsProps) {
-  function toggle(key: keyof KvkkConsentValues, checked: boolean) {
+  function toggle(key: KvkkConsentKey, checked: boolean) {
     onChange({ ...value, [key]: checked });
   }
 
@@ -83,7 +45,7 @@ export function KvkkConsentFields({
       </div>
 
       <div className="space-y-3 rounded-lg border border-border/80 bg-muted/10 p-4">
-        {CONSENT_ITEMS.map((item) => (
+        {KVKK_CONSENT_POLICY_ITEMS.map((item) => (
           <div key={item.key} className="flex items-start gap-3">
             <Checkbox
               id={`kvkk-${item.key}`}
@@ -110,5 +72,5 @@ export function KvkkConsentFields({
 }
 
 export function validateKvkkConsents(value: KvkkConsentValues): boolean {
-  return Object.values(value).every(Boolean);
+  return areAllKvkkConsentsAccepted(value);
 }

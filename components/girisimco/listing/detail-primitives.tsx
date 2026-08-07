@@ -18,7 +18,8 @@ export function DetailCard({ children, className, padding = 'md' }: DetailCardPr
   return (
     <div
       className={cn(
-        'rounded-[24px] border border-border/80 bg-white gc-shadow-soft',
+        'rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300',
+        'hover:border-primary/20 hover:shadow-md',
         'dark:border-white/10 dark:bg-card/90',
         paddingMap[padding],
         className,
@@ -33,14 +34,18 @@ interface DetailSectionProps {
   title: string;
   children: ReactNode;
   className?: string;
+  description?: string;
 }
 
-export function DetailSection({ title, children, className }: DetailSectionProps) {
+export function DetailSection({ title, children, className, description }: DetailSectionProps) {
   return (
     <section className={cn(className)}>
-      <h2 className="text-[15px] font-semibold tracking-tight text-foreground">
+      <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
         {title}
       </h2>
+      {description ? (
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      ) : null}
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -63,7 +68,7 @@ export function FactRow({ label, value, href }: FactRowProps) {
           href={href.startsWith('http') ? href : `https://${href}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium text-[#2563EB] hover:underline"
+          className="text-sm font-medium text-primary hover:underline"
         >
           {value}
         </a>
@@ -80,21 +85,22 @@ export function FactGrid({ children }: { children: ReactNode }) {
   );
 }
 
-/** Renders a section only when it has visible child content. */
 export function DetailSectionIf({
   title,
   visible,
   children,
   className,
+  description,
 }: {
   title: string;
   visible: boolean;
   children: ReactNode;
   className?: string;
+  description?: string;
 }) {
   if (!visible) return null;
   return (
-    <DetailSection title={title} className={className}>
+    <DetailSection title={title} className={className} description={description}>
       {children}
     </DetailSection>
   );

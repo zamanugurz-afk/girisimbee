@@ -45,10 +45,10 @@ export function generateMockListing(index = 1, ctx: MockListingContext = {}): Li
     viewCount: index * 42,
     applicationCount: index * 3,
     isVerified: index % 5 === 0,
-    isFeatured: index <= 3,
-    isUrgent: index % 7 === 0,
-    featuredUntil: index <= 3 ? new Date(Date.now() + 30 * 86400000).toISOString() : null,
-    urgentUntil: index % 7 === 0 ? new Date(Date.now() + 7 * 86400000).toISOString() : null,
+    isFeatured: false,
+    isUrgent: false,
+    featuredUntil: null,
+    urgentUntil: null,
     publishedAt: index === 1
       ? new Date().toISOString()
       : new Date(Date.now() - index * 86400000).toISOString(),

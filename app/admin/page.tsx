@@ -1,10 +1,9 @@
-import { AdminShell } from '@/components/girisimco/admin/admin-shell';
-import { AdminDashboardView } from '@/components/girisimco/admin/admin-dashboard-view';
+import { AdminDashboardView } from '@/features/admin/panel/views/AdminDashboardView';
 
-export default function AdminDashboardPage() {
-  return (
-    <AdminShell title="Yönetim Paneli" description="Platform istatistikleri ve yönetim modülleri">
-      <AdminDashboardView />
-    </AdminShell>
-  );
+export const metadata = {
+  title: 'Yönetim Merkezi — Yönetim — Girisimbee',
+};
+
+export default function AdminOverviewPage() {
+  return <AdminDashboardView />;
 }

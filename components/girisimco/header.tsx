@@ -3,15 +3,22 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Menu, Plus, Search, X } from 'lucide-react';
+import { Menu, Plus, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo, NAV_LINKS, MVP_COPY } from '@/features/shared';
 import { AuthMenu } from '@/features/authentication/components/auth-menu';
 import { MobileAuthLinks } from '@/features/authentication/components/mobile-auth-links';
+import { MarketplaceNotificationsBell } from '@/components/girisimco/marketplace-notifications-bell';
 import { cn } from '@/lib/utils';
 
 const iconBtnClass =
   'flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 bg-white/80 text-[#334155] shadow-sm transition-all duration-300 ease-smooth hover:scale-[1.04] hover:border-primary/20 hover:bg-white hover:text-[#0F172A] hover:shadow-md';
+
+function isNavLinkActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  if (href === '/') return false;
+  return pathname.startsWith(`${href}/`);
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -43,9 +50,7 @@ export function Header() {
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 xl:flex">
           {NAV_LINKS.map((link) => {
-            const isActive =
-              pathname === link.href ||
-              (link.href !== '/kesfet' && pathname.startsWith(link.href));
+            const isActive = isNavLinkActive(pathname, link.href);
             return (
               <Link
                 key={link.href + link.label}
@@ -64,12 +69,10 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link href="/ara" className={cn(iconBtnClass, 'hidden sm:flex')} aria-label="Ara">
+          <Link href="/ara" className={iconBtnClass} aria-label="Ara">
             <Search className="h-4 w-4" />
           </Link>
-          <button type="button" className={cn(iconBtnClass, 'hidden sm:flex')} aria-label="Bildirimler">
-            <Bell className="h-4 w-4" />
-          </button>
+          <MarketplaceNotificationsBell />
 
           <AuthMenu />
 
@@ -97,13 +100,26 @@ export function Header() {
 
       {mobileOpen && (
         <div className="border-t border-border/50 bg-white/90 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down">
+          <Link
+            href="/ara"
+            onClick={() => setMobileOpen(false)}
+            className="mb-3 flex items-center gap-2 rounded-xl border border-border/60 bg-white/80 px-3 py-2.5 text-sm font-medium text-[#334155] transition-all hover:border-primary/25 hover:bg-primary/5"
+          >
+            <Search className="h-4 w-4 shrink-0" />
+            İlan ara…
+          </Link>
           <nav className="flex flex-col gap-0.5">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href + link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-3 py-2.5 text-sm font-medium text-[#334155] transition-all duration-300 hover:bg-primary/5 hover:text-[#0F172A]"
+                className={cn(
+                  'rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300',
+                  isNavLinkActive(pathname, link.href)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A]',
+                )}
               >
                 {link.label}
               </Link>

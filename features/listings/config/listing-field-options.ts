@@ -8,6 +8,28 @@ export const INVESTMENT_AMOUNT_RANGES = [
   '10.000.000 TL ve üzeri',
 ] as const;
 
+/** Investor interest sectors — multi-select for "Yatırım Yapacağım". */
+export const INVESTOR_SECTOR_OPTIONS = [
+  'Fintech',
+  'SaaS / Yazılım',
+  'E-ticaret',
+  'Yapay zeka',
+  'Sağlık teknolojisi',
+  'Eğitim teknolojisi',
+  'Mobil uygulama',
+  'Marketplace',
+  'Lojistik',
+  'Temiz enerji',
+  'Siber güvenlik',
+  'Gıda teknolojisi',
+  'Perakende',
+  'Oyun',
+  'Medya & içerik',
+  'İnsan kaynakları teknolojisi',
+  'Proptech',
+  'Diğer',
+] as const;
+
 /** Predefined salary ranges for job seeker listings. */
 export const SALARY_RANGES = [
   '25.000 TL\'ye kadar',
@@ -43,21 +65,86 @@ export const USE_OF_FUNDS_OPTIONS = [
   'Diğer',
 ] as const;
 
-/** Job seeker / hiring position options. */
+/** Job seeker / hiring position options — broad TR market coverage, A–Z (tr). */
 export const JOB_POSITION_OPTIONS = [
-  'Satış danışmanı',
-  'Saha satış uzmanı',
-  'Çağrı merkezi temsilcisi',
+  'Aşçı',
+  'Aşçı yardımcısı',
+  'Avukat',
+  'Bakım teknisyeni',
+  'Bankacı / banka personeli',
+  'Barista',
+  'Berber / kuaför',
+  'Bilgisayar teknik servis',
+  'Boyacı',
+  'Büro personeli',
   'Çağrı merkezi satış temsilcisi',
-  'Operasyon uzmanı',
-  'Yazılım geliştirici',
-  'Pazarlama uzmanı',
+  'Çağrı merkezi temsilcisi',
+  'Çaycı / ofis destek',
+  'Çelik işçisi',
+  'Çiftçi / tarım işçisi',
+  'Depo görevlisi',
+  'Diş teknisyeni',
+  'Eczane teknisyeni',
+  'Eğitmen / öğretmen',
+  'Elektrik teknisyeni',
+  'Elektrikçi',
+  'Fabrika işçisi',
   'Finans uzmanı',
-  'İnsan kaynakları uzmanı',
-  'Ürün yöneticisi',
-  'Proje yöneticisi',
-  'Veri analisti',
+  'Forklift operatörü',
+  'Garson',
+  'Gayrimenkul danışmanı',
   'Grafik tasarımcı',
+  'Güvenlik görevlisi',
+  'Hasta bakıcı',
+  'Hemşire',
+  'Host / hostes',
+  'İç mimar',
+  'İnsan kaynakları uzmanı',
+  'İnşaat işçisi',
+  'İş makinesi operatörü',
+  'Kasiyer',
+  'Kaynakçı',
+  'Kurye / motokurye',
+  'Lojistik uzmanı',
+  'Makine operatörü',
+  'Marangoz',
+  'Market personeli',
+  'Mimar',
+  'Mobilya ustası',
+  'Muhasebeci',
+  'Mühendis (elektrik)',
+  'Mühendis (inşaat)',
+  'Mühendis (makine)',
+  'Mühendis (yazılım)',
+  'Müşteri temsilcisi',
+  'Ofis yöneticisi',
+  'Operasyon uzmanı',
+  'Oto yıkama personeli',
+  'Otomotiv teknisyeni',
+  'Otel resepsiyonisti',
+  'Pazarlama uzmanı',
+  'Personel servis şoförü',
+  'Proje yöneticisi',
+  'Resepsiyonist',
+  'Saha satış uzmanı',
+  'Satış danışmanı',
+  'Sekreter',
+  'Servis elemanı',
+  'Şef / mutfak şefi',
+  'Şoför (hafif ticari)',
+  'Şoför (kamyon / TIR)',
+  'Şoför (otobüs / minibüs)',
+  'Tamirci / teknik servis',
+  'Teknik servis uzmanı',
+  'Teknisyen',
+  'Temizlik görevlisi',
+  'Tesisatçı',
+  'Torna / freze operatörü',
+  'Üretim işçisi',
+  'Ürün yöneticisi',
+  'Veri analisti',
+  'Veteriner teknisyeni',
+  'Yazılım geliştirici',
   'Diğer',
 ] as const;
 
@@ -113,4 +200,168 @@ export const LANGUAGE_OPTIONS = [
   'Almanca',
   'Fransızca',
   'Arapça',
+] as const;
+
+/** Franchise sector / brand category options. */
+export const FRANCHISE_SECTOR_OPTIONS = [
+  'Gıda & İçecek',
+  'Perakende',
+  'Hizmet',
+  'Eğitim',
+  'Sağlık & Güzellik',
+  'Otomotiv',
+  'Teknoloji',
+  'Diğer',
+] as const;
+
+/** Franchise investor experience requirement levels. */
+export const FRANCHISE_EXPERIENCE_OPTIONS = [
+  'Deneyim gerekmez',
+  '1-3 yıl işletme deneyimi',
+  '3-5 yıl işletme deneyimi',
+  '5-10 yıl işletme deneyimi',
+  '10+ yıl işletme deneyimi',
+] as const;
+
+/** Franchise education requirement levels. */
+export const FRANCHISE_EDUCATION_OPTIONS = [
+  'Eğitim şartı yok',
+  'Lise mezunu',
+  'Ön lisans / Lisans',
+  'Sektörel sertifika',
+  'Mesleki yeterlilik belgesi',
+] as const;
+
+/** Estimated return period options. */
+export const FRANCHISE_RETURN_PERIOD_OPTIONS = [
+  '6-12 ay',
+  '12-18 ay',
+  '18-24 ay',
+  '24-36 ay',
+  '36+ ay',
+] as const;
+
+/** Average franchise setup / opening duration. */
+export const FRANCHISE_SETUP_DURATION_OPTIONS = [
+  '1-2 hafta',
+  '2-4 hafta',
+  '1-2 ay',
+  '2-3 ay',
+  '3-6 ay',
+  '6+ ay',
+] as const;
+
+/** Store size options. */
+export const FRANCHISE_STORE_SIZE_OPTIONS = [
+  '50 m² altı',
+  '50-100 m²',
+  '100-200 m²',
+  '200-500 m²',
+  '500 m² üzeri',
+] as const;
+
+/** Business category options for franchise model. */
+export const FRANCHISE_BUSINESS_CATEGORY_OPTIONS = [
+  'Fast food / Quick service',
+  'Cafe & Restoran',
+  'Perakende mağaza',
+  'Hizmet noktası',
+  'E-ticaret + fiziksel mağaza',
+  'Diğer',
+] as const;
+
+/** Major cities for franchise availability multi-select. */
+export const FRANCHISE_CITY_OPTIONS = [
+  'İstanbul',
+  'Ankara',
+  'İzmir',
+  'Bursa',
+  'Antalya',
+  'Adana',
+  'Konya',
+  'Gaziantep',
+  'Kocaeli',
+  'Mersin',
+  'Eskişehir',
+  'Samsun',
+  'Trabzon',
+  'Diyarbakır',
+  'Tüm Türkiye',
+] as const;
+
+/** Genel ilan — tür seçenekleri */
+export const GENERAL_LISTING_TYPE_OPTIONS = [
+  'Ürün',
+  'Hizmet',
+  'Duyuru',
+  'Fırsat / kampanya',
+  'Etkinlik',
+  'Diğer',
+] as const;
+
+/** Genel ilan — durum / koşul */
+export const GENERAL_LISTING_CONDITION_OPTIONS = [
+  'Yeni',
+  'Az kullanılmış',
+  'İkinci el',
+  'Hizmet (fiziksel ürün yok)',
+] as const;
+
+/** Genel ilan — fiyat modeli */
+export const GENERAL_LISTING_PRICE_OPTIONS = [
+  'Ücretsiz',
+  '1.000 TL\'ye kadar',
+  '1.000 - 5.000 TL',
+  '5.000 - 25.000 TL',
+  '25.000 - 100.000 TL',
+  '100.000 TL ve üzeri',
+  'Teklif alınır',
+] as const;
+
+/** Dijital / AI çözüm türleri */
+export const DIGITAL_AI_SOLUTION_TYPE_OPTIONS = [
+  'Yapay zeka asistanı / ajan',
+  'Chatbot & müşteri desteği',
+  'SaaS ürünü',
+  'Otomasyon & RPA',
+  'Veri analitiği & BI',
+  'Bilgisayarlı görü',
+  'NLP / metin işleme',
+  'Özel yazılım geliştirme',
+  'AI danışmanlık',
+  'Entegrasyon & API',
+  'Diğer',
+] as const;
+
+/** Dijital / AI teslim modeli */
+export const DIGITAL_AI_DELIVERY_OPTIONS = [
+  'Abonelik (SaaS)',
+  'Proje bazlı',
+  'Kurulum + bakım',
+  'White-label',
+  'API kullanımı',
+  'Danışmanlık paketi',
+] as const;
+
+/** Dijital / AI hedef kitle */
+export const DIGITAL_AI_AUDIENCE_OPTIONS = [
+  'Startup',
+  'KOBİ',
+  'Kurumsal',
+  'Ajans / yazılım evi',
+  'Bireysel girişimci',
+] as const;
+
+/** Dijital / AI yetenek modülleri — titles from digital-ai-capabilities catalog */
+export { DIGITAL_AI_CAPABILITY_TITLES as DIGITAL_AI_CAPABILITY_OPTIONS } from '@/features/listings/config/digital-ai-capabilities';
+
+/** Dijital / AI desteklenen diller */
+export const DIGITAL_AI_LANGUAGE_OPTIONS = [
+  'Türkçe',
+  'İngilizce',
+  'Almanca',
+  'Fransızca',
+  'Arapça',
+  'Rusça',
+  'İspanyolça',
 ] as const;

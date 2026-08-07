@@ -8,10 +8,17 @@ export type {
 } from '@/features/favorites/types/favorite.types';
 export { FAVORITE_INDEXES, FAVORITE_LIFECYCLE, FAVORITE_VALIDATION } from '@/features/favorites/types/favorite.types';
 
+export type {
+  FavoriteListing,
+  AddFavoriteListingInput,
+} from '@/features/favorites/types/favorite-listing.types';
+
 export type { FavoriteRepository } from '@/features/favorites/repositories/favorite.repository';
+export type { FavoriteListingRepository } from '@/features/favorites/repositories/favorite-listing.repository';
 export type { IFavoriteService } from '@/features/favorites/services/favorite.service.interface';
 export { FavoriteService } from '@/features/favorites/services/favorite.service';
-export { getFavoriteService } from '@/lib/persistence/container';
+export { FavoriteListingService } from '@/features/favorites/services/favorite-listing.service';
+export { getFavoriteService, getFavoriteListingService } from '@/lib/persistence/container';
 export { useFavorites, useFavoritesList } from '@/features/favorites/hooks/use-favorites';
 export { FavoritesProvider } from '@/features/favorites/providers/favorites-provider';
 export * from '@/features/favorites/repository';

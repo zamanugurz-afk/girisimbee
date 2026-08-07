@@ -121,9 +121,10 @@ export class AdminReportService {
   async generateReport(
     period: AdminReportPeriod,
     category?: AdminReportCategory | 'all',
+    range?: { from?: string; to?: string },
   ): Promise<AdminReportSnapshot> {
     const cat = category ?? 'all';
-    const base = await this.dashboardMetrics.getPeriodMetrics(period);
+    const base = await this.dashboardMetrics.getPeriodMetrics(period, range);
     const metrics: Record<string, number> = { ...base };
 
     if (cat === 'all' || cat === 'users') {

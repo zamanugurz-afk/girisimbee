@@ -11,12 +11,22 @@ export function useAuth() {
     user: ctx.user,
     isLoading: ctx.isLoading,
     isAuthenticated: ctx.isAuthenticated,
-    signIn: ctx.signIn,
-    signUp: ctx.signUp,
-    signOut: ctx.signOut,
+    login: ctx.login,
+    logout: ctx.logout,
+    forgotPassword: ctx.forgotPassword,
     resetPassword: ctx.resetPassword,
-    setNewPassword: ctx.setNewPassword,
+    refreshSession: ctx.refreshSession,
+    signUp: ctx.signUp,
     resendVerification: ctx.resendVerification,
+    /** @deprecated Prefer login() */
+    signIn: ctx.signIn,
+    /** @deprecated Prefer logout() */
+    signOut: ctx.signOut,
+    /** @deprecated Prefer forgotPassword() */
+    requestPasswordReset: ctx.requestPasswordReset,
+    /** @deprecated Prefer resetPassword() */
+    setNewPassword: ctx.setNewPassword,
+    /** @deprecated Prefer refreshSession() */
     refresh: ctx.refresh,
   };
 }
@@ -37,15 +47,18 @@ export function useRole(): UserRole {
 
 export function useAuthorization() {
   const role = useRole();
+  const signedIn = role !== 'guest';
 
   return {
     role,
     isGuest: role === 'guest',
-    isMember: hasMinimumRole(role, 'member'),
-    isVerified: hasMinimumRole(role, 'verified'),
-    isCompany: hasMinimumRole(role, 'company'),
-    isModerator: hasMinimumRole(role, 'moderator'),
-    isAdmin: role === 'admin',
+    /** Authenticated user (any app role) — replaces legacy member/verified/company checks */
+    isMember: signedIn,
+    isVerified: signedIn,
+    isCompany: signedIn,
+    isModerator: hasMinimumRole(role, 'admin'),
+    isAdmin: hasMinimumRole(role, 'admin'),
+    isSuperAdmin: role === 'super_admin',
     hasMinimumRole: (minimum: UserRole) => hasMinimumRole(role, minimum),
     hasAnyRole: (allowed: UserRole[]) => hasAnyRole(role, allowed),
     canAccessRoute: (pathname: string) => canAccessRoute(role, pathname),

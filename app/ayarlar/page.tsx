@@ -4,7 +4,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { ProfileEditorForm } from '@/features/profiles/components/profile-editor-form';
 
 export const metadata = {
-  title: 'Profil Ayarları — Girisimco',
+  title: 'Profil Ayarları — Girisimbee',
   description: 'Profilinizi tamamlayın ve güncelleyin.',
 };
 

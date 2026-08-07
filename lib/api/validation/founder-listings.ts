@@ -24,7 +24,8 @@ export const founderListingCreateSchema = z
     offeredSkills: z.array(z.string()).optional(),
     sectors: z.array(z.string()).optional(),
   })
-  .merge(externalContactSchema);
+  .merge(externalContactSchema)
+  .passthrough();
 
 export const founderListingUpdateSchema = founderListingCreateSchema.partial();
 

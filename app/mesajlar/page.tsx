@@ -4,7 +4,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { MessagesInboxView } from '@/components/girisimco/messaging/messages-inbox-view';
 
 export const metadata = {
-  title: 'Mesajlar — Girisimco',
+  title: 'Mesajlar — Girisimbee',
 };
 
 export default async function MessagesPage() {

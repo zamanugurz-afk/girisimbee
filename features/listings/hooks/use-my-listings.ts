@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { useListingEngine } from '@/features/listings/hooks/use-listing-engine';
 import { getClientContainer } from '@/lib/persistence/container';
+import { resolvePersistenceDriver } from '@/lib/persistence/types';
+import { createClient } from '@/lib/supabase/client';
+import type { ListingImageRepository } from '@/features/listings/repository/listing-image.repository';
 import type { ListingId, UserId } from '@/lib/domain/ids';
 import type { ListingStatus } from '@/features/listings/types/listing.entity.types';
 import type {
@@ -14,6 +17,67 @@ import type {
   MyListingViewMode,
 } from '@/features/listings/types/my-listings.types';
 import { sortMyListings } from '@/features/listings/utils/my-listings-sort';
+
+const LISTING_IMAGES_TABLE = 'marketplace_listing_images';
+const BATCH_CHUNK_SIZE = 200;
+
+async function loadThumbnailUrlsByListingIds(
+  listingIds: ListingId[],
+  listingImageRepository: ListingImageRepository,
+): Promise<Map<ListingId, string | null>> {
+  const thumbnails = new Map<ListingId, string | null>();
+  if (listingIds.length === 0) return thumbnails;
+
+  if (resolvePersistenceDriver() === 'supabase') {
+    const supabase = createClient();
+
+    for (let i = 0; i < listingIds.length; i += BATCH_CHUNK_SIZE) {
+      const chunk = listingIds.slice(i, i + BATCH_CHUNK_SIZE);
+      const { data, error } = await supabase
+        .from(LISTING_IMAGES_TABLE)
+        .select('listing_id, url, sort_order')
+        .in('listing_id', chunk)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      const imagesByListing = new Map<ListingId, { url: string; sortOrder: number }[]>();
+      for (const row of data ?? []) {
+        const listingId = row.listing_id as ListingId;
+        const existing = imagesByListing.get(listingId) ?? [];
+        existing.push({
+          url: row.url as string,
+          sortOrder: (row.sort_order as number | null) ?? 0,
+        });
+        imagesByListing.set(listingId, existing);
+      }
+
+      for (const listingId of chunk) {
+        const images = imagesByListing.get(listingId) ?? [];
+        images.sort((a, b) => a.sortOrder - b.sortOrder);
+        thumbnails.set(listingId, images[0]?.url ?? null);
+      }
+    }
+
+    return thumbnails;
+  }
+
+  const results = await Promise.all(
+    listingIds.map(async (listingId) => {
+      const images = await listingImageRepository.findByListingId(listingId);
+      const sortedImages = [...images].sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+      );
+      return [listingId, sortedImages[0]?.url ?? null] as const;
+    }),
+  );
+
+  for (const [listingId, url] of results) {
+    thumbnails.set(listingId, url);
+  }
+
+  return thumbnails;
+}
 
 const OWNER_STATUSES: ListingStatus[] = [
   'draft',
@@ -91,24 +155,19 @@ export function useMyListings() {
         { page: 1, limit: 100 },
       );
 
+      const listingIds = result.data.map((listing) => listing.id);
       const { favoriteRepository, listingImageRepository } = getClientContainer();
 
-      const enriched = await Promise.all(
-        result.data.map(async (listing) => {
-          const [images, favoriteCount] = await Promise.all([
-            listingImageRepository.findByListingId(listing.id),
-            favoriteRepository.countByListingId(listing.id),
-          ]);
-          const sortedImages = [...images].sort(
-            (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
-          );
-          return {
-            listing,
-            thumbnailUrl: sortedImages[0]?.url ?? null,
-            favoriteCount,
-          };
-        }),
-      );
+      const [thumbnailUrls, favoriteCounts] = await Promise.all([
+        loadThumbnailUrlsByListingIds(listingIds, listingImageRepository),
+        favoriteRepository.countActiveByListingIds(listingIds),
+      ]);
+
+      const enriched = result.data.map((listing) => ({
+        listing,
+        thumbnailUrl: thumbnailUrls.get(listing.id) ?? null,
+        favoriteCount: favoriteCounts.get(listing.id) ?? 0,
+      }));
 
       setItems(sortMyListings(enriched, sortBy));
       setTotal(result.total);

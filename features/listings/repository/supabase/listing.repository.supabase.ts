@@ -7,7 +7,7 @@ import { canTransition } from '@/lib/domain/base';
 import { NotFoundError, InvalidTransitionError } from '@/lib/domain/errors';
 import { normalizePagination, paginatedResult, offset } from '@/lib/domain/pagination';
 import type { PaginationParams, PaginatedResult, RepositoryFilter } from '@/lib/domain/pagination';
-import type { ListingId } from '@/lib/domain/ids';
+import type { ListingId, CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type {
   Listing,
   ListingFilter,
@@ -20,13 +20,120 @@ import { LISTING_LIFECYCLE } from '@/features/listings/types/listing.entity.type
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { mapListingRow, toListingRow, toListingUpdateRow, type ListingRow } from '@/features/listings/repository/supabase/listing.mapper';
 import { getSortColumn } from '@/features/listings/utils/listing-sort';
-import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
+import { computeFranchiseListingExpiry, computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
   logSupabaseError,
   prepareSupabaseWrite,
 } from '@/lib/persistence/supabase-payload';
+import {
+  expandCategoryIdFilter,
+  expandListingTypeIdFilter,
+} from '@/lib/domain/legacy-category-ids';
+import {
+  resolveDbCategoryId,
+  resolveDbListingTypeId,
+} from '@/features/listings/config/marketplace-category-map';
+import {
+  applySupabaseOtherCityFilter,
+  buildSupabaseCityOrFilter,
+  describeSupabaseOtherCityFilter,
+  isOtherCityFilter,
+} from '@/features/listings/utils/city-filter';
+import { listingIdRangeFromNumberHex, parseListingNumberQuery } from '@/features/listings/utils/listing-number';
+import { traceListingPublish, logPublicationState, tracePublishFailure } from '@/lib/debug/listing-publish-trace';
 
 const TABLE = 'marketplace_listings';
+
+/** Join listing type + category slugs for browse/card mapping. */
+const LISTING_BROWSE_SELECT = `
+  *,
+  listing_type:marketplace_listing_types!listing_type_id(id, slug),
+  category:marketplace_categories!category_id(id, slug)
+`;
+
+type ListingBrowseRow = ListingRow & {
+  listing_type?: { id: string; slug: string } | null;
+  category?: { id: string; slug: string } | null;
+};
+
+type ListingWithDbMeta = Listing & {
+  listingTypeSlug?: string | null;
+  categorySlug?: string | null;
+};
+
+function mapListingBrowseRow(row: ListingBrowseRow): ListingWithDbMeta {
+  const listing = mapListingRow(row);
+  return {
+    ...listing,
+    listingTypeId: (row.listing_type?.id ?? row.listing_type_id) as ListingTypeId,
+    categoryId: (row.category?.id ?? row.category_id) as CategoryId,
+    listingTypeSlug: row.listing_type?.slug ?? null,
+    categorySlug: row.category?.slug ?? null,
+  };
+}
+
+/** Postgres UUID (hex only). App seed ids like `lt000001-…` are not valid UUIDs. */
+const QUERYABLE_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isQueryableUuid(value: string): boolean {
+  return QUERYABLE_UUID_RE.test(value);
+}
+
+/** Include app + legacy DB listing type IDs so filters match live rows. */
+function resolveQueryableListingTypeIds(filter: ListingFilter): ListingTypeId[] {
+  const raw: ListingTypeId[] = filter.listingTypeIds?.length
+    ? filter.listingTypeIds.flatMap((id) => expandListingTypeIdFilter(id))
+    : filter.listingTypeId
+      ? expandListingTypeIdFilter(filter.listingTypeId)
+      : [];
+
+  const ids = new Set<ListingTypeId>();
+  for (const id of raw) {
+    const dbId = resolveDbListingTypeId(id);
+    if (isQueryableUuid(dbId)) ids.add(dbId);
+    if (isQueryableUuid(id)) ids.add(id);
+  }
+  return [...ids];
+}
+
+/** Include app + legacy DB category IDs so filters match live rows. */
+function resolveQueryableCategoryIds(categoryId: CategoryId): CategoryId[] {
+  const ids = new Set<CategoryId>();
+  for (const id of expandCategoryIdFilter(categoryId)) {
+    const dbId = resolveDbCategoryId(id);
+    if (isQueryableUuid(dbId)) ids.add(dbId);
+    if (isQueryableUuid(id)) ids.add(id);
+  }
+  return [...ids];
+}
+
+type BrowseQueryLog = {
+  categoryId?: CategoryId;
+  listingTypeId?: ListingTypeId;
+  listingTypeIds?: ListingTypeId[];
+  queryableCategoryIds: CategoryId[];
+  queryableListingTypeIds: ListingTypeId[];
+  supabaseFilter: string;
+};
+
+function logBrowseQuery(filter: ListingFilter, log: BrowseQueryLog): void {
+  if (process.env.DEBUG_LISTINGS !== '1' && process.env.NEXT_PUBLIC_DEBUG_LISTINGS !== '1') {
+    return;
+  }
+  console.log('[listingRepo.browse]', {
+    categoryId: log.categoryId,
+    listingTypeId: log.listingTypeId,
+    listingTypeIds: log.listingTypeIds,
+    queryableCategoryIds: log.queryableCategoryIds,
+    queryableListingTypeIds: log.queryableListingTypeIds,
+    supabaseFilter: log.supabaseFilter,
+    status: filter.status,
+    city: filter.city,
+    remotePolicy: filter.remotePolicy,
+    sortBy: filter.sortBy,
+  });
+}
 
 export class SupabaseListingRepository implements ListingRepository {
   constructor(private supabase: SupabaseClient) {}
@@ -53,16 +160,52 @@ export class SupabaseListingRepository implements ListingRepository {
   private applyFilter(
     query: ReturnType<SupabaseClient['from']>,
     filter: ListingFilter,
+    options?: { mode?: 'browse' | 'count' },
   ) {
-    let q = query.select('*', { count: 'exact' });
+    const queryableCategoryIds = filter.categoryId
+      ? resolveQueryableCategoryIds(filter.categoryId)
+      : [];
+    const queryableListingTypeIds = resolveQueryableListingTypeIds(filter);
+
+    const supabaseFilterParts: string[] = ['deleted_at.is.null'];
+    if (filter.status) {
+      const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
+      supabaseFilterParts.push(`status.in.(${statuses.join(',')})`);
+    }
+
+    const mode = options?.mode ?? 'browse';
+    let q =
+      mode === 'count'
+        ? query.select('id', { count: 'exact', head: true })
+        : query.select(LISTING_BROWSE_SELECT, { count: 'exact' });
     if (!filter.includeDeleted) q = q.is('deleted_at', null);
     if (filter.ownerId) q = q.eq('owner_id', filter.ownerId);
-    if (filter.categoryId) q = q.eq('category_id', filter.categoryId);
-    if (filter.listingTypeId) q = q.eq('listing_type_id', filter.listingTypeId);
+    if (queryableCategoryIds.length === 1) {
+      q = q.eq('category_id', queryableCategoryIds[0]);
+      supabaseFilterParts.push(`category_id.eq.${queryableCategoryIds[0]}`);
+    } else if (queryableCategoryIds.length > 1) {
+      q = q.in('category_id', queryableCategoryIds);
+      supabaseFilterParts.push(`category_id.in.(${queryableCategoryIds.join(',')})`);
+    }
+    if (queryableListingTypeIds.length === 1) {
+      q = q.eq('listing_type_id', queryableListingTypeIds[0]);
+      supabaseFilterParts.push(`listing_type_id.eq.${queryableListingTypeIds[0]}`);
+    } else if (queryableListingTypeIds.length > 1) {
+      q = q.in('listing_type_id', queryableListingTypeIds);
+      supabaseFilterParts.push(`listing_type_id.in.(${queryableListingTypeIds.join(',')})`);
+    }
     if (filter.subcategoryId) q = q.eq('subcategory_id', filter.subcategoryId);
     if (filter.moduleKey) q = q.eq('module_key', filter.moduleKey);
     if (filter.companyId) q = q.eq('company_id', filter.companyId);
-    if (filter.city) q = q.eq('city', filter.city);
+    if (filter.city) {
+      if (isOtherCityFilter(filter.city)) {
+        q = applySupabaseOtherCityFilter(q);
+        supabaseFilterParts.push(describeSupabaseOtherCityFilter());
+      } else {
+        q = q.or(buildSupabaseCityOrFilter(filter.city));
+        supabaseFilterParts.push(`or(${buildSupabaseCityOrFilter(filter.city)})`);
+      }
+    }
     if (filter.district) q = q.eq('district', filter.district);
     if (filter.industry) q = q.eq('industry', filter.industry);
     if (filter.anonymousMode !== undefined) q = q.eq('anonymous_mode', filter.anonymousMode);
@@ -71,12 +214,13 @@ export class SupabaseListingRepository implements ListingRepository {
     if (filter.isFeatured !== undefined) q = q.eq('is_featured', filter.isFeatured);
     if (filter.isUrgent !== undefined) q = q.eq('is_urgent', filter.isUrgent);
     if (filter.activeFeaturedOnly) {
+      // Paid / timed featured only — null featured_until is inactive (no DB mutation).
       const now = new Date().toISOString();
-      q = q.or(`featured_until.is.null,featured_until.gt.${now}`);
+      q = q.gt('featured_until', now);
     }
     if (filter.activeUrgentOnly) {
       const now = new Date().toISOString();
-      q = q.or(`urgent_until.is.null,urgent_until.gt.${now}`);
+      q = q.gt('urgent_until', now);
     }
     if (filter.publishedAfter) q = q.gte('published_at', filter.publishedAfter);
     if (filter.publishedBefore) q = q.lte('published_at', filter.publishedBefore);
@@ -87,8 +231,36 @@ export class SupabaseListingRepository implements ListingRepository {
     }
     if (filter.query) {
       const qstr = filter.query.trim();
-      q = q.or(`title.ilike.%${qstr}%,short_description.ilike.%${qstr}%`);
+      const numberHex = parseListingNumberQuery(qstr);
+      // Escape commas/periods that break PostgREST `or()` filter strings.
+      const safe = qstr.replace(/[%_,.()]/g, ' ').trim();
+      if (numberHex) {
+        // UUID columns don't support LIKE (`uuid ~~ unknown`). Use id range on first segment.
+        const { lo, hi } = listingIdRangeFromNumberHex(numberHex);
+        q = q.gte('id', lo).lte('id', hi);
+        supabaseFilterParts.push(`id.gte.${lo}`, `id.lte.${hi}`);
+      } else if (safe) {
+        q = q.or(`title.ilike.%${safe}%,short_description.ilike.%${safe}%`);
+        supabaseFilterParts.push(`or(title.ilike.%${safe}%,short_description.ilike.%${safe}%)`);
+      }
     }
+
+    if (
+      filter.categoryId ||
+      filter.listingTypeId ||
+      filter.listingTypeIds?.length ||
+      filter.status
+    ) {
+      logBrowseQuery(filter, {
+        categoryId: filter.categoryId,
+        listingTypeId: filter.listingTypeId,
+        listingTypeIds: filter.listingTypeIds,
+        queryableCategoryIds,
+        queryableListingTypeIds,
+        supabaseFilter: `${TABLE}?${supabaseFilterParts.join('&')}`,
+      });
+    }
+
     return q;
   }
 
@@ -99,13 +271,14 @@ export class SupabaseListingRepository implements ListingRepository {
 
     const { column, ascending } = getSortColumn(filter.sortBy ?? 'newest');
 
-    const query = this.applyFilter(this.supabase.from(TABLE), filter)
+    // Single round-trip: browse select already requests count:'exact'.
+    const listResult = await this.applyFilter(this.supabase.from(TABLE), filter, { mode: 'browse' })
       .order(column, { ascending })
       .range(start, end);
 
-    const { data, error, count } = await query;
+    const { data, error, count } = listResult;
     if (error) throw error;
-    const listings = (data ?? []).map((row) => mapListingRow(row as ListingRow));
+    const listings = (data ?? []).map((row) => mapListingBrowseRow(row as ListingBrowseRow));
     return paginatedResult(listings, count ?? 0, page, limit);
   }
 
@@ -118,11 +291,44 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async findPublished(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>> {
-    return this.findMany({ ...filter, status: 'published' }, pagination);
+    const merged = { ...filter, status: 'published' as const };
+    const result = await this.findMany(merged, pagination);
+
+    if (process.env.DEBUG_LISTINGS === '1' || process.env.NEXT_PUBLIC_DEBUG_LISTINGS === '1') {
+      logPublicationState(
+        String(filter.moduleKey ?? filter.categoryId ?? 'browse'),
+        'browse_query',
+        {
+          status: 'published',
+          published_at: null,
+          reviewed_at: null,
+          deleted_at: null,
+        },
+        {
+          filter_status: merged.status,
+          result_count: result.data.length,
+          results: result.data.map((listing) => ({
+            id: listing.id,
+            slug: listing.slug,
+            status: listing.status,
+            category_id: listing.categoryId,
+            listing_type_id: listing.listingTypeId,
+            is_published: listing.status === 'published',
+            published_at: listing.publishedAt,
+            reviewed_at: null,
+            deleted_at: listing.deletedAt,
+          })),
+        },
+      );
+    }
+
+    return result;
   }
 
   async count(filter: ListingFilter): Promise<number> {
-    const { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter);
+    const { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter, {
+      mode: 'count',
+    });
     if (error) throw error;
     return count ?? 0;
   }
@@ -139,28 +345,55 @@ export class SupabaseListingRepository implements ListingRepository {
 
   async create(input: CreateListingInput): Promise<Listing> {
     const slug = await this.uniqueSlug(input.title);
-    const entity = createListing({ ...input, slug, status: 'draft' });
+    const status = input.status ?? 'draft';
+    const publishNow = status === 'published';
+    const expiry =
+      publishNow
+        ? input.moduleKey === 'franchise'
+          ? computeFranchiseListingExpiry()
+          : computeListingExpiry()
+        : null;
+    const entity = createListing({
+      ...input,
+      slug,
+      status,
+      workflowStatus: input.workflowStatus ?? (publishNow ? 'published' : 'draft'),
+      publishedAt: publishNow ? now() : null,
+      expiresAt: expiry,
+    });
     const row = prepareSupabaseWrite('insert', TABLE, { id: entity.id, ...toListingRow(entity) }, {
       requiredUuidFields: ['id', 'owner_id', 'category_id', 'listing_type_id'],
       nullableUuidFields: ['company_id'],
     });
 
+    logPublicationState(String(row.module_key ?? 'listing'), 'before_insert', row as Record<string, unknown>);
+
+    console.log('[listingRepo.create]', {
+      category_id: row.category_id,
+      listing_type_id: row.listing_type_id,
+      moduleKey: row.module_key,
+    });
     console.log('Supabase insert table:', TABLE);
     console.log('userId:', row.owner_id);
     console.log('companyId:', row.company_id);
     console.log(JSON.stringify(row, null, 2));
+    traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert', {
+      payload: row,
+    });
 
     try {
       const { data, error } = await this.supabase.from(TABLE).insert(row).select('*').single();
       if (error) throw error;
+      logPublicationState(String(row.module_key ?? 'listing'), 'after_insert', data as Record<string, unknown>);
+      traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert_response', {
+        response: data,
+      });
       return mapListingRow(data as ListingRow);
     } catch (error) {
-      const supabaseError = error as { message?: string; details?: string; code?: string };
-      console.error('Supabase insert failed — table:', TABLE);
-      console.error('error.message:', supabaseError.message);
-      console.error('error.details:', supabaseError.details);
-      console.error('error.code:', supabaseError.code);
-      console.error('failing payload:', JSON.stringify(row, null, 2));
+      tracePublishFailure(String(row.module_key ?? 'listing'), 'supabase_insert', error, {
+        table: TABLE,
+        payload: row,
+      });
       logSupabaseError(error, `${TABLE} insert`);
       throw error;
     }
@@ -237,7 +470,10 @@ export class SupabaseListingRepository implements ListingRepository {
       ...(to === 'published'
         ? {
             published_at: listing.publishedAt ?? now(),
-            expires_at: computeListingExpiry(),
+            expires_at:
+              listing.moduleKey === 'franchise'
+                ? computeFranchiseListingExpiry()
+                : computeListingExpiry(),
             rejected_reason: null,
           }
         : {}),

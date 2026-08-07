@@ -115,12 +115,12 @@ export const INTENTS: import('@/features/categories/types/category.types').Categ
     ],
   },
   {
-    id: 'find-job',
-    label: 'İş Bul',
+    id: 'hire',
+    label: 'İş İlanları',
     shortLabel: 'İş',
-    description: 'Size uygun kariyer fırsatlarını bulun.',
-    accent: '#F97316',
-    accentMuted: 'bg-[#F97316]/8 text-[#EA580C]',
+    description: 'Açık pozisyonları inceleyin; telefon ile iletişime geçin.',
+    accent: '#22C55E',
+    accentMuted: 'bg-[#22C55E]/8 text-[#16A34A]',
     sections: [
       {
         id: 'latest-jobs',
@@ -162,61 +162,9 @@ export const INTENTS: import('@/features/categories/types/category.types').Categ
       },
     ],
     activity: [
-      { emoji: '🟠', text: 'TechCorp 3 yeni pozisyon açtı', time: '4 dk önce' },
-      { emoji: '💼', text: '12 kişi bugün başvuru yaptı', time: '9 dk önce' },
-      { emoji: '🟠', text: 'Senior Frontend ilanı trending', time: '18 dk önce' },
-    ],
-  },
-  {
-    id: 'hire',
-    label: 'İşe Al',
-    shortLabel: 'Al',
-    description: 'Ekibinize katılacak doğru yeteneği bulun.',
-    accent: '#EA580C',
-    accentMuted: 'bg-[#F97316]/8 text-[#EA580C]',
-    sections: [
-      {
-        id: 'latest-candidates',
-        title: 'Son Adaylar',
-        items: [
-          { id: 'h-1', type: 'person', title: 'Ahmet Yılmaz', subtitle: 'Senior Frontend Dev', detail: '6 yıl · React, TS', location: 'İstanbul', tag: 'Aktif', timeAgo: '20 dk', initials: 'AY' },
-          { id: 'h-2', type: 'person', title: 'Merve Çelik', subtitle: 'Product Designer', detail: '4 yıl · Figma, UX', location: 'Ankara', tag: 'Aktif', timeAgo: '45 dk', initials: 'MÇ' },
-          { id: 'h-3', type: 'person', title: 'Oğuz Kaya', subtitle: 'Backend Engineer', detail: '5 yıl · Node, Go', location: 'Uzaktan', tag: 'Aktif', timeAgo: '1 sa', initials: 'OK' },
-          { id: 'h-4', type: 'person', title: 'Seda Arı', subtitle: 'Data Scientist', detail: '3 yıl · Python, ML', location: 'İzmir', tag: 'Yeni', timeAgo: '2 sa', initials: 'SA' },
-        ],
-      },
-      {
-        id: 'featured-candidates',
-        title: 'Öne Çıkan Adaylar',
-        items: [
-          { id: 'h-5', type: 'person', title: 'Cem Özkan', subtitle: 'Staff Engineer', detail: 'Ex-Google · 10 yıl', location: 'İstanbul', tag: 'Top', initials: 'CÖ' },
-          { id: 'h-6', type: 'person', title: 'Dilara Tunç', subtitle: 'Engineering Manager', detail: 'Ex-Getir · 8 yıl', location: 'İstanbul', tag: 'Top', initials: 'DT' },
-          { id: 'h-7', type: 'person', title: 'Barış Erdem', subtitle: 'Full Stack Dev', detail: 'Open source · 7 yıl', location: 'Uzaktan', tag: 'Featured', initials: 'BE' },
-        ],
-      },
-      {
-        id: 'active-professionals',
-        title: 'En Aktif Profesyoneller',
-        items: [
-          { id: 'h-8', type: 'person', title: 'Ece Demir', subtitle: 'Bu hafta 5 başvuru', detail: 'Mobile · Flutter', location: 'İstanbul', initials: 'ED' },
-          { id: 'h-9', type: 'person', title: 'Kaan Yurt', subtitle: 'Profil %100 tamamlandı', detail: 'DevOps · AWS', location: 'Ankara', initials: 'KY' },
-          { id: 'h-10', type: 'person', title: 'Nil Güneş', subtitle: '3 yeni referans', detail: 'PM · B2B SaaS', location: 'İstanbul', initials: 'NG' },
-        ],
-      },
-      {
-        id: 'hiring-tips',
-        title: 'İşe Alım İpuçları',
-        items: [
-          { id: 'h-11', type: 'article', title: 'İlk 10 çalışanı nasıl işe alırsınız?', meta: '8 dk okuma', tag: 'Startup' },
-          { id: 'h-12', type: 'article', title: 'Teknik mülakat soruları rehberi', meta: '12 dk okuma', tag: 'Teknik' },
-          { id: 'h-13', type: 'article', title: 'Employer branding stratejileri', meta: '6 dk okuma', tag: 'Marka' },
-        ],
-      },
-    ],
-    activity: [
-      { emoji: '🟠', text: 'Cem Özkan profilini güncelledi', time: '6 dk önce' },
-      { emoji: '👥', text: 'Startup X 2 aday ile eşleşti', time: '14 dk önce' },
-      { emoji: '🟠', text: '8 yeni aday profili eklendi', time: '25 dk önce' },
+      { emoji: '🟢', text: 'TechCorp 3 yeni pozisyon açtı', time: '4 dk önce' },
+      { emoji: '💼', text: 'Yeni iş ilanı yayınlandı', time: '9 dk önce' },
+      { emoji: '🟢', text: 'Senior Frontend ilanı trending', time: '18 dk önce' },
     ],
   },
   {
@@ -269,6 +217,67 @@ export const INTENTS: import('@/features/categories/types/category.types').Categ
       { emoji: '🟣', text: 'Tolga Aktaş ortaklık ilanı yayınladı', time: '7 dk önce' },
       { emoji: '🤝', text: 'Yeni ortaklık eşleşmesi: PayRoute', time: '16 dk önce' },
       { emoji: '🟣', text: '5 yeni co-founder profili eklendi', time: '28 dk önce' },
+    ],
+  },
+  {
+    id: 'digital-ai',
+    label: 'Dijital ve AI Çözümleri',
+    shortLabel: 'AI',
+    description: 'Yetenek kartlarıyla yazılım, otomasyon ve yapay zeka çözümlerini inceleyin.',
+    accent: '#8B5CF6',
+    accentMuted: 'bg-[#8B5CF6]/8 text-[#7C3AED]',
+    sections: [
+      {
+        id: 'latest-ai',
+        title: 'Öne çıkan çözümler',
+        items: [
+          {
+            id: 'ai-1',
+            type: 'startup',
+            title: 'Kobi Satışları İçin AI Chatbot',
+            subtitle: 'Chatbot & müşteri desteği',
+            detail: 'Abonelik (SaaS)',
+            location: 'Uzaktan',
+            tag: 'AI',
+            timeAgo: '25 dk',
+            description: 'WhatsApp ve web üzerinden 7/24 yanıt; insan desteğine eskalasyon ile satış dönüşümünü hızlandırır.',
+          },
+          {
+            id: 'ai-2',
+            type: 'startup',
+            title: 'Operasyon Otomasyonu Paketi',
+            subtitle: 'Otomasyon & RPA',
+            detail: 'Proje bazlı',
+            location: 'İstanbul',
+            tag: 'KOBİ',
+            timeAgo: '1 sa',
+            description: 'Tekrarlayan onay ve bildirim adımlarını otomatikleştirir; CRM ve ERP ile bağlanır.',
+          },
+          {
+            id: 'ai-3',
+            type: 'startup',
+            title: 'Veri Analitiği Paneli',
+            subtitle: 'Veri analitiği & BI',
+            detail: 'Kurulum + bakım',
+            location: 'Ankara',
+            tag: 'Kurumsal',
+            timeAgo: '4 sa',
+            description: 'Satış ve operasyon KPI’larını tek panelde özetler; öngörü metrikleriyle karar hızını artırır.',
+          },
+        ],
+      },
+      {
+        id: 'ai-guides',
+        title: 'Rehberler',
+        items: [
+          { id: 'ai-4', type: 'article', title: 'AI çözüm seçerken 5 soru', meta: '6 dk okuma', tag: 'Rehber' },
+          { id: 'ai-5', type: 'article', title: 'SaaS vs proje bazlı teslim', meta: '5 dk okuma', tag: 'Model' },
+        ],
+      },
+    ],
+    activity: [
+      { emoji: '✨', text: 'Yeni AI çözüm ilanı eklendi', time: '8 dk önce' },
+      { emoji: '🤖', text: '2 SaaS ilanı bugün öne çıktı', time: '45 dk önce' },
     ],
   },
 ];

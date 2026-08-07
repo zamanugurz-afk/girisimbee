@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 const AUTH_PAGES = new Set([
   '/giris',
   '/kayit',
+  '/sifremi-unuttum',
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',
@@ -18,6 +19,8 @@ const AUTH_PAGES = new Set([
 function usesSiteChrome(pathname: string): boolean {
   if (AUTH_PAGES.has(pathname)) return false;
   if (pathname.startsWith('/admin')) return false;
+  if (pathname.startsWith('/dashboard')) return false;
+  if (pathname.startsWith('/hesabim')) return false;
   if (pathname.startsWith('/auth/')) return false;
   if (LEGACY_TOKEN_ROUTE_PATTERN.test(pathname)) return false;
   return true;

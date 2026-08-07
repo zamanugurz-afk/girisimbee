@@ -89,9 +89,13 @@ class CategoryRegistry {
     const intentMap: Record<string, CategoryId> = {
       'find-investment': CATEGORY_IDS.yatirimBul,
       invest: CATEGORY_IDS.yatirimYap,
-      'find-job': CATEGORY_IDS.isBul,
+      'find-job': CATEGORY_IDS.iseAl,
       hire: CATEGORY_IDS.iseAl,
       'find-partner': CATEGORY_IDS.ortakBul,
+      franchise: CATEGORY_IDS.bayilikAl,
+      'bayilik-al': CATEGORY_IDS.bayilikAl,
+      'digital-ai': CATEGORY_IDS.dijitalAi,
+      'dijital-ai': CATEGORY_IDS.dijitalAi,
     };
     return intentMap[slugOrId] ?? CATEGORY_SLUG_TO_ID[slugOrId] ?? null;
   }

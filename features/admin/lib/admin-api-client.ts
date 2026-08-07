@@ -42,6 +42,7 @@ function buildQuery(params: Record<string, QueryValue>): string {
 async function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...init,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
       ...init?.headers,
@@ -191,10 +192,65 @@ export const adminApi = {
     return adminFetch(`/api/admin/coupons${buildQuery({ moduleKey, code })}`, { method: 'DELETE' });
   },
 
-  generateReport(period: 'daily' | 'monthly', category?: string): Promise<AdminReportSnapshot> {
+  generateReport(
+    period: 'daily' | 'weekly' | 'monthly' | 'custom',
+    category?: string,
+    range?: { from?: string; to?: string },
+  ): Promise<AdminReportSnapshot> {
     return adminFetch<{ report: AdminReportSnapshot }>(
-      `/api/admin/reports${buildQuery({ period, category: category === 'all' ? undefined : category })}`,
+      `/api/admin/reports${buildQuery({
+        period,
+        category: category === 'all' ? undefined : category,
+        from: range?.from,
+        to: range?.to,
+      })}`,
     ).then((r) => r.report);
+  },
+
+  listModerationReports(
+    filter: { status?: string; entityType?: string; query?: string },
+    pagination?: PaginationParams,
+  ): Promise<PaginatedResult<import('@/features/shared/types/report.types').Report>> {
+    return adminFetch(
+      `/api/admin/moderation${buildQuery({
+        status: filter.status,
+        entityType: filter.entityType,
+        query: filter.query,
+        ...paginationParams(pagination),
+      })}`,
+    );
+  },
+
+  moderationAction(
+    id: string,
+    action: { action: 'resolve'; resolution: string } | { action: 'dismiss' } | { action: 'review' },
+  ): Promise<import('@/features/shared/types/report.types').Report> {
+    return adminFetch<{ report: import('@/features/shared/types/report.types').Report }>(
+      `/api/admin/moderation${buildQuery({ id })}`,
+      { method: 'PATCH', body: JSON.stringify(action) },
+    ).then((r) => r.report);
+  },
+
+  listRecentNotifications(limit = 50): Promise<
+    Array<{
+      id: string;
+      userId: string;
+      title: string;
+      description: string | null;
+      type: string;
+      isRead: boolean;
+      createdAt: string;
+    }>
+  > {
+    return adminFetch<{ notifications: Array<{
+      id: string;
+      userId: string;
+      title: string;
+      description: string | null;
+      type: string;
+      isRead: boolean;
+      createdAt: string;
+    }> }>(`/api/admin/notifications${buildQuery({ limit })}`).then((r) => r.notifications);
   },
 
   listPayments(

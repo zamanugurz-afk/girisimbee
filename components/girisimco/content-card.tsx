@@ -5,6 +5,7 @@ import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
+import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
@@ -43,10 +44,100 @@ function TypeIcon({ type }: { type: ContentItem['type'] }) {
 
 export function ContentCard({ item, accent }: ContentCardProps) {
   const isArticle = item.type === 'article' || item.type === 'story';
-  const listingLink = item.listingId ? listingHref(item.id) : null;
-  const resolvedAccent = accent ?? GC_ACCENT;
+  const isListingCard = Boolean(item.listingId && item.listingTypeLabel);
+  const listingLink = item.href ?? (item.listingId ? listingHref(item.id) : null);
+  const resolvedAccent = accent ?? item.listingGroupColor ?? GC_ACCENT;
 
-  const card = (
+  const card = isListingCard ? (
+    <TextListingCardLayout item={item} listingLink={listingLink} />
+  ) : (
+    <LegacyContentCardLayout
+      item={item}
+      isArticle={isArticle}
+      listingLink={listingLink}
+      resolvedAccent={resolvedAccent}
+    />
+  );
+
+  if (listingLink) {
+    return (
+      <Link href={listingLink} className="block h-full">
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
+}
+
+/** Browse cards are text-first (no cover). Detail pages still show gallery images. */
+function TextListingCardLayout({
+  item,
+  listingLink,
+}: {
+  item: ContentItem;
+  listingLink: string | null;
+}) {
+  const accent = item.listingGroupColor ?? GC_ACCENT;
+
+  return (
+    <article
+      className={cn(
+        'group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.28)] transition-all duration-300',
+        'hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-18px_rgba(15,23,42,0.35)]',
+        listingLink && 'cursor-pointer',
+      )}
+      style={{ ['--card-accent' as string]: accent }}
+    >
+      <ListingTypeIconBadge
+        iconKey={item.listingIconKey ?? 'general'}
+        color={accent}
+        size="sm"
+      />
+
+      <p className="mt-4 text-[10px] font-semibold uppercase tracking-wide" style={{ color: accent }}>
+        {item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan'}
+      </p>
+
+      <h3 className="mt-1.5 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-foreground">
+        {item.title}
+      </h3>
+
+      {item.description ? (
+        <p className="mt-2 line-clamp-3 flex-1 text-[13px] leading-relaxed text-muted-foreground">
+          {item.description}
+        </p>
+      ) : (
+        <div className="flex-1" />
+      )}
+
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+        <span className="truncate text-xs text-muted-foreground">
+          {[item.price, item.location].filter(Boolean).join(' · ') || item.listingGroupLabel}
+        </span>
+        {listingLink ? (
+          <span className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors group-hover:text-[color:var(--card-accent)]">
+            İncele
+            <ArrowUpRight className="h-3 w-3" />
+          </span>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+function LegacyContentCardLayout({
+  item,
+  isArticle,
+  listingLink,
+  resolvedAccent,
+}: {
+  item: ContentItem;
+  isArticle: boolean;
+  listingLink: string | null;
+  resolvedAccent: string;
+}) {
+  return (
     <article
       className={cn(
         'group flex h-full flex-col gc-card-interactive p-4',
@@ -91,16 +182,6 @@ export function ContentCard({ item, accent }: ContentCardProps) {
       )}
     </article>
   );
-
-  if (listingLink) {
-    return (
-      <Link href={listingLink} className="block h-full">
-        {card}
-      </Link>
-    );
-  }
-
-  return card;
 }
 
 function CardHeader({ item }: { item: ContentItem }) {

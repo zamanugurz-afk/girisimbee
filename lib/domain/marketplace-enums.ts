@@ -31,7 +31,7 @@ export type PaymentStatus =
   | 'refunded'
   | 'cancelled';
 
-export type PaymentProvider = 'iyzico' | 'stripe' | 'paytr';
+export type PaymentProvider = 'iyzico' | 'stripe' | 'paytr' | 'simulated';
 
 export type PaymentPurpose =
   | 'publish'
@@ -39,12 +39,14 @@ export type PaymentPurpose =
   | 'featured'
   | 'urgent'
   | 'package_purchase'
+  | 'listing_placement'
   | 'franchise_package'
   | 'employer_package'
   | 'candidate_package'
   | 'entrepreneur_package'
   | 'investor_package'
-  | 'founder_package';
+  | 'founder_package'
+  | 'market_ad';
 
 export type DocumentType =
   | 'pitch_deck'

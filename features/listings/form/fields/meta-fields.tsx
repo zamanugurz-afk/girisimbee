@@ -11,6 +11,11 @@ import { cn } from '@/lib/utils';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
 import { META_FIELD_UI } from '@/features/listings/form/listing-field-metadata';
+import {
+  assertListingImageDimensions,
+  assertSafeListingImageName,
+  readImageDimensions,
+} from '@/features/listings/lib/listing-content-policy';
 
 function normalizeSortOrder(images: ListingImageInput[]): ListingImageInput[] {
   return images.map((img, index) => ({ ...img, sortOrder: index }));
@@ -22,9 +27,19 @@ export interface ImagesInputProps {
   disabled?: boolean;
   max?: number;
   userId?: string;
+  label?: string;
+  helperText?: string;
 }
 
-export function ImagesInput({ value, onChange, disabled, max = 10, userId }: ImagesInputProps) {
+export function ImagesInput({
+  value,
+  onChange,
+  disabled,
+  max = 10,
+  userId,
+  label = 'Görseller',
+  helperText = META_FIELD_UI.images.helperText,
+}: ImagesInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -50,10 +65,28 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
     try {
       const uploaded: ListingImageInput[] = [];
       for (const file of batch) {
+        const unsafe = assertSafeListingImageName(file.name);
+        if (unsafe) {
+          toast.error(unsafe.message);
+          continue;
+        }
+        try {
+          const { width, height } = await readImageDimensions(file);
+          const dimIssue = assertListingImageDimensions(width, height);
+          if (dimIssue) {
+            toast.error(dimIssue.message);
+            continue;
+          }
+        } catch {
+          toast.error('Görsel boyutları okunamadı. Farklı bir dosya deneyin.');
+          continue;
+        }
         const url = await uploadListingMedia(userId, file);
         uploaded.push({ url, alt: file.name, sortOrder: value.length + uploaded.length });
       }
-      onChange(normalizeSortOrder([...value, ...uploaded]));
+      if (uploaded.length > 0) {
+        onChange(normalizeSortOrder([...value, ...uploaded]));
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Görsel yüklenemedi');
     } finally {
@@ -96,7 +129,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <FieldLabelWithTooltip label="Görseller" />
+        <FieldLabelWithTooltip label={label} />
         <span className="text-xs text-muted-foreground">{sorted.length}/{max}</span>
       </div>
 
@@ -121,7 +154,7 @@ export function ImagesInput({ value, onChange, disabled, max = 10, userId }: Ima
         {uploading ? 'Yükleniyor…' : 'Görsel Yükle'}
       </Button>
 
-      <FormFieldFooter helperText={META_FIELD_UI.images.helperText} />
+      <FormFieldFooter helperText={helperText} />
 
       {sorted.length > 0 && (
         <ul className="space-y-2">

@@ -5,18 +5,27 @@ import {
   parseEmployerListingUpdate,
 } from '@/lib/api/validation/employer-listings';
 import { ids } from '@/lib/domain/ids';
+import { trackListingViewFromRequest } from '@/features/listings/lib/track-listing-view';
 
 /** GET — job listing detail by id or slug */
-export const GET = withOptionalAuth(async (ctx, _request, { params }) => {
+export const GET = withOptionalAuth(async (ctx, request, { params }) => {
   const { id } = employerListingIdParamSchema.parse(params);
   const supabase = (await import('@/lib/supabase/server')).createClient();
   const container =
     ctx?.container ?? (await import('@/lib/persistence/container')).getServerContainer(supabase);
 
-  const detail = await container.ecosystem.employerService.getJobDetail(id, { trackView: true });
+  const detail = await container.ecosystem.employerService.getJobDetail(id, { trackView: false });
   if (!detail) {
     return ok({ listing: null });
   }
+
+  await trackListingViewFromRequest({
+    container,
+    request,
+    listingId: detail.listing.id,
+    viewerId: ctx?.userId ?? null,
+    published: detail.listing.status === 'published',
+  });
 
   return ok({ listing: detail });
 });

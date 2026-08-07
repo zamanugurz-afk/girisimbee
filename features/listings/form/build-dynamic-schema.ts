@@ -10,6 +10,10 @@ import {
 } from '@/features/listings/config/listing-form-steps.config';
 import { remotePolicySchema } from '@/features/listings/validation/listing.schema';
 import { uuidSchema } from '@/lib/domain/validation';
+import {
+  contentPolicyIssuesToFieldErrors,
+  validateListingContentPolicy,
+} from '@/features/listings/lib/listing-content-policy';
 
 const STAGE_FIELD_KEY = 'stage';
 
@@ -241,7 +245,7 @@ export function buildWizardVisibleListingFormSchema(
   let includeImages = false;
 
   for (const step of steps) {
-    if (step.preview || step.publish) continue;
+    if (step.preview || step.publish || step.package) continue;
     step.coreFields?.forEach((key) => visibleCore.add(key));
     resolveStepCustomFields(step, allFieldKeys).forEach((key) => visibleCustom.add(key));
     if (step.meta?.includes('tags')) includeTags = true;
@@ -397,12 +401,16 @@ export function mergeCustomFieldDefaults(
 
   for (const field of fieldSchema.fields) {
     if (field.type === 'multi-enum' && field.options?.length) {
-      const raw = merged[field.key];
+      let raw = merged[field.key];
+      if (typeof raw === 'string' && raw.trim()) {
+        raw = raw.split(',').map((value) => value.trim()).filter(Boolean);
+        merged[field.key] = raw;
+      }
       if (!Array.isArray(raw)) {
         if (!field.required) merged[field.key] = [];
         continue;
       }
-      merged[field.key] = raw
+      merged[field.key] = (raw as unknown[])
         .map((value) => resolveEnumOption(value, field.options!) ?? String(value).trim())
         .filter(Boolean);
       continue;
@@ -541,5 +549,31 @@ export function validateListingFormStep(
   }
   if (step.meta?.includes('images')) {
     listingMetaSchema.shape.images.parse(payload.images);
+  }
+
+  if (mode === 'full' && step.coreFields?.length) {
+    const policyIssues = validateListingContentPolicy({
+      title: step.coreFields.includes('title') ? payload.core.title : undefined,
+      shortDescription: step.coreFields.includes('shortDescription')
+        ? payload.core.shortDescription
+        : undefined,
+      longDescription: step.coreFields.includes('longDescription')
+        ? payload.core.longDescription
+        : undefined,
+      tags: step.meta?.includes('tags') ? payload.tags : undefined,
+      imageFileNames: step.meta?.includes('images')
+        ? payload.images.map((img) => img.alt ?? '').filter(Boolean)
+        : undefined,
+    });
+    const fieldErrors = contentPolicyIssuesToFieldErrors(policyIssues);
+    if (Object.keys(fieldErrors).length > 0) {
+      throw new z.ZodError(
+        Object.entries(fieldErrors).map(([path, message]) => ({
+          code: z.ZodIssueCode.custom,
+          path: path.includes('.') ? path.split('.') : [path],
+          message,
+        })),
+      );
+    }
   }
 }

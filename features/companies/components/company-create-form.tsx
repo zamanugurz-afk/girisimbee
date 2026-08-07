@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ValidationError } from '@/lib/domain/errors';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
 
 export function CompanyCreateForm() {
   const { user } = useAuth();
@@ -114,10 +115,16 @@ export function CompanyCreateForm() {
           <Label htmlFor="name">Şirket Adı</Label>
           <Input
             id="name"
+            lang="tr"
+            spellCheck
             {...form.register('name')}
             onBlur={(e) => {
+              const corrected = autoCorrectTurkishText(e.target.value, 'title');
+              if (corrected !== e.target.value) {
+                form.setValue('name', corrected, { shouldDirty: true, shouldValidate: true });
+              }
               if (!form.getValues('slug')) {
-                form.setValue('slug', suggestCompanySlug(e.target.value));
+                form.setValue('slug', suggestCompanySlug(corrected || e.target.value));
               }
             }}
           />

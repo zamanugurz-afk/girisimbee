@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BRAND_NAME } from '@/features/shared/constants/brand';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
@@ -11,7 +11,8 @@ interface LogoProps {
   variant?: 'full' | 'mark';
 }
 
-export function GirisimcoLogo({ className, variant = 'full' }: LogoProps) {
+/** Girisimbee mark: indigo circle + white “G”. */
+export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isMark = variant === 'mark';
@@ -48,10 +49,11 @@ export function GirisimcoLogo({ className, variant = 'full' }: LogoProps) {
         </span>
       </span>
       {!isMark && (
-        <span className="font-display text-lg font-semibold tracking-tight text-[#0F172A] transition-colors duration-300 group-hover:text-[#334155]">
-          {BRAND_NAME}
-        </span>
+        <BrandWordmark className="font-display text-lg font-semibold tracking-tight text-[#0F172A] transition-colors duration-300 group-hover:text-[#334155]" />
       )}
     </Link>
   );
 }
+
+/** @deprecated Prefer GirisimbeeLogo */
+export const GirisimcoLogo = GirisimbeeLogo;

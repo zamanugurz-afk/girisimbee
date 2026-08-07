@@ -5,6 +5,7 @@ import { ids, type ProfileId, type UserId } from '@/lib/domain/ids';
 import type { Profile } from '@/features/profiles/types/profile.types';
 import { apiError } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
+import { resolveProfileForUser } from '@/lib/api/resolve-profile';
 import { NextResponse } from 'next/server';
 
 export interface AuthContext {
@@ -45,10 +46,7 @@ export async function resolveAuthContext(requireAuth = true): Promise<AuthContex
   }
 
   const container = getServerContainer(supabase);
-  const profile = await container.profileRepository.findByUserId(ids.user(user.id));
-  if (!profile) {
-    return apiError('Profil bulunamadı.', 404, { code: 'PROFILE_NOT_FOUND' });
-  }
+  const profile = await resolveProfileForUser(user, container);
 
   return {
     user,

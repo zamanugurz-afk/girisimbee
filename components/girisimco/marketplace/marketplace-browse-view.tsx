@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
+import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 interface MarketplaceBrowsePageProps {
   categorySlug?: string;
   initialQuery?: string;
+  initialFilters?: Partial<MarketplaceFilterState>;
   title?: string;
   description?: string;
   accent?: string;
@@ -20,6 +22,7 @@ interface MarketplaceBrowsePageProps {
 export function MarketplaceBrowseView({
   categorySlug,
   initialQuery,
+  initialFilters,
   title,
   description,
   accent,
@@ -42,6 +45,7 @@ export function MarketplaceBrowseView({
   } = useMarketplaceBrowse({
     initialCategorySlug: categorySlug,
     initialQuery,
+    initialFilters,
   });
 
   return (
@@ -102,7 +106,12 @@ export function MarketplaceBrowseView({
           isLoadingMore={isLoadingMore}
           onLoadMore={loadMore}
           emptyMessage={
-            filters.query || filters.categorySlug || filters.city
+            filters.query ||
+            filters.categorySlug ||
+            filters.city ||
+            filters.isFeatured ||
+            filters.isUrgent ||
+            filters.publishedAfter
               ? 'Bu filtrelere uygun ilan bulunmuyor.'
               : undefined
           }
@@ -111,7 +120,7 @@ export function MarketplaceBrowseView({
         {categorySlug && (
           <div className="mt-10 flex flex-wrap gap-2 border-t border-border/80 pt-8 dark:border-white/10">
             <span className="text-xs text-muted-foreground">Diğer kategoriler:</span>
-            {['yatirim-bul', 'yatirim-yap', 'is-bul', 'ise-al', 'ortak-bul']
+            {['yatirim-bul', 'ortak-bul', 'bayilik-al', 'ise-al', 'dijital-ai']
               .filter((s) => s !== categorySlug)
               .map((slug) => {
                 const meta = resolveCategorySlug(slug);

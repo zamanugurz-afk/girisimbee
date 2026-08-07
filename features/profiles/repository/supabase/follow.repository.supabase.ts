@@ -51,4 +51,26 @@ export class SupabaseFollowRepository implements FollowRepository {
     if (error) throw error;
     return count ?? 0;
   }
+
+  async listFollowingIds(userId: UserId, limit = 50): Promise<UserId[]> {
+    const { data, error } = await this.supabase
+      .from(TABLE)
+      .select('following_id')
+      .eq('follower_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map((row) => row.following_id as UserId);
+  }
+
+  async listFollowerIds(userId: UserId, limit = 50): Promise<UserId[]> {
+    const { data, error } = await this.supabase
+      .from(TABLE)
+      .select('follower_id')
+      .eq('following_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map((row) => row.follower_id as UserId);
+  }
 }

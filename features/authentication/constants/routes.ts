@@ -1,11 +1,16 @@
 export const AUTH_ROUTES = {
   login: '/giris',
   register: '/kayit',
-  forgotPassword: '/sifre-sifirla',
-  resetPassword: '/sifre-yenile',
+  forgotPassword: '/sifremi-unuttum',
+  resetPassword: '/sifre-sifirla',
+  /** @deprecated Use AUTH_ROUTES.resetPassword — kept for old email links */
+  resetPasswordLegacy: '/sifre-yenile',
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
+  /** Marketplace home — default destination after login / register / OAuth */
+  home: '/',
   dashboard: '/dashboard',
+  account: '/dashboard',
   logout: '/auth/signout',
 } as const;
 
@@ -19,15 +24,22 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/jobs',
   '/hire',
   '/partners',
+  '/dijital-ai',
+  '/franchise',
+  '/market',
+  '/reklam',
   '/ara',
   '/kesfet',
   '/giris',
   '/kayit',
+  '/sifremi-unuttum',
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',
+  '/yasal',
   '/auth/callback',
   '/auth/signout',
+  '/auth/google-setup',
 ] as const;
 
 /** Redirect authenticated users away from these */
@@ -40,6 +52,7 @@ export const GUEST_ONLY_ROUTES = [
 /** Require authentication */
 export const PROTECTED_ROUTE_PREFIXES = [
   '/dashboard',
+  '/hesabim',
   '/mesajlar',
   '/ilan/olustur',
   '/ilanlarim',
@@ -49,9 +62,9 @@ export const PROTECTED_ROUTE_PREFIXES = [
   '/admin',
 ] as const;
 
-/** Public profile pages: /profil/[username] */
+/** Public profile pages: /profil/[username] or /uye/[userId] */
 export function isPublicProfileRoute(pathname: string): boolean {
-  return /^\/profil\/[^/]+$/.test(pathname);
+  return /^\/profil\/[^/]+$/.test(pathname) || /^\/uye\/[^/]+$/.test(pathname);
 }
 
 export function isProtectedProfileRoute(pathname: string): boolean {
@@ -73,7 +86,7 @@ export const MODERATOR_ROUTE_PREFIXES = ['/moderasyon'] as const;
 /** Minimum role: admin */
 export const ADMIN_ROUTE_PREFIXES = ['/admin'] as const;
 
-/** İkinciBazar token routes — separate product, not Girisimco auth */
+/** İkinciBazar token routes — separate product, not Girisimbee auth */
 export const LEGACY_TOKEN_ROUTE_PATTERN = /^\/[^/]+\/(deals|listings|products|categories|favorites|analytics|alerts|sources|settings)/;
 
 export function matchesPrefix(pathname: string, prefixes: readonly string[]): boolean {
@@ -104,7 +117,11 @@ export function isGuestOnlyRoute(pathname: string): boolean {
 /** Skip Supabase auth in middleware for fully public document routes. */
 export function needsMiddlewareAuth(pathname: string): boolean {
   if (pathname.startsWith('/api/')) {
-    return /^\/api\/listings\/[^/]+\/publish$/.test(pathname);
+    // Refresh session cookies on admin API + publish so Route Handlers see a valid user.
+    return (
+      pathname.startsWith('/api/admin')
+      || /^\/api\/listings\/[^/]+\/publish$/.test(pathname)
+    );
   }
   if (isPublicRoute(pathname)) return false;
   if (isPublicProfileRoute(pathname)) return false;

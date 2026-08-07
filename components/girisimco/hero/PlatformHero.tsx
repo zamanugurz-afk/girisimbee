@@ -1,244 +1,160 @@
 'use client';
 
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Briefcase, Handshake, Rocket, Search, Store, UserRound } from 'lucide-react';
+import { motion } from 'framer-motion';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  formatHeroStatCount,
+  useHeroStats,
+  type HeroStatKey,
+} from '@/features/home/hooks/use-hero-stats';
+import { HERO_ORBIT_THEME } from '@/components/girisimco/hero/hero-orbit-theme';
+import { HeroOrbitVisualGalaxy } from '@/components/girisimco/hero/hero-orbit-galaxy';
+import { HeroOrbitVisualBee } from '@/components/girisimco/hero/hero-orbit-bee';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { cn } from '@/lib/utils';
 
-const HERO_HEIGHT = 720;
+const HERO_STATS: {
+  key: HeroStatKey;
+  label: string;
+  Icon: LucideIcon;
+  tint: string;
+  iconColor: string;
+}[] = [
+  {
+    key: 'total',
+    label: 'Toplam İlan',
+    Icon: Rocket,
+    tint: 'bg-[#EFF6FF]',
+    iconColor: 'text-[#3B82F6]',
+  },
+  {
+    key: 'entrepreneurs',
+    label: 'Girişimci',
+    Icon: UserRound,
+    tint: 'bg-[#ECFDF5]',
+    iconColor: 'text-[#10B981]',
+  },
+  {
+    key: 'investors',
+    label: 'Yatırımcı',
+    Icon: UserRound,
+    tint: 'bg-[#F5F3FF]',
+    iconColor: 'text-[#8B5CF6]',
+  },
+  {
+    key: 'jobs',
+    label: 'İş Fırsatı',
+    Icon: Briefcase,
+    tint: 'bg-[#FFF7ED]',
+    iconColor: 'text-[#F97316]',
+  },
+  {
+    key: 'partners',
+    label: 'Ortaklık',
+    Icon: Handshake,
+    tint: 'bg-[#FDF2F8]',
+    iconColor: 'text-[#EC4899]',
+  },
+  {
+    key: 'franchise',
+    label: 'Franchise',
+    Icon: Store,
+    tint: 'bg-[#FDF2F8]',
+    iconColor: 'text-[#DB2777]',
+  },
+];
 
-const CANVAS = 580;
-const centerX = CANVAS / 2;
-const centerY = CANVAS / 2;
+function HeroStatsColumn() {
+  const { counts, isLoading } = useHeroStats();
 
-const centerDiameter = 140;
-const centerRadius = centerDiameter / 2;
-
-const outerRingRadius = 248;
-const innerRingRadius = 178;
-const stepCardRadius = innerRingRadius + 32;
-
-const STEPS = [
-  { step: 1, angle: -90, title: 'Yolunuzu seçin' },
-  { step: 2, angle: 30, title: 'İletişime geçin' },
-  { step: 3, angle: 150, title: 'Eşleşin ve ilerleyin' },
-] as const;
-
-const OUTER_LABELS = [
-  { label: 'Girişimciler', angle: -90 },
-  { label: 'Yatırımcılar', angle: 0 },
-  { label: 'İş Arayanlar', angle: 45 },
-  { label: 'İş Verenler', angle: 135 },
-  { label: 'Ortak Arayanlar', angle: 180 },
-] as const;
-
-const STEP_W = 156;
-const STEP_H = 48;
-const LABEL_W = 108;
-const LABEL_H = 30;
-
-function polar(angleDeg: number, radius: number) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return {
-    x: centerX + radius * Math.cos(rad),
-    y: centerY + radius * Math.sin(rad),
-  };
-}
-
-function ringArc(r: number, fromAngle: number, toAngle: number) {
-  const from = polar(fromAngle, r);
-  const to = polar(toAngle, r);
-  return `M ${from.x} ${from.y} A ${r} ${r} 0 0 1 ${to.x} ${to.y}`;
-}
-
-function processPath() {
-  return [
-    ringArc(innerRingRadius, STEPS[0].angle, STEPS[1].angle),
-    ringArc(innerRingRadius, STEPS[1].angle, STEPS[2].angle),
-    ringArc(innerRingRadius, STEPS[2].angle, STEPS[0].angle),
-  ].join(' ');
-}
-
-function HeroOrbitVisual() {
   return (
-    <svg
-      viewBox={`0 0 ${CANVAS} ${CANVAS}`}
-      className="mx-auto h-full max-h-[min(580px,100%)] w-full max-w-[580px] overflow-visible"
-      aria-hidden
-    >
-      <defs>
-        <radialGradient id="platform-hero-hub" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#a5b4fc" />
-          <stop offset="55%" stopColor="#818cf8" />
-          <stop offset="100%" stopColor="#6366f1" />
-        </radialGradient>
-        <filter id="platform-hero-glow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="0" dy="6" stdDeviation="12" floodColor="#6366f1" floodOpacity="0.35" />
-        </filter>
-        <marker id="platform-hero-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-          <path d="M0,0 L9,4.5 L0,9 Z" fill="#6366f1" />
-        </marker>
-      </defs>
-
-      <g
-        className="origin-center animate-[spin_100s_linear_infinite]"
-        style={{ transformOrigin: `${centerX}px ${centerY}px` }}
-      >
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={outerRingRadius}
-          fill="none"
-          stroke="#94a3b8"
-          strokeWidth="1.5"
-          strokeDasharray="12 14"
-          opacity={0.35}
-        />
-      </g>
-
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={innerRingRadius}
-        fill="none"
-        stroke="#6366f1"
-        strokeWidth="2.5"
-        opacity={0.4}
-      />
-
-      <path
-        d={processPath()}
-        fill="none"
-        stroke="#6366f1"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeDasharray="18 12"
-        className="animate-dash"
-        markerMid="url(#platform-hero-arrow)"
-        markerEnd="url(#platform-hero-arrow)"
-      />
-
-      {OUTER_LABELS.map((item) => {
-        const { x, y } = polar(item.angle, outerRingRadius);
-        return (
-          <foreignObject
-            key={item.label}
-            x={x - LABEL_W / 2}
-            y={y - LABEL_H / 2}
-            width={LABEL_W}
-            height={LABEL_H}
-            className="overflow-visible"
+    <ul className="flex w-[176px] flex-col gap-1.5" aria-label="Platform istatistikleri">
+      {HERO_STATS.map((stat, index) => (
+        <motion.li
+          key={stat.key}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, delay: 0.08 + index * 0.04, ease: 'easeOut' }}
+          className="flex items-center gap-2 rounded-xl border border-border/70 bg-white/95 px-2.5 py-1.5 shadow-[0_4px_14px_-8px_rgba(15,23,42,0.12)] backdrop-blur-sm"
+        >
+          <span
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.tint}`}
           >
-      <div
-        className={cn(
-                'flex h-full items-center justify-center whitespace-nowrap rounded-full',
-                'border border-white/90 bg-white/95 px-3 text-[10px] font-semibold text-foreground',
-                'shadow-[0_4px_18px_-6px_rgba(15,23,42,0.12)] backdrop-blur-sm',
-                'transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_24px_-8px_rgba(99,102,241,0.35)]',
-              )}
+            <stat.Icon className={`h-3.5 w-3.5 ${stat.iconColor}`} strokeWidth={2} aria-hidden />
+          </span>
+          <span className="min-w-0 leading-tight">
+            <span
+              className={`block text-sm font-bold tracking-tight text-foreground tabular-nums ${
+                isLoading ? 'animate-pulse text-muted-foreground' : ''
+              }`}
             >
-              {item.label}
-            </div>
-          </foreignObject>
-        );
-      })}
-
-      {STEPS.map((item) => {
-        const { x, y } = polar(item.angle, stepCardRadius);
-        return (
-          <foreignObject
-            key={item.step}
-            x={x - STEP_W / 2}
-            y={y - STEP_H / 2}
-            width={STEP_W}
-            height={STEP_H}
-            className="overflow-visible"
-          >
-      <div
-        className={cn(
-                'group flex h-full items-center gap-2.5 rounded-2xl border border-white/90 bg-white/95 px-3',
-                'shadow-[0_4px_20px_-6px_rgba(15,23,42,0.12)] backdrop-blur-sm',
-                'transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_10px_28px_-8px_rgba(99,102,241,0.38)]',
-              )}
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#6366f1] text-[11px] font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-110">
-                {item.step}
-              </span>
-              <span className="text-[11px] font-semibold leading-tight text-foreground">{item.title}</span>
-            </div>
-          </foreignObject>
-        );
-      })}
-
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={centerRadius}
-        fill="url(#platform-hero-hub)"
-        filter="url(#platform-hero-glow)"
-        className="animate-glow-pulse"
-      />
-      <text
-        x={centerX}
-        y={centerY - 2}
-        textAnchor="middle"
-        fill="white"
-        fontSize={14}
-        fontWeight={700}
-      >
-        <tspan x={centerX} dy="0">
-          Eşleşme
-        </tspan>
-        <tspan x={centerX} dy="17">
-          Noktası
-        </tspan>
-      </text>
-    </svg>
+              {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
+            </span>
+            <span className="block truncate text-[10px] text-muted-foreground">{stat.label}</span>
+          </span>
+        </motion.li>
+      ))}
+    </ul>
   );
 }
 
-export function PlatformHero() {
-  return (
-    <section className="relative overflow-hidden border-b border-border/60">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#6366f1]/[0.07] via-transparent to-[#818cf8]/[0.04]" />
-      <div className="pointer-events-none absolute inset-0 gc-dot-grid opacity-20" />
+function HeroOrbitVisual() {
+  if (HERO_ORBIT_THEME === 'galaxy') {
+    return <HeroOrbitVisualGalaxy />;
+  }
+  return <HeroOrbitVisualBee />;
+}
 
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-        <div
-          className="grid h-[720px] items-center gap-8 lg:grid-cols-[45fr_55fr] lg:gap-10"
-          style={{ minHeight: HERO_HEIGHT }}
+export function PlatformHero({ className }: { className?: string }) {
+  return (
+    <section className={cn('relative flex min-h-0 flex-1 flex-col', className)}>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden bg-gradient-to-br from-[#6366f1]/[0.07] via-transparent to-[#818cf8]/[0.04]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden gc-dot-grid opacity-20" />
+
+      <div className="relative mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-5 lg:px-8">
+        <aside
+          className="absolute top-1/2 right-5 z-40 hidden -translate-y-1/2 lg:block lg:right-8"
+          aria-label="Platform istatistikleri"
         >
+          <HeroStatsColumn />
+        </aside>
+
+        <div className="grid min-h-0 flex-1 items-center gap-4 py-3 lg:grid-cols-[40fr_60fr] lg:gap-6 lg:py-4">
           <div className="flex flex-col justify-center">
-            <h1 className="font-display text-[2rem] font-bold leading-[1.15] tracking-tight text-foreground sm:text-[2.35rem] lg:text-[2.65rem]">
+            <h1 className="font-display text-[1.65rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-[1.95rem] lg:text-[2.15rem]">
               Doğru kişilerle,
               <br />
               doğru fırsatta
               <br />
               buluşun.
             </h1>
-            <p className="mt-5 max-w-md text-gc-md leading-relaxed text-muted-foreground">
-              Girişimco; girişimciler, yatırımcılar, iş arayanlar ve işverenlerin ilan paylaştığı,
+            <p className="mt-3 max-w-md text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
+              <BrandWordmark />; girişimciler, yatırımcılar, iş arayanlar ve işverenlerin ilan paylaştığı,
               birbirini keşfettiği bir platformdur.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="shadow-md">
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <Button asChild size="default" className="shadow-md sm:h-11 sm:px-6">
                 <Link href="/kesfet">
                   <Search className="mr-2 h-4 w-4" aria-hidden />
                   Fırsatları Keşfet
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="default" className="sm:h-11 sm:px-6">
                 <Link href="/ilan/olustur">İlan Ver</Link>
               </Button>
             </div>
           </div>
 
-          <div className="flex h-full min-h-[420px] items-center justify-center lg:min-h-0">
-            <HeroOrbitVisual />
+          <div className="hidden h-full min-h-0 items-center justify-center sm:flex lg:justify-start lg:pl-2 lg:pr-[200px]">
+            <div className="flex h-full max-h-[min(380px,46vh)] w-full items-center justify-center">
+              <HeroOrbitVisual />
+            </div>
           </div>
         </div>
       </div>
-
     </section>
   );
 }

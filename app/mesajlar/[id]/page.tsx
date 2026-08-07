@@ -7,7 +7,7 @@ import { getServerContainer } from '@/lib/persistence';
 import type { ConversationId, UserId } from '@/lib/domain/ids';
 
 export const metadata = {
-  title: 'Konuşma — Girisimco',
+  title: 'Konuşma — Girisimbee',
 };
 
 interface PageProps {

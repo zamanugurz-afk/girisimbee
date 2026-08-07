@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
+import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
 
 const settingsSchema = z.object({
   displayName: z.string().min(2, 'En az 2 karakter').max(100),
@@ -124,7 +125,18 @@ export function ProfileSettingsForm() {
 
       <div className="space-y-2">
         <Label htmlFor="displayName">Görünen Ad</Label>
-        <Input id="displayName" {...form.register('displayName')} />
+        <Input
+          id="displayName"
+          lang="tr"
+          spellCheck
+          {...form.register('displayName')}
+          onBlur={(e) => {
+            const corrected = autoCorrectTurkishText(e.target.value, 'title');
+            if (corrected !== e.target.value) {
+              form.setValue('displayName', corrected, { shouldDirty: true, shouldValidate: true });
+            }
+          }}
+        />
         {form.formState.errors.displayName && (
           <p className="text-xs text-destructive">{form.formState.errors.displayName.message}</p>
         )}

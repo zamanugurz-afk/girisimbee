@@ -18,7 +18,7 @@ import { forgotPasswordSchema, type ForgotPasswordSchema } from '@/features/auth
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 
 export function ForgotPasswordForm() {
-  const { resetPassword } = useAuth();
+  const { forgotPassword } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -29,7 +29,7 @@ export function ForgotPasswordForm() {
 
   async function onSubmit(values: ForgotPasswordSchema) {
     setSubmitting(true);
-    const { error } = await resetPassword(values.email);
+    const { error } = await forgotPassword(values.email);
     setSubmitting(false);
 
     if (error) {
@@ -45,6 +45,7 @@ export function ForgotPasswordForm() {
     return (
       <p className="rounded-lg border border-border/80 bg-[#F8FAFC] p-4 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/5">
         E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutunuzu kontrol edin.
+        Bağlantıya tıkladıktan sonra yeni şifrenizi belirleyebilirsiniz.
       </p>
     );
   }

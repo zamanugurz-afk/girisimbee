@@ -107,53 +107,64 @@ $$;
 ALTER TABLE public.marketplace_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketplace_verifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "marketplace_reports_reporter_insert" ON public.marketplace_reports;
 CREATE POLICY "marketplace_reports_reporter_insert"
   ON public.marketplace_reports FOR INSERT TO authenticated
   WITH CHECK (reporter_id = auth.uid());
 
+DROP POLICY IF EXISTS "marketplace_reports_reporter_select" ON public.marketplace_reports;
 CREATE POLICY "marketplace_reports_reporter_select"
   ON public.marketplace_reports FOR SELECT TO authenticated
   USING (reporter_id = auth.uid() OR public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_reports_admin_manage" ON public.marketplace_reports;
 CREATE POLICY "marketplace_reports_admin_manage"
   ON public.marketplace_reports FOR UPDATE TO authenticated
   USING (public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_verifications_owner_insert" ON public.marketplace_verifications;
 CREATE POLICY "marketplace_verifications_owner_insert"
   ON public.marketplace_verifications FOR INSERT TO authenticated
   WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "marketplace_verifications_owner_select" ON public.marketplace_verifications;
 CREATE POLICY "marketplace_verifications_owner_select"
   ON public.marketplace_verifications FOR SELECT TO authenticated
   USING (user_id = auth.uid() OR public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_verifications_admin_manage" ON public.marketplace_verifications;
 CREATE POLICY "marketplace_verifications_admin_manage"
   ON public.marketplace_verifications FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
 -- Admin access to profiles (auth)
+DROP POLICY IF EXISTS "profiles_admin_manage" ON public.profiles;
 CREATE POLICY "profiles_admin_manage"
   ON public.profiles FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
 -- Admin access to marketplace entities
+DROP POLICY IF EXISTS "marketplace_profiles_admin_all" ON public.marketplace_profiles;
 CREATE POLICY "marketplace_profiles_admin_all"
   ON public.marketplace_profiles FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_companies_admin_all" ON public.marketplace_companies;
 CREATE POLICY "marketplace_companies_admin_all"
   ON public.marketplace_companies FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_listings_admin_all" ON public.marketplace_listings;
 CREATE POLICY "marketplace_listings_admin_all"
   ON public.marketplace_listings FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "marketplace_messages_admin_select" ON public.marketplace_messages;
 CREATE POLICY "marketplace_messages_admin_select"
   ON public.marketplace_messages FOR SELECT TO authenticated
   USING (public.is_admin());

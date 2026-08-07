@@ -64,28 +64,36 @@ ALTER TABLE public.marketplace_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketplace_listing_package_catalog ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketplace_user_packages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS marketplace_settings_public_read ON public.marketplace_settings;
 CREATE POLICY marketplace_settings_public_read ON public.marketplace_settings
   FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS marketplace_settings_admin_write ON public.marketplace_settings;
 CREATE POLICY marketplace_settings_admin_write ON public.marketplace_settings
   FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS marketplace_package_catalog_public_read ON public.marketplace_listing_package_catalog;
 CREATE POLICY marketplace_package_catalog_public_read ON public.marketplace_listing_package_catalog
   FOR SELECT TO anon, authenticated USING (status = 'active');
 
+DROP POLICY IF EXISTS marketplace_package_catalog_admin_write ON public.marketplace_listing_package_catalog;
 CREATE POLICY marketplace_package_catalog_admin_write ON public.marketplace_listing_package_catalog
   FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS marketplace_user_packages_owner_read ON public.marketplace_user_packages;
 CREATE POLICY marketplace_user_packages_owner_read ON public.marketplace_user_packages
   FOR SELECT TO authenticated USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS marketplace_user_packages_admin_all ON public.marketplace_user_packages;
 CREATE POLICY marketplace_user_packages_admin_all ON public.marketplace_user_packages
   FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP TRIGGER IF EXISTS marketplace_settings_updated_at ON public.marketplace_settings;
 CREATE TRIGGER marketplace_settings_updated_at
   BEFORE UPDATE ON public.marketplace_settings
   FOR EACH ROW EXECUTE FUNCTION public.set_marketplace_updated_at();
 
+DROP TRIGGER IF EXISTS marketplace_user_packages_updated_at ON public.marketplace_user_packages;
 CREATE TRIGGER marketplace_user_packages_updated_at
   BEFORE UPDATE ON public.marketplace_user_packages
   FOR EACH ROW EXECUTE FUNCTION public.set_marketplace_updated_at();

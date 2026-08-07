@@ -1,5 +1,5 @@
 /**
- * Shared domain kernel — base types for all Girisimco entities.
+ * Shared domain kernel — base types for all Girisimbee entities.
  * Designed for PostgreSQL/Supabase at scale (millions of rows).
  */
 
