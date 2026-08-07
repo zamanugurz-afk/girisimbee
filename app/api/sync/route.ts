@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { syncService } from '@/services/sync-service';
+
+/** Never statically analyze / invoke the sync+Playwright stack at build time. */
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
@@ -8,6 +11,8 @@ export async function POST(req: Request) {
     const intervalMinutes: number = body.intervalMinutes ?? 10;
     const providerSlug: string | undefined = body.providerSlug;
 
+    // Lazy-load so `next build` page-data collection does not import Playwright.
+    const { syncService } = await import('@/services/sync-service');
     const result = await syncService.runSync(keywords, intervalMinutes, providerSlug);
     return NextResponse.json(result);
   } catch (err) {
