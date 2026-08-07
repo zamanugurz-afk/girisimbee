@@ -6,7 +6,7 @@ import { loadAccountProfilePage } from '@/features/account/lib/load-account-prof
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Profil — Kullanıcı Paneli — Girisimco',
+  title: 'Profil — Kullanıcı Paneli — GirisimBee',
 };
 
 export default async function DashboardProfilPage() {

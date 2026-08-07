@@ -1,7 +1,7 @@
 import { AdminMarketView } from '@/features/admin/market/components/AdminMarketView';
 
 export const metadata = {
-  title: 'MARKET — Yönetim — Girisimco',
+  title: 'MARKET — Yönetim — GirisimBee',
 };
 
 export default function AdminMarketPage() {

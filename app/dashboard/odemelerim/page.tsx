@@ -2,7 +2,7 @@ import { AccountPayments } from '@/features/account/components/AccountPayments';
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Ödemelerim — Kullanıcı Paneli — Girisimco',
+  title: 'Ödemelerim — Kullanıcı Paneli — GirisimBee',
 };
 
 export default function DashboardOdemelerimPage() {

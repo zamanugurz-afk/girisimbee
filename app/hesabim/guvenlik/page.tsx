@@ -2,7 +2,7 @@ import { AccountHeader } from '@/features/account/components/AccountHeader';
 import { AccountSecurity } from '@/features/account/components/AccountSecurity';
 
 export const metadata = {
-  title: 'Güvenlik — Hesabım — Girisimco',
+  title: 'Güvenlik — Hesabım — GirisimBee',
 };
 
 export default function HesabimGuvenlikPage() {

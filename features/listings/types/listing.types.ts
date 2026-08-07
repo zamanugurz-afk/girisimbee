@@ -48,6 +48,15 @@ export interface ListingPublisher {
 export interface ListingSimilar {
   id: string;
   emoji: string;
+  listingIconKey?:
+    | 'investment'
+    | 'investor'
+    | 'job-seeker'
+    | 'employer'
+    | 'partner'
+    | 'franchise'
+    | 'digital'
+    | 'general';
   title: string;
   location: string;
   detail: string;
@@ -77,6 +86,16 @@ export interface ListingDetail {
   interestedCount: number;
   verified: boolean;
   emoji: string;
+  /** Lucide semantic icon for header badge. */
+  listingIconKey?:
+    | 'investment'
+    | 'investor'
+    | 'job-seeker'
+    | 'employer'
+    | 'partner'
+    | 'franchise'
+    | 'digital'
+    | 'general';
   tags: string[];
   investment: {
     requested: string;

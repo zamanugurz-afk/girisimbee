@@ -6,7 +6,7 @@ import { AccountNotifications } from '@/features/account/components/AccountNotif
 import { loadAccountNotificationsPage } from '@/features/account/lib/load-account-notifications-page';
 
 export const metadata = {
-  title: 'Bildirimlerim — Hesabım — Girisimco',
+  title: 'Bildirimlerim — Hesabım — GirisimBee',
 };
 
 export default async function HesabimBildirimlerimPage() {

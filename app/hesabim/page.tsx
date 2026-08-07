@@ -6,7 +6,7 @@ import { AccountDashboard } from '@/features/account/components/AccountDashboard
 import { loadAccountHubPage } from '@/features/account/lib/load-account-hub-page';
 
 export const metadata = {
-  title: 'Hesap Merkezi — Girisimco',
+  title: 'Hesap Merkezi — GirisimBee',
 };
 
 export default async function HesabimPage() {

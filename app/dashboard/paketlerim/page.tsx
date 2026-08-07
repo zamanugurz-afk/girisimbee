@@ -6,7 +6,7 @@ import { loadAccountShowcasePage } from '@/features/account/lib/load-account-sho
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Paketlerim — Kullanıcı Paneli — Girisimco',
+  title: 'Paketlerim — Kullanıcı Paneli — GirisimBee',
 };
 
 export default async function DashboardPaketlerimPage() {

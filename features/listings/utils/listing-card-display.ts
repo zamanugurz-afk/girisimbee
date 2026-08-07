@@ -9,12 +9,23 @@ import { toDisplayValue } from '@/features/listings/utils/display-value';
 
 export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise' | 'genel' | 'dijital';
 
-/** Group accent colors — sourced from existing Girisimco palette. */
+/** Lucide semantic key — rendered in UI via listing-type-icon. */
+export type ListingTypeIconKey =
+  | 'investment'
+  | 'investor'
+  | 'job-seeker'
+  | 'employer'
+  | 'partner'
+  | 'franchise'
+  | 'digital'
+  | 'general';
+
+/** Group accent colors — sourced from existing GirisimBee palette. */
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
-  yatirim: '#6C63FF',
-  is: '#60A5FA',
+  yatirim: '#3B82F6',
+  is: '#22C55E',
   ortaklik: '#F59E0B',
-  franchise: '#22C55E',
+  franchise: '#EC4899',
   genel: '#0EA5E9',
   dijital: '#8B5CF6',
 };
@@ -32,6 +43,7 @@ interface ListingTypeDisplay {
   emoji: string;
   label: string;
   group: ListingCardGroup;
+  iconKey: ListingTypeIconKey;
 }
 
 type ListingWithDisplayMeta = Listing & {
@@ -40,16 +52,66 @@ type ListingWithDisplayMeta = Listing & {
 };
 
 const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
-  'yatirim-ariyorum': { emoji: '🚀', label: 'YATIRIM ARIYORUM', group: 'yatirim' },
-  'yatirim-yapiyorum': { emoji: '💰', label: 'YATIRIM YAPIYORUM', group: 'yatirim' },
-  'is-ariyorum': { emoji: '💼', label: 'İŞ ARIYORUM', group: 'is' },
-  'ise-aliyorum': { emoji: '🏢', label: 'İŞ İLANI', group: 'is' },
-  'ortak-ariyorum': { emoji: '🤝', label: 'ORTAK ARIYORUM', group: 'ortaklik' },
-  'franchise-ilan-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
-  'bayilik-al': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
-  'bayilik-ver': { emoji: '🏪', label: 'FRANCHISE', group: 'franchise' },
-  'genel-ilan': { emoji: '📢', label: 'İLAN', group: 'genel' },
-  'dijital-ai-cozum': { emoji: '✨', label: 'DİJİTAL & AI', group: 'dijital' },
+  'yatirim-ariyorum': {
+    emoji: '💰',
+    label: 'YATIRIM ARIYORUM',
+    group: 'yatirim',
+    iconKey: 'investment',
+  },
+  'yatirim-yapiyorum': {
+    emoji: '💼',
+    label: 'YATIRIM YAPIYORUM',
+    group: 'yatirim',
+    iconKey: 'investor',
+  },
+  'is-ariyorum': {
+    emoji: '🔎',
+    label: 'İŞ ARIYORUM',
+    group: 'is',
+    iconKey: 'job-seeker',
+  },
+  'ise-aliyorum': {
+    emoji: '💼',
+    label: 'İŞ İLANI',
+    group: 'is',
+    iconKey: 'employer',
+  },
+  'ortak-ariyorum': {
+    emoji: '🤝',
+    label: 'ORTAK ARIYORUM',
+    group: 'ortaklik',
+    iconKey: 'partner',
+  },
+  'franchise-ilan-ver': {
+    emoji: '🏪',
+    label: 'FRANCHISE',
+    group: 'franchise',
+    iconKey: 'franchise',
+  },
+  'bayilik-al': {
+    emoji: '🏪',
+    label: 'FRANCHISE',
+    group: 'franchise',
+    iconKey: 'franchise',
+  },
+  'bayilik-ver': {
+    emoji: '🏪',
+    label: 'FRANCHISE',
+    group: 'franchise',
+    iconKey: 'franchise',
+  },
+  'genel-ilan': {
+    emoji: '📢',
+    label: 'İLAN',
+    group: 'genel',
+    iconKey: 'general',
+  },
+  'dijital-ai-cozum': {
+    emoji: '🧠',
+    label: 'DİJİTAL & AI',
+    group: 'dijital',
+    iconKey: 'digital',
+  },
 };
 
 /** Intent category IDs (c-prefix) → display. Parent marketplace categories are ambiguous. */
@@ -111,6 +173,7 @@ export interface ListingCardDisplayMeta {
   group: ListingCardGroup;
   groupLabel: string;
   groupColor: string;
+  iconKey: ListingTypeIconKey;
   price?: string;
 }
 
@@ -150,7 +213,7 @@ function resolveListingTypeDisplay(listing: ListingWithDisplayMeta): ListingType
   }
 
   // Neutral fallback — never assume investment
-  return { emoji: '📋', label: 'İLAN', group: 'yatirim' };
+  return { emoji: '📋', label: 'İLAN', group: 'genel', iconKey: 'general' };
 }
 
 function formatListingPrice(listing: Listing, group: ListingCardGroup): string | undefined {
@@ -209,6 +272,7 @@ export function resolveListingCardDisplay(listing: Listing): ListingCardDisplayM
     group,
     groupLabel: LISTING_CARD_GROUP_LABELS[group],
     groupColor: LISTING_CARD_GROUP_COLORS[group],
+    iconKey: typeDisplay.iconKey,
     price: formatListingPrice(listing, group),
   };
 }

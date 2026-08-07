@@ -13,18 +13,18 @@ interface MemberProfilePageProps {
 export async function generateMetadata({ params }: MemberProfilePageProps) {
   const { userId } = await params;
   if (!uuidSchema.safeParse(userId).success) {
-    return { title: 'Üye — Girisimco' };
+    return { title: 'Üye — GirisimBee' };
   }
   try {
     const container = getServerContainer(createClient());
     const data = await container.profileService.getPublicProfileByUserId(userId as UserId);
-    if (!data) return { title: 'Üye — Girisimco' };
+    if (!data) return { title: 'Üye — GirisimBee' };
     return {
-      title: `${data.profile.displayName} — Girisimco`,
+      title: `${data.profile.displayName} — GirisimBee`,
       description: data.profile.headline ?? data.profile.bio?.slice(0, 160),
     };
   } catch {
-    return { title: 'Üye — Girisimco' };
+    return { title: 'Üye — GirisimBee' };
   }
 }
 

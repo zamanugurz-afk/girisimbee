@@ -1,14 +1,14 @@
 /**
- * Public contact addresses for Girisimco (Zoho Mail aliases → info@ mailbox).
+ * Public contact addresses for GirisimBee (Zoho Mail aliases → info@ mailbox).
  * Keep all UI mailto links sourced from here.
  */
 export const CONTACT_EMAILS = {
   /** Primary mailbox / SMTP sender */
-  info: 'info@girisimco.com',
+  info: 'info@girisimbee.com',
   /** Support & general contact */
-  support: 'destek@girisimco.com',
+  support: 'destek@girisimbee.com',
   /** Advertising & partnership inquiries */
-  ads: 'reklam@girisimco.com',
+  ads: 'reklam@girisimbee.com',
 } as const;
 
 export type ContactEmailKey = keyof typeof CONTACT_EMAILS;

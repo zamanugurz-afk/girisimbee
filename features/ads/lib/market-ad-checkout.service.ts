@@ -144,9 +144,9 @@ export async function startMarketAdCheckout(params: {
     });
     void sendTransactionalEmail({
       to: params.input.email,
-      subject: 'MARKET reklamınız yayınlandı — Girisimco',
-      text: `Merhaba ${params.input.fullName},\n\nÖdemeniz alındı ve MARKET kartınız yayınlandı.\n\nKart: ${marketItem.title}\n\nGirisimco`,
-      html: `<p>Merhaba ${params.input.fullName},</p><p>Ödemeniz alındı ve MARKET kartınız yayınlandı.</p><p><strong>${marketItem.title}</strong></p><p>Girisimco</p>`,
+      subject: 'MARKET reklamınız yayınlandı — GirisimBee',
+      text: `Merhaba ${params.input.fullName},\n\nÖdemeniz alındı ve MARKET kartınız yayınlandı.\n\nKart: ${marketItem.title}\n\nGirisimBee`,
+      html: `<p>Merhaba ${params.input.fullName},</p><p>Ödemeniz alındı ve MARKET kartınız yayınlandı.</p><p><strong>${marketItem.title}</strong></p><p>GirisimBee</p>`,
     }).catch(() => undefined);
     return {
       mode: 'instant',

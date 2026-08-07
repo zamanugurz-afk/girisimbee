@@ -11,7 +11,8 @@ interface LogoProps {
   variant?: 'full' | 'mark';
 }
 
-export function GirisimcoLogo({ className, variant = 'full' }: LogoProps) {
+/** GirisimBee mark: indigo circle + white “G”. */
+export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isMark = variant === 'mark';
@@ -55,3 +56,6 @@ export function GirisimcoLogo({ className, variant = 'full' }: LogoProps) {
     </Link>
   );
 }
+
+/** @deprecated Prefer GirisimbeeLogo */
+export const GirisimcoLogo = GirisimbeeLogo;

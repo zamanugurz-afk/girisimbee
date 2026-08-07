@@ -86,7 +86,7 @@ export const MODERATOR_ROUTE_PREFIXES = ['/moderasyon'] as const;
 /** Minimum role: admin */
 export const ADMIN_ROUTE_PREFIXES = ['/admin'] as const;
 
-/** İkinciBazar token routes — separate product, not Girisimco auth */
+/** İkinciBazar token routes — separate product, not GirisimBee auth */
 export const LEGACY_TOKEN_ROUTE_PATTERN = /^\/[^/]+\/(deals|listings|products|categories|favorites|analytics|alerts|sources|settings)/;
 
 export function matchesPrefix(pathname: string, prefixes: readonly string[]): boolean {

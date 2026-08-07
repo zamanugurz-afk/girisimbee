@@ -3,7 +3,7 @@ import { AuthLayout } from '@/features/authentication/components/auth-layout';
 import { VerifyEmailPanel } from '@/features/authentication/components/verify-email-panel';
 
 export const metadata = {
-  title: 'E-posta Doğrulama — Girisimco',
+  title: 'E-posta Doğrulama — GirisimBee',
 };
 
 export default function VerifyEmailPage() {

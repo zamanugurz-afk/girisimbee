@@ -37,8 +37,8 @@ const DEFAULT_FILTERS: AccountNotificationsFilterState = {
   sort: 'unread_first',
 };
 
-const LOCAL_FAV_KEY = 'girisimco.favorite-ux-notifications';
-const LOCAL_MSG_KEY = 'girisimco.message-ux-notifications';
+const LOCAL_FAV_KEY = 'GirisimBee.favorite-ux-notifications';
+const LOCAL_MSG_KEY = 'GirisimBee.message-ux-notifications';
 
 function isLocalNotification(id: string) {
   return id.startsWith('local-fav-') || id.startsWith('local-msg-');
@@ -82,12 +82,12 @@ export function AccountNotifications({
     const syncLocal = () => setLocalItems(readAllLocalNotifications());
     syncLocal();
     window.addEventListener('storage', syncLocal);
-    window.addEventListener('girisimco:favorite-notification', syncLocal);
-    window.addEventListener('girisimco:message-notification', syncLocal);
+    window.addEventListener('GirisimBee:favorite-notification', syncLocal);
+    window.addEventListener('GirisimBee:message-notification', syncLocal);
     return () => {
       window.removeEventListener('storage', syncLocal);
-      window.removeEventListener('girisimco:favorite-notification', syncLocal);
-      window.removeEventListener('girisimco:message-notification', syncLocal);
+      window.removeEventListener('GirisimBee:favorite-notification', syncLocal);
+      window.removeEventListener('GirisimBee:message-notification', syncLocal);
     };
   }, []);
 

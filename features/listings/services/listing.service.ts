@@ -13,7 +13,7 @@ export {
   listingHref,
 };
 
-/** Read-only mock service for Girisimco listing detail pages (UI view model). */
+/** Read-only mock service for GirisimBee listing detail pages (UI view model). */
 export const listingViewService = {
   getById: (id: string): ListingDetail | undefined => getListingById(id),
   has: (id: string): boolean => hasListing(id),

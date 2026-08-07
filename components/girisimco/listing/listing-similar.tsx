@@ -1,14 +1,22 @@
 import Link from 'next/link';
-import { ArrowUpRight, Clock3, Layers3, MapPin, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Clock3, Layers3, MapPin, type LucideIcon } from 'lucide-react';
 import { DetailSection } from '@/components/girisimco/listing/detail-primitives';
+import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
 import { listingHref, type ListingDetail, type ListingSimilar as SimilarItem } from '@/features/listings';
+import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
 interface ListingSimilarProps {
   listing: ListingDetail;
 }
 
-function SimilarCard({ item }: { item: SimilarItem }) {
+function SimilarCard({
+  item,
+  accent,
+}: {
+  item: SimilarItem;
+  accent: string;
+}) {
   return (
     <Link
       href={listingHref(item.id)}
@@ -20,9 +28,11 @@ function SimilarCard({ item }: { item: SimilarItem }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="shrink-0 text-lg" role="img" aria-hidden>
-            {item.emoji}
-          </span>
+          <ListingTypeIconBadge
+            iconKey={item.listingIconKey ?? 'general'}
+            color={accent}
+            size="sm"
+          />
           <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
         </div>
         <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
@@ -53,12 +63,14 @@ function RelatedBlock({
   description,
   items,
   emptyMessage,
+  accent,
 }: {
   title: string;
-  icon: typeof Sparkles;
+  icon: LucideIcon;
   description: string;
   items: SimilarItem[];
   emptyMessage: string;
+  accent: string;
 }) {
   return (
     <DetailSection title={title} description={description}>
@@ -71,7 +83,7 @@ function RelatedBlock({
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item) => (
-            <SimilarCard key={item.id} item={item} />
+            <SimilarCard key={item.id} item={item} accent={accent} />
           ))}
         </div>
       )}
@@ -83,15 +95,17 @@ export function ListingSimilar({ listing }: ListingSimilarProps) {
   const similar = listing.similar;
   const sameCategory = similar.filter((item) => item.tag === listing.category.label);
   const latest = similar.slice(0, 4);
+  const accent = listing.category.accent || GC_ACCENT;
 
   return (
     <div className="mt-14 space-y-12 border-t border-border/80 pt-10 dark:border-white/10">
       <RelatedBlock
         title="Benzer ilanlar"
-        icon={Sparkles}
+        icon={Layers3}
         description="Bu ilana yakın fırsatlar"
         items={similar}
         emptyMessage="Henüz benzer ilan bulunmuyor."
+        accent={accent}
       />
       <RelatedBlock
         title="Aynı kategorideki ilanlar"
@@ -99,6 +113,7 @@ export function ListingSimilar({ listing }: ListingSimilarProps) {
         description={`${listing.category.label} kategorisinden seçkiler`}
         items={sameCategory.length > 0 ? sameCategory : similar}
         emptyMessage="Bu kategoride başka ilan gösterilemiyor."
+        accent={accent}
       />
       <RelatedBlock
         title="Son eklenen ilanlar"
@@ -106,6 +121,7 @@ export function ListingSimilar({ listing }: ListingSimilarProps) {
         description="Yeni yayınlanan fırsatlar"
         items={latest}
         emptyMessage="Son eklenen ilanlar yakında burada listelenecek."
+        accent={accent}
       />
     </div>
   );

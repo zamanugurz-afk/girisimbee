@@ -3,14 +3,14 @@ import { RegisterForm } from '@/features/authentication/components/register-form
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'Kayıt Ol — Girisimco',
+  title: 'Kayıt Ol — GirisimBee',
 };
 
 export default function RegisterPage() {
   return (
     <AuthLayout
       title="Hesap Oluştur"
-      description="Girisimco'ya katılın ve doğru fırsatları keşfedin."
+      description="GirisimBee'ya katılın ve doğru fırsatları keşfedin."
       footer={
         <>
           Zaten hesabınız var mı? <AuthLink href={AUTH_ROUTES.login}>Giriş yapın</AuthLink>

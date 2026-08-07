@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { MarketCatalogView } from '@/components/girisimco/market/MarketCatalogView';
 
 export const metadata: Metadata = {
-  title: 'MARKET — Fırsat ve İşbirlikleri — Girisimco',
+  title: 'MARKET — Fırsat ve İşbirlikleri — GirisimBee',
   description:
-    'Girişimco MARKET üzerindeki seçili fırsat ve iş birliği reklamlarını keşfedin.',
+    'GirisimBee MARKET üzerindeki seçili fırsat ve iş birliği reklamlarını keşfedin.',
 };
 
 export default function MarketPage() {

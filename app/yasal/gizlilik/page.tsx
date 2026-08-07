@@ -1,14 +1,14 @@
 import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
 
 export const metadata = {
-  title: 'Gizlilik Politikası — Girisimco',
+  title: 'Gizlilik Politikası — GirisimBee',
 };
 
 export default function PrivacyPolicyPage() {
   return (
     <LegalDocumentPage title="Gizlilik Politikası">
       <p>
-        Girisimco, kişisel verilerinizi gizlilik ilkelerine uygun şekilde korumayı amaçlar. Veriler
+        GirisimBee, kişisel verilerinizi gizlilik ilkelerine uygun şekilde korumayı amaçlar. Veriler
         yalnızca hizmet sunumu, güvenlik ve yasal yükümlülükler kapsamında işlenir.
       </p>
       <p>

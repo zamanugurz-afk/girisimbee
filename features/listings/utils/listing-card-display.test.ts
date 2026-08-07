@@ -17,6 +17,7 @@ describe('resolveListingCardDisplay', () => {
     const display = resolveListingCardDisplay(listing);
     expect(display.typeLabel).toBe('İŞ ARIYORUM');
     expect(display.groupLabel).toBe('İş');
+    expect(display.iconKey).toBe('job-seeker');
   });
 
   it('labels candidate listings via listingTypeSlug join', () => {
@@ -57,5 +58,22 @@ describe('resolveListingCardDisplay', () => {
 
     const display = resolveListingCardDisplay(listing);
     expect(display.typeLabel).toBe('YATIRIM YAPIYORUM');
+    expect(display.iconKey).toBe('investor');
+  });
+
+  it('maps digital-ai listings to BrainCircuit icon key', () => {
+    const listing = {
+      ...createListing({
+        categoryId: CATEGORY_IDS.dijitalAi,
+        listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
+        title: 'AI çözüm',
+      }),
+      listingTypeSlug: 'dijital-ai-cozum',
+      categorySlug: 'dijital-ai',
+    };
+
+    const display = resolveListingCardDisplay(listing);
+    expect(display.iconKey).toBe('digital');
+    expect(display.group).toBe('dijital');
   });
 });

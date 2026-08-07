@@ -8,9 +8,9 @@ interface PageProps {
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const q = searchParams.q?.trim();
   return {
-    title: q ? `"${q}" Arama Sonuçları — Girisimco` : 'İlan Ara — Girisimco',
+    title: q ? `"${q}" Arama Sonuçları — GirisimBee` : 'İlan Ara — GirisimBee',
     description: q
-      ? `${q} için Girisimco marketplace arama sonuçları.`
+      ? `${q} için GirisimBee marketplace arama sonuçları.`
       : 'Girişim, yatırım, kariyer ve ortaklık ilanlarında arama yapın.',
   };
 }

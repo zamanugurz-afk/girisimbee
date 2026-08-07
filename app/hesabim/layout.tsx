@@ -5,7 +5,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { AccountPanelLayout } from '@/features/account/layout/AccountPanelLayout';
 
 export const metadata = {
-  title: 'Hesabım — Girisimco',
+  title: 'Hesabım — GirisimBee',
 };
 
 export default async function HesabimLayout({ children }: { children: ReactNode }) {

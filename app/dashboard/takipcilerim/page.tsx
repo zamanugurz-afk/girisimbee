@@ -12,7 +12,7 @@ import type { FollowNetworkUser } from '@/features/profiles/types/follow.types';
 import { formatNumber, initials } from '@/lib/utils';
 
 export const metadata = {
-  title: 'Takipçilerim — Kullanıcı Paneli — Girisimco',
+  title: 'Takipçilerim — Kullanıcı Paneli — GirisimBee',
 };
 
 export default async function DashboardTakipcilerimPage() {

@@ -1,14 +1,14 @@
 import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
 
 export const metadata = {
-  title: 'Çerez Politikası — Girisimco',
+  title: 'Çerez Politikası — GirisimBee',
 };
 
 export default function CookiePolicyPage() {
   return (
     <LegalDocumentPage title="Çerez Politikası">
       <p>
-        Girisimco, oturum yönetimi, güvenlik ve temel site işlevleri için gerekli çerezleri
+        GirisimBee, oturum yönetimi, güvenlik ve temel site işlevleri için gerekli çerezleri
         kullanabilir. Tercih ve analitik çerezler, izin verdiğiniz ölçüde kullanılabilir.
       </p>
       <p>

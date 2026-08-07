@@ -28,11 +28,11 @@ async function findMarketItem(id: string): Promise<MarketItem | null> {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const item = await findMarketItem(params.id);
   if (!item) {
-    return { title: 'MARKET fırsatı bulunamadı — Girisimco' };
+    return { title: 'MARKET fırsatı bulunamadı — GirisimBee' };
   }
   return {
-    title: `${item.title} — Girişimco MARKET`,
-    description: item.description ?? 'Girişimco MARKET fırsatı',
+    title: `${item.title} — GirisimBee MARKET`,
+    description: item.description ?? 'GirisimBee MARKET fırsatı',
   };
 }
 

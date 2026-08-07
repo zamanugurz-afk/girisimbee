@@ -6,7 +6,7 @@ import { AccountMyListings } from '@/features/account/components/AccountMyListin
 import { loadAccountListingsPage } from '@/features/account/lib/load-account-listings-page';
 
 export const metadata = {
-  title: 'İlanlarım — Hesabım — Girisimco',
+  title: 'İlanlarım — Hesabım — GirisimBee',
 };
 
 export default async function HesabimIlanlarimPage() {

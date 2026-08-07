@@ -68,7 +68,7 @@ export const MOCK_ADMIN_USERS: AdminMockUser[] = [
     id: 'usr_01h8d5s2t',
     full_name: 'Uğur Admin',
     username: 'ugur',
-    email: 'ugur@girisimco.com',
+    email: 'ugur@girisimbee.com',
     role: 'super_admin',
     status: 'active',
     created_at: '2025-11-01T10:00:00.000Z',
@@ -1375,12 +1375,12 @@ export const MOCK_ADMIN_FOOTER_LINKS: AdminMockFooterLink[] = [
 ];
 
 export const MOCK_ADMIN_SEO_SETTINGS: AdminMockSeoSettings = {
-  title: 'Girisimco — Girişim, yatırım ve franchise pazaryeri',
+  title: 'GirisimBee — Girişim, yatırım ve franchise pazaryeri',
   description: 'Girişimciler, yatırımcılar ve franchise fırsatlarını bir araya getiren platform.',
   keywords: 'girişim, yatırım, franchise, ilan, startup',
-  canonical_url: 'https://girisimco.com',
+  canonical_url: 'https://girisimbee.com',
   robots: 'index,follow',
-  og_title: 'Girisimco',
+  og_title: 'GirisimBee',
   og_description: 'Doğru eşleşmeleri hızlandırın.',
   og_image: '/images/og/default.jpg',
 };

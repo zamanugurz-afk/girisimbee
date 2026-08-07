@@ -74,7 +74,7 @@ function HomeMarketEmptyState() {
             <div className="max-w-xl">
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
                 <Store className="h-3.5 w-3.5" aria-hidden />
-                Girişimco MARKET
+                GirisimBee MARKET
               </p>
               <h2 className="gc-page-heading mt-1.5 text-gc-lg">Henüz yayınlanmış fırsat yok</h2>
               <p className="mt-1.5 text-gc-sm text-muted-foreground">
@@ -125,7 +125,7 @@ function HomeMarketSectionClassic({ items }: { items: MarketItem[] }) {
             <div className="max-w-xl">
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
                 <Store className="h-3.5 w-3.5" aria-hidden />
-                Girişimco MARKET
+                GirisimBee MARKET
               </p>
               <h2 className="gc-page-heading mt-1.5 text-gc-lg sm:text-gc-xl">
                 Öne çıkan fırsatlar
@@ -168,7 +168,7 @@ function HomeMarketSectionFramed({ items }: { items: MarketItem[] }) {
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary sm:h-9 sm:w-9">
                   <Store className="h-4 w-4" aria-hidden />
                 </span>
-                Girişimco MARKET
+                GirisimBee MARKET
               </p>
               <h2 className="gc-page-heading mt-3 text-gc-lg sm:text-gc-xl">
                 Öne çıkan fırsatlar

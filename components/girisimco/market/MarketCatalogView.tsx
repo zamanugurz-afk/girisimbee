@@ -50,7 +50,7 @@ export function MarketCatalogView() {
           <div className="mb-6 max-w-2xl">
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
               <Store className="h-3.5 w-3.5" aria-hidden />
-              Girişimco MARKET
+              GirisimBee MARKET
             </p>
             <h1 className="gc-page-heading mt-1.5 text-gc-xl sm:text-gc-2xl">
               Güncel fırsat ve işbirlikleri

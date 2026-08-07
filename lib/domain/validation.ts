@@ -1,5 +1,5 @@
 /**
- * Shared Zod primitives for all Girisimco entity schemas.
+ * Shared Zod primitives for all GirisimBee entity schemas.
  */
 import { z } from 'zod';
 import { EMAIL_REGEX, PHONE_REGEX, SLUG_REGEX, DOMAIN_DEFAULTS } from '@/lib/domain/base';

@@ -332,6 +332,7 @@ export function aggregateToListingDetail(
     interestedCount: listing.interestedCount,
     verified: listing.isVerified || hasAnyTrustBadge(publisher.trust),
     emoji: CATEGORY_EMOJI[categorySlug] ?? '📋',
+    listingIconKey: cardDisplay.iconKey,
     tags: displayTags,
     investment: {
       requested: readCfDisplay(cf, 'investmentAmount', 'ticketSizeMin'),

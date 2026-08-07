@@ -82,7 +82,7 @@ function contactFor(i) {
   return {
     contact_phone: `+90${n}`,
     contact_whatsapp: `+90${n}`,
-    contact_email: `ilan.demo${String(i).padStart(2, '0')}@girisimco.example`,
+    contact_email: `ilan.demo${String(i).padStart(2, '0')}@girisimbee.example`,
     contact_website: null,
   };
 }

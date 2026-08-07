@@ -1,5 +1,5 @@
 /**
- * Girisimco Design System — UI primitives
+ * GirisimBee Design System — UI primitives
  * Import from here for consistent marketplace components.
  */
 

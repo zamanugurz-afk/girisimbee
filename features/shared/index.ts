@@ -24,7 +24,7 @@ export {
 
 export { Header as SiteHeader } from '@/components/girisimco/header';
 export { Footer as SiteFooter } from '@/components/girisimco/footer';
-export { GirisimcoLogo as SiteLogo } from '@/components/girisimco/logo';
+export { GirisimbeeLogo as SiteLogo, GirisimbeeLogo, GirisimcoLogo } from '@/components/girisimco/logo';
 
 export * from '@/features/shared/premium';
 

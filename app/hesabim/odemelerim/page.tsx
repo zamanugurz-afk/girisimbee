@@ -2,7 +2,7 @@ import { AccountHeader } from '@/features/account/components/AccountHeader';
 import { AccountPayments } from '@/features/account/components/AccountPayments';
 
 export const metadata = {
-  title: 'Ödemelerim — Hesabım — Girisimco',
+  title: 'Ödemelerim — Hesabım — GirisimBee',
 };
 
 export default function HesabimOdemelerimPage() {

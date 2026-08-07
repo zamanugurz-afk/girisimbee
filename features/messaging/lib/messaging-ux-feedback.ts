@@ -7,8 +7,8 @@ import type { AccountNotificationCardData } from '@/features/account/types/accou
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { normalizeLocalNotificationCard } from '@/features/account/lib/map-inbox-notification-to-card';
 
-const STORAGE_KEY = 'girisimco.message-ux-notifications';
-const SENT_KEY = 'girisimco.message-sent-conversation-ids';
+const STORAGE_KEY = 'GirisimBee.message-ux-notifications';
+const SENT_KEY = 'GirisimBee.message-sent-conversation-ids';
 const MAX_LOCAL = 20;
 
 export function pushConversationStartedFeedback(input: {
@@ -35,7 +35,7 @@ export function pushConversationStartedFeedback(input: {
     const existing = readLocalMessageNotifications();
     const next = [notification, ...existing].slice(0, MAX_LOCAL);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event('girisimco:message-notification'));
+    window.dispatchEvent(new Event('GirisimBee:message-notification'));
   } catch {
     // ignore
   }

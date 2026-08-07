@@ -1,5 +1,5 @@
 /**
- * Primary module keys for the Girişimco ecosystem.
+ * Primary module keys for the GirisimBee ecosystem.
  * Maps 1:1 to PostgreSQL enum `marketplace_module_key`.
  */
 export const MODULE_KEYS = [

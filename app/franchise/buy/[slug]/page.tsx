@@ -36,11 +36,11 @@ async function loadDetail(slug: string, trackView = false) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const data = await loadDetail(params.slug);
   if (!data || data.flow !== 'give') {
-    return { title: 'İlan Bulunamadı — Girisimco' };
+    return { title: 'İlan Bulunamadı — GirisimBee' };
   }
 
   return {
-    title: `${data.listing.title} — Franchise | Girisimco`,
+    title: `${data.listing.title} — Franchise | GirisimBee`,
     description: data.listing.shortDescription,
   };
 }

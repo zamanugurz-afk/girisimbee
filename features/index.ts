@@ -12,7 +12,7 @@
  *   import { IntentGateway } from '@/features/categories';
  *   import { SiteHeader, useAuth } from '@/features/shared';
  *
- * Do NOT import from @/lib/girisimco/* (deprecated shims).
+ * Do NOT import from @/lib/GirisimBee/* (deprecated shims).
  * Do NOT import deep feature paths from app/ — use feature barrels.
  */
 export * as shared from '@/features/shared';

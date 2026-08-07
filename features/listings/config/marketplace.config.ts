@@ -44,32 +44,32 @@ export const ROUTE_PATH_TO_CATEGORY_SLUG: Record<string, string> = Object.fromEn
 const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: string; seoDescription: string }> = {
   'yatirim-bul': {
     description: 'Girişiminiz için yatırımcı arayın',
-    seoTitle: 'Yatırım Bul — Girişim İlanları | Girisimco',
+    seoTitle: 'Yatırım Bul — Girişim İlanları | GirisimBee',
     seoDescription: 'Yatırım arayan girişimler ve startup fırsatlarını keşfedin.',
   },
   'yatirim-yap': {
     description: 'Yatırım yapmak isteyen profiller',
-    seoTitle: 'Yatırım Yap — Yatırımcı Profilleri | Girisimco',
+    seoTitle: 'Yatırım Yap — Yatırımcı Profilleri | GirisimBee',
     seoDescription: 'Yatırım yapmak isteyen melek yatırımcı ve fon profilleri.',
   },
   'ise-al': {
     description: 'Açık pozisyonları inceleyin; telefon ile iletişime geçin',
-    seoTitle: 'İş İlanları — Açık Pozisyonlar | Girisimco',
+    seoTitle: 'İş İlanları — Açık Pozisyonlar | GirisimBee',
     seoDescription: 'Startup ve şirketlerde açık iş ilanlarını keşfedin; doğrudan arayın.',
   },
   'ortak-bul': {
     description: 'Kurucu veya iş ortağı arayın',
-    seoTitle: 'Ortak Bul — Ortaklık İlanları | Girisimco',
+    seoTitle: 'Ortak Bul — Ortaklık İlanları | GirisimBee',
     seoDescription: 'Kurucu ortak ve iş ortaklığı fırsatları.',
   },
   'bayilik-al': {
     description: 'Yayınlanan franchise fırsatlarını keşfedin',
-    seoTitle: 'Franchise İlanları | Girisimco',
+    seoTitle: 'Franchise İlanları | GirisimBee',
     seoDescription: 'Türkiye genelinde yayınlanan franchise fırsatlarını keşfedin.',
   },
   'dijital-ai': {
     description: 'Yazılım, otomasyon ve yapay zeka çözümleri',
-    seoTitle: 'Dijital ve AI Çözümleri | Girisimco',
+    seoTitle: 'Dijital ve AI Çözümleri | GirisimBee',
     seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
   },
 };
@@ -97,7 +97,7 @@ export const CATEGORY_PAGE_CONFIG: Record<string, CategoryPageMeta> = Object.fro
         label: entry.label,
         description: copy?.description ?? entry.label,
         accent: GC_CATEGORY_COLORS[accentKey as keyof typeof GC_CATEGORY_COLORS] ?? GC_CATEGORY_COLORS['yatirim-bul'],
-        seoTitle: copy?.seoTitle ?? `${entry.label} | Girisimco`,
+        seoTitle: copy?.seoTitle ?? `${entry.label} | GirisimBee`,
         seoDescription: copy?.seoDescription ?? entry.label,
       } satisfies CategoryPageMeta,
     ];
@@ -114,14 +114,14 @@ export const CATEGORY_CONTENT_TYPE: Record<string, ContentType> = {
   'dijital-ai': 'startup',
 };
 
-/** Category slug → display emoji for cards without images. */
+/** Category slug → display emoji for cards without images (legacy / gallery fallback). */
 export const CATEGORY_EMOJI: Record<string, string> = {
-  'yatirim-bul': '🚀',
+  'yatirim-bul': '💰',
   'yatirim-yap': '💼',
-  'ise-al': '📋',
+  'ise-al': '💼',
   'ortak-bul': '🤝',
   'bayilik-al': '🏪',
-  'dijital-ai': '✨',
+  'dijital-ai': '🧠',
 };
 
 export const LISTING_SORT_OPTIONS: { value: ListingSortBy; label: string }[] = [

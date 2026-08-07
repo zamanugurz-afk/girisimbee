@@ -5,12 +5,9 @@ import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
-import { DigitalAiCapabilityIconBadge } from '@/components/girisimco/listing/digital-ai-capability-icons';
+import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
-
-/** Kartlarda Dijital & AI kategorisi için tek standart ikon */
-const DIGITAL_AI_CARD_ICON = 'Sparkles' as const;
 
 interface ContentCardProps {
   item: ContentItem;
@@ -82,7 +79,6 @@ function TextListingCardLayout({
   listingLink: string | null;
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
-  const isDigitalAi = item.listingGroupLabel === 'Dijital & AI';
 
   return (
     <article
@@ -93,17 +89,11 @@ function TextListingCardLayout({
       )}
       style={{ ['--card-accent' as string]: accent }}
     >
-      {isDigitalAi ? (
-        <DigitalAiCapabilityIconBadge icon={DIGITAL_AI_CARD_ICON} size="sm" />
-      ) : (
-        <span
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-base"
-          style={{ backgroundColor: `${accent}1F`, color: accent }}
-          aria-hidden
-        >
-          {item.emoji ?? '📋'}
-        </span>
-      )}
+      <ListingTypeIconBadge
+        iconKey={item.listingIconKey ?? 'general'}
+        color={accent}
+        size="sm"
+      />
 
       <p className="mt-4 text-[10px] font-semibold uppercase tracking-wide" style={{ color: accent }}>
         {item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan'}

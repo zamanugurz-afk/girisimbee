@@ -31,7 +31,7 @@ export function AdminSidebar({
           className="block"
         >
           <p className="font-display text-lg font-semibold tracking-tight text-foreground">
-            Girişimco
+            GirisimBee
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Yönetim paneli</p>
         </Link>

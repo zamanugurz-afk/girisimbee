@@ -6,7 +6,7 @@ import { loadAccountListingsPage } from '@/features/account/lib/load-account-lis
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'İlanlarım — Kullanıcı Paneli — Girisimco',
+  title: 'İlanlarım — Kullanıcı Paneli — GirisimBee',
 };
 
 export default async function DashboardIlanlarimPage() {

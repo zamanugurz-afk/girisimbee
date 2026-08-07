@@ -80,6 +80,6 @@ export function buildListingDraftStorageKey(
   listingTypeId: string,
   listingId?: string,
 ): string {
-  if (listingId) return `girisimco-listing-draft:edit:${listingId}`;
-  return `girisimco-listing-draft:create:${categoryId}:${listingTypeId}`;
+  if (listingId) return `GirisimBee-listing-draft:edit:${listingId}`;
+  return `GirisimBee-listing-draft:create:${categoryId}:${listingTypeId}`;
 }

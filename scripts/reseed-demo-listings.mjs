@@ -1062,7 +1062,7 @@ function contactFor(i) {
   return {
     contact_phone: `+905${n}`,
     contact_whatsapp: `+905${n}`,
-    contact_email: `demo.ilan${String(i).padStart(3, '0')}@girisimco.example`,
+    contact_email: `demo.ilan${String(i).padStart(3, '0')}@girisimbee.example`,
     contact_website: i % 3 === 0 ? `https://www.demo-girisim-${i}.com` : null,
   };
 }

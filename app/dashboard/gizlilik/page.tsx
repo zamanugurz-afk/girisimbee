@@ -5,7 +5,7 @@ import { DashboardPageHeader } from '@/features/dashboard/panel';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'Gizlilik — Kullanıcı Paneli — Girisimco',
+  title: 'Gizlilik — Kullanıcı Paneli — GirisimBee',
 };
 
 /** Privacy settings are deferred — kept route for bookmarks, UI closed for now. */

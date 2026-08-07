@@ -2,7 +2,7 @@ import { AccountSettings } from '@/features/account/components/AccountSettings';
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Ayarlar — Kullanıcı Paneli — Girisimco',
+  title: 'Ayarlar — Kullanıcı Paneli — GirisimBee',
 };
 
 export default function DashboardAyarlarPage() {

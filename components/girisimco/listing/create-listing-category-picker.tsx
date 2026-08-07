@@ -2,10 +2,10 @@
 
 import {
   ArrowRight,
+  BrainCircuit,
   Briefcase,
+  CircleDollarSign,
   Handshake,
-  Rocket,
-  Sparkles,
   Store,
   type LucideIcon,
 } from 'lucide-react';
@@ -40,7 +40,7 @@ const CATEGORY_VISUAL: Record<
   [CATEGORY_IDS.yatirimBul]: {
     slug: 'yatirim-bul',
     audience: 'Yatırım arayanlar',
-    Icon: Rocket,
+    Icon: CircleDollarSign,
     color: GC_CATEGORY_COLORS['yatirim-bul'],
     tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
     border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
@@ -76,7 +76,7 @@ const CATEGORY_VISUAL: Record<
   [CATEGORY_IDS.dijitalAi]: {
     slug: 'dijital-ai',
     audience: 'Ürün & yetenekler',
-    Icon: Sparkles,
+    Icon: BrainCircuit,
     color: GC_CATEGORY_COLORS['dijital-ai'],
     tint: 'from-[#8B5CF6]/12 via-[#8B5CF6]/4 to-transparent',
     border: 'border-[#8B5CF6]/25 group-hover:border-[#8B5CF6]/45',

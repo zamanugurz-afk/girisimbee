@@ -19,7 +19,7 @@ export interface PendingPackagePayment {
   updatedAt: string;
 }
 
-const STORAGE_KEY = 'girisimco.pending_package_payments.v1';
+const STORAGE_KEY = 'GirisimBee.pending_package_payments.v1';
 
 function readAll(): PendingPackagePayment[] {
   if (typeof window === 'undefined') return [];
@@ -40,7 +40,7 @@ function writeAll(items: PendingPackagePayment[]) {
   } catch {
     // ignore quota
   }
-  window.dispatchEvent(new CustomEvent('girisimco:pending-payments-changed'));
+  window.dispatchEvent(new CustomEvent('GirisimBee:pending-payments-changed'));
 }
 
 export function listPendingPackagePayments(userId: string): PendingPackagePayment[] {

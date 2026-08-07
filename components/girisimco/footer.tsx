@@ -70,7 +70,7 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-border/60 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] text-muted-foreground">
-            &copy; {new Date().getFullYear()} Girişimco. Tüm hakları saklıdır.
+            &copy; {new Date().getFullYear()} GirisimBee. Tüm hakları saklıdır.
           </p>
           <p className="text-[11px] text-muted-foreground/80">
             Yatırım · İş · Ortaklık · Franchise · Dijital & AI

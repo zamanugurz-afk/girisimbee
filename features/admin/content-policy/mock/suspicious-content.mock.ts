@@ -21,7 +21,7 @@ const SEED: SuspiciousContentItem[] = [
     title: 'Ornek Ilan Sahibinden Benzeri',
     snippet: 'Sahibinden tarzı fırsat, wp yazın…',
     flags: ['competitor', 'call_me'],
-    ownerLabel: 'demo@girisimco.com',
+    ownerLabel: 'demo@girisimbee.com',
     status: 'pending',
     createdAt: '2026-08-02T10:00:00.000Z',
     updatedAt: '2026-08-02T10:00:00.000Z',

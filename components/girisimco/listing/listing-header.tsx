@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
+import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
@@ -57,9 +58,11 @@ export function ListingHeader({ listing }: ListingHeaderProps) {
           </div>
 
           <div className="mt-4 flex items-start gap-3">
-            <span className="text-3xl" role="img" aria-hidden>
-              {listing.emoji}
-            </span>
+            <ListingTypeIconBadge
+              iconKey={listing.listingIconKey ?? 'general'}
+              color={listing.category.accent}
+              size="lg"
+            />
             <div className="min-w-0">
               <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
                 {listing.title}

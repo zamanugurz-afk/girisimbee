@@ -84,6 +84,7 @@ export function listingToContentItem(
     listingTypeLabel: cardDisplay.typeLabel,
     listingGroupColor: cardDisplay.groupColor,
     listingGroupLabel: cardDisplay.groupLabel,
+    listingIconKey: cardDisplay.iconKey,
     coverUrl: resolveListingCoverUrl({
       uploadedUrl: uploadedCoverUrl,
       listingTypeSlug,

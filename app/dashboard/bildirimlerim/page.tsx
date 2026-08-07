@@ -6,7 +6,7 @@ import { loadAccountNotificationsPage } from '@/features/account/lib/load-accoun
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Bildirimlerim — Kullanıcı Paneli — Girisimco',
+  title: 'Bildirimlerim — Kullanıcı Paneli — GirisimBee',
 };
 
 export default async function DashboardBildirimlerimPage() {

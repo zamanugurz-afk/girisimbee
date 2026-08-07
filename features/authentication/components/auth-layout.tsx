@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { GirisimcoLogo } from '@/components/girisimco/logo';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
 
 export function AuthLayout({
   title,
@@ -20,7 +20,7 @@ export function AuthLayout({
 
       <header className="relative border-b border-border/60 px-5 py-5">
         <div className="mx-auto flex max-w-md justify-center">
-          <GirisimcoLogo />
+          <GirisimbeeLogo />
         </div>
       </header>
 

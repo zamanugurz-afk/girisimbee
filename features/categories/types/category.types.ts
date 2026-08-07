@@ -38,6 +38,16 @@ export interface ContentItem {
   listingGroupColor?: string;
   /** Listing card — footer category name (Yatırım, İş, …). */
   listingGroupLabel?: string;
+  /** Listing card — Lucide semantic icon key. */
+  listingIconKey?:
+    | 'investment'
+    | 'investor'
+    | 'job-seeker'
+    | 'employer'
+    | 'partner'
+    | 'franchise'
+    | 'digital'
+    | 'general';
   /** Listing card — short description body. */
   description?: string;
   /** Listing card — price or investment amount line. */

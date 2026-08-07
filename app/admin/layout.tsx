@@ -3,7 +3,7 @@ import { requireAdminSession } from '@/features/admin/lib/require-admin';
 import { AdminLayout } from '@/features/admin/panel/components/AdminLayout';
 
 export const metadata = {
-  title: 'Yönetim — Girisimco',
+  title: 'Yönetim — GirisimBee',
 };
 
 export default async function AdminRootLayout({ children }: { children: ReactNode }) {

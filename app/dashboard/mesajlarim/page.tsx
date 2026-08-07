@@ -6,7 +6,7 @@ import { DashboardMessages } from '@/features/messaging/components/dashboard/Das
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Mesajlarım — Kullanıcı Paneli — Girisimco',
+  title: 'Mesajlarım — Kullanıcı Paneli — GirisimBee',
 };
 
 function MessagesFallback() {

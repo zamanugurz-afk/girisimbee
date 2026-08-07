@@ -55,7 +55,7 @@ export function DashboardSidebar() {
           href="/"
           className="font-display text-lg font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
         >
-          Girişimco
+          GirisimBee
         </Link>
         <p className="mt-1 text-gc-xs text-muted-foreground">Kullanıcı paneli · Hesabınızı yönetin</p>
         <Link

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllCategoryRoutePaths } from '@/features/listings/config/marketplace.config';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://girisimco.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://girisimbee.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = [

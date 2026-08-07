@@ -23,7 +23,7 @@ export function createUser(overrides: Partial<User> & Pick<User, 'email' | 'pass
 
 export function createUserInput(overrides: Partial<CreateUserInput> = {}): CreateUserInput {
   return {
-    email: overrides.email ?? `user-${Date.now()}@girisimco.test`,
+    email: overrides.email ?? `user-${Date.now()}@girisimbee.test`,
     passwordHash: overrides.passwordHash ?? '$2b$12$placeholder_hash_for_testing_purposes_only',
     phone: overrides.phone,
     locale: overrides.locale ?? 'tr',
