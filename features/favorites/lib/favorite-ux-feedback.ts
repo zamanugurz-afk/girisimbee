@@ -7,7 +7,7 @@ import type { AccountNotificationCardData } from '@/features/account/types/accou
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { normalizeLocalNotificationCard } from '@/features/account/lib/map-inbox-notification-to-card';
 
-const STORAGE_KEY = 'GirisimBee.favorite-ux-notifications';
+const STORAGE_KEY = 'Girisimbee.favorite-ux-notifications';
 const MAX_LOCAL = 20;
 
 export function pushFavoriteAddedFeedback(input: {
@@ -36,7 +36,7 @@ export function pushFavoriteAddedFeedback(input: {
       ...existing.filter((item) => !item.id.includes(input.listingId)),
     ].slice(0, MAX_LOCAL);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event('GirisimBee:favorite-notification'));
+    window.dispatchEvent(new Event('Girisimbee:favorite-notification'));
   } catch {
     // ignore storage failures
   }

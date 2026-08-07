@@ -102,7 +102,15 @@ export function AuthProvider({
   /** Server-resolved session — keeps header role in sync with dashboard SSR. */
   initialUser?: SessionUser | null;
 }) {
-  const supabase = useMemo(() => createClient(), []);
+  // Lazy: never call createBrowserClient during SSR / static prerender.
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  const getSupabase = useCallback(() => {
+    if (!supabaseRef.current) {
+      supabaseRef.current = createClient();
+    }
+    return supabaseRef.current;
+  }, []);
+
   const [user, setUser] = useState<SessionUser | null>(initialUser);
   const [isLoading, setIsLoading] = useState(!initialUser);
   const userRef = useRef(user);
@@ -126,6 +134,7 @@ export function AuthProvider({
   }, [user, isLoading]);
 
   const refreshSession = useCallback(async () => {
+    const supabase = getSupabase();
     const { user: sessionUser, error } = await authRefreshSession(supabase);
     if (!error && sessionUser) {
       setUser((prev) => preferHigherRole(prev, sessionUser));
@@ -133,20 +142,22 @@ export function AuthProvider({
       setUser(null);
     }
     return { error };
-  }, [supabase]);
+  }, [getSupabase]);
 
   const refresh = useCallback(async () => {
+    const supabase = getSupabase();
     const sessionUser = await fetchSessionUser(supabase);
     if (sessionUser) {
       setUser((prev) => preferHigherRole(prev, sessionUser));
     } else {
       setUser(null);
     }
-  }, [supabase]);
+  }, [getSupabase]);
 
   useEffect(() => {
     let mounted = true;
     const hadInitialUser = Boolean(initialUser);
+    const supabase = getSupabase();
 
     async function applySession(
       session: {
@@ -266,9 +277,10 @@ export function AuthProvider({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase, initialUser?.id]);
+  }, [getSupabase, initialUser?.id]);
 
   const login = useCallback(async (input: SignInInput) => {
+    const supabase = getSupabase();
     const { data, error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
 
@@ -308,9 +320,10 @@ export function AuthProvider({
 
     // Profile/role enrichment happens via onAuthStateChange SIGNED_IN (non-blocking for navigation).
     return { error: null };
-  }, [supabase]);
+  }, [getSupabase]);
 
   const signUp = useCallback(async (input: SignUpInput) => {
+    const supabase = getSupabase();
     const { data, error } = await signUpWithEmail(supabase, input);
     if (error) return { error: error.message, needsVerification: false };
     const needsVerification = !data.session;
@@ -336,7 +349,7 @@ export function AuthProvider({
       }
     }
     return { error: null, needsVerification };
-  }, [supabase, refresh]);
+  }, [getSupabase, refresh]);
 
   const logout = useCallback(async () => {
     const userId = user?.id;
@@ -352,26 +365,26 @@ export function AuthProvider({
     } catch {
       // ignore until security log table exists
     }
-    await authLogout(supabase);
+    await authLogout(getSupabase());
     setUser(null);
     window.location.href = AUTH_ROUTES.login;
-  }, [supabase, user?.id]);
+  }, [getSupabase, user?.id]);
 
   const forgotPassword = useCallback(async (email: string) => {
-    const { error } = await authForgotPassword(supabase, email);
+    const { error } = await authForgotPassword(getSupabase(), email);
     return { error: error?.message ?? null };
-  }, [supabase]);
+  }, [getSupabase]);
 
   const resetPassword = useCallback(async (password: string) => {
-    const { error } = await authResetPassword(supabase, password);
+    const { error } = await authResetPassword(getSupabase(), password);
     if (!error) await refresh();
     return { error: error?.message ?? null };
-  }, [supabase, refresh]);
+  }, [getSupabase, refresh]);
 
   const resendVerification = useCallback(async (email: string) => {
-    const { error } = await resendVerificationEmail(supabase, email);
+    const { error } = await resendVerificationEmail(getSupabase(), email);
     return { error: error?.message ?? null };
-  }, [supabase]);
+  }, [getSupabase]);
 
   const value = useMemo<AuthContextValue>(() => ({
     user,

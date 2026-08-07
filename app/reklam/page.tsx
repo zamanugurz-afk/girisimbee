@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { ReklamPageView } from '@/features/ads';
 
 export const metadata: Metadata = {
-  title: 'Reklam & İşbirliği — GirisimBee',
+  title: 'Reklam & İşbirliği — Girisimbee',
   description:
-    'GirisimBee MARKET’te 5.000 TL sabit fiyatlı reklam verin veya özel işbirliği talebi oluşturun.',
+    'Girisimbee MARKET’te 5.000 TL sabit fiyatlı reklam verin veya özel işbirliği talebi oluşturun.',
 };
 
 export default function ReklamPage() {

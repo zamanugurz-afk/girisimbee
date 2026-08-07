@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Store } from 'lucide-react';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +66,7 @@ export function MarketAdDetailView({ item }: { item: MarketItem }) {
           <div className="space-y-5 p-5 sm:p-7 lg:p-8">
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
               <Store className="h-3.5 w-3.5" aria-hidden />
-              GirisimBee MARKET
+              <><BrandWordmark /> MARKET</>
             </p>
 
             <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">

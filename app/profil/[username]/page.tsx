@@ -12,10 +12,10 @@ export async function generateMetadata({ params }: PublicProfilePageProps) {
   const { username } = await params;
   const data = await loadPublicProfile(username);
   if (!data) {
-    return { title: 'Profil — GirisimBee' };
+    return { title: 'Profil — Girisimbee' };
   }
   return {
-    title: `${data.profile.displayName} — GirisimBee`,
+    title: `${data.profile.displayName} — Girisimbee`,
     description: data.profile.headline ?? data.profile.bio?.slice(0, 160),
   };
 }

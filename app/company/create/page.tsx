@@ -4,7 +4,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { CompanyCreateForm } from '@/features/companies/components/company-create-form';
 
 export const metadata = {
-  title: 'Şirket Oluştur — GirisimBee',
+  title: 'Şirket Oluştur — Girisimbee',
 };
 
 export default async function CompanyCreatePage() {

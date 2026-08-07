@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata: Metadata = {
-  title: 'Google OAuth Kurulum — GirisimBee',
+  title: 'Google OAuth Kurulum — Girisimbee',
   robots: { index: false, follow: false },
 };
 

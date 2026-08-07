@@ -1,4 +1,4 @@
-/** GirisimBee MARKET — curated promotional cards. */
+/** Girisimbee MARKET — curated promotional cards. */
 
 export const MARKET_ITEM_STATUSES = ['draft', 'published', 'archived'] as const;
 export type MarketItemStatus = (typeof MARKET_ITEM_STATUSES)[number];

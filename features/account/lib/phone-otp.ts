@@ -10,7 +10,7 @@ function otpSecret(): string {
     process.env.PHONE_OTP_SECRET
     || process.env.SUPABASE_SERVICE_ROLE_KEY
     || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    || 'GirisimBee-dev-phone-otp'
+    || 'Girisimbee-dev-phone-otp'
   );
 }
 

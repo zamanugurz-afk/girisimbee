@@ -2,7 +2,7 @@ import { AccountHeader } from '@/features/account/components/AccountHeader';
 import { AccountSettings } from '@/features/account/components/AccountSettings';
 
 export const metadata = {
-  title: 'Ayarlar — Hesabım — GirisimBee',
+  title: 'Ayarlar — Hesabım — Girisimbee',
 };
 
 export default function HesabimAyarlarPage() {

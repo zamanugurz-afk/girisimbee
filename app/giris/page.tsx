@@ -4,7 +4,7 @@ import { LoginForm } from '@/features/authentication/components/login-form';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'Giriş Yap — GirisimBee',
+  title: 'Giriş Yap — Girisimbee',
 };
 
 export default function LoginPage() {

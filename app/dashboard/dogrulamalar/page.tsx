@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export const metadata = {
-  title: 'Doğrulamalar — Kullanıcı Paneli — GirisimBee',
+  title: 'Doğrulamalar — Kullanıcı Paneli — Girisimbee',
 };
 
 export default async function DashboardDogrulamalarPage() {

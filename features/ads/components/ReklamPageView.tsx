@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import {
   ADS_ROUTES,
   MARKET_AD_PRICE_LABEL,
@@ -178,7 +179,7 @@ export function ReklamPageView() {
               Reklam & işbirliği
             </p>
             <h1 className="gc-page-heading mt-2 max-w-2xl text-gc-xl sm:text-gc-2xl">
-              Markanızı GirisimBee’da öne çıkarın
+              Markanızı <BrandWordmark />’da öne çıkarın
             </h1>
             <p className="mt-3 max-w-xl text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
               MARKET reklamını {MARKET_AD_PRICE_LABEL} ödeyerek hemen yayınlayın veya özel işbirliği

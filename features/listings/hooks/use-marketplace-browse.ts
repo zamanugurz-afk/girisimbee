@@ -166,7 +166,13 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const browseService = useMemo(() => getClientContainer().listingBrowseService, []);
+  const browseServiceRef = useRef<ReturnType<typeof getClientContainer>['listingBrowseService'] | null>(null);
+  const getBrowseService = useCallback(() => {
+    if (!browseServiceRef.current) {
+      browseServiceRef.current = getClientContainer().listingBrowseService;
+    }
+    return browseServiceRef.current;
+  }, []);
   const filtersRef = useRef(filters);
   filtersRef.current = filters;
 
@@ -247,6 +253,7 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
       setError(null);
 
       try {
+        const browseService = getBrowseService();
         const result =
           pageNum === 1 && !append
             ? await fetchFirstPageDeduped(browseService, params).then((fetched) => ({
@@ -284,7 +291,7 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
         }
       }
     },
-    [applyCachedFirstPage, browseService, buildParams, currentListKey, isStaleGeneration],
+    [applyCachedFirstPage, getBrowseService, buildParams, currentListKey, isStaleGeneration],
   );
 
   const loadPageRef = useRef(loadPage);

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { cn } from '@/lib/utils';
 import {
   ADMIN_NAV_ITEMS,
@@ -31,7 +32,7 @@ export function AdminSidebar({
           className="block"
         >
           <p className="font-display text-lg font-semibold tracking-tight text-foreground">
-            GirisimBee
+            <BrandWordmark />
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Yönetim paneli</p>
         </Link>

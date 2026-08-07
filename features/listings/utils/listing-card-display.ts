@@ -20,7 +20,7 @@ export type ListingTypeIconKey =
   | 'digital'
   | 'general';
 
-/** Group accent colors — sourced from existing GirisimBee palette. */
+/** Group accent colors — sourced from existing Girisimbee palette. */
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
   yatirim: '#3B82F6',
   is: '#22C55E',

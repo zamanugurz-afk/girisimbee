@@ -102,8 +102,8 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
       if (!user?.id) return;
       setOpenPayments(listOpenPendingPackagePayments(user.id));
     };
-    window.addEventListener('GirisimBee:pending-payments-changed', onPaymentsChanged);
-    return () => window.removeEventListener('GirisimBee:pending-payments-changed', onPaymentsChanged);
+    window.addEventListener('Girisimbee:pending-payments-changed', onPaymentsChanged);
+    return () => window.removeEventListener('Girisimbee:pending-payments-changed', onPaymentsChanged);
   }, [user?.id]);
 
   useEffect(() => {

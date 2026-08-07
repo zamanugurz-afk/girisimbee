@@ -6,7 +6,7 @@ import { loadAccountFavoritesPage } from '@/features/account/lib/load-account-fa
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Favorilerim — Kullanıcı Paneli — GirisimBee',
+  title: 'Favorilerim — Kullanıcı Paneli — Girisimbee',
 };
 
 export default async function DashboardFavorilerimPage() {

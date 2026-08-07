@@ -6,7 +6,7 @@ import { AccountFavorites } from '@/features/account/components/AccountFavorites
 import { loadAccountFavoritesPage } from '@/features/account/lib/load-account-favorites-page';
 
 export const metadata = {
-  title: 'Favorilerim — Hesabım — GirisimBee',
+  title: 'Favorilerim — Hesabım — Girisimbee',
 };
 
 export default async function HesabimFavorilerimPage() {

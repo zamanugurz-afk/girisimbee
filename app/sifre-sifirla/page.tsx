@@ -3,7 +3,7 @@ import { ResetPasswordForm } from '@/features/authentication/components/reset-pa
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'Şifre Sıfırla — GirisimBee',
+  title: 'Şifre Sıfırla — Girisimbee',
 };
 
 export default function ResetPasswordPage() {

@@ -1,5 +1,5 @@
 /**
- * Public contact addresses for GirisimBee (Zoho Mail aliases → info@ mailbox).
+ * Public contact addresses for Girisimbee (Zoho Mail aliases → info@ mailbox).
  * Keep all UI mailto links sourced from here.
  */
 export const CONTACT_EMAILS = {

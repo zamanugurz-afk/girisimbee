@@ -1,5 +1,5 @@
 /**
- * GirisimBee Design System — Aurora Ink
+ * Girisimbee Design System — Aurora Ink
  * Single source of truth for visual tokens.
  * CSS variables in app/globals.css mirror these values.
  */

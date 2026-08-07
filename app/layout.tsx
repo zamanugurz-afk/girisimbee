@@ -35,7 +35,7 @@ export const metadata: Metadata = {
       'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'GirisimBee',
+    siteName: 'Girisimbee',
   },
   twitter: {
     card: 'summary_large_image',

@@ -1,14 +1,15 @@
 import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 
 export const metadata = {
-  title: 'Gizlilik Politikası — GirisimBee',
+  title: 'Gizlilik Politikası — Girisimbee',
 };
 
 export default function PrivacyPolicyPage() {
   return (
     <LegalDocumentPage title="Gizlilik Politikası">
       <p>
-        GirisimBee, kişisel verilerinizi gizlilik ilkelerine uygun şekilde korumayı amaçlar. Veriler
+        <BrandWordmark />, kişisel verilerinizi gizlilik ilkelerine uygun şekilde korumayı amaçlar. Veriler
         yalnızca hizmet sunumu, güvenlik ve yasal yükümlülükler kapsamında işlenir.
       </p>
       <p>

@@ -1,14 +1,15 @@
 import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 
 export const metadata = {
-  title: 'Kullanıcı Sözleşmesi — GirisimBee',
+  title: 'Kullanıcı Sözleşmesi — Girisimbee',
 };
 
 export default function TermsPage() {
   return (
     <LegalDocumentPage title="Kullanıcı Sözleşmesi">
       <p>
-        Bu sözleşme, GirisimBee platformuna üye olurken kabul ettiğiniz kullanım koşullarını
+        Bu sözleşme, <BrandWordmark /> platformuna üye olurken kabul ettiğiniz kullanım koşullarını
         özetler. Platformu kullanarak hizmet şartlarına uyacağınızı kabul etmiş olursunuz.
       </p>
       <p>

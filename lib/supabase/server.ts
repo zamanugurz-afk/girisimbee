@@ -38,17 +38,17 @@ export function createClient() {
     },
   };
 
-  if (isNavProfilingEnabled()) {
-    return createInstrumentedServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      cookieApi,
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error(
+      '@supabase/ssr: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required to create a server client.',
     );
   }
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: cookieApi },
-  );
+  if (isNavProfilingEnabled()) {
+    return createInstrumentedServerClient(url, key, cookieApi);
+  }
+
+  return createServerClient(url, key, { cookies: cookieApi });
 }

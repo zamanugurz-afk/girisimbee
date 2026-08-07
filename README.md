@@ -1,4 +1,4 @@
-# GirisimBee
+# Girisimbee
 
 Marketplace platform for startups, investors, job seekers, and employers — built with Next.js 13 (App Router), TypeScript, Tailwind CSS, and Supabase.
 

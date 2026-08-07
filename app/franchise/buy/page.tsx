@@ -5,7 +5,7 @@ import { FranchiseBrowseView } from '@/features/franchise/components/franchise-b
 import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 
 export const metadata: Metadata = {
-  title: 'Franchise İlanları | GirisimBee',
+  title: 'Franchise İlanları | Girisimbee',
   description: 'Yayınlanan franchise fırsatlarını keşfedin.',
 };
 

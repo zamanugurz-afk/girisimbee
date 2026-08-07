@@ -13,6 +13,7 @@ import {
 import { HERO_ORBIT_THEME } from '@/components/girisimco/hero/hero-orbit-theme';
 import { HeroOrbitVisualGalaxy } from '@/components/girisimco/hero/hero-orbit-galaxy';
 import { HeroOrbitVisualBee } from '@/components/girisimco/hero/hero-orbit-bee';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { cn } from '@/lib/utils';
 
 const HERO_STATS: {
@@ -131,7 +132,7 @@ export function PlatformHero({ className }: { className?: string }) {
               buluşun.
             </h1>
             <p className="mt-3 max-w-md text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
-              GirisimBee; girişimciler, yatırımcılar, iş arayanlar ve işverenlerin ilan paylaştığı,
+              <BrandWordmark />; girişimciler, yatırımcılar, iş arayanlar ve işverenlerin ilan paylaştığı,
               birbirini keşfettiği bir platformdur.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-2.5">

@@ -5,7 +5,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { DashboardPanelLayout } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Kullanıcı Paneli — GirisimBee',
+  title: 'Kullanıcı Paneli — Girisimbee',
 };
 
 /**

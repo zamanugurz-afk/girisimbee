@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Store } from 'lucide-react';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
 import { MarketAdCard } from '@/components/girisimco/home/HomeMarketSection';
 import {
@@ -50,7 +51,7 @@ export function MarketCatalogView() {
           <div className="mb-6 max-w-2xl">
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
               <Store className="h-3.5 w-3.5" aria-hidden />
-              GirisimBee MARKET
+              <><BrandWordmark /> MARKET</>
             </p>
             <h1 className="gc-page-heading mt-1.5 text-gc-xl sm:text-gc-2xl">
               Güncel fırsat ve işbirlikleri

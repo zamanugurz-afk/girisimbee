@@ -1,5 +1,5 @@
 /**
- * GirisimBee listing detail mock data (UI view model).
+ * Girisimbee listing detail mock data (UI view model).
  * Source of truth for demo listing pages at /ilan/[id].
  */
 import type { ListingDetail } from '@/features/listings/types/listing.types';

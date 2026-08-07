@@ -86,8 +86,8 @@ export function AccountPayments() {
   useEffect(() => {
     refresh();
     const onChange = () => refresh();
-    window.addEventListener('GirisimBee:pending-payments-changed', onChange);
-    return () => window.removeEventListener('GirisimBee:pending-payments-changed', onChange);
+    window.addEventListener('Girisimbee:pending-payments-changed', onChange);
+    return () => window.removeEventListener('Girisimbee:pending-payments-changed', onChange);
   }, [refresh]);
 
   const stats = useMemo(() => buildStats(items), [items]);

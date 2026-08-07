@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import {
   DASHBOARD_NAV_ITEMS,
   type DashboardNavIcon,
@@ -55,7 +56,7 @@ export function DashboardSidebar() {
           href="/"
           className="font-display text-lg font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
         >
-          GirisimBee
+          <BrandWordmark />
         </Link>
         <p className="mt-1 text-gc-xs text-muted-foreground">Kullanıcı paneli · Hesabınızı yönetin</p>
         <Link

@@ -627,6 +627,13 @@ let clientContainer: PersistenceContainer | null = null;
 export function getClientContainer(): PersistenceContainer {
   if (clientContainer) return clientContainer;
 
+  // Never construct createBrowserClient during SSR / `next build` prerender.
+  // Server and browser get separate module instances; browser still lazy-inits.
+  if (typeof window === 'undefined') {
+    clientContainer = createMemoryContainer();
+    return clientContainer;
+  }
+
   const driver = resolvePersistenceDriver();
   if (driver === 'supabase') {
     // Dynamic import avoids bundling server-only code on client

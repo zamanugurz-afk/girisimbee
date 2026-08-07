@@ -1,8 +1,8 @@
-# GirisimBee — Architecture Report
+# Girisimbee — Architecture Report
 
 **Review date:** Sprint 3 completion  
 **Scope:** Full project audit — FDD compliance, dependency health, technical debt  
-**Products in repo:** GirisimBee (marketplace) + İkinciBazar (legacy price-comparison dashboard)
+**Products in repo:** Girisimbee (marketplace) + İkinciBazar (legacy price-comparison dashboard)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Feature-Driven Design (GirisimBee) | **Partial** | Domain layer complete; UI still in `components/girisimco/` |
+| Feature-Driven Design (Girisimbee) | **Partial** | Domain layer complete; UI still in `components/girisimco/` |
 | Circular dependencies | **Pass** | madge: 392 files, 0 cycles |
 | TypeScript build | **Pass** | `tsc --noEmit` clean |
 | Duplicate services | **Resolved (naming)** | `listingViewService` vs `listingService` (marketplace) |
@@ -24,7 +24,7 @@
 ```
 project/
 ├── app/                          # Route composers (thin)
-│   ├── page.tsx                  # GirisimBee homepage
+│   ├── page.tsx                  # Girisimbee homepage
 │   ├── giris/ kayit/ sifre-*/    # Auth routes → features/authentication
 │   ├── dashboard/                # Protected user panel
 │   ├── ilan/[id]/ ilan/olustur/  # Listing routes → features/listings
@@ -52,7 +52,7 @@ project/
 │
 ├── components/
 │   ├── ui/                       # shadcn primitives (allowed by FDD)
-│   ├── girisimco/                # GirisimBee UI (pending physical move to features/)
+│   ├── girisimco/                # Girisimbee UI (pending physical move to features/)
 │   ├── listing-detail/           # İkinciBazar listing UI
 │   └── providers/                # AppProviders (Query, Theme, Auth)
 │
@@ -72,7 +72,7 @@ flowchart TB
     LD[ids · validation · pagination · errors]
   end
 
-  subgraph girisimco ["GirisimBee features"]
+  subgraph girisimco ["Girisimbee features"]
     FA[authentication]
     FC[categories]
     FL[listings]
@@ -93,7 +93,7 @@ flowchart TB
   FS --> FA
   FP --> LD
 
-  app_g[app/ GirisimBee] --> FA
+  app_g[app/ Girisimbee] --> FA
   app_g --> FL
   app_g --> FC
   app_g --> FS
@@ -116,7 +116,7 @@ flowchart TB
 
 | Severity | Issue | Location |
 |----------|-------|----------|
-| Medium | GirisimBee UI not under `features/*/components/` | `components/girisimco/` (22 files) |
+| Medium | Girisimbee UI not under `features/*/components/` | `components/girisimco/` (22 files) |
 | Medium | Legacy dashboard bypasses features | `app/[token]/*` → `lib/queries`, `hooks/` |
 | Medium | Business logic in route composer | `app/ilan/olustur/page.tsx` orchestrates create+publish |
 | Low | `lib/domain/seed.ts` imports all feature mocks | Latent cycle risk if mocks import domain barrel |
@@ -130,7 +130,7 @@ flowchart TB
 | `lib/domain/` | Branded IDs, Zod primitives, pagination, lifecycle helpers | All features |
 | `lib/supabase/` | Cookie-based auth (SSR) | authentication, middleware |
 | `lib/supabase.ts` | Anon client, no session | İkinciBazar services |
-| `features/shared/` | Nav, premium gates, Report/Activity/Subscription domain | All GirisimBee pages |
+| `features/shared/` | Nav, premium gates, Report/Activity/Subscription domain | All Girisimbee pages |
 | `components/ui/` | shadcn design system | All UI |
 
 ---
@@ -140,17 +140,17 @@ flowchart TB
 ### 1. Duplicated components
 **Status: Medium debt**
 
-- GirisimBee listing UI vs İkinciBazar listing UI are **different products** (not duplicates).
-- `ListingHeader` exists in both `components/girisimco/listing/` and `components/listing-detail/` — same name, different domains. **Rename recommended** in Sprint 4: `GirisimBeeListingHeader` vs `MarketplaceListingHeader`.
+- Girisimbee listing UI vs İkinciBazar listing UI are **different products** (not duplicates).
+- `ListingHeader` exists in both `components/girisimco/listing/` and `components/listing-detail/` — same name, different domains. **Rename recommended** in Sprint 4: `GirisimbeeListingHeader` vs `MarketplaceListingHeader`.
 
 ### 2. Duplicated services
 **Status: Resolved (naming)**
 
 | Service | Location | Domain |
 |---------|----------|--------|
-| `listingViewService` | `features/listings/services/listing.service.ts` | GirisimBee mock detail |
+| `listingViewService` | `features/listings/services/listing.service.ts` | Girisimbee mock detail |
 | `listingService` | `lib/services/listing-service.ts` | İkinciBazar Supabase CRUD |
-| `listingEngine` | `features/listings/engine/` | GirisimBee lifecycle |
+| `listingEngine` | `features/listings/engine/` | Girisimbee lifecycle |
 
 ### 3. Duplicated validation
 **Status: Acceptable split**
@@ -164,7 +164,7 @@ Intentional separation; no merge needed.
 ### 4. Duplicated TypeScript interfaces
 **Status: Resolved / documented**
 
-| Name | GirisimBee | Legacy (`types/`) |
+| Name | Girisimbee | Legacy (`types/`) |
 |------|-----------|-------------------|
 | `Listing` | Domain entity (`listing.entity.types.ts`) | Scraped product row |
 | `ListingDetail` | UI view model (`listing.types.ts`) | N/A |
@@ -203,7 +203,7 @@ Remaining candidates (do not delete without product confirmation):
 **Status: Improved this review**
 
 Changes applied:
-- `listingViewService` — GirisimBee mock reader
+- `listingViewService` — Girisimbee mock reader
 - `DomainUserRole` — domain user entity (vs auth `UserRole`)
 - `ListingSearchFilter` — UI filter (was conflicting `ListingFilter`)
 
@@ -217,7 +217,7 @@ Remaining inconsistencies:
 ### 10. Architecture violations
 **Status: Partial**
 
-GirisimBee routes follow FDD. İkinciBazar dashboard is intentionally separate until unified or extracted.
+Girisimbee routes follow FDD. İkinciBazar dashboard is intentionally separate until unified or extracted.
 
 ---
 
@@ -284,7 +284,7 @@ TypeScript errors: 0
 Build: pass
 ```
 
-### Key dependency flows (GirisimBee)
+### Key dependency flows (Girisimbee)
 
 ```
 app/page.tsx

@@ -1,4 +1,4 @@
-# GirisimBee Beta Readiness Report
+# Girisimbee Beta Readiness Report
 
 **Date:** 29 July 2026  
 **Scope:** First-time user journey (register → verify → profile → create/publish listing → browse/search/favorite → edit profile → sign out/in)  

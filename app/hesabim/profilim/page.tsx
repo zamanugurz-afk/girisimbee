@@ -6,7 +6,7 @@ import { AccountProfile } from '@/features/account/components/AccountProfile';
 import { loadAccountProfilePage } from '@/features/account/lib/load-account-profile-page';
 
 export const metadata = {
-  title: 'Profilim — Hesabım — GirisimBee',
+  title: 'Profilim — Hesabım — Girisimbee',
 };
 
 export default async function HesabimProfilimPage() {

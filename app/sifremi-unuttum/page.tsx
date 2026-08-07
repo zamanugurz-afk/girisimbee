@@ -3,7 +3,7 @@ import { ForgotPasswordForm } from '@/features/authentication/components/forgot-
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
 export const metadata = {
-  title: 'Şifremi Unuttum — GirisimBee',
+  title: 'Şifremi Unuttum — Girisimbee',
 };
 
 export default function ForgotPasswordPage() {

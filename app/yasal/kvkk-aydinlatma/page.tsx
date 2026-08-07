@@ -1,7 +1,7 @@
 import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
 
 export const metadata = {
-  title: 'KVKK Aydınlatma Metni — GirisimBee',
+  title: 'KVKK Aydınlatma Metni — Girisimbee',
 };
 
 export default function KvkkClarificationPage() {

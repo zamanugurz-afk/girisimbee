@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ADS_ROUTES } from '@/features/ads/constants/ad-inquiry.constants';
 
 export const metadata: Metadata = {
-  title: 'Ödeme sonucu — GirisimBee',
+  title: 'Ödeme sonucu — Girisimbee',
   robots: { index: false, follow: false },
 };
 

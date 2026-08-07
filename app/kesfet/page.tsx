@@ -8,7 +8,7 @@ import type {
 import { DEFAULT_SORT } from '@/features/listings/config/marketplace.config';
 
 export const metadata: Metadata = {
-  title: 'Keşfet — GirisimBee Marketplace',
+  title: 'Keşfet — Girisimbee Marketplace',
   description: 'Yatırım, kariyer ve ortaklık ilanlarını keşfedin.',
 };
 

@@ -6,7 +6,7 @@ import { loadAccountHubPage } from '@/features/account/lib/load-account-hub-page
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Genel Bakış — Kullanıcı Paneli — GirisimBee',
+  title: 'Genel Bakış — Kullanıcı Paneli — Girisimbee',
 };
 
 export default async function DashboardOverviewPage() {

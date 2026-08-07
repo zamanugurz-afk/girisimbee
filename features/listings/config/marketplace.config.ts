@@ -44,32 +44,32 @@ export const ROUTE_PATH_TO_CATEGORY_SLUG: Record<string, string> = Object.fromEn
 const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: string; seoDescription: string }> = {
   'yatirim-bul': {
     description: 'Girişiminiz için yatırımcı arayın',
-    seoTitle: 'Yatırım Bul — Girişim İlanları | GirisimBee',
+    seoTitle: 'Yatırım Bul — Girişim İlanları | Girisimbee',
     seoDescription: 'Yatırım arayan girişimler ve startup fırsatlarını keşfedin.',
   },
   'yatirim-yap': {
     description: 'Yatırım yapmak isteyen profiller',
-    seoTitle: 'Yatırım Yap — Yatırımcı Profilleri | GirisimBee',
+    seoTitle: 'Yatırım Yap — Yatırımcı Profilleri | Girisimbee',
     seoDescription: 'Yatırım yapmak isteyen melek yatırımcı ve fon profilleri.',
   },
   'ise-al': {
     description: 'Açık pozisyonları inceleyin; telefon ile iletişime geçin',
-    seoTitle: 'İş İlanları — Açık Pozisyonlar | GirisimBee',
+    seoTitle: 'İş İlanları — Açık Pozisyonlar | Girisimbee',
     seoDescription: 'Startup ve şirketlerde açık iş ilanlarını keşfedin; doğrudan arayın.',
   },
   'ortak-bul': {
     description: 'Kurucu veya iş ortağı arayın',
-    seoTitle: 'Ortak Bul — Ortaklık İlanları | GirisimBee',
+    seoTitle: 'Ortak Bul — Ortaklık İlanları | Girisimbee',
     seoDescription: 'Kurucu ortak ve iş ortaklığı fırsatları.',
   },
   'bayilik-al': {
     description: 'Yayınlanan franchise fırsatlarını keşfedin',
-    seoTitle: 'Franchise İlanları | GirisimBee',
+    seoTitle: 'Franchise İlanları | Girisimbee',
     seoDescription: 'Türkiye genelinde yayınlanan franchise fırsatlarını keşfedin.',
   },
   'dijital-ai': {
     description: 'Yazılım, otomasyon ve yapay zeka çözümleri',
-    seoTitle: 'Dijital ve AI Çözümleri | GirisimBee',
+    seoTitle: 'Dijital ve AI Çözümleri | Girisimbee',
     seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
   },
 };
@@ -97,7 +97,7 @@ export const CATEGORY_PAGE_CONFIG: Record<string, CategoryPageMeta> = Object.fro
         label: entry.label,
         description: copy?.description ?? entry.label,
         accent: GC_CATEGORY_COLORS[accentKey as keyof typeof GC_CATEGORY_COLORS] ?? GC_CATEGORY_COLORS['yatirim-bul'],
-        seoTitle: copy?.seoTitle ?? `${entry.label} | GirisimBee`,
+        seoTitle: copy?.seoTitle ?? `${entry.label} | Girisimbee`,
         seoDescription: copy?.seoDescription ?? entry.label,
       } satisfies CategoryPageMeta,
     ];

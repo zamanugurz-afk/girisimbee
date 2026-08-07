@@ -75,7 +75,7 @@ export class IyzicoPaymentProvider implements IPaymentProvider {
       enabledInstallments: [1],
       buyer: {
         id: params.userId,
-        name: params.buyerName ?? 'GirisimBee',
+        name: params.buyerName ?? 'Girisimbee',
         surname: 'User',
         email: params.buyerEmail ?? 'noreply@girisimbee.com',
         identityNumber: '11111111111',
@@ -85,13 +85,13 @@ export class IyzicoPaymentProvider implements IPaymentProvider {
         country: 'Turkey',
       },
       shippingAddress: {
-        contactName: params.buyerName ?? 'GirisimBee User',
+        contactName: params.buyerName ?? 'Girisimbee User',
         city: 'Istanbul',
         country: 'Turkey',
         address: 'Turkey',
       },
       billingAddress: {
-        contactName: params.buyerName ?? 'GirisimBee User',
+        contactName: params.buyerName ?? 'Girisimbee User',
         city: 'Istanbul',
         country: 'Turkey',
         address: 'Turkey',

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 export const metadata = {
-  title: 'Vitrinlerim — Hesabım — GirisimBee',
+  title: 'Vitrinlerim — Hesabım — Girisimbee',
 };
 
 /** Legacy alias — canonical packages UI lives under the user dashboard. */

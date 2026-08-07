@@ -1375,12 +1375,12 @@ export const MOCK_ADMIN_FOOTER_LINKS: AdminMockFooterLink[] = [
 ];
 
 export const MOCK_ADMIN_SEO_SETTINGS: AdminMockSeoSettings = {
-  title: 'GirisimBee — Girişim, yatırım ve franchise pazaryeri',
+  title: 'Girisimbee — Girişim, yatırım ve franchise pazaryeri',
   description: 'Girişimciler, yatırımcılar ve franchise fırsatlarını bir araya getiren platform.',
   keywords: 'girişim, yatırım, franchise, ilan, startup',
   canonical_url: 'https://girisimbee.com',
   robots: 'index,follow',
-  og_title: 'GirisimBee',
+  og_title: 'Girisimbee',
   og_description: 'Doğru eşleşmeleri hızlandırın.',
   og_image: '/images/og/default.jpg',
 };

@@ -2,7 +2,7 @@ import { AccountSecurity } from '@/features/account/components/AccountSecurity';
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
-  title: 'Güvenlik — Kullanıcı Paneli — GirisimBee',
+  title: 'Güvenlik — Kullanıcı Paneli — Girisimbee',
 };
 
 export default function DashboardGuvenlikPage() {

@@ -1,4 +1,4 @@
-export const BRAND_NAME = 'GirisimBee';
+export const BRAND_NAME = 'Girisimbee';
 
 export const BRAND_TAGLINE = 'Doğru kişilerle, doğru fırsatta buluşun.';
 

@@ -9,13 +9,13 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const payload = await loadListingPagePayload(params.id);
-  if (!payload) return { title: 'İlan Bulunamadı — GirisimBee' };
+  if (!payload) return { title: 'İlan Bulunamadı — Girisimbee' };
   if (payload.kind === 'franchise-redirect') {
-    return { title: 'Franchise İlanı — GirisimBee' };
+    return { title: 'Franchise İlanı — Girisimbee' };
   }
 
   return {
-    title: `${payload.listing.title} — GirisimBee`,
+    title: `${payload.listing.title} — Girisimbee`,
     description: payload.listing.shortDescription,
   };
 }
