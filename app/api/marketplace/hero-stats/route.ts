@@ -7,6 +7,17 @@ import { DEFAULT_LISTING_TYPE_IDS, FRANCHISE_LISTING_TYPE_IDS } from '@/features
 import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import type { HeroStatsCounts } from '@/features/home/types/hero-stats.types';
 
+export const dynamic = 'force-dynamic';
+
+function isDynamicServerUsageError(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'digest' in err &&
+    (err as { digest?: unknown }).digest === 'DYNAMIC_SERVER_USAGE'
+  );
+}
+
 const ENTREPRENEUR_TYPES = new Set([
   String(LISTING_TYPE_IDS.yatirimBulDefault),
   String(DEFAULT_LISTING_TYPE_IDS.entrepreneurs),
@@ -96,6 +107,7 @@ export async function GET() {
 
     return ok(stats);
   } catch (error) {
+    if (isDynamicServerUsageError(error)) throw error;
     console.error('[hero-stats]', error);
     const message = error instanceof Error ? error.message : JSON.stringify(error);
     return apiError(message || 'İstatistikler alınamadı', 500);
