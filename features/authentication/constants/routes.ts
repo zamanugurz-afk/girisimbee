@@ -7,6 +7,10 @@ export const AUTH_ROUTES = {
   resetPasswordLegacy: '/sifre-yenile',
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
+  /** After successful email confirmation (signup verify link). */
+  verifySuccess: '/auth/verify-success',
+  /** After failed email confirmation / callback exchange. */
+  verifyError: '/auth/verify-error',
   /** Marketplace home — default destination after login / register / OAuth */
   home: '/',
   dashboard: '/dashboard',

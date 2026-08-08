@@ -238,7 +238,7 @@ export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInp
         consent_email: input.consents.consentEmail,
         consented_at: new Date().toISOString(),
       },
-      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.home)}`,
+      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.verifySuccess)}&flow=email`,
     },
   });
 }
@@ -304,7 +304,7 @@ export async function resendVerificationEmail(supabase: SupabaseClient, email: s
     type: 'signup',
     email,
     options: {
-      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.home)}`,
+      emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.verifySuccess)}&flow=email`,
     },
   });
 }
