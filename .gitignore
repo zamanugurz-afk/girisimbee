@@ -37,6 +37,18 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# local dumps / scraped HTML (never commit)
+tmp-dolap-live.html
+tmp-*.html
+tree.txt
+app-tree.txt
+buildlog.txt
+dynamic.txt
+files.txt
+folders.txt
+tmp-check-instr.js
+tmp-instrument-export.js
+
 # vercel
 .vercel
 
