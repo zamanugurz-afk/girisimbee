@@ -226,8 +226,8 @@ Auth: Supabase session via `createClient()` → resolve `profileId` from `profil
 | GET | `/api/profiles/[module]` | ✅ | Get module profile |
 | PUT | `/api/profiles/[module]` | ✅ | Upsert module profile |
 | POST | `/api/profiles/[module]/activate` | ✅ | Activate module (franchise: `{ flow: "buy"\|"give" }`) |
-| GET | `/api/listings/[module]` | optional | Browse published listings (entrepreneurs/investors/franchise) |
-| POST | `/api/listings/[module]` | ✅ | Publish listing (entrepreneurs/founders/franchise) |
+| GET | `/api/listings/modules/[module]` | optional | Browse published listings (entrepreneurs/investors/franchise) |
+| POST | `/api/listings/modules/[module]` | ✅ | Publish listing (entrepreneurs/founders/franchise) |
 | GET | `/api/matches` | ✅ | List matches for profile or `?listingId=` |
 | POST | `/api/matches` | ✅ | Create match `{ moduleKey, targetProfileId, listingId? }` |
 | GET | `/api/matches/[id]` | ✅ | Get match by id |
