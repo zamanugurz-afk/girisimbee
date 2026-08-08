@@ -6,10 +6,20 @@ const OTP_TTL_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
 function otpSecret(): string {
+  const dedicated = process.env.PHONE_OTP_SECRET?.trim();
+  if (dedicated) return dedicated;
+
+  // Never use the public anon key (or a hardcoded string) in production.
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+    const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+      || process.env.SUPABASE_SECRET_KEY?.trim();
+    if (serviceRole) return serviceRole;
+    throw new Error('PHONE_OTP_SECRET is required in production');
+  }
+
   return (
-    process.env.PHONE_OTP_SECRET
-    || process.env.SUPABASE_SERVICE_ROLE_KEY
-    || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+    || process.env.SUPABASE_SECRET_KEY?.trim()
     || 'Girisimbee-dev-phone-otp'
   );
 }

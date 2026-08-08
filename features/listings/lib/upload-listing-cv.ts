@@ -20,8 +20,14 @@ function resolveContentType(file: File, ext: string): string {
 }
 
 function isAllowedFile(file: File, ext: string): boolean {
-  if (ALLOWED_EXTENSIONS.has(ext)) return true;
-  return Object.values(MIME_BY_EXT).includes(file.type);
+  if (!ALLOWED_EXTENSIONS.has(ext)) return false;
+  const expected = MIME_BY_EXT[ext];
+  if (!expected) return false;
+  // Reject spoofed Content-Type when the browser sends one.
+  if (file.type && file.type !== 'application/octet-stream' && file.type !== expected) {
+    return false;
+  }
+  return true;
 }
 
 export async function uploadListingCv(userId: string, file: File): Promise<string> {
@@ -39,7 +45,7 @@ export async function uploadListingCv(userId: string, file: File): Promise<strin
   }
 
   const supabase = createClient();
-  const safeExt = ALLOWED_EXTENSIONS.has(ext) ? ext : 'pdf';
+  const safeExt = ext;
   const path = `${userId}/cv/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
   const contentType = resolveContentType(file, safeExt);
 

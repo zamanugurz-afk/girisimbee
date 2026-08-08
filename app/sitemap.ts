@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { getAllCategoryRoutePaths } from '@/features/listings/config/marketplace.config';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://girisimbee.com';
+import { resolveCanonicalSiteUrl } from '@/lib/site-url';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const siteUrl = resolveCanonicalSiteUrl();
   const staticPaths = [
     '/',
     '/kesfet',
@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const paths = Array.from(new Set([...staticPaths, ...categoryPaths]));
 
   return paths.map((path) => ({
-    url: `${SITE_URL}${path === '/' ? '' : path}`,
+    url: `${siteUrl}${path === '/' ? '' : path}`,
     lastModified: new Date(),
     changeFrequency: path === '/' || path === '/kesfet' ? 'daily' : 'weekly',
     priority: path === '/' ? 1 : path === '/kesfet' || path === '/market' ? 0.9 : 0.7,
