@@ -17,6 +17,7 @@ import type { UserRole } from '@/features/authentication/types/auth.types';
 import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
+import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
 
 function nowMs(): number {
   return Date.now();
@@ -44,6 +45,14 @@ function withProfileHeaders(
 export async function middleware(request: NextRequest) {
   const mwStart = nowMs();
   const pathname = request.nextUrl.pathname;
+
+  // Public gate — rewrite to maintenance page without destroying routes.
+  if (isMaintenanceMode() && !isMaintenanceBypassPath(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/bakim';
+    const rewritten = NextResponse.rewrite(url);
+    return attachTiming(rewritten, nowMs() - mwStart);
+  }
 
   const publishBlocked = await validatePublishRequest(request);
   if (publishBlocked) return publishBlocked;

@@ -4,6 +4,7 @@ import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
+import { isMaintenanceMode } from '@/lib/site-mode';
 import { BRAND_PAGE_TITLE } from '@/features/shared';
 import type { ReactNode } from 'react';
 
@@ -20,33 +21,37 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+const maintenance = isMaintenanceMode();
+
 export const metadata: Metadata = {
   metadataBase: new URL(resolveSiteUrl()),
-  title: BRAND_PAGE_TITLE,
-  description:
-    'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+  title: maintenance ? `Çok Yakında — Girisimbee` : BRAND_PAGE_TITLE,
+  description: maintenance
+    ? 'Girişimbee şu anda geliştirme aşamasında. Çok yakında yeniden buradayız.'
+    : 'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
     { media: '(prefers-color-scheme: dark)', color: '#12151C' },
   ],
   openGraph: {
-    title: BRAND_PAGE_TITLE,
-    description:
-      'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+    title: maintenance ? `Çok Yakında — Girisimbee` : BRAND_PAGE_TITLE,
+    description: maintenance
+      ? 'Girişimbee şu anda geliştirme aşamasında. Çok yakında yeniden buradayız.'
+      : 'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
     type: 'website',
     locale: 'tr_TR',
     siteName: 'Girisimbee',
   },
   twitter: {
     card: 'summary_large_image',
-    title: BRAND_PAGE_TITLE,
-    description:
-      'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+    title: maintenance ? `Çok Yakında — Girisimbee` : BRAND_PAGE_TITLE,
+    description: maintenance
+      ? 'Girişimbee şu anda geliştirme aşamasında. Çok yakında yeniden buradayız.'
+      : 'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: maintenance
+    ? { index: false, follow: false }
+    : { index: true, follow: true },
 };
 
 export default function RootLayout({
