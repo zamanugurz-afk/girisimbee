@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
- * Girisimbee wordmark — original type, with optional bee-stripe “bee”
- * (`BRAND_BEE_ACCENT`).
+ * Girisimbee wordmark — original type; optional yellow “bee” with one
+ * vertical black stripe (`BRAND_BEE_ACCENT`).
  */
 export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   if (!BRAND_BEE_ACCENT) {
@@ -22,8 +22,10 @@ export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   return (
     <span className={cn('gc-bee-wordmark', className)} aria-label={BRAND_NAME} {...props}>
       Girisim
-      <span className="gc-bee-letters text-[0.9em] font-bold">b</span>
-      <span className="gc-bee-letters font-bold">ee</span>
+      <span className="gc-bee-letters font-bold">
+        <span className="text-[0.9em]">b</span>
+        ee
+      </span>
     </span>
   );
 }

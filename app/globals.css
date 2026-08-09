@@ -213,7 +213,7 @@
     background-size: 24px 24px;
   }
 
-  /* ── Brand bee-stripe letters (toggle via BRAND_BEE_ACCENT) ── */
+  /* ── Brand bee letters: yellow + vertical Girisim-black stripe ── */
   @keyframes gc-bee-buzz {
     0%,
     100% {
@@ -228,13 +228,13 @@
   }
 
   .gc-bee-letters {
-    background-image: repeating-linear-gradient(
-      180deg,
-      #f4af1e 0 0.32em,
-      #1e293b 0.32em 0.48em
+    /* Yellow fill with a single vertical black bee stripe */
+    background-image: linear-gradient(
+      90deg,
+      #f4af1e 0 42%,
+      #0f172a 42% 58%,
+      #f4af1e 58% 100%
     );
-    background-size: 100% 0.96em;
-    background-position: center;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

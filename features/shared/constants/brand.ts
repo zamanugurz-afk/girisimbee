@@ -1,16 +1,16 @@
 export const BRAND_NAME = 'Girisimbee';
 
 /**
- * Bee-stripe “bee” letters after Girisim.
+ * Yellow “bee” + vertical black stripe (Girisim black).
  * Set to `false` to restore the plain typographic wordmark.
  */
 export const BRAND_BEE_ACCENT = true;
 
-/** Honey yellow stripe (from bee mark). */
+/** Honey yellow for “bee” letters. */
 export const BRAND_BEE_YELLOW = '#F4AF1E';
 
-/** Dark stripe on “bee” letters. */
-export const BRAND_BEE_STRIPE = '#1E293B';
+/** Vertical stripe — same dark as Girisim type. */
+export const BRAND_BEE_STRIPE = '#0F172A';
 
 export const BRAND_TAGLINE = 'Doğru kişilerle, doğru fırsatta buluşun.';
 
