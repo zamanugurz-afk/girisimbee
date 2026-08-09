@@ -9,10 +9,19 @@ import type {
 } from '@/features/authentication/types/auth.types';
 import { coerceStoredRole } from '@/features/authentication/constants/roles';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
-import { resolveSiteUrl } from '@/lib/site-url';
+import { resolveAuthSiteUrl } from '@/lib/site-url';
 import { isMissingRelationError } from '@/lib/persistence/supabase-payload';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
 
+/** Auth redirect origin — browser origin, never unstable custom domains. */
+export function getSiteUrl(): string {
+  return resolveAuthSiteUrl();
+}
+
+/** App callback after Supabase finishes Google OAuth (not the Google→Supabase URI). */
+export function getOAuthRedirectTo(): string {
+  return `${resolveAuthSiteUrl()}${AUTH_ROUTES.callback}`;
+}
 /** Live `public.profiles` columns only (no user_id / first_name / username / status / …). */
 type ProfileRow = {
   id: string;
@@ -205,19 +214,42 @@ export async function fetchSessionUser(supabase: SupabaseClient): Promise<Sessio
   return sessionUser;
 }
 
-export function getSiteUrl(): string {
-  if (typeof window !== 'undefined') return window.location.origin;
-  return resolveSiteUrl();
+const EMAIL_ALREADY_REGISTERED_MESSAGE =
+  'Bu e-posta adresi ile zaten bir hesap bulunuyor. Giriş yapın veya şifrenizi sıfırlayın.';
+
+function normalizeAuthEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function mapSignUpAuthErrorMessage(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes('already registered')
+    || lower.includes('already been registered')
+    || lower.includes('user already exists')
+    || lower.includes('email address is already')
+  ) {
+    return EMAIL_ALREADY_REGISTERED_MESSAGE;
+  }
+  return message;
+}
+
+/** True when Supabase hides an existing account behind an empty-identities signup response. */
+export function isDuplicateEmailSignUpResponse(user: {
+  identities?: Array<unknown> | null;
+} | null | undefined): boolean {
+  return Boolean(user && Array.isArray(user.identities) && user.identities.length === 0);
 }
 
 export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInput) {
   const siteUrl = getSiteUrl();
+  const email = normalizeAuthEmail(input.email);
   const displayName =
     input.displayName?.trim()
     || `${input.firstName} ${input.lastName}`.trim();
 
-  return supabase.auth.signUp({
-    email: input.email,
+  const result = await supabase.auth.signUp({
+    email,
     password: input.password,
     options: {
       // Auth metadata only — live profiles columns are filled by handle_new_user
@@ -241,11 +273,35 @@ export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInp
       emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.verifySuccess)}&flow=email`,
     },
   });
+
+  if (result.error) {
+    return {
+      data: result.data,
+      error: {
+        ...result.error,
+        message: mapSignUpAuthErrorMessage(result.error.message),
+      },
+    };
+  }
+
+  // Auth emails are unique; existing users may return no error + empty identities.
+  if (isDuplicateEmailSignUpResponse(result.data.user)) {
+    return {
+      data: { user: null, session: null },
+      error: {
+        name: 'EmailExistsError',
+        message: EMAIL_ALREADY_REGISTERED_MESSAGE,
+        status: 422,
+      },
+    };
+  }
+
+  return result;
 }
 
 export async function signInWithEmail(supabase: SupabaseClient, input: SignInInput) {
   return supabase.auth.signInWithPassword({
-    email: input.email,
+    email: normalizeAuthEmail(input.email),
     password: input.password,
   });
 }
@@ -266,7 +322,7 @@ export async function logout(supabase: SupabaseClient) {
 
 export async function requestPasswordReset(supabase: SupabaseClient, email: string) {
   const siteUrl = getSiteUrl();
-  return supabase.auth.resetPasswordForEmail(email, {
+  return supabase.auth.resetPasswordForEmail(normalizeAuthEmail(email), {
     redirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`,
   });
 }
@@ -302,7 +358,7 @@ export async function resendVerificationEmail(supabase: SupabaseClient, email: s
   const siteUrl = getSiteUrl();
   return supabase.auth.resend({
     type: 'signup',
-    email,
+    email: normalizeAuthEmail(email),
     options: {
       emailRedirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.verifySuccess)}&flow=email`,
     },
@@ -321,12 +377,19 @@ export async function signInWithOAuth(
   provider: OAuthProvider,
   options?: { next?: string },
 ) {
-  // Keep redirectTo free of query params so it matches Supabase allow-list exactly.
-  const siteUrl = getSiteUrl();
+  // App return URL only. Google→Supabase uses {SUPABASE_URL}/auth/v1/callback.
+  const redirectTo = getOAuthRedirectTo();
+  if (typeof console !== 'undefined') {
+    console.info('[auth/oauth] signInWithOAuth', {
+      provider,
+      redirectTo,
+      origin: typeof window !== 'undefined' ? window.location.origin : null,
+    });
+  }
   return supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${siteUrl}${AUTH_ROUTES.callback}`,
+      redirectTo,
       skipBrowserRedirect: true,
     },
   });

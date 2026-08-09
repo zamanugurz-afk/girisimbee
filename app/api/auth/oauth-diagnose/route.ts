@@ -10,11 +10,17 @@ import { resolveSiteUrl } from '@/lib/site-url';
  * GET /api/auth/oauth-diagnose
  */
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === 'production') {
+  const url = new URL(request.url);
+  const host = url.host;
+  const allowProdDiag =
+    host === 'girisimbee.vercel.app'
+    || host.endsWith('.vercel.app')
+    || process.env.AUTH_DIAGNOSE_ENABLED === '1';
+
+  if (process.env.NODE_ENV === 'production' && !allowProdDiag) {
     return NextResponse.json({ error: 'Not available in production' }, { status: 404 });
   }
 
-  const url = new URL(request.url);
   const emailQuery = url.searchParams.get('email')?.trim().toLowerCase() ?? '';
   const origin = url.origin;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') ?? '';

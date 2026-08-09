@@ -15,14 +15,15 @@ function safeNextPath(value: string | undefined): string {
   }
 }
 
+/**
+ * Email verification only when explicitly marked.
+ * Plain OAuth returns (code, no flow) must never be treated as email verify.
+ */
 function isEmailVerificationFlow(params: {
   flow: string | null;
   type: string | null;
-  next: string;
 }): boolean {
   if (params.flow === 'email') return true;
-  if (params.next === AUTH_ROUTES.verifySuccess) return true;
-  // Legacy Supabase confirm links may include type=signup|email
   if (params.type === 'signup' || params.type === 'email') return true;
   return false;
 }
@@ -41,10 +42,28 @@ export async function GET(request: Request) {
   const type = searchParams.get('type');
 
   const cookieStore = cookies();
+  const nextFromQuery = searchParams.get('next');
+  const nextFromCookie = cookieStore.get(OAUTH_NEXT_COOKIE)?.value;
+  const emailVerify = isEmailVerificationFlow({ flow, type });
+
+  // Email flow may pass next=/auth/verify-success; OAuth uses cookie next only.
   const next = safeNextPath(
-    searchParams.get('next') ?? cookieStore.get(OAUTH_NEXT_COOKIE)?.value,
+    emailVerify
+      ? (nextFromQuery ?? AUTH_ROUTES.verifySuccess)
+      : (nextFromCookie ?? nextFromQuery ?? undefined),
   );
-  const emailVerify = isEmailVerificationFlow({ flow, type, next });
+
+  console.info('[auth/callback]', {
+    provider: 'google-or-email',
+    origin,
+    callbackUrl: `${origin}${url.pathname}`,
+    hasCode: Boolean(code),
+    flow,
+    type,
+    emailVerify,
+    next,
+    oauthError: oauthError ?? null,
+  });
 
   const clearOauthCookie = (res: NextResponse) => {
     res.cookies.set(OAUTH_NEXT_COOKIE, '', { path: '/', maxAge: 0 });
@@ -74,8 +93,8 @@ export async function GET(request: Request) {
     const detail = oauthDesc || oauthError;
     return loginError(
       'oauth_provider',
-      /exchange external code/i.test(detail)
-        ? 'Google Client ID/Secret veya Redirect URI hatalı. Supabase Provider ayarlarını yeniden kaydedin.'
+      /exchange external code|redirect_uri_mismatch/i.test(detail)
+        ? 'Google Redirect URI, Supabase Callback URL ile birebir aynı olmalı (…supabase.co/auth/v1/callback).'
         : detail,
     );
   }
@@ -127,28 +146,28 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    console.error('[auth/callback] exchangeCodeForSession failed');
+    console.error('[auth/callback] exchangeCodeForSession failed', {
+      message: error.message,
+    });
     if (emailVerify) {
       return verifyError('exchange_failed');
     }
     return loginError(
       'auth_callback_failed',
-      /exchange external code/i.test(error.message)
-        ? 'Google Client ID/Secret veya Redirect URI hatalı. Supabase Provider ayarlarını yeniden kaydedin.'
+      /exchange external code|redirect_uri_mismatch/i.test(error.message)
+        ? 'Google Redirect URI, Supabase Callback URL ile birebir aynı olmalı (…supabase.co/auth/v1/callback).'
         : error.message,
     );
   }
 
   try {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
-    if (user) {
+    if (user && !emailVerify) {
       await ensureOAuthAccountBootstrap(user);
     }
   } catch (bootstrapError) {
     console.error('[auth/callback] account bootstrap failed');
     if (emailVerify) {
-      // Session may already be established; still show success UX if cookies were set.
-      // Prefer success page over error when auth exchange already succeeded.
       return success;
     }
     const message =
