@@ -1,14 +1,5 @@
 export const BRAND_NAME = 'Girisimbee';
 
-/**
- * Accent “bee”: b yellow / e black / e yellow.
- * Set to `false` for the plain typographic wordmark.
- */
-export const BRAND_BEE_ACCENT = true;
-
-/** High-visibility amber for “b” and last “e”. */
-export const BRAND_BEE_YELLOW = '#FFB000';
-
 export const BRAND_TAGLINE = 'Doğru kişilerle, doğru fırsatta buluşun.';
 
 export const BRAND_TAGLINE_HIGHLIGHT = 'doğru fırsatta';
