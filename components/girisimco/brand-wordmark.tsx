@@ -27,8 +27,8 @@ export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
       {...props}
     >
       <span>Girisim</span>
-      <span className="gc-bee-letters inline-flex items-baseline" style={{ color: BRAND_BEE_YELLOW }}>
-        <span className="text-[0.9em] font-medium">b</span>
+      <span className="gc-bee-letters inline-flex items-baseline font-bold" style={{ color: BRAND_BEE_YELLOW }}>
+        <span className="text-[0.9em] font-bold">b</span>
         ee
       </span>
       <span className="gc-bee-trail relative -ml-[0.02em] inline-flex translate-y-[-0.28em] items-center self-center">
