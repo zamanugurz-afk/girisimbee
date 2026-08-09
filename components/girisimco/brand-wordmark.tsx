@@ -1,12 +1,11 @@
 import type { HTMLAttributes } from 'react';
-import { BRAND_BEE_ACCENT, BRAND_NAME } from '@/features/shared/constants/brand';
+import { BRAND_BEE_ACCENT, BRAND_BEE_YELLOW, BRAND_NAME } from '@/features/shared/constants/brand';
 import { cn } from '@/lib/utils';
 
 type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
- * Girisimbee wordmark — original type; optional yellow “bee” with one
- * vertical black stripe (`BRAND_BEE_ACCENT`).
+ * Girisimbee wordmark — optional accent: b yellow / e black / e yellow.
  */
 export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   if (!BRAND_BEE_ACCENT) {
@@ -20,11 +19,14 @@ export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   }
 
   return (
-    <span className={cn('gc-bee-wordmark', className)} aria-label={BRAND_NAME} {...props}>
+    <span className={cn(className)} aria-label={BRAND_NAME} {...props}>
       Girisim
-      <span className="gc-bee-letters font-bold">
-        <span className="text-[0.9em]">b</span>
-        ee
+      <span className="text-[0.9em] font-bold" style={{ color: BRAND_BEE_YELLOW }}>
+        b
+      </span>
+      <span className="font-bold text-[#0F172A]">e</span>
+      <span className="font-bold" style={{ color: BRAND_BEE_YELLOW }}>
+        e
       </span>
     </span>
   );

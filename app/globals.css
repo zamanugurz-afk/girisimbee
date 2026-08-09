@@ -213,46 +213,6 @@
     background-size: 24px 24px;
   }
 
-  /* ── Brand bee letters: yellow + vertical Girisim-black stripe ── */
-  @keyframes gc-bee-buzz {
-    0%,
-    100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    25% {
-      transform: translateY(-1px) rotate(-2deg);
-    }
-    75% {
-      transform: translateY(1px) rotate(2deg);
-    }
-  }
-
-  .gc-bee-letters {
-    /* Brighter yellow; thin vertical Girisim-black stripe */
-    background-image: linear-gradient(
-      90deg,
-      #ffc107 0 46%,
-      #0f172a 46% 54%,
-      #ffc107 54% 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .group:hover .gc-bee-letters,
-  .gc-bee-wordmark:hover .gc-bee-letters {
-    animation: gc-bee-buzz 0.55s ease-in-out 2;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .group:hover .gc-bee-letters,
-    .gc-bee-wordmark:hover .gc-bee-letters {
-      animation: none;
-    }
-  }
-
   /* ── Typography roles ── */
   .gc-page-heading {
     @apply font-display text-gc-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem];
