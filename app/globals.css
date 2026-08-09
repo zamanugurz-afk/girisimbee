@@ -213,7 +213,7 @@
     background-size: 24px 24px;
   }
 
-  /* ── Brand bee letter art (toggle via BRAND_BEE_ACCENT) ── */
+  /* ── Brand bee-stripe letters (toggle via BRAND_BEE_ACCENT) ── */
   @keyframes gc-bee-buzz {
     0%,
     100% {
@@ -227,18 +227,28 @@
     }
   }
 
+  .gc-bee-letters {
+    background-image: repeating-linear-gradient(
+      180deg,
+      #f4af1e 0 0.32em,
+      #1e293b 0.32em 0.48em
+    );
+    background-size: 100% 0.96em;
+    background-position: center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
   .group:hover .gc-bee-letters,
-  .gc-bee-wordmark:hover .gc-bee-letters,
-  .group:hover .gc-bee-trail,
-  .gc-bee-wordmark:hover .gc-bee-trail {
+  .gc-bee-wordmark:hover .gc-bee-letters {
     animation: gc-bee-buzz 0.55s ease-in-out 2;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .group:hover .gc-bee-letters,
-    .gc-bee-wordmark:hover .gc-bee-letters,
-    .group:hover .gc-bee-trail,
-    .gc-bee-wordmark:hover .gc-bee-trail {
+    .gc-bee-wordmark:hover .gc-bee-letters {
       animation: none;
     }
   }
