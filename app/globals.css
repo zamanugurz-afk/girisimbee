@@ -213,6 +213,63 @@
     background-size: 24px 24px;
   }
 
+  /* ── Brand wordmark bee accent (toggle via BRAND_BEE_ACCENT) ── */
+  @keyframes gc-bee-buzz {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-1px) rotate(-2deg);
+    }
+    75% {
+      transform: translateY(1px) rotate(2deg);
+    }
+  }
+
+  @keyframes gc-bee-wing-flap {
+    0%,
+    100% {
+      transform: scaleY(1);
+      opacity: 0.75;
+    }
+    50% {
+      transform: scaleY(0.65);
+      opacity: 1;
+    }
+  }
+
+  .gc-bee-wordmark .gc-bee-letters {
+    transform-origin: center bottom;
+  }
+
+  .group:hover .gc-bee-wordmark .gc-bee-letters,
+  .gc-bee-wordmark:hover .gc-bee-letters {
+    animation: gc-bee-buzz 0.55s ease-in-out 2;
+  }
+
+  .group:hover .gc-bee-wordmark .gc-bee-wing,
+  .gc-bee-wordmark:hover .gc-bee-wing {
+    animation: gc-bee-wing-flap 0.28s ease-in-out 3;
+  }
+
+  .gc-bee-wing-left {
+    transform-origin: right center;
+  }
+
+  .gc-bee-wing-right {
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .group:hover .gc-bee-wordmark .gc-bee-letters,
+    .gc-bee-wordmark:hover .gc-bee-letters,
+    .group:hover .gc-bee-wordmark .gc-bee-wing,
+    .gc-bee-wordmark:hover .gc-bee-wing {
+      animation: none;
+    }
+  }
+
   /* ── Typography roles ── */
   .gc-page-heading {
     @apply font-display text-gc-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem];

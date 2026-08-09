@@ -1,5 +1,11 @@
 export const BRAND_NAME = 'Girisimbee';
 
+/**
+ * Wordmark “bee” accent (gradient + soft buzz).
+ * Set to `false` to instantly restore the plain wordmark — no other files needed.
+ */
+export const BRAND_BEE_ACCENT = true;
+
 export const BRAND_TAGLINE = 'Doğru kişilerle, doğru fırsatta buluşun.';
 
 export const BRAND_TAGLINE_HIGHLIGHT = 'doğru fırsatta';
