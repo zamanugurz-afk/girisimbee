@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import type { HTMLAttributes } from 'react';
-import { BRAND_BEE_ACCENT, BRAND_NAME } from '@/features/shared/constants/brand';
+import { BRAND_BEE_ACCENT, BRAND_BEE_YELLOW, BRAND_NAME } from '@/features/shared/constants/brand';
 import { cn } from '@/lib/utils';
 
 type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
- * Girisimbee wordmark — “Girisim” + branded “bee” letter art.
- * Toggle via `BRAND_BEE_ACCENT`.
+ * Girisimbee wordmark — original type, with optional yellow “bee”
+ * + trailing bee flight mark (`BRAND_BEE_ACCENT`).
  */
 export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   if (!BRAND_BEE_ACCENT) {
@@ -22,18 +22,22 @@ export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
 
   return (
     <span
-      className={cn('gc-bee-wordmark inline-flex items-center', className)}
+      className={cn('gc-bee-wordmark inline-flex items-baseline', className)}
       aria-label={BRAND_NAME}
       {...props}
     >
-      <span className="leading-none">Girisim</span>
-      <span className="gc-bee-letters relative -ml-[0.06em] inline-flex shrink-0 items-center self-center">
+      <span>Girisim</span>
+      <span className="gc-bee-letters inline-flex items-baseline" style={{ color: BRAND_BEE_YELLOW }}>
+        <span className="text-[0.9em] font-medium">b</span>
+        ee
+      </span>
+      <span className="gc-bee-trail relative -ml-[0.02em] inline-flex translate-y-[-0.28em] items-center self-center">
         <Image
-          src="/brand/bee-letters.png"
+          src="/brand/bee-trail.png"
           alt=""
-          width={509}
-          height={235}
-          className="h-[1.4em] w-auto max-w-none select-none"
+          width={149}
+          height={188}
+          className="h-[0.95em] w-auto max-w-none select-none"
           aria-hidden
           priority={false}
         />

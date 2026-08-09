@@ -228,13 +228,17 @@
   }
 
   .group:hover .gc-bee-letters,
-  .gc-bee-wordmark:hover .gc-bee-letters {
+  .gc-bee-wordmark:hover .gc-bee-letters,
+  .group:hover .gc-bee-trail,
+  .gc-bee-wordmark:hover .gc-bee-trail {
     animation: gc-bee-buzz 0.55s ease-in-out 2;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .group:hover .gc-bee-letters,
-    .gc-bee-wordmark:hover .gc-bee-letters {
+    .gc-bee-wordmark:hover .gc-bee-letters,
+    .group:hover .gc-bee-trail,
+    .gc-bee-wordmark:hover .gc-bee-trail {
       animation: none;
     }
   }
