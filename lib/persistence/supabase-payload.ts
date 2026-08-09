@@ -188,11 +188,9 @@ export function isMissingRelationError(error: unknown): boolean {
   return (
     code === '42P01' ||
     code === 'PGRST205' ||
-    code === 'PGRST204' ||
-    message.includes('does not exist') ||
     message.includes('could not find the table') ||
-    message.includes('schema cache') ||
-    details.includes('does not exist')
+    (message.includes('does not exist') && message.includes('table')) ||
+    details.includes('could not find the table')
   );
 }
 

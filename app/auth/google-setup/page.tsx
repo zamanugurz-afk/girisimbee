@@ -52,10 +52,12 @@ ${SUPABASE_HOST}`}</pre>
 
       <section className="mt-4 space-y-4 rounded-2xl border border-border/80 bg-card p-5">
         <h2 className="text-sm font-semibold">3) Supabase → URL Configuration</h2>
-        <p className="text-xs text-muted-foreground">Site URL:</p>
-        <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">http://localhost:3000</pre>
+        <p className="text-xs text-muted-foreground">Site URL (test için Vercel):</p>
+        <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">https://girisimbee.vercel.app</pre>
         <p className="text-xs text-muted-foreground">Redirect URLs (ekle):</p>
-        <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">{`http://localhost:3000/auth/callback
+        <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">{`https://girisimbee.vercel.app/auth/callback
+https://girisimbee.vercel.app/**
+http://localhost:3000/auth/callback
 http://localhost:3000/**`}</pre>
       </section>
 

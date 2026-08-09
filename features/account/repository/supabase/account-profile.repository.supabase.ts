@@ -8,9 +8,9 @@ import type {
   UpdateAccountProfileInput,
 } from '@/features/account/types/account-profile.types';
 import {
-  createAccountProfileEntity,
   mapAccountProfileRow,
   toAccountProfileUpsert,
+  toLegacyAccountProfileInsert,
   type AccountProfileRow,
 } from '@/features/account/repository/supabase/account-profile.mapper';
 
@@ -93,19 +93,34 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
     }
 
     const row = toAccountProfileUpsert(input);
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .insert(row)
       .select('*')
       .single();
+
+    // Live DB may still be legacy schema — retry with compatible columns.
+    if (
+      error
+      && (error.code === 'PGRST204' || error.code === '42703' || /column|schema cache/i.test(error.message))
+    ) {
+      const legacy = toLegacyAccountProfileInsert(input);
+      ({ data, error } = await this.supabase
+        .from(TABLE)
+        .insert(legacy)
+        .select('*')
+        .single());
+    }
+
     if (error) {
-      if (isMissingRelationError(error) || error.code === '42703') {
-        return createAccountProfileEntity(input);
-      }
       // Concurrent insert (trigger + bootstrap): load existing, do not overwrite role.
       if (error.code === '23505') {
         const raced = await this.findByUserId(input.userId);
         if (raced) return raced;
+      }
+      // Missing table only — never fake a profile when columns mismatch.
+      if (error.code === '42P01' || error.code === 'PGRST205') {
+        throw new Error('Profil tablosu bulunamadı. Migration uygulanmalı.');
       }
       throw error;
     }
@@ -169,11 +184,13 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
 }
 
 function normalizeLegacyRow(data: Record<string, unknown>): AccountProfileRow {
+  const display = typeof data.display_name === 'string' ? data.display_name.trim() : '';
+  const [displayFirst, ...displayRest] = display ? display.split(/\s+/) : [];
   return {
     id: String(data.id),
     user_id: (data.user_id as string | null) ?? String(data.id),
-    first_name: (data.first_name as string | null) ?? null,
-    last_name: (data.last_name as string | null) ?? null,
+    first_name: (data.first_name as string | null) ?? displayFirst ?? null,
+    last_name: (data.last_name as string | null) ?? (displayRest.length ? displayRest.join(' ') : null),
     username: (data.username as string | null) ?? null,
     email: (data.email as string | null) ?? null,
     phone: (data.phone as string | null) ?? null,
@@ -186,6 +203,6 @@ function normalizeLegacyRow(data: Record<string, unknown>): AccountProfileRow {
     is_phone_verified: Boolean(data.is_phone_verified ?? data.phone_verified),
     created_at: String(data.created_at),
     updated_at: String(data.updated_at),
-    last_login_at: (data.last_login_at as string | null) ?? null,
+    last_login_at: (data.last_login_at as string | null) ?? (data.last_active_at as string | null) ?? null,
   };
 }

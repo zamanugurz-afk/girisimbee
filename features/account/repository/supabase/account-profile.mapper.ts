@@ -84,6 +84,32 @@ export function toAccountProfileUpsert(input: CreateAccountProfileInput) {
   };
 }
 
+/**
+ * Live DB still uses legacy `profiles` columns (id/email/role/display_name/account_status).
+ * Map app bootstrap input onto that shape until account migration is applied.
+ */
+export function toLegacyAccountProfileInsert(input: CreateAccountProfileInput) {
+  const now = new Date().toISOString();
+  const displayName =
+    [input.firstName, input.lastName].filter(Boolean).join(' ').trim()
+    || input.username
+    || input.email
+    || null;
+  const appRole = input.role ?? 'user';
+  // Live check constraint: member | admin | super_admin (not "user").
+  const dbRole = appRole === 'user' ? 'member' : appRole;
+
+  return {
+    id: input.userId,
+    email: input.email ?? null,
+    display_name: displayName,
+    role: dbRole,
+    account_status: input.status ?? 'active',
+    last_active_at: now,
+    updated_at: now,
+  };
+}
+
 export function createAccountProfileEntity(input: CreateAccountProfileInput): AccountProfile {
   const now = new Date().toISOString();
   return {
