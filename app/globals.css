@@ -213,59 +213,45 @@
     background-size: 24px 24px;
   }
 
-  /* ── Brand wordmark bee accent (toggle via BRAND_BEE_ACCENT) ── */
+  /* ── Brand bee mark (toggle via BRAND_BEE_ACCENT) ── */
   @keyframes gc-bee-buzz {
     0%,
     100% {
       transform: translateY(0) rotate(0deg);
     }
     25% {
-      transform: translateY(-1px) rotate(-2deg);
+      transform: translateY(-1.5px) rotate(-6deg);
     }
     75% {
-      transform: translateY(1px) rotate(2deg);
+      transform: translateY(1px) rotate(5deg);
     }
   }
 
   @keyframes gc-bee-wing-flap {
     0%,
     100% {
-      transform: scaleY(1);
-      opacity: 0.75;
+      opacity: 0.85;
     }
     50% {
-      transform: scaleY(0.65);
       opacity: 1;
     }
   }
 
-  .gc-bee-wordmark .gc-bee-letters {
-    transform-origin: center bottom;
+  .group:hover .gc-bee-glyph,
+  .gc-bee-wordmark:hover .gc-bee-glyph {
+    animation: gc-bee-buzz 0.5s ease-in-out 2;
   }
 
-  .group:hover .gc-bee-wordmark .gc-bee-letters,
-  .gc-bee-wordmark:hover .gc-bee-letters {
-    animation: gc-bee-buzz 0.55s ease-in-out 2;
-  }
-
-  .group:hover .gc-bee-wordmark .gc-bee-wing,
-  .gc-bee-wordmark:hover .gc-bee-wing {
-    animation: gc-bee-wing-flap 0.28s ease-in-out 3;
-  }
-
-  .gc-bee-wing-left {
-    transform-origin: right center;
-  }
-
-  .gc-bee-wing-right {
-    transform-origin: left center;
+  .group:hover .gc-bee-glyph .gc-bee-wing,
+  .gc-bee-wordmark:hover .gc-bee-glyph .gc-bee-wing {
+    animation: gc-bee-wing-flap 0.22s ease-in-out 4;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .group:hover .gc-bee-wordmark .gc-bee-letters,
-    .gc-bee-wordmark:hover .gc-bee-letters,
-    .group:hover .gc-bee-wordmark .gc-bee-wing,
-    .gc-bee-wordmark:hover .gc-bee-wing {
+    .group:hover .gc-bee-glyph,
+    .gc-bee-wordmark:hover .gc-bee-glyph,
+    .group:hover .gc-bee-glyph .gc-bee-wing,
+    .gc-bee-wordmark:hover .gc-bee-glyph .gc-bee-wing {
       animation: none;
     }
   }
