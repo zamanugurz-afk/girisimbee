@@ -228,12 +228,12 @@
   }
 
   .gc-bee-letters {
-    /* Yellow fill with a single vertical black bee stripe */
+    /* Brighter yellow; thin vertical Girisim-black stripe */
     background-image: linear-gradient(
       90deg,
-      #f4af1e 0 42%,
-      #0f172a 42% 58%,
-      #f4af1e 58% 100%
+      #ffc107 0 46%,
+      #0f172a 46% 54%,
+      #ffc107 54% 100%
     );
     -webkit-background-clip: text;
     background-clip: text;

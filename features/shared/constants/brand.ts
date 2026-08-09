@@ -6,8 +6,8 @@ export const BRAND_NAME = 'Girisimbee';
  */
 export const BRAND_BEE_ACCENT = true;
 
-/** Honey yellow for “bee” letters. */
-export const BRAND_BEE_YELLOW = '#F4AF1E';
+/** Honey yellow for “bee” letters — high-visibility amber. */
+export const BRAND_BEE_YELLOW = '#FFC107';
 
 /** Vertical stripe — same dark as Girisim type. */
 export const BRAND_BEE_STRIPE = '#0F172A';
