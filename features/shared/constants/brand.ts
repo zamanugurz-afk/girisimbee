@@ -1,7 +1,7 @@
 export const BRAND_NAME = 'Girisimbee';
 
 /**
- * Inline “bee” letter art after Girisim.
+ * “bee” letter art after Girisim (see /public/brand/bee-letters.png).
  * Set to `false` to restore the plain typographic wordmark.
  */
 export const BRAND_BEE_ACCENT = true;
