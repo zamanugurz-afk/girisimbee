@@ -1,35 +1,43 @@
+import Image from 'next/image';
 import type { HTMLAttributes } from 'react';
-import { BeeMark } from '@/components/girisimco/bee-mark';
 import { BRAND_BEE_ACCENT, BRAND_NAME } from '@/features/shared/constants/brand';
 import { cn } from '@/lib/utils';
 
-type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement> & {
-  /** Show the bee glyph after the name (off when the logo mark already has one). */
-  showGlyph?: boolean;
-};
+type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
- * Girisimbee wordmark — keeps the spelling intact while softening the “b”
- * (≈90% size, slightly lighter weight, baseline-aligned).
- *
- * Optional bee accent is gated by `BRAND_BEE_ACCENT` in brand constants
- * so the treatment can be reverted without hunting through the UI.
+ * Girisimbee wordmark — “Girisim” stays typographic; optional “bee” uses the
+ * branded bee-letter artwork (toggle via `BRAND_BEE_ACCENT`).
  */
-export function BrandWordmark({ className, showGlyph = true, ...props }: BrandWordmarkProps) {
-  const withGlyph = BRAND_BEE_ACCENT && showGlyph;
-
-  return (
-    <span
-      className={cn(withGlyph && 'gc-bee-wordmark inline-flex items-center gap-1.5', className)}
-      aria-label={BRAND_NAME}
-      {...props}
-    >
-      <span>
+export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
+  if (!BRAND_BEE_ACCENT) {
+    return (
+      <span className={cn(className)} aria-label={BRAND_NAME} {...props}>
         Girisim
         <span className="text-[0.9em] font-medium">b</span>
         ee
       </span>
-      {withGlyph ? <BeeMark className="gc-bee-glyph h-[0.95em] w-[0.95em]" tone="brand" /> : null}
+    );
+  }
+
+  return (
+    <span
+      className={cn('gc-bee-wordmark inline-flex items-baseline gap-0.5', className)}
+      aria-label={BRAND_NAME}
+      {...props}
+    >
+      <span>Girisim</span>
+      <span className="gc-bee-letters relative inline-flex translate-y-[0.08em] items-center">
+        <Image
+          src="/brand/bee-letters.png"
+          alt=""
+          width={220}
+          height={100}
+          className="h-[1.35em] w-auto select-none"
+          aria-hidden
+          priority={false}
+        />
+      </span>
     </span>
   );
 }

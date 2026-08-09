@@ -213,45 +213,28 @@
     background-size: 24px 24px;
   }
 
-  /* ── Brand bee mark (toggle via BRAND_BEE_ACCENT) ── */
+  /* ── Brand bee letter art (toggle via BRAND_BEE_ACCENT) ── */
   @keyframes gc-bee-buzz {
     0%,
     100% {
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(0.08em) rotate(0deg);
     }
     25% {
-      transform: translateY(-1.5px) rotate(-6deg);
+      transform: translateY(calc(0.08em - 1px)) rotate(-2deg);
     }
     75% {
-      transform: translateY(1px) rotate(5deg);
+      transform: translateY(calc(0.08em + 1px)) rotate(2deg);
     }
   }
 
-  @keyframes gc-bee-wing-flap {
-    0%,
-    100% {
-      opacity: 0.85;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-
-  .group:hover .gc-bee-glyph,
-  .gc-bee-wordmark:hover .gc-bee-glyph {
-    animation: gc-bee-buzz 0.5s ease-in-out 2;
-  }
-
-  .group:hover .gc-bee-glyph .gc-bee-wing,
-  .gc-bee-wordmark:hover .gc-bee-glyph .gc-bee-wing {
-    animation: gc-bee-wing-flap 0.22s ease-in-out 4;
+  .group:hover .gc-bee-letters,
+  .gc-bee-wordmark:hover .gc-bee-letters {
+    animation: gc-bee-buzz 0.55s ease-in-out 2;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .group:hover .gc-bee-glyph,
-    .gc-bee-wordmark:hover .gc-bee-glyph,
-    .group:hover .gc-bee-glyph .gc-bee-wing,
-    .gc-bee-wordmark:hover .gc-bee-glyph .gc-bee-wing {
+    .group:hover .gc-bee-letters,
+    .gc-bee-wordmark:hover .gc-bee-letters {
       animation: none;
     }
   }

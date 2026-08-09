@@ -2,9 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BeeMark } from '@/components/girisimco/bee-mark';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
-import { BRAND_BEE_ACCENT } from '@/features/shared/constants/brand';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
@@ -13,7 +11,7 @@ interface LogoProps {
   variant?: 'full' | 'mark';
 }
 
-/** Girisimbee mark: indigo circle + bee (or “G” when accent is off). */
+/** Girisimbee mark: indigo circle + white “G”. */
 export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -47,21 +45,11 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
             isMark ? 'h-7 w-7' : 'h-8 w-8',
           )}
         >
-          {BRAND_BEE_ACCENT ? (
-            <BeeMark
-              tone="onDark"
-              className={cn('gc-bee-glyph', isMark ? 'h-[18px] w-[18px]' : 'h-5 w-5')}
-            />
-          ) : (
-            <span className="font-display text-sm font-bold leading-none text-white">G</span>
-          )}
+          <span className="font-display text-sm font-bold leading-none text-white">G</span>
         </span>
       </span>
       {!isMark && (
-        <BrandWordmark
-          showGlyph={false}
-          className="font-display text-lg font-semibold tracking-tight text-[#0F172A] transition-colors duration-300 group-hover:text-[#334155]"
-        />
+        <BrandWordmark className="font-display text-lg font-semibold tracking-tight text-[#0F172A] transition-colors duration-300 group-hover:text-[#334155]" />
       )}
     </Link>
   );

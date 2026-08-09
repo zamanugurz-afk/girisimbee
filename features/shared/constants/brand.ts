@@ -1,8 +1,8 @@
 export const BRAND_NAME = 'Girisimbee';
 
 /**
- * Bee brand mark (logo glyph + wordmark icon).
- * Set to `false` to restore the plain “G” mark / wordmark — no other files needed.
+ * “bee” letter art after Girisim (see /public/brand/bee-letters.png).
+ * Set to `false` to restore the plain typographic wordmark.
  */
 export const BRAND_BEE_ACCENT = true;
 
