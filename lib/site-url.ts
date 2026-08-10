@@ -65,12 +65,14 @@ export function resolveCanonicalSiteUrl(): string {
   return 'https://girisimbee.com';
 }
 
-/** Stable auth origin used while custom-domain DNS is incomplete. */
+/**
+ * Browser auth origin must match the page origin (PKCE verifier is origin-scoped).
+ * Do not bounce girisimbee.com → vercel.app here — that breaks Google return + code exchange.
+ * Server-side callers still use resolveSiteUrl() (stable host when custom DNS is incomplete).
+ */
 export function resolveAuthSiteUrl(): string {
   if (typeof window !== 'undefined') {
-    const origin = normalizeOrigin(window.location.origin);
-    if (isUnstableOrigin(origin)) return STABLE_AUTH_ORIGIN;
-    return origin;
+    return normalizeOrigin(window.location.origin);
   }
   return resolveSiteUrl();
 }

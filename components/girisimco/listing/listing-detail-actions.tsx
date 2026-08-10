@@ -5,7 +5,7 @@ import { Flag, Heart, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
-import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
+import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
 import { ListingReportDialog } from '@/components/girisimco/listing/listing-report-dialog';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
@@ -66,11 +66,13 @@ export function ListingDetailActions({
         <FollowUserButton targetUserId={listing.ownerUserId} className="h-10" />
       ) : null}
 
-      {!isOwner ? (
-        <ListingCallButton
-          phone={listing.contactPhone}
+      {!isOwner && listing.listingId ? (
+        <ListingContactCta
+          listingId={listing.listingId}
+          listingTitle={listing.title}
+          isOwner={isOwner}
+          variant="compact"
           className="h-10 rounded-2xl px-4"
-          label="Ara"
         />
       ) : null}
 
@@ -88,12 +90,12 @@ export function ListingDetailActions({
         <>
           <Button
             type="button"
-            variant="ghost"
-            className="h-10 rounded-2xl text-muted-foreground hover:text-destructive"
+            variant="outline"
+            className="h-10 rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/10"
             onClick={() => setReportOpen(true)}
           >
             <Flag className="mr-2 h-4 w-4" />
-            İlanı bildir
+            İlanı şikayet et
           </Button>
           <ListingReportDialog
             open={reportOpen}

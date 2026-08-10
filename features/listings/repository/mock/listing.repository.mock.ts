@@ -212,6 +212,27 @@ export class MockListingRepository implements ListingRepository {
     return updated;
   }
 
+  async getAcceptedRequesterContactPhone(id: ListingId): Promise<string | null> {
+    const listing = await this.findById(id);
+    return listing?.contactPhone?.trim() || null;
+  }
+
+  async getAcceptedRequesterOwnerIdentity(id: ListingId): Promise<{
+    displayName: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    fullName: string | null;
+  } | null> {
+    const listing = await this.findById(id);
+    if (!listing) return null;
+    return {
+      displayName: 'İlan Sahibi',
+      firstName: null,
+      lastName: null,
+      fullName: 'İlan Sahibi',
+    };
+  }
+
   /** Internal — save entity and maintain slug index */
   save(listing: Listing): Listing {
     this.listings.set(listing.id, listing);

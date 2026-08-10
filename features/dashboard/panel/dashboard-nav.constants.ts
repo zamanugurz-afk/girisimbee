@@ -11,6 +11,7 @@ export const DASHBOARD_ROUTES = {
   ilanlarim: `${DASHBOARD_BASE}/ilanlarim`,
   favorilerim: `${DASHBOARD_BASE}/favorilerim`,
   mesajlarim: `${DASHBOARD_BASE}/mesajlarim`,
+  iletisimTalepleri: `${DASHBOARD_BASE}/iletisim-talepleri`,
   takipcilerim: `${DASHBOARD_BASE}/takipcilerim`,
   bildirimlerim: `${DASHBOARD_BASE}/bildirimlerim`,
   odemelerim: `${DASHBOARD_BASE}/odemelerim`,
@@ -28,6 +29,7 @@ export type DashboardNavId =
   | 'ilanlarim'
   | 'favorilerim'
   | 'mesajlarim'
+  | 'iletisimTalepleri'
   | 'takipcilerim'
   | 'bildirimlerim'
   | 'odemelerim'
@@ -98,12 +100,23 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     icon: 'Star',
   },
   {
+    id: 'iletisimTalepleri',
+    label: 'İletişim Talepleri',
+    href: DASHBOARD_ROUTES.iletisimTalepleri,
+    icon: 'MessageSquare',
+  },
+  {
+    id: 'mesajlarim',
+    label: 'Mesajlarım',
+    href: DASHBOARD_ROUTES.mesajlarim,
+    icon: 'MessageSquare',
+  },
+  {
     id: 'takipcilerim',
     label: 'Takipçilerim',
     href: DASHBOARD_ROUTES.takipcilerim,
     icon: 'Users',
   },
-  // V1: messaging deferred — phone-only contact on listings
   {
     id: 'bildirimlerim',
     label: 'Bildirimlerim',

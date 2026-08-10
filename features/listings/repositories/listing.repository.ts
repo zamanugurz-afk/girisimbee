@@ -9,4 +9,15 @@ export interface ListingRepository
   incrementViewCount(id: ListingId): Promise<void>;
   incrementApplicationCount(id: ListingId): Promise<void>;
   transitionStatus(id: ListingId, status: Listing['status']): Promise<Listing>;
+  /**
+   * SECURITY DEFINER RPC: returns owner phone only when the current auth user
+   * has an accepted contact request for this listing. Never via table SELECT.
+   */
+  getAcceptedRequesterContactPhone(id: ListingId): Promise<string | null>;
+  getAcceptedRequesterOwnerIdentity(id: ListingId): Promise<{
+    displayName: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    fullName: string | null;
+  } | null>;
 }

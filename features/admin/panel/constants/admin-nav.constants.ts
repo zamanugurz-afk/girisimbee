@@ -5,9 +5,11 @@ import {
   CreditCard,
   FileText,
   Handshake,
+  Inbox,
   LayoutDashboard,
   Megaphone,
   Package,
+  Scale,
   Settings,
   Shield,
   Store,
@@ -23,6 +25,7 @@ export type AdminNavId =
   | 'listings'
   | 'verifications'
   | 'moderation'
+  | 'contact_requests'
   | 'payments'
   | 'packages'
   | 'market'
@@ -32,6 +35,7 @@ export type AdminNavId =
   | 'coupons'
   | 'content'
   | 'seo'
+  | 'consent_procedures'
   | 'settings'
   | 'logs';
 
@@ -49,6 +53,7 @@ export const ADMIN_ROUTES = {
   listings: `${ADMIN_PANEL_BASE}/listings`,
   verifications: `${ADMIN_PANEL_BASE}/verifications`,
   moderation: `${ADMIN_PANEL_BASE}/moderation`,
+  contactRequests: `${ADMIN_PANEL_BASE}/iletisim-talepleri`,
   payments: `${ADMIN_PANEL_BASE}/payments`,
   packages: `${ADMIN_PANEL_BASE}/packages`,
   market: `${ADMIN_PANEL_BASE}/market`,
@@ -58,6 +63,7 @@ export const ADMIN_ROUTES = {
   coupons: `${ADMIN_PANEL_BASE}/coupons`,
   content: `${ADMIN_PANEL_BASE}/content`,
   seo: `${ADMIN_PANEL_BASE}/seo`,
+  consentProcedures: `${ADMIN_PANEL_BASE}/izin-saklama`,
   settings: `${ADMIN_PANEL_BASE}/settings`,
   logs: `${ADMIN_PANEL_BASE}/logs`,
 } as const;
@@ -81,9 +87,15 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   },
   {
     id: 'moderation',
-    label: 'Moderasyon',
+    label: 'Moderasyon / Şikayetler',
     href: ADMIN_ROUTES.moderation,
     icon: Shield,
+  },
+  {
+    id: 'contact_requests',
+    label: 'İletişim Talepleri',
+    href: ADMIN_ROUTES.contactRequests,
+    icon: Inbox,
   },
   { id: 'payments', label: 'Ödemeler', href: ADMIN_ROUTES.payments, icon: CreditCard },
   { id: 'packages', label: 'Paketler', href: ADMIN_ROUTES.packages, icon: Package },
@@ -102,6 +114,12 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   },
   { id: 'reports', label: 'Raporlar', href: ADMIN_ROUTES.reports, icon: FileText, exact: true },
   { id: 'coupons', label: 'Kuponlar', href: ADMIN_ROUTES.coupons, icon: Ticket },
+  {
+    id: 'consent_procedures',
+    label: 'İzin Saklama',
+    href: ADMIN_ROUTES.consentProcedures,
+    icon: Scale,
+  },
   { id: 'settings', label: 'Ayarlar', href: ADMIN_ROUTES.settings, icon: Settings },
 ] as const;
 
@@ -110,7 +128,8 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.users]: 'Kullanıcılar',
   [ADMIN_ROUTES.listings]: 'İlanlar',
   [ADMIN_ROUTES.verifications]: 'Doğrulamalar',
-  [ADMIN_ROUTES.moderation]: 'Moderasyon',
+  [ADMIN_ROUTES.moderation]: 'Moderasyon / Şikayetler',
+  [ADMIN_ROUTES.contactRequests]: 'İletişim Talepleri',
   [`${ADMIN_PANEL_BASE}/moderation/words`]: 'Küfür Listesi',
   [`${ADMIN_PANEL_BASE}/moderation/content`]: 'Şüpheli İçerik',
   [ADMIN_ROUTES.payments]: 'Ödemeler',
@@ -122,6 +141,7 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.coupons]: 'Kuponlar',
   [ADMIN_ROUTES.content]: 'İçerik Yönetimi',
   [ADMIN_ROUTES.seo]: 'SEO',
+  [ADMIN_ROUTES.consentProcedures]: 'İzin Saklama & Temin',
   [ADMIN_ROUTES.settings]: 'Ayarlar',
   [ADMIN_ROUTES.logs]: 'Sistem Günlükleri',
   [`${ADMIN_PANEL_BASE}/dashboard`]: 'Yönetim Merkezi',

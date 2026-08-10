@@ -42,9 +42,23 @@ function withProfileHeaders(
   return new NextRequest(request.url, { headers });
 }
 
+function isOAuthReturnQuery(url: URL): boolean {
+  // Supabase PKCE / OAuth returns land with ?code=… (or provider error).
+  // Site URL misconfig often drops these on `/` instead of `/auth/callback`.
+  return Boolean(url.searchParams.get('code') || url.searchParams.get('error'));
+}
+
 export async function middleware(request: NextRequest) {
   const mwStart = nowMs();
   const pathname = request.nextUrl.pathname;
+
+  // Rescue OAuth/PKCE returns that hit the wrong path (e.g. /?code=…).
+  // Must run before maintenance rewrite so the code is exchanged, not swallowed by /bakim.
+  if (pathname !== AUTH_ROUTES.callback && isOAuthReturnQuery(request.nextUrl)) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = AUTH_ROUTES.callback;
+    return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
+  }
 
   // Public gate — rewrite to maintenance page without destroying routes.
   if (isMaintenanceMode() && !isMaintenanceBypassPath(pathname)) {

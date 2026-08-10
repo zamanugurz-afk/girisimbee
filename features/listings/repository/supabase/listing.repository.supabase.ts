@@ -19,6 +19,13 @@ import type { ListingRepository } from '@/features/listings/repositories/listing
 import { LISTING_LIFECYCLE } from '@/features/listings/types/listing.entity.types';
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { mapListingRow, toListingRow, toListingUpdateRow, type ListingRow } from '@/features/listings/repository/supabase/listing.mapper';
+import {
+  ACCEPTED_REQUESTER_CONTACT_PHONE_RPC,
+  ACCEPTED_REQUESTER_OWNER_IDENTITY_RPC,
+  LISTING_SAFE_SELECT,
+  OWNER_CONTACT_CHANNELS_RPC,
+  type OwnerContactChannels,
+} from '@/features/listings/repository/supabase/listing-safe-select';
 import { getSortColumn } from '@/features/listings/utils/listing-sort';
 import { computeFranchiseListingExpiry, computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import {
@@ -44,12 +51,10 @@ import { traceListingPublish, logPublicationState, tracePublishFailure } from '@
 
 const TABLE = 'marketplace_listings';
 
-/** Join listing type + category slugs for browse/card mapping. */
-const LISTING_BROWSE_SELECT = `
-  *,
-  listing_type:marketplace_listing_types!listing_type_id(id, slug),
-  category:marketplace_categories!category_id(id, slug)
-`;
+/** Browse/card mapping — never includes contact_phone (DB column revoked for client roles). */
+const LISTING_BROWSE_SELECT = LISTING_SAFE_SELECT as '*';
+/** Typed as '*' for PostgREST client generics; runtime value excludes contact_phone. */
+const LISTING_ROW_SELECT = LISTING_SAFE_SELECT as '*';
 
 type ListingBrowseRow = ListingRow & {
   listing_type?: { id: string; slug: string } | null;
@@ -138,23 +143,99 @@ function logBrowseQuery(filter: ListingFilter, log: BrowseQueryLog): void {
 export class SupabaseListingRepository implements ListingRepository {
   constructor(private supabase: SupabaseClient) {}
 
+  /**
+   * Private owner/admin contact channels via SECURITY DEFINER RPC
+   * (never via table SELECT for client roles).
+   */
+  private async resolveOwnerContactChannels(
+    listingId: string,
+  ): Promise<OwnerContactChannels | null> {
+    try {
+      const { data, error } = await this.supabase.rpc(OWNER_CONTACT_CHANNELS_RPC, {
+        p_listing_id: listingId,
+      });
+      if (error || !data || typeof data !== 'object') return null;
+      const row = data as Record<string, unknown>;
+      return {
+        contactPhone: typeof row.contact_phone === 'string' ? row.contact_phone : null,
+        contactWhatsapp:
+          typeof row.contact_whatsapp === 'string' ? row.contact_whatsapp : null,
+        contactEmail: typeof row.contact_email === 'string' ? row.contact_email : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private async mapRowWithOptionalOwnerChannels(
+    row: ListingRow,
+    known?: Partial<OwnerContactChannels>,
+  ): Promise<Listing> {
+    const listing = mapListingRow(row);
+    const needsRpc =
+      !known
+      || known.contactPhone === undefined
+      || known.contactWhatsapp === undefined
+      || known.contactEmail === undefined;
+    const channels = needsRpc
+      ? await this.resolveOwnerContactChannels(String(row.id))
+      : null;
+    return {
+      ...listing,
+      contactPhone:
+        known?.contactPhone !== undefined
+          ? known.contactPhone
+          : (channels?.contactPhone ?? null),
+      contactWhatsapp:
+        known?.contactWhatsapp !== undefined
+          ? known.contactWhatsapp
+          : (channels?.contactWhatsapp ?? null),
+      contactEmail:
+        known?.contactEmail !== undefined
+          ? known.contactEmail
+          : (channels?.contactEmail ?? null),
+    };
+  }
+
   async findById(id: ListingId, filter?: RepositoryFilter): Promise<Listing | null> {
-    let query = this.supabase.from(TABLE).select('*').eq('id', id);
+    let query = this.supabase.from(TABLE).select(LISTING_ROW_SELECT).eq('id', id);
     if (!filter?.includeDeleted) query = query.is('deleted_at', null);
     const { data, error } = await query.maybeSingle();
     if (error) throw error;
-    return data ? mapListingRow(data as ListingRow) : null;
+    if (!data) return null;
+    const listing = mapListingRow(data as ListingRow);
+    const cleared = {
+      ...listing,
+      contactPhone: null,
+      contactWhatsapp: null,
+      contactEmail: null,
+    };
+    try {
+      const { data: auth } = await this.supabase.auth.getUser();
+      if (!auth.user) return cleared;
+    } catch {
+      return cleared;
+    }
+    return this.mapRowWithOptionalOwnerChannels(data as ListingRow);
   }
 
   async findBySlug(slug: string): Promise<Listing | null> {
     const { data, error } = await this.supabase
       .from(TABLE)
-      .select('*')
+      .select(LISTING_ROW_SELECT)
       .eq('slug', slug)
       .is('deleted_at', null)
       .maybeSingle();
     if (error) throw error;
-    return data ? mapListingRow(data as ListingRow) : null;
+    // Public slug lookup — never call owner contact RPC.
+    if (!data) return null;
+    const listing = mapListingRow(data as ListingRow);
+    return {
+      ...listing,
+      contactPhone: null,
+      contactWhatsapp: null,
+      contactEmail: null,
+    };
   }
 
   private applyFilter(
@@ -382,13 +463,21 @@ export class SupabaseListingRepository implements ListingRepository {
     });
 
     try {
-      const { data, error } = await this.supabase.from(TABLE).insert(row).select('*').single();
+      const { data, error } = await this.supabase
+        .from(TABLE)
+        .insert(row)
+        .select(LISTING_ROW_SELECT)
+        .single();
       if (error) throw error;
       logPublicationState(String(row.module_key ?? 'listing'), 'after_insert', data as Record<string, unknown>);
       traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert_response', {
         response: data,
       });
-      return mapListingRow(data as ListingRow);
+      return this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
+        contactPhone: entity.contactPhone ?? null,
+        contactWhatsapp: entity.contactWhatsapp ?? null,
+        contactEmail: entity.contactEmail ?? null,
+      });
     } catch (error) {
       tracePublishFailure(String(row.module_key ?? 'listing'), 'supabase_insert', error, {
         table: TABLE,
@@ -404,13 +493,25 @@ export class SupabaseListingRepository implements ListingRepository {
       nullableUuidFields: ['company_id'],
     });
     row.updated_at = now();
-    const { data, error } = await this.supabase.from(TABLE).update(row).eq('id', id).select('*').single();
+    const { data, error } = await this.supabase
+      .from(TABLE)
+      .update(row)
+      .eq('id', id)
+      .select(LISTING_ROW_SELECT)
+      .single();
     if (error) {
       logSupabaseError(error, `${TABLE} update ${id}`);
       throw error;
     }
     if (!data) throw new NotFoundError('Listing', id);
-    return mapListingRow(data as ListingRow);
+    const known: Partial<OwnerContactChannels> = {};
+    if (input.contactPhone !== undefined) known.contactPhone = input.contactPhone;
+    if (input.contactWhatsapp !== undefined) known.contactWhatsapp = input.contactWhatsapp;
+    if (input.contactEmail !== undefined) known.contactEmail = input.contactEmail;
+    return this.mapRowWithOptionalOwnerChannels(
+      data as ListingRow,
+      Object.keys(known).length > 0 ? known : undefined,
+    );
   }
 
   async softDelete(id: ListingId): Promise<void> {
@@ -431,11 +532,11 @@ export class SupabaseListingRepository implements ListingRepository {
       .from(TABLE)
       .update({ deleted_at: null, status: 'draft', updated_at: now() })
       .eq('id', id)
-      .select('*')
+      .select(LISTING_ROW_SELECT)
       .single();
     if (error) throw error;
     if (!data) throw new NotFoundError('Listing', id);
-    return mapListingRow(data as ListingRow);
+    return this.mapRowWithOptionalOwnerChannels(data as ListingRow);
   }
 
   async incrementViewCount(id: ListingId): Promise<void> {
@@ -479,12 +580,57 @@ export class SupabaseListingRepository implements ListingRepository {
         : {}),
       ...(to === 'pending_review' ? { rejected_reason: null } : {}),
     });
-    const { data, error } = await this.supabase.from(TABLE).update(update).eq('id', id).select('*').single();
+    const { data, error } = await this.supabase
+      .from(TABLE)
+      .update(update)
+      .eq('id', id)
+      .select(LISTING_ROW_SELECT)
+      .single();
     if (error) {
       logSupabaseError(error, `${TABLE} transitionStatus ${id} → ${to}`);
       throw error;
     }
-    return mapListingRow(data as ListingRow);
+    return this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
+      contactPhone: listing.contactPhone,
+      contactWhatsapp: listing.contactWhatsapp,
+      contactEmail: listing.contactEmail,
+    });
+  }
+
+  async getAcceptedRequesterContactPhone(id: ListingId): Promise<string | null> {
+    try {
+      const { data, error } = await this.supabase.rpc(ACCEPTED_REQUESTER_CONTACT_PHONE_RPC, {
+        p_listing_id: id,
+      });
+      if (error) return null;
+      return typeof data === 'string' && data.trim() ? data : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getAcceptedRequesterOwnerIdentity(id: ListingId): Promise<{
+    displayName: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    fullName: string | null;
+  } | null> {
+    try {
+      const { data, error } = await this.supabase.rpc(ACCEPTED_REQUESTER_OWNER_IDENTITY_RPC, {
+        p_listing_id: id,
+      });
+      if (error || !data || typeof data !== 'object') return null;
+      const row = data as Record<string, unknown>;
+      const asText = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null);
+      return {
+        displayName: asText(row.displayName),
+        firstName: asText(row.firstName),
+        lastName: asText(row.lastName),
+        fullName: asText(row.fullName),
+      };
+    } catch {
+      return null;
+    }
   }
 
   private async uniqueSlug(base: string): Promise<string> {

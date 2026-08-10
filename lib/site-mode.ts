@@ -28,12 +28,20 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
 
   if (pathname.startsWith('/_next/')) return true;
 
-  // Auth round-trips (email verify + OAuth PKCE)
+  // Auth round-trips + login surfaces (needed while public site is gated)
   if (
     pathname === '/auth/callback'
     || pathname === '/auth/verify-success'
     || pathname === '/auth/verify-error'
     || pathname === '/auth/signout'
+    || pathname === '/auth/yasal-onay'
+    || pathname === '/auth/google-setup'
+    || pathname === '/giris'
+    || pathname === '/kayit'
+    || pathname === '/sifremi-unuttum'
+    || pathname === '/sifre-sifirla'
+    || pathname === '/sifre-yenile'
+    || pathname === '/eposta-dogrula'
   ) {
     return true;
   }

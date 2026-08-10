@@ -108,6 +108,10 @@ ${EXPECTED_SUPABASE_HOST}`}</pre>
         <p className="text-xs text-muted-foreground">Redirect URLs:</p>
         <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">{`https://girisimbee.vercel.app/auth/callback
 https://girisimbee.vercel.app/**
+https://girisimbee.com/auth/callback
+https://girisimbee.com/**
+https://www.girisimbee.com/auth/callback
+https://www.girisimbee.com/**
 http://localhost:3000/auth/callback
 http://localhost:3000/**`}</pre>
         <p className="text-xs">

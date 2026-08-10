@@ -6,7 +6,8 @@ import { FileText, ListChecks, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
-import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
+import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
+import { OwnerContactRequestsPanel } from '@/features/contact-requests/components/owner-contact-requests-panel';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import {
   DetailCard,
@@ -84,11 +85,17 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-      <ListingContactPhone
-        phone={listing.contactPhone}
-        variant="sidebar"
-        hideCallButton={isOwner}
-      />
+      {listing.listingId && !isOwner ? (
+        <ListingContactCta
+          listingId={listing.listingId}
+          listingTitle={listing.title}
+          isOwner={isOwner}
+        />
+      ) : null}
+
+      {isOwner && listing.listingId ? (
+        <OwnerContactRequestsPanel listingId={listing.listingId} />
+      ) : null}
 
       <DetailCard className="!p-0 overflow-hidden">
         <div className="border-b border-border/70 bg-gradient-to-br from-primary/[0.06] via-transparent to-transparent px-5 py-5 dark:border-white/10 dark:from-primary/10">
