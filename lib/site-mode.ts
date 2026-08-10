@@ -28,7 +28,7 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
 
   if (pathname.startsWith('/_next/')) return true;
 
-  // Auth round-trips + login surfaces (needed while public site is gated)
+  // Auth round-trips + login / account surfaces (needed while public site is gated)
   if (
     pathname === '/auth/callback'
     || pathname === '/auth/verify-success'
@@ -42,6 +42,9 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
     || pathname === '/sifre-sifirla'
     || pathname === '/sifre-yenile'
     || pathname === '/eposta-dogrula'
+    || pathname.startsWith('/dashboard')
+    || pathname.startsWith('/admin')
+    || pathname.startsWith('/ilan/')
   ) {
     return true;
   }
