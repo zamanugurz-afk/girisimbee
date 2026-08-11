@@ -96,7 +96,8 @@ const STEP_PREVIEW: ListingFormStepDef = {
 const STEP_PACKAGE: ListingFormStepDef = {
   id: 'package',
   title: 'Paket Seç',
-  description: 'Standart yayın ücretsizdir. İsterseniz ana sayfa paketlerini ekleyebilirsiniz.',
+  description:
+    'Standart yayın 30 gün ve kategori başına 1 ücretsizdir. Ek ilan / yenileme 99 TL. İsterseniz Vitrin veya Acil doping ekleyebilirsiniz.',
   package: true,
 };
 

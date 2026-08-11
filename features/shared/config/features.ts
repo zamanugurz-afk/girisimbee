@@ -1,11 +1,23 @@
 /**
- * MVP product strategy: free ecosystem, no monetization.
- * Set to true when premium features are ready to launch.
+ * Monetization readiness.
+ *
+ * - ENABLE_PREMIUM: shows package UI (Standart / Vitrin / Acil + paid categories).
+ * - PREMIUM_LIVE_PAYMENTS: when false (default), package payment auto-passes via
+ *   client simulation so QA can publish without a PSP.
+ *   Set NEXT_PUBLIC_PREMIUM_LIVE_PAYMENTS=true when iyzico/etc is wired.
  */
-export const ENABLE_PREMIUM = false;
+export const ENABLE_PREMIUM = true;
 
 export function isPremiumEnabled(): boolean {
   return ENABLE_PREMIUM;
+}
+
+/** Real checkout — keep false until payment provider is live. */
+export const PREMIUM_LIVE_PAYMENTS =
+  process.env.NEXT_PUBLIC_PREMIUM_LIVE_PAYMENTS === 'true';
+
+export function isPremiumLivePayments(): boolean {
+  return PREMIUM_LIVE_PAYMENTS;
 }
 
 export const PREMIUM_NAV_LABELS = ['Fiyatlandırma', 'Paketler', 'Premium'] as const;

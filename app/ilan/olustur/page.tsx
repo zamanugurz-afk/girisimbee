@@ -147,6 +147,15 @@ function CreateListingContent() {
     const simulationReady = values.packageSelection?.simulationStatus === 'ready';
     const ownerId = user?.id ?? String(actorId);
 
+    // Persist publish-consent audit (non-blocking for UX; server validates keys).
+    if (values.publishConsents && listing?.id) {
+      void fetch(`/api/listings/${listing.id}/publish-consents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publishConsents: values.publishConsents }),
+      }).catch(() => undefined);
+    }
+
     registerListingTextFingerprint(
       String(values.core?.title ?? ''),
       String(values.core?.shortDescription ?? ''),
@@ -209,22 +218,15 @@ function CreateListingContent() {
   return (
     <main
       className={cn(
-        'relative mx-auto px-5 pb-16 pt-20 lg:px-8',
+        'relative mx-auto bg-[#FAFBFC] px-5 pb-16 pt-20 dark:bg-background lg:px-8',
         categoryId ? 'max-w-2xl' : 'max-w-5xl',
       )}
     >
-      {!categoryId && (
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.10),_transparent_60%)]"
-          aria-hidden
-        />
-      )}
-
       <div className="mb-8">
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
           İlan Oluştur
         </h1>
-        <p className="mt-1.5 max-w-xl text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
           {categoryId
             ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
             : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
@@ -260,7 +262,7 @@ function CreateListingContent() {
         />
       ) : (
         categoryId && (
-          <div className="rounded-xl border border-dashed border-border/80 p-12 text-center text-gc-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-[#E6E8EE] bg-white p-12 text-center text-sm text-[#64748B] dark:border-border dark:bg-card">
             Form yükleniyor…
           </div>
         )

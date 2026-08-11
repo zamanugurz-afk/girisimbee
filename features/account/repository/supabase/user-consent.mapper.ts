@@ -17,6 +17,13 @@ export interface UserConsentRow {
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
+  terms_version?: string | null;
+  privacy_version?: string | null;
+  kvkk_ack_version?: string | null;
+  cookies_version?: string | null;
+  marketing_withdrawn_at?: string | null;
+  sms_withdrawn_at?: string | null;
+  email_withdrawn_at?: string | null;
 }
 
 export function mapUserConsentRow(row: UserConsentRow): UserConsent {
@@ -33,6 +40,13 @@ export function mapUserConsentRow(row: UserConsentRow): UserConsent {
     ipAddress: row.ip_address,
     userAgent: row.user_agent,
     createdAt: row.created_at,
+    termsVersion: row.terms_version ?? null,
+    privacyVersion: row.privacy_version ?? null,
+    kvkkAckVersion: row.kvkk_ack_version ?? null,
+    cookiesVersion: row.cookies_version ?? null,
+    marketingWithdrawnAt: row.marketing_withdrawn_at ?? null,
+    smsWithdrawnAt: row.sms_withdrawn_at ?? null,
+    emailWithdrawnAt: row.email_withdrawn_at ?? null,
   };
 }
 
@@ -51,6 +65,13 @@ export function createUserConsentEntity(input: CreateUserConsentInput): UserCons
     ipAddress: input.ipAddress ?? null,
     userAgent: input.userAgent ?? null,
     createdAt: now,
+    termsVersion: input.termsVersion ?? null,
+    privacyVersion: input.privacyVersion ?? null,
+    kvkkAckVersion: input.kvkkAckVersion ?? null,
+    cookiesVersion: input.cookiesVersion ?? null,
+    marketingWithdrawnAt: input.marketingWithdrawnAt ?? null,
+    smsWithdrawnAt: input.smsWithdrawnAt ?? null,
+    emailWithdrawnAt: input.emailWithdrawnAt ?? null,
   };
 }
 
@@ -68,5 +89,12 @@ export function toUserConsentInsert(entity: UserConsent) {
     ip_address: entity.ipAddress,
     user_agent: entity.userAgent,
     created_at: entity.createdAt,
+    terms_version: entity.termsVersion ?? null,
+    privacy_version: entity.privacyVersion ?? null,
+    kvkk_ack_version: entity.kvkkAckVersion ?? null,
+    cookies_version: entity.cookiesVersion ?? null,
+    marketing_withdrawn_at: entity.marketingWithdrawnAt ?? null,
+    sms_withdrawn_at: entity.smsWithdrawnAt ?? null,
+    email_withdrawn_at: entity.emailWithdrawnAt ?? null,
   };
 }

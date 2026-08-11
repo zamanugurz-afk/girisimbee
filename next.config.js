@@ -6,6 +6,7 @@ const nextConfig = {
   images: { unoptimized: true },
   async redirects() {
     return [
+      { source: '/ilanlar', destination: '/kesfet', permanent: false },
       { source: '/franchise', destination: '/franchise/buy', permanent: false },
       { source: '/hesabim', destination: '/dashboard', permanent: false },
       { source: '/hesabim/profilim', destination: '/dashboard/profil', permanent: false },

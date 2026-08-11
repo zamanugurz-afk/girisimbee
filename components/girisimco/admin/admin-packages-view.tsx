@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { adminApi } from '@/features/admin/lib/admin-api-client';
+import { PERMISSIONS } from '@/features/authorization/permission.constants';
+import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import type { AdminCouponView, AdminPackageCatalogView } from '@/features/admin/types/admin.types';
 import type { MarketplaceSettings } from '@/features/monetization/types/listing-package.types';
 import type { MarketplacePayment } from '@/features/monetization/types/payment.types';
@@ -22,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
 
 const MODULE_LABELS: Record<ModuleKey, string> = {
-  franchise: 'Franchise',
+  franchise: 'Franchise İlanları',
   employers: 'İşveren',
   candidates: 'Aday',
   entrepreneurs: 'Girişimci',
@@ -31,6 +33,9 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
 };
 
 export function AdminPackagesView() {
+  const { hasPermission } = useRbac();
+  const canGrantBoost = hasPermission(PERMISSIONS.LISTINGS_GRANT_BOOST);
+  const canManageSettings = hasPermission(PERMISSIONS.SETTINGS_MANAGE);
   const [settings, setSettings] = useState<MarketplaceSettings | null>(null);
   const [catalogs, setCatalogs] = useState<AdminPackageCatalogView[]>([]);
   const [coupons, setCoupons] = useState<AdminCouponView[]>([]);
@@ -69,6 +74,10 @@ export function AdminPackagesView() {
   }, [load]);
 
   async function saveLimit() {
+    if (!canManageSettings) {
+      toast.error('Bu işlem yalnızca süper yönetici tarafından yapılabilir.');
+      return;
+    }
     const limit = Number(limitInput);
     if (!Number.isFinite(limit) || limit < 0) {
       toast.error('Geçerli bir limit girin');
@@ -87,6 +96,10 @@ export function AdminPackagesView() {
   }
 
   async function handleGrantPackage() {
+    if (!canGrantBoost) {
+      toast.error('Bu işlem yalnızca süper yönetici tarafından yapılabilir.');
+      return;
+    }
     if (!grantUserId.trim() || !grantPackage.trim()) {
       toast.error('Kullanıcı ID ve paket slug girin');
       return;
@@ -152,7 +165,12 @@ export function AdminPackagesView() {
                 onChange={(e) => setLimitInput(e.target.value)}
                 className="rounded-lg"
               />
-              <Button size="sm" className="rounded-lg" disabled={busy} onClick={() => void saveLimit()}>
+              <Button
+                size="sm"
+                className="rounded-lg"
+                disabled={busy || !canManageSettings}
+                onClick={() => void saveLimit()}
+              >
                 Kaydet
               </Button>
             </div>
@@ -160,6 +178,7 @@ export function AdminPackagesView() {
         </div>
       </section>
 
+      {canGrantBoost ? (
       <section className="rounded-xl border border-border/80 p-5 dark:border-white/10">
         <h2 className="text-sm font-semibold text-foreground">Paket Ata</h2>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -201,6 +220,7 @@ export function AdminPackagesView() {
           </Button>
         </div>
       </section>
+      ) : null}
 
       <section>
         <h2 className="mb-3 text-sm font-semibold text-foreground">Modül Katalogları</h2>

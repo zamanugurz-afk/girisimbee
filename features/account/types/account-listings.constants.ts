@@ -17,7 +17,7 @@ export const ACCOUNT_LISTING_CATEGORIES = [
   'Tümü',
   'Yatırım',
   'İş',
-  'Franchise',
+  'Franchise İlanları',
   'Ortaklık',
 ] as const;
 

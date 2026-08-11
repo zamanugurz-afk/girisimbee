@@ -10,14 +10,36 @@ import {
 
 /** Turkish title case: "martı döner ortak arıyor" → "Martı Döner Ortak Arıyor" */
 export function toTurkishTitleCase(input: string): string {
+  // Prefer quality layer (whitelist + small words) when available — inline fallback keeps policy pure.
   return input
     .trim()
     .replace(/\s+/g, ' ')
     .split(' ')
     .filter(Boolean)
-    .map((word) => {
+    .map((word, index) => {
       const lower = word.toLocaleLowerCase('tr-TR');
       if (!lower) return lower;
+      const small = new Set(['ve', 'veya', 'ile', 'için', 'de', 'da', 'ki']);
+      const whitelist: Record<string, string> = {
+        ai: 'AI',
+        api: 'API',
+        saas: 'SaaS',
+        b2b: 'B2B',
+        b2c: 'B2C',
+        crm: 'CRM',
+        erp: 'ERP',
+        iot: 'IoT',
+        nft: 'NFT',
+        web3: 'Web3',
+        fintech: 'FinTech',
+        linkedin: 'LinkedIn',
+        openai: 'OpenAI',
+        chatgpt: 'ChatGPT',
+        iphone: 'iPhone',
+        kobi: 'KOBİ',
+      };
+      if (whitelist[lower]) return whitelist[lower];
+      if (index > 0 && small.has(lower)) return lower;
       return lower.charAt(0).toLocaleUpperCase('tr-TR') + lower.slice(1);
     })
     .join(' ');
@@ -108,7 +130,10 @@ export type ContentPolicyIssueCode =
   | 'call_me'
   | 'duplicate'
   | 'unsafe_image_name'
-  | 'image_dimensions';
+  | 'image_dimensions'
+  | 'meaningless'
+  | 'title_emoji'
+  | 'category_mismatch';
 
 export type ContentPolicySeverity = 'block' | 'suspicious';
 
@@ -146,7 +171,8 @@ export function hasExcessiveCaps(text: string): boolean {
 export function hasSpamRepetition(text: string): boolean {
   if (/(.)\1{4,}/u.test(text)) return true;
   if (/([!?.]){4,}/.test(text)) return true;
-  if (/(\b\w+\b)(?:\s+\1){3,}/iu.test(text)) return true;
+  // Case-insensitive word spam: "Yatırım yatırım yatırım yatırım"
+  if (/(\b[\p{L}\p{N}]+\b)(?:\s+\1){3,}/iu.test(text)) return true;
   return false;
 }
 
@@ -295,16 +321,8 @@ export function validateListingTitle(title: string): ContentPolicyIssue[] {
   const trimmed = title.trim();
   if (!trimmed) return issues;
 
-  if (!isTurkishTitleCase(trimmed)) {
-    issues.push({
-      code: 'title_case',
-      severity: 'block',
-      field: 'title',
-      message:
-        'Başlık her kelimenin ilk harfi büyük olacak şekilde yazılmalıdır. Örnek: SaaS Girişimine Yatırımcı Arıyoruz',
-    });
-  }
-
+  // Title-case mismatches are soft: blur suggests + publish normalizes.
+  // Still block extreme ALL CAPS / spam / profanity here.
   pushTextQualityIssues(trimmed, 'title', issues);
 
   const bad = findProfanity(trimmed);
@@ -313,7 +331,8 @@ export function validateListingTitle(title: string): ContentPolicyIssue[] {
       code: 'profanity',
       severity: 'block',
       field: 'title',
-      message: 'Başlıkta uygunsuz veya küfür içeren ifadeler kullanılamaz.',
+      message:
+        'İlanınızda uygun olmayan bir ifade bulundu. Lütfen metninizi düzenleyerek tekrar deneyin.',
     });
   }
 
@@ -339,7 +358,8 @@ export function validateListingTextBody(
       code: 'profanity',
       severity: 'block',
       field,
-      message: 'Metinde uygunsuz veya küfür içeren ifadeler kullanılamaz.',
+      message:
+        'İlanınızda uygun olmayan bir ifade bulundu. Lütfen metninizi düzenleyerek tekrar deneyin.',
     });
   }
 

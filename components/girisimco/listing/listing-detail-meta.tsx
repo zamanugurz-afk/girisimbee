@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
-import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
+import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import type { LucideIcon } from 'lucide-react';
@@ -89,11 +89,15 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
         </p>
       ) : null}
 
-      <ListingContactPhone
-        phone={listing.contactPhone}
-        variant="hero"
-        hideCallButton={isOwner}
-      />
+      {listing.listingId && !isOwner ? (
+        <div className="mt-4">
+          <ListingContactCta
+            listingId={listing.listingId}
+            listingTitle={listing.title}
+            isOwner={isOwner}
+          />
+        </div>
+      ) : null}
 
       <div className="mt-6 grid flex-1 grid-cols-1 gap-2.5 sm:grid-cols-2">
         {listing.listingNumber ? (

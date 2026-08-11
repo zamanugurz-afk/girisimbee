@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ids } from '@/lib/domain/ids';
 import { getAccountService } from '@/lib/persistence/container';
+import { syncMarketplaceProfilePhone } from '@/features/listings/lib/resolve-publish-contact-phone';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AccountConsentsCard } from '@/features/account/components/AccountConsentsCard';
 import { AccountEmailVerifyDialog } from '@/features/account/components/AccountEmailVerifyDialog';
@@ -148,6 +149,11 @@ export function AccountProfile({
       setProfile(updated);
       setEditOpen(false);
       toast.success('Profil bilgileri güncellendi');
+      if (nextPhone) {
+        void syncMarketplaceProfilePhone(ids.user(userId), nextPhone).catch(() => {
+          /* marketplace sync best-effort — publish form also resolves account phone */
+        });
+      }
       if (phoneChanged && nextPhone) {
         toast.message('Telefon değişti', {
           description: 'Yeni numarayı doğrulamanız gerekiyor.',
@@ -197,6 +203,9 @@ export function AccountProfile({
         onClose={() => setPhoneVerifyOpen(false)}
         onVerified={(patch) => {
           setProfile((prev) => (prev ? { ...prev, ...patch, phoneVerified: true } : prev));
+          if (patch.phone) {
+            void syncMarketplaceProfilePhone(ids.user(userId), patch.phone).catch(() => {});
+          }
         }}
       />
     </div>

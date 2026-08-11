@@ -126,6 +126,9 @@ export { AdminPaymentsView } from '@/features/admin/panel/views/AdminPaymentsVie
 export { AdminSupportView } from '@/features/admin/panel/views/AdminSupportView';
 export { AdminContentView } from '@/features/admin/panel/views/AdminContentView';
 export { AdminSettingsView } from '@/features/admin/panel/views/AdminSettingsView';
+export { AdminConsentProceduresView } from '@/features/admin/consent-procedures/components/AdminConsentProceduresView';
+export { AdminKvkkConsentsView } from '@/features/admin/panel/components/AdminKvkkConsentsView';
+export { AdminContactRequestsView } from '@/features/admin/panel/components/AdminContactRequestsView';
 
 export {
   ADMIN_NAV_ITEMS,

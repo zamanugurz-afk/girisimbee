@@ -14,6 +14,7 @@ import {
   contentPolicyIssuesToFieldErrors,
   validateListingContentPolicy,
 } from '@/features/listings/lib/listing-content-policy';
+import { evaluateListingContentQuality } from '@/features/listings/lib/listing-content-quality';
 
 const STAGE_FIELD_KEY = 'stage';
 
@@ -189,14 +190,21 @@ export const listingImageUrlSchema = z.string().refine(
 
 /** Core listing fields — shared across all categories. */
 export const coreListingFieldsSchema = z.object({
-  title: z.string().min(5, 'Başlık en az 5 karakter olmalı.').max(200),
-  shortDescription: z.string().min(30, 'Kısa açıklama en az 30 karakter olmalı.').max(500),
+  title: z
+    .string({ required_error: 'Başlık zorunludur.' })
+    .trim()
+    .min(5, 'Başlık en az 5 karakter olmalı.')
+    .max(200),
+  shortDescription: z
+    .string({ required_error: 'Kısa açıklama zorunludur.' })
+    .trim()
+    .min(30, 'Kısa açıklama en az 30 karakter olmalı.')
+    .max(500),
   longDescription: z
-    .string()
+    .string({ required_error: 'Detaylı açıklama zorunludur.' })
+    .trim()
     .min(100, 'Detaylı açıklama en az 100 karakter olmalı.')
-    .max(10000)
-    .optional()
-    .default(''),
+    .max(10000),
   location: z.string().max(200).nullable().optional(),
   city: z.string().max(100).nullable().optional(),
   country: z.string().default('TR'),
@@ -565,7 +573,28 @@ export function validateListingFormStep(
         ? payload.images.map((img) => img.alt ?? '').filter(Boolean)
         : undefined,
     });
-    const fieldErrors = contentPolicyIssuesToFieldErrors(policyIssues);
+
+    const quality = evaluateListingContentQuality({
+      title: step.coreFields.includes('title') ? payload.core.title : undefined,
+      shortDescription: step.coreFields.includes('shortDescription')
+        ? payload.core.shortDescription
+        : undefined,
+      longDescription: step.coreFields.includes('longDescription')
+        ? payload.core.longDescription
+        : undefined,
+      applyNormalization: true,
+    });
+
+    const qualityOnStep = quality.blocks.filter(
+      (issue) =>
+        issue.field
+        && step.coreFields!.includes(issue.field as keyof CoreListingFieldsInput),
+    );
+
+    const fieldErrors = {
+      ...contentPolicyIssuesToFieldErrors(policyIssues),
+      ...contentPolicyIssuesToFieldErrors(qualityOnStep),
+    };
     if (Object.keys(fieldErrors).length > 0) {
       throw new z.ZodError(
         Object.entries(fieldErrors).map(([path, message]) => ({

@@ -311,11 +311,10 @@ export function aggregateToListingDetail(
     listingId: listing.id,
     listingNumber: formatListingNumber(listing.id),
     ownerUserId: listing.ownerId,
-    contactPhone:
-      // Membership phone is source of truth; listing snapshot is fallback for older ads.
-      toDisplayValue(context?.profile?.phone)
-      || toDisplayValue(listing.contactPhone)
-      || null,
+    // Public detail never exposes direct contact channels — contact-request flow only.
+    contactPhone: null,
+    contactWhatsapp: null,
+    contactEmail: null,
     companyId: listing.companyId,
     category: {
       id: resolvedIntent,

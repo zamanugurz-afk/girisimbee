@@ -11,6 +11,11 @@ import type {
 } from '@/features/account/types/account-profile.types';
 import type { CreateUserSecurityLogInput } from '@/features/account/types/user-security-log.types';
 import type { UpdateUserSettingsInput } from '@/features/account/types/user-settings.types';
+import type {
+  RecordLegalAcceptanceInput,
+  UpdateOptionalConsentsInput,
+} from '@/features/account/types/user-consent.types';
+import { LEGAL_DOCUMENT_VERSIONS } from '@/features/legal/config/legal-documents.config';
 
 export interface BootstrapAccountInput {
   userId: UserId;
@@ -20,7 +25,10 @@ export interface BootstrapAccountInput {
   username?: string | null;
   phone?: string | null;
   emailVerified?: boolean;
-  /** Stored on profiles.role — OAuth defaults to `user` */
+  /**
+   * Ignored for privilege — signup/OAuth always persist role `user`.
+   * Elevated roles are assigned only via trusted admin/service operations.
+   */
   role?: AccountStoredRole;
   consents?: SignUpConsents;
   ipAddress?: string | null;
@@ -68,7 +76,10 @@ export class AccountService {
   }
 
   updateProfile(userId: UserId, input: UpdateAccountProfileInput) {
-    return this.profiles.update(userId, input);
+    // Client/account paths must never mutate role — DB trigger is the backstop.
+    const { role: _ignoredRole, ...safe } = input;
+    void _ignoredRole;
+    return this.profiles.update(userId, safe);
   }
 
   updateSettings(userId: UserId, input: UpdateUserSettingsInput) {
@@ -126,6 +137,8 @@ export class AccountService {
       }
     }
 
+    // Never honor client/OAuth metadata role (admin/super_admin escalation).
+    void input.role;
     const profile = await this.profiles.upsert({
       userId: input.userId,
       firstName: input.firstName,
@@ -134,7 +147,7 @@ export class AccountService {
       email: input.email,
       phone: input.phone,
       emailVerified: input.emailVerified ?? false,
-      role: input.role ?? 'user',
+      role: 'user',
       status: 'active',
     });
 
@@ -151,6 +164,18 @@ export class AccountService {
         emailAccepted: input.consents.consentEmail,
         ipAddress: input.ipAddress,
         userAgent: input.userAgent,
+        termsVersion: input.consents.acceptTerms
+          ? LEGAL_DOCUMENT_VERSIONS.user_terms.version
+          : null,
+        privacyVersion: input.consents.acceptPrivacy
+          ? LEGAL_DOCUMENT_VERSIONS.privacy.version
+          : null,
+        kvkkAckVersion: input.consents.acceptKvkk
+          ? LEGAL_DOCUMENT_VERSIONS.kvkk_clarification.version
+          : null,
+        cookiesVersion: input.consents.acceptCookies
+          ? LEGAL_DOCUMENT_VERSIONS.cookie_policy.version
+          : null,
       });
     }
 
@@ -169,5 +194,129 @@ export class AccountService {
     });
 
     return { profile, consent, settings, securityLog };
+  }
+
+  /**
+   * Explicit UI acceptance of terms / privacy + KVKK & cookie acknowledgment.
+   * Appends a new consent row (audit trail). Does not invent marketing consent.
+   */
+  async recordLegalAcceptance(input: RecordLegalAcceptanceInput) {
+    const latest = await this.consents.findLatestByUserId(input.userId);
+    const now = new Date().toISOString();
+
+    const consent = await this.consents.create({
+      userId: input.userId,
+      termsAccepted: input.termsAccepted,
+      privacyAccepted: input.privacyAccepted,
+      kvkkAccepted: input.kvkkAcknowledged,
+      cookiesAccepted: input.cookiesAcknowledged,
+      marketingAccepted: input.marketingAccepted ?? latest?.marketingAccepted ?? false,
+      smsAccepted: input.smsAccepted ?? latest?.smsAccepted ?? false,
+      emailAccepted: input.emailAccepted ?? latest?.emailAccepted ?? false,
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+      termsVersion: input.termsVersion,
+      privacyVersion: input.privacyVersion,
+      kvkkAckVersion: input.kvkkAckVersion,
+      cookiesVersion: input.cookiesVersion,
+      marketingWithdrawnAt: latest?.marketingWithdrawnAt ?? null,
+      smsWithdrawnAt: latest?.smsWithdrawnAt ?? null,
+      emailWithdrawnAt: latest?.emailWithdrawnAt ?? null,
+    });
+
+    await this.securityLogs.create({
+      userId: input.userId,
+      action: 'legal_acceptance',
+      ipAddress: input.ipAddress,
+      browser: input.userAgent,
+    });
+
+    void now;
+    return consent;
+  }
+
+  /** Update withdrawable optional consents (marketing / SMS / email). */
+  async updateOptionalConsents(input: UpdateOptionalConsentsInput) {
+    const latest = await this.consents.findLatestByUserId(input.userId);
+    const now = new Date().toISOString();
+
+    const marketingAccepted =
+      input.marketingAccepted !== undefined
+        ? input.marketingAccepted
+        : (latest?.marketingAccepted ?? false);
+    const smsAccepted =
+      input.smsAccepted !== undefined ? input.smsAccepted : (latest?.smsAccepted ?? false);
+    const emailAccepted =
+      input.emailAccepted !== undefined ? input.emailAccepted : (latest?.emailAccepted ?? false);
+
+    const marketingWithdrawnAt =
+      input.marketingAccepted === false
+        ? now
+        : input.marketingAccepted === true
+          ? null
+          : (latest?.marketingWithdrawnAt ?? null);
+    const smsWithdrawnAt =
+      input.smsAccepted === false
+        ? now
+        : input.smsAccepted === true
+          ? null
+          : (latest?.smsWithdrawnAt ?? null);
+    const emailWithdrawnAt =
+      input.emailAccepted === false
+        ? now
+        : input.emailAccepted === true
+          ? null
+          : (latest?.emailWithdrawnAt ?? null);
+
+    const consent = await this.consents.create({
+      userId: input.userId,
+      termsAccepted: latest?.termsAccepted ?? false,
+      privacyAccepted: latest?.privacyAccepted ?? false,
+      kvkkAccepted: latest?.kvkkAccepted ?? false,
+      cookiesAccepted: latest?.cookiesAccepted ?? false,
+      marketingAccepted,
+      smsAccepted,
+      emailAccepted,
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+      termsVersion: latest?.termsVersion ?? null,
+      privacyVersion: latest?.privacyVersion ?? null,
+      kvkkAckVersion: latest?.kvkkAckVersion ?? null,
+      cookiesVersion: latest?.cookiesVersion ?? null,
+      marketingWithdrawnAt,
+      smsWithdrawnAt,
+      emailWithdrawnAt,
+    });
+
+    await this.settings.upsert({
+      userId: input.userId,
+      emailNotifications: emailAccepted,
+      smsNotifications: smsAccepted,
+    }).catch(() => undefined);
+
+    await this.securityLogs.create({
+      userId: input.userId,
+      action: 'consent_update',
+      ipAddress: input.ipAddress,
+      browser: input.userAgent,
+    });
+
+    return consent;
+  }
+
+  /** Soft-delete account profile — retains consent/security evidence per retention policy. */
+  async requestAccountDeletion(userId: UserId, meta?: { ipAddress?: string | null; userAgent?: string | null }) {
+    const profile = await this.profiles.update(userId, { status: 'deleted' });
+    await this.securityLogs.create({
+      userId,
+      action: 'account_delete_requested',
+      ipAddress: meta?.ipAddress ?? null,
+      browser: meta?.userAgent ?? null,
+    });
+    return profile;
+  }
+
+  needsLegalAcceptance(userId: UserId) {
+    return this.consents.findLatestByUserId(userId).then((c) => !c?.termsAccepted);
   }
 }

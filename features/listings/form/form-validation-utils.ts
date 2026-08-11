@@ -24,6 +24,7 @@ import {
   contentPolicyIssuesToFieldErrors,
   validateListingContentPolicy,
 } from '@/features/listings/lib/listing-content-policy';
+import { evaluateListingContentQuality } from '@/features/listings/lib/listing-content-quality';
 import { getListingTextFingerprints } from '@/features/listings/lib/listing-duplicate-registry';
 
 export interface ValidationFormSnapshot {
@@ -302,7 +303,7 @@ const PUBLISH_FIELD_HINTS: Record<string, string> = {
   cvUrl: 'Özgeçmiş yüklenmedi.',
   kvkkConsents: 'KVKK onayları tamamlanmadı.',
   publishConsents: 'Yayın onayları tamamlanmadı.',
-  contactPhone: 'Profil telefon numarası eksik.',
+  contactPhone: 'Telefon numarası eksik — Yayın Onayları adımından ekleyin.',
   desiredRole: 'Aranan pozisyon eksik.',
   experienceLevel: 'Deneyim bilgileri eksik.',
   workType: 'Çalışma tipi eksik.',
@@ -327,7 +328,19 @@ const GENERIC_VALIDATION_MESSAGES = new Set([
 ]);
 
 export function formatPublishFieldMessage(path: string, fallback: string): string {
-  return PUBLISH_FIELD_HINTS[path] ?? PUBLISH_FIELD_HINTS[errorFieldKey(path)] ?? fallback;
+  const hint = PUBLISH_FIELD_HINTS[path] ?? PUBLISH_FIELD_HINTS[errorFieldKey(path)];
+  const trimmed = fallback.trim();
+  // Prefer specific Zod / quality messages over generic publish hints.
+  if (
+    trimmed
+    && trimmed !== 'Required'
+    && trimmed !== 'Invalid'
+    && !GENERIC_VALIDATION_MESSAGES.has(trimmed)
+    && !trimmed.toLowerCase().includes('invalid_type')
+  ) {
+    return trimmed;
+  }
+  return hint ?? fallback;
 }
 
 export function flattenFieldErrors(fieldErrors: Record<string, string[]>): Record<string, string> {
@@ -481,7 +494,14 @@ export function validateListingFormBeforePublish(options: {
   kvkkConsents?: KvkkConsentValues;
   publishConsents?: PublishConsentValues;
   contactPhone?: string | null;
-}): Record<string, string> {
+}): {
+  errors: Record<string, string>;
+  normalizedCore: {
+    title: string;
+    shortDescription: string;
+    longDescription: string;
+  };
+} {
   const errors: Record<string, string> = {};
 
   if (options.categoryId === CATEGORY_IDS.isBul) {
@@ -527,12 +547,25 @@ export function validateListingFormBeforePublish(options: {
     ? options.snapshot.tags.map((t) => String(t))
     : [];
 
+  const rawTitle = typeof core.title === 'string' ? core.title : undefined;
+  const rawShort =
+    typeof core.shortDescription === 'string' ? core.shortDescription : undefined;
+  const rawLong =
+    typeof core.longDescription === 'string' ? core.longDescription : undefined;
+
+  const quality = evaluateListingContentQuality({
+    title: rawTitle,
+    shortDescription: rawShort,
+    longDescription: rawLong,
+    applyNormalization: true,
+  });
+
+  Object.assign(errors, contentPolicyIssuesToFieldErrors(quality.blocks));
+
   const policyIssues = validateListingContentPolicy({
-    title: typeof core.title === 'string' ? core.title : undefined,
-    shortDescription:
-      typeof core.shortDescription === 'string' ? core.shortDescription : undefined,
-    longDescription:
-      typeof core.longDescription === 'string' ? core.longDescription : undefined,
+    title: quality.normalized.title || rawTitle,
+    shortDescription: quality.normalized.shortDescription || rawShort,
+    longDescription: quality.normalized.longDescription || rawLong,
     tags,
     imageFileNames: images
       .map((img) => {
@@ -545,13 +578,18 @@ export function validateListingFormBeforePublish(options: {
     existingFingerprints: getListingTextFingerprints(),
   });
 
-  Object.assign(errors, contentPolicyIssuesToFieldErrors(policyIssues));
+  // Title-case is handled by normalization — skip redundant title_case blocks
+  const policyWithoutTitleCase = policyIssues.filter((i) => i.code !== 'title_case');
+  Object.assign(errors, contentPolicyIssuesToFieldErrors(policyWithoutTitleCase));
 
   const friendly: Record<string, string> = {};
   for (const [path, message] of Object.entries(errors)) {
     friendly[path] = formatPublishFieldMessage(path, message);
   }
-  return friendly;
+  return {
+    errors: friendly,
+    normalizedCore: quality.normalized,
+  };
 }
 
 /** Keep only errors belonging to the active wizard step. */

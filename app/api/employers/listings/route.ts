@@ -5,6 +5,7 @@ import {
   parseEmployerListingCreate,
 } from '@/lib/api/validation/employer-listings';
 import { traceListingPublish, logPublicationState } from '@/lib/debug/listing-publish-trace';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** GET — browse published job listings */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -21,7 +22,7 @@ export const GET = withOptionalAuth(async (ctx, request) => {
     remotePolicy: query.remotePolicy,
   });
 
-  return ok({ listings: result.data, pagination: result });
+  return ok({ listings: stripListingsContactPhone(result.data), pagination: result });
 });
 
 /** POST — create job listing (draft or publish via ?publish=true) */

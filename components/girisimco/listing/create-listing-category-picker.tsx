@@ -9,7 +9,6 @@ import {
   Store,
   type LucideIcon,
 } from 'lucide-react';
-import { ScrollReveal } from '@/components/girisimco/ui/scroll-reveal';
 import {
   CATEGORY_IDS,
   type CategoryListingTypeConfig,
@@ -18,69 +17,38 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-type CreateVisualSlug =
-  | 'yatirim-bul'
-  | 'ise-al'
-  | 'ortak-bul'
-  | 'franchise'
-  | 'dijital-ai';
-
 const CATEGORY_VISUAL: Record<
   string,
   {
-    slug: CreateVisualSlug;
     audience: string;
     Icon: LucideIcon;
     color: string;
-    tint: string;
-    border: string;
-    glow: string;
   }
 > = {
   [CATEGORY_IDS.yatirimBul]: {
-    slug: 'yatirim-bul',
     audience: 'Yatırım arayanlar',
     Icon: CircleDollarSign,
     color: GC_CATEGORY_COLORS['yatirim-bul'],
-    tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
-    border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#60A5FA40]',
   },
   [CATEGORY_IDS.iseAl]: {
-    slug: 'ise-al',
     audience: 'İşverenler',
     Icon: Briefcase,
     color: GC_CATEGORY_COLORS['ise-al'],
-    tint: 'from-[#22C55E]/12 via-[#22C55E]/4 to-transparent',
-    border: 'border-[#22C55E]/25 group-hover:border-[#22C55E]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#22C55E40]',
   },
   [CATEGORY_IDS.ortakBul]: {
-    slug: 'ortak-bul',
     audience: 'Kurucu ortaklık',
     Icon: Handshake,
     color: GC_CATEGORY_COLORS['ortak-bul'],
-    tint: 'from-[#F59E0B]/12 via-[#F59E0B]/4 to-transparent',
-    border: 'border-[#F59E0B]/25 group-hover:border-[#F59E0B]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#F59E0B40]',
   },
   [CATEGORY_IDS.bayilikAl]: {
-    slug: 'franchise',
     audience: 'Franchise veren',
     Icon: Store,
     color: GC_CATEGORY_COLORS.franchise,
-    tint: 'from-[#EC4899]/12 via-[#EC4899]/4 to-transparent',
-    border: 'border-[#EC4899]/25 group-hover:border-[#EC4899]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#EC489940]',
   },
   [CATEGORY_IDS.dijitalAi]: {
-    slug: 'dijital-ai',
     audience: 'Ürün & yetenekler',
     Icon: BrainCircuit,
     color: GC_CATEGORY_COLORS['dijital-ai'],
-    tint: 'from-[#8B5CF6]/12 via-[#8B5CF6]/4 to-transparent',
-    border: 'border-[#8B5CF6]/25 group-hover:border-[#8B5CF6]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#8B5CF640]',
   },
 };
 
@@ -92,73 +60,66 @@ export function CreateListingCategoryPicker({
   onSelect: (categoryId: CategoryId) => void;
 }) {
   return (
-    <section className="mb-8">
-      <ScrollReveal>
-        <div className="mb-6 max-w-xl">
-          <p className="text-gc-xs font-medium uppercase tracking-wide text-primary">Adım 1</p>
-          <h2 className="mt-1 font-display text-gc-lg font-semibold tracking-tight text-foreground sm:text-gc-xl">
-            Hangi tür ilan vereceksiniz?
-          </h2>
-          <p className="mt-1.5 text-gc-sm leading-relaxed text-muted-foreground">
-            Kategoriyi seçin; form yalnızca o türe özel alanları ve adımları gösterir.
-          </p>
-        </div>
-      </ScrollReveal>
+    <section className="mb-10">
+      <div className="mb-6 max-w-xl">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
+          Adım 1
+        </p>
+        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
+          Hangi tür ilan vereceksiniz?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+          Kategoriyi seçin; form yalnızca o türe özel alanları gösterir.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {options.map((config, index) => {
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {options.map((config) => {
           const visual = CATEGORY_VISUAL[config.categoryId];
           if (!visual) return null;
           const { Icon } = visual;
 
           return (
-            <ScrollReveal key={config.categoryId} delay={Math.min(index * 40, 120)}>
-              <button
-                type="button"
-                onClick={() => onSelect(config.categoryId)}
-                className={cn(
-                  'group relative flex h-full min-h-[9.5rem] w-full flex-col overflow-hidden rounded-2xl border p-4 text-left',
-                  'bg-card shadow-md transition-all duration-300 ease-smooth',
-                  'hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-                  visual.border,
-                  visual.glow,
-                )}
+            <button
+              key={config.categoryId}
+              type="button"
+              onClick={() => onSelect(config.categoryId)}
+              className={cn(
+                'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left',
+                'transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
+                'dark:border-border dark:bg-card',
+              )}
+            >
+              <span
+                className="absolute inset-y-0 left-0 w-[3px]"
+                style={{ backgroundColor: visual.color }}
+                aria-hidden
+              />
+              <span
+                className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
+                style={{ backgroundColor: visual.color }}
+                aria-hidden
               >
-                <div
-                  className={cn(
-                    'pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b',
-                    visual.tint,
-                  )}
-                  aria-hidden
-                />
-                <span
-                  className="relative mb-2.5 inline-flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-105"
-                  style={{
-                    backgroundColor: visual.color,
-                    boxShadow: `0 8px 24px -8px ${visual.color}66`,
-                  }}
-                  aria-hidden
-                >
-                  <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                </span>
-                <span className="relative text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                  {visual.audience}
-                </span>
-                <span className="relative mt-0.5 font-display text-gc-base font-semibold text-foreground sm:text-gc-lg">
-                  {config.name}
-                </span>
-                <span className="relative mt-1.5 flex-1 text-gc-xs leading-relaxed text-muted-foreground sm:text-gc-sm">
-                  {config.description}
-                </span>
-                <span
-                  className="relative mt-3 inline-flex items-center gap-1 text-gc-xs font-medium opacity-70 transition-all duration-300 group-hover:opacity-100 sm:text-gc-sm"
-                  style={{ color: visual.color }}
-                >
-                  Devam et
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </button>
-            </ScrollReveal>
+                <Icon className="h-4 w-4" strokeWidth={1.75} />
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
+                {visual.audience}
+              </span>
+              <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
+                {config.name}
+              </span>
+              <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
+                {config.description}
+              </span>
+              <span
+                className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
+                style={{ color: visual.color }}
+              >
+                Devam et
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </button>
           );
         })}
       </div>
@@ -179,11 +140,11 @@ export function CreateListingSelectedCategoryBar({
   const Icon = visual?.Icon;
 
   return (
-    <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 px-4 py-3 shadow-sm backdrop-blur-sm">
+    <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-[#E6E8EE] bg-white px-4 py-3 dark:border-border dark:bg-card">
       <div className="flex min-w-0 items-center gap-3">
         {visual && Icon ? (
           <span
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white"
             style={{ backgroundColor: visual.color }}
             aria-hidden
           >
@@ -191,14 +152,16 @@ export function CreateListingSelectedCategoryBar({
           </span>
         ) : null}
         <div className="min-w-0">
-          <p className="text-gc-xs text-muted-foreground">Seçilen kategori</p>
-          <p className="truncate text-gc-sm font-semibold text-foreground">{label}</p>
+          <p className="text-[11px] text-[#64748B]">Seçilen kategori</p>
+          <p className="truncate text-sm font-semibold text-[#0B1220] dark:text-foreground">
+            {label}
+          </p>
         </div>
       </div>
       <button
         type="button"
         onClick={onChange}
-        className="shrink-0 text-gc-sm font-medium text-primary hover:text-primary/80"
+        className="shrink-0 text-sm font-semibold text-primary hover:opacity-80"
       >
         Değiştir
       </button>

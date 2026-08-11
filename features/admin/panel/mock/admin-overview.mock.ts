@@ -187,7 +187,7 @@ export const MOCK_ADMIN_QUICK_ACTIONS: AdminQuickActionItem[] = [
 
 export const MOCK_ADMIN_POPULAR_CATEGORIES: AdminCategoryStatItem[] = [
   { id: 'cat_invest', name: 'Yatırım', listingCount: 128, sharePercent: 34 },
-  { id: 'cat_franchise', name: 'Franchise', listingCount: 86, sharePercent: 23 },
+  { id: 'cat_franchise', name: 'Franchise İlanları', listingCount: 86, sharePercent: 23 },
   { id: 'cat_jobs', name: 'İş ilanı', listingCount: 72, sharePercent: 19 },
   { id: 'cat_partner', name: 'Ortaklık', listingCount: 54, sharePercent: 14 },
   { id: 'cat_startup', name: 'Startup', listingCount: 36, sharePercent: 10 },
@@ -198,7 +198,7 @@ export const MOCK_ADMIN_TOP_LISTINGS: AdminTopListingRow[] =
 
 export const MOCK_ADMIN_REVENUE_CATEGORIES: AdminRevenueCategoryItem[] = [
   { id: 'rev_invest', name: 'Yatırım', revenue: 118400, growthPercent: 14 },
-  { id: 'rev_franchise', name: 'Franchise', revenue: 86400, growthPercent: 9 },
+  { id: 'rev_franchise', name: 'Franchise İlanları', revenue: 86400, growthPercent: 9 },
   { id: 'rev_placement', name: 'Vitrin paketleri', revenue: 51200, growthPercent: 21 },
   { id: 'rev_jobs', name: 'İş ilanı', revenue: 30400, growthPercent: 4 },
 ];

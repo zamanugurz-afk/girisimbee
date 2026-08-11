@@ -5,6 +5,7 @@ import {
   parseFounderListingCreate,
 } from '@/lib/api/validation/founder-listings';
 import { traceListingPublish, logPublicationState } from '@/lib/debug/listing-publish-trace';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** GET — browse co-founder listings; POST — create co-founder listing */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -22,7 +23,7 @@ export const GET = withOptionalAuth(async (ctx, request) => {
     skills: query.skills,
   });
 
-  return ok({ listings: result.data, pagination: result });
+  return ok({ listings: stripListingsContactPhone(result.data), pagination: result });
 });
 
 export const POST = withAuth(async (ctx, request) => {

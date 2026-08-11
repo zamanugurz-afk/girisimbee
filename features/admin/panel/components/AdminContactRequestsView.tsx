@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import { ADMIN_ROUTES } from '@/features/admin/panel/constants/admin-nav.constants';
 
 type ContactRequestRow = {
@@ -14,7 +16,9 @@ type ContactRequestRow = {
   message: string | null;
   created_at: string;
   accepted_at: string | null;
+  rejected_at: string | null;
   conversation_id: string | null;
+  expires_at?: string | null;
 };
 
 type GrantRow = {
@@ -31,42 +35,61 @@ export function AdminContactRequestsView() {
   const [tables, setTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/contact-requests');
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        data?: {
+          requests?: ContactRequestRow[];
+          disclosureGrants?: GrantRow[];
+          tables?: string[];
+        };
+      };
+      if (!res.ok) throw new Error(json.error ?? 'Yüklenemedi');
+      setRequests(json.data?.requests ?? []);
+      setGrants(json.data?.disclosureGrants ?? []);
+      setTables(json.data?.tables ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Yüklenemedi');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/admin/contact-requests');
-        const json = (await res.json().catch(() => ({}))) as {
-          error?: string;
-          data?: {
-            requests?: ContactRequestRow[];
-            disclosureGrants?: GrantRow[];
-            tables?: string[];
-          };
-        };
-        if (!res.ok) throw new Error(json.error ?? 'Yüklenemedi');
-        if (cancelled) return;
-        setRequests(json.data?.requests ?? []);
-        setGrants(json.data?.disclosureGrants ?? []);
-        setTables(json.data?.tables ?? []);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Yüklenemedi');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void load();
+  }, [load]);
+
+  async function runAction(id: string, action: 'reject' | 'expire') {
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/admin/contact-requests/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(json.error ?? 'İşlem başarısız');
+      toast.success(action === 'reject' ? 'Talep reddedildi' : 'Talep süresi dolduruldu');
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'İşlem başarısız');
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div className="space-y-6 p-5 sm:p-8">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">İletişim Talepleri</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Contact-request kayıtları, disclosure grant’leri ve ilgili tablolar.
+          Contact-request kayıtları, disclosure grant’leri ve admin kapatma aksiyonları.
         </p>
       </header>
 
@@ -79,8 +102,11 @@ export function AdminContactRequestsView() {
             </li>
           ))}
           <li>
-            Şikayet kuyruğu: <Link className="text-primary underline" href={ADMIN_ROUTES.moderation}>Moderasyon</Link>
-            {' '}(<code>marketplace_reports</code>)
+            Şikayet kuyruğu:{' '}
+            <Link className="text-primary underline" href={ADMIN_ROUTES.moderation}>
+              Moderasyon
+            </Link>{' '}
+            (<code>marketplace_reports</code>)
           </li>
         </ul>
       </section>
@@ -105,6 +131,7 @@ export function AdminContactRequestsView() {
                     <th className="px-3 py-2">Sahip</th>
                     <th className="px-3 py-2">Mesaj</th>
                     <th className="px-3 py-2">Oluşturma</th>
+                    <th className="px-3 py-2">Admin</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -119,8 +146,34 @@ export function AdminContactRequestsView() {
                       <td className="px-3 py-2 font-mono">{r.requester_user_id.slice(0, 8)}…</td>
                       <td className="px-3 py-2 font-mono">{r.owner_user_id.slice(0, 8)}…</td>
                       <td className="max-w-[220px] truncate px-3 py-2">{r.message ?? '—'}</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-3 py-2">
                         {new Date(r.created_at).toLocaleString('tr-TR')}
+                      </td>
+                      <td className="px-3 py-2">
+                        {r.status === 'pending' ? (
+                          <div className="flex flex-wrap gap-1">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={busyId === r.id}
+                              onClick={() => void runAction(r.id, 'reject')}
+                            >
+                              Reddet
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              disabled={busyId === r.id}
+                              onClick={() => void runAction(r.id, 'expire')}
+                            >
+                              Expire
+                            </Button>
+                          </div>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -146,7 +199,7 @@ export function AdminContactRequestsView() {
                     <tr key={g.id} className="border-t border-border/60 dark:border-white/10">
                       <td className="px-3 py-2 font-mono">{g.contact_request_id.slice(0, 8)}…</td>
                       <td className="px-3 py-2">{(g.disclosed_fields ?? []).join(', ')}</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-3 py-2">
                         {new Date(g.granted_at).toLocaleString('tr-TR')}
                       </td>
                       <td className="px-3 py-2">{g.revoked_at ? 'Evet' : '—'}</td>

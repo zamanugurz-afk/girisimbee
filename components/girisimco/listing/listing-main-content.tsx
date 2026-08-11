@@ -6,6 +6,7 @@ import {
   FactRow,
 } from '@/components/girisimco/listing/detail-primitives';
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
+import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -97,9 +98,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
             <h3 className="font-display text-base font-semibold text-foreground">
               {listing.title}
             </h3>
-            <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">
-              {listing.longDescription}
-            </p>
+            <div className="mt-3">
+              <ListingRichText content={listing.longDescription} />
+            </div>
           </DetailCard>
         </DetailSectionIf>
       ) : null}

@@ -1,159 +1,205 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Handshake, Rocket, Search, Store, UserRound } from 'lucide-react';
-import { motion } from 'framer-motion';
-import type { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  Briefcase,
+  Handshake,
+  Rocket,
+  Search,
+  Store,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react';
 import {
   formatHeroStatCount,
   useHeroStats,
   type HeroStatKey,
+  type HeroStatsCounts,
 } from '@/features/home/hooks/use-hero-stats';
-import { HERO_ORBIT_THEME } from '@/components/girisimco/hero/hero-orbit-theme';
-import { HeroOrbitVisualGalaxy } from '@/components/girisimco/hero/hero-orbit-galaxy';
-import { HeroOrbitVisualBee } from '@/components/girisimco/hero/hero-orbit-bee';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { HeroNetworkVisual } from '@/components/girisimco/hero/hero-network';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const HERO_STATS: {
+const HERO_SIDEBAR_STATS: {
   key: HeroStatKey;
   label: string;
   Icon: LucideIcon;
-  tint: string;
-  iconColor: string;
+  iconClass: string;
+  boxClass: string;
 }[] = [
   {
     key: 'total',
     label: 'Toplam İlan',
     Icon: Rocket,
-    tint: 'bg-[#EFF6FF]',
-    iconColor: 'text-[#3B82F6]',
+    iconClass: 'text-[#3B82F6]',
+    boxClass: 'bg-[#EFF6FF]',
   },
   {
     key: 'entrepreneurs',
     label: 'Girişimci',
     Icon: UserRound,
-    tint: 'bg-[#ECFDF5]',
-    iconColor: 'text-[#10B981]',
+    iconClass: 'text-[#16A34A]',
+    boxClass: 'bg-[#F0FDF4]',
   },
   {
     key: 'investors',
     label: 'Yatırımcı',
     Icon: UserRound,
-    tint: 'bg-[#F5F3FF]',
-    iconColor: 'text-[#8B5CF6]',
+    iconClass: 'text-[#7C3AED]',
+    boxClass: 'bg-[#F5F3FF]',
   },
   {
     key: 'jobs',
     label: 'İş Fırsatı',
     Icon: Briefcase,
-    tint: 'bg-[#FFF7ED]',
-    iconColor: 'text-[#F97316]',
+    iconClass: 'text-[#EA580C]',
+    boxClass: 'bg-[#FFF7ED]',
   },
   {
     key: 'partners',
     label: 'Ortaklık',
     Icon: Handshake,
-    tint: 'bg-[#FDF2F8]',
-    iconColor: 'text-[#EC4899]',
+    iconClass: 'text-[#DB2777]',
+    boxClass: 'bg-[#FDF2F8]',
   },
   {
     key: 'franchise',
-    label: 'Franchise',
+    label: 'Franchise İlanları',
     Icon: Store,
-    tint: 'bg-[#FDF2F8]',
-    iconColor: 'text-[#DB2777]',
+    iconClass: 'text-[#C026D3]',
+    boxClass: 'bg-[#FDF4FF]',
   },
 ];
 
-function HeroStatsColumn() {
-  const { counts, isLoading } = useHeroStats();
-
+function StatPill({
+  stat,
+  counts,
+  isLoading,
+}: {
+  stat: (typeof HERO_SIDEBAR_STATS)[number];
+  counts: HeroStatsCounts;
+  isLoading: boolean;
+}) {
   return (
-    <ul className="flex w-[176px] flex-col gap-1.5" aria-label="Platform istatistikleri">
-      {HERO_STATS.map((stat, index) => (
-        <motion.li
-          key={stat.key}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35, delay: 0.08 + index * 0.04, ease: 'easeOut' }}
-          className="flex items-center gap-2 rounded-xl border border-border/70 bg-white/95 px-2.5 py-1.5 shadow-[0_4px_14px_-8px_rgba(15,23,42,0.12)] backdrop-blur-sm"
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-xl border border-[#E6E8EE] bg-white/90 px-2.5 py-1.5',
+        'shadow-[0_1px_2px_rgba(15,23,42,0.03)] backdrop-blur-sm',
+        'dark:border-border dark:bg-card',
+      )}
+    >
+      <span
+        className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-md', stat.boxClass)}
+        aria-hidden
+      >
+        <stat.Icon className={cn('h-3.5 w-3.5', stat.iconClass)} strokeWidth={1.75} />
+      </span>
+      <span className="min-w-0">
+        <span
+          className={cn(
+            'block font-display text-[13px] font-bold tabular-nums leading-none text-[#0B1220] dark:text-foreground',
+            isLoading && 'animate-pulse text-muted-foreground',
+          )}
         >
-          <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.tint}`}
-          >
-            <stat.Icon className={`h-3.5 w-3.5 ${stat.iconColor}`} strokeWidth={2} aria-hidden />
-          </span>
-          <span className="min-w-0 leading-tight">
-            <span
-              className={`block text-sm font-bold tracking-tight text-foreground tabular-nums ${
-                isLoading ? 'animate-pulse text-muted-foreground' : ''
-              }`}
-            >
-              {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
-            </span>
-            <span className="block truncate text-[10px] text-muted-foreground">{stat.label}</span>
-          </span>
-        </motion.li>
-      ))}
-    </ul>
+          {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
+        </span>
+        <span className="mt-0.5 block truncate text-[10px] text-[#64748B]">{stat.label}</span>
+      </span>
+    </div>
   );
 }
 
-function HeroOrbitVisual() {
-  if (HERO_ORBIT_THEME === 'galaxy') {
-    return <HeroOrbitVisualGalaxy />;
-  }
-  return <HeroOrbitVisualBee />;
+/** Editorial how-it-works copy — expands the hero explanation without step chips. */
+function HeroHowItWorks() {
+  return (
+    <div className="mt-4 max-w-[30rem] border-l-2 border-[#F59E0B]/70 pl-3.5 sm:pl-4">
+      <p className="text-[13px] leading-[1.65] text-[#475569] sm:text-[14px]">
+        Yatırım, ortaklık, iş, franchise ve dijital çözümler için doğru fırsatı tek yerde bul.
+        İlanları keşfet, detaylarını incele ve doğrudan ilan sahibiyle iletişime geç.
+      </p>
+      <p className="mt-2.5 text-[13px] leading-[1.65] text-[#475569] sm:text-[14px]">
+        Aracı yok. Gereksiz bekleme yok.
+        <br />
+        Sadece fırsatlar, insanlar ve doğru bağlantılar.
+      </p>
+    </div>
+  );
 }
 
+/** Locked layout: copy | network circle | right stats. Only chrome/copy polish. */
 export function PlatformHero({ className }: { className?: string }) {
+  const { counts, isLoading } = useHeroStats();
+
   return (
-    <section className={cn('relative flex min-h-0 flex-1 flex-col', className)}>
-      <div className="pointer-events-none absolute inset-0 overflow-hidden bg-gradient-to-br from-[#6366f1]/[0.07] via-transparent to-[#818cf8]/[0.04]" />
-      <div className="pointer-events-none absolute inset-0 overflow-hidden gc-dot-grid opacity-20" />
+    <section
+      className={cn(
+        'relative flex min-h-0 flex-col justify-center overflow-hidden bg-[#FAFBFC] dark:bg-background',
+        className,
+      )}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_10%_20%,rgba(251,191,36,0.07),transparent_55%),radial-gradient(ellipse_50%_40%_at_90%_80%,rgba(15,23,42,0.03),transparent_50%)]"
+        aria-hidden
+      />
 
-      <div className="relative mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-5 lg:px-8">
-        <aside
-          className="absolute top-1/2 right-5 z-40 hidden -translate-y-1/2 lg:block lg:right-8"
-          aria-label="Platform istatistikleri"
-        >
-          <HeroStatsColumn />
-        </aside>
-
-        <div className="grid min-h-0 flex-1 items-center gap-4 py-3 lg:grid-cols-[40fr_60fr] lg:gap-6 lg:py-4">
-          <div className="flex flex-col justify-center">
-            <h1 className="font-display text-[1.65rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-[1.95rem] lg:text-[2.15rem]">
-              Doğru kişilerle,
+      <div className="relative mx-auto flex h-full w-full max-w-[1280px] items-center px-5 lg:px-8">
+        <div className="grid w-full items-center gap-4 py-3 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.2fr)_auto] lg:gap-5 lg:py-4">
+          <div className="flex max-w-[34rem] flex-col justify-center">
+            <h1 className="font-display text-[1.85rem] font-extrabold leading-[1.05] tracking-tight text-[#0B1220] dark:text-foreground sm:text-[2.4rem] lg:text-[2.7rem]">
+              Fikirler <span className="text-[#F59E0B]">Uçuşur,</span>
               <br />
-              doğru fırsatta
-              <br />
-              buluşun.
+              Fırsatlar Doğar.
             </h1>
-            <p className="mt-3 max-w-md text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
-              <BrandWordmark />; girişimciler, yatırımcılar, iş arayanlar ve işverenlerin ilan paylaştığı,
-              birbirini keşfettiği bir platformdur.
-            </p>
+
+            <HeroHowItWorks />
+
             <div className="mt-5 flex flex-wrap items-center gap-2.5">
-              <Button asChild size="default" className="shadow-md sm:h-11 sm:px-6">
+              <Button asChild className="h-10 gap-1.5 rounded-xl px-5 shadow-none">
                 <Link href="/kesfet">
-                  <Search className="mr-2 h-4 w-4" aria-hidden />
+                  <Search className="h-4 w-4" aria-hidden />
                   Fırsatları Keşfet
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="default" className="sm:h-11 sm:px-6">
+              <Button
+                asChild
+                variant="outline"
+                className="h-10 rounded-xl border-[#D5D8E0] bg-white px-5 shadow-none hover:bg-[#F7F8FA] dark:bg-card"
+              >
                 <Link href="/ilan/olustur">İlan Ver</Link>
               </Button>
             </div>
           </div>
 
-          <div className="hidden h-full min-h-0 items-center justify-center sm:flex lg:justify-start lg:pl-2 lg:pr-[200px]">
-            <div className="flex h-full max-h-[min(380px,46vh)] w-full items-center justify-center">
-              <HeroOrbitVisual />
-            </div>
+          <div className="hidden min-w-0 items-center justify-center sm:flex">
+            <HeroNetworkVisual className="w-[min(400px,46dvh)] max-w-none" />
+          </div>
+
+          <div className="hidden justify-end xl:flex">
+            <ul
+              className="flex w-[12.25rem] flex-col gap-1.5"
+              aria-label="Platform istatistikleri"
+            >
+              {HERO_SIDEBAR_STATS.map((stat) => (
+                <li key={stat.key}>
+                  <StatPill stat={stat} counts={counts} isLoading={isLoading} />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+      </div>
+
+      <div className="relative border-t border-[#EEF0F4] px-5 pb-3 pt-2 xl:hidden lg:px-8">
+        <ul
+          className="mx-auto grid max-w-[1280px] grid-cols-2 gap-1.5 sm:grid-cols-3"
+          aria-label="Platform istatistikleri"
+        >
+          {HERO_SIDEBAR_STATS.map((stat) => (
+            <li key={stat.key}>
+              <StatPill stat={stat} counts={counts} isLoading={isLoading} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

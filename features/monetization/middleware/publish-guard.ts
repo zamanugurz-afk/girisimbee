@@ -1,15 +1,17 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/middleware';
-import { fetchProfile } from '@/features/authentication/services/supabase-auth.service';
 import { ids } from '@/lib/domain/ids';
-import type { ListingId } from '@/lib/domain/ids';
+import { STANDARD_PUBLISH_CONFIG, STANDARD_REPUBLISH_CONFIG } from '@/features/monetization/types/listing-placement.types';
+import { isPremiumLivePayments } from '@/features/shared/config/features';
 
 const PUBLISH_API_PATTERN = /^\/api\/listings\/([^/]+)\/publish$/;
 
+const SLOT_STATUSES = ['published', 'pending_review', 'expired', 'archived'] as const;
+
 /**
  * Middleware gate for server-side publish API routes.
- * Client-side publish still enforced in ListingEngine via ListingPackageService.
+ * Rule: 1 free listing per category; extra / renew = 99 TL (package credit or test mode).
  */
 export async function validatePublishRequest(request: NextRequest): Promise<NextResponse | null> {
   const match = request.nextUrl.pathname.match(PUBLISH_API_PATTERN);
@@ -24,7 +26,7 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
   const listingId = ids.listing(match[1]);
   const { data: listing, error } = await supabase
     .from('marketplace_listings')
-    .select('id, owner_id, company_id, published_at, status')
+    .select('id, owner_id, company_id, category_id, published_at, status')
     .eq('id', listingId)
     .maybeSingle();
 
@@ -36,20 +38,27 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
     return NextResponse.json({ error: 'Bu ilan üzerinde işlem yapma yetkiniz yok.' }, { status: 403 });
   }
 
+  // Already published once → renew path elsewhere; allow republish API if used.
   if (listing.published_at) {
     return null;
   }
 
-  const { data: settings } = await supabase
-    .from('marketplace_settings')
-    .select('free_listing_limit, current_published_count')
-    .eq('id', 'global')
-    .maybeSingle();
+  const { count: usedInCategory } = await supabase
+    .from('marketplace_listings')
+    .select('id', { count: 'exact', head: true })
+    .eq('owner_id', user.id)
+    .eq('category_id', listing.category_id)
+    .in('status', [...SLOT_STATUSES])
+    .neq('id', listingId)
+    .is('deleted_at', null);
 
-  const limit = settings?.free_listing_limit ?? 100;
-  const count = settings?.current_published_count ?? 0;
+  const freeAvailable = (usedInCategory ?? 0) < STANDARD_PUBLISH_CONFIG.freePerCategory;
+  if (freeAvailable) {
+    return null;
+  }
 
-  if (count < limit) {
+  if (!isPremiumLivePayments()) {
+    // Test / pre-PSP: form simulates 99 TL payment.
     return null;
   }
 
@@ -76,7 +85,9 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
   }
 
   return NextResponse.json(
-    { error: 'Ücretsiz ilan kotası doldu. Yayınlamak için aktif bir paket gereklidir.' },
+    {
+      error: `Bu kategoride ücretsiz hakkınızı kullandınız. Ek ilan ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL’dir.`,
+    },
     { status: 402 },
   );
 }

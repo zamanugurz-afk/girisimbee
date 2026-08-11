@@ -74,7 +74,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} <BrandWordmark />. Tüm hakları saklıdır.
           </p>
           <p className="text-[11px] text-muted-foreground/80">
-            Yatırım · İş · Ortaklık · Franchise · Dijital & AI
+            Yatırım Arıyorum · İş · Ortak Arıyorum · Franchise İlanları · Dijital & AI Çözümleri
           </p>
         </div>
       </div>

@@ -44,7 +44,7 @@ export const ROUTE_PATH_TO_CATEGORY_SLUG: Record<string, string> = Object.fromEn
 const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: string; seoDescription: string }> = {
   'yatirim-bul': {
     description: 'Girişiminiz için yatırımcı arayın',
-    seoTitle: 'Yatırım Bul — Girişim İlanları | Girisimbee',
+    seoTitle: 'Yatırım Arıyorum — Girişim İlanları | Girisimbee',
     seoDescription: 'Yatırım arayan girişimler ve startup fırsatlarını keşfedin.',
   },
   'yatirim-yap': {
@@ -59,7 +59,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
   },
   'ortak-bul': {
     description: 'Kurucu veya iş ortağı arayın',
-    seoTitle: 'Ortak Bul — Ortaklık İlanları | Girisimbee',
+    seoTitle: 'Ortak Arıyorum — Ortaklık İlanları | Girisimbee',
     seoDescription: 'Kurucu ortak ve iş ortaklığı fırsatları.',
   },
   'bayilik-al': {
@@ -69,7 +69,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
   },
   'dijital-ai': {
     description: 'Yazılım, otomasyon ve yapay zeka çözümleri',
-    seoTitle: 'Dijital ve AI Çözümleri | Girisimbee',
+    seoTitle: 'Dijital & AI Çözümleri | Girisimbee',
     seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
   },
 };

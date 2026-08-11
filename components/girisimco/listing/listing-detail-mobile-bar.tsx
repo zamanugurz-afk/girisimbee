@@ -3,7 +3,7 @@
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
-import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
+import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
@@ -34,11 +34,13 @@ export function ListingDetailMobileBar({ listing }: { listing: ListingDetail }) 
           <FollowUserButton targetUserId={listing.ownerUserId} className="h-11 flex-1" />
         ) : null}
 
-        {!isOwner ? (
-          <ListingCallButton
-            phone={listing.contactPhone}
+        {!isOwner && listing.listingId ? (
+          <ListingContactCta
+            listingId={listing.listingId}
+            listingTitle={listing.title}
+            isOwner={isOwner}
+            variant="compact"
             className="h-11 flex-[1.4] rounded-2xl"
-            label="Ara"
           />
         ) : (
           <Button type="button" className="h-11 flex-1 rounded-2xl" disabled>

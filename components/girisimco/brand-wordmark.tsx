@@ -4,16 +4,12 @@ import { cn } from '@/lib/utils';
 
 type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 
-/**
- * Girisimbee wordmark — keeps the spelling intact while softening the “b”
- * (≈90% size, slightly lighter weight, baseline-aligned).
- */
+/** Girişim (navy) + bee (gold). */
 export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   return (
-    <span className={cn(className)} aria-label={BRAND_NAME} {...props}>
-      Girisim
-      <span className="text-[0.9em] font-medium">b</span>
-      ee
+    <span className={cn('inline-flex items-baseline', className)} aria-label={BRAND_NAME} {...props}>
+      <span className="text-[#0F172A] dark:text-foreground">Girişim</span>
+      <span className="text-[#F59E0B]">bee</span>
     </span>
   );
 }

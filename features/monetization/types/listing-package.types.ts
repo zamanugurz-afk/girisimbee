@@ -65,7 +65,7 @@ export interface UserPackageFilter {
 export interface PublishEntitlementResult {
   allowed: boolean;
   reason?: string;
-  source?: 'global_free' | PublishPackageSlug;
+  source?: 'category_free' | 'global_free' | 'category_paid' | PublishPackageSlug;
 }
 
 export const PACKAGE_LABELS: Record<ListingPackageSlug, string> = {

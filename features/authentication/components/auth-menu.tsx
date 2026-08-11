@@ -66,16 +66,16 @@ export function AuthMenu() {
     return (
       <>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="hidden rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-flex dark:hover:text-white"
+          className="hidden rounded-lg border-border/80 bg-white text-sm font-medium text-[#334155] hover:bg-muted/60 sm:inline-flex dark:bg-card dark:text-foreground"
           asChild
         >
           <Link href={AUTH_ROUTES.login}>Giriş Yap</Link>
         </Button>
         <Button
           size="sm"
-          className="hidden sm:inline-flex"
+          className="hidden rounded-lg shadow-sm sm:inline-flex"
           asChild
         >
           <Link href={AUTH_ROUTES.register}>Kayıt Ol</Link>

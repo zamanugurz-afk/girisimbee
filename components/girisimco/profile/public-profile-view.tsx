@@ -28,7 +28,6 @@ export function PublicProfilePageView({ data: initialData }: PublicProfilePageVi
       ]),
     ),
   );
-  const contactListing = listings.find((l) => l.status === 'published');
   const location = [profile.city, profile.country === 'TR' ? 'Türkiye' : profile.country]
     .filter(Boolean)
     .join(', ');
@@ -105,11 +104,13 @@ export function PublicProfilePageView({ data: initialData }: PublicProfilePageVi
                     }));
                   }}
                 />
-                <ListingCallButton
-                  phone={showPhone ? profile.phone : contactListing?.contactPhone}
-                  className="rounded-lg"
-                  label="Ara"
-                />
+                {showPhone ? (
+                  <ListingCallButton
+                    phone={profile.phone}
+                    className="rounded-lg"
+                    label="Ara"
+                  />
+                ) : null}
               </div>
             )}
           </div>

@@ -1,8 +1,16 @@
-import { withAdmin } from '@/lib/api/with-admin';
+import { withAdmin, assertSuperListingManager } from '@/lib/api/with-admin';
 import { parseJsonBody } from '@/lib/api/with-auth';
 import { ok, noContent } from '@/lib/api/response';
 import { parseAdminListingAction } from '@/lib/api/validation/admin';
 import { ids } from '@/lib/domain/ids';
+
+const SUPER_ONLY_ACTIONS = new Set([
+  'feature',
+  'unfeature',
+  'mark_urgent',
+  'remove_urgent',
+  'extend_expiry',
+]);
 
 /** PATCH — listing moderation actions */
 export const PATCH = withAdmin(async (ctx, request, { params }) => {
@@ -10,6 +18,11 @@ export const PATCH = withAdmin(async (ctx, request, { params }) => {
   const action = parseAdminListingAction(body);
   const listingId = ids.listing(params.id);
   const admin = ctx.container.adminService;
+
+  if (SUPER_ONLY_ACTIONS.has(action.action)) {
+    const denied = assertSuperListingManager(ctx);
+    if (denied) return denied;
+  }
 
   switch (action.action) {
     case 'approve': {
@@ -34,6 +47,10 @@ export const PATCH = withAdmin(async (ctx, request, { params }) => {
     }
     case 'remove_urgent': {
       const listing = await admin.removeListingUrgent(listingId);
+      return ok({ listing });
+    }
+    case 'extend_expiry': {
+      const listing = await admin.extendListingExpiry(listingId, action.days ?? 30);
       return ok({ listing });
     }
     case 'unpublish': {

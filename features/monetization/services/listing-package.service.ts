@@ -1,6 +1,7 @@
 import { ForbiddenError } from '@/lib/domain/errors';
-import type { UserId, CompanyId, ListingId } from '@/lib/domain/ids';
+import type { UserId, ListingId, CategoryId } from '@/lib/domain/ids';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
+import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { MarketplaceSettingsRepository } from '@/features/monetization/repositories/marketplace-settings.repository';
 import type { ListingPackageRepository } from '@/features/monetization/repositories/listing-package.repository';
 import type {
@@ -11,7 +12,20 @@ import type {
   PublishEntitlementResult,
   UserPackageFilter,
 } from '@/features/monetization/types/listing-package.types';
+import {
+  STANDARD_PUBLISH_CONFIG,
+  STANDARD_REPUBLISH_CONFIG,
+} from '@/features/monetization/types/listing-placement.types';
 import type { PaginatedResult, PaginationParams } from '@/lib/domain/pagination';
+import { isPremiumLivePayments } from '@/features/shared/config/features';
+
+/** Statuses that consume the one free slot in a category. */
+const CATEGORY_SLOT_STATUSES = [
+  'published',
+  'pending_review',
+  'expired',
+  'archived',
+] as const;
 
 export interface IListingPackageService {
   getSettings(): Promise<MarketplaceSettings>;
@@ -20,8 +34,22 @@ export interface IListingPackageService {
   listActivePackages(filter?: UserPackageFilter): Promise<UserListingPackage[]>;
   paginateUserPackages(filter: UserPackageFilter, pagination?: PaginationParams): Promise<PaginatedResult<UserListingPackage>>;
   grantPackage(input: GrantPackageInput): Promise<UserListingPackage>;
+  /** How many category free slots this user already used (0 or 1+). Excludes `excludeListingId`. */
+  countCategoryFreeSlotUsage(
+    userId: UserId,
+    categoryId: CategoryId,
+    excludeListingId?: ListingId,
+  ): Promise<number>;
+  /** True when this user still has the free first listing in the category. */
+  hasCategoryFreeSlot(
+    userId: UserId,
+    categoryId: CategoryId,
+    excludeListingId?: ListingId,
+  ): Promise<boolean>;
   checkPublishEntitlement(userId: UserId, listing: Listing): Promise<PublishEntitlementResult>;
   assertCanPublish(userId: UserId, listing: Listing): Promise<PublishEntitlementResult>;
+  /** Renew after expiry — always paid for standard (free) categories. */
+  assertCanRenew(userId: UserId, listing: Listing): Promise<PublishEntitlementResult>;
   onListingPublished(userId: UserId, listing: Listing, entitlement: PublishEntitlementResult): Promise<void>;
 }
 
@@ -33,6 +61,7 @@ export class ListingPackageService implements IListingPackageService {
   constructor(
     private settingsRepo: MarketplaceSettingsRepository,
     private packageRepo: ListingPackageRepository,
+    private listingRepo?: ListingRepository,
   ) {}
 
   getSettings() {
@@ -68,16 +97,43 @@ export class ListingPackageService implements IListingPackageService {
     return this.packageRepo.grant(input);
   }
 
-  async checkPublishEntitlement(userId: UserId, listing: Listing): Promise<PublishEntitlementResult> {
-    if (!isFirstPublish(listing)) {
-      return { allowed: true, source: 'global_free' };
+  async countCategoryFreeSlotUsage(
+    userId: UserId,
+    categoryId: CategoryId,
+    excludeListingId?: ListingId,
+  ): Promise<number> {
+    if (!this.listingRepo) return 0;
+    const total = await this.listingRepo.count({
+      ownerId: userId,
+      categoryId,
+      status: [...CATEGORY_SLOT_STATUSES],
+    });
+    if (!excludeListingId) return total;
+    const current = await this.listingRepo.findById(excludeListingId);
+    if (
+      current
+      && current.ownerId === userId
+      && current.categoryId === categoryId
+      && (CATEGORY_SLOT_STATUSES as readonly string[]).includes(current.status)
+    ) {
+      return Math.max(0, total - 1);
     }
+    return total;
+  }
 
-    const settings = await this.settingsRepo.get();
-    if (settings.currentPublishedCount < settings.freeListingLimit) {
-      return { allowed: true, source: 'global_free' };
-    }
+  async hasCategoryFreeSlot(
+    userId: UserId,
+    categoryId: CategoryId,
+    excludeListingId?: ListingId,
+  ): Promise<boolean> {
+    const used = await this.countCategoryFreeSlotUsage(userId, categoryId, excludeListingId);
+    return used < STANDARD_PUBLISH_CONFIG.freePerCategory;
+  }
 
+  private async checkPaidPackageEntitlement(
+    userId: UserId,
+    listing: Listing,
+  ): Promise<PublishEntitlementResult> {
     const active = await this.packageRepo.findActiveByUser({ userId });
 
     if (listing.companyId) {
@@ -95,16 +151,45 @@ export class ListingPackageService implements IListingPackageService {
     );
     if (single) return { allowed: true, source: 'single_listing' };
 
+    // Test mode: form already collected simulated 99 TL payment.
+    if (!isPremiumLivePayments()) {
+      return { allowed: true, source: 'category_paid' };
+    }
+
     return {
       allowed: false,
-      reason: 'Ücretsiz ilan kotası doldu. Yayınlamak için bir paket satın almalı veya yönetici tarafından paket atanmalısınız.',
+      reason: `Bu kategoride ücretsiz hakkınızı kullandınız. Ek ilan veya yenileme ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL’dir.`,
     };
+  }
+
+  async checkPublishEntitlement(userId: UserId, listing: Listing): Promise<PublishEntitlementResult> {
+    if (!isFirstPublish(listing)) {
+      return this.checkPaidPackageEntitlement(userId, listing);
+    }
+
+    const hasFree = await this.hasCategoryFreeSlot(userId, listing.categoryId, listing.id);
+    if (hasFree) {
+      return { allowed: true, source: 'category_free' };
+    }
+
+    return this.checkPaidPackageEntitlement(userId, listing);
   }
 
   async assertCanPublish(userId: UserId, listing: Listing): Promise<PublishEntitlementResult> {
     const result = await this.checkPublishEntitlement(userId, listing);
     if (!result.allowed) {
       throw new ForbiddenError(result.reason ?? 'İlan yayınlama hakkınız bulunmuyor.');
+    }
+    return result;
+  }
+
+  async assertCanRenew(userId: UserId, listing: Listing): Promise<PublishEntitlementResult> {
+    const result = await this.checkPaidPackageEntitlement(userId, listing);
+    if (!result.allowed) {
+      throw new ForbiddenError(
+        result.reason
+          ?? `Süre dolan ilanı yenilemek ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL’dir.`,
+      );
     }
     return result;
   }

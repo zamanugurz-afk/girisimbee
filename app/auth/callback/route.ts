@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { ensureOAuthAccountBootstrap } from '@/features/authentication/lib/ensure-oauth-account-bootstrap';
+import { OAUTH_LEGAL_ACCEPTANCE_PATH } from '@/features/authentication/lib/oauth-bootstrap';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { OAUTH_NEXT_COOKIE } from '@/features/authentication/lib/oauth-next';
 
@@ -178,9 +179,17 @@ export async function GET(request: Request) {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
     // Skip legal/OAuth bootstrap for recovery + email-verify — keep the destination path.
     if (user && !emailVerify && !passwordRecovery) {
-      // Bootstrap profile/settings. Legal gate (/auth/yasal-onay) is enabled only
-      // when that route + /api/account/legal-acceptance are both deployed.
-      await ensureOAuthAccountBootstrap(user);
+      const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(user);
+      if (created || needsLegalAcceptance) {
+        const legalUrl = new URL(OAUTH_LEGAL_ACCEPTANCE_PATH, origin);
+        legalUrl.searchParams.set('next', next);
+        const legalRedirect = NextResponse.redirect(legalUrl);
+        clearOauthCookie(legalRedirect);
+        success.cookies.getAll().forEach((c) => {
+          legalRedirect.cookies.set(c.name, c.value);
+        });
+        return legalRedirect;
+      }
     }
   } catch (bootstrapError) {
     console.error('[auth/callback] account bootstrap failed');

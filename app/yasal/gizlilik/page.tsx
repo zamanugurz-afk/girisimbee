@@ -1,24 +1,8 @@
-import { LegalDocumentPage } from '@/features/authentication/components/legal-document-page';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { LegalDocumentView } from '@/features/legal/components/LegalDocumentView';
+import { buildPrivacyDocument } from '@/features/legal/content/privacy.v1';
 
-export const metadata = {
-  title: 'Gizlilik Politikası — Girisimbee',
-};
+export const metadata = { title: 'Gizlilik Politikası — Girisimbee' };
 
-export default function PrivacyPolicyPage() {
-  return (
-    <LegalDocumentPage title="Gizlilik Politikası">
-      <p>
-        <BrandWordmark />, kişisel verilerinizi gizlilik ilkelerine uygun şekilde korumayı amaçlar. Veriler
-        yalnızca hizmet sunumu, güvenlik ve yasal yükümlülükler kapsamında işlenir.
-      </p>
-      <p>
-        Üçüncü taraflarla paylaşım, yasal zorunluluklar veya açık rızanız olmadıkça yapılmaz.
-      </p>
-      <p>
-        Bu metin bilgilendirme amaçlı bir taslaktır; nihai hukuki metin yayımlandığında burada
-        güncellenecektir.
-      </p>
-    </LegalDocumentPage>
-  );
+export default function PrivacyPage() {
+  return <LegalDocumentView body={buildPrivacyDocument()} />;
 }

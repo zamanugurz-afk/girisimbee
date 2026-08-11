@@ -20,7 +20,6 @@ import { listingsToContentItems } from '@/features/listings/mappers/listing-card
 import type { PublicCompanyView } from '@/features/companies/types/company-public.types';
 import { getCompanyService } from '@/lib/persistence/container';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
-import { ListingCallButton } from '@/components/girisimco/listing/listing-call-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatDate, formatNumber, initials } from '@/lib/utils';
@@ -48,7 +47,6 @@ export function PublicCompanyPageView({ data: initialData }: PublicCompanyPageVi
       ]),
     ),
   );
-  const contactListing = data.listings.find((l) => l.status === 'published');
   const sizeLabel = COMPANY_SIZE_OPTIONS.find((o) => o.value === company.employeeCount)?.label;
   const location = [company.location, company.city, company.country === 'TR' ? 'Türkiye' : company.country]
     .filter(Boolean)
@@ -168,13 +166,6 @@ export function PublicCompanyPageView({ data: initialData }: PublicCompanyPageVi
                 <Button variant="outline" className="rounded-lg" disabled={busy} onClick={toggleFollow}>
                   {data.isFollowing ? 'Takipten Çık' : 'Takip Et'}
                 </Button>
-              )}
-              {!data.isOwner && contactListing && (
-                <ListingCallButton
-                  phone={contactListing.contactPhone}
-                  className="rounded-lg"
-                  label="Ara"
-                />
               )}
               {data.isMember && !data.isOwner && (
                 <Button variant="outline" className="rounded-lg" disabled={busy} onClick={handleLeave}>

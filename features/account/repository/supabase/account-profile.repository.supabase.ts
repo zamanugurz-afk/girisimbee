@@ -134,7 +134,7 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
     if (input.username !== undefined) patch.username = input.username;
     if (input.email !== undefined) patch.email = input.email;
     if (input.phone !== undefined) patch.phone = input.phone;
-    if (input.role !== undefined) patch.role = input.role;
+    // role is intentionally ignored here — DB role guard + AccountService strip it.
     if (input.status !== undefined) {
       patch.status = input.status;
       patch.account_status = input.status;

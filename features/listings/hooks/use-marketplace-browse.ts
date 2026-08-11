@@ -30,6 +30,23 @@ type BrowseFetchResult = {
 const browseCache = new Map<string, BrowseCacheEntry>();
 const browseInflight = new Map<string, Promise<BrowseFetchResult>>();
 const BROWSE_CACHE_TTL_MS = 300_000;
+const BROWSE_FETCH_TIMEOUT_MS = 20_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        window.clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
 
 function browseCacheKey(params: MarketplaceBrowseParams): string {
   return JSON.stringify(params);
@@ -78,8 +95,11 @@ async function fetchFirstPageDeduped(
   const inflight = browseInflight.get(key);
   if (inflight) return inflight;
 
-  const promise = browseService
-    .browse(params)
+  const promise = withTimeout(
+    browseService.browse(params),
+    BROWSE_FETCH_TIMEOUT_MS,
+    'İlanlar yüklenirken zaman aşımı. Tekrar deneyin.',
+  )
     .then((result) => {
       const fetched: BrowseFetchResult = {
         items: result.data,
@@ -261,7 +281,11 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
                 total: fetched.total,
                 hasMore: fetched.hasMore,
               }))
-            : await browseService.browse(params);
+            : await withTimeout(
+                browseService.browse(params),
+                BROWSE_FETCH_TIMEOUT_MS,
+                'İlanlar yüklenirken zaman aşımı. Tekrar deneyin.',
+              );
 
         if (generation !== undefined && isStaleGeneration(generation)) {
           return;

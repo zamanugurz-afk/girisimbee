@@ -49,23 +49,22 @@ export function MarketplaceBrowseView({
   });
 
   return (
-    <div className="gc-header-offset">
-      <div className="relative border-b border-border/60">
-        <div className="pointer-events-none absolute inset-0 gc-dot-grid opacity-20" />
-        <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+    <div className="gc-header-offset bg-[#FAFBFC] dark:bg-background">
+      <div className="relative border-b border-[#EEF0F4] bg-white dark:border-border dark:bg-background">
+        <div className="relative mx-auto max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
           {categoryMeta && (
             <p
-              className="text-xs font-semibold uppercase tracking-wider"
+              className="text-[10px] font-semibold uppercase tracking-[0.14em]"
               style={{ color: resolvedAccent }}
             >
               {categoryMeta.label}
             </p>
           )}
-          <h1 className="gc-page-heading mt-1">
+          <h1 className="mt-1.5 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
             {title ?? categoryMeta?.label ?? (initialQuery ? `"${initialQuery}" araması` : 'İlanları Keşfet')}
           </h1>
           {(description ?? categoryMeta?.description) && (
-            <p className="mt-2 max-w-2xl text-[15px] text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
               {description ?? categoryMeta?.description}
             </p>
           )}
@@ -75,16 +74,16 @@ export function MarketplaceBrowseView({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
         <ListingFilters
           filters={filters}
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
-          className="mb-6"
+          className="mb-5"
         />
 
         {!isLoading && !error && (
-          <p className="mb-4 text-xs text-muted-foreground">
+          <p className="mb-4 text-[12px] tabular-nums text-[#64748B]">
             {total.toLocaleString('tr-TR')} ilan
           </p>
         )}
@@ -118,8 +117,8 @@ export function MarketplaceBrowseView({
         />
 
         {categorySlug && (
-          <div className="mt-10 flex flex-wrap gap-2 border-t border-border/80 pt-8 dark:border-white/10">
-            <span className="text-xs text-muted-foreground">Diğer kategoriler:</span>
+          <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-[#EEF0F4] pt-8 dark:border-border">
+            <span className="text-[12px] text-[#64748B]">Diğer kategoriler:</span>
             {['yatirim-bul', 'ortak-bul', 'bayilik-al', 'ise-al', 'dijital-ai']
               .filter((s) => s !== categorySlug)
               .map((slug) => {
@@ -129,7 +128,7 @@ export function MarketplaceBrowseView({
                   <Link
                     key={slug}
                     href={getCategoryRoutePath(slug)}
-                    className="rounded-full border border-border/80 px-3 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-primary/25 hover:bg-muted/50 hover:text-foreground"
+                    className="rounded-md border border-[#E6E8EE] bg-white px-2.5 py-1 text-[12px] font-medium text-[#475569] transition-colors hover:border-[#C7CBD6] hover:text-[#0B1220] dark:border-border dark:bg-card"
                   >
                     {meta.label}
                   </Link>

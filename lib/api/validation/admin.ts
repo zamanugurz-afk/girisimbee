@@ -50,6 +50,10 @@ export const adminListingActionSchema = z.discriminatedUnion('action', [
     urgentUntil: z.string().datetime({ offset: true }).optional(),
   }),
   z.object({ action: z.literal('remove_urgent') }),
+  z.object({
+    action: z.literal('extend_expiry'),
+    days: z.number().int().min(1).max(365).optional(),
+  }),
   z.object({ action: z.literal('unpublish') }),
   z.object({ action: z.literal('archive') }),
   z.object({ action: z.literal('delete') }),

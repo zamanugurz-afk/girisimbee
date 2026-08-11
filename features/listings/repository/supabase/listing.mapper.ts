@@ -33,9 +33,10 @@ export interface ListingRow {
   remote_policy: string | null;
   anonymous_mode: boolean;
   workflow_status: string;
-  contact_phone: string | null;
-  contact_whatsapp: string | null;
-  contact_email: string | null;
+  /** Absent when using LISTING_SAFE_SELECT (columns revoked for anon/authenticated). */
+  contact_phone?: string | null;
+  contact_whatsapp?: string | null;
+  contact_email?: string | null;
   contact_website: string | null;
   custom_fields: Record<string, unknown>;
   view_count: number;

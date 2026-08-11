@@ -24,6 +24,8 @@ import {
   extendExpiresAt,
 } from '@/features/admin/panel/lib/placement-dates';
 import { MOCK_ADMIN_PLACEMENTS } from '@/features/admin/panel/mock/admin-panel.mock';
+import { PERMISSIONS } from '@/features/authorization/permission.constants';
+import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import type {
   AdminMockPlacement,
   AdminPlacementStatus,
@@ -47,6 +49,9 @@ function toDayEnd(value: string): number | null {
 }
 
 export function AdminPlacementsView() {
+  const { hasPermission } = useRbac();
+  const canExtendPlacement = hasPermission(PERMISSIONS.LISTINGS_EXTEND);
+  const canGrantBoost = hasPermission(PERMISSIONS.LISTINGS_GRANT_BOOST);
   const [placements, setPlacements] = useState<AdminMockPlacement[]>(clonePlacements);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<AdminPlacementTypeFilter>('all');
@@ -97,6 +102,7 @@ export function AdminPlacementsView() {
   }
 
   function extendDuration(id: string) {
+    if (!canExtendPlacement) return;
     patchPlacement(id, (row) => ({
       ...row,
       expires_at: extendExpiresAt(row.expires_at, ADMIN_PLACEMENT_EXTEND_DAYS),
@@ -105,6 +111,7 @@ export function AdminPlacementsView() {
   }
 
   function setStatus(id: string, status: AdminPlacementStatus) {
+    if (status === 'active' && !canGrantBoost) return;
     patchPlacement(id, (row) => {
       if (status === 'active') {
         const expires_at =
@@ -163,14 +170,16 @@ export function AdminPlacementsView() {
       header: 'İşlemler',
       render: (row) => (
         <div className="flex max-w-[300px] flex-wrap gap-1.5">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => extendDuration(row.id)}
-          >
-            Süreyi uzat
-          </Button>
+          {canExtendPlacement ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => extendDuration(row.id)}
+            >
+              Süreyi uzat (+{ADMIN_PLACEMENT_EXTEND_DAYS} gün)
+            </Button>
+          ) : null}
           {row.status !== 'cancelled' ? (
             <Button
               type="button"
@@ -181,7 +190,7 @@ export function AdminPlacementsView() {
               İptal et
             </Button>
           ) : null}
-          {row.status !== 'active' ? (
+          {canGrantBoost && row.status !== 'active' ? (
             <Button type="button" size="sm" onClick={() => setStatus(row.id, 'active')}>
               Yeniden etkinleştir
             </Button>
@@ -199,7 +208,7 @@ export function AdminPlacementsView() {
   return (
     <AdminPageShell
       title="Vitrinler"
-      description="Vitrin ve Acil Vitrin yönetimi — mock veri"
+      description="Vitrin ve Acil Vitrin yönetimi — süre uzatma ve doping yalnızca süper yönetici."
       toolbar={
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">

@@ -6,6 +6,12 @@ import {
   buildKvkkConsentItemSnapshots,
   normalizeKvkkConsents,
 } from '@/features/kvkk/constants/kvkk-consent-policy';
+import {
+  PUBLISH_CONSENT_VERSION,
+  areAllPublishConsentsAccepted,
+  buildPublishConsentItemSnapshots,
+  normalizePublishConsents,
+} from '@/features/kvkk/constants/publish-consent-policy';
 import type { KvkkConsentRepository } from '@/features/kvkk/repositories/kvkk-consent.repository';
 import type {
   KvkkConsentEvidenceDocument,
@@ -45,6 +51,31 @@ export class KvkkConsentService {
       listingId: input.listingId ?? null,
       source: input.source ?? 'candidate_listing_publish',
       consentVersion: KVKK_CONSENT_VERSION,
+      consentItems,
+      consents,
+      allAccepted: true,
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+  }
+
+  /** Generic publish-consent audit for all listing categories (phone + publish rıza). */
+  async recordPublishPolicyConsent(input: RecordKvkkConsentInput): Promise<KvkkConsentRecord> {
+    if (!areAllPublishConsentsAccepted(input.consents)) {
+      throw new ValidationError('Tüm yayın onay kutularını işaretlemeniz gerekmektedir.', {
+        publishConsents: ['Tüm yayın onay kutularını işaretlemeniz gerekmektedir.'],
+      });
+    }
+
+    const consents = normalizePublishConsents(input.consents);
+    const consentItems = buildPublishConsentItemSnapshots(consents);
+
+    return this.repo.create({
+      userId: input.userId,
+      profileId: input.profileId,
+      listingId: input.listingId ?? null,
+      source: 'listing_publish',
+      consentVersion: PUBLISH_CONSENT_VERSION,
       consentItems,
       consents,
       allAccepted: true,

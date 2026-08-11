@@ -11,6 +11,7 @@ import {
   PLACEMENT_PACKAGE_CONFIG,
   PLACEMENT_PACKAGE_SLUGS,
   STANDARD_PUBLISH_CONFIG,
+  STANDARD_REPUBLISH_CONFIG,
   formatPlacementPriceTry,
   type PlacementPackageSlug,
 } from '@/features/monetization/types/listing-placement.types';
@@ -19,7 +20,7 @@ import {
   simulatePlacementPayment,
   type PlacementPaymentSimulationStatus,
 } from '@/features/monetization/lib/simulate-placement-payment';
-import { isPremiumEnabled } from '@/features/shared/config/features';
+import { isPremiumEnabled, isPremiumLivePayments } from '@/features/shared/config/features';
 
 export interface ListingPackageSelectionValue {
   placements: PlacementPackageSlug[];
@@ -52,6 +53,8 @@ interface ListingPackageSelectionStepProps {
   disabled?: boolean;
   error?: string;
   variant?: 'placement' | 'franchise' | 'dijital_ai' | 'job';
+  /** Free placement categories: first listing free; false → 99 TL standard fee. */
+  categoryFreeAvailable?: boolean;
 }
 
 function publishConfigFor(variant: 'franchise' | 'dijital_ai' | 'job') {
@@ -75,12 +78,18 @@ export function ListingPackageSelectionStep({
   disabled,
   error,
   variant = 'placement',
+  categoryFreeAvailable = true,
 }: ListingPackageSelectionStepProps) {
   const [simulating, setSimulating] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const premiumOn = isPremiumEnabled();
+  const livePayments = isPremiumLivePayments();
   const isPaidPublish =
     premiumOn && (variant === 'franchise' || variant === 'dijital_ai' || variant === 'job');
+  /** Free category but user already used their 1 free listing → 99 TL standard. */
+  const requiresStandardFee =
+    premiumOn && variant === 'placement' && !categoryFreeAvailable;
+  const requiresPublishFee = isPaidPublish || requiresStandardFee;
   const publishConfig = isPaidPublish ? publishConfigFor(variant) : null;
 
   useEffect(() => {
@@ -96,6 +105,33 @@ export function ListingPackageSelectionStep({
     onChange(DEFAULT_PACKAGE_SELECTION);
   }, [premiumOn, onChange, value.placements.length, value.simulationStatus, value.publishFeePaid, value.franchisePublishPaid]);
 
+  /** Test mode: auto-approve package payment until real PSP is wired. */
+  useEffect(() => {
+    if (!premiumOn || livePayments) return;
+    const needsPaid = requiresPublishFee || value.placements.length > 0;
+    if (!needsPaid) return;
+    const alreadyReady =
+      value.simulationStatus === 'ready' &&
+      (!requiresPublishFee || Boolean(value.publishFeePaid || value.franchisePublishPaid));
+    if (alreadyReady) return;
+    onChange({
+      placements: value.placements,
+      simulationStatus: 'ready',
+      publishFeePaid: true,
+      franchisePublishPaid: isPaidPublish,
+    });
+  }, [
+    premiumOn,
+    livePayments,
+    isPaidPublish,
+    requiresPublishFee,
+    onChange,
+    value.placements,
+    value.simulationStatus,
+    value.publishFeePaid,
+    value.franchisePublishPaid,
+  ]);
+
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
@@ -107,7 +143,8 @@ export function ListingPackageSelectionStep({
     (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
     0,
   );
-  const totalCents = (publishConfig?.priceCents ?? 0) + placementCents;
+  const standardFeeCents = requiresStandardFee ? STANDARD_REPUBLISH_CONFIG.priceCents : 0;
+  const totalCents = (publishConfig?.priceCents ?? 0) + standardFeeCents + placementCents;
   const needsPayment = totalCents > 0;
   const publishPaid = Boolean(value.publishFeePaid || value.franchisePublishPaid);
   const status = value.simulationStatus;
@@ -140,6 +177,15 @@ export function ListingPackageSelectionStep({
     if (isPaidPublish) return;
     abortRef.current?.abort();
     setSimulating(false);
+    if (requiresStandardFee) {
+      onChange({
+        placements: [],
+        simulationStatus: 'selected',
+        publishFeePaid: false,
+        franchisePublishPaid: false,
+      });
+      return;
+    }
     onChange({
       placements: [],
       simulationStatus: 'ready',
@@ -155,7 +201,7 @@ export function ListingPackageSelectionStep({
     onChange({
       placements: nextPlacements,
       simulationStatus:
-        isPaidPublish || nextPlacements.length > 0 ? 'selected' : 'ready',
+        requiresPublishFee || nextPlacements.length > 0 ? 'selected' : 'ready',
       publishFeePaid: publishPaid,
       franchisePublishPaid: publishPaid,
     });
@@ -184,7 +230,7 @@ export function ListingPackageSelectionStep({
           onChange({
             placements: placementsSnapshot,
             simulationStatus: nextStatus,
-            publishFeePaid: isPaidPublish ? paid : paid && placementsSnapshot.length > 0,
+            publishFeePaid: requiresPublishFee ? paid : paid && placementsSnapshot.length > 0,
             franchisePublishPaid: isPaidPublish ? paid : false,
           });
         },
@@ -211,6 +257,12 @@ export function ListingPackageSelectionStep({
 
     return (
       <div className="space-y-5">
+        {!livePayments ? (
+          <p className="rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-gc-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+            Test aşaması: paket ödemeleri otomatik onaylanır. Canlı ödeme için{' '}
+            <code className="text-[10px]">NEXT_PUBLIC_PREMIUM_LIVE_PAYMENTS=true</code>.
+          </p>
+        ) : null}
         <p className="text-gc-sm text-muted-foreground">
           {variant === 'franchise'
             ? 'Franchise ilanı yayınlamak için 1.000 TL paket ücreti zorunludur. Süre 30 gündür; bitince yeniden ödeme gerekir. Vitrin ve Acil dopingleri ayrıca alınabilir.'
@@ -302,10 +354,13 @@ export function ListingPackageSelectionStep({
             <div>
               <p className="text-gc-sm font-semibold text-foreground">{statusLabel}</p>
               <p className="mt-0.5 text-gc-xs text-muted-foreground">
-                Toplam: {formatPlacementPriceTry(totalCents)} (simülasyon — gerçek ödeme alınmaz)
+                Toplam: {formatPlacementPriceTry(totalCents)}
+                {livePayments
+                  ? ' — canlı ödeme'
+                  : ' — test modu: ödeme otomatik onaylandı (PSP bağlanınca gerçek checkout açılır)'}
               </p>
             </div>
-            {!paid ? (
+            {!paid && livePayments ? (
               <Button
                 type="button"
                 onClick={() => void runSimulation()}
@@ -315,10 +370,10 @@ export function ListingPackageSelectionStep({
                 {simulating || status === 'pending' ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Ödeme simüle ediliyor…
+                    Ödeme işleniyor…
                   </>
                 ) : (
-                  `${formatPlacementPriceTry(totalCents)} Ödemeyi Simüle Et`
+                  `${formatPlacementPriceTry(totalCents)} Öde`
                 )}
               </Button>
             ) : null}
@@ -331,9 +386,17 @@ export function ListingPackageSelectionStep({
 
   return (
     <div className="space-y-5">
+      {!livePayments ? (
+        <p className="rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-gc-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+          Test aşaması: paket ödemeleri otomatik onaylanır. Şirket kurulup ödeme sistemi
+          bağlandığında <code className="text-[10px]">NEXT_PUBLIC_PREMIUM_LIVE_PAYMENTS=true</code>{' '}
+          ile canlı checkout açılır.
+        </p>
+      ) : null}
       <p className="text-gc-sm text-muted-foreground">
-        Bu kategoride ilan açmak ücretsizdir. İsterseniz Vitrin (99 TL) veya Acil Vitrin (99 TL)
-        dopingi ekleyebilirsiniz.
+        {categoryFreeAvailable
+          ? `Standart yayın bu kategoride ücretsizdir (30 gün). Kategori başına yalnızca 1 ücretsiz ilan. Süre bitince yenileme ${formatPlacementPriceTry(STANDARD_REPUBLISH_CONFIG.priceCents)}. İsterseniz Vitrin veya Acil doping ekleyebilirsiniz.`
+          : `Bu kategoride ücretsiz hakkınızı kullandınız. Standart ek ilan / yenileme ${formatPlacementPriceTry(STANDARD_REPUBLISH_CONFIG.priceCents)} · 30 gün. Vitrin ve Acil dopingleri ayrıca alınabilir.`}
       </p>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -349,7 +412,15 @@ export function ListingPackageSelectionStep({
           )}
         >
           <p className="font-semibold">{STANDARD_PUBLISH_CONFIG.name}</p>
-          <p className="mt-2 font-display text-xl font-semibold">Ücretsiz</p>
+          <p className="mt-2 font-display text-xl font-semibold">
+            {requiresStandardFee
+              ? formatPlacementPriceTry(STANDARD_REPUBLISH_CONFIG.priceCents)
+              : 'Ücretsiz'}
+          </p>
+          <p className="mt-1 text-gc-xs text-muted-foreground">
+            {STANDARD_PUBLISH_CONFIG.durationDays} gün
+            {requiresStandardFee ? ' · ek ilan' : ' · 1. ücretsiz hak'}
+          </p>
         </button>
 
         {PLACEMENT_PACKAGE_SLUGS.map((slug) => {
@@ -376,6 +447,7 @@ export function ListingPackageSelectionStep({
               <p className="font-display text-xl font-semibold">
                 {formatPlacementPriceTry(pkg.priceCents)}
               </p>
+              <p className="mt-1 text-gc-xs text-muted-foreground">{pkg.durationDays} gün doping</p>
             </button>
           );
         })}
@@ -387,10 +459,13 @@ export function ListingPackageSelectionStep({
             <div>
               <p className="text-gc-sm font-semibold text-foreground">{statusLabel}</p>
               <p className="mt-0.5 text-gc-xs text-muted-foreground">
-                Toplam: {formatPlacementPriceTry(totalCents)} (simülasyon)
+                Toplam: {formatPlacementPriceTry(totalCents)}
+                {livePayments
+                  ? ' — canlı ödeme'
+                  : ' — test modu: ödeme otomatik onaylandı'}
               </p>
             </div>
-            {status !== 'ready' ? (
+            {status !== 'ready' && livePayments ? (
               <Button
                 type="button"
                 onClick={() => void runSimulation()}
@@ -399,10 +474,10 @@ export function ListingPackageSelectionStep({
                 {simulating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Simüle ediliyor…
+                    İşleniyor…
                   </>
                 ) : (
-                  'Ödemeyi Simüle Et'
+                  'Öde'
                 )}
               </Button>
             ) : null}

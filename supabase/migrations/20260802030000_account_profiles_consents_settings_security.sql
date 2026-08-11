@@ -49,20 +49,6 @@ SET last_seen_at = COALESCE(last_seen_at, last_active_at)
 WHERE last_seen_at IS NULL
   AND last_active_at IS NOT NULL;
 
--- Map legacy roles → canonical three-role model
--- Align with app LEGACY_ROLE_MAP: moderator → admin (not user).
-UPDATE public.profiles
-SET role = CASE
-  WHEN lower(trim(role)) IN ('admin') THEN 'admin'
-  WHEN lower(trim(role)) IN ('super_admin', 'superadmin', 'super-admin') THEN 'super_admin'
-  WHEN lower(trim(role)) IN ('moderator') THEN 'admin'
-  WHEN lower(trim(role)) IN ('user', 'member', 'verified', 'company') THEN 'user'
-  WHEN role IS NULL OR btrim(role) = '' THEN 'user'
-  ELSE 'user'
-END
-WHERE role IS NULL
-   OR lower(trim(role)) NOT IN ('user', 'admin', 'super_admin');
-
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -92,6 +78,20 @@ BEGIN
     EXECUTE format('ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS %I', r.conname);
   END LOOP;
 END $$;
+
+-- Map legacy roles → canonical three-role model
+-- Align with app LEGACY_ROLE_MAP: moderator → admin (not user).
+UPDATE public.profiles
+SET role = CASE
+  WHEN lower(trim(role)) IN ('admin') THEN 'admin'
+  WHEN lower(trim(role)) IN ('super_admin', 'superadmin', 'super-admin') THEN 'super_admin'
+  WHEN lower(trim(role)) IN ('moderator') THEN 'admin'
+  WHEN lower(trim(role)) IN ('user', 'member', 'verified', 'company') THEN 'user'
+  WHEN role IS NULL OR btrim(role) = '' THEN 'user'
+  ELSE 'user'
+END
+WHERE role IS NULL
+   OR lower(trim(role)) NOT IN ('user', 'admin', 'super_admin');
 
 DO $$
 BEGIN

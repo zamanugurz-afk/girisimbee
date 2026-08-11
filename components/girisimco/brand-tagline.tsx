@@ -25,7 +25,7 @@ export function BrandTagline({
   return (
     <Tag className={cn('text-[#0F172A]', SIZE_CLASSES[size], className)}>
       {before}
-      <span className="gc-gradient-text font-semibold">{BRAND_TAGLINE_HIGHLIGHT}</span>
+      <span className="text-[#F59E0B] font-semibold">{BRAND_TAGLINE_HIGHLIGHT}</span>
       {after}
     </Tag>
   );

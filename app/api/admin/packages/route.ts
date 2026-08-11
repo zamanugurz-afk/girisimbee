@@ -1,4 +1,4 @@
-import { withAdmin } from '@/lib/api/with-admin';
+import { withAdmin, assertSuperListingManager } from '@/lib/api/with-admin';
 import { parseJsonBody } from '@/lib/api/with-auth';
 import { ok, created } from '@/lib/api/response';
 import {
@@ -21,7 +21,7 @@ export const GET = withAdmin(async (ctx, request) => {
   return ok({ catalogs });
 });
 
-/** POST — activate/suspend entitlements */
+/** POST — activate/suspend entitlements (activate = super_admin only) */
 export const POST = withAdmin(async (ctx, request) => {
   const body = await parseJsonBody(request);
   const action = parseAdminPackageAction(body);
@@ -29,6 +29,8 @@ export const POST = withAdmin(async (ctx, request) => {
 
   switch (action.action) {
     case 'activate': {
+      const denied = assertSuperListingManager(ctx);
+      if (denied) return denied;
       const entitlement = await service.activateModulePackage(
         action.moduleKey,
         ids.user(action.userId),

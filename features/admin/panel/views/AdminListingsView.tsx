@@ -27,6 +27,8 @@ import {
 import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
 import { mapListingToAdminRow } from '@/features/admin/panel/lib/map-live-admin';
 import { adminApi } from '@/features/admin/lib/admin-api-client';
+import { PERMISSIONS } from '@/features/authorization/permission.constants';
+import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import type {
   AdminMockListing,
   AdminTableColumn,
@@ -52,6 +54,9 @@ function toApiListingStatus(filter: AdminListingStatusFilter): ListingStatus | u
 }
 
 export function AdminListingsView() {
+  const { hasPermission } = useRbac();
+  const canGrantBoost = hasPermission(PERMISSIONS.LISTINGS_GRANT_BOOST);
+  const canExtendListing = hasPermission(PERMISSIONS.LISTINGS_EXTEND);
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
   const [listings, setListings] = useState<AdminMockListing[]>([]);
@@ -140,7 +145,8 @@ export function AdminListingsView() {
       | { action: 'unpublish' }
       | { action: 'delete' }
       | { action: 'feature'; featuredUntil?: string }
-      | { action: 'mark_urgent'; urgentUntil?: string },
+      | { action: 'mark_urgent'; urgentUntil?: string }
+      | { action: 'extend_expiry'; days?: number },
   ) {
     setBusyId(listingId);
     try {
@@ -230,7 +236,7 @@ export function AdminListingsView() {
               Yayınla
             </Button>
           ) : null}
-          {!row.is_featured ? (
+          {canGrantBoost && !row.is_featured ? (
             <Button
               type="button"
               size="sm"
@@ -241,7 +247,7 @@ export function AdminListingsView() {
               Vitrine taşı
             </Button>
           ) : null}
-          {!row.is_urgent ? (
+          {canGrantBoost && !row.is_urgent ? (
             <Button
               type="button"
               size="sm"
@@ -250,6 +256,17 @@ export function AdminListingsView() {
               onClick={() => void runListingAction(row.id, { action: 'mark_urgent' })}
             >
               Acil vitrin
+            </Button>
+          ) : null}
+          {canExtendListing && row.status !== 'deleted' ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={busyId === row.id}
+              onClick={() => void runListingAction(row.id, { action: 'extend_expiry', days: 30 })}
+            >
+              30 gün uzat
             </Button>
           ) : null}
           {row.status !== 'deleted' ? (

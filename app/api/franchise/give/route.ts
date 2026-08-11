@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/validation';
 import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 import { ids } from '@/lib/domain/ids';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** Bayilik Ver — browse franchise-buy seekers or list applications for own listing */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -30,12 +31,14 @@ export const GET = withOptionalAuth(async (ctx, request) => {
   }
 
   const query = franchiseListingBrowseQuerySchema.parse(params);
-  const listings = await franchiseService.browseGiveSeekers({
+  const result = await franchiseService.browseGiveSeekers({
     city: query.city,
     district: query.district,
     sector: query.sector,
   });
-  return ok({ listings });
+  return ok({
+    listings: { ...result, data: stripListingsContactPhone(result.data) },
+  });
 });
 
 /** Bayilik Ver — publish franchise-give listing */

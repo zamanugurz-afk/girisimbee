@@ -18,6 +18,7 @@ import {
 } from '@/features/franchise/lib/franchise-listing.mapper';
 import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
+import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 
 const REMOTE_LABELS: Record<string, string> = {
   onsite: 'Ofis',
@@ -192,9 +193,10 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
           <h3 className="mb-2 text-sm font-semibold text-foreground">
             {listingType.categoryId === CATEGORY_IDS.isBul ? 'Kariyer özetim' : 'Detaylı Açıklama'}
           </h3>
-          <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-            {values.core.longDescription}
-          </p>
+          <ListingRichText
+            content={values.core.longDescription}
+            className="text-sm"
+          />
         </div>
       )}
 

@@ -16,6 +16,12 @@ export const PERMISSIONS = {
   NOTIFICATIONS_SEND: 'notifications:send',
   REPORTS_VIEW: 'reports:view',
 
+  // super_admin only — free doping / duration overrides
+  /** Ücretsiz Vitrin / Acil doping verme */
+  LISTINGS_GRANT_BOOST: 'listings:grant_boost',
+  /** İlan veya vitrin süresini ücretsiz uzatma */
+  LISTINGS_EXTEND: 'listings:extend',
+
   // super_admin
   SETTINGS_MANAGE: 'settings:manage',
   ADMINS_CREATE: 'admins:create',

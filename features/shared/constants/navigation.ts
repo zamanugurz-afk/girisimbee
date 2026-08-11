@@ -8,8 +8,8 @@ export const NAV_LINKS = [
   { label: 'Girişimciler', href: '/invest' },
   { label: 'İş İlanları', href: '/hire' },
   { label: 'Ortaklıklar', href: '/partners' },
-  { label: 'Dijital & AI', href: '/dijital-ai' },
-  { label: 'Franchise', href: '/franchise/buy' },
+  { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
+  { label: 'Franchise İlanları', href: '/franchise/buy' },
   { label: 'MARKET', href: '/market' },
 ] as const;
 
@@ -32,8 +32,8 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'Yatırımcılar', href: '/investors' },
     { label: 'İş İlanları', href: '/hire' },
     { label: 'Ortaklıklar', href: '/partners' },
-    { label: 'Dijital & AI', href: '/dijital-ai' },
-    { label: 'Franchise', href: '/franchise/buy' },
+    { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
+    { label: 'Franchise İlanları', href: '/franchise/buy' },
   ],
   Hesap: [
     { label: 'Giriş yap', href: AUTH_ROUTES.login },
@@ -47,7 +47,9 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'Reklam & işbirliği', href: '/reklam' },
     { label: 'Gizlilik', href: '/yasal/gizlilik' },
     { label: 'KVKK', href: '/yasal/kvkk-aydinlatma' },
+    { label: 'Açık rıza', href: '/yasal/acik-riza' },
     { label: 'Çerezler', href: '/yasal/cerez' },
+    { label: 'Çerez Tercihleri', href: '/yasal/cerez-tercihleri' },
     { label: 'Kullanıcı sözleşmesi', href: '/yasal/kullanici-sozlesmesi' },
   ],
 };

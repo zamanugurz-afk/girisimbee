@@ -10,6 +10,7 @@ import { SiteChrome } from '@/components/girisimco/site-chrome';
 import { AuthProvider } from '@/features/authentication/providers/auth-provider';
 import type { SessionUser } from '@/features/authentication/types/auth.types';
 import { FavoritesProvider } from '@/features/favorites/providers/favorites-provider';
+import { CookieConsentBanner } from '@/features/legal/components/CookieConsentBanner';
 
 export function AppProviders({
   children,
@@ -45,6 +46,7 @@ export function AppProviders({
               <SiteChrome>
                 <GcPageTransition>{children}</GcPageTransition>
               </SiteChrome>
+              <CookieConsentBanner />
               <Toaster
                 position="bottom-right"
                 theme="system"

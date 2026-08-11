@@ -7,6 +7,11 @@ import type {
   ConditionGrade,
 } from '@/types';
 
+/**
+ * LEGACY — İkinciBazar owner-token product shell (`app/[token]/*` only).
+ * Not Girisimbee public brand. Do not use SITE.name on Girisimbee marketplace UI.
+ * Girisimbee legal company data lives in `features/legal/config/legal-company.config.ts`.
+ */
 export const SITE = {
   name: 'İkinciBazar',
   domain: 'ikincibazar.com',

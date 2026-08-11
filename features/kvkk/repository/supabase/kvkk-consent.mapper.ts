@@ -1,9 +1,7 @@
 import type { ListingId } from '@/lib/domain/ids';
+import type { KvkkConsentValues } from '@/features/kvkk/constants/kvkk-consent-policy';
 import type {
-  KvkkConsentItemSnapshot,
-  KvkkConsentValues,
-} from '@/features/kvkk/constants/kvkk-consent-policy';
-import type {
+  ConsentAuditItemSnapshot,
   CreateKvkkConsentRecordInput,
   KvkkConsentRecord,
   KvkkConsentRecordId,
@@ -18,8 +16,8 @@ export interface KvkkConsentRecordRow {
   listing_id: string | null;
   source: string;
   consent_version: string;
-  consent_items: KvkkConsentItemSnapshot[];
-  consents: KvkkConsentValues;
+  consent_items: ConsentAuditItemSnapshot[];
+  consents: KvkkConsentValues | Record<string, boolean>;
   all_accepted: boolean;
   ip_address: string | null;
   user_agent: string | null;

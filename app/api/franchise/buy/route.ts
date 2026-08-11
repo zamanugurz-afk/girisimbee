@@ -3,6 +3,7 @@ import { ok, created } from '@/lib/api/response';
 import { franchiseApplySchema } from '@/lib/api/validation';
 import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
 import { ids } from '@/lib/domain/ids';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** Bayilik Al — browse franchise-give opportunities */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -11,13 +12,15 @@ export const GET = withOptionalAuth(async (ctx, request) => {
 
   const supabase = (await import('@/lib/supabase/server')).createClient();
   const container = ctx?.container ?? (await import('@/lib/persistence/container')).getServerContainer(supabase);
-  const listings = await container.ecosystem.franchiseService.browseBuyOpportunities({
+  const result = await container.ecosystem.franchiseService.browseBuyOpportunities({
     city: query.city,
     district: query.district,
     sector: query.sector,
   });
 
-  return ok({ listings });
+  return ok({
+    listings: { ...result, data: stripListingsContactPhone(result.data) },
+  });
 });
 
 /** Bayilik Al — apply to a franchise-give listing */

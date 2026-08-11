@@ -224,6 +224,87 @@
     }
   }
 
+  @keyframes gc-hero-orbit-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .gc-hero-orbit {
+    animation: gc-hero-orbit-spin 48s linear infinite;
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  /* Soft wing-side flutter — PNG is not sliced; origin biased to wing area */
+  @keyframes gc-bee-flutter {
+    0%,
+    100% {
+      transform: scale(1, 1) rotate(0deg);
+    }
+    40% {
+      transform: scale(1.045, 0.97) rotate(-1.1deg);
+    }
+    70% {
+      transform: scale(0.985, 1.02) rotate(0.6deg);
+    }
+  }
+
+  .gc-bee-flutter {
+    animation: gc-bee-flutter 0.7s ease-in-out infinite;
+    transform-origin: 28% 36%;
+    will-change: transform;
+  }
+
+  @keyframes gc-wing-flap-a {
+    0%,
+    100% {
+      transform: rotate(0deg) scale(1, 1);
+    }
+    50% {
+      transform: rotate(-14deg) scale(1.06, 0.9);
+    }
+  }
+
+  @keyframes gc-wing-flap-b {
+    0%,
+    100% {
+      transform: rotate(0deg) scale(1, 1);
+    }
+    50% {
+      transform: rotate(12deg) scale(1.04, 0.9);
+    }
+  }
+
+  .gc-bee-wing {
+    transform-box: fill-box;
+    transform-origin: right center;
+    will-change: transform;
+  }
+
+  .gc-bee-wing-a {
+    animation: gc-wing-flap-a 0.58s ease-in-out infinite;
+  }
+
+  .gc-bee-wing-b {
+    animation: gc-wing-flap-b 0.58s ease-in-out infinite;
+    animation-delay: 0.06s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gc-hero-orbit {
+      animation: none;
+    }
+    .gc-bee-flutter,
+    .gc-bee-wing-a,
+    .gc-bee-wing-b {
+      animation: none;
+    }
+  }
+
   /* ── Typography roles ── */
   .gc-page-heading {
     @apply font-display text-gc-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem];

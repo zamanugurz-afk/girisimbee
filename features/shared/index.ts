@@ -2,6 +2,8 @@
 export {
   ENABLE_PREMIUM,
   isPremiumEnabled,
+  isPremiumLivePayments,
+  PREMIUM_LIVE_PAYMENTS,
   filterPremiumLabels,
   MVP_COPY,
 } from '@/features/shared/config/features';
@@ -18,6 +20,7 @@ export {
   BRAND_NAME,
   BRAND_TAGLINE,
   BRAND_TAGLINE_HIGHLIGHT,
+  BRAND_PITCH_SHORT,
   BRAND_PAGE_TITLE,
   BRAND_COLORS,
 } from '@/features/shared/constants/brand';

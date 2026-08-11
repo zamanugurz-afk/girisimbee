@@ -66,6 +66,8 @@ export interface IAdminService {
   unfeatureListing(id: ListingId): Promise<Listing>;
   markListingUrgent(id: ListingId, urgentUntil?: string): Promise<Listing>;
   removeListingUrgent(id: ListingId): Promise<Listing>;
+  /** Super-admin: extend listing expiresAt by N days (default 30). */
+  extendListingExpiry(id: ListingId, days?: number): Promise<Listing>;
   unpublishListing(id: ListingId): Promise<Listing>;
   archiveListing(id: ListingId): Promise<Listing>;
   deleteListing(id: ListingId): Promise<void>;

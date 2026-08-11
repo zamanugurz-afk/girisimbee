@@ -1,5 +1,5 @@
 /** Current KVKK consent policy version — bump when copy/legal text changes. */
-export const KVKK_CONSENT_VERSION = '2026-08-01';
+export const KVKK_CONSENT_VERSION = '2026-08-10';
 
 export const KVKK_CONSENT_KEYS = [
   'cvSharing',
@@ -21,33 +21,33 @@ export interface KvkkConsentPolicyItem {
 export const KVKK_CONSENT_POLICY_ITEMS: readonly KvkkConsentPolicyItem[] = [
   {
     key: 'cvSharing',
-    label: 'CV paylaşım izni',
+    label: 'CV paylaşım açık rızası',
     description:
-      'Özgeçmişimin ilan sahipleri ve platform tarafından görüntülenmesine izin veriyorum.',
+      'Özgeçmişimin ilgili ilan sahipleri tarafından görüntülenmesine açık rıza veriyorum. CV’de özel nitelikli kişisel veri paylaşmamaya özen göstereceğimi biliyorum.',
   },
   {
     key: 'thirdPartySharing',
-    label: 'Üçüncü taraf paylaşım izni',
+    label: 'Üçüncü taraf paylaşım açık rızası',
     description:
-      'Verilerimin iş ortakları ve hizmet sağlayıcılarla paylaşılmasına izin veriyorum.',
+      'İş arayan sürecinin yürütülmesi için gerekli hizmet sağlayıcılarla sınırlı paylaşımına açık rıza veriyorum (genel/belirsiz rıza değildir).',
   },
   {
     key: 'employerSharing',
-    label: 'İşveren paylaşım izni',
+    label: 'İşveren paylaşım açık rızası',
     description:
-      'Profil ve CV bilgilerimin ilgili işverenlerle paylaşılmasına izin veriyorum.',
+      'Profil ve CV bilgilerimin ilgili işverenlerle paylaşılmasına açık rıza veriyorum.',
   },
   {
     key: 'clarificationText',
-    label: 'Aydınlatma metni onayı',
+    label: 'Aydınlatma metni bilgilendirmesi',
     description:
-      'Kişisel verilerin işlenmesine ilişkin aydınlatma metnini okudum ve anladım.',
+      'KVKK aydınlatma metnini okudum. Bu bir bilgilendirmedir; açık rıza değildir.',
   },
   {
     key: 'explicitConsent',
-    label: 'Açık rıza onayı',
+    label: 'Açık rıza (ilan yayınlama amaçları)',
     description:
-      'Kişisel verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyorum.',
+      'Yukarıda işaretlediğim amaçlarla kişisel verilerimin işlenmesine açık rıza veriyorum. Rızamı geri çekebilirim.',
   },
 ] as const;
 

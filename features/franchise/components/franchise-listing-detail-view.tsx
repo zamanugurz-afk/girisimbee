@@ -7,7 +7,6 @@ import {
   FactRow,
   DetailSectionIf,
 } from '@/components/girisimco/listing/detail-primitives';
-import type { ExternalContactInfo } from '@/lib/domain/marketplace-enums';
 import {
   formatMoney,
   formatPercentage,
@@ -16,18 +15,8 @@ import {
 } from '@/features/franchise/lib/franchise-listing.mapper';
 import type { FranchiseListingDetailViewModel } from '@/features/franchise/types/franchise-listing.types';
 import { toDisplayValue } from '@/features/listings/utils/display-value';
-import { ListingContactPhone } from '@/components/girisimco/listing/listing-contact-phone';
-
-interface ExternalContactPanelProps {
-  contact: ExternalContactInfo;
-}
-
-/** V1: phone-only contact on franchise detail. */
-export function ExternalContactPanel({ contact }: ExternalContactPanelProps) {
-  return (
-    <ListingContactPhone phone={contact.phone} variant="sidebar" />
-  );
-}
+import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
+import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 
 function MediaLink({ href, label }: { href: string; label: string }) {
   const url = href.startsWith('http') ? href : `https://${href}`;
@@ -52,12 +41,6 @@ interface FranchiseListingDetailViewProps {
 
 export function FranchiseListingDetailView({ data, backHref, backLabel }: FranchiseListingDetailViewProps) {
   const { listing, flow, details } = data;
-  const contact = {
-    phone: listing.contactPhone,
-    whatsapp: listing.contactWhatsapp,
-    email: listing.contactEmail,
-    website: listing.contactWebsite ?? details.website ?? null,
-  };
 
   const locationParts = [listing.city, listing.district ?? details.districts].filter((part) => toDisplayValue(part));
   const location = locationParts.join(', ');
@@ -120,9 +103,10 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
           <div className="space-y-6">
             <DetailCard>
               <DetailSection title="Açıklama">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {listing.longDescription || listing.shortDescription}
-                </p>
+                <ListingRichText
+                  content={listing.longDescription || listing.shortDescription || ''}
+                  className="text-sm"
+                />
               </DetailSection>
             </DetailCard>
 
@@ -255,7 +239,10 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-            <ExternalContactPanel contact={contact} />
+            <ListingContactCta
+              listingId={String(listing.id)}
+              listingTitle={listing.title}
+            />
           </aside>
         </div>
       </div>

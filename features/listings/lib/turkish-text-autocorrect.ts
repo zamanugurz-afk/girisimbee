@@ -76,6 +76,23 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   gelistiriyoruz: 'geliştiriyoruz',
   olusturma: 'oluşturma',
   olusturuyoruz: 'oluşturuyoruz',
+  istanbul: 'İstanbul',
+  istanbulda: "İstanbul'da",
+  istanbula: "İstanbul'a",
+  ankara: 'Ankara',
+  ankarada: "Ankara'da",
+  izmir: 'İzmir',
+  izmirde: "İzmir'de",
+  turkiye: 'Türkiye',
+  turkiyede: "Türkiye'de",
+  ariyoruz: 'arıyoruz',
+  ariyor: 'arıyor',
+  yatirimcilar: 'yatırımcılar',
+  girisimimize: 'girişimimize',
+  platformumuz: 'platformumuz',
+  cozum: 'çözüm',
+  cozumleri: 'çözümleri',
+  cozumler: 'çözümler',
 };
 
 function escapeRegExp(value: string): string {
@@ -136,6 +153,7 @@ export type TurkishAutoCorrectMode = 'title' | 'body';
 
 /**
  * Auto-correct listing text for Turkish writing conventions.
+ * Prefer listing-content-quality.normalizeListingTitle / normalizeListingDescription for full pipeline.
  * - title: typography + typos + Title Case
  * - body: typography + typos + sentence case
  */
@@ -146,15 +164,51 @@ export function autoCorrectTurkishText(
   if (!input.trim()) return input.trim();
 
   let next = normalizeTurkishTypography(input);
+  next = next
+    .replace(/!{2,}/g, '!')
+    .replace(/\?{2,}/g, '?')
+    .replace(/\.{4,}/g, '...')
+    .replace(/(\p{L})\1{2,}/gu, '$1$1');
   next = applyCommonTurkishTypos(next);
 
   if (mode === 'title') {
-    return toTurkishTitleCase(next);
+    return toTurkishTitleCase(next).replace(/[.!…,;:]+$/g, '').trim();
   }
 
-  return toTurkishSentenceCase(next);
+  next = toTurkishSentenceCase(next);
+  if (/\p{L}/u.test(next) && !/[.!?…]"?$/.test(next)) {
+    next = `${next}.`;
+  }
+  return next.trim();
 }
 
 export function didAutoCorrectChange(before: string, after: string): boolean {
   return before.trim() !== after.trim();
 }
+
+/**
+ * Collapse whitespace + NFC + drop trailing sentence punctuation so we can
+ * ignore cosmetic-only "corrections" (e.g. only adding a final period).
+ */
+export function stripCosmeticTextDelta(text: string): string {
+  return text
+    .normalize('NFC')
+    .replace(/\u00a0/g, ' ')
+    .replace(/[\u2018\u2019\u201A\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u2033]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?…]+$/u, '');
+}
+
+/**
+ * True when the normalized suggestion changes wording/casing/typos — not just
+ * trailing punctuation or invisible whitespace.
+ */
+export function isMeaningfulTextCorrection(before: string, after: string): boolean {
+  if (before === after) return false;
+  if (before.trim() === after.trim()) return false;
+  return stripCosmeticTextDelta(before) !== stripCosmeticTextDelta(after);
+}
+

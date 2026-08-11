@@ -29,7 +29,7 @@ export function ListingFilters({
         <select
           value={filters.categorySlug ?? ''}
           onChange={(e) => onChange({ categorySlug: e.target.value || undefined })}
-          className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-white"
+          className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
           aria-label="Kategori"
         >
           <option value="">Tüm Kategoriler</option>
@@ -51,7 +51,7 @@ export function ListingFilters({
             city: e.target.value || undefined,
           })
         }
-        className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
+        className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
         aria-label="Şehir"
       >
         <option value="">Tüm Şehirler</option>
@@ -68,7 +68,7 @@ export function ListingFilters({
           const selectedSort = e.target.value as MarketplaceFilterState['sortBy'];
           onChange({ sortBy: selectedSort });
         }}
-        className="h-9 rounded-lg border border-border/80 bg-white px-3 text-sm dark:border-white/10 dark:bg-background"
+        className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
         aria-label="Sıralama"
       >
         {LISTING_SORT_OPTIONS.map((opt) => (

@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/ilan/olustur',
     '/yasal/gizlilik',
     '/yasal/kvkk-aydinlatma',
+    '/yasal/acik-riza',
     '/yasal/cerez',
     '/yasal/kullanici-sozlesmesi',
   ];

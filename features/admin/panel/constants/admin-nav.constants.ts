@@ -36,6 +36,7 @@ export type AdminNavId =
   | 'content'
   | 'seo'
   | 'consent_procedures'
+  | 'kvkk_consents'
   | 'settings'
   | 'logs';
 
@@ -64,6 +65,7 @@ export const ADMIN_ROUTES = {
   content: `${ADMIN_PANEL_BASE}/content`,
   seo: `${ADMIN_PANEL_BASE}/seo`,
   consentProcedures: `${ADMIN_PANEL_BASE}/izin-saklama`,
+  kvkkConsents: `${ADMIN_PANEL_BASE}/kvkk-izinleri`,
   settings: `${ADMIN_PANEL_BASE}/settings`,
   logs: `${ADMIN_PANEL_BASE}/logs`,
 } as const;
@@ -120,6 +122,12 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
     href: ADMIN_ROUTES.consentProcedures,
     icon: Scale,
   },
+  {
+    id: 'kvkk_consents',
+    label: 'KVKK İzinleri',
+    href: ADMIN_ROUTES.kvkkConsents,
+    icon: FileText,
+  },
   { id: 'settings', label: 'Ayarlar', href: ADMIN_ROUTES.settings, icon: Settings },
 ] as const;
 
@@ -142,6 +150,7 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.content]: 'İçerik Yönetimi',
   [ADMIN_ROUTES.seo]: 'SEO',
   [ADMIN_ROUTES.consentProcedures]: 'İzin Saklama & Temin',
+  [ADMIN_ROUTES.kvkkConsents]: 'KVKK İzin Kayıtları',
   [ADMIN_ROUTES.settings]: 'Ayarlar',
   [ADMIN_ROUTES.logs]: 'Sistem Günlükleri',
   [`${ADMIN_PANEL_BASE}/dashboard`]: 'Yönetim Merkezi',

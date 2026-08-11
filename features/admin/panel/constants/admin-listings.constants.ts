@@ -21,8 +21,8 @@ export const ADMIN_LISTING_CATEGORIES = [
   'Yatırım',
   'İş',
   'Ortaklık',
-  'Franchise',
-  'Dijital & AI',
+  'Franchise İlanları',
+  'Dijital & AI Çözümleri',
   'İlan',
 ] as const;
 

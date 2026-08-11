@@ -41,7 +41,7 @@ export interface BrowseCategoryEntry {
 export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   'yatirim-bul': {
     slug: 'yatirim-bul',
-    label: 'Yatırım Bul',
+    label: 'Yatırım Arıyorum',
     listingTypeSlug: 'yatirim-ariyorum',
     appCategoryId: CATEGORY_IDS.yatirimBul,
     appListingTypeId: LISTING_TYPE_IDS.yatirimBulDefault,
@@ -77,7 +77,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'ortak-bul': {
     slug: 'ortak-bul',
-    label: 'Ortak Bul',
+    label: 'Ortak Arıyorum',
     listingTypeSlug: 'ortak-ariyorum',
     appCategoryId: CATEGORY_IDS.ortakBul,
     appListingTypeId: LISTING_TYPE_IDS.ortakBulDefault,
@@ -89,7 +89,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'bayilik-al': {
     slug: 'bayilik-al',
-    label: 'Franchise',
+    label: 'Franchise İlanları',
     listingTypeSlug: 'franchise-ilan-ver',
     appCategoryId: CATEGORY_IDS.bayilikAl,
     appListingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,
@@ -104,7 +104,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'dijital-ai': {
     slug: 'dijital-ai',
-    label: 'Dijital ve AI Çözümleri',
+    label: 'Dijital & AI Çözümleri',
     listingTypeSlug: 'dijital-ai-cozum',
     appCategoryId: CATEGORY_IDS.dijitalAi,
     appListingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,

@@ -23,7 +23,7 @@ export const ACCOUNT_FAVORITE_CATEGORY_LABELS: Record<AccountFavoriteCategory, s
   is_arayan: 'İş arayan',
   is_veren: 'İş veren',
   ortaklik: 'Ortaklık',
-  franchise: 'Franchise',
+  franchise: 'Franchise İlanları',
 };
 
 export const ACCOUNT_FAVORITE_CONTENT_KIND_LABELS: Record<AccountFavoriteContentKind, string> = {

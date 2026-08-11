@@ -50,21 +50,30 @@ export class MockAccountProfileRepository implements AccountProfileRepository {
   }
 
   async upsert(input: CreateAccountProfileInput) {
-    const existing = this.ensureByUserId(input.userId);
-    const next = {
-      ...existing,
-      ...input,
-      id: existing.id,
-      userId: existing.userId,
-      updatedAt: new Date().toISOString(),
-    } as AccountProfile;
-    this.rows.set(next.id, next);
-    return next;
+    const existing = [...this.rows.values()].find((row) => row.userId === input.userId);
+    if (existing) {
+      // Match live repo: never blind-overwrite role on conflict.
+      return this.update(input.userId, {
+        firstName: input.firstName,
+        lastName: input.lastName,
+        username: input.username,
+        email: input.email,
+        phone: input.phone,
+        emailVerified: input.emailVerified,
+        phoneVerified: input.phoneVerified,
+        status: input.status,
+      });
+    }
+    const created = createAccountProfileEntity(input);
+    this.rows.set(created.id, created);
+    return created;
   }
 
   async update(userId: UserId, input: UpdateAccountProfileInput) {
     const existing = this.ensureByUserId(userId);
-    const next = { ...existing, ...input, updatedAt: new Date().toISOString() };
+    const { role: _ignoredRole, ...safe } = input;
+    void _ignoredRole;
+    const next = { ...existing, ...safe, updatedAt: new Date().toISOString() };
     this.rows.set(next.id, next);
     return next;
   }

@@ -354,7 +354,7 @@ export const GENERAL_LISTING_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
-/** Dijital ve AI Çözümleri — yetenek kartları + ürün kimliği */
+/** Dijital & AI Çözümleri — yetenek kartları + ürün kimliği */
 export const DIGITAL_AI_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -469,7 +469,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,
     categoryId: CATEGORY_IDS.bayilikAl,
     slug: 'franchise-ilan-ver',
-    name: 'Franchise İlan Ver',
+    name: 'Franchise İlanları',
     description: 'Marka, yatırım ve lokasyon bilgileriyle franchise fırsatınızı yayınlayın',
     fieldSchema: FRANCHISE_GIVE_FIELD_SCHEMA,
     sortOrder: 1,
@@ -478,7 +478,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
     categoryId: CATEGORY_IDS.dijitalAi,
     slug: 'dijital-ai-cozum',
-    name: 'Dijital ve AI Çözümleri',
+    name: 'Dijital & AI Çözümleri',
     description: 'Ürün adını, kısa tanıtımı ve yetenek kartlarını ekleyerek çözümünüzü yayınlayın',
     fieldSchema: DIGITAL_AI_FIELD_SCHEMA,
     sortOrder: 1,

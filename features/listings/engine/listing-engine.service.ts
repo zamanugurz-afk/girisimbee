@@ -28,6 +28,8 @@ import type { ActivityRepository } from '@/features/shared/repositories/activity
 import type { IListingPackageService } from '@/features/monetization/services/listing-package.service';
 import type { PublishEntitlementResult } from '@/features/monetization/types/listing-package.types';
 import { MockListingRepository } from '@/features/listings/repository/mock/listing.repository.mock';
+import { evaluateListingContentQuality } from '@/features/listings/lib/listing-content-quality';
+import { validateListingContentPolicy } from '@/features/listings/lib/listing-content-policy';
 
 function zodToValidationError(error: ZodError): ValidationError {
   const fieldErrors: Record<string, string[]> = {};
@@ -236,6 +238,67 @@ export class ListingEngine implements IListingEngineService {
 
     const tags = await this.tagRepo.findByListingId(id);
 
+    const quality = evaluateListingContentQuality({
+      title: existing.title,
+      shortDescription: existing.shortDescription,
+      longDescription: existing.longDescription ?? '',
+      applyNormalization: true,
+    });
+
+    if (!quality.ok) {
+      const fieldErrors: Record<string, string[]> = {};
+      for (const issue of quality.blocks) {
+        const key = issue.field ?? 'title';
+        if (!fieldErrors[key]) fieldErrors[key] = [];
+        fieldErrors[key].push(issue.message);
+      }
+      throw new ValidationError(
+        quality.blocks[0]?.message ?? 'İlan içeriği yayın için uygun değil.',
+        fieldErrors,
+      );
+    }
+
+    const normalizedTitle = quality.normalized.title || existing.title;
+    const normalizedShort =
+      quality.normalized.shortDescription || existing.shortDescription;
+    const normalizedLong =
+      quality.normalized.longDescription || existing.longDescription;
+
+    const policyIssues = validateListingContentPolicy({
+      title: normalizedTitle,
+      shortDescription: normalizedShort,
+      longDescription: normalizedLong ?? undefined,
+      tags: tags.map((t) => t.name),
+    }).filter((i) => i.code !== 'title_case' && i.severity === 'block');
+
+    if (policyIssues.length > 0) {
+      const fieldErrors: Record<string, string[]> = {};
+      for (const issue of policyIssues) {
+        const key = issue.field ?? 'title';
+        if (!fieldErrors[key]) fieldErrors[key] = [];
+        fieldErrors[key].push(issue.message);
+      }
+      throw new ValidationError(
+        policyIssues[0]?.message ?? 'İlan içeriği yayın için uygun değil.',
+        fieldErrors,
+      );
+    }
+
+    if (
+      normalizedTitle !== existing.title
+      || normalizedShort !== existing.shortDescription
+      || normalizedLong !== existing.longDescription
+    ) {
+      await this.listingRepo.update(id, {
+        title: normalizedTitle,
+        shortDescription: normalizedShort,
+        longDescription: normalizedLong,
+      });
+      existing.title = normalizedTitle;
+      existing.shortDescription = normalizedShort;
+      existing.longDescription = normalizedLong;
+    }
+
     try {
       validateCreateListingForm(listingType.fieldSchema, {
         categoryId: existing.categoryId,
@@ -303,6 +366,10 @@ export class ListingEngine implements IListingEngineService {
 
     if (existing.status !== 'expired' && existing.status !== 'archived') {
       throw new ValidationError('Yalnızca süresi dolmuş veya arşivlenmiş ilanlar yenilenebilir.', {});
+    }
+
+    if (this.packageService) {
+      await this.packageService.assertCanRenew(ctx.actorId, existing);
     }
 
     const listingType = categoryRegistry.getListingType(existing.listingTypeId);

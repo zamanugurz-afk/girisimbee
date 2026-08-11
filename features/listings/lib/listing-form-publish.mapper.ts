@@ -29,6 +29,7 @@ function basePayload(values: ListingFormValues) {
     longDescription: core.longDescription || undefined,
     city: core.city ?? null,
     contactPhone: values.contactPhone?.trim() || null,
+    publishConsents: values.publishConsents ?? null,
   };
 }
 

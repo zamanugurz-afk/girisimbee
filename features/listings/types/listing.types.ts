@@ -71,8 +71,10 @@ export interface ListingDetail {
   listingNumber?: string;
   /** Listing owner user id */
   ownerUserId?: string;
-  /** Public contact phone for Call CTA (V1 — messaging disabled). */
+  /** Public contact phone — always null on public detail (contact-request flow). */
   contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  contactEmail?: string | null;
   companyId?: string | null;
   category: { id: CategoryIntentId; label: string; accent: string };
   title: string;

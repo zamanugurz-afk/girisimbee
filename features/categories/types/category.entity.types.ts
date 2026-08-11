@@ -1,5 +1,5 @@
 /**
- * Category — top-level marketplace intent (Yatırım Bul, İş Bul, etc.).
+ * Category — top-level marketplace intent (Yatırım Arıyorum, Ortak Arıyorum, etc.).
  *
  * Purpose: Route users to the correct marketplace vertical; drives homepage intent gateway.
  * Relations: has many ListingTypes, Listings.

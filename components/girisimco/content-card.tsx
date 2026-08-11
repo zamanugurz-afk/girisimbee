@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { ArrowUpRight, BookOpen, Briefcase, Building2, User } from 'lucide-react';
+import {
+  ArrowUpRight,
+  BookOpen,
+  Briefcase,
+  Building2,
+  Clock,
+  MapPin,
+  User,
+} from 'lucide-react';
 import { ContactAction } from '@/features/shared/premium';
 import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
@@ -8,6 +16,24 @@ import { GcTag } from '@/components/girisimco/ui/gc-tag';
 import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
+
+function listingBadgeTone(iconKey: ContentItem['listingIconKey']): string {
+  switch (iconKey) {
+    case 'investor':
+    case 'franchise':
+      return 'bg-[#FEF3C7] text-[#B45309]';
+    case 'job-seeker':
+    case 'employer':
+      return 'bg-[#EDE9FE] text-[#6D28D9]';
+    case 'partner':
+      return 'bg-[#FEF9C3] text-[#A16207]';
+    case 'digital':
+      return 'bg-[#E0E7FF] text-[#4338CA]';
+    case 'investment':
+    default:
+      return 'bg-[#EEF2FF] text-[#4F46E5]';
+  }
+}
 
 interface ContentCardProps {
   item: ContentItem;
@@ -79,46 +105,66 @@ function TextListingCardLayout({
   listingLink: string | null;
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
+  const badgeLabel = item.listingGroupLabel ?? item.listingTypeLabel ?? 'İlan';
 
   return (
     <article
       className={cn(
-        'group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.28)] transition-all duration-300',
-        'hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-18px_rgba(15,23,42,0.35)]',
+        'group relative flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-[#E6E8EE] bg-white',
+        'px-4 pb-4 pt-4 transition duration-200',
+        'shadow-[0_1px_2px_rgba(15,23,42,0.03)]',
+        'hover:-translate-y-0.5 hover:border-[#D0D4DE] hover:shadow-[0_12px_28px_rgba(15,23,42,0.07)]',
+        'dark:border-border dark:bg-card',
         listingLink && 'cursor-pointer',
       )}
-      style={{ ['--card-accent' as string]: accent }}
     >
-      <ListingTypeIconBadge
-        iconKey={item.listingIconKey ?? 'general'}
-        color={accent}
-        size="sm"
+      <span
+        className="absolute inset-y-0 left-0 w-[3px]"
+        style={{ backgroundColor: accent }}
+        aria-hidden
       />
 
-      <p className="mt-4 text-[10px] font-semibold uppercase tracking-wide" style={{ color: accent }}>
-        {item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan'}
-      </p>
+      <div className="flex items-start justify-between gap-3 pl-1.5 pr-8">
+        <span
+          className={cn(
+            'inline-flex max-w-[65%] truncate rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide',
+            listingBadgeTone(item.listingIconKey),
+          )}
+        >
+          {badgeLabel}
+        </span>
+        {item.price ? (
+          <span className="shrink-0 text-right font-display text-[12px] font-bold tabular-nums leading-tight tracking-tight text-[#0B1220] dark:text-foreground">
+            {item.price}
+          </span>
+        ) : null}
+      </div>
 
-      <h3 className="mt-1.5 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-foreground">
+      <h3 className="mt-3 line-clamp-2 pl-1.5 font-display text-[15px] font-semibold leading-snug tracking-tight text-[#0B1220] dark:text-foreground">
         {item.title}
       </h3>
 
       {item.description ? (
-        <p className="mt-2 line-clamp-3 flex-1 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="mt-2 line-clamp-2 flex-1 pl-1.5 text-[12.5px] leading-relaxed text-[#64748B]">
           {item.description}
         </p>
       ) : (
         <div className="flex-1" />
       )}
 
-      <div className="mt-4 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
-        <span className="truncate text-xs text-muted-foreground">
-          {[item.price, item.location].filter(Boolean).join(' · ') || item.listingGroupLabel}
-        </span>
-        {listingLink ? (
-          <span className="inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors group-hover:text-[color:var(--card-accent)]">
-            İncele
-            <ArrowUpRight className="h-3 w-3" />
+      <div className="mt-4 flex items-center gap-3 border-t border-[#F1F3F7] pt-3 pl-1.5 text-[11px] text-[#64748B]">
+        {item.location ? (
+          <span className="inline-flex min-w-0 flex-1 items-center gap-1">
+            <MapPin className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
+            <span className="truncate">{item.location}</span>
+          </span>
+        ) : (
+          <span className="flex-1" />
+        )}
+        {item.timeAgo ? (
+          <span className="inline-flex shrink-0 items-center gap-1">
+            <Clock className="h-3.5 w-3.5 opacity-60" aria-hidden />
+            {item.timeAgo}
           </span>
         ) : null}
       </div>

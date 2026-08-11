@@ -9,10 +9,11 @@ import { SiteLogo, NAV_LINKS, MVP_COPY } from '@/features/shared';
 import { AuthMenu } from '@/features/authentication/components/auth-menu';
 import { MobileAuthLinks } from '@/features/authentication/components/mobile-auth-links';
 import { MarketplaceNotificationsBell } from '@/components/girisimco/marketplace-notifications-bell';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { cn } from '@/lib/utils';
 
 const iconBtnClass =
-  'flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 bg-white/80 text-[#334155] shadow-sm transition-all duration-300 ease-smooth hover:scale-[1.04] hover:border-primary/20 hover:bg-white hover:text-[#0F172A] hover:shadow-md';
+  'flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-white text-[#334155] shadow-sm transition-all duration-200 hover:border-primary/25 hover:bg-primary/5 hover:text-[#0F172A] dark:bg-card dark:text-foreground';
 
 function isNavLinkActive(pathname: string, href: string): boolean {
   if (pathname === href) return true;
@@ -41,14 +42,14 @@ export function Header() {
       className={cn(
         'fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-smooth',
         scrolled
-          ? 'border-border/60 bg-white/80 shadow-md backdrop-blur-xl backdrop-saturate-150'
-          : 'border-transparent bg-white/65 shadow-sm backdrop-blur-xl backdrop-saturate-150',
+          ? 'border-border/70 bg-white/95 shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:bg-background/95'
+          : 'border-border/40 bg-white/90 shadow-sm backdrop-blur-xl dark:bg-background/90',
       )}
     >
-      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-7xl items-center gap-4 px-5 lg:px-8">
+      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-4 px-5 lg:px-8">
         <SiteLogo />
 
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 xl:flex">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex">
           {NAV_LINKS.map((link) => {
             const isActive = isNavLinkActive(pathname, link.href);
             return (
@@ -56,13 +57,19 @@ export function Header() {
                 key={link.href + link.label}
                 href={link.href}
                 className={cn(
-                  'gc-nav-link whitespace-nowrap px-2.5 text-gc-xs transition-all duration-300 lg:px-3 lg:text-gc-sm',
+                  'relative whitespace-nowrap px-2.5 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-3 lg:text-gc-sm',
                   isActive
-                    ? 'bg-primary/10 text-primary shadow-sm'
-                    : 'hover:bg-white/80 hover:shadow-sm',
+                    ? 'text-primary'
+                    : 'text-[#475569] hover:text-[#0F172A] dark:text-muted-foreground dark:hover:text-foreground',
                 )}
               >
                 {link.label}
+                {isActive ? (
+                  <span
+                    className="absolute inset-x-2.5 -bottom-0.5 h-0.5 rounded-full bg-primary lg:inset-x-3"
+                    aria-hidden
+                  />
+                ) : null}
               </Link>
             );
           })}
@@ -76,9 +83,11 @@ export function Header() {
 
           <AuthMenu />
 
+          <ThemeToggle className="hidden h-9 w-9 sm:inline-flex" />
+
           <Button
             size="sm"
-            className="hidden shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg sm:inline-flex"
+            className="hidden shadow-md transition-all duration-200 hover:shadow-lg sm:inline-flex"
             asChild
           >
             <Link href="/ilan/olustur">
@@ -99,11 +108,11 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/50 bg-white/90 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down">
+        <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down dark:bg-background/95">
           <Link
             href="/ara"
             onClick={() => setMobileOpen(false)}
-            className="mb-3 flex items-center gap-2 rounded-xl border border-border/60 bg-white/80 px-3 py-2.5 text-sm font-medium text-[#334155] transition-all hover:border-primary/25 hover:bg-primary/5"
+            className="mb-3 flex items-center gap-2 rounded-xl border border-border/60 bg-white px-3 py-2.5 text-sm font-medium text-[#334155] transition-all hover:border-primary/25 hover:bg-primary/5 dark:bg-card dark:text-foreground"
           >
             <Search className="h-4 w-4 shrink-0" />
             İlan ara…
@@ -115,10 +124,10 @@ export function Header() {
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  'rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300',
+                  'rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                   isNavLinkActive(pathname, link.href)
                     ? 'bg-primary/10 text-primary'
-                    : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A]',
+                    : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A] dark:text-foreground',
                 )}
               >
                 {link.label}
@@ -127,6 +136,10 @@ export function Header() {
           </nav>
           <div className="mt-4 flex flex-col gap-2">
             <MobileAuthLinks onNavigate={() => setMobileOpen(false)} />
+            <div className="flex items-center justify-between rounded-xl border border-border/60 px-3 py-2">
+              <span className="text-sm text-muted-foreground">Tema</span>
+              <ThemeToggle />
+            </div>
             <Button size="sm" className="w-full shadow-md" asChild>
               <Link href="/ilan/olustur" onClick={() => setMobileOpen(false)}>
                 {MVP_COPY.postCta}

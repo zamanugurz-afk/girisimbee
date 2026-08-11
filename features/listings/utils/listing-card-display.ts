@@ -34,9 +34,9 @@ export const LISTING_CARD_GROUP_LABELS: Record<ListingCardGroup, string> = {
   yatirim: 'Yatırım',
   is: 'İş',
   ortaklik: 'Ortaklık',
-  franchise: 'Franchise',
+  franchise: 'Franchise İlanları',
   genel: 'İlan',
-  dijital: 'Dijital & AI',
+  dijital: 'Dijital & AI Çözümleri',
 };
 
 interface ListingTypeDisplay {

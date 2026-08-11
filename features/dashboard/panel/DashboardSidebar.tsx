@@ -18,7 +18,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
+import { BRAND_PITCH_SHORT } from '@/features/shared/constants/brand';
 import {
   DASHBOARD_NAV_ITEMS,
   type DashboardNavIcon,
@@ -52,13 +53,9 @@ export function DashboardSidebar() {
   return (
     <aside className="flex h-full w-full flex-col border-r border-border/80 bg-background/95 backdrop-blur-sm dark:border-white/10">
       <div className="border-b border-border/80 px-5 py-6 dark:border-white/10">
-        <Link
-          href="/"
-          className="font-display text-lg font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
-        >
-          <BrandWordmark />
-        </Link>
+        <GirisimbeeLogo className="font-display text-lg font-semibold tracking-tight" />
         <p className="mt-1 text-gc-xs text-muted-foreground">Kullanıcı paneli · Hesabınızı yönetin</p>
+        <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground/90">{BRAND_PITCH_SHORT}</p>
         <Link
           href="/kesfet"
           className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"

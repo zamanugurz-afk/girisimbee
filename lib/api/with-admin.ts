@@ -8,12 +8,16 @@ import type { Profile } from '@/features/profiles/types/profile.types';
 import { apiError } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
 import { resolveAuthContext, type AuthContext, type RouteContext } from '@/lib/api/with-auth';
-import { isAdmin } from '@/features/authorization/rbac.service';
+import { isAdmin, isSuperAdmin } from '@/features/authorization/rbac.service';
 import { fetchSessionUser } from '@/features/authentication/services/supabase-auth.service';
+import type { AppRole } from '@/features/authorization/role.constants';
+import { normalizeAppRole } from '@/features/authorization/roles';
 
 export interface AdminContext extends AuthContext {
   adminUser: User;
   adminUserId: UserId;
+  /** Resolved session role (admin | super_admin). */
+  adminRole: AppRole;
 }
 
 type AdminHandler = (
@@ -25,12 +29,13 @@ type AdminHandler = (
 async function assertAdmin(ctx: AuthContext): Promise<AdminContext | NextResponse> {
   // Prefer live session role (profiles + app_metadata) so super_admin is recognized.
   const sessionUser = await fetchSessionUser(createClient());
-  const role = sessionUser?.role ?? null;
+  let roleRaw = sessionUser?.role ?? null;
 
-  let allowed = isAdmin(role);
+  let allowed = isAdmin(roleRaw);
   if (!allowed) {
     const domainUser = await ctx.container.userRepository.findById(ctx.userId);
     allowed = Boolean(domainUser && isAdmin(domainUser.role));
+    if (domainUser?.role) roleRaw = domainUser.role;
   }
 
   if (!allowed) {
@@ -45,12 +50,25 @@ async function assertAdmin(ctx: AuthContext): Promise<AdminContext | NextRespons
     container = ctx.container;
   }
 
+  const adminRole = normalizeAppRole(roleRaw ?? 'admin');
+
   return {
     ...ctx,
     container,
     adminUser: ctx.user,
     adminUserId: ctx.userId,
+    adminRole,
   };
+}
+
+/** Super-admin-only boost / extend actions (ücretsiz doping, süre uzatma). */
+export function assertSuperListingManager(ctx: AdminContext): NextResponse | null {
+  if (isSuperAdmin(ctx.adminRole)) return null;
+  return apiError(
+    'Bu işlem yalnızca süper yönetici (ilan yöneticisi) tarafından yapılabilir.',
+    403,
+    { code: 'SUPER_ADMIN_REQUIRED' },
+  );
 }
 
 /** Wraps a route handler with auth + admin role guard. */
@@ -92,5 +110,6 @@ export async function requireAdminFromContainer(
     container,
     adminUser: user,
     adminUserId: ids.user(user.id),
+    adminRole: normalizeAppRole(domainUser.role),
   };
 }

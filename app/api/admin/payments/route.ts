@@ -1,4 +1,4 @@
-import { withAdmin } from '@/lib/api/with-admin';
+import { withAdmin, assertSuperListingManager } from '@/lib/api/with-admin';
 import { parseJsonBody } from '@/lib/api/with-auth';
 import { ok, created } from '@/lib/api/response';
 import {
@@ -34,6 +34,8 @@ export const POST = withAdmin(async (ctx, request) => {
       return ok({ payment });
     }
     case 'activate_package': {
+      const denied = assertSuperListingManager(ctx);
+      if (denied) return denied;
       const entitlement = await service.activateModulePackage(
         action.moduleKey,
         ids.user(action.userId),

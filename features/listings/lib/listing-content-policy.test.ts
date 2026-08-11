@@ -62,9 +62,9 @@ describe('listing-content-policy', () => {
     expect(assertListingImageDimensions(1200, 800)).toBeNull();
   });
 
-  it('validateListingTitle requires title case', () => {
+  it('validateListingTitle does not hard-block title case (normalized on publish)', () => {
     const issues = validateListingTitle('martı döner');
-    expect(issues.some((i) => i.code === 'title_case')).toBe(true);
+    expect(issues.some((i) => i.code === 'title_case')).toBe(false);
   });
 
   it('maps block issues to field errors and skips suspicious by default', () => {

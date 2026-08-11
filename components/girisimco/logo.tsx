@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
   className?: string;
-  /** Icon-only mark for compact spaces */
   variant?: 'full' | 'mark';
 }
 
-/** Girisimbee mark: indigo circle + white “G”. */
+/**
+ * Header lockup: [arı+G]irisimbee — tight kerning, no overlap.
+ */
 export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -21,7 +22,8 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
     <Link
       href="/"
       prefetch
-      className={cn('group inline-flex shrink-0 items-center gap-2.5', className)}
+      className={cn('group inline-flex shrink-0 items-center gap-0', className)}
+      aria-label="irisimbee"
       onClick={(event) => {
         if (pathname === '/') {
           event.preventDefault();
@@ -32,24 +34,16 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
         router.push('/');
       }}
     >
-      <span
-        className={cn(
-          'relative flex shrink-0 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-black/[0.04]',
-          isMark ? 'h-9 w-9' : 'h-10 w-10',
-        )}
-        aria-hidden
-      >
-        <span
-          className={cn(
-            'flex items-center justify-center rounded-full bg-gradient-to-br from-[#60A5FA] via-[#5B5CF6] to-[#6C63FF] shadow-sm',
-            isMark ? 'h-7 w-7' : 'h-8 w-8',
-          )}
-        >
-          <span className="font-display text-sm font-bold leading-none text-white">G</span>
-        </span>
-      </span>
+      <BrandMarkSlot
+        size={isMark ? 34 : 38}
+        priority
+        className={cn(!isMark && '-mr-1')}
+      />
       {!isMark && (
-        <BrandWordmark className="font-display text-lg font-semibold tracking-tight text-[#0F172A] transition-colors duration-300 group-hover:text-[#334155]" />
+        <span className="font-display text-[1.2rem] font-bold leading-none tracking-tight sm:text-[1.35rem]">
+          <span className="text-[#0F172A] dark:text-foreground">irisim</span>
+          <span className="text-[#F59E0B]">bee</span>
+        </span>
       )}
     </Link>
   );

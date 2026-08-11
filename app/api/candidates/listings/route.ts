@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/validation/candidate-listings';
 import { traceListingPublish, logPublicationState } from '@/lib/debug/listing-publish-trace';
 import { getRequestClientMeta } from '@/lib/api/request-meta';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** GET — browse published candidate listings */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -20,7 +21,7 @@ export const GET = withOptionalAuth(async (ctx, request) => {
     district: query.district,
   });
 
-  return ok({ listings: result.data, pagination: result });
+  return ok({ listings: stripListingsContactPhone(result.data), pagination: result });
 });
 
 /** POST — create candidate listing (draft or publish via ?publish=true) */

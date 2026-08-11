@@ -1,6 +1,6 @@
 -- Faz 1: Ana sayfa yerleşim paketleri altyapısı (Vitrin / Hızlı Erişim)
 -- Additive only — does not delete listings, users, or listing content.
--- Clears only is_featured / is_urgent / featured_until / urgent_until flags.
+-- Backfills legacy is_featured / is_urgent into placements, then re-syncs listing flags.
 
 -- ── Enum extensions ─────────────────────────────────────────────────────────
 
@@ -186,7 +186,50 @@ CREATE POLICY marketplace_listing_placements_admin_all
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
--- ── Clear homepage placement flags only (no listing/user deletes) ───────────
+-- ── Backfill legacy flags → placements, then re-sync listing denormalized flags ─
+-- Schema: package_slug vitrin|hizli_erisim, ends_at = expiration, unique (listing_id, package_slug) active/pending.
+
+INSERT INTO public.marketplace_listing_placements (
+  listing_id, package_slug, featured_listing, urgent_listing,
+  starts_at, ends_at, payment_status, status
+)
+SELECT
+  l.id, 'vitrin', true, false,
+  now(),
+  COALESCE(l.featured_until, now() + interval '30 days'),
+  'succeeded',
+  'active'
+FROM public.marketplace_listings l
+WHERE l.deleted_at IS NULL
+  AND l.is_featured = true
+  AND COALESCE(l.featured_until, now() + interval '30 days') > now()
+  AND NOT EXISTS (
+    SELECT 1 FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id
+      AND p.package_slug = 'vitrin'
+      AND p.status IN ('pending', 'active')
+  );
+
+INSERT INTO public.marketplace_listing_placements (
+  listing_id, package_slug, featured_listing, urgent_listing,
+  starts_at, ends_at, payment_status, status
+)
+SELECT
+  l.id, 'hizli_erisim', false, true,
+  now(),
+  COALESCE(l.urgent_until, now() + interval '30 days'),
+  'succeeded',
+  'active'
+FROM public.marketplace_listings l
+WHERE l.deleted_at IS NULL
+  AND l.is_urgent = true
+  AND COALESCE(l.urgent_until, now() + interval '30 days') > now()
+  AND NOT EXISTS (
+    SELECT 1 FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id
+      AND p.package_slug = 'hizli_erisim'
+      AND p.status IN ('pending', 'active')
+  );
 
 UPDATE public.marketplace_listings
 SET
@@ -199,3 +242,31 @@ WHERE is_featured = true
    OR is_urgent = true
    OR featured_until IS NOT NULL
    OR urgent_until IS NOT NULL;
+
+UPDATE public.marketplace_listings l
+SET
+  is_featured = EXISTS (
+    SELECT 1 FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id AND p.status = 'active'
+      AND p.featured_listing AND p.ends_at > now()
+  ),
+  is_urgent = EXISTS (
+    SELECT 1 FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id AND p.status = 'active'
+      AND p.urgent_listing AND p.ends_at > now()
+  ),
+  featured_until = (
+    SELECT MAX(p.ends_at) FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id AND p.status = 'active'
+      AND p.featured_listing AND p.ends_at > now()
+  ),
+  urgent_until = (
+    SELECT MAX(p.ends_at) FROM public.marketplace_listing_placements p
+    WHERE p.listing_id = l.id AND p.status = 'active'
+      AND p.urgent_listing AND p.ends_at > now()
+  ),
+  updated_at = now()
+WHERE EXISTS (
+  SELECT 1 FROM public.marketplace_listing_placements p
+  WHERE p.listing_id = l.id AND p.package_slug IN ('vitrin', 'hizli_erisim')
+);

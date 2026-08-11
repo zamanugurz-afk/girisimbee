@@ -28,4 +28,5 @@ export const ADMIN_PLACEMENT_STATUS_LABELS: Record<AdminPlacementStatus, string>
 };
 
 export const ADMIN_PLACEMENTS_PAGE_SIZE = 5;
-export const ADMIN_PLACEMENT_EXTEND_DAYS = 7;
+/** Super-admin free extension for vitrin / acil doping. */
+export const ADMIN_PLACEMENT_EXTEND_DAYS = 30;

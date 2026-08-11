@@ -1,15 +1,14 @@
 /**
- * Default OAuth bootstrap consents.
- * Explicit /auth/yasal-onay gate ships with account legal-acceptance API;
- * until then keep membership consents true so Google login is not blocked.
+ * Default OAuth bootstrap consents — must NOT auto-accept legal texts.
+ * User completes /auth/yasal-onay before terms/privacy/cookies/kvkk ack are true.
  */
 import type { SignUpConsents } from '@/features/authentication/types/auth.types';
 
 export const DEFAULT_OAUTH_CONSENTS: SignUpConsents = {
-  acceptTerms: true,
-  acceptKvkk: true,
-  acceptPrivacy: true,
-  acceptCookies: true,
+  acceptTerms: false,
+  acceptKvkk: false,
+  acceptPrivacy: false,
+  acceptCookies: false,
   consentCommercial: false,
   consentSms: false,
   consentEmail: false,

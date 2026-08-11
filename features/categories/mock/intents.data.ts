@@ -12,7 +12,7 @@ export type {
 export const INTENTS: import('@/features/categories/types/category.types').CategoryIntent[] = [
   {
     id: 'find-investment',
-    label: 'Yatırım Bul',
+    label: 'Yatırım Arıyorum',
     shortLabel: 'Yatırım',
     description: 'Projeniz için doğru yatırımcıyı keşfedin.',
     accent: '#22C55E',
@@ -169,7 +169,7 @@ export const INTENTS: import('@/features/categories/types/category.types').Categ
   },
   {
     id: 'find-partner',
-    label: 'Ortak Bul',
+    label: 'Ortak Arıyorum',
     shortLabel: 'Ortak',
     description: 'İşinizi birlikte büyütecek doğru ortağı bulun.',
     accent: '#8B5CF6',
@@ -221,7 +221,7 @@ export const INTENTS: import('@/features/categories/types/category.types').Categ
   },
   {
     id: 'digital-ai',
-    label: 'Dijital ve AI Çözümleri',
+    label: 'Dijital & AI Çözümleri',
     shortLabel: 'AI',
     description: 'Yetenek kartlarıyla yazılım, otomasyon ve yapay zeka çözümlerini inceleyin.',
     accent: '#8B5CF6',

@@ -3,6 +3,7 @@ import { ok, created } from '@/lib/api/response';
 import { moduleParamSchema, listingPublishBodySchema, listingBrowseQuerySchema } from '@/lib/api/validation';
 import { ValidationError } from '@/lib/domain/errors';
 import { ids } from '@/lib/domain/ids';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 export const GET = withOptionalAuth(async (ctx, request, { params }) => {
   const { module } = moduleParamSchema.parse(params);
@@ -71,18 +72,22 @@ async function browseListings(
   switch (module) {
     case 'entrepreneurs':
     case 'investors': {
-      const listings = await ecosystem.investorListingService.browseStartups({
+      const result = await ecosystem.investorListingService.browseStartups({
         city: query.city,
         industry: query.industry ?? query.sector,
       });
-      return ok({ listings });
+      return ok({
+        listings: { ...result, data: stripListingsContactPhone(result.data) },
+      });
     }
     case 'franchise': {
-      const listings = await ecosystem.franchiseService.browseBuyOpportunities({
+      const result = await ecosystem.franchiseService.browseBuyOpportunities({
         city: query.city,
         sector: query.sector ?? query.industry,
       });
-      return ok({ listings });
+      return ok({
+        listings: { ...result, data: stripListingsContactPhone(result.data) },
+      });
     }
     default:
       throw new ValidationError('Bu modül için tarama desteklenmiyor.', {

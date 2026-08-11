@@ -5,6 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { now, slugify } from '@/lib/domain/factory';
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { mapListingRow, toListingRow, type ListingRow } from '@/features/listings/repository/supabase/listing.mapper';
+import { LISTING_SAFE_SELECT } from '@/features/listings/repository/supabase/listing-safe-select';
 import type { CreateListingInput, Listing } from '@/features/listings/types/listing.entity.types';
 import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import { prepareSupabaseWrite, logSupabaseError } from '@/lib/persistence/supabase-payload';
@@ -84,11 +85,20 @@ export async function createEmployerListing(
   console.log(JSON.stringify(row, null, 2));
 
   try {
-    const { data, error } = await supabase.from(TABLE).insert(row).select('*').single();
+    const { data, error } = await supabase
+      .from(TABLE)
+      .insert(row)
+      .select(LISTING_SAFE_SELECT as '*')
+      .single();
     if (error) throw error;
     logPublicationState('employers', 'after_insert', data as Record<string, unknown>);
     traceListingPublish('employers', 'supabase_insert_response', { response: data });
-    return mapListingRow(data as ListingRow);
+    return {
+      ...mapListingRow(data as ListingRow),
+      contactPhone: entity.contactPhone ?? null,
+      contactWhatsapp: entity.contactWhatsapp ?? null,
+      contactEmail: entity.contactEmail ?? null,
+    };
   } catch (error) {
     tracePublishFailure('employers', 'supabase_insert', error, { table: TABLE, payload: row });
     logSupabaseError(error, `${TABLE} insert (employers)`);

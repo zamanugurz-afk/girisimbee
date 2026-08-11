@@ -33,7 +33,7 @@ function defaultFeaturedUntil(): string {
 }
 
 function defaultUrgentUntil(): string {
-  return new Date(Date.now() + 14 * 86400000).toISOString();
+  return new Date(Date.now() + 30 * 86400000).toISOString();
 }
 
 export class AdminService implements IAdminService {
@@ -217,6 +217,16 @@ export class AdminService implements IAdminService {
 
   removeListingUrgent(id: ListingId) {
     return this.listingRepo.update(id, { isUrgent: false, urgentUntil: null });
+  }
+
+  async extendListingExpiry(id: ListingId, days = 30) {
+    const listing = await this.listingRepo.findById(id);
+    if (!listing) throw new NotFoundError('Listing', id);
+    const baseMs = listing.expiresAt
+      ? Math.max(Date.now(), new Date(listing.expiresAt).getTime())
+      : Date.now();
+    const expiresAt = new Date(baseMs + days * 86400000).toISOString();
+    return this.listingRepo.update(id, { expiresAt });
   }
 
   unpublishListing(id: ListingId) {

@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Store } from 'lucide-react';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 import { cn } from '@/lib/utils';
 
@@ -28,9 +27,7 @@ export function MarketAdDetailView({ item }: { item: MarketItem }) {
   );
 
   return (
-    <main className="relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background pt-14 dark:from-background dark:via-background">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
-
+    <main className="gc-header-offset relative min-h-screen bg-[#FAFBFC] dark:bg-background">
       <div className="relative mx-auto max-w-5xl px-5 py-6 lg:px-8 lg:py-10">
         <Link
           href="/market"
@@ -64,9 +61,9 @@ export function MarketAdDetailView({ item }: { item: MarketItem }) {
           </div>
 
           <div className="space-y-5 p-5 sm:p-7 lg:p-8">
-            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
+            <p className="inline-flex items-center gap-1.5 font-display text-sm font-bold tracking-tight text-[#0B1220] dark:text-foreground">
               <Store className="h-3.5 w-3.5" aria-hidden />
-              <><BrandWordmark /> MARKET</>
+              Girişimbee MARKET
             </p>
 
             <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">

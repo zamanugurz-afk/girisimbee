@@ -3,15 +3,19 @@
 import Link from 'next/link';
 import {
   ArrowRight,
-  BrainCircuit,
   Briefcase,
-  CircleDollarSign,
   Handshake,
+  Rocket,
+  Sparkles,
   Store,
   type LucideIcon,
 } from 'lucide-react';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
-import { HomeListingsModule } from '@/components/girisimco/home/HomeListingsModule';
+import {
+  HomeFeaturedSection,
+  HomeListingsProvider,
+  HomeRestSections,
+} from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 import {
   HOME_CATEGORIES,
@@ -20,122 +24,103 @@ import {
 import { cn } from '@/lib/utils';
 
 const CATEGORY_ICONS: Record<HomeCategorySlug, LucideIcon> = {
-  'yatirim-bul': CircleDollarSign,
+  'yatirim-bul': Rocket,
   'ise-al': Briefcase,
   'ortak-bul': Handshake,
   franchise: Store,
-  'dijital-ai': BrainCircuit,
+  'dijital-ai': Sparkles,
 };
 
-const CATEGORY_CARD_STYLES: Record<
-  HomeCategorySlug,
-  { tint: string; border: string; glow: string }
-> = {
-  'yatirim-bul': {
-    tint: 'from-[#60A5FA]/12 via-[#60A5FA]/4 to-transparent',
-    border: 'border-[#60A5FA]/25 group-hover:border-[#60A5FA]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#60A5FA40]',
-  },
-  'ise-al': {
-    tint: 'from-[#22C55E]/12 via-[#22C55E]/4 to-transparent',
-    border: 'border-[#22C55E]/25 group-hover:border-[#22C55E]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#22C55E40]',
-  },
-  'ortak-bul': {
-    tint: 'from-[#F59E0B]/12 via-[#F59E0B]/4 to-transparent',
-    border: 'border-[#F59E0B]/25 group-hover:border-[#F59E0B]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#F59E0B40]',
-  },
-  franchise: {
-    tint: 'from-[#EC4899]/12 via-[#EC4899]/4 to-transparent',
-    border: 'border-[#EC4899]/25 group-hover:border-[#EC4899]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#EC489940]',
-  },
-  'dijital-ai': {
-    tint: 'from-[#8B5CF6]/12 via-[#8B5CF6]/4 to-transparent',
-    border: 'border-[#8B5CF6]/25 group-hover:border-[#8B5CF6]/45',
-    glow: 'group-hover:shadow-[0_8px_24px_-8px_#8B5CF640]',
-  },
-};
-
-function CategoryCard({ cat }: { cat: (typeof HOME_CATEGORIES)[number] }) {
-  const Icon = CATEGORY_ICONS[cat.slug];
-  const styles = CATEGORY_CARD_STYLES[cat.slug];
-  const className = cn(
-    'group relative flex h-full min-h-[8.75rem] w-full flex-col overflow-hidden rounded-2xl border p-3.5 text-left sm:min-h-[9.25rem] sm:p-4',
-    'bg-card shadow-md transition-all duration-300 ease-smooth',
-    'hover:scale-[1.02] hover:shadow-lg',
-    styles.border,
-    styles.glow,
-  );
-
+/** Intent gateway — larger destination cards under the hero. */
+function HomeCategoryShortcuts() {
   return (
-    <Link href={cat.href} className={className}>
-      <div
-        className={cn(
-          'pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b',
-          styles.tint,
-        )}
-        aria-hidden
-      />
-      <span
-        className="relative mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-105"
-        style={{
-          backgroundColor: cat.color,
-          boxShadow: `0 8px 24px -8px ${cat.color}66`,
-        }}
-        aria-hidden
-      >
-        <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-      </span>
-      <span className="relative text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-        {cat.audience}
-      </span>
-      <span className="relative mt-0.5 font-display text-gc-base font-semibold text-foreground sm:text-gc-lg">
-        {cat.label}
-      </span>
-      <span className="relative mt-1.5 line-clamp-2 flex-1 text-gc-xs leading-relaxed text-muted-foreground sm:text-gc-sm">
-        {cat.hint}
-      </span>
-      <span
-        className="relative mt-2 inline-flex items-center gap-1 text-gc-xs font-medium text-opacity-100 opacity-80 transition-all duration-300 group-hover:opacity-100 sm:text-gc-sm"
-        style={{ color: cat.color }}
-      >
-        Keşfet
-        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+    <section
+      className="relative shrink-0 bg-transparent dark:bg-transparent"
+      aria-labelledby="home-category-heading"
+    >
+      <div className="mx-auto max-w-[1280px] px-5 pb-5 pt-2 lg:px-8 lg:pb-6">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2
+              id="home-category-heading"
+              className="font-display text-lg font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-xl"
+            >
+              Ne arıyorsunuz?
+            </h2>
+            <p className="mt-1 text-[13px] text-[#64748B] sm:text-sm">
+              Bir kategori seçin — ilgili ilanlara anında geçin.
+            </p>
+          </div>
+          <Link
+            href="/kesfet"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#0B1220] transition-opacity hover:opacity-70 dark:text-foreground"
+          >
+            Tüm ilanlar
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </Link>
+        </div>
+
+        <nav aria-label="İlan kategorileri">
+          <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
+            {HOME_CATEGORIES.map((cat) => {
+              const Icon = CATEGORY_ICONS[cat.slug];
+              return (
+                <li key={cat.slug} className="min-w-0">
+                  <Link
+                    href={cat.href}
+                    className={cn(
+                      'group flex h-full min-h-[11.5rem] flex-col rounded-2xl border border-[#E6E8EE] bg-white',
+                      'p-5 transition duration-200',
+                      'hover:border-[#0B1220]/25 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',
+                      'dark:border-border dark:bg-card dark:hover:bg-card',
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span
+                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
+                        style={{ backgroundColor: cat.color }}
+                        aria-hidden
+                      >
+                        <Icon className="h-6 w-6" strokeWidth={2} />
+                      </span>
+                      <ArrowRight
+                        className="mt-1.5 h-5 w-5 shrink-0 text-[#CBD5E1] transition duration-200 group-hover:translate-x-0.5 group-hover:text-[#0B1220]"
+                        aria-hidden
+                      />
+                    </div>
+                    <span className="mt-4 block font-display text-base font-bold leading-snug text-[#0B1220] dark:text-foreground sm:text-[17px]">
+                      {cat.label}
+                    </span>
+                    <span className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-[#64748B] sm:text-sm">
+                      {cat.hint}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </div>
+    </section>
   );
 }
 
+/** First viewport: Hero + Categories. Below: MARKET then listings. */
 export function PlatformHome() {
   return (
-    <div className="gc-header-offset">
-      {/* First fold: hero + categories fit in one viewport */}
-      <div className="flex min-h-[calc(100dvh-var(--gc-header-height))] flex-col">
-        <PlatformHero />
-
-        <section className="relative z-10 shrink-0 border-b border-border/60 bg-background/80 backdrop-blur-[2px]">
-          <div className="mx-auto max-w-7xl px-5 pb-5 pt-1 lg:px-8 lg:pb-6">
-            <div className="mb-3 max-w-lg sm:mb-3.5">
-              <h2 className="gc-page-heading text-gc-lg sm:text-gc-xl">Size uygun yolu seçin</h2>
-              <p className="mt-1 text-gc-xs leading-relaxed text-muted-foreground sm:text-gc-sm">
-                Beş farklı amaç, tek platform. Bir kategori seçerek ilgili ilanları keşfedin.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-3">
-              {HOME_CATEGORIES.map((cat) => (
-                <CategoryCard key={cat.slug} cat={cat} />
-              ))}
-            </div>
-          </div>
-        </section>
+    <HomeListingsProvider>
+      <div className="gc-header-offset bg-[#FAFBFC] dark:bg-background">
+        <div className="flex h-[calc(100dvh-var(--gc-header-height))] max-h-[calc(100dvh-var(--gc-header-height))] flex-col overflow-hidden">
+          <PlatformHero className="min-h-0 flex-1" />
+          <HomeCategoryShortcuts />
+        </div>
+        <div>
+          <HomeMarketSection />
+          <HomeFeaturedSection />
+          <HomeRestSections />
+        </div>
       </div>
-
-      <HomeMarketSection />
-
-      <HomeListingsModule />
-    </div>
+    </HomeListingsProvider>
   );
 }

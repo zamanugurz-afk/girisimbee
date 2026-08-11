@@ -90,10 +90,21 @@ export interface AdminUserAction {
 }
 
 export interface AdminListingAction {
-  action: 'approve' | 'reject' | 'feature' | 'unfeature' | 'mark_urgent' | 'remove_urgent' | 'unpublish' | 'archive' | 'delete';
+  action:
+    | 'approve'
+    | 'reject'
+    | 'feature'
+    | 'unfeature'
+    | 'mark_urgent'
+    | 'remove_urgent'
+    | 'extend_expiry'
+    | 'unpublish'
+    | 'archive'
+    | 'delete';
   reason?: string;
   featuredUntil?: string;
   urgentUntil?: string;
+  days?: number;
 }
 
 export interface AdminApplicationAction {

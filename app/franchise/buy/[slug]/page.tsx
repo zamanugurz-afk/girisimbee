@@ -13,15 +13,12 @@ async function loadDetail(slug: string, trackView = false) {
   const data = await container.ecosystem.franchiseService.getListingDetail(slug, { trackView });
   if (!data) return null;
 
-  // Prefer membership/profile phone on franchise detail (same as /ilan pages).
-  const [marketplaceProfile, accountProfile] = await Promise.all([
-    container.profileService.getByUserId(data.listing.ownerId),
-    container.accountService.getProfile(data.listing.ownerId),
-  ]);
-  const membershipPhone =
-    marketplaceProfile?.phone?.trim()
-    || accountProfile?.phone?.trim()
-    || null;
+  // Owner display phone from marketplace_profiles only (not public.profiles —
+  // own/admin RLS; contact channels are locked down separately).
+  const marketplaceProfile = await container.profileService.getByUserId(
+    data.listing.ownerId,
+  );
+  const membershipPhone = marketplaceProfile?.phone?.trim() || null;
   if (!membershipPhone) return data;
 
   return {

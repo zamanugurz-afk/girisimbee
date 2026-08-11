@@ -133,7 +133,7 @@ export const MOCK_ADMIN_LISTINGS: AdminMockListing[] = [
   {
     id: 'lst_01h9d3e4f',
     title: 'Franchise ortağı aranıyor — İstanbul',
-    category: 'Franchise',
+    category: 'Franchise İlanları',
     owner: 'Can Yılmaz',
     status: 'pending',
     view_count: 312,
@@ -185,7 +185,7 @@ export const MOCK_ADMIN_LISTINGS: AdminMockListing[] = [
   {
     id: 'lst_01h9p1q2r',
     title: 'Yemek zinciri franchise hakkı',
-    category: 'Franchise',
+    category: 'Franchise İlanları',
     owner: 'Burak Şahin',
     status: 'draft',
     view_count: 0,
@@ -1367,7 +1367,7 @@ export const MOCK_ADMIN_FOOTER_LINKS: AdminMockFooterLink[] = [
   { id: 'ft_s4', group: 'support', label: 'Destek Talebi', href: '/destek', order: 4, is_visible: true },
   { id: 'ft_s5', group: 'support', label: 'Güven Merkezi', href: '/guven', order: 5, is_visible: true },
   { id: 'ft_l1', group: 'legal', label: 'Gizlilik Politikası', href: '/yasal/gizlilik', order: 1, is_visible: true },
-  { id: 'ft_l2', group: 'legal', label: 'KVKK Aydınlatma Metni', href: '/yasal/kvkk', order: 2, is_visible: true },
+  { id: 'ft_l2', group: 'legal', label: 'KVKK Aydınlatma Metni', href: '/yasal/kvkk-aydinlatma', order: 2, is_visible: true },
   { id: 'ft_l3', group: 'legal', label: 'Çerez Politikası', href: '/yasal/cerez', order: 3, is_visible: true },
   { id: 'ft_l4', group: 'legal', label: 'Kullanıcı Sözleşmesi', href: '/yasal/kullanici-sozlesmesi', order: 4, is_visible: true },
   { id: 'ft_l5', group: 'legal', label: 'Mesafeli Satış Sözleşmesi', href: '/yasal/mesafeli-satis', order: 5, is_visible: true },

@@ -48,9 +48,31 @@ export const STANDARD_PUBLISH_CONFIG = {
   slug: 'standard' as const,
   name: 'Standart Yayın',
   priceCents: 0,
-  durationDays: null as number | null,
-  benefits: ['Normal listeleme', 'Arama sonuçlarında görünme'],
+  durationDays: 30,
+  /** First listing per category is free; additional / renewals use STANDARD_REPUBLISH_CONFIG. */
+  freePerCategory: 1,
+  benefits: [
+    'Normal listeleme',
+    'Arama sonuçlarında görünme',
+    '30 gün yayında kalma',
+    'Kategori başına 1 ücretsiz ilan',
+  ],
 };
+
+/**
+ * Same category extra listing OR renew after 30 days — 99 TL / 30 days.
+ * Applies to free (placement) categories; franchise / job / dijital keep their own fees.
+ */
+export const STANDARD_REPUBLISH_CONFIG = {
+  slug: 'standard_republish' as const,
+  name: 'Ek İlan / Yenileme',
+  priceCents: 9900,
+  durationDays: 30,
+  benefits: [
+    '30 gün yeniden yayın',
+    'Aynı kategoride ek ilan veya süre dolunca yenileme',
+  ],
+} as const;
 
 /** Required fee to publish / renew a franchise listing (30 days). */
 export const FRANCHISE_PUBLISH_CONFIG = {
@@ -90,7 +112,7 @@ export const JOB_PUBLISH_CONFIG = {
   ],
 } as const;
 
-/** Free publish modules (Yatırım Bul / Ortak Bul). */
+/** Free publish modules (Yatırım Arıyorum / Ortak Arıyorum). */
 export const FREE_PUBLISH_MODULES = ['entrepreneurs', 'investors', 'founders'] as const;
 
 export const PLACEMENT_PACKAGE_CONFIG: Record<

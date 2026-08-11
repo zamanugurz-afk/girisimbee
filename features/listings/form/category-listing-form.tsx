@@ -40,7 +40,11 @@ import {
   validatePublishConsents,
   type PublishConsentValues,
 } from '@/features/listings/form/fields/publish-consent-fields';
-import { getProfileService } from '@/lib/persistence/container';
+import {
+  resolvePublishContactPhone,
+  syncMarketplaceProfilePhone,
+} from '@/features/listings/lib/resolve-publish-contact-phone';
+import { getListingPackageService } from '@/lib/persistence/container';
 import type { UserId } from '@/lib/domain/ids';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
 import {
@@ -57,6 +61,7 @@ import {
   JOB_PUBLISH_CONFIG,
   PLACEMENT_PACKAGE_CONFIG,
   STANDARD_PUBLISH_CONFIG,
+  STANDARD_REPUBLISH_CONFIG,
   formatPlacementPriceTry,
 } from '@/features/monetization/types/listing-placement.types';
 
@@ -92,6 +97,7 @@ import {
 } from '@/features/listings/hooks/use-listing-form-autosave';
 import {
   filterErrorsToCurrentStep,
+  findStepIndexForErrors,
   logValidationErrors,
   resolvePublishErrorMessages,
   validateListingFormBeforePublish,
@@ -216,6 +222,8 @@ export function CategoryListingForm({
   const [packageSelection, setPackageSelection] = useState<ListingPackageSelectionValue>(
     defaults.packageSelection ?? defaultPackageSelectionFor(categoryId),
   );
+  /** Free categories: first listing free; false → 99 TL. Default true until loaded. */
+  const [categoryFreeAvailable, setCategoryFreeAvailable] = useState(true);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [publishErrors, setPublishErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<'save' | 'draft' | 'publish' | null>(null);
@@ -329,16 +337,20 @@ export function CategoryListingForm({
     setCustomFields((prev) => mergeCustomFieldDefaults(listingType.fieldSchema, prev));
   }, [listingType.fieldSchema]);
 
-  /** Load profile phone for publish lock + ilan contactPhone write. */
+  /** Load phone from marketplace + account profile (Google users often only have account). */
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     void (async () => {
       try {
-        const profile = await getProfileService().getByUserId(userId as UserId);
-        if (cancelled || !profile) return;
-        const phone = profile.phone?.trim() || null;
+        const phone = await resolvePublishContactPhone(userId as UserId);
+        if (cancelled) return;
         setContactPhone(phone);
+        if (phone) {
+          void syncMarketplaceProfilePhone(userId as UserId, phone).catch(() => {
+            /* best-effort sync for publish gate */
+          });
+        }
       } catch {
         /* profile optional during draft */
       }
@@ -347,6 +359,38 @@ export function CategoryListingForm({
       cancelled = true;
     };
   }, [userId]);
+
+  /** Load whether this category still has a free listing slot for the user. */
+  useEffect(() => {
+    if (!userId || isPaidPublishCategory(categoryId)) {
+      setCategoryFreeAvailable(true);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const free = await getListingPackageService().hasCategoryFreeSlot(
+          userId as UserId,
+          categoryId,
+          listingId,
+        );
+        if (cancelled) return;
+        setCategoryFreeAvailable(free);
+        if (!free) {
+          setPackageSelection((prev) =>
+            prev.simulationStatus === 'ready' && !prev.publishFeePaid && prev.placements.length === 0
+              ? { ...DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION, placements: prev.placements }
+              : prev,
+          );
+        }
+      } catch {
+        if (!cancelled) setCategoryFreeAvailable(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, categoryId, listingId]);
 
   const setCustomField = useCallback((key: string, value: unknown) => {
     const field = fieldByKey.get(key);
@@ -468,31 +512,38 @@ export function CategoryListingForm({
 
     if (isPackageStep) {
       const paidPublish = isPaidPublishCategory(categoryId);
+      const requiresStandardFee = !paidPublish && !categoryFreeAvailable;
       const publishPaid = Boolean(
         packageSelection.publishFeePaid || packageSelection.franchisePublishPaid,
       );
       if (packageSelection.simulationStatus !== 'ready') {
         setFieldErrors({
-          packageSelection: paidPublish
+          packageSelection: paidPublish || requiresStandardFee
             ? 'Yayın paketi ödemesini tamamlayın.'
             : packageSelection.placements.length > 0
-              ? 'Ücretli paket seçtiniz. Devam etmeden önce ödemeyi simüle edin.'
+              ? 'Ücretli paket seçtiniz. Devam etmeden önce ödemeyi tamamlayın.'
               : 'Paket seçimini tamamlayın.',
         });
         toast.error(
-          paidPublish
-            ? 'Devam etmeden önce yayın paketi ödemesini simüle edin.'
+          paidPublish || requiresStandardFee
+            ? 'Devam etmeden önce yayın paketini tamamlayın.'
             : packageSelection.placements.length > 0
-              ? 'Devam etmeden önce ödemeyi simüle edin.'
+              ? 'Devam etmeden önce ödemeyi tamamlayın.'
               : 'Lütfen bir paket seçin.',
         );
         return false;
       }
-      if (paidPublish && !publishPaid) {
+      if ((paidPublish || requiresStandardFee) && !publishPaid) {
         setFieldErrors({
-          packageSelection: 'Yayın paketi ödemesini tamamlayın.',
+          packageSelection: requiresStandardFee
+            ? `Bu kategoride ücretsiz hakkınız yok. Ek ilan ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL.`
+            : 'Yayın paketi ödemesini tamamlayın.',
         });
-        toast.error('Devam etmeden önce yayın paketi ödemesini simüle edin.');
+        toast.error(
+          requiresStandardFee
+            ? `Ek ilan için ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL ödeme gerekli.`
+            : 'Devam etmeden önce yayın paketi ödemesini tamamlayın.',
+        );
         return false;
       }
       setFieldErrors({});
@@ -525,9 +576,9 @@ export function CategoryListingForm({
       }
       if (!contactPhone?.trim()) {
         setFieldErrors({
-          contactPhone: 'Yayınlamak için profilinizde telefon numarası gerekli.',
+          contactPhone: 'Yayınlamak için telefon numarası gerekli. Aşağıdan ekleyin.',
         });
-        toast.error('Profilinize telefon ekleyin, ardından tekrar deneyin.');
+        toast.error('Telefon ekleyin — Google ile kayıt olsanız bile yayın için zorunlu.');
         return false;
       }
       setFieldErrors({});
@@ -566,6 +617,9 @@ export function CategoryListingForm({
           allFieldKeys,
           stepIndex,
         );
+        // If step mapping drops everything, still show raw errors on this step.
+        const errorsToShow =
+          Object.keys(currentStepOnlyErrors).length > 0 ? currentStepOnlyErrors : errors;
         logValidationErrors(
           errors,
           steps,
@@ -579,9 +633,10 @@ export function CategoryListingForm({
           stepId: currentStep.id,
           errors,
           currentStepOnlyErrors,
+          errorsToShow,
         });
-        setFieldErrors(currentStepOnlyErrors);
-        scheduleScrollToFirstError(currentStepOnlyErrors);
+        setFieldErrors(errorsToShow);
+        scheduleScrollToFirstError(errorsToShow);
         toast.error('Lütfen bu adımdaki zorunlu alanları doldurun.');
       }
       return false;
@@ -679,7 +734,7 @@ export function CategoryListingForm({
   ) {
     if (!handler) return;
 
-    const formData = buildHandlerValues();
+    let formData = buildHandlerValues();
 
     console.log('[ListingForm] runFinalStepAction start', {
       mode,
@@ -693,16 +748,18 @@ export function CategoryListingForm({
         return;
       }
       if (
-        isPaidPublishCategory(categoryId) &&
+        (isPaidPublishCategory(categoryId) || !categoryFreeAvailable) &&
         !(packageSelection.publishFeePaid || packageSelection.franchisePublishPaid)
       ) {
         setPublishErrors([
-          'Yayın paketi ödemesi zorunludur. Lütfen paket adımına dönün.',
+          !categoryFreeAvailable && !isPaidPublishCategory(categoryId)
+            ? `Bu kategoride ücretsiz hakkınız yok. Ek ilan ${STANDARD_REPUBLISH_CONFIG.priceCents / 100} TL — paket adımına dönün.`
+            : 'Yayın paketi ödemesi zorunludur. Lütfen paket adımına dönün.',
         ]);
         return;
       }
 
-      const validationErrors = validateListingFormBeforePublish({
+      const { errors: validationErrors, normalizedCore } = validateListingFormBeforePublish({
         categoryId,
         fieldSchema: listingType.fieldSchema,
         steps,
@@ -716,7 +773,7 @@ export function CategoryListingForm({
 
       if (!contactPhone?.trim()) {
         setPublishErrors([
-          'Yayınlamak için profilinizde telefon numarası olmalı. Profil → Telefon ekleyin.',
+          'Yayınlamak için telefon numarası gerekli. Yayın Onayları adımından ekleyin.',
         ]);
         return;
       }
@@ -727,9 +784,35 @@ export function CategoryListingForm({
           validationErrors,
           messages,
         });
+        setFieldErrors(validationErrors);
         setPublishErrors(messages);
+        const targetStep = findStepIndexForErrors(validationErrors, steps, allFieldKeys);
+        if (targetStep !== null && targetStep !== stepIndex) {
+          setPublishErrors([]);
+          goToStep(targetStep, 'validate:publishFix');
+          scheduleScrollToFirstError(validationErrors);
+          toast.error('Eksik veya hatalı alanlar var. İlgili adıma yönlendirildiniz.');
+        } else {
+          scheduleScrollToFirstError(validationErrors);
+          toast.error('Lütfen zorunlu alanları kontrol edin.');
+        }
         return;
       }
+
+      const normalizedFormCore = {
+        ...core,
+        title: normalizedCore.title || core.title,
+        shortDescription: normalizedCore.shortDescription || core.shortDescription,
+        longDescription: normalizedCore.longDescription || core.longDescription,
+      };
+      if (
+        normalizedFormCore.title !== core.title
+        || normalizedFormCore.shortDescription !== core.shortDescription
+        || normalizedFormCore.longDescription !== core.longDescription
+      ) {
+        setCore(normalizedFormCore);
+      }
+      formData = { ...formData, core: normalizedFormCore };
     }
 
     setPublishErrors([]);
@@ -814,6 +897,7 @@ export function CategoryListingForm({
               disabled={disabled || isBusy}
               error={resolveFieldError(fieldErrors, 'packageSelection')}
               variant={packageVariantForCategory(categoryId)}
+              categoryFreeAvailable={categoryFreeAvailable}
             />
           )}
 
@@ -983,6 +1067,16 @@ export function CategoryListingForm({
                     || resolveFieldError(fieldErrors, 'contactPhone')
                   }
                   phoneHint={contactPhone}
+                  userId={userId}
+                  onPhoneSaved={(phone) => {
+                    setContactPhone(phone);
+                    setFieldErrors((prev) => {
+                      if (!prev.contactPhone && !prev.publishConsents) return prev;
+                      const next = { ...prev };
+                      delete next.contactPhone;
+                      return next;
+                    });
+                  }}
                 />
               )}
             </>

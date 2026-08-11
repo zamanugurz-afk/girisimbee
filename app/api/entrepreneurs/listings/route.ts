@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/validation/entrepreneur-listings';
 import { ids } from '@/lib/domain/ids';
 import { traceListingPublish, logPublicationState } from '@/lib/debug/listing-publish-trace';
+import { stripListingsContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 /** GET — browse published startup listings */
 export const GET = withOptionalAuth(async (ctx, request) => {
@@ -22,7 +23,7 @@ export const GET = withOptionalAuth(async (ctx, request) => {
     stage: query.stage,
   });
 
-  return ok({ listings: result.data, pagination: result });
+  return ok({ listings: stripListingsContactPhone(result.data), pagination: result });
 });
 
 /** POST — create startup listing (draft or publish via ?publish=true) */

@@ -3,10 +3,14 @@ import type {
   KvkkConsentItemSnapshot,
   KvkkConsentValues,
 } from '@/features/kvkk/constants/kvkk-consent-policy';
+import type { PublishConsentItemSnapshot } from '@/features/kvkk/constants/publish-consent-policy';
 
 export type KvkkConsentRecordId = string & { readonly __brand: 'KvkkConsentRecordId' };
 
-export type KvkkConsentSource = 'candidate_listing_publish';
+export type KvkkConsentSource = 'candidate_listing_publish' | 'listing_publish';
+
+/** Audit item snapshot — candidate KVKK and/or generic publish-consent policies. */
+export type ConsentAuditItemSnapshot = KvkkConsentItemSnapshot | PublishConsentItemSnapshot;
 
 export interface KvkkConsentRecord {
   id: KvkkConsentRecordId;
@@ -15,8 +19,9 @@ export interface KvkkConsentRecord {
   listingId: ListingId | null;
   source: KvkkConsentSource;
   consentVersion: string;
-  consentItems: KvkkConsentItemSnapshot[];
-  consents: KvkkConsentValues;
+  consentItems: ConsentAuditItemSnapshot[];
+  /** Candidate KVKK keys and/or publish-consent keys (JSONB). */
+  consents: KvkkConsentValues | Record<string, boolean>;
   allAccepted: boolean;
   ipAddress: string | null;
   userAgent: string | null;
@@ -30,8 +35,8 @@ export interface CreateKvkkConsentRecordInput {
   listingId?: ListingId | null;
   source?: KvkkConsentSource;
   consentVersion: string;
-  consentItems: KvkkConsentItemSnapshot[];
-  consents: KvkkConsentValues;
+  consentItems: ConsentAuditItemSnapshot[];
+  consents: KvkkConsentValues | Record<string, boolean>;
   allAccepted: boolean;
   ipAddress?: string | null;
   userAgent?: string | null;
@@ -63,7 +68,7 @@ export interface KvkkConsentEvidenceDocument {
     ipAddress: string | null;
     userAgent: string | null;
   };
-  items: KvkkConsentItemSnapshot[];
-  consents: KvkkConsentValues;
+  items: ConsentAuditItemSnapshot[];
+  consents: KvkkConsentValues | Record<string, boolean>;
   attestation: string;
 }

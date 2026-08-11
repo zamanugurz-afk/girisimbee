@@ -18,7 +18,7 @@ import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digit
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
-import { autoCorrectTurkishText } from '@/features/listings/lib/turkish-text-autocorrect';
+import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -98,7 +98,7 @@ function FieldControl({
 
   function applyTitleCaseIfNeeded() {
     if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
-    const next = autoCorrectTurkishText(stringValue, 'title');
+    const next = normalizeListingTitle(stringValue);
     if (next !== stringValue) onChange(next);
   }
 

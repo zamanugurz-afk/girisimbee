@@ -14,7 +14,7 @@ const EMPTY_COUNTS: HeroStatsCounts = {
   franchise: 0,
 };
 
-const REFRESH_INTERVAL_MS = 60_000;
+const REFRESH_INTERVAL_MS = 120_000;
 
 export function formatHeroStatCount(value: number): string {
   return value.toLocaleString('tr-TR');
@@ -32,7 +32,8 @@ export function useHeroStats() {
     try {
       const res = await fetch('/api/marketplace/hero-stats', {
         method: 'GET',
-        cache: 'no-store',
+        // Allow short browser cache — endpoint is already head-only counts.
+        next: undefined,
       });
       const body = (await res.json()) as { data?: HeroStatsCounts; error?: string };
       if (!res.ok) {
@@ -55,14 +56,8 @@ export function useHeroStats() {
       void load(true);
     }, REFRESH_INTERVAL_MS);
 
-    const onFocus = () => {
-      void load(true);
-    };
-    window.addEventListener('focus', onFocus);
-
     return () => {
       window.clearInterval(intervalId);
-      window.removeEventListener('focus', onFocus);
     };
   }, [load]);
 
