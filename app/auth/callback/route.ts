@@ -5,6 +5,7 @@ import { ensureOAuthAccountBootstrap } from '@/features/authentication/lib/ensur
 import { OAUTH_LEGAL_ACCEPTANCE_PATH } from '@/features/authentication/lib/oauth-bootstrap';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { OAUTH_NEXT_COOKIE } from '@/features/authentication/lib/oauth-next';
+import { canonicalizeSiteOrigin } from '@/lib/site-url';
 
 function safeNextPath(value: string | undefined): string {
   if (!value) return AUTH_ROUTES.home;
@@ -47,7 +48,9 @@ function isPasswordRecoveryFlow(params: {
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const { searchParams, origin } = url;
+  const { searchParams } = url;
+  // Keep post-auth redirects on www (apex ↔ www ping-pong breaks sessions / browsers).
+  const origin = canonicalizeSiteOrigin(url.origin);
   const code = searchParams.get('code');
   const oauthError = searchParams.get('error');
   const oauthDesc = searchParams.get('error_description');

@@ -127,12 +127,13 @@ export function needsMiddlewareAuth(pathname: string): boolean {
       || /^\/api\/listings\/[^/]+\/publish$/.test(pathname)
     );
   }
+  // Guest-only pages are also listed as public for SSR — still need session checks.
+  if (isGuestOnlyRoute(pathname)) return true;
   if (isPublicRoute(pathname)) return false;
   if (isPublicProfileRoute(pathname)) return false;
   if (isPublicCompanyRoute(pathname)) return false;
   return (
     isProtectedRoute(pathname)
-    || isGuestOnlyRoute(pathname)
     || matchesPrefix(pathname, MODERATOR_ROUTE_PREFIXES)
     || matchesPrefix(pathname, ADMIN_ROUTE_PREFIXES)
   );

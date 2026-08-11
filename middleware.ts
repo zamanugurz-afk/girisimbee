@@ -18,6 +18,7 @@ import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
+import { canonicalizeSiteOrigin } from '@/lib/site-url';
 
 function nowMs(): number {
   return Date.now();
@@ -79,7 +80,12 @@ export async function middleware(request: NextRequest) {
   if (shouldRescueOAuthReturn(pathname, request.nextUrl)) {
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = AUTH_ROUTES.callback;
-    return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
+    // Absolute www URL — avoids apex/www relative-redirect quirks in some browsers.
+    const canonical = new URL(
+      `${callbackUrl.pathname}${callbackUrl.search}`,
+      `${canonicalizeSiteOrigin(callbackUrl.origin)}/`,
+    );
+    return attachTiming(NextResponse.redirect(canonical), nowMs() - mwStart);
   }
 
   // Public gate — rewrite to maintenance page without destroying routes.
@@ -111,7 +117,12 @@ export async function middleware(request: NextRequest) {
     role = profile ? normalizeAppRole(profile.role) : 'user';
   }
 
-  if (user && isGuestOnlyRoute(pathname)) {
+  // Stay on /giris|/kayit when OAuth/callback surfaced an error (do not bounce away).
+  if (
+    user
+    && isGuestOnlyRoute(pathname)
+    && !request.nextUrl.searchParams.has('error')
+  ) {
     const next = request.nextUrl.searchParams.get('next') ?? AUTH_ROUTES.home;
     return NextResponse.redirect(new URL(next, request.url));
   }

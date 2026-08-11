@@ -1,24 +1,24 @@
 /**
- * Public site origin for auth redirects.
- * Prefer the request origin in the browser; on the server avoid unstable
- * custom domains until DNS is ready (use girisimbee.vercel.app).
+ * Canonical production origin (Vercel redirects apex → www).
+ * Auth cookies / OAuth redirectTo must stay on this host — never bounce
+ * to *.vercel.app once the custom domain is live (splits PKCE + sessions).
  */
-const STABLE_AUTH_ORIGIN = 'https://girisimbee.vercel.app';
-const UNSTABLE_ORIGINS = new Set([
-  'https://girisimbee.com',
-  'https://www.girisimbee.com',
-  'https://girisimbee.tr',
-  'https://www.girisimbee.tr',
-  'https://girisimbee.com.tr',
-  'https://www.girisimbee.com.tr',
-]);
+const CANONICAL_SITE_ORIGIN = 'https://www.girisimbee.com';
 
 function normalizeOrigin(value: string): string {
   return value.trim().replace(/\/$/, '');
 }
 
-function isUnstableOrigin(origin: string): boolean {
-  return UNSTABLE_ORIGINS.has(normalizeOrigin(origin).toLowerCase());
+/** Apex and www share one cookie jar target: www. */
+export function canonicalizeSiteOrigin(origin: string): string {
+  const normalized = normalizeOrigin(origin).toLowerCase();
+  if (
+    normalized === 'https://girisimbee.com'
+    || normalized === 'https://www.girisimbee.com'
+  ) {
+    return CANONICAL_SITE_ORIGIN;
+  }
+  return normalizeOrigin(origin);
 }
 
 /**
@@ -28,17 +28,13 @@ function isUnstableOrigin(origin: string): boolean {
 export function resolveSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) {
-    const origin = normalizeOrigin(configured);
-    // Custom domain DNS is not ready — keep auth on the stable Vercel host.
-    if (isUnstableOrigin(origin)) return STABLE_AUTH_ORIGIN;
-    return origin;
+    return canonicalizeSiteOrigin(configured);
   }
 
   const vercelUrl = process.env.VERCEL_URL?.trim();
   if (vercelUrl) {
     const host = vercelUrl.replace(/\/$/, '');
-    // Prefer the stable production alias over ephemeral deployment URLs for auth.
-    if (process.env.VERCEL_ENV === 'production') return STABLE_AUTH_ORIGIN;
+    if (process.env.VERCEL_ENV === 'production') return CANONICAL_SITE_ORIGIN;
     return `https://${host}`;
   }
 
@@ -62,13 +58,13 @@ export function resolveCanonicalSiteUrl(): string {
     return 'http://localhost:3000';
   }
 
-  return 'https://girisimbee.com';
+  return CANONICAL_SITE_ORIGIN;
 }
 
 /**
  * Browser auth origin must match the page origin (PKCE verifier is origin-scoped).
- * Do not bounce girisimbee.com → vercel.app here — that breaks Google return + code exchange.
- * Server-side callers still use resolveSiteUrl() (stable host when custom DNS is incomplete).
+ * Do not rewrite apex→www here — that would put redirectTo on www while the
+ * code-verifier cookie stays on apex. Vercel already 308s apex → www for documents.
  */
 export function resolveAuthSiteUrl(): string {
   if (typeof window !== 'undefined') {
