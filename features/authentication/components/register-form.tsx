@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +20,7 @@ import { registerSchema, type RegisterSchema } from '@/features/authentication/v
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
+import { LegalDocLink } from '@/features/authentication/components/legal-doc-link';
 import {
   AuthSocialDivider,
   GoogleOAuthButton,
@@ -204,7 +204,7 @@ export function RegisterForm() {
         />
 
         <div className="space-y-3 rounded-lg border border-border/80 bg-muted/10 p-4">
-          <p className="text-sm font-medium text-foreground">Zorunlu onaylar</p>
+          <p className="text-sm font-medium text-foreground">Zorunlu yasal adımlar</p>
           <ConsentField
             control={form.control}
             name="acceptTerms"
@@ -221,7 +221,7 @@ export function RegisterForm() {
             label={
               <>
                 <LegalDocLink href={LEGAL_ROUTES.kvkk}>KVKK aydınlatma metni</LegalDocLink>
-                ni okudum ve anladım.
+                ni okudum (bilgilendirme; açık rıza değildir).
               </>
             }
           />
@@ -231,7 +231,7 @@ export function RegisterForm() {
             label={
               <>
                 <LegalDocLink href={LEGAL_ROUTES.privacy}>Gizlilik politikası</LegalDocLink>
-                nı kabul ediyorum.
+                nı okudum ve kabul ediyorum.
               </>
             }
           />
@@ -241,28 +241,31 @@ export function RegisterForm() {
             label={
               <>
                 <LegalDocLink href={LEGAL_ROUTES.cookies}>Çerez politikası</LegalDocLink>
-                nı kabul ediyorum.
+                nı okudum. Tercihlerimi sonradan yönetebilirim.
               </>
             }
           />
         </div>
 
         <div className="space-y-3 rounded-lg border border-border/80 bg-muted/10 p-4">
-          <p className="text-sm font-medium text-foreground">İsteğe bağlı onaylar</p>
+          <p className="text-sm font-medium text-foreground">İsteğe bağlı izinler</p>
+          <p className="text-xs text-muted-foreground">
+            Ticari ileti gönderimi İYS yapılandırılana kadar kapalıdır; izin kaydı tutulabilir.
+          </p>
           <ConsentField
             control={form.control}
             name="consentCommercial"
-            label="Ticari elektronik ileti izni veriyorum."
+            label="Ticari elektronik ileti izni veriyorum (geri çekilebilir)."
           />
           <ConsentField
             control={form.control}
             name="consentSms"
-            label="SMS ile bilgilendirme izni veriyorum."
+            label="SMS ile bilgilendirme izni veriyorum (geri çekilebilir)."
           />
           <ConsentField
             control={form.control}
             name="consentEmail"
-            label="E-posta ile bilgilendirme izni veriyorum."
+            label="E-posta ile bilgilendirme izni veriyorum (geri çekilebilir)."
           />
         </div>
 
@@ -275,19 +278,6 @@ export function RegisterForm() {
         </Button>
       </form>
     </Form>
-  );
-}
-
-function LegalDocLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-medium text-primary underline-offset-4 hover:underline"
-    >
-      {children}
-    </Link>
   );
 }
 

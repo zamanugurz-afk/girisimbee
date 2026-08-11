@@ -80,10 +80,12 @@ export default function GoogleOAuthSetupPage() {
         <h2 className="text-sm font-semibold">2) Google Cloud → Authorized JavaScript origins</h2>
         <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs">{`http://localhost:3000
 https://girisimbee.vercel.app
+https://girisimbee.com
+https://www.girisimbee.com
 ${EXPECTED_SUPABASE_HOST}`}</pre>
         <p className="text-xs text-muted-foreground">
-          Eski hash’li Vercel URL’lerini sil. <code className="text-xs">girisimbee.com</code> DNS
-          hazır olana kadar ekleme.
+          Eski hash’li Vercel URL’lerini sil. Custom domain’ler canlıysa yukarıdaki kök origin’ler
+          ekli olmalı.
         </p>
       </section>
 

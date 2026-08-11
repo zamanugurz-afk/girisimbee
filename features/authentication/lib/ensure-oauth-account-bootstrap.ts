@@ -21,11 +21,16 @@ function isOAuthUser(user: AuthUserLike): boolean {
 }
 
 /**
- * After OAuth callback: create profile + default settings + KVKK on first login.
+ * After OAuth callback: create profile + default settings on first login.
+ * Does NOT auto-accept legal documents — caller should redirect users who
+ * have not accepted terms to /auth/yasal-onay.
  * Idempotent — skips bootstrap when account profile already exists.
  */
-export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<void> {
-  if (!isOAuthUser(user)) return;
+export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<{
+  created: boolean;
+  needsLegalAcceptance: boolean;
+}> {
+  if (!isOAuthUser(user)) return { created: false, needsLegalAcceptance: false };
 
   const supabase = createClient();
   const accountService = getServerContainer(supabase).accountService;
@@ -33,9 +38,9 @@ export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<v
 
   const existing = await accountService.getProfile(userId);
   if (existing) {
-    // Don't block OAuth redirect on analytics writes.
     void accountService.recordLogin(userId).catch(() => undefined);
-    return;
+    const needsLegalAcceptance = await accountService.needsLegalAcceptance(userId);
+    return { created: false, needsLegalAcceptance };
   }
 
   const meta = user.user_metadata ?? {};
@@ -54,4 +59,6 @@ export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<v
     role: 'user',
     consents: DEFAULT_OAUTH_CONSENTS,
   });
+
+  return { created: true, needsLegalAcceptance: true };
 }

@@ -12,7 +12,8 @@ export type {
   UpdatePasswordInput,
 } from '@/features/authentication/types/auth.types';
 
-export { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
+export { LEGAL_ROUTES, PUBLISH_LEGAL_LINKS } from '@/features/authentication/constants/legal-routes';
+export { LegalDocLink } from '@/features/authentication/components/legal-doc-link';
 
 // Domain types (persistence layer — not runtime auth roles)
 export type {

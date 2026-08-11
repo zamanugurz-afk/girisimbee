@@ -16,12 +16,20 @@ export function LegalDocumentPage({
       <header className="relative border-b border-border/60 px-5 py-5">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <GirisimbeeLogo />
-          <Link
-            href={AUTH_ROUTES.register}
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Kayıt ol
-          </Link>
+          <div className="flex items-center gap-3 text-sm">
+            <Link
+              href="/"
+              className="font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Ana sayfa
+            </Link>
+            <Link
+              href={AUTH_ROUTES.register}
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Kayıt ol
+            </Link>
+          </div>
         </div>
       </header>
       <main className="relative mx-auto max-w-2xl px-5 py-12">

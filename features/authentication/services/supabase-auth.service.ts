@@ -299,11 +299,28 @@ export async function signUpWithEmail(supabase: SupabaseClient, input: SignUpInp
   return result;
 }
 
+function mapSignInAuthErrorMessage(message: string): string {
+  if (/invalid login credentials|invalid_credentials/i.test(message)) {
+    return 'E-posta veya şifre hatalı. Google ile kayıt olduysanız “Google ile giriş yap” kullanın.';
+  }
+  if (/email not confirmed|not confirmed/i.test(message)) {
+    return 'E-posta adresiniz henüz doğrulanmamış. Gelen kutunuzdaki doğrulama bağlantısını kullanın.';
+  }
+  return message;
+}
+
 export async function signInWithEmail(supabase: SupabaseClient, input: SignInInput) {
-  return supabase.auth.signInWithPassword({
+  const result = await supabase.auth.signInWithPassword({
     email: normalizeAuthEmail(input.email),
     password: input.password,
   });
+  if (result.error) {
+    return {
+      ...result,
+      error: { ...result.error, message: mapSignInAuthErrorMessage(result.error.message) },
+    };
+  }
+  return result;
 }
 
 /** STEP 2: email/password login */
@@ -323,7 +340,7 @@ export async function logout(supabase: SupabaseClient) {
 export async function requestPasswordReset(supabase: SupabaseClient, email: string) {
   const siteUrl = getSiteUrl();
   return supabase.auth.resetPasswordForEmail(normalizeAuthEmail(email), {
-    redirectTo: `${siteUrl}${AUTH_ROUTES.callback}?next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`,
+    redirectTo: `${siteUrl}${AUTH_ROUTES.callback}?type=recovery&next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`,
   });
 }
 

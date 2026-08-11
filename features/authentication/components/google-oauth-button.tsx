@@ -24,7 +24,12 @@ export function GoogleOAuthButton({
       const supabase = createClient();
       const { data, error } = await signInWithOAuth(supabase, 'google', { next });
       if (error) {
-        toast.error(error.message);
+        const msg = error.message || 'Google girişi başlatılamadı.';
+        toast.error(
+          /redirect|callback|provider/i.test(msg)
+            ? 'Google yönlendirmesi başarısız. Lütfen tekrar deneyin veya e-posta ile giriş yapın.'
+            : msg,
+        );
         setLoading(false);
         return;
       }

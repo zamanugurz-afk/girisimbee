@@ -28,16 +28,16 @@ export const registerSchema = z
       .string()
       .trim()
       .regex(PHONE_REGEX, 'Geçerli bir telefon numarası girin. (örn. 05xxxxxxxxx)'),
-    email: emailSchema,
+    email: emailSchema.transform((value) => value.trim().toLowerCase()),
     password: z
       .string()
       .min(8, 'Şifre en az 8 karakter olmalı.')
       .max(128, 'Şifre en fazla 128 karakter olabilir.'),
     confirmPassword: z.string(),
     acceptTerms: requiredConsent('Kullanıcı sözleşmesini kabul etmelisiniz.'),
-    acceptKvkk: requiredConsent('KVKK aydınlatma metnini kabul etmelisiniz.'),
+    acceptKvkk: requiredConsent('KVKK aydınlatma metnini okuduğunuzu onaylayın (bilgilendirme).'),
     acceptPrivacy: requiredConsent('Gizlilik politikasını kabul etmelisiniz.'),
-    acceptCookies: requiredConsent('Çerez politikasını kabul etmelisiniz.'),
+    acceptCookies: requiredConsent('Çerez politikasını okuduğunuzu onaylayın.'),
     consentCommercial: z.boolean(),
     consentSms: z.boolean(),
     consentEmail: z.boolean(),

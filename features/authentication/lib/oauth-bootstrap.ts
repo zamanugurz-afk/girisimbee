@@ -1,11 +1,14 @@
+/**
+ * Default OAuth bootstrap consents — must NOT auto-accept legal texts.
+ * User completes /auth/yasal-onay before terms/privacy/cookies/kvkk ack are true.
+ */
 import type { SignUpConsents } from '@/features/authentication/types/auth.types';
 
-/** Default legal consents recorded on first Google OAuth signup */
 export const DEFAULT_OAUTH_CONSENTS: SignUpConsents = {
-  acceptTerms: true,
-  acceptKvkk: true,
-  acceptPrivacy: true,
-  acceptCookies: true,
+  acceptTerms: false,
+  acceptKvkk: false,
+  acceptPrivacy: false,
+  acceptCookies: false,
   consentCommercial: false,
   consentSms: false,
   consentEmail: false,
@@ -25,3 +28,5 @@ export function splitFullName(fullName: string | null | undefined): {
     lastName: parts.slice(1).join(' '),
   };
 }
+
+export const OAUTH_LEGAL_ACCEPTANCE_PATH = '/auth/yasal-onay';

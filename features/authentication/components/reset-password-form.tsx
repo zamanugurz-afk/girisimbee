@@ -37,16 +37,33 @@ export function ResetPasswordForm() {
     const supabase = createClient();
 
     async function checkSession() {
+      // Hash/implicit recovery: give the browser client a moment to parse the URL.
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (hash.includes('type=recovery') || hash.includes('access_token')) {
+        await new Promise((r) => setTimeout(r, 80));
+      }
+
       const { data } = await supabase.auth.getSession();
       if (cancelled) return;
-      setSessionReady(Boolean(data.session));
+      if (data.session) {
+        setSessionReady(true);
+        return;
+      }
+
+      // One retry — PKCE cookie session can lag a tick after /auth/callback redirect.
+      await new Promise((r) => setTimeout(r, 200));
+      if (cancelled) return;
+      const again = await supabase.auth.getSession();
+      if (!cancelled) setSessionReady(Boolean(again.data.session));
     }
 
     void checkSession();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
-        setSessionReady(true);
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        void supabase.auth.getSession().then(({ data }) => {
+          if (!cancelled && data.session) setSessionReady(true);
+        });
       }
     });
 

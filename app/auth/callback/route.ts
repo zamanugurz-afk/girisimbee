@@ -28,6 +28,18 @@ function isEmailVerificationFlow(params: {
   return false;
 }
 
+/** Password-recovery must land on /sifre-sifirla — never divert to legal bootstrap. */
+function isPasswordRecoveryFlow(params: {
+  type: string | null;
+  next: string;
+}): boolean {
+  if (params.type === 'recovery') return true;
+  return (
+    params.next === AUTH_ROUTES.resetPassword
+    || params.next === AUTH_ROUTES.resetPasswordLegacy
+  );
+}
+
 /**
  * Auth callback (OAuth PKCE + email confirmation).
  * Cookies must be written onto the redirect response.
@@ -160,14 +172,28 @@ export async function GET(request: Request) {
     );
   }
 
+  const passwordRecovery = isPasswordRecoveryFlow({ type, next });
+
   try {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
-    if (user && !emailVerify) {
-      await ensureOAuthAccountBootstrap(user);
+    // Skip legal/OAuth bootstrap for recovery + email-verify — keep the destination path.
+    if (user && !emailVerify && !passwordRecovery) {
+      const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(user);
+      if (created || needsLegalAcceptance) {
+        const legalUrl = new URL('/auth/yasal-onay', origin);
+        legalUrl.searchParams.set('next', next);
+        const legalRedirect = NextResponse.redirect(legalUrl);
+        clearOauthCookie(legalRedirect);
+        // Copy session cookies from success onto legal redirect
+        success.cookies.getAll().forEach((c) => {
+          legalRedirect.cookies.set(c.name, c.value);
+        });
+        return legalRedirect;
+      }
     }
   } catch (bootstrapError) {
     console.error('[auth/callback] account bootstrap failed');
-    if (emailVerify) {
+    if (emailVerify || passwordRecovery) {
       return success;
     }
     const message =

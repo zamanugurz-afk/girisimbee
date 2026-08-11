@@ -238,8 +238,37 @@ export function AuthProvider({
       setIsLoading(false);
     }
 
+    // Implicit recovery links land on Site URL with #…&type=recovery — send user to reset form.
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (hash) {
+        const hashParams = new URLSearchParams(hash);
+        if (hashParams.get('type') === 'recovery') {
+          const resetPath = AUTH_ROUTES.resetPassword;
+          if (!window.location.pathname.startsWith(resetPath)) {
+            window.location.replace(`${resetPath}${window.location.hash}`);
+            return () => {
+              mounted = false;
+            };
+          }
+        }
+      }
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
+
+      // Recovery session must reach the reset page (hash or PKCE without next=).
+      if (event === 'PASSWORD_RECOVERY') {
+        await applySession(session);
+        if (
+          typeof window !== 'undefined'
+          && !window.location.pathname.startsWith(AUTH_ROUTES.resetPassword)
+        ) {
+          window.location.assign(AUTH_ROUTES.resetPassword);
+        }
+        return;
+      }
 
       // Token refresh: keep role, but sync email_confirmed_at for verification badge.
       if (event === 'TOKEN_REFRESHED') {
@@ -324,7 +353,8 @@ export function AuthProvider({
 
   const signUp = useCallback(async (input: SignUpInput) => {
     const supabase = getSupabase();
-    const { data, error } = await signUpWithEmail(supabase, input);
+    const email = input.email.trim().toLowerCase();
+    const { data, error } = await signUpWithEmail(supabase, { ...input, email });
     if (error) return { error: error.message, needsVerification: false };
     const needsVerification = !data.session;
     if (data.session) await refresh();
@@ -335,7 +365,7 @@ export function AuthProvider({
         const { ids } = await import('@/lib/domain/ids');
         await getAccountService().bootstrapFromSignup({
           userId: ids.user(userId),
-          email: input.email,
+          email,
           firstName: input.firstName,
           lastName: input.lastName,
           username: input.username,
