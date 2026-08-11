@@ -1,8 +1,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
 export function createClient(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
+  const cookieOptions = authCookieOptions(request.nextUrl.hostname);
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -16,6 +18,7 @@ export function createClient(request: NextRequest) {
     url,
     key,
     {
+      cookieOptions,
       cookies: {
         get(name: string) {
           return request.cookies.get(name)?.value;

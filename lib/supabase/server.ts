@@ -1,10 +1,12 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { createInstrumentedServerClient } from '@/lib/perf/instrument-supabase';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
 export function createClient() {
   const cookieStore = cookies();
+  const host = headers().get('host');
 
   const cookieApi = {
     get(name: string) {
@@ -46,9 +48,14 @@ export function createClient() {
     );
   }
 
+  const cookieOptions = authCookieOptions(host);
+
   if (isNavProfilingEnabled()) {
     return createInstrumentedServerClient(url, key, cookieApi);
   }
 
-  return createServerClient(url, key, { cookies: cookieApi });
+  return createServerClient(url, key, {
+    cookies: cookieApi,
+    cookieOptions,
+  });
 }

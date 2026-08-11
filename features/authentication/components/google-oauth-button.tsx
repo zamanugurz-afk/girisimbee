@@ -20,6 +20,16 @@ export function GoogleOAuthButton({
   async function handleClick() {
     setLoading(true);
     try {
+      // Apex and www split host-only cookies — always start OAuth on www.
+      if (typeof window !== 'undefined') {
+        const { hostname, protocol, pathname, search } = window.location;
+        if (hostname === 'girisimbee.com') {
+          window.location.replace(
+            `${protocol}//www.girisimbee.com${pathname}${search}`,
+          );
+          return;
+        }
+      }
       setOAuthNextCookie(next);
       const supabase = createClient();
       const { data, error } = await signInWithOAuth(supabase, 'google', { next });

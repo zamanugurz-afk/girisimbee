@@ -34,7 +34,11 @@ export function LoginForm() {
   useEffect(() => {
     if (authError === 'auth_callback_failed') {
       const msg = authMessage || 'Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.';
-      if (/exchange external code/i.test(msg)) {
+      if (/pkce code verifier not found/i.test(msg)) {
+        toast.error(
+          'Google oturumu bu tarayıcıda tamamlanamadı. Çerezleri temizleyip Google ile girişi yeniden deneyin.',
+        );
+      } else if (/exchange external code/i.test(msg)) {
         toast.error(
           'Google bağlantısı başarısız. Supabase Client ID/Secret ve Google Redirect URI ayarlarını kontrol edin.',
         );
@@ -76,10 +80,12 @@ export function LoginForm() {
         || authError === 'oauth_provider') && (
         <div className="mb-4 space-y-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           <p>
-            {authMessage
-              || (authError === 'oauth_bootstrap'
-                ? 'Google oturumu açıldı ancak profil oluşturulamadı. Tekrar deneyin veya e-posta ile giriş yapın.'
-                : 'Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.')}
+            {authMessage && /pkce code verifier not found/i.test(authMessage)
+              ? 'Google oturumu bu tarayıcıda tamamlanamadı. Çerezleri temizleyip Google ile girişi yeniden deneyin.'
+              : authMessage
+                || (authError === 'oauth_bootstrap'
+                  ? 'Google oturumu açıldı ancak profil oluşturulamadı. Tekrar deneyin veya e-posta ile giriş yapın.'
+                  : 'Giriş tamamlanamadı. Tekrar deneyin veya e-posta ile giriş yapın.')}
           </p>
           <p className="text-xs text-muted-foreground">
             Daha önce e-posta ile kayıt olduysan Google ayrı hesap açmaz — şifrenle giriş yap

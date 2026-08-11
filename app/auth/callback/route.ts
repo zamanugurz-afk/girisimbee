@@ -6,6 +6,10 @@ import { OAUTH_LEGAL_ACCEPTANCE_PATH } from '@/features/authentication/lib/oauth
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { OAUTH_NEXT_COOKIE } from '@/features/authentication/lib/oauth-next';
 import { canonicalizeSiteOrigin } from '@/lib/site-url';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
+
+/** Must match @supabase/auth-js PKCE_FLOW_ID_PARAM */
+const PKCE_FLOW_ID_PARAM = 'sb_flow_id';
 
 function safeNextPath(value: string | undefined): string {
   if (!value) return AUTH_ROUTES.home;
@@ -42,6 +46,10 @@ function isPasswordRecoveryFlow(params: {
   );
 }
 
+function isPkceVerifierMissing(message: string): boolean {
+  return /pkce code verifier not found/i.test(message);
+}
+
 /**
  * Auth callback (OAuth PKCE + email confirmation).
  * Cookies must be written onto the redirect response.
@@ -52,6 +60,7 @@ export async function GET(request: Request) {
   // Keep post-auth redirects on www (apex ↔ www ping-pong breaks sessions / browsers).
   const origin = canonicalizeSiteOrigin(url.origin);
   const code = searchParams.get('code');
+  const flowId = searchParams.get(PKCE_FLOW_ID_PARAM);
   const oauthError = searchParams.get('error');
   const oauthDesc = searchParams.get('error_description');
   const flow = searchParams.get('flow');
@@ -74,6 +83,7 @@ export async function GET(request: Request) {
     origin,
     callbackUrl: `${origin}${url.pathname}`,
     hasCode: Boolean(code),
+    hasFlowId: Boolean(flowId),
     flow,
     type,
     emailVerify,
@@ -82,6 +92,7 @@ export async function GET(request: Request) {
   });
 
   const clearOauthCookie = (res: NextResponse) => {
+    res.cookies.set(OAUTH_NEXT_COOKIE, '', { path: '/', maxAge: 0, domain: '.girisimbee.com' });
     res.cookies.set(OAUTH_NEXT_COOKIE, '', { path: '/', maxAge: 0 });
     return res;
   };
@@ -98,6 +109,17 @@ export async function GET(request: Request) {
       `${origin}${AUTH_ROUTES.verifyError}?reason=${encodeURIComponent(reason)}`,
     );
     return clearOauthCookie(res);
+  };
+
+  /** Browser can still see the PKCE cookie even when the Route Handler missed it. */
+  const pkceClientFallback = () => {
+    const pkceUrl = new URL('/auth/pkce', origin);
+    pkceUrl.searchParams.set('code', code!);
+    if (flowId) pkceUrl.searchParams.set(PKCE_FLOW_ID_PARAM, flowId);
+    pkceUrl.searchParams.set('next', next);
+    if (emailVerify) pkceUrl.searchParams.set('flow', 'email');
+    if (type) pkceUrl.searchParams.set('type', type);
+    return NextResponse.redirect(pkceUrl);
   };
 
   // Provider / Auth failed before code exchange.
@@ -147,6 +169,7 @@ export async function GET(request: Request) {
     supabaseUrl,
     supabaseAnonKey,
     {
+      cookieOptions: authCookieOptions(url.hostname),
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -161,13 +184,21 @@ export async function GET(request: Request) {
     },
   );
 
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  // Server must pass sb_flow_id — auth-js only reads it from window on the client.
+  const { data, error } = await supabase.auth.exchangeCodeForSession(
+    code,
+    flowId ? { flowId } : undefined,
+  );
   if (error) {
     console.error('[auth/callback] exchangeCodeForSession failed', {
       message: error.message,
+      hasFlowId: Boolean(flowId),
     });
     if (emailVerify) {
       return verifyError('exchange_failed');
+    }
+    if (isPkceVerifierMissing(error.message)) {
+      return pkceClientFallback();
     }
     return loginError(
       'auth_callback_failed',

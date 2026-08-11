@@ -31,6 +31,7 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
   // Auth round-trips + login / account surfaces (needed while public site is gated)
   if (
     pathname === '/auth/callback'
+    || pathname === '/auth/pkce'
     || pathname === '/auth/verify-success'
     || pathname === '/auth/verify-error'
     || pathname === '/auth/signout'

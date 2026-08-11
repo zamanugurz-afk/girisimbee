@@ -18,7 +18,6 @@ import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
-import { canonicalizeSiteOrigin } from '@/lib/site-url';
 
 function nowMs(): number {
   return Date.now();
@@ -78,14 +77,10 @@ export async function middleware(request: NextRequest) {
   // Rescue OAuth/PKCE returns that hit the wrong path (e.g. /?code=…).
   // Must run before maintenance rewrite so the code is exchanged, not swallowed by /bakim.
   if (shouldRescueOAuthReturn(pathname, request.nextUrl)) {
+    // Stay on the same host — cross-host redirects drop host-only PKCE cookies.
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = AUTH_ROUTES.callback;
-    // Absolute www URL — avoids apex/www relative-redirect quirks in some browsers.
-    const canonical = new URL(
-      `${callbackUrl.pathname}${callbackUrl.search}`,
-      `${canonicalizeSiteOrigin(callbackUrl.origin)}/`,
-    );
-    return attachTiming(NextResponse.redirect(canonical), nowMs() - mwStart);
+    return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
   // Public gate — rewrite to maintenance page without destroying routes.

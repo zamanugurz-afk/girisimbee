@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
 let browserClient: SupabaseClient | undefined;
 
@@ -19,6 +20,9 @@ export function createClient(): SupabaseClient {
     );
   }
 
-  browserClient = createBrowserClient(url, key);
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  browserClient = createBrowserClient(url, key, {
+    cookieOptions: authCookieOptions(hostname),
+  });
   return browserClient;
 }
