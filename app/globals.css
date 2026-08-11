@@ -150,6 +150,18 @@
   .dark .hover\:text-\[\#334155\]:hover {
     color: hsl(var(--foreground));
   }
+
+  /*
+   * Night mode only: bee+G mark has black strokes that vanish on dark chrome.
+   * Soft white disc behind the existing asset — logo file/structure unchanged.
+   */
+  .dark span:has(> img[src*='girisimbee-symbol']) {
+    border-radius: 9999px;
+    background-color: #ffffff;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.14),
+      0 2px 8px rgb(0 0 0 / 0.28);
+  }
 }
 
 @layer base {
