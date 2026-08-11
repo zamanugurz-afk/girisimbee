@@ -170,10 +170,10 @@ export const MOCK_ADMIN_QUICK_ACTIONS: AdminQuickActionItem[] = [
     icon: BadgeCheck,
   },
   {
-    id: 'coupons',
+    id: 'packages',
     label: 'Kupon oluştur',
     description: 'İndirim ve kampanya kodları',
-    href: ADMIN_ROUTES.coupons,
+    href: ADMIN_ROUTES.packages,
     icon: Ticket,
   },
   {
