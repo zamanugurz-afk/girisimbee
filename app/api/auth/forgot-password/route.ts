@@ -25,9 +25,14 @@ function isRateLimitError(message: string): boolean {
   );
 }
 
-/** Prefer Resend when configured. Broken Zoho SMTP must not run before Supabase mail. */
+/** Custom Girisimbee-branded mail (Resend or SMTP) — avoids Supabase Auth "Girişimco" From. */
 function preferCustomMail(): boolean {
-  return Boolean(process.env.RESEND_API_KEY?.trim());
+  if (process.env.RESEND_API_KEY?.trim()) return true;
+  return Boolean(
+    process.env.SMTP_HOST?.trim()
+    && process.env.SMTP_USER?.trim()
+    && process.env.SMTP_PASSWORD?.trim(),
+  );
 }
 
 type AuthUserLite = {
@@ -147,7 +152,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Resend path only (SMTP/Zoho is currently failing and must not consume Auth rate limit first).
+  // Prefer app-owned mail so From = "Girisimbee" (Supabase Auth still branded Girişimco).
   if (preferCustomMail()) {
     try {
       const admin = createServiceRoleClient();
@@ -170,7 +175,7 @@ export async function POST(request: Request) {
                 'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
             });
           }
-          console.warn('[forgot-password] Resend failed, falling back to Supabase Auth', mailed.error);
+          console.warn('[forgot-password] custom mail failed, falling back to Supabase Auth', mailed.error);
         }
       } else if (isRateLimitError(error.message)) {
         return apiError(RATE_LIMIT_MESSAGE, 429);
@@ -182,7 +187,7 @@ export async function POST(request: Request) {
     }
   }
 
-  // Single Auth email send — uses dashboard "Reset password" template (Girisimbee).
+  // Fallback: Supabase Auth mailer (dashboard Site name / SMTP sender must be Girisimbee).
   const { error } = await sendViaSupabaseAuth(email, redirectTo);
   if (error) {
     console.error('[forgot-password] supabase mail failed', error.message);

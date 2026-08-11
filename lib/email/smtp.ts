@@ -15,17 +15,29 @@ export type SmtpSendResult =
   | { ok: false; skipped: true; reason: string }
   | { ok: false; skipped: false; error: string };
 
+/** Ensure Gmail/inbox shows "Girisimbee", not a bare address or old brand. */
+function resolveSmtpFrom(raw: string): string {
+  const value = raw.trim();
+  if (!value) return 'Girisimbee <info@girisimbee.com>';
+  if (value.includes('<') && value.includes('>')) {
+    // Replace legacy display names while keeping the mailbox.
+    return value.replace(/^\s*[^<]+</, 'Girisimbee <');
+  }
+  return `Girisimbee <${value}>`;
+}
+
 export async function sendSmtpEmail(input: SmtpSendInput): Promise<SmtpSendResult> {
   const host = process.env.SMTP_HOST?.trim();
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASSWORD?.trim();
-  const from =
+  const from = resolveSmtpFrom(
     process.env.SMTP_FROM?.trim()
     || process.env.EMAIL_FROM?.trim()
     || user
-    || '';
+    || 'info@girisimbee.com',
+  );
 
-  if (!host || !user || !pass || !from) {
+  if (!host || !user || !pass) {
     return { ok: false, skipped: true, reason: 'SMTP_* env incomplete' };
   }
 

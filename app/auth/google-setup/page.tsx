@@ -129,16 +129,23 @@ http://localhost:3000/**`}</pre>
           Eski “Girişimco / Reset your password” mailleri Supabase şablonundan gelir. Dashboard’da:
         </p>
         <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-          <li>Authentication → Emails → Site name = <strong>Girisimbee</strong></li>
           <li>
-            Authentication → SMTP Settings → Sender name = <strong>Girisimbee</strong> (From
-            adresi hâlâ Zoho olsa bile görünen isim Girişimco olmamalı)
+            Authentication → Emails → Site name = <strong>Girisimbee</strong> (Gmail’de görünen
+            “Girişimco” buradan gelir)
+          </li>
+          <li>
+            Authentication → SMTP Settings → Sender name = <strong>Girisimbee</strong>, Sender
+            email = <code className="text-xs">info@girisimbee.com</code>
           </li>
           <li>
             Reset password konusu:{' '}
             <code className="text-xs">Şifre sıfırlama — Girisimbee</code>
           </li>
-          <li>Gövde metninde Girişimco geçmesin; Girisimbee kullanın (repo: supabase/templates/recovery.html)</li>
+          <li>Gövde: repo <code className="text-xs">supabase/templates/recovery.html</code></li>
+          <li>
+            Uygulama şifre sıfırlamayı mümkünse kendi SMTP’sinden “Girisimbee &lt;info@…&gt;”
+            olarak gönderir; Auth fallback için yine dashboard şart
+          </li>
         </ul>
         <p className="text-xs">
           <a
