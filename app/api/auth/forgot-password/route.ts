@@ -14,6 +14,20 @@ const bodySchema = z.object({
   email: z.string().email('Geçerli bir e-posta girin'),
 });
 
+const RATE_LIMIT_MESSAGE =
+  'Çok sık sıfırlama istediniz. Limit genelde birkaç dakika sürer (bazen 10–15 dk). Gelen kutusu/spam’i kontrol edin, sonra tekrar deneyin.';
+
+function isRateLimitError(message: string): boolean {
+  return /rate limit|only request this after|security purposes|for security purposes/i.test(
+    message,
+  );
+}
+
+/** Prefer Resend when configured. Broken Zoho SMTP must not run before Supabase mail. */
+function preferCustomMail(): boolean {
+  return Boolean(process.env.RESEND_API_KEY?.trim());
+}
+
 type AuthUserLite = {
   id?: string;
   email?: string | null;
@@ -55,11 +69,15 @@ async function findAuthUserByEmail(email: string): Promise<AuthUserLite | null> 
   return null;
 }
 
+async function sendViaSupabaseAuth(email: string, redirectTo: string) {
+  const supabase = createClient();
+  return supabase.auth.resetPasswordForEmail(email, { redirectTo });
+}
+
 /**
  * POST /api/auth/forgot-password
- * Sends recovery via admin.generateLink + Resend/SMTP.
- * Never claims "sent" unless the transactional mail actually succeeded
- * (unknown emails still get a generic success to avoid enumeration).
+ * Primary: Supabase Auth mail (dashboard template) — single send, no double rate-limit.
+ * Optional: Resend custom mail when RESEND_API_KEY is set.
  */
 export async function POST(request: Request) {
   let body: unknown;
@@ -92,7 +110,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Unknown account — same success shape (no enumeration), but do not pretend we mailed.
   if (!user) {
     return ok({
       sent: true,
@@ -112,68 +129,49 @@ export async function POST(request: Request) {
     );
   }
 
-  let admin;
-  try {
-    admin = createServiceRoleClient();
-  } catch (error) {
-    console.error('[forgot-password] service role missing', error);
-    return apiError(
-      'Sunucu kimlik yapılandırması eksik. Destek ile iletişime geçin.',
-      500,
-    );
+  // Resend path only (SMTP/Zoho is currently failing and must not consume Auth rate limit first).
+  if (preferCustomMail()) {
+    try {
+      const admin = createServiceRoleClient();
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+        options: { redirectTo },
+      });
+      if (!error) {
+        const actionLink =
+          data.properties?.action_link
+          || (data as { action_link?: string }).action_link
+          || null;
+        if (actionLink) {
+          const mailed = await sendPasswordResetEmail({ to: email, actionLink });
+          if (mailed.ok) {
+            return ok({
+              sent: true,
+              message:
+                'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
+            });
+          }
+          console.warn('[forgot-password] Resend failed, falling back to Supabase Auth', mailed.error);
+        }
+      } else if (isRateLimitError(error.message)) {
+        return apiError(RATE_LIMIT_MESSAGE, 429);
+      } else {
+        console.warn('[forgot-password] generateLink failed', error.message);
+      }
+    } catch (error) {
+      console.warn('[forgot-password] custom mail path unavailable', error);
+    }
   }
 
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: 'recovery',
-    email,
-    options: { redirectTo },
-  });
-
+  // Single Auth email send — uses dashboard "Reset password" template (Girisimbee).
+  const { error } = await sendViaSupabaseAuth(email, redirectTo);
   if (error) {
-    console.error('[forgot-password] generateLink failed', error.message);
-    return apiError(
-      /invalid api key/i.test(error.message)
-        ? 'Sunucu kimlik yapılandırması hatalı (Supabase service role). Destek ile iletişime geçin.'
-        : /rate limit|only request this after/i.test(error.message)
-          ? 'Çok sık sıfırlama istediniz. Lütfen yaklaşık 1 dakika sonra tekrar deneyin.'
-          : 'Şifre sıfırlama bağlantısı oluşturulamadı. Lütfen tekrar deneyin.',
-      500,
-    );
-  }
-
-  const actionLink =
-    data.properties?.action_link
-    || (data as { action_link?: string }).action_link
-    || null;
-
-  if (!actionLink) {
-    console.error('[forgot-password] generateLink missing action_link');
-    return apiError('Şifre sıfırlama bağlantısı oluşturulamadı. Lütfen tekrar deneyin.', 500);
-  }
-
-  const mailed = await sendPasswordResetEmail({ to: email, actionLink });
-  if (mailed.ok) {
-    return ok({
-      sent: true,
-      message:
-        'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
-    });
-  }
-
-  // Zoho/SMTP down — fall back to Supabase Auth mail (dashboard Reset password template).
-  console.warn('[forgot-password] custom SMTP failed, using Supabase Auth mail', mailed.error);
-  const supabase = createClient();
-  const { error: supabaseMailError } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo,
-  });
-  if (supabaseMailError) {
-    console.error('[forgot-password] supabase mail failed', supabaseMailError.message);
-    return apiError(
-      /rate limit|only request this after/i.test(supabaseMailError.message)
-        ? 'Çok sık sıfırlama istediniz. Lütfen yaklaşık 1 dakika sonra tekrar deneyin.'
-        : 'E-posta gönderilemedi. Lütfen biraz sonra tekrar deneyin.',
-      500,
-    );
+    console.error('[forgot-password] supabase mail failed', error.message);
+    if (isRateLimitError(error.message)) {
+      return apiError(RATE_LIMIT_MESSAGE, 429);
+    }
+    return apiError('E-posta gönderilemedi. Lütfen biraz sonra tekrar deneyin.', 500);
   }
 
   return ok({

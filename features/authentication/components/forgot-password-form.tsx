@@ -47,7 +47,8 @@ export function ForgotPasswordForm() {
         if (json.code === 'google_only_account') {
           setGoogleOnly(true);
         }
-        toast.error(json.error ?? 'Şifre sıfırlama isteği gönderilemedi');
+        const err = json.error ?? 'Şifre sıfırlama isteği gönderilemedi';
+        toast.error(err, { duration: res.status === 429 ? 8000 : 4000 });
         return;
       }
 
