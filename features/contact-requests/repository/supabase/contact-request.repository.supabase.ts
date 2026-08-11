@@ -147,13 +147,14 @@ export class SupabaseContactRequestRepository implements ContactRequestRepositor
     }
 
     if (patch.status === 'accepted') {
-      if (!patch.conversationId || !patch.ownerTermsVersion) {
-        throw new Error('contact_request_accept requires conversationId and ownerTermsVersion');
+      if (!patch.ownerTermsVersion) {
+        throw new Error('contact_request_accept requires ownerTermsVersion');
       }
+      // conversationId may be null — SECURITY DEFINER RPC creates the DM when needed.
       const { data, error } = await this.supabase
         .rpc('contact_request_accept', {
           p_request_id: id,
-          p_conversation_id: patch.conversationId,
+          p_conversation_id: patch.conversationId ?? null,
           p_owner_terms_version: patch.ownerTermsVersion,
         })
         .single();

@@ -61,7 +61,8 @@ export class ContactRequestService {
   constructor(
     private readonly repo: ContactRequestRepository,
     private readonly listings: ListingRepository,
-    private readonly messaging: IMessagingService,
+    /** Kept for container/DI compatibility; accept creates conversations in SQL RPC. */
+    private readonly _messaging: IMessagingService,
     private readonly profiles: ProfileRepository,
     private readonly notifications: INotificationService,
   ) {}
@@ -261,8 +262,6 @@ export class ContactRequestService {
     requestId: ContactRequestId;
     actorUserId: UserId;
     acceptTerms: boolean;
-    /** Privileged messaging (e.g. service-role) after ownership checks — avoids conversation RLS races. */
-    messaging?: IMessagingService;
   }): Promise<{ view: ContactRequestPublicView; entity: ListingContactRequest }> {
     if (!input.acceptTerms) {
       throw new ValidationError('İletişim ve Mesajlaşma Kullanım Koşulları kabul edilmelidir.', {
@@ -289,39 +288,37 @@ export class ContactRequestService {
       throw new ForbiddenError('Bu işlem için yetkiniz bulunmuyor.');
     }
 
-    const messaging = input.messaging ?? this.messaging;
-    const conversation = await messaging.getOrCreateForListing(
-      row.listingId,
-      row.ownerUserId,
-      row.requesterUserId,
-      { bypassContactRequestGate: true },
-    );
-
+    // Conversation is created inside contact_request_accept (SECURITY DEFINER).
+    // Do not insert marketplace_conversations from the app — that path hits RLS 42501.
     const now = new Date().toISOString();
     const updated = await this.repo.update(row.id, {
       status: 'accepted',
       acceptedAt: now,
       respondedAt: now,
-      conversationId: conversation.id,
+      conversationId: null,
       ownerTermsVersion: this.termsVersion(),
       ownerTermsAcceptedAt: now,
     });
 
+    const conversationId = updated.conversationId;
+
     try {
-      await this.notifications.send({
-        userId: row.requesterUserId,
-        type: 'system',
-        title: 'İletişim talebiniz kabul edildi',
-        body: 'İlan sahibi iletişim talebinizi kabul etti. Mesajlaşabilir; telefon ve ad-soyad bilgisi yalnızca size açıldı.',
-        actionUrl: `${DASHBOARD_ROUTES.mesajlarim}?c=${conversation.id}`,
-        entityType: 'conversation',
-        entityId: String(conversation.id),
-        metadata: {
-          kind: 'contact_request',
-          event: 'CONTACT_REQUEST_ACCEPTED',
-          contactRequestId: String(row.id),
-        },
-      });
+      if (conversationId) {
+        await this.notifications.send({
+          userId: row.requesterUserId,
+          type: 'system',
+          title: 'İletişim talebiniz kabul edildi',
+          body: 'İlan sahibi iletişim talebinizi kabul etti. Mesajlaşabilir; telefon ve ad-soyad bilgisi yalnızca size açıldı.',
+          actionUrl: `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`,
+          entityType: 'conversation',
+          entityId: String(conversationId),
+          metadata: {
+            kind: 'contact_request',
+            event: 'CONTACT_REQUEST_ACCEPTED',
+            contactRequestId: String(row.id),
+          },
+        });
+      }
     } catch {
       // non-fatal
     }

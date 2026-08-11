@@ -1,4 +1,4 @@
-import type { ContactRequestId, ListingId, UserId } from '@/lib/domain/ids';
+import { ids, type ContactRequestId, type ListingId, type UserId } from '@/lib/domain/ids';
 import type { ContactRequestRepository } from '@/features/contact-requests/repositories/contact-request.repository';
 import type {
   CreateContactRequestInput,
@@ -6,6 +6,8 @@ import type {
 } from '@/features/contact-requests/types/contact-request.types';
 import { createContactRequestEntity } from '@/features/contact-requests/repository/supabase/contact-request.mapper';
 import { isAllowedContactRequestTransition } from '@/features/contact-requests/lib/contact-request-transitions';
+
+const MOCK_ACCEPT_CONVERSATION_ID = ids.conversation('c0000001-0001-4000-8000-000000000001');
 
 export class MockContactRequestRepository implements ContactRequestRepository {
   private rows = new Map<string, ListingContactRequest>();
@@ -93,6 +95,11 @@ export class MockContactRequestRepository implements ContactRequestRepository {
     const next: ListingContactRequest = {
       ...existing,
       ...patch,
+      // Mirror SECURITY DEFINER accept RPC: create conversation when not supplied.
+      conversationId:
+        patch.status === 'accepted'
+          ? (patch.conversationId ?? existing.conversationId ?? MOCK_ACCEPT_CONVERSATION_ID)
+          : (patch.conversationId ?? existing.conversationId),
       respondedAt: patch.respondedAt ?? existing.respondedAt ?? now,
     };
     this.rows.set(String(id), next);

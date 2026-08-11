@@ -160,12 +160,7 @@ describe('ContactRequestService', () => {
 
     expect(view.effectiveStatus).toBe('accepted');
     expect(view.conversationId).toBe(String(CONVERSATION_ID));
-    expect(messaging.getOrCreateForListing).toHaveBeenCalledWith(
-      listingId,
-      ownerId,
-      requesterId,
-      { bypassContactRequestGate: true },
-    );
+    expect(messaging.getOrCreateForListing).not.toHaveBeenCalled();
 
     const mine = await service.getMineForListing(listingId, requesterId);
     expect(mine?.effectiveStatus).toBe('accepted');
