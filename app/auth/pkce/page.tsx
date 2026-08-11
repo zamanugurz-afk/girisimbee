@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { OAUTH_LEGAL_ACCEPTANCE_PATH } from '@/features/authentication/lib/oauth-bootstrap';
-import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 
 const PKCE_FLOW_ID_PARAM = 'sb_flow_id';
 
@@ -69,14 +68,10 @@ function PkceExchange() {
           return;
         }
 
-        const recoveryCookie = document.cookie
-          .split(';')
-          .some((part) => part.trim() === `${PASSWORD_RECOVERY_COOKIE}=1`);
         const passwordRecovery =
           params.get('type') === 'recovery'
           || next === AUTH_ROUTES.resetPassword
-          || next === AUTH_ROUTES.resetPasswordLegacy
-          || recoveryCookie;
+          || next === AUTH_ROUTES.resetPasswordLegacy;
 
         // Recovery session is only for choosing a new password — skip legal gate.
         if (passwordRecovery) {

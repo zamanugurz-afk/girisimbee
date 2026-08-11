@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 import { LegalDocLink } from '@/features/authentication/components/legal-doc-link';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
-import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 
@@ -22,14 +21,11 @@ function OAuthLegalAcceptanceForm() {
   const params = useSearchParams();
   const next = params.get('next') || '/';
 
-  // Password-recovery must never finish on this page.
+  // Only when this gate was opened with an explicit reset destination.
   useEffect(() => {
-    const recoveryCookie = document.cookie
-      .split(';')
-      .some((part) => part.trim() === `${PASSWORD_RECOVERY_COOKIE}=1`);
     const nextIsReset =
       next === AUTH_ROUTES.resetPassword || next === AUTH_ROUTES.resetPasswordLegacy;
-    if (recoveryCookie || nextIsReset || params.get('type') === 'recovery') {
+    if (nextIsReset || params.get('type') === 'recovery') {
       router.replace(AUTH_ROUTES.resetPassword);
     }
   }, [next, params, router]);

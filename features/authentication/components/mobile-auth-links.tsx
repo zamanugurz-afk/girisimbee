@@ -24,10 +24,10 @@ export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
     return (
       <div className="mt-3 flex gap-2">
         <Button variant="ghost" size="sm" className="flex-1 rounded-lg" asChild onClick={onNavigate}>
-          <a href={`/auth/signout?next=${encodeURIComponent(AUTH_ROUTES.login)}`}>Giriş Yap</a>
+          <a href={AUTH_ROUTES.login}>Giriş Yap</a>
         </Button>
         <Button size="sm" className="flex-1 rounded-lg bg-primary dark:bg-white dark:text-primary-foreground" asChild onClick={onNavigate}>
-          <a href={`/auth/signout?next=${encodeURIComponent(AUTH_ROUTES.register)}`}>Kayıt Ol</a>
+          <a href={AUTH_ROUTES.register}>Kayıt Ol</a>
         </Button>
       </div>
     );

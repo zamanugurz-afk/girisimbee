@@ -17,7 +17,6 @@ import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
-import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 
 function nowMs(): number {
   return Date.now();
@@ -81,20 +80,15 @@ export async function middleware(request: NextRequest) {
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = AUTH_ROUTES.callback;
 
-    // Supabase often returns only ?code= (drops type=recovery). Re-stamp from
-    // reset path, leftover next=, or the cookie set by /api/auth/forgot-password.
-    const recoveryCookie = request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value;
+    // Recovery ONLY when the return path itself is the reset page (or type= already set).
+    // Never use gc_password_recovery here — it hijacked Google OAuth (?code= on /) to /sifre-sifirla.
     const nextParam = callbackUrl.searchParams.get('next');
     const fromResetPath =
       pathname === AUTH_ROUTES.resetPassword
       || pathname === AUTH_ROUTES.resetPasswordLegacy
       || nextParam === AUTH_ROUTES.resetPassword
       || nextParam === AUTH_ROUTES.resetPasswordLegacy;
-    if (
-      callbackUrl.searchParams.get('type') === 'recovery'
-      || recoveryCookie === '1'
-      || fromResetPath
-    ) {
+    if (callbackUrl.searchParams.get('type') === 'recovery' || fromResetPath) {
       callbackUrl.searchParams.set('type', 'recovery');
       callbackUrl.searchParams.set('next', AUTH_ROUTES.resetPassword);
     }

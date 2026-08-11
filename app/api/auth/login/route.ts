@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { createServerClient } from '@supabase/ssr';
 import { apiError, ok } from '@/lib/api/response';
 import { authCookieOptions } from '@/lib/supabase/cookie-options';
+import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
+import { legacyAuthCookieDomains } from '@/lib/supabase/cookie-options';
 
 const bodySchema = z.object({
   email: z.string().email('Geçerli bir e-posta girin'),
@@ -10,9 +12,8 @@ const bodySchema = z.object({
 });
 
 /**
- * Server login — writes sb-* session cookies onto the HTTP response.
- * Browser-only signInWithPassword was succeeding in-memory while cookies
- * failed to stick (domain-scoped ghosts / publishable-key edge cases).
+ * Server login — mirrors session onto Set-Cookie (host-only).
+ * Also clears stale recovery / Domain=.girisimbee.com ghosts.
  */
 export async function POST(request: Request) {
   let body: unknown;
@@ -37,24 +38,43 @@ export async function POST(request: Request) {
   }
 
   const url = new URL(request.url);
-  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+  const cookieStore = cookies();
+  const res = ok({ ok: true as const });
+
+  // Drop recovery flag so the next OAuth code exchange cannot be mislabeled.
+  res.cookies.set(PASSWORD_RECOVERY_COOKIE, '', { path: '/', maxAge: 0 });
+  for (const d of legacyAuthCookieDomains()) {
+    res.cookies.set(PASSWORD_RECOVERY_COOKIE, '', { path: '/', maxAge: 0, domain: d });
+  }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookieOptions: authCookieOptions(url.hostname),
     cookies: {
       getAll() {
-        return request.headers
-          .get('cookie')
-          ?.split(';')
-          .map((part) => {
-            const [name, ...rest] = part.trim().split('=');
-            return { name, value: rest.join('=') };
-          })
-          .filter((c) => Boolean(c.name)) ?? [];
+        return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          pendingCookies.push({ name, value, options: options ?? {} });
+          const { domain: _ignored, ...rest } = (options ?? {}) as {
+            domain?: string;
+            path?: string;
+            maxAge?: number;
+            expires?: Date;
+            sameSite?: 'lax' | 'strict' | 'none';
+            secure?: boolean;
+            httpOnly?: boolean;
+          };
+          const opts = {
+            ...rest,
+            path: typeof rest.path === 'string' ? rest.path : '/',
+            sameSite: rest.sameSite ?? ('lax' as const),
+          };
+          try {
+            cookieStore.set(name, value, opts);
+          } catch {
+            // ignore immutable cookie store
+          }
+          res.cookies.set(name, value, opts);
         });
       },
     },
@@ -73,38 +93,13 @@ export async function POST(request: Request) {
 
   if (!data.session || !data.user) {
     return apiError(
-      'Giriş doğrulandı ama oturum çerezi oluşmadı. E-posta doğrulaması gerekebilir veya tarayıcı çerezleri engelleniyor olabilir.',
+      'Giriş doğrulandı ama oturum çerezi oluşmadı. E-posta doğrulaması gerekebilir.',
       401,
     );
   }
 
-  const res = ok({
-    ok: true,
-    userId: data.user.id,
-    email: data.user.email ?? email,
-  });
-
-  // Prefer host-only cookies so Domain=.girisimbee.com ghosts cannot shadow them.
-  for (const { name, value, options } of pendingCookies) {
-    const { domain: _domain, ...rest } = options as {
-      domain?: string;
-      path?: string;
-      maxAge?: number;
-      expires?: Date;
-      sameSite?: 'lax' | 'strict' | 'none';
-      secure?: boolean;
-      httpOnly?: boolean;
-    };
-    res.cookies.set(name, value, {
-      ...rest,
-      path: typeof rest.path === 'string' ? rest.path : '/',
-      sameSite: rest.sameSite ?? 'lax',
-    });
-  }
-
   console.info('[api/auth/login] ok', {
     userId: data.user.id,
-    cookieCount: pendingCookies.length,
     host: url.hostname,
   });
 

@@ -258,14 +258,22 @@ export function AuthProvider({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      // Recovery session must reach the reset page (hash or PKCE without next=).
+      // Recovery session → reset form only when we are already in a recovery URL context.
+      // Never redirect ordinary Google/email SIGNED_IN flows to /sifre-sifirla.
       if (event === 'PASSWORD_RECOVERY') {
         await applySession(session);
-        if (
-          typeof window !== 'undefined'
-          && !window.location.pathname.startsWith(AUTH_ROUTES.resetPassword)
-        ) {
-          window.location.assign(AUTH_ROUTES.resetPassword);
+        if (typeof window !== 'undefined') {
+          const path = window.location.pathname;
+          const hash = window.location.hash;
+          const onReset = path.startsWith(AUTH_ROUTES.resetPassword);
+          const recoveryContext =
+            onReset
+            || path.startsWith(AUTH_ROUTES.callback)
+            || hash.includes('type=recovery')
+            || new URLSearchParams(window.location.search).get('type') === 'recovery';
+          if (recoveryContext && !onReset) {
+            window.location.assign(AUTH_ROUTES.resetPassword);
+          }
         }
         return;
       }

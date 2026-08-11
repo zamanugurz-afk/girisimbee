@@ -63,10 +63,6 @@ export function AuthMenu() {
   }
 
   if (!user) {
-    // Always clear auth cookies first. After password recovery the server can still
-    // have a session while this menu shows logged-out — /giris then bounced home.
-    const loginHref = `/auth/signout?next=${encodeURIComponent(AUTH_ROUTES.login)}`;
-    const registerHref = `/auth/signout?next=${encodeURIComponent(AUTH_ROUTES.register)}`;
     return (
       <>
         <Button
@@ -75,14 +71,14 @@ export function AuthMenu() {
           className="hidden rounded-lg border-border/80 bg-white text-sm font-medium text-[#334155] hover:bg-muted/60 sm:inline-flex dark:bg-card dark:text-foreground"
           asChild
         >
-          <a href={loginHref}>Giriş Yap</a>
+          <a href={AUTH_ROUTES.login}>Giriş Yap</a>
         </Button>
         <Button
           size="sm"
           className="hidden rounded-lg shadow-sm sm:inline-flex"
           asChild
         >
-          <a href={registerHref}>Kayıt Ol</a>
+          <a href={AUTH_ROUTES.register}>Kayıt Ol</a>
         </Button>
       </>
     );

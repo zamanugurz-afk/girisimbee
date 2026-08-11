@@ -23,6 +23,8 @@ import {
   AuthSocialDivider,
   GoogleOAuthButton,
 } from '@/features/authentication/components/google-oauth-button';
+import { clearPasswordRecoveryCookie } from '@/features/authentication/lib/password-recovery-cookie';
+import { createClient } from '@/lib/supabase/client';
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -30,6 +32,11 @@ export function LoginForm() {
   const [submitting, setSubmitting] = useState(false);
   const authError = searchParams.get('error');
   const authMessage = searchParams.get('message');
+
+  useEffect(() => {
+    // Never let a leftover forgot-password flag affect Google / email login.
+    clearPasswordRecoveryCookie();
+  }, []);
 
   useEffect(() => {
     if (searchParams.get('password_updated') === '1') {
@@ -63,8 +70,26 @@ export function LoginForm() {
   async function onSubmit(values: LoginSchema) {
     setSubmitting(true);
     try {
-      // Prefer server login so sb-* cookies are Set-Cookie'd on the response.
-      const res = await fetch('/api/auth/login', {
+      clearPasswordRecoveryCookie();
+
+      // 1) Browser client writes sb-* via document.cookie (primary persistence).
+      const { error } = await login(values);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      const supabase = createClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error(
+          'Giriş doğrulandı ama oturum çerezi yazılamadı. Tarayıcı çerezlerini açıp tekrar deneyin.',
+        );
+        return;
+      }
+
+      // 2) Best-effort server Set-Cookie mirror (http response path).
+      void fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,26 +97,14 @@ export function LoginForm() {
           password: values.password,
         }),
         credentials: 'same-origin',
-      });
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
-
-      if (!res.ok) {
-        // Fallback to client login if the API route is unavailable.
-        if (res.status >= 500) {
-          const { error } = await login(values);
-          if (error) {
-            toast.error(error);
-            return;
-          }
-        } else {
-          toast.error(body.error ?? 'Giriş başarısız');
-          return;
-        }
-      }
+      }).catch(() => undefined);
 
       toast.success('Giriş başarılı');
-      const next = searchParams.get('next') ?? AUTH_ROUTES.home;
-      window.location.assign(next);
+      const next =
+        searchParams.get('next')
+        || searchParams.get('redirect')
+        || AUTH_ROUTES.home;
+      window.location.assign(next.startsWith('/') ? next : AUTH_ROUTES.home);
     } finally {
       setSubmitting(false);
     }
@@ -142,10 +155,7 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Şifre</FormLabel>
-                <AuthLink href={AUTH_ROUTES.forgotPassword}>Şifremi unuttum</AuthLink>
-              </div>
+              <FormLabel>Şifre</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="current-password" {...field} />
               </FormControl>
@@ -153,6 +163,9 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+        <div className="flex justify-end">
+          <AuthLink href={AUTH_ROUTES.forgotPassword}>Şifremi unuttum</AuthLink>
+        </div>
         <Button
           type="submit"
           className="w-full rounded-lg bg-primary dark:bg-white dark:text-primary-foreground"

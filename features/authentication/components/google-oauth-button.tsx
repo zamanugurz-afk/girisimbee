@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { signInWithOAuth } from '@/features/authentication/services/supabase-auth.service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { setOAuthNextCookie } from '@/features/authentication/lib/oauth-next';
+import { clearPasswordRecoveryCookie } from '@/features/authentication/lib/password-recovery-cookie';
 
 export function GoogleOAuthButton({
   label = 'Google ile devam et',
@@ -30,6 +31,8 @@ export function GoogleOAuthButton({
           return;
         }
       }
+      // Stale recovery cookie must not survive into the Google return (?code=).
+      clearPasswordRecoveryCookie();
       setOAuthNextCookie(next);
       const supabase = createClient();
       const { data, error } = await signInWithOAuth(supabase, 'google', { next });

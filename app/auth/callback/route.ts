@@ -34,10 +34,9 @@ function isEmailVerificationFlow(params: {
 function isPasswordRecoveryFlow(params: {
   type: string | null;
   nextQuery: string | null;
-  recoveryCookie: string | undefined;
 }): boolean {
+  // Explicit signals only — never a leftover recovery cookie (breaks Google OAuth).
   if (params.type === 'recovery') return true;
-  if (params.recoveryCookie === '1') return true;
   if (
     params.nextQuery === AUTH_ROUTES.resetPassword
     || params.nextQuery === AUTH_ROUTES.resetPasswordLegacy
@@ -69,12 +68,10 @@ export async function GET(request: Request) {
   const cookieStore = cookies();
   const nextFromQuery = searchParams.get('next');
   const nextFromCookie = cookieStore.get(OAUTH_NEXT_COOKIE)?.value;
-  const recoveryCookie = cookieStore.get(PASSWORD_RECOVERY_COOKIE)?.value;
   const emailVerify = isEmailVerificationFlow({ flow, type });
   const passwordRecovery = isPasswordRecoveryFlow({
     type,
     nextQuery: nextFromQuery,
-    recoveryCookie,
   });
 
   // Recovery must NEVER inherit a leftover Google OAuth "next" cookie (often "/").
