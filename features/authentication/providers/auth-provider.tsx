@@ -312,6 +312,12 @@ export function AuthProvider({
     const supabase = getSupabase();
     const { data, error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
+    if (!data.session || !data.user) {
+      return {
+        error:
+          'Giriş doğrulandı ama oturum oluşmadı. E-posta doğrulaması gerekebilir veya çerezler engelleniyor olabilir.',
+      };
+    }
 
     // Paint auth state immediately — do not await profile refresh or recordLogin.
     if (data.user) {

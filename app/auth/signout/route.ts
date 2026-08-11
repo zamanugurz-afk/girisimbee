@@ -3,22 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 import { OAUTH_NEXT_COOKIE } from '@/features/authentication/lib/oauth-next';
-import { resolveAuthCookieDomain } from '@/lib/supabase/cookie-options';
+import { legacyAuthCookieDomains } from '@/lib/supabase/cookie-options';
 
-function clearCookie(res: NextResponse, name: string, hostname: string) {
-  const domain = resolveAuthCookieDomain(hostname);
+function clearCookie(res: NextResponse, name: string) {
   res.cookies.set(name, '', { path: '/', maxAge: 0 });
-  if (domain) {
-    res.cookies.set(name, '', { path: '/', maxAge: 0, domain });
-  }
-  // Legacy host-only cookies on sibling domains.
-  for (const d of ['.girisimbee.com', '.girisimbee.tr', '.girisimbee.com.tr']) {
+  for (const d of legacyAuthCookieDomains()) {
     res.cookies.set(name, '', { path: '/', maxAge: 0, domain: d });
   }
 }
 
 function clearAuthCookies(res: NextResponse, request: Request) {
-  const hostname = new URL(request.url).hostname;
   const names = new Set<string>([
     PASSWORD_RECOVERY_COOKIE,
     OAUTH_NEXT_COOKIE,
@@ -39,8 +33,20 @@ function clearAuthCookies(res: NextResponse, request: Request) {
     }
   }
 
+  // Also clear the canonical storage key derived from the project URL.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  try {
+    const ref = new URL(supabaseUrl).hostname.split('.')[0];
+    if (ref) {
+      names.add(`sb-${ref}-auth-token`);
+      names.add(`sb-${ref}-auth-token-code-verifier`);
+    }
+  } catch {
+    // ignore
+  }
+
   for (const name of names) {
-    clearCookie(res, name, hostname);
+    clearCookie(res, name);
   }
   return res;
 }

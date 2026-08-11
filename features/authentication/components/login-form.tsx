@@ -62,18 +62,39 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginSchema) {
     setSubmitting(true);
-    const { error } = await login(values);
-    setSubmitting(false);
+    try {
+      // Prefer server login so sb-* cookies are Set-Cookie'd on the response.
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+        credentials: 'same-origin',
+      });
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
 
-    if (error) {
-      toast.error(error);
-      return;
+      if (!res.ok) {
+        // Fallback to client login if the API route is unavailable.
+        if (res.status >= 500) {
+          const { error } = await login(values);
+          if (error) {
+            toast.error(error);
+            return;
+          }
+        } else {
+          toast.error(body.error ?? 'Giriş başarısız');
+          return;
+        }
+      }
+
+      toast.success('Giriş başarılı');
+      const next = searchParams.get('next') ?? AUTH_ROUTES.home;
+      window.location.assign(next);
+    } finally {
+      setSubmitting(false);
     }
-
-    toast.success('Giriş başarılı');
-    const next = searchParams.get('next') ?? AUTH_ROUTES.home;
-    // Hard navigation avoids waiting on soft RSC + keeps cookie session in sync.
-    window.location.assign(next);
   }
 
   return (
