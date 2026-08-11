@@ -103,13 +103,14 @@ export async function GET(request: Request) {
     if (emailVerify) {
       return verifyError('provider_error');
     }
-    const detail = oauthDesc || oauthError;
-    return loginError(
-      'oauth_provider',
+    const detail = (oauthDesc || oauthError || '').trim();
+    const friendly =
       /exchange external code|redirect_uri_mismatch/i.test(detail)
         ? 'Google Redirect URI, Supabase Callback URL ile birebir aynı olmalı (…supabase.co/auth/v1/callback).'
-        : detail,
-    );
+        : !detail || detail === 'oauth_provider' || detail === 'access_denied'
+          ? 'Google ile giriş tamamlanamadı. Lütfen tekrar deneyin veya e-posta ile giriş yapın.'
+          : detail;
+    return loginError('oauth_provider', friendly);
   }
 
   if (!code) {

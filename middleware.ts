@@ -42,10 +42,32 @@ function withProfileHeaders(
   return new NextRequest(request.url, { headers });
 }
 
-function isOAuthReturnQuery(url: URL): boolean {
-  // Supabase PKCE / OAuth returns land with ?code=… (or provider error).
-  // Site URL misconfig often drops these on `/` instead of `/auth/callback`.
-  return Boolean(url.searchParams.get('code') || url.searchParams.get('error'));
+/**
+ * Rescue OAuth/PKCE returns that land on the wrong path (e.g. /?code=…).
+ * Must NOT treat /giris?error=… as a provider return — that is our own login
+ * error page and re-routing it to /auth/callback causes ERR_TOO_MANY_REDIRECTS.
+ */
+function shouldRescueOAuthReturn(pathname: string, url: URL): boolean {
+  if (pathname === AUTH_ROUTES.callback) return false;
+
+  if (url.searchParams.get('code')) return true;
+
+  const error = url.searchParams.get('error');
+  if (!error) return false;
+
+  // App already surfaces auth errors on these routes — do not bounce back.
+  if (
+    pathname === AUTH_ROUTES.login
+    || pathname === AUTH_ROUTES.register
+    || pathname === AUTH_ROUTES.verifyError
+    || pathname === AUTH_ROUTES.verifySuccess
+    || pathname.startsWith('/auth/')
+  ) {
+    return false;
+  }
+
+  // Provider error dumped on Site URL root / other public paths → callback.
+  return true;
 }
 
 export async function middleware(request: NextRequest) {
@@ -54,7 +76,7 @@ export async function middleware(request: NextRequest) {
 
   // Rescue OAuth/PKCE returns that hit the wrong path (e.g. /?code=…).
   // Must run before maintenance rewrite so the code is exchanged, not swallowed by /bakim.
-  if (pathname !== AUTH_ROUTES.callback && isOAuthReturnQuery(request.nextUrl)) {
+  if (shouldRescueOAuthReturn(pathname, request.nextUrl)) {
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = AUTH_ROUTES.callback;
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
