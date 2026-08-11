@@ -5,6 +5,8 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { ok, apiError } from '@/lib/api/response';
 import { canonicalizeSiteOrigin } from '@/lib/site-url';
 import { sendPasswordResetEmail } from '@/lib/email/password-reset';
+import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
+import { resolveAuthCookieDomain } from '@/lib/supabase/cookie-options';
 
 function normalizeAuthEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -72,6 +74,21 @@ async function findAuthUserByEmail(email: string): Promise<AuthUserLite | null> 
 async function sendViaSupabaseAuth(email: string, redirectTo: string) {
   const supabase = createClient();
   return supabase.auth.resetPasswordForEmail(email, { redirectTo });
+}
+
+function okWithRecoveryCookie(request: Request, data: {
+  sent: true;
+  message: string;
+}) {
+  const res = ok(data);
+  const domain = resolveAuthCookieDomain(new URL(request.url).hostname);
+  res.cookies.set(PASSWORD_RECOVERY_COOKIE, '1', {
+    path: '/',
+    maxAge: 1800,
+    sameSite: 'lax',
+    ...(domain ? { domain } : {}),
+  });
+  return res;
 }
 
 /**
@@ -146,7 +163,7 @@ export async function POST(request: Request) {
         if (actionLink) {
           const mailed = await sendPasswordResetEmail({ to: email, actionLink });
           if (mailed.ok) {
-            return ok({
+            return okWithRecoveryCookie(request, {
               sent: true,
               message:
                 'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
@@ -174,7 +191,8 @@ export async function POST(request: Request) {
     return apiError('E-posta gönderilemedi. Lütfen biraz sonra tekrar deneyin.', 500);
   }
 
-  return ok({
+  // Mark recovery so /auth/callback still routes to /sifre-sifirla if ?type= is stripped.
+  return okWithRecoveryCookie(request, {
     sent: true,
     message:
       'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',

@@ -68,6 +68,17 @@ function PkceExchange() {
           return;
         }
 
+        const passwordRecovery =
+          params.get('type') === 'recovery'
+          || next === AUTH_ROUTES.resetPassword
+          || next === AUTH_ROUTES.resetPasswordLegacy;
+
+        // Recovery session is only for choosing a new password — skip legal gate.
+        if (passwordRecovery) {
+          window.location.replace(AUTH_ROUTES.resetPassword);
+          return;
+        }
+
         // New / incomplete legal acceptance → gate; otherwise destination.
         window.location.replace(
           `${OAUTH_LEGAL_ACCEPTANCE_PATH}?next=${encodeURIComponent(next)}`,

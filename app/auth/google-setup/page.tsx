@@ -131,10 +131,14 @@ http://localhost:3000/**`}</pre>
         <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           <li>Authentication → Emails → Site name = <strong>Girisimbee</strong></li>
           <li>
+            Authentication → SMTP Settings → Sender name = <strong>Girisimbee</strong> (From
+            adresi hâlâ Zoho olsa bile görünen isim Girişimco olmamalı)
+          </li>
+          <li>
             Reset password konusu:{' '}
             <code className="text-xs">Şifre sıfırlama — Girisimbee</code>
           </li>
-          <li>Gövde metninde Girişimco geçmesin; Girisimbee kullanın</li>
+          <li>Gövde metninde Girişimco geçmesin; Girisimbee kullanın (repo: supabase/templates/recovery.html)</li>
         </ul>
         <p className="text-xs">
           <a

@@ -5,6 +5,7 @@ import { ensureOAuthAccountBootstrap } from '@/features/authentication/lib/ensur
 import { OAUTH_LEGAL_ACCEPTANCE_PATH } from '@/features/authentication/lib/oauth-bootstrap';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { OAUTH_NEXT_COOKIE } from '@/features/authentication/lib/oauth-next';
+import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 import { canonicalizeSiteOrigin } from '@/lib/site-url';
 import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
@@ -21,10 +22,6 @@ function safeNextPath(value: string | undefined): string {
   }
 }
 
-/**
- * Email verification only when explicitly marked.
- * Plain OAuth returns (code, no flow) must never be treated as email verify.
- */
 function isEmailVerificationFlow(params: {
   flow: string | null;
   type: string | null;
@@ -34,16 +31,20 @@ function isEmailVerificationFlow(params: {
   return false;
 }
 
-/** Password-recovery must land on /sifre-sifirla — never divert to legal bootstrap. */
 function isPasswordRecoveryFlow(params: {
   type: string | null;
-  next: string;
+  nextQuery: string | null;
+  recoveryCookie: string | undefined;
 }): boolean {
   if (params.type === 'recovery') return true;
-  return (
-    params.next === AUTH_ROUTES.resetPassword
-    || params.next === AUTH_ROUTES.resetPasswordLegacy
-  );
+  if (params.recoveryCookie === '1') return true;
+  if (
+    params.nextQuery === AUTH_ROUTES.resetPassword
+    || params.nextQuery === AUTH_ROUTES.resetPasswordLegacy
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function isPkceVerifierMissing(message: string): boolean {
@@ -51,13 +52,12 @@ function isPkceVerifierMissing(message: string): boolean {
 }
 
 /**
- * Auth callback (OAuth PKCE + email confirmation).
+ * Auth callback (OAuth PKCE + email confirmation + password recovery).
  * Cookies must be written onto the redirect response.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const { searchParams } = url;
-  // Keep post-auth redirects on www (apex ↔ www ping-pong breaks sessions / browsers).
   const origin = canonicalizeSiteOrigin(url.origin);
   const code = searchParams.get('code');
   const flowId = searchParams.get(PKCE_FLOW_ID_PARAM);
@@ -69,14 +69,22 @@ export async function GET(request: Request) {
   const cookieStore = cookies();
   const nextFromQuery = searchParams.get('next');
   const nextFromCookie = cookieStore.get(OAUTH_NEXT_COOKIE)?.value;
+  const recoveryCookie = cookieStore.get(PASSWORD_RECOVERY_COOKIE)?.value;
   const emailVerify = isEmailVerificationFlow({ flow, type });
+  const passwordRecovery = isPasswordRecoveryFlow({
+    type,
+    nextQuery: nextFromQuery,
+    recoveryCookie,
+  });
 
-  // Email flow may pass next=/auth/verify-success; OAuth uses cookie next only.
-  const next = safeNextPath(
-    emailVerify
-      ? (nextFromQuery ?? AUTH_ROUTES.verifySuccess)
-      : (nextFromCookie ?? nextFromQuery ?? undefined),
-  );
+  // Recovery must NEVER inherit a leftover Google OAuth "next" cookie (often "/").
+  const next = passwordRecovery
+    ? AUTH_ROUTES.resetPassword
+    : safeNextPath(
+      emailVerify
+        ? (nextFromQuery ?? AUTH_ROUTES.verifySuccess)
+        : (nextFromCookie ?? nextFromQuery ?? undefined),
+    );
 
   console.info('[auth/callback]', {
     provider: 'google-or-email',
@@ -87,13 +95,16 @@ export async function GET(request: Request) {
     flow,
     type,
     emailVerify,
+    passwordRecovery,
     next,
     oauthError: oauthError ?? null,
   });
 
-  const clearOauthCookie = (res: NextResponse) => {
+  const clearAuthFlowCookies = (res: NextResponse) => {
     res.cookies.set(OAUTH_NEXT_COOKIE, '', { path: '/', maxAge: 0, domain: '.girisimbee.com' });
     res.cookies.set(OAUTH_NEXT_COOKIE, '', { path: '/', maxAge: 0 });
+    res.cookies.set(PASSWORD_RECOVERY_COOKIE, '', { path: '/', maxAge: 0, domain: '.girisimbee.com' });
+    res.cookies.set(PASSWORD_RECOVERY_COOKIE, '', { path: '/', maxAge: 0 });
     return res;
   };
 
@@ -101,28 +112,27 @@ export async function GET(request: Request) {
     const res = NextResponse.redirect(
       `${origin}${AUTH_ROUTES.login}?error=${error}&message=${encodeURIComponent(message)}`,
     );
-    return clearOauthCookie(res);
+    return clearAuthFlowCookies(res);
   };
 
   const verifyError = (reason: string) => {
     const res = NextResponse.redirect(
       `${origin}${AUTH_ROUTES.verifyError}?reason=${encodeURIComponent(reason)}`,
     );
-    return clearOauthCookie(res);
+    return clearAuthFlowCookies(res);
   };
 
-  /** Browser can still see the PKCE cookie even when the Route Handler missed it. */
   const pkceClientFallback = () => {
     const pkceUrl = new URL('/auth/pkce', origin);
     pkceUrl.searchParams.set('code', code!);
     if (flowId) pkceUrl.searchParams.set(PKCE_FLOW_ID_PARAM, flowId);
     pkceUrl.searchParams.set('next', next);
     if (emailVerify) pkceUrl.searchParams.set('flow', 'email');
-    if (type) pkceUrl.searchParams.set('type', type);
+    if (passwordRecovery) pkceUrl.searchParams.set('type', 'recovery');
+    else if (type) pkceUrl.searchParams.set('type', type);
     return NextResponse.redirect(pkceUrl);
   };
 
-  // Provider / Auth failed before code exchange.
   if (oauthError) {
     console.error('[auth/callback] provider error', { oauthError });
     if (emailVerify) {
@@ -145,13 +155,19 @@ export async function GET(request: Request) {
     }
     return loginError(
       'auth_callback_failed',
-      'Google dönüşünde yetkilendirme kodu yok. Redirect URI listesini kontrol edin.',
+      passwordRecovery
+        ? 'Şifre sıfırlama bağlantısı geçersiz veya eksik. Lütfen yeni bir bağlantı isteyin.'
+        : 'Google dönüşünde yetkilendirme kodu yok. Redirect URI listesini kontrol edin.',
     );
   }
 
-  const successPath = emailVerify ? AUTH_ROUTES.verifySuccess : next;
+  const successPath = emailVerify
+    ? AUTH_ROUTES.verifySuccess
+    : passwordRecovery
+      ? AUTH_ROUTES.resetPassword
+      : next;
   const success = NextResponse.redirect(new URL(successPath, origin));
-  clearOauthCookie(success);
+  clearAuthFlowCookies(success);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -184,7 +200,6 @@ export async function GET(request: Request) {
     },
   );
 
-  // Server must pass sb_flow_id — auth-js only reads it from window on the client.
   const { data, error } = await supabase.auth.exchangeCodeForSession(
     code,
     flowId ? { flowId } : undefined,
@@ -193,6 +208,7 @@ export async function GET(request: Request) {
     console.error('[auth/callback] exchangeCodeForSession failed', {
       message: error.message,
       hasFlowId: Boolean(flowId),
+      passwordRecovery,
     });
     if (emailVerify) {
       return verifyError('exchange_failed');
@@ -208,19 +224,22 @@ export async function GET(request: Request) {
     );
   }
 
-  const passwordRecovery = isPasswordRecoveryFlow({ type, next });
-
   const copySessionCookies = (res: NextResponse) => {
     success.cookies.getAll().forEach((c) => {
       res.cookies.set(c.name, c.value);
     });
-    return clearOauthCookie(res);
+    return clearAuthFlowCookies(res);
   };
+
+  // Password recovery: session is only for setting a new password — never legal gate / home.
+  if (passwordRecovery) {
+    const resetUrl = new URL(AUTH_ROUTES.resetPassword, origin);
+    return copySessionCookies(NextResponse.redirect(resetUrl));
+  }
 
   try {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
-    // Skip legal/OAuth bootstrap for recovery + email-verify — keep the destination path.
-    if (user && !emailVerify && !passwordRecovery) {
+    if (user && !emailVerify) {
       const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(
         user,
         supabase,
@@ -243,18 +262,15 @@ export async function GET(request: Request) {
           : 'Hesap profili oluşturulamadı';
     console.error('[auth/callback] account bootstrap failed', detail);
 
-    if (emailVerify || passwordRecovery) {
+    if (emailVerify) {
       return success;
     }
 
-    // Email already bound to another membership — show login hint (no orphan session).
     if (/e-posta zaten kayıtlı/i.test(detail)) {
       await supabase.auth.signOut().catch(() => undefined);
       return loginError('oauth_bootstrap', detail);
     }
 
-    // Session is already valid — never drop the user on /giris without cookies.
-    // Send them through the legal gate (or home) so login can complete.
     const legalUrl = new URL(OAUTH_LEGAL_ACCEPTANCE_PATH, origin);
     legalUrl.searchParams.set('next', next);
     return copySessionCookies(NextResponse.redirect(legalUrl));
