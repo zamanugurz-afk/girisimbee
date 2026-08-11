@@ -123,6 +123,35 @@ http://localhost:3000/**`}</pre>
         </p>
       </section>
 
+      <section className="mt-4 space-y-4 rounded-2xl border border-border/80 bg-card p-5">
+        <h2 className="text-sm font-semibold">5) Supabase → Auth e-posta markası</h2>
+        <p className="text-xs text-muted-foreground">
+          Eski “Girişimco / Reset your password” mailleri Supabase şablonundan gelir. Dashboard’da:
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          <li>Authentication → Emails → Site name = <strong>Girisimbee</strong></li>
+          <li>
+            Reset password konusu:{' '}
+            <code className="text-xs">Şifre sıfırlama — Girisimbee</code>
+          </li>
+          <li>Gövde metninde Girişimco geçmesin; Girisimbee kullanın</li>
+        </ul>
+        <p className="text-xs">
+          <a
+            className="text-primary underline"
+            href={
+              PROJECT_REF
+                ? `https://supabase.com/dashboard/project/${PROJECT_REF}/auth/templates`
+                : 'https://supabase.com/dashboard'
+            }
+            target="_blank"
+            rel="noreferrer"
+          >
+            Email Templates’i aç
+          </a>
+        </p>
+      </section>
+
       <p className="mt-8 text-sm">
         <Link href={AUTH_ROUTES.login} className="text-primary underline">
           Giriş sayfasına dön

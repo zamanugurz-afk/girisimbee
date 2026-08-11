@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Şifre sıfırlama — Girisimbee</title>
+  </head>
+  <body style="font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; color: #0f172a;">
+    <p>Merhaba,</p>
+    <p><strong>Girisimbee</strong> hesabınız için şifre sıfırlama istendi.</p>
+    <p>
+      <a
+        href="{{ .ConfirmationURL }}"
+        style="display: inline-block; padding: 10px 16px; background: #5b5cf6; color: #fff; border-radius: 8px; text-decoration: none;"
+      >Şifremi sıfırla</a>
+    </p>
+    <p style="color: #64748b; font-size: 13px; word-break: break-all;">{{ .ConfirmationURL }}</p>
+    <p style="color: #64748b; font-size: 13px;">Bu isteği siz yapmadıysanız bu e-postayı yok sayın.</p>
+    <p>Girisimbee</p>
+  </body>
+</html>
