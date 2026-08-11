@@ -29,8 +29,9 @@ import { getRoleLabel } from '@/features/authentication/constants/roles';
 import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
 import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
-import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { cn } from '@/lib/utils';
+
+const ILETISIM_TALEPLERI_HREF = '/iletisim-talepleri';
 
 function initials(name: string | null, email: string): string {
   if (name) {
@@ -147,7 +148,7 @@ export function AuthMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={DASHBOARD_ROUTES.iletisimTalepleri} className="cursor-pointer">
+          <a href={ILETISIM_TALEPLERI_HREF} className="cursor-pointer">
             <Inbox className="mr-2 h-4 w-4" />
             <span className="flex-1">İletişim Talepleri</span>
             {pendingContactCount > 0 ? (
@@ -155,7 +156,7 @@ export function AuthMenu() {
                 {pendingContactCount}
               </span>
             ) : null}
-          </Link>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/dashboard/bildirimlerim" className="cursor-pointer">
