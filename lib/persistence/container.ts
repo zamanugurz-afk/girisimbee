@@ -443,7 +443,6 @@ function wireContainer(repos: {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
     repos.listingPackageRepository,
-    repos.listingRepository,
   );
 
   const accountService = new AccountService(
