@@ -80,7 +80,7 @@ export class SupabaseContactRequestRepository implements ContactRequestRepositor
     return data ? mapContactRequestRow(data as ContactRequestRow) : null;
   }
 
-  async listForOwner(ownerUserId: UserId, limit = 50): Promise<ListingContactRequest[]> {
+  async listForOwner(ownerUserId: UserId, limit = 200): Promise<ListingContactRequest[]> {
     const { data, error } = await this.supabase
       .from(TABLE)
       .select('*')

@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
-import { OwnerContactRequestsPanel } from '@/features/contact-requests/components/owner-contact-requests-panel';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import {
   DetailCard,
@@ -91,10 +90,6 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
           listingTitle={listing.title}
           isOwner={isOwner}
         />
-      ) : null}
-
-      {isOwner && listing.listingId ? (
-        <OwnerContactRequestsPanel listingId={listing.listingId} />
       ) : null}
 
       <DetailCard className="!p-0 overflow-hidden">

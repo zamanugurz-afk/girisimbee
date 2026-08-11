@@ -464,4 +464,21 @@
   .gc-shadow-glow  { box-shadow: var(--shadow-glow); }
 
   .gc-header-offset { padding-top: var(--gc-header-height); }
+
+  /* Pending iletişim talebi — hesap avatarı dikkat çekici yanıp söner */
+  .gc-avatar-pending-blink {
+    animation: gc-avatar-pending-blink 1.25s ease-in-out infinite;
+  }
+}
+
+@keyframes gc-avatar-pending-blink {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.55);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 6px hsl(var(--primary) / 0);
+    opacity: 0.72;
+  }
 }

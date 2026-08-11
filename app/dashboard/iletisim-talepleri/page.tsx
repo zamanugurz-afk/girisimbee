@@ -29,7 +29,7 @@ export default async function DashboardIletisimTalepleriPage() {
     <>
       <DashboardPageHeader
         title="İletişim Talepleri"
-        description="İlanlarınıza gelen iletişim taleplerini buradan kabul veya reddedebilirsiniz. Kabul sonrası Mesajlarım üzerinden yanıtlayın."
+        description="Bugüne kadar gelen bekleyen, kabul ve red tüm talepleriniz burada. Kabul sonrası Mesajlarım üzerinden yanıtlayın."
       />
       <div className="px-5 py-8 sm:px-8">
         <Suspense fallback={<InboxFallback />}>

@@ -42,7 +42,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
   const highlightId = searchParams.get('talep');
   const [requests, setRequests] = useState<ContactRequestPublicView[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'pending' | 'all'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
   const [acceptTarget, setAcceptTarget] = useState<ContactRequestPublicView | null>(null);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -68,10 +68,18 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
     void load();
   }, [load]);
 
+  const counts = useMemo(() => {
+    const pending = requests.filter((r) => r.effectiveStatus === 'pending').length;
+    const accepted = requests.filter((r) => r.effectiveStatus === 'accepted').length;
+    const rejected = requests.filter((r) => r.effectiveStatus === 'rejected').length;
+    return { pending, accepted, rejected, all: requests.length };
+  }, [requests]);
+
   const visible = useMemo(() => {
-    const rows = filter === 'pending'
-      ? requests.filter((r) => r.effectiveStatus === 'pending')
-      : requests;
+    const rows =
+      filter === 'all'
+        ? requests
+        : requests.filter((r) => r.effectiveStatus === filter);
     if (!highlightId) return rows;
     return [...rows].sort((a, b) => Number(b.id === highlightId) - Number(a.id === highlightId));
   }, [requests, filter, highlightId]);
@@ -84,6 +92,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
       if (!res.ok) throw new Error(json.error ?? 'Reddedilemedi');
       toast.message('Talep reddedildi');
       await load();
+      window.dispatchEvent(new Event('girisimbee:contact-requests-changed'));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Reddedilemedi');
     } finally {
@@ -113,6 +122,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
       setAcceptTarget(null);
       setAcceptTerms(false);
       await load();
+      window.dispatchEvent(new Event('girisimbee:contact-requests-changed'));
       if (conversationId) {
         window.location.href = `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`;
       }
@@ -126,24 +136,25 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === 'pending' ? 'default' : 'outline'}
-          className="rounded-xl"
-          onClick={() => setFilter('pending')}
-        >
-          Bekleyenler
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === 'all' ? 'default' : 'outline'}
-          className="rounded-xl"
-          onClick={() => setFilter('all')}
-        >
-          Tümü
-        </Button>
+        {(
+          [
+            { id: 'all' as const, label: `Tümü (${counts.all})` },
+            { id: 'pending' as const, label: `Bekleyen (${counts.pending})` },
+            { id: 'accepted' as const, label: `Kabul (${counts.accepted})` },
+            { id: 'rejected' as const, label: `Red (${counts.rejected})` },
+          ] as const
+        ).map((tab) => (
+          <Button
+            key={tab.id}
+            type="button"
+            size="sm"
+            variant={filter === tab.id ? 'default' : 'outline'}
+            className="rounded-xl"
+            onClick={() => setFilter(tab.id)}
+          >
+            {tab.label}
+          </Button>
+        ))}
         <Button asChild size="sm" variant="ghost" className="rounded-xl ml-auto">
           <Link href={DASHBOARD_ROUTES.mesajlarim}>
             <MessageSquare className="mr-1.5 h-4 w-4" />
@@ -159,10 +170,17 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
       ) : visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-4 py-8 text-center dark:border-white/10">
           <p className="text-sm font-medium text-foreground">
-            {filter === 'pending' ? 'Bekleyen iletişim talebi yok.' : 'Henüz iletişim talebi yok.'}
+            {filter === 'all'
+              ? 'Henüz iletişim talebi yok.'
+              : filter === 'pending'
+                ? 'Bekleyen iletişim talebi yok.'
+                : filter === 'accepted'
+                  ? 'Kabul edilmiş talep yok.'
+                  : 'Reddedilmiş talep yok.'}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Talepler ilan sayfanızda ve burada görünür. Kabul sonrası sohbet Mesajlarım’da açılır.
+            Gelen talepler hesap menüsündeki İletişim Talepleri sayfasında listelenir. Kabul sonrası
+            sohbet Mesajlarım’da açılır.
           </p>
         </div>
       ) : (

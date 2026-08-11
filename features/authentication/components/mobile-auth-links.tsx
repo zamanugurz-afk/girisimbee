@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {
   Bell,
   Heart,
+  Inbox,
   LayoutDashboard,
   LayoutList,
   LogOut,
@@ -14,9 +15,12 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { getRoleLabel } from '@/features/authentication/constants/roles';
+import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
+import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 
 export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { user, isLoading, logout } = useAuth();
+  const pendingContactCount = usePendingContactRequestCount();
 
   if (isLoading) return null;
 
@@ -42,6 +46,14 @@ export function MobileAuthLinks({ onNavigate }: { onNavigate?: () => void }) {
     },
     { href: '/dashboard/ilanlarim', label: 'İlanlarım', icon: LayoutList },
     { href: '/dashboard/favorilerim', label: 'Favorilerim', icon: Heart },
+    {
+      href: DASHBOARD_ROUTES.iletisimTalepleri,
+      label:
+        pendingContactCount > 0
+          ? `İletişim Talepleri (${pendingContactCount})`
+          : 'İletişim Talepleri',
+      icon: Inbox,
+    },
     { href: '/dashboard/bildirimlerim', label: 'Bildirimlerim', icon: Bell },
     { href: '/ayarlar', label: 'Profili Düzenle', icon: Settings },
   ] as const;

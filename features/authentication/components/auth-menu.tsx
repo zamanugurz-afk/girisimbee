@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Bell,
   Heart,
+  Inbox,
   LayoutDashboard,
   LayoutList,
   LogOut,
@@ -27,6 +28,9 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { getRoleLabel } from '@/features/authentication/constants/roles';
 import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
+import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
+import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
+import { cn } from '@/lib/utils';
 
 function initials(name: string | null, email: string): string {
   if (name) {
@@ -43,6 +47,7 @@ function initials(name: string | null, email: string): string {
 export function AuthMenu() {
   const { user, isLoading, logout } = useAuth();
   const { menu } = useRbac();
+  const pendingContactCount = usePendingContactRequestCount();
 
   const displayRole = user ? (user.rawRole ?? user.role) : null;
   const roleLabel = user ? getRoleLabel(displayRole) : null;
@@ -89,8 +94,15 @@ export function AuthMenu() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/80"
-          aria-label="Hesap menüsü"
+          className={cn(
+            'relative flex h-8 w-8 items-center justify-center rounded-lg border border-border/80',
+            pendingContactCount > 0 && 'gc-avatar-pending-blink border-primary/50',
+          )}
+          aria-label={
+            pendingContactCount > 0
+              ? `Hesap menüsü — ${pendingContactCount} bekleyen iletişim talebi`
+              : 'Hesap menüsü'
+          }
         >
           <Avatar className="h-7 w-7">
             {user.avatarUrl ? (
@@ -100,6 +112,11 @@ export function AuthMenu() {
               {initials(user.displayName, user.email)}
             </AvatarFallback>
           </Avatar>
+          {pendingContactCount > 0 ? (
+            <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground ring-2 ring-white">
+              {pendingContactCount > 9 ? '9+' : pendingContactCount}
+            </span>
+          ) : null}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 rounded-xl">
@@ -127,6 +144,17 @@ export function AuthMenu() {
           <Link href="/dashboard/favorilerim" className="cursor-pointer">
             <Heart className="mr-2 h-4 w-4" />
             Favorilerim
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={DASHBOARD_ROUTES.iletisimTalepleri} className="cursor-pointer">
+            <Inbox className="mr-2 h-4 w-4" />
+            <span className="flex-1">İletişim Talepleri</span>
+            {pendingContactCount > 0 ? (
+              <span className="ml-2 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                {pendingContactCount}
+              </span>
+            ) : null}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
