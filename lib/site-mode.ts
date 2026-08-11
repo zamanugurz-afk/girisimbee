@@ -53,6 +53,11 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
   if (
     pathname === '/favicon.ico'
     || pathname === '/icon.svg'
+    || pathname === '/icon.png'
+    || pathname === '/icon-192.png'
+    || pathname === '/icon-512.png'
+    || pathname === '/apple-icon.png'
+    || pathname === '/apple-touch-icon.png'
     || pathname === '/robots.txt'
     || pathname === '/sitemap.xml'
     || pathname === '/manifest.webmanifest'

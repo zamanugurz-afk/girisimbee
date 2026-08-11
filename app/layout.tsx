@@ -29,6 +29,18 @@ export const metadata: Metadata = {
   description: maintenance
     ? 'Girişimbee şu anda geliştirme aşamasında. Çok yakında yeniden buradayız.'
     : 'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+  applicationName: 'Girisimbee',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico'],
+  },
+  manifest: '/manifest.webmanifest',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
     { media: '(prefers-color-scheme: dark)', color: '#12151C' },
@@ -41,6 +53,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'tr_TR',
     siteName: 'Girisimbee',
+    images: [{ url: '/brand/girisimbee-logo.png', alt: 'Girisimbee' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -48,6 +61,7 @@ export const metadata: Metadata = {
     description: maintenance
       ? 'Girişimbee şu anda geliştirme aşamasında. Çok yakında yeniden buradayız.'
       : 'Yatırımcılar, girişimciler, iş arayanlar ve işverenleri tek platformda buluşturuyoruz.',
+    images: ['/brand/girisimbee-logo.png'],
   },
   robots: maintenance
     ? { index: false, follow: false }
