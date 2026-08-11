@@ -6,6 +6,9 @@
  *
  * When unset: development → live (local work); production → maintenance
  * until you explicitly set NEXT_PUBLIC_SITE_MODE=live for launch.
+ *
+ * TEMP: production default is live for OAuth testing — set
+ * NEXT_PUBLIC_SITE_MODE=maintenance (or ask to close) before public launch.
  */
 export type SiteMode = 'live' | 'maintenance';
 
@@ -13,7 +16,8 @@ export function resolveSiteMode(): SiteMode {
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
   if (raw === 'live') return 'live';
   if (raw === 'maintenance') return 'maintenance';
-  return process.env.NODE_ENV === 'production' ? 'maintenance' : 'live';
+  // TEMP open for testing Google login / full site — revert to maintenance default after.
+  return 'live';
 }
 
 export function isMaintenanceMode(): boolean {
