@@ -10,24 +10,45 @@ import {
   createUserConsentEntity,
   mapUserConsentRow,
   toUserConsentInsert,
+  toUserConsentInsertLegacy,
   type UserConsentRow,
 } from '@/features/account/repository/supabase/user-consent.mapper';
 
 const TABLE = 'user_consents';
+
+function isMissingColumnError(error: { code?: string; message?: string }): boolean {
+  return (
+    error.code === 'PGRST204'
+    || error.code === '42703'
+    || /column|schema cache/i.test(error.message ?? '')
+  );
+}
 
 export class SupabaseUserConsentRepository implements UserConsentRepository {
   constructor(private readonly supabase: SupabaseClient) {}
 
   async create(input: CreateUserConsentInput): Promise<UserConsent> {
     const entity = createUserConsentEntity(input);
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .insert(toUserConsentInsert(entity))
       .select('*')
       .single();
+
+    // Live DB may not have legal version columns yet — retry core shape.
+    if (error && isMissingColumnError(error)) {
+      ({ data, error } = await this.supabase
+        .from(TABLE)
+        .insert(toUserConsentInsertLegacy(entity))
+        .select('*')
+        .single());
+    }
+
     if (error) {
       if (isMissingRelationError(error)) return entity;
-      throw error;
+      throw new Error(
+        typeof error.message === 'string' ? error.message : 'İzin kaydı oluşturulamadı',
+      );
     }
     return mapUserConsentRow(data as UserConsentRow);
   }

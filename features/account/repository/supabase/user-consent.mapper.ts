@@ -75,7 +75,8 @@ export function createUserConsentEntity(input: CreateUserConsentInput): UserCons
   };
 }
 
-export function toUserConsentInsert(entity: UserConsent) {
+/** Core columns present before legal-version migration. */
+export function toUserConsentInsertLegacy(entity: UserConsent) {
   return {
     id: entity.id,
     user_id: entity.userId,
@@ -89,6 +90,12 @@ export function toUserConsentInsert(entity: UserConsent) {
     ip_address: entity.ipAddress,
     user_agent: entity.userAgent,
     created_at: entity.createdAt,
+  };
+}
+
+export function toUserConsentInsert(entity: UserConsent) {
+  return {
+    ...toUserConsentInsertLegacy(entity),
     terms_version: entity.termsVersion ?? null,
     privacy_version: entity.privacyVersion ?? null,
     kvkk_ack_version: entity.kvkkAckVersion ?? null,

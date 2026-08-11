@@ -245,12 +245,17 @@ export class AccountService {
       emailWithdrawnAt: latest?.emailWithdrawnAt ?? null,
     });
 
-    await this.securityLogs.create({
-      userId: input.userId,
-      action: 'legal_acceptance',
-      ipAddress: input.ipAddress,
-      browser: input.userAgent,
-    });
+    await this.securityLogs
+      .create({
+        userId: input.userId,
+        action: 'legal_acceptance',
+        ipAddress: input.ipAddress,
+        browser: input.userAgent,
+      })
+      .catch((error) => {
+        console.error('[account] legal_acceptance security log failed', error);
+        return null;
+      });
 
     void now;
     return consent;

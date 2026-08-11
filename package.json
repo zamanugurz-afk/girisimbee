@@ -64,6 +64,7 @@
     "lucide-react": "^0.446.0",
     "next": "13.5.1",
     "next-themes": "^0.3.0",
+    "nodemailer": "^9.0.5",
     "playwright": "^1.62.0",
     "postcss": "8.4.30",
     "react": "18.2.0",
@@ -84,6 +85,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
+    "@types/nodemailer": "^8.0.1",
     "pg-mem": "^3.0.14",
     "vitest": "^4.1.10"
   }

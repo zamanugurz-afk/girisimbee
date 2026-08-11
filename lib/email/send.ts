@@ -1,7 +1,9 @@
 /**
- * Thin transactional email helper (Resend REST).
- * Without RESEND_API_KEY the send is skipped — callers must not fail the primary action.
+ * Transactional email helper — Resend first, then SMTP (SMTP_* env).
+ * Callers decide whether a skipped/failed send should fail the primary action.
  */
+
+import { sendSmtpEmail } from '@/lib/email/smtp';
 
 export type TransactionalEmailInput = {
   to: string;
@@ -12,7 +14,7 @@ export type TransactionalEmailInput = {
 };
 
 export type TransactionalEmailResult =
-  | { ok: true; id?: string }
+  | { ok: true; id?: string; via: 'resend' | 'smtp' }
   | { ok: false; skipped: true; reason: string }
   | { ok: false; skipped: false; error: string };
 
@@ -25,43 +27,52 @@ export async function sendTransactionalEmail(
     process.env.RESEND_FROM?.trim() ||
     'Girisimbee <onboarding@resend.dev>';
 
-  if (!apiKey) {
-    console.info('[email] skipped — set RESEND_API_KEY to enable', {
-      to: input.to,
-      subject: input.subject,
-    });
-    return { ok: false, skipped: true, reason: 'RESEND_API_KEY missing' };
-  }
+  if (apiKey) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from,
+          to: [input.to],
+          subject: input.subject,
+          html: input.html,
+          text: input.text,
+          reply_to: input.replyTo,
+        }),
+      });
 
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to: [input.to],
-        subject: input.subject,
-        html: input.html,
-        text: input.text,
-        reply_to: input.replyTo,
-      }),
-    });
-
-    const json = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
-    if (!res.ok) {
-      const error = json.message || `HTTP ${res.status}`;
-      console.warn('[email] send failed', error);
-      return { ok: false, skipped: false, error };
+      const json = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
+      if (res.ok) {
+        return { ok: true, id: json.id, via: 'resend' };
+      }
+      console.warn('[email] resend failed, trying SMTP', json.message || `HTTP ${res.status}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'send failed';
+      console.warn('[email] resend exception, trying SMTP', message);
     }
-    return { ok: true, id: json.id };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'send failed';
-    console.warn('[email] send exception', message);
-    return { ok: false, skipped: false, error: message };
   }
+
+  const smtp = await sendSmtpEmail({
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+  });
+  if (smtp.ok) {
+    return { ok: true, id: smtp.id, via: 'smtp' };
+  }
+  if (smtp.skipped) {
+    return {
+      ok: false,
+      skipped: true,
+      reason: apiKey ? `resend failed; ${smtp.reason}` : smtp.reason,
+    };
+  }
+  return { ok: false, skipped: false, error: smtp.error };
 }
 
 export async function sendAdInquiryConfirmation(params: {

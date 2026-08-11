@@ -1,0 +1,59 @@
+/**
+ * Optional SMTP transport (SMTP_HOST / SMTP_USER / SMTP_PASSWORD).
+ * Used when Resend is unavailable — e.g. password-recovery mail.
+ */
+
+export type SmtpSendInput = {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+};
+
+export type SmtpSendResult =
+  | { ok: true; id?: string }
+  | { ok: false; skipped: true; reason: string }
+  | { ok: false; skipped: false; error: string };
+
+export async function sendSmtpEmail(input: SmtpSendInput): Promise<SmtpSendResult> {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASSWORD?.trim();
+  const from =
+    process.env.SMTP_FROM?.trim()
+    || process.env.EMAIL_FROM?.trim()
+    || user
+    || '';
+
+  if (!host || !user || !pass || !from) {
+    return { ok: false, skipped: true, reason: 'SMTP_* env incomplete' };
+  }
+
+  const port = Number(process.env.SMTP_PORT?.trim() || '587');
+  const secure =
+    process.env.SMTP_SECURE?.trim() === 'true' || port === 465;
+
+  try {
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host,
+      port: Number.isFinite(port) ? port : 587,
+      secure,
+      auth: { user, pass },
+    });
+
+    const info = await transporter.sendMail({
+      from,
+      to: input.to,
+      subject: input.subject,
+      html: input.html,
+      text: input.text,
+    });
+
+    return { ok: true, id: typeof info.messageId === 'string' ? info.messageId : undefined };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'SMTP send failed';
+    console.warn('[email/smtp] send failed', message);
+    return { ok: false, skipped: false, error: message };
+  }
+}
