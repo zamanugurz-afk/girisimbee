@@ -18,6 +18,7 @@ import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
+import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 
 function nowMs(): number {
   return Date.now();
@@ -80,6 +81,25 @@ export async function middleware(request: NextRequest) {
     // Stay on the same host — cross-host redirects drop host-only PKCE cookies.
     const callbackUrl = request.nextUrl.clone();
     callbackUrl.pathname = AUTH_ROUTES.callback;
+
+    // Supabase often returns only ?code= (drops type=recovery). Re-stamp from
+    // reset path, leftover next=, or the cookie set by /api/auth/forgot-password.
+    const recoveryCookie = request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value;
+    const nextParam = callbackUrl.searchParams.get('next');
+    const fromResetPath =
+      pathname === AUTH_ROUTES.resetPassword
+      || pathname === AUTH_ROUTES.resetPasswordLegacy
+      || nextParam === AUTH_ROUTES.resetPassword
+      || nextParam === AUTH_ROUTES.resetPasswordLegacy;
+    if (
+      callbackUrl.searchParams.get('type') === 'recovery'
+      || recoveryCookie === '1'
+      || fromResetPath
+    ) {
+      callbackUrl.searchParams.set('type', 'recovery');
+      callbackUrl.searchParams.set('next', AUTH_ROUTES.resetPassword);
+    }
+
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 

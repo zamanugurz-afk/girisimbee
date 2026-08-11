@@ -340,7 +340,7 @@ export async function logout(supabase: SupabaseClient) {
 export async function requestPasswordReset(supabase: SupabaseClient, email: string) {
   const siteUrl = getSiteUrl();
   return supabase.auth.resetPasswordForEmail(normalizeAuthEmail(email), {
-    redirectTo: `${siteUrl}${AUTH_ROUTES.callback}?type=recovery&next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`,
+    redirectTo: `${siteUrl}${AUTH_ROUTES.resetPassword}?type=recovery`,
   });
 }
 

@@ -111,7 +111,8 @@ export async function POST(request: Request) {
 
   const email = normalizeAuthEmail(parsed.data.email);
   const origin = canonicalizeSiteOrigin(new URL(request.url).origin);
-  const redirectTo = `${origin}${AUTH_ROUTES.callback}?type=recovery&next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`;
+  // Land on the reset page itself so the path survives even if query params are stripped.
+  const redirectTo = `${origin}${AUTH_ROUTES.resetPassword}?type=recovery`;
 
   let user: AuthUserLite | null = null;
   try {
