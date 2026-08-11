@@ -2,7 +2,6 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/middleware';
 import {
   AUTH_ROUTES,
-  isGuestOnlyRoute,
   isProtectedRoute,
   loginUrl,
   matchesPrefix,
@@ -140,15 +139,10 @@ export async function middleware(request: NextRequest) {
     role = profile ? normalizeAppRole(profile.role) : 'user';
   }
 
-  // Stay on /giris|/kayit when OAuth/callback surfaced an error (do not bounce away).
-  if (
-    user
-    && isGuestOnlyRoute(pathname)
-    && !request.nextUrl.searchParams.has('error')
-  ) {
-    const next = request.nextUrl.searchParams.get('next') ?? AUTH_ROUTES.home;
-    return NextResponse.redirect(new URL(next, request.url));
-  }
+  // Do NOT bounce authenticated users off /giris|/kayit|/sifremi-unuttum.
+  // After password recovery the server session can remain while the header still
+  // shows "Giriş Yap" — silent redirects made those buttons look broken.
+  // Login/register pages handle an existing session in the UI instead.
 
   if (!user && isProtectedRoute(pathname)) {
     return NextResponse.redirect(new URL(loginUrl(pathname), request.url));

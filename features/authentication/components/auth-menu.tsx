@@ -71,14 +71,15 @@ export function AuthMenu() {
           className="hidden rounded-lg border-border/80 bg-white text-sm font-medium text-[#334155] hover:bg-muted/60 sm:inline-flex dark:bg-card dark:text-foreground"
           asChild
         >
-          <Link href={AUTH_ROUTES.login}>Giriş Yap</Link>
+          {/* Hard nav: soft client routing can no-op when a stale recovery session exists. */}
+          <a href={AUTH_ROUTES.login}>Giriş Yap</a>
         </Button>
         <Button
           size="sm"
           className="hidden rounded-lg shadow-sm sm:inline-flex"
           asChild
         >
-          <Link href={AUTH_ROUTES.register}>Kayıt Ol</Link>
+          <a href={AUTH_ROUTES.register}>Kayıt Ol</a>
         </Button>
       </>
     );
