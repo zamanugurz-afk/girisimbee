@@ -2,21 +2,20 @@
  * Public site visibility gate.
  *
  * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
- * NEXT_PUBLIC_SITE_MODE=live        → full site
+ * NEXT_PUBLIC_SITE_MODE=live        → full site (only honored outside production
+ * until you explicitly ask to go live again — testing left SITE_MODE=live on the host).
  *
- * When unset: development → live (local work); production → maintenance
- * until you explicitly set NEXT_PUBLIC_SITE_MODE=live for launch.
- *
- * TEMP: production default is live for OAuth testing — set
- * NEXT_PUBLIC_SITE_MODE=maintenance (or ask to close) before public launch.
+ * When unset: development → live (local work); production → maintenance.
  */
 export type SiteMode = 'live' | 'maintenance';
 
-/** TEMP testing gate — set false (or remove) to restore bakim. */
-const FORCE_LIVE_FOR_TESTING = true;
+/** Production stays on bakim after closed testing. Flip when you say "canlıya al". */
+const PRODUCTION_FORCE_MAINTENANCE = true;
 
 export function resolveSiteMode(): SiteMode {
-  if (FORCE_LIVE_FOR_TESTING) return 'live';
+  if (PRODUCTION_FORCE_MAINTENANCE && process.env.NODE_ENV === 'production') {
+    return 'maintenance';
+  }
 
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
   if (raw === 'live') return 'live';
