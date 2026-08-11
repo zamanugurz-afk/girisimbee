@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
 import { createServiceRoleClient } from '@/lib/supabase/service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { ok, apiError } from '@/lib/api/response';
@@ -14,20 +13,20 @@ const bodySchema = z.object({
   email: z.string().email('Geçerli bir e-posta girin'),
 });
 
-function mapRecoverError(message: string): string {
-  if (/over_email_send_rate_limit|only request this after|rate limit/i.test(message)) {
-    return 'Çok sık sıfırlama istediniz. Lütfen yaklaşık 1 dakika sonra tekrar deneyin.';
-  }
-  if (/redirect/i.test(message)) {
-    return 'Sıfırlama yönlendirme adresi yapılandırması hatalı. Destek ile iletişime geçin.';
-  }
-  return message || 'Şifre sıfırlama isteği gönderilemedi.';
-}
-
 type AuthUserLite = {
+  id?: string;
+  email?: string | null;
   app_metadata?: { providers?: string[] };
   identities?: { provider: string }[];
 };
+
+function providersOf(user: AuthUserLite): string[] {
+  return (
+    (user.app_metadata?.providers as string[] | undefined)
+    ?? user.identities?.map((i) => i.provider)
+    ?? []
+  );
+}
 
 async function findAuthUserByEmail(email: string): Promise<AuthUserLite | null> {
   const admin = createServiceRoleClient();
@@ -40,12 +39,14 @@ async function findAuthUserByEmail(email: string): Promise<AuthUserLite | null> 
 
   if (typeof adminApi.getUserByEmail === 'function') {
     const byEmail = await adminApi.getUserByEmail(email);
-    return byEmail.data?.user ?? null;
+    if (!byEmail.error) return byEmail.data?.user ?? null;
   }
 
-  for (let page = 1; page <= 5; page += 1) {
+  for (let page = 1; page <= 10; page += 1) {
     const listed = await admin.auth.admin.listUsers({ page, perPage: 200 });
-    if (listed.error) break;
+    if (listed.error) {
+      throw new Error(listed.error.message);
+    }
     const hit = listed.data?.users?.find((u) => (u.email || '').toLowerCase() === email) ?? null;
     if (hit) return hit;
     if ((listed.data?.users?.length ?? 0) < 200) break;
@@ -55,8 +56,9 @@ async function findAuthUserByEmail(email: string): Promise<AuthUserLite | null> 
 
 /**
  * POST /api/auth/forgot-password
- * Prefers admin.generateLink + Resend/SMTP so mail delivery does not depend on
- * Supabase's built-in SMTP (often misconfigured / rate-limited).
+ * Sends recovery via admin.generateLink + Resend/SMTP.
+ * Never claims "sent" unless the transactional mail actually succeeded
+ * (unknown emails still get a generic success to avoid enumeration).
  */
 export async function POST(request: Request) {
   let body: unknown;
@@ -75,66 +77,88 @@ export async function POST(request: Request) {
   const origin = canonicalizeSiteOrigin(new URL(request.url).origin);
   const redirectTo = `${origin}${AUTH_ROUTES.callback}?type=recovery&next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`;
 
-  // Provider check — Google-only users should use Google sign-in.
+  let user: AuthUserLite | null = null;
   try {
-    const user = await findAuthUserByEmail(email);
-    if (user) {
-      const providers = (user.app_metadata?.providers as string[] | undefined)
-        ?? user.identities?.map((i) => i.provider)
-        ?? [];
-      const hasEmail = providers.includes('email');
-      const hasGoogle = providers.includes('google');
-      if (hasGoogle && !hasEmail) {
-        return apiError(
-          'Bu hesap Google ile oluşturulmuş. Şifre sıfırlamak yerine “Google ile giriş yap” kullanın.',
-          400,
-          { code: 'google_only_account' },
-        );
-      }
-    }
-  } catch {
-    // Service role unavailable — continue; no user enumeration leak.
-  }
-
-  // Preferred path: generate recovery link + send via Resend/SMTP.
-  try {
-    const admin = createServiceRoleClient();
-    const { data, error } = await admin.auth.admin.generateLink({
-      type: 'recovery',
-      email,
-      options: { redirectTo },
-    });
-
-    if (!error) {
-      const actionLink =
-        data.properties?.action_link
-        || (data as { action_link?: string }).action_link
-        || null;
-
-      if (actionLink) {
-        const mailed = await sendPasswordResetEmail({ to: email, actionLink });
-        if (mailed.ok) {
-          return ok({
-            sent: true,
-            message:
-              'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
-          });
-        }
-        console.warn('[forgot-password] custom mail failed, falling back to Supabase', mailed.error);
-      }
-    } else if (!/user not found|unable to find|not found/i.test(error.message)) {
-      console.warn('[forgot-password] generateLink failed', error.message);
-    }
+    user = await findAuthUserByEmail(email);
   } catch (error) {
-    console.warn('[forgot-password] generateLink path unavailable', error);
+    const message = error instanceof Error ? error.message : 'auth lookup failed';
+    console.error('[forgot-password] user lookup failed', message);
+    return apiError(
+      /invalid api key|invalid jwt|not authorized|service.role/i.test(message)
+        ? 'Sunucu kimlik yapılandırması hatalı (Supabase service role). Destek ile iletişime geçin.'
+        : 'Şifre sıfırlama şu an kullanılamıyor. Lütfen biraz sonra tekrar deneyin.',
+      500,
+    );
   }
 
-  // Fallback: Supabase Auth mail (requires project SMTP / email provider).
-  const supabase = createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  // Unknown account — same success shape (no enumeration), but do not pretend we mailed.
+  if (!user) {
+    return ok({
+      sent: true,
+      message:
+        'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
+    });
+  }
+
+  const providers = providersOf(user);
+  const hasEmail = providers.includes('email');
+  const hasGoogle = providers.includes('google');
+  if (hasGoogle && !hasEmail) {
+    return apiError(
+      'Bu hesap Google ile oluşturulmuş. Şifre sıfırlamak yerine “Google ile giriş yap” kullanın.',
+      400,
+      { code: 'google_only_account' },
+    );
+  }
+
+  let admin;
+  try {
+    admin = createServiceRoleClient();
+  } catch (error) {
+    console.error('[forgot-password] service role missing', error);
+    return apiError(
+      'Sunucu kimlik yapılandırması eksik. Destek ile iletişime geçin.',
+      500,
+    );
+  }
+
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
+    options: { redirectTo },
+  });
 
   if (error) {
-    return apiError(mapRecoverError(error.message), 400);
+    console.error('[forgot-password] generateLink failed', error.message);
+    return apiError(
+      /invalid api key/i.test(error.message)
+        ? 'Sunucu kimlik yapılandırması hatalı (Supabase service role). Destek ile iletişime geçin.'
+        : /rate limit|only request this after/i.test(error.message)
+          ? 'Çok sık sıfırlama istediniz. Lütfen yaklaşık 1 dakika sonra tekrar deneyin.'
+          : 'Şifre sıfırlama bağlantısı oluşturulamadı. Lütfen tekrar deneyin.',
+      500,
+    );
+  }
+
+  const actionLink =
+    data.properties?.action_link
+    || (data as { action_link?: string }).action_link
+    || null;
+
+  if (!actionLink) {
+    console.error('[forgot-password] generateLink missing action_link');
+    return apiError('Şifre sıfırlama bağlantısı oluşturulamadı. Lütfen tekrar deneyin.', 500);
+  }
+
+  const mailed = await sendPasswordResetEmail({ to: email, actionLink });
+  if (!mailed.ok) {
+    console.error('[forgot-password] mail send failed', mailed.error);
+    return apiError(
+      /SMTP|RESEND|yapılandır/i.test(mailed.error)
+        ? 'E-posta gönderimi yapılandırılamadı. Destek ile iletişime geçin.'
+        : `E-posta gönderilemedi: ${mailed.error}`,
+      500,
+    );
   }
 
   return ok({
