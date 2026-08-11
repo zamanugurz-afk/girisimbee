@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -19,10 +18,10 @@ import {
 import { newPasswordSchema, type NewPasswordSchema } from '@/features/authentication/validation/auth.schema';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
+import { clearPasswordRecoveryCookie } from '@/features/authentication/lib/password-recovery-cookie';
 import { createClient } from '@/lib/supabase/client';
 
 export function ResetPasswordForm() {
-  const router = useRouter();
   const { resetPassword } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [sessionReady, setSessionReady] = useState<boolean | null>(null);
@@ -81,16 +80,19 @@ export function ResetPasswordForm() {
 
     setSubmitting(true);
     const { error } = await resetPassword(values.password);
-    setSubmitting(false);
-
     if (error) {
+      setSubmitting(false);
       toast.error(error);
       return;
     }
 
-    toast.success('Şifreniz güncellendi');
-    router.push(AUTH_ROUTES.login);
-    router.refresh();
+    // Recovery leaves an active session; /giris is guest-only and middleware
+    // bounces authenticated users home — looks like "Giriş Yap" is broken.
+    clearPasswordRecoveryCookie();
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    toast.success('Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.');
+    window.location.replace(`${AUTH_ROUTES.login}?password_updated=1`);
   }
 
   if (sessionReady === null) {

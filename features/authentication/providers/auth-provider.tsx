@@ -406,10 +406,10 @@ export function AuthProvider({
   }, [getSupabase]);
 
   const resetPassword = useCallback(async (password: string) => {
+    // Do not refresh/keep session here — caller signs out so /giris is reachable.
     const { error } = await authResetPassword(getSupabase(), password);
-    if (!error) await refresh();
     return { error: error?.message ?? null };
-  }, [getSupabase, refresh]);
+  }, [getSupabase]);
 
   const resendVerification = useCallback(async (email: string) => {
     const { error } = await resendVerificationEmail(getSupabase(), email);

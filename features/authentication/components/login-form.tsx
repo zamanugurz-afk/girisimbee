@@ -32,6 +32,9 @@ export function LoginForm() {
   const authMessage = searchParams.get('message');
 
   useEffect(() => {
+    if (searchParams.get('password_updated') === '1') {
+      toast.success('Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.');
+    }
     if (authError === 'auth_callback_failed') {
       const msg = authMessage || 'Giriş bağlantısı geçersiz veya süresi dolmuş. Tekrar deneyin.';
       if (/pkce code verifier not found/i.test(msg)) {
@@ -50,7 +53,7 @@ export function LoginForm() {
     } else if (authError === 'oauth_provider') {
       toast.error(authMessage || 'Google girişi iptal edildi veya başarısız oldu.');
     }
-  }, [authError, authMessage]);
+  }, [authError, authMessage, searchParams]);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
