@@ -12,8 +12,8 @@ import {
   Scale,
   Settings,
   Shield,
+  Sparkles,
   Store,
-  Ticket,
   Users,
 } from 'lucide-react';
 
@@ -32,13 +32,13 @@ export type AdminNavId =
   | 'ad_inquiries'
   | 'notifications'
   | 'reports'
-  | 'coupons'
+  | 'placements'
   | 'content'
   | 'seo'
   | 'consent_procedures'
   | 'kvkk_consents'
   | 'settings'
-  | 'logs';
+  | 'logs'
 
 export type AdminNavItem = {
   id: AdminNavId;
@@ -61,7 +61,9 @@ export const ADMIN_ROUTES = {
   adInquiries: `${ADMIN_PANEL_BASE}/reklam`,
   notifications: `${ADMIN_PANEL_BASE}/notifications`,
   reports: `${ADMIN_PANEL_BASE}/reports`,
-  coupons: `${ADMIN_PANEL_BASE}/coupons`,
+  placements: `${ADMIN_PANEL_BASE}/placements`,
+  /** @deprecated Coupons live under packages — kept for redirects. */
+  coupons: `${ADMIN_PANEL_BASE}/packages`,
   content: `${ADMIN_PANEL_BASE}/content`,
   seo: `${ADMIN_PANEL_BASE}/seo`,
   consentProcedures: `${ADMIN_PANEL_BASE}/izin-saklama`,
@@ -82,6 +84,12 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { id: 'users', label: 'Kullanıcılar', href: ADMIN_ROUTES.users, icon: Users },
   { id: 'listings', label: 'İlanlar', href: ADMIN_ROUTES.listings, icon: Megaphone },
   {
+    id: 'placements',
+    label: 'Vitrinler',
+    href: ADMIN_ROUTES.placements,
+    icon: Sparkles,
+  },
+  {
     id: 'verifications',
     label: 'Doğrulamalar',
     href: ADMIN_ROUTES.verifications,
@@ -100,7 +108,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
     icon: Inbox,
   },
   { id: 'payments', label: 'Ödemeler', href: ADMIN_ROUTES.payments, icon: CreditCard },
-  { id: 'packages', label: 'Paketler', href: ADMIN_ROUTES.packages, icon: Package },
+  { id: 'packages', label: 'Paketler & Kuponlar', href: ADMIN_ROUTES.packages, icon: Package },
   { id: 'market', label: 'MARKET', href: ADMIN_ROUTES.market, icon: Store },
   {
     id: 'ad_inquiries',
@@ -115,7 +123,6 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
     icon: Bell,
   },
   { id: 'reports', label: 'Raporlar', href: ADMIN_ROUTES.reports, icon: FileText, exact: true },
-  { id: 'coupons', label: 'Kuponlar', href: ADMIN_ROUTES.coupons, icon: Ticket },
   {
     id: 'consent_procedures',
     label: 'İzin Saklama',
@@ -146,7 +153,8 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.adInquiries]: 'Reklam & İşbirliği',
   [ADMIN_ROUTES.notifications]: 'Bildirimler',
   [ADMIN_ROUTES.reports]: 'Raporlar',
-  [ADMIN_ROUTES.coupons]: 'Kuponlar',
+  [ADMIN_ROUTES.packages]: 'Paketler & Kuponlar',
+  [ADMIN_ROUTES.placements]: 'Vitrinler',
   [ADMIN_ROUTES.content]: 'İçerik Yönetimi',
   [ADMIN_ROUTES.seo]: 'SEO',
   [ADMIN_ROUTES.consentProcedures]: 'İzin Saklama & Temin',
@@ -155,6 +163,7 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.logs]: 'Sistem Günlükleri',
   [`${ADMIN_PANEL_BASE}/dashboard`]: 'Yönetim Merkezi',
   [`${ADMIN_PANEL_BASE}/reports/moderation`]: 'Moderasyon',
+  [`${ADMIN_PANEL_BASE}/coupons`]: 'Kuponlar',
   [`${ADMIN_PANEL_BASE}/placements`]: 'Vitrinler',
   [`${ADMIN_PANEL_BASE}/support`]: 'Destek',
   [`${ADMIN_PANEL_BASE}/companies`]: 'Şirketler',

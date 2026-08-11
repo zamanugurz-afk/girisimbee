@@ -5,9 +5,9 @@ import { CONTACT_MAILTO } from '@/features/shared/constants/contact';
 /** Primary header navigation — marketplace browse destinations. */
 export const NAV_LINKS = [
   { label: 'Keşfet', href: '/kesfet' },
-  { label: 'Girişimciler', href: '/invest' },
+  { label: 'Yatırım Arıyorum', href: '/invest' },
   { label: 'İş İlanları', href: '/hire' },
-  { label: 'Ortaklıklar', href: '/partners' },
+  { label: 'Ortak Arıyorum', href: '/partners' },
   { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
   { label: 'Franchise İlanları', href: '/franchise/buy' },
   { label: 'MARKET', href: '/market' },
@@ -28,10 +28,10 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'İlan Ver', href: '/ilan/olustur' },
   ],
   Kategoriler: [
-    { label: 'Girişimciler', href: '/invest' },
-    { label: 'Yatırımcılar', href: '/investors' },
+    { label: 'Yatırım Arıyorum', href: '/invest' },
+    { label: 'Yatırım Yap', href: '/investors' },
     { label: 'İş İlanları', href: '/hire' },
-    { label: 'Ortaklıklar', href: '/partners' },
+    { label: 'Ortak Arıyorum', href: '/partners' },
     { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
     { label: 'Franchise İlanları', href: '/franchise/buy' },
   ],

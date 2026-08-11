@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = [
     '/',
     '/kesfet',
+    '/ilanlar',
     '/ara',
     '/invest',
     '/investors',
@@ -18,10 +19,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/reklam',
     '/ilan/olustur',
     '/yasal/gizlilik',
+    '/yasal/kvkk',
     '/yasal/kvkk-aydinlatma',
     '/yasal/acik-riza',
     '/yasal/cerez',
+    '/yasal/cerez-tercihleri',
     '/yasal/kullanici-sozlesmesi',
+    '/kvkk',
   ];
 
   const categoryPaths = getAllCategoryRoutePaths();

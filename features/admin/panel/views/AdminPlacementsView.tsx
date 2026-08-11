@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
 import { AdminTable } from '@/features/admin/panel/components/AdminTable';
 import { AdminSearch } from '@/features/admin/panel/components/AdminSearch';
 import { AdminPagination } from '@/features/admin/panel/components/AdminPagination';
+import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import {
   AdminPlacementFilters,
   type AdminPlacementStatusFilter,
@@ -19,11 +21,7 @@ import {
   ADMIN_PLACEMENTS_PAGE_SIZE,
 } from '@/features/admin/panel/constants/admin-placements.constants';
 import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
-import {
-  calcRemainingDays,
-  extendExpiresAt,
-} from '@/features/admin/panel/lib/placement-dates';
-import { MOCK_ADMIN_PLACEMENTS } from '@/features/admin/panel/mock/admin-panel.mock';
+import { calcRemainingDays } from '@/features/admin/panel/lib/placement-dates';
 import { PERMISSIONS } from '@/features/authorization/permission.constants';
 import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import type {
@@ -31,10 +29,6 @@ import type {
   AdminPlacementStatus,
   AdminTableColumn,
 } from '@/features/admin/panel/types/admin-panel.types';
-
-function clonePlacements(): AdminMockPlacement[] {
-  return MOCK_ADMIN_PLACEMENTS.map((row) => ({ ...row }));
-}
 
 function toDayStart(value: string): number | null {
   if (!value) return null;
@@ -48,17 +42,58 @@ function toDayEnd(value: string): number | null {
   return Number.isNaN(date.getTime()) ? null : date.getTime();
 }
 
+function normalizeStatus(status: string): AdminPlacementStatus {
+  if (
+    status === 'active'
+    || status === 'pending'
+    || status === 'expired'
+    || status === 'cancelled'
+  ) {
+    return status;
+  }
+  return 'pending';
+}
+
 export function AdminPlacementsView() {
   const { hasPermission } = useRbac();
   const canExtendPlacement = hasPermission(PERMISSIONS.LISTINGS_EXTEND);
   const canGrantBoost = hasPermission(PERMISSIONS.LISTINGS_GRANT_BOOST);
-  const [placements, setPlacements] = useState<AdminMockPlacement[]>(clonePlacements);
+  const [placements, setPlacements] = useState<AdminMockPlacement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<AdminPlacementTypeFilter>('all');
   const [statusFilter, setStatusFilter] = useState<AdminPlacementStatusFilter>('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/placements');
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        data?: { placements?: AdminMockPlacement[] };
+      };
+      if (!res.ok) throw new Error(json.error ?? 'Vitrinler yüklenemedi');
+      setPlacements(
+        (json.data?.placements ?? []).map((row) => ({
+          ...row,
+          status: normalizeStatus(String(row.status)),
+        })),
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Vitrinler yüklenemedi');
+      setPlacements([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -92,36 +127,29 @@ export function AdminPlacementsView() {
     pageSafe * ADMIN_PLACEMENTS_PAGE_SIZE,
   );
 
-  function patchPlacement(
-    id: string,
-    updater: (row: AdminMockPlacement) => AdminMockPlacement,
-  ) {
-    setPlacements((prev) =>
-      prev.map((row) => (row.id === id ? updater(row) : row)),
-    );
-  }
-
-  function extendDuration(id: string) {
-    if (!canExtendPlacement) return;
-    patchPlacement(id, (row) => ({
-      ...row,
-      expires_at: extendExpiresAt(row.expires_at, ADMIN_PLACEMENT_EXTEND_DAYS),
-      status: row.status === 'expired' || row.status === 'cancelled' ? 'active' : row.status,
-    }));
-  }
-
-  function setStatus(id: string, status: AdminPlacementStatus) {
-    if (status === 'active' && !canGrantBoost) return;
-    patchPlacement(id, (row) => {
-      if (status === 'active') {
-        const expires_at =
-          calcRemainingDays(row.expires_at) === 0
-            ? extendExpiresAt(row.expires_at, ADMIN_PLACEMENT_EXTEND_DAYS)
-            : row.expires_at;
-        return { ...row, status, expires_at };
-      }
-      return { ...row, status };
-    });
+  async function runAction(id: string, action: 'extend' | 'cancel' | 'reactivate') {
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/admin/placements/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(json.error ?? 'İşlem başarısız');
+      toast.success(
+        action === 'extend'
+          ? 'Süre uzatıldı'
+          : action === 'cancel'
+            ? 'Vitrin iptal edildi'
+            : 'Vitrin yeniden etkinleştirildi',
+      );
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'İşlem başarısız');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   const columns: AdminTableColumn<AdminMockPlacement>[] = [
@@ -136,7 +164,7 @@ export function AdminPlacementsView() {
       className: 'max-w-[110px] truncate font-mono text-xs',
     },
     { key: 'listing_title', header: 'listing_title', className: 'min-w-[180px]' },
-    { key: 'owner', header: 'owner' },
+    { key: 'owner', header: 'owner', className: 'max-w-[110px] truncate font-mono text-xs' },
     {
       key: 'placement_type',
       header: 'placement_type',
@@ -175,7 +203,8 @@ export function AdminPlacementsView() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => extendDuration(row.id)}
+              disabled={busyId === row.id}
+              onClick={() => void runAction(row.id, 'extend')}
             >
               Süreyi uzat (+{ADMIN_PLACEMENT_EXTEND_DAYS} gün)
             </Button>
@@ -185,13 +214,19 @@ export function AdminPlacementsView() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => setStatus(row.id, 'cancelled')}
+              disabled={busyId === row.id}
+              onClick={() => void runAction(row.id, 'cancel')}
             >
               İptal et
             </Button>
           ) : null}
           {canGrantBoost && row.status !== 'active' ? (
-            <Button type="button" size="sm" onClick={() => setStatus(row.id, 'active')}>
+            <Button
+              type="button"
+              size="sm"
+              disabled={busyId === row.id}
+              onClick={() => void runAction(row.id, 'reactivate')}
+            >
               Yeniden etkinleştir
             </Button>
           ) : null}
@@ -208,7 +243,7 @@ export function AdminPlacementsView() {
   return (
     <AdminPageShell
       title="Vitrinler"
-      description="Vitrin ve Acil Vitrin yönetimi — süre uzatma ve doping yalnızca süper yönetici."
+      description="Canlı marketplace_listing_placements — süre uzatma ve doping yalnızca süper yönetici."
       toolbar={
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -221,6 +256,9 @@ export function AdminPlacementsView() {
               placeholder="id, ilan, sahip veya paket ara…"
             />
             <p className="text-sm text-muted-foreground">{filtered.length} kayıt</p>
+            <Button type="button" size="sm" variant="outline" onClick={() => void load()}>
+              Yenile
+            </Button>
           </div>
           <AdminPlacementFilters
             placementType={typeFilter}
@@ -247,13 +285,19 @@ export function AdminPlacementsView() {
         </div>
       }
     >
-      <AdminTable
-        columns={columns}
-        rows={rows}
-        emptyTitle="Vitrin bulunamadı"
-        emptyDescription="Arama veya filtre kriterlerinize uygun vitrin kaydı yok."
-      />
-      <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+      {loading ? (
+        <AdminLoadingState />
+      ) : (
+        <>
+          <AdminTable
+            columns={columns}
+            rows={rows}
+            emptyTitle="Vitrin bulunamadı"
+            emptyDescription="Arama veya filtre kriterlerinize uygun vitrin kaydı yok."
+          />
+          <AdminPagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} />
+        </>
+      )}
     </AdminPageShell>
   );
 }

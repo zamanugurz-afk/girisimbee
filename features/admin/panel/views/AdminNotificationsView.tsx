@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
 import { AdminTable } from '@/features/admin/panel/components/AdminTable';
 import { AdminSearch } from '@/features/admin/panel/components/AdminSearch';
@@ -9,6 +12,8 @@ import { AdminPagination } from '@/features/admin/panel/components/AdminPaginati
 import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import { adminApi } from '@/features/admin/lib/admin-api-client';
 import { formatAdminDateTime } from '@/features/admin/panel/lib/format-admin-datetime';
+import { PERMISSIONS } from '@/features/authorization/permission.constants';
+import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import type { AdminTableColumn } from '@/features/admin/panel/types/admin-panel.types';
 
 const PAGE_SIZE = 10;
@@ -24,31 +29,33 @@ type LiveNotification = {
 };
 
 export function AdminNotificationsView() {
+  const { hasPermission } = useRbac();
+  const canSend = hasPermission(PERMISSIONS.NOTIFICATIONS_SEND);
   const [items, setItems] = useState<LiveNotification[]>([]);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const next = await adminApi.listRecentNotifications(100);
+      setItems(next);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Bildirimler yüklenemedi');
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const next = await adminApi.listRecentNotifications(100);
-        if (!cancelled) setItems(next);
-      } catch (error) {
-        if (!cancelled) {
-          toast.error(error instanceof Error ? error.message : 'Bildirimler yüklenemedi');
-          setItems([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void load();
+  }, [load]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,6 +72,27 @@ export function AdminNotificationsView() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount);
   const rows = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSend) return;
+    setSending(true);
+    try {
+      await adminApi.sendNotification({
+        userId: userId.trim(),
+        title: title.trim(),
+        body: body.trim(),
+      });
+      toast.success('Bildirim gönderildi');
+      setTitle('');
+      setBody('');
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Gönderilemedi');
+    } finally {
+      setSending(false);
+    }
+  }
 
   const columns: AdminTableColumn<LiveNotification>[] = [
     { key: 'title', header: 'Başlık' },
@@ -89,7 +117,7 @@ export function AdminNotificationsView() {
   return (
     <AdminPageShell
       title="Bildirimler"
-      description="Canlı kullanıcı bildirimleri — notifications tablosu. Toplu gönderim sonraki aşamada eklenecek."
+      description="Canlı kullanıcı bildirimleri — tek kullanıcıya sistem bildirimi gönderilebilir."
       toolbar={
         <AdminSearch
           value={query}
@@ -101,6 +129,40 @@ export function AdminNotificationsView() {
         />
       }
     >
+      {canSend ? (
+        <form
+          onSubmit={(e) => void handleSend(e)}
+          className="mb-6 space-y-3 rounded-2xl border border-border/80 p-4 dark:border-white/10"
+        >
+          <h2 className="text-sm font-semibold">Bildirim gönder</h2>
+          <Input
+            placeholder="userId (UUID)"
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            className="font-mono text-xs"
+            required
+          />
+          <Input
+            placeholder="Başlık"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            maxLength={160}
+          />
+          <Textarea
+            placeholder="Mesaj"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            required
+            rows={3}
+            maxLength={2000}
+          />
+          <Button type="submit" size="sm" disabled={sending}>
+            {sending ? 'Gönderiliyor…' : 'Gönder'}
+          </Button>
+        </form>
+      ) : null}
+
       {loading ? (
         <AdminLoadingState />
       ) : (

@@ -253,6 +253,13 @@ export const adminApi = {
     }> }>(`/api/admin/notifications${buildQuery({ limit })}`).then((r) => r.notifications);
   },
 
+  sendNotification(input: { userId: string; title: string; body: string }): Promise<{ notification: unknown }> {
+    return adminFetch('/api/admin/notifications', {
+      method: 'POST',
+      body: JSON.stringify({ ...input, type: 'system' }),
+    });
+  },
+
   listPayments(
     filter: { userId?: string; status?: string; purpose?: string },
     pagination?: PaginationParams,
