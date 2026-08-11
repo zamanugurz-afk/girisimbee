@@ -26,11 +26,9 @@ export default function MaintenancePage() {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 py-16 text-center sm:px-8">
-        <div className="mb-10 inline-flex animate-[gc-maint-fade_0.7s_ease-out_both] items-center gap-3">
-          <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-black/[0.04]">
-            <BrandMarkSlot size={44} priority />
-          </span>
-          <BrandWordmark className="font-display text-2xl font-semibold tracking-tight text-[#0F172A] sm:text-3xl" />
+        <div className="mb-10 inline-flex animate-[gc-maint-fade_0.7s_ease-out_both] items-center gap-0">
+          <BrandMarkSlot size={52} priority className="-mr-1" />
+          <BrandWordmark className="font-display text-3xl font-bold tracking-tight sm:text-4xl" />
         </div>
 
         <p className="mb-4 inline-flex animate-[gc-maint-fade_0.8s_ease-out_0.08s_both] items-center rounded-full bg-[#F59E0B]/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#B45309]">
@@ -42,9 +40,10 @@ export default function MaintenancePage() {
         </h1>
 
         <p className="mt-5 max-w-xl animate-[gc-maint-fade_0.9s_ease-out_0.18s_both] text-base leading-relaxed text-[#334155] sm:text-lg">
-          Yeni logomuz ve yenilenen yapıyla Girisimbee&apos;yi en kısa sürede yeniden açıyoruz.
-          Yatırım, ortaklık, iş, franchise ve dijital çözümleri tek platformda buluşturan deneyim
-          için son hazırlıklarımız devam ediyor.
+          Yeni <span className="font-semibold text-[#0F172A]">Girisimbee</span> logomuz ve
+          yenilenen yapıyla en kısa sürede yeniden açıyoruz. Yatırım, ortaklık, iş, franchise ve
+          dijital çözümleri tek platformda buluşturan deneyim için son hazırlıklarımız devam
+          ediyor.
         </p>
 
         <div className="mt-10 h-px w-24 animate-[gc-maint-fade_1s_ease-out_0.25s_both] bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />

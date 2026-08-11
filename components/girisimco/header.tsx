@@ -46,11 +46,10 @@ export function Header() {
           : 'border-border/40 bg-white/90 shadow-sm backdrop-blur-xl dark:bg-background/90',
       )}
     >
-      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-3 px-5 lg:gap-5 lg:px-8">
-        <SiteLogo />
+      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-4 px-5 lg:px-8">
+        <SiteLogo className="mr-1" />
 
-        {/* Full nav from 2xl — long TR labels collide with logo at xl */}
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden 2xl:flex">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden xl:flex">
           {NAV_LINKS.map((link) => {
             const isActive = isNavLinkActive(pathname, link.href);
             return (
@@ -58,7 +57,7 @@ export function Header() {
                 key={link.href + link.label}
                 href={link.href}
                 className={cn(
-                  'relative shrink-0 whitespace-nowrap px-2 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-2.5 lg:text-gc-sm',
+                  'relative whitespace-nowrap px-2.5 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-3 lg:text-gc-sm',
                   isActive
                     ? 'text-primary'
                     : 'text-[#475569] hover:text-[#0F172A] dark:text-muted-foreground dark:hover:text-foreground',
@@ -67,7 +66,7 @@ export function Header() {
                 {link.label}
                 {isActive ? (
                   <span
-                    className="absolute inset-x-2 -bottom-0.5 h-0.5 rounded-full bg-primary lg:inset-x-2.5"
+                    className="absolute inset-x-2.5 -bottom-0.5 h-0.5 rounded-full bg-primary lg:inset-x-3"
                     aria-hidden
                   />
                 ) : null}
@@ -99,7 +98,7 @@ export function Header() {
 
           <button
             type="button"
-            className={cn(iconBtnClass, '2xl:hidden')}
+            className={cn(iconBtnClass, 'xl:hidden')}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
           >
@@ -109,7 +108,7 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl 2xl:hidden animate-fade-in-down dark:bg-background/95">
+        <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down dark:bg-background/95">
           <Link
             href="/ara"
             onClick={() => setMobileOpen(false)}
