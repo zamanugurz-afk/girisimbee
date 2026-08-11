@@ -12,12 +12,16 @@
  */
 export type SiteMode = 'live' | 'maintenance';
 
+/** TEMP testing gate — set false (or remove) to restore bakim. */
+const FORCE_LIVE_FOR_TESTING = true;
+
 export function resolveSiteMode(): SiteMode {
+  if (FORCE_LIVE_FOR_TESTING) return 'live';
+
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
   if (raw === 'live') return 'live';
   if (raw === 'maintenance') return 'maintenance';
-  // TEMP open for testing Google login / full site — revert to maintenance default after.
-  return 'live';
+  return process.env.NODE_ENV === 'production' ? 'maintenance' : 'live';
 }
 
 export function isMaintenanceMode(): boolean {
