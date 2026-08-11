@@ -4,15 +4,16 @@
  * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
  * NEXT_PUBLIC_SITE_MODE=live        → full site
  *
- * When unset: defaults to live (product is open). Set maintenance explicitly to gate.
+ * When unset: development → live (local work); production → maintenance
+ * until you explicitly set NEXT_PUBLIC_SITE_MODE=live for launch.
  */
 export type SiteMode = 'live' | 'maintenance';
 
 export function resolveSiteMode(): SiteMode {
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
-  if (raw === 'maintenance') return 'maintenance';
   if (raw === 'live') return 'live';
-  return 'live';
+  if (raw === 'maintenance') return 'maintenance';
+  return process.env.NODE_ENV === 'production' ? 'maintenance' : 'live';
 }
 
 export function isMaintenanceMode(): boolean {

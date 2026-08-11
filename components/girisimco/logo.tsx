@@ -22,8 +22,11 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
     <Link
       href="/"
       prefetch
-      className={cn('group inline-flex shrink-0 items-center gap-0', className)}
-      aria-label="irisimbee"
+      className={cn(
+        'group relative z-20 inline-flex shrink-0 items-center gap-1.5 pr-1',
+        className,
+      )}
+      aria-label="Girisimbee"
       onClick={(event) => {
         if (pathname === '/') {
           event.preventDefault();
@@ -34,13 +37,9 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
         router.push('/');
       }}
     >
-      <BrandMarkSlot
-        size={isMark ? 34 : 38}
-        priority
-        className={cn(!isMark && '-mr-1')}
-      />
+      <BrandMarkSlot size={isMark ? 34 : 38} priority />
       {!isMark && (
-        <span className="font-display text-[1.2rem] font-bold leading-none tracking-tight sm:text-[1.35rem]">
+        <span className="font-display text-[1.15rem] font-bold leading-none tracking-tight sm:text-[1.3rem]">
           <span className="text-[#0F172A] dark:text-foreground">irisim</span>
           <span className="text-[#F59E0B]">bee</span>
         </span>
