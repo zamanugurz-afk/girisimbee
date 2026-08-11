@@ -89,7 +89,9 @@ export function AdminContactRequestsView() {
       <header>
         <h1 className="text-xl font-semibold tracking-tight">İletişim Talepleri</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Contact-request kayıtları, disclosure grant’leri ve admin kapatma aksiyonları.
+          Denetim görünümü: talepler ve kullanıcıların verdiği izin/disclosure kayıtları.
+          Admin burada izin <strong>vermez</strong> — kabul yalnızca ilan sahibi tarafından yapılır;
+          bu ekran ispat ve güvenlik (kötüye kullanımda kapatma) içindir.
         </p>
       </header>
 

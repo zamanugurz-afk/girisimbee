@@ -27,4 +27,4 @@ export const ADMIN_USER_STATUS_LABELS: Record<AdminUserStatus, string> = {
   deleted: 'Yasaklı',
 };
 
-export const ADMIN_USERS_PAGE_SIZE = 5;
+export const ADMIN_USERS_PAGE_SIZE = 25;

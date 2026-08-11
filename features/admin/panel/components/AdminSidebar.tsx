@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { cn } from '@/lib/utils';
 import {
@@ -30,10 +31,12 @@ export function AdminSidebar({
           href={ADMIN_PANEL_BASE}
           onClick={onNavigate}
           className="block"
+          aria-label="Girisimbee Yönetim paneli"
         >
-          <p className="font-display text-lg font-semibold tracking-tight text-foreground">
+          <span className="inline-flex items-center gap-0 font-display text-lg font-semibold tracking-tight text-foreground">
+            <BrandMarkSlot size={34} className="-mr-1" priority />
             <BrandWordmark />
-          </p>
+          </span>
           <p className="mt-1 text-xs text-muted-foreground">Yönetim paneli</p>
         </Link>
       </div>
