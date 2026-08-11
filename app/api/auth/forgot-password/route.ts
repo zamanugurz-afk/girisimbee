@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 import { createServiceRoleClient } from '@/lib/supabase/service';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { ok, apiError } from '@/lib/api/response';
@@ -151,12 +152,26 @@ export async function POST(request: Request) {
   }
 
   const mailed = await sendPasswordResetEmail({ to: email, actionLink });
-  if (!mailed.ok) {
-    console.error('[forgot-password] mail send failed', mailed.error);
+  if (mailed.ok) {
+    return ok({
+      sent: true,
+      message:
+        'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
+    });
+  }
+
+  // Zoho/SMTP down — fall back to Supabase Auth mail (dashboard Reset password template).
+  console.warn('[forgot-password] custom SMTP failed, using Supabase Auth mail', mailed.error);
+  const supabase = createClient();
+  const { error: supabaseMailError } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+  if (supabaseMailError) {
+    console.error('[forgot-password] supabase mail failed', supabaseMailError.message);
     return apiError(
-      /SMTP|RESEND|yapılandır/i.test(mailed.error)
-        ? 'E-posta gönderimi yapılandırılamadı. Destek ile iletişime geçin.'
-        : `E-posta gönderilemedi: ${mailed.error}`,
+      /rate limit|only request this after/i.test(supabaseMailError.message)
+        ? 'Çok sık sıfırlama istediniz. Lütfen yaklaşık 1 dakika sonra tekrar deneyin.'
+        : 'E-posta gönderilemedi. Lütfen biraz sonra tekrar deneyin.',
       500,
     );
   }
