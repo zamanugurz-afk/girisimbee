@@ -83,6 +83,14 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
+  // Live mode: never leave testers stuck on the maintenance URL/cache.
+  if (!isMaintenanceMode() && pathname === '/bakim') {
+    const home = request.nextUrl.clone();
+    home.pathname = '/';
+    home.search = '';
+    return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
+  }
+
   // Public gate — rewrite to maintenance page without destroying routes.
   if (isMaintenanceMode() && !isMaintenanceBypassPath(pathname)) {
     const url = request.nextUrl.clone();
