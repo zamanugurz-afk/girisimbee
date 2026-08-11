@@ -14,6 +14,11 @@ export interface IMessagingService {
   getMessages(conversationId: ConversationId, userId: UserId, pagination?: PaginationParams): Promise<PaginatedResult<Message>>;
   markAsRead(conversationId: ConversationId, userId: UserId): Promise<void>;
   archive(conversationId: ConversationId, userId: UserId): Promise<Conversation>;
-  getOrCreateForListing(listingId: ListingId, ownerId: UserId, applicantId: UserId): Promise<Conversation>;
+  getOrCreateForListing(
+    listingId: ListingId,
+    ownerId: UserId,
+    applicantId: UserId,
+    options?: { bypassContactRequestGate?: boolean },
+  ): Promise<Conversation>;
   getUnreadCount(userId: UserId): Promise<number>;
 }

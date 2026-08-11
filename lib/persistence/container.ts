@@ -66,6 +66,10 @@ import { CompanyService } from '@/features/companies/services/company.service';
 import { FavoriteService } from '@/features/favorites/services/favorite.service';
 import { NotificationService } from '@/features/notifications/services/notification.service';
 import { MessagingService } from '@/features/messaging/services/messaging.service';
+import type { ContactRequestRepository } from '@/features/contact-requests/repositories/contact-request.repository';
+import { MockContactRequestRepository } from '@/features/contact-requests/repository/mock/contact-request.repository.mock';
+import { SupabaseContactRequestRepository } from '@/features/contact-requests/repository/supabase/contact-request.repository.supabase';
+import { ContactRequestService } from '@/features/contact-requests/services/contact-request.service';
 import { AdminService } from '@/features/admin/services/admin.service';
 import { AdminDashboardService } from '@/features/admin/services/admin-dashboard.service';
 import { AdminProfilesService } from '@/features/admin/services/admin-profiles.service';
@@ -218,6 +222,8 @@ export interface PersistenceContainer {
   listingViewService: ListingViewService;
   listingPlacementRepository: ListingPlacementRepository;
   listingPlacementService: ListingPlacementService;
+  contactRequestRepository: ContactRequestRepository;
+  contactRequestService: ContactRequestService;
   ecosystem: EcosystemServices;
 }
 
@@ -260,6 +266,7 @@ export function createMemoryContainer(): PersistenceContainer {
   const inboxNotificationRepository = new MockInboxNotificationRepository();
   const listingViewRepository = new MockListingViewRepository();
   const listingPlacementRepository = new MockListingPlacementRepository();
+  const contactRequestRepository = new MockContactRequestRepository();
 
   return wireContainer({
     listingRepository,
@@ -276,6 +283,7 @@ export function createMemoryContainer(): PersistenceContainer {
     inboxNotificationRepository,
     listingViewRepository,
     listingPlacementRepository,
+    contactRequestRepository,
     notificationRepository,
     conversationRepository,
     messageRepository,
@@ -335,15 +343,16 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
   const investorPackageRepository = new SupabaseInvestorPackageRepository(supabase);
   const founderPackageRepository = new SupabaseFounderPackageRepository(supabase);
   const kvkkConsentRepository = new SupabaseKvkkConsentRepository(supabase);
-  /** Account profile stack stays in-memory — avoids profiles/consents/settings DB dependency. */
-  const accountProfileRepository = new MockAccountProfileRepository();
-  const userConsentRepository = new MockUserConsentRepository();
+  /** Account phone/name live in `profiles` — required for publish gate + dashboard. */
+  const accountProfileRepository = new SupabaseAccountProfileRepository(supabase);
+  const userConsentRepository = new SupabaseUserConsentRepository(supabase);
   const userSettingsRepository = new MockUserSettingsRepository();
   const userSecurityLogRepository = new MockUserSecurityLogRepository();
   const favoriteListingRepository = new SupabaseFavoriteListingRepository(supabase);
   const inboxNotificationRepository = new SupabaseInboxNotificationRepository(supabase);
   const listingViewRepository = new SupabaseListingViewRepository(supabase);
   const listingPlacementRepository = new SupabaseListingPlacementRepository(supabase);
+  const contactRequestRepository = new SupabaseContactRequestRepository(supabase);
 
   return wireContainer({
     listingRepository,
@@ -361,6 +370,7 @@ export function createSupabaseContainer(supabase: SupabaseClient): PersistenceCo
     inboxNotificationRepository,
     listingViewRepository,
     listingPlacementRepository,
+    contactRequestRepository,
     notificationRepository,
     conversationRepository,
     messageRepository,
@@ -404,6 +414,7 @@ function wireContainer(repos: {
   inboxNotificationRepository: InboxNotificationRepository;
   listingViewRepository: ListingViewRepository;
   listingPlacementRepository: ListingPlacementRepository;
+  contactRequestRepository: ContactRequestRepository;
   notificationRepository: NotificationRepository;
   conversationRepository: ConversationRepository;
   messageRepository: MessageRepository;
@@ -432,6 +443,7 @@ function wireContainer(repos: {
   const listingPackageService = new ListingPackageService(
     repos.marketplaceSettingsRepository,
     repos.listingPackageRepository,
+    repos.listingRepository,
   );
 
   const accountService = new AccountService(
@@ -547,6 +559,23 @@ function wireContainer(repos: {
     settings: new AdminSettingsService(repos.marketplaceSettingsRepository),
   };
 
+  const notificationService = new NotificationService(repos.notificationRepository);
+  const messagingService = new MessagingService(
+    repos.conversationRepository,
+    repos.messageRepository,
+    repos.listingRepository,
+    repos.profileRepository,
+    repos.companyRepository,
+    repos.contactRequestRepository,
+  );
+  const contactRequestService = new ContactRequestService(
+    repos.contactRequestRepository,
+    repos.listingRepository,
+    messagingService,
+    repos.profileRepository,
+    notificationService,
+  );
+
   return {
     listingRepository: repos.listingRepository,
     tagRepository: repos.tagRepository,
@@ -585,14 +614,10 @@ function wireContainer(repos: {
     listingViewService,
     listingPlacementRepository: repos.listingPlacementRepository,
     listingPlacementService,
-    notificationService: new NotificationService(repos.notificationRepository),
-    messagingService: new MessagingService(
-      repos.conversationRepository,
-      repos.messageRepository,
-      repos.listingRepository,
-      repos.profileRepository,
-      repos.companyRepository,
-    ),
+    contactRequestRepository: repos.contactRequestRepository,
+    contactRequestService,
+    notificationService,
+    messagingService,
     adminService,
     adminServices,
     listingPackageService,
@@ -708,6 +733,10 @@ export function getListingPlacementService(): ListingPlacementService {
 
 export function getMessagingService(): IMessagingService {
   return getClientContainer().messagingService;
+}
+
+export function getContactRequestService(): ContactRequestService {
+  return getClientContainer().contactRequestService;
 }
 
 export function getAdminService(): IAdminService {

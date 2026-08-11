@@ -10,6 +10,7 @@ import type { MessageRepository } from '@/features/messaging/repositories/messag
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { ProfileRepository } from '@/features/profiles/repositories/profile.repository';
 import type { CompanyRepository } from '@/features/companies/repositories/company.repository';
+import type { ContactRequestRepository } from '@/features/contact-requests/repositories/contact-request.repository';
 import type {
   ConversationListItem,
   ConversationParticipantView,
@@ -24,6 +25,7 @@ export class MessagingService implements IMessagingService {
     private listingRepo: ListingRepository,
     private profileRepo: ProfileRepository,
     private companyRepo: CompanyRepository,
+    private contactRequestRepo?: ContactRequestRepository,
   ) {}
 
   private assertParticipant(conversation: Conversation, userId: UserId): void {
@@ -179,6 +181,7 @@ export class MessagingService implements IMessagingService {
     listingId: ListingId,
     ownerId: UserId,
     applicantId: UserId,
+    options?: { bypassContactRequestGate?: boolean },
   ): Promise<Conversation> {
     if (ownerId === applicantId) {
       throw new ForbiddenError('Cannot message yourself');
@@ -194,6 +197,19 @@ export class MessagingService implements IMessagingService {
     const participantIds = [ownerId, applicantId];
     const existing = await this.conversationRepo.findByListingAndParticipants(listingId, participantIds);
     if (existing) return existing;
+
+    if (!options?.bypassContactRequestGate && this.contactRequestRepo) {
+      const accepted = await this.contactRequestRepo.findAcceptedForListingParticipants(
+        listingId,
+        ownerId,
+        applicantId,
+      );
+      if (!accepted) {
+        throw new ForbiddenError(
+          'Mesajlaşma yalnızca kabul edilmiş iletişim talebinden sonra başlatılabilir.',
+        );
+      }
+    }
 
     return this.startConversation({
       participantIds,

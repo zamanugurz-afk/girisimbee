@@ -40,6 +40,7 @@ export type UserConsentId = Brand<string, 'UserConsentId'>;
 export type UserSettingsId = Brand<string, 'UserSettingsId'>;
 export type UserSecurityLogId = Brand<string, 'UserSecurityLogId'>;
 export type ListingViewId = Brand<string, 'ListingViewId'>;
+export type ContactRequestId = Brand<string, 'ContactRequestId'>;
 
 export function id<T extends string>(value: string): Brand<string, T> {
   return value as Brand<string, T>;
@@ -81,4 +82,5 @@ export const ids = {
   userSettings: (v: string) => v as UserSettingsId,
   userSecurityLog: (v: string) => v as UserSecurityLogId,
   listingView: (v: string) => v as ListingViewId,
+  contactRequest: (v: string) => v as ContactRequestId,
 };
