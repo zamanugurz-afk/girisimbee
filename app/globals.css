@@ -89,42 +89,66 @@
 
   .dark {
     --background: 228 22% 7%;
-    --foreground: 220 18% 96%;
-    --card: 228 20% 10%;
-    --card-foreground: 220 18% 96%;
-    --popover: 228 20% 11%;
-    --popover-foreground: 220 18% 96%;
+    --foreground: 220 20% 98%;
+    --card: 228 20% 11%;
+    --card-foreground: 220 20% 98%;
+    --popover: 228 20% 12%;
+    --popover-foreground: 220 20% 98%;
 
-    --primary: 234 78% 68%;
+    --primary: 234 78% 72%;
     --primary-foreground: 228 22% 8%;
     --primary-soft: 234 40% 16%;
 
-    --secondary: 228 16% 15%;
-    --secondary-foreground: 220 16% 92%;
-    --muted: 228 16% 14%;
-    --muted-foreground: 220 10% 58%;
-    --accent: 234 30% 16%;
-    --accent-foreground: 234 70% 82%;
+    --secondary: 228 16% 16%;
+    --secondary-foreground: 220 18% 94%;
+    --muted: 228 16% 15%;
+    /* Higher contrast secondary text for night mode readability */
+    --muted-foreground: 220 14% 74%;
+    --accent: 234 30% 18%;
+    --accent-foreground: 234 72% 86%;
 
-    --success: 158 55% 48%;
+    --success: 158 55% 52%;
     --success-soft: 158 35% 14%;
-    --warning: 36 90% 55%;
+    --warning: 36 90% 58%;
     --warning-soft: 34 50% 14%;
-    --danger: 0 65% 58%;
+    --danger: 0 65% 62%;
     --danger-soft: 0 45% 14%;
-    --destructive: 0 65% 58%;
+    --destructive: 0 65% 62%;
 
-    --border: 228 14% 18%;
-    --input: 228 14% 20%;
-    --ring: 234 78% 68%;
+    --border: 228 14% 28%;
+    --input: 228 14% 24%;
+    --ring: 234 78% 72%;
 
     --sidebar: 228 22% 5%;
-    --sidebar-foreground: 220 16% 90%;
-    --sidebar-border: 228 14% 14%;
-    --sidebar-accent: 228 16% 12%;
+    --sidebar-foreground: 220 18% 94%;
+    --sidebar-border: 228 14% 22%;
+    --sidebar-accent: 228 16% 13%;
 
     --shadow-color: 0 0% 0%;
     --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 8px 32px -8px hsl(var(--primary) / 0.25);
+  }
+
+  /*
+   * Night-mode only: lift hardcoded light-theme navy/slate text so copy stays readable.
+   * Light mode class tokens are untouched.
+   */
+  .dark .text-\[\#0F172A\] {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-\[\#334155\] {
+    color: hsl(var(--foreground) / 0.88);
+  }
+  .dark .text-\[\#475569\] {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-\[\#64748B\] {
+    color: hsl(var(--muted-foreground) / 0.92);
+  }
+  .dark .hover\:text-\[\#0F172A\]:hover {
+    color: hsl(var(--foreground));
+  }
+  .dark .hover\:text-\[\#334155\]:hover {
+    color: hsl(var(--foreground));
   }
 }
 

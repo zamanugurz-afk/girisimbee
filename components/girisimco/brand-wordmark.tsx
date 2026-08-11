@@ -8,7 +8,7 @@ type BrandWordmarkProps = HTMLAttributes<HTMLSpanElement>;
 export function BrandWordmark({ className, ...props }: BrandWordmarkProps) {
   return (
     <span className={cn('inline-flex items-baseline', className)} aria-label={BRAND_NAME} {...props}>
-      <span className="text-[#0F172A] dark:text-foreground">irisim</span>
+      <span className="text-[#0F172A] dark:text-slate-100">irisim</span>
       <span className="text-[#F59E0B]">bee</span>
     </span>
   );

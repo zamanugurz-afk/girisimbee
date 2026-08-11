@@ -49,7 +49,10 @@ export function Header() {
       <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-4 px-5 lg:px-8">
         <SiteLogo className="mr-1" />
 
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden xl:flex">
+        <nav
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden xl:flex"
+          aria-label="Ana menü"
+        >
           {NAV_LINKS.map((link) => {
             const isActive = isNavLinkActive(pathname, link.href);
             return (
@@ -60,7 +63,7 @@ export function Header() {
                   'relative whitespace-nowrap px-2.5 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-3 lg:text-gc-sm',
                   isActive
                     ? 'text-primary'
-                    : 'text-[#475569] hover:text-[#0F172A] dark:text-muted-foreground dark:hover:text-foreground',
+                    : 'text-[#475569] hover:text-[#0F172A] dark:text-slate-300 dark:hover:text-white',
                 )}
               >
                 {link.label}
@@ -75,7 +78,8 @@ export function Header() {
           })}
         </nav>
 
-        <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+        {/* Opaque right cluster so clipped nav never peeks under icons */}
+        <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 bg-white pl-3 dark:bg-[hsl(var(--background))] sm:gap-2">
           <Link href="/ara" className={iconBtnClass} aria-label="Ara">
             <Search className="h-4 w-4" />
           </Link>
