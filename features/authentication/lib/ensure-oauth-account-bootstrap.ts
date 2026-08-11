@@ -39,8 +39,8 @@ export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<{
   const existing = await accountService.getProfile(userId);
   if (existing) {
     void accountService.recordLogin(userId).catch(() => undefined);
-    const needsLegalAcceptance = await accountService.needsLegalAcceptance(userId);
-    return { created: false, needsLegalAcceptance };
+    const consent = await accountService.getLatestConsent(userId);
+    return { created: false, needsLegalAcceptance: !consent?.termsAccepted };
   }
 
   const meta = user.user_metadata ?? {};

@@ -178,18 +178,9 @@ export async function GET(request: Request) {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
     // Skip legal/OAuth bootstrap for recovery + email-verify — keep the destination path.
     if (user && !emailVerify && !passwordRecovery) {
-      const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(user);
-      if (created || needsLegalAcceptance) {
-        const legalUrl = new URL('/auth/yasal-onay', origin);
-        legalUrl.searchParams.set('next', next);
-        const legalRedirect = NextResponse.redirect(legalUrl);
-        clearOauthCookie(legalRedirect);
-        // Copy session cookies from success onto legal redirect
-        success.cookies.getAll().forEach((c) => {
-          legalRedirect.cookies.set(c.name, c.value);
-        });
-        return legalRedirect;
-      }
+      // Bootstrap profile/settings. Legal gate (/auth/yasal-onay) is enabled only
+      // when that route + /api/account/legal-acceptance are both deployed.
+      await ensureOAuthAccountBootstrap(user);
     }
   } catch (bootstrapError) {
     console.error('[auth/callback] account bootstrap failed');
