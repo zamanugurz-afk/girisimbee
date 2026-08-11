@@ -261,6 +261,8 @@ export class ContactRequestService {
     requestId: ContactRequestId;
     actorUserId: UserId;
     acceptTerms: boolean;
+    /** Privileged messaging (e.g. service-role) after ownership checks — avoids conversation RLS races. */
+    messaging?: IMessagingService;
   }): Promise<{ view: ContactRequestPublicView; entity: ListingContactRequest }> {
     if (!input.acceptTerms) {
       throw new ValidationError('İletişim ve Mesajlaşma Kullanım Koşulları kabul edilmelidir.', {
@@ -287,7 +289,8 @@ export class ContactRequestService {
       throw new ForbiddenError('Bu işlem için yetkiniz bulunmuyor.');
     }
 
-    const conversation = await this.messaging.getOrCreateForListing(
+    const messaging = input.messaging ?? this.messaging;
+    const conversation = await messaging.getOrCreateForListing(
       row.listingId,
       row.ownerUserId,
       row.requesterUserId,

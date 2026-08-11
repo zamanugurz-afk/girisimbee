@@ -181,24 +181,63 @@ export class SupabaseConversationRepository implements ConversationRepository {
       participantIds,
     });
 
-    const { data, error } = await this.supabase
-      .from(TABLE)
-      .insert({
-        id: conversation.id,
-        listing_id: conversation.listingId,
-        company_id: conversation.companyId,
-        status: conversation.status,
-      })
-      .select('*')
-      .single();
+    const {
+      data: { user },
+    } = await this.supabase.auth.getUser();
+    const selfId = user?.id ?? null;
+
+    // User JWT: prefer SECURITY DEFINER RPC (avoids INSERT…RETURNING / participant RLS races).
+    // Service-role clients have no auth.uid() — skip RPC and insert directly (bypasses RLS).
+    if (selfId) {
+      const { data: rpcData, error: rpcError } = await this.supabase
+        .rpc('marketplace_create_listing_conversation', {
+          p_listing_id: conversation.listingId,
+          p_participant_ids: participantIds,
+          p_company_id: conversation.companyId,
+          p_conversation_id: conversation.id,
+        })
+        .maybeSingle();
+
+      if (!rpcError && rpcData) {
+        return this.mapConversationRow(rpcData as ConversationRow);
+      }
+
+      const rpcMissing =
+        rpcError?.code === 'PGRST202'
+        || rpcError?.code === '42883'
+        || /marketplace_create_listing_conversation/i.test(rpcError?.message ?? '');
+      if (rpcError && !rpcMissing) throw rpcError;
+    }
+
+    // Insert without RETURNING/select first — SELECT RLS requires participant membership.
+    const { error } = await this.supabase.from(TABLE).insert({
+      id: conversation.id,
+      listing_id: conversation.listingId,
+      company_id: conversation.companyId,
+      status: conversation.status,
+    });
     if (error) throw error;
 
-    const participantRows = participantIds.map((userId) => ({
-      conversation_id: conversation.id,
-      user_id: userId,
-    }));
-    const { error: pErr } = await this.supabase.from(PARTICIPANTS).insert(participantRows);
-    if (pErr) throw pErr;
+    const ordered = [...participantIds].sort((a, b) => {
+      if (String(a) === selfId) return -1;
+      if (String(b) === selfId) return 1;
+      return 0;
+    });
+
+    for (const userId of ordered) {
+      const { error: pErr } = await this.supabase.from(PARTICIPANTS).insert({
+        conversation_id: conversation.id,
+        user_id: userId,
+      });
+      if (pErr) throw pErr;
+    }
+
+    const { data, error: selectError } = await this.supabase
+      .from(TABLE)
+      .select('*')
+      .eq('id', conversation.id)
+      .single();
+    if (selectError) throw selectError;
 
     return this.mapConversationRow(data as ConversationRow);
   }

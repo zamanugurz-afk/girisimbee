@@ -3,6 +3,8 @@ import { withAuth, parseJsonBody } from '@/lib/api/with-auth';
 import { ok } from '@/lib/api/response';
 import { ids } from '@/lib/domain/ids';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service';
+import { getServerContainer } from '@/lib/persistence/container';
 import { recordLegalConsentEvent } from '@/features/legal/lib/legal-consent-events';
 import { LEGAL_DOCUMENT_VERSIONS } from '@/features/legal/config/legal-documents.config';
 
@@ -16,10 +18,15 @@ export const POST = withAuth(async (ctx, request, { params }) => {
   const body = await parseJsonBody(request);
   const parsed = bodySchema.parse(body);
 
+  // Create conversation with service-role after ownership checks in the service.
+  // User-scoped INSERT into marketplace_conversations hits RLS (42501) in production.
+  const privilegedMessaging = getServerContainer(createServiceRoleClient()).messagingService;
+
   const { view } = await ctx.container.contactRequestService.accept({
     requestId,
     actorUserId: ctx.userId,
     acceptTerms: parsed.acceptTerms,
+    messaging: privilegedMessaging,
   });
 
   const supabase = createClient();
