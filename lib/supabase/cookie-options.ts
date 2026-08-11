@@ -9,6 +9,12 @@ export function resolveAuthCookieDomain(hostname: string | null | undefined): st
   if (host === 'girisimbee.com' || host.endsWith('.girisimbee.com')) {
     return '.girisimbee.com';
   }
+  if (host === 'girisimbee.tr' || host.endsWith('.girisimbee.tr')) {
+    return '.girisimbee.tr';
+  }
+  if (host === 'girisimbee.com.tr' || host.endsWith('.girisimbee.com.tr')) {
+    return '.girisimbee.com.tr';
+  }
   return undefined;
 }
 

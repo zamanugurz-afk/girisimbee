@@ -145,14 +145,15 @@ export function MarketplaceNotificationsBell({ className }: { className?: string
   }
 
   if (!isAuthenticated) {
+    const nextLogin = `${AUTH_ROUTES.login}?redirect=${encodeURIComponent('/dashboard/bildirimlerim')}`;
     return (
-      <Link
-        href={`${AUTH_ROUTES.login}?redirect=/dashboard/bildirimlerim`}
+      <a
+        href={`/auth/signout?next=${encodeURIComponent(nextLogin)}`}
         className={cn(iconBtnClass, className)}
         aria-label="Bildirimler — giriş yapın"
       >
         <Bell className="h-4 w-4" />
-      </Link>
+      </a>
     );
   }
 

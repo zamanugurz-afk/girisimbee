@@ -50,7 +50,7 @@ export function Header() {
         <SiteLogo className="mr-1" />
 
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden xl:flex"
+          className="pointer-events-none hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden xl:flex [&_a]:pointer-events-auto"
           aria-label="Ana menü"
         >
           {NAV_LINKS.map((link) => {
