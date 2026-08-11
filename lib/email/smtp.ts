@@ -35,10 +35,13 @@ export async function sendSmtpEmail(input: SmtpSendInput): Promise<SmtpSendResul
 
   try {
     const nodemailer = await import('nodemailer');
+    const resolvedPort = Number.isFinite(port) ? port : 587;
     const transporter = nodemailer.createTransport({
       host,
-      port: Number.isFinite(port) ? port : 587,
+      port: resolvedPort,
       secure,
+      // Zoho / Gmail / most providers expect STARTTLS on 587.
+      requireTLS: !secure && resolvedPort === 587,
       auth: { user, pass },
     });
 
