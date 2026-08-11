@@ -116,25 +116,30 @@ export class AccountService {
   async bootstrapFromSignup(input: BootstrapAccountInput) {
     const existing = await this.profiles.findByUserId(input.userId);
     if (existing) {
-      // Never overwrite an elevated role (admin / super_admin) with signup default.
-      if (existing.role === 'super_admin' || existing.role === 'admin') {
-        return {
-          profile: existing,
-          consent: null,
-          settings: await this.settings.upsert({
-            userId: input.userId,
-            emailNotifications: input.consents?.consentEmail ?? true,
-            smsNotifications: input.consents?.consentSms ?? false,
-          }),
-          securityLog: await this.securityLogs.create({
-            userId: input.userId,
-            action: 'register',
-            device: input.device,
-            browser: input.browser,
-            ipAddress: input.ipAddress,
-          }),
-        };
-      }
+      // Profile already present (auth trigger or prior signup) — secondary writes are best-effort.
+      const settings = await this.settings
+        .upsert({
+          userId: input.userId,
+          emailNotifications: input.consents?.consentEmail ?? true,
+          smsNotifications: input.consents?.consentSms ?? false,
+        })
+        .catch((error) => {
+          console.error('[account] bootstrap settings upsert failed', error);
+          return null;
+        });
+      const securityLog = await this.securityLogs
+        .create({
+          userId: input.userId,
+          action: 'register',
+          device: input.device,
+          browser: input.browser,
+          ipAddress: input.ipAddress,
+        })
+        .catch((error) => {
+          console.error('[account] bootstrap security log failed', error);
+          return null;
+        });
+      return { profile: existing, consent: null, settings, securityLog };
     }
 
     // Never honor client/OAuth metadata role (admin/super_admin escalation).
@@ -151,47 +156,63 @@ export class AccountService {
       status: 'active',
     });
 
+    // Consents / settings / logs must not abort OAuth after the auth session exists.
     let consent = null;
     if (input.consents) {
-      consent = await this.consents.create({
-        userId: input.userId,
-        termsAccepted: input.consents.acceptTerms,
-        privacyAccepted: input.consents.acceptPrivacy,
-        kvkkAccepted: input.consents.acceptKvkk,
-        cookiesAccepted: input.consents.acceptCookies,
-        marketingAccepted: input.consents.consentCommercial,
-        smsAccepted: input.consents.consentSms,
-        emailAccepted: input.consents.consentEmail,
-        ipAddress: input.ipAddress,
-        userAgent: input.userAgent,
-        termsVersion: input.consents.acceptTerms
-          ? LEGAL_DOCUMENT_VERSIONS.user_terms.version
-          : null,
-        privacyVersion: input.consents.acceptPrivacy
-          ? LEGAL_DOCUMENT_VERSIONS.privacy.version
-          : null,
-        kvkkAckVersion: input.consents.acceptKvkk
-          ? LEGAL_DOCUMENT_VERSIONS.kvkk_clarification.version
-          : null,
-        cookiesVersion: input.consents.acceptCookies
-          ? LEGAL_DOCUMENT_VERSIONS.cookie_policy.version
-          : null,
-      });
+      consent = await this.consents
+        .create({
+          userId: input.userId,
+          termsAccepted: input.consents.acceptTerms,
+          privacyAccepted: input.consents.acceptPrivacy,
+          kvkkAccepted: input.consents.acceptKvkk,
+          cookiesAccepted: input.consents.acceptCookies,
+          marketingAccepted: input.consents.consentCommercial,
+          smsAccepted: input.consents.consentSms,
+          emailAccepted: input.consents.consentEmail,
+          ipAddress: input.ipAddress,
+          userAgent: input.userAgent,
+          termsVersion: input.consents.acceptTerms
+            ? LEGAL_DOCUMENT_VERSIONS.user_terms.version
+            : null,
+          privacyVersion: input.consents.acceptPrivacy
+            ? LEGAL_DOCUMENT_VERSIONS.privacy.version
+            : null,
+          kvkkAckVersion: input.consents.acceptKvkk
+            ? LEGAL_DOCUMENT_VERSIONS.kvkk_clarification.version
+            : null,
+          cookiesVersion: input.consents.acceptCookies
+            ? LEGAL_DOCUMENT_VERSIONS.cookie_policy.version
+            : null,
+        })
+        .catch((error) => {
+          console.error('[account] bootstrap consent create failed', error);
+          return null;
+        });
     }
 
-    const settings = await this.settings.upsert({
-      userId: input.userId,
-      emailNotifications: input.consents?.consentEmail ?? true,
-      smsNotifications: input.consents?.consentSms ?? false,
-    });
+    const settings = await this.settings
+      .upsert({
+        userId: input.userId,
+        emailNotifications: input.consents?.consentEmail ?? true,
+        smsNotifications: input.consents?.consentSms ?? false,
+      })
+      .catch((error) => {
+        console.error('[account] bootstrap settings upsert failed', error);
+        return null;
+      });
 
-    const securityLog = await this.securityLogs.create({
-      userId: input.userId,
-      action: 'register',
-      device: input.device,
-      browser: input.browser,
-      ipAddress: input.ipAddress,
-    });
+    const securityLog = await this.securityLogs
+      .create({
+        userId: input.userId,
+        action: 'register',
+        device: input.device,
+        browser: input.browser,
+        ipAddress: input.ipAddress,
+      })
+      .catch((error) => {
+        console.error('[account] bootstrap security log failed', error);
+        return null;
+      });
 
     return { profile, consent, settings, securityLog };
   }

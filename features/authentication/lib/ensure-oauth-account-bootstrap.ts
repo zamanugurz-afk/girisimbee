@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { getServerContainer } from '@/lib/persistence/container';
 import { ids } from '@/lib/domain/ids';
@@ -25,22 +26,34 @@ function isOAuthUser(user: AuthUserLike): boolean {
  * Does NOT auto-accept legal documents — caller should redirect users who
  * have not accepted terms to /auth/yasal-onay.
  * Idempotent — skips bootstrap when account profile already exists.
+ *
+ * Prefer passing the callback-route Supabase client (session already exchanged).
  */
-export async function ensureOAuthAccountBootstrap(user: AuthUserLike): Promise<{
+export async function ensureOAuthAccountBootstrap(
+  user: AuthUserLike,
+  supabaseClient?: SupabaseClient,
+): Promise<{
   created: boolean;
   needsLegalAcceptance: boolean;
 }> {
   if (!isOAuthUser(user)) return { created: false, needsLegalAcceptance: false };
 
-  const supabase = createClient();
+  const supabase = supabaseClient ?? createClient();
   const accountService = getServerContainer(supabase).accountService;
   const userId = ids.user(user.id);
 
   const existing = await accountService.getProfile(userId);
   if (existing) {
     void accountService.recordLogin(userId).catch(() => undefined);
-    const consent = await accountService.getLatestConsent(userId);
-    return { created: false, needsLegalAcceptance: !consent?.termsAccepted };
+    let needsLegalAcceptance = true;
+    try {
+      const consent = await accountService.getLatestConsent(userId);
+      needsLegalAcceptance = !consent?.termsAccepted;
+    } catch (error) {
+      console.error('[oauth-bootstrap] getLatestConsent failed', error);
+      needsLegalAcceptance = true;
+    }
+    return { created: false, needsLegalAcceptance };
   }
 
   const meta = user.user_metadata ?? {};

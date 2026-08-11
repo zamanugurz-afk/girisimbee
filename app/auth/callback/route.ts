@@ -179,32 +179,54 @@ export async function GET(request: Request) {
 
   const passwordRecovery = isPasswordRecoveryFlow({ type, next });
 
+  const copySessionCookies = (res: NextResponse) => {
+    success.cookies.getAll().forEach((c) => {
+      res.cookies.set(c.name, c.value);
+    });
+    return clearOauthCookie(res);
+  };
+
   try {
     const user = data.user ?? (await supabase.auth.getUser()).data.user;
     // Skip legal/OAuth bootstrap for recovery + email-verify — keep the destination path.
     if (user && !emailVerify && !passwordRecovery) {
-      const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(user);
+      const { created, needsLegalAcceptance } = await ensureOAuthAccountBootstrap(
+        user,
+        supabase,
+      );
       if (created || needsLegalAcceptance) {
         const legalUrl = new URL(OAUTH_LEGAL_ACCEPTANCE_PATH, origin);
         legalUrl.searchParams.set('next', next);
-        const legalRedirect = NextResponse.redirect(legalUrl);
-        clearOauthCookie(legalRedirect);
-        success.cookies.getAll().forEach((c) => {
-          legalRedirect.cookies.set(c.name, c.value);
-        });
-        return legalRedirect;
+        return copySessionCookies(NextResponse.redirect(legalUrl));
       }
     }
   } catch (bootstrapError) {
-    console.error('[auth/callback] account bootstrap failed');
+    const detail =
+      bootstrapError instanceof Error
+        ? bootstrapError.message
+        : typeof bootstrapError === 'object'
+          && bootstrapError
+          && 'message' in bootstrapError
+          && typeof (bootstrapError as { message: unknown }).message === 'string'
+          ? (bootstrapError as { message: string }).message
+          : 'Hesap profili oluşturulamadı';
+    console.error('[auth/callback] account bootstrap failed', detail);
+
     if (emailVerify || passwordRecovery) {
       return success;
     }
-    const message =
-      bootstrapError instanceof Error
-        ? bootstrapError.message
-        : 'Hesap profili oluşturulamadı';
-    return loginError('oauth_bootstrap', message);
+
+    // Email already bound to another membership — show login hint (no orphan session).
+    if (/e-posta zaten kayıtlı/i.test(detail)) {
+      await supabase.auth.signOut().catch(() => undefined);
+      return loginError('oauth_bootstrap', detail);
+    }
+
+    // Session is already valid — never drop the user on /giris without cookies.
+    // Send them through the legal gate (or home) so login can complete.
+    const legalUrl = new URL(OAUTH_LEGAL_ACCEPTANCE_PATH, origin);
+    legalUrl.searchParams.set('next', next);
+    return copySessionCookies(NextResponse.redirect(legalUrl));
   }
 
   return success;

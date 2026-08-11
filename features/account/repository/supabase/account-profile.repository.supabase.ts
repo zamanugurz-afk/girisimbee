@@ -99,10 +99,15 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
       .select('*')
       .single();
 
-    // Live DB may still be legacy schema — retry with compatible columns.
+    // Live DB may still be legacy schema / role check (member vs user) — retry.
     if (
       error
-      && (error.code === 'PGRST204' || error.code === '42703' || /column|schema cache/i.test(error.message))
+      && (
+        error.code === 'PGRST204'
+        || error.code === '42703'
+        || error.code === '23514'
+        || /column|schema cache|check constraint|profiles_role/i.test(error.message)
+      )
     ) {
       const legacy = toLegacyAccountProfileInsert(input);
       ({ data, error } = await this.supabase
@@ -117,12 +122,21 @@ export class SupabaseAccountProfileRepository implements AccountProfileRepositor
       if (error.code === '23505') {
         const raced = await this.findByUserId(input.userId);
         if (raced) return raced;
+        if (/email/i.test(error.message) || /profiles_email/i.test(error.message)) {
+          throw new Error(
+            'Bu e-posta zaten kayıtlı. Şifrenizle giriş yapın veya “Şifremi unuttum” kullanın.',
+          );
+        }
+        // Unique on id but row not visible (RLS) — treat as success-shaped recovery.
+        const byId = await this.selectOne('id', input.userId);
+        if (byId) return byId;
       }
       // Missing table only — never fake a profile when columns mismatch.
       if (error.code === '42P01' || error.code === 'PGRST205') {
         throw new Error('Profil tablosu bulunamadı. Migration uygulanmalı.');
       }
-      throw error;
+      const detail = typeof error.message === 'string' ? error.message : 'Profil oluşturulamadı';
+      throw new Error(detail);
     }
     return mapAccountProfileRow(normalizeLegacyRow(data as Record<string, unknown>));
   }
