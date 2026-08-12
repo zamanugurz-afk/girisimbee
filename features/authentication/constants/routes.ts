@@ -62,6 +62,7 @@ export const GUEST_ONLY_ROUTES = [
 export const PROTECTED_ROUTE_PREFIXES = [
   '/dashboard',
   '/hesabim',
+  '/mesajlarim',
   '/mesajlar',
   '/ilan/olustur',
   '/ilanlarim',

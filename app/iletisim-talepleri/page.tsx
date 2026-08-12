@@ -48,7 +48,7 @@ export default function IletisimTalepleriPage() {
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Bugüne kadar gelen bekleyen, kabul ve red tüm talepleriniz burada. Kabul sonrası{' '}
-          <Link href="/dashboard/mesajlarim" className="text-primary underline-offset-2 hover:underline">
+          <Link href="/mesajlarim" className="text-primary underline-offset-2 hover:underline">
             Mesajlarım
           </Link>{' '}
           üzerinden yanıtlayın.

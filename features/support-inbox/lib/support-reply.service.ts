@@ -146,7 +146,8 @@ async function ensureParticipants(
   conversationId: ConversationId,
   userIds: UserId[],
 ): Promise<void> {
-  for (const userId of userIds) {
+  const unique = [...new Set(userIds)];
+  for (const userId of unique) {
     const { error } = await supabase.from('marketplace_conversation_participants').upsert(
       {
         conversation_id: conversationId,
@@ -197,10 +198,6 @@ export async function sendSupportInquiryReply(params: {
     throw new Error(
       'Bu talep bir hesapla eşleşmiyor. Kullanıcı giriş yapmadan form doldurmuş; Mesajlarım’a iletilemez. E-posta ile yanıtlayın.',
     );
-  }
-
-  if (recipientUserId === adminUserId) {
-    throw new Error('Kendi talebinize mesaj gönderilemez.');
   }
 
   const conversationId = await ensureSupportConversation({

@@ -10,7 +10,7 @@ export const DASHBOARD_ROUTES = {
   dogrulamalar: `${DASHBOARD_BASE}/dogrulamalar`,
   ilanlarim: `${DASHBOARD_BASE}/ilanlarim`,
   favorilerim: `${DASHBOARD_BASE}/favorilerim`,
-  mesajlarim: `${DASHBOARD_BASE}/mesajlarim`,
+  mesajlarim: '/mesajlarim',
   iletisimTalepleri: `${DASHBOARD_BASE}/iletisim-talepleri`,
   takipcilerim: `${DASHBOARD_BASE}/takipcilerim`,
   bildirimlerim: `${DASHBOARD_BASE}/bildirimlerim`,

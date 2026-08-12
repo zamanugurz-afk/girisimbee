@@ -34,6 +34,14 @@ export class MessagingService implements IMessagingService {
     }
   }
 
+  private otherParticipantId(conversation: Conversation, userId: UserId): UserId {
+    return (
+      conversation.participantIds.find((id) => id !== userId)
+      ?? conversation.participantIds[0]
+      ?? userId
+    );
+  }
+
   private async resolveParticipantView(
     userId: UserId,
     context?: { companyId?: import('@/lib/domain/ids').CompanyId | null },
@@ -96,7 +104,7 @@ export class MessagingService implements IMessagingService {
     const result = await this.listConversations(userId, pagination);
     const data = await Promise.all(
       result.data.map(async (conversation) => {
-        const otherUserId = conversation.participantIds.find((id) => id !== userId)!;
+        const otherUserId = this.otherParticipantId(conversation, userId);
         const [otherParticipant, listing, company, unreadCount] = await Promise.all([
           this.resolveParticipantView(otherUserId, { companyId: conversation.companyId }),
           conversation.listingId ? this.listingRepo.findById(conversation.listingId) : Promise.resolve(null),
@@ -132,7 +140,7 @@ export class MessagingService implements IMessagingService {
   async getThreadMeta(conversationId: ConversationId, userId: UserId): Promise<ConversationThreadMeta | null> {
     const conversation = await this.getConversation(conversationId, userId);
     if (!conversation) return null;
-    const otherUserId = conversation.participantIds.find((id) => id !== userId)!;
+    const otherUserId = this.otherParticipantId(conversation, userId);
     const otherParticipant = await this.resolveParticipantView(otherUserId, {
       companyId: conversation.companyId,
     });
