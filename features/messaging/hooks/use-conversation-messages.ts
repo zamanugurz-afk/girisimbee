@@ -9,6 +9,7 @@ import type { Message } from '@/features/messaging/types/message.types';
 import type { ConversationThreadMeta } from '@/features/messaging/types/messaging-view.types';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { ids } from '@/lib/domain/ids';
+import { notifyUnreadMessagesChanged } from '@/features/messaging/hooks/use-unread-message-count';
 
 const PAGE_SIZE = 30;
 
@@ -58,7 +59,10 @@ export function useConversationMessages(conversationId: ConversationId) {
         });
         setHasMore(result.hasMore);
         setPage(pageNum);
-        if (pageNum === 1) await service.markAsRead(conversationId, userId);
+        if (pageNum === 1) {
+          await service.markAsRead(conversationId, userId);
+          notifyUnreadMessagesChanged();
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Mesajlar yüklenemedi');
       } finally {
@@ -89,6 +93,7 @@ export function useConversationMessages(conversationId: ConversationId) {
         seenIds.current.add(message.id);
         setMessages((prev) => [...prev, message]);
         await service.markAsRead(conversationId, userId);
+        notifyUnreadMessagesChanged();
         return message;
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Mesaj gönderilemedi');
@@ -143,7 +148,12 @@ export function useConversationMessages(conversationId: ConversationId) {
           };
           appendIncoming(message);
           if (message.senderId !== userId) {
-            service.markAsRead(conversationId, userId).catch(() => undefined);
+            service
+              .markAsRead(conversationId, userId)
+              .then(() => notifyUnreadMessagesChanged())
+              .catch(() => undefined);
+          } else {
+            notifyUnreadMessagesChanged();
           }
         },
       )

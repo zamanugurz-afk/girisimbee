@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LayoutList,
   LogOut,
+  MessageSquare,
   Settings,
   Shield,
   User,
@@ -29,6 +30,8 @@ import { getRoleLabel } from '@/features/authentication/constants/roles';
 import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
 import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
+import { useUnreadMessageCount } from '@/features/messaging/hooks/use-unread-message-count';
+import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { cn } from '@/lib/utils';
 
 const ILETISIM_TALEPLERI_HREF = '/iletisim-talepleri';
@@ -49,6 +52,8 @@ export function AuthMenu() {
   const { user, isLoading, logout } = useAuth();
   const { menu } = useRbac();
   const pendingContactCount = usePendingContactRequestCount();
+  const { count: unreadMessages } = useUnreadMessageCount();
+  const alertCount = pendingContactCount + unreadMessages;
 
   const displayRole = user ? (user.rawRole ?? user.role) : null;
   const roleLabel = user ? getRoleLabel(displayRole) : null;
@@ -97,11 +102,13 @@ export function AuthMenu() {
           type="button"
           className={cn(
             'relative flex h-8 w-8 items-center justify-center rounded-lg border border-border/80',
-            pendingContactCount > 0 && 'gc-avatar-pending-blink border-primary/50',
+            alertCount > 0 && 'gc-avatar-pending-blink border-primary/50',
           )}
           aria-label={
-            pendingContactCount > 0
-              ? `Hesap menüsü — ${pendingContactCount} bekleyen iletişim talebi`
+            alertCount > 0
+              ? `Hesap menüsü — ${unreadMessages > 0 ? `${unreadMessages} okunmamış mesaj` : ''}${
+                  unreadMessages > 0 && pendingContactCount > 0 ? ', ' : ''
+                }${pendingContactCount > 0 ? `${pendingContactCount} bekleyen iletişim talebi` : ''}`
               : 'Hesap menüsü'
           }
         >
@@ -113,9 +120,9 @@ export function AuthMenu() {
               {initials(user.displayName, user.email)}
             </AvatarFallback>
           </Avatar>
-          {pendingContactCount > 0 ? (
+          {alertCount > 0 ? (
             <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground ring-2 ring-white">
-              {pendingContactCount > 9 ? '9+' : pendingContactCount}
+              {alertCount > 9 ? '9+' : alertCount}
             </span>
           ) : null}
         </button>
@@ -145,6 +152,17 @@ export function AuthMenu() {
           <Link href="/dashboard/favorilerim" className="cursor-pointer">
             <Heart className="mr-2 h-4 w-4" />
             Favorilerim
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={DASHBOARD_ROUTES.mesajlarim} className="cursor-pointer">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            <span className="flex-1">Mesajlarım</span>
+            {unreadMessages > 0 ? (
+              <span className="ml-2 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white motion-safe:animate-alert-blink">
+                {unreadMessages > 99 ? '99+' : unreadMessages}
+              </span>
+            ) : null}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
