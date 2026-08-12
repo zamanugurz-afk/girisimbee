@@ -79,6 +79,7 @@ export function MarketplaceBrowseView({
           filters={filters}
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
+          showJobFlowFilters={categorySlug === 'ise-al'}
           className="mb-5"
         />
 
@@ -108,6 +109,7 @@ export function MarketplaceBrowseView({
             filters.query ||
             filters.categorySlug ||
             filters.city ||
+            filters.jobFlow ||
             filters.isFeatured ||
             filters.isUrgent ||
             filters.publishedAfter

@@ -11,8 +11,11 @@ import type { Listing, ListingFilter } from '@/features/listings/types/listing.e
 import type { ListingId, UserId, CompanyId } from '@/lib/domain/ids';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import {
+  expandListingTypeIdFilter,
+  MARKETPLACE_LISTING_TYPE_IDS,
   resolveListingTypeIdsFromBrowseSlug,
 } from '@/features/listings/config/marketplace-category-map';
+import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import {
   BROWSE_FAVORITE_SORT_CAP,
   BROWSE_PAGE_SIZE,
@@ -276,6 +279,24 @@ export class ListingBrowseService {
       filter.listingTypeId = params.listingTypeId;
     } else if (params.categoryId) {
       filter.categoryId = params.categoryId;
+    }
+
+    if (params.jobFlow === 'hire') {
+      filter.listingTypeId = undefined;
+      filter.listingTypeIds = [
+        ...new Set([
+          ...expandListingTypeIdFilter(MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum),
+          ...expandListingTypeIdFilter(LISTING_TYPE_IDS.iseAlDefault),
+        ]),
+      ];
+    } else if (params.jobFlow === 'seek') {
+      filter.listingTypeId = undefined;
+      filter.listingTypeIds = [
+        ...new Set([
+          ...expandListingTypeIdFilter(MARKETPLACE_LISTING_TYPE_IDS.isAriyorum),
+          ...expandListingTypeIdFilter(LISTING_TYPE_IDS.isBulDefault),
+        ]),
+      ];
     }
 
     return filter;

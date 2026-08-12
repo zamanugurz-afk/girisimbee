@@ -198,4 +198,9 @@ export {
   resolveBrowseCategory,
   getBrowseCategorySlugs,
 } from '@/features/listings/config/marketplace-category-map';
-export type { ListingSortBy, MarketplaceBrowseParams, MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
+export type {
+  JobFlowFilter,
+  ListingSortBy,
+  MarketplaceBrowseParams,
+  MarketplaceFilterState,
+} from '@/features/listings/types/marketplace.types';

@@ -4,9 +4,13 @@ import type { PaginationParams } from '@/lib/domain/pagination';
 
 export type ListingSortBy = 'newest' | 'most_viewed' | 'most_favorited' | 'recently_updated';
 
+/** Unified /is page — narrow hire vs seek within the combined job feed. */
+export type JobFlowFilter = 'hire' | 'seek';
+
 export interface MarketplaceBrowseParams extends ListingFilter, PaginationParams {
   sortBy?: ListingSortBy;
   categorySlug?: string;
+  jobFlow?: JobFlowFilter;
 }
 
 export interface MarketplaceFilterState {
@@ -14,6 +18,8 @@ export interface MarketplaceFilterState {
   categorySlug?: string;
   city?: string;
   sortBy: ListingSortBy;
+  /** When set on İş İlanları browse, filters to hire or seek listing types. */
+  jobFlow?: JobFlowFilter;
   isFeatured?: boolean;
   activeFeaturedOnly?: boolean;
   isUrgent?: boolean;

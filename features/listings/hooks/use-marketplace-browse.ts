@@ -123,6 +123,7 @@ function buildInitialFilters(options: UseMarketplaceBrowseOptions): MarketplaceF
     categorySlug: options.initialCategorySlug,
     sortBy: options.initialFilters?.sortBy ?? DEFAULT_SORT,
     city: options.initialFilters?.city,
+    jobFlow: options.initialFilters?.jobFlow,
     isFeatured: options.initialFilters?.isFeatured,
     activeFeaturedOnly: options.initialFilters?.activeFeaturedOnly,
     isUrgent: options.initialFilters?.isUrgent,
@@ -139,6 +140,7 @@ function buildParamsFromFilters(filters: MarketplaceFilterState, pageNum: number
     query: filters.query,
     categorySlug: filters.categorySlug,
     city: filters.city,
+    jobFlow: filters.jobFlow,
     sortBy: filters.sortBy,
     isFeatured: filters.isFeatured,
     activeFeaturedOnly: filters.activeFeaturedOnly,
@@ -165,6 +167,7 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
   const initialFilters = useMemo(() => buildInitialFilters(options), [
     options.initialCategorySlug,
     options.initialFilters?.city,
+    options.initialFilters?.jobFlow,
     options.initialFilters?.sortBy,
     options.initialFilters?.isFeatured,
     options.initialFilters?.activeFeaturedOnly,
