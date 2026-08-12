@@ -149,6 +149,8 @@ export async function middleware(request: NextRequest) {
       || pathname.startsWith('/admin')
       || pathname === '/mesajlarim'
       || pathname === '/iletisim-talepleri'
+      || pathname === '/ilan/olustur'
+      || pathname.startsWith('/ilanlarim')
       || pathname === '/giris'
       || pathname === '/kayit'
       || pathname === '/destek'

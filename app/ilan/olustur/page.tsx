@@ -47,7 +47,8 @@ function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, actorId, createListing, publishListing } = useListingEngine();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const [sessionReady, setSessionReady] = useState(false);
 
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
     searchParams.get('category') ?? searchParams.get('intent') ?? '',
@@ -66,10 +67,32 @@ function CreateListingContent() {
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/giris?redirect=/ilan/olustur');
+    if (authLoading) return;
+    if (!isAuthenticated || !user) {
+      router.replace(`/giris?next=${encodeURIComponent('/ilan/olustur')}`);
+      return;
     }
-  }, [isAuthenticated, router]);
+    setSessionReady(true);
+  }, [authLoading, isAuthenticated, user, router]);
+
+  if (authLoading || !sessionReady) {
+    return (
+      <main className="mx-auto max-w-5xl px-5 pb-16 pt-20 lg:px-8">
+        <div className="mb-8 space-y-2">
+          <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
+          <div className="h-4 w-72 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-40 animate-pulse rounded-2xl border border-border/80 bg-muted/40"
+            />
+          ))}
+        </div>
+      </main>
+    );
+  }
 
   function selectCategory(id: CategoryId) {
     if (id === CATEGORY_IDS.yatirimYap) return;
