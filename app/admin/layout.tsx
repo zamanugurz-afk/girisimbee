@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { requireAdminSession } from '@/features/admin/lib/require-admin';
-import { AdminLayout } from '@/features/admin/panel/components/AdminLayout';
+import { AdminSessionGate } from '@/features/admin/panel/components/AdminSessionGate';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +7,10 @@ export const metadata = {
   title: 'Yönetim — GirisimBee',
 };
 
-export default async function AdminRootLayout({ children }: { children: ReactNode }) {
-  await requireAdminSession();
-  return <AdminLayout>{children}</AdminLayout>;
+/**
+ * Admin shell — client-gated so sticky browser sessions are not bounced by
+ * intermittent RSC cookie reads (requireAdminSession redirect).
+ */
+export default function AdminRootLayout({ children }: { children: ReactNode }) {
+  return <AdminSessionGate>{children}</AdminSessionGate>;
 }

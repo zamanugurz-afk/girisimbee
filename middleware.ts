@@ -10,11 +10,10 @@ import {
   needsMiddlewareAuth,
   needsMiddlewareRole,
 } from '@/features/authentication/constants/routes';
-import { fetchProfile } from '@/features/authentication/services/supabase-auth.service';
+import { fetchProfile, mapSessionUser } from '@/features/authentication/services/supabase-auth.service';
 import { validatePublishRequest } from '@/features/monetization/middleware/publish-guard';
 import type { UserRole } from '@/features/authentication/types/auth.types';
 import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
-import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
 import {
@@ -192,7 +191,18 @@ export async function middleware(request: NextRequest) {
   let role: UserRole = 'guest';
   if (user && needsMiddlewareRole(pathname)) {
     const profile = await fetchProfile(supabase, user.id);
-    role = profile ? normalizeAppRole(profile.role) : 'user';
+    // Use the same role resolution as the app (profile + app_metadata + super_admin guard).
+    // Falling back to bare 'user' when profile is null incorrectly blocks super_admin.
+    const sessionUser = mapSessionUser(
+      {
+        id: user.id,
+        email: user.email,
+        email_confirmed_at: user.email_confirmed_at,
+        app_metadata: (user.app_metadata ?? null) as Record<string, unknown> | null,
+      },
+      profile,
+    );
+    role = sessionUser.role;
   }
 
   // Do NOT bounce authenticated users off /giris|/kayit|/sifremi-unuttum.
