@@ -2,19 +2,19 @@
  * Public site visibility gate.
  *
  * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
- * NEXT_PUBLIC_SITE_MODE=live        → full site (only honored outside production
- * until you explicitly ask to go live again — testing left SITE_MODE=live on the host).
+ * NEXT_PUBLIC_SITE_MODE=live        → full site
  *
- * When unset: development → live (local work); production → maintenance.
+ * When SITE_IP_ALLOWLIST is set, production runs live for those IPs only
+ * (non-allowlisted clients are rewritten to /bakim in middleware).
+ *
+ * When unset: development → live; production → maintenance until launch.
  */
 export type SiteMode = 'live' | 'maintenance';
 
-/** Production stays on bakim after closed testing. Flip when you say "canlıya al". */
-const PRODUCTION_FORCE_MAINTENANCE = true;
-
 export function resolveSiteMode(): SiteMode {
-  if (PRODUCTION_FORCE_MAINTENANCE && process.env.NODE_ENV === 'production') {
-    return 'maintenance';
+  // IP-restricted preview = live product surface for allowlisted clients.
+  if (process.env.SITE_IP_ALLOWLIST?.trim()) {
+    return 'live';
   }
 
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();

@@ -17,6 +17,10 @@ import { canAccess, isAdmin } from '@/features/authorization/rbac.service';
 import { normalizeAppRole } from '@/features/authorization/roles';
 import { isNavProfilingEnabled } from '@/lib/perf/nav-profile-env';
 import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
+import {
+  isClientIpAllowlisted,
+  isSiteIpAllowlistEnabled,
+} from '@/lib/site-ip-allowlist';
 
 function nowMs(): number {
   return Date.now();
@@ -98,10 +102,35 @@ export async function middleware(request: NextRequest) {
 
   // Live mode: never leave testers stuck on the maintenance URL/cache.
   if (!isMaintenanceMode() && pathname === '/bakim') {
+    // IP preview: non-allowlisted clients must stay on /bakim.
+    if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
+      return attachTiming(NextResponse.next(), nowMs() - mwStart);
+    }
     const home = request.nextUrl.clone();
     home.pathname = '/';
     home.search = '';
     return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
+  }
+
+  // IP allowlist preview — full live site only for listed client IPs.
+  // Do NOT reuse maintenance bypass (that still opens /admin, /dashboard, /ilan/…).
+  if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
+    const ipBypass =
+      pathname === '/bakim'
+      || pathname.startsWith('/_next/')
+      || pathname === '/favicon.ico'
+      || pathname === '/icon.svg'
+      || pathname === '/icon.png'
+      || pathname === '/robots.txt'
+      || pathname === '/sitemap.xml'
+      || pathname.startsWith('/brand/')
+      || pathname.startsWith('/images/')
+      || pathname.startsWith('/fonts/');
+    if (!ipBypass) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/bakim';
+      return attachTiming(NextResponse.rewrite(url), nowMs() - mwStart);
+    }
   }
 
   // Public gate — rewrite to maintenance page without destroying routes.
