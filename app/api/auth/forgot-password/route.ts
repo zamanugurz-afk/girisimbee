@@ -116,8 +116,9 @@ export async function POST(request: Request) {
 
   const email = normalizeAuthEmail(parsed.data.email);
   const origin = canonicalizeSiteOrigin(new URL(request.url).origin);
-  // Land on the reset page itself so the path survives even if query params are stripped.
-  const redirectTo = `${origin}${AUTH_ROUTES.resetPassword}?type=recovery`;
+  // Supabase Auth mailer / generateLink redirect allow-list target.
+  // Custom SMTP path does NOT email action_link; it builds an app /auth/callback?token_hash=… URL.
+  const redirectTo = `${origin}${AUTH_ROUTES.callback}?type=recovery&next=${encodeURIComponent(AUTH_ROUTES.resetPassword)}`;
 
   let user: AuthUserLite | null = null;
   try {
@@ -174,15 +175,23 @@ export async function POST(request: Request) {
         );
       }
 
-      const actionLink =
-        data.properties?.action_link
-        || (data as { action_link?: string }).action_link
-        || null;
-      if (!actionLink) {
+      // Prefer hashed_token → app-owned /auth/callback link (verifyOtp).
+      // Do NOT email Supabase /auth/v1/verify action_link: one-time + PKCE-hostile for custom SMTP.
+      const props = data.properties as { hashed_token?: string } | null | undefined;
+      const tokenHash = props?.hashed_token?.trim() || null;
+      if (!tokenHash) {
+        console.error('[forgot-password] generateLink missing hashed_token');
         return apiError('Şifre sıfırlama bağlantısı oluşturulamadı.', 500);
       }
 
-      const mailed = await sendPasswordResetEmail({ to: email, actionLink });
+      const recoveryUrl = new URL(AUTH_ROUTES.callback, origin);
+      recoveryUrl.searchParams.set('token_hash', tokenHash);
+      recoveryUrl.searchParams.set('type', 'recovery');
+
+      const mailed = await sendPasswordResetEmail({
+        to: email,
+        actionLink: recoveryUrl.toString(),
+      });
       if (mailed.ok) {
         return okWithRecoveryCookie(request, {
           sent: true,
@@ -191,25 +200,8 @@ export async function POST(request: Request) {
         });
       }
       console.error('[forgot-password] custom mail failed', mailed.error);
-
-      // Zoho/SMTP auth often breaks (535) — fall back to Supabase Auth mailer
-      // so the user still receives a reset link instead of a hard failure.
-      const { error: authMailError } = await sendViaSupabaseAuth(email, redirectTo);
-      if (!authMailError) {
-        return okWithRecoveryCookie(request, {
-          sent: true,
-          message:
-            'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
-        });
-      }
-      console.error('[forgot-password] supabase fallback failed', authMailError.message);
-      if (isRateLimitError(authMailError.message)) {
-        return apiError(RATE_LIMIT_MESSAGE, 429);
-      }
       return apiError(
-        /535|authentication failed|invalid login/i.test(mailed.error)
-          ? 'E-posta sunucusu girişi reddetti (SMTP 535). Vercel’de Zoho uygulama şifresini güncelleyin veya 10 dk sonra tekrar deneyin.'
-          : 'Sıfırlama e-postası gönderilemedi. Lütfen biraz sonra tekrar deneyin.',
+        'Sıfırlama e-postası gönderilemedi (SMTP). Gelen kutusu/spam’i kontrol edin veya destek ile iletişime geçin.',
         500,
       );
     } catch (error) {

@@ -36,10 +36,13 @@ export function ResetPasswordForm() {
     const supabase = createClient();
 
     async function checkSession() {
+      // Cookie session after /auth/callback verifyOtp can lag one paint.
+      await new Promise((r) => setTimeout(r, 50));
+
       // Hash/implicit recovery: give the browser client a moment to parse the URL.
       const hash = typeof window !== 'undefined' ? window.location.hash : '';
       if (hash.includes('type=recovery') || hash.includes('access_token')) {
-        await new Promise((r) => setTimeout(r, 80));
+        await new Promise((r) => setTimeout(r, 120));
       }
 
       const { data } = await supabase.auth.getSession();
@@ -49,11 +52,17 @@ export function ResetPasswordForm() {
         return;
       }
 
-      // One retry — PKCE cookie session can lag a tick after /auth/callback redirect.
-      await new Promise((r) => setTimeout(r, 200));
-      if (cancelled) return;
-      const again = await supabase.auth.getSession();
-      if (!cancelled) setSessionReady(Boolean(again.data.session));
+      // Retries — PKCE/token_hash cookie session can lag after /auth/callback redirect.
+      for (const waitMs of [200, 400]) {
+        await new Promise((r) => setTimeout(r, waitMs));
+        if (cancelled) return;
+        const again = await supabase.auth.getSession();
+        if (again.data.session) {
+          setSessionReady(true);
+          return;
+        }
+      }
+      if (!cancelled) setSessionReady(false);
     }
 
     void checkSession();

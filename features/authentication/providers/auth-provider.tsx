@@ -272,7 +272,11 @@ export function AuthProvider({
             || hash.includes('type=recovery')
             || new URLSearchParams(window.location.search).get('type') === 'recovery';
           if (recoveryContext && !onReset) {
-            window.location.assign(AUTH_ROUTES.resetPassword);
+            // Keep hash tokens if present (implicit recovery); session cookies cover PKCE/token_hash.
+            const suffix = hash.includes('type=recovery') || hash.includes('access_token')
+              ? hash
+              : '';
+            window.location.assign(`${AUTH_ROUTES.resetPassword}${suffix}`);
           }
         }
         return;

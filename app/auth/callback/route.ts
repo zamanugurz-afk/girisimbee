@@ -88,6 +88,7 @@ export async function GET(request: Request) {
     origin,
     callbackUrl: `${origin}${url.pathname}`,
     hasCode: Boolean(code),
+    hasTokenHash: Boolean(searchParams.get('token_hash')),
     hasFlowId: Boolean(flowId),
     flow,
     type,
@@ -145,19 +146,7 @@ export async function GET(request: Request) {
     return loginError('oauth_provider', friendly);
   }
 
-  if (!code) {
-    console.error('[auth/callback] missing code');
-    if (emailVerify) {
-      return verifyError('missing_code');
-    }
-    return loginError(
-      'auth_callback_failed',
-      passwordRecovery
-        ? 'Şifre sıfırlama bağlantısı geçersiz veya eksik. Lütfen yeni bir bağlantı isteyin.'
-        : 'Google dönüşünde yetkilendirme kodu yok. Redirect URI listesini kontrol edin.',
-    );
-  }
-
+  const tokenHash = searchParams.get('token_hash');
   const successPath = emailVerify
     ? AUTH_ROUTES.verifySuccess
     : passwordRecovery
@@ -197,6 +186,41 @@ export async function GET(request: Request) {
     },
   );
 
+  const copySessionCookies = (res: NextResponse) => {
+    success.cookies.getAll().forEach((c) => {
+      res.cookies.set(c.name, c.value);
+    });
+    return clearAuthFlowCookies(res);
+  };
+
+  // Custom SMTP recovery: app-owned link with token_hash (no PKCE / no /auth/v1/verify).
+  if (tokenHash && (type === 'recovery' || passwordRecovery)) {
+    const { error: otpError } = await supabase.auth.verifyOtp({
+      type: 'recovery',
+      token_hash: tokenHash,
+    });
+    if (otpError) {
+      console.error('[auth/callback] verifyOtp recovery failed', otpError.message);
+      const resetUrl = new URL(AUTH_ROUTES.resetPassword, origin);
+      return clearAuthFlowCookies(NextResponse.redirect(resetUrl));
+    }
+    const resetUrl = new URL(AUTH_ROUTES.resetPassword, origin);
+    return copySessionCookies(NextResponse.redirect(resetUrl));
+  }
+
+  if (!code) {
+    console.error('[auth/callback] missing code');
+    if (emailVerify) {
+      return verifyError('missing_code');
+    }
+    return loginError(
+      'auth_callback_failed',
+      passwordRecovery
+        ? 'Şifre sıfırlama bağlantısı geçersiz veya eksik. Lütfen yeni bir bağlantı isteyin.'
+        : 'Google dönüşünde yetkilendirme kodu yok. Redirect URI listesini kontrol edin.',
+    );
+  }
+
   const { data, error } = await supabase.auth.exchangeCodeForSession(
     code,
     flowId ? { flowId } : undefined,
@@ -220,13 +244,6 @@ export async function GET(request: Request) {
         : error.message,
     );
   }
-
-  const copySessionCookies = (res: NextResponse) => {
-    success.cookies.getAll().forEach((c) => {
-      res.cookies.set(c.name, c.value);
-    });
-    return clearAuthFlowCookies(res);
-  };
 
   // Password recovery: session is only for setting a new password — never legal gate / home.
   if (passwordRecovery) {
