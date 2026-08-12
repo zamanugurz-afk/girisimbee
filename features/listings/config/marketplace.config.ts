@@ -31,7 +31,7 @@ export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'yatirim-bul': '/invest',
   'yatirim-yap': '/investors',
   'ise-al': '/is',
-  'is-ariyorum': '/is-ariyorum',
+  'is-ariyorum': '/is',
   'ortak-bul': '/partners',
   'bayilik-al': '/franchise/buy',
   'dijital-ai': '/dijital-ai',
@@ -54,9 +54,10 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoDescription: 'Yatırım yapmak isteyen melek yatırımcı ve fon profilleri.',
   },
   'ise-al': {
-    description: 'Açık pozisyonları inceleyin; iletişim talebi gönderin',
-    seoTitle: 'İş İlanları — Açık Pozisyonlar | Girisimbee',
-    seoDescription: 'Startup ve şirketlerde açık iş ilanlarını keşfedin.',
+    description: 'İşe alım ilanları ve iş arayan kariyer profilleri',
+    seoTitle: 'İş İlanları | Girisimbee',
+    seoDescription:
+      'İşe Alıyorum açık pozisyonlarını ve İş Arıyorum kariyer profillerini tek yerde inceleyin.',
   },
   'is-ariyorum': {
     description: 'Anonim kariyer özetlerini inceleyin; iletişim talebi gönderin',

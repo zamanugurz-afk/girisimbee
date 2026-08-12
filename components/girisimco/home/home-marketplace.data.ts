@@ -34,9 +34,9 @@ export const HOME_CATEGORIES = [
     href: '/is',
     label: 'İş İlanları',
     color: GC_CATEGORY_COLORS['ise-al'],
-    audience: 'İşverenler',
-    shortCue: 'Açık pozisyonlar',
-    hint: 'Açık iş pozisyonlarını inceleyin; iletişim talebi gönderin veya kendi ilanınızı yayınlayın.',
+    audience: 'İşveren / iş arayan',
+    shortCue: 'Pozisyon ve kariyer',
+    hint: 'İşe Alıyorum ve İş Arıyorum ilanlarının tamamını tek sayfada inceleyin.',
   },
   {
     slug: 'dijital-ai',

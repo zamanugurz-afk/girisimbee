@@ -71,8 +71,12 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
     appListingTypeId: LISTING_TYPE_IDS.iseAlDefault,
     dbCategoryId: MARKETPLACE_CATEGORY_IDS.is,
     dbListingTypeId: MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
+    /** Unified /is feed: hiring posts + anonymous seeker profiles. */
     filterListingTypeIds: [
       MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
+      LISTING_TYPE_IDS.iseAlDefault,
+      MARKETPLACE_LISTING_TYPE_IDS.isAriyorum,
+      LISTING_TYPE_IDS.isBulDefault,
     ],
   },
   'is-ariyorum': {
