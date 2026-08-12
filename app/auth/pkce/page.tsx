@@ -79,10 +79,24 @@ function PkceExchange() {
           return;
         }
 
-        // New / incomplete legal acceptance → gate; otherwise destination.
-        window.location.replace(
-          `${OAUTH_LEGAL_ACCEPTANCE_PATH}?next=${encodeURIComponent(next)}`,
-        );
+        // Same gate as /auth/callback — only new / incomplete legal acceptance.
+        const bootstrapRes = await fetch('/api/auth/oauth-bootstrap', { method: 'POST' });
+        const bootstrapJson = (await bootstrapRes.json().catch(() => ({}))) as {
+          data?: { created?: boolean; needsLegalAcceptance?: boolean };
+          error?: string;
+        };
+        if (!bootstrapRes.ok) {
+          throw new Error(bootstrapJson.error ?? 'Hesap hazırlığı başarısız');
+        }
+        const created = Boolean(bootstrapJson.data?.created);
+        const needsLegal = Boolean(bootstrapJson.data?.needsLegalAcceptance);
+        if (created || needsLegal) {
+          window.location.replace(
+            `${OAUTH_LEGAL_ACCEPTANCE_PATH}?next=${encodeURIComponent(next)}`,
+          );
+          return;
+        }
+        window.location.replace(next);
       } catch (error) {
         if (cancelled) return;
         const msg =

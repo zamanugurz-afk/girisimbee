@@ -47,10 +47,9 @@ export async function ensureOAuthAccountBootstrap(
     void accountService.recordLogin(userId).catch(() => undefined);
     let needsLegalAcceptance = true;
     try {
-      const consent = await accountService.getLatestConsent(userId);
-      needsLegalAcceptance = !consent?.termsAccepted;
+      needsLegalAcceptance = await accountService.needsLegalAcceptance(userId);
     } catch (error) {
-      console.error('[oauth-bootstrap] getLatestConsent failed', error);
+      console.error('[oauth-bootstrap] needsLegalAcceptance failed', error);
       needsLegalAcceptance = true;
     }
     return { created: false, needsLegalAcceptance };

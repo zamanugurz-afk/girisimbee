@@ -343,6 +343,8 @@ export class AccountService {
   }
 
   needsLegalAcceptance(userId: UserId) {
-    return this.consents.findLatestByUserId(userId).then((c) => !c?.termsAccepted);
+    // Any historical terms acceptance is enough (avoid re-gating if a later
+    // OAuth bootstrap row was appended with termsAccepted=false).
+    return this.consents.listByUserId(userId).then((rows) => !rows.some((c) => c.termsAccepted));
   }
 }
