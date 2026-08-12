@@ -1,19 +1,20 @@
+import { isSiteIpAllowlistEnabled } from '@/lib/site-ip-allowlist';
+
 /**
  * Public site visibility gate.
  *
  * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
  * NEXT_PUBLIC_SITE_MODE=live        → full site
  *
- * When SITE_IP_ALLOWLIST is set, production runs live for those IPs only
- * (non-allowlisted clients are rewritten to /bakim in middleware).
+ * When an IP allowlist is active (env and/or built-in preview IPs), production
+ * is live for those clients; others are rewritten to /bakim in middleware.
  *
  * When unset: development → live; production → maintenance until launch.
  */
 export type SiteMode = 'live' | 'maintenance';
 
 export function resolveSiteMode(): SiteMode {
-  // IP-restricted preview = live product surface for allowlisted clients.
-  if (process.env.SITE_IP_ALLOWLIST?.trim()) {
+  if (isSiteIpAllowlistEnabled()) {
     return 'live';
   }
 
