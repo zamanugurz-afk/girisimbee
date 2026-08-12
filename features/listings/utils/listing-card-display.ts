@@ -23,12 +23,16 @@ export type ListingTypeIconKey =
 /** Group accent colors — sourced from existing Girisimbee palette. */
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
   yatirim: '#3B82F6',
-  is: '#22C55E',
+  is: '#10B981',
   ortaklik: '#F59E0B',
   franchise: '#EC4899',
   genel: '#0EA5E9',
   dijital: '#8B5CF6',
 };
+
+/** İş Arıyorum cards use seeker blue (not the shared “iş” green). */
+export const JOB_SEEKER_CARD_COLOR = '#0EA5E9';
+export const JOB_HIRE_CARD_COLOR = LISTING_CARD_GROUP_COLORS.is;
 
 export const LISTING_CARD_GROUP_LABELS: Record<ListingCardGroup, string> = {
   yatirim: 'Yatırım',
@@ -265,13 +269,19 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
 export function resolveListingCardDisplay(listing: Listing): ListingCardDisplayMeta {
   const typeDisplay = resolveListingTypeDisplay(listing as ListingWithDisplayMeta);
   const group = typeDisplay.group;
+  const groupColor =
+    typeDisplay.iconKey === 'job-seeker'
+      ? JOB_SEEKER_CARD_COLOR
+      : typeDisplay.iconKey === 'employer'
+        ? JOB_HIRE_CARD_COLOR
+        : LISTING_CARD_GROUP_COLORS[group];
 
   return {
     typeEmoji: typeDisplay.emoji,
     typeLabel: typeDisplay.label,
     group,
     groupLabel: LISTING_CARD_GROUP_LABELS[group],
-    groupColor: LISTING_CARD_GROUP_COLORS[group],
+    groupColor,
     iconKey: typeDisplay.iconKey,
     price: formatListingPrice(listing, group),
   };

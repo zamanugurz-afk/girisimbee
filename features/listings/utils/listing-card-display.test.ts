@@ -20,6 +20,7 @@ describe('resolveListingCardDisplay', () => {
     expect(display.typeLabel).toBe('İŞ ARIYORUM');
     expect(display.groupLabel).toBe('İş');
     expect(display.iconKey).toBe('job-seeker');
+    expect(display.groupColor).toBe('#0EA5E9');
   });
 
   it('labels candidate listings via listingTypeSlug join', () => {

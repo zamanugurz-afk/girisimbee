@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
+import {
+  JOB_HIRE_CARD_COLOR,
+  JOB_SEEKER_CARD_COLOR,
+} from '@/features/listings/utils/listing-card-display';
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
@@ -31,7 +35,7 @@ export function MarketplaceBrowseView({
   showJobFlowFilters = false,
 }: MarketplaceBrowsePageProps) {
   const categoryMeta = categorySlug ? resolveCategorySlug(categorySlug) : null;
-  const resolvedAccent = accent ?? categoryMeta?.accent;
+  const headerAccent = accent ?? categoryMeta?.accent;
 
   const {
     items,
@@ -50,6 +54,13 @@ export function MarketplaceBrowseView({
     initialFilters,
   });
 
+  const feedAccent =
+    filters.jobFlow === 'seek'
+      ? JOB_SEEKER_CARD_COLOR
+      : filters.jobFlow === 'hire'
+        ? JOB_HIRE_CARD_COLOR
+        : headerAccent;
+
   return (
     <div className="gc-header-offset bg-[#FAFBFC] dark:bg-background">
       <div className="relative border-b border-[#EEF0F4] bg-white dark:border-border dark:bg-background">
@@ -57,7 +68,7 @@ export function MarketplaceBrowseView({
           {categoryMeta && (
             <p
               className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-              style={{ color: resolvedAccent }}
+              style={{ color: headerAccent }}
             >
               {categoryMeta.label}
             </p>
@@ -102,7 +113,7 @@ export function MarketplaceBrowseView({
 
         <ListingFeedInfinite
           items={items}
-          accent={resolvedAccent}
+          accent={feedAccent}
           hasMore={hasMore}
           isLoading={isLoading}
           isLoadingMore={isLoadingMore}

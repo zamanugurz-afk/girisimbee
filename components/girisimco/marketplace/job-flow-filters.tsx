@@ -32,15 +32,13 @@ export function JobFlowFilters({
       <JobFlowChip
         active={value === 'hire'}
         color={HIRE_COLOR}
-        title="İşe Alıyorum"
-        subtitle="Açık pozisyonlar"
+        label="İşe Alıyorum"
         onClick={() => toggle('hire')}
       />
       <JobFlowChip
         active={value === 'seek'}
         color={SEEK_COLOR}
-        title="İş Arıyorum"
-        subtitle="Kariyer profilleri"
+        label="İş Arıyorum"
         onClick={() => toggle('seek')}
       />
     </div>
@@ -50,14 +48,12 @@ export function JobFlowFilters({
 function JobFlowChip({
   active,
   color,
-  title,
-  subtitle,
+  label,
   onClick,
 }: {
   active: boolean;
   color: string;
-  title: string;
-  subtitle: string;
+  label: string;
   onClick: () => void;
 }) {
   return (
@@ -66,8 +62,8 @@ function JobFlowChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'relative inline-flex h-9 min-w-[10.5rem] flex-1 items-center overflow-hidden rounded-lg border bg-white sm:flex-none',
-        'pl-3.5 pr-3 text-left transition-colors',
+        'relative inline-flex h-10 min-w-[9.5rem] flex-1 items-center overflow-hidden rounded-lg border bg-white sm:flex-none',
+        'pl-3.5 pr-3.5 text-left transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         'dark:bg-card',
         active ? 'shadow-sm' : 'border-[#E6E8EE] hover:border-[#C7CBD6] dark:border-border',
@@ -88,11 +84,11 @@ function JobFlowChip({
         style={{ backgroundColor: color }}
         aria-hidden
       />
-      <span className="min-w-0 leading-none">
-        <span className="block truncate text-[12px] font-semibold tracking-tight" style={{ color }}>
-          {title}
-        </span>
-        <span className="mt-0.5 block truncate text-[10px] text-[#64748B]">{subtitle}</span>
+      <span
+        className="truncate text-[14px] font-bold tracking-tight sm:text-[15px]"
+        style={{ color }}
+      >
+        {label}
       </span>
     </button>
   );

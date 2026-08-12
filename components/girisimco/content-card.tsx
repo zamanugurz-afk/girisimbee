@@ -23,8 +23,9 @@ function listingBadgeTone(iconKey: ContentItem['listingIconKey']): string {
     case 'franchise':
       return 'bg-[#FEF3C7] text-[#B45309]';
     case 'job-seeker':
+      return 'bg-[#E0F2FE] text-[#0284C8]';
     case 'employer':
-      return 'bg-[#EDE9FE] text-[#6D28D9]';
+      return 'bg-[#DCFCE7] text-[#15803D]';
     case 'partner':
       return 'bg-[#FEF9C3] text-[#A16207]';
     case 'digital':
