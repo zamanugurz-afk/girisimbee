@@ -10,7 +10,9 @@ import { DashboardMessagesEmpty } from '@/features/messaging/components/dashboar
 import { DashboardMessageThread } from '@/features/messaging/components/dashboard/DashboardMessageThread';
 import { useDashboardConversations } from '@/features/messaging/hooks/use-dashboard-conversations';
 import {
+  DASHBOARD_MESSAGES_SOURCE_FILTERS,
   DASHBOARD_MESSAGES_TABS,
+  type DashboardMessagesSourceFilter,
   type DashboardMessagesTab,
 } from '@/features/messaging/types/dashboard-messages.types';
 import type { ConversationId } from '@/lib/domain/ids';
@@ -37,6 +39,20 @@ const TAB_EMPTY: Record<
   },
 };
 
+const SOURCE_EMPTY: Record<
+  Exclude<DashboardMessagesSourceFilter, 'all'>,
+  { title: string; description: string }
+> = {
+  support: {
+    title: 'Destek mesajı yok.',
+    description: 'Girisimbee destek ekibinden gelen yanıtlar burada listelenir.',
+  },
+  listing: {
+    title: 'İlan mesajı yok.',
+    description: 'İlan sohbetleriniz burada görünür.',
+  },
+};
+
 export function DashboardMessages() {
   const router = useRouter();
   const pathname = usePathname();
@@ -44,6 +60,7 @@ export function DashboardMessages() {
   const selectedId = searchParams.get('c');
 
   const [tab, setTab] = useState<DashboardMessagesTab>('inbox');
+  const [source, setSource] = useState<DashboardMessagesSourceFilter>('all');
   const {
     isLoading,
     error,
@@ -58,7 +75,21 @@ export function DashboardMessages() {
     markLocalSent,
   } = useDashboardConversations();
 
-  const items = useMemo(() => itemsForTab(tab), [itemsForTab, tab]);
+  const tabItems = useMemo(() => itemsForTab(tab), [itemsForTab, tab]);
+  const items = useMemo(() => {
+    if (source === 'all') return tabItems;
+    return tabItems.filter((item) => item.kind === source);
+  }, [tabItems, source]);
+
+  const sourceCounts = useMemo(() => {
+    const support = tabItems.filter((i) => i.kind === 'support').length;
+    const listing = tabItems.filter((i) => i.kind === 'listing').length;
+    return {
+      all: tabItems.length,
+      support,
+      listing,
+    } as const;
+  }, [tabItems]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -111,7 +142,10 @@ export function DashboardMessages() {
     );
   }
 
-  const empty = TAB_EMPTY[tab];
+  const empty =
+    source !== 'all' && items.length === 0
+      ? SOURCE_EMPTY[source]
+      : TAB_EMPTY[tab];
   const showThread = Boolean(selectedId);
 
   return (
@@ -149,6 +183,44 @@ export function DashboardMessages() {
             );
           })}
         </TabsList>
+
+        <div
+          className="mt-3 flex flex-wrap items-center gap-2"
+          role="group"
+          aria-label="Mesaj kaynağı filtresi"
+        >
+          <span className="text-xs font-medium text-muted-foreground">Kaynak:</span>
+          {DASHBOARD_MESSAGES_SOURCE_FILTERS.map((item) => {
+            const active = source === item.id;
+            const count = sourceCounts[item.id];
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setSource(item.id);
+                  selectConversation(null);
+                }}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                  active
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
+                )}
+              >
+                {item.label}
+                <span
+                  className={cn(
+                    'tabular-nums',
+                    active ? 'text-primary-foreground/80' : 'text-muted-foreground',
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
         {DASHBOARD_MESSAGES_TABS.map((item) => (
           <TabsContent key={item.id} value={item.id} className="mt-5">

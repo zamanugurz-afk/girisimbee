@@ -40,6 +40,7 @@ function mapItem(
     listingHref,
     otherUserId: otherParticipant.userId,
     status: conversation.status,
+    kind: conversation.kind === 'support' || !conversation.listingId ? 'support' : 'listing',
   };
 }
 

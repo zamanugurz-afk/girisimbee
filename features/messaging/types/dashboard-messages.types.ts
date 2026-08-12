@@ -3,6 +3,17 @@ import { Archive, Inbox, Send } from 'lucide-react';
 
 export type DashboardMessagesTab = 'inbox' | 'sent' | 'archive';
 
+export type DashboardMessagesSourceFilter = 'all' | 'support' | 'listing';
+
+export const DASHBOARD_MESSAGES_SOURCE_FILTERS: {
+  id: DashboardMessagesSourceFilter;
+  label: string;
+}[] = [
+  { id: 'all', label: 'Tümü' },
+  { id: 'support', label: 'Destek' },
+  { id: 'listing', label: 'İlanlar' },
+];
+
 export const DASHBOARD_MESSAGES_TABS: {
   id: DashboardMessagesTab;
   label: string;
@@ -28,4 +39,6 @@ export interface DashboardMessageCardData {
   listingHref: string | null;
   otherUserId: string;
   status: 'open' | 'archived' | 'blocked' | 'deleted';
+  /** support = Girisimbee Destek; listing = ilan sohbeti */
+  kind: 'listing' | 'support';
 }
