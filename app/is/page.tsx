@@ -12,9 +12,12 @@ export const metadata: Metadata = {
 const HIRE_COLOR = GC_CATEGORY_COLORS['ise-al'];
 const SEEK_COLOR = '#0EA5E9';
 
+const cardClassName =
+  'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC] dark:border-border dark:bg-card';
+
 /**
  * Hub for job marketplace — splits hiring vs anonymous job-seeker career profiles.
- * Does not change /hire (İşe Alıyorum) browse behavior.
+ * Card size matches /ilan/olustur category cards.
  */
 export default function IsHubPage() {
   return (
@@ -32,71 +35,65 @@ export default function IsHubPage() {
         </p>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <Link
-          href="/hire"
-          className="group relative flex min-h-[11rem] flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-5 transition-colors hover:border-[#C7CBD6] hover:bg-[#FAFBFC] dark:border-border dark:bg-card"
-        >
+      <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        <Link href="/hire" className={cardClassName}>
           <span
             className="absolute inset-y-0 left-0 w-[3px]"
             style={{ backgroundColor: HIRE_COLOR }}
             aria-hidden
           />
           <span
-            className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg text-white"
+            className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
             style={{ backgroundColor: HIRE_COLOR }}
           >
-            <Briefcase className="h-5 w-5" strokeWidth={1.75} />
+            <Briefcase className="h-4 w-4" strokeWidth={1.75} />
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
             İşverenler
           </span>
-          <span className="mt-1 font-display text-lg font-semibold text-[#0B1220] dark:text-foreground">
+          <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
             İşe Alıyorum
           </span>
-          <span className="mt-1.5 flex-1 text-sm leading-relaxed text-[#64748B]">
+          <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
             Açık pozisyon yayınlayın; adaylar ilanınızı görüp iletişim talebi gönderebilir.
           </span>
           <span
-            className="mt-4 inline-flex items-center gap-1 text-sm font-semibold"
+            className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
             style={{ color: HIRE_COLOR }}
           >
             İlanları incele
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
         </Link>
 
-        <Link
-          href="/is-ariyorum"
-          className="group relative flex min-h-[11rem] flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-5 transition-colors hover:border-[#C7CBD6] hover:bg-[#FAFBFC] dark:border-border dark:bg-card"
-        >
+        <Link href="/is-ariyorum" className={cardClassName}>
           <span
             className="absolute inset-y-0 left-0 w-[3px]"
             style={{ backgroundColor: SEEK_COLOR }}
             aria-hidden
           />
           <span
-            className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg text-white"
+            className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
             style={{ backgroundColor: SEEK_COLOR }}
           >
-            <UserRoundSearch className="h-5 w-5" strokeWidth={1.75} />
+            <UserRoundSearch className="h-4 w-4" strokeWidth={1.75} />
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
             İş arayanlar
           </span>
-          <span className="mt-1 font-display text-lg font-semibold text-[#0B1220] dark:text-foreground">
+          <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
             İş Arıyorum
           </span>
-          <span className="mt-1.5 flex-1 text-sm leading-relaxed text-[#64748B]">
+          <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
             CV ve firma adı olmadan anonim kariyer özeti oluşturun; işverenler iletişim talebi
             göndersin.
           </span>
           <span
-            className="mt-4 inline-flex items-center gap-1 text-sm font-semibold"
+            className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
             style={{ color: SEEK_COLOR }}
           >
             Profilleri incele
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
         </Link>
       </div>
