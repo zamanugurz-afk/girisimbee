@@ -31,10 +31,10 @@ export function Footer() {
                 Destek · {CONTACT_EMAILS.support}
               </a>
               <a
-                href="/reklam"
+                href={CONTACT_MAILTO.ads}
                 className="block text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
-                Reklam · {CONTACT_EMAILS.ads}
+                Reklam &amp; işbirliği · {CONTACT_EMAILS.ads}
               </a>
             </div>
           </div>

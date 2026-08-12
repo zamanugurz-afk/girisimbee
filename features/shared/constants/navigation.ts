@@ -44,7 +44,7 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   ],
   İletişim: [
     { label: 'Destek', href: CONTACT_MAILTO.support },
-    { label: 'Reklam & işbirliği', href: '/reklam' },
+    { label: 'Reklam & işbirliği', href: CONTACT_MAILTO.ads },
     { label: 'Gizlilik', href: '/yasal/gizlilik' },
     { label: 'KVKK', href: '/yasal/kvkk-aydinlatma' },
     { label: 'Açık rıza', href: '/yasal/acik-riza' },
