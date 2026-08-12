@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   Handshake,
   Store,
+  UserRoundSearch,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -34,6 +35,11 @@ const CATEGORY_VISUAL: Record<
     audience: 'İşverenler',
     Icon: Briefcase,
     color: GC_CATEGORY_COLORS['ise-al'],
+  },
+  [CATEGORY_IDS.isBul]: {
+    audience: 'İş arayanlar',
+    Icon: UserRoundSearch,
+    color: '#0EA5E9',
   },
   [CATEGORY_IDS.ortakBul]: {
     audience: 'Kurucu ortaklık',

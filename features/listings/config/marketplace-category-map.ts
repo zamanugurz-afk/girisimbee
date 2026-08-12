@@ -65,7 +65,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'ise-al': {
     slug: 'ise-al',
-    label: 'İş İlanları',
+    label: 'İşe Alıyorum',
     listingTypeSlug: 'ise-aliyorum',
     appCategoryId: CATEGORY_IDS.iseAl,
     appListingTypeId: LISTING_TYPE_IDS.iseAlDefault,
@@ -73,6 +73,19 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
     dbListingTypeId: MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
     filterListingTypeIds: [
       MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
+    ],
+  },
+  'is-ariyorum': {
+    slug: 'is-ariyorum',
+    label: 'İş Arıyorum',
+    listingTypeSlug: 'is-ariyorum',
+    appCategoryId: CATEGORY_IDS.isBul,
+    appListingTypeId: LISTING_TYPE_IDS.isBulDefault,
+    dbCategoryId: MARKETPLACE_CATEGORY_IDS.is,
+    dbListingTypeId: MARKETPLACE_LISTING_TYPE_IDS.isAriyorum,
+    filterListingTypeIds: [
+      MARKETPLACE_LISTING_TYPE_IDS.isAriyorum,
+      LISTING_TYPE_IDS.isBulDefault,
     ],
   },
   'ortak-bul': {
@@ -118,9 +131,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
 export const BROWSE_CATEGORY_SLUG_ALIASES: Record<string, string> = {
   franchise: 'bayilik-al',
   'calisan-ariyorum': 'ise-al',
-  /** Job-seeker browse removed — legacy URLs land on job listings */
-  'is-bul': 'ise-al',
-  'is-ariyorum': 'ise-al',
+  'is-bul': 'is-ariyorum',
   'dijital-ai-cozum': 'dijital-ai',
 };
 

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-/** Legacy /jobs (İş Bul) → /hire (İş İlanları). */
+/** Legacy /jobs → İş İlanları hub (İşe Alıyorum / İş Arıyorum). */
 export default function JobsPage() {
-  redirect('/hire');
+  redirect('/is');
 }

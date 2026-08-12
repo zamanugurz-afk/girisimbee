@@ -7,6 +7,10 @@ import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import {
   EXPERIENCE_LEVELS,
+  CAREER_WORK_TYPE_OPTIONS,
+  CAREER_WORKPLACE_OPTIONS,
+  CAREER_EDUCATION_LEVELS,
+  CAREER_AVAILABILITY_OPTIONS,
   FRANCHISE_BUSINESS_CATEGORY_OPTIONS,
   FRANCHISE_CITY_OPTIONS,
   FRANCHISE_EDUCATION_OPTIONS,
@@ -112,7 +116,7 @@ export const INVESTOR_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
-/** İş Arıyorum — iş arayan profili */
+/** İş Arıyorum — anonim kariyer özeti (CV / firma adı yok). */
 export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -124,23 +128,115 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'experienceLevel',
-      label: 'Deneyim Seviyesi',
+      label: 'Kariyer Seviyesi',
       type: 'enum',
       required: true,
       options: [...EXPERIENCE_LEVELS],
     },
     {
-      key: 'salaryExpectation',
-      label: 'Maaş Beklentisi',
+      key: 'workType',
+      label: 'Çalışma Tercihi',
       type: 'enum',
+      required: true,
+      options: [...CAREER_WORK_TYPE_OPTIONS],
+    },
+    {
+      key: 'professionalSkills',
+      label: 'Mesleki Yetkinlikler',
+      type: 'string',
+      required: true,
+      max: 1000,
+    },
+    {
+      key: 'technicalSkills',
+      label: 'Teknik Yetkinlikler',
+      type: 'string',
+      required: false,
+      max: 1000,
+    },
+    {
+      key: 'leadershipExperience',
+      label: 'Yönetim / Liderlik Deneyimi',
+      type: 'string',
+      required: false,
+      max: 1000,
+    },
+    {
+      key: 'tools',
+      label: 'Kullanılan Araçlar / Programlar',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+    {
+      key: 'educationLevel',
+      label: 'Eğitim Seviyesi',
+      type: 'enum',
+      required: true,
+      options: [...CAREER_EDUCATION_LEVELS],
+    },
+    {
+      key: 'educationField',
+      label: 'Bölüm / Alan',
+      type: 'string',
+      required: false,
+      max: 200,
+    },
+    {
+      key: 'languages',
+      label: 'Yabancı Dil ve Seviye',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+    {
+      key: 'certificates',
+      label: 'Sertifikalar',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+    {
+      key: 'preferredSectors',
+      label: 'İlgilenilen Sektörler',
+      type: 'multi-enum',
+      required: true,
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+    {
+      key: 'preferredRoles',
+      label: 'İstenen Pozisyonlar',
+      type: 'string',
+      required: false,
+      max: 300,
+    },
+    {
+      key: 'preferredCity',
+      label: 'Tercih Edilen Şehir',
+      type: 'string',
+      required: true,
+      max: 100,
+    },
+    {
+      key: 'workplacePreference',
+      label: 'Uzaktan / Hibrit / Ofis',
+      type: 'enum',
+      required: true,
+      options: [...CAREER_WORKPLACE_OPTIONS],
+    },
+    {
+      key: 'salaryExpectation',
+      label: 'Ücret Beklentisi',
+      type: 'enum',
+      required: false,
       options: [...SALARY_RANGES],
     },
     {
-      key: 'workType',
-      label: 'Çalışma Tipi',
+      key: 'availability',
+      label: 'İşe Başlama Uygunluğu',
       type: 'enum',
       required: true,
-      options: ['Tam zamanlı', 'Yarı zamanlı', 'Proje bazlı', 'Staj'],
+      options: [...CAREER_AVAILABILITY_OPTIONS],
     },
   ],
 };
@@ -443,7 +539,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     categoryId: CATEGORY_IDS.isBul,
     slug: 'is-ariyorum',
     name: 'İş Arıyorum',
-    description: 'Kariyer profilinizi paylaşın; işverenler sizi bulsun',
+    description: 'Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın',
     fieldSchema: JOB_SEEKER_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -451,8 +547,8 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
     categoryId: CATEGORY_IDS.iseAl,
     slug: 'ise-aliyorum',
-    name: 'İş İlanları',
-    description: 'Açık pozisyon yayınlayın; adaylar telefon ile ulaşır',
+    name: 'İşe Alıyorum',
+    description: 'Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir',
     fieldSchema: HIRING_FIELD_SCHEMA,
     sortOrder: 1,
   },
@@ -485,11 +581,9 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
   },
 ];
 
-/** Categories selectable on /ilan/olustur (investor + job-seeker removed). */
+/** Categories selectable on /ilan/olustur (investor create still removed). */
 export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS.filter(
-  (config) =>
-    config.categoryId !== CATEGORY_IDS.yatirimYap
-    && config.categoryId !== CATEGORY_IDS.isBul,
+  (config) => config.categoryId !== CATEGORY_IDS.yatirimYap,
 );
 
 /** Map category slug → category ID */

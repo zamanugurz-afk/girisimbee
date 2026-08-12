@@ -3,7 +3,6 @@ import type { CategoryId } from '@/lib/domain/ids';
 import type { FranchiseFlow } from '@/features/franchise/types/franchise-listing.types';
 import { getListingCategoryModule } from '@/features/listings/config/listing-category-module.config';
 import { listingFormValuesToFranchiseGivePayload } from '@/features/listings/lib/franchise-listing-form.mapper';
-import { normalizeCvStorageRef } from '@/features/listings/lib/normalize-cv-storage-ref';
 
 function readString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -68,16 +67,43 @@ export function listingFormValuesToModulePayload(
         investmentAmount: customFields.investmentAmount,
       };
 
-    case 'candidates':
+    case 'candidates': {
+      const role = readString(customFields.desiredRole);
+      const level = readString(customFields.experienceLevel);
+      const title = base.title?.trim() || role || 'Kariyer profili';
+      const shortDescription =
+        base.shortDescription?.trim()
+        || [role, level].filter(Boolean).join(' · ')
+        || 'Anonim kariyer özeti';
       return {
         ...base,
-        desiredRole: readString(customFields.desiredRole),
-        experienceLevel: readString(customFields.experienceLevel),
+        title,
+        shortDescription,
+        city: readString(customFields.preferredCity) ?? base.city,
+        desiredRole: role,
+        experienceLevel: level,
         salaryExpectation: readString(customFields.salaryExpectation),
         workType: readString(customFields.workType),
-        cvUrl: normalizeCvStorageRef(values.cvUrl ?? readString(customFields.cvUrl)),
-        kvkkConsents: values.kvkkConsents ?? customFields.kvkkConsents,
+        professionalSkills: readString(customFields.professionalSkills),
+        technicalSkills: readString(customFields.technicalSkills),
+        leadershipExperience: readString(customFields.leadershipExperience),
+        tools: readString(customFields.tools),
+        educationLevel: readString(customFields.educationLevel),
+        educationField: readString(customFields.educationField),
+        languages: readString(customFields.languages),
+        certificates: readString(customFields.certificates),
+        preferredSectors: readStringArray(customFields.preferredSectors) ?? null,
+        preferredRoles: readString(customFields.preferredRoles),
+        preferredCity: readString(customFields.preferredCity),
+        workplacePreference: readString(customFields.workplacePreference),
+        availability: readString(customFields.availability),
+        experiences: Array.isArray(customFields.experiences)
+          ? customFields.experiences
+          : [],
+        contactPhone: base.contactPhone,
+        publishConsents: values.publishConsents ?? null,
       };
+    }
 
     case 'employers':
       return {

@@ -15,16 +15,13 @@ import {
   extractCandidateListingDetails,
 } from '@/features/candidates/lib/candidate-listing.mapper';
 import { activateModule } from '@/features/shared/lib/module-activation';
-import {
-  ECOSYSTEM_CATEGORY_IDS,
-  DEFAULT_LISTING_TYPE_IDS,
-} from '@/features/shared/constants/ecosystem';
-import {
-  toPersistedCategoryId,
-  toPersistedListingTypeId,
-} from '@/lib/domain/legacy-category-ids';
 import { ValidationError } from '@/lib/domain/errors';
-import { areAllKvkkConsentsAccepted } from '@/features/kvkk/constants/kvkk-consent-policy';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { assertCareerProfileTextsClean } from '@/features/candidates/lib/career-profile-content-policy';
+import {
+  parseCareerExperiences,
+  validateCareerExperiences,
+} from '@/features/candidates/config/career-profile-fields';
 import type { KvkkConsentService } from '@/features/kvkk/services/kvkk-consent.service';
 
 export interface CreateCandidateListingInput {
@@ -90,14 +87,32 @@ export class CandidateService {
 
   async createCandidateListing(input: CreateCandidateListingInput): Promise<Listing> {
     await this.activateProfile(input.profileId);
-    const mapped = candidatePayloadToCreateInput(input.listing);
-    const publishNow = !input.asDraft;
 
-    if (publishNow && !areAllKvkkConsentsAccepted(input.listing.kvkkConsents)) {
-      throw new ValidationError('Tüm KVKK onay kutularını işaretlemeniz gerekmektedir.', {
-        kvkkConsents: ['Tüm KVKK onay kutularını işaretlemeniz gerekmektedir.'],
-      });
+    const experiences = parseCareerExperiences(input.listing.experiences);
+    const expError = validateCareerExperiences(experiences);
+    if (expError) {
+      throw new ValidationError(expError, { experiences: [expError] });
     }
+
+    try {
+      assertCareerProfileTextsClean([
+        input.listing.longDescription,
+        input.listing.professionalSkills,
+        input.listing.technicalSkills,
+        input.listing.leadershipExperience,
+        ...experiences.flatMap((e) => [e.responsibilities, e.achievements]),
+      ]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'İçerik politikası ihlali';
+      throw new ValidationError(message, { longDescription: [message] });
+    }
+
+    const mapped = candidatePayloadToCreateInput({
+      ...input.listing,
+      experiences,
+      city: input.listing.preferredCity ?? input.listing.city ?? null,
+    });
+    const publishNow = !input.asDraft;
 
     if (publishNow) {
       await this.moduleProfileRepo.upsertCandidateProfile({
@@ -107,35 +122,24 @@ export class CandidateService {
     }
 
     console.log('[candidates] listingRepo.create', {
-      category_id: toPersistedCategoryId(ECOSYSTEM_CATEGORY_IDS.candidates),
-      listing_type_id: toPersistedListingTypeId(DEFAULT_LISTING_TYPE_IDS.candidates),
+      category_id: CATEGORY_IDS.isBul,
+      listing_type_id: LISTING_TYPE_IDS.isBulDefault,
       moduleKey: 'candidates',
     });
 
     const listing = await this.listingRepo.create({
       ...mapped,
       ownerId: input.ownerId,
-      categoryId: ECOSYSTEM_CATEGORY_IDS.candidates,
-      listingTypeId: DEFAULT_LISTING_TYPE_IDS.candidates,
+      categoryId: CATEGORY_IDS.isBul,
+      listingTypeId: LISTING_TYPE_IDS.isBulDefault,
       moduleKey: 'candidates',
       status: publishNow ? 'published' : 'draft',
       workflowStatus: publishNow ? 'published' : 'draft',
     });
 
     if (publishNow) {
-      try {
-        await this.kvkkConsentService.recordListingPublishConsent({
-          userId: input.ownerId,
-          profileId: input.profileId,
-          listingId: listing.id,
-          consents: input.listing.kvkkConsents,
-          ipAddress: input.consentContext?.ipAddress,
-          userAgent: input.consentContext?.userAgent,
-        });
-      } catch (error) {
-        await this.listingRepo.softDelete(listing.id);
-        throw error;
-      }
+      // Career profiles use standard publish consents (phone/KVKK UI), not CV-sharing KVKK.
+      // Consent audit for phone publish is recorded by shared listing publish paths when available.
     }
 
     return listing;

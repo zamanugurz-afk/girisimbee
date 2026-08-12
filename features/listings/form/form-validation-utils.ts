@@ -21,6 +21,11 @@ import {
 } from '@/features/listings/form/fields/publish-consent-fields';
 import { isValidCvStorageRef } from '@/features/listings/lib/normalize-cv-storage-ref';
 import {
+  parseCareerExperiences,
+  validateCareerExperiences,
+} from '@/features/candidates/config/career-profile-fields';
+import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
+import {
   contentPolicyIssuesToFieldErrors,
   validateListingContentPolicy,
 } from '@/features/listings/lib/listing-content-policy';
@@ -505,14 +510,16 @@ export function validateListingFormBeforePublish(options: {
   const errors: Record<string, string> = {};
 
   if (options.categoryId === CATEGORY_IDS.isBul) {
-    if (!options.cvUrl) {
-      errors.cvUrl = PUBLISH_FIELD_HINTS.cvUrl;
-    } else if (!isValidCvStorageRef(options.cvUrl)) {
-      errors.cvUrl = 'Özgeçmiş geçersiz. Lütfen yeniden yükleyin.';
-    }
-    if (!options.kvkkConsents || !validateKvkkConsents(options.kvkkConsents)) {
-      errors.kvkkConsents = PUBLISH_FIELD_HINTS.kvkkConsents;
-    }
+    const experiences = parseCareerExperiences(options.snapshot.customFields.experiences);
+    const expError = validateCareerExperiences(experiences);
+    if (expError) errors.experiences = expError;
+
+    const summary =
+      typeof options.snapshot.core.longDescription === 'string'
+        ? options.snapshot.core.longDescription
+        : '';
+    const summaryViolation = findCareerProfileContentViolation(summary);
+    if (summaryViolation) errors.longDescription = summaryViolation;
   }
 
   if (!options.publishConsents || !validatePublishConsents(options.publishConsents)) {
@@ -547,11 +554,20 @@ export function validateListingFormBeforePublish(options: {
     ? options.snapshot.tags.map((t) => String(t))
     : [];
 
-  const rawTitle = typeof core.title === 'string' ? core.title : undefined;
-  const rawShort =
+  let rawTitle = typeof core.title === 'string' ? core.title : undefined;
+  let rawShort =
     typeof core.shortDescription === 'string' ? core.shortDescription : undefined;
   const rawLong =
     typeof core.longDescription === 'string' ? core.longDescription : undefined;
+
+  if (options.categoryId === CATEGORY_IDS.isBul) {
+    const role = String(options.snapshot.customFields.desiredRole ?? '').trim();
+    const level = String(options.snapshot.customFields.experienceLevel ?? '').trim();
+    if (!rawTitle?.trim() && role) rawTitle = role;
+    if (!rawShort?.trim() && (role || level)) {
+      rawShort = [role, level].filter(Boolean).join(' · ').slice(0, 200);
+    }
+  }
 
   const quality = evaluateListingContentQuality({
     title: rawTitle,

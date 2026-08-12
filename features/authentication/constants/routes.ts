@@ -29,6 +29,8 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/invest',
   '/jobs',
   '/hire',
+  '/is',
+  '/is-ariyorum',
   '/partners',
   '/dijital-ai',
   '/franchise',

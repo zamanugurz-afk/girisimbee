@@ -407,6 +407,13 @@ export function mergeCustomFieldDefaults(
     }
   }
 
+  // Preserve non-schema keys (e.g. experiences[]) used by career-profile editor.
+  for (const [key, value] of Object.entries(customFields)) {
+    if (!fieldSchema.fields.some((field) => field.key === key) && value !== undefined) {
+      merged[key] = value;
+    }
+  }
+
   for (const field of fieldSchema.fields) {
     if (field.type === 'multi-enum' && field.options?.length) {
       let raw = merged[field.key];

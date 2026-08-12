@@ -184,11 +184,57 @@ export const STARTUP_STAGES_WITH_ALL = [
 
 /** Experience levels — Turkish labels (single selection). */
 export const EXPERIENCE_LEVELS = [
-  'Başlangıç',
-  'Orta',
-  'Kıdemli',
-  'Lider',
+  'Stajyer',
+  'Junior',
+  'Mid',
+  'Senior',
+  'Yönetici',
   'Direktör',
+] as const;
+
+/** Work preference for job-seeker career profiles. */
+export const CAREER_WORK_TYPE_OPTIONS = [
+  'Tam zamanlı',
+  'Yarı zamanlı',
+  'Proje bazlı',
+  'Staj',
+  'Sözleşmeli',
+] as const;
+
+/** Workplace preference. */
+export const CAREER_WORKPLACE_OPTIONS = [
+  'Uzaktan',
+  'Hibrit',
+  'Ofis',
+] as const;
+
+/** Education levels for career profiles. */
+export const CAREER_EDUCATION_LEVELS = [
+  'Lise',
+  'Ön lisans',
+  'Lisans',
+  'Yüksek lisans',
+  'Doktora',
+  'Meslek yüksekokulu',
+  'Diğer',
+] as const;
+
+/** Language proficiency levels. */
+export const CAREER_LANGUAGE_LEVELS = [
+  'Temel',
+  'Orta',
+  'İyi',
+  'İleri',
+  'Ana dil',
+] as const;
+
+/** Availability to start. */
+export const CAREER_AVAILABILITY_OPTIONS = [
+  'Hemen',
+  '2 hafta içinde',
+  '1 ay içinde',
+  '2+ ay',
+  'Esnek',
 ] as const;
 
 export const CURRENCY_OPTIONS = ['TRY', 'USD', 'EUR'] as const;

@@ -72,7 +72,7 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   },
   'ise-aliyorum': {
     emoji: '💼',
-    label: 'İŞ İLANI',
+    label: 'İŞE ALIYORUM',
     group: 'is',
     iconKey: 'employer',
   },

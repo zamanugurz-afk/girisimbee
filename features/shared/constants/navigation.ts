@@ -5,7 +5,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 export const NAV_LINKS = [
   { label: 'Keşfet', href: '/kesfet' },
   { label: 'Yatırım Arıyorum', href: '/invest' },
-  { label: 'İş İlanları', href: '/hire' },
+  { label: 'İş İlanları', href: '/is' },
   { label: 'Ortak Arıyorum', href: '/partners' },
   { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
   { label: 'Franchise İlanları', href: '/franchise/buy' },
@@ -29,7 +29,7 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   Kategoriler: [
     { label: 'Yatırım Arıyorum', href: '/invest' },
     { label: 'Yatırım Yap', href: '/investors' },
-    { label: 'İş İlanları', href: '/hire' },
+    { label: 'İş İlanları', href: '/is' },
     { label: 'Ortak Arıyorum', href: '/partners' },
     { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
     { label: 'Franchise İlanları', href: '/franchise/buy' },

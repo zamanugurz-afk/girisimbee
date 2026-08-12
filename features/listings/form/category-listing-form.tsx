@@ -47,6 +47,13 @@ import {
 import { getListingPackageService } from '@/lib/persistence/container';
 import type { UserId } from '@/lib/domain/ids';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
+import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
+import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
+import {
+  parseCareerExperiences,
+  validateCareerExperiences,
+} from '@/features/candidates/config/career-profile-fields';
+import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
 import {
   DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION,
   DEFAULT_PACKAGE_SELECTION,
@@ -237,6 +244,7 @@ export function CategoryListingForm({
   const isPublishStep = Boolean(currentStep.publish);
   const isCvStep = Boolean(currentStep.cv);
   const isKvkkStep = Boolean(currentStep.kvkk);
+  const isExperienceStep = Boolean(currentStep.experienceEditor);
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -560,13 +568,20 @@ export function CategoryListingForm({
       return true;
     }
 
-    if (isKvkkStep) {
-      const isJobSeeker = categoryId === CATEGORY_IDS.isBul;
-      if (isJobSeeker && !validateKvkkConsents(kvkkConsents)) {
-        setFieldErrors({ kvkkConsents: 'Tüm KVKK onay kutularını işaretlemeniz gerekmektedir.' });
-        toast.error('Lütfen tüm KVKK onaylarını tamamlayın.');
+    if (isExperienceStep) {
+      const experiences = parseCareerExperiences(mergedCustomFields.experiences);
+      const expError = validateCareerExperiences(experiences);
+      if (expError) {
+        setFieldErrors({ experiences: expError });
+        toast.error(expError);
         return false;
       }
+      setCustomField('experiences', experiences);
+      setFieldErrors({});
+      return true;
+    }
+
+    if (isKvkkStep) {
       if (!validatePublishConsents(publishConsents)) {
         setFieldErrors({
           publishConsents: 'Tüm yayın onay kutularını işaretlemeniz gerekmektedir.',
@@ -583,6 +598,19 @@ export function CategoryListingForm({
       }
       setFieldErrors({});
       return true;
+    }
+
+    if (
+      categoryId === CATEGORY_IDS.isBul
+      && currentStep.coreFields?.includes('longDescription')
+    ) {
+      const summary = String(core.longDescription ?? '');
+      const violation = findCareerProfileContentViolation(summary);
+      if (violation) {
+        setFieldErrors({ longDescription: violation });
+        toast.error(violation);
+        return false;
+      }
     }
 
     try {
@@ -710,16 +738,31 @@ export function CategoryListingForm({
   function buildHandlerValues(): ListingFormValues {
     const customFieldsWithCv = cvUrl
       ? { ...mergedCustomFields, cvUrl, kvkkConsents }
-      : { ...mergedCustomFields, ...(categoryId === CATEGORY_IDS.isBul ? { kvkkConsents } : {}) };
+      : { ...mergedCustomFields };
+
+    const role = String(mergedCustomFields.desiredRole ?? '').trim();
+    const level = String(mergedCustomFields.experienceLevel ?? '').trim();
+    const derivedCore =
+      categoryId === CATEGORY_IDS.isBul
+        ? {
+            ...core,
+            title: core.title?.trim() || role || 'Kariyer profili',
+            shortDescription:
+              core.shortDescription?.trim()
+              || [role, level].filter(Boolean).join(' · ')
+              || 'Anonim kariyer özeti',
+            city: core.city || String(mergedCustomFields.preferredCity ?? '') || null,
+          }
+        : core;
 
     return {
-      core,
+      core: derivedCore,
       customFields: customFieldsWithCv,
       tags,
       images: [...images]
         .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
         .map((img, index) => ({ ...img, sortOrder: index })),
-      cvUrl,
+      cvUrl: categoryId === CATEGORY_IDS.isBul ? null : cvUrl,
       kvkkConsents,
       publishConsents,
       contactPhone,
@@ -882,11 +925,38 @@ export function CategoryListingForm({
         </div>
 
         <div className="space-y-4">
-          {isPreviewStep && (
+          {isPreviewStep && categoryId === CATEGORY_IDS.isBul && (
+            <CareerProfilePreview
+              data={{
+                desiredRole: String(mergedCustomFields.desiredRole ?? ''),
+                experienceLevel: String(mergedCustomFields.experienceLevel ?? ''),
+                workType: String(mergedCustomFields.workType ?? ''),
+                preferredSectors: mergedCustomFields.preferredSectors as string[] | string,
+                professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
+                preferredCity: String(mergedCustomFields.preferredCity ?? ''),
+                workplacePreference: String(mergedCustomFields.workplacePreference ?? ''),
+                salaryExpectation: String(mergedCustomFields.salaryExpectation ?? ''),
+                availability: String(mergedCustomFields.availability ?? ''),
+                longDescription: core.longDescription,
+                experiences: parseCareerExperiences(mergedCustomFields.experiences),
+              }}
+            />
+          )}
+
+          {isPreviewStep && categoryId !== CATEGORY_IDS.isBul && (
             <ListingFormPreviewContent
               values={formValues}
               listingType={listingType}
               readOnly
+            />
+          )}
+
+          {isExperienceStep && (
+            <CareerExperienceEditor
+              value={parseCareerExperiences(mergedCustomFields.experiences)}
+              onChange={(next) => setCustomField('experiences', next)}
+              error={resolveFieldError(fieldErrors, 'experiences')}
+              disabled={disabled || isBusy}
             />
           )}
 

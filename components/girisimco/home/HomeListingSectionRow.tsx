@@ -51,7 +51,7 @@ const FEATURED_CATEGORY_TABS: {
   {
     id: 'job',
     label: 'İş Fırsatı',
-    viewAllHref: '/hire',
+    viewAllHref: '/is',
     match: (item) =>
       item.listingIconKey === 'employer'
       || item.listingIconKey === 'job-seeker'

@@ -31,12 +31,12 @@ export const HOME_CATEGORIES = [
   },
   {
     slug: 'ise-al',
-    href: '/hire',
+    href: '/is',
     label: 'İş İlanları',
     color: GC_CATEGORY_COLORS['ise-al'],
-    audience: 'Açık pozisyonlar',
-    shortCue: 'Pozisyon ve maaş',
-    hint: 'Pozisyon özeti ve maaş aralığıyla iş ilanlarını inceleyin; telefon ile arayın.',
+    audience: 'İşe al / iş ara',
+    shortCue: 'Pozisyon veya kariyer',
+    hint: 'İşe Alıyorum veya anonim İş Arıyorum kariyer özeti — hub üzerinden seçin.',
   },
   {
     slug: 'dijital-ai',

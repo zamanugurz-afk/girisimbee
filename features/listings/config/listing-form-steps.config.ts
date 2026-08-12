@@ -18,10 +18,12 @@ export interface ListingFormStepDef {
   /** Custom fields rendered above core fields (e.g. company name first) */
   leadCustomFieldKeys?: string[];
   meta?: MetaFieldKey[];
-  /** CV upload step (job seeker) */
+  /** CV upload step (legacy — unused by anonymous career profile) */
   cv?: boolean;
-  /** KVKK consent step (job seeker) */
+  /** KVKK consent step (job seeker legacy) */
   kvkk?: boolean;
+  /** Anonymous multi-experience editor (İş Arıyorum) */
+  experienceEditor?: boolean;
   /** Final read-only review step */
   preview?: boolean;
   /** Homepage placement package selection (before publish) */
@@ -189,24 +191,52 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Hedef rol başlığı ve kısa profil özeti',
-      coreFields: ['title', 'shortDescription'],
+      description: 'Aranan pozisyon, kariyer seviyesi ve çalışma tercihi',
+      customFieldKeys: ['desiredRole', 'experienceLevel', 'workType'],
     },
     {
-      id: 'details',
-      title: 'Kariyer özetim',
-      description: 'Deneyiminizi, hedeflerinizi ve aradığınız rolü anlatın',
+      id: 'experience',
+      title: 'Deneyim',
+      description: 'Firma adı olmadan anonim deneyimlerinizi ekleyin',
+      experienceEditor: true,
+    },
+    {
+      id: 'skills',
+      title: 'Yetkinlikler',
+      description: 'Mesleki ve teknik yetkinlikler, araçlar',
+      customFieldKeys: [
+        'professionalSkills',
+        'technicalSkills',
+        'leadershipExperience',
+        'tools',
+      ],
+    },
+    {
+      id: 'education',
+      title: 'Eğitim & Dil',
+      description: 'Eğitim seviyesi, dil ve sertifikalar — belge yükleme yok',
+      customFieldKeys: ['educationLevel', 'educationField', 'languages', 'certificates'],
+    },
+    {
+      id: 'preferences',
+      title: 'Kariyer Tercihleri',
+      description: 'Sektör, şehir, çalışma modeli ve ücret beklentisi',
+      customFieldKeys: [
+        'preferredSectors',
+        'preferredRoles',
+        'preferredCity',
+        'workplacePreference',
+        'salaryExpectation',
+        'availability',
+      ],
+    },
+    {
+      id: 'summary',
+      title: 'Kariyer Özeti',
+      description:
+        'Kendinizi profesyonelce anlatın. Telefon, e-posta, adres, firma adı veya sosyal medya yazmayın.',
       coreFields: ['longDescription'],
     },
-    STEP_LOCATION,
-    {
-      id: 'career',
-      title: 'Kariyer Bilgileri',
-      description: 'Pozisyon, deneyim seviyesi ve çalışma tercihleriniz',
-      customFieldKeys: 'all',
-    },
-    STEP_CV,
-    STEP_KVKK,
   ),
   [CATEGORY_IDS.iseAl]: withPublishFlow(
     {
