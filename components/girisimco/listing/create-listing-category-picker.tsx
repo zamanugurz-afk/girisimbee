@@ -188,6 +188,9 @@ export function CreateListingCategoryPicker({
   );
 }
 
+const HIRE_FLOW_COLOR = GC_CATEGORY_COLORS['ise-al'];
+const SEEK_FLOW_COLOR = '#0EA5E9';
+
 function JobFlowOption({
   title,
   description,
@@ -208,39 +211,44 @@ function JobFlowOption({
       type="button"
       onClick={onClick}
       className={cn(
-        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border-2 bg-white p-5 pl-6 text-left',
-        'shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-all duration-200',
-        'hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-18px_rgba(15,23,42,0.28)]',
+        'group relative flex h-full min-h-[17rem] flex-col overflow-hidden rounded-[1.35rem] bg-white p-7 pl-8 text-left sm:min-h-[18.5rem] sm:p-8 sm:pl-9',
+        'transition-all duration-200 hover:-translate-y-1',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         'dark:bg-card',
       )}
-      style={{ borderColor: color }}
+      style={{
+        // box-shadow frame — not overridden by global button border resets
+        boxShadow: `inset 0 0 0 2.5px ${color}, 0 18px 40px -28px ${color}99`,
+        backgroundImage: `linear-gradient(180deg, ${color}0F 0%, transparent 42%)`,
+      }}
     >
       <span
-        className="absolute inset-y-0 left-0 w-1 rounded-l-2xl"
+        className="absolute inset-y-3 left-0 w-[5px] rounded-r-full"
         style={{ backgroundColor: color }}
         aria-hidden
       />
       <span
-        className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+        className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
         style={{ backgroundColor: color }}
         aria-hidden
       >
-        <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        <Icon className="h-6 w-6" strokeWidth={1.75} />
       </span>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#94A3B8]">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
         {audience}
       </span>
-      <span className="mt-1.5 font-display text-[1.05rem] font-semibold tracking-tight text-[#0B1220] dark:text-foreground">
+      <span className="mt-2 font-display text-xl font-semibold tracking-tight text-[#0B1220] dark:text-foreground sm:text-[1.35rem]">
         {title}
       </span>
-      <span className="mt-2 flex-1 text-[13px] leading-relaxed text-[#64748B]">{description}</span>
+      <span className="mt-3 flex-1 text-[14px] leading-relaxed text-[#64748B] sm:text-[15px]">
+        {description}
+      </span>
       <span
-        className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
+        className="mt-7 inline-flex items-center gap-2 text-[14px] font-semibold"
         style={{ color }}
       >
         Devam et
-        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
       </span>
     </button>
   );
@@ -259,7 +267,7 @@ export function JobListingFlowStep({
 }) {
   return (
     <section className="mb-10">
-      <div className="mb-7 flex items-end justify-between gap-4">
+      <div className="mb-8 flex items-end justify-between gap-4">
         <div className="max-w-xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
             Adım 1 · İş İlanları
@@ -286,12 +294,12 @@ export function JobListingFlowStep({
         </button>
       </div>
 
-      <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
         <JobFlowOption
           title="İşe Alıyorum"
           description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir."
           audience="İşverenler"
-          color={GC_CATEGORY_COLORS['ise-al']}
+          color={HIRE_FLOW_COLOR}
           Icon={Briefcase}
           onClick={() => onSelect(CATEGORY_IDS.iseAl)}
         />
@@ -299,7 +307,7 @@ export function JobListingFlowStep({
           title="İş Arıyorum"
           description="Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın."
           audience="İş arayanlar"
-          color="#0EA5E9"
+          color={SEEK_FLOW_COLOR}
           Icon={UserRoundSearch}
           onClick={() => onSelect(CATEGORY_IDS.isBul)}
         />
