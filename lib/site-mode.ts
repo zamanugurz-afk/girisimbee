@@ -53,6 +53,8 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
     || pathname === '/sifre-sifirla'
     || pathname === '/sifre-yenile'
     || pathname === '/eposta-dogrula'
+    || pathname === '/destek'
+    || pathname === '/reklam'
     || pathname.startsWith('/dashboard')
     || pathname.startsWith('/admin')
     || pathname.startsWith('/ilan/')

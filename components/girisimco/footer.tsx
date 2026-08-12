@@ -5,10 +5,7 @@ import {
   BRAND_TAGLINE,
 } from '@/features/shared';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
-import {
-  CONTACT_EMAILS,
-  CONTACT_MAILTO,
-} from '@/features/shared/constants/contact';
+import { CONTACT_EMAILS } from '@/features/shared/constants/contact';
 
 export function Footer() {
   const footerLinks = getFooterLinks();
@@ -25,13 +22,13 @@ export function Footer() {
 
             <div className="mt-4 space-y-1.5">
               <a
-                href={CONTACT_MAILTO.support}
+                href="/destek"
                 className="block text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Destek · {CONTACT_EMAILS.support}
               </a>
               <a
-                href={CONTACT_MAILTO.ads}
+                href="/reklam"
                 className="block text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Reklam &amp; işbirliği · {CONTACT_EMAILS.ads}

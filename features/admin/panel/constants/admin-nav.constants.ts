@@ -7,6 +7,7 @@ import {
   Handshake,
   Inbox,
   LayoutDashboard,
+  LifeBuoy,
   Megaphone,
   Package,
   Scale,
@@ -30,6 +31,7 @@ export type AdminNavId =
   | 'packages'
   | 'market'
   | 'ad_inquiries'
+  | 'support_inquiries'
   | 'notifications'
   | 'reports'
   | 'placements'
@@ -59,6 +61,7 @@ export const ADMIN_ROUTES = {
   packages: `${ADMIN_PANEL_BASE}/packages`,
   market: `${ADMIN_PANEL_BASE}/market`,
   adInquiries: `${ADMIN_PANEL_BASE}/reklam`,
+  supportInquiries: `${ADMIN_PANEL_BASE}/destek`,
   notifications: `${ADMIN_PANEL_BASE}/notifications`,
   reports: `${ADMIN_PANEL_BASE}/reports`,
   placements: `${ADMIN_PANEL_BASE}/placements`,
@@ -117,6 +120,12 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
     icon: Handshake,
   },
   {
+    id: 'support_inquiries',
+    label: 'Destek Talepleri',
+    href: ADMIN_ROUTES.supportInquiries,
+    icon: LifeBuoy,
+  },
+  {
     id: 'notifications',
     label: 'Bildirimler',
     href: ADMIN_ROUTES.notifications,
@@ -151,6 +160,7 @@ export const ADMIN_BREADCRUMB_LABELS: Record<string, string> = {
   [ADMIN_ROUTES.packages]: 'Paketler & Kuponlar',
   [ADMIN_ROUTES.market]: 'MARKET',
   [ADMIN_ROUTES.adInquiries]: 'Reklam & İşbirliği',
+  [ADMIN_ROUTES.supportInquiries]: 'Destek Talepleri',
   [ADMIN_ROUTES.notifications]: 'Bildirimler',
   [ADMIN_ROUTES.reports]: 'Raporlar',
   [ADMIN_ROUTES.placements]: 'Vitrinler',

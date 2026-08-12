@@ -1,6 +1,5 @@
 import { filterPremiumLabels } from '@/features/shared/config/features';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
-import { CONTACT_MAILTO } from '@/features/shared/constants/contact';
 
 /** Primary header navigation — marketplace browse destinations. */
 export const NAV_LINKS = [
@@ -43,8 +42,8 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'Favorilerim', href: '/dashboard/favorilerim' },
   ],
   İletişim: [
-    { label: 'Destek', href: CONTACT_MAILTO.support },
-    { label: 'Reklam & işbirliği', href: CONTACT_MAILTO.ads },
+    { label: 'Destek', href: '/destek' },
+    { label: 'Reklam & işbirliği', href: '/reklam' },
     { label: 'Gizlilik', href: '/yasal/gizlilik' },
     { label: 'KVKK', href: '/yasal/kvkk-aydinlatma' },
     { label: 'Açık rıza', href: '/yasal/acik-riza' },

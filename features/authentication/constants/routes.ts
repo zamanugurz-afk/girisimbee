@@ -42,6 +42,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/sifre-sifirla',
   '/sifre-yenile',
   '/eposta-dogrula',
+  '/destek',
   '/yasal',
   '/iletisim-talepleri',
   '/auth/callback',
