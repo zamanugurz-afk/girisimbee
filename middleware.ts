@@ -20,6 +20,8 @@ import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
 import {
   isClientIpAllowlisted,
   isSiteIpAllowlistEnabled,
+  PREVIEW_COOKIE,
+  getRequestClientIps,
 } from '@/lib/site-ip-allowlist';
 
 function nowMs(): number {
@@ -100,6 +102,24 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
+  // One-click preview unlock: /?gb_preview=1 sets a cookie (backup if IP/IPv6 drifts).
+  const previewParam = request.nextUrl.searchParams.get('gb_preview');
+  if (previewParam === '1' || previewParam === 'girisimbee-preview') {
+    const secret = process.env.SITE_PREVIEW_SECRET?.trim() || 'girisimbee-preview';
+    const dest = request.nextUrl.clone();
+    dest.searchParams.delete('gb_preview');
+    if (dest.pathname === '/bakim') dest.pathname = '/';
+    const res = NextResponse.redirect(dest);
+    res.cookies.set(PREVIEW_COOKIE, secret, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    return attachTiming(res, nowMs() - mwStart);
+  }
+
   // Live mode: never leave testers stuck on the maintenance URL/cache.
   if (!isMaintenanceMode() && pathname === '/bakim') {
     // IP preview: non-allowlisted clients must stay on /bakim.
@@ -112,8 +132,7 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
   }
 
-  // IP allowlist preview — full live site only for listed client IPs.
-  // Do NOT reuse maintenance bypass (that still opens /admin, /dashboard, /ilan/…).
+  // IP allowlist preview — full live site only for listed client IPs / preview cookie.
   if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
     const ipBypass =
       pathname === '/bakim'
@@ -129,7 +148,11 @@ export async function middleware(request: NextRequest) {
     if (!ipBypass) {
       const url = request.nextUrl.clone();
       url.pathname = '/bakim';
-      return attachTiming(NextResponse.rewrite(url), nowMs() - mwStart);
+      const rewritten = NextResponse.rewrite(url);
+      // Debug (safe): helps confirm gate vs wrong IP without exposing secrets.
+      rewritten.headers.set('x-gb-gate', 'ip-block');
+      rewritten.headers.set('x-gb-ip', getRequestClientIps(request).join('|') || 'none');
+      return attachTiming(rewritten, nowMs() - mwStart);
     }
   }
 
