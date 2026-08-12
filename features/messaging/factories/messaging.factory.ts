@@ -9,8 +9,10 @@ export function createConversation(
   const ts = timestamps(overrides.createdAt);
   return {
     id: overrides.id ?? ids.conversation(crypto.randomUUID()),
+    kind: overrides.kind ?? (overrides.listingId ? 'listing' : 'support'),
     listingId: overrides.listingId ?? null,
     companyId: overrides.companyId ?? null,
+    supportInquiryId: overrides.supportInquiryId ?? null,
     status: overrides.status ?? 'open',
     lastMessageAt: overrides.lastMessageAt ?? null,
     lastMessagePreview: overrides.lastMessagePreview ?? null,

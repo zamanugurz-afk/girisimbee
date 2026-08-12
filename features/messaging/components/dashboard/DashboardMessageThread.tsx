@@ -140,19 +140,30 @@ export function DashboardMessageThread({
                   investor={meta.otherParticipant.investorVerified}
                 />
               </div>
-              <Link
-                href={`/ilan/${meta.listingSlug}`}
-                className="truncate text-xs text-muted-foreground hover:text-foreground"
-              >
-                {meta.listingTitle}
-                {meta.companyName ? ` · ${meta.companyName}` : ''}
-              </Link>
+              {meta.kind === 'support' || !meta.listingSlug ? (
+                <p className="truncate text-xs text-muted-foreground">
+                  {meta.listingTitle}
+                  {meta.companyName ? ` · ${meta.companyName}` : ''}
+                </p>
+              ) : (
+                <Link
+                  href={`/ilan/${meta.listingSlug}`}
+                  className="truncate text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {meta.listingTitle}
+                  {meta.companyName ? ` · ${meta.companyName}` : ''}
+                </Link>
+              )}
             </div>
           </>
         ) : null}
       </div>
 
-      {meta?.listingTitle ? (
+      {meta?.kind === 'support' ? (
+        <p className="border-b border-border/60 bg-muted/20 px-4 py-2 text-xs text-muted-foreground dark:border-white/10">
+          Bu görüşme, destek talebinize yanıt olarak Girisimbee destek ekibi tarafından açıldı.
+        </p>
+      ) : meta?.listingTitle ? (
         <p className="border-b border-border/60 bg-muted/20 px-4 py-2 text-xs text-muted-foreground dark:border-white/10">
           Bu görüşme, ilan üzerinden gönderilen iletişim talebi sonucunda oluşturuldu.
         </p>

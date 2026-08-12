@@ -21,6 +21,7 @@ type Row = {
   message: string;
   admin_note: string | null;
   created_by: string | null;
+  conversation_id?: string | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
   created_at: string;
@@ -39,6 +40,7 @@ function mapRow(row: Row): SupportInquiry {
     message: row.message,
     adminNote: row.admin_note,
     createdBy: row.created_by,
+    conversationId: row.conversation_id ?? null,
     reviewedBy: row.reviewed_by,
     reviewedAt: row.reviewed_at,
     createdAt: row.created_at,
@@ -108,6 +110,9 @@ export async function updateSupportInquiry(
   }
   if (input.adminNote !== undefined) {
     patch.admin_note = input.adminNote;
+  }
+  if (input.conversationId !== undefined) {
+    patch.conversation_id = input.conversationId;
   }
 
   const { data, error } = await supabase

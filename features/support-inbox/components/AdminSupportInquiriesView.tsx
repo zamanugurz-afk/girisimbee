@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LifeBuoy, Loader2, Mail, Phone, RefreshCw, Trash2 } from 'lucide-react';
+import { LifeBuoy, Loader2, Mail, MessageSquare, Phone, RefreshCw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,7 @@ export function AdminSupportInquiriesView() {
   const [selected, setSelected] = useState<SupportInquiry | null>(null);
   const [note, setNote] = useState('');
   const [status, setStatus] = useState<SupportInquiryStatus>('new');
+  const [replyBody, setReplyBody] = useState('');
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -90,6 +91,7 @@ export function AdminSupportInquiriesView() {
     setSelected(item);
     setNote(item.adminNote ?? '');
     setStatus(item.status);
+    setReplyBody('');
   }
 
   async function saveDetail(nextStatus?: SupportInquiryStatus) {
@@ -107,6 +109,28 @@ export function AdminSupportInquiriesView() {
       toast.success('Kaydedildi');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Kaydedilemedi');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendReply() {
+    if (!selected || !replyBody.trim()) return;
+    setBusy(true);
+    try {
+      const result = await supportAdminApi.reply(selected.id, {
+        body: replyBody.trim(),
+        markStatus: status === 'new' ? 'reviewing' : status,
+      });
+      const item = result.inquiry;
+      setSelected(item);
+      setStatus(item.status);
+      setNote(item.adminNote ?? '');
+      setReplyBody('');
+      setItems((prev) => prev.map((row) => (row.id === item.id ? item : row)));
+      toast.success('Mesaj kullanıcının Mesajlarım kutuna iletildi');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Mesaj gönderilemedi');
     } finally {
       setBusy(false);
     }
@@ -186,6 +210,12 @@ export function AdminSupportInquiriesView() {
                     <span className="font-medium text-foreground">{item.fullName}</span>
                     <Badge variant="secondary">{SUPPORT_INQUIRY_STATUS_LABELS[item.status]}</Badge>
                     <Badge variant="outline">{SUPPORT_INQUIRY_SUBJECT_LABELS[item.subject]}</Badge>
+                    {item.conversationId ? (
+                      <Badge variant="outline" className="gap-1">
+                        <MessageSquare className="h-3 w-3" />
+                        Mesaj
+                      </Badge>
+                    ) : null}
                   </div>
                   <p className="line-clamp-2 text-sm text-muted-foreground">{item.message}</p>
                   <p className="text-xs text-muted-foreground">{formatWhen(item.createdAt)}</p>
@@ -211,7 +241,7 @@ export function AdminSupportInquiriesView() {
       )}
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           {selected ? (
             <>
               <DialogHeader>
@@ -263,6 +293,35 @@ export function AdminSupportInquiriesView() {
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
+                </div>
+
+                <div className="space-y-2 rounded-lg border border-border/60 bg-primary/[0.03] p-3">
+                  <Label htmlFor="supportReply" className="inline-flex items-center gap-1.5">
+                    <MessageSquare className="h-3.5 w-3.5" />
+                    Kullanıcıya mesaj (Mesajlarım)
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {selected.createdBy
+                      ? 'Yanıt, kullanıcının hesabındaki Mesajlarım bölümüne düşer.'
+                      : 'Giriş yapmadan gelen taleplerde e-posta ile hesap eşleşmesi aranır; yoksa yalnızca e-posta kullanılabilir.'}
+                  </p>
+                  <Textarea
+                    id="supportReply"
+                    rows={4}
+                    value={replyBody}
+                    onChange={(e) => setReplyBody(e.target.value)}
+                    placeholder="Aksiyon sonucunu veya yanıtınızı yazın…"
+                    disabled={busy}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={busy || !replyBody.trim()}
+                    onClick={() => void sendReply()}
+                  >
+                    {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+                    Mesaj gönder
+                  </Button>
                 </div>
               </div>
               <DialogFooter className="gap-2 sm:gap-0">

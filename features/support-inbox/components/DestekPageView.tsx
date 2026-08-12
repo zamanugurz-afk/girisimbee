@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
 import { CONTACT_EMAILS } from '@/features/shared/constants/contact';
 import { supportPublicApi } from '@/features/support-inbox/lib/support-inquiry-api';
@@ -75,7 +76,11 @@ export function DestekPageView() {
             Destek
           </p>
           <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            <BrandWordmark /> destek ekibine yazın
+            <span className="inline-flex items-center gap-0 align-middle">
+              <BrandMarkSlot size={36} className="-mr-1" priority />
+              <BrandWordmark />
+            </span>{' '}
+            destek ekibine yazın
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             Formu doldurup gönderin; talep doğrudan yönetim paneline düşer. Outlook veya başka bir

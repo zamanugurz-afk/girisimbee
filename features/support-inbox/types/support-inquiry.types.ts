@@ -29,6 +29,7 @@ export type SupportInquiry = {
   message: string;
   adminNote: string | null;
   createdBy: string | null;
+  conversationId: string | null;
   reviewedBy: string | null;
   reviewedAt: string | null;
   createdAt: string;
@@ -47,4 +48,5 @@ export type CreateSupportInquiryInput = {
 export type UpdateSupportInquiryInput = {
   status?: SupportInquiryStatus;
   adminNote?: string | null;
+  conversationId?: string | null;
 };

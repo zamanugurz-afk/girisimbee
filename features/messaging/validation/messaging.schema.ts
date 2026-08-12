@@ -5,8 +5,10 @@ export const conversationStatusSchema = z.enum(['open', 'archived', 'blocked', '
 
 export const conversationSchema = timestampsSchema.merge(softDeletableSchema).extend({
   id: uuidSchema,
+  kind: z.enum(['listing', 'support']).default('listing'),
   listingId: uuidSchema.nullable(),
   companyId: uuidSchema.nullable(),
+  supportInquiryId: uuidSchema.nullable().optional(),
   status: conversationStatusSchema,
   lastMessageAt: z.string().datetime({ offset: true }).nullable(),
   lastMessagePreview: z.string().max(200).nullable(),

@@ -25,8 +25,10 @@ const PARTICIPANTS = 'marketplace_conversation_participants';
 
 interface ConversationRow {
   id: string;
-  listing_id: string;
+  kind?: string | null;
+  listing_id: string | null;
   company_id: string | null;
+  support_inquiry_id?: string | null;
   status: string;
   last_message_at: string | null;
   last_message_preview: string | null;
@@ -83,10 +85,16 @@ export class SupabaseConversationRepository implements ConversationRepository {
 
   private async mapConversationRow(row: ConversationRow): Promise<Conversation> {
     const participantIds = await this.loadParticipantIds(row.id as ConversationId);
+    const kind =
+      row.kind === 'support' || (!row.listing_id && row.kind !== 'listing')
+        ? 'support'
+        : 'listing';
     return {
       id: row.id as ConversationId,
-      listingId: row.listing_id as ListingId,
+      kind,
+      listingId: (row.listing_id as ListingId | null) ?? null,
       companyId: row.company_id as CompanyId | null,
+      supportInquiryId: row.support_inquiry_id ?? null,
       status: row.status as Conversation['status'],
       lastMessageAt: row.last_message_at,
       lastMessagePreview: row.last_message_preview,

@@ -103,11 +103,25 @@ export class MessagingService implements IMessagingService {
           conversation.companyId ? this.companyRepo.findById(conversation.companyId) : Promise.resolve(null),
           this.messageRepo.countUnread(conversation.id, userId),
         ]);
+        const supportOther =
+          conversation.kind === 'support'
+            ? {
+                ...otherParticipant,
+                displayName: 'Girisimbee Destek',
+                companyName: 'Destek ekibi',
+              }
+            : otherParticipant;
         return {
           conversation,
-          otherParticipant,
-          listingTitle: listing?.title ?? null,
-          companyName: company?.name ?? otherParticipant.companyName,
+          otherParticipant: supportOther,
+          listingTitle:
+            conversation.kind === 'support'
+              ? 'Girisimbee Destek'
+              : (listing?.title ?? null),
+          companyName:
+            conversation.kind === 'support'
+              ? 'Destek ekibi'
+              : (company?.name ?? otherParticipant.companyName),
           unreadCount,
         };
       }),
@@ -117,16 +131,37 @@ export class MessagingService implements IMessagingService {
 
   async getThreadMeta(conversationId: ConversationId, userId: UserId): Promise<ConversationThreadMeta | null> {
     const conversation = await this.getConversation(conversationId, userId);
-    if (!conversation?.listingId) return null;
+    if (!conversation) return null;
     const otherUserId = conversation.participantIds.find((id) => id !== userId)!;
-    const [listing, company, otherParticipant] = await Promise.all([
+    const otherParticipant = await this.resolveParticipantView(otherUserId, {
+      companyId: conversation.companyId,
+    });
+
+    if (conversation.kind === 'support' || !conversation.listingId) {
+      return {
+        conversationId,
+        kind: 'support',
+        listingId: null,
+        listingTitle: 'Girisimbee Destek',
+        listingSlug: null,
+        companyId: null,
+        companyName: 'Destek ekibi',
+        otherParticipant: {
+          ...otherParticipant,
+          displayName: 'Girisimbee Destek',
+          companyName: 'Destek ekibi',
+        },
+      };
+    }
+
+    const [listing, company] = await Promise.all([
       this.listingRepo.findById(conversation.listingId),
       conversation.companyId ? this.companyRepo.findById(conversation.companyId) : Promise.resolve(null),
-      this.resolveParticipantView(otherUserId, { companyId: conversation.companyId }),
     ]);
     if (!listing) return null;
     return {
       conversationId,
+      kind: 'listing',
       listingId: conversation.listingId,
       listingTitle: listing.title,
       listingSlug: listing.slug,
@@ -144,7 +179,9 @@ export class MessagingService implements IMessagingService {
     const conversation = await this.conversationRepo.findById(input.conversationId);
     if (!conversation) throw new NotFoundError('Conversation', input.conversationId);
     this.assertParticipant(conversation, input.senderId);
-    if (!conversation.listingId) throw new ForbiddenError('Listing context required');
+    if (conversation.kind !== 'support' && !conversation.listingId) {
+      throw new ForbiddenError('Listing context required');
+    }
 
     const message = await this.messageRepo.create(input);
     await this.conversationRepo.updateLastMessage(conversation.id, message.body, message.createdAt);

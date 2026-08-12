@@ -49,6 +49,20 @@ export const supportAdminApi = {
       body: JSON.stringify(input),
     }).then((r) => r.item);
   },
+  reply(
+    id: string,
+    input: { body: string; markStatus?: SupportInquiryStatus },
+  ) {
+    return supportFetch<{
+      item?: SupportInquiry;
+      inquiry: SupportInquiry;
+      conversationId: string;
+      messageId: string;
+    }>(`/api/admin/destek/${id}/reply`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  },
   remove(id: string) {
     return supportFetch<void>(`/api/admin/destek/${id}`, { method: 'DELETE' });
   },

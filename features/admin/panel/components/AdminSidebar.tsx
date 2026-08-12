@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
@@ -8,7 +9,22 @@ import { cn } from '@/lib/utils';
 import {
   ADMIN_NAV_ITEMS,
   ADMIN_PANEL_BASE,
+  type AdminNavId,
 } from '@/features/admin/panel/constants/admin-nav.constants';
+
+type NavAlertCounts = Partial<Record<AdminNavId, number>>;
+
+const ALERT_NAV_IDS = new Set<AdminNavId>([
+  'moderation',
+  'support_inquiries',
+  'ad_inquiries',
+]);
+
+const POLL_MS = 30_000;
+
+function formatAlertCount(n: number): string {
+  return n > 99 ? '99+' : String(n);
+}
 
 export function AdminSidebar({
   onNavigate,
@@ -18,6 +34,45 @@ export function AdminSidebar({
   className?: string;
 }) {
   const pathname = usePathname();
+  const [alerts, setAlerts] = useState<NavAlertCounts>({});
+
+  const loadAlerts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/nav-alerts', { cache: 'no-store' });
+      if (!res.ok) return;
+      const json = (await res.json()) as {
+        data?: {
+          moderation?: number;
+          support_inquiries?: number;
+          ad_inquiries?: number;
+        };
+      };
+      const d = json.data;
+      if (!d) return;
+      setAlerts({
+        moderation: d.moderation ?? 0,
+        support_inquiries: d.support_inquiries ?? 0,
+        ad_inquiries: d.ad_inquiries ?? 0,
+      });
+    } catch {
+      /* ignore transient poll errors */
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadAlerts();
+    const id = window.setInterval(() => {
+      void loadAlerts();
+    }, POLL_MS);
+    const onFocus = () => {
+      void loadAlerts();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [loadAlerts, pathname]);
 
   return (
     <aside
@@ -47,6 +102,8 @@ export function AdminSidebar({
           const active = item.exact
             ? pathname === item.href
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const count = ALERT_NAV_IDS.has(item.id) ? (alerts[item.id] ?? 0) : 0;
+          const showAlert = count > 0;
 
           return (
             <Link
@@ -58,10 +115,30 @@ export function AdminSidebar({
                 active
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                showAlert && !active && 'bg-rose-500/5',
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden />
-              <span className="truncate">{item.label}</span>
+              <span className="relative shrink-0">
+                <Icon className="h-4 w-4" aria-hidden />
+                {showAlert ? (
+                  <span
+                    className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-rose-500 motion-safe:animate-alert-blink"
+                    aria-hidden
+                  />
+                ) : null}
+              </span>
+              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              {showAlert ? (
+                <span
+                  className={cn(
+                    'inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold leading-none text-white motion-safe:animate-alert-blink',
+                    active && 'ring-2 ring-primary/20',
+                  )}
+                  aria-label={`${count} yeni`}
+                >
+                  {formatAlertCount(count)}
+                </span>
+              ) : null}
             </Link>
           );
         })}

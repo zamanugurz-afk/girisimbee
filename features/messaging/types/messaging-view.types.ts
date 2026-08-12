@@ -22,9 +22,10 @@ export interface ConversationListItem {
 
 export interface ConversationThreadMeta {
   conversationId: ConversationId;
-  listingId: ListingId;
+  kind: 'listing' | 'support';
+  listingId: ListingId | null;
   listingTitle: string;
-  listingSlug: string;
+  listingSlug: string | null;
   companyId: CompanyId | null;
   companyName: string | null;
   otherParticipant: ConversationParticipantView;

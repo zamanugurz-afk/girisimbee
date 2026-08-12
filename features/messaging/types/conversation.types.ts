@@ -10,6 +10,8 @@ import type { ConversationId, ListingId, UserId, MessageId, CompanyId } from '@/
 
 export type ConversationStatus = 'open' | 'archived' | 'blocked' | 'deleted';
 
+export type ConversationKind = 'listing' | 'support';
+
 export interface ConversationParticipant {
   conversationId: ConversationId;
   userId: UserId;
@@ -21,8 +23,10 @@ export interface ConversationParticipant {
 
 export interface Conversation extends Timestamps, SoftDeletable {
   id: ConversationId;
+  kind: ConversationKind;
   listingId: ListingId | null;
   companyId: CompanyId | null;
+  supportInquiryId: string | null;
   status: ConversationStatus;
   lastMessageAt: string | null;
   lastMessagePreview: string | null;
