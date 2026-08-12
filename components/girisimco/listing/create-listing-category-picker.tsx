@@ -188,8 +188,67 @@ export function CreateListingCategoryPicker({
   );
 }
 
+function JobFlowOption({
+  title,
+  description,
+  audience,
+  color,
+  Icon,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  audience: string;
+  color: string;
+  Icon: LucideIcon;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border border-[#E8EBF1] bg-white p-5 text-left',
+        'shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-all duration-200',
+        'hover:-translate-y-0.5 hover:border-[#D5DAE5] hover:shadow-[0_12px_28px_-18px_rgba(15,23,42,0.28)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+        'dark:border-border dark:bg-card',
+      )}
+    >
+      <span
+        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-80"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+        }}
+        aria-hidden
+      />
+      <span
+        className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl"
+        style={{ backgroundColor: `${color}14`, color }}
+        aria-hidden
+      >
+        <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+      </span>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#94A3B8]">
+        {audience}
+      </span>
+      <span className="mt-1.5 font-display text-[1.05rem] font-semibold tracking-tight text-[#0B1220] dark:text-foreground">
+        {title}
+      </span>
+      <span className="mt-2 flex-1 text-[13px] leading-relaxed text-[#64748B]">{description}</span>
+      <span
+        className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
+        style={{ color }}
+      >
+        Devam et
+        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+      </span>
+    </button>
+  );
+}
+
 /**
- * Full-screen job flow chooser (image-3 target).
+ * Full-screen job flow chooser.
  * Replaces the category grid — other listing cards must not render alongside this.
  */
 export function JobListingFlowStep({
@@ -201,62 +260,50 @@ export function JobListingFlowStep({
 }) {
   return (
     <section className="mb-10">
-      <div className="mb-6 max-w-xl">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
-          Adım 1
-        </p>
-        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
-          Hangi tür ilan vereceksiniz?
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Kategoriyi seçin; form yalnızca o türe özel alanları gösterir.
-        </p>
+      <div className="mb-7 flex items-end justify-between gap-4">
+        <div className="max-w-xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
+            Adım 1 · İş İlanları
+          </p>
+          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
+            Akışınızı seçin
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+            İşe alım veya anonim kariyer özeti — form seçiminize göre açılır.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onBack}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#E6E8EE] bg-white px-3.5 py-2',
+            'text-sm font-medium text-[#64748B] transition-colors',
+            'hover:border-[#C7CBD6] hover:text-[#0B1220]',
+            'dark:border-border dark:bg-card dark:hover:text-foreground',
+          )}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Geri
+        </button>
       </div>
 
-      <div className="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 pl-5 dark:border-border dark:bg-card sm:p-5 sm:pl-6">
-        <span
-          className="absolute inset-y-0 left-0 w-[3px]"
-          style={{ backgroundColor: JOB_GROUP_COLOR }}
-          aria-hidden
+      <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <JobFlowOption
+          title="İşe Alıyorum"
+          description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir."
+          audience="İşverenler"
+          color={GC_CATEGORY_COLORS['ise-al']}
+          Icon={Briefcase}
+          onClick={() => onSelect(CATEGORY_IDS.iseAl)}
         />
-
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
-              İş İlanları
-            </p>
-            <p className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
-              Akışınızı seçin
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Geri
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          <CategoryCardButton
-            title="İşe Alıyorum"
-            description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir"
-            audience="İşverenler"
-            color={GC_CATEGORY_COLORS['ise-al']}
-            Icon={Briefcase}
-            onClick={() => onSelect(CATEGORY_IDS.iseAl)}
-          />
-          <CategoryCardButton
-            title="İş Arıyorum"
-            description="Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın"
-            audience="İş arayanlar"
-            color="#0EA5E9"
-            Icon={UserRoundSearch}
-            onClick={() => onSelect(CATEGORY_IDS.isBul)}
-          />
-        </div>
+        <JobFlowOption
+          title="İş Arıyorum"
+          description="Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın."
+          audience="İş arayanlar"
+          color="#0EA5E9"
+          Icon={UserRoundSearch}
+          onClick={() => onSelect(CATEGORY_IDS.isBul)}
+        />
       </div>
     </section>
   );
