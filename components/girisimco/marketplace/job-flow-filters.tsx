@@ -25,7 +25,7 @@ export function JobFlowFilters({
 
   return (
     <div
-      className={cn('flex flex-wrap items-stretch gap-2', className)}
+      className={cn('flex flex-wrap items-center gap-2', className)}
       role="group"
       aria-label="İş ilanı türü"
     >
@@ -62,8 +62,8 @@ function JobFlowChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'relative inline-flex h-10 min-w-[9.5rem] flex-1 items-center overflow-hidden rounded-lg border bg-white sm:flex-none',
-        'pl-3.5 pr-3.5 text-left transition-colors',
+        'relative inline-flex h-10 shrink-0 items-center overflow-hidden rounded-lg border bg-white',
+        'px-3.5 pl-3.5 text-left transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         'dark:bg-card',
         active ? 'shadow-sm' : 'border-[#E6E8EE] hover:border-[#C7CBD6] dark:border-border',

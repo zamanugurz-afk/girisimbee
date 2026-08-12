@@ -28,7 +28,7 @@ export function ListingFilters({
   className,
 }: ListingFiltersProps) {
   return (
-    <div className={cn('space-y-2.5', className)}>
+    <div className={cn('flex flex-wrap items-center gap-2', className)}>
       {showJobFlowFilters ? (
         <JobFlowFilters
           value={filters.jobFlow}
@@ -36,12 +36,11 @@ export function ListingFilters({
         />
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2">
       {!hideCategory && (
         <select
           value={filters.categorySlug ?? ''}
           onChange={(e) => onChange({ categorySlug: e.target.value || undefined })}
-          className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
+          className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
           aria-label="Kategori"
         >
           <option value="">Tüm Kategoriler</option>
@@ -63,7 +62,7 @@ export function ListingFilters({
             city: e.target.value || undefined,
           })
         }
-        className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
+        className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
         aria-label="Şehir"
       >
         <option value="">Tüm Şehirler</option>
@@ -80,7 +79,7 @@ export function ListingFilters({
           const selectedSort = e.target.value as MarketplaceFilterState['sortBy'];
           onChange({ sortBy: selectedSort });
         }}
-        className="h-9 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
+        className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
         aria-label="Sıralama"
       >
         {LISTING_SORT_OPTIONS.map((opt) => (
@@ -89,7 +88,6 @@ export function ListingFilters({
           </option>
         ))}
       </select>
-      </div>
     </div>
   );
 }
