@@ -191,8 +191,25 @@ export async function POST(request: Request) {
         });
       }
       console.error('[forgot-password] custom mail failed', mailed.error);
+
+      // Zoho/SMTP auth often breaks (535) — fall back to Supabase Auth mailer
+      // so the user still receives a reset link instead of a hard failure.
+      const { error: authMailError } = await sendViaSupabaseAuth(email, redirectTo);
+      if (!authMailError) {
+        return okWithRecoveryCookie(request, {
+          sent: true,
+          message:
+            'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
+        });
+      }
+      console.error('[forgot-password] supabase fallback failed', authMailError.message);
+      if (isRateLimitError(authMailError.message)) {
+        return apiError(RATE_LIMIT_MESSAGE, 429);
+      }
       return apiError(
-        'Sıfırlama e-postası gönderilemedi (SMTP). Gelen kutusu/spam’i kontrol edin veya destek ile iletişime geçin.',
+        /535|authentication failed|invalid login/i.test(mailed.error)
+          ? 'E-posta sunucusu girişi reddetti (SMTP 535). Vercel’de Zoho uygulama şifresini güncelleyin veya 10 dk sonra tekrar deneyin.'
+          : 'Sıfırlama e-postası gönderilemedi. Lütfen biraz sonra tekrar deneyin.',
         500,
       );
     } catch (error) {
