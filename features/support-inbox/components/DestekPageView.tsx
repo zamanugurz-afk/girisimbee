@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
-import { CONTACT_EMAILS, CONTACT_MAILTO } from '@/features/shared/constants/contact';
+import { CONTACT_EMAILS } from '@/features/shared/constants/contact';
 import { supportPublicApi } from '@/features/support-inbox/lib/support-inquiry-api';
 import {
   SUPPORT_INQUIRY_SUBJECT_LABELS,
@@ -78,12 +78,8 @@ export function DestekPageView() {
             <BrandWordmark /> destek ekibine yazın
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Talebiniz yönetim paneline düşer; ekibimiz en kısa sürede dönüş yapar.
-            Acil durumlarda{' '}
-            <a href={CONTACT_MAILTO.support} className="font-medium text-foreground underline-offset-2 hover:underline">
-              {CONTACT_EMAILS.support}
-            </a>
-            {' '}adresini de kullanabilirsiniz.
+            Formu doldurup gönderin; talep doğrudan yönetim paneline düşer. Outlook veya başka bir
+            e-posta programı açmanız gerekmez.
           </p>
         </div>
       </div>

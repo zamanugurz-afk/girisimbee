@@ -21,18 +21,21 @@ export function Footer() {
             </p>
 
             <div className="mt-4 space-y-1.5">
-              <a
+              <Link
                 href="/destek"
                 className="block text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
-                Destek · {CONTACT_EMAILS.support}
-              </a>
-              <a
+                Destek formu
+              </Link>
+              <Link
                 href="/reklam"
                 className="block text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
-                Reklam &amp; işbirliği · {CONTACT_EMAILS.ads}
-              </a>
+                Reklam &amp; işbirliği formu
+              </Link>
+              <p className="pt-1 text-[11px] text-muted-foreground/80">
+                {CONTACT_EMAILS.support} · {CONTACT_EMAILS.ads}
+              </p>
             </div>
           </div>
 

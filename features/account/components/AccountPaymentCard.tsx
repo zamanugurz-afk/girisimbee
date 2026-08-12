@@ -7,7 +7,6 @@ import {
   ACCOUNT_PAYMENT_STATUS_LABELS,
 } from '@/features/account/types/account-payments.constants';
 import { formatTryAmount } from '@/features/account/services/account-payments-mock.service';
-import { CONTACT_MAILTO } from '@/features/shared/constants/contact';
 
 function formatDateTime(value: string | null): string {
   if (!value) return '—';
@@ -100,7 +99,7 @@ export function AccountPaymentCard({ item }: { item: AccountPaymentCardData }) {
             Faturayı indir
           </Button>
           <Button asChild type="button" size="sm" variant="outline" className="rounded-lg">
-            <Link href={CONTACT_MAILTO.support}>Desteğe ulaş</Link>
+            <Link href="/destek">Desteğe ulaş</Link>
           </Button>
           {item.status === 'pending' ? (
             <Button asChild type="button" size="sm" className="rounded-lg">
