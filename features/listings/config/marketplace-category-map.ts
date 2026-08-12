@@ -65,7 +65,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   'ise-al': {
     slug: 'ise-al',
-    label: 'İşe Alıyorum',
+    label: 'İş İlanları',
     listingTypeSlug: 'ise-aliyorum',
     appCategoryId: CATEGORY_IDS.iseAl,
     appListingTypeId: LISTING_TYPE_IDS.iseAlDefault,

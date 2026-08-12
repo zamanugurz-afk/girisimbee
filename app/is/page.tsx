@@ -1,109 +1,14 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Briefcase, UserRoundSearch, ArrowRight } from 'lucide-react';
-import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
+import {
+  buildCategoryMetadata,
+  CategoryMarketplacePage,
+} from '@/features/listings/components/category-marketplace-page';
 
-export const metadata: Metadata = {
-  title: 'İş İlanları — İşe Alıyorum & İş Arıyorum | Girisimbee',
-  description:
-    'Açık pozisyon yayınlayın veya anonim kariyer özeti oluşturun. İşe Alıyorum ve İş Arıyorum akışları.',
-};
+/** Nav “İş İlanları” — open position browse (İşe Alıyorum listings). */
+const CATEGORY_SLUG = 'ise-al';
 
-const HIRE_COLOR = GC_CATEGORY_COLORS['ise-al'];
-const SEEK_COLOR = '#0EA5E9';
+export const metadata: Metadata = buildCategoryMetadata(CATEGORY_SLUG);
 
-const cardClassName =
-  'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC] dark:border-border dark:bg-card';
-
-/**
- * Hub for job marketplace — splits hiring vs anonymous job-seeker career profiles.
- * Card size matches /ilan/olustur category cards.
- */
-export default function IsHubPage() {
-  return (
-    <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
-      <div className="max-w-2xl">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
-          İş İlanları
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-4xl">
-          Nasıl ilerlemek istersiniz?
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-base">
-          İşveren olarak açık pozisyon yayınlayın veya iş arayan olarak anonim bir kariyer özeti
-          oluşturun. İki akış birbirinden bağımsızdır.
-        </p>
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        <Link href="/hire" className={cardClassName}>
-          <span
-            className="absolute inset-y-0 left-0 w-[3px]"
-            style={{ backgroundColor: HIRE_COLOR }}
-            aria-hidden
-          />
-          <span
-            className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
-            style={{ backgroundColor: HIRE_COLOR }}
-          >
-            <Briefcase className="h-4 w-4" strokeWidth={1.75} />
-          </span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
-            İşverenler
-          </span>
-          <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
-            İşe Alıyorum
-          </span>
-          <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
-            Açık pozisyon yayınlayın; adaylar ilanınızı görüp iletişim talebi gönderebilir.
-          </span>
-          <span
-            className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
-            style={{ color: HIRE_COLOR }}
-          >
-            İlanları incele
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </Link>
-
-        <Link href="/is-ariyorum" className={cardClassName}>
-          <span
-            className="absolute inset-y-0 left-0 w-[3px]"
-            style={{ backgroundColor: SEEK_COLOR }}
-            aria-hidden
-          />
-          <span
-            className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
-            style={{ backgroundColor: SEEK_COLOR }}
-          >
-            <UserRoundSearch className="h-4 w-4" strokeWidth={1.75} />
-          </span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
-            İş arayanlar
-          </span>
-          <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
-            İş Arıyorum
-          </span>
-          <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
-            CV ve firma adı olmadan anonim kariyer özeti oluşturun; işverenler iletişim talebi
-            göndersin.
-          </span>
-          <span
-            className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
-            style={{ color: SEEK_COLOR }}
-          >
-            Profilleri incele
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </Link>
-      </div>
-
-      <p className="mt-8 text-sm text-[#64748B]">
-        İlan vermek mi istiyorsunuz?{' '}
-        <Link href="/ilan/olustur" className="font-medium text-primary underline-offset-2 hover:underline">
-          İlan oluştur
-        </Link>
-      </p>
-    </main>
-  );
+export default function IsListingsPage() {
+  return <CategoryMarketplacePage categorySlug={CATEGORY_SLUG} />;
 }

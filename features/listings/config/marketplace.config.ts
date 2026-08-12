@@ -30,7 +30,7 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string> = {
 export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'yatirim-bul': '/invest',
   'yatirim-yap': '/investors',
-  'ise-al': '/hire',
+  'ise-al': '/is',
   'is-ariyorum': '/is-ariyorum',
   'ortak-bul': '/partners',
   'bayilik-al': '/franchise/buy',
@@ -55,7 +55,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
   },
   'ise-al': {
     description: 'Açık pozisyonları inceleyin; iletişim talebi gönderin',
-    seoTitle: 'İşe Alıyorum — Açık Pozisyonlar | Girisimbee',
+    seoTitle: 'İş İlanları — Açık Pozisyonlar | Girisimbee',
     seoDescription: 'Startup ve şirketlerde açık iş ilanlarını keşfedin.',
   },
   'is-ariyorum': {

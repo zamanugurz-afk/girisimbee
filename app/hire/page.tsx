@@ -1,13 +1,6 @@
-import type { Metadata } from 'next';
-import {
-  buildCategoryMetadata,
-  CategoryMarketplacePage,
-} from '@/features/listings/components/category-marketplace-page';
+import { redirect } from 'next/navigation';
 
-const CATEGORY_SLUG = 'ise-al';
-
-export const metadata: Metadata = buildCategoryMetadata(CATEGORY_SLUG);
-
+/** Legacy /hire → canonical İş İlanları browse. */
 export default function HirePage() {
-  return <CategoryMarketplacePage categorySlug={CATEGORY_SLUG} />;
+  redirect('/is');
 }

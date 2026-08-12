@@ -50,7 +50,7 @@ const TAB_EMPTY_COPY: Record<
     title: 'Henüz favori listeniz boş.',
     description:
       'İlgilendiğiniz şirket ve franchise ilanlarını favorilerinize ekleyerek daha sonra kolayca ulaşabilirsiniz.',
-    ctaHref: '/hire',
+    ctaHref: '/is',
     ctaLabel: 'Şirketleri keşfet',
   },
   yatirimcilar: {
