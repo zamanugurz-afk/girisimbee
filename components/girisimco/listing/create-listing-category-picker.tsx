@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import {
-  ArrowLeft,
   ArrowRight,
   BrainCircuit,
   Briefcase,
