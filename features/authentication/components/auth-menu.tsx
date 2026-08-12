@@ -31,10 +31,10 @@ import { useRbac } from '@/features/authorization/hooks/use-rbac';
 import { roleTrace } from '@/features/authorization/lib/role-trace';
 import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
 import { useUnreadMessageCount } from '@/features/messaging/hooks/use-unread-message-count';
-import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { cn } from '@/lib/utils';
 
 const ILETISIM_TALEPLERI_HREF = '/iletisim-talepleri';
+const MESAJLARIM_HREF = '/mesajlarim';
 
 function initials(name: string | null, email: string): string {
   if (name) {
@@ -155,7 +155,7 @@ export function AuthMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={DASHBOARD_ROUTES.mesajlarim} className="cursor-pointer">
+          <Link href={MESAJLARIM_HREF} className="cursor-pointer">
             <MessageSquare className="mr-2 h-4 w-4" />
             <span className="flex-1">Mesajlarım</span>
             {unreadMessages > 0 ? (
