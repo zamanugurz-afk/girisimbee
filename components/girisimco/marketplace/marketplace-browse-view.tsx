@@ -17,6 +17,7 @@ interface MarketplaceBrowsePageProps {
   description?: string;
   accent?: string;
   hideCategoryFilter?: boolean;
+  showJobFlowFilters?: boolean;
 }
 
 export function MarketplaceBrowseView({
@@ -27,6 +28,7 @@ export function MarketplaceBrowseView({
   description,
   accent,
   hideCategoryFilter,
+  showJobFlowFilters = false,
 }: MarketplaceBrowsePageProps) {
   const categoryMeta = categorySlug ? resolveCategorySlug(categorySlug) : null;
   const resolvedAccent = accent ?? categoryMeta?.accent;
@@ -79,7 +81,7 @@ export function MarketplaceBrowseView({
           filters={filters}
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
-          showJobFlowFilters={categorySlug === 'ise-al'}
+          showJobFlowFilters={showJobFlowFilters || categorySlug === 'ise-al'}
           className="mb-5"
         />
 

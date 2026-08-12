@@ -20,7 +20,14 @@ export function buildCategoryMetadata(categorySlug: string): Metadata {
   };
 }
 
-export function CategoryMarketplacePage({ categorySlug }: { categorySlug: string }) {
+export function CategoryMarketplacePage({
+  categorySlug,
+  showJobFlowFilters = false,
+}: {
+  categorySlug: string;
+  /** Unified İş İlanları page — hire/seek chips above city/sort filters. */
+  showJobFlowFilters?: boolean;
+}) {
   const meta = resolveCategorySlug(categorySlug);
   if (!meta) notFound();
 
@@ -28,6 +35,7 @@ export function CategoryMarketplacePage({ categorySlug }: { categorySlug: string
     <MarketplaceBrowseView
       categorySlug={resolveCanonicalCategorySlug(categorySlug)}
       hideCategoryFilter
+      showJobFlowFilters={showJobFlowFilters}
     />
   );
 }

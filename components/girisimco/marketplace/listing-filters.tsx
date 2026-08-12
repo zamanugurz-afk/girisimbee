@@ -1,20 +1,14 @@
 'use client';
 
-import type {
-  JobFlowFilter,
-  MarketplaceFilterState,
-} from '@/features/listings/types/marketplace.types';
+import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
 import {
   LISTING_SORT_OPTIONS,
   MARKETPLACE_CITY_OPTIONS,
   getAllCategorySlugs,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
-import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
+import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
 import { cn } from '@/lib/utils';
-
-const HIRE_COLOR = GC_CATEGORY_COLORS['ise-al'];
-const SEEK_COLOR = '#0EA5E9';
 
 interface ListingFiltersProps {
   filters: MarketplaceFilterState;
@@ -26,57 +20,6 @@ interface ListingFiltersProps {
   className?: string;
 }
 
-function JobFlowFilterChip({
-  active,
-  color,
-  title,
-  subtitle,
-  onClick,
-}: {
-  active: boolean;
-  color: string;
-  title: string;
-  subtitle: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        'group relative inline-flex h-9 min-w-[9.75rem] items-center overflow-hidden rounded-lg border bg-white py-1 pl-3 pr-3 text-left',
-        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        'dark:bg-card',
-        active ? 'shadow-sm' : 'border-[#E6E8EE] hover:border-[#C7CBD6] dark:border-border',
-      )}
-      style={
-        active
-          ? {
-              borderColor: `${color}66`,
-              backgroundImage: `linear-gradient(90deg, ${color}14 0%, transparent 72%)`,
-            }
-          : undefined
-      }
-    >
-      <span
-        className="absolute inset-y-1.5 left-0 w-[3px] rounded-full"
-        style={{ backgroundColor: color }}
-        aria-hidden
-      />
-      <span className="min-w-0 pl-1.5 leading-none">
-        <span
-          className="block truncate text-[12px] font-semibold tracking-tight"
-          style={{ color }}
-        >
-          {title}
-        </span>
-        <span className="mt-0.5 block truncate text-[10px] text-[#64748B]">{subtitle}</span>
-      </span>
-    </button>
-  );
-}
-
 export function ListingFilters({
   filters,
   onChange,
@@ -84,31 +27,16 @@ export function ListingFilters({
   showJobFlowFilters = false,
   className,
 }: ListingFiltersProps) {
-  function toggleJobFlow(next: JobFlowFilter) {
-    onChange({ jobFlow: filters.jobFlow === next ? undefined : next });
-  }
-
   return (
-    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+    <div className={cn('space-y-2.5', className)}>
       {showJobFlowFilters ? (
-        <>
-          <JobFlowFilterChip
-            active={filters.jobFlow === 'hire'}
-            color={HIRE_COLOR}
-            title="İşe Alıyorum"
-            subtitle="Açık pozisyonlar"
-            onClick={() => toggleJobFlow('hire')}
-          />
-          <JobFlowFilterChip
-            active={filters.jobFlow === 'seek'}
-            color={SEEK_COLOR}
-            title="İş Arıyorum"
-            subtitle="Kariyer profilleri"
-            onClick={() => toggleJobFlow('seek')}
-          />
-        </>
+        <JobFlowFilters
+          value={filters.jobFlow}
+          onChange={(jobFlow) => onChange({ jobFlow })}
+        />
       ) : null}
 
+      <div className="flex flex-wrap items-center gap-2">
       {!hideCategory && (
         <select
           value={filters.categorySlug ?? ''}
@@ -161,6 +89,7 @@ export function ListingFilters({
           </option>
         ))}
       </select>
+      </div>
     </div>
   );
 }
