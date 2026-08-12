@@ -230,10 +230,12 @@ export function JobListingFlowStep({
             Adım 1 · İş İlanları
           </p>
           <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
-            Akışınızı seçin
+            Nasıl bir iş ilanı vereceksiniz?
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-            Kategoriyi seçin; form yalnızca o türe özel alanları gösterir.
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-[#64748B]">
+            İşveren olarak açık pozisyon yayınlayabilir veya iş arayan olarak anonim bir kariyer
+            özeti oluşturabilirsiniz. İki akış birbirinden bağımsızdır; seçtiğiniz seçenek kendi
+            formunu açar.
           </p>
         </div>
         <button
