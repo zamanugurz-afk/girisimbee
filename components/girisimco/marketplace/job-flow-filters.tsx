@@ -85,7 +85,7 @@ function JobFlowChip({
         aria-hidden
       />
       <span
-        className="truncate text-[14px] font-bold tracking-tight sm:text-[15px]"
+        className="truncate text-[15px] font-bold tracking-tight sm:text-base"
         style={{ color }}
       >
         {label}
