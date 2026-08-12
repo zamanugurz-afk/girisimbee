@@ -19,13 +19,13 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-/** Display order on /ilan/olustur — hire & seek as peer cards in the same grid. */
+/** Display order on /ilan/olustur — matches homepage category gateway order. */
 const PICKER_ORDER: CategoryId[] = [
-  CATEGORY_IDS.iseAl,
-  CATEGORY_IDS.isBul,
   CATEGORY_IDS.yatirimBul,
   CATEGORY_IDS.ortakBul,
   CATEGORY_IDS.bayilikAl,
+  CATEGORY_IDS.iseAl,
+  CATEGORY_IDS.isBul,
   CATEGORY_IDS.dijitalAi,
 ];
 

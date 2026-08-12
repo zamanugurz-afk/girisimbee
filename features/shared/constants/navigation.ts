@@ -28,11 +28,11 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   ],
   Kategoriler: [
     { label: 'Yatırım Arıyorum', href: '/invest' },
-    { label: 'Yatırım Yap', href: '/investors' },
-    { label: 'İş İlanları', href: '/is' },
     { label: 'Ortak Arıyorum', href: '/partners' },
-    { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
     { label: 'Franchise İlanları', href: '/franchise/buy' },
+    { label: 'İş İlanları', href: '/is' },
+    { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
+    { label: 'Yatırım Yap', href: '/investors' },
   ],
   Hesap: [
     { label: 'Giriş yap', href: AUTH_ROUTES.login },
