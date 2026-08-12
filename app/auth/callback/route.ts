@@ -147,6 +147,15 @@ export async function GET(request: Request) {
   }
 
   const tokenHash = searchParams.get('token_hash');
+  // Recovery: never verifyOtp on GET (email prefetch would burn the one-time token).
+  // Pass token_hash via query to a confirm page; user POST consumes it.
+  if (tokenHash && (type === 'recovery' || passwordRecovery)) {
+    const confirmUrl = new URL(AUTH_ROUTES.recoveryContinue, origin);
+    confirmUrl.searchParams.set('token_hash', tokenHash);
+    confirmUrl.searchParams.set('type', 'recovery');
+    return NextResponse.redirect(confirmUrl);
+  }
+
   const successPath = emailVerify
     ? AUTH_ROUTES.verifySuccess
     : passwordRecovery
@@ -192,21 +201,6 @@ export async function GET(request: Request) {
     });
     return clearAuthFlowCookies(res);
   };
-
-  // Custom SMTP recovery: app-owned link with token_hash (no PKCE / no /auth/v1/verify).
-  if (tokenHash && (type === 'recovery' || passwordRecovery)) {
-    const { error: otpError } = await supabase.auth.verifyOtp({
-      type: 'recovery',
-      token_hash: tokenHash,
-    });
-    if (otpError) {
-      console.error('[auth/callback] verifyOtp recovery failed', otpError.message);
-      const resetUrl = new URL(AUTH_ROUTES.resetPassword, origin);
-      return clearAuthFlowCookies(NextResponse.redirect(resetUrl));
-    }
-    const resetUrl = new URL(AUTH_ROUTES.resetPassword, origin);
-    return copySessionCookies(NextResponse.redirect(resetUrl));
-  }
 
   if (!code) {
     console.error('[auth/callback] missing code');

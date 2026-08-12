@@ -40,6 +40,7 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
   if (
     pathname === '/auth/callback'
     || pathname === '/auth/pkce'
+    || pathname === '/auth/recovery-continue'
     || pathname === '/auth/verify-success'
     || pathname === '/auth/verify-error'
     || pathname === '/auth/signout'

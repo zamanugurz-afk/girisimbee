@@ -7,6 +7,8 @@ export const AUTH_ROUTES = {
   resetPasswordLegacy: '/sifre-yenile',
   verifyEmail: '/eposta-dogrula',
   callback: '/auth/callback',
+  /** Password recovery: confirm before consuming token_hash (anti-prefetch). */
+  recoveryContinue: '/auth/recovery-continue',
   /** After successful email confirmation (signup verify link). */
   verifySuccess: '/auth/verify-success',
   /** After failed email confirmation / callback exchange. */
@@ -43,6 +45,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/yasal',
   '/iletisim-talepleri',
   '/auth/callback',
+  '/auth/recovery-continue',
   '/auth/signout',
   '/auth/google-setup',
 ] as const;
