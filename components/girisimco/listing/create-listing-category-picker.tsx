@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import {
   ArrowRight,
   BrainCircuit,
@@ -17,6 +18,8 @@ import {
 import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
+
+const JOB_GROUP_COLOR = GC_CATEGORY_COLORS['ise-al'];
 
 const CATEGORY_VISUAL: Record<
   string,
@@ -58,6 +61,66 @@ const CATEGORY_VISUAL: Record<
   },
 };
 
+const JOB_CATEGORY_IDS = new Set<string>([CATEGORY_IDS.iseAl, CATEGORY_IDS.isBul]);
+
+function CategoryCardButton({
+  title,
+  description,
+  audience,
+  color,
+  Icon,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  audience: string;
+  color: string;
+  Icon: LucideIcon;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left',
+        'transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
+        'dark:border-border dark:bg-card',
+      )}
+    >
+      <span
+        className="absolute inset-y-0 left-0 w-[3px]"
+        style={{ backgroundColor: color }}
+        aria-hidden
+      />
+      <span
+        className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
+        style={{ backgroundColor: color }}
+        aria-hidden
+      >
+        <Icon className="h-4 w-4" strokeWidth={1.75} />
+      </span>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
+        {audience}
+      </span>
+      <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
+        {title}
+      </span>
+      <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
+        {description}
+      </span>
+      <span
+        className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
+        style={{ color }}
+      >
+        Devam et
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </button>
+  );
+}
+
 export function CreateListingCategoryPicker({
   options,
   onSelect,
@@ -65,6 +128,24 @@ export function CreateListingCategoryPicker({
   options: CategoryListingTypeConfig[];
   onSelect: (categoryId: CategoryId) => void;
 }) {
+  const [jobsOpen, setJobsOpen] = useState(false);
+
+  const { standalone, jobOptions } = useMemo(() => {
+    const jobs: CategoryListingTypeConfig[] = [];
+    const rest: CategoryListingTypeConfig[] = [];
+    for (const config of options) {
+      if (JOB_CATEGORY_IDS.has(config.categoryId)) jobs.push(config);
+      else rest.push(config);
+    }
+    // Prefer İşe Alıyorum first inside the group, then İş Arıyorum.
+    jobs.sort((a, b) => {
+      if (a.categoryId === CATEGORY_IDS.iseAl) return -1;
+      if (b.categoryId === CATEGORY_IDS.iseAl) return 1;
+      return 0;
+    });
+    return { standalone: rest, jobOptions: jobs };
+  }, [options]);
+
   return (
     <section className="mb-10">
       <div className="mb-6 max-w-xl">
@@ -80,52 +161,134 @@ export function CreateListingCategoryPicker({
       </div>
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {options.map((config) => {
+        {jobOptions.length > 0 ? (
+          <div
+            className={cn(
+              'relative overflow-hidden rounded-xl border border-[#E6E8EE] bg-white dark:border-border dark:bg-card',
+              jobsOpen && 'sm:col-span-2 lg:col-span-2',
+            )}
+          >
+            <span
+              className="absolute inset-y-0 left-0 w-[3px]"
+              style={{ backgroundColor: JOB_GROUP_COLOR }}
+              aria-hidden
+            />
+
+            {!jobsOpen ? (
+              <button
+                type="button"
+                onClick={() => setJobsOpen(true)}
+                className={cn(
+                  'group flex min-h-[8.5rem] w-full flex-col p-4 pl-5 text-left',
+                  'transition-colors duration-200 hover:bg-[#FAFBFC]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
+                )}
+              >
+                <span
+                  className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundColor: JOB_GROUP_COLOR }}
+                  aria-hidden
+                >
+                  <Briefcase className="h-4 w-4" strokeWidth={1.75} />
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
+                  İşveren / iş arayan
+                </span>
+                <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
+                  İş İlanları
+                </span>
+                <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
+                  İşe Alıyorum veya İş Arıyorum — tek kategoride iki akış
+                </span>
+                <span
+                  className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
+                  style={{ color: JOB_GROUP_COLOR }}
+                >
+                  Seçenekleri gör
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </button>
+            ) : (
+              <div className="space-y-3 p-4 pl-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
+                      İş İlanları
+                    </p>
+                    <p className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
+                      Akışınızı seçin
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setJobsOpen(false)}
+                    className="shrink-0 text-xs font-semibold text-[#64748B] hover:text-foreground"
+                  >
+                    Geri
+                  </button>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {jobOptions.map((config) => {
+                    const visual = CATEGORY_VISUAL[config.categoryId];
+                    if (!visual) return null;
+                    const { Icon } = visual;
+                    return (
+                      <button
+                        key={config.categoryId}
+                        type="button"
+                        onClick={() => onSelect(config.categoryId)}
+                        className={cn(
+                          'group flex flex-col rounded-lg border border-[#E6E8EE] bg-[#FAFBFC] p-3.5 text-left',
+                          'transition-colors hover:border-[#C7CBD6] hover:bg-white',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
+                          'dark:border-border dark:bg-background',
+                        )}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white"
+                            style={{ backgroundColor: visual.color }}
+                            aria-hidden
+                          >
+                            <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                          </span>
+                          <span className="font-display text-sm font-semibold text-[#0B1220] dark:text-foreground">
+                            {config.name}
+                          </span>
+                        </span>
+                        <span className="mt-2 text-[12px] leading-relaxed text-[#64748B]">
+                          {config.description}
+                        </span>
+                        <span
+                          className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-semibold"
+                          style={{ color: visual.color }}
+                        >
+                          Devam et
+                          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {standalone.map((config) => {
           const visual = CATEGORY_VISUAL[config.categoryId];
           if (!visual) return null;
-          const { Icon } = visual;
-
           return (
-            <button
+            <CategoryCardButton
               key={config.categoryId}
-              type="button"
+              title={config.name}
+              description={config.description}
+              audience={visual.audience}
+              color={visual.color}
+              Icon={visual.Icon}
               onClick={() => onSelect(config.categoryId)}
-              className={cn(
-                'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left',
-                'transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
-                'dark:border-border dark:bg-card',
-              )}
-            >
-              <span
-                className="absolute inset-y-0 left-0 w-[3px]"
-                style={{ backgroundColor: visual.color }}
-                aria-hidden
-              />
-              <span
-                className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
-                style={{ backgroundColor: visual.color }}
-                aria-hidden
-              >
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
-              </span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
-                {visual.audience}
-              </span>
-              <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
-                {config.name}
-              </span>
-              <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
-                {config.description}
-              </span>
-              <span
-                className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
-                style={{ color: visual.color }}
-              >
-                Devam et
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </button>
+            />
           );
         })}
       </div>
@@ -144,6 +307,8 @@ export function CreateListingSelectedCategoryBar({
 }) {
   const visual = CATEGORY_VISUAL[categoryId];
   const Icon = visual?.Icon;
+  const isJobFlow = JOB_CATEGORY_IDS.has(categoryId);
+  const displayLabel = isJobFlow ? `İş İlanları · ${label}` : label;
 
   return (
     <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-[#E6E8EE] bg-white px-4 py-3 dark:border-border dark:bg-card">
@@ -160,7 +325,7 @@ export function CreateListingSelectedCategoryBar({
         <div className="min-w-0">
           <p className="text-[11px] text-[#64748B]">Seçilen kategori</p>
           <p className="truncate text-sm font-semibold text-[#0B1220] dark:text-foreground">
-            {label}
+            {displayLabel}
           </p>
         </div>
       </div>

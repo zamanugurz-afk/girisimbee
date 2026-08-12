@@ -6,10 +6,11 @@ import type { Category, CreateCategoryInput } from '@/features/categories/types/
 export const SEED_CATEGORIES: CreateCategoryInput[] = [
   { slug: 'yatirim-bul', name: 'Yatırım Arıyorum', accentColor: '#6366F1', icon: 'TrendingUp', sortOrder: 1 },
   { slug: 'yatirim-yap', name: 'Yatırım Yap', accentColor: '#8B5CF6', icon: 'Wallet', sortOrder: 2 },
-  { slug: 'ise-al', name: 'İş İlanları', accentColor: '#10B981', icon: 'Briefcase', sortOrder: 3 },
-  { slug: 'ortak-bul', name: 'Ortak Arıyorum', accentColor: '#F59E0B', icon: 'Handshake', sortOrder: 4 },
-  { slug: 'dijital-ai', name: 'Dijital & AI Çözümleri', accentColor: '#8B5CF6', icon: 'Sparkles', sortOrder: 5 },
-  { slug: 'franchise', name: 'Franchise İlanları', accentColor: '#EC4899', icon: 'Store', sortOrder: 6 },
+  { slug: 'ise-al', name: 'İşe Alıyorum', accentColor: '#10B981', icon: 'Briefcase', sortOrder: 3 },
+  { slug: 'is-bul', name: 'İş Arıyorum', accentColor: '#0EA5E9', icon: 'UserSearch', sortOrder: 4 },
+  { slug: 'ortak-bul', name: 'Ortak Arıyorum', accentColor: '#F59E0B', icon: 'Handshake', sortOrder: 5 },
+  { slug: 'dijital-ai', name: 'Dijital & AI Çözümleri', accentColor: '#8B5CF6', icon: 'Sparkles', sortOrder: 6 },
+  { slug: 'franchise', name: 'Franchise İlanları', accentColor: '#EC4899', icon: 'Store', sortOrder: 7 },
 ];
 
 export function createCategory(overrides: Partial<Category> & Pick<Category, 'slug' | 'name' | 'accentColor'>): Category {
