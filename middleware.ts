@@ -137,6 +137,7 @@ export async function middleware(request: NextRequest) {
     const ipBypass =
       pathname === '/bakim'
       || pathname.startsWith('/_next/')
+      || pathname.startsWith('/api/')
       || pathname === '/favicon.ico'
       || pathname === '/icon.svg'
       || pathname === '/icon.png'

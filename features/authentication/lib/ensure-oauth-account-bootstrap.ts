@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service';
 import { getServerContainer } from '@/lib/persistence/container';
 import { ids } from '@/lib/domain/ids';
 import {
@@ -42,12 +43,22 @@ export async function ensureOAuthAccountBootstrap(
   const accountService = getServerContainer(supabase).accountService;
   const userId = ids.user(user.id);
 
+  // Consent read via service role — user-scoped SELECT can miss rows under RLS
+  // and falsely re-open /auth/yasal-onay for returning Google users.
+  const consentService = (() => {
+    try {
+      return getServerContainer(createServiceRoleClient()).accountService;
+    } catch {
+      return accountService;
+    }
+  })();
+
   const existing = await accountService.getProfile(userId);
   if (existing) {
     void accountService.recordLogin(userId).catch(() => undefined);
     let needsLegalAcceptance = true;
     try {
-      needsLegalAcceptance = await accountService.needsLegalAcceptance(userId);
+      needsLegalAcceptance = await consentService.needsLegalAcceptance(userId);
     } catch (error) {
       console.error('[oauth-bootstrap] needsLegalAcceptance failed', error);
       needsLegalAcceptance = true;
@@ -72,5 +83,6 @@ export async function ensureOAuthAccountBootstrap(
     consents: DEFAULT_OAUTH_CONSENTS,
   });
 
+  // First OAuth profile create still requires the UI legal gate.
   return { created: true, needsLegalAcceptance: true };
 }
