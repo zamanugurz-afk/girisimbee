@@ -41,8 +41,6 @@ import { enqueueSuspiciousContent } from '@/features/admin/content-policy/mock/s
 import {
   CreateListingCategoryPicker,
   CreateListingSelectedCategoryBar,
-  JobListingFlowStep,
-  type CreateListingPickerSelection,
 } from '@/components/girisimco/listing/create-listing-category-picker';
 
 function CreateListingContent() {
@@ -69,9 +67,6 @@ function CreateListingContent() {
       ?? null
     );
   });
-  /** İş İlanları seçildi; henüz İşe Alıyorum / İş Arıyorum seçilmedi. */
-  const [jobFlowPending, setJobFlowPending] = useState(false);
-
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);
 
   useEffect(() => {
@@ -104,7 +99,6 @@ function CreateListingContent() {
 
   function selectCategory(id: CategoryId) {
     if (id === CATEGORY_IDS.yatirimYap) return;
-    setJobFlowPending(false);
     setCategoryId(id);
     const fromConfig = CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === id);
     const defaultType =
@@ -114,20 +108,9 @@ function CreateListingContent() {
     setListingTypeId(defaultType);
   }
 
-  function handlePickerSelect(selection: CreateListingPickerSelection) {
-    if (selection.kind === 'job') {
-      setCategoryId(null);
-      setListingTypeId(null);
-      setJobFlowPending(true);
-      return;
-    }
-    selectCategory(selection.categoryId);
-  }
-
   function resetCategorySelection() {
     setCategoryId(null);
     setListingTypeId(null);
-    setJobFlowPending(false);
   }
 
   async function handlePublish(values: ListingFormValues) {
@@ -266,8 +249,6 @@ function CreateListingContent() {
 
   const selectedLabel =
     CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.name ?? '';
-  const showCategoryGrid = !categoryId && !jobFlowPending;
-  const showJobOnlyStep = jobFlowPending && !categoryId;
 
   return (
     <main
@@ -277,49 +258,22 @@ function CreateListingContent() {
       )}
     >
       <div className="mb-8">
-        {showJobOnlyStep ? (
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-                Nasıl bir iş ilanı vereceksiniz?
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-                İşveren olarak açık pozisyon yayınlayabilir veya iş arayan olarak anonim bir kariyer
-                özeti oluşturabilirsiniz. İki akış birbirinden bağımsızdır; seçtiğiniz seçenek kendi
-                formunu açar.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={resetCategorySelection}
-              className="inline-flex shrink-0 items-center gap-1.5 pt-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
-            >
-              ← Geri
-            </button>
-          </div>
-        ) : (
-          <>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-              İlan Oluştur
-            </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-              {categoryId
-                ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-                : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
-            </p>
-          </>
-        )}
+        <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+          İlan Oluştur
+        </h1>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+          {categoryId
+            ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
+            : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+        </p>
       </div>
 
-      {showCategoryGrid ? (
+      {!categoryId ? (
         <CreateListingCategoryPicker
           options={CREATE_LISTING_TYPE_CONFIGS}
-          onSelect={handlePickerSelect}
+          onSelect={selectCategory}
         />
       ) : null}
-
-      {/* Exclusive: when İş İlanları is open, no other category cards render. */}
-      {showJobOnlyStep ? <JobListingFlowStep onSelect={selectCategory} /> : null}
 
       {categoryId && (
         <CreateListingSelectedCategoryBar

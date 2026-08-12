@@ -19,12 +19,15 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-const JOB_GROUP_COLOR = GC_CATEGORY_COLORS['ise-al'];
-const JOB_CATEGORY_IDS = new Set<string>([CATEGORY_IDS.iseAl, CATEGORY_IDS.isBul]);
-
-export type CreateListingPickerSelection =
-  | { kind: 'category'; categoryId: CategoryId }
-  | { kind: 'job' };
+/** Display order on /ilan/olustur — hire & seek as peer cards in the same grid. */
+const PICKER_ORDER: CategoryId[] = [
+  CATEGORY_IDS.iseAl,
+  CATEGORY_IDS.isBul,
+  CATEGORY_IDS.yatirimBul,
+  CATEGORY_IDS.ortakBul,
+  CATEGORY_IDS.bayilikAl,
+  CATEGORY_IDS.dijitalAi,
+];
 
 const CATEGORY_VISUAL: Record<
   string,
@@ -73,7 +76,6 @@ function CategoryCardButton({
   color,
   Icon,
   onClick,
-  size = 'default',
 }: {
   title: string;
   description: string;
@@ -81,20 +83,16 @@ function CategoryCardButton({
   color: string;
   Icon: LucideIcon;
   onClick: () => void;
-  /** `lg` = same listing-card format, just larger (job flow step). */
-  size?: 'default' | 'lg';
 }) {
-  const large = size === 'lg';
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'group relative flex w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white text-left',
+        'group relative flex min-h-[8.5rem] w-full flex-col overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 text-left',
         'transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35',
         'dark:border-border dark:bg-card',
-        large ? 'min-h-[14.5rem] p-5 sm:min-h-[15.5rem] sm:p-6' : 'min-h-[8.5rem] p-4',
       )}
     >
       <span
@@ -103,39 +101,23 @@ function CategoryCardButton({
         aria-hidden
       />
       <span
-        className={cn(
-          'mb-3 inline-flex items-center justify-center rounded-lg text-white',
-          large ? 'h-10 w-10' : 'h-9 w-9',
-        )}
+        className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-white"
         style={{ backgroundColor: color }}
         aria-hidden
       >
-        <Icon className={large ? 'h-[18px] w-[18px]' : 'h-4 w-4'} strokeWidth={1.75} />
+        <Icon className="h-4 w-4" strokeWidth={1.75} />
       </span>
       <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
         {audience}
       </span>
-      <span
-        className={cn(
-          'mt-1 font-display font-semibold text-[#0B1220] dark:text-foreground',
-          large ? 'text-lg' : 'text-base',
-        )}
-      >
+      <span className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
         {title}
       </span>
-      <span
-        className={cn(
-          'mt-1.5 flex-1 leading-relaxed text-[#64748B]',
-          large ? 'text-[13px]' : 'text-[12px]',
-        )}
-      >
+      <span className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748B]">
         {description}
       </span>
       <span
-        className={cn(
-          'mt-3 inline-flex items-center gap-1 font-semibold opacity-80 transition-opacity group-hover:opacity-100',
-          large ? 'text-[13px]' : 'text-[12px]',
-        )}
+        className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
         style={{ color }}
       >
         Devam et
@@ -150,16 +132,15 @@ export function CreateListingCategoryPicker({
   onSelect,
 }: {
   options: CategoryListingTypeConfig[];
-  onSelect: (selection: CreateListingPickerSelection) => void;
+  onSelect: (categoryId: CategoryId) => void;
 }) {
-  const { standalone, hasJobGroup } = useMemo(() => {
-    let jobs = false;
-    const rest: CategoryListingTypeConfig[] = [];
-    for (const config of options) {
-      if (JOB_CATEGORY_IDS.has(config.categoryId)) jobs = true;
-      else rest.push(config);
-    }
-    return { standalone: rest, hasJobGroup: jobs };
+  const ordered = useMemo(() => {
+    const rank = new Map(PICKER_ORDER.map((id, i) => [id, i]));
+    return [...options].sort((a, b) => {
+      const ra = rank.get(a.categoryId) ?? 99;
+      const rb = rank.get(b.categoryId) ?? 99;
+      return ra - rb;
+    });
   }, [options]);
 
   return (
@@ -177,18 +158,7 @@ export function CreateListingCategoryPicker({
       </div>
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {hasJobGroup ? (
-          <CategoryCardButton
-            title="İş İlanları"
-            description="İşe alıyorum veya iş arıyorum"
-            audience="İşveren / iş arayan"
-            color={JOB_GROUP_COLOR}
-            Icon={Briefcase}
-            onClick={() => onSelect({ kind: 'job' })}
-          />
-        ) : null}
-
-        {standalone.map((config) => {
+        {ordered.map((config) => {
           const visual = CATEGORY_VISUAL[config.categoryId];
           if (!visual) return null;
           return (
@@ -199,48 +169,10 @@ export function CreateListingCategoryPicker({
               audience={visual.audience}
               color={visual.color}
               Icon={visual.Icon}
-              onClick={() => onSelect({ kind: 'category', categoryId: config.categoryId })}
+              onClick={() => onSelect(config.categoryId)}
             />
           );
         })}
-      </div>
-    </section>
-  );
-}
-
-const HIRE_FLOW_COLOR = GC_CATEGORY_COLORS['ise-al'];
-const SEEK_FLOW_COLOR = '#0EA5E9';
-
-/**
- * Same listing-card format as the category grid — larger, side-by-side, no shared shell.
- * Page title/copy + Geri live on /ilan/olustur when this step is active.
- */
-export function JobListingFlowStep({
-  onSelect,
-}: {
-  onSelect: (categoryId: CategoryId) => void;
-}) {
-  return (
-    <section className="mb-10">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-        <CategoryCardButton
-          size="lg"
-          title="İşe Alıyorum"
-          description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir"
-          audience="İşverenler"
-          color={HIRE_FLOW_COLOR}
-          Icon={Briefcase}
-          onClick={() => onSelect(CATEGORY_IDS.iseAl)}
-        />
-        <CategoryCardButton
-          size="lg"
-          title="İş Arıyorum"
-          description="Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın"
-          audience="İş arayanlar"
-          color={SEEK_FLOW_COLOR}
-          Icon={UserRoundSearch}
-          onClick={() => onSelect(CATEGORY_IDS.isBul)}
-        />
       </div>
     </section>
   );
@@ -257,8 +189,6 @@ export function CreateListingSelectedCategoryBar({
 }) {
   const visual = CATEGORY_VISUAL[categoryId];
   const Icon = visual?.Icon;
-  const isJobFlow = JOB_CATEGORY_IDS.has(categoryId);
-  const displayLabel = isJobFlow ? `İş İlanları · ${label}` : label;
 
   return (
     <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-[#E6E8EE] bg-white px-4 py-3 dark:border-border dark:bg-card">
@@ -275,7 +205,7 @@ export function CreateListingSelectedCategoryBar({
         <div className="min-w-0">
           <p className="text-[11px] text-[#64748B]">Seçilen kategori</p>
           <p className="truncate text-sm font-semibold text-[#0B1220] dark:text-foreground">
-            {displayLabel}
+            {label}
           </p>
         </div>
       </div>
