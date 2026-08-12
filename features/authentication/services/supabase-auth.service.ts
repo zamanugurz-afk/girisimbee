@@ -408,6 +408,10 @@ export async function signInWithOAuth(
     options: {
       redirectTo,
       skipBrowserRedirect: true,
+      // Always show Google account picker (do not silently reuse last Google session).
+      queryParams: {
+        prompt: 'select_account',
+      },
     },
   });
 }

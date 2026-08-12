@@ -153,6 +153,8 @@ export async function POST(request: Request) {
   }
 
   // Prefer app-owned mail so From = "Girisimbee" (Supabase Auth still branded Girişimco).
+  // Do NOT fall through to resetPasswordForEmail after generateLink/SMTP failure —
+  // that double-hits Supabase rate limits and hides the real mail error.
   if (preferCustomMail()) {
     try {
       const admin = createServiceRoleClient();
@@ -161,33 +163,48 @@ export async function POST(request: Request) {
         email,
         options: { redirectTo },
       });
-      if (!error) {
-        const actionLink =
-          data.properties?.action_link
-          || (data as { action_link?: string }).action_link
-          || null;
-        if (actionLink) {
-          const mailed = await sendPasswordResetEmail({ to: email, actionLink });
-          if (mailed.ok) {
-            return okWithRecoveryCookie(request, {
-              sent: true,
-              message:
-                'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
-            });
-          }
-          console.warn('[forgot-password] custom mail failed, falling back to Supabase Auth', mailed.error);
+      if (error) {
+        console.error('[forgot-password] generateLink failed', error.message);
+        if (isRateLimitError(error.message)) {
+          return apiError(RATE_LIMIT_MESSAGE, 429);
         }
-      } else if (isRateLimitError(error.message)) {
-        return apiError(RATE_LIMIT_MESSAGE, 429);
-      } else {
-        console.warn('[forgot-password] generateLink failed', error.message);
+        return apiError(
+          'Şifre sıfırlama bağlantısı oluşturulamadı. Lütfen birkaç dakika sonra tekrar deneyin.',
+          500,
+        );
       }
+
+      const actionLink =
+        data.properties?.action_link
+        || (data as { action_link?: string }).action_link
+        || null;
+      if (!actionLink) {
+        return apiError('Şifre sıfırlama bağlantısı oluşturulamadı.', 500);
+      }
+
+      const mailed = await sendPasswordResetEmail({ to: email, actionLink });
+      if (mailed.ok) {
+        return okWithRecoveryCookie(request, {
+          sent: true,
+          message:
+            'E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutusu ve spam klasörünü kontrol edin.',
+        });
+      }
+      console.error('[forgot-password] custom mail failed', mailed.error);
+      return apiError(
+        'Sıfırlama e-postası gönderilemedi (SMTP). Gelen kutusu/spam’i kontrol edin veya destek ile iletişime geçin.',
+        500,
+      );
     } catch (error) {
-      console.warn('[forgot-password] custom mail path unavailable', error);
+      console.error('[forgot-password] custom mail path unavailable', error);
+      return apiError(
+        'Şifre sıfırlama şu an kullanılamıyor. Lütfen biraz sonra tekrar deneyin.',
+        500,
+      );
     }
   }
 
-  // Fallback: Supabase Auth mailer (dashboard Site name / SMTP sender must be Girisimbee).
+  // Fallback only when no Resend/SMTP is configured: Supabase Auth mailer.
   const { error } = await sendViaSupabaseAuth(email, redirectTo);
   if (error) {
     console.error('[forgot-password] supabase mail failed', error.message);
