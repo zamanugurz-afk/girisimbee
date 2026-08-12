@@ -131,7 +131,7 @@ export function AdminSupportInquiriesView() {
     <AdminPageShell
       title="Destek talepleri"
       description={`Sitedeki /destek formundan gelen talepler. Yeni: ${newCount}`}
-      actions={
+      toolbar={
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" asChild>
             <a href={SUPPORT_ROUTES.public} target="_blank" rel="noreferrer">
