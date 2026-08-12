@@ -208,15 +208,16 @@ function JobFlowOption({
       type="button"
       onClick={onClick}
       className={cn(
-        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border border-[#E8EBF1] bg-white p-5 pl-6 text-left',
+        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border-2 bg-white p-5 pl-6 text-left',
         'shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-all duration-200',
-        'hover:-translate-y-0.5 hover:border-[#D5DAE5] hover:shadow-[0_12px_28px_-18px_rgba(15,23,42,0.28)]',
+        'hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-18px_rgba(15,23,42,0.28)]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        'dark:border-border dark:bg-card',
+        'dark:bg-card',
       )}
+      style={{ borderColor: color }}
     >
       <span
-        className="absolute inset-y-0 left-0 w-[3px] rounded-l-2xl"
+        className="absolute inset-y-0 left-0 w-1 rounded-l-2xl"
         style={{ backgroundColor: color }}
         aria-hidden
       />
