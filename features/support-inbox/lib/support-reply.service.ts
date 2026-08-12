@@ -177,6 +177,80 @@ export type SendSupportReplyResult = {
   messageId: string;
 };
 
+export type SupportThreadMessage = {
+  id: string;
+  body: string;
+  senderId: string;
+  createdAt: string;
+  /** True when sender is the inquiry's user (createdBy / matched profile). */
+  fromUser: boolean;
+};
+
+async function resolveConversationIdForInquiry(
+  supabase: SupabaseClient,
+  inquiry: SupportInquiry,
+): Promise<string | null> {
+  if (inquiry.conversationId) {
+    const { data } = await supabase
+      .from('marketplace_conversations')
+      .select('id')
+      .eq('id', inquiry.conversationId)
+      .is('deleted_at', null)
+      .maybeSingle();
+    if (data?.id) return data.id as string;
+  }
+
+  const { data: byInquiry } = await supabase
+    .from('marketplace_conversations')
+    .select('id')
+    .eq('kind', 'support')
+    .eq('support_inquiry_id', inquiry.id)
+    .is('deleted_at', null)
+    .neq('status', 'deleted')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (byInquiry?.id as string | undefined) ?? null;
+}
+
+/** Load Mesajlarım thread linked to a support inquiry (service role). */
+export async function listSupportInquiryThreadMessages(
+  supabase: SupabaseClient,
+  inquiryId: string,
+): Promise<{ conversationId: string | null; messages: SupportThreadMessage[] }> {
+  const inquiry = await getSupportInquiry(supabase, inquiryId);
+  if (!inquiry) throw new Error('Talep bulunamadı.');
+
+  const conversationId = await resolveConversationIdForInquiry(supabase, inquiry);
+  if (!conversationId) {
+    return { conversationId: null, messages: [] };
+  }
+
+  const userId = (await resolveRecipientUserId(supabase, inquiry)) ?? inquiry.createdBy;
+
+  const { data, error } = await supabase
+    .from('marketplace_messages')
+    .select('id, body, sender_id, created_at')
+    .eq('conversation_id', conversationId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  if (error) throw new Error(error.message);
+
+  const messages: SupportThreadMessage[] = (data ?? []).map((row) => {
+    const senderId = row.sender_id as string;
+    return {
+      id: row.id as string,
+      body: row.body as string,
+      senderId,
+      createdAt: row.created_at as string,
+      fromUser: Boolean(userId && senderId === userId),
+    };
+  });
+
+  return { conversationId, messages };
+}
+
 export async function sendSupportInquiryReply(params: {
   supabase: SupabaseClient;
   inquiryId: string;

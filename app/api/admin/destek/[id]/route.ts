@@ -8,6 +8,7 @@ import {
   getSupportInquiry,
   updateSupportInquiry,
 } from '@/features/support-inbox/lib/support-inquiry.repository';
+import { listSupportInquiryThreadMessages } from '@/features/support-inbox/lib/support-reply.service';
 import { SUPPORT_INQUIRY_STATUSES } from '@/features/support-inbox/types/support-inquiry.types';
 
 const patchSchema = z.object({
@@ -22,7 +23,13 @@ export const GET = withAdmin(async (_ctx, _request, routeContext) => {
   const supabase = createServiceRoleClient();
   const item = await getSupportInquiry(supabase, id);
   if (!item) return apiError('Talep bulunamadı.', 404, { code: 'NOT_FOUND' });
-  return ok({ item });
+
+  const thread = await listSupportInquiryThreadMessages(supabase, id);
+  return ok({
+    item,
+    conversationId: thread.conversationId,
+    messages: thread.messages,
+  });
 });
 
 export const PATCH = withAdmin(async (ctx, request, routeContext) => {

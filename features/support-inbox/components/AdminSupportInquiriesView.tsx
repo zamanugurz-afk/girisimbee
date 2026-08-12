@@ -25,6 +25,7 @@ import { AdminEmptyState } from '@/features/admin/panel/components/AdminEmptySta
 import { AdminPageShell } from '@/features/admin/panel/components/AdminPageShell';
 import { AdminLoadingState } from '@/features/admin/panel/components/AdminLoadingState';
 import { supportAdminApi } from '@/features/support-inbox/lib/support-inquiry-api';
+import type { SupportThreadMessage } from '@/features/support-inbox/lib/support-reply.service';
 import {
   SUPPORT_INQUIRY_CHANNEL_LABELS,
   SUPPORT_INQUIRY_STATUS_LABELS,
@@ -58,6 +59,8 @@ export function AdminSupportInquiriesView() {
   const [status, setStatus] = useState<SupportInquiryStatus>('new');
   const [replyBody, setReplyBody] = useState('');
   const [busy, setBusy] = useState(false);
+  const [threadMessages, setThreadMessages] = useState<SupportThreadMessage[]>([]);
+  const [threadLoading, setThreadLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,12 +90,49 @@ export function AdminSupportInquiriesView() {
     [items],
   );
 
+  const loadThread = useCallback(async (inquiryId: string, silent = false) => {
+    if (!silent) setThreadLoading(true);
+    try {
+      const detail = await supportAdminApi.get(inquiryId);
+      setThreadMessages(detail.messages);
+      setSelected((prev) =>
+        prev?.id === detail.item.id
+          ? { ...detail.item, conversationId: detail.conversationId ?? detail.item.conversationId }
+          : prev,
+      );
+      setItems((prev) =>
+        prev.map((row) =>
+          row.id === detail.item.id
+            ? {
+                ...detail.item,
+                conversationId: detail.conversationId ?? detail.item.conversationId,
+              }
+            : row,
+        ),
+      );
+    } catch {
+      if (!silent) setThreadMessages([]);
+    } finally {
+      if (!silent) setThreadLoading(false);
+    }
+  }, []);
+
   function openDetail(item: SupportInquiry) {
     setSelected(item);
     setNote(item.adminNote ?? '');
     setStatus(item.status);
     setReplyBody('');
+    setThreadMessages([]);
+    void loadThread(item.id);
   }
+
+  useEffect(() => {
+    if (!selected?.id) return;
+    const timer = window.setInterval(() => {
+      void loadThread(selected.id, true);
+    }, 12_000);
+    return () => window.clearInterval(timer);
+  }, [selected?.id, loadThread]);
 
   async function saveDetail(nextStatus?: SupportInquiryStatus) {
     if (!selected) return;
@@ -128,6 +168,7 @@ export function AdminSupportInquiriesView() {
       setNote(item.adminNote ?? '');
       setReplyBody('');
       setItems((prev) => prev.map((row) => (row.id === item.id ? item : row)));
+      await loadThread(item.id, true);
       toast.success('Mesaj kullanıcının Mesajlarım kutuna iletildi');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Mesaj gönderilemedi');
@@ -270,6 +311,59 @@ export function AdminSupportInquiriesView() {
                 <p className="whitespace-pre-wrap rounded-lg border border-border/60 bg-muted/30 p-3">
                   {selected.message}
                 </p>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Label className="inline-flex items-center gap-1.5">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      Mesajlarım konuşması
+                    </Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-xs"
+                      disabled={threadLoading}
+                      onClick={() => void loadThread(selected.id)}
+                    >
+                      <RefreshCw
+                        className={cn('mr-1 h-3 w-3', threadLoading && 'animate-spin')}
+                      />
+                      Yenile
+                    </Button>
+                  </div>
+                  {threadLoading && threadMessages.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Konuşma yükleniyor…</p>
+                  ) : threadMessages.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-border/70 px-3 py-2 text-xs text-muted-foreground">
+                      Henüz Mesajlarım yanıtı yok. Aşağıdan ilk mesajı gönderince burada görünür;
+                      kullanıcının cevabı da bu listede listelenir.
+                    </p>
+                  ) : (
+                    <ul className="max-h-56 space-y-2 overflow-y-auto rounded-lg border border-border/60 bg-muted/20 p-2">
+                      {threadMessages.map((msg) => (
+                        <li
+                          key={msg.id}
+                          className={cn(
+                            'rounded-md px-2.5 py-2 text-sm',
+                            msg.fromUser
+                              ? 'border border-amber-500/30 bg-amber-500/10'
+                              : 'border border-border/50 bg-background',
+                          )}
+                        >
+                          <div className="mb-1 flex flex-wrap items-center justify-between gap-1 text-[11px] text-muted-foreground">
+                            <span className="font-medium text-foreground/80">
+                              {msg.fromUser ? 'Kullanıcı' : 'Destek'}
+                            </span>
+                            <span>{formatWhen(msg.createdAt)}</span>
+                          </div>
+                          <p className="whitespace-pre-wrap text-foreground">{msg.body}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label>Durum</Label>
                   <Select value={status} onValueChange={(v) => setStatus(v as SupportInquiryStatus)}>

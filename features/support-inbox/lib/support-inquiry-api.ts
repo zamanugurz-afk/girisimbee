@@ -1,3 +1,4 @@
+import type { SupportThreadMessage } from '@/features/support-inbox/lib/support-reply.service';
 import type {
   CreateSupportInquiryInput,
   SupportInquiry,
@@ -42,6 +43,13 @@ export const supportAdminApi = {
     return supportFetch<{ items: SupportInquiry[] }>(
       `/api/admin/destek${qs ? `?${qs}` : ''}`,
     ).then((r) => r.items);
+  },
+  get(id: string) {
+    return supportFetch<{
+      item: SupportInquiry;
+      conversationId: string | null;
+      messages: SupportThreadMessage[];
+    }>(`/api/admin/destek/${id}`);
   },
   update(id: string, input: UpdateSupportInquiryInput) {
     return supportFetch<{ item: SupportInquiry }>(`/api/admin/destek/${id}`, {
