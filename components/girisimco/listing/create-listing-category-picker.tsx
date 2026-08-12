@@ -214,40 +214,15 @@ const SEEK_FLOW_COLOR = '#0EA5E9';
 
 /**
  * Same listing-card format as the category grid — larger, side-by-side, no shared shell.
+ * Page title/copy + Geri live on /ilan/olustur when this step is active.
  */
 export function JobListingFlowStep({
   onSelect,
-  onBack,
 }: {
   onSelect: (categoryId: CategoryId) => void;
-  onBack: () => void;
 }) {
   return (
     <section className="mb-10">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div className="max-w-xl">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
-            Adım 1 · İş İlanları
-          </p>
-          <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
-            Nasıl bir iş ilanı vereceksiniz?
-          </h2>
-          <p className="mt-2 max-w-lg text-sm leading-relaxed text-[#64748B]">
-            İşveren olarak açık pozisyon yayınlayabilir veya iş arayan olarak anonim bir kariyer
-            özeti oluşturabilirsiniz. İki akış birbirinden bağımsızdır; seçtiğiniz seçenek kendi
-            formunu açar.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex shrink-0 items-center gap-1.5 pt-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Geri
-        </button>
-      </div>
-
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
         <CategoryCardButton
           size="lg"

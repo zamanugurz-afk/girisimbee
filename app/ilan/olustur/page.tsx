@@ -277,14 +277,38 @@ function CreateListingContent() {
       )}
     >
       <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-          İlan Oluştur
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-          {categoryId
-            ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-            : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
-        </p>
+        {showJobOnlyStep ? (
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+                Nasıl bir iş ilanı vereceksiniz?
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+                İşveren olarak açık pozisyon yayınlayabilir veya iş arayan olarak anonim bir kariyer
+                özeti oluşturabilirsiniz. İki akış birbirinden bağımsızdır; seçtiğiniz seçenek kendi
+                formunu açar.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={resetCategorySelection}
+              className="inline-flex shrink-0 items-center gap-1.5 pt-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
+            >
+              ← Geri
+            </button>
+          </div>
+        ) : (
+          <>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+              İlan Oluştur
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+              {categoryId
+                ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
+                : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+            </p>
+          </>
+        )}
       </div>
 
       {showCategoryGrid ? (
@@ -295,9 +319,7 @@ function CreateListingContent() {
       ) : null}
 
       {/* Exclusive: when İş İlanları is open, no other category cards render. */}
-      {showJobOnlyStep ? (
-        <JobListingFlowStep onSelect={selectCategory} onBack={resetCategorySelection} />
-      ) : null}
+      {showJobOnlyStep ? <JobListingFlowStep onSelect={selectCategory} /> : null}
 
       {categoryId && (
         <CreateListingSelectedCategoryBar
