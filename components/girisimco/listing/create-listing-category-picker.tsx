@@ -211,52 +211,47 @@ function JobFlowOption({
       type="button"
       onClick={onClick}
       className={cn(
-        'group relative flex h-full min-h-[17rem] flex-col overflow-hidden rounded-[1.35rem] bg-white p-7 pl-8 text-left sm:min-h-[18.5rem] sm:p-8 sm:pl-9',
-        'transition-all duration-200 hover:-translate-y-1',
+        'group relative flex h-full min-h-[16rem] w-full flex-col overflow-hidden rounded-2xl border border-[#E6E8EE] bg-white p-6 pl-7 text-left sm:min-h-[17.5rem] sm:p-7 sm:pl-8',
+        'transition-colors duration-200 hover:border-[#C7CBD6] hover:bg-[#FAFBFC]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        'dark:bg-card',
+        'dark:border-border dark:bg-card',
       )}
-      style={{
-        // box-shadow frame — not overridden by global button border resets
-        boxShadow: `inset 0 0 0 2.5px ${color}, 0 18px 40px -28px ${color}99`,
-        backgroundImage: `linear-gradient(180deg, ${color}0F 0%, transparent 42%)`,
-      }}
     >
+      {/* Per-card accent only — no shared outer green frame */}
       <span
-        className="absolute inset-y-3 left-0 w-[5px] rounded-r-full"
+        className="absolute inset-y-0 left-0 w-[3px]"
         style={{ backgroundColor: color }}
         aria-hidden
       />
       <span
-        className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
+        className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-white"
         style={{ backgroundColor: color }}
         aria-hidden
       >
-        <Icon className="h-6 w-6" strokeWidth={1.75} />
+        <Icon className="h-5 w-5" strokeWidth={1.75} />
       </span>
-      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#94A3B8]">
         {audience}
       </span>
-      <span className="mt-2 font-display text-xl font-semibold tracking-tight text-[#0B1220] dark:text-foreground sm:text-[1.35rem]">
+      <span className="mt-1.5 font-display text-lg font-semibold tracking-tight text-[#0B1220] dark:text-foreground">
         {title}
       </span>
-      <span className="mt-3 flex-1 text-[14px] leading-relaxed text-[#64748B] sm:text-[15px]">
+      <span className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[#64748B] sm:text-sm">
         {description}
       </span>
       <span
-        className="mt-7 inline-flex items-center gap-2 text-[14px] font-semibold"
+        className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold"
         style={{ color }}
       >
         Devam et
-        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </span>
     </button>
   );
 }
 
 /**
- * Full-screen job flow chooser.
- * Replaces the category grid — other listing cards must not render alongside this.
+ * Two independent cards only — no wrapping green shell around both.
  */
 export function JobListingFlowStep({
   onSelect,
@@ -267,34 +262,30 @@ export function JobListingFlowStep({
 }) {
   return (
     <section className="mb-10">
-      <div className="mb-8 flex items-end justify-between gap-4">
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div className="max-w-xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
             Adım 1 · İş İlanları
           </p>
-          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
+          <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
             Akışınızı seçin
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-            İşe alım veya anonim kariyer özeti — form seçiminize göre açılır.
+            İki ayrı seçenek — her biri kendi ilan formunu açar.
           </p>
         </div>
         <button
           type="button"
           onClick={onBack}
-          className={cn(
-            'inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#E6E8EE] bg-white px-3.5 py-2',
-            'text-sm font-medium text-[#64748B] transition-colors',
-            'hover:border-[#C7CBD6] hover:text-[#0B1220]',
-            'dark:border-border dark:bg-card dark:hover:text-foreground',
-          )}
+          className="inline-flex shrink-0 items-center gap-1.5 pt-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Geri
         </button>
       </div>
 
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+      {/* Gap keeps cards visually separate — never nest them in one green panel */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6">
         <JobFlowOption
           title="İşe Alıyorum"
           description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir."
