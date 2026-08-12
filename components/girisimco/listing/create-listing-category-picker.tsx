@@ -189,8 +189,8 @@ export function CreateListingCategoryPicker({
 }
 
 /**
- * Replaces the full category grid after İş İlanları — only hire / seek cards.
- * Other listing types must not remain visible.
+ * Full-screen job flow chooser (image-3 target).
+ * Replaces the category grid — other listing cards must not render alongside this.
  */
 export function JobListingFlowStep({
   onSelect,
@@ -201,45 +201,62 @@ export function JobListingFlowStep({
 }) {
   return (
     <section className="mb-10">
-      <div className="mb-6 flex max-w-xl items-start justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
-            İş İlanları
-          </p>
-          <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
-            Hangisini oluşturacaksınız?
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-            Yalnızca bu iki seçenek — diğer ilan türleri gizlendi.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex shrink-0 items-center gap-1.5 pt-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Geri
-        </button>
+      <div className="mb-6 max-w-xl">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
+          Adım 1
+        </p>
+        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
+          Hangi tür ilan vereceksiniz?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+          Kategoriyi seçin; form yalnızca o türe özel alanları gösterir.
+        </p>
       </div>
 
-      <div className="mx-auto grid max-w-2xl grid-cols-1 gap-2.5 sm:grid-cols-2">
-        <CategoryCardButton
-          title="İşe Alıyorum"
-          description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir"
-          audience="İşverenler"
-          color={GC_CATEGORY_COLORS['ise-al']}
-          Icon={Briefcase}
-          onClick={() => onSelect(CATEGORY_IDS.iseAl)}
+      <div className="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-[#E6E8EE] bg-white p-4 pl-5 dark:border-border dark:bg-card sm:p-5 sm:pl-6">
+        <span
+          className="absolute inset-y-0 left-0 w-[3px]"
+          style={{ backgroundColor: JOB_GROUP_COLOR }}
+          aria-hidden
         />
-        <CategoryCardButton
-          title="İş Arıyorum"
-          description="Anonim kariyer özeti; CV ve firma adı paylaşmadan işverenlere ulaşın"
-          audience="İş arayanlar"
-          color="#0EA5E9"
-          Icon={UserRoundSearch}
-          onClick={() => onSelect(CATEGORY_IDS.isBul)}
-        />
+
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
+              İş İlanları
+            </p>
+            <p className="mt-1 font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
+              Akışınızı seçin
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0B1220] dark:hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Geri
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <CategoryCardButton
+            title="İşe Alıyorum"
+            description="Açık pozisyon yayınlayın; adaylar iletişim talebi gönderebilir"
+            audience="İşverenler"
+            color={GC_CATEGORY_COLORS['ise-al']}
+            Icon={Briefcase}
+            onClick={() => onSelect(CATEGORY_IDS.iseAl)}
+          />
+          <CategoryCardButton
+            title="İş Arıyorum"
+            description="Anonim kariyer özeti oluşturun; CV ve firma adı paylaşmadan işverenlere ulaşın"
+            audience="İş arayanlar"
+            color="#0EA5E9"
+            Icon={UserRoundSearch}
+            onClick={() => onSelect(CATEGORY_IDS.isBul)}
+          />
+        </div>
       </div>
     </section>
   );

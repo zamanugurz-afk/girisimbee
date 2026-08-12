@@ -283,22 +283,21 @@ function CreateListingContent() {
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
           {categoryId
             ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-            : showJobOnlyStep
-              ? 'İş ilanı türünü seçin — diğer kategoriler bu adımda gösterilmez.'
-              : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+            : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
         </p>
       </div>
 
-      {showCategoryGrid && (
+      {showCategoryGrid ? (
         <CreateListingCategoryPicker
           options={CREATE_LISTING_TYPE_CONFIGS}
           onSelect={handlePickerSelect}
         />
-      )}
+      ) : null}
 
-      {showJobOnlyStep && (
+      {/* Exclusive: when İş İlanları is open, no other category cards render. */}
+      {showJobOnlyStep ? (
         <JobListingFlowStep onSelect={selectCategory} onBack={resetCategorySelection} />
-      )}
+      ) : null}
 
       {categoryId && (
         <CreateListingSelectedCategoryBar
