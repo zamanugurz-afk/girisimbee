@@ -41,6 +41,8 @@ import { enqueueSuspiciousContent } from '@/features/admin/content-policy/mock/s
 import {
   CreateListingCategoryPicker,
   CreateListingSelectedCategoryBar,
+  JobListingFlowStep,
+  type CreateListingPickerSelection,
 } from '@/components/girisimco/listing/create-listing-category-picker';
 
 function CreateListingContent() {
@@ -61,8 +63,14 @@ function CreateListingContent() {
   const [categoryId, setCategoryId] = useState<CategoryId | null>(initialCategory);
   const [listingTypeId, setListingTypeId] = useState<ListingTypeId | null>(() => {
     if (!initialCategory) return null;
-    return categoryRegistry.getDefaultListingType(initialCategory)?.id ?? null;
+    return (
+      CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === initialCategory)?.listingTypeId
+      ?? categoryRegistry.getDefaultListingType(initialCategory)?.id
+      ?? null
+    );
   });
+  /** İş İlanları seçildi; henüz İşe Alıyorum / İş Arıyorum seçilmedi. */
+  const [jobFlowPending, setJobFlowPending] = useState(false);
 
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);
 
@@ -96,9 +104,30 @@ function CreateListingContent() {
 
   function selectCategory(id: CategoryId) {
     if (id === CATEGORY_IDS.yatirimYap) return;
+    setJobFlowPending(false);
     setCategoryId(id);
-    const defaultType = categoryRegistry.getDefaultListingType(id);
-    setListingTypeId(defaultType?.id ?? null);
+    const fromConfig = CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === id);
+    const defaultType =
+      fromConfig?.listingTypeId
+      ?? categoryRegistry.getDefaultListingType(id)?.id
+      ?? null;
+    setListingTypeId(defaultType);
+  }
+
+  function handlePickerSelect(selection: CreateListingPickerSelection) {
+    if (selection.kind === 'job') {
+      setCategoryId(null);
+      setListingTypeId(null);
+      setJobFlowPending(true);
+      return;
+    }
+    selectCategory(selection.categoryId);
+  }
+
+  function resetCategorySelection() {
+    setCategoryId(null);
+    setListingTypeId(null);
+    setJobFlowPending(false);
   }
 
   async function handlePublish(values: ListingFormValues) {
@@ -237,6 +266,8 @@ function CreateListingContent() {
 
   const selectedLabel =
     CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.name ?? '';
+  const showCategoryGrid = !categoryId && !jobFlowPending;
+  const showJobOnlyStep = jobFlowPending && !categoryId;
 
   return (
     <main
@@ -252,30 +283,34 @@ function CreateListingContent() {
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
           {categoryId
             ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-            : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+            : showJobOnlyStep
+              ? 'İş ilanı türünü seçin — diğer kategoriler bu adımda gösterilmez.'
+              : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
         </p>
       </div>
 
-      {!categoryId && (
+      {showCategoryGrid && (
         <CreateListingCategoryPicker
           options={CREATE_LISTING_TYPE_CONFIGS}
-          onSelect={selectCategory}
+          onSelect={handlePickerSelect}
         />
+      )}
+
+      {showJobOnlyStep && (
+        <JobListingFlowStep onSelect={selectCategory} onBack={resetCategorySelection} />
       )}
 
       {categoryId && (
         <CreateListingSelectedCategoryBar
           categoryId={categoryId}
           label={selectedLabel}
-          onChange={() => {
-            setCategoryId(null);
-            setListingTypeId(null);
-          }}
+          onChange={resetCategorySelection}
         />
       )}
 
       {isReady && listingType && categoryId ? (
         <CategoryListingForm
+          key={categoryId}
           listingType={listingType}
           categoryId={categoryId}
           userId={actorId}

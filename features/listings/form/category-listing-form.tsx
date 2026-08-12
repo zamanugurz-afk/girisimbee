@@ -30,8 +30,6 @@ import { StructuredTagsSelect } from '@/features/listings/form/fields/structured
 import { CvUploadField } from '@/features/listings/form/fields/cv-upload-field';
 import {
   EMPTY_KVKK_CONSENTS,
-  KvkkConsentFields,
-  validateKvkkConsents,
   type KvkkConsentValues,
 } from '@/features/listings/form/fields/kvkk-consent-fields';
 import {
@@ -1108,22 +1106,13 @@ export function CategoryListingForm({
                 />
               )}
 
-              {isCvStep && (
+              {isCvStep && categoryId !== CATEGORY_IDS.isBul && (
                 <CvUploadField
                   value={cvUrl}
                   onChange={setCvUrl}
                   disabled={disabled || isBusy}
                   error={resolveFieldError(fieldErrors, 'cvUrl')}
                   userId={userId}
-                />
-              )}
-
-              {isKvkkStep && categoryId === CATEGORY_IDS.isBul && (
-                <KvkkConsentFields
-                  value={kvkkConsents}
-                  onChange={setKvkkConsents}
-                  disabled={disabled || isBusy}
-                  error={resolveFieldError(fieldErrors, 'kvkkConsents')}
                 />
               )}
 
