@@ -208,7 +208,7 @@ function JobFlowOption({
       type="button"
       onClick={onClick}
       className={cn(
-        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border border-[#E8EBF1] bg-white p-5 text-left',
+        'group relative flex h-full min-h-[11.5rem] flex-col overflow-hidden rounded-2xl border border-[#E8EBF1] bg-white p-5 pl-6 text-left',
         'shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-all duration-200',
         'hover:-translate-y-0.5 hover:border-[#D5DAE5] hover:shadow-[0_12px_28px_-18px_rgba(15,23,42,0.28)]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
@@ -216,15 +216,13 @@ function JobFlowOption({
       )}
     >
       <span
-        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-80"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-        }}
+        className="absolute inset-y-0 left-0 w-[3px] rounded-l-2xl"
+        style={{ backgroundColor: color }}
         aria-hidden
       />
       <span
-        className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl"
-        style={{ backgroundColor: `${color}14`, color }}
+        className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+        style={{ backgroundColor: color }}
         aria-hidden
       >
         <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
