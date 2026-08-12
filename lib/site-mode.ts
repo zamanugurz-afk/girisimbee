@@ -46,6 +46,7 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
     || pathname === '/auth/signout'
     || pathname === '/auth/yasal-onay'
     || pathname === '/iletisim-talepleri'
+    || pathname === '/mesajlarim'
     || pathname === '/auth/google-setup'
     || pathname === '/giris'
     || pathname === '/kayit'

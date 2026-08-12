@@ -145,7 +145,16 @@ export async function middleware(request: NextRequest) {
       || pathname === '/sitemap.xml'
       || pathname.startsWith('/brand/')
       || pathname.startsWith('/images/')
-      || pathname.startsWith('/fonts/');
+      || pathname.startsWith('/fonts/')
+      || pathname.startsWith('/dashboard')
+      || pathname.startsWith('/admin')
+      || pathname === '/mesajlarim'
+      || pathname === '/iletisim-talepleri'
+      || pathname === '/giris'
+      || pathname === '/kayit'
+      || pathname === '/destek'
+      || pathname === '/reklam'
+      || pathname.startsWith('/auth/');
     if (!ipBypass) {
       const url = request.nextUrl.clone();
       url.pathname = '/bakim';
