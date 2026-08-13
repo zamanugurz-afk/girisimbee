@@ -1,0 +1,89 @@
+import type { ContentItem } from '@/features/categories/types/category.types';
+
+/** Shared homepage category tabs — filters Öne Çıkan / Acil / Bugün / En Çok Görüntülenen. */
+export type HomeCategoryTabId =
+  | 'all'
+  | 'entrepreneur'
+  | 'investor'
+  | 'job'
+  | 'partner'
+  | 'digital-ai'
+  | 'general';
+
+export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> = {
+  entrepreneur: 'yatirim-bul',
+  investor: 'yatirim-yap',
+  job: 'ise-al',
+  partner: 'ortak-bul',
+  'digital-ai': 'dijital-ai',
+  general: 'genel-ilan',
+};
+
+export const HOME_CATEGORY_TABS: {
+  id: HomeCategoryTabId;
+  label: string;
+  viewAllHref: string;
+  match: (item: ContentItem) => boolean;
+}[] = [
+  {
+    id: 'all',
+    label: 'Tümü',
+    viewAllHref: '/kesfet?featured=1',
+    match: () => true,
+  },
+  {
+    id: 'entrepreneur',
+    label: 'Girişimci',
+    viewAllHref: '/invest',
+    match: (item) =>
+      item.listingIconKey === 'investment'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('yatırım arıyorum') === true,
+  },
+  {
+    id: 'investor',
+    label: 'Yatırımcı',
+    viewAllHref: '/investors',
+    match: (item) =>
+      item.listingIconKey === 'investor'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('yatırım yapıyorum') === true,
+  },
+  {
+    id: 'job',
+    label: 'İş Fırsatı',
+    viewAllHref: '/is',
+    match: (item) =>
+      item.listingIconKey === 'employer'
+      || item.listingIconKey === 'job-seeker'
+      || item.listingGroupLabel === 'İş',
+  },
+  {
+    id: 'partner',
+    label: 'Ortaklık',
+    viewAllHref: '/partners',
+    match: (item) =>
+      item.listingIconKey === 'partner'
+      || item.listingGroupLabel === 'Ortaklık',
+  },
+  {
+    id: 'digital-ai',
+    label: 'Dijital & AI Çözümleri',
+    viewAllHref: '/dijital-ai',
+    match: (item) =>
+      item.listingIconKey === 'digital'
+      || item.listingGroupLabel === 'Dijital & AI Çözümleri'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('dijital') === true,
+  },
+  {
+    id: 'general',
+    label: 'Genel İlanlar',
+    viewAllHref: '/kesfet',
+    match: (item) =>
+      item.listingIconKey === 'general'
+      || item.listingGroupLabel === 'İlan'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR') === 'ilan',
+  },
+];
+
+export function resolveHomeCategoryTab(id: string): HomeCategoryTabId | null {
+  return HOME_CATEGORY_TABS.some((tab) => tab.id === id) ? (id as HomeCategoryTabId) : null;
+}

@@ -5,6 +5,7 @@ import {
   HOME_LISTING_SECTIONS,
   type HomeListingSectionId,
 } from '@/features/home/config/home-sections.config';
+import { HOME_CATEGORY_TAB_SLUG } from '@/features/home/config/home-category-tabs';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
@@ -12,16 +13,8 @@ import type { MarketplaceBrowseParams } from '@/features/listings/types/marketpl
 
 export const dynamic = 'force-dynamic';
 
-const FEATURED_TAB_CATEGORY: Record<string, string> = {
-  entrepreneur: 'yatirim-bul',
-  investor: 'yatirim-yap',
-  job: 'ise-al',
-  partner: 'ortak-bul',
-  'digital-ai': 'dijital-ai',
-  general: 'genel-ilan',
-};
-
-const FEATURED_TAB_LIMIT = 4;
+const SECTION_TAB_LIMIT = 4;
+const SECTION_IDS = new Set(HOME_LISTING_SECTIONS.map((section) => section.id));
 
 function isDynamicServerUsageError(err: unknown): boolean {
   return (
@@ -67,48 +60,68 @@ async function fetchSection(
   };
 }
 
-async function fetchFeaturedTabItems(
+async function fetchSectionCategoryTabItems(
   browseService: ReturnType<typeof getServerContainer>['listingBrowseService'],
+  sectionId: HomeListingSectionId,
   tab: string,
 ): Promise<ContentItem[]> {
-  const categorySlug = FEATURED_TAB_CATEGORY[tab];
+  const categorySlug = HOME_CATEGORY_TAB_SLUG[tab as keyof typeof HOME_CATEGORY_TAB_SLUG];
   if (!categorySlug) return [];
 
-  const featured = await browseService.browse({
+  const section = HOME_LISTING_SECTIONS.find((entry) => entry.id === sectionId);
+  if (!section) return [];
+
+  const base = section.resolveBrowseParams();
+  const filtered = await browseService.browse({
+    ...base,
     page: 1,
-    limit: FEATURED_TAB_LIMIT,
+    limit: SECTION_TAB_LIMIT,
     categorySlug,
-    isFeatured: true,
-    activeFeaturedOnly: true,
-    sortBy: 'newest',
   });
 
-  if (featured.data.length > 0) {
-    return featured.data;
+  if (filtered.data.length > 0) {
+    return filtered.data;
   }
 
-  const newest = await browseService.browse({
-    page: 1,
-    limit: FEATURED_TAB_LIMIT,
-    categorySlug,
-    sortBy: 'newest',
-  });
+  // Featured only: if no featured hits in this category, show newest in-category.
+  if (sectionId === 'featured') {
+    const newest = await browseService.browse({
+      page: 1,
+      limit: SECTION_TAB_LIMIT,
+      categorySlug,
+      sortBy: 'newest',
+    });
+    return newest.data;
+  }
 
-  return newest.data;
+  return [];
 }
 
-/** GET — homepage listing sections, or a single featured category tab via ?featuredTab= */
+/** GET — homepage listing sections, or a category tab slice via ?categoryTab=&sectionId= */
 export async function GET(request: Request) {
   try {
-    const featuredTab = new URL(request.url).searchParams.get('featuredTab')?.trim() ?? '';
+    const url = new URL(request.url);
+    const categoryTab =
+      url.searchParams.get('categoryTab')?.trim()
+      || url.searchParams.get('featuredTab')?.trim()
+      || '';
+    const sectionParam = url.searchParams.get('sectionId')?.trim() || 'featured';
     const container = getServerContainer(createClient());
 
-    if (featuredTab && featuredTab !== 'all') {
-      if (!FEATURED_TAB_CATEGORY[featuredTab]) {
-        return apiError('Geçersiz öne çıkan sekmesi.', 400);
+    if (categoryTab && categoryTab !== 'all') {
+      if (!HOME_CATEGORY_TAB_SLUG[categoryTab as keyof typeof HOME_CATEGORY_TAB_SLUG]) {
+        return apiError('Geçersiz kategori sekmesi.', 400);
       }
-      const items = await fetchFeaturedTabItems(container.listingBrowseService, featuredTab);
-      return ok({ items, tab: featuredTab });
+      if (!SECTION_IDS.has(sectionParam as HomeListingSectionId)) {
+        return apiError('Geçersiz ana sayfa bölümü.', 400);
+      }
+      const sectionId = sectionParam as HomeListingSectionId;
+      const items = await fetchSectionCategoryTabItems(
+        container.listingBrowseService,
+        sectionId,
+        categoryTab,
+      );
+      return ok({ items, tab: categoryTab, sectionId });
     }
 
     const { listingRepository } = container;

@@ -2,20 +2,31 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 import {
   HOME_LISTING_SECTIONS,
   useHomeListingSections,
 } from '@/features/home';
+import {
+  type HomeCategoryTabId,
+} from '@/features/home/config/home-category-tabs';
 import { HomeListingSectionRow } from '@/components/girisimco/home/HomeListingSectionRow';
 import type { HomeListingSectionsResult } from '@/features/home';
 import { cn } from '@/lib/utils';
 
-const HomeListingsCtx = createContext<HomeListingSectionsResult | null>(null);
+type HomeListingsCtxValue = HomeListingSectionsResult & {
+  categoryTab: HomeCategoryTabId;
+  setCategoryTab: (tab: HomeCategoryTabId) => void;
+};
 
-function useHomeListingsCtx() {
+const HomeListingsCtx = createContext<HomeListingsCtxValue | null>(null);
+
+export function useHomeListingsCtx() {
   const ctx = useContext(HomeListingsCtx);
   if (!ctx) {
     throw new Error('HomeListingsProvider required');
@@ -24,12 +35,27 @@ function useHomeListingsCtx() {
 }
 
 export function HomeListingsProvider({ children }: { children: ReactNode }) {
-  const value = useHomeListingSections();
+  const sectionsState = useHomeListingSections();
+  const [categoryTab, setCategoryTabState] = useState<HomeCategoryTabId>('all');
+
+  const setCategoryTab = useCallback((tab: HomeCategoryTabId) => {
+    setCategoryTabState(tab);
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      ...sectionsState,
+      categoryTab,
+      setCategoryTab,
+    }),
+    [sectionsState, categoryTab, setCategoryTab],
+  );
+
   return <HomeListingsCtx.Provider value={value}>{children}</HomeListingsCtx.Provider>;
 }
 
 export function HomeFeaturedSection() {
-  const { sections } = useHomeListingsCtx();
+  const { sections, categoryTab, setCategoryTab } = useHomeListingsCtx();
   const featured = HOME_LISTING_SECTIONS.find((s) => s.id === 'featured');
   if (!featured) return null;
   const state = sections.find((section) => section.id === featured.id);
@@ -38,14 +64,20 @@ export function HomeFeaturedSection() {
   return (
     <div className="border-b border-[#E8EAF0] bg-white dark:border-border dark:bg-background">
       <div className="mx-auto w-full max-w-[1280px] px-5 py-10 lg:px-8 lg:py-12">
-        <HomeListingSectionRow config={featured} state={state} />
+        <HomeListingSectionRow
+          config={featured}
+          state={state}
+          categoryTab={categoryTab}
+          onCategoryTabChange={setCategoryTab}
+          showCategoryTabs
+        />
       </div>
     </div>
   );
 }
 
 export function HomeRestSections() {
-  const { sections } = useHomeListingsCtx();
+  const { sections, categoryTab } = useHomeListingsCtx();
   const rest = HOME_LISTING_SECTIONS.filter((s) => s.id !== 'featured');
 
   return (
@@ -62,7 +94,11 @@ export function HomeRestSections() {
             )}
           >
             <div className="mx-auto max-w-[1280px] px-5 py-10 lg:px-8 lg:py-12">
-              <HomeListingSectionRow config={config} state={state} />
+              <HomeListingSectionRow
+                config={config}
+                state={state}
+                categoryTab={categoryTab}
+              />
             </div>
           </div>
         );
