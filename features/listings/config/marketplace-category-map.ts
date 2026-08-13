@@ -147,6 +147,9 @@ export const BROWSE_CATEGORY_SLUG_ALIASES: Record<string, string> = {
   'calisan-ariyorum': 'ise-al',
   'is-bul': 'is-ariyorum',
   'dijital-ai-cozum': 'dijital-ai',
+  general: 'genel-ilan',
+  ilan: 'genel-ilan',
+  'genel-ilanlar': 'genel-ilan',
 };
 
 const APP_CATEGORY_ID_TO_DB: Record<string, CategoryId> = {

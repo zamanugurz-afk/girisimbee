@@ -99,7 +99,13 @@ export function HomeListingSectionRow({
         if (!res.ok) {
           throw new Error(body.error ?? 'İlanlar yüklenemedi');
         }
-        const items = (body.data?.items ?? []).slice(0, DESKTOP_LIMIT);
+        // Never trust remote without tab match — guards unmapped category fallthrough.
+        const tabMatch =
+          HOME_CATEGORY_TABS.find((entry) => entry.id === tabId)?.match
+          ?? (() => false);
+        const items = (body.data?.items ?? [])
+          .filter(tabMatch)
+          .slice(0, DESKTOP_LIMIT);
         cacheRef.current[cacheKey] = items;
         setRemoteItems(items);
         setRemoteTab(tabId);

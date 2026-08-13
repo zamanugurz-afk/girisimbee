@@ -72,9 +72,18 @@ export class ListingBrowseService {
   }
 
   async browse(params: MarketplaceBrowseParams = {}): Promise<PaginatedResult<ContentItem>> {
-    const filter = this.buildFilter(params);
     const page = params.page ?? 1;
     const limit = params.limit ?? BROWSE_PAGE_SIZE;
+
+    // Unmapped categorySlug must never browse unfiltered published listings.
+    if (params.categorySlug) {
+      const mappedTypeIds = resolveListingTypeIdsFromBrowseSlug(params.categorySlug);
+      if (mappedTypeIds.length === 0) {
+        return { data: [], total: 0, page, limit, hasMore: false };
+      }
+    }
+
+    const filter = this.buildFilter(params);
 
     let result =
       (params.sortBy ?? filter.sortBy) === 'most_favorited'

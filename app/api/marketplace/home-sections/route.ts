@@ -5,7 +5,12 @@ import {
   HOME_LISTING_SECTIONS,
   type HomeListingSectionId,
 } from '@/features/home/config/home-sections.config';
-import { HOME_CATEGORY_TAB_SLUG } from '@/features/home/config/home-category-tabs';
+import {
+  HOME_CATEGORY_TAB_SLUG,
+  HOME_CATEGORY_TABS,
+  type HomeCategoryTabId,
+} from '@/features/home/config/home-category-tabs';
+import { resolveListingTypeIdsFromBrowseSlug } from '@/features/listings/config/marketplace-category-map';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
@@ -60,13 +65,25 @@ async function fetchSection(
   };
 }
 
+function matchTabItems(tab: string, items: ContentItem[]): ContentItem[] {
+  const tabConfig = HOME_CATEGORY_TABS.find((entry) => entry.id === tab);
+  if (!tabConfig || tabConfig.id === 'all') return items;
+  return items.filter(tabConfig.match);
+}
+
 async function fetchSectionCategoryTabItems(
   browseService: ReturnType<typeof getServerContainer>['listingBrowseService'],
   sectionId: HomeListingSectionId,
-  tab: string,
+  tab: HomeCategoryTabId,
 ): Promise<ContentItem[]> {
-  const categorySlug = HOME_CATEGORY_TAB_SLUG[tab as keyof typeof HOME_CATEGORY_TAB_SLUG];
+  const categorySlug = HOME_CATEGORY_TAB_SLUG[tab];
   if (!categorySlug) return [];
+
+  // Guard: unmapped slug must yield empty, never an unfiltered section feed.
+  if (resolveListingTypeIdsFromBrowseSlug(categorySlug).length === 0) {
+    console.error('[home-sections] unmapped categorySlug for tab', { tab, categorySlug });
+    return [];
+  }
 
   const section = HOME_LISTING_SECTIONS.find((entry) => entry.id === sectionId);
   if (!section) return [];
@@ -79,12 +96,12 @@ async function fetchSectionCategoryTabItems(
     categorySlug,
   });
 
-  if (filtered.data.length > 0) {
-    return filtered.data;
+  const matched = matchTabItems(tab, filtered.data);
+  if (matched.length > 0) {
+    return matched.slice(0, SECTION_TAB_LIMIT);
   }
 
-  // Featured: if no featured hits, still show newest published in this category only.
-  // Empty category (e.g. Genel İlanlar with no posts yet) correctly returns [].
+  // Featured only: newest published in this category (still category-bound + match-guarded).
   if (sectionId === 'featured') {
     const newest = await browseService.browse({
       page: 1,
@@ -92,7 +109,7 @@ async function fetchSectionCategoryTabItems(
       categorySlug,
       sortBy: 'newest',
     });
-    return newest.data;
+    return matchTabItems(tab, newest.data).slice(0, SECTION_TAB_LIMIT);
   }
 
   return [];
@@ -110,7 +127,7 @@ export async function GET(request: Request) {
     const container = getServerContainer(createClient());
 
     if (categoryTab && categoryTab !== 'all') {
-      if (!HOME_CATEGORY_TAB_SLUG[categoryTab as keyof typeof HOME_CATEGORY_TAB_SLUG]) {
+      if (!HOME_CATEGORY_TAB_SLUG[categoryTab as HomeCategoryTabId]) {
         return apiError('Geçersiz kategori sekmesi.', 400);
       }
       if (!SECTION_IDS.has(sectionParam as HomeListingSectionId)) {
@@ -120,7 +137,7 @@ export async function GET(request: Request) {
       const items = await fetchSectionCategoryTabItems(
         container.listingBrowseService,
         sectionId,
-        categoryTab,
+        categoryTab as HomeCategoryTabId,
       );
       return ok({ items, tab: categoryTab, sectionId });
     }
