@@ -4,15 +4,17 @@ import type { ContentItem } from '@/features/categories/types/category.types';
 export type HomeCategoryTabId =
   | 'all'
   | 'entrepreneur'
-  | 'job'
   | 'partner'
+  | 'franchise'
+  | 'job'
   | 'digital-ai'
   | 'general';
 
 export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> = {
   entrepreneur: 'yatirim-bul',
-  job: 'ise-al',
   partner: 'ortak-bul',
+  franchise: 'bayilik-al',
+  job: 'ise-al',
   'digital-ai': 'dijital-ai',
   general: 'genel-ilan',
 };
@@ -31,7 +33,7 @@ export const HOME_CATEGORY_TABS: {
   },
   {
     id: 'entrepreneur',
-    label: 'Yatırım Arayanlar',
+    label: 'Yatırım Arıyorum',
     viewAllHref: '/invest',
     match: (item) => {
       const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
@@ -43,21 +45,35 @@ export const HOME_CATEGORY_TABS: {
     },
   },
   {
+    id: 'partner',
+    label: 'Ortak Arıyorum',
+    viewAllHref: '/partners',
+    match: (item) =>
+      item.listingIconKey === 'partner'
+      || item.listingGroupLabel === 'Ortaklık',
+  },
+  {
+    id: 'franchise',
+    label: 'Franchise İlanlar',
+    viewAllHref: '/franchise/buy',
+    match: (item) => {
+      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+      return (
+        item.listingIconKey === 'franchise'
+        || item.listingGroupLabel === 'Franchise İlanları'
+        || type.includes('franchise')
+        || type.includes('bayilik')
+      );
+    },
+  },
+  {
     id: 'job',
-    label: 'İş Fırsatı',
+    label: 'İş İlanları',
     viewAllHref: '/is',
     match: (item) =>
       item.listingIconKey === 'employer'
       || item.listingIconKey === 'job-seeker'
       || item.listingGroupLabel === 'İş',
-  },
-  {
-    id: 'partner',
-    label: 'Ortak Arayanlar',
-    viewAllHref: '/partners',
-    match: (item) =>
-      item.listingIconKey === 'partner'
-      || item.listingGroupLabel === 'Ortaklık',
   },
   {
     id: 'digital-ai',
