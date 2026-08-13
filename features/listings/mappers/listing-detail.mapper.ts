@@ -37,6 +37,8 @@ import {
   redactCareerExperiencePublicFields,
   type ContactDisclosureDecision,
 } from '@/features/contact-requests/lib/contact-disclosure';
+import { parseCareerExperiences } from '@/features/candidates/config/career-profile-fields';
+import { getExperienceLevelLabel } from '@/features/candidates/taxonomy/career-taxonomy';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
@@ -189,9 +191,19 @@ function buildCustomFacts(
     .filter((field) => !(categorySlug === 'dijital-ai' && DIGITAL_AI_CAPABILITY_FACT_KEYS.has(field.key)))
     .map((field) => {
       const aliases = CUSTOM_FIELD_ALIASES[field.key] ?? [field.key];
+      let value = readCfDisplay(customFields, ...aliases);
+      if (field.key === 'experienceLevel' && value) {
+        value = getExperienceLevelLabel(value);
+      }
+      if (
+        field.key === 'desiredRole'
+        && (value === 'Diğer' || value === 'Diğer / Kendim gireceğim')
+      ) {
+        value = readCfDisplay(customFields, 'desiredRoleOther') || value;
+      }
       return {
         label: field.label,
-        value: readCfDisplay(customFields, ...aliases),
+        value,
       };
     })
     .filter((row) => row.value.length > 0);
@@ -228,7 +240,7 @@ export function aggregateToListingDetail(
     && !context?.disclosure?.canRevealOwnerIdentity;
 
   const cf: Record<string, unknown> = { ...listing.customFields };
-  if (redactIdentity) {
+  if (redactIdentity || categorySlug === 'is-bul') {
     // Career public card: never surface employer/company-shaped fields.
     delete cf.companyName;
     delete cf.website;
@@ -407,9 +419,61 @@ export function aggregateToListingDetail(
       time: formatDate(a.createdAt),
     })),
     similar: [],
-    customFacts,
+    customFacts: categorySlug === 'is-bul' ? [] : customFacts,
+    careerCard:
+      categorySlug === 'is-bul'
+        ? buildCareerCard(cf, listing.longDescription)
+        : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
+  };
+}
+
+function buildCareerCard(
+  cf: Record<string, unknown>,
+  longDescription: string | null | undefined,
+): ListingDetail['careerCard'] {
+  const desiredRoleRaw = toDisplayValue(cf.desiredRole);
+  const desiredRole =
+    desiredRoleRaw === 'Diğer' || desiredRoleRaw === 'Diğer / Kendim gireceğim'
+      ? toDisplayValue(cf.desiredRoleOther) || desiredRoleRaw
+      : desiredRoleRaw;
+  const experiences = parseCareerExperiences(
+    redactCareerExperiencePublicFields(cf.experiences),
+  ).map((exp) => ({
+    id: exp.id,
+    sector: exp.sector,
+    role: exp.role,
+    duration: exp.duration,
+    responsibilities: exp.responsibilities,
+    achievements: exp.achievements,
+    startMonth: exp.startMonth,
+    startYear: exp.startYear,
+    endMonth: exp.endMonth,
+    endYear: exp.endYear,
+    isCurrent: exp.isCurrent,
+  }));
+
+  return {
+    desiredRole,
+    experienceLevel: getExperienceLevelLabel(toDisplayValue(cf.experienceLevel)),
+    primarySector: toDisplayValue(cf.primarySector),
+    workType: toDisplayValue(cf.workType),
+    preferredSectors: Array.isArray(cf.preferredSectors)
+      ? cf.preferredSectors.map(String)
+      : toDisplayValue(cf.preferredSectors),
+    professionalSkills: toDisplayValue(cf.professionalSkills),
+    technicalSkills: toDisplayValue(cf.technicalSkills),
+    educationLevel: toDisplayValue(cf.educationLevel),
+    educationField: toDisplayValue(cf.educationField),
+    languages: toDisplayValue(cf.languages),
+    certificates: toDisplayValue(cf.certificates),
+    preferredCity: toDisplayValue(cf.preferredCity),
+    workplacePreference: toDisplayValue(cf.workplacePreference),
+    salaryExpectation: toDisplayValue(cf.salaryExpectation),
+    availability: toDisplayValue(cf.availability),
+    longDescription: longDescription ?? null,
+    experiences,
   };
 }
 

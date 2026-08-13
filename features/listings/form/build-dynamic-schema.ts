@@ -51,24 +51,60 @@ function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
 
   switch (field.type) {
     case 'string': {
-      let stringSchema = z.string();
-      if (field.max !== undefined) {
-        stringSchema = stringSchema.max(field.max);
+      const max = field.max;
+      const min = field.min;
+      const requiredMessage = `${field.label} zorunludur.`;
+      const minMessage =
+        min !== undefined
+          ? `${field.label} en az ${min} karakter olmalıdır.`
+          : requiredMessage;
+
+      if (field.required) {
+        schema = z.preprocess(
+          (val) => (val === undefined || val === null ? '' : String(val)),
+          z
+            .string()
+            .transform((val) => val.trim())
+            .superRefine((val, ctx) => {
+              if (!val) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: requiredMessage });
+                return;
+              }
+              if (min !== undefined && val.length < min) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: minMessage });
+              }
+              if (max !== undefined && val.length > max) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} en fazla ${max} karakter olabilir.`,
+                });
+              }
+            }),
+        );
+      } else {
+        schema = z.preprocess(
+          (val) => {
+            if (val === undefined || val === null) return undefined;
+            return String(val);
+          },
+          z
+            .string()
+            .transform((val) => val.trim())
+            .superRefine((val, ctx) => {
+              if (!val) return;
+              if (min !== undefined && val.length < min) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: minMessage });
+              }
+              if (max !== undefined && val.length > max) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: `${field.label} en fazla ${max} karakter olabilir.`,
+                });
+              }
+            })
+            .optional(),
+        );
       }
-      if (field.min !== undefined) {
-        const min = field.min;
-        const message = `${field.label} en az ${min} karakter olmalıdır.`;
-        if (field.required) {
-          stringSchema = stringSchema.min(min, message);
-        } else {
-          schema = stringSchema.refine(
-            (val) => !val.trim() || val.trim().length >= min,
-            { message },
-          );
-          break;
-        }
-      }
-      schema = stringSchema;
       break;
     }
     case 'number':

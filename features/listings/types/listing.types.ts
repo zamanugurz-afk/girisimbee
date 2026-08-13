@@ -132,6 +132,38 @@ export interface ListingDetail {
   customFacts?: { label: string; value: string }[];
   /** Digital & AI capability modules for feature-card detail section. */
   capabilityModules?: DigitalAiCapability[];
+  /** İş Arıyorum — structured Kariyer Kartı (identity already redacted in mapper). */
+  careerCard?: {
+    desiredRole?: string | null;
+    experienceLevel?: string | null;
+    primarySector?: string | null;
+    workType?: string | null;
+    preferredSectors?: string[] | string | null;
+    professionalSkills?: string | null;
+    technicalSkills?: string | null;
+    educationLevel?: string | null;
+    educationField?: string | null;
+    languages?: string | null;
+    certificates?: string | null;
+    preferredCity?: string | null;
+    workplacePreference?: string | null;
+    salaryExpectation?: string | null;
+    availability?: string | null;
+    longDescription?: string | null;
+    experiences?: Array<{
+      id: string;
+      sector: string;
+      role: string;
+      duration: string;
+      responsibilities: string;
+      achievements: string;
+      startMonth?: number | null;
+      startYear?: number | null;
+      endMonth?: number | null;
+      endYear?: number | null;
+      isCurrent?: boolean;
+    }>;
+  };
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).

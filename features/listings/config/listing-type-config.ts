@@ -40,6 +40,9 @@ import {
   DIGITAL_AI_LANGUAGE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
 import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
+import {
+  getAllTaxonomyPositions,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 
 export const CATEGORY_IDS = {
   yatirimBul: ids.category('c1000001-0001-4000-8000-000000000001'),
@@ -122,11 +125,18 @@ export const INVESTOR_FIELD_SCHEMA: ListingFieldSchema = {
 export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
+      key: 'primarySector',
+      label: 'Uzmanlık Sektörü',
+      type: 'enum',
+      required: true,
+      options: [...JOB_SECTOR_OPTIONS],
+    },
+    {
       key: 'desiredRole',
       label: 'Aranan Pozisyon',
       type: 'enum',
       required: true,
-      options: [...JOB_POSITION_OPTIONS],
+      options: getAllTaxonomyPositions(),
     },
     {
       key: 'experienceLevel',
@@ -147,8 +157,16 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Mesleki Yetkinlikler',
       type: 'string',
       required: true,
-      min: 30,
+      min: 3,
       max: 1000,
+    },
+    {
+      key: 'professionalSkillsOther',
+      label: 'Mesleki Yetkinlik (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
     },
     {
       key: 'technicalSkills',
@@ -156,6 +174,14 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       required: false,
       max: 1000,
+    },
+    {
+      key: 'technicalSkillsOther',
+      label: 'Teknik Yetkinlik (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
     },
     {
       key: 'leadershipExperience',
@@ -186,8 +212,16 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       max: 200,
     },
     {
+      key: 'educationFieldOther',
+      label: 'Bölüm / Alan (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
+    },
+    {
       key: 'languages',
-      label: 'Yabancı Dil ve Seviye',
+      label: 'Yabancı Dil',
       type: 'string',
       required: false,
       max: 500,
@@ -200,11 +234,19 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       max: 500,
     },
     {
+      key: 'certificatesOther',
+      label: 'Sertifika (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
+    },
+    {
       key: 'desiredRoleOther',
       label: 'Pozisyon Açıklaması',
       type: 'string',
       required: false,
-      min: 30,
+      min: 2,
       max: 200,
     },
     {

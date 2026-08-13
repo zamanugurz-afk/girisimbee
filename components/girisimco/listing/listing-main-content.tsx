@@ -7,6 +7,7 @@ import {
 } from '@/components/girisimco/listing/detail-primitives';
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
+import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -78,7 +79,8 @@ function customFactsSectionTitle(listing: ListingDetail): string {
 
 export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showInvestment = INVESTMENT_CATEGORIES.has(listing.category.id) && hasInvestmentFacts(listing);
-  const showCustomFacts = (listing.customFacts?.length ?? 0) > 0;
+  const showCareerCard = Boolean(listing.careerCard) && listing.category.id === 'find-job';
+  const showCustomFacts = !showCareerCard && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
   const showCompany = hasCompanyFacts(listing) && listing.category.id !== 'find-investment';
   const companySectionTitle = isFranchiseBrandListing(listing)
@@ -86,12 +88,18 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     : 'Şirket bilgileri';
   const showAttachments = listing.attachments.length > 0;
   const showTimeline = listing.timeline.length > 0;
-  const showAbout = !isEmptyDisplayValue(listing.longDescription);
+  const showAbout = !showCareerCard && !isEmptyDisplayValue(listing.longDescription);
   const customFactsTitle = customFactsSectionTitle(listing);
   const isSeekingInvestment = listing.category.id === 'find-investment';
 
   return (
     <div className="space-y-8">
+      {showCareerCard && listing.careerCard ? (
+        <DetailSectionIf title="Kariyer Kartı" visible>
+          <CareerProfilePreview data={listing.careerCard} />
+        </DetailSectionIf>
+      ) : null}
+
       {showAbout ? (
         <DetailSectionIf title="İlan içeriği" visible={showAbout}>
           <DetailCard>

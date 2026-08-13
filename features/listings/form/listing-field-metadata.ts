@@ -318,8 +318,8 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Hedeflediğiniz pozisyonu listeden seçin. Listede yoksa Diğer’i seçip açıklayın.',
   },
   desiredRoleOther: {
-    placeholder: 'Örn: E-ticaret operasyon uzmanı — stok ve pazaryeri yönetimi',
-    helperText: 'Pozisyon listede yoksa en az 30 karakterle net yazın.',
+    placeholder: 'Örn: E-ticaret operasyon uzmanı',
+    helperText: 'Listede yoksa pozisyonu kısaca yazın. Yalnızca boşluk kabul edilmez.',
     maxLength: 200,
   },
   experienceLevel: {
@@ -377,8 +377,8 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 120,
   },
   professionalSkills: {
-    placeholder: 'Örn: Müşteri ilişkileri, saha satışı, ekip koordinasyonu ve raporlama',
-    helperText: 'En güçlü mesleki yetkinliklerinizi virgülle ayırarak yazın (en az 30 karakter).',
+    placeholder: 'Listeden seçin',
+    helperText: 'Listeden en az bir mesleki yetkinlik seçin. Yoksa Diğer / Kendim gireceğim’i işaretleyip yazın.',
     maxLength: 1000,
   },
   technicalSkills: {

@@ -236,12 +236,18 @@ export const STARTUP_STAGES_WITH_ALL = [
   'Tüm aşamalar',
 ] as const;
 
-/** Experience levels — Turkish labels (single selection). */
+/**
+ * Experience levels — internal stored values (single selection).
+ * UI labels for Junior/Mid/Senior/Direktör are Turkish via getExperienceLevelLabel().
+ */
 export const EXPERIENCE_LEVELS = [
   'Stajyer',
+  'Yeni Mezun',
+  'Giriş Seviyesi',
   'Junior',
   'Mid',
   'Senior',
+  'Uzman',
   'Yönetici',
   'Direktör',
 ] as const;
@@ -267,6 +273,7 @@ export const CAREER_WORKPLACE_OPTIONS = [
 
 /** Education levels for career profiles. */
 export const CAREER_EDUCATION_LEVELS = [
+  'İlköğretim',
   'Lise',
   'Ön lisans',
   'Lisans',
@@ -276,13 +283,14 @@ export const CAREER_EDUCATION_LEVELS = [
   'Diğer',
 ] as const;
 
-/** Language proficiency levels. */
+/** Language proficiency levels (UI Turkish). */
 export const CAREER_LANGUAGE_LEVELS = [
+  'Başlangıç',
   'Temel',
   'Orta',
   'İyi',
   'İleri',
-  'Ana dil',
+  'Ana Dil',
 ] as const;
 
 /** Availability to start. */

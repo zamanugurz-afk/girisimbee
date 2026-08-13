@@ -26,6 +26,13 @@ import {
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
 import {
+  materializeCareerEducationFields,
+  materializeCareerSkillsFields,
+  validateCareerEducationStep,
+  validateCareerManualOther,
+  validateCareerSkillsStep,
+} from '@/features/candidates/lib/career-form-step-validation';
+import {
   contentPolicyIssuesToFieldErrors,
   validateListingContentPolicy,
 } from '@/features/listings/lib/listing-content-policy';
@@ -520,6 +527,23 @@ export function validateListingFormBeforePublish(options: {
         : '';
     const summaryViolation = findCareerProfileContentViolation(summary);
     if (summaryViolation) errors.longDescription = summaryViolation;
+
+    Object.assign(errors, validateCareerSkillsStep(options.snapshot.customFields));
+    Object.assign(errors, validateCareerEducationStep(options.snapshot.customFields));
+    const roleOtherError = validateCareerManualOther(
+      options.snapshot.customFields.desiredRole,
+      options.snapshot.customFields.desiredRoleOther,
+      'Pozisyon açıklaması',
+    );
+    if (roleOtherError) errors.desiredRoleOther = roleOtherError;
+
+    // Materialize taxonomy selections into display strings before schema checks.
+    Object.assign(
+      options.snapshot.customFields,
+      materializeCareerSkillsFields(options.snapshot.customFields),
+      materializeCareerEducationFields(options.snapshot.customFields),
+    );
+    options.snapshot.customFields.experiences = experiences;
   }
 
   if (!options.publishConsents || !validatePublishConsents(options.publishConsents)) {

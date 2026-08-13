@@ -24,6 +24,10 @@ export interface ListingFormStepDef {
   kvkk?: boolean;
   /** Anonymous multi-experience editor (İş Arıyorum) */
   experienceEditor?: boolean;
+  /** Taxonomy-driven skills picker (İş Arıyorum) */
+  careerSkillsEditor?: boolean;
+  /** Education field + languages + certificates editors (İş Arıyorum) */
+  careerEducationEditor?: boolean;
   /** Final read-only review step */
   preview?: boolean;
   /** Homepage placement package selection (before publish) */
@@ -191,31 +195,35 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Aranan pozisyon, kariyer seviyesi ve çalışma tercihi',
-      customFieldKeys: ['desiredRole', 'desiredRoleOther', 'experienceLevel', 'workType'],
+      description: 'Sektör, aranan pozisyon, kariyer seviyesi ve çalışma tercihi',
+      customFieldKeys: [
+        'primarySector',
+        'desiredRole',
+        'desiredRoleOther',
+        'experienceLevel',
+        'workType',
+      ],
     },
     {
       id: 'experience',
       title: 'Deneyim',
-      description: 'Firma adı olmadan anonim deneyimlerinizi ekleyin',
+      description: 'Sektör, pozisyon ve tarihlerle kariyer deneyimlerinizi ekleyin',
       experienceEditor: true,
     },
     {
       id: 'skills',
       title: 'Yetkinlikler',
       description: 'Mesleki ve teknik yetkinlikler, araçlar',
-      customFieldKeys: [
-        'professionalSkills',
-        'technicalSkills',
-        'leadershipExperience',
-        'tools',
-      ],
+      // Rendered by CareerSkillsEditor (taxonomy multi-select)
+      customFieldKeys: [],
+      careerSkillsEditor: true,
     },
     {
       id: 'education',
       title: 'Eğitim & Dil',
       description: 'Eğitim seviyesi, dil ve sertifikalar — belge yükleme yok',
-      customFieldKeys: ['educationLevel', 'educationField', 'languages', 'certificates'],
+      customFieldKeys: [],
+      careerEducationEditor: true,
     },
     {
       id: 'preferences',
@@ -430,6 +438,39 @@ export function collectWizardVisibleFieldPaths(
       paths.add(`customFields.${key}`);
       paths.add(key);
     });
+
+    if (step.experienceEditor) {
+      paths.add('customFields.experiences');
+      paths.add('experiences');
+    }
+
+    if (step.careerSkillsEditor) {
+      for (const key of [
+        'professionalSkills',
+        'professionalSkillsOther',
+        'technicalSkills',
+        'technicalSkillsOther',
+        'leadershipExperience',
+        'tools',
+      ]) {
+        paths.add(`customFields.${key}`);
+        paths.add(key);
+      }
+    }
+
+    if (step.careerEducationEditor) {
+      for (const key of [
+        'educationLevel',
+        'educationField',
+        'educationFieldOther',
+        'languages',
+        'certificates',
+        'certificatesOther',
+      ]) {
+        paths.add(`customFields.${key}`);
+        paths.add(key);
+      }
+    }
 
     step.meta?.forEach((key) => paths.add(key));
   }

@@ -2,13 +2,24 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   createEmptyCareerExperience,
   type CareerExperience,
 } from '@/features/candidates/config/career-profile-fields';
+import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
+import {
+  MONTH_OPTIONS,
+  yearOptions,
+} from '@/features/candidates/lib/career-experience-dates';
+import {
+  getPositionsForSector,
+  isManualCareerOption,
+  suggestAchievements,
+  suggestResponsibilities,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { cn } from '@/lib/utils';
 
@@ -17,13 +28,16 @@ export function CareerExperienceEditor({
   onChange,
   error,
   disabled,
+  experienceLevel,
 }: {
   value: CareerExperience[];
   onChange: (next: CareerExperience[]) => void;
   error?: string | null;
   disabled?: boolean;
+  experienceLevel?: string | null;
 }) {
   const rows = value.length > 0 ? value : [createEmptyCareerExperience()];
+  const years = yearOptions();
 
   function updateRow(id: string, patch: Partial<CareerExperience>) {
     onChange(rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -44,98 +58,251 @@ export function CareerExperienceEditor({
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Firma adı istemiyoruz. Deneyimi sektör, rol ve sorumluluklarla anonim anlatın.
+        Şirket bilgisini kaydedebilirsiniz; kamu kariyer kartında şirket adı, logo ve URL
+        gösterilmez. Pozisyon ve sorumlulukları mümkün olduğunca listeden seçin.
       </p>
 
-      {rows.map((row, index) => (
-        <div
-          key={row.id}
-          className={cn(
-            'space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4',
-            error && 'border-destructive/40',
-          )}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-medium text-foreground">Deneyim {index + 1}</p>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 text-destructive"
-              disabled={disabled}
-              onClick={() => removeRow(row.id)}
-            >
-              <Trash2 className="mr-1 h-3.5 w-3.5" />
-              Sil
-            </Button>
-          </div>
+      {rows.map((row, index) => {
+        const positions = getPositionsForSector(row.sector);
+        const roleIsManual = isManualCareerOption(row.role);
+        const responsibilities = suggestResponsibilities({
+          sector: row.sector,
+          role: roleIsManual ? row.roleOther : row.role,
+          experienceLevel,
+        });
+        const achievements = suggestAchievements({
+          sector: row.sector,
+          role: roleIsManual ? row.roleOther : row.role,
+          experienceLevel,
+        });
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor={`sector-${row.id}`}>Sektör</Label>
-              <select
-                id={`sector-${row.id}`}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={row.sector}
+        return (
+          <div
+            key={row.id}
+            className={cn(
+              'space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4',
+              error && 'border-destructive/40',
+            )}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium text-foreground">Deneyim {index + 1}</p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 text-destructive"
                 disabled={disabled}
-                onChange={(e) => updateRow(row.id, { sector: e.target.value })}
+                onClick={() => removeRow(row.id)}
               >
-                <option value="">Seçin</option>
-                {JOB_SECTOR_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+                <Trash2 className="mr-1 h-3.5 w-3.5" />
+                Sil
+              </Button>
             </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor={`sector-${row.id}`}>Sektör</Label>
+                <select
+                  id={`sector-${row.id}`}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={row.sector}
+                  disabled={disabled}
+                  onChange={(e) =>
+                    updateRow(row.id, {
+                      sector: e.target.value,
+                      role: '',
+                      roleOther: '',
+                      selectedResponsibilities: [],
+                      selectedAchievements: [],
+                    })
+                  }
+                >
+                  <option value="">Seçin</option>
+                  {JOB_SECTOR_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor={`role-${row.id}`}>Pozisyon</Label>
+                <select
+                  id={`role-${row.id}`}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={row.role}
+                  disabled={disabled || !row.sector}
+                  onChange={(e) =>
+                    updateRow(row.id, {
+                      role: e.target.value,
+                      roleOther: isManualCareerOption(e.target.value) ? row.roleOther : '',
+                      selectedResponsibilities: [],
+                      selectedAchievements: [],
+                    })
+                  }
+                >
+                  <option value="">{row.sector ? 'Seçin' : 'Önce sektör seçin'}</option>
+                  {positions.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+                {roleIsManual ? (
+                  <Input
+                    className="mt-2"
+                    value={row.roleOther ?? ''}
+                    disabled={disabled}
+                    placeholder="Pozisyonunuzu yazın"
+                    onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
+                  />
+                ) : null}
+              </div>
+            </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor={`role-${row.id}`}>Pozisyon / görev</Label>
+              <Label htmlFor={`company-${row.id}`}>Şirket (isteğe bağlı, kamuya kapalı)</Label>
               <Input
-                id={`role-${row.id}`}
-                value={row.role}
+                id={`company-${row.id}`}
+                value={row.company ?? ''}
                 disabled={disabled}
-                placeholder="Örn: Saha Satış Uzmanı"
-                onChange={(e) => updateRow(row.id, { role: e.target.value })}
+                placeholder="Yalnızca sizin kaydınızda saklanır"
+                onChange={(e) => updateRow(row.id, { company: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Başlangıç tarihi</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={row.startMonth ?? ''}
+                    disabled={disabled}
+                    onChange={(e) =>
+                      updateRow(row.id, {
+                        startMonth: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">Ay</option>
+                    {MONTH_OPTIONS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={row.startYear ?? ''}
+                    disabled={disabled}
+                    onChange={(e) =>
+                      updateRow(row.id, {
+                        startYear: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">Yıl</option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Bitiş tarihi</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={row.endMonth ?? ''}
+                    disabled={disabled || row.isCurrent}
+                    onChange={(e) =>
+                      updateRow(row.id, {
+                        endMonth: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">Ay</option>
+                    {MONTH_OPTIONS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={row.endYear ?? ''}
+                    disabled={disabled || row.isCurrent}
+                    onChange={(e) =>
+                      updateRow(row.id, {
+                        endYear: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">Yıl</option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <label className="mt-2 flex items-center gap-2 text-sm text-foreground">
+                  <Checkbox
+                    checked={Boolean(row.isCurrent)}
+                    disabled={disabled}
+                    onCheckedChange={(next) =>
+                      updateRow(row.id, {
+                        isCurrent: next === true,
+                        endMonth: next === true ? null : row.endMonth,
+                        endYear: next === true ? null : row.endYear,
+                      })
+                    }
+                  />
+                  Halen çalışıyorum
+                </label>
+              </div>
+            </div>
+
+            <CareerMultiSelect
+              label="Temel sorumluluklar"
+              options={responsibilities}
+              value={row.selectedResponsibilities ?? []}
+              onChange={(next) => updateRow(row.id, { selectedResponsibilities: next })}
+              manualValue={row.responsibilitiesOther}
+              onManualChange={(next) => updateRow(row.id, { responsibilitiesOther: next })}
+              manualPlaceholder="Kendi sorumluluk açıklamanızı yazın (en az 20 karakter)"
+              disabled={disabled || !row.sector}
+            />
+
+            <CareerMultiSelect
+              label="Öne çıkan başarılar"
+              options={achievements}
+              value={row.selectedAchievements ?? []}
+              onChange={(next) => updateRow(row.id, { selectedAchievements: next })}
+              manualValue={row.achievementsOther}
+              onManualChange={(next) => updateRow(row.id, { achievementsOther: next })}
+              manualPlaceholder="Kendi başarı açıklamanızı yazın"
+              disabled={disabled || !row.sector}
+            />
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`metric-${row.id}`}>Sayısal ölçü (isteğe bağlı)</Label>
+              <Input
+                id={`metric-${row.id}`}
+                value={row.achievementMetric ?? ''}
+                disabled={disabled}
+                placeholder='Örn: %35 satış artışı · 12 kişilik ekip · 250+ müşteri'
+                onChange={(e) => updateRow(row.id, { achievementMetric: e.target.value })}
               />
             </div>
           </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={`duration-${row.id}`}>Çalışma süresi</Label>
-            <Input
-              id={`duration-${row.id}`}
-              value={row.duration}
-              disabled={disabled}
-              placeholder="Örn: 3 yıl · 2021–2024"
-              onChange={(e) => updateRow(row.id, { duration: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={`resp-${row.id}`}>Temel sorumluluklar</Label>
-            <Textarea
-              id={`resp-${row.id}`}
-              rows={3}
-              value={row.responsibilities}
-              disabled={disabled}
-              placeholder="Örn: Müşteri ziyaretleri, hedef takibi, teklif hazırlama ve ekip içi raporlama yaptım."
-              onChange={(e) => updateRow(row.id, { responsibilities: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={`ach-${row.id}`}>Öne çıkan başarılar</Label>
-            <Textarea
-              id={`ach-${row.id}`}
-              rows={2}
-              value={row.achievements}
-              disabled={disabled}
-              placeholder="Örn: Bölge cirosunu bir yılda yüzde 30 artırdım (isteğe bağlı)"
-              onChange={(e) => updateRow(row.id, { achievements: e.target.value })}
-            />
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 

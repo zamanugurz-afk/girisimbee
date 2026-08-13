@@ -21,6 +21,11 @@ import { formControlErrorClass } from '@/features/listings/form/field-error-styl
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
+import {
+  getExperienceLevelLabel,
+  getPositionsForSector,
+  MANUAL_OPTION,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -32,11 +37,16 @@ const TITLE_CASE_FIELD_KEYS = new Set([
 const CITY_FIELD_KEYS = new Set(['preferredCity']);
 const DISTRICT_FIELD_KEYS = new Set(['preferredDistrict', 'district']);
 
+function isManualOtherSelection(value: unknown): boolean {
+  const v = String(value ?? '');
+  return v === 'Diğer' || v === MANUAL_OPTION || v === 'Diğer / Kendim gireceğim';
+}
+
 /** Shown only when the related parent selection is "Diğer". */
 const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown) => boolean }> = {
   desiredRoleOther: {
     parentKey: 'desiredRole',
-    match: (v) => String(v ?? '') === 'Diğer',
+    match: isManualOtherSelection,
   },
   positionTitleOther: {
     parentKey: 'positionTitle',
@@ -289,21 +299,39 @@ function FieldControl({
         </>
       );
 
-    case 'enum':
+    case 'enum': {
+      let options = field.options ?? [];
+      if (field.key === 'desiredRole') {
+        const sector = String(context?.values?.primarySector ?? '');
+        if (sector) {
+          const filtered = getPositionsForSector(sector);
+          // Keep legacy stored value visible if not in the filtered list.
+          const current = value ? String(value) : '';
+          options = current && !filtered.includes(current)
+            ? [...filtered, current]
+            : filtered;
+        }
+      }
       return (
         <>
           <Select
             value={value ? String(value) : ''}
             onValueChange={onChange}
-            disabled={disabled}
+            disabled={disabled || (field.key === 'desiredRole' && !context?.values?.primarySector)}
           >
             <SelectTrigger id={id} className={formControlErrorClass(error)}>
-              <SelectValue placeholder={ui.placeholder ?? `${field.label} seçin`} />
+              <SelectValue
+                placeholder={
+                  field.key === 'desiredRole' && !context?.values?.primarySector
+                    ? 'Önce sektör seçin'
+                    : (ui.placeholder ?? `${field.label} seçin`)
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              {(field.options ?? []).map((opt) => (
+              {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  {opt}
+                  {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -311,6 +339,7 @@ function FieldControl({
           <FormFieldFooter helperText={ui.helperText} error={error} />
         </>
       );
+    }
 
     case 'multi-enum': {
       const selected = Array.isArray(value) ? value.map(String) : [];

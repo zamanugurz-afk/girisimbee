@@ -46,12 +46,27 @@ import { getListingPackageService } from '@/lib/persistence/container';
 import type { UserId } from '@/lib/domain/ids';
 import { FormStepIndicator } from '@/features/listings/form/form-step-indicator';
 import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
+import { CareerEducationExtras } from '@/features/candidates/components/CareerEducationExtras';
+import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLanguagesEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
+import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
 import {
   parseCareerExperiences,
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
+import {
+  materializeCareerEducationFields,
+  materializeCareerSkillsFields,
+  validateCareerEducationStep,
+  validateCareerManualOther,
+  validateCareerSkillsStep,
+} from '@/features/candidates/lib/career-form-step-validation';
+import {
+  getExperienceLevelLabel,
+  isManualCareerOption,
+  parseCareerLanguages,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 import { getSampleListingValues } from '@/features/listings/form/sample-listing-values';
 import {
   formatDraftAge,
@@ -89,7 +104,7 @@ function isPaidPublishCategory(categoryId: CategoryId): boolean {
   return packageVariantForCategory(categoryId) !== 'placement';
 }
 
-/** When “Diğer” is selected, require a free-text explanation (≥30 chars). */
+/** When “Diğer” / manual fallback is selected, require a free-text explanation. */
 function collectOtherDetailErrors(
   customFields: Record<string, unknown>,
   stepKeys: string[],
@@ -105,11 +120,15 @@ function collectOtherDetailErrors(
     }
   }
 
-  requireOther(
-    String(customFields.desiredRole ?? '') === 'Diğer',
-    'desiredRoleOther',
-    'Pozisyon açıklaması',
-  );
+  if (keys.has('desiredRoleOther')) {
+    const roleOtherError = validateCareerManualOther(
+      customFields.desiredRole,
+      customFields.desiredRoleOther,
+      'Pozisyon açıklaması',
+    );
+    if (roleOtherError) errors.desiredRoleOther = roleOtherError;
+  }
+
   requireOther(
     String(customFields.positionTitle ?? '') === 'Diğer',
     'positionTitleOther',
@@ -293,6 +312,8 @@ export function CategoryListingForm({
   const isCvStep = Boolean(currentStep.cv);
   const isKvkkStep = Boolean(currentStep.kvkk);
   const isExperienceStep = Boolean(currentStep.experienceEditor);
+  const isCareerSkillsStep = Boolean(currentStep.careerSkillsEditor);
+  const isCareerEducationStep = Boolean(currentStep.careerEducationEditor);
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -516,7 +537,11 @@ export function CategoryListingForm({
       if (key === 'district' && value !== 'Diğer') {
         setCustomField('districtOther', '');
       }
-      if (key === 'desiredRole' && value !== 'Diğer') {
+      if (key === 'desiredRole' && !isManualCareerOption(value)) {
+        setCustomField('desiredRoleOther', '');
+      }
+      if (key === 'primarySector') {
+        setCustomField('desiredRole', '');
         setCustomField('desiredRoleOther', '');
       }
       if (key === 'positionTitle' && value !== 'Diğer') {
@@ -686,6 +711,35 @@ export function CategoryListingForm({
         return false;
       }
       setCustomField('experiences', experiences);
+      setFieldErrors({});
+      return true;
+    }
+
+    if (isCareerSkillsStep) {
+      const skillErrors = validateCareerSkillsStep(mergedCustomFields);
+      if (Object.keys(skillErrors).length > 0) {
+        setFieldErrors(skillErrors);
+        toast.error(Object.values(skillErrors)[0] ?? 'Yetkinlik alanlarını kontrol edin.');
+        return false;
+      }
+      const materialized = materializeCareerSkillsFields(mergedCustomFields);
+      setCustomFields((prev) => ({ ...prev, ...materialized }));
+      setFieldErrors({});
+      return true;
+    }
+
+    if (isCareerEducationStep) {
+      const educationErrors = validateCareerEducationStep(mergedCustomFields);
+      if (!String(mergedCustomFields.educationLevel ?? '').trim()) {
+        educationErrors.educationLevel = 'Eğitim seviyesi seçilmelidir.';
+      }
+      if (Object.keys(educationErrors).length > 0) {
+        setFieldErrors(educationErrors);
+        toast.error(Object.values(educationErrors)[0] ?? 'Eğitim / dil alanlarını kontrol edin.');
+        return false;
+      }
+      const materialized = materializeCareerEducationFields(mergedCustomFields);
+      setCustomFields((prev) => ({ ...prev, ...materialized }));
       setFieldErrors({});
       return true;
     }
@@ -1083,11 +1137,22 @@ export function CategoryListingForm({
           {isPreviewStep && categoryId === CATEGORY_IDS.isBul && (
             <CareerProfilePreview
               data={{
-                desiredRole: String(mergedCustomFields.desiredRole ?? ''),
-                experienceLevel: String(mergedCustomFields.experienceLevel ?? ''),
+                desiredRole:
+                  isManualCareerOption(mergedCustomFields.desiredRole)
+                    ? String(mergedCustomFields.desiredRoleOther ?? '')
+                    : String(mergedCustomFields.desiredRole ?? ''),
+                experienceLevel: getExperienceLevelLabel(
+                  String(mergedCustomFields.experienceLevel ?? ''),
+                ),
+                primarySector: String(mergedCustomFields.primarySector ?? ''),
                 workType: String(mergedCustomFields.workType ?? ''),
                 preferredSectors: mergedCustomFields.preferredSectors as string[] | string,
                 professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
+                technicalSkills: String(mergedCustomFields.technicalSkills ?? ''),
+                educationLevel: String(mergedCustomFields.educationLevel ?? ''),
+                educationField: String(mergedCustomFields.educationField ?? ''),
+                languages: String(mergedCustomFields.languages ?? ''),
+                certificates: String(mergedCustomFields.certificates ?? ''),
                 preferredCity: String(mergedCustomFields.preferredCity ?? ''),
                 workplacePreference: String(mergedCustomFields.workplacePreference ?? ''),
                 salaryExpectation: String(mergedCustomFields.salaryExpectation ?? ''),
@@ -1112,7 +1177,73 @@ export function CategoryListingForm({
               onChange={(next) => setCustomField('experiences', next)}
               error={resolveFieldError(fieldErrors, 'experiences')}
               disabled={disabled || isBusy}
+              experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
             />
+          )}
+
+          {isCareerSkillsStep && (
+            <CareerSkillsEditor
+              value={{
+                professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
+                professionalSkillsOther: String(
+                  mergedCustomFields.professionalSkillsOther ?? '',
+                ),
+                technicalSkills: String(mergedCustomFields.technicalSkills ?? ''),
+                technicalSkillsOther: String(mergedCustomFields.technicalSkillsOther ?? ''),
+                leadershipExperience: String(mergedCustomFields.leadershipExperience ?? ''),
+                tools: String(mergedCustomFields.tools ?? ''),
+              }}
+              onChange={(patch) => {
+                for (const [key, val] of Object.entries(patch)) {
+                  setCustomField(key, val);
+                }
+              }}
+              disabled={disabled || isBusy}
+              sector={String(
+                mergedCustomFields.primarySector
+                  ?? parseCareerExperiences(mergedCustomFields.experiences)[0]?.sector
+                  ?? '',
+              )}
+              role={String(mergedCustomFields.desiredRole ?? '')}
+              experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+              errors={{
+                professionalSkills: resolveFieldError(fieldErrors, 'professionalSkills'),
+                technicalSkills: resolveFieldError(fieldErrors, 'technicalSkills'),
+                leadershipExperience: resolveFieldError(fieldErrors, 'leadershipExperience'),
+                tools: resolveFieldError(fieldErrors, 'tools'),
+              }}
+            />
+          )}
+
+          {isCareerEducationStep && (
+            <div className="space-y-5">
+              <CareerEducationExtras
+                educationLevel={String(mergedCustomFields.educationLevel ?? '')}
+                educationField={String(mergedCustomFields.educationField ?? '')}
+                educationFieldOther={String(mergedCustomFields.educationFieldOther ?? '')}
+                certificates={String(mergedCustomFields.certificates ?? '')}
+                certificatesOther={String(mergedCustomFields.certificatesOther ?? '')}
+                onChange={(patch) => {
+                  for (const [key, val] of Object.entries(patch)) {
+                    setCustomField(key, val);
+                  }
+                }}
+                disabled={disabled || isBusy}
+                errors={{
+                  educationLevel: resolveFieldError(fieldErrors, 'educationLevel'),
+                  educationField: resolveFieldError(fieldErrors, 'educationField'),
+                  certificates: resolveFieldError(fieldErrors, 'certificates'),
+                }}
+              />
+              <CareerLanguagesEditor
+                value={parseCareerLanguages(
+                  mergedCustomFields.languageEntries ?? mergedCustomFields.languages,
+                )}
+                onChange={(next) => setCustomField('languageEntries', next)}
+                disabled={disabled || isBusy}
+                error={resolveFieldError(fieldErrors, 'languages')}
+              />
+            </div>
           )}
 
           {isPackageStep && (
@@ -1293,6 +1424,7 @@ export function CategoryListingForm({
                   value={publishConsents}
                   onChange={setPublishConsents}
                   disabled={disabled || isBusy}
+                  variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
                   error={
                     resolveFieldError(fieldErrors, 'publishConsents')
                     || resolveFieldError(fieldErrors, 'contactPhone')

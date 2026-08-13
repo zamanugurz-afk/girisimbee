@@ -1,13 +1,45 @@
 import { z } from 'zod';
 
-const careerExperienceSchema = z.object({
-  id: z.string().min(1),
-  sector: z.string().trim().min(1).max(120),
-  role: z.string().trim().min(1).max(120),
-  duration: z.string().trim().min(1).max(120),
-  responsibilities: z.string().trim().min(20).max(2000),
-  achievements: z.string().trim().max(2000).optional().default(''),
-});
+const careerExperienceSchema = z
+  .object({
+    id: z.string().min(1),
+    sector: z.string().trim().min(1).max(120),
+    role: z.string().trim().min(1).max(120),
+    roleOther: z.string().trim().max(120).optional().default(''),
+    company: z.string().trim().max(120).optional().default(''),
+    startMonth: z.number().int().min(1).max(12).nullable().optional(),
+    startYear: z.number().int().min(1970).max(2100).nullable().optional(),
+    endMonth: z.number().int().min(1).max(12).nullable().optional(),
+    endYear: z.number().int().min(1970).max(2100).nullable().optional(),
+    isCurrent: z.boolean().optional().default(false),
+    duration: z.string().trim().max(120).optional().default(''),
+    selectedResponsibilities: z.array(z.string()).optional(),
+    responsibilitiesOther: z.string().trim().max(2000).optional().default(''),
+    responsibilities: z.string().trim().max(2000).optional().default(''),
+    selectedAchievements: z.array(z.string()).optional(),
+    achievementsOther: z.string().trim().max(2000).optional().default(''),
+    achievementMetric: z.string().trim().max(120).optional().default(''),
+    achievements: z.string().trim().max(2000).optional().default(''),
+  })
+  .superRefine((val, ctx) => {
+    const hasDates = Boolean(val.startMonth && val.startYear);
+    if (!hasDates && !val.duration.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Deneyim tarihi veya süre zorunludur.',
+        path: ['startMonth'],
+      });
+    }
+    const responsibilities = (val.responsibilities || val.responsibilitiesOther || '').trim();
+    const selected = (val.selectedResponsibilities ?? []).filter(Boolean);
+    if (selected.length === 0 && responsibilities.length < 20) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Temel sorumluluklar en az 20 karakter olmalıdır.',
+        path: ['responsibilities'],
+      });
+    }
+  });
 
 export const candidateListingBrowseQuerySchema = z.object({
   city: z.string().optional(),
@@ -30,6 +62,7 @@ export const candidateListingCreateSchema = z
       (val) => (val === '' ? null : val),
       z.string().max(100).nullable().optional(),
     ),
+    primarySector: z.string().max(120).nullable().optional(),
     desiredRole: z.string().max(200).nullable().optional(),
     experienceLevel: z.string().max(100).nullable().optional(),
     salaryExpectation: z.string().max(100).nullable().optional(),

@@ -34,9 +34,11 @@ export interface PublishConsentFieldsProps {
   phoneHint?: string | null;
   userId?: string | null;
   onPhoneSaved?: (phone: string) => void;
+  /** Career (İş Arıyorum): explain contact-request gating without widening consent scope. */
+  variant?: 'default' | 'career';
 }
 
-function consentDescription(key: PublishConsentKey): ReactNode {
+function consentDescription(key: PublishConsentKey, variant: 'default' | 'career'): ReactNode {
   switch (key) {
     case 'clarificationText':
       return (
@@ -46,6 +48,17 @@ function consentDescription(key: PublishConsentKey): ReactNode {
         </>
       );
     case 'phoneDisplay':
+      if (variant === 'career') {
+        return (
+          <>
+            Doğrulanmış telefon numaramın, iletişim talebi sürecinde ve verdiğim açık rıza
+            kapsamında iletişim amacıyla kullanılmasına açık rıza veriyorum. Kariyer kartında
+            telefonum herkese açık gösterilmez; talep kabul edilmeden kişisel iletişim
+            bilgilerim paylaşılmaz. Ayrıntılar:{' '}
+            <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza metni</LegalDocLink>.
+          </>
+        );
+      }
       return (
         <>
           Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla görüntülenmesine ve
@@ -77,6 +90,7 @@ export function PublishConsentFields({
   phoneHint,
   userId,
   onPhoneSaved,
+  variant = 'default',
 }: PublishConsentFieldsProps) {
   const [draftPhone, setDraftPhone] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
@@ -113,10 +127,27 @@ export function PublishConsentFields({
       <div>
         <h3 className="text-sm font-medium text-foreground">Yayın onayları</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          İlanınız yayınlandığında iletişim yalnızca telefon üzerinden yapılır. Google ile kayıt
-          olsanız bile yayın için telefon zorunludur. Onay vermeden önce aşağıdaki metinleri
-          inceleyin.
+          {variant === 'career'
+            ? 'Kariyer kartınız yayınlandığında ad, soyad ve iletişim bilgileriniz herkese açık gösterilmez. Google ile kayıt olsanız bile yayın için telefon zorunludur. Onay vermeden önce aşağıdaki metinleri inceleyin.'
+            : 'İlanınız yayınlandığında iletişim yalnızca telefon üzerinden yapılır. Google ile kayıt olsanız bile yayın için telefon zorunludur. Onay vermeden önce aşağıdaki metinleri inceleyin.'}
         </p>
+
+        {variant === 'career' ? (
+          <div className="mt-2 space-y-1.5 rounded-lg border border-border/80 bg-muted/15 px-3 py-2.5 text-xs text-muted-foreground">
+            <p>
+              İletişim talebiniz karşı tarafa iletilir. Talep kabul edilmeden kişisel iletişim
+              bilgileriniz paylaşılmaz.
+            </p>
+            <p>
+              Talep kabul edildiğinde, verdiğiniz izinler doğrultusunda adınız ve telefon
+              numaranız karşı tarafa gösterilebilir.
+            </p>
+            <p>
+              İletişim bilgileriniz, iletişim talebi ve verdiğiniz açık rıza / izin kapsamında
+              kullanılır. İşaretlemediğiniz bir rıza alınmış sayılmaz.
+            </p>
+          </div>
+        ) : null}
 
         <ul className="mt-2 space-y-1.5 rounded-lg border border-border/80 bg-muted/15 px-3 py-2.5">
           {PUBLISH_LEGAL_LINKS.map((item) => (
@@ -184,7 +215,9 @@ export function PublishConsentFields({
               >
                 {item.label}
               </Label>
-              <p className="text-xs text-muted-foreground">{consentDescription(item.key)}</p>
+              <p className="text-xs text-muted-foreground">
+                {consentDescription(item.key, variant)}
+              </p>
             </div>
           </div>
         ))}
