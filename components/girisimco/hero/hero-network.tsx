@@ -1,7 +1,7 @@
 import {
   Briefcase,
   Handshake,
-  Rocket,
+  Store,
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
@@ -19,12 +19,12 @@ const NODES: {
   lineStroke: string;
 }[] = [
   {
-    id: 'entrepreneur',
-    label: 'Girişimci',
-    Icon: Rocket,
+    id: 'franchise',
+    label: 'Franchise',
+    Icon: Store,
     className: 'left-1/2 top-[1%] -translate-x-1/2',
-    color: gcCategoryColors['yatirim-bul'],
-    lineStroke: gcCategoryColors['yatirim-bul'],
+    color: gcCategoryColors.franchise,
+    lineStroke: gcCategoryColors.franchise,
   },
   {
     id: 'investor',
