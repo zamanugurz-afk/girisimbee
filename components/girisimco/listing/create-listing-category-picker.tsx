@@ -152,12 +152,12 @@ export function CreateListingCategoryPicker({
   onSelect: (categoryId: CategoryId) => void;
 }) {
   const ordered = useMemo(() => {
+    // Only PICKER_ORDER ids render — deferred (e.g. yatirimYap) cannot appear
+    // even if a caller accidentally passes LISTING_TYPE_CONFIGS.
     const rank = new Map(PICKER_ORDER.map((id, i) => [id, i]));
-    return [...options].sort((a, b) => {
-      const ra = rank.get(a.categoryId) ?? 99;
-      const rb = rank.get(b.categoryId) ?? 99;
-      return ra - rb;
-    });
+    return [...options]
+      .filter((c) => rank.has(c.categoryId))
+      .sort((a, b) => (rank.get(a.categoryId) ?? 99) - (rank.get(b.categoryId) ?? 99));
   }, [options]);
 
   return (
