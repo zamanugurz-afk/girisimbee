@@ -17,7 +17,14 @@ interface HomeListingSectionRowProps {
   state: HomeListingSectionState;
 }
 
-type FeaturedTabId = 'all' | 'entrepreneur' | 'investor' | 'job' | 'partner';
+type FeaturedTabId =
+  | 'all'
+  | 'entrepreneur'
+  | 'investor'
+  | 'job'
+  | 'partner'
+  | 'digital-ai'
+  | 'general';
 
 const FEATURED_CATEGORY_TABS: {
   id: FeaturedTabId;
@@ -64,6 +71,24 @@ const FEATURED_CATEGORY_TABS: {
     match: (item) =>
       item.listingIconKey === 'partner'
       || item.listingGroupLabel === 'Ortaklık',
+  },
+  {
+    id: 'digital-ai',
+    label: 'Dijital & AI Çözümleri',
+    viewAllHref: '/dijital-ai',
+    match: (item) =>
+      item.listingIconKey === 'digital'
+      || item.listingGroupLabel === 'Dijital & AI Çözümleri'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('dijital') === true,
+  },
+  {
+    id: 'general',
+    label: 'Genel İlanlar',
+    viewAllHref: '/kesfet',
+    match: (item) =>
+      item.listingIconKey === 'general'
+      || item.listingGroupLabel === 'İlan'
+      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR') === 'ilan',
   },
 ];
 

@@ -1,7 +1,20 @@
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 
-/** Homepage intent gateway — labels, audience, and hints for first-visit clarity. */
-export const HOME_CATEGORIES = [
+type HomeCategoryDef = {
+  slug: string;
+  href: string;
+  label: string;
+  color: string;
+  audience: string;
+  shortCue: string;
+  hint: string;
+};
+
+/**
+ * Full Ne arıyorsunuz catalog (create-flow / listings unchanged).
+ * Visibility on the homepage gateway is controlled by HOME_GATEWAY_VISIBLE_SLUGS.
+ */
+export const HOME_CATEGORIES_CATALOG = [
   {
     slug: 'yatirim-bul',
     href: '/invest',
@@ -47,7 +60,36 @@ export const HOME_CATEGORIES = [
     shortCue: 'Ürün ve çözümler',
     hint: 'Ürün adı, kısa tanıtım ve yetenek kartlarıyla AI / yazılım çözümlerini inceleyin.',
   },
-] as const;
+] as const satisfies readonly HomeCategoryDef[];
+
+export type HomeCategorySlug = (typeof HOME_CATEGORIES_CATALOG)[number]['slug'];
+
+/**
+ * Ne arıyorsunuz gateway — set of slugs currently shown.
+ * To restore Dijital & AI: add `'dijital-ai'` back here (and grid becomes 5 cols automatically).
+ * Previously: all five catalog slugs including `'dijital-ai'`.
+ */
+export const HOME_GATEWAY_VISIBLE_SLUGS = [
+  'yatirim-bul',
+  'ortak-bul',
+  'franchise',
+  'ise-al',
+] as const satisfies readonly HomeCategorySlug[];
+
+/** Categories intentionally deferred from the gateway (kept for easy restore). */
+export const HOME_GATEWAY_DEFERRED_SLUGS = [
+  'dijital-ai',
+] as const satisfies readonly HomeCategorySlug[];
+
+const VISIBLE_SET = new Set<string>(HOME_GATEWAY_VISIBLE_SLUGS);
+
+/** Visible Ne arıyorsunuz cards (filtered catalog). */
+export const HOME_CATEGORIES = HOME_CATEGORIES_CATALOG.filter((cat) =>
+  VISIBLE_SET.has(cat.slug),
+);
+
+/** @deprecated Prefer HOME_CATEGORIES_CATALOG — alias kept for older imports. */
+export const HOME_CATEGORIES_ALL = HOME_CATEGORIES_CATALOG;
 
 export const FRANCHISE_FLOW_ROUTES = {
   /** Unified franchise listings (posted franchise ads only). */
@@ -55,8 +97,6 @@ export const FRANCHISE_FLOW_ROUTES = {
   buy: '/franchise/buy',
   give: '/franchise/buy',
 } as const;
-
-export type HomeCategorySlug = (typeof HOME_CATEGORIES)[number]['slug'];
 
 export const HOME_TRUST_SIGNALS = [
   { label: 'Ücretsiz kayıt' },

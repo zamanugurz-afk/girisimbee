@@ -129,6 +129,16 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
     dbListingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
     filterListingTypeIds: [LISTING_TYPE_IDS.dijitalAiDefault],
   },
+  'genel-ilan': {
+    slug: 'genel-ilan',
+    label: 'Genel İlanlar',
+    listingTypeSlug: 'genel-ilan',
+    appCategoryId: CATEGORY_IDS.genelIlan,
+    appListingTypeId: LISTING_TYPE_IDS.genelIlanDefault,
+    dbCategoryId: CATEGORY_IDS.genelIlan,
+    dbListingTypeId: LISTING_TYPE_IDS.genelIlanDefault,
+    filterListingTypeIds: [LISTING_TYPE_IDS.genelIlanDefault],
+  },
 };
 
 /** Alternate slugs → canonical browse slug */

@@ -31,8 +31,23 @@ const CATEGORY_ICONS: Record<HomeCategorySlug, LucideIcon> = {
   'dijital-ai': Sparkles,
 };
 
+/**
+ * Gateway grid — auto-tracks visible card count.
+ * Was `lg:grid-cols-5` when Dijital & AI was in HOME_GATEWAY_VISIBLE_SLUGS.
+ */
+function homeGatewayGridClass(count: number): string {
+  if (count >= 5) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4';
+  if (count === 4) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4';
+  if (count === 3) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-3 lg:grid-cols-3 lg:gap-4';
+  return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-2 lg:gap-4';
+}
+
 /** Intent gateway — larger destination cards under the hero. */
 function HomeCategoryShortcuts() {
+  const cardCount = HOME_CATEGORIES.length;
+  /** Slightly taller cards when fewer columns fill the row. Was 11.5rem at 5 cols. */
+  const cardMinH = cardCount <= 4 ? 'min-h-[12.75rem]' : 'min-h-[11.5rem]';
+
   return (
     <section
       className="relative shrink-0 bg-transparent dark:bg-transparent"
@@ -61,7 +76,7 @@ function HomeCategoryShortcuts() {
         </div>
 
         <nav aria-label="İlan kategorileri">
-          <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
+          <ul className={homeGatewayGridClass(cardCount)}>
             {HOME_CATEGORIES.map((cat) => {
               const Icon = CATEGORY_ICONS[cat.slug];
               return (
@@ -69,7 +84,8 @@ function HomeCategoryShortcuts() {
                   <Link
                     href={cat.href}
                     className={cn(
-                      'group flex h-full min-h-[11.5rem] flex-col rounded-2xl border border-[#E6E8EE] bg-white',
+                      'group flex h-full flex-col rounded-2xl border border-[#E6E8EE] bg-white',
+                      cardMinH,
                       'p-5 transition duration-200',
                       'hover:border-[#0B1220]/25 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',

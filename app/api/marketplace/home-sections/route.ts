@@ -17,6 +17,8 @@ const FEATURED_TAB_CATEGORY: Record<string, string> = {
   investor: 'yatirim-yap',
   job: 'ise-al',
   partner: 'ortak-bul',
+  'digital-ai': 'dijital-ai',
+  general: 'genel-ilan',
 };
 
 const FEATURED_TAB_LIMIT = 4;
