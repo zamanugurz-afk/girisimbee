@@ -1,4 +1,4 @@
-import { ids, type AccountProfileId, type UserId } from '@/lib/domain/ids';
+import type { AccountProfileId, UserId } from '@/lib/domain/ids';
 import type { AccountProfileRepository } from '@/features/account/repositories/account-profile.repository';
 import type {
   AccountProfile,
@@ -35,13 +35,12 @@ export class MockAccountProfileRepository implements AccountProfileRepository {
   }
 
   async findById(id: AccountProfileId) {
-    const hit = this.rows.get(id);
-    if (hit) return hit;
-    return this.ensureByUserId(ids.user(String(id)));
+    return this.rows.get(id) ?? null;
   }
 
+  /** Match live Supabase repo: missing row → null (do not auto-seed). */
   async findByUserId(userId: UserId) {
-    return this.ensureByUserId(userId);
+    return [...this.rows.values()].find((row) => row.userId === userId) ?? null;
   }
 
   async findByUsername(username: string) {
