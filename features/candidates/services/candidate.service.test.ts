@@ -97,4 +97,54 @@ describe('CandidateService', () => {
       }),
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
+
+  it('browseCandidateListings strips ownerId and company identity from public rows', async () => {
+    const { candidateService } = harness.services;
+    const { listingRepository } = harness.repos;
+
+    const created = await candidateService.createCandidateListing({
+      ownerId: TEST_USER,
+      profileId: TEST_PROFILE,
+      listing: {
+        title: 'Satış Uzmanı',
+        shortDescription: 'Kurumsal satış deneyimi olan aday',
+        longDescription: 'Kurumsal ürün ekiplerinde satış ve iş geliştirme deneyimim var.',
+        city: 'İstanbul',
+        desiredRole: 'Satış Uzmanı',
+        experiences: [
+          {
+            id: 'exp-1',
+            sector: 'Satış',
+            role: 'Uzman',
+            duration: '5 yıl',
+            responsibilities: 'Kurumsal müşteri yönetimi ve yeni iş geliştirme',
+            achievements: 'Hedeflerin üzerinde büyüme',
+          },
+        ],
+      },
+      asDraft: false,
+    });
+
+    await listingRepository.update(created.id, {
+      customFields: {
+        ...created.customFields,
+        companyName: 'Gizli Firma',
+        website: 'https://secret.example',
+      },
+      publishedAt: new Date().toISOString(),
+    });
+
+    const browse = await candidateService.browseCandidateListings({});
+    const row = browse.data.find((item) => item.id === created.id);
+    expect(row).toBeTruthy();
+    expect(row).not.toHaveProperty('ownerId');
+    expect(row?.companyId ?? null).toBeNull();
+    expect(row?.customFields.companyName).toBeUndefined();
+    expect(row?.customFields.website).toBeUndefined();
+    expect(row?.customFields.desiredRole ?? created.customFields.desiredRole).toBeTruthy();
+
+    const detail = await candidateService.getCandidateListingDetail(created.id);
+    expect(detail?.listing).not.toHaveProperty('ownerId');
+    expect(detail?.details.cvUrl).toBeNull();
+  });
 });

@@ -132,6 +132,11 @@ export interface ListingDetail {
   customFacts?: { label: string; value: string }[];
   /** Digital & AI capability modules for feature-card detail section. */
   capabilityModules?: DigitalAiCapability[];
+  /**
+   * Server-side: owner/publisher identity was redacted for this viewer
+   * (accept-gated career / anonymous listings).
+   */
+  identityRedacted?: boolean;
 }
 
 export interface ListingSummary {

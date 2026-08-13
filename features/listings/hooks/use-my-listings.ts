@@ -8,8 +8,8 @@ import { getClientContainer } from '@/lib/persistence/container';
 import { resolvePersistenceDriver } from '@/lib/persistence/types';
 import { createClient } from '@/lib/supabase/client';
 import type { ListingImageRepository } from '@/features/listings/repository/listing-image.repository';
-import type { ListingId, UserId } from '@/lib/domain/ids';
-import type { ListingStatus } from '@/features/listings/types/listing.entity.types';
+import type { ListingId } from '@/lib/domain/ids';
+import type { Listing, ListingStatus } from '@/features/listings/types/listing.entity.types';
 import type {
   MyListingItem,
   MyListingSortBy,
@@ -105,7 +105,6 @@ const STATUS_FILTER_MAP: Record<MyListingStatusFilter, ListingStatus[] | undefin
 export function useMyListings() {
   const { user, isLoading: authLoading } = useAuth();
   const {
-    searchListings,
     publishListing,
     renewListing,
     markListingSold,
@@ -142,20 +141,29 @@ export function useMyListings() {
     setError(null);
 
     try {
-      const repositorySort =
-        sortBy === 'recently_updated' ? 'recently_updated' : 'newest';
+      // Owner-scoped listing reads go through server API (owner_id not selectable via PostgREST).
+      const params = new URLSearchParams();
+      params.set('status', statusFilter);
+      if (debouncedQuery) params.set('query', debouncedQuery);
+      if (sortBy === 'recently_updated') params.set('sortBy', 'recently_updated');
 
-      const result = await searchListings(
-        {
-          ownerId: user.id as UserId,
-          status: STATUS_FILTER_MAP[statusFilter],
-          query: debouncedQuery || undefined,
-          sortBy: repositorySort,
-        },
-        { page: 1, limit: 100 },
-      );
+      const response = await fetch(`/api/account/listings?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+      if (!response.ok) {
+        throw new Error('İlanlar yüklenemedi');
+      }
+      const payload = (await response.json()) as {
+        data?: {
+          listings?: Listing[];
+          pagination?: { total?: number };
+        };
+      };
+      const listings = payload.data?.listings ?? [];
+      const total = payload.data?.pagination?.total ?? listings.length;
 
-      const listingIds = result.data.map((listing) => listing.id);
+      const listingIds = listings.map((listing) => listing.id);
       const { favoriteRepository, listingImageRepository } = getClientContainer();
 
       const [thumbnailUrls, favoriteCounts] = await Promise.all([
@@ -163,20 +171,20 @@ export function useMyListings() {
         favoriteRepository.countActiveByListingIds(listingIds),
       ]);
 
-      const enriched = result.data.map((listing) => ({
+      const enriched = listings.map((listing) => ({
         listing,
         thumbnailUrl: thumbnailUrls.get(listing.id) ?? null,
         favoriteCount: favoriteCounts.get(listing.id) ?? 0,
       }));
 
       setItems(sortMyListings(enriched, sortBy));
-      setTotal(result.total);
+      setTotal(total);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'İlanlar yüklenemedi');
     } finally {
       setIsLoading(false);
     }
-  }, [user, statusFilter, debouncedQuery, sortBy, searchListings]);
+  }, [user, statusFilter, debouncedQuery, sortBy]);
 
   useEffect(() => {
     if (!authLoading) {

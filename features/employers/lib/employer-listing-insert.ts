@@ -95,6 +95,7 @@ export async function createEmployerListing(
     traceListingPublish('employers', 'supabase_insert_response', { response: data });
     return {
       ...mapListingRow(data as ListingRow),
+      ownerId: entity.ownerId,
       contactPhone: entity.contactPhone ?? null,
       contactWhatsapp: entity.contactWhatsapp ?? null,
       contactEmail: entity.contactEmail ?? null,

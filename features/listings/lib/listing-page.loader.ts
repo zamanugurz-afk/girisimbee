@@ -4,10 +4,15 @@ import { getServerContainer } from '@/lib/persistence/container';
 import { aggregateToListingDetail } from '@/features/listings/mappers/listing-detail.mapper';
 import type { ListingDetail } from '@/features/listings/types/listing.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
-import type { ListingId } from '@/lib/domain/ids';
+import type { ListingId, UserId } from '@/lib/domain/ids';
 import { uuidSchema } from '@/lib/domain/validation';
 import { profileSpan, recordCacheMiss } from '@/lib/perf/navigation-profile';
 import { parseListingNumberQuery } from '@/features/listings/utils/listing-number';
+import {
+  isIdentityGatedListing,
+  resolveContactDisclosure,
+} from '@/features/contact-requests/lib/contact-disclosure';
+import { isAdmin } from '@/features/authorization/rbac.service';
 
 export type ListingPagePayload =
   | { kind: 'detail'; listing: ListingDetail }
@@ -45,7 +50,8 @@ export const loadListingPagePayload = cache(
     recordCacheMiss();
     return profileSpan('loadListingPagePayload', async () => {
       try {
-        const container = getServerContainer(createClient());
+        const supabase = createClient();
+        const container = getServerContainer(supabase);
         const listing = await resolveListingRow(idOrSlug, container);
         if (!listing) return null;
 
@@ -56,13 +62,55 @@ export const loadListingPagePayload = cache(
           };
         }
 
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        const viewerUserId = authUser?.id ?? null;
+
+        let viewerIsAdmin = false;
+        let hasAcceptedContactRequest = false;
+
+        if (viewerUserId && isIdentityGatedListing(listing)) {
+          const isOwner = viewerUserId === String(listing.ownerId);
+          if (!isOwner) {
+            const [accountProfile, accepted] = await Promise.all([
+              container.accountService
+                .getProfile(viewerUserId as UserId)
+                .catch(() => null),
+              container.contactRequestService.hasAcceptedPair(
+                listing.id,
+                listing.ownerId,
+                viewerUserId as UserId,
+              ),
+            ]);
+            viewerIsAdmin = isAdmin(accountProfile?.role);
+            hasAcceptedContactRequest = accepted;
+          }
+        }
+
+        const disclosure = resolveContactDisclosure({
+          listing: {
+            moduleKey: listing.moduleKey,
+            anonymousMode: listing.anonymousMode,
+            ownerId: String(listing.ownerId),
+          },
+          viewerUserId,
+          viewerIsAdmin,
+          hasAcceptedContactRequest,
+        });
+
+        // Skip loading profile/company when identity will be redacted (no PII to hydrate).
+        const loadIdentity = disclosure.canRevealOwnerIdentity;
+
         // Public owner display uses marketplace_profiles only — never cross-user
         // public.profiles (phone/email/role) after own-only RLS hardening.
         const [tags, images, profile, company] = await Promise.all([
           container.tagRepository.findByListingId(listing.id),
           container.listingImageRepository.findByListingId(listing.id),
-          container.profileService.getByUserId(listing.ownerId),
-          listing.companyId
+          loadIdentity
+            ? container.profileService.getByUserId(listing.ownerId)
+            : Promise.resolve(null),
+          loadIdentity && listing.companyId
             ? container.companyService.getById(listing.companyId)
             : Promise.resolve(null),
         ]);
@@ -80,6 +128,7 @@ export const loadListingPagePayload = cache(
             {
               profile,
               company,
+              disclosure,
             },
           ),
         };

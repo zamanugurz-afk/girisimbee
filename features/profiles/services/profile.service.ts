@@ -10,6 +10,12 @@ import type { ListingRepository } from '@/features/listings/repositories/listing
 import { ValidationError } from '@/lib/domain/errors';
 import { suggestUsername } from '@/features/profiles/validation/profile-editor.schema';
 import { createProfile } from '@/features/profiles/factories/profile.factory';
+import {
+  isIdentityGatedListing,
+  shouldBlockPublicMemberProfileEnumeration,
+} from '@/features/contact-requests/lib/contact-disclosure';
+import { toPublicListingEntity } from '@/features/contact-requests/lib/strip-listing-phone';
+import type { Listing } from '@/features/listings/types/listing.entity.types';
 
 export class ProfileService implements IProfileService {
   constructor(
@@ -95,6 +101,23 @@ export class ProfileService implements IProfileService {
     return this.repo.delete(id);
   }
 
+  private async loadPublishedListingsForUser(userId: UserId) {
+    return (
+      this.listingRepo?.search(
+        { ownerId: userId, status: 'published' },
+        { page: 1, limit: 24 },
+      ) ?? Promise.resolve({ data: [] as Listing[], total: 0, page: 1, limit: 24, hasMore: false })
+    );
+  }
+
+  /** Public profile listing strip: never attach identity-gated career rows next to a real name. */
+  private publicListingsForProfileView(listings: Listing[], isOwner: boolean): Listing[] {
+    if (isOwner) return listings;
+    return listings
+      .filter((listing) => !isIdentityGatedListing(listing))
+      .map(toPublicListingEntity);
+  }
+
   async getPublicProfile(username: string, viewerId?: UserId): Promise<PublicProfileView | null> {
     const profile = await this.repo.findByUsername(username);
     if (!profile || profile.deletedAt) return null;
@@ -107,23 +130,22 @@ export class ProfileService implements IProfileService {
     const [followersCount, followingCount, listingsResult, isFollowing] = await Promise.all([
       this.followRepo?.countFollowers(profile.userId) ?? Promise.resolve(0),
       this.followRepo?.countFollowing(profile.userId) ?? Promise.resolve(0),
-      this.listingRepo?.search(
-        { ownerId: profile.userId, status: 'published' },
-        { page: 1, limit: 24 },
-      ) ?? Promise.resolve({ data: [], total: 0, page: 1, limit: 24, hasMore: false }),
+      this.loadPublishedListingsForUser(profile.userId),
       viewerId && !isOwner && this.followRepo
         ? this.followRepo.isFollowing(viewerId, profile.userId)
         : Promise.resolve(false),
     ]);
 
+    const visibleListings = this.publicListingsForProfileView(listingsResult.data, isOwner);
+
     return {
       profile,
       stats: {
-        listingsCount: listingsResult.total,
+        listingsCount: isOwner ? listingsResult.total : visibleListings.length,
         followersCount,
         followingCount,
       },
-      listings: listingsResult.data,
+      listings: visibleListings,
       isOwner,
       isFollowing,
     };
@@ -133,22 +155,29 @@ export class ProfileService implements IProfileService {
     userId: UserId,
     viewerId?: UserId,
   ): Promise<PublicProfileView | null> {
+    const isOwner = Boolean(viewerId && viewerId === userId);
+
+    const listingsResult = await this.loadPublishedListingsForUser(userId);
+
+    // Close listingId → owner_id → /uye/[userId] for anonymous career-only members.
+    if (
+      !isOwner
+      && shouldBlockPublicMemberProfileEnumeration(listingsResult.data)
+    ) {
+      return null;
+    }
+
     const profile = await this.repo.findByUserId(userId);
     if (profile?.username && !profile.deletedAt) {
       const byUsername = await this.getPublicProfile(profile.username, viewerId);
       if (byUsername) return byUsername;
     }
 
-    const isOwner = Boolean(viewerId && viewerId === userId);
     if (profile && !isOwner && profile.deletedAt) return null;
 
-    const [followersCount, followingCount, listingsResult, isFollowing] = await Promise.all([
+    const [followersCount, followingCount, isFollowing] = await Promise.all([
       this.followRepo?.countFollowers(userId) ?? Promise.resolve(0),
       this.followRepo?.countFollowing(userId) ?? Promise.resolve(0),
-      this.listingRepo?.search(
-        { ownerId: userId, status: 'published' },
-        { page: 1, limit: 24 },
-      ) ?? Promise.resolve({ data: [], total: 0, page: 1, limit: 24, hasMore: false }),
       viewerId && !isOwner && this.followRepo
         ? this.followRepo.isFollowing(viewerId, userId)
         : Promise.resolve(false),
@@ -167,14 +196,16 @@ export class ProfileService implements IProfileService {
             visibility: 'public',
           });
 
+    const visibleListings = this.publicListingsForProfileView(listingsResult.data, isOwner);
+
     return {
       profile: shell,
       stats: {
-        listingsCount: listingsResult.total,
+        listingsCount: isOwner ? listingsResult.total : visibleListings.length,
         followersCount,
         followingCount,
       },
-      listings: listingsResult.data,
+      listings: visibleListings,
       isOwner,
       isFollowing,
     };

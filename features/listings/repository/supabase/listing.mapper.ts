@@ -15,7 +15,11 @@ import {
 export interface ListingRow {
   id: string;
   slug: string;
-  owner_id: string;
+  /**
+   * Absent from LISTING_SAFE_SELECT (revoked / omitted for anon/authenticated).
+   * Server repository hydrates Listing.ownerId via privileged reader.
+   */
+  owner_id?: string | null;
   company_id: string | null;
   category_id: string;
   listing_type_id: string;
@@ -59,7 +63,8 @@ export function mapListingRow(row: ListingRow): Listing {
   return {
     id: row.id as ListingId,
     slug: row.slug,
-    ownerId: row.owner_id as UserId,
+    // Placeholder until server enrichOwnerId / known insert owner is applied.
+    ownerId: (row.owner_id ?? '') as UserId,
     companyId: row.company_id as CompanyId | null,
     categoryId: row.category_id as CategoryId,
     listingTypeId: row.listing_type_id as ListingTypeId,

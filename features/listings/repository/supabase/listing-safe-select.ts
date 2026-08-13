@@ -1,13 +1,18 @@
 /**
- * PostgREST select list for marketplace_listings that excludes direct contact channels:
- * contact_phone, contact_whatsapp, contact_email.
- * DB column SELECT is revoked for anon/authenticated — `select('*')` would fail.
- * Owner/admin reads go through marketplace_listing_owner_contact_channels RPC.
+ * PostgREST select list for marketplace_listings that excludes:
+ * - direct contact channels (contact_phone / whatsapp / email) — revoked at DB
+ * - owner_id — must not be readable via anon/authenticated PostgREST
+ *   (enumeration: listingId → owner_id → /uye). Server hydrates ownerId via
+ *   privileged reader (see SupabaseListingRepository enrichOwnerId).
+ *
+ * DB column SELECT for contact_* is revoked for anon/authenticated — `select('*')` would fail.
+ * Owner/admin contact reads go through marketplace_listing_owner_contact_channels RPC.
+ * Accepted-requester identity/phone use dedicated SECURITY DEFINER RPCs (unchanged).
  */
 export const LISTING_SAFE_SELECT = [
   'id',
   'slug',
-  'owner_id',
+  // owner_id intentionally omitted — not for anon/authenticated PostgREST projection
   'company_id',
   'category_id',
   'listing_type_id',
@@ -42,6 +47,12 @@ export const LISTING_SAFE_SELECT = [
   'updated_at',
   'deleted_at',
 ].join(',');
+
+/**
+ * Privileged projection for server-side ownerId hydration only.
+ * After migration revoke, only service_role (or equivalent) may SELECT these columns.
+ */
+export const LISTING_OWNER_ID_SELECT = 'id,owner_id';
 
 /** @deprecated Prefer OWNER_CONTACT_CHANNELS_RPC */
 export const OWNER_CONTACT_PHONE_RPC = 'marketplace_listing_owner_contact_phone';

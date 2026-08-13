@@ -23,6 +23,7 @@ import {
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import type { KvkkConsentService } from '@/features/kvkk/services/kvkk-consent.service';
+import { toPublicListingEntity } from '@/features/contact-requests/lib/strip-listing-phone';
 
 export interface CreateCandidateListingInput {
   ownerId: UserId;
@@ -77,12 +78,16 @@ export class CandidateService {
     return this.applicationService.listForApplicant(profileId);
   }
 
-  browseCandidateListings(filter: CandidateListingFilter = {}) {
-    return this.listingRepo.findPublished({
+  async browseCandidateListings(filter: CandidateListingFilter = {}) {
+    const result = await this.listingRepo.findPublished({
       moduleKey: 'candidates',
       city: filter.city,
       district: filter.district,
     });
+    return {
+      ...result,
+      data: result.data.map(toPublicListingEntity),
+    };
   }
 
   async createCandidateListing(input: CreateCandidateListingInput): Promise<Listing> {
@@ -151,6 +156,10 @@ export class CandidateService {
       ? await this.listingRepo.findById(idOrSlug as ListingId)
       : await this.listingRepo.findBySlug(idOrSlug);
     if (!listing || listing.moduleKey !== 'candidates') return null;
-    return { listing, details: extractCandidateListingDetails(listing) };
+    const publicListing = toPublicListingEntity(listing);
+    return {
+      listing: publicListing,
+      details: extractCandidateListingDetails(publicListing),
+    };
   }
 }

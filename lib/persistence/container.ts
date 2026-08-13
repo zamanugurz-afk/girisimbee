@@ -39,7 +39,10 @@ import { MockUserRepository } from '@/features/authentication/repository/mock/us
 import { MockReportRepository } from '@/features/shared/repository/mock/report.repository.mock';
 import { MockVerificationRepository } from '@/features/authentication/repository/mock/verification.repository.mock';
 
-import { SupabaseListingRepository } from '@/features/listings/repository/supabase/listing.repository.supabase';
+import {
+  SupabaseListingRepository,
+  type SupabaseListingRepositoryOptions,
+} from '@/features/listings/repository/supabase/listing.repository.supabase';
 import { EmployerListingRepository } from '@/features/employers/repository/supabase/employer-listing.repository.supabase';
 import { SupabaseTagRepository } from '@/features/listings/repository/supabase/tag.repository.supabase';
 import { SupabaseListingImageRepository } from '@/features/listings/repository/supabase/listing-image.repository.supabase';
@@ -311,9 +314,36 @@ export function createMemoryContainer(): PersistenceContainer {
   });
 }
 
-export function createSupabaseContainer(supabase: SupabaseClient): PersistenceContainer {
-  const listingRepository = new SupabaseListingRepository(supabase);
-  const employerListingRepository = new EmployerListingRepository(supabase);
+/**
+ * Server-only privileged reader for marketplace_listings.owner_id.
+ * Dynamic require keeps `@/lib/supabase/service` out of the browser bundle
+ * (getClientContainer never calls this).
+ */
+function requireListingOwnerIdReader(): SupabaseClient {
+  const { createServiceRoleClient } =
+    require('@/lib/supabase/service') as typeof import('@/lib/supabase/service');
+  try {
+    return createServiceRoleClient();
+  } catch {
+    throw new Error(
+      'SUPABASE_SERVICE_ROLE_KEY is required for server-side listing owner_id hydration (server secret only; never NEXT_PUBLIC_).',
+    );
+  }
+}
+
+export function createSupabaseContainer(
+  supabase: SupabaseClient,
+  options?: { enrichListingOwnerId?: boolean },
+): PersistenceContainer {
+  const listingRepoOptions: SupabaseListingRepositoryOptions | undefined =
+    options?.enrichListingOwnerId
+      ? {
+          enrichOwnerId: true,
+          ownerIdReader: requireListingOwnerIdReader(),
+        }
+      : undefined;
+  const listingRepository = new SupabaseListingRepository(supabase, listingRepoOptions);
+  const employerListingRepository = new EmployerListingRepository(supabase, listingRepoOptions);
   const tagRepository = new SupabaseTagRepository(supabase);
   const listingImageRepository = new SupabaseListingImageRepository(supabase);
   const activityRepository = new SupabaseActivityRepository(supabase);
@@ -666,13 +696,28 @@ export function getClientContainer(): PersistenceContainer {
   } else {
     clientContainer = createMemoryContainer();
   }
+
+  // Browser reads must not expose identity-gated owner/company PII via listingId.
+  // Server containers stay unsanitized (loader / contact-request / ownership).
+  const { wrapListingRepositoryForClientPublicReads } =
+    require('@/features/listings/repository/client-public-listing.repository') as typeof import('@/features/listings/repository/client-public-listing.repository');
+  clientContainer = {
+    ...clientContainer,
+    listingRepository: wrapListingRepositoryForClientPublicReads(
+      clientContainer.listingRepository,
+    ),
+  };
+
   return clientContainer;
 }
 
 /** Server-side factory — pass Supabase server client. */
 export function getServerContainer(supabase: SupabaseClient): PersistenceContainer {
   const driver = resolvePersistenceDriver();
-  return driver === 'supabase' ? createSupabaseContainer(supabase) : createMemoryContainer();
+  // Server hydrates ownerId (LISTING_SAFE_SELECT omits owner_id for PostgREST lockdown).
+  return driver === 'supabase'
+    ? createSupabaseContainer(supabase, { enrichListingOwnerId: true })
+    : createMemoryContainer();
 }
 
 /** Reset container — for tests. */

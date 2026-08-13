@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/middleware';
+import { createServiceRoleClient } from '@/lib/supabase/service';
 import { ids } from '@/lib/domain/ids';
 import { STANDARD_PUBLISH_CONFIG, STANDARD_REPUBLISH_CONFIG } from '@/features/monetization/types/listing-placement.types';
 import { isPremiumLivePayments } from '@/features/shared/config/features';
@@ -12,6 +13,9 @@ const SLOT_STATUSES = ['published', 'pending_review', 'expired', 'archived'] as 
 /**
  * Middleware gate for server-side publish API routes.
  * Rule: 1 free listing per category; extra / renew = 99 TL (package credit or test mode).
+ *
+ * owner_id is read only via service_role (column revoked for anon/authenticated).
+ * No user-client fallback — misconfiguration fails closed.
  */
 export async function validatePublishRequest(request: NextRequest): Promise<NextResponse | null> {
   const match = request.nextUrl.pathname.match(PUBLISH_API_PATTERN);
@@ -24,7 +28,21 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
   }
 
   const listingId = ids.listing(match[1]);
-  const { data: listing, error } = await supabase
+
+  let privileged;
+  try {
+    privileged = createServiceRoleClient();
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          'Sunucu yapılandırması eksik: SUPABASE_SERVICE_ROLE_KEY gerekli (owner_id doğrulaması).',
+      },
+      { status: 500 },
+    );
+  }
+
+  const { data: listing, error } = await privileged
     .from('marketplace_listings')
     .select('id, owner_id, company_id, category_id, published_at, status')
     .eq('id', listingId)
@@ -34,7 +52,7 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
     return NextResponse.json({ error: 'İlan bulunamadı.' }, { status: 404 });
   }
 
-  if (listing.owner_id !== user.id) {
+  if (String(listing.owner_id) !== user.id) {
     return NextResponse.json({ error: 'Bu ilan üzerinde işlem yapma yetkiniz yok.' }, { status: 403 });
   }
 
@@ -43,7 +61,7 @@ export async function validatePublishRequest(request: NextRequest): Promise<Next
     return null;
   }
 
-  const { count: usedInCategory } = await supabase
+  const { count: usedInCategory } = await privileged
     .from('marketplace_listings')
     .select('id', { count: 'exact', head: true })
     .eq('owner_id', user.id)

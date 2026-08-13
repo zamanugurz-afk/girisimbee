@@ -8,14 +8,15 @@ import {
 import { stripListingContactPhone } from '@/features/contact-requests/lib/strip-listing-phone';
 
 describe('LISTING_SAFE_SELECT', () => {
-  it('excludes direct contact channels from PostgREST select list', () => {
+  it('excludes contact channels and owner_id from PostgREST select list', () => {
     const columns = LISTING_SAFE_SELECT.split(',');
     expect(columns).not.toContain('contact_phone');
     expect(columns).not.toContain('contact_whatsapp');
     expect(columns).not.toContain('contact_email');
+    expect(columns).not.toContain('owner_id');
     expect(columns).toContain('id');
     expect(columns).toContain('title');
-    expect(columns).toContain('owner_id');
+    expect(columns).toContain('custom_fields');
   });
 
   it('exposes accepted-requester phone RPC name (not table select)', () => {

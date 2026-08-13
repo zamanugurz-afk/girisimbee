@@ -32,6 +32,11 @@ import type { ModuleKey } from '@/lib/domain/modules';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { formatListingNumber } from '@/features/listings/utils/listing-number';
+import {
+  ANONYMOUS_PROFILE_LABEL,
+  redactCareerExperiencePublicFields,
+  type ContactDisclosureDecision,
+} from '@/features/contact-requests/lib/contact-disclosure';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
@@ -202,22 +207,44 @@ function buildCustomFacts(
   return facts;
 }
 
+export type ListingDetailMapContext = {
+  profile?: Profile | null;
+  company?: Company | null;
+  /** When omitted, identity is not redacted (legacy callers / non-gated). */
+  disclosure?: ContactDisclosureDecision | null;
+};
+
 /** Map engine aggregate → UI ListingDetail (existing detail view). */
 export function aggregateToListingDetail(
   aggregate: ListingAggregate,
-  context?: { profile?: Profile | null; company?: Company | null },
+  context?: ListingDetailMapContext,
 ): ListingDetail {
   const { listing, tags, images, activityHistory } = aggregate;
   const category = categoryRegistry.getCategory(listing.categoryId);
   const categorySlug = resolveDetailCategorySlug(listing);
   const meta = CATEGORY_PAGE_CONFIG[categorySlug];
-  const cf = listing.customFields;
+  const redactIdentity =
+    Boolean(context?.disclosure?.identityGated)
+    && !context?.disclosure?.canRevealOwnerIdentity;
+
+  const cf: Record<string, unknown> = { ...listing.customFields };
+  if (redactIdentity) {
+    // Career public card: never surface employer/company-shaped fields.
+    delete cf.companyName;
+    delete cf.website;
+    delete cf.cvUrl;
+    if (cf.experiences !== undefined) {
+      cf.experiences = redactCareerExperiencePublicFields(cf.experiences);
+    }
+  }
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
     .filter((part) => !isEmptyDisplayValue(part));
   const location = locationParts.join(', ') || toDisplayValue(listing.location);
 
-  const publisher = buildPublisher(listing.companyId, listing.ownerId, context);
+  const publisher = redactIdentity
+    ? buildAnonymousPublisher()
+    : buildPublisher(listing.companyId, listing.ownerId, context);
   const customFacts = buildCustomFacts(categorySlug, cf);
   const capabilityModules: DigitalAiCapability[] =
     categorySlug === 'dijital-ai' ? resolveDigitalAiCapabilities(cf.capabilities) : [];
@@ -256,7 +283,7 @@ export function aggregateToListingDetail(
           },
         ];
 
-  const cvRef = toDisplayValue(cf.cvUrl);
+  const cvRef = redactIdentity ? '' : toDisplayValue(cf.cvUrl);
   const attachments = cvRef
     ? [{
         id: 'cv',
@@ -267,22 +294,28 @@ export function aggregateToListingDetail(
       }]
     : [];
 
-  const companyName =
-    context?.company?.name
-    || toDisplayValue(cf.companyName)
-    || '';
-  const companySummary = context?.company?.description ?? '';
-  const companyCity = toDisplayValue(context?.company?.city);
-  const companyWebsite =
-    toDisplayValue(context?.company?.website) || toDisplayValue(cf.website);
-  const companyFounded = context?.company?.foundedYear
-    ? String(context.company.foundedYear)
-    : toDisplayValue(cf.establishmentYear);
-  const companyEmployees =
-    toDisplayValue(context?.company?.employeeCount) || toDisplayValue(cf.employeeCount);
-  const companySector =
-    toDisplayValue(cf.sector) || toDisplayValue(listing.industry);
-  const companyBranchCount = toDisplayValue(cf.branchCount);
+  const companyName = redactIdentity
+    ? ''
+    : context?.company?.name
+      || toDisplayValue(cf.companyName)
+      || '';
+  const companySummary = redactIdentity ? '' : (context?.company?.description ?? '');
+  const companyCity = redactIdentity ? '' : toDisplayValue(context?.company?.city);
+  const companyWebsite = redactIdentity
+    ? ''
+    : toDisplayValue(context?.company?.website) || toDisplayValue(cf.website);
+  const companyFounded = redactIdentity
+    ? ''
+    : context?.company?.foundedYear
+      ? String(context.company.foundedYear)
+      : toDisplayValue(cf.establishmentYear);
+  const companyEmployees = redactIdentity
+    ? ''
+    : toDisplayValue(context?.company?.employeeCount) || toDisplayValue(cf.employeeCount);
+  const companySector = redactIdentity
+    ? ''
+    : toDisplayValue(cf.sector) || toDisplayValue(listing.industry);
+  const companyBranchCount = redactIdentity ? '' : toDisplayValue(cf.branchCount);
 
   const resolvedIntent: CategoryIntentId =
     SLUG_TO_INTENT[categorySlug]
@@ -310,12 +343,13 @@ export function aggregateToListingDetail(
     id: listing.slug,
     listingId: listing.id,
     listingNumber: formatListingNumber(listing.id),
-    ownerUserId: listing.ownerId,
+    // Omit owner/company ids when identity-gated so clients cannot enumerate /uye/{id}.
+    ownerUserId: redactIdentity ? undefined : listing.ownerId,
     // Public detail never exposes direct contact channels — contact-request flow only.
     contactPhone: null,
     contactWhatsapp: null,
     contactEmail: null,
-    companyId: listing.companyId,
+    companyId: redactIdentity ? null : listing.companyId,
     category: {
       id: resolvedIntent,
       label: metaLabel ?? meta?.label ?? category?.name ?? 'İlan',
@@ -359,10 +393,12 @@ export function aggregateToListingDetail(
     timeline: [],
     owner: {
       name: publisher.name,
-      role: publisher.subtitle ?? (publisher.type === 'company' ? 'Şirket' : 'Kişisel'),
+      role: redactIdentity
+        ? 'Anonim kariyer profili'
+        : publisher.subtitle ?? (publisher.type === 'company' ? 'Şirket' : 'Kişisel'),
       initials: publisher.initials,
-      verified: publisher.verified,
-      memberSince: formatDate(listing.createdAt),
+      verified: redactIdentity ? false : publisher.verified,
+      memberSince: redactIdentity ? '' : formatDate(listing.createdAt),
     },
     publisher,
     activity: activityHistory.slice(0, 5).map((a) => ({
@@ -373,6 +409,20 @@ export function aggregateToListingDetail(
     similar: [],
     customFacts,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
+    identityRedacted: redactIdentity,
+  };
+}
+
+function buildAnonymousPublisher(): ListingPublisher {
+  return {
+    type: 'user',
+    name: ANONYMOUS_PROFILE_LABEL,
+    avatarUrl: null,
+    initials: 'A',
+    verified: false,
+    trust: { user: false, investor: false, company: false },
+    href: '#',
+    subtitle: 'Anonim kariyer profili',
   };
 }
 

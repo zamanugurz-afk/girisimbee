@@ -7,7 +7,8 @@ import { canTransition } from '@/lib/domain/base';
 import { NotFoundError, InvalidTransitionError } from '@/lib/domain/errors';
 import { normalizePagination, paginatedResult, offset } from '@/lib/domain/pagination';
 import type { PaginationParams, PaginatedResult, RepositoryFilter } from '@/lib/domain/pagination';
-import type { ListingId, CategoryId, ListingTypeId } from '@/lib/domain/ids';
+import type { ListingId, CategoryId, ListingTypeId, UserId } from '@/lib/domain/ids';
+import { ids } from '@/lib/domain/ids';
 import type {
   Listing,
   ListingFilter,
@@ -22,6 +23,7 @@ import { mapListingRow, toListingRow, toListingUpdateRow, type ListingRow } from
 import {
   ACCEPTED_REQUESTER_CONTACT_PHONE_RPC,
   ACCEPTED_REQUESTER_OWNER_IDENTITY_RPC,
+  LISTING_OWNER_ID_SELECT,
   LISTING_SAFE_SELECT,
   OWNER_CONTACT_CHANNELS_RPC,
   type OwnerContactChannels,
@@ -140,8 +142,96 @@ function logBrowseQuery(filter: ListingFilter, log: BrowseQueryLog): void {
   });
 }
 
+export type SupabaseListingRepositoryOptions = {
+  /**
+   * Server-only: hydrate `Listing.ownerId` after RLS-scoped fetches.
+   * Requires `ownerIdReader` (service_role). No user-client fallback.
+   */
+  enrichOwnerId?: boolean;
+  /** Privileged client that can SELECT/filter `owner_id` after column revoke. */
+  ownerIdReader?: SupabaseClient;
+};
+
+const OWNER_ID_READER_REQUIRED_ERROR =
+  'SUPABASE_SERVICE_ROLE_KEY is required for server-side listing owner_id hydration (server secret only; never NEXT_PUBLIC_).';
+
 export class SupabaseListingRepository implements ListingRepository {
-  constructor(private supabase: SupabaseClient) {}
+  private readonly enrichOwnerId: boolean;
+  private readonly ownerIdReader?: SupabaseClient;
+
+  constructor(
+    private supabase: SupabaseClient,
+    options?: SupabaseListingRepositoryOptions,
+  ) {
+    this.enrichOwnerId = options?.enrichOwnerId === true;
+    this.ownerIdReader = options?.ownerIdReader;
+    if (this.enrichOwnerId && !this.ownerIdReader) {
+      throw new Error(OWNER_ID_READER_REQUIRED_ERROR);
+    }
+  }
+
+  /** Privileged client only — never the user-scoped PostgREST client. */
+  private requireOwnerIdReader(): SupabaseClient {
+    if (!this.enrichOwnerId || !this.ownerIdReader) {
+      throw new Error(OWNER_ID_READER_REQUIRED_ERROR);
+    }
+    return this.ownerIdReader;
+  }
+
+  private async hydrateOwnerIds(listings: Listing[]): Promise<Listing[]> {
+    if (!this.enrichOwnerId || listings.length === 0) return listings;
+    const missing = listings.filter((listing) => !listing.ownerId);
+    if (missing.length === 0) return listings;
+
+    const access = this.requireOwnerIdReader();
+    const { data, error } = await access
+      .from(TABLE)
+      .select(LISTING_OWNER_ID_SELECT)
+      .in(
+        'id',
+        missing.map((listing) => listing.id),
+      );
+    if (error) throw error;
+
+    const byId = new Map<string, UserId>();
+    for (const row of data ?? []) {
+      const id = String((row as { id?: string }).id ?? '');
+      const ownerId = (row as { owner_id?: string | null }).owner_id;
+      if (id && ownerId) byId.set(id, ids.user(ownerId));
+    }
+
+    return listings.map((listing) => {
+      const ownerId = listing.ownerId || byId.get(String(listing.id));
+      return ownerId ? { ...listing, ownerId } : listing;
+    });
+  }
+
+  private async hydrateOwnerId(listing: Listing | null): Promise<Listing | null> {
+    if (!listing) return null;
+    const [hydrated] = await this.hydrateOwnerIds([listing]);
+    return hydrated ?? listing;
+  }
+
+  /**
+   * Resolve listing ids for an owner filter without projecting owner_id on the
+   * user-scoped select (required after column revoke — WHERE owner_id needs SELECT).
+   */
+  private async resolveIdsForOwnerFilter(filter: ListingFilter): Promise<string[] | null> {
+    if (!filter.ownerId) return null;
+    if (!this.enrichOwnerId) return null;
+
+    const access = this.requireOwnerIdReader();
+    let q = access.from(TABLE).select('id').eq('owner_id', filter.ownerId);
+    if (!filter.includeDeleted) q = q.is('deleted_at', null);
+    if (filter.status) {
+      const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
+      q = q.in('status', statuses);
+    }
+    if (filter.moduleKey) q = q.eq('module_key', filter.moduleKey);
+    const { data, error } = await q;
+    if (error) throw error;
+    return (data ?? []).map((row) => String((row as { id: string }).id));
+  }
 
   /**
    * Private owner/admin contact channels via SECURITY DEFINER RPC
@@ -212,11 +302,12 @@ export class SupabaseListingRepository implements ListingRepository {
     };
     try {
       const { data: auth } = await this.supabase.auth.getUser();
-      if (!auth.user) return cleared;
+      if (!auth.user) return this.hydrateOwnerId(cleared);
     } catch {
-      return cleared;
+      return this.hydrateOwnerId(cleared);
     }
-    return this.mapRowWithOptionalOwnerChannels(data as ListingRow);
+    const withChannels = await this.mapRowWithOptionalOwnerChannels(data as ListingRow);
+    return this.hydrateOwnerId(withChannels);
   }
 
   async findBySlug(slug: string): Promise<Listing | null> {
@@ -230,18 +321,22 @@ export class SupabaseListingRepository implements ListingRepository {
     // Public slug lookup — never call owner contact RPC.
     if (!data) return null;
     const listing = mapListingRow(data as ListingRow);
-    return {
+    return this.hydrateOwnerId({
       ...listing,
       contactPhone: null,
       contactWhatsapp: null,
       contactEmail: null,
-    };
+    });
   }
 
   private applyFilter(
     query: ReturnType<SupabaseClient['from']>,
     filter: ListingFilter,
-    options?: { mode?: 'browse' | 'count' },
+    options?: {
+      mode?: 'browse' | 'count';
+      /** Pre-resolved ids for owner filter (server enrich path). */
+      ownerScopedIds?: string[] | null;
+    },
   ) {
     const queryableCategoryIds = filter.categoryId
       ? resolveQueryableCategoryIds(filter.categoryId)
@@ -260,7 +355,16 @@ export class SupabaseListingRepository implements ListingRepository {
         ? query.select('id', { count: 'exact', head: true })
         : query.select(LISTING_BROWSE_SELECT, { count: 'exact' });
     if (!filter.includeDeleted) q = q.is('deleted_at', null);
-    if (filter.ownerId) q = q.eq('owner_id', filter.ownerId);
+    // Prefer id IN (...) from privileged owner lookup (post owner_id revoke).
+    // Client / pre-migration fallback: direct owner_id equality when not enriching.
+    if (options?.ownerScopedIds) {
+      q = q.in('id', options.ownerScopedIds);
+    } else if (filter.ownerId && !this.enrichOwnerId) {
+      q = q.eq('owner_id', filter.ownerId);
+    } else if (filter.ownerId && this.enrichOwnerId) {
+      // Caller must pass ownerScopedIds when enrichOwnerId — empty means no rows.
+      q = q.in('id', []);
+    }
     if (queryableCategoryIds.length === 1) {
       q = q.eq('category_id', queryableCategoryIds[0]);
       supabaseFilterParts.push(`category_id.eq.${queryableCategoryIds[0]}`);
@@ -352,14 +456,24 @@ export class SupabaseListingRepository implements ListingRepository {
 
     const { column, ascending } = getSortColumn(filter.sortBy ?? 'newest');
 
+    const ownerScopedIds = await this.resolveIdsForOwnerFilter(filter);
+    if (filter.ownerId && this.enrichOwnerId && ownerScopedIds && ownerScopedIds.length === 0) {
+      return paginatedResult([], 0, page, limit);
+    }
+
     // Single round-trip: browse select already requests count:'exact'.
-    const listResult = await this.applyFilter(this.supabase.from(TABLE), filter, { mode: 'browse' })
+    const listResult = await this.applyFilter(this.supabase.from(TABLE), filter, {
+      mode: 'browse',
+      ownerScopedIds,
+    })
       .order(column, { ascending })
       .range(start, end);
 
     const { data, error, count } = listResult;
     if (error) throw error;
-    const listings = (data ?? []).map((row) => mapListingBrowseRow(row as ListingBrowseRow));
+    const listings = await this.hydrateOwnerIds(
+      (data ?? []).map((row) => mapListingBrowseRow(row as ListingBrowseRow)),
+    );
     return paginatedResult(listings, count ?? 0, page, limit);
   }
 
@@ -407,8 +521,13 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async count(filter: ListingFilter): Promise<number> {
+    const ownerScopedIds = await this.resolveIdsForOwnerFilter(filter);
+    if (filter.ownerId && this.enrichOwnerId && ownerScopedIds && ownerScopedIds.length === 0) {
+      return 0;
+    }
     const { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter, {
       mode: 'count',
+      ownerScopedIds,
     });
     if (error) throw error;
     return count ?? 0;
@@ -473,11 +592,13 @@ export class SupabaseListingRepository implements ListingRepository {
       traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert_response', {
         response: data,
       });
-      return this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
+      const mapped = await this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
         contactPhone: entity.contactPhone ?? null,
         contactWhatsapp: entity.contactWhatsapp ?? null,
         contactEmail: entity.contactEmail ?? null,
       });
+      // Insert payload already knows owner — avoid privileged round-trip.
+      return { ...mapped, ownerId: entity.ownerId };
     } catch (error) {
       tracePublishFailure(String(row.module_key ?? 'listing'), 'supabase_insert', error, {
         table: TABLE,
@@ -508,10 +629,11 @@ export class SupabaseListingRepository implements ListingRepository {
     if (input.contactPhone !== undefined) known.contactPhone = input.contactPhone;
     if (input.contactWhatsapp !== undefined) known.contactWhatsapp = input.contactWhatsapp;
     if (input.contactEmail !== undefined) known.contactEmail = input.contactEmail;
-    return this.mapRowWithOptionalOwnerChannels(
+    const mapped = await this.mapRowWithOptionalOwnerChannels(
       data as ListingRow,
       Object.keys(known).length > 0 ? known : undefined,
     );
+    return (await this.hydrateOwnerId(mapped))!;
   }
 
   async softDelete(id: ListingId): Promise<void> {
@@ -536,7 +658,8 @@ export class SupabaseListingRepository implements ListingRepository {
       .single();
     if (error) throw error;
     if (!data) throw new NotFoundError('Listing', id);
-    return this.mapRowWithOptionalOwnerChannels(data as ListingRow);
+    const mapped = await this.mapRowWithOptionalOwnerChannels(data as ListingRow);
+    return (await this.hydrateOwnerId(mapped))!;
   }
 
   async incrementViewCount(id: ListingId): Promise<void> {
@@ -590,11 +713,12 @@ export class SupabaseListingRepository implements ListingRepository {
       logSupabaseError(error, `${TABLE} transitionStatus ${id} → ${to}`);
       throw error;
     }
-    return this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
+    const mapped = await this.mapRowWithOptionalOwnerChannels(data as ListingRow, {
       contactPhone: listing.contactPhone,
       contactWhatsapp: listing.contactWhatsapp,
       contactEmail: listing.contactEmail,
     });
+    return { ...mapped, ownerId: listing.ownerId };
   }
 
   async getAcceptedRequesterContactPhone(id: ListingId): Promise<string | null> {

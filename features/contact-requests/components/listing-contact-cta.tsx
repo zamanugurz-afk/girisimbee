@@ -32,6 +32,8 @@ export interface ListingContactCtaProps {
   listingId: string;
   listingTitle?: string;
   isOwner?: boolean;
+  /** Career / anonymous listings — stronger privacy copy before accept. */
+  identityGated?: boolean;
   variant?: CtaVariant;
   className?: string;
   /** Controlled open for mobile bar / shared modal */
@@ -39,12 +41,14 @@ export interface ListingContactCtaProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-function statusLabel(view: ContactRequestPublicView): string {
+function statusLabel(view: ContactRequestPublicView, identityGated: boolean): string {
   switch (view.effectiveStatus) {
     case 'pending':
       return 'Talebiniz ilan sahibine iletildi. Yanıt bekleniyor.';
-      case 'accepted':
-      return 'Talebiniz kabul edildi. Mesajlaşabilir; telefon ve ad-soyad bilgisi size açıldı.';
+    case 'accepted':
+      return identityGated
+        ? 'İletişim talebi kabul edildi. Ad soyad ve izin verilen iletişim bilgileri size açıldı; mesajlaşabilirsiniz.'
+        : 'Talebiniz kabul edildi. Mesajlaşabilir; telefon ve ad-soyad bilgisi size açıldı.';
     case 'rejected':
       return 'Talebiniz reddedildi.';
     case 'expired':
@@ -60,6 +64,7 @@ export function ListingContactCta({
   listingId,
   listingTitle,
   isOwner = false,
+  identityGated = false,
   variant = 'card',
   className,
   open: controlledOpen,
@@ -212,7 +217,7 @@ export function ListingContactCta({
   const statusBlock =
     mine && !canCreate ? (
       <div className="space-y-2 text-sm text-muted-foreground">
-        <p>{statusLabel(mine)}</p>
+        <p>{statusLabel(mine, identityGated)}</p>
         {mine.effectiveStatus === 'accepted' && mine.conversationId ? (
           <Button asChild className="h-10 w-full rounded-2xl" variant={variant === 'compact' ? 'default' : 'secondary'}>
             <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`}>
@@ -297,8 +302,9 @@ export function ListingContactCta({
           </label>
           <p className="flex items-start gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground dark:border-white/10">
             <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
-            Telefon numarası kamuya açık gösterilmez. Talep kabul edilirse Platform üzerinden
-            mesajlaşma açılır ve numara yalnızca size gösterilir.
+            {identityGated
+              ? 'Kişisel bilgiler adayın onayı olmadan paylaşılmaz. Talep kabul edilirse ad soyad ve izin verilen iletişim bilgileri yalnızca size açılır.'
+              : 'Telefon numarası kamuya açık gösterilmez. Talep kabul edilirse Platform üzerinden mesajlaşma açılır ve numara yalnızca size gösterilir.'}
           </p>
         </div>
         <DialogFooter>
@@ -360,10 +366,13 @@ export function ListingContactCta({
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
         İletişim talebi
       </p>
-      <h3 className="mt-1 text-base font-semibold text-foreground">İlan Sahibiyle İletişime Geç</h3>
+      <h3 className="mt-1 text-base font-semibold text-foreground">
+        {identityGated ? 'Anonim Profille İletişime Geç' : 'İlan Sahibiyle İletişime Geç'}
+      </h3>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Telefon ve ad-soyad kamuya kapalıdır. Talep kabul edilirse yalnızca size açılır; mesajlaşma
-        Platform üzerinden başlar.
+        {identityGated
+          ? 'Bu profil anonimdir. Kişisel bilgiler adayın onayı olmadan paylaşılmaz.'
+          : 'Telefon ve ad-soyad kamuya kapalıdır. Talep kabul edilirse yalnızca size açılır; mesajlaşma Platform üzerinden başlar.'}
       </p>
       <div className="mt-3">
         {canCreate || !user ? primaryButton : statusBlock}

@@ -16,6 +16,7 @@ import {
 } from '@/features/contact-requests/config/contact-request.config';
 import { LEGAL_DOCUMENT_VERSIONS } from '@/features/legal/config/legal-documents.config';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
+import { shouldRevealAcceptedOwnerPii } from '@/features/contact-requests/lib/contact-disclosure';
 
 function effectiveStatus(row: ListingContactRequest, now = new Date()): ContactRequestStatus {
   if (row.status === 'pending' && new Date(row.expiresAt).getTime() < now.getTime()) {
@@ -76,7 +77,7 @@ export class ContactRequestService {
     extras?: { requesterDisplayName?: string | null; listingTitle?: string | null },
   ): Promise<ContactRequestPublicView> {
     const view = toPublicView(row, extras);
-    if (view.effectiveStatus !== 'accepted') {
+    if (!shouldRevealAcceptedOwnerPii(view.effectiveStatus)) {
       return {
         ...view,
         ownerContactPhone: null,
@@ -86,6 +87,7 @@ export class ContactRequestService {
         ownerFullName: null,
       };
     }
+    // PII only via accept-gated SECURITY DEFINER RPCs (ownership enforced in SQL).
     const [phone, identity] = await Promise.all([
       this.listings.getAcceptedRequesterContactPhone(row.listingId),
       this.listings.getAcceptedRequesterOwnerIdentity(row.listingId),

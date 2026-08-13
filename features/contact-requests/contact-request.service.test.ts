@@ -166,6 +166,7 @@ describe('ContactRequestService', () => {
     expect(mine?.effectiveStatus).toBe('accepted');
     expect(mine?.conversationId).toBe(String(CONVERSATION_ID));
     expect(mine?.ownerContactPhone).toBe('+905551234567');
+    expect(mine?.ownerDisplayName).toBe('İlan Sahibi');
 
     const strangerMine = await service.getMineForListing(listingId, STRANGER);
     expect(strangerMine).toBeNull();
