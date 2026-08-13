@@ -45,21 +45,21 @@ type CoreFieldUiMap = Partial<Record<keyof CoreListingFieldsInput, FieldUiMeta>>
 export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMap>> = {
   [CATEGORY_IDS.yatirimBul]: {
     title: {
-      placeholder: 'Örn: B2B SaaS Girişimine Seed Yatırım Arıyoruz',
+      placeholder: 'Örn: Yapay Zeka Tabanlı SaaS Platformumuza Yatırımcı Arıyoruz',
       helperText:
         'Yatırım arayışınızı net yazın. Her kelimenin ilk harfi büyük; e-posta/telefon/küfür yasak.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Girişiminizi, aşamasını ve aradığınız yatırım tutarını 2-3 cümlede özetleyin…',
+        'Örn: KOBİ’lere özel yapay zeka destekli SaaS ürünümüz MVP aşamasında; ürün geliştirme ve satış için 2–5 milyon TL yatırım arıyoruz.',
       helperText:
         'Kartlarda görünür. En az 30 karakter; iletişim bilgisi veya dış link yazmayın.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Ürünü, pazarı, ekibi, kullanım alanını ve yatırımcıdan beklentilerinizi detaylı anlatın…',
+        'Örn: Ürünümüz fatura ve stok süreçlerini otomatikleştiriyor. Hedef pazar Türkiye’deki KOBİ’ler; ilk pilot müşterilerimiz var. Kurucu ekipte ürün ve satış deneyimi bulunuyor. Yatırımı ürün geliştirme, ekip büyütme ve pazarlamaya kullanacağız. Stratejik yatırımcıdan sektör bağlantısı ve büyüme desteği bekliyoruz.',
       helperText:
         'Detay sayfasında gösterilir. En az 100 karakter; iletişim telefon ile yapılır.',
       maxLength: 10000,
@@ -71,48 +71,48 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.yatirimYap]: {
     title: {
-      placeholder: 'Örn: Erken Aşama Fintech Yatırımlarına Odaklıyım',
+      placeholder: 'Örn: Erken Aşama Yapay Zeka ve Fintech Girişimlerine Yatırım Yapıyorum',
       helperText:
         'Yatırımcı profilinizi özetleyen bir başlık yazın. Her kelimenin ilk harfi büyük.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Bilet büyüklüğünüzü, tercih ettiğiniz aşama ve sektörleri 2-3 cümlede yazın…',
+        'Örn: Seed ve pre-seed aşamasında 500 bin–2 milyon TL bilet ile yapay zeka, fintech ve B2B SaaS girişimlerine odaklanıyorum.',
       helperText: 'Kartlarda görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Yatırım stratejinizi, geçmiş deneyiminizi ve kuruculara sunduğunuz değeri anlatın…',
+        'Örn: Operasyonel geçmişim e-ticaret ve yazılım satışında. Portföyümde erken aşama ürünlere go-to-market ve kurumsal satış desteği sunuyorum. Kurucularla düzenli mentorluk yapmayı ve takip turlarında yanlarında olmayı tercih ediyorum. Türkiye merkezli, global potansiyeli olan ekiplere öncelik veriyorum.',
       helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
       maxLength: 10000,
     },
   },
   [CATEGORY_IDS.iseAl]: {
     title: {
-      placeholder: 'Örn: Senior Frontend Developer — Tam Zamanlı',
+      placeholder: 'Örn: Kıdemli Yazılım Geliştirici — Hibrit İstanbul',
       helperText:
         'Pozisyon adını net yazın. Her kelimenin ilk harfi büyük; e-posta/telefon yasak.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Rolü, çalışma modelini ve kısa beklentileri 2-3 cümlede özetleyin…',
+        'Örn: Büyümekte olan ekibimize React ve Node deneyimli, takım çalışmasına yatkın kıdemli yazılım geliştirici arıyoruz; hibrit çalışma.',
       helperText:
         'İş ilanı kartlarında görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Sorumluluklar, aranan nitelikler, yan haklar ve süreç hakkında detay yazın…',
+        'Örn: Ürün geliştirme ekibinde özellik tasarımı ve kod incelemesi yapacaksınız. Arananlar: 4+ yıl deneyim, TypeScript, takım içi iletişim. Sunulanlar: yemek kartı, özel sağlık sigortası, öğrenim desteği. Süreç: telefon görüşmesi, teknik görev ve ekip tanışması. Başlangıç tarihi esnek; ilk ay oryantasyon planı vardır.',
       helperText:
         'Detay sayfasında gösterilir. Adaylar telefon ile ulaşır. En az 100 karakter.',
       maxLength: 10000,
     },
     city: {
-      placeholder: 'Şehir seçin',
-      helperText: 'Pozisyonun lokasyonu veya ofis şehri.',
+      placeholder: 'İl seçin',
+      helperText: 'Pozisyonun ili — ardından ilçe seçebilirsiniz.',
     },
     remotePolicy: {
       placeholder: 'Çalışma modeli seçin',
@@ -121,66 +121,67 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.isBul]: {
     title: {
-      placeholder: 'Örn: Full-stack Geliştirici — Uzaktan Çalışmaya Açık',
+      placeholder: 'Örn: Full-stack Geliştirici — Uzaktan veya Hibrit Çalışmaya Açık',
       helperText:
         'Hedeflediğiniz rolü yazın. Her kelimenin ilk harfi büyük.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Deneyiminizi, uzmanlığınızı ve aradığınız rolü 2-3 cümlede özetleyin…',
+        'Örn: Beş yıllık full-stack deneyimimle ürün ekiplerinde uçtan uca özellik geliştirdim; uzaktan veya hibrit rollere açığım.',
       helperText: 'Profil kartında görünür. En az 30 karakter.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Kariyer özetinizi, öne çıkan projelerinizi ve hedeflerinizi anlatın…',
-      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
+        'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum. Firma adı, telefon veya sosyal medya hesabı yazmıyorum; iletişim platform üzerinden.',
+      helperText:
+        'Detay sayfasında gösterilir. En az 100 karakter. Telefon, e-posta, adres veya firma adı yazmayın.',
       maxLength: 10000,
     },
   },
   [CATEGORY_IDS.ortakBul]: {
     title: {
-      placeholder: 'Örn: Teknik Kurucu Ortak Arıyoruz — SaaS',
+      placeholder: 'Örn: Ürün Odaklı Teknik Kurucu Ortak Arıyoruz',
       helperText:
         'Aradığınız ortaklık tipini başlığa yansıtın. Her kelimenin ilk harfi büyük.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Projenizi, aradığınız uzmanlığı ve ortaklık modelini 2-3 cümlede yazın…',
+        'Örn: Pazara çıkmış mobil ürünümüz için yazılım ve ürün yönetimi deneyimli teknik kurucu ortak arıyoruz; equity konuşulur.',
       helperText:
         'Ortaklık kartlarında görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Vizyonu, mevcut ekibi, equity/taahhüt beklentisini ve neden ortak aradığınızı anlatın…',
+        'Örn: Mevcut ekipte iş geliştirme ve tasarım var; teknik liderlik ve mimari eksik. Haftalık düzenli katkı ve uzun vadeli ortaklık bekliyoruz. Equity aralığı ve roller şeffaf konuşulacak. Tercihen İstanbul veya güçlü uzaktan çalışma disiplinine sahip bir ortak arıyoruz. İlk görüşmede ürün demosu ve yol haritası paylaşılır.',
       helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
       maxLength: 10000,
     },
     city: {
       placeholder: 'Şehir seçin',
-      helperText: 'Ortaklığın yürütüleceği şehir veya uzaktan çalışma notu için konum.',
+      helperText: 'Ortaklığın yürütüleceği şehir (uzaktan ise yine belirtin).',
     },
   },
   [CATEGORY_IDS.bayilikAl]: {
     title: {
-      placeholder: 'Örn: Premium Kahve Markası Franchise Fırsatı',
+      placeholder: 'Örn: Ev Tipi Kahve ve Atıştırmalık Franchise Fırsatı',
       helperText:
         'Marka ve fırsat türünü net yazın. Her kelimenin ilk harfi büyük.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Firmanızın kısa tarihçesini, ne zaman kurulduğunu ve bugüne nasıl geldiğini 2-3 cümlede anlatın…',
+        'Örn: 2016’dan beri büyüyen markamız; eğitim, lokasyon ve açılış desteğiyle yeni franchise ortakları arıyoruz.',
       helperText:
         'Kısa bir firma tarihçesi yazın. Kartlarda görünür; en az 30 karakter.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Marka hikayesini, destek paketini, yatırım aralığını ve franchise modelini detaylı anlatın…',
+        'Örn: Markamız kahve ve atıştırmalık segmentinde hizmet veriyor. Franchise paketine eğitim, standart reçete, pazarlama kiti ve saha desteği dahildir. Yatırım aralığı şehre göre değişir; geri dönüş süresi lokasyona bağlıdır. Adaylardan işletme deneyimi veya güçlü operasyon disiplini bekleriz. Detaylı sunum ve örnek sözleşme görüşmede paylaşılır.',
       helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
       maxLength: 10000,
     },
@@ -191,21 +192,21 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.dijitalAi]: {
     title: {
-      placeholder: 'Örn: Kobi Satışları İçin AI Chatbot',
+      placeholder: 'Örn: KOBİ Satış Ekipleri İçin Yapay Zeka Asistanı',
       helperText:
         'Ürün veya çözüm adını yazın — kart başlığında görünür. Her kelimenin ilk harfi büyük; e-posta/telefon yasak.',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Çözümün ne yaptığını, kime hitap ettiğini ve temel faydasını 2-3 cümlede yazın…',
+        'Örn: Satış ekiplerinin teklif ve takip işlerini hızlandıran, Türkçe konuşan yapay zeka asistanı; abonelik modeliyle sunulur.',
       helperText:
         'Dijital & AI kartlarında bu metin görünür. En az 30 karakter; link veya iletişim bilgisi yazmayın.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Kapsamı, kullanım senaryolarını, entegrasyonları ve teslim modelini detaylı anlatın…',
+        'Örn: Çözüm CRM ve e-posta araçlarıyla entegre çalışır. Kullanım senaryoları: lead nitelendirme, teklif taslağı ve hatırlatma. Kurulum birkaç gün sürer; eğitim ve destek dahildir. KOBİ ve orta ölçekli firmalara uygundur. Fiyat paketlere göre değişir; demo talebi sonrası ihtiyaç analizi yapılır. Veri güvenliği ve KVKK uyumu önceliğimizdir.',
       helperText:
         'Detay sayfasında “ilan içeriği” olarak gösterilir. En az 100 karakter; iletişim telefon ile yapılır.',
       maxLength: 10000,
@@ -217,17 +218,19 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.genelIlan]: {
     title: {
-      placeholder: 'Örn: Ofis Mobilyası Seti — Teklif Alınır',
+      placeholder: 'Örn: Ofis Mobilyası Seti — Toplu Alıma Uygun',
       helperText: 'İlan konusunu net yazın. Her kelimenin ilk harfi büyük.',
       maxLength: 200,
     },
     shortDescription: {
-      placeholder: 'Ürün veya hizmeti 2-3 cümlede özetleyin…',
+      placeholder:
+        'Örn: Az kullanılmış ofis masa ve sandalye seti; yerinde teslim veya nakliye seçenekleri mevcuttur.',
       helperText: 'Kartlarda görünür. En az 30 karakter.',
       maxLength: 500,
     },
     longDescription: {
-      placeholder: 'Durum, teslimat, fiyat ve ek koşulları detaylı yazın…',
+      placeholder:
+        'Örn: Ürünler iyi durumda, petekli ofis kullanımı için uygundur. Adet ve renk seçenekleri stok durumuna göre değişir. Fiyat pazarlığa açıktır; faturalı satış yapılabilir. Teslimat İstanbul içi planlanır, diğer şehirler için kargo maliyeti ayrıca konuşulur. Görüşme sonrası net teklif paylaşılır.',
       helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
       maxLength: 10000,
     },
@@ -306,13 +309,18 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'İlgilendiğiniz sektörleri seçin (birden fazla seçebilirsiniz).',
   },
   investmentFocus: {
-    placeholder: 'Örn. B2B SaaS, erken aşama, Türkiye odaklı…',
+    placeholder: 'Örn: Yapay zeka, erken aşama SaaS ve Türkiye odaklı yatırımlar',
     helperText: 'Yatırım stratejinizi ve odağınızı kısaca tanımlayın.',
     maxLength: 500,
   },
   desiredRole: {
     placeholder: 'Pozisyon seçin',
-    helperText: 'Aradığınız veya hedeflediğiniz pozisyon.',
+    helperText: 'Hedeflediğiniz pozisyonu listeden seçin. Listede yoksa Diğer’i seçip açıklayın.',
+  },
+  desiredRoleOther: {
+    placeholder: 'Örn: E-ticaret operasyon uzmanı — stok ve pazaryeri yönetimi',
+    helperText: 'Pozisyon listede yoksa en az 30 karakterle net yazın.',
+    maxLength: 200,
   },
   experienceLevel: {
     placeholder: 'Deneyim seviyesi seçin',
@@ -331,7 +339,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   workType: {
     placeholder: 'Çalışma tipi seçin',
-    helperText: 'Tam zamanlı, yarı zamanlı veya proje bazlı tercihiniz.',
+    helperText: 'Tam zamanlı, yarı zamanlı, proje bazlı, staj veya sözleşmeli.',
   },
   remotePreference: {
     placeholder: 'Uzaktan çalışma tercihi seçin',
@@ -339,7 +347,79 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   positionTitle: {
     placeholder: 'Pozisyon seçin',
-    helperText: 'Açtığınız pozisyonu listeden seçin.',
+    helperText: 'Açtığınız pozisyonu listeden seçin. Yoksa Diğer’i seçip açıklayın.',
+  },
+  positionTitleOther: {
+    placeholder: 'Örn: Magento e-ticaret uzmanı — katalog ve kampanya yönetimi',
+    helperText: 'Pozisyon listede yoksa en az 30 karakterle net yazın.',
+    maxLength: 200,
+  },
+  preferredCity: {
+    placeholder: 'İl seçin',
+    helperText: 'Çalışmak istediğiniz ili seçin; ardından ilçe seçebilirsiniz.',
+  },
+  preferredDistrict: {
+    placeholder: 'İlçe seçin',
+    helperText: 'Tercih ettiğiniz ilçe. Listede yoksa Diğer’i seçip yazın.',
+  },
+  preferredDistrictOther: {
+    placeholder: 'Örn: Yeni mahalle / belde adı',
+    helperText: 'İlçe listede yoksa kısaca yazın.',
+    maxLength: 120,
+  },
+  district: {
+    placeholder: 'İlçe seçin',
+    helperText: 'Pozisyonun ilçesi. Listede yoksa Diğer’i seçip yazın.',
+  },
+  districtOther: {
+    placeholder: 'Örn: Yeni mahalle / belde adı',
+    helperText: 'İlçe listede yoksa kısaca yazın.',
+    maxLength: 120,
+  },
+  professionalSkills: {
+    placeholder: 'Örn: Müşteri ilişkileri, saha satışı, ekip koordinasyonu ve raporlama',
+    helperText: 'En güçlü mesleki yetkinliklerinizi virgülle ayırarak yazın (en az 30 karakter).',
+    maxLength: 1000,
+  },
+  technicalSkills: {
+    placeholder: 'Örn: Excel ileri seviye, SAP temel, CRM kullanımı ve veri analizi',
+    helperText: 'Teknik araç ve yöntemlerinizi yazın.',
+    maxLength: 1000,
+  },
+  leadershipExperience: {
+    placeholder: 'Örn: 8 kişilik saha ekibini yönettim; hedef ve performans takibi yaptım',
+    helperText: 'Yönetim veya liderlik deneyiminiz varsa kısaca yazın.',
+    maxLength: 1000,
+  },
+  tools: {
+    placeholder: 'Örn: Notion, Jira, Figma, Google Workspace, Slack',
+    helperText: 'Günlük kullandığınız araç ve programlar.',
+    maxLength: 500,
+  },
+  educationField: {
+    placeholder: 'Örn: Bilgisayar Mühendisliği / İşletme',
+    helperText: 'Mezun olduğunuz veya okuduğunuz bölüm.',
+    maxLength: 200,
+  },
+  languages: {
+    placeholder: 'Örn: İngilizce — İyi, Almanca — Temel',
+    helperText: 'Dil ve seviyenizi yazın (belge yükleme yok).',
+    maxLength: 500,
+  },
+  certificates: {
+    placeholder: 'Örn: Google Analytics, PMP, Forklift operatör belgesi',
+    helperText: 'Var ise sertifika adlarını yazın.',
+    maxLength: 500,
+  },
+  preferredRoles: {
+    placeholder: 'Örn: Satış uzmanı, müşteri başarı, hesap yöneticisi',
+    helperText: 'Açık olduğunuz ek pozisyonları yazabilirsiniz.',
+    maxLength: 300,
+  },
+  sectorOther: {
+    placeholder: 'Örn: Medikal cihaz dağıtımı ve saha teknik servis',
+    helperText: 'Sektör listede yoksa en az 30 karakterle açıklayın.',
+    maxLength: 200,
   },
   partnershipType: {
     placeholder: 'Ortaklık tipi seçin',
@@ -483,11 +563,11 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
 
 export const META_FIELD_UI: Record<string, FieldUiMeta> = {
   tags: {
-    helperText: 'Kategorinize uygun etiketleri seçin. En fazla 10 etiket.',
+    helperText: 'Pozisyon için gerekli dilleri seçin. En fazla 10 etiket.',
   },
   images: {
     helperText:
-      'Sürükleyerek sıralayın. İlk görsel kapak olur. En az 640×360 px; en fazla 10 görsel.',
+      'JPEG, PNG, WebP veya GIF. Sürükleyerek sıralayın; ilk görsel kapak olur. En az 640×360 px, en fazla 5 MB / görsel, en fazla 10 görsel.',
   },
 };
 

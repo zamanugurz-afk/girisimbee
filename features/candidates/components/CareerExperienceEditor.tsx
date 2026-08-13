@@ -9,7 +9,7 @@ import {
   createEmptyCareerExperience,
   type CareerExperience,
 } from '@/features/candidates/config/career-profile-fields';
-import { INVESTOR_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { cn } from '@/lib/utils';
 
 export function CareerExperienceEditor({
@@ -81,7 +81,7 @@ export function CareerExperienceEditor({
                 onChange={(e) => updateRow(row.id, { sector: e.target.value })}
               >
                 <option value="">Seçin</option>
-                {INVESTOR_SECTOR_OPTIONS.map((opt) => (
+                {JOB_SECTOR_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>
@@ -94,7 +94,7 @@ export function CareerExperienceEditor({
                 id={`role-${row.id}`}
                 value={row.role}
                 disabled={disabled}
-                placeholder="Örn. Satış Yöneticisi"
+                placeholder="Örn: Saha Satış Uzmanı"
                 onChange={(e) => updateRow(row.id, { role: e.target.value })}
               />
             </div>
@@ -106,7 +106,7 @@ export function CareerExperienceEditor({
               id={`duration-${row.id}`}
               value={row.duration}
               disabled={disabled}
-              placeholder="Örn. 3 yıl · 2021–2024"
+              placeholder="Örn: 3 yıl · 2021–2024"
               onChange={(e) => updateRow(row.id, { duration: e.target.value })}
             />
           </div>
@@ -118,7 +118,7 @@ export function CareerExperienceEditor({
               rows={3}
               value={row.responsibilities}
               disabled={disabled}
-              placeholder="Satış ekibi yönetimi, kanal geliştirme…"
+              placeholder="Örn: Müşteri ziyaretleri, hedef takibi, teklif hazırlama ve ekip içi raporlama yaptım."
               onChange={(e) => updateRow(row.id, { responsibilities: e.target.value })}
             />
           </div>
@@ -130,7 +130,7 @@ export function CareerExperienceEditor({
               rows={2}
               value={row.achievements}
               disabled={disabled}
-              placeholder="İsteğe bağlı"
+              placeholder="Örn: Bölge cirosunu bir yılda yüzde 30 artırdım (isteğe bağlı)"
               onChange={(e) => updateRow(row.id, { achievements: e.target.value })}
             />
           </div>

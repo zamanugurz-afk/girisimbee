@@ -83,6 +83,52 @@ function isPaidPublishCategory(categoryId: CategoryId): boolean {
   return packageVariantForCategory(categoryId) !== 'placement';
 }
 
+/** When “Diğer” is selected, require a free-text explanation (≥30 chars). */
+function collectOtherDetailErrors(
+  customFields: Record<string, unknown>,
+  stepKeys: string[],
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const keys = new Set(stepKeys);
+
+  function requireOther(parentOk: boolean, otherKey: string, label: string) {
+    if (!parentOk || !keys.has(otherKey)) return;
+    const text = String(customFields[otherKey] ?? '').trim();
+    if (text.length < 30) {
+      errors[otherKey] = `${label} en az 30 karakter olmalıdır.`;
+    }
+  }
+
+  requireOther(
+    String(customFields.desiredRole ?? '') === 'Diğer',
+    'desiredRoleOther',
+    'Pozisyon açıklaması',
+  );
+  requireOther(
+    String(customFields.positionTitle ?? '') === 'Diğer',
+    'positionTitleOther',
+    'Pozisyon açıklaması',
+  );
+  requireOther(
+    Array.isArray(customFields.preferredSectors)
+      && customFields.preferredSectors.map(String).includes('Diğer'),
+    'sectorOther',
+    'Sektör açıklaması',
+  );
+  requireOther(
+    String(customFields.preferredDistrict ?? '') === 'Diğer',
+    'preferredDistrictOther',
+    'İlçe açıklaması',
+  );
+  requireOther(
+    String(customFields.district ?? '') === 'Diğer',
+    'districtOther',
+    'İlçe açıklaması',
+  );
+
+  return errors;
+}
+
 function defaultPackageSelectionFor(categoryId: CategoryId): ListingPackageSelectionValue {
   return isPaidPublishCategory(categoryId)
     ? { ...DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION }
@@ -247,7 +293,9 @@ export function CategoryListingForm({
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
     || categoryId === CATEGORY_IDS.iseAl
-    || categoryId === CATEGORY_IDS.bayilikAl;
+    || categoryId === CATEGORY_IDS.bayilikAl
+    || categoryId === CATEGORY_IDS.yatirimBul
+    || categoryId === CATEGORY_IDS.ortakBul;
   const isLastStep = stepIndex === steps.length - 1;
   const isFirstStep = stepIndex === 0;
 
@@ -417,6 +465,32 @@ export function CategoryListingForm({
       return next;
     });
   }, [fieldByKey]);
+
+  const handleCustomFieldChange = useCallback(
+    (key: string, value: unknown) => {
+      setCustomField(key, value);
+      if (key === 'preferredCity') {
+        setCustomField('preferredDistrict', '');
+        setCustomField('preferredDistrictOther', '');
+      }
+      if (key === 'preferredDistrict' && value !== 'Diğer') {
+        setCustomField('preferredDistrictOther', '');
+      }
+      if (key === 'district' && value !== 'Diğer') {
+        setCustomField('districtOther', '');
+      }
+      if (key === 'desiredRole' && value !== 'Diğer') {
+        setCustomField('desiredRoleOther', '');
+      }
+      if (key === 'positionTitle' && value !== 'Diğer') {
+        setCustomField('positionTitleOther', '');
+      }
+      if (key === 'preferredSectors' && Array.isArray(value) && !value.map(String).includes('Diğer')) {
+        setCustomField('sectorOther', '');
+      }
+    },
+    [setCustomField],
+  );
 
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
     setCore(next);
@@ -629,6 +703,15 @@ export function CategoryListingForm({
         },
         'full',
       );
+
+      const otherDetailErrors = collectOtherDetailErrors(mergedCustomFields, stepCustomKeys);
+      if (Object.keys(otherDetailErrors).length > 0) {
+        setFieldErrors(otherDetailErrors);
+        scheduleScrollToFirstError(otherDetailErrors);
+        toast.error('Lütfen “Diğer” seçimi için açıklama alanını doldurun.');
+        return false;
+      }
+
       console.log('[ListingForm] validateCurrentStep: passed', {
         stepIndex,
         stepId: currentStep.id,
@@ -1042,9 +1125,13 @@ export function CategoryListingForm({
                     key={key}
                     field={field}
                     value={mergedCustomFields[key]}
-                    onChange={(val) => setCustomField(key, val)}
+                    onChange={(val) => handleCustomFieldChange(key, val)}
                     error={resolveFieldError(fieldErrors, key)}
                     disabled={disabled || isBusy}
+                    context={{
+                      values: mergedCustomFields,
+                      coreCity: core.city ?? null,
+                    }}
                   />
                 );
               })}
@@ -1052,7 +1139,14 @@ export function CategoryListingForm({
               {currentStep.coreFields && currentStep.coreFields.length > 0 && (
                 <CoreListingFields
                   values={core}
-                  onChange={handleCoreChange}
+                  onChange={(next) => {
+                    const cityChanged = next.city !== core.city;
+                    handleCoreChange(next);
+                    if (cityChanged) {
+                      setCustomField('district', '');
+                      setCustomField('districtOther', '');
+                    }
+                  }}
                   include={currentStep.coreFields}
                   extendedCities={usesExtendedCities && currentStep.coreFields.includes('city')}
                   labels={getCoreFieldLabelsForCategory(categoryId)}
@@ -1076,9 +1170,13 @@ export function CategoryListingForm({
                     key={key}
                     field={field}
                     value={mergedCustomFields[key]}
-                    onChange={(val) => setCustomField(key, val)}
+                    onChange={(val) => handleCustomFieldChange(key, val)}
                     error={resolveFieldError(fieldErrors, key)}
                     disabled={disabled || isBusy}
+                    context={{
+                      values: mergedCustomFields,
+                      coreCity: core.city ?? null,
+                    }}
                   />
                 );
               })}

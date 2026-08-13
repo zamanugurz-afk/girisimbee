@@ -14,6 +14,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
+import { CitySelect } from '@/features/listings/form/fields/city-select';
+import { DistrictSelect } from '@/features/listings/form/fields/district-select';
 import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digital-ai-capability-picker';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
@@ -27,17 +29,64 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'displayName',
 ]);
 
+const CITY_FIELD_KEYS = new Set(['preferredCity']);
+const DISTRICT_FIELD_KEYS = new Set(['preferredDistrict', 'district']);
+
+/** Shown only when the related parent selection is "Diğer". */
+const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown) => boolean }> = {
+  desiredRoleOther: {
+    parentKey: 'desiredRole',
+    match: (v) => String(v ?? '') === 'Diğer',
+  },
+  positionTitleOther: {
+    parentKey: 'positionTitle',
+    match: (v) => String(v ?? '') === 'Diğer',
+  },
+  sectorOther: {
+    parentKey: 'preferredSectors',
+    match: (v) => Array.isArray(v) && v.map(String).includes('Diğer'),
+  },
+  preferredDistrictOther: {
+    parentKey: 'preferredDistrict',
+    match: (v) => String(v ?? '') === 'Diğer',
+  },
+  districtOther: {
+    parentKey: 'district',
+    match: (v) => String(v ?? '') === 'Diğer',
+  },
+};
+
+export interface DynamicFieldContext {
+  /** Sibling custom + core values for dependent fields (city → district). */
+  values?: Record<string, unknown>;
+  coreCity?: string | null;
+}
+
 export interface DynamicFieldProps {
   field: ListingFieldDefinition;
   value: unknown;
   onChange: (value: unknown) => void;
   error?: string;
   disabled?: boolean;
+  context?: DynamicFieldContext;
 }
 
-export function DynamicField({ field, value, onChange, error, disabled }: DynamicFieldProps) {
+export function DynamicField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+  context,
+}: DynamicFieldProps) {
   const id = `field-${field.key}`;
   const ui = getCustomFieldUi(field.key);
+
+  const otherGate = OTHER_DETAIL_GATES[field.key];
+  if (otherGate) {
+    const parentValue = context?.values?.[otherGate.parentKey];
+    if (!otherGate.match(parentValue)) return null;
+  }
 
   if (field.key === 'capabilities') {
     return (
@@ -71,6 +120,7 @@ export function DynamicField({ field, value, onChange, error, disabled }: Dynami
         disabled={disabled}
         error={error}
         ui={ui}
+        context={context}
       />
     </div>
   );
@@ -84,6 +134,7 @@ function FieldControl({
   disabled,
   error,
   ui,
+  context,
 }: {
   id: string;
   field: ListingFieldDefinition;
@@ -92,6 +143,7 @@ function FieldControl({
   disabled?: boolean;
   error?: string;
   ui: ReturnType<typeof getCustomFieldUi>;
+  context?: DynamicFieldContext;
 }) {
   const stringValue = String(value ?? '');
   const stringLength = stringValue.length;
@@ -100,6 +152,44 @@ function FieldControl({
     if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
     const next = normalizeListingTitle(stringValue);
     if (next !== stringValue) onChange(next);
+  }
+
+  if (CITY_FIELD_KEYS.has(field.key)) {
+    return (
+      <>
+        <CitySelect
+          id={id}
+          value={stringValue || null}
+          onChange={(city) => onChange(city ?? '')}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'İl seçin'}
+          extended
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (DISTRICT_FIELD_KEYS.has(field.key)) {
+    const city =
+      field.key === 'preferredDistrict'
+        ? String(context?.values?.preferredCity ?? '')
+        : (context?.coreCity ?? String(context?.values?.city ?? ''));
+    return (
+      <>
+        <DistrictSelect
+          id={id}
+          city={city || null}
+          value={stringValue || null}
+          onChange={(district) => onChange(district ?? '')}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'İlçe seçin'}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
   }
 
   switch (field.type) {

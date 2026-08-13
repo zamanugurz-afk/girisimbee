@@ -50,10 +50,27 @@ function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
   let schema: z.ZodTypeAny;
 
   switch (field.type) {
-    case 'string':
-      schema = z.string();
-      if (field.max !== undefined) schema = (schema as z.ZodString).max(field.max);
+    case 'string': {
+      let stringSchema = z.string();
+      if (field.max !== undefined) {
+        stringSchema = stringSchema.max(field.max);
+      }
+      if (field.min !== undefined) {
+        const min = field.min;
+        const message = `${field.label} en az ${min} karakter olmalıdır.`;
+        if (field.required) {
+          stringSchema = stringSchema.min(min, message);
+        } else {
+          schema = stringSchema.refine(
+            (val) => !val.trim() || val.trim().length >= min,
+            { message },
+          );
+          break;
+        }
+      }
+      schema = stringSchema;
       break;
+    }
     case 'number':
     case 'currency':
       schema = z.coerce.number();

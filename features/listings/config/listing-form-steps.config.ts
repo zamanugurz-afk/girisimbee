@@ -134,8 +134,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'details',
       title: 'Detaylı Açıklama',
-      description: 'Ürün, pazar, ekip ve yatırımcıya vaadinizi anlatın',
-      coreFields: ['longDescription'],
+      description: 'Ürün, pazar, ekip, konum ve yatırımcıya vaadinizi anlatın',
+      coreFields: ['longDescription', 'city'],
     },
     {
       id: 'investment-seeking',
@@ -176,8 +176,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'details',
       title: 'Detaylı Açıklama',
-      description: 'Vizyon, ekip ve ortaklık beklentinizi anlatın',
-      coreFields: ['longDescription'],
+      description: 'Vizyon, ekip, konum ve ortaklık beklentinizi anlatın',
+      coreFields: ['longDescription', 'city'],
     },
     {
       id: 'partnership',
@@ -192,7 +192,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       id: 'basics',
       title: 'Temel Bilgiler',
       description: 'Aranan pozisyon, kariyer seviyesi ve çalışma tercihi',
-      customFieldKeys: ['desiredRole', 'experienceLevel', 'workType'],
+      customFieldKeys: ['desiredRole', 'desiredRoleOther', 'experienceLevel', 'workType'],
     },
     {
       id: 'experience',
@@ -220,11 +220,14 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'preferences',
       title: 'Kariyer Tercihleri',
-      description: 'Sektör, şehir, çalışma modeli ve ücret beklentisi',
+      description: 'Sektör, il / ilçe, çalışma modeli ve ücret beklentisi',
       customFieldKeys: [
         'preferredSectors',
+        'sectorOther',
         'preferredRoles',
         'preferredCity',
+        'preferredDistrict',
+        'preferredDistrictOther',
         'workplacePreference',
         'salaryExpectation',
         'availability',
@@ -248,20 +251,27 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'details',
       title: 'Detaylı Açıklama',
-      description: 'Sorumluluklar, nitelikler ve süreç detaylarını yazın',
+      description: 'Sorumluluklar, nitelikler, il ve süreç detaylarını yazın',
       coreFields: ['longDescription', 'city'],
     },
     {
       id: 'hiring',
       title: 'Pozisyon Detayları',
-      description: 'Açık rol, maaş aralığı ve çalışma tipi',
-      customFieldKeys: 'all',
+      description: 'Rol, ilçe, maaş, çalışma tipi ve dil tercihleri',
+      customFieldKeys: [
+        'positionTitle',
+        'positionTitleOther',
+        'district',
+        'districtOther',
+        'salaryRange',
+        'workType',
+      ],
+      meta: ['tags'],
     },
-    STEP_LANGUAGE_TAGS,
     {
       id: 'images',
       title: 'Firma Görseli',
-      description: 'İsteğe bağlı — firma görselinizi ekleyerek ilanınızı destekleyin',
+      description: 'İsteğe bağlı — kapak görseli ekleyin (en az 640×360, en fazla 10 görsel)',
       meta: ['images'],
     },
   ),

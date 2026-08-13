@@ -1,3 +1,5 @@
+import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+
 /** Predefined investment amount ranges — stored as display strings in customFields. */
 export const INVESTMENT_AMOUNT_RANGES = [
   '500.000 TL\'ye kadar',
@@ -27,6 +29,37 @@ export const INVESTOR_SECTOR_OPTIONS = [
   'Medya & içerik',
   'İnsan kaynakları teknolojisi',
   'Proptech',
+  'İklim teknolojisi',
+  'Tarım teknolojisi',
+  'Diğer',
+] as const;
+
+/** Career / hiring sectors — broader job market (not only startups). */
+export const JOB_SECTOR_OPTIONS = [
+  'Bilişim / Yazılım',
+  'Yapay zeka / Veri',
+  'E-ticaret / Pazaryeri',
+  'Finans / Bankacılık',
+  'Sigorta',
+  'Üretim / Sanayi',
+  'İnşaat / Gayrimenkul',
+  'Lojistik / Depolama',
+  'Perakende / Mağaza',
+  'Gıda / Restoran',
+  'Turizm / Otelcilik',
+  'Sağlık',
+  'Eğitim',
+  'Pazarlama / Reklam',
+  'İnsan kaynakları',
+  'Müşteri hizmetleri',
+  'Satış',
+  'Hukuk',
+  'Kamu / Belediye',
+  'Enerji',
+  'Otomotiv',
+  'Tarım',
+  'Medya / İçerik',
+  'Danışmanlık',
   'Diğer',
 ] as const;
 
@@ -37,7 +70,8 @@ export const SALARY_RANGES = [
   '50.000 - 75.000 TL',
   '75.000 - 100.000 TL',
   '100.000 - 150.000 TL',
-  '150.000 TL ve üzeri',
+  '150.000 - 200.000 TL',
+  '200.000 TL ve üzeri',
 ] as const;
 
 /** Hiring salary range options — single-select. */
@@ -46,7 +80,9 @@ export const HIRING_SALARY_RANGES = [
   '35.000–50.000 TL',
   '50.000–75.000 TL',
   '75.000–100.000 TL',
-  '100.000+ TL',
+  '100.000–150.000 TL',
+  '150.000–200.000 TL',
+  '200.000+ TL',
 ] as const;
 
 /** Investment usage areas — multi-select for seeking investment. */
@@ -70,19 +106,24 @@ export const JOB_POSITION_OPTIONS = [
   'Aşçı',
   'Aşçı yardımcısı',
   'Avukat',
+  'Backend geliştirici',
   'Bakım teknisyeni',
   'Bankacı / banka personeli',
   'Barista',
   'Berber / kuaför',
   'Bilgisayar teknik servis',
   'Boyacı',
+  'Business analyst',
   'Büro personeli',
   'Çağrı merkezi satış temsilcisi',
   'Çağrı merkezi temsilcisi',
   'Çaycı / ofis destek',
   'Çelik işçisi',
   'Çiftçi / tarım işçisi',
+  'Data engineer',
   'Depo görevlisi',
+  'DevOps / Cloud mühendisi',
+  'Dijital pazarlama uzmanı',
   'Diş teknisyeni',
   'Eczane teknisyeni',
   'Eğitmen / öğretmen',
@@ -91,16 +132,20 @@ export const JOB_POSITION_OPTIONS = [
   'Fabrika işçisi',
   'Finans uzmanı',
   'Forklift operatörü',
+  'Frontend geliştirici',
+  'Full-stack geliştirici',
   'Garson',
   'Gayrimenkul danışmanı',
   'Grafik tasarımcı',
   'Güvenlik görevlisi',
   'Hasta bakıcı',
+  'Hesap yöneticisi',
   'Hemşire',
   'Host / hostes',
   'İç mimar',
   'İnsan kaynakları uzmanı',
   'İnşaat işçisi',
+  'İş analisti',
   'İş makinesi operatörü',
   'Kasiyer',
   'Kaynakçı',
@@ -111,11 +156,14 @@ export const JOB_POSITION_OPTIONS = [
   'Market personeli',
   'Mimar',
   'Mobilya ustası',
+  'Mobil uygulama geliştirici',
   'Muhasebeci',
   'Mühendis (elektrik)',
+  'Mühendis (endüstri)',
   'Mühendis (inşaat)',
   'Mühendis (makine)',
   'Mühendis (yazılım)',
+  'Müşteri başarı uzmanı',
   'Müşteri temsilcisi',
   'Ofis yöneticisi',
   'Operasyon uzmanı',
@@ -124,12 +172,16 @@ export const JOB_POSITION_OPTIONS = [
   'Otel resepsiyonisti',
   'Pazarlama uzmanı',
   'Personel servis şoförü',
+  'Product designer / UX',
   'Proje yöneticisi',
+  'QA / Test uzmanı',
   'Resepsiyonist',
   'Saha satış uzmanı',
   'Satış danışmanı',
+  'Satış temsilcisi',
   'Sekreter',
   'Servis elemanı',
+  'Sosyal medya uzmanı',
   'Şef / mutfak şefi',
   'Şoför (hafif ticari)',
   'Şoför (kamyon / TIR)',
@@ -140,10 +192,12 @@ export const JOB_POSITION_OPTIONS = [
   'Temizlik görevlisi',
   'Tesisatçı',
   'Torna / freze operatörü',
+  'UI/UX tasarımcı',
   'Üretim işçisi',
   'Ürün yöneticisi',
   'Veri analisti',
   'Veteriner teknisyeni',
+  'Yapay zeka / ML mühendisi',
   'Yazılım geliştirici',
   'Diğer',
 ] as const;
@@ -192,7 +246,7 @@ export const EXPERIENCE_LEVELS = [
   'Direktör',
 ] as const;
 
-/** Work preference for job-seeker career profiles. */
+/** Work preference for job-seeker + hiring listings (shared). */
 export const CAREER_WORK_TYPE_OPTIONS = [
   'Tam zamanlı',
   'Yarı zamanlı',
@@ -200,6 +254,9 @@ export const CAREER_WORK_TYPE_OPTIONS = [
   'Staj',
   'Sözleşmeli',
 ] as const;
+
+/** Alias — keep hire/seek work-type lists identical. */
+export const HIRING_WORK_TYPE_OPTIONS = CAREER_WORK_TYPE_OPTIONS;
 
 /** Workplace preference. */
 export const CAREER_WORKPLACE_OPTIONS = [
@@ -246,6 +303,9 @@ export const LANGUAGE_OPTIONS = [
   'Almanca',
   'Fransızca',
   'Arapça',
+  'Rusça',
+  'İspanyolca',
+  'Çince',
 ] as const;
 
 /** Franchise sector / brand category options. */
@@ -316,22 +376,9 @@ export const FRANCHISE_BUSINESS_CATEGORY_OPTIONS = [
   'Diğer',
 ] as const;
 
-/** Major cities for franchise availability multi-select. */
+/** All provinces + nationwide for franchise availability multi-select. */
 export const FRANCHISE_CITY_OPTIONS = [
-  'İstanbul',
-  'Ankara',
-  'İzmir',
-  'Bursa',
-  'Antalya',
-  'Adana',
-  'Konya',
-  'Gaziantep',
-  'Kocaeli',
-  'Mersin',
-  'Eskişehir',
-  'Samsun',
-  'Trabzon',
-  'Diyarbakır',
+  ...TURKISH_CITIES,
   'Tüm Türkiye',
 ] as const;
 
