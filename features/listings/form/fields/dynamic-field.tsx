@@ -34,8 +34,9 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'displayName',
 ]);
 
-const CITY_FIELD_KEYS = new Set(['preferredCity']);
-const DISTRICT_FIELD_KEYS = new Set(['preferredDistrict', 'district']);
+const CITY_FIELD_KEYS = new Set(['preferredCity', 'residenceCity']);
+const DISTRICT_FIELD_KEYS = new Set(['preferredDistrict', 'district', 'residenceDistrict']);
+const DATE_FIELD_KEYS = new Set(['birthDate']);
 
 function isManualOtherSelection(value: unknown): boolean {
   const v = String(value ?? '');
@@ -181,10 +182,30 @@ function FieldControl({
     );
   }
 
+  if (DATE_FIELD_KEYS.has(field.key)) {
+    return (
+      <>
+        <Input
+          id={id}
+          type="date"
+          lang="tr"
+          value={stringValue}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          max={new Date().toISOString().slice(0, 10)}
+          className={formControlErrorClass(error)}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
   if (DISTRICT_FIELD_KEYS.has(field.key)) {
     const city =
       field.key === 'preferredDistrict'
         ? String(context?.values?.preferredCity ?? '')
+        : field.key === 'residenceDistrict'
+          ? String(context?.values?.residenceCity ?? '')
         : (context?.coreCity ?? String(context?.values?.city ?? ''));
     return (
       <>

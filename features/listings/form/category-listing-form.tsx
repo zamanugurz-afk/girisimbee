@@ -19,6 +19,7 @@ import {
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
   getCoreFieldUiOverridesForCategory,
@@ -55,7 +56,11 @@ import {
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
-import { buildCareerSummaryDraft } from '@/features/candidates/lib/career-summary';
+import {
+  buildCareerSummaryDraft,
+  polishCareerSummary,
+  stripCareerContactFluff,
+} from '@/features/candidates/lib/career-summary';
 import {
   materializeCareerEducationFields,
   materializeCareerSkillsFields,
@@ -70,7 +75,6 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { getSampleListingValues } from '@/features/listings/form/sample-listing-values';
 import {
-  formatDraftAge,
   useListingFormAutosave,
   buildListingDraftStorageKey,
 } from '@/features/listings/hooks/use-listing-form-autosave';
@@ -356,8 +360,20 @@ export function CategoryListingForm({
   }, [categoryId, mergedCustomFields]);
 
   useEffect(() => {
+    if (categoryId !== CATEGORY_IDS.isBul) return;
+    const current = core.longDescription ?? '';
+    const stripped = stripCareerContactFluff(current);
+    if (stripped !== current) {
+      setCore((prev) => {
+        const next = stripCareerContactFluff(prev.longDescription);
+        return next === prev.longDescription ? prev : { ...prev, longDescription: next };
+      });
+    }
+  }, [categoryId, core.longDescription]);
+
+  useEffect(() => {
     if (!isCareerSummaryStep || !careerSummaryDraft) return;
-    const current = (core.longDescription ?? '').trim();
+    const current = polishCareerSummary(core.longDescription);
     if (!current || current === lastAutoCareerSummaryRef.current) {
       lastAutoCareerSummaryRef.current = careerSummaryDraft;
       setCore((prev) => (
@@ -442,24 +458,19 @@ export function CategoryListingForm({
       return;
     }
 
-    const age = formatDraftAge(meta.savedAt);
-    const shouldRestore = window.confirm(
-      `Kaydedilmiş taslak bulundu (${age}). Devam etmek ister misiniz?\n\nTamam = taslağı yükle · İptal = taslağı sil ve sıfırdan başla`,
-    );
-
-    if (!shouldRestore) {
-      clearDraft();
-      setRestoredDraft(true);
-      toast.message('Taslak silindi. Sıfırdan başlıyorsunuz.');
-      return;
-    }
-
     const draft = restoreDraft();
     if (!draft) {
       setRestoredDraft(true);
       return;
     }
-    setCore({ ...defaults.core, ...draft.core });
+    setCore({
+      ...defaults.core,
+      ...draft.core,
+      longDescription:
+        categoryId === CATEGORY_IDS.isBul
+          ? stripCareerContactFluff(draft.core?.longDescription)
+          : (draft.core?.longDescription ?? defaults.core.longDescription),
+    });
     setCustomFields(
       mergeCustomFieldDefaults(listingType.fieldSchema, draft.customFields),
     );
@@ -575,6 +586,9 @@ export function CategoryListingForm({
       if (key === 'preferredCity') {
         setCustomField('preferredDistrict', '');
         setCustomField('preferredDistrictOther', '');
+      }
+      if (key === 'residenceCity') {
+        setCustomField('residenceDistrict', '');
       }
       if (key === 'preferredDistrict' && value !== 'Diğer') {
         setCustomField('preferredDistrictOther', '');
@@ -1204,6 +1218,18 @@ export function CategoryListingForm({
                 availability: String(mergedCustomFields.availability ?? ''),
                 longDescription: core.longDescription,
                 experiences: parseCareerExperiences(mergedCustomFields.experiences),
+                birthDate: String(mergedCustomFields.birthDate ?? ''),
+                residenceCity: String(mergedCustomFields.residenceCity ?? ''),
+                residenceDistrict: String(mergedCustomFields.residenceDistrict ?? ''),
+                personalInfoPreview: true,
+                coverUrl: resolveListingCoverUrl({
+                  listingTypeSlug: 'is-ariyorum',
+                  sector: String(mergedCustomFields.primarySector ?? ''),
+                  role: isManualCareerOption(mergedCustomFields.desiredRole)
+                    ? String(mergedCustomFields.desiredRoleOther ?? '')
+                    : String(mergedCustomFields.desiredRole ?? ''),
+                  gender: String(mergedCustomFields.profileGender ?? ''),
+                }),
               }}
             />
           )}

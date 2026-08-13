@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  resolveCareerCoverGender,
   resolveCareerCoverTheme,
   resolveDefaultListingCover,
   resolveListingCoverUrl,
@@ -9,10 +10,43 @@ describe('career listing covers', () => {
   it('maps professions to distinct cover themes', () => {
     expect(resolveCareerCoverTheme('Sağlık', 'Hemşire')).toBe('saglik');
     expect(resolveCareerCoverTheme('Bilişim / Yazılım', 'Backend geliştirici')).toBe('yazilim');
-    expect(resolveCareerCoverTheme('Sigorta', 'Sigorta satış uzmanı')).toBe('satis');
+    expect(resolveCareerCoverTheme('Sigorta', 'Sigorta satış uzmanı')).toBe('sigorta');
     expect(resolveCareerCoverTheme('Finans / Bankacılık', 'Mali müşavir')).toBe('finans');
+    expect(resolveCareerCoverTheme('Finans / Bankacılık', 'Kredi uzmanı')).toBe('finans');
     expect(resolveCareerCoverTheme('Eğitim', 'Öğretmen')).toBe('egitim');
     expect(resolveCareerCoverTheme('Üretim / Sanayi', 'Üretim mühendisi')).toBe('uretim');
+    expect(resolveCareerCoverTheme('Otomotiv', 'Servis danışmanı')).toBe('satis');
+    expect(resolveCareerCoverTheme(null, 'Servis danışmanı')).toBe('satis');
+  });
+
+  it('picks a person cover from private gender + profession', () => {
+    expect(resolveCareerCoverGender('Erkek')).toBe('erkek');
+    expect(resolveCareerCoverGender('Kadın')).toBe('kadin');
+    expect(resolveCareerCoverGender('Belirtmek istemiyorum')).toBeNull();
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Sigorta',
+        role: 'Underwriter',
+        gender: 'Erkek',
+      }),
+    ).toBe('/covers/career-erkek-sigorta.jpg');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Sigorta',
+        role: 'Underwriter',
+        gender: 'Kadın',
+      }),
+    ).toBe('/covers/career-kadin-sigorta.jpg');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Finans / Bankacılık',
+        role: 'Kredi uzmanı',
+        gender: 'Erkek',
+      }),
+    ).toBe('/covers/career-erkek-finans.jpg');
   });
 
   it('uses profession covers only for İş Arıyorum fallbacks', () => {
@@ -23,6 +57,21 @@ describe('career listing covers', () => {
         role: 'Hemşire',
       }),
     ).toBe('/covers/career-saglik.jpg');
+
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Otomotiv',
+        role: 'Servis danışmanı',
+      }),
+    ).toBe('/covers/career-satis.jpg');
+
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-bul',
+        role: 'Servis danışmanı',
+      }),
+    ).toBe('/covers/career-satis.jpg');
 
     expect(
       resolveDefaultListingCover({

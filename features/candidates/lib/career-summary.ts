@@ -23,6 +23,35 @@ export type CareerSummaryInput = {
   experiences?: CareerExperience[];
 };
 
+const CONTACT_FLUFF = [
+  /[İIıi]leti[sş]im platform üzerinden yapılır;\s*telefon,\s*e-posta veya firma adı paylaşmıyorum\.?/gi,
+  /[İIıi]leti[sş]im platform üzerinden yapılır[^.]*\./gi,
+  /telefon,\s*e-posta veya firma adı paylaşmıyorum\.?/gi,
+  /Firma adı,\s*telefon veya sosyal medya hesabı yazmıyorum[^.]*\./gi,
+  /[İIıi]leti[sş]im platform üzerinden\.?/gi,
+];
+
+/** Removes leftover contact-policy sentences without flattening the rest of the text. */
+export function stripCareerContactFluff(text: string | null | undefined): string {
+  const source = text ?? '';
+  let next = source;
+  let changed = false;
+  for (const pattern of CONTACT_FLUFF) {
+    pattern.lastIndex = 0;
+    const replaced = next.replace(pattern, '');
+    if (replaced !== next) {
+      changed = true;
+      next = replaced;
+    }
+  }
+  if (!changed) return source;
+  return next
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/[ \t]+\./g, '.')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function joinTr(parts: string[], lastSeparator = ' ve '): string {
   const clean = parts.map((part) => part.trim()).filter(Boolean);
   if (clean.length === 0) return '';
@@ -39,6 +68,14 @@ function sentence(text: string): string {
   const trimmed = text.replace(/\s+/g, ' ').trim();
   if (!trimmed) return '';
   return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+/** Removes leftover contact-policy sentences from stored career summaries. */
+export function polishCareerSummary(text: string | null | undefined): string {
+  return stripCareerContactFluff((text ?? '').replace(/\s+/g, ' ').trim())
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+\./g, '.')
+    .trim();
 }
 
 /** Builds an editable Turkish career-summary draft from form fields. No company or contact data. */
@@ -69,59 +106,61 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
     .filter(Boolean)
     .slice(0, 3);
   const education = [input.educationLevel, input.educationField].filter(Boolean).join(' — ');
-  const workPrefs = [input.preferredCity, input.workplacePreference, input.workType, input.availability]
-    .map((value) => (value ?? '').trim())
-    .filter(Boolean);
+  const place = (input.preferredCity ?? '').trim();
+  const workplace = (input.workplacePreference ?? '').trim();
+  const workType = (input.workType ?? '').trim();
+  const availability = (input.availability ?? '').trim();
 
   const sentences: string[] = [];
 
-  if (level && totalYears != null && totalYears > 0) {
+  if (totalYears != null && totalYears > 0) {
     sentences.push(
       sentence(
-        `${level} seviyesinde ${role} olarak ${totalYears} yıllık deneyimimi yeni bir rolde değerlendirmek istiyorum`,
+        sectors.length > 0
+          ? `${role} olarak ${joinTr(sectors)} alanında ${totalYears} yıllık deneyimle ekiplere katkı veriyorum`
+          : `${role} olarak ${totalYears} yıllık deneyimle ölçülebilir katkı üretiyorum`,
       ),
     );
   } else if (level) {
-    sentences.push(sentence(`${level} seviyesinde ${role} rollerine açığım`));
-  } else {
-    sentences.push(sentence(`${role} pozisyonunda katkı verebileceğim ekipler arıyorum`));
-  }
-
-  if (sectors.length > 0) {
     sentences.push(
       sentence(
-        experienceRoles.length > 0
-          ? `Deneyimim ${joinTr(sectors)} alanında yoğunlaşıyor; ${joinTr(experienceRoles)} rollerinde çalıştım`
-          : `Odaklandığım alanlar ${joinTr(sectors)}`,
+        `${role} rolünde ${level.toLocaleLowerCase('tr-TR')} profiliyle sorumluluk almaya hazırım`,
       ),
     );
-  } else if (experienceRoles.length > 0) {
-    sentences.push(sentence(`Daha önce ${joinTr(experienceRoles)} rollerinde çalıştım`));
+  } else {
+    sentences.push(sentence(`${role} pozisyonunda analitik ve düzenli çalışmayla katkı vermek istiyorum`));
+  }
+
+  if (experienceRoles.length > 0) {
+    sentences.push(sentence(`Daha önce ${joinTr(experienceRoles)} görevlerinde bulundum`));
   }
 
   if (professional.length > 0) {
-    sentences.push(sentence(`Mesleki yetkinliklerim arasında ${joinTr(professional)} bulunuyor`));
+    sentences.push(sentence(`Öne çıkan yetkinliklerim ${joinTr(professional)}`));
   }
   if (technical.length > 0) {
-    sentences.push(sentence(`Teknik olarak ${joinTr(technical)} kullanıyorum`));
+    sentences.push(sentence(`İşlerimde ${joinTr(technical)} araçlarını kullanıyorum`));
   }
   if (education) {
-    sentences.push(sentence(`Eğitim geçmişim ${education}`));
+    sentences.push(sentence(`Eğitim: ${education}`));
   }
   if (languages.length > 0) {
-    sentences.push(sentence(`Yabancı dil: ${joinTr(languages)}`));
-  }
-  if (workPrefs.length > 0) {
-    sentences.push(sentence(`Çalışma tercihim ${joinTr(workPrefs, ', ')}`));
+    sentences.push(sentence(`Yabancı dilim ${joinTr(languages)}`));
   }
 
-  sentences.push(
-    'İletişim platform üzerinden yapılır; telefon, e-posta veya firma adı paylaşmıyorum.',
-  );
+  const prefBits = [workplace, workType].filter(Boolean);
+  if (place || prefBits.length > 0 || availability) {
+    const model = prefBits.length > 0 ? `${joinTr(prefBits)} çalışmaya açığım` : 'esnek çalışma modellerine açığım';
+    const where = place ? `${place} odaklı ` : '';
+    const when = availability ? `; ${availability.toLocaleLowerCase('tr-TR')} başlayabilirim` : '';
+    sentences.push(sentence(`${where}${model}${when}`));
+  }
 
-  let draft = sentences.filter(Boolean).join(' ');
+  let draft = polishCareerSummary(sentences.filter(Boolean).join(' '));
   if (draft.length < 100) {
-    draft = `${draft} Kısa vadede sorumluluk alabileceğim, ölçülebilir katkı üretebileceğim bir ekibe dahil olmak istiyorum.`;
+    draft = polishCareerSummary(
+      `${draft} Kısa vadede net hedefleri olan bir ekipte sorumluluk alıp sürdürülebilir sonuç üretmek istiyorum.`,
+    );
   }
   return draft;
 }

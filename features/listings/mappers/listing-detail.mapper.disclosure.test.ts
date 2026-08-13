@@ -25,6 +25,9 @@ function makeAggregate(overrides: Partial<Listing> = {}): ListingAggregate {
     customFields: {
       desiredRole: 'Satış ve İş Geliştirme Uzmanı',
       experienceLevel: '8 yıl',
+      birthDate: '1992-04-18',
+      residenceCity: 'Ağrı',
+      residenceDistrict: 'Merkez',
       companyName: 'Gizli Firma A.Ş.',
       website: 'https://secret.example',
       experiences: [
@@ -97,7 +100,9 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.customFacts?.some((f) => /Gizli Firma|secret\.example|Uğur/i.test(f.value))).toBe(
       false,
     );
-    expect(JSON.stringify(detail)).not.toMatch(/Uğur Zaman|Gizli Firma|secret\.example/i);
+    expect(JSON.stringify(detail)).not.toMatch(/Uğur Zaman|Gizli Firma|secret\.example|1992-04-18|Ağrı/i);
+    expect(detail.careerCard?.birthDate).toBeFalsy();
+    expect(detail.careerCard?.residenceCity).toBeFalsy();
   });
 
   it('reveals identity after accepted contact request', () => {
@@ -116,6 +121,9 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.publisher.name).toBe('Uğur Zaman');
     expect(detail.publisher.href).toContain('ugur-zaman');
     expect(detail.ownerUserId).toBe(OWNER);
+    expect(detail.careerCard?.birthDate).toBe('1992-04-18');
+    expect(detail.careerCard?.residenceCity).toBe('Ağrı');
+    expect(detail.careerCard?.residenceDistrict).toBe('Merkez');
   });
 
   it('does not redact employer listings for anonymous viewers', () => {

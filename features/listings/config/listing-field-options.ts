@@ -252,6 +252,13 @@ export const EXPERIENCE_LEVELS = [
   'Direktör',
 ] as const;
 
+/** Private cover-image preference for İş Arıyorum — not shown on the public card. */
+export const CAREER_PROFILE_GENDER_OPTIONS = [
+  'Erkek',
+  'Kadın',
+  'Belirtmek istemiyorum',
+] as const;
+
 /** Work preference for job-seeker + hiring listings (shared). */
 export const CAREER_WORK_TYPE_OPTIONS = [
   'Tam zamanlı',

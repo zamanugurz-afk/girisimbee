@@ -33,6 +33,7 @@ import {
   resolveCareerCoverRole,
   resolveListingCoverUrl,
 } from '@/features/listings/config/listing-cover.config';
+import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { formatListingNumber } from '@/features/listings/utils/listing-number';
 import {
@@ -241,13 +242,21 @@ export function aggregateToListingDetail(
   const redactIdentity =
     Boolean(context?.disclosure?.identityGated)
     && !context?.disclosure?.canRevealOwnerIdentity;
+  const revealCareerPersonal = Boolean(context?.disclosure?.canRevealOwnerIdentity);
 
-  const cf: Record<string, unknown> = { ...listing.customFields };
+  const sourceCf = listing.customFields ?? {};
+  const cf: Record<string, unknown> = { ...sourceCf };
   if (redactIdentity || categorySlug === 'is-bul') {
     // Career public card: never surface employer/company-shaped fields.
     delete cf.companyName;
     delete cf.website;
     delete cf.cvUrl;
+    delete cf.profileGender;
+    if (!revealCareerPersonal) {
+      delete cf.birthDate;
+      delete cf.residenceCity;
+      delete cf.residenceDistrict;
+    }
     if (cf.experiences !== undefined) {
       cf.experiences = redactCareerExperiencePublicFields(cf.experiences);
     }
@@ -282,7 +291,10 @@ export function aggregateToListingDetail(
 
   // Cards always show a type/cover fallback; detail must match so photos aren't empty.
   const cardDisplay = resolveListingCardDisplay(listing);
-  const listingTypeSlug = categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null;
+  const listingTypeSlug =
+    categorySlug === 'is-bul'
+      ? 'is-ariyorum'
+      : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
   const galleryItems =
     uploadedGallery.length > 0
       ? uploadedGallery
@@ -292,13 +304,15 @@ export function aggregateToListingDetail(
             label: listing.title,
             emoji: cardDisplay.typeEmoji,
             imageUrl: resolveListingCoverUrl({
+              uploadedUrl: toDisplayValue(sourceCf.resolvedCoverUrl) || null,
               listingTypeSlug,
               group: cardDisplay.group,
-              sector: toDisplayValue(cf.primarySector),
+              sector: toDisplayValue(sourceCf.primarySector),
               role: resolveCareerCoverRole(
-                toDisplayValue(cf.desiredRole),
-                toDisplayValue(cf.desiredRoleOther),
+                toDisplayValue(sourceCf.desiredRole),
+                toDisplayValue(sourceCf.desiredRoleOther),
               ),
+              gender: toDisplayValue(sourceCf.profileGender),
             }),
           },
         ];
@@ -347,7 +361,7 @@ export function aggregateToListingDetail(
 
   const metaLabel =
     CATEGORY_PAGE_CONFIG[categorySlug]?.label
-    ?? (categorySlug === 'is-bul' ? 'İş İlanı' : undefined);
+    ?? (categorySlug === 'is-bul' ? 'İş Arıyorum' : undefined);
 
   const languageTags = Array.isArray(cf.languageTags)
     ? (cf.languageTags as unknown[]).map((t) => String(t).trim()).filter(Boolean)
@@ -377,7 +391,10 @@ export function aggregateToListingDetail(
     },
     title: listing.title,
     shortDescription: listing.shortDescription,
-    longDescription: listing.longDescription || listing.shortDescription,
+    longDescription:
+      categorySlug === 'is-bul'
+        ? polishCareerSummary(listing.longDescription) || listing.shortDescription
+        : listing.longDescription || listing.shortDescription,
     location,
     publishedAt: formatDate(listing.publishedAt),
     updatedAt: formatDate(listing.updatedAt),
@@ -430,7 +447,12 @@ export function aggregateToListingDetail(
     customFacts: categorySlug === 'is-bul' ? [] : customFacts,
     careerCard:
       categorySlug === 'is-bul'
-        ? buildCareerCard(cf, listing.longDescription)
+        ? buildCareerCard(cf, listing.longDescription, {
+            revealPersonal: revealCareerPersonal,
+            birthDate: toDisplayValue(sourceCf.birthDate),
+            residenceCity: toDisplayValue(sourceCf.residenceCity),
+            residenceDistrict: toDisplayValue(sourceCf.residenceDistrict),
+          })
         : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
@@ -440,6 +462,12 @@ export function aggregateToListingDetail(
 function buildCareerCard(
   cf: Record<string, unknown>,
   longDescription: string | null | undefined,
+  personal?: {
+    revealPersonal?: boolean;
+    birthDate?: string | null;
+    residenceCity?: string | null;
+    residenceDistrict?: string | null;
+  },
 ): ListingDetail['careerCard'] {
   const desiredRoleRaw = toDisplayValue(cf.desiredRole);
   const desiredRole =
@@ -480,8 +508,11 @@ function buildCareerCard(
     workplacePreference: toDisplayValue(cf.workplacePreference),
     salaryExpectation: toDisplayValue(cf.salaryExpectation),
     availability: toDisplayValue(cf.availability),
-    longDescription: longDescription ?? null,
+    longDescription: polishCareerSummary(longDescription) || null,
     experiences,
+    birthDate: personal?.revealPersonal ? personal.birthDate || null : null,
+    residenceCity: personal?.revealPersonal ? personal.residenceCity || null : null,
+    residenceDistrict: personal?.revealPersonal ? personal.residenceDistrict || null : null,
   };
 }
 

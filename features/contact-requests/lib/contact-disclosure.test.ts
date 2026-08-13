@@ -104,6 +104,10 @@ describe('contact-disclosure', () => {
       companyName: 'Gizli A.Ş.',
       website: 'https://secret.example',
       cvUrl: 'https://cv.example/x.pdf',
+      profileGender: 'Erkek',
+      birthDate: '1992-04-18',
+      residenceCity: 'Ağrı',
+      residenceDistrict: 'Merkez',
       experiences: [{ role: 'Dev', companyName: 'X', sector: 'Yazılım' }],
       professionalSkills: 'Node.js',
     });
@@ -113,6 +117,10 @@ describe('contact-disclosure', () => {
     expect(sanitized.companyName).toBeUndefined();
     expect(sanitized.website).toBeUndefined();
     expect(sanitized.cvUrl).toBeUndefined();
+    expect(sanitized.profileGender).toBeUndefined();
+    expect(sanitized.birthDate).toBeUndefined();
+    expect(sanitized.residenceCity).toBeUndefined();
+    expect(sanitized.residenceDistrict).toBeUndefined();
     expect((sanitized.experiences as Array<Record<string, unknown>>)[0]?.companyName).toBeUndefined();
     expect((sanitized.experiences as Array<Record<string, unknown>>)[0]?.role).toBe('Dev');
   });

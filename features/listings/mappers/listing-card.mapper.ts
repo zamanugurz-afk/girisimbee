@@ -68,7 +68,9 @@ export function listingToContentItem(
   const meta = categorySlug ? CATEGORY_PAGE_CONFIG[categorySlug] : undefined;
   const contentType = resolveContentTypeFromDb(dbListing);
   const cardDisplay = resolveListingCardDisplay(listing);
-  const listingTypeSlug = resolveDbListingTypeSlug(dbListing);
+  const listingTypeSlug =
+    resolveDbListingTypeSlug(dbListing)
+    ?? (categorySlug === 'is-bul' || categorySlug === 'is-ariyorum' ? 'is-ariyorum' : undefined);
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
     .filter((part) => !isEmptyDisplayValue(part));
@@ -89,7 +91,11 @@ export function listingToContentItem(
     listingGroupLabel: cardDisplay.groupLabel,
     listingIconKey: cardDisplay.iconKey,
     coverUrl: resolveListingCoverUrl({
-      uploadedUrl: uploadedCoverUrl,
+      uploadedUrl:
+        uploadedCoverUrl
+        || (typeof listing.customFields?.resolvedCoverUrl === 'string'
+          ? listing.customFields.resolvedCoverUrl
+          : null),
       listingTypeSlug,
       group: cardDisplay.group,
       sector: typeof listing.customFields?.primarySector === 'string'
@@ -103,6 +109,9 @@ export function listingToContentItem(
           ? listing.customFields.desiredRoleOther
           : null,
       ),
+      gender: typeof listing.customFields?.profileGender === 'string'
+        ? listing.customFields.profileGender
+        : null,
     }),
     tag: hasAnyTrustBadge(trust ?? { user: false, company: false, investor: false })
       ? undefined

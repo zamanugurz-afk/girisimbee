@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyCareerExperience } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
-import { buildCareerSummaryDraft } from './career-summary';
+import { buildCareerSummaryDraft, polishCareerSummary, stripCareerContactFluff } from './career-summary';
 
 describe('buildCareerSummaryDraft', () => {
   it('builds an editable Turkish summary from role, skills, and experience', () => {
@@ -33,7 +33,26 @@ describe('buildCareerSummaryDraft', () => {
     expect(draft).toMatch(/CRM|Excel|İletişim/);
     expect(draft.length).toBeGreaterThanOrEqual(100);
     expect(draft).not.toMatch(/@|https?:\/\//i);
+    expect(draft).not.toMatch(/İletişim platform|telefon, e-posta|firma adı paylaşmıyorum/i);
     expect(findCareerProfileContentViolation(draft)).toBeNull();
+  });
+
+  it('strips leftover contact-policy sentences from stored summaries', () => {
+    expect(
+      polishCareerSummary(
+        'Kredi uzmanı olarak 2 yıllık deneyimim var. İletişim platform üzerinden yapılır; telefon, e-posta veya firma adı paylaşmıyorum.',
+      ),
+    ).toBe('Kredi uzmanı olarak 2 yıllık deneyimim var.');
+    expect(
+      polishCareerSummary(
+        'İletişim platform üzerinden yapılır; telefon, e-posta veya firma adı paylaşmıyorum.',
+      ),
+    ).toBe('');
+    expect(
+      stripCareerContactFluff(
+        'Kredi uzmanı olarak 2 yıllık deneyimim var.\n\nİletişim platform üzerinden yapılır; telefon, e-posta veya firma adı paylaşmıyorum.',
+      ),
+    ).toBe('Kredi uzmanı olarak 2 yıllık deneyimim var.');
   });
 
   it('still produces a usable draft when only the role is present', () => {

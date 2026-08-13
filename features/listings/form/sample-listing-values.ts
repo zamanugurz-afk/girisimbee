@@ -80,7 +80,7 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
           title: '',
           shortDescription: '',
           longDescription:
-            'Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum. Firma adı, telefon veya sosyal medya hesabı yazmıyorum; iletişim platform üzerinden.',
+            'Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum.',
           city: null,
           country: 'TR',
           remotePolicy: null,
@@ -90,6 +90,9 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
           desiredRole: 'Full-stack geliştirici',
           experienceLevel: 'Mid',
           workType: 'Tam zamanlı',
+          profileGender: 'Belirtmek istemiyorum',
+          residenceCity: 'İstanbul',
+          residenceDistrict: 'Kadıköy',
           professionalSkills: 'Yazılım geliştirme · Agile / Scrum · Kod incelemesi · API tasarımı',
           technicalSkills: 'TypeScript · React · Node.js · SQL · Git',
           tools: 'Notion, Jira, Figma, Slack',

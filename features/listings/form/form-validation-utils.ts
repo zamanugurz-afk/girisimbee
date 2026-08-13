@@ -25,6 +25,7 @@ import {
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
+import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import {
   materializeCareerEducationFields,
   materializeCareerSkillsFields,
@@ -586,10 +587,11 @@ export function validateListingFormBeforePublish(options: {
   let rawTitle = typeof core.title === 'string' ? core.title : undefined;
   let rawShort =
     typeof core.shortDescription === 'string' ? core.shortDescription : undefined;
-  const rawLong =
+  let rawLong =
     typeof core.longDescription === 'string' ? core.longDescription : undefined;
 
   if (options.categoryId === CATEGORY_IDS.isBul) {
+    if (rawLong) rawLong = polishCareerSummary(rawLong);
     const role = String(options.snapshot.customFields.desiredRole ?? '').trim();
     const level = String(options.snapshot.customFields.experienceLevel ?? '').trim();
     if (!rawTitle?.trim() && role) rawTitle = role;

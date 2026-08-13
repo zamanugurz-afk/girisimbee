@@ -195,13 +195,17 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Sektör, aranan pozisyon, kariyer seviyesi ve çalışma tercihi',
+      description: 'Sektör, pozisyon, seviye ve kamuya kapalı kişisel bilgiler',
       customFieldKeys: [
         'primarySector',
         'desiredRole',
         'desiredRoleOther',
         'experienceLevel',
         'workType',
+        'profileGender',
+        'birthDate',
+        'residenceCity',
+        'residenceDistrict',
       ],
     },
     {

@@ -150,6 +150,11 @@ export interface ListingDetail {
     salaryExpectation?: string | null;
     availability?: string | null;
     longDescription?: string | null;
+    coverUrl?: string | null;
+    /** Shown only after accepted contact request / owner / admin. */
+    birthDate?: string | null;
+    residenceCity?: string | null;
+    residenceDistrict?: string | null;
     experiences?: Array<{
       id: string;
       sector: string;

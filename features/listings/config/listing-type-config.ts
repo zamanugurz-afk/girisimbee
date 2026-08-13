@@ -7,6 +7,7 @@ import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import {
   EXPERIENCE_LEVELS,
+  CAREER_PROFILE_GENDER_OPTIONS,
   CAREER_WORK_TYPE_OPTIONS,
   CAREER_WORKPLACE_OPTIONS,
   CAREER_EDUCATION_LEVELS,
@@ -151,6 +152,34 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'enum',
       required: true,
       options: [...CAREER_WORK_TYPE_OPTIONS],
+    },
+    {
+      key: 'profileGender',
+      label: 'Kapak görseli',
+      type: 'enum',
+      required: true,
+      options: [...CAREER_PROFILE_GENDER_OPTIONS],
+    },
+    {
+      key: 'birthDate',
+      label: 'Doğum tarihi',
+      type: 'string',
+      required: false,
+      max: 10,
+    },
+    {
+      key: 'residenceCity',
+      label: 'Yaşadığı il',
+      type: 'string',
+      required: false,
+      max: 100,
+    },
+    {
+      key: 'residenceDistrict',
+      label: 'Yaşadığı ilçe',
+      type: 'string',
+      required: false,
+      max: 100,
     },
     {
       key: 'professionalSkills',

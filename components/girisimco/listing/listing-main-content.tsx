@@ -96,7 +96,12 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     <div className="space-y-8">
       {showCareerCard && listing.careerCard ? (
         <DetailSectionIf title="Kariyer Kartı" visible>
-          <CareerProfilePreview data={listing.careerCard} />
+          <CareerProfilePreview
+            data={{
+              ...listing.careerCard,
+              coverUrl: listing.gallery[0]?.imageUrl ?? listing.careerCard.coverUrl,
+            }}
+          />
         </DetailSectionIf>
       ) : null}
 

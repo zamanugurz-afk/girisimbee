@@ -4,6 +4,11 @@ import {
   isIdentityGatedListing,
   sanitizeIdentityGatedCustomFields,
 } from '@/features/contact-requests/lib/contact-disclosure';
+import { categoryRegistry } from '@/features/listings/config/category-registry';
+import {
+  resolveCareerCoverRole,
+  resolveListingCoverUrl,
+} from '@/features/listings/config/listing-cover.config';
 
 type ContactChannelFields = {
   contactPhone?: string | null;
@@ -37,17 +42,39 @@ export function stripListingsContactPhone<T extends ContactChannelFields>(listin
  * Server internals (loader, contact-request, ownership) must use repository rows
  * before this sanitizer — accepted disclosure RPCs are unchanged.
  */
+function resolvePublicCareerCoverUrl(listing: Listing): string | null {
+  const listingTypeSlug =
+    (listing as Listing & { listingTypeSlug?: string | null }).listingTypeSlug
+    ?? categoryRegistry.getListingType(listing.listingTypeId)?.slug
+    ?? null;
+  if (listingTypeSlug !== 'is-ariyorum' && listingTypeSlug !== 'is-bul') return null;
+  const cf = listing.customFields ?? {};
+  return resolveListingCoverUrl({
+    listingTypeSlug,
+    sector: typeof cf.primarySector === 'string' ? cf.primarySector : null,
+    role: resolveCareerCoverRole(
+      typeof cf.desiredRole === 'string' ? cf.desiredRole : null,
+      typeof cf.desiredRoleOther === 'string' ? cf.desiredRoleOther : null,
+    ),
+    gender: typeof cf.profileGender === 'string' ? cf.profileGender : null,
+  });
+}
+
 export function toPublicListingEntity(listing: Listing): Listing {
   const base = stripListingContactPhone(listing);
   if (!isIdentityGatedListing(base)) {
     return base;
   }
 
+  const resolvedCoverUrl = resolvePublicCareerCoverUrl(listing);
   const publicListing: Listing = {
     ...base,
     companyId: null,
     contactWebsite: null,
-    customFields: sanitizeIdentityGatedCustomFields(base.customFields),
+    customFields: {
+      ...sanitizeIdentityGatedCustomFields(base.customFields),
+      ...(resolvedCoverUrl ? { resolvedCoverUrl } : {}),
+    },
   };
   // Omit ownerId from JSON / public consumers (listingId remains for SEO/detail).
   delete (publicListing as { ownerId?: UserId }).ownerId;

@@ -25,6 +25,9 @@ describe('toPublicListingEntity identity gate', () => {
       customFields: {
         desiredRole: 'Satış Uzmanı',
         experienceLevel: '8 yıl',
+        profileGender: 'Erkek',
+        birthDate: '1992-04-18',
+        residenceCity: 'Ağrı',
         preferredCity: 'İstanbul',
         professionalSkills: 'Kurumsal satış',
         salaryExpectation: '80.000 TL',
@@ -63,6 +66,10 @@ describe('toPublicListingEntity identity gate', () => {
     expect(publicListing.customFields.website).toBeUndefined();
     expect(publicListing.customFields.companyLogo).toBeUndefined();
     expect(publicListing.customFields.cvUrl).toBeUndefined();
+    expect(publicListing.customFields.profileGender).toBeUndefined();
+    expect(publicListing.customFields.birthDate).toBeUndefined();
+    expect(publicListing.customFields.residenceCity).toBeUndefined();
+    expect(typeof publicListing.customFields.resolvedCoverUrl).toBe('string');
     const experiences = publicListing.customFields.experiences as Array<Record<string, unknown>>;
     expect(experiences[0]?.role).toBe('Uzman');
     expect(experiences[0]?.sector).toBe('Satış');

@@ -134,7 +134,7 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
     },
     longDescription: {
       placeholder:
-        'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum. Firma adı, telefon veya sosyal medya hesabı yazmıyorum; iletişim platform üzerinden.',
+        'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum.',
       helperText:
         'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. Telefon, e-posta, adres veya firma adı yazmayın.',
       maxLength: 10000,
@@ -340,6 +340,26 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   workType: {
     placeholder: 'Çalışma tipi seçin',
     helperText: 'Tam zamanlı, yarı zamanlı, proje bazlı, staj veya sözleşmeli.',
+  },
+  profileGender: {
+    placeholder: 'Kapak görseli seçin',
+    helperText:
+      'Kamu kartında yazılmaz. Meslek kapak fotoğrafını (ör. erkek sigortacı) seçmek için kullanılır.',
+  },
+  birthDate: {
+    placeholder: 'Doğum tarihi',
+    helperText:
+      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir.',
+  },
+  residenceCity: {
+    placeholder: 'Yaşadığınız ili seçin',
+    helperText:
+      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir.',
+  },
+  residenceDistrict: {
+    placeholder: 'Yaşadığınız ilçeyi seçin',
+    helperText:
+      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir. Önce ili seçin.',
   },
   remotePreference: {
     placeholder: 'Uzaktan çalışma tercihi seçin',

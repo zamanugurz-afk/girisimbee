@@ -104,6 +104,10 @@ export const IDENTITY_GATED_CUSTOM_FIELD_KEYS = [
   'profileId',
   'userId',
   'ownerId',
+  'profileGender',
+  'birthDate',
+  'residenceCity',
+  'residenceDistrict',
 ] as const;
 
 const IDENTITY_GATED_CUSTOM_FIELD_KEY_SET = new Set<string>(
