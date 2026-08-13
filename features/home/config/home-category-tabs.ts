@@ -31,7 +31,7 @@ export const HOME_CATEGORY_TABS: {
   },
   {
     id: 'entrepreneur',
-    label: 'Girişimci',
+    label: 'Yatırım Arayanlar',
     viewAllHref: '/invest',
     match: (item) => {
       const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
@@ -53,7 +53,7 @@ export const HOME_CATEGORY_TABS: {
   },
   {
     id: 'partner',
-    label: 'Ortaklık',
+    label: 'Ortak Arayanlar',
     viewAllHref: '/partners',
     match: (item) =>
       item.listingIconKey === 'partner'
