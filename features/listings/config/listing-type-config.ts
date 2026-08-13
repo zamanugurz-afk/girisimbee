@@ -643,8 +643,19 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
   },
 ];
 
-/** Categories selectable on /ilan/olustur. */
-export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS;
+/**
+ * Categories deferred from /ilan/olustur picker (schemas/configs kept for restore).
+ * To bring Yatırım Yapacağım back: remove CATEGORY_IDS.yatirimYap from this list.
+ */
+export const CREATE_LISTING_DEFERRED_CATEGORY_IDS: readonly CategoryId[] = [
+  CATEGORY_IDS.yatirimYap,
+];
+
+const CREATE_DEFERRED_SET = new Set<string>(CREATE_LISTING_DEFERRED_CATEGORY_IDS);
+
+/** Categories selectable on /ilan/olustur (excludes deferred types). */
+export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] =
+  LISTING_TYPE_CONFIGS.filter((config) => !CREATE_DEFERRED_SET.has(config.categoryId));
 
 /** Map category slug → category ID */
 export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {

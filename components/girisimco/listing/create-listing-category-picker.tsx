@@ -21,10 +21,13 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-/** Display order on /ilan/olustur — peer categories with clear intent. */
+/**
+ * Display order on /ilan/olustur.
+ * Yatırım Yapacağım (yatirimYap) is deferred from create — kept in CATEGORY_VISUAL for restore.
+ */
 const PICKER_ORDER: CategoryId[] = [
   CATEGORY_IDS.yatirimBul,
-  CATEGORY_IDS.yatirimYap,
+  // CATEGORY_IDS.yatirimYap, // deferred — restore with CREATE_LISTING_DEFERRED_CATEGORY_IDS
   CATEGORY_IDS.ortakBul,
   CATEGORY_IDS.bayilikAl,
   CATEGORY_IDS.iseAl,
@@ -167,9 +170,8 @@ export function CreateListingCategoryPicker({
           Hangi tür ilan vereceksiniz?
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Kartların üstündeki hedef kitleye göre seçin. Örn. yatırımcı iseniz
-          “Yatırım Yapacağım”, girişimciyseniz “Yatırım Arıyorum”. Form yalnızca
-          seçtiğiniz türe özel alanları gösterir.
+          Kartların üstündeki hedef kitleye göre seçin. Örn. girişimciyseniz
+          “Yatırım Arıyorum”. Form yalnızca seçtiğiniz türe özel alanları gösterir.
         </p>
       </div>
 

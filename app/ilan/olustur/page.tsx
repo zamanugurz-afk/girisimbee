@@ -14,7 +14,7 @@ import type { ListingFormValues } from '@/features/listings/form/category-listin
 import {
   LISTING_TYPE_CONFIGS,
   CREATE_LISTING_TYPE_CONFIGS,
-  CATEGORY_IDS,
+  CREATE_LISTING_DEFERRED_CATEGORY_IDS,
 } from '@/features/listings/config/listing-type-config';
 import {
   getModuleListingDetailPath,
@@ -53,14 +53,18 @@ function CreateListingContent() {
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
     searchParams.get('category') ?? searchParams.get('intent') ?? '',
   );
-  const initialCategory = resolvedInitialCategory;
+  /** Deferred create types (e.g. Yatırım Yapacağım) cannot be opened via ?category= */
+  const initialCategory =
+    resolvedInitialCategory
+    && !CREATE_LISTING_DEFERRED_CATEGORY_IDS.includes(resolvedInitialCategory)
+      ? resolvedInitialCategory
+      : null;
 
   const [categoryId, setCategoryId] = useState<CategoryId | null>(initialCategory);
   const [listingTypeId, setListingTypeId] = useState<ListingTypeId | null>(() => {
     if (!initialCategory) return null;
     return (
       CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === initialCategory)?.listingTypeId
-      ?? categoryRegistry.getDefaultListingType(initialCategory)?.id
       ?? null
     );
   });
@@ -95,6 +99,7 @@ function CreateListingContent() {
   }
 
   function selectCategory(id: CategoryId) {
+    if (CREATE_LISTING_DEFERRED_CATEGORY_IDS.includes(id)) return;
     setCategoryId(id);
     const fromConfig = CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === id);
     const defaultType =
