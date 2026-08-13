@@ -4,7 +4,6 @@ import type { ContentItem } from '@/features/categories/types/category.types';
 export type HomeCategoryTabId =
   | 'all'
   | 'entrepreneur'
-  | 'investor'
   | 'job'
   | 'partner'
   | 'digital-ai'
@@ -12,7 +11,6 @@ export type HomeCategoryTabId =
 
 export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> = {
   entrepreneur: 'yatirim-bul',
-  investor: 'yatirim-yap',
   job: 'ise-al',
   partner: 'ortak-bul',
   'digital-ai': 'dijital-ai',
@@ -42,15 +40,6 @@ export const HOME_CATEGORY_TABS: {
         || type.includes('yatırım arıyorum')
         || (item.listingGroupLabel === 'Yatırım' && item.listingIconKey !== 'investor' && !type.includes('yatırım yap'))
       );
-    },
-  },
-  {
-    id: 'investor',
-    label: 'Yatırımcı',
-    viewAllHref: '/investors',
-    match: (item) => {
-      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
-      return item.listingIconKey === 'investor' || type.includes('yatırım yapıyorum') || type.includes('yatırım yap');
     },
   },
   {
