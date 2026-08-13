@@ -19,9 +19,7 @@ import { cn } from '@/lib/utils';
 interface HomeListingSectionRowProps {
   config: HomeListingSectionConfig;
   state: HomeListingSectionState;
-  categoryTab: HomeCategoryTabId;
-  onCategoryTabChange?: (tab: HomeCategoryTabId) => void;
-  /** Tabs render only on Öne Çıkan; selection filters every home section. */
+  /** Category tabs only on Öne Çıkan — does not affect other home sections. */
   showCategoryTabs?: boolean;
 }
 
@@ -31,20 +29,20 @@ const SECTION_GRID_CLASS = 'hidden gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-4';
 export function HomeListingSectionRow({
   config,
   state,
-  categoryTab,
-  onCategoryTabChange,
   showCategoryTabs = false,
 }: HomeListingSectionRowProps) {
-  const activeTabConfig =
-    HOME_CATEGORY_TABS.find((tab) => tab.id === categoryTab) ?? HOME_CATEGORY_TABS[0];
+  const [categoryTab, setCategoryTab] = useState<HomeCategoryTabId>('all');
+  const activeTab = showCategoryTabs ? categoryTab : 'all';
 
-  /** Instant client filter from already-loaded section items. */
+  const activeTabConfig =
+    HOME_CATEGORY_TABS.find((tab) => tab.id === activeTab) ?? HOME_CATEGORY_TABS[0];
+
   const localFiltered = useMemo(() => {
-    if (categoryTab === 'all') {
+    if (activeTab === 'all') {
       return state.items.slice(0, DESKTOP_LIMIT);
     }
     return state.items.filter(activeTabConfig.match).slice(0, DESKTOP_LIMIT);
-  }, [activeTabConfig, categoryTab, state.items]);
+  }, [activeTab, activeTabConfig, state.items]);
 
   const [remoteItems, setRemoteItems] = useState<ContentItem[] | null>(null);
   const [remoteTab, setRemoteTab] = useState<HomeCategoryTabId | null>(null);
@@ -54,7 +52,10 @@ export function HomeListingSectionRow({
   const cacheRef = useRef<Partial<Record<string, ContentItem[]>>>({});
 
   const needsRemote =
-    categoryTab !== 'all' && !state.isLoading && localFiltered.length === 0;
+    showCategoryTabs
+    && activeTab !== 'all'
+    && !state.isLoading
+    && localFiltered.length === 0;
 
   useEffect(() => {
     if (!needsRemote) {
@@ -64,16 +65,16 @@ export function HomeListingSectionRow({
       return;
     }
 
-    const cacheKey = `${config.id}:${categoryTab}`;
+    const cacheKey = `${config.id}:${activeTab}`;
     if (Object.prototype.hasOwnProperty.call(cacheRef.current, cacheKey)) {
       setRemoteItems(cacheRef.current[cacheKey] ?? []);
-      setRemoteTab(categoryTab);
+      setRemoteTab(activeTab);
       setRemoteLoading(false);
       setRemoteError(null);
       return;
     }
 
-    const tabId = categoryTab;
+    const tabId = activeTab;
     const generation = ++fetchGenRef.current;
     const controller = new AbortController();
     setRemoteLoading(true);
@@ -99,7 +100,6 @@ export function HomeListingSectionRow({
         if (!res.ok) {
           throw new Error(body.error ?? 'İlanlar yüklenemedi');
         }
-        // Never trust remote without tab match — guards unmapped category fallthrough.
         const tabMatch =
           HOME_CATEGORY_TABS.find((entry) => entry.id === tabId)?.match
           ?? (() => false);
@@ -126,27 +126,27 @@ export function HomeListingSectionRow({
     return () => {
       controller.abort();
     };
-  }, [needsRemote, categoryTab, config.id]);
+  }, [needsRemote, activeTab, config.id]);
 
   const visibleItems = useMemo(() => {
-    if (categoryTab === 'all') return localFiltered;
+    if (activeTab === 'all') return localFiltered;
     if (localFiltered.length > 0) return localFiltered;
-    if (remoteTab === categoryTab && remoteItems) return remoteItems;
+    if (remoteTab === activeTab && remoteItems) return remoteItems;
     return [];
-  }, [categoryTab, localFiltered, remoteItems, remoteTab]);
+  }, [activeTab, localFiltered, remoteItems, remoteTab]);
 
   const viewAllHref =
-    showCategoryTabs && categoryTab !== 'all'
+    showCategoryTabs && activeTab !== 'all'
       ? activeTabConfig.viewAllHref
       : config.viewAllHref;
 
   const showLoading =
     state.isLoading
-    || (needsRemote && remoteLoading && !(remoteTab === categoryTab && remoteItems));
+    || (needsRemote && remoteLoading && !(remoteTab === activeTab && remoteItems));
 
   function selectTab(id: HomeCategoryTabId) {
-    if (!onCategoryTabChange || id === categoryTab) return;
-    onCategoryTabChange(id);
+    if (id === categoryTab) return;
+    setCategoryTab(id);
   }
 
   return (
@@ -208,7 +208,7 @@ export function HomeListingSectionRow({
           <div
             className="flex flex-wrap gap-1.5"
             role="tablist"
-            aria-label="Ana sayfa kategori filtreleri"
+            aria-label="Öne çıkan kategori filtreleri"
           >
             {HOME_CATEGORY_TABS.map((tab) => {
               const selected = tab.id === categoryTab;
@@ -256,9 +256,9 @@ export function HomeListingSectionRow({
         </p>
       ) : visibleItems.length === 0 ? (
         <p className="flex min-h-[14rem] items-center rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">
-          {categoryTab === 'general'
+          {showCategoryTabs && activeTab === 'general'
             ? 'Henüz genel ilan yayınlanmadı.'
-            : categoryTab !== 'all'
+            : showCategoryTabs && activeTab !== 'all'
               ? 'Bu kategoride henüz ilan yok.'
               : config.emptyMessage}
         </p>

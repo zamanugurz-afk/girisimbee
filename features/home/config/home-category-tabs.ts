@@ -1,6 +1,6 @@
 import type { ContentItem } from '@/features/categories/types/category.types';
 
-/** Shared homepage category tabs — filters Öne Çıkan / Acil / Bugün / En Çok Görüntülenen. */
+/** Öne Çıkan İlanlar category tabs only (other home sections stay unfiltered). */
 export type HomeCategoryTabId =
   | 'all'
   | 'entrepreneur'
