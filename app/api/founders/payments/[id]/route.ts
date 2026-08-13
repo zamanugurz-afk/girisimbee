@@ -2,6 +2,7 @@ import { withAuth, parseJsonBody } from '@/lib/api/with-auth';
 import { ok, apiError } from '@/lib/api/response';
 import { founderPaymentPatchSchema } from '@/lib/api/validation/founder-monetization';
 import { ids } from '@/lib/domain/ids';
+import { isAdmin } from '@/features/authorization/rbac.service';
 
 /** PATCH — attach invoice metadata, update status, fulfill entitlement after payment */
 export const PATCH = withAuth(async (ctx, request, { params }) => {
@@ -17,17 +18,17 @@ export const PATCH = withAuth(async (ctx, request, { params }) => {
 
   const isOwner = existing.userId === ctx.userId;
   const user = await ctx.container.userRepository.findById(ctx.userId);
-  const isAdmin = user?.role === 'admin';
+  const admin = isAdmin(user?.role);
 
-  if (!isOwner && !isAdmin) {
+  if (!isOwner && !admin) {
     return apiError('Bu ödemeyi güncelleme yetkiniz yok.', 403, { code: 'FORBIDDEN' });
   }
 
-  if (parsed.status && !isAdmin) {
+  if (parsed.status && !admin) {
     return apiError('Ödeme durumu yalnızca yönetici tarafından güncellenebilir.', 403, { code: 'FORBIDDEN' });
   }
 
-  if (parsed.fulfill && !isAdmin) {
+  if (parsed.fulfill && !admin) {
     return apiError('Paket aktivasyonu yalnızca yönetici tarafından yapılabilir.', 403, { code: 'FORBIDDEN' });
   }
 

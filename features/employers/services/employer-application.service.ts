@@ -226,7 +226,8 @@ export class EmployerApplicationService {
     userId: UserId;
     applicationId: ApplicationId;
     managerProfileId: ProfileId;
-    amountCents: number;
+    /** Deprecated client hint — server uses CANDIDATE_UNLOCK_PRICE_CENTS. */
+    amountCents?: number;
     successUrl: string;
     cancelUrl: string;
   }) {

@@ -43,6 +43,7 @@ describe('EmployerJobService (facade)', () => {
         harness.repos.paymentRepository,
         harness.repos.applicationRepository,
         harness.repos.listingPackageRepository,
+        harness.repos.listingRepository,
         undefined,
         mockGateway(),
       ),

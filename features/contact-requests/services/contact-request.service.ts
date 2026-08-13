@@ -1,4 +1,4 @@
-import { ForbiddenError, NotFoundError, ValidationError } from '@/lib/domain/errors';
+import { ForbiddenError, NotFoundError, RateLimitError, ValidationError } from '@/lib/domain/errors';
 import type { ContactRequestId, ListingId, UserId } from '@/lib/domain/ids';
 import type { ContactRequestRepository } from '@/features/contact-requests/repositories/contact-request.repository';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
@@ -143,9 +143,7 @@ export class ContactRequestService {
     const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const recent = await this.repo.countCreatedSince(input.requesterUserId, hourAgo);
     if (recent >= CONTACT_REQUEST_CONFIG.maxCreatesPerHour) {
-      throw new ValidationError('Çok fazla talep gönderdiniz. Lütfen daha sonra tekrar deneyin.', {
-        rate: ['Rate limit'],
-      });
+      throw new RateLimitError('Çok fazla talep gönderdiniz. Lütfen daha sonra tekrar deneyin.', 3600);
     }
 
     const message = input.message?.trim() || '';

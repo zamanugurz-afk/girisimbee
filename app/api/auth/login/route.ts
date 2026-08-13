@@ -5,11 +5,16 @@ import { apiError, ok } from '@/lib/api/response';
 import { authCookieOptions } from '@/lib/supabase/cookie-options';
 import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 import { legacyAuthCookieDomains } from '@/lib/supabase/cookie-options';
+import { checkRateLimit, getClientIpFromRequest } from '@/lib/api/rate-limit';
 
 const bodySchema = z.object({
   email: z.string().email('Geçerli bir e-posta girin'),
   password: z.string().min(1, 'Şifre gerekli'),
 });
+
+/** Soft abuse protection — does not replace Supabase auth rate limits. */
+const LOGIN_LIMIT = 20;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
 /**
  * Server login — mirrors session onto Set-Cookie (host-only).
@@ -30,6 +35,16 @@ export async function POST(request: Request) {
 
   const email = parsed.data.email.trim().toLowerCase();
   const password = parsed.data.password;
+
+  const ip = getClientIpFromRequest(request);
+  const limited = checkRateLimit(`login:${ip}:${email}`, LOGIN_LIMIT, LOGIN_WINDOW_MS);
+  if (!limited.ok) {
+    const res = apiError('Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.', 429, {
+      code: 'RATE_LIMITED',
+    });
+    res.headers.set('Retry-After', String(limited.retryAfterSec));
+    return res;
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

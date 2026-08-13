@@ -109,6 +109,7 @@ export function wireEcosystemServices(repos: EcosystemRepositories): EcosystemSe
     repos.paymentRepository,
     repos.applicationRepository,
     repos.listingPackageRepository,
+    repos.listingRepository,
   );
 
   const franchiseMonetizationService = new FranchiseMonetizationService(

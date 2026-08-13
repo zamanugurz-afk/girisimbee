@@ -44,6 +44,16 @@ export class ForbiddenError extends DomainError {
   }
 }
 
+export class RateLimitError extends DomainError {
+  constructor(message = 'Çok fazla istek. Lütfen daha sonra tekrar deneyin.', retryAfterSec?: number) {
+    super(message, 'RATE_LIMITED', 429);
+    this.name = 'RateLimitError';
+    this.retryAfterSec = retryAfterSec;
+  }
+
+  readonly retryAfterSec?: number;
+}
+
 export class InvalidTransitionError extends DomainError {
   constructor(from: string, to: string) {
     super(`Invalid status transition: ${from} → ${to}`, 'INVALID_TRANSITION', 400);

@@ -7,6 +7,7 @@ import {
   ConflictError,
   ForbiddenError,
   InvalidTransitionError,
+  RateLimitError,
 } from '@/lib/domain/errors';
 import { apiError } from '@/lib/api/response';
 import { traceValidationFailure } from '@/lib/debug/validation-trace';
@@ -44,6 +45,14 @@ export function handleApiError(err: unknown): NextResponse {
 
   if (err instanceof ForbiddenError) {
     return apiError(err.message, 403, { code: err.code });
+  }
+
+  if (err instanceof RateLimitError) {
+    const res = apiError(err.message, 429, { code: err.code });
+    if (err.retryAfterSec) {
+      res.headers.set('Retry-After', String(err.retryAfterSec));
+    }
+    return res;
   }
 
   if (err instanceof ConflictError) {

@@ -9,7 +9,8 @@ export const packageCheckoutSchema = z.object({
 
 export const unlockCheckoutSchema = z.object({
   applicationId: uuidSchema,
-  amountCents: z.number().int().min(1),
+  /** Deprecated client hint — server ignores and uses CANDIDATE_UNLOCK_PRICE_CENTS. */
+  amountCents: z.number().int().min(1).optional(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
 });

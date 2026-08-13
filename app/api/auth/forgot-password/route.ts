@@ -7,6 +7,7 @@ import { canonicalizeSiteOrigin } from '@/lib/site-url';
 import { sendPasswordResetEmail } from '@/lib/email/password-reset';
 import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password-recovery-cookie';
 import { resolveAuthCookieDomain } from '@/lib/supabase/cookie-options';
+import { checkRateLimit, getClientIpFromRequest } from '@/lib/api/rate-limit';
 
 function normalizeAuthEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -18,6 +19,10 @@ const bodySchema = z.object({
 
 const RATE_LIMIT_MESSAGE =
   'Çok sık sıfırlama istediniz. Limit genelde birkaç dakika sürer (bazen 10–15 dk). Gelen kutusu/spam’i kontrol edin, sonra tekrar deneyin.';
+
+/** Soft app-level throttle for custom-mail path (Supabase also rate-limits). */
+const FORGOT_LIMIT = 5;
+const FORGOT_WINDOW_MS = 15 * 60 * 1000;
 
 function isRateLimitError(message: string): boolean {
   return /rate limit|only request this after|security purposes|for security purposes/i.test(
@@ -115,6 +120,15 @@ export async function POST(request: Request) {
   }
 
   const email = normalizeAuthEmail(parsed.data.email);
+
+  const ip = getClientIpFromRequest(request);
+  const limited = checkRateLimit(`forgot:${ip}:${email}`, FORGOT_LIMIT, FORGOT_WINDOW_MS);
+  if (!limited.ok) {
+    const res = apiError(RATE_LIMIT_MESSAGE, 429, { code: 'RATE_LIMITED' });
+    res.headers.set('Retry-After', String(limited.retryAfterSec));
+    return res;
+  }
+
   const origin = canonicalizeSiteOrigin(new URL(request.url).origin);
   // Supabase Auth mailer / generateLink redirect allow-list target.
   // Custom SMTP path does NOT email action_link; it builds an app /auth/callback?token_hash=… URL.
@@ -205,7 +219,8 @@ export async function POST(request: Request) {
         500,
       );
     } catch (error) {
-      console.error('[forgot-password] custom mail path unavailable', error);
+      const message = error instanceof Error ? error.message : 'custom mail path failed';
+      console.error('[forgot-password] custom mail path unavailable', message);
       return apiError(
         'Şifre sıfırlama şu an kullanılamıyor. Lütfen biraz sonra tekrar deneyin.',
         500,
