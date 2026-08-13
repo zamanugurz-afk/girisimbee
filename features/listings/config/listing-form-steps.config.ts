@@ -287,12 +287,14 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'investment',
       title: 'Yatırım Bilgileri',
-      description: 'Yatırım bütçesi, isim hakkı ve geri dönüş beklentileri',
+      description: 'Yatırım bütçesi, giriş / isim hakkı bedeli ve geri dönüş beklentileri',
       customFieldKeys: [
         'totalInvestment',
+        'entryFee',
         'franchiseFee',
         'profitMargin',
         'royaltyFee',
+        'advertisingFee',
         'returnPeriod',
         'averageSetupDuration',
         'minSquareMeters',
@@ -305,6 +307,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       customFieldKeys: [
         'availableCities',
         'districts',
+        'minPopulation',
+        'storeSize',
         'mallAvailable',
         'streetStoreAvailable',
       ],

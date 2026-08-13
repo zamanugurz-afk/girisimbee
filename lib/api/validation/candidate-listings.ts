@@ -43,7 +43,18 @@ export const candidateListingCreateSchema = z
     languages: z.string().max(500).nullable().optional(),
     certificates: z.string().max(500).nullable().optional(),
     preferredSectors: z.array(z.string()).nullable().optional(),
-    preferredRoles: z.string().max(300).nullable().optional(),
+    preferredRoles: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((value) =>
+          value
+            .split(',')
+            .map((part) => part.trim())
+            .filter(Boolean),
+        ),
+      ])
+      .nullable()
+      .optional(),
     preferredCity: z.string().max(100).nullable().optional(),
     workplacePreference: z.string().max(100).nullable().optional(),
     availability: z.string().max(100).nullable().optional(),

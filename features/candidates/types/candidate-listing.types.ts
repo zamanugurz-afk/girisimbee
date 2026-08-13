@@ -16,7 +16,7 @@ export interface CandidateListingDetails {
   languages?: string | null;
   certificates?: string | null;
   preferredSectors?: string[] | null;
-  preferredRoles?: string | null;
+  preferredRoles?: string[] | string | null;
   preferredCity?: string | null;
   workplacePreference?: string | null;
   availability?: string | null;
@@ -46,7 +46,7 @@ export interface CandidateListingPayload {
   languages?: string | null;
   certificates?: string | null;
   preferredSectors?: string[] | null;
-  preferredRoles?: string | null;
+  preferredRoles?: string[] | string | null;
   preferredCity?: string | null;
   workplacePreference?: string | null;
   availability?: string | null;

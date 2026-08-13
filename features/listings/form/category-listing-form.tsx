@@ -52,6 +52,12 @@ import {
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
+import { getSampleListingValues } from '@/features/listings/form/sample-listing-values';
+import {
+  formatDraftAge,
+  useListingFormAutosave,
+  buildListingDraftStorageKey,
+} from '@/features/listings/hooks/use-listing-form-autosave';
 import {
   DEFAULT_PAID_PUBLISH_PACKAGE_SELECTION,
   DEFAULT_PACKAGE_SELECTION,
@@ -142,10 +148,7 @@ function publishConfigForCategory(categoryId: CategoryId) {
   if (variant === 'job') return JOB_PUBLISH_CONFIG;
   return null;
 }
-import {
-  buildListingDraftStorageKey,
-  useListingFormAutosave,
-} from '@/features/listings/hooks/use-listing-form-autosave';
+
 import {
   filterErrorsToCurrentStep,
   findStepIndexForErrors,
@@ -280,6 +283,7 @@ export function CategoryListingForm({
   const [submitting, setSubmitting] = useState<'save' | 'draft' | 'publish' | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [lastAutoSaved, setLastAutoSaved] = useState<Date | null>(null);
+  const [showSampleFill, setShowSampleFill] = useState(false);
   const [restoredDraft, setRestoredDraft] = useState(false);
 
   const currentStep = steps[stepIndex];
@@ -356,7 +360,7 @@ export function CategoryListingForm({
     [stepCustomKeys, leadCustomKeys],
   );
 
-  const { clearDraft, restoreDraft } = useListingFormAutosave({
+  const { clearDraft, restoreDraft, peekDraftMeta } = useListingFormAutosave({
     storageKey,
     values: formValues,
     enabled: !disabled,
@@ -365,6 +369,25 @@ export function CategoryListingForm({
 
   useEffect(() => {
     if (restoredDraft || initialValues) return;
+
+    const meta = peekDraftMeta();
+    if (!meta) {
+      setRestoredDraft(true);
+      return;
+    }
+
+    const age = formatDraftAge(meta.savedAt);
+    const shouldRestore = window.confirm(
+      `Kaydedilmiş taslak bulundu (${age}). Devam etmek ister misiniz?\n\nTamam = taslağı yükle · İptal = taslağı sil ve sıfırdan başla`,
+    );
+
+    if (!shouldRestore) {
+      clearDraft();
+      setRestoredDraft(true);
+      toast.message('Taslak silindi. Sıfırdan başlıyorsunuz.');
+      return;
+    }
+
     const draft = restoreDraft();
     if (!draft) {
       setRestoredDraft(true);
@@ -385,11 +408,25 @@ export function CategoryListingForm({
     );
     setRestoredDraft(true);
     toast.message('Kaydedilmiş taslak geri yüklendi.');
-  }, [initialValues, listingType.fieldSchema, restoreDraft, restoredDraft, defaults.core, categoryId]);
+  }, [
+    initialValues,
+    listingType.fieldSchema,
+    restoreDraft,
+    peekDraftMeta,
+    clearDraft,
+    restoredDraft,
+    defaults.core,
+    categoryId,
+  ]);
 
   useEffect(() => {
     setCustomFields((prev) => mergeCustomFieldDefaults(listingType.fieldSchema, prev));
   }, [listingType.fieldSchema]);
+
+  useEffect(() => {
+    const demo = new URLSearchParams(window.location.search).get('demo') === '1';
+    setShowSampleFill(process.env.NODE_ENV === 'development' || demo);
+  }, []);
 
   /** Load phone from marketplace + account profile (Google users often only have account). */
   useEffect(() => {
@@ -945,7 +982,11 @@ export function CategoryListingForm({
     try {
       await handler(formData);
       console.log('[ListingForm] runFinalStepAction success', { mode });
-      clearDraft();
+      // Keep local draft after server "Taslak Kaydet" so the user can resume;
+      // clear only when the listing is published or edited via save.
+      if (mode !== 'draft') {
+        clearDraft();
+      }
     } catch (err) {
       console.log(formData);
       console.log(validationSnapshot);
@@ -997,12 +1038,45 @@ export function CategoryListingForm({
               <p className="mt-1.5 text-gc-sm text-muted-foreground">{currentStep.description}</p>
             )}
           </div>
-          {lastAutoSaved && isFormStep && (
-            <p className="inline-flex items-center gap-1.5 text-gc-xs text-muted-foreground">
-              <Cloud className="h-3.5 w-3.5" />
-              Otomatik kayıt: {formatAutosaveTime(lastAutoSaved)}
-            </p>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {lastAutoSaved && isFormStep && (
+              <p className="inline-flex items-center gap-1.5 text-gc-xs text-muted-foreground">
+                <Cloud className="h-3.5 w-3.5" />
+                Otomatik kayıt: {formatAutosaveTime(lastAutoSaved)}
+              </p>
+            )}
+            {isFormStep && !disabled && showSampleFill && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-lg text-xs"
+                onClick={() => {
+                  const sample = getSampleListingValues(categoryId);
+                  if (!sample) {
+                    toast.message('Bu kategori için örnek veri yok.');
+                    return;
+                  }
+                  if (sample.core) {
+                    setCore((prev) => ({ ...prev, ...sample.core! }));
+                  }
+                  if (sample.customFields) {
+                    setCustomFields((prev) =>
+                      mergeCustomFieldDefaults(listingType.fieldSchema, {
+                        ...prev,
+                        ...sample.customFields,
+                      }),
+                    );
+                  }
+                  if (sample.tags) setTags(sample.tags);
+                  if (sample.images) setImages(sample.images);
+                  toast.success('Örnek içerik dolduruldu. Gözden geçirip düzenleyebilirsiniz.');
+                }}
+              >
+                Örnek doldur
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">

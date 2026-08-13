@@ -7,6 +7,8 @@ import {
   Briefcase,
   CircleDollarSign,
   Handshake,
+  Landmark,
+  Megaphone,
   Store,
   UserRoundSearch,
   type LucideIcon,
@@ -19,14 +21,16 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
-/** Display order on /ilan/olustur — matches homepage category gateway order. */
+/** Display order on /ilan/olustur — peer categories with clear intent. */
 const PICKER_ORDER: CategoryId[] = [
   CATEGORY_IDS.yatirimBul,
+  CATEGORY_IDS.yatirimYap,
   CATEGORY_IDS.ortakBul,
   CATEGORY_IDS.bayilikAl,
   CATEGORY_IDS.iseAl,
   CATEGORY_IDS.isBul,
   CATEGORY_IDS.dijitalAi,
+  CATEGORY_IDS.genelIlan,
 ];
 
 const CATEGORY_VISUAL: Record<
@@ -38,34 +42,44 @@ const CATEGORY_VISUAL: Record<
   }
 > = {
   [CATEGORY_IDS.yatirimBul]: {
-    audience: 'Yatırım arayanlar',
+    audience: 'Girişimciler · yatırımcı arayanlar',
     Icon: CircleDollarSign,
     color: GC_CATEGORY_COLORS['yatirim-bul'],
   },
+  [CATEGORY_IDS.yatirimYap]: {
+    audience: 'Yatırımcılar · profil yayınlayanlar',
+    Icon: Landmark,
+    color: GC_CATEGORY_COLORS['yatirim-yap'] ?? '#3B82F6',
+  },
   [CATEGORY_IDS.iseAl]: {
-    audience: 'İşverenler',
+    audience: 'İşverenler · açık pozisyon',
     Icon: Briefcase,
     color: GC_CATEGORY_COLORS['ise-al'],
   },
   [CATEGORY_IDS.isBul]: {
-    audience: 'İş arayanlar',
+    audience: 'İş arayanlar · kariyer profili',
     Icon: UserRoundSearch,
     color: '#0EA5E9',
   },
   [CATEGORY_IDS.ortakBul]: {
-    audience: 'Kurucu ortaklık',
+    audience: 'Kurucu / iş ortaklığı',
     Icon: Handshake,
     color: GC_CATEGORY_COLORS['ortak-bul'],
   },
   [CATEGORY_IDS.bayilikAl]: {
-    audience: 'Franchise veren',
+    audience: 'Franchise veren markalar',
     Icon: Store,
     color: GC_CATEGORY_COLORS.franchise,
   },
   [CATEGORY_IDS.dijitalAi]: {
-    audience: 'Ürün & yetenekler',
+    audience: 'Yazılım & AI çözümleri',
     Icon: BrainCircuit,
     color: GC_CATEGORY_COLORS['dijital-ai'],
+  },
+  [CATEGORY_IDS.genelIlan]: {
+    audience: 'Diğer ürün / hizmet / duyuru',
+    Icon: Megaphone,
+    color: GC_CATEGORY_COLORS.ilan,
   },
 };
 
@@ -153,7 +167,9 @@ export function CreateListingCategoryPicker({
           Hangi tür ilan vereceksiniz?
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Kategoriyi seçin; form yalnızca o türe özel alanları gösterir.
+          Kartların üstündeki hedef kitleye göre seçin. Örn. yatırımcı iseniz
+          “Yatırım Yapacağım”, girişimciyseniz “Yatırım Arıyorum”. Form yalnızca
+          seçtiğiniz türe özel alanları gösterir.
         </p>
       </div>
 

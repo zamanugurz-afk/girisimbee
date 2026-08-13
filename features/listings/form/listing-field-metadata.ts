@@ -412,9 +412,8 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 500,
   },
   preferredRoles: {
-    placeholder: 'Örn: Satış uzmanı, müşteri başarı, hesap yöneticisi',
-    helperText: 'Açık olduğunuz ek pozisyonları yazabilirsiniz.',
-    maxLength: 300,
+    helperText:
+      'Ana hedefiniz dışındaki açık olduğunuz pozisyonları seçin (birden fazla seçebilirsiniz).',
   },
   sectorOther: {
     placeholder: 'Örn: Medikal cihaz dağıtımı ve saha teknik servis',

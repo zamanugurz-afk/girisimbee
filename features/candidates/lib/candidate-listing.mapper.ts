@@ -46,7 +46,11 @@ export function extractCandidateListingDetails(listing: Listing): CandidateListi
     preferredSectors: Array.isArray(cf.preferredSectors)
       ? (cf.preferredSectors as string[])
       : null,
-    preferredRoles: (cf.preferredRoles as string | null | undefined) ?? null,
+    preferredRoles: Array.isArray(cf.preferredRoles)
+      ? (cf.preferredRoles as string[])
+      : typeof cf.preferredRoles === 'string' && cf.preferredRoles.trim()
+        ? cf.preferredRoles.split(',').map((part) => part.trim()).filter(Boolean)
+        : null,
     preferredCity: (cf.preferredCity as string | null | undefined) ?? null,
     workplacePreference: (cf.workplacePreference as string | null | undefined) ?? null,
     availability: (cf.availability as string | null | undefined) ?? null,

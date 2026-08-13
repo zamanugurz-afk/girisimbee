@@ -11,6 +11,7 @@ export const SEED_CATEGORIES: CreateCategoryInput[] = [
   { slug: 'ise-al', name: 'İşe Alıyorum', accentColor: '#10B981', icon: 'Briefcase', sortOrder: 5 },
   { slug: 'is-bul', name: 'İş Arıyorum', accentColor: '#0EA5E9', icon: 'UserSearch', sortOrder: 6 },
   { slug: 'dijital-ai', name: 'Dijital & AI Çözümleri', accentColor: '#8B5CF6', icon: 'Sparkles', sortOrder: 7 },
+  { slug: 'genel-ilan', name: 'Genel İlan', accentColor: '#0EA5E9', icon: 'Megaphone', sortOrder: 8 },
 ];
 
 export function createCategory(overrides: Partial<Category> & Pick<Category, 'slug' | 'name' | 'accentColor'>): Category {

@@ -53,10 +53,7 @@ function CreateListingContent() {
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
     searchParams.get('category') ?? searchParams.get('intent') ?? '',
   );
-  const initialCategory =
-    resolvedInitialCategory && resolvedInitialCategory !== CATEGORY_IDS.yatirimYap
-      ? resolvedInitialCategory
-      : null;
+  const initialCategory = resolvedInitialCategory;
 
   const [categoryId, setCategoryId] = useState<CategoryId | null>(initialCategory);
   const [listingTypeId, setListingTypeId] = useState<ListingTypeId | null>(() => {
@@ -98,7 +95,6 @@ function CreateListingContent() {
   }
 
   function selectCategory(id: CategoryId) {
-    if (id === CATEGORY_IDS.yatirimYap) return;
     setCategoryId(id);
     const fromConfig = CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === id);
     const defaultType =

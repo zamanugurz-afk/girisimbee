@@ -93,7 +93,7 @@ export function listingFormValuesToModulePayload(
         languages: readString(customFields.languages),
         certificates: readString(customFields.certificates),
         preferredSectors: readStringArray(customFields.preferredSectors) ?? null,
-        preferredRoles: readString(customFields.preferredRoles),
+        preferredRoles: readStringArray(customFields.preferredRoles) ?? null,
         preferredCity: readString(customFields.preferredCity),
         workplacePreference: readString(customFields.workplacePreference),
         availability: readString(customFields.availability),

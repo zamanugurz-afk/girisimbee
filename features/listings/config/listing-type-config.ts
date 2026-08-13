@@ -224,10 +224,10 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'preferredRoles',
-      label: 'İstenen Pozisyonlar',
-      type: 'string',
+      label: 'Açık Olduğum Pozisyonlar',
+      type: 'multi-enum',
       required: false,
-      max: 300,
+      options: [...JOB_POSITION_OPTIONS],
     },
     {
       key: 'preferredCity',
@@ -414,8 +414,6 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: [...FRANCHISE_BUSINESS_CATEGORY_OPTIONS],
     },
-    { key: 'employeeCount', label: 'Çalışan Sayısı', type: 'number', min: 0 },
-    { key: 'dailyCustomerCapacity', label: 'Günlük Müşteri Kapasitesi', type: 'number', min: 0 },
     { key: 'workingHours', label: 'Çalışma Saatleri', type: 'string', max: 200 },
     { key: 'trainingSupport', label: 'Eğitim Desteği', type: 'boolean' },
     { key: 'operationalSupport', label: 'Operasyon Desteği', type: 'boolean' },
@@ -634,12 +632,19 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     fieldSchema: DIGITAL_AI_FIELD_SCHEMA,
     sortOrder: 1,
   },
+  {
+    listingTypeId: LISTING_TYPE_IDS.genelIlanDefault,
+    categoryId: CATEGORY_IDS.genelIlan,
+    slug: 'genel-ilan',
+    name: 'Genel İlan',
+    description: 'Ürün, hizmet, duyuru veya kampanya — diğer kategorilere uymayan ilanlar',
+    fieldSchema: GENERAL_LISTING_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
 ];
 
-/** Categories selectable on /ilan/olustur (investor create still removed). */
-export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS.filter(
-  (config) => config.categoryId !== CATEGORY_IDS.yatirimYap,
-);
+/** Categories selectable on /ilan/olustur. */
+export const CREATE_LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = LISTING_TYPE_CONFIGS;
 
 /** Map category slug → category ID */
 export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
@@ -651,4 +656,6 @@ export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   franchise: CATEGORY_IDS.bayilikAl,
   'bayilik-al': CATEGORY_IDS.bayilikAl,
   'dijital-ai': CATEGORY_IDS.dijitalAi,
+  'genel-ilan': CATEGORY_IDS.genelIlan,
+  ilan: CATEGORY_IDS.genelIlan,
 };
