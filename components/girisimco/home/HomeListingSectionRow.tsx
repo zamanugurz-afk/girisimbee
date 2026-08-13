@@ -250,9 +250,11 @@ export function HomeListingSectionRow({
         </p>
       ) : visibleItems.length === 0 ? (
         <p className="flex min-h-[14rem] items-center rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">
-          {categoryTab !== 'all'
-            ? 'Bu kategoride henüz ilan yok.'
-            : config.emptyMessage}
+          {categoryTab === 'general'
+            ? 'Henüz genel ilan yayınlanmadı.'
+            : categoryTab !== 'all'
+              ? 'Bu kategoride henüz ilan yok.'
+              : config.emptyMessage}
         </p>
       ) : (
         <>

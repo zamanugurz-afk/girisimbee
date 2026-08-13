@@ -79,6 +79,11 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoTitle: 'Dijital & AI Çözümleri | Girisimbee',
     seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
   },
+  'genel-ilan': {
+    description: 'Ürün, hizmet ve duyuru ilanları',
+    seoTitle: 'Genel İlanlar | Girisimbee',
+    seoDescription: 'Genel ürün, hizmet ve duyuru ilanlarını keşfedin.',
+  },
 };
 
 const CATEGORY_ACCENT_KEYS: Record<string, keyof typeof GC_CATEGORY_COLORS> = {
@@ -89,6 +94,7 @@ const CATEGORY_ACCENT_KEYS: Record<string, keyof typeof GC_CATEGORY_COLORS> = {
   'ortak-bul': 'ortak-bul',
   'bayilik-al': 'franchise',
   'dijital-ai': 'dijital-ai',
+  'genel-ilan': 'ilan',
 };
 
 /** Category slug → page metadata for SEO and card rendering. */
@@ -121,6 +127,7 @@ export const CATEGORY_CONTENT_TYPE: Record<string, ContentType> = {
   'ortak-bul': 'startup',
   'bayilik-al': 'startup',
   'dijital-ai': 'startup',
+  'genel-ilan': 'startup',
 };
 
 /** Category slug → display emoji for cards without images (legacy / gallery fallback). */
@@ -132,6 +139,7 @@ export const CATEGORY_EMOJI: Record<string, string> = {
   'ortak-bul': '🤝',
   'bayilik-al': '🏪',
   'dijital-ai': '🧠',
+  'genel-ilan': '📢',
 };
 
 export const LISTING_SORT_OPTIONS: { value: ListingSortBy; label: string }[] = [

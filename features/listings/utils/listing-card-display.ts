@@ -106,7 +106,7 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   },
   'genel-ilan': {
     emoji: '📢',
-    label: 'İLAN',
+    label: 'GENEL İLAN',
     group: 'genel',
     iconKey: 'general',
   },

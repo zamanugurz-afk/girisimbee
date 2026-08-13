@@ -83,7 +83,8 @@ async function fetchSectionCategoryTabItems(
     return filtered.data;
   }
 
-  // Featured only: if no featured hits in this category, show newest in-category.
+  // Featured: if no featured hits, still show newest published in this category only.
+  // Empty category (e.g. Genel İlanlar with no posts yet) correctly returns [].
   if (sectionId === 'featured') {
     const newest = await browseService.browse({
       page: 1,

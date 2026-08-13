@@ -5,7 +5,10 @@ import type {
   ListingSortBy,
   MarketplaceFilterState,
 } from '@/features/listings/types/marketplace.types';
-import { DEFAULT_SORT } from '@/features/listings/config/marketplace.config';
+import {
+  DEFAULT_SORT,
+  resolveCategorySlug,
+} from '@/features/listings/config/marketplace.config';
 
 export const metadata: Metadata = {
   title: 'Keşfet — Girisimbee Marketplace',
@@ -57,6 +60,11 @@ function exploreTitle(searchParams: Record<string, string | string[] | undefined
   if (searchParams.today === '1' || searchParams.today === 'true') return 'Bugünün İlanları';
   if (searchParams.urgent === '1' || searchParams.urgent === 'true') return 'Acil İlanlar';
   if (searchParams.sort === 'most_viewed') return 'En Çok Görüntülenenler';
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+  if (category) {
+    const meta = resolveCategorySlug(category);
+    if (meta?.label) return meta.label;
+  }
   return 'Keşfet';
 }
 
@@ -67,13 +75,23 @@ interface PageProps {
 export default function ExplorePage({ searchParams }: PageProps) {
   const initialFilters = parseExploreFilters(searchParams);
   const q = typeof searchParams.q === 'string' ? searchParams.q.trim() : undefined;
+  const categoryParam =
+    typeof searchParams.category === 'string' ? searchParams.category.trim() : undefined;
+  const categoryMeta = categoryParam ? resolveCategorySlug(categoryParam) : null;
+  const categorySlug = categoryMeta ? categoryParam : undefined;
 
   return (
     <MarketplaceBrowseView
+      categorySlug={categorySlug}
       title={exploreTitle(searchParams)}
-      description="Tüm kategorilerdeki güncel ilanları inceleyin."
+      description={
+        categoryMeta
+          ? (categoryMeta.description ?? 'Bu kategorideki güncel ilanları inceleyin.')
+          : 'Tüm kategorilerdeki güncel ilanları inceleyin.'
+      }
       initialQuery={q}
       initialFilters={initialFilters}
+      hideCategoryFilter={Boolean(categorySlug)}
     />
   );
 }

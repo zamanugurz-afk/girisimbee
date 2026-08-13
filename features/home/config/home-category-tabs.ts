@@ -86,14 +86,16 @@ export const HOME_CATEGORY_TABS: {
   {
     id: 'general',
     label: 'Genel İlanlar',
-    viewAllHref: '/kesfet',
+    /** Browse genel-ilan category only (İlan Ver → Genel İlan). */
+    viewAllHref: '/kesfet?category=genel-ilan',
     match: (item) => {
       const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
       return (
         item.listingIconKey === 'general'
         || item.listingGroupLabel === 'İlan'
         || type === 'ilan'
-        || type.includes('genel')
+        || type === 'genel ilan'
+        || type.includes('genel ilan')
       );
     },
   },
