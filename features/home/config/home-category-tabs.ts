@@ -7,8 +7,7 @@ export type HomeCategoryTabId =
   | 'partner'
   | 'franchise'
   | 'job'
-  | 'digital-ai'
-  | 'general';
+  | 'digital-ai';
 
 export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> = {
   entrepreneur: 'yatirim-bul',
@@ -16,7 +15,6 @@ export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> 
   franchise: 'bayilik-al',
   job: 'ise-al',
   'digital-ai': 'dijital-ai',
-  general: 'genel-ilan',
 };
 
 export const HOME_CATEGORY_TABS: {
@@ -85,22 +83,6 @@ export const HOME_CATEGORY_TABS: {
         item.listingIconKey === 'digital'
         || item.listingGroupLabel === 'Dijital & AI Çözümleri'
         || type.includes('dijital')
-      );
-    },
-  },
-  {
-    id: 'general',
-    label: 'Genel İlanlar',
-    /** Browse genel-ilan category only (İlan Ver → Genel İlan). */
-    viewAllHref: '/kesfet?category=genel-ilan',
-    match: (item) => {
-      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
-      return (
-        item.listingIconKey === 'general'
-        || item.listingGroupLabel === 'İlan'
-        || type === 'ilan'
-        || type === 'genel ilan'
-        || type.includes('genel ilan')
       );
     },
   },

@@ -196,12 +196,27 @@ export function resolveBrowseCategory(slug: string): BrowseCategoryEntry | null 
   return BROWSE_CATEGORY_MAP[canonical] ?? null;
 }
 
+/**
+ * Browse/discovery categories hidden from UI (schemas + maps kept for restore).
+ * Restore Genel İlanlar: remove 'genel-ilan' from this list.
+ */
+export const BROWSE_DEFERRED_CATEGORY_SLUGS: readonly string[] = [
+  'genel-ilan',
+];
+
+const BROWSE_DEFERRED_SET = new Set(BROWSE_DEFERRED_CATEGORY_SLUGS);
+
+export function isBrowseCategoryDeferred(slug: string): boolean {
+  return BROWSE_DEFERRED_SET.has(resolveBrowseCategorySlug(slug));
+}
+
 export function getBrowseCategorySlugs(): string[] {
-  return Object.keys(BROWSE_CATEGORY_MAP);
+  return Object.keys(BROWSE_CATEGORY_MAP).filter((slug) => !BROWSE_DEFERRED_SET.has(slug));
 }
 
 /** Listing type IDs to use in browse filters (includes app + DB legacy IDs). */
 export function resolveListingTypeIdsFromBrowseSlug(slug: string): ListingTypeId[] {
+  if (isBrowseCategoryDeferred(slug)) return [];
   const entry = resolveBrowseCategory(slug);
   if (!entry) return [];
   return uniqueIds(entry.filterListingTypeIds.flatMap((id) => expandListingTypeIdFilter(id)));

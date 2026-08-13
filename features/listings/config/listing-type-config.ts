@@ -645,10 +645,11 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
 
 /**
  * Categories deferred from /ilan/olustur picker (schemas/configs kept for restore).
- * To bring Yatırım Yapacağım back: remove CATEGORY_IDS.yatirimYap from this list.
+ * Restore by removing the id from this list (+ uncomment PICKER_ORDER entry).
  */
 export const CREATE_LISTING_DEFERRED_CATEGORY_IDS: readonly CategoryId[] = [
   CATEGORY_IDS.yatirimYap,
+  CATEGORY_IDS.genelIlan,
 ];
 
 const CREATE_DEFERRED_SET = new Set<string>(CREATE_LISTING_DEFERRED_CATEGORY_IDS);

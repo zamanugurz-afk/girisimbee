@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * Display order on /ilan/olustur.
- * Yatırım Yapacağım (yatirimYap) is deferred from create — kept in CATEGORY_VISUAL for restore.
+ * Deferred types (yatirimYap, genelIlan) kept in CATEGORY_VISUAL for restore.
  */
 const PICKER_ORDER: CategoryId[] = [
   CATEGORY_IDS.yatirimBul,
@@ -33,7 +33,7 @@ const PICKER_ORDER: CategoryId[] = [
   CATEGORY_IDS.iseAl,
   CATEGORY_IDS.isBul,
   CATEGORY_IDS.dijitalAi,
-  CATEGORY_IDS.genelIlan,
+  // CATEGORY_IDS.genelIlan, // deferred — restore with CREATE_LISTING_DEFERRED_CATEGORY_IDS
 ];
 
 const CATEGORY_VISUAL: Record<

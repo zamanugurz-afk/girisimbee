@@ -5,6 +5,7 @@ import {
   BROWSE_CATEGORY_MAP,
   BROWSE_CATEGORY_SLUG_ALIASES,
   getBrowseCategorySlugs,
+  isBrowseCategoryDeferred,
   resolveBrowseCategory,
   resolveBrowseCategorySlug,
 } from '@/features/listings/config/marketplace-category-map';
@@ -171,6 +172,7 @@ export const BROWSE_FAVORITE_SORT_CAP = 5000;
 
 export function resolveCategorySlug(slug: string): CategoryPageMeta | null {
   const canonical = resolveBrowseCategorySlug(slug);
+  if (isBrowseCategoryDeferred(canonical)) return null;
   return CATEGORY_PAGE_CONFIG[canonical] ?? null;
 }
 

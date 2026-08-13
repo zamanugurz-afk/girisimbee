@@ -198,6 +198,8 @@ export {
   resolveListingTypeIdsFromBrowseSlug,
   resolveBrowseCategory,
   getBrowseCategorySlugs,
+  isBrowseCategoryDeferred,
+  BROWSE_DEFERRED_CATEGORY_SLUGS,
 } from '@/features/listings/config/marketplace-category-map';
 export type {
   JobFlowFilter,
