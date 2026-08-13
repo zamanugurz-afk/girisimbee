@@ -28,8 +28,6 @@ interface HomeListingSectionRowProps {
 const DESKTOP_LIMIT = 4;
 const SECTION_GRID_CLASS = 'hidden gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-4';
 
-type TabFetchCache = Partial<Record<HomeCategoryTabId, ContentItem[]>>;
-
 export function HomeListingSectionRow({
   config,
   state,
@@ -37,65 +35,51 @@ export function HomeListingSectionRow({
   onCategoryTabChange,
   showCategoryTabs = false,
 }: HomeListingSectionRowProps) {
-  const [tabItems, setTabItems] = useState<ContentItem[] | null>(null);
-  const [itemsForTab, setItemsForTab] = useState<HomeCategoryTabId>('all');
-  const [tabLoading, setTabLoading] = useState(false);
-  const [tabError, setTabError] = useState<string | null>(null);
-  const cacheRef = useRef<TabFetchCache>({});
-  const fetchGenRef = useRef(0);
-
   const activeTabConfig =
     HOME_CATEGORY_TABS.find((tab) => tab.id === categoryTab) ?? HOME_CATEGORY_TABS[0];
 
+  /** Instant client filter from already-loaded section items. */
   const localFiltered = useMemo(() => {
-    if (activeTabConfig.id === 'all') {
+    if (categoryTab === 'all') {
       return state.items.slice(0, DESKTOP_LIMIT);
     }
     return state.items.filter(activeTabConfig.match).slice(0, DESKTOP_LIMIT);
-  }, [activeTabConfig, state.items]);
+  }, [activeTabConfig, categoryTab, state.items]);
 
-  const localFilteredKey = useMemo(
-    () => localFiltered.map((item) => item.id).join('|'),
-    [localFiltered],
-  );
+  const [remoteItems, setRemoteItems] = useState<ContentItem[] | null>(null);
+  const [remoteTab, setRemoteTab] = useState<HomeCategoryTabId | null>(null);
+  const [remoteLoading, setRemoteLoading] = useState(false);
+  const [remoteError, setRemoteError] = useState<string | null>(null);
+  const fetchGenRef = useRef(0);
+  const cacheRef = useRef<Partial<Record<string, ContentItem[]>>>({});
+
+  const needsRemote =
+    categoryTab !== 'all' && !state.isLoading && localFiltered.length === 0;
 
   useEffect(() => {
-    if (categoryTab === 'all') {
+    if (!needsRemote) {
       fetchGenRef.current += 1;
-      setTabItems(null);
-      setItemsForTab('all');
-      setTabLoading(false);
-      setTabError(null);
+      setRemoteLoading(false);
+      setRemoteError(null);
       return;
     }
 
-    // Prefer already-loaded section items when the tab has matches.
-    if (localFiltered.length > 0) {
-      fetchGenRef.current += 1;
-      setTabItems(localFiltered);
-      setItemsForTab(categoryTab);
-      setTabLoading(false);
-      setTabError(null);
-      return;
-    }
-
-    // Cache empty arrays too — otherwise empty tabs refetch forever.
-    if (Object.prototype.hasOwnProperty.call(cacheRef.current, categoryTab)) {
-      fetchGenRef.current += 1;
-      setTabItems(cacheRef.current[categoryTab] ?? []);
-      setItemsForTab(categoryTab);
-      setTabLoading(false);
-      setTabError(null);
+    const cacheKey = `${config.id}:${categoryTab}`;
+    if (Object.prototype.hasOwnProperty.call(cacheRef.current, cacheKey)) {
+      setRemoteItems(cacheRef.current[cacheKey] ?? []);
+      setRemoteTab(categoryTab);
+      setRemoteLoading(false);
+      setRemoteError(null);
       return;
     }
 
     const tabId = categoryTab;
     const generation = ++fetchGenRef.current;
     const controller = new AbortController();
-    setTabItems(null);
-    setItemsForTab(tabId);
-    setTabLoading(true);
-    setTabError(null);
+    setRemoteLoading(true);
+    setRemoteError(null);
+    setRemoteItems(null);
+    setRemoteTab(tabId);
 
     void (async () => {
       try {
@@ -116,19 +100,19 @@ export function HomeListingSectionRow({
           throw new Error(body.error ?? 'İlanlar yüklenemedi');
         }
         const items = (body.data?.items ?? []).slice(0, DESKTOP_LIMIT);
-        cacheRef.current[tabId] = items;
-        setTabItems(items);
-        setItemsForTab(tabId);
+        cacheRef.current[cacheKey] = items;
+        setRemoteItems(items);
+        setRemoteTab(tabId);
       } catch (error) {
         if (generation !== fetchGenRef.current) return;
         if (error instanceof DOMException && error.name === 'AbortError') return;
         if (error instanceof Error && error.name === 'AbortError') return;
-        setTabItems([]);
-        setItemsForTab(tabId);
-        setTabError(error instanceof Error ? error.message : 'İlanlar yüklenemedi');
+        setRemoteItems([]);
+        setRemoteTab(tabId);
+        setRemoteError(error instanceof Error ? error.message : 'İlanlar yüklenemedi');
       } finally {
         if (generation === fetchGenRef.current) {
-          setTabLoading(false);
+          setRemoteLoading(false);
         }
       }
     })();
@@ -136,30 +120,26 @@ export function HomeListingSectionRow({
     return () => {
       controller.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- localFilteredKey tracks item ids
-  }, [categoryTab, config.id, localFilteredKey]);
+  }, [needsRemote, categoryTab, config.id]);
 
-  const tabReady = categoryTab === 'all' || (itemsForTab === categoryTab && !tabLoading);
-  const visibleItems =
-    categoryTab === 'all'
-      ? localFiltered
-      : tabReady
-        ? (tabItems ?? localFiltered)
-        : [];
+  const visibleItems = useMemo(() => {
+    if (categoryTab === 'all') return localFiltered;
+    if (localFiltered.length > 0) return localFiltered;
+    if (remoteTab === categoryTab && remoteItems) return remoteItems;
+    return [];
+  }, [categoryTab, localFiltered, remoteItems, remoteTab]);
 
   const viewAllHref =
     showCategoryTabs && categoryTab !== 'all'
       ? activeTabConfig.viewAllHref
       : config.viewAllHref;
-  const showLoading = state.isLoading || (categoryTab !== 'all' && !tabReady);
+
+  const showLoading =
+    state.isLoading
+    || (needsRemote && remoteLoading && !(remoteTab === categoryTab && remoteItems));
 
   function selectTab(id: HomeCategoryTabId) {
     if (!onCategoryTabChange || id === categoryTab) return;
-    fetchGenRef.current += 1;
-    setTabError(null);
-    setTabItems(null);
-    setItemsForTab(id);
-    setTabLoading(id !== 'all');
     onCategoryTabChange(id);
   }
 
@@ -264,9 +244,9 @@ export function HomeListingSectionRow({
             ))}
           </div>
         </>
-      ) : state.error || tabError ? (
+      ) : state.error || remoteError ? (
         <p className="rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">
-          {tabError ?? state.error}
+          {remoteError ?? state.error}
         </p>
       ) : visibleItems.length === 0 ? (
         <p className="flex min-h-[14rem] items-center rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">

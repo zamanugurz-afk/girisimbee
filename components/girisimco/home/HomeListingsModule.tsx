@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useMemo,
   useState,
@@ -12,9 +11,7 @@ import {
   HOME_LISTING_SECTIONS,
   useHomeListingSections,
 } from '@/features/home';
-import {
-  type HomeCategoryTabId,
-} from '@/features/home/config/home-category-tabs';
+import { type HomeCategoryTabId } from '@/features/home/config/home-category-tabs';
 import { HomeListingSectionRow } from '@/components/girisimco/home/HomeListingSectionRow';
 import type { HomeListingSectionsResult } from '@/features/home';
 import { cn } from '@/lib/utils';
@@ -35,20 +32,18 @@ export function useHomeListingsCtx() {
 }
 
 export function HomeListingsProvider({ children }: { children: ReactNode }) {
-  const sectionsState = useHomeListingSections();
-  const [categoryTab, setCategoryTabState] = useState<HomeCategoryTabId>('all');
-
-  const setCategoryTab = useCallback((tab: HomeCategoryTabId) => {
-    setCategoryTabState(tab);
-  }, []);
+  const { sections, isLoading, refresh } = useHomeListingSections();
+  const [categoryTab, setCategoryTab] = useState<HomeCategoryTabId>('all');
 
   const value = useMemo(
     () => ({
-      ...sectionsState,
+      sections,
+      isLoading,
+      refresh,
       categoryTab,
       setCategoryTab,
     }),
-    [sectionsState, categoryTab, setCategoryTab],
+    [sections, isLoading, refresh, categoryTab],
   );
 
   return <HomeListingsCtx.Provider value={value}>{children}</HomeListingsCtx.Provider>;

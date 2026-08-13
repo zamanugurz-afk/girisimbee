@@ -35,17 +35,23 @@ export const HOME_CATEGORY_TABS: {
     id: 'entrepreneur',
     label: 'Girişimci',
     viewAllHref: '/invest',
-    match: (item) =>
-      item.listingIconKey === 'investment'
-      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('yatırım arıyorum') === true,
+    match: (item) => {
+      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+      return (
+        item.listingIconKey === 'investment'
+        || type.includes('yatırım arıyorum')
+        || (item.listingGroupLabel === 'Yatırım' && item.listingIconKey !== 'investor' && !type.includes('yatırım yap'))
+      );
+    },
   },
   {
     id: 'investor',
     label: 'Yatırımcı',
     viewAllHref: '/investors',
-    match: (item) =>
-      item.listingIconKey === 'investor'
-      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('yatırım yapıyorum') === true,
+    match: (item) => {
+      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+      return item.listingIconKey === 'investor' || type.includes('yatırım yapıyorum') || type.includes('yatırım yap');
+    },
   },
   {
     id: 'job',
@@ -68,19 +74,28 @@ export const HOME_CATEGORY_TABS: {
     id: 'digital-ai',
     label: 'Dijital & AI Çözümleri',
     viewAllHref: '/dijital-ai',
-    match: (item) =>
-      item.listingIconKey === 'digital'
-      || item.listingGroupLabel === 'Dijital & AI Çözümleri'
-      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR').includes('dijital') === true,
+    match: (item) => {
+      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+      return (
+        item.listingIconKey === 'digital'
+        || item.listingGroupLabel === 'Dijital & AI Çözümleri'
+        || type.includes('dijital')
+      );
+    },
   },
   {
     id: 'general',
     label: 'Genel İlanlar',
     viewAllHref: '/kesfet',
-    match: (item) =>
-      item.listingIconKey === 'general'
-      || item.listingGroupLabel === 'İlan'
-      || item.listingTypeLabel?.toLocaleLowerCase('tr-TR') === 'ilan',
+    match: (item) => {
+      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+      return (
+        item.listingIconKey === 'general'
+        || item.listingGroupLabel === 'İlan'
+        || type === 'ilan'
+        || type.includes('genel')
+      );
+    },
   },
 ];
 
