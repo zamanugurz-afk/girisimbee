@@ -139,4 +139,29 @@ describe('career experience validation', () => {
     expect(parsed[0]?.duration).toBe('5 yıl');
     expect(validateCareerExperiences(parsed)).toBeNull();
   });
+
+  it('rejects a second experience that overlaps an existing period', () => {
+    const first = {
+      ...createEmptyCareerExperience(),
+      id: '1',
+      sector: 'Sigorta',
+      role: 'Sigorta satış uzmanı',
+      startMonth: 1,
+      startYear: 2026,
+      endMonth: 6,
+      endYear: 2026,
+      selectedResponsibilities: ['Müşteri portföyü yönetimi', 'Yeni müşteri kazanımı'],
+      responsibilities: 'Müşteri portföyü yönetimi\nYeni müşteri kazanımı',
+    };
+    const overlapping = {
+      ...first,
+      id: '2',
+      role: 'Sigorta teknik uzmanı',
+      startMonth: 2,
+      startYear: 2026,
+      endMonth: 5,
+      endYear: 2026,
+    };
+    expect(validateCareerExperiences([first, overlapping])).toMatch(/çakışıyor/);
+  });
 });

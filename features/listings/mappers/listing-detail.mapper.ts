@@ -29,7 +29,10 @@ import type { Listing } from '@/features/listings/types/listing.entity.types';
 import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 import type { ModuleKey } from '@/lib/domain/modules';
-import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
+import {
+  resolveCareerCoverRole,
+  resolveListingCoverUrl,
+} from '@/features/listings/config/listing-cover.config';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { formatListingNumber } from '@/features/listings/utils/listing-number';
 import {
@@ -291,6 +294,11 @@ export function aggregateToListingDetail(
             imageUrl: resolveListingCoverUrl({
               listingTypeSlug,
               group: cardDisplay.group,
+              sector: toDisplayValue(cf.primarySector),
+              role: resolveCareerCoverRole(
+                toDisplayValue(cf.desiredRole),
+                toDisplayValue(cf.desiredRoleOther),
+              ),
             }),
           },
         ];

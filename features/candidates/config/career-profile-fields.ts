@@ -5,6 +5,7 @@
 import {
   formatCareerPeriod,
   validateCareerPeriod,
+  validateExperienceOverlaps,
 } from '@/features/candidates/lib/career-experience-dates';
 import { findCareerTextQualityIssue } from '@/features/candidates/lib/career-text-quality';
 import {
@@ -256,5 +257,6 @@ export function validateCareerExperiences(experiences: CareerExperience[]): stri
       if (metricIssue) return `${prefix} ${metricIssue}`;
     }
   }
-  return null;
+
+  return validateExperienceOverlaps(experiences);
 }

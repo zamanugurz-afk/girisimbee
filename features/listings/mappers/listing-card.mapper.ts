@@ -4,7 +4,10 @@ import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import { hasAnyTrustBadge } from '@/features/authentication/types/trust.types';
 import { categoryRegistry } from '@/features/listings/config/category-registry';
 import { CATEGORY_PAGE_CONFIG } from '@/features/listings/config/marketplace.config';
-import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
+import {
+  resolveCareerCoverRole,
+  resolveListingCoverUrl,
+} from '@/features/listings/config/listing-cover.config';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
 
@@ -89,6 +92,17 @@ export function listingToContentItem(
       uploadedUrl: uploadedCoverUrl,
       listingTypeSlug,
       group: cardDisplay.group,
+      sector: typeof listing.customFields?.primarySector === 'string'
+        ? listing.customFields.primarySector
+        : null,
+      role: resolveCareerCoverRole(
+        typeof listing.customFields?.desiredRole === 'string'
+          ? listing.customFields.desiredRole
+          : null,
+        typeof listing.customFields?.desiredRoleOther === 'string'
+          ? listing.customFields.desiredRoleOther
+          : null,
+      ),
     }),
     tag: hasAnyTrustBadge(trust ?? { user: false, company: false, investor: false })
       ? undefined

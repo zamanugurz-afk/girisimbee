@@ -136,7 +136,7 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
       placeholder:
         'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum. Firma adı, telefon veya sosyal medya hesabı yazmıyorum; iletişim platform üzerinden.',
       helperText:
-        'Detay sayfasında gösterilir. En az 100 karakter. Telefon, e-posta, adres veya firma adı yazmayın.',
+        'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. Telefon, e-posta, adres veya firma adı yazmayın.',
       maxLength: 10000,
     },
   },

@@ -109,29 +109,90 @@ export function validateCareerPeriod(input: {
   return null;
 }
 
-/** Approximate total experience years from period rows (for kariyer kartı). */
-export function estimateTotalExperienceYears(
-  periods: Array<{
-    startMonth?: number | null;
-    startYear?: number | null;
-    endMonth?: number | null;
-    endYear?: number | null;
-    isCurrent?: boolean;
-  }>,
-): number | null {
-  let months = 0;
-  let counted = 0;
-  for (const p of periods) {
-    if (!p.startMonth || !p.startYear) continue;
-    const endY = p.isCurrent ? currentYear() : p.endYear;
-    const endM = p.isCurrent ? currentMonth() : p.endMonth;
-    if (!endY || !endM) continue;
-    const span = toMonthIndex(endY, endM) - toMonthIndex(p.startYear, p.startMonth) + 1;
-    if (span > 0) {
-      months += span;
-      counted += 1;
+export type CareerPeriodInput = {
+  startMonth?: number | null;
+  startYear?: number | null;
+  endMonth?: number | null;
+  endYear?: number | null;
+  isCurrent?: boolean;
+};
+
+export type CareerPeriodInterval = {
+  start: number;
+  end: number;
+  index: number;
+};
+
+export function toCareerPeriodInterval(
+  period: CareerPeriodInput,
+  index = 0,
+): CareerPeriodInterval | null {
+  if (!period.startMonth || !period.startYear) return null;
+  const start = toMonthIndex(period.startYear, period.startMonth);
+  const endY = period.isCurrent ? currentYear() : period.endYear;
+  const endM = period.isCurrent ? currentMonth() : period.endMonth;
+  if (!endY || !endM) return null;
+  const end = toMonthIndex(endY, endM);
+  if (end < start) return null;
+  return { start, end, index };
+}
+
+export function periodsOverlap(a: CareerPeriodInterval, b: CareerPeriodInterval): boolean {
+  return a.start <= b.end && b.start <= a.end;
+}
+
+/** Inclusive month ranges that share at least one month. Adjacent months are allowed. */
+export function findOverlappingExperiencePair(
+  periods: CareerPeriodInput[],
+): { firstIndex: number; secondIndex: number } | null {
+  const intervals = periods
+    .map((period, index) => toCareerPeriodInterval(period, index))
+    .filter((interval): interval is CareerPeriodInterval => Boolean(interval));
+
+  for (let i = 0; i < intervals.length; i += 1) {
+    for (let j = i + 1; j < intervals.length; j += 1) {
+      const left = intervals[i]!;
+      const right = intervals[j]!;
+      if (periodsOverlap(left, right)) {
+        return {
+          firstIndex: Math.min(left.index, right.index),
+          secondIndex: Math.max(left.index, right.index),
+        };
+      }
     }
   }
-  if (!counted) return null;
+  return null;
+}
+
+export function validateExperienceOverlaps(periods: CareerPeriodInput[]): string | null {
+  const pair = findOverlappingExperiencePair(periods);
+  if (!pair) return null;
+  const first = formatCareerPeriod(periods[pair.firstIndex] ?? {});
+  const second = formatCareerPeriod(periods[pair.secondIndex] ?? {});
+  const firstLabel = first || `${pair.firstIndex + 1}. deneyim`;
+  const secondLabel = second || `${pair.secondIndex + 1}. deneyim`;
+  return `${pair.firstIndex + 1}. deneyim (${firstLabel}) ile ${pair.secondIndex + 1}. deneyim (${secondLabel}) tarihleri çakışıyor. Aynı dönemde ikinci bir deneyim eklenemez.`;
+}
+
+/** Approximate total experience years from period rows (for kariyer kartı). */
+export function estimateTotalExperienceYears(periods: CareerPeriodInput[]): number | null {
+  const intervals = periods
+    .map((period, index) => toCareerPeriodInterval(period, index))
+    .filter((interval): interval is CareerPeriodInterval => Boolean(interval))
+    .sort((a, b) => a.start - b.start);
+
+  if (intervals.length === 0) return null;
+
+  const merged: CareerPeriodInterval[] = [];
+  for (const interval of intervals) {
+    const last = merged[merged.length - 1];
+    if (last && interval.start <= last.end + 1) {
+      last.end = Math.max(last.end, interval.end);
+    } else {
+      merged.push({ ...interval });
+    }
+  }
+
+  const months = merged.reduce((sum, interval) => sum + (interval.end - interval.start + 1), 0);
   return Math.max(0, Math.round(months / 12));
 }

@@ -12,6 +12,7 @@ import {
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
 import {
   MONTH_OPTIONS,
+  validateExperienceOverlaps,
   yearOptions,
 } from '@/features/candidates/lib/career-experience-dates';
 import {
@@ -38,6 +39,7 @@ export function CareerExperienceEditor({
 }) {
   const rows = value.length > 0 ? value : [createEmptyCareerExperience()];
   const years = yearOptions();
+  const overlapError = rows.length > 1 ? validateExperienceOverlaps(rows) : null;
 
   function updateRow(id: string, patch: Partial<CareerExperience>) {
     onChange(rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -59,10 +61,11 @@ export function CareerExperienceEditor({
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
         Şirket bilgisini kaydedebilirsiniz; kamu kariyer kartında şirket adı, logo ve URL
-        gösterilmez. Pozisyon ve sorumlulukları mümkün olduğunca listeden seçin.
+        gösterilmez. Yıllar yeniden eskiye sıralıdır. Deneyim tarihleri çakışamaz.
       </p>
 
       {rows.map((row, index) => {
+        const endYears = row.startYear ? years.filter((year) => year >= row.startYear!) : years;
         const positions = getPositionsForSector(row.sector);
         const roleIsManual = isManualCareerOption(row.role);
         const responsibilities = suggestResponsibilities({
@@ -244,7 +247,7 @@ export function CareerExperienceEditor({
                     }
                   >
                     <option value="">Yıl</option>
-                    {years.map((y) => (
+                    {endYears.map((y) => (
                       <option key={y} value={y}>
                         {y}
                       </option>
@@ -304,7 +307,8 @@ export function CareerExperienceEditor({
         );
       })}
 
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {overlapError ? <p className="text-sm text-destructive">{overlapError}</p> : null}
+      {error && error !== overlapError ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={addRow}>
         <Plus className="mr-1.5 h-3.5 w-3.5" />

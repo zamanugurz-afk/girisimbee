@@ -227,6 +227,11 @@ export function findStepIndexForErrors(
     return cvStep >= 0 ? cvStep : null;
   }
 
+  if (fieldKey === 'experiences') {
+    const experienceStep = steps.findIndex((step) => step.experienceEditor);
+    return experienceStep >= 0 ? experienceStep : null;
+  }
+
   if (fieldKey === 'kvkkConsents' || fieldKey === 'publishConsents' || fieldKey === 'contactPhone') {
     const kvkkStep = steps.findIndex((step) => step.kvkk);
     return kvkkStep >= 0 ? kvkkStep : null;

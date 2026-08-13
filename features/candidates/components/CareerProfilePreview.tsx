@@ -1,9 +1,29 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import {
+  Award,
+  Briefcase,
+  Calendar,
+  Check,
+  GraduationCap,
+  Languages,
+  MapPin,
+  Monitor,
+  Shield,
+} from 'lucide-react';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
-import { estimateTotalExperienceYears } from '@/features/candidates/lib/career-experience-dates';
-import { getExperienceLevelLabel } from '@/features/candidates/taxonomy/career-taxonomy';
+import {
+  estimateTotalExperienceYears,
+  toCareerPeriodInterval,
+} from '@/features/candidates/lib/career-experience-dates';
+import {
+  getExperienceLevelLabel,
+  parseCareerLanguages,
+  parseSelectedList,
+} from '@/features/candidates/taxonomy/career-taxonomy';
+import { GcTag } from '@/components/girisimco/ui/gc-tag';
+import { cn } from '@/lib/utils';
 
 export type CareerCardInput = {
   desiredRole?: string | null;
@@ -26,27 +46,66 @@ export type CareerCardInput = {
 };
 
 function asList(value: string[] | string | null | undefined): string[] {
-  if (Array.isArray(value)) return value.filter(Boolean);
-  if (typeof value === 'string' && value.trim()) {
-    return value.split(/[,•|·]/).map((s) => s.trim()).filter(Boolean);
-  }
-  return [];
+  return parseSelectedList(value);
 }
 
-function skillChips(text: string | null | undefined): string[] {
+function roleInitials(role: string | null | undefined): string {
+  const words = (role ?? '')
+    .split(/\s+/)
+    .map((word) => word.trim())
+    .filter((word) => word && !/^(ve|ile|veya|\/|-)$/i.test(word));
+  if (words.length === 0) return 'KK';
+  if (words.length === 1) return words[0]!.slice(0, 2).toLocaleUpperCase('tr-TR');
+  return `${words[0]!.charAt(0)}${words[1]!.charAt(0)}`.toLocaleUpperCase('tr-TR');
+}
+
+function bullets(text: string | null | undefined, limit = 3): string[] {
   if (!text?.trim()) return [];
   return text
-    .split(/[,•|·/\n]/)
-    .map((s) => s.trim())
+    .split(/\n|[•]/)
+    .map((line) => line.trim())
     .filter(Boolean)
-    .slice(0, 12);
+    .slice(0, limit);
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function ChipRow({ values, limit = 5 }: { values: string[]; limit?: number }) {
+  if (values.length === 0) return <p className="text-sm text-muted-foreground">—</p>;
+  const visible = values.slice(0, limit);
+  const hidden = values.length - visible.length;
   return (
-    <div>
-      <p className="text-xs font-medium text-muted-foreground">{title}</p>
-      <div className="mt-1 text-sm text-foreground">{children}</div>
+    <div className="flex flex-wrap gap-1.5">
+      {visible.map((value) => (
+        <GcTag key={value} variant="default" size="sm">
+          {value}
+        </GcTag>
+      ))}
+      {hidden > 0 ? (
+        <GcTag variant="muted" size="sm">
+          +{hidden}
+        </GcTag>
+      ) : null}
+    </div>
+  );
+}
+
+function CardSection({
+  icon: Icon,
+  title,
+  children,
+  className,
+}: {
+  icon: typeof Briefcase;
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('min-w-0', className)}>
+      <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+        <Icon className="h-3.5 w-3.5 text-primary" aria-hidden />
+        {title}
+      </p>
+      {children}
     </div>
   );
 }
@@ -59,9 +118,19 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
     : data.primarySector
       ? [data.primarySector]
       : [];
-  const professional = skillChips(data.professionalSkills);
-  const technical = skillChips(data.technicalSkills);
-  const experiences = data.experiences ?? [];
+  const professional = asList(data.professionalSkills);
+  const technical = asList(data.technicalSkills);
+  const certificates = asList(data.certificates);
+  const languages = parseCareerLanguages(data.languages).filter(
+    (entry) => (entry.languageOther || entry.language) && entry.level,
+  );
+  const experiences = [...(data.experiences ?? [])].sort((a, b) => {
+    const aInterval = toCareerPeriodInterval(a);
+    const bInterval = toCareerPeriodInterval(b);
+    if (aInterval && bInterval) return bInterval.end - aInterval.end;
+    return 0;
+  });
+  const featuredExperience = experiences[0];
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const totalYears = estimateTotalExperienceYears(experiences);
   const experienceHeadline =
@@ -70,92 +139,196 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
       : experiences.length > 0
         ? `${experiences.length} deneyim`
         : null;
+  const initials = roleInitials(data.desiredRole);
+  const hook = (data.longDescription ?? '').trim().split(/(?<=[.!?…])\s+/)[0] ?? '';
 
   return (
-    <div className="space-y-5 rounded-xl border border-border/70 bg-card p-5">
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Kariyer Kartı
-        </p>
-        <h3 className="mt-1 font-display text-xl font-semibold text-foreground">
-          {data.desiredRole || 'Pozisyon belirtilmedi'}
-        </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {[levelLabel, experienceHeadline].filter(Boolean).join(' · ') || 'Seviye belirtilmedi'}
-        </p>
+    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+      <div className="grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="flex min-w-0 gap-4">
+          <div className="relative h-16 w-16 shrink-0">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+              {initials}
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
+              <Check className="h-3 w-3" aria-hidden />
+            </span>
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-display text-xl font-semibold text-foreground">
+              {data.desiredRole || 'Pozisyon belirtilmedi'}
+            </h3>
+            {data.primarySector ? (
+              <p className="mt-0.5 text-sm font-medium text-primary">{data.primarySector}</p>
+            ) : null}
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              {levelLabel ? (
+                <span className="inline-flex items-center gap-1">
+                  <Briefcase className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  {levelLabel}
+                </span>
+              ) : null}
+              {experienceHeadline ? (
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  {experienceHeadline}
+                </span>
+              ) : null}
+              {data.preferredCity ? (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  {data.preferredCity}
+                </span>
+              ) : null}
+            </div>
+            {hook ? (
+              <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                {hook}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-primary/15 bg-primary/[0.05] p-4">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <Monitor className="h-3.5 w-3.5 text-primary" aria-hidden />
+            Çalışma tercihi
+          </p>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            {data.workplacePreference || data.workType || 'Belirtilmedi'}
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {[data.workType, data.availability, data.preferredCity].filter(Boolean).join(' · ')
+              || 'Çalışma modeli belirtilmedi'}
+          </p>
+          {data.salaryExpectation ? (
+            <p className="mt-2 text-xs font-medium text-primary">{data.salaryExpectation}</p>
+          ) : null}
+        </div>
       </div>
 
-      {sectorChips.length > 0 ? (
-        <Section title="Uzmanlık alanları / sektörler">
-          {sectorChips.join(' · ')}
-        </Section>
-      ) : null}
-
-      {professional.length > 0 ? (
-        <Section title="Mesleki yetkinlikler">{professional.join(' · ')}</Section>
-      ) : null}
-
-      {technical.length > 0 ? (
-        <Section title="Teknik yetkinlikler">{technical.join(' · ')}</Section>
-      ) : null}
-
-      {(data.educationLevel || data.educationField) ? (
-        <Section title="Eğitim">
-          {[data.educationLevel, data.educationField].filter(Boolean).join(' · ')}
-        </Section>
-      ) : null}
-
-      {data.languages ? <Section title="Yabancı dil">{data.languages}</Section> : null}
-
-      {data.certificates ? <Section title="Sertifikalar">{data.certificates}</Section> : null}
-
-      <div>
-        <p className="text-xs font-medium text-muted-foreground">Çalışma tercihi</p>
-        <p className="mt-1 text-sm text-foreground">
-          {[data.preferredCity, data.workplacePreference, data.workType, data.availability]
-            .filter(Boolean)
-            .join(' · ') || '—'}
-        </p>
-        {data.salaryExpectation ? (
-          <p className="mt-0.5 text-sm text-muted-foreground">{data.salaryExpectation}</p>
-        ) : null}
+      <div className="grid gap-4 border-t border-border/60 px-5 py-4 md:grid-cols-3">
+        <CardSection icon={Briefcase} title="Uzmanlık alanları">
+          <ChipRow values={sectorChips} />
+        </CardSection>
+        <CardSection icon={Award} title="Mesleki yetkinlikler">
+          <ChipRow values={professional} />
+        </CardSection>
+        <CardSection icon={Monitor} title="Teknik yetkinlikler">
+          <ChipRow values={technical} />
+        </CardSection>
       </div>
 
-      {experiences.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Kariyer deneyimleri</p>
-          <ul className="space-y-2">
+      <div className="grid gap-4 border-t border-border/60 px-5 py-4 md:grid-cols-3">
+        <CardSection icon={Briefcase} title="Deneyim">
+          {featuredExperience ? (
+            <div className="space-y-1.5">
+              <p className="text-sm font-semibold text-foreground">{featuredExperience.role}</p>
+              {featuredExperience.sector ? (
+                <p className="text-xs text-muted-foreground">{featuredExperience.sector}</p>
+              ) : null}
+              {featuredExperience.duration ? (
+                <p className="text-xs font-medium text-primary">{featuredExperience.duration}</p>
+              ) : null}
+              <ul className="space-y-1 text-xs text-muted-foreground">
+                {bullets(featuredExperience.responsibilities).map((item) => (
+                  <li key={item} className="flex gap-1.5">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              {experiences.length > 1 ? (
+                <p className="pt-1 text-xs font-medium text-primary">
+                  Tüm deneyimler ({experiences.length})
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Deneyim eklenmedi</p>
+          )}
+        </CardSection>
+
+        <CardSection icon={GraduationCap} title="Eğitim">
+          {data.educationLevel || data.educationField ? (
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                {data.educationLevel || 'Eğitim'}
+              </p>
+              {data.educationField ? (
+                <p className="mt-1 text-sm text-primary">{data.educationField}</p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Belirtilmedi</p>
+          )}
+        </CardSection>
+
+        <CardSection icon={Award} title="Sertifikalar">
+          {certificates.length > 0 ? (
+            <ul className="space-y-1.5">
+              {certificates.slice(0, 4).map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-foreground">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+              {certificates.length > 4 ? (
+                <li className="text-xs font-medium text-primary">
+                  Tüm sertifikalar ({certificates.length})
+                </li>
+              ) : null}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">Belirtilmedi</p>
+          )}
+        </CardSection>
+      </div>
+
+      {(languages.length > 0 || data.longDescription) ? (
+        <div className="grid gap-4 border-t border-border/60 px-5 py-4 md:grid-cols-2">
+          <CardSection icon={Languages} title="Yabancı diller">
+            {languages.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {languages.map((entry) => {
+                  const name = entry.languageOther?.trim() || entry.language;
+                  return (
+                    <span key={`${name}-${entry.level}`} className="inline-flex items-center gap-2 text-sm">
+                      <span className="font-medium text-foreground">{name}</span>
+                      <GcTag variant="default" size="sm">
+                        {entry.level}
+                      </GcTag>
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Belirtilmedi</p>
+            )}
+          </CardSection>
+          {data.longDescription ? (
+            <div className="rounded-xl bg-primary/[0.04] px-4 py-3">
+              <p className="text-xs font-semibold text-foreground">Kariyer özeti</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                {data.longDescription}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {experiences.length > 1 ? (
+        <div className="space-y-2 border-t border-border/60 px-5 py-4">
+          <p className="text-xs font-semibold text-foreground">Tüm kariyer deneyimleri</p>
+          <ul className="grid gap-2 md:grid-cols-2">
             {experiences.map((exp) => (
-              <li
-                key={exp.id}
-                className="rounded-lg border border-border/50 bg-muted/20 px-3 py-2 text-sm"
-              >
-                <p className="font-medium text-foreground">
+              <li key={exp.id} className="rounded-xl border border-border/60 bg-muted/20 px-3 py-2">
+                <p className="text-sm font-medium text-foreground">
                   {exp.role}
                   {exp.sector ? ` · ${exp.sector}` : ''}
                 </p>
                 {exp.duration ? (
-                  <p className="text-xs text-muted-foreground">{exp.duration}</p>
-                ) : null}
-                {exp.responsibilities ? (
-                  <div className="mt-1.5">
-                    <p className="text-[11px] font-medium text-muted-foreground">
-                      Temel sorumluluklar
-                    </p>
-                    <p className="mt-0.5 whitespace-pre-line text-muted-foreground line-clamp-4">
-                      {exp.responsibilities}
-                    </p>
-                  </div>
-                ) : null}
-                {exp.achievements ? (
-                  <div className="mt-1.5">
-                    <p className="text-[11px] font-medium text-muted-foreground">
-                      Öne çıkan başarılar
-                    </p>
-                    <p className="mt-0.5 whitespace-pre-line text-muted-foreground line-clamp-3">
-                      {exp.achievements}
-                    </p>
-                  </div>
+                  <p className="text-xs font-medium text-primary">{exp.duration}</p>
                 ) : null}
               </li>
             ))}
@@ -163,13 +336,8 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
         </div>
       ) : null}
 
-      {data.longDescription ? (
-        <Section title="Kariyer özeti">
-          <p className="whitespace-pre-wrap leading-relaxed">{data.longDescription}</p>
-        </Section>
-      ) : null}
-
-      <p className="rounded-lg border border-dashed border-border/70 px-3 py-2 text-xs text-muted-foreground">
+      <p className="flex items-start gap-2 border-t border-border/60 px-5 py-3 text-xs text-muted-foreground">
+        <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
         Ad, soyad, şirket ve iletişim bilgileri gizli. İşverenler “İletişim Talebi Gönder” ile
         ulaşabilir; talebi kabul etmeden kişisel iletişim bilgileriniz paylaşılmaz.
       </p>

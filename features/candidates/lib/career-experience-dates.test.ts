@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   formatCareerPeriod,
   validateCareerPeriod,
+  validateExperienceOverlaps,
+  yearOptions,
 } from './career-experience-dates';
 
 describe('career experience dates', () => {
@@ -42,5 +44,28 @@ describe('career experience dates', () => {
         isCurrent: false,
       }),
     ).toMatch(/Bitiş/);
+  });
+
+  it('lists years from newest to oldest', () => {
+    const years = yearOptions(2020, 2026);
+    expect(years[0]).toBe(2026);
+    expect(years[years.length - 1]).toBe(2020);
+    expect(years).toEqual([2026, 2025, 2024, 2023, 2022, 2021, 2020]);
+  });
+
+  it('rejects overlapping experience periods and allows adjacent months', () => {
+    expect(
+      validateExperienceOverlaps([
+        { startMonth: 1, startYear: 2026, endMonth: 6, endYear: 2026 },
+        { startMonth: 2, startYear: 2026, endMonth: 5, endYear: 2026 },
+      ]),
+    ).toMatch(/çakışıyor/);
+
+    expect(
+      validateExperienceOverlaps([
+        { startMonth: 1, startYear: 2026, endMonth: 6, endYear: 2026 },
+        { startMonth: 7, startYear: 2026, endMonth: 12, endYear: 2026 },
+      ]),
+    ).toBeNull();
   });
 });

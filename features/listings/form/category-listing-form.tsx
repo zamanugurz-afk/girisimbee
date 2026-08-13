@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,6 +55,7 @@ import {
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
+import { buildCareerSummaryDraft } from '@/features/candidates/lib/career-summary';
 import {
   materializeCareerEducationFields,
   materializeCareerSkillsFields,
@@ -314,6 +315,9 @@ export function CategoryListingForm({
   const isExperienceStep = Boolean(currentStep.experienceEditor);
   const isCareerSkillsStep = Boolean(currentStep.careerSkillsEditor);
   const isCareerEducationStep = Boolean(currentStep.careerEducationEditor);
+  const isCareerSummaryStep =
+    categoryId === CATEGORY_IDS.isBul
+    && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -328,6 +332,47 @@ export function CategoryListingForm({
     () => mergeCustomFieldDefaults(listingType.fieldSchema, customFields),
     [listingType.fieldSchema, customFields],
   );
+  const lastAutoCareerSummaryRef = useRef('');
+  const careerSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.isBul) return '';
+    return buildCareerSummaryDraft({
+      desiredRole: isManualCareerOption(mergedCustomFields.desiredRole)
+        ? String(mergedCustomFields.desiredRoleOther ?? '')
+        : String(mergedCustomFields.desiredRole ?? ''),
+      experienceLevel: String(mergedCustomFields.experienceLevel ?? ''),
+      primarySector: String(mergedCustomFields.primarySector ?? ''),
+      workType: String(mergedCustomFields.workType ?? ''),
+      preferredSectors: mergedCustomFields.preferredSectors as string[] | string,
+      professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
+      technicalSkills: String(mergedCustomFields.technicalSkills ?? ''),
+      educationLevel: String(mergedCustomFields.educationLevel ?? ''),
+      educationField: String(mergedCustomFields.educationField ?? ''),
+      languages: String(mergedCustomFields.languages ?? ''),
+      preferredCity: String(mergedCustomFields.preferredCity ?? ''),
+      workplacePreference: String(mergedCustomFields.workplacePreference ?? ''),
+      availability: String(mergedCustomFields.availability ?? ''),
+      experiences: parseCareerExperiences(mergedCustomFields.experiences),
+    });
+  }, [categoryId, mergedCustomFields]);
+
+  useEffect(() => {
+    if (!isCareerSummaryStep || !careerSummaryDraft) return;
+    const current = (core.longDescription ?? '').trim();
+    if (!current || current === lastAutoCareerSummaryRef.current) {
+      lastAutoCareerSummaryRef.current = careerSummaryDraft;
+      setCore((prev) => (
+        prev.longDescription === careerSummaryDraft
+          ? prev
+          : { ...prev, longDescription: careerSummaryDraft }
+      ));
+    }
+  }, [careerSummaryDraft, core.longDescription, isCareerSummaryStep]);
+
+  const applyCareerSummaryDraft = useCallback(() => {
+    if (!careerSummaryDraft) return;
+    lastAutoCareerSummaryRef.current = careerSummaryDraft;
+    setCore((prev) => ({ ...prev, longDescription: careerSummaryDraft }));
+  }, [careerSummaryDraft]);
 
   const formValues = useMemo(
     (): ListingFormValues => ({
@@ -1340,6 +1385,25 @@ export function CategoryListingForm({
                   />
                 );
               })}
+
+              {isCareerSummaryStep ? (
+                <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık.
+                    Kullanabilir veya tamamen kendiniz yazabilirsiniz.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
+                    disabled={disabled || isBusy}
+                    onClick={applyCareerSummaryDraft}
+                  >
+                    Özeti yeniden oluştur
+                  </Button>
+                </div>
+              ) : null}
 
               {currentStep.coreFields && currentStep.coreFields.length > 0 && (
                 <CoreListingFields
