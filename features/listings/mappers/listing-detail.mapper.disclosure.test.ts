@@ -283,6 +283,14 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.careerCard?.desiredRole).toBe('Hemşire');
     expect(detail.careerCard?.primarySector).toBe('Sağlık');
     expect(detail.careerCard?.requiredResponsibilities).toMatch(/Hasta bakımı/);
+    expect(detail.careerCard?.requiredAchievements).toMatch(/Servis kalite/);
+    expect(detail.careerCard?.professionalSkills).toMatch(/Hasta iletişimi/);
+    expect(detail.careerCard?.technicalSkills).toMatch(/HIS/);
+    expect(detail.careerCard?.educationLevel).toBe('Lisans');
+    expect(detail.careerCard?.workplacePreference).toBe('Ofis');
+    expect(detail.careerCard?.workType).toBe('Tam zamanlı');
+    expect(detail.careerCard?.availability).toBe('1 ay içinde');
+    expect(detail.careerCard?.preferredCity).toBe('İstanbul');
     expect(detail.careerCard?.salaryRange).toBe('75.000 - 100.000 TL');
     expect(detail.careerCard?.birthDate).toBeFalsy();
     expect(detail.customFacts).toEqual([]);
