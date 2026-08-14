@@ -109,8 +109,8 @@ export function buildListingDraftStorageKey(
   listingTypeId: string,
   listingId?: string,
 ): string {
-  if (listingId) return `Girisimbee-listing-draft:edit:${listingId}`;
-  return `Girisimbee-listing-draft:create:${categoryId}:${listingTypeId}`;
+  if (listingId) return `Girisimbee-listing-draft-v2:edit:${listingId}`;
+  return `Girisimbee-listing-draft-v2:create:${categoryId}:${listingTypeId}`;
 }
 
 export function formatDraftAge(savedAt: number): string {
