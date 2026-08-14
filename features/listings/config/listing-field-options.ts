@@ -308,7 +308,6 @@ export const CAREER_WORKPLACE_OPTIONS = [
   'Fabrika / Tesis',
   'Vardiyalı',
   'Mağaza / Şube',
-  'Araç üzeri',
 ] as const;
 
 /** Rank the shared workplace list for the current sector + role. Does not drop options. */
@@ -322,8 +321,8 @@ export function rankWorkplaceOptions(
 
   if (/fabrika|üretim|sanayi|operatör|vardiya|işçi/.test(hay)) {
     preferred = ['Fabrika / Tesis', 'Vardiyalı', 'Saha'];
-  } else if (/şoför|kurye|sürücü|teslimat|araç üzeri/.test(hay)) {
-    preferred = ['Araç üzeri', 'Saha', 'Vardiyalı'];
+  } else if (/şoför|kurye|sürücü|teslimat/.test(hay)) {
+    preferred = ['Saha', 'Vardiyalı', 'Ofis'];
   } else if (/inşaat|şantiye|montaj|teknisyen|saha satış|servis danışman/.test(hay)) {
     preferred = ['Saha', 'Fabrika / Tesis', 'Hibrit'];
   } else if (/mağaza|perakende|kasiyer|şube|market/.test(hay)) {

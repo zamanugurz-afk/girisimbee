@@ -107,6 +107,8 @@ describe('career preference suggestions from experience', () => {
     expect(roles).toEqual(
       expect.arrayContaining(['Frontend geliştirici', 'CTO / Teknik lider', 'Ürün yöneticisi', MANUAL_OPTION]),
     );
+    expect(roles.indexOf('CTO / Teknik lider')).toBeLessThan(roles.indexOf('QA / Test uzmanı'));
+    expect(roles.indexOf('Ürün yöneticisi')).toBeLessThan(roles.indexOf('QA / Test uzmanı'));
     expect(roles).not.toContain('Şube müdürü');
     expect(roles).not.toContain('Aşçı');
   });
@@ -198,5 +200,113 @@ describe('career preference suggestions from experience', () => {
     expect(roles).not.toContain('İnsan kaynakları uzmanı');
     expect(roles).not.toContain('Sigorta satış uzmanı');
     expect(roles).not.toContain('İş geliştirme uzmanı');
+  });
+
+  it('puts shop-floor peers first for a factory worker, then related titles A–Z', () => {
+    const input = {
+      experiences: [{ sector: 'Üretim / Sanayi', role: 'Fabrika işçisi', roleOther: '' }],
+    };
+
+    const sectors = suggestPreferredSectors(input);
+    expect(sectors[0]).toBe('Üretim / Sanayi');
+    expect(sectors.indexOf('Üretim / Sanayi')).toBeLessThan(sectors.indexOf('Demir-çelik / Metal'));
+    expect(sectors.indexOf('Otomotiv')).toBeLessThan(sectors.indexOf(MANUAL_OPTION));
+    const relatedSectors = sectors.slice(sectors.indexOf('Üretim / Sanayi') + 1, -1);
+    const firstRelated = relatedSectors.find((sector) => sector !== 'Üretim / Sanayi');
+    expect(firstRelated).toBeTruthy();
+    const azSectors = relatedSectors.slice();
+    expect(azSectors).toEqual([...azSectors].sort((a, b) => a.localeCompare(b, 'tr')));
+    expect(sectors).not.toContain('Madencilik');
+    expect(sectors).not.toContain('Turizm / Otelcilik');
+    expect(sectors).not.toContain('Tarım');
+
+    const roles = suggestPreferredRoles(input);
+    expect(roles[0]).toBe('Fabrika işçisi');
+    expect(roles).toEqual(
+      expect.arrayContaining(['Üretim işçisi', 'Makine operatörü', 'Vardiya amiri', MANUAL_OPTION]),
+    );
+    expect(roles.indexOf('Üretim işçisi')).toBeLessThan(roles.indexOf('İş sağlığı ve güvenliği uzmanı'));
+    expect(roles.indexOf('Makine operatörü')).toBeLessThan(roles.indexOf('Kalite kontrol uzmanı'));
+    expect(roles.indexOf('Vardiya amiri')).toBeLessThan(roles.indexOf('Mühendis (makine)'));
+
+    const relatedStart = Math.min(
+      ...['Bakım teknisyeni', 'İş sağlığı ve güvenliği uzmanı', 'Kalite kontrol uzmanı', 'Mühendis (endüstri)']
+        .map((title) => roles.indexOf(title))
+        .filter((index) => index >= 0),
+    );
+    const relatedRoles = roles.slice(relatedStart, -1).filter((title) => {
+      return !['Fabrika işçisi', 'Üretim işçisi', 'Makine operatörü', 'Vardiya amiri', 'Üretim sorumlusu', 'Bakım teknisyeni'].includes(title);
+    });
+    const specialistTail = roles.filter((title) =>
+      ['İş sağlığı ve güvenliği uzmanı', 'Kalite kontrol uzmanı', 'Mühendis (endüstri)', 'Mühendis (makine)', 'Üretim planlama uzmanı'].includes(title),
+    );
+    expect(specialistTail.length).toBeGreaterThan(1);
+    expect(specialistTail).toEqual([...specialistTail].sort((a, b) => a.localeCompare(b, 'tr')));
+
+    expect(roles).not.toContain('Gıda mühendisi');
+    expect(roles).not.toContain('Çelik işçisi');
+    expect(roles).not.toContain('Kaynakçı');
+    expect(roles).not.toContain('Mobilya ustası');
+    expect(roles).not.toContain('Torna / freze operatörü');
+    expect(relatedRoles.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('keeps metal trades together for a steel worker, not furniture or food engineering', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Demir-çelik / Metal', role: 'Çelik işçisi', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('Çelik işçisi');
+    expect(roles).toEqual(expect.arrayContaining(['Kaynakçı', 'Torna / freze operatörü', 'Üretim işçisi', MANUAL_OPTION]));
+    expect(roles.indexOf('Kaynakçı')).toBeLessThan(roles.indexOf('İş sağlığı ve güvenliği uzmanı') === -1 ? roles.length : roles.indexOf('İş sağlığı ve güvenliği uzmanı'));
+    expect(roles).not.toContain('Mobilya ustası');
+    expect(roles).not.toContain('Gıda mühendisi');
+  });
+
+  it('ranks İSG with quality peers, not as a generic factory dump', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Üretim / Sanayi', role: 'İş sağlığı ve güvenliği uzmanı', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('İş sağlığı ve güvenliği uzmanı');
+    expect(roles).toEqual(expect.arrayContaining(['Kalite kontrol uzmanı', MANUAL_OPTION]));
+    expect(roles.indexOf('Kalite kontrol uzmanı')).toBeLessThan(roles.indexOf('Fabrika işçisi'));
+    expect(roles).not.toContain('Gıda mühendisi');
+    expect(roles).not.toContain('Çelik işçisi');
+  });
+
+  it('keeps machine engineers with engineers, not line workers', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Üretim / Sanayi', role: 'Mühendis (makine)', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('Mühendis (makine)');
+    expect(roles).toEqual(expect.arrayContaining(['Mühendis (endüstri)', MANUAL_OPTION]));
+    expect(roles).not.toContain('Fabrika işçisi');
+    expect(roles).not.toContain('Kaynakçı');
+    expect(roles).not.toContain('Gıda mühendisi');
+  });
+
+  it('keeps nurse titles in health and construction trades off the sales desk', () => {
+    const nurseRoles = suggestPreferredRoles({
+      experiences: [{ sector: 'Sağlık', role: 'Hemşire', roleOther: '' }],
+    });
+    expect(nurseRoles[0]).toBe('Hemşire');
+    expect(nurseRoles).toEqual(expect.arrayContaining(['Doktor', 'Ebe', MANUAL_OPTION]));
+    expect(nurseRoles).not.toContain('Garson');
+    expect(nurseRoles).not.toContain('Satış temsilcisi');
+
+    const constructionRoles = suggestPreferredRoles({
+      experiences: [{ sector: 'İnşaat / Gayrimenkul', role: 'İnşaat işçisi', roleOther: '' }],
+    });
+    expect(constructionRoles[0]).toBe('İnşaat işçisi');
+    expect(constructionRoles).toEqual(expect.arrayContaining(['Şantiye şefi', MANUAL_OPTION]));
+    expect(constructionRoles).not.toContain('Gayrimenkul danışmanı');
+    expect(constructionRoles).not.toContain('Fabrika işçisi');
+
+    const driverRoles = suggestPreferredRoles({
+      experiences: [{ sector: 'Ulaşım / Şoförlük', role: 'Şoför (kamyon / TIR)', roleOther: '' }],
+    });
+    expect(driverRoles[0]).toBe('Şoför (kamyon / TIR)');
+    expect(driverRoles).toEqual(expect.arrayContaining(['Şoför (hafif ticari)', MANUAL_OPTION]));
+    expect(driverRoles).not.toContain('Fabrika işçisi');
+    expect(driverRoles).not.toContain('Kaynakçı');
   });
 });

@@ -1,8 +1,10 @@
 /**
  * Default listing card covers when the listing has no uploaded images.
- * Static AI-generated photos per listing type (no runtime AI cost).
- * İş Arıyorum covers vary by sector / role and optional private gender.
+ * Static photos per listing type / career theme (no runtime AI cost).
+ * Theme is resolved from role family + sector; AI only fills leftover titles.
  */
+import type { RoleFamily } from '@/features/candidates/taxonomy/career-position-catalog';
+import { resolveRoleFamily } from '@/features/candidates/taxonomy/career-position-catalog';
 import type { ListingCardGroup } from '@/features/listings/utils/listing-card-display';
 
 const COVER_BY_TYPE_SLUG: Record<string, string> = {
@@ -73,6 +75,131 @@ const CAREER_PERSON_COVERS: Record<CareerCoverGender, Partial<Record<CareerCover
   },
 };
 
+/** Occupation-specific families. Cross-sector managers use the sector instead. */
+const FAMILY_COVER_THEME: Partial<Record<RoleFamily, CareerCoverTheme>> = {
+  factory: 'uretim',
+  shiftSupervisor: 'uretim',
+  productionLead: 'uretim',
+  construction: 'uretim',
+  siteChief: 'uretim',
+  energy: 'uretim',
+  farm: 'uretim',
+  farmLead: 'uretim',
+  logistics: 'uretim',
+  warehouseLead: 'uretim',
+  driver: 'uretim',
+  reception: 'turizm',
+  host: 'turizm',
+  housekeeping: 'turizm',
+  hotelOps: 'turizm',
+  restaurant: 'turizm',
+  kitchen: 'turizm',
+  restaurantManager: 'turizm',
+  kitchenChef: 'turizm',
+  software: 'yazilim',
+  techLead: 'yazilim',
+  data: 'yazilim',
+  product: 'yazilim',
+  design: 'yazilim',
+  devops: 'yazilim',
+  qa: 'yazilim',
+  teacher: 'egitim',
+  schoolPrincipal: 'egitim',
+  insuranceOps: 'sigorta',
+  bankFront: 'finans',
+  branchManager: 'finans',
+  portfolioManager: 'finans',
+  credit: 'finans',
+  accounting: 'finans',
+  retail: 'satis',
+  cashier: 'satis',
+  storeManager: 'satis',
+  salesIndoor: 'satis',
+  salesField: 'satis',
+  marketing: 'satis',
+  brandManager: 'satis',
+  beauty: 'satis',
+  autoService: 'uretim',
+  serviceManager: 'uretim',
+  callCenter: 'genel',
+  customerSuccess: 'genel',
+};
+
+const SECTOR_COVER_THEME: Record<string, CareerCoverTheme> = {
+  'Bilişim / Yazılım': 'yazilim',
+  'Yapay zeka / Veri': 'yazilim',
+  'Ar-Ge': 'yazilim',
+  'Oyun / E-spor': 'yazilim',
+  'Telekomünikasyon': 'yazilim',
+  'Finans / Bankacılık': 'finans',
+  'Muhasebe / Mali müşavirlik': 'finans',
+  'Holding / Yönetim': 'finans',
+  Sigorta: 'sigorta',
+  Satış: 'satis',
+  'Pazarlama / Reklam': 'satis',
+  'Halkla ilişkiler': 'satis',
+  'E-ticaret / Pazaryeri': 'satis',
+  'Perakende / Mağaza': 'satis',
+  'Güzellik / Kişisel bakım': 'satis',
+  Eğitim: 'egitim',
+  'Kreş / Çocuk bakımı': 'egitim',
+  'Spor / Fitness': 'egitim',
+  Sağlık: 'saglik',
+  'Eczane / İlaç': 'saglik',
+  'Veteriner / Pet': 'saglik',
+  'Sosyal hizmet / STK': 'saglik',
+  'Turizm / Otelcilik': 'turizm',
+  'Gıda / Restoran': 'turizm',
+  Havacılık: 'turizm',
+  'Üretim / Sanayi': 'uretim',
+  'Tekstil / Hazır giyim': 'uretim',
+  Otomotiv: 'uretim',
+  'Elektrik-elektronik': 'uretim',
+  'Demir-çelik / Metal': 'uretim',
+  'Kimya / Plastik': 'uretim',
+  'Kağıt / Ambalaj': 'uretim',
+  Mobilya: 'uretim',
+  'İnşaat / Gayrimenkul': 'uretim',
+  'İklimlendirme / Tesisat': 'uretim',
+  'Lojistik / Depolama': 'uretim',
+  'Kargo / Kurye': 'uretim',
+  'Ulaşım / Şoförlük': 'uretim',
+  'Denizcilik / Liman': 'uretim',
+  Enerji: 'uretim',
+  Tarım: 'uretim',
+  'Çevre / Geri dönüşüm': 'uretim',
+  'Mühendislik / Teknik': 'uretim',
+  'Savunma sanayi': 'uretim',
+  Madencilik: 'uretim',
+};
+
+/**
+ * Title overrides reviewed with OpenAI against the available cover set.
+ * Used when family + sector would otherwise pick a mismatched scene.
+ */
+const COVER_THEME_BY_TITLE: Record<string, CareerCoverTheme> = {
+  'İş sağlığı ve güvenliği uzmanı': 'uretim',
+  'Gıda mühendisi': 'uretim',
+  'Kalite kontrol uzmanı': 'uretim',
+  'Üretim planlama uzmanı': 'uretim',
+  'Bakım teknisyeni': 'uretim',
+  'Servis danışmanı': 'genel',
+  Doktor: 'saglik',
+  Hemşire: 'saglik',
+  Ebe: 'saglik',
+  'Sağlık teknikeri': 'saglik',
+  Fizyoterapist: 'saglik',
+  'Hasta bakıcı': 'saglik',
+  'Ambulans görevlisi': 'saglik',
+  'Klinik sorumlusu': 'saglik',
+  'Hastane yöneticisi': 'saglik',
+  'Eczane teknisyeni': 'saglik',
+  'Diş teknisyeni': 'saglik',
+  'Laboratuvar teknikeri': 'saglik',
+  'Veteriner teknisyeni': 'saglik',
+  'Hasta kabul görevlisi': 'saglik',
+};
+
 export function resolveCareerCoverRole(
   desiredRole?: string | null,
   desiredRoleOther?: string | null,
@@ -96,29 +223,48 @@ export function resolveCareerCoverTheme(
   sector?: string | null,
   role?: string | null,
 ): CareerCoverTheme {
-  const hay = `${sector ?? ''} ${role ?? ''}`.toLocaleLowerCase('tr-TR');
+  const trimmedRole = (role ?? '').trim();
+  const trimmedSector = (sector ?? '').trim();
+  const hay = `${trimmedSector} ${trimmedRole}`.toLocaleLowerCase('tr-TR');
+
+  if (/iş sağlığı|iş güvenliği|\bisg\b|occupational health/.test(hay)) return 'uretim';
+  if (/servis danışman/.test(hay)) return 'genel';
+
+  const titled = COVER_THEME_BY_TITLE[trimmedRole];
+  if (titled) return titled;
+
   if (/sigorta|poliçe|hasar|broker|underwriter|segem/.test(hay)) return 'sigorta';
-  if (/sağlık|hemşire|doktor|klinik|hasta|medikal|eczane|fizyo|ebe|ambulans|veteriner/.test(hay)) {
+  if (
+    /hemşire|doktor|klinik|hasta|medikal|eczane|fizyo|ambulans|veteriner/.test(hay)
+    || /(^|[^a-zığüşöç])ebe([^a-zığüşöç]|$)/.test(hay)
+  ) {
     return 'saglik';
   }
-  if (/yazılım|bilişim|geliştirici|devops|frontend|backend|full-stack|veri|yapay zeka|data|qa |sistem yöneticisi|prompt/.test(hay)) {
+  if (/yazılım|geliştirici|devops|frontend|backend|full-stack|yapay zeka|data engineer|sistem yöneticisi|prompt/.test(hay)) {
     return 'yazilim';
   }
-  if (/eğitim|öğretmen|akademisyen|eğitmen|okul/.test(hay)) return 'egitim';
-  if (/kredi uzman|bankacı|banka|finans|muhasebe|mali müşavir|kredi|hazine|uyum|iç kontrol/.test(hay)) {
+  if (/öğretmen|akademisyen|eğitmen|okul müdür/.test(hay)) return 'egitim';
+  if (/kredi uzman|bankacı|mali müşavir|muhasebeci|hazine uzman|iç kontrol|uyum \(compliance\)/.test(hay)) {
     return 'finans';
   }
-  if (/resepsiyon|ön büro|host|hostes|otel|turizm|garson|aşçı|şef \/ mutfak|barista|animatör|kat görev|housekeep|komi/.test(hay)) {
+  if (/resepsiyon|ön büro|hostes|otel müdür|garson|aşçı|şef \/ mutfak|barista|animatör|kat görev|komi/.test(hay)) {
     return 'turizm';
   }
-  if (/servis danışman/.test(hay)) return 'genel';
-  if (/üretim|sanayi|inşaat|otomotiv|enerji|lojistik|depo|sevkiyat|şoför|forklift|şantiye|tarım|ziraat/.test(hay)) {
+  if (/fabrika|kaynakçı|çelik işç|torna|forklift|şantiye|kalite kontrol|bakım teknisyen|üretim işç|makine operatör/.test(hay)) {
     return 'uretim';
   }
-  if (/satış|perakende|pazarlama|kasiyer|mağaza|gayrimenkul danışman|key account/.test(hay)) {
+  if (/şoför|kurye|ziraat|çiftçi/.test(hay)) return 'uretim';
+  if (/kasiyer|mağaza müdür|satış danışman|gayrimenkul danışman|key account/.test(hay)) {
     return 'satis';
   }
-  return 'genel';
+
+  const family = resolveRoleFamily(trimmedRole);
+  if (family) {
+    const fromFamily = FAMILY_COVER_THEME[family];
+    if (fromFamily) return fromFamily;
+  }
+
+  return SECTOR_COVER_THEME[trimmedSector] ?? 'genel';
 }
 
 function resolveCareerCoverPath(opts: {
@@ -129,9 +275,11 @@ function resolveCareerCoverPath(opts: {
   const theme = resolveCareerCoverTheme(opts.sector, opts.role);
   const gender = resolveCareerCoverGender(opts.gender);
   if (gender) {
-    return CAREER_PERSON_COVERS[gender][theme]
-      ?? CAREER_PERSON_COVERS[gender].genel
-      ?? CAREER_SCENE_COVER_BY_THEME[theme];
+    const person = CAREER_PERSON_COVERS[gender][theme];
+    if (person) return person;
+    // Factory / hotel / etc. have no gendered portrait — keep the matching scene.
+    if (theme !== 'genel') return CAREER_SCENE_COVER_BY_THEME[theme];
+    return CAREER_PERSON_COVERS[gender].genel ?? CAREER_SCENE_COVER_BY_THEME.genel;
   }
   return CAREER_SCENE_COVER_BY_THEME[theme];
 }

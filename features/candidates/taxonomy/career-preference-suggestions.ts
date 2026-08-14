@@ -1,5 +1,6 @@
 /**
- * Kariyer Tercihleri option lists, ranked from experience sector + position.
+ * Kariyer Tercihleri option lists, ranked from the latest job's sector + position.
+ * Closest / connected titles stay in front; other related titles are A–Z.
  * Does not auto-select preferredSectors / preferredRoles — only the picker catalog.
  */
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
@@ -96,43 +97,59 @@ const FRONTLINE_SECTORS = new Set([
   'Güvenlik',
 ]);
 
-/** Peer clusters. Managers stay with managers; specialists stay with specialists. */
-const FAMILY_CLUSTERS: RoleFamily[][] = [
-  [
-    'branchManager',
-    'regionalManager',
-    'salesManager',
-    'portfolioManager',
-    'officeManager',
-    'consulting',
-    'hrManager',
-  ],
-  ['credit', 'accounting', 'insuranceOps', 'portfolioManager'],
+/**
+ * Tight occupation proximity for preference titles.
+ * Wide clusters (factory+construction+driver) leaked unrelated shop titles.
+ */
+const PREFERENCE_PROXIMITY: RoleFamily[][] = [
+  ['salesIndoor', 'salesField', 'salesManager', 'regionalManager'],
+  ['storeManager', 'regionalManager', 'salesManager'],
+  ['branchManager', 'regionalManager', 'salesManager', 'portfolioManager', 'consulting'],
   ['bankFront', 'callCenter', 'customerSuccess'],
-  ['salesIndoor', 'salesField', 'customerSuccess'],
-  [
-    'storeManager',
-    'regionalManager',
-    'salesManager',
-    'warehouseLead',
-    'brandManager',
-  ],
-  ['retail', 'cashier'],
+  ['credit', 'insuranceOps', 'portfolioManager'],
+  ['accounting'],
+  ['software', 'techLead', 'devops', 'qa', 'data'],
+  ['product', 'design'],
+  ['factory', 'shiftSupervisor', 'productionLead'],
+  ['logistics', 'warehouseLead'],
+  ['driver'],
+  ['hr', 'hrManager'],
+  ['hrManager', 'officeManager'],
+  ['marketing', 'brandManager', 'media', 'mediaLead'],
+  ['retail', 'cashier', 'storeManager'],
+  ['reception', 'host', 'housekeeping', 'hotelOps'],
+  ['restaurant', 'kitchen', 'restaurantManager', 'kitchenChef'],
   ['restaurantManager', 'kitchenChef', 'hotelOps'],
-  ['restaurant', 'kitchen', 'reception', 'host', 'housekeeping'],
-  ['software', 'techLead', 'data', 'product', 'design', 'devops', 'qa'],
-  ['hr', 'legal', 'public', 'teacher'],
-  ['hrManager', 'officeManager', 'schoolPrincipal'],
-  ['marketing', 'brandManager', 'media', 'mediaLead', 'design'],
-  ['warehouseLead', 'productionLead', 'shiftSupervisor', 'siteChief'],
-  ['logistics', 'driver', 'factory', 'construction'],
-  ['autoService'],
-  ['serviceManager', 'salesManager'],
+  ['construction', 'siteChief'],
+  ['autoService', 'serviceManager'],
+  ['teacher', 'schoolPrincipal'],
   ['farm', 'farmLead'],
   ['beauty', 'retail', 'cashier'],
-  ['security', 'shiftSupervisor', 'public'],
-  ['admin'],
+  ['security'],
+  ['admin', 'officeManager'],
+  ['energy'],
+  ['public', 'admin'],
+  ['legal'],
 ];
+
+const TECH_FAMILIES = new Set<RoleFamily>([
+  'software',
+  'techLead',
+  'devops',
+  'qa',
+  'data',
+  'product',
+  'design',
+]);
+
+const GENERIC_LINE_TITLES = new Set([
+  'Üretim işçisi',
+  'Fabrika işçisi',
+  'Makine operatörü',
+]);
+
+type PreferenceLane = 'line' | 'trade' | 'tech' | 'specialist' | 'engineer' | 'lead';
+type PreferenceBand = 'core' | 'related';
 
 export const PROMOTION_FAMILIES: Partial<Record<RoleFamily, readonly RoleFamily[]>> = {
   bankFront: ['branchManager', 'portfolioManager', 'salesManager'],
@@ -328,6 +345,16 @@ const FAMILY_HOME_SECTORS: Partial<Record<RoleFamily, readonly string[]>> = {
   hrManager: ['İnsan kaynakları', 'Holding / Yönetim', 'Danışmanlık'],
   siteChief: ['İnşaat / Gayrimenkul', 'Mühendislik / Teknik'],
   productionLead: ['Üretim / Sanayi', 'Mühendislik / Teknik'],
+  factory: ['Üretim / Sanayi'],
+  shiftSupervisor: ['Üretim / Sanayi'],
+  construction: ['İnşaat / Gayrimenkul'],
+  logistics: ['Lojistik / Depolama'],
+  driver: ['Ulaşım / Şoförlük', 'Lojistik / Depolama'],
+  restaurant: ['Gıda / Restoran'],
+  kitchen: ['Gıda / Restoran'],
+  reception: ['Turizm / Otelcilik'],
+  energy: ['Enerji', 'Elektrik-elektronik'],
+  autoService: ['Oto servis / Yetkili servis', 'Otomotiv'],
 };
 
 export type PreferenceSuggestionInput = {
@@ -402,10 +429,55 @@ function sectorFitsSeed(
   return true;
 }
 
+function preferenceLane(title: string, family: RoleFamily | null): PreferenceLane {
+  if (family && FAMILY_SENIORITY[family] >= 2) return 'lead';
+  if (family && TECH_FAMILIES.has(family)) return 'specialist';
+  const hay = title.toLocaleLowerCase('tr-TR');
+  if (/mühendis/.test(hay)) return 'engineer';
+  if (/doktor|hemşire|ebe|fizyoterapist|diş|eczane|laboratuvar|ambulans|klinik|mimar/.test(hay)) {
+    return 'specialist';
+  }
+  if (
+    /iş sağlığı|isg|kalite|planlama/.test(hay)
+    || (/uzman|analist|danışman/.test(hay) && !/işçi|operatör/.test(hay))
+  ) {
+    return 'specialist';
+  }
+  if (/teknisyen|tekniker|bakım/.test(hay)) return 'tech';
+  if (/kaynakçı|çelik|torna|mobilya|usta|elektrikçi|tesisat|boyacı|marangoz/.test(hay)) {
+    return 'trade';
+  }
+  return 'line';
+}
+
+function lanesAreCore(source: PreferenceLane, target: PreferenceLane): boolean {
+  if (source === target) return true;
+  const shop = source === 'line' || source === 'trade' || source === 'tech';
+  const targetShop = target === 'line' || target === 'trade' || target === 'tech';
+  return shop && targetShop;
+}
+
+function lanesAreRelated(source: PreferenceLane, target: PreferenceLane): boolean {
+  if (lanesAreCore(source, target)) return true;
+  if (source === 'line' || source === 'trade' || source === 'tech') {
+    return target === 'specialist' || target === 'engineer' || target === 'lead';
+  }
+  if (source === 'specialist') {
+    return target === 'engineer' || target === 'tech' || target === 'lead' || target === 'line' || target === 'trade';
+  }
+  if (source === 'engineer') {
+    return target === 'specialist' || target === 'lead' || target === 'tech';
+  }
+  if (source === 'lead') {
+    return target === 'specialist' || target === 'engineer';
+  }
+  return false;
+}
+
 function relatedFamiliesFor(family: RoleFamily): RoleFamily[] {
   const sourceSeniority = FAMILY_SENIORITY[family];
   const set = new Set<RoleFamily>([family]);
-  for (const cluster of FAMILY_CLUSTERS) {
+  for (const cluster of PREFERENCE_PROXIMITY) {
     if (!cluster.includes(family)) continue;
     for (const item of cluster) {
       if (familyFitsSource(family, sourceSeniority, item)) set.add(item);
@@ -415,6 +487,18 @@ function relatedFamiliesFor(family: RoleFamily): RoleFamily[] {
     for (const next of PROMOTION_FAMILIES[family] ?? []) set.add(next);
   }
   return [...set];
+}
+
+function rankCoreThenRelatedAz(scored: Map<string, { score: number; band: PreferenceBand }>): string[] {
+  const core: Array<[string, number]> = [];
+  const related: string[] = [];
+  for (const [item, { score, band }] of scored) {
+    if (band === 'core') core.push([item, score]);
+    else related.push(item);
+  }
+  core.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'tr'));
+  related.sort((a, b) => a.localeCompare(b, 'tr'));
+  return [...core.map(([item]) => item), ...related];
 }
 
 function relatedSectorsFor(sector: string): string[] {
@@ -489,42 +573,59 @@ function mergeSelected(options: string[], selected: string[] | null | undefined,
   return uniq([...withoutManual, ...extra, manual]);
 }
 
+function addScored(
+  scored: Map<string, { score: number; band: PreferenceBand }>,
+  item: string,
+  score: number,
+  band: PreferenceBand,
+) {
+  const prev = scored.get(item);
+  if (!prev) {
+    scored.set(item, { score, band });
+    return;
+  }
+  scored.set(item, {
+    score: Math.max(prev.score, score),
+    band: prev.band === 'core' || band === 'core' ? 'core' : 'related',
+  });
+}
+
 export function suggestPreferredSectors(input: PreferenceSuggestionInput): string[] {
   const seeds = experienceSeeds(input);
-  const scored = new Map<string, number>();
+  const scored = new Map<string, { score: number; band: PreferenceBand }>();
 
-  function add(sector: string, score: number) {
+  function add(sector: string, score: number, band: PreferenceBand) {
     if (!sector || sector === 'Diğer' || !SECTOR_SET.has(sector)) return;
-    scored.set(sector, Math.max(scored.get(sector) ?? 0, score));
+    addScored(scored, sector, score, band);
   }
 
   for (const seed of seeds) {
     const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
     if (seed.sector && sectorFitsSeed(seed, sourceSeniority, seed.sector)) {
-      add(seed.sector, seed.weight + 80);
-      for (const related of relatedSectorsFor(seed.sector)) {
-        if (!sectorFitsSeed(seed, sourceSeniority, related)) continue;
-        add(related, seed.weight + (related === seed.sector ? 80 : 40));
-      }
+      add(seed.sector, seed.weight + 80, 'core');
     }
     if (seed.family) {
       for (const home of FAMILY_HOME_SECTORS[seed.family] ?? []) {
         if (!sectorFitsSeed(seed, sourceSeniority, home)) continue;
-        add(home, seed.weight + 55);
+        add(home, seed.weight + 55, 'core');
+      }
+    }
+    if (seed.sector) {
+      for (const related of relatedSectorsFor(seed.sector)) {
+        if (related === seed.sector) continue;
+        if (!sectorFitsSeed(seed, sourceSeniority, related)) continue;
+        add(related, seed.weight + 40, 'related');
       }
     }
     if (seed.role) {
       for (const fromRole of getSectorsForPosition(seed.role)) {
         if (!sectorFitsSeed(seed, sourceSeniority, fromRole)) continue;
-        add(fromRole, seed.weight + 70);
+        add(fromRole, seed.weight + 25, fromRole === seed.sector ? 'core' : 'related');
       }
     }
   }
 
-  const ranked = [...scored.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'tr'))
-    .map(([sector]) => sector);
-
+  const ranked = rankCoreThenRelatedAz(scored);
   if (ranked.length === 0) {
     return mergeSelected([...JOB_SECTOR_OPTIONS.filter((s) => s !== 'Diğer')], input.selected, MANUAL_OPTION);
   }
@@ -532,65 +633,118 @@ export function suggestPreferredSectors(input: PreferenceSuggestionInput): strin
   return mergeSelected(ranked, input.selected, MANUAL_OPTION);
 }
 
+function shouldBulkAddFamilyTitles(seedFamily: RoleFamily | null, family: RoleFamily): boolean {
+  if (family !== 'factory') return true;
+  return seedFamily !== 'factory';
+}
+
 export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[] {
   const seeds = experienceSeeds(input);
-  const scored = new Map<string, number>();
+  const scored = new Map<string, { score: number; band: PreferenceBand }>();
 
-  function add(role: string, score: number) {
+  function add(role: string, score: number, band: PreferenceBand) {
     const trimmed = role.trim();
     if (!trimmed || isManualCareerOption(trimmed)) return;
-    scored.set(trimmed, Math.max(scored.get(trimmed) ?? 0, score));
+    addScored(scored, trimmed, score, band);
   }
-
-  const relatedSectorSet = new Set(
-    suggestPreferredSectors({ ...input, selected: [] }).filter((s) => !isManualCareerOption(s)),
-  );
 
   for (const seed of seeds) {
     const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
-    if (seed.role) add(seed.role, seed.weight + 900);
-
+    const sourceLane = preferenceLane(seed.role || seed.sector, seed.family);
     const families = seed.family ? relatedFamiliesFor(seed.family) : [];
+    const familySet = new Set(families);
+
+    if (seed.role) add(seed.role, seed.weight + 900, 'core');
+
     for (const family of families) {
       if (!familyFitsSource(seed.family, sourceSeniority, family)) continue;
-      const seniority = FAMILY_SENIORITY[family];
       const same = family === seed.family;
-      const upwardOrPeer = seniority >= sourceSeniority;
-      const familyScore =
-        seed.weight
-        + (same ? 300 : 0)
-        + (upwardOrPeer ? 180 + seniority * 20 : 40 + seniority * 8);
+      const promotion = Boolean(
+        seed.family && !same && (PROMOTION_FAMILIES[seed.family] ?? []).includes(family),
+      );
+      if (!shouldBulkAddFamilyTitles(seed.family, family) && !promotion) continue;
+
       for (const title of titlesForFamily(family)) {
         if (!titleFitsSeed(seed, sourceSeniority, title)) continue;
-        add(title, familyScore);
+        const titleFamily = resolveRoleFamily(title);
+        const titleLane = preferenceLane(title, titleFamily);
+        if (seed.family === 'factory' && family === 'factory') {
+          if (GENERIC_LINE_TITLES.has(title) && lanesAreCore(sourceLane, titleLane)) {
+            add(title, seed.weight + 700, 'core');
+          }
+          continue;
+        }
+        if (same && lanesAreCore(sourceLane, titleLane)) {
+          add(title, seed.weight + 300, 'core');
+          continue;
+        }
+        if (promotion) {
+          add(title, seed.weight + 220, 'core');
+          continue;
+        }
+        if (sourceLane === 'lead' && titleLane === 'lead') {
+          add(title, seed.weight + 200, 'core');
+          continue;
+        }
+        if (
+          lanesAreCore(sourceLane, titleLane)
+          && (sourceLane === 'line' || sourceLane === 'trade' || sourceLane === 'tech')
+          && !(seed.family && TECH_FAMILIES.has(seed.family))
+        ) {
+          add(title, seed.weight + 240, 'core');
+          continue;
+        }
+        if (lanesAreRelated(sourceLane, titleLane)) {
+          add(title, seed.weight + 80, 'related');
+        }
+      }
+    }
+
+    const homeSectors = uniq([
+      seed.sector,
+      ...(seed.family ? FAMILY_HOME_SECTORS[seed.family] ?? [] : []),
+    ]).filter((sector) => sector && sectorFitsSeed(seed, sourceSeniority, sector));
+
+    for (const sector of homeSectors) {
+      for (const title of getPositionsForSector(sector)) {
+        if (!titleFitsSeed(seed, sourceSeniority, title)) continue;
+        const titleFamily = resolveRoleFamily(title);
+        const titleLane = preferenceLane(title, titleFamily);
+        const inProximity =
+          !titleFamily
+          || titleFamily === seed.family
+          || familySet.has(titleFamily);
+        const handsOnSeedSector = Boolean(
+          seed.family
+          && sector === seed.sector
+          && titleFamily
+          && (titleFamily === 'factory'
+            || titleFamily === 'construction'
+            || titleFamily === 'energy'
+            || titleFamily === 'autoService')
+          && lanesAreCore(sourceLane, titleLane),
+        );
+        if (!inProximity && !handsOnSeedSector && seed.family) continue;
+        if (!lanesAreRelated(sourceLane, titleLane) && title !== seed.role) continue;
+
+        const promotionTitle = Boolean(
+          seed.family && titleFamily && (PROMOTION_FAMILIES[seed.family] ?? []).includes(titleFamily),
+        );
+        const sameFamily = !titleFamily || titleFamily === seed.family || !seed.family;
+        if (
+          title === seed.role
+          || promotionTitle
+          || (sameFamily && lanesAreCore(sourceLane, titleLane))
+        ) {
+          add(title, seed.weight + (title === seed.role ? 900 : 260), 'core');
+        } else {
+          add(title, seed.weight + 60, 'related');
+        }
       }
     }
   }
 
-  for (const sector of relatedSectorSet) {
-    for (const title of getPositionsForSector(sector)) {
-      const fits = seeds.some((seed) => {
-        const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
-        return titleFitsSeed(seed, sourceSeniority, title);
-      });
-      if (!fits) continue;
-      const family = resolveRoleFamily(title);
-      const seniority = family ? FAMILY_SENIORITY[family] : 0;
-      const fromSeedSector = seeds.some((seed) => seed.sector === sector);
-      add(
-        title,
-        20
-          + seniority * 12
-          + (fromSeedSector ? 30 : 0)
-          + (seniority >= 2 ? 50 : 0),
-      );
-    }
-  }
-
-  const ranked = [...scored.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'tr'))
-    .map(([role]) => role);
-
+  const ranked = rankCoreThenRelatedAz(scored);
   if (ranked.length === 0) {
     return mergeSelected([], input.selected, MANUAL_OPTION);
   }

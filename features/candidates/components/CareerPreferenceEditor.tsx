@@ -60,9 +60,10 @@ export function CareerPreferenceEditor({
   return (
     <div className="space-y-5">
       <p className="text-xs text-muted-foreground">
-        Listeler yalnızca en son deneyiminizdeki sektör ve pozisyona göre çıkar. Eski
-        işleriniz bu listeyi genişletmez. Aradığınız yoksa Diğer / Kendim gireceğim’i
-        işaretleyip yazın.
+        En yakın sektör ve pozisyonlar listenin başında, diğer ilgili olanlar A–Z.
+        Liste son deneyiminizdeki sektör ve pozisyona göre çıkar; eski işleriniz
+        listeyi genişletmez. Aradığınız yoksa Diğer / Kendim gireceğim’i işaretleyip
+        yazın.
       </p>
       <CareerMultiSelect
         label="İlgilenilen sektörler"
