@@ -22,6 +22,7 @@ import {
   suggestResponsibilities,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { cn } from '@/lib/utils';
 
 export function CareerExperienceEditor({
@@ -121,7 +122,7 @@ export function CareerExperienceEditor({
                   }
                 >
                   <option value="">Seçin</option>
-                  {JOB_SECTOR_OPTIONS.map((opt) => (
+                  {sortSectorsPopularThenAz(JOB_SECTOR_OPTIONS).map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>

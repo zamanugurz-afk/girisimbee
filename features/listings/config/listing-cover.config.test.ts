@@ -17,6 +17,9 @@ describe('career listing covers', () => {
     expect(resolveCareerCoverTheme('Üretim / Sanayi', 'Üretim mühendisi')).toBe('uretim');
     expect(resolveCareerCoverTheme('Otomotiv', 'Servis danışmanı')).toBe('satis');
     expect(resolveCareerCoverTheme(null, 'Servis danışmanı')).toBe('satis');
+    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Resepsiyonist')).toBe('satis');
+    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Host / hostes')).toBe('satis');
+    expect(resolveCareerCoverTheme('Eğitim', 'Eğitmen / öğretmen')).toBe('egitim');
   });
 
   it('picks a person cover from private gender + profession', () => {

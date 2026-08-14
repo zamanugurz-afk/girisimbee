@@ -70,6 +70,60 @@ function sentence(text: string): string {
   return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 }
 
+function norm(value: string): string {
+  return value.trim().toLocaleLowerCase('tr-TR');
+}
+
+function roleTokens(role: string): string[] {
+  return norm(role)
+    .split(/[\s/·,.-]+/)
+    .filter((token) => token.length > 3);
+}
+
+const RELATED_ROLE_GROUPS = [
+  ['resepsiyon', 'ön büro', 'host', 'hostes', 'karşılama'],
+  ['satış', 'temsilci', 'danışman', 'portföy'],
+  ['geliştirici', 'yazılım', 'frontend', 'backend', 'full-stack', 'devops'],
+  ['hemşire', 'hasta', 'klinik', 'doktor'],
+  ['öğretmen', 'eğitmen', 'akademisyen'],
+];
+
+function rolesRelated(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  if (norm(a) === norm(b)) return true;
+  const aHay = norm(a);
+  const bHay = norm(b);
+  if (RELATED_ROLE_GROUPS.some((group) => group.some((token) => aHay.includes(token)) && group.some((token) => bHay.includes(token)))) {
+    return true;
+  }
+  const aTokens = roleTokens(a);
+  const bTokens = roleTokens(b);
+  return aTokens.some((token) => bTokens.includes(token));
+}
+
+function roleVoice(role: string): string {
+  const hay = norm(role);
+  if (/resepsiyon|ön büro|host|hostes/.test(hay)) {
+    return 'misafir karşılama ve ön büro süreçlerine katkı veriyorum';
+  }
+  if (/satış|danışman|temsilci/.test(hay)) {
+    return 'müşteri kazanımı ve hedef yönetimine katkı veriyorum';
+  }
+  if (/geliştirici|yazılım|devops|veri|analist/.test(hay)) {
+    return 'ürün ve teknik teslimata katkı veriyorum';
+  }
+  if (/hemşire|doktor|hasta|klinik/.test(hay)) {
+    return 'hasta bakım ve klinik süreçlere katkı veriyorum';
+  }
+  if (/öğretmen|eğitmen/.test(hay)) {
+    return 'öğrenme süreçlerine katkı veriyorum';
+  }
+  if (/muhasebe|kredi|banka|finans/.test(hay)) {
+    return 'mali süreçlerin düzenli işlemesine katkı veriyorum';
+  }
+  return 'ekiplere düzenli ve ölçülebilir katkı veriyorum';
+}
+
 /** Removes leftover contact-policy sentences from stored career summaries. */
 export function polishCareerSummary(text: string | null | undefined): string {
   return stripCareerContactFluff((text ?? '').replace(/\s+/g, ' ').trim())
@@ -84,68 +138,100 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
   const level = getExperienceLevelLabel(input.experienceLevel) || (input.experienceLevel ?? '').trim();
   const experiences = input.experiences ?? [];
   const totalYears = estimateTotalExperienceYears(experiences);
-  const sectors = take(
+
+  const roleExperiences = experiences.filter((exp) => rolesRelated(exp.role, role));
+  const otherExperiences = experiences.filter((exp) => !rolesRelated(exp.role, role));
+  const roleYears = roleExperiences.length > 0
+    ? estimateTotalExperienceYears(roleExperiences)
+    : null;
+
+  const roleSectors = take(
     [
-      ...(input.primarySector ? [input.primarySector] : []),
-      ...parseSelectedList(input.preferredSectors),
-      ...experiences.map((exp) => exp.sector),
+      ...roleExperiences.map((exp) => exp.sector),
+      ...(roleExperiences.length === 0 && input.primarySector ? [input.primarySector] : []),
     ],
-    3,
+    2,
   );
-  const experienceRoles = take(
-    experiences.map((exp) => exp.role).filter((value) => value && value !== role),
-    3,
+  const otherSectors = take(
+    otherExperiences.map((exp) => exp.sector).filter((sector) => !roleSectors.includes(sector)),
+    2,
   );
-  const professional = take(parseSelectedList(input.professionalSkills), 4);
-  const technical = take(parseSelectedList(input.technicalSkills), 4);
+  const openSectors = take(
+    parseSelectedList(input.preferredSectors).filter(
+      (sector) => !roleSectors.includes(sector) && !otherSectors.includes(sector),
+    ),
+    2,
+  );
+
+  const relatedPastRoles = take(
+    roleExperiences
+      .map((exp) => exp.role)
+      .filter((value) => value && norm(value) !== norm(role)),
+    2,
+  );
+  const otherPastRoles = take(
+    otherExperiences.map((exp) => exp.role).filter(Boolean),
+    2,
+  );
+
+  const professional = take(parseSelectedList(input.professionalSkills), 3);
+  const technical = take(parseSelectedList(input.technicalSkills), 3);
   const languages = parseCareerLanguages(input.languages)
     .map((entry) => {
       const name = entry.languageOther?.trim() || entry.language;
       return name && entry.level ? `${name} (${entry.level})` : name;
     })
     .filter(Boolean)
-    .slice(0, 3);
-  const education = [input.educationLevel, input.educationField].filter(Boolean).join(' — ');
+    .slice(0, 2);
+  const educationLevel = (input.educationLevel ?? '').trim();
+  const educationField = (input.educationField ?? '').trim();
   const place = (input.preferredCity ?? '').trim();
   const workplace = (input.workplacePreference ?? '').trim();
   const workType = (input.workType ?? '').trim();
   const availability = (input.availability ?? '').trim();
 
   const sentences: string[] = [];
+  const years = roleYears && roleYears > 0 ? roleYears : totalYears;
 
-  if (totalYears != null && totalYears > 0) {
+  if (years != null && years > 0 && roleSectors.length > 0) {
     sentences.push(
-      sentence(
-        sectors.length > 0
-          ? `${role} olarak ${joinTr(sectors)} alanında ${totalYears} yıllık deneyimle ekiplere katkı veriyorum`
-          : `${role} olarak ${totalYears} yıllık deneyimle ölçülebilir katkı üretiyorum`,
-      ),
+      sentence(`${role} olarak ${joinTr(roleSectors)} alanında ${years} yıllık deneyimle ${roleVoice(role)}`),
     );
+  } else if (years != null && years > 0) {
+    sentences.push(sentence(`${role} olarak ${years} yıllık deneyimle ${roleVoice(role)}`));
   } else if (level) {
     sentences.push(
       sentence(
-        `${role} rolünde ${level.toLocaleLowerCase('tr-TR')} profiliyle sorumluluk almaya hazırım`,
+        `${role} rolünde ${level.toLocaleLowerCase('tr-TR')} profiliyle ${roleSectors[0] ? `${roleSectors[0]} alanında ` : ''}sorumluluk almaya hazırım`,
       ),
     );
   } else {
-    sentences.push(sentence(`${role} pozisyonunda analitik ve düzenli çalışmayla katkı vermek istiyorum`));
+    sentences.push(sentence(`${role} pozisyonunda düzenli ve müşteri odaklı çalışmayla katkı vermek istiyorum`));
   }
 
-  if (experienceRoles.length > 0) {
-    sentences.push(sentence(`Daha önce ${joinTr(experienceRoles)} görevlerinde bulundum`));
+  if (relatedPastRoles.length > 0) {
+    sentences.push(sentence(`Aynı hatta daha önce ${joinTr(relatedPastRoles)} görevlerinde bulundum`));
+  }
+  if (otherPastRoles.length > 0) {
+    const where = otherSectors.length > 0 ? ` ${joinTr(otherSectors)} tarafında` : '';
+    sentences.push(sentence(`Bunun dışında${where} ${joinTr(otherPastRoles)} deneyimim de var`));
   }
 
   if (professional.length > 0) {
     sentences.push(sentence(`Öne çıkan yetkinliklerim ${joinTr(professional)}`));
   }
   if (technical.length > 0) {
-    sentences.push(sentence(`İşlerimde ${joinTr(technical)} araçlarını kullanıyorum`));
+    sentences.push(sentence(`İşlerimde ${joinTr(technical)} kullanıyorum`));
   }
-  if (education) {
-    sentences.push(sentence(`Eğitim: ${education}`));
+  if (educationLevel || educationField) {
+    const edu = [educationLevel, educationField].filter(Boolean).join(' — ');
+    sentences.push(sentence(`Eğitim geçmişim ${edu}`));
   }
   if (languages.length > 0) {
     sentences.push(sentence(`Yabancı dilim ${joinTr(languages)}`));
+  }
+  if (openSectors.length > 0) {
+    sentences.push(sentence(`Ayrıca ${joinTr(openSectors)} alanlarına da açığım`));
   }
 
   const prefBits = [workplace, workType].filter(Boolean);

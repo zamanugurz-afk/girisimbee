@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   EXPERIENCE_LEVEL_VALUES,
+  getAllTaxonomyPositions,
   getExperienceLevelLabel,
   getPositionsForSector,
   isManualCareerOption,
@@ -80,6 +81,31 @@ describe('career taxonomy', () => {
     expect(
       suggestTechnicalSkills({ sector: 'Bilişim / Yazılım', role: 'Yazılım geliştirici' }),
     ).toEqual(expect.arrayContaining(['TypeScript', 'React', MANUAL_OPTION]));
+  });
+
+  it('shapes receptionist options by position, not generic sector copy', () => {
+    const reception = suggestResponsibilities({
+      sector: 'Turizm / Otelcilik',
+      role: 'Resepsiyonist',
+    });
+    const host = suggestResponsibilities({
+      sector: 'Turizm / Otelcilik',
+      role: 'Host / hostes',
+    });
+    expect(withoutManual(reception)).not.toEqual(withoutManual(host));
+    expect(reception).toEqual(expect.arrayContaining(['Resepsiyon bankosunda misafir kayıt ve yönlendirme']));
+    expect(host).toEqual(expect.arrayContaining(['Karşılama noktasında misafir akışının yönlendirilmesi']));
+    expect(reception).not.toContain('Günlük operasyonların yürütülmesi');
+  });
+
+  it('gives every taxonomy position a role-shaped responsibility list', () => {
+    const positions = getAllTaxonomyPositions().filter((role) => role !== MANUAL_OPTION);
+    expect(positions.length).toBeGreaterThan(80);
+    for (const role of positions) {
+      const options = withoutManual(suggestResponsibilities({ role }));
+      expect(options.length, role).toBeGreaterThan(2);
+      expect(options, role).not.toContain('Günlük operasyonların yürütülmesi');
+    }
   });
 
   it('gives Hemşire and Doktor distinct responsibility and achievement options', () => {

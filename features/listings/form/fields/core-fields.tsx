@@ -253,7 +253,7 @@ export function CoreListingFields({
       })()}
 
       {show('longDescription') && (() => {
-        const ui = getCoreFieldUi('longDescription');
+        const ui = uiFor('longDescription');
         const length = (values.longDescription ?? '').length;
         return (
           <div className="space-y-2">
@@ -295,7 +295,7 @@ export function CoreListingFields({
       {(show('city') || show('remotePolicy')) && (
         <div className="grid gap-4 sm:grid-cols-2">
           {show('city') && (() => {
-            const ui = getCoreFieldUi('city');
+            const ui = uiFor('city');
             return (
               <div className="space-y-2">
                 <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" />
@@ -315,7 +315,7 @@ export function CoreListingFields({
             );
           })()}
           {show('remotePolicy') && (() => {
-            const ui = getCoreFieldUi('remotePolicy');
+            const ui = uiFor('remotePolicy');
             return (
               <div className="space-y-2">
                 <FieldLabelWithTooltip htmlFor="core-remote" label="Çalışma Modeli" />

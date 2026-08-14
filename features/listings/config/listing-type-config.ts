@@ -155,7 +155,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'profileGender',
-      label: 'Kapak görseli',
+      label: 'Cinsiyet',
       type: 'enum',
       required: true,
       options: [...CAREER_PROFILE_GENDER_OPTIONS],

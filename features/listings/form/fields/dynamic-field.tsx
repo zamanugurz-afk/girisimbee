@@ -20,6 +20,7 @@ import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digit
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
+import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
 import {
   getExperienceLevelLabel,
@@ -322,6 +323,9 @@ function FieldControl({
 
     case 'enum': {
       let options = field.options ?? [];
+      if (field.key === 'primarySector') {
+        options = sortSectorsPopularThenAz(options);
+      }
       if (field.key === 'desiredRole') {
         const sector = String(context?.values?.primarySector ?? '');
         if (sector) {

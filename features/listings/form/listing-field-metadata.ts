@@ -26,7 +26,7 @@ export const CORE_FIELD_UI: Record<string, FieldUiMeta> = {
   longDescription: {
     placeholder: 'Detaylı açıklama, kapsam ve ek bilgiler…',
     helperText:
-      'Detay sayfasında gösterilir. Alanı terk edince yazım düzeltilir. İletişim telefon ile yapılır. En az 100 karakter.',
+      'Detay sayfasında gösterilir. Alanı terk edince yazım düzeltilir. En az 100 karakter.',
     maxLength: 10000,
   },
   city: {
@@ -136,7 +136,7 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
       placeholder:
         'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum.',
       helperText:
-        'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. Telefon, e-posta, adres veya firma adı yazmayın.',
+        'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. İletişim platform üzerinden yapılır; telefon, e-posta veya firma adı yazmayın.',
       maxLength: 10000,
     },
   },
@@ -342,9 +342,9 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Tam zamanlı, yarı zamanlı, proje bazlı, staj veya sözleşmeli.',
   },
   profileGender: {
-    placeholder: 'Kapak görseli seçin',
+    placeholder: 'Cinsiyet seçin',
     helperText:
-      'Kamu kartında yazılmaz. Meslek kapak fotoğrafını (ör. erkek sigortacı) seçmek için kullanılır.',
+      'Kamu kartında yazılmaz. Mesleğe uygun kapak fotoğrafını seçmek için kullanılır.',
   },
   birthDate: {
     placeholder: 'Doğum tarihi',

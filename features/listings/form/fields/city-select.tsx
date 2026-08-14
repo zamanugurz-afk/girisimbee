@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TURKISH_CITIES, LISTING_CITY_OPTIONS } from '@/features/shared/constants/turkish-cities';
+import { sortCitiesForPicker } from '@/features/listings/lib/picker-sort';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +39,7 @@ export function CitySelect({
 }: CitySelectProps) {
   const [open, setOpen] = useState(false);
   const selectedLabel = useMemo(() => value ?? undefined, [value]);
-  const cities = extended ? LISTING_CITY_OPTIONS : TURKISH_CITIES;
+  const cities = sortCitiesForPicker(extended ? LISTING_CITY_OPTIONS : TURKISH_CITIES);
 
   return (
     <div className="space-y-2">

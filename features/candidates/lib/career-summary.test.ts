@@ -60,4 +60,44 @@ describe('buildCareerSummaryDraft', () => {
     expect(draft).toMatch(/Hemşire/);
     expect(draft.length).toBeGreaterThanOrEqual(100);
   });
+
+  it('keeps the opening sentence on the target role, not unrelated preferred sectors', () => {
+    const draft = buildCareerSummaryDraft({
+      desiredRole: 'Resepsiyonist',
+      primarySector: 'Turizm / Otelcilik',
+      preferredSectors: ['Sigorta', 'Finans / Bankacılık'],
+      educationLevel: 'Lisans',
+      educationField: 'Makine Mühendisliği',
+      professionalSkills: 'Takım çalışması · İletişim',
+      technicalSkills: 'Excel · PowerPoint',
+      preferredCity: 'İstanbul Anadolu Yakası',
+      workplacePreference: 'Ofis',
+      workType: 'Tam zamanlı',
+      experiences: [
+        {
+          ...createEmptyCareerExperience(),
+          sector: 'Turizm / Otelcilik',
+          role: 'Resepsiyonist',
+          startMonth: 1,
+          startYear: 2018,
+          isCurrent: true,
+        },
+        {
+          ...createEmptyCareerExperience(),
+          sector: 'Turizm / Otelcilik',
+          role: 'Host / hostes',
+          startMonth: 1,
+          startYear: 2016,
+          endMonth: 12,
+          endYear: 2017,
+        },
+      ],
+    });
+
+    expect(draft).toMatch(/Resepsiyonist olarak Turizm \/ Otelcilik/);
+    expect(draft).not.toMatch(/Resepsiyonist olarak Turizm \/ Otelcilik, Sigorta/);
+    expect(draft).toMatch(/Eğitim geçmişim/);
+    expect(draft).toMatch(/Host \/ hostes/);
+    expect(draft).toMatch(/Sigorta|Finans/);
+  });
 });

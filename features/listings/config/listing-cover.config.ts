@@ -96,16 +96,25 @@ export function resolveCareerCoverTheme(
 ): CareerCoverTheme {
   const hay = `${sector ?? ''} ${role ?? ''}`.toLocaleLowerCase('tr-TR');
   if (/sigorta|poliçe|hasar|broker|underwriter|segem/.test(hay)) return 'sigorta';
-  if (/sağlık|hemşire|doktor|klinik|hasta|medikal|eczane/.test(hay)) return 'saglik';
-  if (/yazılım|bilişim|geliştirici|devops|frontend|backend|full-stack|veri|yapay zeka|data|qa /.test(hay)) {
+  if (/sağlık|hemşire|doktor|klinik|hasta|medikal|eczane|fizyo|ebe|ambulans|veteriner/.test(hay)) {
+    return 'saglik';
+  }
+  if (/yazılım|bilişim|geliştirici|devops|frontend|backend|full-stack|veri|yapay zeka|data|qa |sistem yöneticisi|prompt/.test(hay)) {
     return 'yazilim';
   }
-  if (/eğitim|öğretmen|akademisyen|eğitmen/.test(hay)) return 'egitim';
-  if (/kredi uzman|bankacı|banka|finans|muhasebe|mali müşavir|kredi/.test(hay)) return 'finans';
-  // Dealership service advisor is customer-facing, not a factory floor.
-  if (/servis danışman/.test(hay)) return 'satis';
-  if (/üretim|sanayi|inşaat|otomotiv|enerji|lojistik|depo|sevkiyat/.test(hay)) return 'uretim';
-  if (/satış|müşteri|ticaret|perakende|pazarlama/.test(hay)) return 'satis';
+  if (/eğitim|öğretmen|akademisyen|eğitmen|okul/.test(hay)) return 'egitim';
+  if (/kredi uzman|bankacı|banka|finans|muhasebe|mali müşavir|kredi|hazine|uyum|iç kontrol/.test(hay)) {
+    return 'finans';
+  }
+  if (/servis danışman|resepsiyon|ön büro|host|hostes|otel|turizm|garson|aşçı|barista|animatör|kat görev/.test(hay)) {
+    return 'satis';
+  }
+  if (/üretim|sanayi|inşaat|otomotiv|enerji|lojistik|depo|sevkiyat|şoför|forklift|şantiye|tarım|ziraat/.test(hay)) {
+    return 'uretim';
+  }
+  if (/satış|müşteri|ticaret|perakende|pazarlama|çağrı|kasiyer|mağaza|gayrimenkul danışman/.test(hay)) {
+    return 'satis';
+  }
   return 'genel';
 }
 

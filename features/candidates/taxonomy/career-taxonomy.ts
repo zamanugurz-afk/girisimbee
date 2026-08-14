@@ -4,6 +4,8 @@
  */
 
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { sortPositionsPopularThenAz } from '@/features/listings/lib/picker-sort';
+import { resolvePositionBundle } from '@/features/candidates/taxonomy/career-position-catalog';
 
 export const MANUAL_OPTION = 'Diğer / Kendim gireceğim' as const;
 export const MANUAL_OPTION_SHORT = 'Diğer' as const;
@@ -400,7 +402,7 @@ export function getAllTaxonomyPositions(): string[] {
     for (const p of list ?? []) set.add(p);
   }
   set.add(MANUAL_OPTION);
-  return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr'));
+  return sortPositionsPopularThenAz(Array.from(set), [MANUAL_OPTION]);
 }
 
 export function getPositionsForSector(sector: string | null | undefined): string[] {
@@ -409,7 +411,7 @@ export function getPositionsForSector(sector: string | null | undefined): string
   if (!list || list.length === 0) {
     return [MANUAL_OPTION];
   }
-  return [...list, MANUAL_OPTION];
+  return sortPositionsPopularThenAz([...list, MANUAL_OPTION], [MANUAL_OPTION]);
 }
 
 const PROFESSIONAL_SKILLS_BY_THEME: Record<string, readonly string[]> = {
@@ -976,7 +978,7 @@ function getPositionBundle(role: string | null | undefined): PositionBundle | un
   for (const [key, bundle] of Object.entries(POSITION_BUNDLES)) {
     if (normalizeRoleKey(key) === needle) return bundle;
   }
-  return undefined;
+  return resolvePositionBundle(trimmed);
 }
 
 function isLeadershipPriorityLevel(experienceLevel?: string | null): boolean {
