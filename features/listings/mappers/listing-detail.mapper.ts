@@ -581,7 +581,7 @@ function buildAnonymousPublisher(): ListingPublisher {
 function buildPublisher(
   companyId: string | null,
   ownerUserId: string,
-  context?: { profile?: Profile | null; company?: Company | null },
+  context?: ListingDetailMapContext,
 ): ListingPublisher {
   const profileTrust = trustFromProfile(context?.profile);
 
