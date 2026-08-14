@@ -494,7 +494,7 @@ export function CareerProfilePreview({
 
       {summary ? (
         <div className={sectionClass}>
-          <SectionLabel icon={User} title={isHire ? 'Pozisyon özeti' : 'Profesyonel profil'} />
+          <SectionLabel icon={User} title={isHire ? 'Pozisyon özeti' : 'Kariyer özeti'} />
           <ExpandableText text={summary} lines={3} />
         </div>
       ) : null}
@@ -668,16 +668,11 @@ export function CareerProfilePreview({
         </div>
       </div>
 
-      {summary ? (
+      {summary && isHire ? (
         <div className="border-t border-border/40 bg-muted/30 px-5 py-6 sm:px-6 lg:px-8 lg:py-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            {isHire ? 'Pozisyon özeti' : data.personalInfoPreview ? 'Kariyer özeti önerisi' : 'Kariyer özeti'}
+            Pozisyon özeti
           </p>
-          {data.personalInfoPreview && !isHire ? (
-            <p className="mt-1 text-xs text-muted-foreground">
-              Taslağı kullanabilir veya kendi özetinizi yazabilirsiniz.
-            </p>
-          ) : null}
           <div className="mt-3">
             <ExpandableText text={summary} lines={5} />
           </div>
