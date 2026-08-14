@@ -42,3 +42,38 @@ export function polishPrompt(input: {
 export function analyzePrompt(context: CareerAiSafeContext): string {
   return JSON.stringify({ task: 'career_profile_analysis', context });
 }
+
+export const CAREER_AI_SYSTEM_OCCUPATIONAL = `Sen Girişimbee mesleki bağlam asistanısın.
+Sadece verilen aday kataloglarından seç. Yeni yetkinlik, araç veya meslek uydurma.
+Katalogda olmayan değeri döndürme.
+Çıktı JSON: {"professionalSkills":[],"technicalSkills":[],"tools":[],"confidence":0}
+Her listede en fazla 7 kanonik etiket, mevcut katalog sırasını gerekirse yeniden sırala.`;
+
+export function occupationalRankPrompt(input: {
+  sector: string;
+  role: string;
+  experienceLevel: string;
+  totalExperienceYears: number | null;
+  audience: string;
+  experienceRoles: string[];
+  evidence: string;
+  professionalCatalog: string[];
+  technicalCatalog: string[];
+  toolsCatalog: string[];
+}): string {
+  return JSON.stringify({
+    task: 'rank_occupational_catalogs',
+    sector: input.sector,
+    role: input.role,
+    experienceLevel: input.experienceLevel,
+    totalExperienceYears: input.totalExperienceYears,
+    audience: input.audience,
+    experienceRoles: input.experienceRoles.slice(0, 6),
+    evidence: input.evidence.slice(0, 280),
+    catalogs: {
+      professionalSkills: input.professionalCatalog.slice(0, 24),
+      technicalSkills: input.technicalCatalog.slice(0, 16),
+      tools: input.toolsCatalog.slice(0, 16),
+    },
+  });
+}

@@ -969,7 +969,10 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Key account manager': 'salesIndoor',
   'Hesap yöneticisi': 'salesIndoor',
   'Bölge satış müdürü': 'salesManager',
+  'Saha satış müdürü': 'salesManager',
+  'Kanal satış müdürü': 'salesManager',
   'Satış müdürü': 'salesManager',
+  'Saha satış uzmanı': 'salesField',
   'İş geliştirme uzmanı': 'salesIndoor',
   'Sigorta teknik uzmanı': 'insuranceOps',
   'Hasar uzmanı': 'insuranceOps',
@@ -983,6 +986,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Bankacı / banka personeli': 'bankFront',
   'Şube müdürü': 'branchManager',
   'Kredi uzmanı': 'credit',
+  'Kredi analisti': 'credit',
   'Finans uzmanı': 'credit',
   'Risk analisti': 'credit',
   'Hazine uzmanı': 'credit',
@@ -992,6 +996,8 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Operasyon uzmanı': 'admin',
   'İç kontrol uzmanı': 'credit',
   'Uyum (compliance) uzmanı': 'credit',
+  'Yazılım geliştirici': 'software',
+  'Frontend geliştirici': 'software',
   'Mobil uygulama geliştirici': 'software',
   'DevOps / Cloud mühendisi': 'devops',
   'QA / Test uzmanı': 'qa',
@@ -1195,6 +1201,7 @@ function normalizeRole(role: string): string {
 
 function inferFamily(role: string): RoleFamily | null {
   const hay = normalizeRole(role);
+  if (/finans müdür|mali işler müdür/.test(hay)) return 'accounting';
   if (/şube müdür/.test(hay)) return 'branchManager';
   if (/mağaza müdür/.test(hay)) return 'storeManager';
   if (/restoran müdür/.test(hay)) return 'restaurantManager';
@@ -1231,6 +1238,7 @@ function inferFamily(role: string): RoleFamily | null {
   if (/kredi|risk|hazine|uyum|iç kontrol|yatırım|finansal/.test(hay)) return 'credit';
   if (/muhasebe|mali müşavir/.test(hay)) return 'accounting';
   if (/banka/.test(hay)) return 'bankFront';
+  if (/frontend|backend|full[\s-]?stack/.test(hay)) return 'software';
   if (/devops|cloud|sistem yöneticisi|teknik servis/.test(hay)) return 'devops';
   if (/\bqa\b|test uzman/.test(hay)) return 'qa';
   if (/veri|data|yapay zeka|mlops|iş zekâ|prompt/.test(hay)) return 'data';

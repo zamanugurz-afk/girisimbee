@@ -21,6 +21,14 @@ function requestFingerprint(body: CareerAiRequest): string {
   if (body.action === 'polish') {
     return careerAiPolishFingerprint(body);
   }
+  if (body.action === 'occupational') {
+    return body.fingerprint || fingerprintCanonical({
+      action: 'occupational',
+      sector: body.sector,
+      role: body.role,
+      experienceLevel: body.experienceLevel,
+    });
+  }
   return fingerprintCanonical({
     action: 'suggest',
     kind: body.kind,

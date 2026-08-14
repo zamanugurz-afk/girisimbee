@@ -24,6 +24,8 @@ import {
 import type {
   CareerAiAnalyzeRequest,
   CareerAiAnalyzeResult,
+  CareerAiOccupationalRequest,
+  CareerAiOccupationalResult,
   CareerAiPolishRequest,
   CareerAiPolishResult,
   CareerAiSuggestRequest,
@@ -31,6 +33,7 @@ import type {
 } from '@/features/candidates/ai/career-ai.types';
 import { openaiJsonCompletion } from '@/lib/openai/career-openai';
 import { ValidationError } from '@/lib/domain/errors';
+import { runCareerAiOccupationalRank } from '@/features/candidates/ai/occupational-ai-rank';
 
 function requireQuality(text: string, label: string, minLength: number) {
   const issue = findCareerTextQualityIssue(text, {
@@ -168,4 +171,10 @@ export async function runCareerAiAnalyze(
   };
   setCareerAiCache(fingerprint, result);
   return result;
+}
+
+export async function runOccupationalRank(
+  input: CareerAiOccupationalRequest,
+): Promise<CareerAiOccupationalResult> {
+  return runCareerAiOccupationalRank(input);
 }

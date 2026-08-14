@@ -1388,7 +1388,11 @@ export function CategoryListingForm({
               }}
               disabled={disabled || isBusy}
               sector={String(mergedCustomFields.primarySector ?? '')}
-              role={String(mergedCustomFields.desiredRole ?? '')}
+              role={
+                isManualCareerOption(mergedCustomFields.desiredRole)
+                  ? String(mergedCustomFields.desiredRoleOther ?? '')
+                  : String(mergedCustomFields.desiredRole ?? '')
+              }
               experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
               errors={{
                 requiredResponsibilities: resolveFieldError(
@@ -1443,7 +1447,12 @@ export function CategoryListingForm({
                   ?? parseCareerExperiences(mergedCustomFields.experiences)[0]?.sector
                   ?? '',
               )}
-              role={String(mergedCustomFields.desiredRole ?? '')}
+              role={
+                isManualCareerOption(mergedCustomFields.desiredRole)
+                  ? String(mergedCustomFields.desiredRoleOther ?? '')
+                  : String(mergedCustomFields.desiredRole ?? '')
+              }
+              roleOther={String(mergedCustomFields.desiredRoleOther ?? '')}
               experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
               experienceRoles={
                 categoryId === CATEGORY_IDS.isBul

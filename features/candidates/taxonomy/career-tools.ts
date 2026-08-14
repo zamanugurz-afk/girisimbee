@@ -2,7 +2,15 @@
  * Shared tools/programs catalog for İş Arıyorum and İşe Alıyorum.
  * Options are Turkish + global workplace software; "Diğer" opens manual entry.
  */
-import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import { getPositionBundle, MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import {
+  adjacentFamilyBundles,
+  buildOccupationalContext,
+  familyCoreTools,
+  officeToolSeeds,
+  rankOccupationalOptions,
+  type OccupationalProfileInput,
+} from '@/features/candidates/taxonomy/occupational-context';
 import { sortPopularThenAz } from '@/features/listings/lib/picker-sort';
 
 const POPULAR_TOOLS = [
@@ -17,23 +25,6 @@ const POPULAR_TOOLS = [
   'WhatsApp Business',
   'Notion',
   'Canva',
-] as const;
-
-const CORE_TOOLS = [
-  ...POPULAR_TOOLS,
-  'Trello',
-  'Asana',
-  'Jira',
-  'Confluence',
-  'ClickUp',
-  'Monday.com',
-  'Google Meet',
-  'Webex',
-  'Telegram',
-  'Miro',
-  'Power BI',
-  'SAP',
-  'CRM',
 ] as const;
 
 const TOOLS_BY_THEME: Record<string, readonly string[]> = {
@@ -204,13 +195,13 @@ function themeKeysForTools(sector: string, role: string): string[] {
     keys.push('yazilim');
   }
   if (/çağrı|müşteri temsil|destek uzman|şikayet/.test(hay)) keys.push('cagri');
-  if (/satış|müşteri|crm|ticaret/.test(hay)) keys.push('satis');
+  if (/satış|crm|ticaret|key account/.test(hay)) keys.push('satis');
   if (/finans|banka|mali|sigorta|kredi/.test(hay)) keys.push('finans');
   if (/muhasebe|bordro|e-fatura/.test(hay)) keys.push('muhasebe');
   if (/sağlık|hemşire|doktor|eczane|hastane|klinik/.test(hay)) keys.push('saglik');
   if (/eğitim|öğretmen|okul|akademi|kreş/.test(hay)) keys.push('egitim');
   if (/pazarlama|reklam|sosyal medya|seo|marka|halkla ilişkiler/.test(hay)) keys.push('pazarlama');
-  if (/insan kaynak|işe alım|ik |bordro/.test(hay)) keys.push('ik');
+  if (/insan kaynak|işe alım|\bik\b|bordro/.test(hay)) keys.push('ik');
   if (/perakende|mağaza|kasiyer|e-ticaret/.test(hay)) keys.push('perakende');
   if (/turizm|otel|resepsiyon|host|havacılık/.test(hay)) keys.push('turizm');
   if (/lojistik|depo|kargo|kurye|sevkiyat|gümrük|denizcilik/.test(hay)) keys.push('lojistik');
@@ -224,15 +215,40 @@ function themeKeysForTools(sector: string, role: string): string[] {
   return Array.from(new Set(keys));
 }
 
-export function suggestTools(input: {
-  sector?: string | null;
-  role?: string | null;
-}): string[] {
-  const themed: string[] = [...CORE_TOOLS];
-  for (const theme of themeKeysForTools(input.sector ?? '', input.role ?? '')) {
-    themed.push(...(TOOLS_BY_THEME[theme] ?? []));
+export function suggestTools(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const bundle = getPositionBundle(context.role);
+  const pool: Array<{ value: string; source: 'bundle' | 'adjacent' | 'theme' | 'office' | 'existing' }> = [];
+
+  for (const value of bundle?.technicalSkills ?? []) {
+    pool.push({ value, source: 'bundle' });
   }
-  const unique = Array.from(new Set(themed.filter(Boolean)));
+  for (const value of familyCoreTools(context.family)) {
+    pool.push({ value, source: 'bundle' });
+  }
+  if (context.adjacentStrength > 0) {
+    for (const adjacent of adjacentFamilyBundles(context)) {
+      for (const value of adjacent?.technicalSkills ?? []) {
+        pool.push({ value, source: 'adjacent' });
+      }
+    }
+  }
+  if (!context.family) {
+    for (const theme of themeKeysForTools(context.sector, context.role)) {
+      for (const value of (TOOLS_BY_THEME[theme] ?? []).slice(0, 6)) {
+        pool.push({ value, source: 'theme' });
+      }
+    }
+  }
+  for (const value of officeToolSeeds(context)) {
+    pool.push({ value, source: 'office' });
+  }
+  for (const value of context.existingTools) {
+    pool.push({ value, source: 'existing' });
+  }
+
+  const ranked = rankOccupationalOptions(pool, context, 'tools');
+  const unique = ranked.length > 0 ? ranked : officeToolSeeds(context);
   return [
     ...sortPopularThenAz(unique, POPULAR_TOOLS),
     MANUAL_OPTION,

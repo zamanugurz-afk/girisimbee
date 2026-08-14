@@ -21,6 +21,10 @@ describe('career AI client safety', () => {
       'features/candidates/ai/career-ai-context.ts',
       'features/candidates/ai/career-ai-auto.ts',
       'features/candidates/ai/career-ai-deterministic-polish.ts',
+      'features/candidates/taxonomy/occupational-context.ts',
+      'features/candidates/taxonomy/occupational-suggestions.ts',
+      'features/candidates/hooks/use-occupational-suggestions.ts',
+      'features/candidates/components/CareerSkillsEditor.tsx',
     ];
     for (const file of files) {
       expect(read(file), file).not.toMatch(/OPENAI_API_KEY|NEXT_PUBLIC_OPENAI/);
@@ -30,8 +34,10 @@ describe('career AI client safety', () => {
   it('keeps the OpenAI client on the server module only', () => {
     expect(read('lib/openai/career-openai.ts')).toContain("import 'server-only'");
     expect(read('features/candidates/ai/career-ai.service.ts')).toContain("import 'server-only'");
+    expect(read('features/candidates/ai/occupational-ai-rank.ts')).toContain("import 'server-only'");
     expect(read('lib/openai/career-openai.ts')).toContain('process.env.OPENAI_API_KEY');
     expect(read('features/candidates/hooks/use-career-ai.ts')).not.toContain('process.env.OPENAI_API_KEY');
+    expect(read('features/candidates/hooks/use-occupational-suggestions.ts')).not.toContain('openaiJsonCompletion');
   });
 
   it('does not call OpenAI for taxonomy suggest', () => {
@@ -44,6 +50,13 @@ describe('career AI client safety', () => {
     expect(suggest).not.toContain('openaiJsonCompletion');
     expect(read('features/candidates/components/CareerManualAssist.tsx')).toContain('matchTaxonomyOptions');
     expect(read('features/candidates/components/CareerManualAssist.tsx')).not.toMatch(/action:\s*'suggest'/);
+  });
+
+  it('gates occupational AI behind deterministic confidence', () => {
+    const rank = read('features/candidates/ai/occupational-ai-rank.ts');
+    const fn = rank.slice(rank.indexOf('export async function runCareerAiOccupationalRank'));
+    expect(fn.indexOf('needsAi')).toBeLessThan(fn.indexOf('openaiJsonCompletion'));
+    expect(fn).toContain("source: 'taxonomy'");
   });
 
   it('does not write AI drafts until accept and keeps hire ungated from the seeker panel', () => {

@@ -6,6 +6,13 @@
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortPositionsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { resolvePositionBundle } from '@/features/candidates/taxonomy/career-position-catalog';
+import {
+  adjacentFamilyBundles,
+  buildOccupationalContext,
+  occupationalSkillThemes,
+  rankOccupationalOptions,
+  type OccupationalProfileInput,
+} from '@/features/candidates/taxonomy/occupational-context';
 
 export const MANUAL_OPTION = 'Diğer / Kendim gireceğim' as const;
 export const MANUAL_OPTION_SHORT = 'Diğer' as const;
@@ -1205,24 +1212,20 @@ const LEADERSHIP_SKILLS = [
 function themeKeysFor(sector: string, role: string): string[] {
   const hay = `${sector} ${role}`.toLocaleLowerCase('tr-TR');
   const keys: string[] = ['genel'];
-  if (/satış|müşteri|key account|ticaret/.test(hay)) keys.push('satış');
+  if (/satış|key account|ticaret/.test(hay)) keys.push('satış');
   if (/sağlık|hemşire|doktor|klinik|hasta|medikal|eczane/.test(hay)) keys.push('sağlık');
   if (/finans|banka|kredi|muhasebe|mali/.test(hay)) keys.push('finans', 'muhasebe');
   if (/sigorta|poliçe|hasar|broker|segem/.test(hay)) keys.push('sigorta');
   if (/yazılım|bilişim|geliştirici|devops|frontend|backend|full-stack|qa|ürün yöneticisi/.test(hay)) {
     keys.push('yazılım');
   }
-  if (/veri|yapay zeka|analist|data|ml/.test(hay)) keys.push('veri', 'yazılım');
+  if (/veri|yapay zeka|\bdata\b|\bml\b/.test(hay)) keys.push('veri', 'yazılım');
   if (/çağrı merkezi|müşteri temsil|destek uzman/.test(hay)) keys.push('satış');
   if (/lojistik|depo|sevkiyat|forklift|kurye/.test(hay)) keys.push('lojistik');
   if (/eğitim|öğretmen|akademisyen|eğitmen/.test(hay)) keys.push('eğitim');
-  if (/insan kaynak|işe alım|ik |hr/.test(hay)) keys.push('ik');
+  if (/insan kaynak|işe alım|\bik\b|\bhr\b/.test(hay)) keys.push('ik');
   if (/pazarlama|reklam|sosyal medya|marka|seo/.test(hay)) keys.push('pazarlama');
   return Array.from(new Set(keys));
-}
-
-function uniqSorted(values: string[]): string[] {
-  return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'tr'));
 }
 
 function uniqPreserve(values: string[]): string[] {
@@ -1240,7 +1243,7 @@ function normalizeRoleKey(role: string): string {
   return role.trim().toLocaleLowerCase('tr-TR');
 }
 
-function getPositionBundle(role: string | null | undefined): PositionBundle | undefined {
+export function getPositionBundle(role: string | null | undefined): PositionBundle | undefined {
   if (!role) return undefined;
   const trimmed = role.trim();
   if (POSITION_BUNDLES[trimmed]) return POSITION_BUNDLES[trimmed];
@@ -1251,60 +1254,119 @@ function getPositionBundle(role: string | null | undefined): PositionBundle | un
   return resolvePositionBundle(trimmed);
 }
 
-function isLeadershipPriorityLevel(experienceLevel?: string | null): boolean {
-  const level = String(experienceLevel ?? '').toLocaleLowerCase('tr-TR');
-  return /yönetici|direktör|senior|kıdemli|uzman|mid|orta/.test(level);
-}
-
 function withManualOption(values: string[]): string[] {
   return [...uniqPreserve(values.filter((v) => v !== MANUAL_OPTION)), MANUAL_OPTION];
 }
 
-export function suggestProfessionalSkills(input: {
-  sector?: string | null;
-  role?: string | null;
-  experienceLevel?: string | null;
-}): string[] {
-  const bundle = getPositionBundle(input.role);
-  const themes = themeKeysFor(input.sector ?? '', input.role ?? '');
-  const positionSkills = bundle ? [...bundle.professionalSkills] : [];
-  const themeSkills: string[] = [];
+const THEME_TO_PROFESSIONAL: Record<string, string> = {
+  satis: 'satış',
+  saglik: 'sağlık',
+  finans: 'finans',
+  muhasebe: 'finans',
+  yazilim: 'yazılım',
+  veri: 'yazılım',
+  lojistik: 'lojistik',
+  egitim: 'eğitim',
+  ik: 'ik',
+  pazarlama: 'pazarlama',
+};
+
+const THEME_TO_TECHNICAL: Record<string, string> = {
+  satis: 'satış',
+  saglik: 'sağlık',
+  finans: 'muhasebe',
+  muhasebe: 'muhasebe',
+  yazilim: 'yazılım',
+  veri: 'veri',
+  lojistik: 'lojistik',
+  pazarlama: 'pazarlama',
+};
+
+export function suggestProfessionalSkills(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const bundle = getPositionBundle(context.role);
+  const pool: Array<{ value: string; source: 'bundle' | 'adjacent' | 'theme' | 'office' | 'existing' }> = [];
+
+  for (const value of bundle?.professionalSkills ?? []) {
+    pool.push({ value, source: 'bundle' });
+  }
+  if (context.adjacentStrength > 0) {
+    for (const adjacent of adjacentFamilyBundles(context)) {
+      const values = [...(adjacent?.professionalSkills ?? [])];
+      const limited = context.adjacentStrength === 1 ? values.slice(0, 2) : values;
+      for (const value of limited) {
+        pool.push({ value, source: 'adjacent' });
+      }
+    }
+  }
   if (!bundle) {
+    const themes = occupationalSkillThemes(context);
     for (const theme of themes) {
-      themeSkills.push(...(PROFESSIONAL_SKILLS_BY_THEME[theme] ?? []));
+      const key = THEME_TO_PROFESSIONAL[theme] ?? theme;
+      for (const value of PROFESSIONAL_SKILLS_BY_THEME[key] ?? []) {
+        pool.push({ value, source: 'theme' });
+      }
+    }
+    if (themes.length === 0) {
+      for (const value of PROFESSIONAL_SKILLS_BY_THEME.genel ?? []) {
+        pool.push({ value, source: 'theme' });
+      }
     }
   } else {
-    // Light sector supplement only — do not collapse distinct positions into one theme list.
-    themeSkills.push(...(PROFESSIONAL_SKILLS_BY_THEME.genel ?? []));
+    for (const value of ['İletişim', 'Problem çözme', 'Organizasyon', 'Takım çalışması']) {
+      pool.push({ value, source: 'theme' });
+    }
   }
 
-  const leadership = [...LEADERSHIP_SKILLS];
-  const leadershipSet = new Set<string>(leadership);
-  const rest = uniqPreserve([...positionSkills, ...themeSkills]).filter(
-    (item) => !leadershipSet.has(item),
-  );
+  const leadershipSource =
+    context.family === null && context.levelSeniority >= 2 ? 'bundle' : 'theme';
+  for (const value of LEADERSHIP_SKILLS) {
+    pool.push({ value, source: leadershipSource });
+  }
+  for (const value of context.existingProfessional) {
+    pool.push({ value, source: 'existing' });
+  }
 
-  const ordered = isLeadershipPriorityLevel(input.experienceLevel)
-    ? [...leadership, ...rest]
-    : [...rest, ...leadership];
-
-  return withManualOption(ordered);
+  return withManualOption(rankOccupationalOptions(pool, context, 'professional'));
 }
 
-export function suggestTechnicalSkills(input: {
-  sector?: string | null;
-  role?: string | null;
-}): string[] {
-  const bundle = getPositionBundle(input.role);
-  if (bundle) {
-    return withManualOption([...bundle.technicalSkills]);
+export function suggestTechnicalSkills(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const bundle = getPositionBundle(context.role);
+  const pool: Array<{ value: string; source: 'bundle' | 'adjacent' | 'theme' | 'office' | 'existing' }> = [];
+
+  for (const value of bundle?.technicalSkills ?? []) {
+    pool.push({ value, source: 'bundle' });
   }
-  const themes = themeKeysFor(input.sector ?? '', input.role ?? '');
-  const out: string[] = [];
-  for (const theme of themes) {
-    out.push(...(TECHNICAL_SKILLS_BY_THEME[theme] ?? []));
+  if (context.adjacentStrength > 0) {
+    for (const adjacent of adjacentFamilyBundles(context)) {
+      const values = [...(adjacent?.technicalSkills ?? [])];
+      const limited = context.adjacentStrength === 1 ? values.slice(0, 1) : values;
+      for (const value of limited) {
+        pool.push({ value, source: 'adjacent' });
+      }
+    }
   }
-  return withManualOption(uniqSorted(out));
+  if (!bundle) {
+    const themes = occupationalSkillThemes(context);
+    for (const theme of themes) {
+      const key = THEME_TO_TECHNICAL[theme] ?? theme;
+      for (const value of TECHNICAL_SKILLS_BY_THEME[key] ?? []) {
+        pool.push({ value, source: 'theme' });
+      }
+    }
+    if (themes.length === 0) {
+      for (const value of TECHNICAL_SKILLS_BY_THEME.genel ?? []) {
+        pool.push({ value, source: 'office' });
+      }
+    }
+  }
+  for (const value of context.existingTechnical) {
+    pool.push({ value, source: 'existing' });
+  }
+
+  const ranked = rankOccupationalOptions(pool, context, 'technical');
+  return withManualOption(ranked.length > 0 ? ranked : [...(bundle?.technicalSkills ?? [])]);
 }
 
 const RESPONSIBILITY_TEMPLATES: Record<string, readonly string[]> = {
@@ -1419,16 +1481,13 @@ function templateTheme(sector: string, role: string): string {
   return 'genel';
 }
 
-export function suggestResponsibilities(input: {
-  sector?: string | null;
-  role?: string | null;
-  experienceLevel?: string | null;
-}): string[] {
-  const bundle = getPositionBundle(input.role);
+export function suggestResponsibilities(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const bundle = getPositionBundle(context.role);
   if (bundle) {
     return withManualOption([...bundle.responsibilities]);
   }
-  const theme = templateTheme(input.sector ?? '', input.role ?? '');
+  const theme = templateTheme(context.sector, context.role);
   const base = [
     ...(RESPONSIBILITY_TEMPLATES[theme] ?? []),
     ...RESPONSIBILITY_TEMPLATES.genel,
@@ -1436,16 +1495,13 @@ export function suggestResponsibilities(input: {
   return withManualOption(base);
 }
 
-export function suggestAchievements(input: {
-  sector?: string | null;
-  role?: string | null;
-  experienceLevel?: string | null;
-}): string[] {
-  const bundle = getPositionBundle(input.role);
+export function suggestAchievements(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const bundle = getPositionBundle(context.role);
   if (bundle) {
     return withManualOption([...bundle.achievements]);
   }
-  const theme = templateTheme(input.sector ?? '', input.role ?? '');
+  const theme = templateTheme(context.sector, context.role);
   const keyed = theme === 'satış' || theme === 'yazılım' || theme === 'sağlık' ? theme : 'genel';
   const base = [
     ...(ACHIEVEMENT_TEMPLATES[keyed] ?? []),

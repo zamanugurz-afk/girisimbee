@@ -19,7 +19,7 @@ import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-opt
 const SECTOR_SET = new Set<string>(JOB_SECTOR_OPTIONS);
 
 /** 3 = unit / general manager+, 2 = lead, 1 = specialist, 0 = frontline. */
-const FAMILY_SENIORITY: Record<RoleFamily, 0 | 1 | 2 | 3> = {
+export const FAMILY_SENIORITY: Record<RoleFamily, 0 | 1 | 2 | 3> = {
   reception: 0,
   host: 0,
   housekeeping: 0,
@@ -134,7 +134,7 @@ const FAMILY_CLUSTERS: RoleFamily[][] = [
   ['admin'],
 ];
 
-const PROMOTION_FAMILIES: Partial<Record<RoleFamily, readonly RoleFamily[]>> = {
+export const PROMOTION_FAMILIES: Partial<Record<RoleFamily, readonly RoleFamily[]>> = {
   bankFront: ['branchManager', 'portfolioManager', 'salesManager'],
   retail: ['storeManager', 'regionalManager', 'salesManager'],
   cashier: ['storeManager', 'officeManager'],
@@ -331,7 +331,12 @@ const FAMILY_HOME_SECTORS: Partial<Record<RoleFamily, readonly string[]>> = {
 };
 
 export type PreferenceSuggestionInput = {
-  experiences?: Array<Pick<CareerExperience, 'sector' | 'role' | 'roleOther'>>;
+  experiences?: Array<
+    Pick<
+      CareerExperience,
+      'sector' | 'role' | 'roleOther' | 'isCurrent' | 'startMonth' | 'startYear' | 'endMonth' | 'endYear'
+    >
+  >;
   primarySector?: string | null;
   desiredRole?: string | null;
   selected?: string[] | null;
@@ -421,30 +426,58 @@ function relatedSectorsFor(sector: string): string[] {
   return [...set];
 }
 
-function experienceSeeds(input: PreferenceSuggestionInput) {
-  const rows = [...(input.experiences ?? [])];
-  const seeds: Array<{ sector: string; role: string; weight: number; family: RoleFamily | null }> = [];
+function experienceRole(row: {
+  role?: string | null;
+  roleOther?: string | null;
+}): string {
+  return isManualCareerOption(row.role) ? (row.roleOther ?? '').trim() : (row.role ?? '').trim();
+}
 
-  rows.forEach((row, index) => {
-    const role = isManualCareerOption(row.role) ? (row.roleOther ?? '').trim() : (row.role ?? '').trim();
-    const sector = (row.sector ?? '').trim();
+function hasExperienceIdentity(row: {
+  sector?: string | null;
+  role?: string | null;
+  roleOther?: string | null;
+}): boolean {
+  return Boolean(experienceRole(row) || (row.sector ?? '').trim());
+}
+
+/**
+ * Preference catalogs follow the current / newest job only.
+ * Form order is newest → oldest; `isCurrent` wins when marked.
+ */
+export function pickLatestExperience<
+  T extends Pick<CareerExperience, 'sector' | 'role' | 'roleOther' | 'isCurrent'>,
+>(experiences: T[] | null | undefined): T | null {
+  const rows = experiences ?? [];
+  const current = rows.find((row) => row.isCurrent && hasExperienceIdentity(row));
+  if (current) return current;
+  return rows.find((row) => hasExperienceIdentity(row)) ?? null;
+}
+
+function experienceSeeds(input: PreferenceSuggestionInput) {
+  const seeds: Array<{ sector: string; role: string; weight: number; family: RoleFamily | null }> = [];
+  const latest = pickLatestExperience(input.experiences);
+
+  if (latest) {
+    const role = experienceRole(latest);
+    const sector = (latest.sector ?? '').trim();
     seeds.push({
       sector,
       role,
-      weight: 100 - index * 10,
+      weight: 100,
       family: resolveRoleFamily(role),
     });
-  });
-
-  const primary = (input.primarySector ?? '').trim();
-  const desired = (input.desiredRole ?? '').trim();
-  if (primary || (desired && !isManualCareerOption(desired))) {
-    seeds.push({
-      sector: primary,
-      role: isManualCareerOption(desired) ? '' : desired,
-      weight: 40,
-      family: resolveRoleFamily(desired),
-    });
+  } else {
+    const primary = (input.primarySector ?? '').trim();
+    const desired = (input.desiredRole ?? '').trim();
+    if (primary || (desired && !isManualCareerOption(desired))) {
+      seeds.push({
+        sector: primary,
+        role: isManualCareerOption(desired) ? '' : desired,
+        weight: 40,
+        family: resolveRoleFamily(desired),
+      });
+    }
   }
 
   return seeds.filter((seed) => seed.sector || seed.role);

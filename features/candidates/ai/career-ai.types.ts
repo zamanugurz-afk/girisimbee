@@ -1,4 +1,4 @@
-export const CAREER_AI_ACTIONS = ['suggest', 'polish', 'analyze'] as const;
+export const CAREER_AI_ACTIONS = ['suggest', 'polish', 'analyze', 'occupational'] as const;
 export type CareerAiAction = (typeof CAREER_AI_ACTIONS)[number];
 
 export const CAREER_AI_MANUAL_KINDS = [
@@ -65,10 +65,27 @@ export type CareerAiAnalyzeRequest = {
   fingerprint: string;
 };
 
+export type CareerAiOccupationalRequest = {
+  action: 'occupational';
+  fingerprint: string;
+  sector?: string;
+  role?: string;
+  roleOther?: string;
+  experienceLevel?: string;
+  totalExperienceYears?: number | null;
+  audience?: 'seeker' | 'hire' | 'generic';
+  experienceRoles?: string[];
+  evidence?: string;
+  professionalCatalog: string[];
+  technicalCatalog: string[];
+  toolsCatalog: string[];
+};
+
 export type CareerAiRequest =
   | CareerAiSuggestRequest
   | CareerAiPolishRequest
-  | CareerAiAnalyzeRequest;
+  | CareerAiAnalyzeRequest
+  | CareerAiOccupationalRequest;
 
 export type CareerAiSuggestResult = {
   action: 'suggest';
@@ -99,10 +116,21 @@ export type CareerAiAnalyzeResult = CareerAiAnalysis & {
   fingerprint: string;
 };
 
+export type CareerAiOccupationalResult = {
+  action: 'occupational';
+  source: 'taxonomy' | 'ai' | 'cache';
+  professionalSkills: string[];
+  technicalSkills: string[];
+  tools: string[];
+  confidence: number;
+  fingerprint: string;
+};
+
 export type CareerAiResult =
   | CareerAiSuggestResult
   | CareerAiPolishResult
-  | CareerAiAnalyzeResult;
+  | CareerAiAnalyzeResult
+  | CareerAiOccupationalResult;
 
 /** Persisted subset in listings.customFields — only after the user accepts. */
 export type CareerAiStoredAnalysis = CareerAiAnalysis & {

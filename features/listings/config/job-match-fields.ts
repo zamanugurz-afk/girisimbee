@@ -11,6 +11,7 @@ export const JOB_MATCH_FIELD_KEYS = [
   'preferredCity',
   'professionalSkills',
   'technicalSkills',
+  'tools',
   'educationLevel',
   'educationField',
   'languages',
@@ -25,4 +26,5 @@ export const JOB_MATCH_ALIASES = {
   salary: { seeker: 'salaryExpectation', hire: 'salaryRange' },
   duties: { seeker: 'experiences.responsibilities', hire: 'requiredResponsibilities' },
   achievements: { seeker: 'experiences.achievements', hire: 'requiredAchievements' },
+  relatedOccupations: { seeker: 'desiredRole', hire: 'desiredRole' },
 } as const;

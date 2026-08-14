@@ -5,15 +5,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { useOccupationalSuggestionCatalog } from '@/features/candidates/hooks/use-occupational-suggestions';
 import {
   isManualCareerOption,
   joinSelectedList,
   MANUAL_OPTION,
   parseSelectedList,
-  suggestProfessionalSkills,
-  suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
-import { suggestTools } from '@/features/candidates/taxonomy/career-tools';
+import { resolveOccupationalSuggestions } from '@/features/candidates/taxonomy/occupational-suggestions';
+import { estimateTotalExperienceYears } from '@/features/candidates/lib/career-experience-dates';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 
 type SkillsValue = {
@@ -43,6 +43,7 @@ export function CareerSkillsEditor({
   disabled,
   sector,
   role,
+  roleOther,
   experienceLevel,
   errors,
   audience = 'seeker',
@@ -54,6 +55,7 @@ export function CareerSkillsEditor({
   disabled?: boolean;
   sector?: string | null;
   role?: string | null;
+  roleOther?: string | null;
   experienceLevel?: string | null;
   errors?: Partial<Record<keyof SkillsValue, string>>;
   audience?: 'seeker' | 'hire';
@@ -61,28 +63,47 @@ export function CareerSkillsEditor({
   experiences?: CareerExperience[];
 }) {
   const isHire = audience === 'hire';
-  const professionalOptions = useMemo(() => {
-    const primary = suggestProfessionalSkills({ sector, role, experienceLevel });
-    if (isHire || !experienceRoles?.length) return primary;
-    const extra = experienceRoles.flatMap((expRole) =>
-      suggestProfessionalSkills({ sector, role: expRole, experienceLevel }),
-    );
-    return uniqKeepOrder([...primary, ...extra]);
-  }, [sector, role, experienceLevel, experienceRoles, isHire]);
-  const technicalOptions = useMemo(() => {
-    const primary = suggestTechnicalSkills({ sector, role });
-    if (isHire || !experienceRoles?.length) return primary;
-    const extra = experienceRoles.flatMap((expRole) =>
-      suggestTechnicalSkills({ sector, role: expRole }),
-    );
-    return uniqKeepOrder([...primary, ...extra]);
-  }, [sector, role, experienceRoles, isHire]);
-  const toolOptions = useMemo(() => {
-    const primary = suggestTools({ sector, role });
-    if (isHire || !experienceRoles?.length) return primary;
-    const extra = experienceRoles.flatMap((expRole) => suggestTools({ sector, role: expRole }));
-    return uniqKeepOrder([...primary, ...extra]);
-  }, [sector, role, experienceRoles, isHire]);
+  const suggestions = useMemo(
+    () =>
+      resolveOccupationalSuggestions({
+        audience: isHire ? 'hire' : 'seeker',
+        sector,
+        role,
+        roleOther,
+        experienceLevel,
+        totalExperienceYears: estimateTotalExperienceYears(experiences ?? []),
+        experiences: experiences?.length
+          ? experiences
+          : (experienceRoles ?? []).map((item) => ({ role: item })),
+        professionalSkills: value.professionalSkills,
+        technicalSkills: value.technicalSkills,
+        tools: value.tools,
+      }),
+    [
+      isHire,
+      sector,
+      role,
+      roleOther,
+      experienceLevel,
+      experiences,
+      experienceRoles,
+      value.professionalSkills,
+      value.technicalSkills,
+      value.tools,
+    ],
+  );
+  const catalog = useOccupationalSuggestionCatalog(suggestions, {
+    audience: isHire ? 'hire' : 'seeker',
+    sector,
+    role,
+    roleOther,
+    experienceLevel,
+    experiences,
+    totalExperienceYears: estimateTotalExperienceYears(experiences ?? []),
+  });
+  const professionalOptions = catalog.professionalSkills;
+  const technicalOptions = catalog.technicalSkills;
+  const toolOptions = catalog.tools;
 
   const wantsManualProfessional = parseSelectedList(value.professionalSkills).some((item) =>
     isManualCareerOption(item),

@@ -60,8 +60,9 @@ export function CareerPreferenceEditor({
   return (
     <div className="space-y-5">
       <p className="text-xs text-muted-foreground">
-        Listeler deneyiminizdeki sektör ve pozisyona göre sıralanır. Yönetim ve bağlantılı
-        roller önde gelir. Aradığınız yoksa Diğer / Kendim gireceğim’i işaretleyip yazın.
+        Listeler yalnızca en son deneyiminizdeki sektör ve pozisyona göre çıkar. Eski
+        işleriniz bu listeyi genişletmez. Aradığınız yoksa Diğer / Kendim gireceğim’i
+        işaretleyip yazın.
       </p>
       <CareerMultiSelect
         label="İlgilenilen sektörler"

@@ -7,6 +7,7 @@ import {
   runCareerAiAnalyze,
   runCareerAiPolish,
   runCareerAiSuggest,
+  runOccupationalRank,
 } from '@/features/candidates/ai/career-ai.service';
 import {
   CAREER_AI_ACTIONS,
@@ -14,7 +15,7 @@ import {
   CAREER_AI_POLISH_KINDS,
 } from '@/features/candidates/ai/career-ai.types';
 import { assertNoPii } from '@/features/candidates/ai/career-ai-context';
-import { containsCareerFreeTextPii, prepareTextForCareerAi } from '@/features/candidates/ai/career-ai-pii';
+import { prepareTextForCareerAi } from '@/features/candidates/ai/career-ai-pii';
 import { ValidationError } from '@/lib/domain/errors';
 
 const safeExperienceSchema = z.object({
@@ -69,12 +70,28 @@ const bodySchema = z.discriminatedUnion('action', [
     context: safeContextSchema,
     fingerprint: z.string().max(64).optional(),
   }),
+  z.object({
+    action: z.literal('occupational'),
+    fingerprint: z.string().max(64).optional(),
+    sector: z.string().max(120).optional(),
+    role: z.string().max(200).optional(),
+    roleOther: z.string().max(200).optional(),
+    experienceLevel: z.string().max(80).optional(),
+    totalExperienceYears: z.number().int().min(0).max(60).nullable().optional(),
+    audience: z.enum(['seeker', 'hire', 'generic']).optional(),
+    experienceRoles: z.array(z.string().max(120)).max(8).optional(),
+    evidence: z.string().max(280).optional(),
+    professionalCatalog: z.array(z.string().max(200)).max(24),
+    technicalCatalog: z.array(z.string().max(200)).max(16),
+    toolsCatalog: z.array(z.string().max(200)).max(16),
+  }),
 ]);
 
 const LIMITS: Record<(typeof CAREER_AI_ACTIONS)[number], { limit: number; windowMs: number }> = {
   suggest: { limit: 20, windowMs: 10 * 60 * 1000 },
   polish: { limit: 15, windowMs: 10 * 60 * 1000 },
   analyze: { limit: 6, windowMs: 10 * 60 * 1000 },
+  occupational: { limit: 8, windowMs: 10 * 60 * 1000 },
 };
 
 function collectStrings(value: unknown, out: string[] = []): string[] {
@@ -116,9 +133,13 @@ export const POST = withAuth(async (ctx, request) => {
       return apiError('Kişisel iletişim bilgisi AI isteğine eklenemez.', 400, { code: 'PII_BLOCKED' });
     }
     body.text = prepared.text;
-  } else if (collectStrings(body.context).some((text) => containsCareerFreeTextPii(text))) {
-    // Context is redacted in the service; block only if the remaining payload is unusable.
+  } else if (body.action === 'analyze') {
     const preparedBits = collectStrings(body.context).map((text) => prepareTextForCareerAi(text, 0));
+    if (preparedBits.some((bit) => bit.blocked)) {
+      return apiError('Kişisel iletişim bilgisi AI isteğine eklenemez.', 400, { code: 'PII_BLOCKED' });
+    }
+  } else if (body.action === 'occupational') {
+    const preparedBits = collectStrings(body).map((text) => prepareTextForCareerAi(text, 0));
     if (preparedBits.some((bit) => bit.blocked)) {
       return apiError('Kişisel iletişim bilgisi AI isteğine eklenemez.', 400, { code: 'PII_BLOCKED' });
     }
@@ -140,6 +161,13 @@ export const POST = withAuth(async (ctx, request) => {
     }
     if (body.action === 'polish') {
       const result = await runCareerAiPolish(body);
+      return ok(result);
+    }
+    if (body.action === 'occupational') {
+      const result = await runOccupationalRank({
+        ...body,
+        fingerprint: body.fingerprint ?? '',
+      });
       return ok(result);
     }
     const result = await runCareerAiAnalyze({

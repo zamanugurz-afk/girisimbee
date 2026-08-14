@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
 import {
+  pickLatestExperience,
   suggestPreferredRoles,
   suggestPreferredSectors,
 } from './career-preference-suggestions';
@@ -160,5 +161,42 @@ describe('career preference suggestions from experience', () => {
     expect(roles).toEqual(
       expect.arrayContaining(['Müşteri temsilcisi', 'Şube müdürü', MANUAL_OPTION]),
     );
+  });
+
+  it('uses only the latest job, not older sales-rep experience', () => {
+    const input = {
+      experiences: [
+        {
+          sector: 'Perakende / Mağaza',
+          role: 'Bölge müdürü',
+          roleOther: '',
+          isCurrent: true,
+        },
+        {
+          sector: 'Satış',
+          role: 'Satış temsilcisi',
+          roleOther: '',
+          isCurrent: false,
+        },
+      ],
+      primarySector: 'Satış',
+      desiredRole: 'Satış temsilcisi',
+    };
+
+    expect(pickLatestExperience(input.experiences)?.role).toBe('Bölge müdürü');
+
+    const roles = suggestPreferredRoles(input);
+    expect(roles[0]).toBe('Bölge müdürü');
+    expect(roles).toEqual(expect.arrayContaining(['Satış müdürü', 'Mağaza müdürü', MANUAL_OPTION]));
+    expect(roles).not.toContain('Satış temsilcisi');
+    expect(roles).not.toContain('İç satış uzmanı');
+    expect(roles).not.toContain('Saha satış uzmanı');
+    expect(roles).not.toContain('Medikal satış temsilcisi');
+    expect(roles).not.toContain('Hesap yöneticisi');
+    expect(roles).not.toContain('Key account manager');
+    expect(roles).not.toContain('Bordro uzmanı');
+    expect(roles).not.toContain('İnsan kaynakları uzmanı');
+    expect(roles).not.toContain('Sigorta satış uzmanı');
+    expect(roles).not.toContain('İş geliştirme uzmanı');
   });
 });
