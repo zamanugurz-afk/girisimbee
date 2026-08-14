@@ -46,7 +46,9 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
   const subcategory =
     listing.tags.find((tag) => tag.trim().length > 0) ?? null;
   const showLocation =
-    (listing.category.id === 'find-job' || listing.category.id === 'hire')
+    (listing.category.id === 'find-job'
+      || listing.category.id === 'hire'
+      || listing.category.id === 'find-investment')
     && !isEmptyDisplayValue(listing.location);
 
   return (

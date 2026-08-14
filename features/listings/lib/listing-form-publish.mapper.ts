@@ -4,6 +4,8 @@ import type { FranchiseFlow } from '@/features/franchise/types/franchise-listing
 import { getListingCategoryModule } from '@/features/listings/config/listing-category-module.config';
 import { listingFormValuesToFranchiseGivePayload } from '@/features/listings/lib/franchise-listing-form.mapper';
 import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
+import { acceptedInvestmentAiAnalysisOrNull } from '@/features/investments/ai/investment-ai-persist';
+import { INVESTMENT_PUBLISH_CUSTOM_KEYS } from '@/features/investments/taxonomy/investment-catalog';
 
 function readString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -47,15 +49,25 @@ export function listingFormValuesToModulePayload(
   const base = basePayload(values);
 
   switch (config.moduleKey) {
-    case 'entrepreneurs':
+    case 'entrepreneurs': {
+      const investmentFields: Record<string, unknown> = {};
+      for (const key of INVESTMENT_PUBLISH_CUSTOM_KEYS) {
+        if (key === 'investmentAiAnalysis') {
+          investmentFields[key] = acceptedInvestmentAiAnalysisOrNull(customFields[key]);
+          continue;
+        }
+        if (customFields[key] !== undefined) {
+          investmentFields[key] = customFields[key];
+        }
+      }
       return {
         ...base,
+        sector: readString(customFields.sector),
         investmentStage: readString(customFields.stage),
         stage: readString(customFields.stage),
-        investmentAmount: customFields.investmentAmount,
-        equityOffered: customFields.equityOffered,
-        useOfFunds: customFields.useOfFunds,
+        ...investmentFields,
       };
+    }
 
     case 'investors':
       return {

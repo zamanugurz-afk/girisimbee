@@ -19,20 +19,36 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
     case CATEGORY_IDS.yatirimBul:
       return {
         core: {
-          title: 'Yapay Zeka Tabanlı SaaS Platformumuza Yatırımcı Arıyoruz',
+          title: 'FaturaAI',
           shortDescription:
-            'KOBİ’lere özel yapay zeka destekli SaaS ürünümüz MVP aşamasında; ürün geliştirme ve satış için 2–5 milyon TL yatırım arıyoruz.',
+            'FaturaAI, SaaS / Yazılım alanında MVP aşaması bir girişimdir; KOBİ müşterilere yöneliktir; 2.500.000 - 5.000.000 TL yatırım aramaktadır.',
           longDescription:
-            'Ürünümüz fatura ve stok süreçlerini otomatikleştiriyor. Hedef pazar Türkiye’deki KOBİ’ler; ilk pilot müşterilerimiz var. Kurucu ekipte ürün ve satış deneyimi bulunuyor. Yatırımı ürün geliştirme, ekip büyütme ve pazarlamaya kullanacağız. Stratejik yatırımcıdan sektör bağlantısı ve büyüme desteği bekliyoruz.',
+            'FaturaAI SaaS / Yazılım sektöründe, MVP aşaması bir girişimdir. Çözülen problem: KOBİ’lerin fatura ve stok takibi dağınık ve manuel. Çözüm: Tek panelde fatura, stok ve nakit akışını birleştiren SaaS. Hedef müşteri KOBİ; iş modeli SaaS, Abonelik. Mevcut durum: MVP, İlk gelir, İlk müşteriler. Girilen traction: MRR 120.000 TL, Aktif müşteri 14. 2.500.000 - 5.000.000 TL yatırım aranıyor; %12 hisse teklif ediliyor. Yatırım Ürün geliştirme, Satış için kullanılacak. Farklılaşma: Sektöre özel muhasebe şablonları ve hızlı kurulum.',
           city: 'İstanbul',
           country: 'TR',
           remotePolicy: null,
         },
         customFields: {
+          sector: 'SaaS / Yazılım',
+          stage: 'MVP aşaması',
+          productStatus: 'MVP',
+          productName: 'FaturaAI',
+          foundedYear: '2024',
+          businessModel: ['SaaS', 'Abonelik'],
+          targetCustomer: ['B2B', 'KOBİ'],
+          problem: 'KOBİ’lerin fatura ve stok takibi dağınık ve manuel',
+          solution: 'Tek panelde fatura, stok ve nakit akışını birleştiren SaaS',
+          differentiation: 'Sektöre özel muhasebe şablonları ve hızlı kurulum',
+          revenueStatus: 'İlk gelir',
+          tractionStatus: 'İlk müşteriler',
+          mrr: '120.000 TL',
+          activeCustomers: '14',
           investmentAmount: '2.500.000 - 5.000.000 TL',
           equityOffered: 12,
-          stage: 'MVP aşaması',
-          useOfFunds: ['Ürün geliştirme', 'Pazarlama', 'İnsan kaynakları'],
+          useOfFunds: ['Ürün geliştirme', 'Satış'],
+          founderCount: '2',
+          teamSize: '3-5',
+          founderExpertise: ['Ürün yönetimi', 'Satış'],
         },
       };
     case CATEGORY_IDS.yatirimYap:

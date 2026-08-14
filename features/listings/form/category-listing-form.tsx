@@ -57,6 +57,16 @@ import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkill
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
 import { CareerAiAnalyzePanel } from '@/features/candidates/components/CareerAiAnalyzePanel';
 import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
+import { InvestmentAiAnalyzePanel } from '@/features/investments/components/InvestmentAiAnalyzePanel';
+import { InvestmentProfilePreview } from '@/features/investments/components/InvestmentProfilePreview';
+import { acceptedInvestmentAiAnalysisOrNull } from '@/features/investments/ai/investment-ai-persist';
+import {
+  buildInvestmentContext,
+  validateInvestmentFundingFields,
+} from '@/features/investments/lib/investment-context';
+import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
+import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
+import { polishInvestmentText } from '@/features/investments/lib/investment-text';
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
 import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
 import {
@@ -392,6 +402,9 @@ export function CategoryListingForm({
   const isCareerSummaryStep =
     (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl)
     && Boolean(currentStep.coreFields?.includes('longDescription'));
+  const isInvestmentSummaryStep =
+    categoryId === CATEGORY_IDS.yatirimBul
+    && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -407,6 +420,8 @@ export function CategoryListingForm({
     [listingType.fieldSchema, customFields],
   );
   const lastAutoCareerSummaryRef = useRef('');
+  const lastAutoInvestmentSummaryRef = useRef('');
+  const lastAutoInvestmentShortRef = useRef('');
   const careerSummaryDraft = useMemo(() => {
     if (categoryId === CATEGORY_IDS.iseAl) {
       return buildHiringSummaryDraft({
@@ -483,6 +498,55 @@ export function CategoryListingForm({
     setCore((prev) => ({ ...prev, longDescription: careerSummaryDraft }));
   }, [careerSummaryDraft]);
 
+  const investmentSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.yatirimBul) return null;
+    return buildInvestmentSummaryDraft(
+      buildInvestmentContext({
+        title: core.title,
+        city: core.city,
+        customFields: mergedCustomFields,
+      }),
+    );
+  }, [categoryId, core.city, core.title, mergedCustomFields]);
+
+  useEffect(() => {
+    if (!isInvestmentSummaryStep || !investmentSummaryDraft) return;
+    const currentLong = polishInvestmentText(core.longDescription);
+    const currentShort = polishInvestmentText(core.shortDescription);
+    const longUntouched =
+      !currentLong || currentLong === lastAutoInvestmentSummaryRef.current;
+    const shortUntouched =
+      !currentShort || currentShort === lastAutoInvestmentShortRef.current;
+    if (!longUntouched && !shortUntouched) return;
+    lastAutoInvestmentSummaryRef.current = investmentSummaryDraft.longDescription;
+    lastAutoInvestmentShortRef.current = investmentSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: longUntouched
+        ? investmentSummaryDraft.longDescription
+        : prev.longDescription,
+      shortDescription: shortUntouched
+        ? investmentSummaryDraft.shortDescription
+        : prev.shortDescription,
+    }));
+  }, [
+    core.longDescription,
+    core.shortDescription,
+    investmentSummaryDraft,
+    isInvestmentSummaryStep,
+  ]);
+
+  const applyInvestmentSummaryDraft = useCallback(() => {
+    if (!investmentSummaryDraft) return;
+    lastAutoInvestmentSummaryRef.current = investmentSummaryDraft.longDescription;
+    lastAutoInvestmentShortRef.current = investmentSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: investmentSummaryDraft.longDescription,
+      shortDescription: investmentSummaryDraft.shortDescription,
+    }));
+  }, [investmentSummaryDraft]);
+
   const formValues = useMemo(
     (): ListingFormValues => ({
       core,
@@ -524,6 +588,30 @@ export function CategoryListingForm({
 
   const isCareerCardCategory =
     categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl;
+  const isInvestmentCardCategory = categoryId === CATEGORY_IDS.yatirimBul;
+  const investmentPreviewData = useMemo(
+    () =>
+      isInvestmentCardCategory
+        ? buildInvestmentCardData({
+            context: buildInvestmentContext({
+              title: core.title,
+              city: core.city,
+              customFields: mergedCustomFields,
+            }),
+            longDescription: core.longDescription,
+            shortDescription: core.shortDescription,
+            storedAnalysis: mergedCustomFields.investmentAiAnalysis,
+          })
+        : null,
+    [
+      core.city,
+      core.longDescription,
+      core.shortDescription,
+      core.title,
+      isInvestmentCardCategory,
+      mergedCustomFields,
+    ],
+  );
   const careerPreviewData = useMemo(
     () =>
       isCareerCardCategory
@@ -934,6 +1022,15 @@ export function CategoryListingForm({
       if (Object.keys(preferenceErrors).length > 0) {
         setFieldErrors(preferenceErrors);
         toast.error(Object.values(preferenceErrors)[0] ?? 'Kariyer tercihlerini kontrol edin.');
+        return false;
+      }
+    }
+
+    if (categoryId === CATEGORY_IDS.yatirimBul && stepCustomKeys.includes('investmentAmount')) {
+      const fundingErrors = validateInvestmentFundingFields(mergedCustomFields);
+      if (Object.keys(fundingErrors).length > 0) {
+        setFieldErrors(fundingErrors);
+        toast.error(Object.values(fundingErrors)[0] ?? 'Yatırım tutarını kontrol edin.');
         return false;
       }
     }
@@ -1359,7 +1456,11 @@ export function CategoryListingForm({
             <CareerProfilePreview data={careerPreviewData} />
           )}
 
-          {isPreviewStep && !isCareerCardCategory && (
+          {isPreviewStep && investmentPreviewData && (
+            <InvestmentProfilePreview data={investmentPreviewData} />
+          )}
+
+          {isPreviewStep && !isCareerCardCategory && !isInvestmentCardCategory && (
             <ListingFormPreviewContent
               values={formValues}
               listingType={listingType}
@@ -1625,11 +1726,14 @@ export function CategoryListingForm({
                 </div>
               )}
               {(() => {
-                const acceptedAnalysis = acceptedCareerAiAnalysisOrNull(
-                  mergedCustomFields.careerAiAnalysis,
-                );
+                const acceptedAnalysis =
+                  categoryId === CATEGORY_IDS.yatirimBul
+                    ? acceptedInvestmentAiAnalysisOrNull(
+                        mergedCustomFields.investmentAiAnalysis,
+                      )
+                    : acceptedCareerAiAnalysisOrNull(mergedCustomFields.careerAiAnalysis);
                 if (
-                  categoryId !== CATEGORY_IDS.isBul
+                  (categoryId !== CATEGORY_IDS.isBul && categoryId !== CATEGORY_IDS.yatirimBul)
                   || !acceptedAnalysis
                   || acceptedAnalysis.profileGaps.length === 0
                 ) {
@@ -1670,12 +1774,14 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep ? (
+              {isCareerSummaryStep || isInvestmentSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
                     {categoryId === CATEGORY_IDS.iseAl
                       ? 'Açık pozisyon, yetkinlik ve teklif bilgilerinize göre bir taslak hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
+                      : categoryId === CATEGORY_IDS.yatirimBul
+                        ? 'Yapılandırılmış bilgilerden bir yatırımcı özeti hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
@@ -1684,7 +1790,11 @@ export function CategoryListingForm({
                     size="sm"
                     className="shrink-0"
                     disabled={disabled || isBusy}
-                    onClick={applyCareerSummaryDraft}
+                    onClick={
+                      isInvestmentSummaryStep
+                        ? applyInvestmentSummaryDraft
+                        : applyCareerSummaryDraft
+                    }
                   >
                     Özeti yeniden oluştur
                   </Button>
@@ -1700,6 +1810,31 @@ export function CategoryListingForm({
                     }
                     onAcceptSummary={(summary) =>
                       setCore((prev) => ({ ...prev, longDescription: summary }))
+                    }
+                  />
+                ) : null}
+                {categoryId === CATEGORY_IDS.yatirimBul ? (
+                  <InvestmentAiAnalyzePanel
+                    title={core.title ?? ''}
+                    city={core.city}
+                    customFields={mergedCustomFields}
+                    longDescription={core.longDescription ?? ''}
+                    disabled={disabled || isBusy}
+                    stored={acceptedInvestmentAiAnalysisOrNull(
+                      mergedCustomFields.investmentAiAnalysis,
+                    )}
+                    onStore={(value) =>
+                      setCustomField(
+                        'investmentAiAnalysis',
+                        acceptedInvestmentAiAnalysisOrNull(value),
+                      )
+                    }
+                    onAcceptSummary={({ longDescription, shortDescription }) =>
+                      setCore((prev) => ({
+                        ...prev,
+                        longDescription,
+                        shortDescription: shortDescription || prev.shortDescription,
+                      }))
                     }
                   />
                 ) : null}

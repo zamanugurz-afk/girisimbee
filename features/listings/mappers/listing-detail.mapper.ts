@@ -48,6 +48,9 @@ import {
 } from '@/features/contact-requests/lib/contact-disclosure';
 import { parseCareerExperiences } from '@/features/candidates/config/career-profile-fields';
 import { getExperienceLevelLabel } from '@/features/candidates/taxonomy/career-taxonomy';
+import { buildInvestmentContext } from '@/features/investments/lib/investment-context';
+import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
+import { isCustomInvestmentAmount } from '@/features/investments/taxonomy/investment-catalog';
 import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
 import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
 
@@ -68,13 +71,39 @@ const COMPANY_BLOCK_CUSTOM_KEYS = new Set([
 /** Investment block keys for seeking/offering — omit from customFacts when investment section is shown. */
 const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
   'investmentAmount',
+  'investmentAmountCustom',
   'equityOffered',
+  'valuation',
   'stage',
   'investmentStage',
   'preferredStages',
+  'sector',
   'sectors',
   'ticketSizeMin',
   'useOfFunds',
+  'useOfFundsDetail',
+  'productStatus',
+  'productName',
+  'foundedYear',
+  'businessModel',
+  'targetCustomer',
+  'problem',
+  'solution',
+  'differentiation',
+  'revenueStatus',
+  'tractionStatus',
+  'monthlyRevenue',
+  'mrr',
+  'arr',
+  'activeCustomers',
+  'totalCustomers',
+  'users',
+  'growthRate',
+  'gmv',
+  'founderCount',
+  'teamSize',
+  'founderExpertise',
+  'investmentAiAnalysis',
 ]);
 
 /** Shown as feature cards on Digital & AI detail — omit from flat fact rows. */
@@ -424,12 +453,14 @@ export function aggregateToListingDetail(
     listingIconKey: cardDisplay.iconKey,
     tags: displayTags,
     investment: {
-      requested: readCfDisplay(cf, 'investmentAmount', 'ticketSizeMin'),
+      requested: isCustomInvestmentAmount(readCf(cf, 'investmentAmount'))
+        ? readCfDisplay(cf, 'investmentAmountCustom', 'investmentAmount')
+        : readCfDisplay(cf, 'investmentAmount', 'ticketSizeMin'),
       equity: equityDisplay,
       stage: readCfDisplay(cf, 'stage', 'investmentStage', 'preferredStages'),
-      industry: readCfDisplay(cf, 'sectors'),
+      industry: readCfDisplay(cf, 'sector', 'sectors') || toDisplayValue(listing.industry),
       useOfFunds: readCfDisplay(cf, 'useOfFunds'),
-      companyAge: '',
+      companyAge: readCfDisplay(cf, 'foundedYear'),
       website: categorySlug === 'yatirim-yap' ? companyWebsite : '',
     },
     company: {
@@ -463,7 +494,23 @@ export function aggregateToListingDetail(
       time: formatDate(a.createdAt),
     })),
     similar: [],
-    customFacts: categorySlug === 'is-bul' || categorySlug === 'ise-al' ? [] : customFacts,
+    customFacts:
+      categorySlug === 'is-bul' || categorySlug === 'ise-al' || categorySlug === 'yatirim-bul'
+        ? []
+        : customFacts,
+    investmentCard:
+      categorySlug === 'yatirim-bul'
+        ? buildInvestmentCardData({
+            context: buildInvestmentContext({
+              title: listing.title,
+              city: listing.city,
+              customFields: cf,
+            }),
+            longDescription: listing.longDescription,
+            shortDescription: listing.shortDescription,
+            storedAnalysis: cf.investmentAiAnalysis,
+          })
+        : undefined,
     careerCard:
       categorySlug === 'is-bul'
         ? buildCareerCard(cf, listing.longDescription, {

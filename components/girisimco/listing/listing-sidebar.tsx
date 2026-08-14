@@ -211,7 +211,7 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
         </div>
       </DetailCard>
 
-      {(
+      {listing.category.id !== 'find-investment' && (
         [
           listing.investment.requested,
           listing.investment.equity,

@@ -10,6 +10,13 @@ export const INVESTMENT_AMOUNT_RANGES = [
   '10.000.000 TL ve üzeri',
 ] as const;
 
+/** Seeking-investment only — keeps investor ranges unchanged. */
+export const CUSTOM_INVESTMENT_AMOUNT_OPTION = 'Özel tutar';
+export const SEEKING_INVESTMENT_AMOUNT_RANGES = [
+  ...INVESTMENT_AMOUNT_RANGES,
+  CUSTOM_INVESTMENT_AMOUNT_OPTION,
+] as const;
+
 /** Investor interest sectors — multi-select for "Yatırım Yapacağım". */
 export const INVESTOR_SECTOR_OPTIONS = [
   'Fintech',
@@ -119,8 +126,11 @@ export const USE_OF_FUNDS_OPTIONS = [
   'Yazılım geliştirme',
   'Yapay zeka',
   'Pazarlama',
+  'Satış',
   'İnsan kaynakları',
   'Operasyon',
+  'Çalışma sermayesi',
+  'Yeni pazar',
   'Donanım',
   'Ar-Ge',
   'Uluslararası genişleme',
@@ -128,6 +138,58 @@ export const USE_OF_FUNDS_OPTIONS = [
   'Üretim',
   'Diğer',
 ] as const;
+
+/** Product maturity — complements STARTUP_STAGES, does not replace it. */
+export const PRODUCT_STATUS_OPTIONS = [
+  'Fikir',
+  'MVP',
+  'Beta',
+  'Canlı ürün',
+  'Ticari olarak aktif',
+  'Ölçekleniyor',
+] as const;
+
+export const REVENUE_STATUS_OPTIONS = [
+  'Gelir yok',
+  'İlk gelir',
+  'Düzenli gelir',
+  'Büyüyen gelir',
+] as const;
+
+export const TRACTION_STATUS_OPTIONS = [
+  'Müşteri yok',
+  'Pilot',
+  'İlk müşteriler',
+  'Aktif müşteri tabanı',
+  'Ölçeklenen müşteri tabanı',
+] as const;
+
+export const BUSINESS_MODEL_OPTIONS = [
+  'SaaS',
+  'Abonelik',
+  'Komisyon',
+  'Marketplace',
+  'Lisans',
+  'Freemium',
+  'Reklam',
+  'E-ticaret',
+  'Hizmet',
+  'Diğer',
+] as const;
+
+export const TARGET_CUSTOMER_OPTIONS = [
+  'B2B',
+  'B2C',
+  'B2B2C',
+  'Enterprise',
+  'KOBİ',
+  'Tüketici',
+  'Pazaryeri katılımcısı',
+] as const;
+
+export const FOUNDER_COUNT_OPTIONS = ['1', '2', '3', '4+'] as const;
+
+export const TEAM_SIZE_OPTIONS = ['1-2', '3-5', '6-10', '11-20', '21+'] as const;
 
 /** Job seeker / hiring position options — broad TR market coverage, A–Z (tr). */
 export const JOB_POSITION_OPTIONS = [

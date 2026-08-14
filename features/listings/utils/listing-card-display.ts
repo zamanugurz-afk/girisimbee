@@ -224,7 +224,12 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
   const cf = listing.customFields;
 
   if (group === 'yatirim') {
-    const amount = toDisplayValue(cf.investmentAmount) || toDisplayValue(cf.ticketSizeMin);
+    const range = toDisplayValue(cf.investmentAmount);
+    const custom = toDisplayValue(cf.investmentAmountCustom);
+    const amount =
+      (range === 'Özel tutar' && custom ? custom : range)
+      || custom
+      || toDisplayValue(cf.ticketSizeMin);
     if (amount) return amount;
     if (listing.investmentDetails?.amountSought) {
       return `${listing.investmentDetails.amountSought.toLocaleString('tr-TR')} ${listing.investmentDetails.currency}`;

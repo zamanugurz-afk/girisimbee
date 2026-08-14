@@ -8,6 +8,7 @@ import {
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
+import { InvestmentProfilePreview } from '@/features/investments/components/InvestmentProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -78,11 +79,20 @@ function customFactsSectionTitle(listing: ListingDetail): string {
 }
 
 export function ListingMainContent({ listing }: ListingMainContentProps) {
-  const showInvestment = INVESTMENT_CATEGORIES.has(listing.category.id) && hasInvestmentFacts(listing);
   const showCareerCard =
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
-  const showCustomFacts = !showCareerCard && (listing.customFacts?.length ?? 0) > 0;
+  const showInvestmentCard =
+    Boolean(listing.investmentCard)
+    && listing.category.id === 'find-investment';
+  const showInvestment =
+    !showInvestmentCard
+    && INVESTMENT_CATEGORIES.has(listing.category.id)
+    && hasInvestmentFacts(listing);
+  const showCustomFacts =
+    !showCareerCard
+    && !showInvestmentCard
+    && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
   const showCompany =
     !showCareerCard
@@ -93,7 +103,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     : 'Şirket bilgileri';
   const showAttachments = listing.attachments.length > 0;
   const showTimeline = listing.timeline.length > 0;
-  const showAbout = !showCareerCard && !isEmptyDisplayValue(listing.longDescription);
+  const showAbout =
+    !showCareerCard
+    && !showInvestmentCard
+    && !isEmptyDisplayValue(listing.longDescription);
   const customFactsTitle = customFactsSectionTitle(listing);
   const isSeekingInvestment = listing.category.id === 'find-investment';
 
@@ -117,6 +130,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
             ownerUserId: listing.ownerUserId,
           }}
         />
+      ) : null}
+
+      {showInvestmentCard && listing.investmentCard ? (
+        <InvestmentProfilePreview data={listing.investmentCard} showTitle={false} />
       ) : null}
 
       {showAbout ? (

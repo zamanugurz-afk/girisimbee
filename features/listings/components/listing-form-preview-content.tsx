@@ -56,7 +56,8 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
 
   const customEntries = Object.entries(values.customFields).filter(
     ([key, val]) =>
-      !['kvkkConsents', 'capabilities'].includes(key) && !isEmptyDisplayValue(val),
+      !['kvkkConsents', 'capabilities', 'investmentAiAnalysis', 'careerAiAnalysis'].includes(key)
+      && !isEmptyDisplayValue(val),
   );
 
   const isFranchiseGive = listingType.categoryId === CATEGORY_IDS.bayilikAl;

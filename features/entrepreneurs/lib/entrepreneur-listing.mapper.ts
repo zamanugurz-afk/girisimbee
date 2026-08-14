@@ -4,19 +4,20 @@ import type {
   EntrepreneurListingPayload,
 } from '@/features/entrepreneurs/types/entrepreneur-listing.types';
 
-const DETAIL_KEYS = [
-  'investmentStage',
-  'stage',
-  'investmentTarget',
-  'valuation',
-  'monthlyRevenue',
-  'teamSize',
-  'businessModel',
-  'pitchDeckDocumentId',
-  'investmentAmount',
-  'equityOffered',
-  'useOfFunds',
-] as const;
+const CORE_PAYLOAD_KEYS = new Set([
+  'title',
+  'shortDescription',
+  'longDescription',
+  'city',
+  'district',
+  'sector',
+  'contactPhone',
+  'contactWhatsapp',
+  'contactEmail',
+  'contactWebsite',
+  'publishConsents',
+  'anonymousMode',
+]);
 
 export function extractEntrepreneurListingDetails(listing: Listing): EntrepreneurListingDetails {
   const cf = listing.customFields;
@@ -33,10 +34,9 @@ export function extractEntrepreneurListingDetails(listing: Listing): Entrepreneu
 
 function buildCustomFields(payload: Record<string, unknown>): Record<string, unknown> {
   const customFields: Record<string, unknown> = {};
-  for (const key of DETAIL_KEYS) {
-    if (payload[key] !== undefined) {
-      customFields[key] = payload[key];
-    }
+  for (const [key, value] of Object.entries(payload)) {
+    if (CORE_PAYLOAD_KEYS.has(key) || value === undefined) continue;
+    customFields[key] = value;
   }
   return customFields;
 }
@@ -70,7 +70,10 @@ export function entrepreneurPayloadToCreateInput(
     contactEmail: payload.contactEmail ?? null,
     contactWebsite: payload.contactWebsite ?? null,
     anonymousMode: true,
-    customFields: buildCustomFields(payload as unknown as Record<string, unknown>),
+    customFields: {
+      ...buildCustomFields(payload as unknown as Record<string, unknown>),
+      ...(payload.sector ? { sector: payload.sector } : {}),
+    },
   };
 }
 
@@ -90,7 +93,10 @@ export function entrepreneurPayloadToUpdateInput(
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;
   if (payload.contactWebsite !== undefined) update.contactWebsite = payload.contactWebsite;
 
-  const customPatch = buildCustomFields(payload as unknown as Record<string, unknown>);
+  const customPatch = {
+    ...buildCustomFields(payload as unknown as Record<string, unknown>),
+    ...(payload.sector !== undefined ? { sector: payload.sector } : {}),
+  };
   if (Object.keys(customPatch).length > 0) {
     update.customFields = { ...existing.customFields, ...customPatch };
   }

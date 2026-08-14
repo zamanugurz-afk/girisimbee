@@ -2,6 +2,7 @@ import type { CategoryIntentId } from '@/features/categories/types/category.type
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import { hasAnyTrustBadge } from '@/features/authentication/types/trust.types';
 import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
+import type { InvestmentCardData } from '@/features/investments/lib/investment-card';
 
 export interface ListingAttachment {
   id: string;
@@ -179,6 +180,8 @@ export interface ListingDetail {
     careerProgressions?: Array<{ from: string; to: string }>;
     highlightedSkills?: string[];
   };
+  /** Yatırım Arıyorum — structured investor-facing card. */
+  investmentCard?: InvestmentCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).
