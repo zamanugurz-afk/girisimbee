@@ -23,6 +23,10 @@ describe('buildHiringSummaryDraft', () => {
     expect(draft).toMatch(/Full-stack geliştirici/);
     expect(draft).toMatch(/arıyoruz/i);
     expect(draft).toMatch(/TypeScript|React|Yazılım/);
+    expect(draft).not.toMatch(/Aranan yetkinlikler/);
+    expect(draft).not.toMatch(/Eğitim beklentisi/);
+    expect(draft).not.toMatch(/Dil beklentisi/);
+    expect(draft).not.toMatch(/Rolde .+\s+sorumlulukları bekleniyor/);
     expect(draft.length).toBeGreaterThanOrEqual(100);
     expect(draft).not.toMatch(/@|https?:\/\//i);
     expect(draft).not.toMatch(/telefon ile ulaşır/i);
@@ -34,5 +38,36 @@ describe('buildHiringSummaryDraft', () => {
     expect(draft).toMatch(/Hemşire/);
     expect(draft).toMatch(/arıyoruz/i);
     expect(draft.length).toBeGreaterThanOrEqual(100);
+  });
+
+  it('reads as a short job ad instead of a labeled field dump', () => {
+    const draft = buildHiringSummaryDraft({
+      desiredRole: 'Bankacı / banka personeli',
+      experienceLevel: 'Mid',
+      primarySector: 'Finans / Bankacılık',
+      workType: 'Tam zamanlı',
+      professionalSkills: 'Takım çalışması · Liderlik · Ürün bilgisi',
+      technicalSkills: 'Banka çekirdek sistemi',
+      tools: 'Excel · Outlook',
+      educationLevel: 'Lisans',
+      educationField: 'Bankacılık ve Sigortacılık',
+      languages: 'İngilizce — İyi',
+      preferredCity: 'İstanbul Anadolu Yakası',
+      preferredDistrict: 'Kadıköy',
+      workplacePreference: 'Hibrit',
+      availability: '1 ay içinde',
+      salaryRange: '50.000 - 75.000 TL',
+      requiredResponsibilities:
+        'Şube müşteri işlemlerinin karşılanması · Hesap, kart ve başvuru süreçlerinin yürütülmesi',
+    });
+
+    expect(draft).toMatch(/Finans ve bankacılık alanında/);
+    expect(draft).toMatch(/Görev kapsamında/);
+    expect(draft).toMatch(/öne çıkıyor/);
+    expect(draft).toMatch(/Kadıköy/);
+    expect(draft).toMatch(/Excel/);
+    expect(draft).toMatch(/mezuniyeti/);
+    expect(draft).not.toMatch(/Aranan yetkinlikler|Eğitim beklentisi|Dil beklentisi/);
+    expect(findCareerProfileContentViolation(draft)).toBeNull();
   });
 });

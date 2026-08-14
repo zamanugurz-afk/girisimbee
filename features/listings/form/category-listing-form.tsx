@@ -405,6 +405,9 @@ export function CategoryListingForm({
         availability: String(mergedCustomFields.availability ?? ''),
         salaryRange: String(mergedCustomFields.salaryRange ?? ''),
         requiredResponsibilities: String(mergedCustomFields.requiredResponsibilities ?? ''),
+        tools: String(mergedCustomFields.tools ?? ''),
+        toolsOther: String(mergedCustomFields.toolsOther ?? ''),
+        preferredDistrict: String(mergedCustomFields.preferredDistrict ?? ''),
       });
     }
     if (categoryId !== CATEGORY_IDS.isBul) return '';
@@ -1386,6 +1389,7 @@ export function CategoryListingForm({
                 technicalSkillsOther: String(mergedCustomFields.technicalSkillsOther ?? ''),
                 leadershipExperience: String(mergedCustomFields.leadershipExperience ?? ''),
                 tools: String(mergedCustomFields.tools ?? ''),
+                toolsOther: String(mergedCustomFields.toolsOther ?? ''),
               }}
               onChange={(patch) => {
                 for (const [key, val] of Object.entries(patch)) {

@@ -491,6 +491,7 @@ export function collectWizardVisibleFieldPaths(
         'technicalSkillsOther',
         'leadershipExperience',
         'tools',
+        'toolsOther',
       ]) {
         paths.add(`customFields.${key}`);
         paths.add(key);

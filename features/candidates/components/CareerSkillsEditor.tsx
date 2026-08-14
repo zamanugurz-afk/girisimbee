@@ -1,6 +1,5 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
@@ -10,6 +9,7 @@ import {
   suggestProfessionalSkills,
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { suggestTools } from '@/features/candidates/taxonomy/career-tools';
 
 type SkillsValue = {
   professionalSkills: string;
@@ -18,6 +18,7 @@ type SkillsValue = {
   technicalSkillsOther?: string;
   leadershipExperience: string;
   tools: string;
+  toolsOther?: string;
 };
 
 export function CareerSkillsEditor({
@@ -92,17 +93,18 @@ export function CareerSkillsEditor({
         ) : null}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="tools">{isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}</Label>
-        <Input
-          id="tools"
-          value={value.tools}
-          disabled={disabled}
-          placeholder="Örn: Notion, Jira, Figma"
-          onChange={(e) => onChange({ tools: e.target.value })}
-        />
-        {errors?.tools ? <p className="text-sm text-destructive">{errors.tools}</p> : null}
-      </div>
+      <CareerMultiSelect
+        label={isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}
+        options={suggestTools({ sector, role })}
+        value={parseSelectedList(value.tools)}
+        onChange={(next) => onChange({ tools: joinSelectedList(next) })}
+        manualValue={value.toolsOther ?? ''}
+        onManualChange={(next) => onChange({ toolsOther: next })}
+        manualPlaceholder="Listede olmayan aracı yazın"
+        searchPlaceholder="Araç veya program ara..."
+        disabled={disabled}
+        error={errors?.tools}
+      />
     </div>
   );
 }

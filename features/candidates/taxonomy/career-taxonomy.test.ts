@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import {
   EXPERIENCE_LEVEL_VALUES,
   getAllTaxonomyPositions,
@@ -41,6 +42,23 @@ describe('career taxonomy', () => {
 
     const emptySector = getPositionsForSector('Diğer');
     expect(emptySector).toEqual([MANUAL_OPTION]);
+
+    const callCenter = getPositionsForSector('Çağrı merkezi');
+    expect(callCenter).toEqual(
+      expect.arrayContaining(['Çağrı merkezi temsilcisi', 'Müşteri temsilcisi', MANUAL_OPTION]),
+    );
+  });
+
+  it('covers every listed sector with positions except Diğer', () => {
+    for (const sector of JOB_SECTOR_OPTIONS) {
+      if (sector === 'Diğer') {
+        expect(getPositionsForSector(sector)).toEqual([MANUAL_OPTION]);
+        continue;
+      }
+      const positions = getPositionsForSector(sector);
+      expect(positions.length, sector).toBeGreaterThan(1);
+      expect(positions.at(-1)).toBe(MANUAL_OPTION);
+    }
   });
 
   it('suggests responsibilities and achievements from sector + role', () => {

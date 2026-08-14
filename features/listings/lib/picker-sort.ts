@@ -31,6 +31,7 @@ export const POPULAR_JOB_SECTORS = [
   'Bilişim / Yazılım',
   'Satış',
   'Sağlık',
+  'Çağrı merkezi',
   'Finans / Bankacılık',
   'Eğitim',
   'Üretim / Sanayi',
@@ -38,6 +39,10 @@ export const POPULAR_JOB_SECTORS = [
   'Perakende / Mağaza',
   'Turizm / Otelcilik',
   'İnsan kaynakları',
+  'Lojistik / Depolama',
+  'E-ticaret / Pazaryeri',
+  'Gıda / Restoran',
+  'İnşaat / Gayrimenkul',
 ] as const;
 
 export function sortSectorsPopularThenAz(items: readonly string[]): string[] {

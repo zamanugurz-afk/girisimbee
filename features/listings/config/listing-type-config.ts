@@ -224,7 +224,15 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Kullanılan Araçlar / Programlar',
       type: 'string',
       required: false,
-      max: 500,
+      max: 1500,
+    },
+    {
+      key: 'toolsOther',
+      label: 'Araç (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
     },
     {
       key: 'educationLevel',
@@ -458,7 +466,15 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Aranan Araçlar',
       type: 'string',
       required: false,
-      max: 500,
+      max: 1500,
+    },
+    {
+      key: 'toolsOther',
+      label: 'Araç (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
     },
     {
       key: 'educationLevel',

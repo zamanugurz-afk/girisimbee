@@ -252,6 +252,7 @@ export function findStepIndexForErrors(
     || fieldKey === 'technicalSkillsOther'
     || fieldKey === 'leadershipExperience'
     || fieldKey === 'tools'
+    || fieldKey === 'toolsOther'
   ) {
     const skillsStep = steps.findIndex((step) => step.careerSkillsEditor);
     return skillsStep >= 0 ? skillsStep : null;

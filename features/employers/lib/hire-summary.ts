@@ -1,5 +1,10 @@
 import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
-import { getExperienceLevelLabel, parseCareerLanguages, parseSelectedList } from '@/features/candidates/taxonomy/career-taxonomy';
+import {
+  getExperienceLevelLabel,
+  isManualCareerOption,
+  parseCareerLanguages,
+  parseSelectedList,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 
 export type HiringSummaryInput = {
   desiredRole?: string | null;
@@ -8,10 +13,13 @@ export type HiringSummaryInput = {
   workType?: string | null;
   professionalSkills?: string | null;
   technicalSkills?: string | null;
+  tools?: string | null;
+  toolsOther?: string | null;
   educationLevel?: string | null;
   educationField?: string | null;
   languages?: string | null;
   preferredCity?: string | null;
+  preferredDistrict?: string | null;
   workplacePreference?: string | null;
   availability?: string | null;
   salaryRange?: string | null;
@@ -30,62 +38,110 @@ function take(values: string[], limit: number): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).slice(0, limit);
 }
 
+function selectedList(value: string | null | undefined, extra?: string | null, limit = 4): string[] {
+  const list = parseSelectedList(value).filter((item) => !isManualCareerOption(item));
+  const other = (extra ?? '').trim();
+  if (other) list.push(other);
+  return take(list, limit);
+}
+
 function sentence(text: string): string {
   const trimmed = text.replace(/\s+/g, ' ').trim();
   if (!trimmed) return '';
   return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 }
 
-/** Editable Turkish job-posting draft from hire form fields. No contact or company name. */
+function humanizeSlash(value: string): string {
+  return value.replace(/\s*\/\s*/g, ' ve ').replace(/\s+/g, ' ').trim();
+}
+
+function displayRole(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  const left = trimmed.split(/\s*\/\s*/)[0]?.trim();
+  return left || trimmed;
+}
+
+function lcFirst(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toLocaleLowerCase('tr-TR') + trimmed.slice(1);
+}
+
+function capitalizeTr(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toLocaleUpperCase('tr-TR') + trimmed.slice(1);
+}
+
+/** Editable Turkish job-posting draft. Reads as a short ad, not a field dump. */
 export function buildHiringSummaryDraft(input: HiringSummaryInput): string {
-  const role = (input.desiredRole ?? '').trim() || 'bu pozisyon';
-  const level = getExperienceLevelLabel(input.experienceLevel) || (input.experienceLevel ?? '').trim();
-  const sector = (input.primarySector ?? '').trim();
-  const professional = take(parseSelectedList(input.professionalSkills), 4);
-  const technical = take(parseSelectedList(input.technicalSkills), 3);
-  const duties = take(parseSelectedList(input.requiredResponsibilities), 3);
+  const role = displayRole((input.desiredRole ?? '').trim()) || 'bu pozisyon';
+  const levelRaw = getExperienceLevelLabel(input.experienceLevel) || (input.experienceLevel ?? '').trim();
+  const level = levelRaw ? levelRaw.toLocaleLowerCase('tr-TR') : '';
+  const sector = humanizeSlash((input.primarySector ?? '').trim()).toLocaleLowerCase('tr-TR');
+  const professional = selectedList(input.professionalSkills, null, 4).map(lcFirst);
+  const technical = selectedList(input.technicalSkills, null, 3);
+  const tools = selectedList(input.tools, input.toolsOther, 4);
+  const duties = selectedList(input.requiredResponsibilities, null, 3).map(lcFirst);
   const languages = parseCareerLanguages(input.languages)
     .map((entry) => {
       const name = entry.languageOther?.trim() || entry.language;
-      return name && entry.level ? `${name} (${entry.level})` : name;
+      return name && entry.level ? `${name} (${entry.level.toLocaleLowerCase('tr-TR')})` : name;
     })
     .filter(Boolean)
     .slice(0, 2);
-  const education = [input.educationLevel, input.educationField].filter(Boolean).join(' — ');
-  const place = (input.preferredCity ?? '').trim();
-  const workplace = (input.workplacePreference ?? '').trim();
-  const workType = (input.workType ?? '').trim();
+  const educationLevel = (input.educationLevel ?? '').trim();
+  const educationField = (input.educationField ?? '').trim();
+  const city = (input.preferredCity ?? '').trim();
+  const district = (input.preferredDistrict ?? '').trim();
+  const place = [city, district && district !== 'Diğer' ? district : '']
+    .filter(Boolean)
+    .join(', ');
+  const workplace = lcFirst((input.workplacePreference ?? '').trim());
+  const workType = lcFirst((input.workType ?? '').trim());
   const availability = (input.availability ?? '').trim();
   const salary = (input.salaryRange ?? '').trim();
 
   const sentences: string[] = [];
   const where = sector ? `${sector} alanında ` : '';
-  const levelBit = level ? `${level.toLocaleLowerCase('tr-TR')} ` : '';
-  sentences.push(sentence(`${where}${levelBit}${role} arıyoruz`));
+  const levelBit = level ? `${level} ` : '';
+  sentences.push(sentence(capitalizeTr(`${where}${levelBit}${role} arıyoruz`)));
 
   if (duties.length > 0) {
-    sentences.push(sentence(`Rolde ${joinTr(duties)} sorumlulukları bekleniyor`));
+    sentences.push(sentence(`Görev kapsamında ${joinTr(duties)} yer alıyor`));
   }
   if (professional.length > 0) {
-    sentences.push(sentence(`Aranan yetkinlikler ${joinTr(professional)}`));
+    sentences.push(sentence(`${capitalizeTr(joinTr(professional))} bu rolde öne çıkıyor`));
   }
-  if (technical.length > 0) {
-    sentences.push(sentence(`Çalışmada ${joinTr(technical)} kullanılır`));
+
+  const stack = take([...tools, ...technical], 5);
+  if (stack.length > 0) {
+    sentences.push(sentence(`Günlük işlerde ${joinTr(stack)} kullanılıyor`));
   }
-  if (education) {
-    sentences.push(sentence(`Eğitim beklentisi ${education}`));
+
+  if (educationLevel && educationField) {
+    sentences.push(sentence(`${educationLevel} mezuniyeti (${educationField}) tercih edilir`));
+  } else if (educationLevel) {
+    sentences.push(sentence(`${educationLevel} mezuniyeti tercih edilir`));
+  } else if (educationField) {
+    sentences.push(sentence(`${educationField} geçmişi tercih edilir`));
   }
   if (languages.length > 0) {
-    sentences.push(sentence(`Dil beklentisi ${joinTr(languages)}`));
+    sentences.push(sentence(`${joinTr(languages.map((item) => String(item)))} beklenir`));
   }
 
   const offer = [workplace, workType].filter(Boolean);
   if (place || offer.length > 0 || availability || salary) {
     const model = offer.length > 0 ? `${joinTr(offer)} çalışma` : 'esnek çalışma';
-    const city = place ? `${place} konumunda ` : '';
-    const when = availability ? `; ${availability.toLocaleLowerCase('tr-TR')} başlama` : '';
-    const pay = salary ? ` Ücret aralığı ${salary}` : '';
-    sentences.push(sentence(`${city}${model} sunuluyor${when}${pay}`));
+    const cityBit = place ? `${place} lokasyonunda ` : '';
+    sentences.push(sentence(`${cityBit}${model} sunuluyor`));
+    if (availability) {
+      sentences.push(sentence(`Başlangıç ${availability.toLocaleLowerCase('tr-TR')}`));
+    }
+    if (salary) {
+      sentences.push(sentence(`Ücret aralığı ${salary}`));
+    }
   }
 
   let draft = polishCareerSummary(sentences.filter(Boolean).join(' '));

@@ -20,6 +20,7 @@ const DETAIL_KEYS = [
   'technicalSkillsOther',
   'leadershipExperience',
   'tools',
+  'toolsOther',
   'educationLevel',
   'educationField',
   'educationFieldOther',

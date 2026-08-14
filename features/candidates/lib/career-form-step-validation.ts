@@ -66,15 +66,16 @@ export function validateCareerSkillsStep(customFields: Record<string, unknown>):
     if (issue) errors.leadershipExperience = issue;
   }
 
-  const tools = String(customFields.tools ?? '');
-  if (tools.trim()) {
-    const issue = findCareerTextQualityIssue(tools, {
-      fieldLabel: 'Araçlar',
+  const selectedTools = parseSelectedList(customFields.tools);
+  if (selectedTools.includes(MANUAL_OPTION)) {
+    const toolsOther = String(customFields.toolsOther ?? '').trim();
+    const issue = findCareerTextQualityIssue(toolsOther, {
+      fieldLabel: 'Araç (diğer)',
       minLength: 2,
-      maxLength: 500,
-      required: false,
+      maxLength: 200,
+      required: true,
     });
-    if (issue) errors.tools = issue;
+    if (issue) errors.toolsOther = issue;
   }
 
   return errors;
@@ -96,10 +97,15 @@ export function materializeCareerSkillsFields(
   const technicalOther = String(customFields.technicalSkillsOther ?? '').trim();
   if (technicalOther) technical.push(technicalOther);
 
+  const tools = parseSelectedList(customFields.tools).filter((item) => item !== MANUAL_OPTION);
+  const toolsOther = String(customFields.toolsOther ?? '').trim();
+  if (toolsOther) tools.push(toolsOther);
+
   return {
     ...customFields,
     professionalSkills: joinSelectedList(professional),
     technicalSkills: joinSelectedList(technical),
+    tools: joinSelectedList(tools),
   };
 }
 

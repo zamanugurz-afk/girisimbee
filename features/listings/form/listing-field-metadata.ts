@@ -415,9 +415,9 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 1000,
   },
   tools: {
-    placeholder: 'Örn: Notion, Jira, Figma, Google Workspace, Slack',
-    helperText: 'Günlük kullandığınız araç ve programlar.',
-    maxLength: 500,
+    placeholder: 'Listeden seçin',
+    helperText: 'Günlük kullanılan araç ve programları listeden seçin. Yoksa Diğer’i işaretleyip yazın.',
+    maxLength: 1500,
   },
   educationField: {
     placeholder: 'Örn: Bilgisayar Mühendisliği / İşletme',

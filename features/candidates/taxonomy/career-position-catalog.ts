@@ -47,7 +47,9 @@ type RoleFamily =
   | 'farm'
   | 'media'
   | 'consulting'
-  | 'admin';
+  | 'admin'
+  | 'beauty'
+  | 'security';
 
 const FAMILIES: Record<RoleFamily, PositionBundle> = {
   reception: {
@@ -584,6 +586,36 @@ const FAMILIES: Record<RoleFamily, PositionBundle> = {
     professionalSkills: ['Ofis yönetimi', 'Organizasyon', 'İletişim'],
     technicalSkills: ['Outlook', 'Excel', 'Word'],
   },
+  beauty: {
+    responsibilities: [
+      'Müşteri karşılama ve randevu yönetiminin yapılması',
+      'Kesim, şekillendirme ve bakım uygulamalarının yürütülmesi',
+      'Hijyen ve malzeme hazırlığının sağlanması',
+      'Ürün önerisi ve satış desteğinin verilmesi',
+      'Müşteri memnuniyetinin takibi',
+    ],
+    achievements: [
+      'Randevu doluluk oranının artırılması',
+      'Müşteri sadakatinin güçlendirilmesi',
+      'Hijyen şikayetinin azaltılması',
+    ],
+    professionalSkills: ['Müşteri ilişkileri', 'Hijyen', 'Ürün bilgisi', 'Zaman yönetimi'],
+    technicalSkills: ['Randevu sistemi', 'WhatsApp Business', 'Kasa / POS'],
+  },
+  security: {
+    responsibilities: [
+      'Görev bölgesinin kontrol ve raporlanması',
+      'Giriş-çıkış kayıtlarının tutulması',
+      'Olay anında prosedüre uygun müdahale',
+      'Nöbet tesliminin yapılması',
+    ],
+    achievements: [
+      'Olay müdahale süresinin kısaltılması',
+      'Giriş-çıkış kayıt düzeninin güçlendirilmesi',
+    ],
+    professionalSkills: ['Gözlem', 'Prosedür uyumu', 'Kriz anı sakinliği'],
+    technicalSkills: ['Kamera izleme', 'Turnike / kartlı geçiş', 'Telsiz'],
+  },
 };
 
 const ROLE_FAMILY: Record<string, RoleFamily> = {
@@ -761,7 +793,21 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Kurye / motokurye': 'driver',
   'Şoför (kamyon / TIR)': 'driver',
   'Şoför (hafif ticari)': 'driver',
+  'Şoför (otobüs / minibüs)': 'driver',
+  'Personel servis şoförü': 'driver',
   'Tedarik zinciri uzmanı': 'logistics',
+  'Berber / kuaför': 'beauty',
+  'Güvenlik görevlisi': 'security',
+  'Temizlik görevlisi': 'housekeeping',
+  Sekreter: 'admin',
+  'Ofis yöneticisi': 'admin',
+  'Çaycı / ofis destek': 'admin',
+  'Çelik işçisi': 'factory',
+  Kaynakçı: 'factory',
+  'Torna / freze operatörü': 'factory',
+  'Mobilya ustası': 'factory',
+  'Elektrik teknisyeni': 'energy',
+  'Tamirci / teknik servis': 'autoService',
 };
 
 /** Role-specific first lines so two roles in the same family never look identical. */
@@ -823,16 +869,21 @@ function inferFamily(role: string): RoleFamily | null {
   if (/insan kaynak|işe alım|bordro|ik /.test(hay)) return 'hr';
   if (/pazarlama|reklam|sosyal medya|seo|marka|e-ticaret/.test(hay)) return 'marketing';
   if (/avukat|hukuk|sözleşme|uyuşmazlık/.test(hay)) return 'legal';
-  if (/şoför|kurye/.test(hay)) return 'driver';
+  if (/şoför|kurye|personel servis/.test(hay)) return 'driver';
   if (/depo|lojistik|forklift|sevkiyat|tedarik/.test(hay)) return 'logistics';
   if (/inşaat|şantiye|mimar|elektrikçi|tesisat|boyacı|marangoz/.test(hay)) return 'construction';
-  if (/üretim|fabrika|operatör|kalite|vardiya|isg|mühendis/.test(hay)) return 'factory';
+  if (/üretim|fabrika|operatör|kalite|vardiya|isg|mühendis|kaynakçı|çelik|torna|mobilya/.test(hay)) {
+    return 'factory';
+  }
   if (/memur|vatandaş|kamu/.test(hay)) return 'public';
   if (/enerji|teknisyen|saha operasyon/.test(hay)) return 'energy';
-  if (/tarım|ziraat|sera|çiftçi/.test(hay)) return 'farm';
+  if (/tarım|ziraat|sera|çiftçi|veteriner/.test(hay)) return 'farm';
   if (/içerik|video|muhabir|yayın|topluluk/.test(hay)) return 'media';
   if (/danışman|analist|süreç iyileştir|proje/.test(hay)) return 'consulting';
-  if (/büro|idari|operasyon uzman/.test(hay)) return 'admin';
+  if (/büro|idari|operasyon uzman|sekreter|ofis yönetici|çaycı/.test(hay)) return 'admin';
+  if (/berber|kuaför|güzellik/.test(hay)) return 'beauty';
+  if (/güvenlik/.test(hay)) return 'security';
+  if (/temizlik/.test(hay)) return 'housekeeping';
   return null;
 }
 

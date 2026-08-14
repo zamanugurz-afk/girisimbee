@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ export function CareerMultiSelect({
   manualValue,
   onManualChange,
   manualPlaceholder,
+  searchPlaceholder,
   disabled,
   error,
 }: {
@@ -24,11 +26,22 @@ export function CareerMultiSelect({
   manualValue?: string;
   onManualChange?: (next: string) => void;
   manualPlaceholder?: string;
+  searchPlaceholder?: string;
   disabled?: boolean;
   error?: string | null;
 }) {
   const selected = value ?? [];
   const showManual = selected.includes(MANUAL_OPTION);
+  const [query, setQuery] = useState('');
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLocaleLowerCase('tr-TR');
+    if (!q) return options;
+    return options.filter((option) => {
+      if (option === MANUAL_OPTION || selected.includes(option)) return true;
+      return option.toLocaleLowerCase('tr-TR').includes(q);
+    });
+  }, [options, query, selected]);
 
   function toggle(option: string, checked: boolean) {
     if (checked) onChange([...selected, option]);
@@ -38,13 +51,21 @@ export function CareerMultiSelect({
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
+      {options.length > 12 ? (
+        <Input
+          value={query}
+          disabled={disabled}
+          placeholder={searchPlaceholder ?? 'Listede ara...'}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      ) : null}
       <div
         className={cn(
           'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
           error && 'border-destructive/40',
         )}
       >
-        {options.map((option) => {
+        {visible.map((option) => {
           const checked = selected.includes(option);
           return (
             <label
