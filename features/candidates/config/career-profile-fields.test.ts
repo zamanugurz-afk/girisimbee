@@ -186,4 +186,53 @@ describe('career experience validation', () => {
     };
     expect(validateCareerExperiences([first, overlapping])).toMatch(/çakışıyor/);
   });
+
+  it('clears Halen çalışıyorum on past experience rows', () => {
+    const parsed = parseCareerExperiences([
+      {
+        ...createEmptyCareerExperience(),
+        id: '1',
+        sector: 'Perakende / Mağaza',
+        role: 'Bölge müdürü',
+        isCurrent: true,
+      },
+      {
+        ...createEmptyCareerExperience(),
+        id: '2',
+        sector: 'Satış',
+        role: 'Satış temsilcisi',
+        isCurrent: true,
+      },
+    ]);
+    expect(parsed[0]?.isCurrent).toBe(true);
+    expect(parsed[1]?.isCurrent).toBe(false);
+  });
+
+  it('rejects Halen çalışıyorum on a past experience row', () => {
+    const current = {
+      ...createEmptyCareerExperience(),
+      id: '1',
+      sector: 'Perakende / Mağaza',
+      role: 'Bölge müdürü',
+      startMonth: 1,
+      startYear: 2024,
+      isCurrent: true,
+      selectedResponsibilities: ['Bölge şube / mağaza performansının yönetilmesi'],
+      responsibilities: 'Bölge şube / mağaza performansının yönetilmesi',
+    };
+    const past = {
+      ...createEmptyCareerExperience(),
+      id: '2',
+      sector: 'Satış',
+      role: 'Satış temsilcisi',
+      startMonth: 1,
+      startYear: 2020,
+      endMonth: 12,
+      endYear: 2023,
+      isCurrent: true,
+      selectedResponsibilities: ['Müşteri ziyareti ve sipariş alınması'],
+      responsibilities: 'Müşteri ziyareti ve sipariş alınması',
+    };
+    expect(validateCareerExperiences([current, past])).toMatch(/Halen çalışıyorum/);
+  });
 });

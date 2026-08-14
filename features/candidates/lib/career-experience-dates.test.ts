@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  estimateTotalExperienceYears,
   formatCareerPeriod,
   validateCareerPeriod,
   validateExperienceOverlaps,
@@ -76,5 +77,14 @@ describe('career experience dates', () => {
         { startMonth: 7, startYear: 2026, endMonth: 12, endYear: 2026 },
       ]),
     ).toBeNull();
+  });
+
+  it('merges overlapping intervals when estimating total years', () => {
+    expect(
+      estimateTotalExperienceYears([
+        { startMonth: 1, startYear: 2018, endMonth: 12, endYear: 2022 },
+        { startMonth: 1, startYear: 2020, endMonth: 12, endYear: 2024 },
+      ]),
+    ).toBe(7);
   });
 });

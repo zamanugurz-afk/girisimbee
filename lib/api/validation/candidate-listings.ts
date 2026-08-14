@@ -92,6 +92,11 @@ export const candidateListingCreateSchema = z
     workplacePreference: z.string().max(100).nullable().optional(),
     availability: z.string().max(100).nullable().optional(),
     experiences: z.array(careerExperienceSchema).min(1).optional(),
+    profileGender: z.string().max(40).nullable().optional(),
+    birthDate: z.string().max(32).nullable().optional(),
+    residenceCity: z.string().max(100).nullable().optional(),
+    residenceDistrict: z.string().max(100).nullable().optional(),
+    careerAiAnalysis: z.record(z.unknown()).nullable().optional(),
     contactPhone: z.string().max(40).nullable().optional(),
     publishConsents: z.record(z.boolean()).nullable().optional(),
     /** Legacy — ignored for anonymous profiles */

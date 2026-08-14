@@ -132,7 +132,7 @@ const RELATED_ROLE_GROUPS = [
   ['öğretmen', 'eğitmen', 'akademisyen'],
 ];
 
-function rolesRelated(a: string, b: string): boolean {
+export function isRelatedCareerRole(a: string, b: string): boolean {
   if (!a || !b) return false;
   if (norm(a) === norm(b)) return true;
   const aHay = norm(a);
@@ -160,8 +160,8 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
   const experiences = input.experiences ?? [];
   const totalYears = estimateTotalExperienceYears(experiences);
 
-  const roleExperiences = experiences.filter((exp) => rolesRelated(exp.role, role));
-  const otherExperiences = experiences.filter((exp) => !rolesRelated(exp.role, role));
+  const roleExperiences = experiences.filter((exp) => isRelatedCareerRole(exp.role, role));
+  const otherExperiences = experiences.filter((exp) => !isRelatedCareerRole(exp.role, role));
   const roleYears = roleExperiences.length > 0
     ? estimateTotalExperienceYears(roleExperiences)
     : null;

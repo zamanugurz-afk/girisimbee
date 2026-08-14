@@ -24,7 +24,10 @@ import {
   MONTH_OPTIONS,
   toCareerPeriodInterval,
 } from '@/features/candidates/lib/career-experience-dates';
-import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
+import { polishCareerSummary, isRelatedCareerRole } from '@/features/candidates/lib/career-summary';
+import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
+import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
+import { composeAchievementWithMetric } from '@/features/candidates/ai/compose-achievement';
 import {
   ageFromBirthDate,
   maskDisplaySurname,
@@ -32,6 +35,7 @@ import {
 } from '@/features/candidates/lib/career-public-identity';
 import {
   getExperienceLevelLabel,
+  isManualCareerOption,
   parseCareerLanguages,
   parseSelectedList,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -72,6 +76,9 @@ export type CareerCardInput = {
   birthDate?: string | null;
   residenceCity?: string | null;
   residenceDistrict?: string | null;
+  careerProgressions?: Array<{ from: string; to: string }>;
+  highlightedSkills?: string[];
+  highlightedAchievements?: string[];
   /** Form preview: explain these fields appear after an accepted request. */
   personalInfoPreview?: boolean;
 };
@@ -295,11 +302,15 @@ function experienceResponsibilities(exp: CareerExperience): string[] {
 }
 
 function experienceAchievements(exp: CareerExperience): string[] {
-  const selected = (exp.selectedAchievements ?? []).filter(Boolean);
-  if (selected.length > 0) return selected;
-  const lines = splitLines(exp.achievements);
+  const selected = (exp.selectedAchievements ?? []).filter(
+    (item) => item && !isManualCareerOption(item),
+  );
+  const lines = selected.length > 0 ? selected : splitLines(exp.achievements);
   const metric = (exp.achievementMetric ?? '').trim();
-  return metric && !lines.includes(metric) ? [...lines, metric] : lines;
+  if (!metric) return lines;
+  if (lines.length === 0) return [metric];
+  const [first, ...rest] = lines;
+  return [composeAchievementWithMetric(first, metric), ...rest];
 }
 
 /** Public/preview card shared by İş Arıyorum (seeker) and İşe Alıyorum (hire). */
@@ -321,8 +332,26 @@ export function CareerProfilePreview({
       : data.primarySector
         ? [data.primarySector]
         : [];
-  const professional = asList(data.professionalSkills);
-  const technical = asList(data.technicalSkills);
+  const professionalAll = asList(data.professionalSkills);
+  const technicalAll = asList(data.technicalSkills);
+  const highlightedSkills = isHire
+    ? []
+    : (data.highlightedSkills?.length
+      ? data.highlightedSkills
+      : pickHighlightedSkills({
+          professionalSkills: data.professionalSkills,
+          technicalSkills: data.technicalSkills,
+          desiredRole: data.desiredRole,
+          primarySector: data.primarySector,
+          experiences: data.experiences,
+          limit: 7,
+        }));
+  const professional = isHire
+    ? professionalAll
+    : highlightedSkills.filter((skill) => professionalAll.includes(skill));
+  const technical = isHire
+    ? technicalAll
+    : highlightedSkills.filter((skill) => technicalAll.includes(skill));
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
     (entry) => (entry.languageOther || entry.language) && entry.level,
@@ -330,18 +359,33 @@ export function CareerProfilePreview({
   const hireDuties = asList(data.requiredResponsibilities);
   const hireWins = asList(data.requiredAchievements);
   const experiences = [...(data.experiences ?? [])].sort((a, b) => {
+    if (!isHire && data.desiredRole) {
+      const aRelated = isRelatedCareerRole(a.role, data.desiredRole) ? 1 : 0;
+      const bRelated = isRelatedCareerRole(b.role, data.desiredRole) ? 1 : 0;
+      if (aRelated !== bRelated) return bRelated - aRelated;
+    }
     const aInterval = toCareerPeriodInterval(a);
     const bInterval = toCareerPeriodInterval(b);
     if (aInterval && bInterval) return bInterval.end - aInterval.end;
     return 0;
   });
   const [experiencesOpen, setExperiencesOpen] = useState(false);
+  const featuredLimit = isHire ? 0 : 2;
   const visibleExperiences = isHire
     ? []
     : experiencesOpen
       ? experiences
-      : experiences.slice(0, 3);
-  const extraExperienceCount = isHire ? 0 : Math.max(0, experiences.length - 3);
+      : experiences.slice(0, featuredLimit);
+  const compactExperiences = isHire || experiencesOpen
+    ? []
+    : experiences.slice(featuredLimit);
+  const extraExperienceCount = isHire ? 0 : Math.max(0, experiences.length - featuredLimit);
+  const progressions =
+    data.careerProgressions?.length
+      ? data.careerProgressions
+      : isHire
+        ? []
+        : detectCareerProgression(data.experiences ?? []);
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const totalYears = estimateTotalExperienceYears(experiences);
   const experienceHeadline = isHire
@@ -437,6 +481,12 @@ export function CareerProfilePreview({
                   <HeroFact key={fact.label} label={fact.label} value={fact.value} />
                 ))}
               </dl>
+            ) : null}
+            {!isHire && progressions.length > 0 ? (
+              <p className="mt-4 text-sm text-foreground">
+                <span className="text-muted-foreground">Kariyer gelişimi: </span>
+                {progressions.map((item) => `${item.from} → ${item.to}`).join(' · ')}
+              </p>
             ) : null}
           </div>
         </div>
@@ -541,6 +591,18 @@ export function CareerProfilePreview({
           ) : (
             <p className="text-sm text-muted-foreground">Deneyim eklenmedi</p>
           )}
+          {compactExperiences.length > 0 ? (
+            <ul className="mt-2 space-y-1.5">
+              {compactExperiences.map((exp) => (
+                <li key={exp.id} className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">{exp.role}</span>
+                  {exp.sector ? ` · ${exp.sector}` : ''}
+                  {' · '}
+                  {formatCareerPeriod(exp) || exp.duration || 'Tarih belirtilmedi'}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           {extraExperienceCount > 0 ? (
             <button
               type="button"

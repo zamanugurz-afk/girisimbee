@@ -4,6 +4,7 @@ import type {
   CandidateListingPayload,
 } from '@/features/candidates/types/candidate-listing.types';
 import { parseCareerExperiences } from '@/features/candidates/config/career-profile-fields';
+import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
 
 const DETAIL_KEYS = [
   'primarySector',
@@ -30,6 +31,11 @@ const DETAIL_KEYS = [
   'workplacePreference',
   'availability',
   'experiences',
+  'profileGender',
+  'birthDate',
+  'residenceCity',
+  'residenceDistrict',
+  'careerAiAnalysis',
   'cvUrl',
   'kvkkConsents',
 ] as const;
@@ -70,7 +76,10 @@ function buildCustomFields(payload: Record<string, unknown>): Record<string, unk
   const customFields: Record<string, unknown> = {};
   for (const key of DETAIL_KEYS) {
     if (payload[key] !== undefined) {
-      customFields[key] = payload[key];
+      customFields[key] =
+        key === 'careerAiAnalysis'
+          ? acceptedCareerAiAnalysisOrNull(payload[key])
+          : payload[key];
     }
   }
   return customFields;

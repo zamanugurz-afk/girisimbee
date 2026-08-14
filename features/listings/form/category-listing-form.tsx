@@ -54,6 +54,9 @@ import { CareerProfilePreview } from '@/features/candidates/components/CareerPro
 import { maskDisplaySurname } from '@/features/candidates/lib/career-public-identity';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
+import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { CareerAiAnalyzePanel } from '@/features/candidates/components/CareerAiAnalyzePanel';
+import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
 import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
 import {
@@ -78,6 +81,7 @@ import {
 } from '@/features/candidates/lib/career-form-step-validation';
 import {
   getExperienceLevelLabel,
+  getPositionsForSector,
   isManualCareerOption,
   parseCareerLanguages,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -1441,6 +1445,18 @@ export function CategoryListingForm({
               )}
               role={String(mergedCustomFields.desiredRole ?? '')}
               experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+              experienceRoles={
+                categoryId === CATEGORY_IDS.isBul
+                  ? parseCareerExperiences(mergedCustomFields.experiences).map((exp) =>
+                      isManualCareerOption(exp.role) ? String(exp.roleOther ?? '') : exp.role,
+                    )
+                  : undefined
+              }
+              experiences={
+                categoryId === CATEGORY_IDS.isBul
+                  ? parseCareerExperiences(mergedCustomFields.experiences)
+                  : undefined
+              }
               errors={{
                 professionalSkills: resolveFieldError(fieldErrors, 'professionalSkills'),
                 technicalSkills: resolveFieldError(fieldErrors, 'technicalSkills'),
@@ -1587,6 +1603,28 @@ export function CategoryListingForm({
                   </ul>
                 </div>
               )}
+              {(() => {
+                const acceptedAnalysis = acceptedCareerAiAnalysisOrNull(
+                  mergedCustomFields.careerAiAnalysis,
+                );
+                if (
+                  categoryId !== CATEGORY_IDS.isBul
+                  || !acceptedAnalysis
+                  || acceptedAnalysis.profileGaps.length === 0
+                ) {
+                  return null;
+                }
+                return (
+                <div className="rounded-lg border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">AI kalite notları (yayını engellemez)</p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                    {acceptedAnalysis.profileGaps.map((gap) => (
+                      <li key={gap}>{gap}</li>
+                    ))}
+                  </ul>
+                </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1612,6 +1650,7 @@ export function CategoryListingForm({
               })}
 
               {isCareerSummaryStep ? (
+                <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
                     {categoryId === CATEGORY_IDS.iseAl
@@ -1628,6 +1667,21 @@ export function CategoryListingForm({
                   >
                     Özeti yeniden oluştur
                   </Button>
+                </div>
+                {categoryId === CATEGORY_IDS.isBul ? (
+                  <CareerAiAnalyzePanel
+                    customFields={mergedCustomFields}
+                    longDescription={core.longDescription ?? ''}
+                    disabled={disabled || isBusy}
+                    stored={acceptedCareerAiAnalysisOrNull(mergedCustomFields.careerAiAnalysis)}
+                    onStore={(value) =>
+                      setCustomField('careerAiAnalysis', acceptedCareerAiAnalysisOrNull(value))
+                    }
+                    onAcceptSummary={(summary) =>
+                      setCore((prev) => ({ ...prev, longDescription: summary }))
+                    }
+                  />
+                ) : null}
                 </div>
               ) : null}
 
@@ -1661,18 +1715,37 @@ export function CategoryListingForm({
                 const field = fieldByKey.get(key);
                 if (!field) return null;
                 return (
-                  <DynamicField
-                    key={key}
-                    field={field}
-                    value={mergedCustomFields[key]}
-                    onChange={(val) => handleCustomFieldChange(key, val)}
-                    error={resolveFieldError(fieldErrors, key)}
-                    disabled={disabled || isBusy}
-                    context={{
-                      values: mergedCustomFields,
-                      coreCity: core.city ?? null,
-                    }}
-                  />
+                  <div key={key} className="space-y-2">
+                    <DynamicField
+                      field={field}
+                      value={mergedCustomFields[key]}
+                      onChange={(val) => handleCustomFieldChange(key, val)}
+                      error={resolveFieldError(fieldErrors, key)}
+                      disabled={disabled || isBusy}
+                      context={{
+                        values: mergedCustomFields,
+                        coreCity: core.city ?? null,
+                      }}
+                    />
+                    {categoryId === CATEGORY_IDS.isBul && key === 'desiredRoleOther' ? (
+                      <CareerManualAssist
+                        kind="role"
+                        text={String(mergedCustomFields.desiredRoleOther ?? '')}
+                        catalog={getPositionsForSector(
+                          String(mergedCustomFields.primarySector ?? ''),
+                        )}
+                        sector={String(mergedCustomFields.primarySector ?? '')}
+                        experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+                        disabled={disabled || isBusy}
+                        onAcceptCatalog={(items) => {
+                          const first = items[0];
+                          if (!first) return;
+                          setCustomField('desiredRole', first);
+                          setCustomField('desiredRoleOther', '');
+                        }}
+                      />
+                    ) : null}
+                  </div>
                 );
               })}
 

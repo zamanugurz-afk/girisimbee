@@ -48,6 +48,8 @@ import {
 } from '@/features/contact-requests/lib/contact-disclosure';
 import { parseCareerExperiences } from '@/features/candidates/config/career-profile-fields';
 import { getExperienceLevelLabel } from '@/features/candidates/taxonomy/career-taxonomy';
+import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
+import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
 
 const SLUG_TO_INTENT = Object.fromEntries(
   Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
@@ -308,32 +310,29 @@ export function aggregateToListingDetail(
       : categorySlug === 'ise-al'
         ? 'ise-aliyorum'
         : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
+  const careerCoverUrl = resolveListingCoverUrl({
+    listingTypeSlug,
+    group: cardDisplay.group,
+    sector:
+      toDisplayValue(sourceCf.primarySector)
+      || toDisplayValue(listing.industry),
+    role: resolveCareerCoverRole(
+      toDisplayValue(sourceCf.desiredRole)
+        || toDisplayValue(sourceCf.positionTitle),
+      toDisplayValue(sourceCf.desiredRoleOther)
+        || toDisplayValue(sourceCf.positionTitleOther),
+    ),
+    gender: categorySlug === 'is-bul' ? toDisplayValue(sourceCf.profileGender) : null,
+  });
   const galleryItems =
-    uploadedGallery.length > 0
+    categorySlug !== 'is-bul' && uploadedGallery.length > 0
       ? uploadedGallery
       : [
           {
             id: 'cover-fallback',
             label: listing.title,
             emoji: cardDisplay.typeEmoji,
-            imageUrl: resolveListingCoverUrl({
-              uploadedUrl: toDisplayValue(sourceCf.resolvedCoverUrl) || null,
-              listingTypeSlug,
-              group: cardDisplay.group,
-              sector:
-                toDisplayValue(sourceCf.primarySector)
-                || toDisplayValue(listing.industry),
-              role: resolveCareerCoverRole(
-                toDisplayValue(sourceCf.desiredRole)
-                  || toDisplayValue(sourceCf.positionTitle),
-                toDisplayValue(sourceCf.desiredRoleOther)
-                  || toDisplayValue(sourceCf.positionTitleOther),
-              ),
-              gender:
-                categorySlug === 'is-bul'
-                  ? toDisplayValue(sourceCf.profileGender)
-                  : null,
-            }),
+            imageUrl: careerCoverUrl,
           },
         ];
 
@@ -479,11 +478,14 @@ export function aggregateToListingDetail(
             residenceCity: toDisplayValue(sourceCf.residenceCity),
             residenceDistrict: toDisplayValue(sourceCf.residenceDistrict),
             city: listing.city,
+            coverUrl: careerCoverUrl,
+            sourceExperiences: sourceCf.experiences,
           })
         : categorySlug === 'ise-al'
           ? buildCareerCard(cf, listing.longDescription, {
               variant: 'hire',
               city: listing.city,
+              coverUrl: careerCoverUrl,
             })
           : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
@@ -503,6 +505,8 @@ function buildCareerCard(
     residenceCity?: string | null;
     residenceDistrict?: string | null;
     city?: string | null;
+    coverUrl?: string | null;
+    sourceExperiences?: unknown;
   },
 ): ListingDetail['careerCard'] {
   const variant = personal?.variant ?? 'seeker';
@@ -514,6 +518,9 @@ function buildCareerCard(
     desiredRoleRaw === 'Diğer' || desiredRoleRaw === 'Diğer / Kendim gireceğim'
       ? desiredRoleOther || desiredRoleRaw
       : desiredRoleRaw;
+  const sourceExperiences = parseCareerExperiences(
+    personal?.sourceExperiences ?? cf.experiences,
+  );
   const experiences = parseCareerExperiences(
     redactCareerExperiencePublicFields(cf.experiences),
   ).map((exp) => ({
@@ -553,7 +560,20 @@ function buildCareerCard(
     requiredResponsibilities: toDisplayValue(cf.requiredResponsibilities),
     requiredAchievements: toDisplayValue(cf.requiredAchievements),
     longDescription: polishCareerSummary(longDescription) || null,
+    coverUrl: personal?.coverUrl || null,
     experiences: variant === 'hire' ? [] : experiences,
+    careerProgressions: variant === 'hire' ? [] : detectCareerProgression(sourceExperiences),
+    highlightedSkills:
+      variant === 'hire'
+        ? undefined
+        : pickHighlightedSkills({
+            professionalSkills: toDisplayValue(cf.professionalSkills),
+            technicalSkills: toDisplayValue(cf.technicalSkills),
+            desiredRole,
+            primarySector: toDisplayValue(cf.primarySector),
+            experiences: sourceExperiences,
+            limit: 7,
+          }),
     displayName: personal?.revealPersonal ? personal.displayName || null : null,
     displayNameMasked:
       variant === 'hire' ? null : maskDisplaySurname(personal?.displayName),

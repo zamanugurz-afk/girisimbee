@@ -109,6 +109,8 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.careerCard?.displayNameMasked).toBe('Uğur *****');
     expect(detail.careerCard?.age).toBe(ageFromBirthDate('1992-04-18'));
     expect(detail.careerCard?.gender).toBe('Erkek');
+    expect(detail.careerCard?.coverUrl).toBe('/covers/career-erkek-satis.jpg');
+    expect(detail.gallery[0]?.imageUrl).toBe('/covers/career-erkek-satis.jpg');
   });
 
   it('masks career name from ownerDisplayName when the profile row is not loaded', () => {
@@ -167,6 +169,25 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.careerCard?.displayName).toBe('Uğur Zaman');
     expect(detail.careerCard?.birthDate).toBe('1992-04-18');
     expect(detail.publisher.name).toBe('Uğur Zaman');
+  });
+
+  it('keeps the same gendered career cover as the form preview', () => {
+    const disclosure = resolveContactDisclosure({
+      listing: { moduleKey: 'candidates', anonymousMode: true, ownerId: String(OWNER) },
+      viewerUserId: null,
+    });
+    const aggregate = makeAggregate({
+      customFields: {
+        desiredRole: 'Bölge müdürü',
+        primarySector: 'Finans / Bankacılık',
+        profileGender: 'Kadın',
+      },
+    });
+
+    const detail = aggregateToListingDetail(aggregate, { disclosure });
+
+    expect(detail.careerCard?.coverUrl).toBe('/covers/career-kadin-finans.jpg');
+    expect(detail.gallery[0]?.imageUrl).toBe('/covers/career-kadin-finans.jpg');
   });
 
   it('does not redact employer listings for anonymous viewers', () => {

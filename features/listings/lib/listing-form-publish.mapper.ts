@@ -3,6 +3,7 @@ import type { CategoryId } from '@/lib/domain/ids';
 import type { FranchiseFlow } from '@/features/franchise/types/franchise-listing.types';
 import { getListingCategoryModule } from '@/features/listings/config/listing-category-module.config';
 import { listingFormValuesToFranchiseGivePayload } from '@/features/listings/lib/franchise-listing-form.mapper';
+import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
 
 function readString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -106,6 +107,11 @@ export function listingFormValuesToModulePayload(
         experiences: Array.isArray(customFields.experiences)
           ? customFields.experiences
           : [],
+        profileGender: readString(customFields.profileGender),
+        birthDate: readString(customFields.birthDate),
+        residenceCity: readString(customFields.residenceCity),
+        residenceDistrict: readString(customFields.residenceDistrict),
+        careerAiAnalysis: acceptedCareerAiAnalysisOrNull(customFields.careerAiAnalysis),
         contactPhone: base.contactPhone,
         publishConsents: values.publishConsents ?? null,
       };

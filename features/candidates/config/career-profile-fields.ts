@@ -118,7 +118,7 @@ export function normalizeCareerExperience(row: CareerExperience): CareerExperien
 
 export function parseCareerExperiences(value: unknown): CareerExperience[] {
   if (!Array.isArray(value)) return [];
-  return value
+  const parsed = value
     .map((row) => {
       if (!row || typeof row !== 'object') return null;
       const r = row as Record<string, unknown>;
@@ -130,7 +130,7 @@ export function parseCareerExperiences(value: unknown): CareerExperience[] {
         ? r.selectedAchievements.map(String)
         : undefined;
 
-      const parsed: CareerExperience = {
+      const parsedRow: CareerExperience = {
         id,
         sector: String(r.sector ?? '').trim(),
         role: String(r.role ?? '').trim(),
@@ -150,14 +150,19 @@ export function parseCareerExperiences(value: unknown): CareerExperience[] {
         achievementMetric: String(r.achievementMetric ?? ''),
         achievements: String(r.achievements ?? '').trim(),
       };
-      return normalizeCareerExperience(parsed);
+      return normalizeCareerExperience(parsedRow);
     })
     .filter((row): row is CareerExperience => Boolean(row));
+
+  return parsed.map((row, index) => (index === 0 ? row : { ...row, isCurrent: false }));
 }
 
 export function validateCareerExperiences(experiences: CareerExperience[]): string | null {
   if (experiences.length < 1) {
     return 'En az bir deneyim ekleyin.';
+  }
+  if (experiences.some((row, index) => index > 0 && row.isCurrent)) {
+    return '“Halen çalışıyorum” yalnızca en son (1.) deneyimde seçilebilir.';
   }
   for (let i = 0; i < experiences.length; i += 1) {
     const raw = experiences[i]!;

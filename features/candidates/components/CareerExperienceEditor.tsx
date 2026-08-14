@@ -10,6 +10,8 @@ import {
   type CareerExperience,
 } from '@/features/candidates/config/career-profile-fields';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
+import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { rankCareerOptionsByLevel } from '@/features/candidates/ai/rank-options-by-level';
 import {
   MONTH_OPTIONS,
   validateExperienceOverlaps,
@@ -18,8 +20,11 @@ import {
 import {
   getPositionsForSector,
   isManualCareerOption,
+  MANUAL_OPTION,
   suggestAchievements,
+  suggestProfessionalSkills,
   suggestResponsibilities,
+  suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
@@ -43,11 +48,27 @@ export function CareerExperienceEditor({
   const overlapError = rows.length > 1 ? validateExperienceOverlaps(rows) : null;
 
   function updateRow(id: string, patch: Partial<CareerExperience>) {
-    onChange(rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+    onChange(
+      rows.map((row, index) => {
+        if (row.id !== id) {
+          return index === 0 ? row : { ...row, isCurrent: false };
+        }
+        const nextCurrent = index === 0 && (patch.isCurrent ?? row.isCurrent);
+        return {
+          ...row,
+          ...patch,
+          isCurrent: Boolean(nextCurrent),
+          ...(nextCurrent ? { endMonth: null, endYear: null } : {}),
+        };
+      }),
+    );
   }
 
   function addRow() {
-    onChange([...rows, createEmptyCareerExperience()]);
+    onChange([
+      ...rows.map((row, index) => (index === 0 ? row : { ...row, isCurrent: false })),
+      createEmptyCareerExperience(),
+    ]);
   }
 
   function removeRow(id: string) {
@@ -62,23 +83,48 @@ export function CareerExperienceEditor({
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
         Şirket bilgisini kaydedebilirsiniz; kamu kariyer kartında şirket adı, logo ve URL
-        gösterilmez. Yıllar yeniden eskiye sıralıdır. Deneyim tarihleri çakışamaz.
+        gösterilmez. Deneyimleri yeniden eskiye yazın. “Halen çalışıyorum” yalnızca en son
+        deneyimde seçilebilir. Deneyim tarihleri çakışamaz.
       </p>
 
       {rows.map((row, index) => {
         const endYears = row.startYear ? years.filter((year) => year >= row.startYear!) : years;
         const positions = getPositionsForSector(row.sector);
         const roleIsManual = isManualCareerOption(row.role);
-        const responsibilities = suggestResponsibilities({
-          sector: row.sector,
-          role: roleIsManual ? row.roleOther : row.role,
+        const resolvedRole = roleIsManual ? row.roleOther : row.role;
+        const responsibilities = rankCareerOptionsByLevel(
+          suggestResponsibilities({
+            sector: row.sector,
+            role: resolvedRole,
+            experienceLevel,
+          }),
           experienceLevel,
-        });
-        const achievements = suggestAchievements({
-          sector: row.sector,
-          role: roleIsManual ? row.roleOther : row.role,
+        );
+        const achievements = rankCareerOptionsByLevel(
+          suggestAchievements({
+            sector: row.sector,
+            role: resolvedRole,
+            experienceLevel,
+          }),
           experienceLevel,
-        });
+        );
+        const skillCatalog = [
+          ...suggestProfessionalSkills({
+            sector: row.sector,
+            role: resolvedRole,
+            experienceLevel,
+          }),
+          ...suggestTechnicalSkills({
+            sector: row.sector,
+            role: resolvedRole,
+          }),
+        ];
+        const wantsManualResp = (row.selectedResponsibilities ?? []).some((item) =>
+          isManualCareerOption(item),
+        );
+        const wantsManualAch = (row.selectedAchievements ?? []).some((item) =>
+          isManualCareerOption(item),
+        );
 
         return (
           <div
@@ -154,14 +200,29 @@ export function CareerExperienceEditor({
                   ))}
                 </select>
                 {roleIsManual ? (
-                  <Input
-                    className="mt-2"
-                    value={row.roleOther ?? ''}
-                    disabled={disabled}
-                    placeholder="Pozisyonunuzu yazın"
-                    onKeyDown={(event) => event.stopPropagation()}
-                    onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
-                  />
+                  <>
+                    <Input
+                      className="mt-2"
+                      value={row.roleOther ?? ''}
+                      disabled={disabled}
+                      placeholder="Pozisyonunuzu yazın"
+                      onKeyDown={(event) => event.stopPropagation()}
+                      onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
+                    />
+                    <CareerManualAssist
+                      kind="role"
+                      text={row.roleOther ?? ''}
+                      catalog={positions}
+                      sector={row.sector}
+                      experienceLevel={experienceLevel ?? undefined}
+                      disabled={disabled}
+                      onAcceptCatalog={(items) => {
+                        const first = items[0];
+                        if (!first) return;
+                        updateRow(row.id, { role: first, roleOther: '' });
+                      }}
+                    />
+                  </>
                 ) : null}
               </div>
             </div>
@@ -257,6 +318,7 @@ export function CareerExperienceEditor({
                     ))}
                   </select>
                 </div>
+                {index === 0 ? (
                 <label className="mt-2 flex items-center gap-2 text-sm text-foreground">
                   <Checkbox
                     checked={Boolean(row.isCurrent)}
@@ -264,13 +326,16 @@ export function CareerExperienceEditor({
                     onCheckedChange={(next) =>
                       updateRow(row.id, {
                         isCurrent: next === true,
-                        endMonth: next === true ? null : row.endMonth,
-                        endYear: next === true ? null : row.endYear,
                       })
                     }
                   />
                   Halen çalışıyorum
                 </label>
+                ) : (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Geçmiş deneyimde “Halen çalışıyorum” seçilemez.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -284,6 +349,29 @@ export function CareerExperienceEditor({
               manualPlaceholder="Kendi sorumluluk açıklamanızı yazın (en az 20 karakter)"
               disabled={disabled || !row.sector}
             />
+            {wantsManualResp ? (
+              <CareerManualAssist
+                kind="responsibility"
+                text={row.responsibilitiesOther ?? ''}
+                catalog={[...responsibilities, ...skillCatalog]}
+                sector={row.sector}
+                role={resolvedRole}
+                experienceLevel={experienceLevel ?? undefined}
+                disabled={disabled}
+                onAcceptPolished={(next) => updateRow(row.id, { responsibilitiesOther: next })}
+                onAcceptCatalog={(items) => {
+                  const current = row.selectedResponsibilities ?? [];
+                  const merged = [...current];
+                  for (const item of items) {
+                    if (!merged.includes(item)) merged.push(item);
+                  }
+                  if (!merged.some((item) => isManualCareerOption(item))) {
+                    merged.push(MANUAL_OPTION);
+                  }
+                  updateRow(row.id, { selectedResponsibilities: merged });
+                }}
+              />
+            ) : null}
 
             <CareerMultiSelect
               label="Öne çıkan başarılar"
@@ -295,6 +383,30 @@ export function CareerExperienceEditor({
               manualPlaceholder="Kendi başarı açıklamanızı yazın"
               disabled={disabled || !row.sector}
             />
+            {wantsManualAch ? (
+              <CareerManualAssist
+                kind="achievement"
+                text={row.achievementsOther ?? ''}
+                catalog={achievements}
+                metric={row.achievementMetric}
+                sector={row.sector}
+                role={resolvedRole}
+                experienceLevel={experienceLevel ?? undefined}
+                disabled={disabled}
+                onAcceptPolished={(next) => updateRow(row.id, { achievementsOther: next })}
+                onAcceptCatalog={(items) => {
+                  const current = row.selectedAchievements ?? [];
+                  const merged = [...current];
+                  for (const item of items) {
+                    if (!merged.includes(item)) merged.push(item);
+                  }
+                  if (!merged.some((item) => isManualCareerOption(item))) {
+                    merged.push(MANUAL_OPTION);
+                  }
+                  updateRow(row.id, { selectedAchievements: merged });
+                }}
+              />
+            ) : null}
 
             <div className="space-y-1.5">
               <Label htmlFor={`metric-${row.id}`}>Sayısal ölçü (isteğe bağlı)</Label>

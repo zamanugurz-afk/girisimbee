@@ -11,6 +11,7 @@ import {
   parseSelectedList,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-field-options';
+import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
 
 export function CareerEducationExtras({
   educationLevel,
@@ -97,14 +98,29 @@ export function CareerEducationExtras({
           ))}
         </select>
         {fieldIsManual ? (
-          <Input
-            className="mt-2"
-            value={educationFieldOther ?? ''}
-            disabled={disabled}
-            placeholder="Bölüm / alan yazın"
-            onKeyDown={(event) => event.stopPropagation()}
-            onChange={(e) => onChange({ educationFieldOther: e.target.value })}
-          />
+          <>
+            <Input
+              className="mt-2"
+              value={educationFieldOther ?? ''}
+              disabled={disabled}
+              placeholder="Bölüm / alan yazın"
+              onKeyDown={(event) => event.stopPropagation()}
+              onChange={(e) => onChange({ educationFieldOther: e.target.value })}
+            />
+            {!isHire ? (
+              <CareerManualAssist
+                kind="education"
+                text={educationFieldOther ?? ''}
+                catalog={[...EDUCATION_FIELD_OPTIONS]}
+                disabled={disabled}
+                onAcceptCatalog={(items) => {
+                  const first = items[0];
+                  if (!first) return;
+                  onChange({ educationField: first, educationFieldOther: '' });
+                }}
+              />
+            ) : null}
+          </>
         ) : null}
         {errors?.educationField ? (
           <p className="text-sm text-destructive">{errors.educationField}</p>
@@ -122,6 +138,22 @@ export function CareerEducationExtras({
         disabled={disabled}
         error={errors?.certificates}
       />
+      {!isHire && parseSelectedList(certificates).some((item) => item === MANUAL_OPTION) ? (
+        <CareerManualAssist
+          kind="certificate"
+          text={certificatesOther ?? ''}
+          catalog={[...CERTIFICATE_OPTIONS]}
+          disabled={disabled}
+          onAcceptCatalog={(items) => {
+            const current = parseSelectedList(certificates);
+            const next = [...current];
+            for (const item of items) {
+              if (!next.includes(item)) next.push(item);
+            }
+            onChange({ certificates: joinSelectedList(next) });
+          }}
+        />
+      ) : null}
     </div>
   );
 }

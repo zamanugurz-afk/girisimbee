@@ -21,6 +21,11 @@ export interface CandidateListingDetails {
   workplacePreference?: string | null;
   availability?: string | null;
   experiences?: CareerExperience[] | null;
+  profileGender?: string | null;
+  birthDate?: string | null;
+  residenceCity?: string | null;
+  residenceDistrict?: string | null;
+  careerAiAnalysis?: Record<string, unknown> | null;
   /** @deprecated CV no longer collected for anonymous career profiles */
   cvUrl?: string | null;
   kvkkConsents?: Record<string, boolean> | null;
@@ -51,6 +56,11 @@ export interface CandidateListingPayload {
   workplacePreference?: string | null;
   availability?: string | null;
   experiences?: CareerExperience[] | null;
+  profileGender?: string | null;
+  birthDate?: string | null;
+  residenceCity?: string | null;
+  residenceDistrict?: string | null;
+  careerAiAnalysis?: Record<string, unknown> | null;
   cvUrl?: string | null;
   kvkkConsents?: Record<string, boolean> | null;
   publishConsents?: Record<string, boolean> | null;

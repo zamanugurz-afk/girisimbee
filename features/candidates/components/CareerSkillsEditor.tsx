@@ -1,15 +1,20 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
+import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
 import {
+  isManualCareerOption,
   joinSelectedList,
+  MANUAL_OPTION,
   parseSelectedList,
   suggestProfessionalSkills,
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { suggestTools } from '@/features/candidates/taxonomy/career-tools';
+import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 
 type SkillsValue = {
   professionalSkills: string;
@@ -21,6 +26,17 @@ type SkillsValue = {
   toolsOther?: string;
 };
 
+function uniqKeepOrder(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
 export function CareerSkillsEditor({
   value,
   onChange,
@@ -30,6 +46,8 @@ export function CareerSkillsEditor({
   experienceLevel,
   errors,
   audience = 'seeker',
+  experienceRoles,
+  experiences,
 }: {
   value: SkillsValue;
   onChange: (patch: Partial<SkillsValue>) => void;
@@ -39,13 +57,50 @@ export function CareerSkillsEditor({
   experienceLevel?: string | null;
   errors?: Partial<Record<keyof SkillsValue, string>>;
   audience?: 'seeker' | 'hire';
+  experienceRoles?: string[];
+  experiences?: CareerExperience[];
 }) {
   const isHire = audience === 'hire';
+  const professionalOptions = useMemo(() => {
+    const primary = suggestProfessionalSkills({ sector, role, experienceLevel });
+    if (isHire || !experienceRoles?.length) return primary;
+    const extra = experienceRoles.flatMap((expRole) =>
+      suggestProfessionalSkills({ sector, role: expRole, experienceLevel }),
+    );
+    return uniqKeepOrder([...primary, ...extra]);
+  }, [sector, role, experienceLevel, experienceRoles, isHire]);
+  const technicalOptions = useMemo(() => {
+    const primary = suggestTechnicalSkills({ sector, role });
+    if (isHire || !experienceRoles?.length) return primary;
+    const extra = experienceRoles.flatMap((expRole) =>
+      suggestTechnicalSkills({ sector, role: expRole }),
+    );
+    return uniqKeepOrder([...primary, ...extra]);
+  }, [sector, role, experienceRoles, isHire]);
+  const toolOptions = useMemo(() => {
+    const primary = suggestTools({ sector, role });
+    if (isHire || !experienceRoles?.length) return primary;
+    const extra = experienceRoles.flatMap((expRole) => suggestTools({ sector, role: expRole }));
+    return uniqKeepOrder([...primary, ...extra]);
+  }, [sector, role, experienceRoles, isHire]);
+
+  const wantsManualProfessional = parseSelectedList(value.professionalSkills).some((item) =>
+    isManualCareerOption(item),
+  );
+  const wantsManualTechnical = parseSelectedList(value.technicalSkills).some((item) =>
+    isManualCareerOption(item),
+  );
+  const experienceManualText = (experiences ?? [])
+    .flatMap((exp) => [exp.responsibilitiesOther, exp.achievementsOther, exp.roleOther])
+    .map((part) => (part ?? '').trim())
+    .filter(Boolean)
+    .join('\n');
+
   return (
     <div className="space-y-5">
       <CareerMultiSelect
         label={isHire ? 'Aranan mesleki yetkinlikler' : 'Mesleki yetkinlikler'}
-        options={suggestProfessionalSkills({ sector, role, experienceLevel })}
+        options={professionalOptions}
         value={parseSelectedList(value.professionalSkills)}
         onChange={(next) => onChange({ professionalSkills: joinSelectedList(next) })}
         manualValue={value.professionalSkillsOther ?? ''}
@@ -54,10 +109,29 @@ export function CareerSkillsEditor({
         disabled={disabled}
         error={errors?.professionalSkills}
       />
+      {!isHire && (wantsManualProfessional || experienceManualText.length >= 8) ? (
+        <CareerManualAssist
+          kind="skill"
+          text={value.professionalSkillsOther || experienceManualText}
+          catalog={professionalOptions}
+          sector={sector ?? undefined}
+          role={role ?? undefined}
+          experienceLevel={experienceLevel ?? undefined}
+          disabled={disabled}
+          onAcceptCatalog={(items) => {
+            const current = parseSelectedList(value.professionalSkills);
+            const merged = uniqKeepOrder([...current, ...items]);
+            if (wantsManualProfessional && !merged.some((item) => isManualCareerOption(item))) {
+              merged.push(MANUAL_OPTION);
+            }
+            onChange({ professionalSkills: joinSelectedList(merged) });
+          }}
+        />
+      ) : null}
 
       <CareerMultiSelect
         label={isHire ? 'Aranan teknik yetkinlikler' : 'Teknik yetkinlikler'}
-        options={suggestTechnicalSkills({ sector, role })}
+        options={technicalOptions}
         value={parseSelectedList(value.technicalSkills)}
         onChange={(next) => onChange({ technicalSkills: joinSelectedList(next) })}
         manualValue={value.technicalSkillsOther ?? ''}
@@ -66,6 +140,25 @@ export function CareerSkillsEditor({
         disabled={disabled}
         error={errors?.technicalSkills}
       />
+      {!isHire && wantsManualTechnical ? (
+        <CareerManualAssist
+          kind="skill"
+          text={value.technicalSkillsOther ?? ''}
+          catalog={technicalOptions}
+          sector={sector ?? undefined}
+          role={role ?? undefined}
+          experienceLevel={experienceLevel ?? undefined}
+          disabled={disabled}
+          onAcceptCatalog={(items) => {
+            const current = parseSelectedList(value.technicalSkills);
+            onChange({
+              technicalSkills: joinSelectedList(
+                uniqKeepOrder([...current, ...items, MANUAL_OPTION]),
+              ),
+            });
+          }}
+        />
+      ) : null}
 
       <div className="space-y-1.5">
         <Label htmlFor="leadershipExperience">
@@ -95,7 +188,7 @@ export function CareerSkillsEditor({
 
       <CareerMultiSelect
         label={isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}
-        options={suggestTools({ sector, role })}
+        options={toolOptions}
         value={parseSelectedList(value.tools)}
         onChange={(next) => onChange({ tools: joinSelectedList(next) })}
         manualValue={value.toolsOther ?? ''}

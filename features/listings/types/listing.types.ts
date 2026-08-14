@@ -176,6 +176,8 @@ export interface ListingDetail {
       endYear?: number | null;
       isCurrent?: boolean;
     }>;
+    careerProgressions?: Array<{ from: string; to: string }>;
+    highlightedSkills?: string[];
   };
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
