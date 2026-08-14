@@ -20,6 +20,7 @@ import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digit
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
+import { rankWorkplaceOptions } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
 import {
@@ -341,6 +342,13 @@ function FieldControl({
             ? [...filtered, current]
             : filtered;
         }
+      }
+      if (field.key === 'workplacePreference') {
+        const rawRole = String(context?.values?.desiredRole ?? '');
+        const role = isManualOtherSelection(rawRole)
+          ? String(context?.values?.desiredRoleOther ?? '')
+          : rawRole;
+        options = rankWorkplaceOptions(String(context?.values?.primarySector ?? ''), role);
       }
       const currentValue = value ? String(value) : '';
       if (currentValue && !options.includes(currentValue)) {

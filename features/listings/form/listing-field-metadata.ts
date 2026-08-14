@@ -368,6 +368,11 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Uzaktan çalışma tercihi seçin',
     helperText: 'Ofis, hibrit veya tam uzaktan çalışma tercihiniz.',
   },
+  workplacePreference: {
+    placeholder: 'Çalışma modeli seçin',
+    helperText:
+      'Ofis, saha, fabrika, vardiya, mağaza veya uzaktan — pozisyona uygun olanı seçin. İş Arıyorum ve İşe Alıyorum aynı listeyi kullanır.',
+  },
   positionTitle: {
     placeholder: 'Pozisyon seçin',
     helperText: 'Açtığınız pozisyonu listeden seçin. Yoksa Diğer’i seçip açıklayın.',

@@ -299,12 +299,47 @@ export const CAREER_WORK_TYPE_OPTIONS = [
 /** Alias — keep hire/seek work-type lists identical. */
 export const HIRING_WORK_TYPE_OPTIONS = CAREER_WORK_TYPE_OPTIONS;
 
-/** Workplace preference. */
+/** Workplace preference — same canonical values on İş Arıyorum and İşe Alıyorum. */
 export const CAREER_WORKPLACE_OPTIONS = [
+  'Ofis',
   'Uzaktan',
   'Hibrit',
-  'Ofis',
+  'Saha',
+  'Fabrika / Tesis',
+  'Vardiyalı',
+  'Mağaza / Şube',
+  'Araç üzeri',
 ] as const;
+
+/** Rank the shared workplace list for the current sector + role. Does not drop options. */
+export function rankWorkplaceOptions(
+  sector?: string | null,
+  role?: string | null,
+): string[] {
+  const hay = `${sector ?? ''} ${role ?? ''}`.toLocaleLowerCase('tr-TR');
+  const all = [...CAREER_WORKPLACE_OPTIONS];
+  let preferred: string[] = ['Ofis', 'Hibrit', 'Uzaktan'];
+
+  if (/fabrika|üretim|sanayi|operatör|vardiya|işçi/.test(hay)) {
+    preferred = ['Fabrika / Tesis', 'Vardiyalı', 'Saha'];
+  } else if (/şoför|kurye|sürücü|teslimat|araç üzeri/.test(hay)) {
+    preferred = ['Araç üzeri', 'Saha', 'Vardiyalı'];
+  } else if (/inşaat|şantiye|montaj|teknisyen|saha satış|servis danışman/.test(hay)) {
+    preferred = ['Saha', 'Fabrika / Tesis', 'Hibrit'];
+  } else if (/mağaza|perakende|kasiyer|şube|market/.test(hay)) {
+    preferred = ['Mağaza / Şube', 'Vardiyalı', 'Saha'];
+  } else if (/otel|resepsiyon|turizm|garson|aşçı|barista|host|hostes|kat görev/.test(hay)) {
+    preferred = ['Mağaza / Şube', 'Vardiyalı', 'Saha'];
+  } else if (/hemşire|sağlık|hastane|klinik|eczane/.test(hay)) {
+    preferred = ['Vardiyalı', 'Saha', 'Mağaza / Şube'];
+  } else if (/yazılım|bilişim|veri|tasarım|çağrı|muhasebe|finans|hukuk|ik |insan kaynak/.test(hay)) {
+    preferred = ['Uzaktan', 'Hibrit', 'Ofis'];
+  } else if (/satış|pazarlama|gayrimenkul/.test(hay)) {
+    preferred = ['Saha', 'Hibrit', 'Ofis'];
+  }
+
+  return [...preferred, ...all.filter((item) => !preferred.includes(item))];
+}
 
 /** Education levels for career profiles. */
 export const CAREER_EDUCATION_LEVELS = [

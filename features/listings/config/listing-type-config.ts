@@ -340,7 +340,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'workplacePreference',
-      label: 'Uzaktan / Hibrit / Ofis',
+      label: 'Çalışma modeli',
       type: 'enum',
       required: true,
       options: [...CAREER_WORKPLACE_OPTIONS],

@@ -5,7 +5,9 @@ import {
   CAREER_WORKPLACE_OPTIONS,
   JOB_SECTOR_OPTIONS,
   SALARY_RANGES,
+  rankWorkplaceOptions,
 } from '@/features/listings/config/listing-field-options';
+import { HIRING_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
 import { JOB_SEEKER_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
 
 function field(key: string) {
@@ -19,6 +21,17 @@ describe('İş Arıyorum preference fields stay on existing option lists', () =>
     expect(field('availability')?.options).toEqual([...CAREER_AVAILABILITY_OPTIONS]);
     expect(field('preferredCity')?.type).toBe('string');
     expect(field('preferredDistrict')?.type).toBe('string');
+  });
+
+  it('uses the same workplace catalog on İşe Alıyorum and ranks factory work first', () => {
+    const hire = HIRING_FIELD_SCHEMA.fields.find((item) => item.key === 'workplacePreference');
+    expect(hire?.options).toEqual([...CAREER_WORKPLACE_OPTIONS]);
+    expect(CAREER_WORKPLACE_OPTIONS).toEqual(
+      expect.arrayContaining(['Ofis', 'Uzaktan', 'Hibrit', 'Saha', 'Fabrika / Tesis', 'Vardiyalı']),
+    );
+    expect(rankWorkplaceOptions('Üretim / Sanayi', 'Fabrika işçisi')[0]).toBe('Fabrika / Tesis');
+    expect(rankWorkplaceOptions('Turizm / Otelcilik', 'Otel resepsiyonisti')[0]).toBe('Mağaza / Şube');
+    expect(rankWorkplaceOptions('Bilişim / Yazılım', 'Yazılım geliştirici')[0]).toBe('Uzaktan');
   });
 
   it('allows taxonomy positions and manual sector entry without dropping known sectors', () => {
