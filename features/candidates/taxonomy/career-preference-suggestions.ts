@@ -80,7 +80,23 @@ const FAMILY_SENIORITY: Record<RoleFamily, 0 | 1 | 2 | 3> = {
   security: 0,
 };
 
-/** Overlapping clusters — a family inherits every cluster it belongs to. */
+const FRONTLINE_FAMILIES = new Set<RoleFamily>(
+  (Object.entries(FAMILY_SENIORITY) as Array<[RoleFamily, number]>)
+    .filter(([, seniority]) => seniority === 0)
+    .map(([family]) => family),
+);
+
+/** Frontline-heavy sectors — hidden for managers unless it is their own sector. */
+const FRONTLINE_SECTORS = new Set([
+  'Çağrı merkezi',
+  'Müşteri hizmetleri',
+  'Kargo / Kurye',
+  'Ulaşım / Şoförlük',
+  'Temizlik / Tesis yönetimi',
+  'Güvenlik',
+]);
+
+/** Peer clusters. Do not mix unit managers with gişe / çağrı / kasiyer families. */
 const FAMILY_CLUSTERS: RoleFamily[][] = [
   [
     'branchManager',
@@ -90,53 +106,34 @@ const FAMILY_CLUSTERS: RoleFamily[][] = [
     'credit',
     'accounting',
     'insuranceOps',
-    'bankFront',
     'officeManager',
     'consulting',
-    'admin',
-    'salesIndoor',
-    'customerSuccess',
+    'hrManager',
   ],
+  ['bankFront', 'callCenter', 'customerSuccess', 'salesIndoor'],
   [
     'storeManager',
-    'retail',
-    'cashier',
     'regionalManager',
     'salesManager',
     'salesIndoor',
     'salesField',
     'warehouseLead',
-    'logistics',
+    'brandManager',
   ],
-  [
-    'restaurantManager',
-    'restaurant',
-    'kitchen',
-    'kitchenChef',
-    'hotelOps',
-    'reception',
-    'host',
-    'housekeeping',
-  ],
+  ['retail', 'cashier'],
+  ['restaurantManager', 'kitchenChef', 'hotelOps'],
+  ['restaurant', 'kitchen', 'reception', 'host', 'housekeeping'],
   ['software', 'techLead', 'data', 'product', 'design', 'devops', 'qa', 'consulting'],
-  ['hr', 'hrManager', 'admin', 'officeManager', 'legal', 'public', 'teacher', 'schoolPrincipal'],
+  ['hr', 'hrManager', 'officeManager', 'legal', 'public', 'teacher', 'schoolPrincipal'],
   ['marketing', 'brandManager', 'media', 'mediaLead', 'design', 'salesIndoor'],
-  [
-    'logistics',
-    'warehouseLead',
-    'driver',
-    'factory',
-    'productionLead',
-    'shiftSupervisor',
-    'construction',
-    'siteChief',
-    'energy',
-  ],
-  ['autoService', 'serviceManager', 'salesField', 'retail'],
+  ['warehouseLead', 'productionLead', 'shiftSupervisor', 'siteChief'],
+  ['logistics', 'driver', 'factory', 'construction'],
+  ['autoService', 'salesField'],
+  ['serviceManager', 'salesManager'],
   ['farm', 'farmLead'],
   ['beauty', 'retail', 'cashier'],
-  ['security', 'shiftSupervisor', 'public', 'admin'],
-  ['callCenter', 'customerSuccess', 'salesIndoor', 'bankFront'],
+  ['security', 'shiftSupervisor', 'public'],
+  ['admin'],
 ];
 
 const PROMOTION_FAMILIES: Partial<Record<RoleFamily, readonly RoleFamily[]>> = {
@@ -186,18 +183,14 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Holding / Yönetim',
     'Danışmanlık',
     'Satış',
-    'Müşteri hizmetleri',
-    'Çağrı merkezi',
     'İnsan kaynakları',
-    'İdari işler / Ofis',
   ],
   Sigorta: [
     'Finans / Bankacılık',
     'Muhasebe / Mali müşavirlik',
     'Satış',
-    'Müşteri hizmetleri',
-    'Çağrı merkezi',
     'Danışmanlık',
+    'Holding / Yönetim',
   ],
   'Muhasebe / Mali müşavirlik': [
     'Finans / Bankacılık',
@@ -219,8 +212,6 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Perakende / Mağaza',
     'E-ticaret / Pazaryeri',
     'Pazarlama / Reklam',
-    'Müşteri hizmetleri',
-    'Çağrı merkezi',
     'Sigorta',
     'Finans / Bankacılık',
     'Otomotiv',
@@ -229,9 +220,7 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Satış',
     'E-ticaret / Pazaryeri',
     'Lojistik / Depolama',
-    'Gıda / Restoran',
     'Pazarlama / Reklam',
-    'Müşteri hizmetleri',
   ],
   'E-ticaret / Pazaryeri': [
     'Perakende / Mağaza',
@@ -239,7 +228,6 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Lojistik / Depolama',
     'Bilişim / Yazılım',
     'Satış',
-    'Müşteri hizmetleri',
   ],
   'Bilişim / Yazılım': [
     'Yapay zeka / Veri',
@@ -249,7 +237,7 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Oyun / E-spor',
     'Danışmanlık',
   ],
-  'Yapay zeka / Veri': ['Bilişim / Yazılım', 'Ar-Ge', 'Finans / Bankacılık', 'Pazarlama / Reklam'],
+  'Yapay zeka / Veri': ['Bilişim / Yazılım', 'Ar-Ge', 'Pazarlama / Reklam'],
   'Pazarlama / Reklam': [
     'Halkla ilişkiler',
     'Medya / İçerik',
@@ -266,13 +254,13 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
   'Çağrı merkezi': ['Müşteri hizmetleri', 'Satış', 'Telekomünikasyon', 'Finans / Bankacılık'],
   'Gıda / Restoran': ['Turizm / Otelcilik', 'Perakende / Mağaza', 'Organizasyon / Etkinlik'],
   'Turizm / Otelcilik': ['Gıda / Restoran', 'Havacılık', 'Organizasyon / Etkinlik', 'Satış'],
-  Havacılık: ['Turizm / Otelcilik', 'Lojistik / Depolama', 'Müşteri hizmetleri'],
+  Havacılık: ['Turizm / Otelcilik', 'Lojistik / Depolama'],
   Sağlık: ['Eczane / İlaç', 'Veteriner / Pet', 'Sosyal hizmet / STK', 'Sigorta'],
   'Eczane / İlaç': ['Sağlık', 'Satış', 'Perakende / Mağaza'],
   'Veteriner / Pet': ['Sağlık', 'Tarım', 'Perakende / Mağaza'],
   Eğitim: ['Kreş / Çocuk bakımı', 'İnsan kaynakları', 'Sosyal hizmet / STK'],
   'Kreş / Çocuk bakımı': ['Eğitim', 'Sosyal hizmet / STK'],
-  Hukuk: ['Kamu / Belediye', 'Finans / Bankacılık', 'İdari işler / Ofis', 'Danışmanlık'],
+  Hukuk: ['Kamu / Belediye', 'İdari işler / Ofis', 'Danışmanlık'],
   'Kamu / Belediye': ['Hukuk', 'İdari işler / Ofis', 'Sosyal hizmet / STK', 'Güvenlik'],
   'Üretim / Sanayi': [
     'Tekstil / Hazır giyim',
@@ -308,7 +296,7 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
   Gümrük: ['İthalat / İhracat', 'Denizcilik / Liman', 'Lojistik / Depolama'],
   'İthalat / İhracat': ['Gümrük', 'Lojistik / Depolama', 'Satış'],
   Enerji: ['Mühendislik / Teknik', 'Elektrik-elektronik', 'İnşaat / Gayrimenkul', 'Çevre / Geri dönüşüm'],
-  Telekomünikasyon: ['Bilişim / Yazılım', 'Çağrı merkezi', 'Müşteri hizmetleri', 'Satış'],
+  Telekomünikasyon: ['Bilişim / Yazılım', 'Satış'],
   Tarım: ['Veteriner / Pet', 'Gıda / Restoran', 'Çevre / Geri dönüşüm'],
   'Çevre / Geri dönüşüm': ['Enerji', 'Tarım', 'Kimya / Plastik'],
   Güvenlik: ['Kamu / Belediye', 'Temizlik / Tesis yönetimi', 'İdari işler / Ofis'],
@@ -364,13 +352,54 @@ function uniq(values: string[]): string[] {
   return out;
 }
 
+function minAcceptableSeniority(sourceSeniority: number): number {
+  if (sourceSeniority >= 3) return 1;
+  if (sourceSeniority >= 2) return 1;
+  return 0;
+}
+
+function familyFitsSource(sourceFamily: RoleFamily | null, sourceSeniority: number, family: RoleFamily): boolean {
+  if (sourceFamily && family === sourceFamily) return true;
+  if (sourceSeniority >= 2 && FRONTLINE_FAMILIES.has(family)) return false;
+  return FAMILY_SENIORITY[family] >= minAcceptableSeniority(sourceSeniority);
+}
+
+function titleFitsSeed(
+  seed: { family: RoleFamily | null; role: string },
+  sourceSeniority: number,
+  title: string,
+): boolean {
+  if (seed.role && title === seed.role) return true;
+  const family = resolveRoleFamily(title);
+  if (!family) {
+    if (sourceSeniority < 2) return true;
+    return /müdür|yönetici|direktör|şef|sorumlu|lider|chief|cto|müdür yardımcısı/i.test(title);
+  }
+  return familyFitsSource(seed.family, sourceSeniority, family);
+}
+
+function sectorFitsSeed(
+  seed: { sector: string; family: RoleFamily | null },
+  sourceSeniority: number,
+  sector: string,
+): boolean {
+  if (sector === seed.sector) return true;
+  if (sourceSeniority >= 3 && FRONTLINE_SECTORS.has(sector)) return false;
+  return true;
+}
+
 function relatedFamiliesFor(family: RoleFamily): RoleFamily[] {
+  const sourceSeniority = FAMILY_SENIORITY[family];
   const set = new Set<RoleFamily>([family]);
   for (const cluster of FAMILY_CLUSTERS) {
     if (!cluster.includes(family)) continue;
-    for (const item of cluster) set.add(item);
+    for (const item of cluster) {
+      if (familyFitsSource(family, sourceSeniority, item)) set.add(item);
+    }
   }
-  for (const next of PROMOTION_FAMILIES[family] ?? []) set.add(next);
+  if (sourceSeniority < 3) {
+    for (const next of PROMOTION_FAMILIES[family] ?? []) set.add(next);
+  }
   return [...set];
 }
 
@@ -379,10 +408,6 @@ function relatedSectorsFor(sector: string): string[] {
   const set = new Set<string>([sector]);
   for (const linked of SECTOR_SEEDS[sector] ?? []) {
     if (SECTOR_SET.has(linked) && linked !== 'Diğer') set.add(linked);
-  }
-  for (const [from, tos] of Object.entries(SECTOR_SEEDS)) {
-    if (!tos.includes(sector)) continue;
-    if (SECTOR_SET.has(from) && from !== 'Diğer') set.add(from);
   }
   return [...set];
 }
@@ -432,17 +457,25 @@ export function suggestPreferredSectors(input: PreferenceSuggestionInput): strin
   }
 
   for (const seed of seeds) {
-    if (seed.sector) {
+    const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
+    if (seed.sector && sectorFitsSeed(seed, sourceSeniority, seed.sector)) {
       add(seed.sector, seed.weight + 80);
       for (const related of relatedSectorsFor(seed.sector)) {
+        if (!sectorFitsSeed(seed, sourceSeniority, related)) continue;
         add(related, seed.weight + (related === seed.sector ? 80 : 40));
       }
     }
     if (seed.family) {
-      for (const home of FAMILY_HOME_SECTORS[seed.family] ?? []) add(home, seed.weight + 55);
+      for (const home of FAMILY_HOME_SECTORS[seed.family] ?? []) {
+        if (!sectorFitsSeed(seed, sourceSeniority, home)) continue;
+        add(home, seed.weight + 55);
+      }
     }
     if (seed.role) {
-      for (const fromRole of getSectorsForPosition(seed.role)) add(fromRole, seed.weight + 70);
+      for (const fromRole of getSectorsForPosition(seed.role)) {
+        if (!sectorFitsSeed(seed, sourceSeniority, fromRole)) continue;
+        add(fromRole, seed.weight + 70);
+      }
     }
   }
 
@@ -460,7 +493,6 @@ export function suggestPreferredSectors(input: PreferenceSuggestionInput): strin
 export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[] {
   const seeds = experienceSeeds(input);
   const scored = new Map<string, number>();
-  const sourceSeniority = Math.max(0, ...seeds.map((seed) => (seed.family ? FAMILY_SENIORITY[seed.family] : 0)));
 
   function add(role: string, score: number) {
     const trimmed = role.trim();
@@ -468,13 +500,17 @@ export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[
     scored.set(trimmed, Math.max(scored.get(trimmed) ?? 0, score));
   }
 
-  const relatedSectorSet = new Set(suggestPreferredSectors({ ...input, selected: [] }).filter((s) => !isManualCareerOption(s)));
+  const relatedSectorSet = new Set(
+    suggestPreferredSectors({ ...input, selected: [] }).filter((s) => !isManualCareerOption(s)),
+  );
 
   for (const seed of seeds) {
+    const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
     if (seed.role) add(seed.role, seed.weight + 900);
 
     const families = seed.family ? relatedFamiliesFor(seed.family) : [];
     for (const family of families) {
+      if (!familyFitsSource(seed.family, sourceSeniority, family)) continue;
       const seniority = FAMILY_SENIORITY[family];
       const same = family === seed.family;
       const upwardOrPeer = seniority >= sourceSeniority;
@@ -488,6 +524,11 @@ export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[
 
   for (const sector of relatedSectorSet) {
     for (const title of getPositionsForSector(sector)) {
+      const fits = seeds.some((seed) => {
+        const sourceSeniority = seed.family ? FAMILY_SENIORITY[seed.family] : 0;
+        return titleFitsSeed(seed, sourceSeniority, title);
+      });
+      if (!fits) continue;
       const family = resolveRoleFamily(title);
       const seniority = family ? FAMILY_SENIORITY[family] : 0;
       const fromSeedSector = seeds.some((seed) => seed.sector === sector);
@@ -496,7 +537,7 @@ export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[
         20
           + seniority * 12
           + (fromSeedSector ? 30 : 0)
-          + (seniority >= sourceSeniority ? 50 : 0),
+          + (seniority >= 2 ? 50 : 0),
       );
     }
   }

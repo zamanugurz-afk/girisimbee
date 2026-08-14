@@ -32,6 +32,10 @@ describe('career preference suggestions from experience', () => {
     expect(sectors.at(-1)).toBe(MANUAL_OPTION);
     expect(sectors).not.toContain('Turizm / Otelcilik');
     expect(sectors).not.toContain('Tarım');
+    expect(sectors).not.toContain('Çağrı merkezi');
+    expect(sectors).not.toContain('Müşteri hizmetleri');
+    expect(sectors).not.toContain('Hukuk');
+    expect(sectors).not.toContain('Yapay zeka / Veri');
 
     const roles = suggestPreferredRoles(input);
     expect(roles[0]).toBe('Şube müdürü');
@@ -39,7 +43,6 @@ describe('career preference suggestions from experience', () => {
     expect(managerSlice).toEqual(
       expect.arrayContaining(['Şube müdürü', 'Bölge müdürü', 'Satış müdürü']),
     );
-    expect(roles.indexOf('Şube müdürü')).toBeLessThan(roles.indexOf('Banka müşteri temsilcisi'));
     expect(roles).toEqual(
       expect.arrayContaining([
         'Portföy yöneticisi',
@@ -50,6 +53,10 @@ describe('career preference suggestions from experience', () => {
       ]),
     );
     expect(roles.at(-1)).toBe(MANUAL_OPTION);
+    expect(roles).not.toContain('Müşteri temsilcisi');
+    expect(roles).not.toContain('Banka müşteri temsilcisi');
+    expect(roles).not.toContain('Çağrı merkezi temsilcisi');
+    expect(roles).not.toContain('Bankacı / banka personeli');
     expect(roles).not.toContain('Yazılım geliştirici');
     expect(roles).not.toContain('Garson');
   });
@@ -111,8 +118,20 @@ describe('career preference suggestions from experience', () => {
     });
     expect(roles[0]).toBe('Mağaza müdürü');
     expect(roles).toEqual(
-      expect.arrayContaining(['Bölge müdürü', 'Satış müdürü', 'Satış danışmanı', MANUAL_OPTION]),
+      expect.arrayContaining(['Bölge müdürü', 'Satış müdürü', MANUAL_OPTION]),
     );
-    expect(roles.indexOf('Mağaza müdürü')).toBeLessThan(roles.indexOf('Kasiyer'));
+    expect(roles).not.toContain('Kasiyer');
+    expect(roles).not.toContain('Satış danışmanı');
+    expect(roles).not.toContain('Market personeli');
+  });
+
+  it('lets a bank teller see frontline peers and a promotion path', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Finans / Bankacılık', role: 'Banka müşteri temsilcisi', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('Banka müşteri temsilcisi');
+    expect(roles).toEqual(
+      expect.arrayContaining(['Müşteri temsilcisi', 'Şube müdürü', MANUAL_OPTION]),
+    );
   });
 });
