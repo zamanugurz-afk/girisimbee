@@ -434,13 +434,22 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Var ise sertifika adlarını yazın.',
     maxLength: 500,
   },
+  preferredSectors: {
+    helperText:
+      'Deneyiminize göre ilgili sektörler önde gelir. Listede yoksa Diğer / Kendim gireceğim’i işaretleyip yazın.',
+  },
   preferredRoles: {
     helperText:
-      'Ana hedefiniz dışındaki açık olduğunuz pozisyonları seçin (birden fazla seçebilirsiniz).',
+      'Deneyiminizdeki pozisyona göre yönetim ve bağlantılı roller önde gelir. Listede yoksa kendiniz yazın.',
+  },
+  preferredRolesOther: {
+    placeholder: 'Açık olduğunuz pozisyonu yazın',
+    helperText: 'Pozisyon listede yoksa kısa ve net yazın.',
+    maxLength: 200,
   },
   sectorOther: {
-    placeholder: 'Örn: Medikal cihaz dağıtımı ve saha teknik servis',
-    helperText: 'Sektör listede yoksa en az 30 karakterle açıklayın.',
+    placeholder: 'Örn: Dijital bankacılık / fintech şube operasyonu',
+    helperText: 'Sektör listede yoksa kısa ve net yazın.',
     maxLength: 200,
   },
   partnershipType: {

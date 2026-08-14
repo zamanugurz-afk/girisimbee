@@ -1,0 +1,118 @@
+import { describe, expect, it } from 'vitest';
+import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import {
+  suggestPreferredRoles,
+  suggestPreferredSectors,
+} from './career-preference-suggestions';
+
+describe('career preference suggestions from experience', () => {
+  it('puts banking management sectors and roles first for şube müdürü', () => {
+    const input = {
+      experiences: [
+        {
+          sector: 'Finans / Bankacılık',
+          role: 'Şube müdürü',
+          roleOther: '',
+        },
+      ],
+    };
+
+    const sectors = suggestPreferredSectors(input);
+    expect(sectors[0]).toBe('Finans / Bankacılık');
+    expect(sectors).toEqual(
+      expect.arrayContaining([
+        'Sigorta',
+        'Muhasebe / Mali müşavirlik',
+        'Holding / Yönetim',
+        'Danışmanlık',
+        'Satış',
+        MANUAL_OPTION,
+      ]),
+    );
+    expect(sectors.at(-1)).toBe(MANUAL_OPTION);
+    expect(sectors).not.toContain('Turizm / Otelcilik');
+    expect(sectors).not.toContain('Tarım');
+
+    const roles = suggestPreferredRoles(input);
+    expect(roles[0]).toBe('Şube müdürü');
+    const managerSlice = roles.slice(0, 12);
+    expect(managerSlice).toEqual(
+      expect.arrayContaining(['Şube müdürü', 'Bölge müdürü', 'Satış müdürü']),
+    );
+    expect(roles.indexOf('Şube müdürü')).toBeLessThan(roles.indexOf('Banka müşteri temsilcisi'));
+    expect(roles).toEqual(
+      expect.arrayContaining([
+        'Portföy yöneticisi',
+        'Kredi uzmanı',
+        'İç kontrol uzmanı',
+        'Yönetim danışmanı',
+        MANUAL_OPTION,
+      ]),
+    );
+    expect(roles.at(-1)).toBe(MANUAL_OPTION);
+    expect(roles).not.toContain('Yazılım geliştirici');
+    expect(roles).not.toContain('Garson');
+  });
+
+  it('keeps already selected values and always offers manual entry', () => {
+    const sectors = suggestPreferredSectors({
+      experiences: [{ sector: 'Sağlık', role: 'Hemşire', roleOther: '' }],
+      selected: ['Turizm / Otelcilik'],
+    });
+    expect(sectors).toContain('Turizm / Otelcilik');
+    expect(sectors).toContain('Sağlık');
+    expect(sectors.at(-1)).toBe(MANUAL_OPTION);
+
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Sağlık', role: 'Hemşire', roleOther: '' }],
+      selected: ['Garson'],
+    });
+    expect(roles).toContain('Garson');
+    expect(roles).toContain('Hemşire');
+    expect(roles.at(-1)).toBe(MANUAL_OPTION);
+  });
+
+  it('uses roleOther when the experience position is manual', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [
+        {
+          sector: 'Finans / Bankacılık',
+          role: MANUAL_OPTION,
+          roleOther: 'şube müdürü',
+        },
+      ],
+    });
+    expect(roles).toEqual(expect.arrayContaining(['şube müdürü', 'Bölge müdürü', 'Satış müdürü', MANUAL_OPTION]));
+  });
+
+  it('does not dump the full market for a software developer', () => {
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Bilişim / Yazılım', role: 'Yazılım geliştirici', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('Yazılım geliştirici');
+    expect(roles).toEqual(
+      expect.arrayContaining(['Frontend geliştirici', 'CTO / Teknik lider', 'Ürün yöneticisi', MANUAL_OPTION]),
+    );
+    expect(roles).not.toContain('Şube müdürü');
+    expect(roles).not.toContain('Aşçı');
+  });
+
+  it('surfaces store leadership and retail-adjacent work for mağaza müdürü', () => {
+    const sectors = suggestPreferredSectors({
+      experiences: [{ sector: 'Perakende / Mağaza', role: 'Mağaza müdürü', roleOther: '' }],
+    });
+    expect(sectors[0]).toBe('Perakende / Mağaza');
+    expect(sectors).toEqual(
+      expect.arrayContaining(['Satış', 'E-ticaret / Pazaryeri', 'Lojistik / Depolama', MANUAL_OPTION]),
+    );
+
+    const roles = suggestPreferredRoles({
+      experiences: [{ sector: 'Perakende / Mağaza', role: 'Mağaza müdürü', roleOther: '' }],
+    });
+    expect(roles[0]).toBe('Mağaza müdürü');
+    expect(roles).toEqual(
+      expect.arrayContaining(['Bölge müdürü', 'Satış müdürü', 'Satış danışmanı', MANUAL_OPTION]),
+    );
+    expect(roles.indexOf('Mağaza müdürü')).toBeLessThan(roles.indexOf('Kasiyer'));
+  });
+});

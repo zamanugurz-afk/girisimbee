@@ -10,7 +10,7 @@ export type PositionBundle = {
   technicalSkills: readonly string[];
 };
 
-type RoleFamily =
+export type RoleFamily =
   | 'reception'
   | 'host'
   | 'housekeeping'
@@ -1275,19 +1275,35 @@ function specialize(role: string, base: PositionBundle): PositionBundle {
   };
 }
 
+export function resolveRoleFamily(role: string | null | undefined): RoleFamily | null {
+  const trimmed = (role ?? '').trim();
+  if (!trimmed || trimmed === 'Diğer' || trimmed === 'Diğer / Kendim gireceğim') return null;
+
+  const exactFamily = ROLE_FAMILY[trimmed];
+  if (exactFamily) return exactFamily;
+
+  const needle = normalizeRole(trimmed);
+  for (const [key, family] of Object.entries(ROLE_FAMILY)) {
+    if (normalizeRole(key) === needle) return family;
+  }
+
+  return inferFamily(trimmed);
+}
+
+export function titlesForFamily(family: RoleFamily): string[] {
+  return Object.entries(ROLE_FAMILY)
+    .filter(([, value]) => value === family)
+    .map(([title]) => title);
+}
+
 export function resolvePositionBundle(role: string | null | undefined): PositionBundle | undefined {
   const trimmed = (role ?? '').trim();
   if (!trimmed || trimmed === 'Diğer' || trimmed === 'Diğer / Kendim gireceğim') return undefined;
 
-  const exactFamily = ROLE_FAMILY[trimmed];
-  if (exactFamily) return specialize(trimmed, FAMILIES[exactFamily]);
-
-  const needle = normalizeRole(trimmed);
-  for (const [key, family] of Object.entries(ROLE_FAMILY)) {
-    if (normalizeRole(key) === needle) return specialize(key, FAMILIES[family]);
-  }
-
-  const inferred = inferFamily(trimmed);
-  if (inferred) return specialize(trimmed, FAMILIES[inferred]);
-  return undefined;
+  const family = resolveRoleFamily(trimmed);
+  if (!family) return undefined;
+  const exactKey = ROLE_FAMILY[trimmed]
+    ? trimmed
+    : Object.keys(ROLE_FAMILY).find((key) => normalizeRole(key) === normalizeRole(trimmed)) ?? trimmed;
+  return specialize(exactKey, FAMILIES[family]);
 }

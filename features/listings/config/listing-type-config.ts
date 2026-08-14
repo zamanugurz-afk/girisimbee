@@ -43,6 +43,7 @@ import {
 import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
 import {
   getAllTaxonomyPositions,
+  MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 
 export const CATEGORY_IDS = {
@@ -291,14 +292,14 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'İlgilenilen Sektörler',
       type: 'multi-enum',
       required: true,
-      options: [...JOB_SECTOR_OPTIONS],
+      options: [...new Set([...JOB_SECTOR_OPTIONS, MANUAL_OPTION])],
     },
     {
       key: 'sectorOther',
       label: 'Sektör Açıklaması',
       type: 'string',
       required: false,
-      min: 30,
+      min: 2,
       max: 200,
     },
     {
@@ -306,7 +307,15 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Açık Olduğum Pozisyonlar',
       type: 'multi-enum',
       required: false,
-      options: [...JOB_POSITION_OPTIONS],
+      options: getAllTaxonomyPositions(),
+    },
+    {
+      key: 'preferredRolesOther',
+      label: 'Pozisyon (Diğer)',
+      type: 'string',
+      required: false,
+      min: 2,
+      max: 200,
     },
     {
       key: 'preferredCity',

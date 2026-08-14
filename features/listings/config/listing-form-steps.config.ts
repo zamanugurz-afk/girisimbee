@@ -28,6 +28,8 @@ export interface ListingFormStepDef {
   careerSkillsEditor?: boolean;
   /** Education field + languages + certificates editors */
   careerEducationEditor?: boolean;
+  /** Experience-ranked preferred sector / role pickers (İş Arıyorum) */
+  careerPreferenceEditor?: boolean;
   /** Hire: position-catalog responsibilities / expected achievements */
   hireRoleNeedsEditor?: boolean;
   /** Final read-only review step */
@@ -234,11 +236,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'preferences',
       title: 'Kariyer Tercihleri',
-      description: 'Sektör, il / ilçe, çalışma modeli ve ücret beklentisi',
+      description: 'Deneyiminize göre ilgili sektör ve pozisyonlar — listede yoksa kendiniz yazın',
       customFieldKeys: [
-        'preferredSectors',
-        'sectorOther',
-        'preferredRoles',
         'preferredCity',
         'preferredDistrict',
         'preferredDistrictOther',
@@ -246,6 +245,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'salaryExpectation',
         'availability',
       ],
+      careerPreferenceEditor: true,
     },
     {
       id: 'summary',
@@ -506,6 +506,18 @@ export function collectWizardVisibleFieldPaths(
         'languages',
         'certificates',
         'certificatesOther',
+      ]) {
+        paths.add(`customFields.${key}`);
+        paths.add(key);
+      }
+    }
+
+    if (step.careerPreferenceEditor) {
+      for (const key of [
+        'preferredSectors',
+        'sectorOther',
+        'preferredRoles',
+        'preferredRolesOther',
       ]) {
         paths.add(`customFields.${key}`);
         paths.add(key);

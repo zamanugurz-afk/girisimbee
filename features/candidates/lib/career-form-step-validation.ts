@@ -266,3 +266,36 @@ export function materializeHireRoleNeedsFields(
     district: String(customFields.preferredDistrict ?? customFields.district ?? '').trim(),
   };
 }
+
+export function validateCareerPreferencesStep(
+  customFields: Record<string, unknown>,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const sectors = parseSelectedList(customFields.preferredSectors);
+  const hasManualSector = sectors.some((item) => isManualCareerOption(item));
+  if (sectors.filter((item) => !isManualCareerOption(item)).length === 0 && !hasManualSector) {
+    errors.preferredSectors = 'En az bir sektör seçin.';
+  }
+  if (hasManualSector) {
+    const issue = findCareerTextQualityIssue(String(customFields.sectorOther ?? ''), {
+      fieldLabel: 'Sektör (diğer)',
+      minLength: 2,
+      maxLength: 200,
+      required: true,
+    });
+    if (issue) errors.sectorOther = issue;
+  }
+
+  const roles = parseSelectedList(customFields.preferredRoles);
+  if (roles.some((item) => isManualCareerOption(item))) {
+    const issue = findCareerTextQualityIssue(String(customFields.preferredRolesOther ?? ''), {
+      fieldLabel: 'Pozisyon (diğer)',
+      minLength: 2,
+      maxLength: 200,
+      required: true,
+    });
+    if (issue) errors.preferredRolesOther = issue;
+  }
+
+  return errors;
+}

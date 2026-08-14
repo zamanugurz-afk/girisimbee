@@ -270,6 +270,16 @@ export function findStepIndexForErrors(
     return educationStep >= 0 ? educationStep : null;
   }
 
+  if (
+    fieldKey === 'preferredSectors'
+    || fieldKey === 'sectorOther'
+    || fieldKey === 'preferredRoles'
+    || fieldKey === 'preferredRolesOther'
+  ) {
+    const preferenceStep = steps.findIndex((step) => step.careerPreferenceEditor);
+    return preferenceStep >= 0 ? preferenceStep : null;
+  }
+
   if (fieldKey === 'kvkkConsents' || fieldKey === 'publishConsents' || fieldKey === 'contactPhone') {
     const kvkkStep = steps.findIndex((step) => step.kvkk);
     return kvkkStep >= 0 ? kvkkStep : null;

@@ -3,6 +3,7 @@ import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
 import {
   validateCareerEducationStep,
   validateCareerManualOther,
+  validateCareerPreferencesStep,
   validateCareerSkillsStep,
 } from './career-form-step-validation';
 
@@ -46,5 +47,29 @@ describe('career form step validation', () => {
     });
     expect(educationErrors.educationField).toMatch(/zorunlu/);
     expect(educationErrors.certificates).toMatch(/zorunlu/);
+  });
+
+  it('requires a related sector pick and quality-checks manual preference text', () => {
+    expect(
+      validateCareerPreferencesStep({
+        preferredSectors: [],
+      }).preferredSectors,
+    ).toMatch(/sektör/i);
+
+    const manualErrors = validateCareerPreferencesStep({
+      preferredSectors: [MANUAL_OPTION],
+      sectorOther: '   ',
+      preferredRoles: [MANUAL_OPTION],
+      preferredRolesOther: '',
+    });
+    expect(manualErrors.sectorOther).toMatch(/zorunlu/);
+    expect(manualErrors.preferredRolesOther).toMatch(/zorunlu/);
+
+    expect(
+      validateCareerPreferencesStep({
+        preferredSectors: ['Finans / Bankacılık'],
+        preferredRoles: ['Şube müdürü'],
+      }),
+    ).toEqual({});
   });
 });

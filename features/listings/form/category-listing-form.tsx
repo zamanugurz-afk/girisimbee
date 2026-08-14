@@ -49,6 +49,7 @@ import { FormStepIndicator } from '@/features/listings/form/form-step-indicator'
 import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
 import { CareerEducationExtras } from '@/features/candidates/components/CareerEducationExtras';
 import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLanguagesEditor';
+import { CareerPreferenceEditor } from '@/features/candidates/components/CareerPreferenceEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
@@ -69,6 +70,7 @@ import {
   materializeHireRoleNeedsFields,
   validateCareerEducationStep,
   validateCareerManualOther,
+  validateCareerPreferencesStep,
   validateCareerSkillsStep,
   validateHireRoleNeedsStep,
 } from '@/features/candidates/lib/career-form-step-validation';
@@ -145,9 +147,15 @@ function collectOtherDetailErrors(
   );
   requireOther(
     Array.isArray(customFields.preferredSectors)
-      && customFields.preferredSectors.map(String).includes('Diğer'),
+      && customFields.preferredSectors.map(String).some((item) => isManualCareerOption(item)),
     'sectorOther',
     'Sektör açıklaması',
+  );
+  requireOther(
+    Array.isArray(customFields.preferredRoles)
+      && customFields.preferredRoles.map(String).some((item) => isManualCareerOption(item)),
+    'preferredRolesOther',
+    'Pozisyon açıklaması',
   );
   requireOther(
     String(customFields.preferredDistrict ?? '') === 'Diğer',
@@ -368,6 +376,7 @@ export function CategoryListingForm({
   const isExperienceStep = Boolean(currentStep.experienceEditor);
   const isCareerSkillsStep = Boolean(currentStep.careerSkillsEditor);
   const isCareerEducationStep = Boolean(currentStep.careerEducationEditor);
+  const isCareerPreferenceStep = Boolean(currentStep.careerPreferenceEditor);
   const isHireRoleNeedsStep = Boolean(currentStep.hireRoleNeedsEditor);
   const isCareerSummaryStep =
     (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl)
@@ -689,8 +698,13 @@ export function CategoryListingForm({
       if (key === 'positionTitle' && value !== 'Diğer') {
         setCustomField('positionTitleOther', '');
       }
-      if (key === 'preferredSectors' && Array.isArray(value) && !value.map(String).includes('Diğer')) {
+      if (key === 'preferredSectors' && Array.isArray(value)
+        && !value.map(String).some((item) => isManualCareerOption(item))) {
         setCustomField('sectorOther', '');
+      }
+      if (key === 'preferredRoles' && Array.isArray(value)
+        && !value.map(String).some((item) => isManualCareerOption(item))) {
+        setCustomField('preferredRolesOther', '');
       }
     },
     [setCustomField],
@@ -897,6 +911,15 @@ export function CategoryListingForm({
       setCustomFields((prev) => ({ ...prev, ...materialized }));
       setFieldErrors({});
       return true;
+    }
+
+    if (isCareerPreferenceStep) {
+      const preferenceErrors = validateCareerPreferencesStep(mergedCustomFields);
+      if (Object.keys(preferenceErrors).length > 0) {
+        setFieldErrors(preferenceErrors);
+        toast.error(Object.values(preferenceErrors)[0] ?? 'Kariyer tercihlerini kontrol edin.');
+        return false;
+      }
     }
 
     if (isKvkkStep) {
@@ -1445,6 +1468,40 @@ export function CategoryListingForm({
                 error={resolveFieldError(fieldErrors, 'languages')}
               />
             </div>
+          )}
+
+          {isCareerPreferenceStep && (
+            <CareerPreferenceEditor
+              experiences={parseCareerExperiences(mergedCustomFields.experiences)}
+              primarySector={String(mergedCustomFields.primarySector ?? '')}
+              desiredRole={
+                isManualCareerOption(mergedCustomFields.desiredRole)
+                  ? String(mergedCustomFields.desiredRoleOther ?? '')
+                  : String(mergedCustomFields.desiredRole ?? '')
+              }
+              value={{
+                preferredSectors: Array.isArray(mergedCustomFields.preferredSectors)
+                  ? mergedCustomFields.preferredSectors.map(String)
+                  : [],
+                sectorOther: String(mergedCustomFields.sectorOther ?? ''),
+                preferredRoles: Array.isArray(mergedCustomFields.preferredRoles)
+                  ? mergedCustomFields.preferredRoles.map(String)
+                  : [],
+                preferredRolesOther: String(mergedCustomFields.preferredRolesOther ?? ''),
+              }}
+              onChange={(patch) => {
+                for (const [key, val] of Object.entries(patch)) {
+                  setCustomField(key, val);
+                }
+              }}
+              disabled={disabled || isBusy}
+              errors={{
+                preferredSectors: resolveFieldError(fieldErrors, 'preferredSectors'),
+                sectorOther: resolveFieldError(fieldErrors, 'sectorOther'),
+                preferredRoles: resolveFieldError(fieldErrors, 'preferredRoles'),
+                preferredRolesOther: resolveFieldError(fieldErrors, 'preferredRolesOther'),
+              }}
+            />
           )}
 
           {isPackageStep && (

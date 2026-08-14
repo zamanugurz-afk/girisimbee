@@ -168,6 +168,8 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Bankacı / banka personeli',
     'Portföy yöneticisi',
     'Şube müdürü',
+    'Bölge müdürü',
+    'Satış müdürü',
     'Kredi uzmanı',
     'Finans uzmanı',
     'Risk analisti',
@@ -178,6 +180,7 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Operasyon uzmanı',
     'İç kontrol uzmanı',
     'Uyum (compliance) uzmanı',
+    'Ofis yöneticisi',
   ],
   Sigorta: [
     'Sigorta satış uzmanı',
@@ -542,11 +545,15 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Muhasebeci',
   ],
   'Holding / Yönetim': [
-    'İdari personel',
+    'Şube müdürü',
+    'Bölge müdürü',
+    'Satış müdürü',
+    'İK yöneticisi',
+    'Ofis yöneticisi',
     'Proje yöneticisi',
     'İnsan kaynakları uzmanı',
     'Finans uzmanı',
-    'Ofis yöneticisi',
+    'İdari personel',
   ],
   'Ar-Ge': [
     'Mühendis (endüstri)',
@@ -662,6 +669,18 @@ export function getPositionsForSector(sector: string | null | undefined): string
     return [MANUAL_OPTION];
   }
   return sortPositionsPopularThenAz([...list, MANUAL_OPTION], [MANUAL_OPTION]);
+}
+
+export function getSectorsForPosition(role: string | null | undefined): string[] {
+  const needle = (role ?? '').trim();
+  if (!needle || isManualCareerOption(needle)) return [];
+  const lowered = needle.toLocaleLowerCase('tr-TR');
+  const out: string[] = [];
+  for (const [sector, list] of Object.entries(SECTOR_POSITIONS)) {
+    if (!list?.some((title) => title.toLocaleLowerCase('tr-TR') === lowered)) continue;
+    out.push(sector);
+  }
+  return out;
 }
 
 const PROFESSIONAL_SKILLS_BY_THEME: Record<string, readonly string[]> = {

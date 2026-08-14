@@ -23,6 +23,8 @@ const DETAIL_KEYS = [
   'certificates',
   'preferredSectors',
   'preferredRoles',
+  'preferredRolesOther',
+  'sectorOther',
   'preferredCity',
   'preferredDistrict',
   'workplacePreference',

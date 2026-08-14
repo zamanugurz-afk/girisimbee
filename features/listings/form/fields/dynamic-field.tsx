@@ -56,7 +56,13 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
   },
   sectorOther: {
     parentKey: 'preferredSectors',
-    match: (v) => Array.isArray(v) && v.map(String).includes('Diğer'),
+    match: (v) =>
+      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION),
+  },
+  preferredRolesOther: {
+    parentKey: 'preferredRoles',
+    match: (v) =>
+      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION),
   },
   preferredDistrictOther: {
     parentKey: 'preferredDistrict',
