@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ interface ListingPreviewDialogProps {
   onOpenChange: (open: boolean) => void;
   values: ListingFormValues;
   listingType: ListingType;
+  overrideContent?: ReactNode;
 }
 
 export function ListingPreviewDialog({
@@ -22,6 +24,7 @@ export function ListingPreviewDialog({
   onOpenChange,
   values,
   listingType,
+  overrideContent,
 }: ListingPreviewDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -29,7 +32,9 @@ export function ListingPreviewDialog({
         <DialogHeader>
           <DialogTitle>İlan Önizleme</DialogTitle>
         </DialogHeader>
-        <ListingFormPreviewContent values={values} listingType={listingType} readOnly />
+        {overrideContent ?? (
+          <ListingFormPreviewContent values={values} listingType={listingType} readOnly />
+        )}
       </DialogContent>
     </Dialog>
   );

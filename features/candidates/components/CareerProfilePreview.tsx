@@ -26,6 +26,7 @@ import {
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
 
 export type CareerCardInput = {
+  variant?: 'seeker' | 'hire';
   desiredRole?: string | null;
   experienceLevel?: string | null;
   primarySector?: string | null;
@@ -40,7 +41,10 @@ export type CareerCardInput = {
   preferredCity?: string | null;
   workplacePreference?: string | null;
   salaryExpectation?: string | null;
+  salaryRange?: string | null;
   availability?: string | null;
+  requiredResponsibilities?: string | null;
+  requiredAchievements?: string | null;
   longDescription?: string | null;
   experiences?: CareerExperience[];
   coverUrl?: string | null;
@@ -123,20 +127,25 @@ function CardSection({
   );
 }
 
-/** Anonymous public/preview Kariyer Kartı for İş Arıyorum. */
+/** Public/preview card shared by İş Arıyorum (seeker) and İşe Alıyorum (hire). */
 export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
+  const isHire = data.variant === 'hire';
   const preferredSectors = asList(data.preferredSectors);
-  const sectorChips = preferredSectors.length
-    ? preferredSectors
-    : data.primarySector
-      ? [data.primarySector]
-      : [];
+  const sectorChips = isHire
+    ? (data.primarySector ? [data.primarySector] : [])
+    : preferredSectors.length
+      ? preferredSectors
+      : data.primarySector
+        ? [data.primarySector]
+        : [];
   const professional = asList(data.professionalSkills);
   const technical = asList(data.technicalSkills);
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
     (entry) => (entry.languageOther || entry.language) && entry.level,
   );
+  const hireDuties = asList(data.requiredResponsibilities);
+  const hireWins = asList(data.requiredAchievements);
   const experiences = [...(data.experiences ?? [])].sort((a, b) => {
     const aInterval = toCareerPeriodInterval(a);
     const bInterval = toCareerPeriodInterval(b);
@@ -144,17 +153,19 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
     return 0;
   });
   const featuredExperience = experiences[0];
-  const extraExperiences = experiences.slice(1);
+  const extraExperiences = isHire ? [] : experiences.slice(1);
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const totalYears = estimateTotalExperienceYears(experiences);
-  const experienceHeadline =
-    totalYears != null && totalYears > 0
+  const experienceHeadline = isHire
+    ? null
+    : totalYears != null && totalYears > 0
       ? `${totalYears} yıl deneyim`
       : experiences.length > 0
         ? `${experiences.length} deneyim`
         : null;
   const initials = roleInitials(data.desiredRole);
   const summary = polishCareerSummary(data.longDescription);
+  const salary = isHire ? data.salaryRange : data.salaryExpectation;
   const metaChips = [
     levelLabel,
     experienceHeadline,
@@ -183,10 +194,10 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
         </div>
         <div className="min-w-0 flex-1 self-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Kariyer Kartı
+            {isHire ? 'İş İlanı Kartı' : 'Kariyer Kartı'}
           </p>
           <h3 className="mt-1 font-display text-2xl font-semibold leading-tight text-foreground">
-            {data.desiredRole || 'Pozisyon belirtilmedi'}
+            {data.desiredRole || (isHire ? 'Açık pozisyon belirtilmedi' : 'Pozisyon belirtilmedi')}
           </h3>
           {data.primarySector ? (
             <p className="mt-1 text-sm font-medium text-primary">{data.primarySector}</p>
@@ -200,27 +211,54 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
               ))}
             </div>
           ) : null}
-          {data.salaryExpectation ? (
-            <p className="mt-2 text-xs font-medium text-primary">{data.salaryExpectation}</p>
+          {salary ? (
+            <p className="mt-2 text-xs font-medium text-primary">{salary}</p>
           ) : null}
         </div>
       </div>
 
       <div className="grid gap-4 border-t border-border/60 px-5 py-4 md:grid-cols-3">
-        <CardSection icon={Briefcase} title="Uzmanlık">
+        <CardSection icon={Briefcase} title={isHire ? 'Sektör' : 'Uzmanlık'}>
           <ChipRow values={sectorChips} />
         </CardSection>
-        <CardSection icon={Award} title="Mesleki">
+        <CardSection icon={Award} title={isHire ? 'Aranan mesleki' : 'Mesleki'}>
           <ChipRow values={professional} />
         </CardSection>
-        <CardSection icon={Monitor} title="Teknik">
+        <CardSection icon={Monitor} title={isHire ? 'Aranan teknik' : 'Teknik'}>
           <ChipRow values={technical} />
         </CardSection>
       </div>
 
       <div className="grid gap-4 border-t border-border/60 px-5 py-4 md:grid-cols-3">
-        <CardSection icon={Briefcase} title="Deneyim">
-          {featuredExperience ? (
+        <CardSection icon={Briefcase} title={isHire ? 'İş tanımı' : 'Deneyim'}>
+          {isHire ? (
+            hireDuties.length > 0 || hireWins.length > 0 ? (
+              <div>
+                {hireDuties.length > 0 ? (
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {hireDuties.slice(0, 3).map((item) => (
+                      <li key={item} className="flex gap-1.5">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {hireWins.length > 0 ? (
+                  <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground">
+                    {hireWins.slice(0, 2).map((item) => (
+                      <li key={item} className="flex gap-1.5">
+                        <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" aria-hidden />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">İş tanımı eklenmedi</p>
+            )
+          ) : featuredExperience ? (
             <div>
               <p className="text-sm font-semibold text-foreground">{featuredExperience.role}</p>
               <p className="text-xs text-muted-foreground">
@@ -240,7 +278,7 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
           )}
         </CardSection>
 
-        <CardSection icon={GraduationCap} title="Eğitim">
+        <CardSection icon={GraduationCap} title={isHire ? 'Aranan eğitim' : 'Eğitim'}>
           {data.educationLevel || data.educationField ? (
             <div>
               <p className="text-sm font-semibold text-foreground">
@@ -306,7 +344,7 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
       {summary ? (
         <div className="border-t border-border/60 px-5 py-4">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Kariyer özeti
+            {isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}
           </p>
           <p className="mt-2 text-sm leading-7 text-foreground/90">
             {summary}
@@ -314,7 +352,7 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
         </div>
       ) : null}
 
-      {data.birthDate || data.residenceCity || data.residenceDistrict ? (
+      {!isHire && (data.birthDate || data.residenceCity || data.residenceDistrict) ? (
         <div className="border-t border-border/60 px-4 py-3">
           <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden />
@@ -342,12 +380,19 @@ export function CareerProfilePreview({ data }: { data: CareerCardInput }) {
         </div>
       ) : null}
 
+      {isHire ? (
+        <p className="flex items-start gap-2 border-t border-border/60 px-4 py-2.5 text-[11px] text-muted-foreground">
+          <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+          Telefon ve e-posta kartta görünmez. Adaylar “İletişim Talebi Gönder” ile başvurur; kabul edilince iletişim açılır.
+        </p>
+      ) : (
       <p className="flex items-start gap-2 border-t border-border/60 px-4 py-2.5 text-[11px] text-muted-foreground">
         <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
         {data.birthDate || data.residenceCity || data.residenceDistrict
           ? 'Ad, soyad ve iletişim bilgileri talep kabulünden sonra paylaşılır. Doğum tarihi ve yaşadığı yer yalnızca kabul edilen taleplerde görünür.'
           : 'Ad, soyad, doğum tarihi, adres ve iletişim bilgileri gizli. İşverenler “İletişim Talebi Gönder” ile ulaşabilir; kabul edilince doğum tarihi ve yaşadığı yer görünür.'}
       </p>
+      )}
     </div>
   );
 }

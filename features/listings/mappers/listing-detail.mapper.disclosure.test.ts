@@ -179,4 +179,50 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.publisher.name).toBe('Açık Şirket');
     expect(detail.company.name).toBe('Açık Şirket');
   });
+
+  it('builds a hire career card from the same taxonomy keys without leaking contact', () => {
+    const aggregate = makeAggregate({
+      moduleKey: 'employers',
+      anonymousMode: false,
+      categoryId: ECOSYSTEM_CATEGORY_IDS.employers,
+      listingTypeId: DEFAULT_LISTING_TYPE_IDS.employers,
+      title: 'Hemşire',
+      longDescription: 'Sağlık alanında orta seviye Hemşire arıyoruz. Rolde hasta bakımı bekleniyor.',
+      customFields: {
+        primarySector: 'Sağlık',
+        desiredRole: 'Hemşire',
+        experienceLevel: 'Mid',
+        workType: 'Tam zamanlı',
+        requiredResponsibilities: 'Hasta bakımı · Vital bulgu takibi',
+        requiredAchievements: 'Servis kalite hedeflerine katkı',
+        professionalSkills: 'Hasta iletişimi · Ekip çalışması',
+        technicalSkills: 'HIS · Vital monitör',
+        educationLevel: 'Lisans',
+        preferredCity: 'İstanbul',
+        workplacePreference: 'Ofis',
+        salaryRange: '75.000 - 100.000 TL',
+        availability: '1 ay içinde',
+        contactPhone: '+905551112233',
+      },
+      contactPhone: '+905551112233',
+    });
+
+    const disclosure = resolveContactDisclosure({
+      listing: { moduleKey: 'employers', ownerId: String(OWNER) },
+      viewerUserId: null,
+    });
+
+    const detail = aggregateToListingDetail(aggregate, { profile, disclosure });
+
+    expect(detail.category.id).toBe('hire');
+    expect(detail.careerCard?.variant).toBe('hire');
+    expect(detail.careerCard?.desiredRole).toBe('Hemşire');
+    expect(detail.careerCard?.primarySector).toBe('Sağlık');
+    expect(detail.careerCard?.requiredResponsibilities).toMatch(/Hasta bakımı/);
+    expect(detail.careerCard?.salaryRange).toBe('75.000 - 100.000 TL');
+    expect(detail.careerCard?.birthDate).toBeFalsy();
+    expect(detail.customFacts).toEqual([]);
+    expect(detail.contactPhone).toBeNull();
+    expect(detail.gallery[0]?.imageUrl).toBe('/covers/career-saglik.jpg');
+  });
 });

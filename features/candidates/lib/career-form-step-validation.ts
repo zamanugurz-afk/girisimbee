@@ -196,3 +196,67 @@ export function materializeCareerEducationFields(
     languageEntries,
   };
 }
+
+export function validateHireRoleNeedsStep(
+  customFields: Record<string, unknown>,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const selected = parseSelectedList(customFields.requiredResponsibilities);
+  const other = String(customFields.requiredResponsibilitiesOther ?? '').trim();
+  const hasManual = selected.includes(MANUAL_OPTION);
+  if (selected.filter((item) => item !== MANUAL_OPTION).length === 0 && !hasManual) {
+    errors.requiredResponsibilities = 'En az bir temel sorumluluk seçin.';
+  }
+  if (hasManual) {
+    const issue = findCareerTextQualityIssue(other, {
+      fieldLabel: 'Temel sorumluluklar',
+      minLength: 10,
+      maxLength: 400,
+      required: true,
+    });
+    if (issue) errors.requiredResponsibilitiesOther = issue;
+  }
+  const ach = parseSelectedList(customFields.requiredAchievements);
+  const achOther = String(customFields.requiredAchievementsOther ?? '').trim();
+  if (ach.includes(MANUAL_OPTION)) {
+    const issue = findCareerTextQualityIssue(achOther, {
+      fieldLabel: 'Başarı beklentisi',
+      minLength: 8,
+      maxLength: 400,
+      required: true,
+    });
+    if (issue) errors.requiredAchievementsOther = issue;
+  }
+  return errors;
+}
+
+export function materializeHireRoleNeedsFields(
+  customFields: Record<string, unknown>,
+): Record<string, unknown> {
+  const responsibilities = parseSelectedList(customFields.requiredResponsibilities).filter(
+    (item) => item !== MANUAL_OPTION,
+  );
+  const responsibilitiesOther = String(customFields.requiredResponsibilitiesOther ?? '').trim();
+  if (responsibilitiesOther) responsibilities.push(responsibilitiesOther);
+
+  const achievements = parseSelectedList(customFields.requiredAchievements).filter(
+    (item) => item !== MANUAL_OPTION,
+  );
+  const achievementsOther = String(customFields.requiredAchievementsOther ?? '').trim();
+  if (achievementsOther) achievements.push(achievementsOther);
+
+  const role = isManualCareerOption(customFields.desiredRole)
+    ? String(customFields.desiredRoleOther ?? '').trim()
+    : String(customFields.desiredRole ?? '').trim();
+
+  return {
+    ...customFields,
+    requiredResponsibilities: joinSelectedList(responsibilities),
+    requiredAchievements: joinSelectedList(achievements),
+    positionTitle: role || String(customFields.positionTitle ?? '').trim(),
+    positionTitleOther: isManualCareerOption(customFields.desiredRole)
+      ? String(customFields.desiredRoleOther ?? '')
+      : customFields.positionTitleOther,
+    district: String(customFields.preferredDistrict ?? customFields.district ?? '').trim(),
+  };
+}

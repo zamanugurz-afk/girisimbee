@@ -52,7 +52,7 @@ describe('career listing covers', () => {
     ).toBe('/covers/career-erkek-finans.jpg');
   });
 
-  it('uses profession covers only for İş Arıyorum fallbacks', () => {
+  it('uses profession covers for İş Arıyorum and İşe Alıyorum fallbacks', () => {
     expect(
       resolveDefaultListingCover({
         listingTypeSlug: 'is-ariyorum',
@@ -82,7 +82,16 @@ describe('career listing covers', () => {
         sector: 'Sağlık',
         role: 'Hemşire',
       }),
-    ).toBe('/covers/ise-aliyorum.jpg');
+    ).toBe('/covers/career-saglik.jpg');
+
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'ise-al',
+        sector: 'Bilişim / Yazılım',
+        role: 'Backend geliştirici',
+        gender: 'Erkek',
+      }),
+    ).toBe('/covers/career-yazilim.jpg');
   });
 
   it('keeps an uploaded image ahead of the profession fallback', () => {

@@ -21,6 +21,7 @@ export function CareerEducationExtras({
   onChange,
   disabled,
   errors,
+  audience = 'seeker',
 }: {
   educationLevel: string;
   educationField: string;
@@ -40,14 +41,18 @@ export function CareerEducationExtras({
     educationField?: string;
     certificates?: string;
   };
+  audience?: 'seeker' | 'hire';
 }) {
+  const isHire = audience === 'hire';
   const fieldIsManual =
     educationField === MANUAL_OPTION || educationField === 'Diğer / Kendim gireceğim';
 
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <Label htmlFor="educationLevel">Eğitim seviyesi</Label>
+        <Label htmlFor="educationLevel">
+          {isHire ? 'Aranan eğitim seviyesi' : 'Eğitim seviyesi'}
+        </Label>
         <select
           id="educationLevel"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -68,7 +73,9 @@ export function CareerEducationExtras({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="educationField">Bölüm / alan</Label>
+        <Label htmlFor="educationField">
+          {isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
+        </Label>
         <select
           id="educationField"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -104,7 +111,7 @@ export function CareerEducationExtras({
       </div>
 
       <CareerMultiSelect
-        label="Sertifikalar"
+        label={isHire ? 'Aranan sertifikalar' : 'Sertifikalar'}
         options={[...CERTIFICATE_OPTIONS]}
         value={parseSelectedList(certificates)}
         onChange={(next) => onChange({ certificates: joinSelectedList(next) })}

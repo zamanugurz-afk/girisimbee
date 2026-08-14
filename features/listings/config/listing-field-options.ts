@@ -74,16 +74,8 @@ export const SALARY_RANGES = [
   '200.000 TL ve üzeri',
 ] as const;
 
-/** Hiring salary range options — single-select. */
-export const HIRING_SALARY_RANGES = [
-  '25.000–35.000 TL',
-  '35.000–50.000 TL',
-  '50.000–75.000 TL',
-  '75.000–100.000 TL',
-  '100.000–150.000 TL',
-  '150.000–200.000 TL',
-  '200.000+ TL',
-] as const;
+/** Same bands as job-seeker salaryExpectation so the two cards can match later. */
+export const HIRING_SALARY_RANGES = SALARY_RANGES;
 
 /** Investment usage areas — multi-select for seeking investment. */
 export const USE_OF_FUNDS_OPTIONS = [

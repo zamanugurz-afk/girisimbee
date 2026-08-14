@@ -56,22 +56,38 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
     case CATEGORY_IDS.iseAl:
       return {
         core: {
-          title: 'Kıdemli Yazılım Geliştirici — Hibrit İstanbul',
-          shortDescription:
-            'Büyümekte olan ekibimize React ve Node deneyimli, takım çalışmasına yatkın kıdemli yazılım geliştirici arıyoruz; hibrit çalışma.',
+          title: '',
+          shortDescription: '',
           longDescription:
-            'Ürün geliştirme ekibinde özellik tasarımı ve kod incelemesi yapacaksınız. Arananlar: 4+ yıl deneyim, TypeScript, takım içi iletişim. Sunulanlar: yemek kartı, özel sağlık sigortası, öğrenim desteği. Süreç: telefon görüşmesi, teknik görev ve ekip tanışması. Başlangıç tarihi esnek; ilk ay oryantasyon planı vardır.',
-          city: 'İstanbul',
+            'Bilişim alanında kıdemli full-stack geliştirici arıyoruz. Rolde yazılım özelliklerinin geliştirilmesi, kod incelemesi ve API tasarımı sorumlulukları bekleniyor. Aranan yetkinlikler yazılım geliştirme, Agile / Scrum ve kod incelemesi. Çalışmada TypeScript, React ve Node.js kullanılır. Eğitim beklentisi Lisans — Bilgisayar Mühendisliği. İstanbul konumunda hibrit ve tam zamanlı çalışma sunuluyor; 1 ay içinde başlama. Ücret aralığı 75.000 - 100.000 TL.',
+          city: null,
           country: 'TR',
-          remotePolicy: 'hybrid',
+          remotePolicy: null,
         },
         customFields: {
-          positionTitle: 'Yazılım geliştirici',
-          salaryRange: '75.000–100.000 TL',
+          primarySector: 'Bilişim / Yazılım',
+          desiredRole: 'Full-stack geliştirici',
+          experienceLevel: 'Senior',
           workType: 'Tam zamanlı',
-          district: 'Kadıköy',
+          requiredResponsibilities:
+            'Yazılım özelliklerinin geliştirilmesi · Kod incelemesi ve kalite kontrolü · API tasarımı',
+          requiredAchievements: 'Özellik yayını ile ölçülebilir etki',
+          professionalSkills: 'Yazılım geliştirme · Agile / Scrum · Kod incelemesi · API tasarımı',
+          technicalSkills: 'TypeScript · React · Node.js · SQL · Git',
+          tools: 'Notion, Jira, Figma, Slack',
+          educationLevel: 'Lisans',
+          educationField: 'Bilgisayar Mühendisliği',
+          languages: 'İngilizce — İyi',
+          languageEntries: [
+            { id: 'hire-sample-lang-1', language: 'İngilizce', languageOther: '', level: 'İyi' },
+          ],
+          certificates: 'Scrum Master',
+          preferredCity: 'İstanbul',
+          preferredDistrict: 'Kadıköy',
+          workplacePreference: 'Hibrit',
+          salaryRange: '75.000 - 100.000 TL',
+          availability: '1 ay içinde',
         },
-        tags: ['Türkçe', 'İngilizce'],
       };
     case CATEGORY_IDS.isBul: {
       const experience = createEmptyCareerExperience();

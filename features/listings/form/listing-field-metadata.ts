@@ -105,9 +105,9 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
     },
     longDescription: {
       placeholder:
-        'Örn: Ürün geliştirme ekibinde özellik tasarımı ve kod incelemesi yapacaksınız. Arananlar: 4+ yıl deneyim, TypeScript, takım içi iletişim. Sunulanlar: yemek kartı, özel sağlık sigortası, öğrenim desteği. Süreç: telefon görüşmesi, teknik görev ve ekip tanışması. Başlangıç tarihi esnek; ilk ay oryantasyon planı vardır.',
+        'Örn: Ürün geliştirme ekibinde özellik tasarımı ve kod incelemesi bekleniyor. Arananlar: kıdemli seviye, TypeScript, takım içi iletişim. Hibrit İstanbul, 1 ay içinde başlama.',
       helperText:
-        'Detay sayfasında gösterilir. Adaylar telefon ile ulaşır. En az 100 karakter.',
+        'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. Telefon, e-posta veya firma adı yazmayın.',
       maxLength: 10000,
     },
     city: {
@@ -252,8 +252,7 @@ export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
     longDescription: 'Detaylı kapsam',
   },
   [CATEGORY_IDS.iseAl]: {
-    title: 'Pozisyon başlığı',
-    shortDescription: 'Kısa ilan özeti',
+    longDescription: 'Pozisyon özeti',
   },
   [CATEGORY_IDS.yatirimBul]: {
     title: 'Yatırım ilanı başlığı',
@@ -315,7 +314,11 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   desiredRole: {
     placeholder: 'Pozisyon seçin',
-    helperText: 'Hedeflediğiniz pozisyonu listeden seçin. Listede yoksa Diğer’i seçip açıklayın.',
+    helperText: 'Pozisyonu listeden seçin. Listede yoksa Diğer’i seçip açıklayın.',
+  },
+  primarySector: {
+    placeholder: 'Sektör seçin',
+    helperText: 'Sektörü seçin; pozisyon listesi buna göre dolar.',
   },
   desiredRoleOther: {
     placeholder: 'Örn: E-ticaret operasyon uzmanı',
@@ -324,7 +327,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   experienceLevel: {
     placeholder: 'Deneyim seviyesi seçin',
-    helperText: 'İlgili alandaki deneyim seviyeniz.',
+    helperText: 'Pozisyonun deneyim seviyesini seçin.',
   },
   salaryRange: {
     placeholder: 'Maaş aralığı seçin',
@@ -376,7 +379,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   preferredCity: {
     placeholder: 'İl seçin',
-    helperText: 'Çalışmak istediğiniz ili seçin; ardından ilçe seçebilirsiniz.',
+    helperText: 'İli seçin; ardından ilçe seçebilirsiniz.',
   },
   preferredDistrict: {
     placeholder: 'İlçe seçin',

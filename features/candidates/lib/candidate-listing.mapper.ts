@@ -6,7 +6,9 @@ import type {
 import { parseCareerExperiences } from '@/features/candidates/config/career-profile-fields';
 
 const DETAIL_KEYS = [
+  'primarySector',
   'desiredRole',
+  'desiredRoleOther',
   'experienceLevel',
   'salaryExpectation',
   'workType',
@@ -21,6 +23,7 @@ const DETAIL_KEYS = [
   'preferredSectors',
   'preferredRoles',
   'preferredCity',
+  'preferredDistrict',
   'workplacePreference',
   'availability',
   'experiences',

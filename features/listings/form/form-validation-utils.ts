@@ -29,9 +29,11 @@ import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import {
   materializeCareerEducationFields,
   materializeCareerSkillsFields,
+  materializeHireRoleNeedsFields,
   validateCareerEducationStep,
   validateCareerManualOther,
   validateCareerSkillsStep,
+  validateHireRoleNeedsStep,
 } from '@/features/candidates/lib/career-form-step-validation';
 import {
   contentPolicyIssuesToFieldErrors,
@@ -231,6 +233,40 @@ export function findStepIndexForErrors(
   if (fieldKey === 'experiences') {
     const experienceStep = steps.findIndex((step) => step.experienceEditor);
     return experienceStep >= 0 ? experienceStep : null;
+  }
+
+  if (
+    fieldKey === 'requiredResponsibilities'
+    || fieldKey === 'requiredResponsibilitiesOther'
+    || fieldKey === 'requiredAchievements'
+    || fieldKey === 'requiredAchievementsOther'
+  ) {
+    const hireRoleStep = steps.findIndex((step) => step.hireRoleNeedsEditor);
+    return hireRoleStep >= 0 ? hireRoleStep : null;
+  }
+
+  if (
+    fieldKey === 'professionalSkills'
+    || fieldKey === 'professionalSkillsOther'
+    || fieldKey === 'technicalSkills'
+    || fieldKey === 'technicalSkillsOther'
+    || fieldKey === 'leadershipExperience'
+    || fieldKey === 'tools'
+  ) {
+    const skillsStep = steps.findIndex((step) => step.careerSkillsEditor);
+    return skillsStep >= 0 ? skillsStep : null;
+  }
+
+  if (
+    fieldKey === 'educationLevel'
+    || fieldKey === 'educationField'
+    || fieldKey === 'educationFieldOther'
+    || fieldKey === 'languages'
+    || fieldKey === 'certificates'
+    || fieldKey === 'certificatesOther'
+  ) {
+    const educationStep = steps.findIndex((step) => step.careerEducationEditor);
+    return educationStep >= 0 ? educationStep : null;
   }
 
   if (fieldKey === 'kvkkConsents' || fieldKey === 'publishConsents' || fieldKey === 'contactPhone') {
@@ -543,13 +579,38 @@ export function validateListingFormBeforePublish(options: {
     );
     if (roleOtherError) errors.desiredRoleOther = roleOtherError;
 
-    // Materialize taxonomy selections into display strings before schema checks.
     Object.assign(
       options.snapshot.customFields,
       materializeCareerSkillsFields(options.snapshot.customFields),
       materializeCareerEducationFields(options.snapshot.customFields),
     );
     options.snapshot.customFields.experiences = experiences;
+  }
+
+  if (options.categoryId === CATEGORY_IDS.iseAl) {
+    const summary =
+      typeof options.snapshot.core.longDescription === 'string'
+        ? options.snapshot.core.longDescription
+        : '';
+    const summaryViolation = findCareerProfileContentViolation(summary);
+    if (summaryViolation) errors.longDescription = summaryViolation;
+
+    Object.assign(errors, validateHireRoleNeedsStep(options.snapshot.customFields));
+    Object.assign(errors, validateCareerSkillsStep(options.snapshot.customFields));
+    Object.assign(errors, validateCareerEducationStep(options.snapshot.customFields));
+    const roleOtherError = validateCareerManualOther(
+      options.snapshot.customFields.desiredRole,
+      options.snapshot.customFields.desiredRoleOther,
+      'Pozisyon açıklaması',
+    );
+    if (roleOtherError) errors.desiredRoleOther = roleOtherError;
+
+    Object.assign(
+      options.snapshot.customFields,
+      materializeCareerSkillsFields(options.snapshot.customFields),
+      materializeCareerEducationFields(options.snapshot.customFields),
+      materializeHireRoleNeedsFields(options.snapshot.customFields),
+    );
   }
 
   if (!options.publishConsents || !validatePublishConsents(options.publishConsents)) {
@@ -590,9 +651,14 @@ export function validateListingFormBeforePublish(options: {
   let rawLong =
     typeof core.longDescription === 'string' ? core.longDescription : undefined;
 
-  if (options.categoryId === CATEGORY_IDS.isBul) {
+  if (options.categoryId === CATEGORY_IDS.isBul || options.categoryId === CATEGORY_IDS.iseAl) {
     if (rawLong) rawLong = polishCareerSummary(rawLong);
-    const role = String(options.snapshot.customFields.desiredRole ?? '').trim();
+    const roleRaw = String(options.snapshot.customFields.desiredRole ?? '').trim();
+    const roleOther = String(options.snapshot.customFields.desiredRoleOther ?? '').trim();
+    const role =
+      roleRaw === 'Diğer' || roleRaw === 'Diğer / Kendim gireceğim'
+        ? roleOther
+        : roleRaw || String(options.snapshot.customFields.positionTitle ?? '').trim();
     const level = String(options.snapshot.customFields.experienceLevel ?? '').trim();
     if (!rawTitle?.trim() && role) rawTitle = role;
     if (!rawShort?.trim() && (role || level)) {

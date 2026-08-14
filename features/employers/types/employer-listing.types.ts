@@ -30,6 +30,27 @@ export interface EmployerJobListingPayload {
   employmentType?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  primarySector?: string | null;
+  desiredRole?: string | null;
+  desiredRoleOther?: string | null;
+  experienceLevel?: string | null;
+  workType?: string | null;
+  requiredResponsibilities?: string | null;
+  requiredAchievements?: string | null;
+  professionalSkills?: string | null;
+  technicalSkills?: string | null;
+  leadershipExperience?: string | null;
+  tools?: string | null;
+  educationField?: string | null;
+  languages?: string | null;
+  certificates?: string | null;
+  preferredCity?: string | null;
+  preferredDistrict?: string | null;
+  workplacePreference?: string | null;
+  salaryRange?: string | null;
+  availability?: string | null;
+  positionTitle?: string | null;
+  languageTags?: string[] | null;
 }
 
 export interface EmployerJobListingFilter {

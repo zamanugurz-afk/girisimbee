@@ -5,16 +5,44 @@ import type {
 } from '@/features/employers/types/employer-listing.types';
 
 const DETAIL_KEYS = [
+  'primarySector',
+  'desiredRole',
+  'desiredRoleOther',
+  'experienceLevel',
+  'workType',
+  'requiredResponsibilities',
+  'requiredResponsibilitiesOther',
+  'requiredAchievements',
+  'requiredAchievementsOther',
+  'professionalSkills',
+  'professionalSkillsOther',
+  'technicalSkills',
+  'technicalSkillsOther',
+  'leadershipExperience',
+  'tools',
+  'educationLevel',
+  'educationField',
+  'educationFieldOther',
+  'languages',
+  'languageEntries',
+  'certificates',
+  'certificatesOther',
+  'preferredCity',
+  'preferredDistrict',
+  'preferredDistrictOther',
+  'workplacePreference',
+  'salaryRange',
+  'availability',
+  'positionTitle',
+  'positionTitleOther',
+  'district',
+  'districtOther',
   'remotePolicy',
   'experienceYearsMin',
   'experienceYearsMax',
-  'educationLevel',
   'employmentType',
-  'workType',
   'salaryMin',
   'salaryMax',
-  'positionTitle',
-  'salaryRange',
   'languageTags',
 ] as const;
 
@@ -62,9 +90,9 @@ export function employerPayloadToCreateInput(
     title: payload.title,
     shortDescription: payload.shortDescription,
     longDescription: payload.longDescription ?? '',
-    city: payload.city ?? null,
-    district: payload.district ?? null,
-    industry: payload.sector ?? null,
+    city: payload.city ?? payload.preferredCity ?? null,
+    district: payload.district ?? payload.preferredDistrict ?? null,
+    industry: payload.sector ?? payload.primarySector ?? null,
     contactPhone: payload.contactPhone ?? null,
     contactWhatsapp: payload.contactWhatsapp ?? null,
     contactEmail: payload.contactEmail ?? null,
@@ -83,8 +111,11 @@ export function employerPayloadToUpdateInput(
   if (payload.shortDescription !== undefined) update.shortDescription = payload.shortDescription;
   if (payload.longDescription !== undefined) update.longDescription = payload.longDescription;
   if (payload.city !== undefined) update.city = payload.city;
+  if (payload.preferredCity !== undefined) update.city = payload.preferredCity;
   if (payload.district !== undefined) update.district = payload.district;
+  if (payload.preferredDistrict !== undefined) update.district = payload.preferredDistrict;
   if (payload.sector !== undefined) update.industry = payload.sector;
+  if (payload.primarySector !== undefined) update.industry = payload.primarySector;
   if (payload.contactPhone !== undefined) update.contactPhone = payload.contactPhone;
   if (payload.contactWhatsapp !== undefined) update.contactWhatsapp = payload.contactWhatsapp;
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;

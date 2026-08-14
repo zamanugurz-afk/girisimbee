@@ -28,6 +28,7 @@ export function CareerSkillsEditor({
   role,
   experienceLevel,
   errors,
+  audience = 'seeker',
 }: {
   value: SkillsValue;
   onChange: (patch: Partial<SkillsValue>) => void;
@@ -36,11 +37,13 @@ export function CareerSkillsEditor({
   role?: string | null;
   experienceLevel?: string | null;
   errors?: Partial<Record<keyof SkillsValue, string>>;
+  audience?: 'seeker' | 'hire';
 }) {
+  const isHire = audience === 'hire';
   return (
     <div className="space-y-5">
       <CareerMultiSelect
-        label="Mesleki yetkinlikler"
+        label={isHire ? 'Aranan mesleki yetkinlikler' : 'Mesleki yetkinlikler'}
         options={suggestProfessionalSkills({ sector, role, experienceLevel })}
         value={parseSelectedList(value.professionalSkills)}
         onChange={(next) => onChange({ professionalSkills: joinSelectedList(next) })}
@@ -52,7 +55,7 @@ export function CareerSkillsEditor({
       />
 
       <CareerMultiSelect
-        label="Teknik yetkinlikler"
+        label={isHire ? 'Aranan teknik yetkinlikler' : 'Teknik yetkinlikler'}
         options={suggestTechnicalSkills({ sector, role })}
         value={parseSelectedList(value.technicalSkills)}
         onChange={(next) => onChange({ technicalSkills: joinSelectedList(next) })}
@@ -64,17 +67,24 @@ export function CareerSkillsEditor({
       />
 
       <div className="space-y-1.5">
-        <Label htmlFor="leadershipExperience">Yönetim / liderlik deneyimi</Label>
+        <Label htmlFor="leadershipExperience">
+          {isHire ? 'Yönetim / liderlik beklentisi' : 'Yönetim / liderlik deneyimi'}
+        </Label>
         <p className="text-xs text-muted-foreground">
-          Kariyer seviyeniz ne olursa olsun gönüllü liderlik, proje sorumluluğu veya ekip
-          çalışmasını yazabilirsiniz.
+          {isHire
+            ? 'Ekip, proje veya saha sorumluluğu bekliyorsanız kısaca yazın. Zorunlu değil.'
+            : 'Kariyer seviyeniz ne olursa olsun gönüllü liderlik, proje sorumluluğu veya ekip çalışmasını yazabilirsiniz.'}
         </p>
         <Textarea
           id="leadershipExperience"
           rows={3}
           value={value.leadershipExperience}
           disabled={disabled}
-          placeholder="Örn: Öğrenci kulübünde proje ekibine liderlik ettim; 5 kişilik ekiple etkinlik organize ettim."
+          placeholder={
+            isHire
+              ? 'Örn: 5 kişilik saha ekibini yönetecek; hedef ve performans takibi yapacak.'
+              : 'Örn: Öğrenci kulübünde proje ekibine liderlik ettim; 5 kişilik ekiple etkinlik organize ettim.'
+          }
           onChange={(e) => onChange({ leadershipExperience: e.target.value })}
         />
         {errors?.leadershipExperience ? (
@@ -83,7 +93,7 @@ export function CareerSkillsEditor({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="tools">Kullanılan araçlar / programlar</Label>
+        <Label htmlFor="tools">{isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}</Label>
         <Input
           id="tools"
           value={value.tools}

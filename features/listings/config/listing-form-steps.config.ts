@@ -24,10 +24,12 @@ export interface ListingFormStepDef {
   kvkk?: boolean;
   /** Anonymous multi-experience editor (İş Arıyorum) */
   experienceEditor?: boolean;
-  /** Taxonomy-driven skills picker (İş Arıyorum) */
+  /** Taxonomy-driven skills picker (İş Arıyorum / İşe Alıyorum) */
   careerSkillsEditor?: boolean;
-  /** Education field + languages + certificates editors (İş Arıyorum) */
+  /** Education field + languages + certificates editors */
   careerEducationEditor?: boolean;
+  /** Hire: position-catalog responsibilities / expected achievements */
+  hireRoleNeedsEditor?: boolean;
   /** Final read-only review step */
   preview?: boolean;
   /** Homepage placement package selection (before publish) */
@@ -257,34 +259,55 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Pozisyon başlığı ve kısa özet — iş ilanı kartlarında görünür',
-      coreFields: ['title', 'shortDescription'],
-    },
-    {
-      id: 'details',
-      title: 'Detaylı Açıklama',
-      description: 'Sorumluluklar, nitelikler, il ve süreç detaylarını yazın',
-      coreFields: ['longDescription', 'city'],
-    },
-    {
-      id: 'hiring',
-      title: 'Pozisyon Detayları',
-      description: 'Rol, ilçe, maaş, çalışma tipi ve dil tercihleri',
+      description: 'Sektör, açık pozisyon, aranan seviye ve çalışma tipi',
       customFieldKeys: [
-        'positionTitle',
-        'positionTitleOther',
-        'district',
-        'districtOther',
-        'salaryRange',
+        'primarySector',
+        'desiredRole',
+        'desiredRoleOther',
+        'experienceLevel',
         'workType',
       ],
-      meta: ['tags'],
     },
     {
-      id: 'images',
-      title: 'Firma Görseli',
-      description: 'İsteğe bağlı — kapak görseli ekleyin (en az 640×360, en fazla 10 görsel)',
-      meta: ['images'],
+      id: 'role',
+      title: 'İş Tanımı',
+      description: 'Pozisyona göre sorumluluk ve başarı beklentisi — aday kartıyla aynı katalog',
+      customFieldKeys: [],
+      hireRoleNeedsEditor: true,
+    },
+    {
+      id: 'skills',
+      title: 'Aranan Yetkinlikler',
+      description: 'Mesleki ve teknik yetkinlikler, araçlar',
+      customFieldKeys: [],
+      careerSkillsEditor: true,
+    },
+    {
+      id: 'education',
+      title: 'Eğitim & Dil',
+      description: 'Aranan eğitim, dil ve sertifikalar',
+      customFieldKeys: [],
+      careerEducationEditor: true,
+    },
+    {
+      id: 'offer',
+      title: 'Teklif ve Konum',
+      description: 'İl / ilçe, çalışma modeli, ücret ve başlama zamanı',
+      customFieldKeys: [
+        'preferredCity',
+        'preferredDistrict',
+        'preferredDistrictOther',
+        'workplacePreference',
+        'salaryRange',
+        'availability',
+      ],
+    },
+    {
+      id: 'summary',
+      title: 'Pozisyon Özeti',
+      description:
+        'İlan metni otomatik doldurulur; düzenleyebilirsiniz. Telefon, e-posta veya firma adı yazmayın.',
+      coreFields: ['longDescription'],
     },
   ),
   [CATEGORY_IDS.bayilikAl]: withPublishFlow(
@@ -446,6 +469,18 @@ export function collectWizardVisibleFieldPaths(
     if (step.experienceEditor) {
       paths.add('customFields.experiences');
       paths.add('experiences');
+    }
+
+    if (step.hireRoleNeedsEditor) {
+      for (const key of [
+        'requiredResponsibilities',
+        'requiredResponsibilitiesOther',
+        'requiredAchievements',
+        'requiredAchievementsOther',
+      ]) {
+        paths.add(`customFields.${key}`);
+        paths.add(key);
+      }
     }
 
     if (step.careerSkillsEditor) {

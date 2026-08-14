@@ -79,10 +79,15 @@ function customFactsSectionTitle(listing: ListingDetail): string {
 
 export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showInvestment = INVESTMENT_CATEGORIES.has(listing.category.id) && hasInvestmentFacts(listing);
-  const showCareerCard = Boolean(listing.careerCard) && listing.category.id === 'find-job';
+  const showCareerCard =
+    Boolean(listing.careerCard)
+    && (listing.category.id === 'find-job' || listing.category.id === 'hire');
   const showCustomFacts = !showCareerCard && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
-  const showCompany = hasCompanyFacts(listing) && listing.category.id !== 'find-investment';
+  const showCompany =
+    !showCareerCard
+    && hasCompanyFacts(listing)
+    && listing.category.id !== 'find-investment';
   const companySectionTitle = isFranchiseBrandListing(listing)
     ? 'Marka bilgileri'
     : 'Şirket bilgileri';
@@ -95,7 +100,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   return (
     <div className="space-y-8">
       {showCareerCard && listing.careerCard ? (
-        <DetailSectionIf title="Kariyer Kartı" visible>
+        <DetailSectionIf
+          title={listing.careerCard.variant === 'hire' ? 'İş İlanı Kartı' : 'Kariyer Kartı'}
+          visible
+        >
           <CareerProfilePreview
             data={{
               ...listing.careerCard,

@@ -144,6 +144,9 @@ export function resolveDefaultListingCover(opts: {
   if (opts.listingTypeSlug === 'is-ariyorum' || opts.listingTypeSlug === 'is-bul') {
     return resolveCareerCoverPath(opts);
   }
+  if (opts.listingTypeSlug === 'ise-aliyorum' || opts.listingTypeSlug === 'ise-al') {
+    return resolveCareerCoverPath({ ...opts, gender: null });
+  }
   if (opts.listingTypeSlug && COVER_BY_TYPE_SLUG[opts.listingTypeSlug]) {
     return COVER_BY_TYPE_SLUG[opts.listingTypeSlug];
   }

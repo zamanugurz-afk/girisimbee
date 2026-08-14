@@ -134,6 +134,7 @@ export interface ListingDetail {
   capabilityModules?: DigitalAiCapability[];
   /** İş Arıyorum — structured Kariyer Kartı (identity already redacted in mapper). */
   careerCard?: {
+    variant?: 'seeker' | 'hire';
     desiredRole?: string | null;
     experienceLevel?: string | null;
     primarySector?: string | null;
@@ -148,7 +149,10 @@ export interface ListingDetail {
     preferredCity?: string | null;
     workplacePreference?: string | null;
     salaryExpectation?: string | null;
+    salaryRange?: string | null;
     availability?: string | null;
+    requiredResponsibilities?: string | null;
+    requiredAchievements?: string | null;
     longDescription?: string | null;
     coverUrl?: string | null;
     /** Shown only after accepted contact request / owner / admin. */

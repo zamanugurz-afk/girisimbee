@@ -80,7 +80,9 @@ export function listingFormValuesToModulePayload(
         title,
         shortDescription,
         city: readString(customFields.preferredCity) ?? base.city,
+        primarySector: readString(customFields.primarySector),
         desiredRole: role,
+        desiredRoleOther: readString(customFields.desiredRoleOther),
         experienceLevel: level,
         salaryExpectation: readString(customFields.salaryExpectation),
         workType: readString(customFields.workType),
@@ -95,6 +97,7 @@ export function listingFormValuesToModulePayload(
         preferredSectors: readStringArray(customFields.preferredSectors) ?? null,
         preferredRoles: readStringArray(customFields.preferredRoles) ?? null,
         preferredCity: readString(customFields.preferredCity),
+        preferredDistrict: readString(customFields.preferredDistrict),
         workplacePreference: readString(customFields.workplacePreference),
         availability: readString(customFields.availability),
         experiences: Array.isArray(customFields.experiences)
@@ -105,15 +108,61 @@ export function listingFormValuesToModulePayload(
       };
     }
 
-    case 'employers':
+    case 'employers': {
+      const role =
+        readString(customFields.desiredRole)
+        || readString(customFields.positionTitle);
+      const level = readString(customFields.experienceLevel);
+      const title = base.title?.trim() || role || 'Açık pozisyon';
+      const shortDescription =
+        base.shortDescription?.trim()
+        || [role, level].filter(Boolean).join(' · ')
+        || 'Açık pozisyon ilanı';
+      const city = readString(customFields.preferredCity) ?? base.city;
+      const district =
+        readString(customFields.preferredDistrict)
+        || readString(customFields.district);
       return {
         ...base,
+        title,
+        shortDescription,
+        city,
+        district,
+        sector: readString(customFields.primarySector),
+        primarySector: readString(customFields.primarySector),
+        desiredRole: role,
+        desiredRoleOther: readString(customFields.desiredRoleOther),
+        experienceLevel: level,
         employmentType: readString(customFields.workType),
         workType: readString(customFields.workType),
+        requiredResponsibilities: readString(customFields.requiredResponsibilities),
+        requiredResponsibilitiesOther: readString(customFields.requiredResponsibilitiesOther),
+        requiredAchievements: readString(customFields.requiredAchievements),
+        requiredAchievementsOther: readString(customFields.requiredAchievementsOther),
+        professionalSkills: readString(customFields.professionalSkills),
+        professionalSkillsOther: readString(customFields.professionalSkillsOther),
+        technicalSkills: readString(customFields.technicalSkills),
+        technicalSkillsOther: readString(customFields.technicalSkillsOther),
+        leadershipExperience: readString(customFields.leadershipExperience),
+        tools: readString(customFields.tools),
+        educationLevel: readString(customFields.educationLevel),
+        educationField: readString(customFields.educationField),
+        educationFieldOther: readString(customFields.educationFieldOther),
+        languages: readString(customFields.languages),
+        languageEntries: customFields.languageEntries ?? null,
+        certificates: readString(customFields.certificates),
+        certificatesOther: readString(customFields.certificatesOther),
+        preferredCity: city,
+        preferredDistrict: district,
+        workplacePreference: readString(customFields.workplacePreference),
         salaryRange: readString(customFields.salaryRange),
-        positionTitle: readString(customFields.positionTitle),
+        availability: readString(customFields.availability),
+        positionTitle: role,
+        positionTitleOther: readString(customFields.desiredRoleOther)
+          || readString(customFields.positionTitleOther),
         languageTags: values.tags,
       };
+    }
 
     case 'founders':
       return {

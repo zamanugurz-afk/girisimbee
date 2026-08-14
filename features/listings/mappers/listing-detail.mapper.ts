@@ -294,7 +294,9 @@ export function aggregateToListingDetail(
   const listingTypeSlug =
     categorySlug === 'is-bul'
       ? 'is-ariyorum'
-      : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
+      : categorySlug === 'ise-al'
+        ? 'ise-aliyorum'
+        : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
   const galleryItems =
     uploadedGallery.length > 0
       ? uploadedGallery
@@ -307,12 +309,19 @@ export function aggregateToListingDetail(
               uploadedUrl: toDisplayValue(sourceCf.resolvedCoverUrl) || null,
               listingTypeSlug,
               group: cardDisplay.group,
-              sector: toDisplayValue(sourceCf.primarySector),
+              sector:
+                toDisplayValue(sourceCf.primarySector)
+                || toDisplayValue(listing.industry),
               role: resolveCareerCoverRole(
-                toDisplayValue(sourceCf.desiredRole),
-                toDisplayValue(sourceCf.desiredRoleOther),
+                toDisplayValue(sourceCf.desiredRole)
+                  || toDisplayValue(sourceCf.positionTitle),
+                toDisplayValue(sourceCf.desiredRoleOther)
+                  || toDisplayValue(sourceCf.positionTitleOther),
               ),
-              gender: toDisplayValue(sourceCf.profileGender),
+              gender:
+                categorySlug === 'is-bul'
+                  ? toDisplayValue(sourceCf.profileGender)
+                  : null,
             }),
           },
         ];
@@ -392,7 +401,7 @@ export function aggregateToListingDetail(
     title: listing.title,
     shortDescription: listing.shortDescription,
     longDescription:
-      categorySlug === 'is-bul'
+      categorySlug === 'is-bul' || categorySlug === 'ise-al'
         ? polishCareerSummary(listing.longDescription) || listing.shortDescription
         : listing.longDescription || listing.shortDescription,
     location,
@@ -444,16 +453,23 @@ export function aggregateToListingDetail(
       time: formatDate(a.createdAt),
     })),
     similar: [],
-    customFacts: categorySlug === 'is-bul' ? [] : customFacts,
+    customFacts: categorySlug === 'is-bul' || categorySlug === 'ise-al' ? [] : customFacts,
     careerCard:
       categorySlug === 'is-bul'
         ? buildCareerCard(cf, listing.longDescription, {
+            variant: 'seeker',
             revealPersonal: revealCareerPersonal,
             birthDate: toDisplayValue(sourceCf.birthDate),
             residenceCity: toDisplayValue(sourceCf.residenceCity),
             residenceDistrict: toDisplayValue(sourceCf.residenceDistrict),
+            city: listing.city,
           })
-        : undefined,
+        : categorySlug === 'ise-al'
+          ? buildCareerCard(cf, listing.longDescription, {
+              variant: 'hire',
+              city: listing.city,
+            })
+          : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
   };
@@ -463,16 +479,22 @@ function buildCareerCard(
   cf: Record<string, unknown>,
   longDescription: string | null | undefined,
   personal?: {
+    variant?: 'seeker' | 'hire';
     revealPersonal?: boolean;
     birthDate?: string | null;
     residenceCity?: string | null;
     residenceDistrict?: string | null;
+    city?: string | null;
   },
 ): ListingDetail['careerCard'] {
-  const desiredRoleRaw = toDisplayValue(cf.desiredRole);
+  const variant = personal?.variant ?? 'seeker';
+  const desiredRoleRaw =
+    toDisplayValue(cf.desiredRole) || toDisplayValue(cf.positionTitle);
+  const desiredRoleOther =
+    toDisplayValue(cf.desiredRoleOther) || toDisplayValue(cf.positionTitleOther);
   const desiredRole =
     desiredRoleRaw === 'Diğer' || desiredRoleRaw === 'Diğer / Kendim gireceğim'
-      ? toDisplayValue(cf.desiredRoleOther) || desiredRoleRaw
+      ? desiredRoleOther || desiredRoleRaw
       : desiredRoleRaw;
   const experiences = parseCareerExperiences(
     redactCareerExperiencePublicFields(cf.experiences),
@@ -491,10 +513,11 @@ function buildCareerCard(
   }));
 
   return {
+    variant,
     desiredRole,
     experienceLevel: getExperienceLevelLabel(toDisplayValue(cf.experienceLevel)),
     primarySector: toDisplayValue(cf.primarySector),
-    workType: toDisplayValue(cf.workType),
+    workType: toDisplayValue(cf.workType) || toDisplayValue(cf.employmentType),
     preferredSectors: Array.isArray(cf.preferredSectors)
       ? cf.preferredSectors.map(String)
       : toDisplayValue(cf.preferredSectors),
@@ -502,14 +525,17 @@ function buildCareerCard(
     technicalSkills: toDisplayValue(cf.technicalSkills),
     educationLevel: toDisplayValue(cf.educationLevel),
     educationField: toDisplayValue(cf.educationField),
-    languages: toDisplayValue(cf.languages),
+    languages: toDisplayValue(cf.languages) || toDisplayValue(cf.languageTags),
     certificates: toDisplayValue(cf.certificates),
-    preferredCity: toDisplayValue(cf.preferredCity),
+    preferredCity: toDisplayValue(cf.preferredCity) || toDisplayValue(personal?.city),
     workplacePreference: toDisplayValue(cf.workplacePreference),
     salaryExpectation: toDisplayValue(cf.salaryExpectation),
+    salaryRange: toDisplayValue(cf.salaryRange),
     availability: toDisplayValue(cf.availability),
+    requiredResponsibilities: toDisplayValue(cf.requiredResponsibilities),
+    requiredAchievements: toDisplayValue(cf.requiredAchievements),
     longDescription: polishCareerSummary(longDescription) || null,
-    experiences,
+    experiences: variant === 'hire' ? [] : experiences,
     birthDate: personal?.revealPersonal ? personal.birthDate || null : null,
     residenceCity: personal?.revealPersonal ? personal.residenceCity || null : null,
     residenceDistrict: personal?.revealPersonal ? personal.residenceDistrict || null : null,

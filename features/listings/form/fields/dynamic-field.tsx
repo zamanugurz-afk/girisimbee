@@ -330,12 +330,15 @@ function FieldControl({
         const sector = String(context?.values?.primarySector ?? '');
         if (sector) {
           const filtered = getPositionsForSector(sector);
-          // Keep legacy stored value visible if not in the filtered list.
           const current = value ? String(value) : '';
           options = current && !filtered.includes(current)
             ? [...filtered, current]
             : filtered;
         }
+      }
+      const currentValue = value ? String(value) : '';
+      if (currentValue && !options.includes(currentValue)) {
+        options = [...options, currentValue];
       }
       return (
         <>

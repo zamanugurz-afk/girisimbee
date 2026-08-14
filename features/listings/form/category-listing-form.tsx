@@ -51,6 +51,8 @@ import { CareerEducationExtras } from '@/features/candidates/components/CareerEd
 import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLanguagesEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
+import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
+import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
 import {
   parseCareerExperiences,
   validateCareerExperiences,
@@ -64,9 +66,11 @@ import {
 import {
   materializeCareerEducationFields,
   materializeCareerSkillsFields,
+  materializeHireRoleNeedsFields,
   validateCareerEducationStep,
   validateCareerManualOther,
   validateCareerSkillsStep,
+  validateHireRoleNeedsStep,
 } from '@/features/candidates/lib/career-form-step-validation';
 import {
   getExperienceLevelLabel,
@@ -232,6 +236,50 @@ function formatAutosaveTime(date: Date): string {
   return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function buildCareerCardPreviewData(
+  categoryId: CategoryId,
+  customFields: Record<string, unknown>,
+  longDescription?: string | null,
+) {
+  const isHire = categoryId === CATEGORY_IDS.iseAl;
+  const role = isManualCareerOption(customFields.desiredRole)
+    ? String(customFields.desiredRoleOther ?? '')
+    : String(customFields.desiredRole ?? '');
+  return {
+    variant: (isHire ? 'hire' : 'seeker') as 'hire' | 'seeker',
+    desiredRole: role,
+    experienceLevel: getExperienceLevelLabel(String(customFields.experienceLevel ?? '')),
+    primarySector: String(customFields.primarySector ?? ''),
+    workType: String(customFields.workType ?? ''),
+    preferredSectors: customFields.preferredSectors as string[] | string,
+    professionalSkills: String(customFields.professionalSkills ?? ''),
+    technicalSkills: String(customFields.technicalSkills ?? ''),
+    educationLevel: String(customFields.educationLevel ?? ''),
+    educationField: String(customFields.educationField ?? ''),
+    languages: String(customFields.languages ?? ''),
+    certificates: String(customFields.certificates ?? ''),
+    preferredCity: String(customFields.preferredCity ?? ''),
+    workplacePreference: String(customFields.workplacePreference ?? ''),
+    salaryExpectation: String(customFields.salaryExpectation ?? ''),
+    salaryRange: String(customFields.salaryRange ?? ''),
+    availability: String(customFields.availability ?? ''),
+    requiredResponsibilities: String(customFields.requiredResponsibilities ?? ''),
+    requiredAchievements: String(customFields.requiredAchievements ?? ''),
+    longDescription,
+    experiences: isHire ? [] : parseCareerExperiences(customFields.experiences),
+    birthDate: isHire ? '' : String(customFields.birthDate ?? ''),
+    residenceCity: isHire ? '' : String(customFields.residenceCity ?? ''),
+    residenceDistrict: isHire ? '' : String(customFields.residenceDistrict ?? ''),
+    personalInfoPreview: !isHire,
+    coverUrl: resolveListingCoverUrl({
+      listingTypeSlug: isHire ? 'ise-aliyorum' : 'is-ariyorum',
+      sector: String(customFields.primarySector ?? ''),
+      role,
+      gender: isHire ? null : String(customFields.profileGender ?? ''),
+    }),
+  };
+}
+
 export function CategoryListingForm({
   listingType,
   categoryId,
@@ -319,8 +367,9 @@ export function CategoryListingForm({
   const isExperienceStep = Boolean(currentStep.experienceEditor);
   const isCareerSkillsStep = Boolean(currentStep.careerSkillsEditor);
   const isCareerEducationStep = Boolean(currentStep.careerEducationEditor);
+  const isHireRoleNeedsStep = Boolean(currentStep.hireRoleNeedsEditor);
   const isCareerSummaryStep =
-    categoryId === CATEGORY_IDS.isBul
+    (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl)
     && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
@@ -338,6 +387,26 @@ export function CategoryListingForm({
   );
   const lastAutoCareerSummaryRef = useRef('');
   const careerSummaryDraft = useMemo(() => {
+    if (categoryId === CATEGORY_IDS.iseAl) {
+      return buildHiringSummaryDraft({
+        desiredRole: isManualCareerOption(mergedCustomFields.desiredRole)
+          ? String(mergedCustomFields.desiredRoleOther ?? '')
+          : String(mergedCustomFields.desiredRole ?? ''),
+        experienceLevel: String(mergedCustomFields.experienceLevel ?? ''),
+        primarySector: String(mergedCustomFields.primarySector ?? ''),
+        workType: String(mergedCustomFields.workType ?? ''),
+        professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
+        technicalSkills: String(mergedCustomFields.technicalSkills ?? ''),
+        educationLevel: String(mergedCustomFields.educationLevel ?? ''),
+        educationField: String(mergedCustomFields.educationField ?? ''),
+        languages: String(mergedCustomFields.languages ?? ''),
+        preferredCity: String(mergedCustomFields.preferredCity ?? ''),
+        workplacePreference: String(mergedCustomFields.workplacePreference ?? ''),
+        availability: String(mergedCustomFields.availability ?? ''),
+        salaryRange: String(mergedCustomFields.salaryRange ?? ''),
+        requiredResponsibilities: String(mergedCustomFields.requiredResponsibilities ?? ''),
+      });
+    }
     if (categoryId !== CATEGORY_IDS.isBul) return '';
     return buildCareerSummaryDraft({
       desiredRole: isManualCareerOption(mergedCustomFields.desiredRole)
@@ -360,7 +429,7 @@ export function CategoryListingForm({
   }, [categoryId, mergedCustomFields]);
 
   useEffect(() => {
-    if (categoryId !== CATEGORY_IDS.isBul) return;
+    if (categoryId !== CATEGORY_IDS.isBul && categoryId !== CATEGORY_IDS.iseAl) return;
     const current = core.longDescription ?? '';
     const stripped = stripCareerContactFluff(current);
     if (stripped !== current) {
@@ -429,6 +498,16 @@ export function CategoryListingForm({
     [core, mergedCustomFields, tags, images, cvUrl, kvkkConsents, publishConsents, contactPhone],
   );
 
+  const isCareerCardCategory =
+    categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl;
+  const careerPreviewData = useMemo(
+    () =>
+      isCareerCardCategory
+        ? buildCareerCardPreviewData(categoryId, mergedCustomFields, core.longDescription)
+        : null,
+    [categoryId, core.longDescription, isCareerCardCategory, mergedCustomFields],
+  );
+
   const stepCustomKeys = useMemo(
     () => resolveStepCustomFields(currentStep, allFieldKeys),
     [currentStep, allFieldKeys],
@@ -467,7 +546,7 @@ export function CategoryListingForm({
       ...defaults.core,
       ...draft.core,
       longDescription:
-        categoryId === CATEGORY_IDS.isBul
+        categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl
           ? stripCareerContactFluff(draft.core?.longDescription)
           : (draft.core?.longDescription ?? defaults.core.longDescription),
     });
@@ -774,6 +853,19 @@ export function CategoryListingForm({
       return true;
     }
 
+    if (isHireRoleNeedsStep) {
+      const hireErrors = validateHireRoleNeedsStep(mergedCustomFields);
+      if (Object.keys(hireErrors).length > 0) {
+        setFieldErrors(hireErrors);
+        toast.error(Object.values(hireErrors)[0] ?? 'İş tanımı alanlarını kontrol edin.');
+        return false;
+      }
+      const materialized = materializeHireRoleNeedsFields(mergedCustomFields);
+      setCustomFields((prev) => ({ ...prev, ...materialized }));
+      setFieldErrors({});
+      return true;
+    }
+
     if (isCareerSkillsStep) {
       const skillErrors = validateCareerSkillsStep(mergedCustomFields);
       if (Object.keys(skillErrors).length > 0) {
@@ -823,7 +915,7 @@ export function CategoryListingForm({
     }
 
     if (
-      categoryId === CATEGORY_IDS.isBul
+      (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl)
       && currentStep.coreFields?.includes('longDescription')
     ) {
       const summary = String(core.longDescription ?? '');
@@ -967,12 +1059,27 @@ export function CategoryListingForm({
   }
 
   function buildHandlerValues(): ListingFormValues {
-    const customFieldsWithCv = cvUrl
+    const role = isManualCareerOption(mergedCustomFields.desiredRole)
+      ? String(mergedCustomFields.desiredRoleOther ?? '').trim()
+      : String(mergedCustomFields.desiredRole ?? '').trim();
+    const level = String(mergedCustomFields.experienceLevel ?? '').trim();
+    const preferredCity = String(mergedCustomFields.preferredCity ?? '').trim();
+
+    let customFieldsWithCv = cvUrl
       ? { ...mergedCustomFields, cvUrl, kvkkConsents }
       : { ...mergedCustomFields };
 
-    const role = String(mergedCustomFields.desiredRole ?? '').trim();
-    const level = String(mergedCustomFields.experienceLevel ?? '').trim();
+    if (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) {
+      customFieldsWithCv = {
+        ...customFieldsWithCv,
+        ...materializeCareerSkillsFields(customFieldsWithCv),
+        ...materializeCareerEducationFields(customFieldsWithCv),
+      };
+    }
+    if (categoryId === CATEGORY_IDS.iseAl) {
+      customFieldsWithCv = materializeHireRoleNeedsFields(customFieldsWithCv);
+    }
+
     const derivedCore =
       categoryId === CATEGORY_IDS.isBul
         ? {
@@ -982,9 +1089,21 @@ export function CategoryListingForm({
               core.shortDescription?.trim()
               || [role, level].filter(Boolean).join(' · ')
               || 'Anonim kariyer özeti',
-            city: core.city || String(mergedCustomFields.preferredCity ?? '') || null,
+            city: core.city || preferredCity || null,
+            longDescription: stripCareerContactFluff(core.longDescription),
           }
-        : core;
+        : categoryId === CATEGORY_IDS.iseAl
+          ? {
+              ...core,
+              title: core.title?.trim() || role || 'Açık pozisyon',
+              shortDescription:
+                core.shortDescription?.trim()
+                || [role, level].filter(Boolean).join(' · ')
+                || 'Açık pozisyon ilanı',
+              city: core.city || preferredCity || null,
+              longDescription: stripCareerContactFluff(core.longDescription),
+            }
+          : core;
 
     return {
       core: derivedCore,
@@ -1193,52 +1312,56 @@ export function CategoryListingForm({
         </div>
 
         <div className="space-y-4">
-          {isPreviewStep && categoryId === CATEGORY_IDS.isBul && (
-            <CareerProfilePreview
-              data={{
-                desiredRole:
-                  isManualCareerOption(mergedCustomFields.desiredRole)
-                    ? String(mergedCustomFields.desiredRoleOther ?? '')
-                    : String(mergedCustomFields.desiredRole ?? ''),
-                experienceLevel: getExperienceLevelLabel(
-                  String(mergedCustomFields.experienceLevel ?? ''),
-                ),
-                primarySector: String(mergedCustomFields.primarySector ?? ''),
-                workType: String(mergedCustomFields.workType ?? ''),
-                preferredSectors: mergedCustomFields.preferredSectors as string[] | string,
-                professionalSkills: String(mergedCustomFields.professionalSkills ?? ''),
-                technicalSkills: String(mergedCustomFields.technicalSkills ?? ''),
-                educationLevel: String(mergedCustomFields.educationLevel ?? ''),
-                educationField: String(mergedCustomFields.educationField ?? ''),
-                languages: String(mergedCustomFields.languages ?? ''),
-                certificates: String(mergedCustomFields.certificates ?? ''),
-                preferredCity: String(mergedCustomFields.preferredCity ?? ''),
-                workplacePreference: String(mergedCustomFields.workplacePreference ?? ''),
-                salaryExpectation: String(mergedCustomFields.salaryExpectation ?? ''),
-                availability: String(mergedCustomFields.availability ?? ''),
-                longDescription: core.longDescription,
-                experiences: parseCareerExperiences(mergedCustomFields.experiences),
-                birthDate: String(mergedCustomFields.birthDate ?? ''),
-                residenceCity: String(mergedCustomFields.residenceCity ?? ''),
-                residenceDistrict: String(mergedCustomFields.residenceDistrict ?? ''),
-                personalInfoPreview: true,
-                coverUrl: resolveListingCoverUrl({
-                  listingTypeSlug: 'is-ariyorum',
-                  sector: String(mergedCustomFields.primarySector ?? ''),
-                  role: isManualCareerOption(mergedCustomFields.desiredRole)
-                    ? String(mergedCustomFields.desiredRoleOther ?? '')
-                    : String(mergedCustomFields.desiredRole ?? ''),
-                  gender: String(mergedCustomFields.profileGender ?? ''),
-                }),
-              }}
-            />
+          {isPreviewStep && careerPreviewData && (
+            <CareerProfilePreview data={careerPreviewData} />
           )}
 
-          {isPreviewStep && categoryId !== CATEGORY_IDS.isBul && (
+          {isPreviewStep && !isCareerCardCategory && (
             <ListingFormPreviewContent
               values={formValues}
               listingType={listingType}
               readOnly
+            />
+          )}
+
+          {isHireRoleNeedsStep && (
+            <HireRoleNeedsEditor
+              value={{
+                requiredResponsibilities: String(
+                  mergedCustomFields.requiredResponsibilities ?? '',
+                ),
+                requiredResponsibilitiesOther: String(
+                  mergedCustomFields.requiredResponsibilitiesOther ?? '',
+                ),
+                requiredAchievements: String(mergedCustomFields.requiredAchievements ?? ''),
+                requiredAchievementsOther: String(
+                  mergedCustomFields.requiredAchievementsOther ?? '',
+                ),
+              }}
+              onChange={(patch) => {
+                for (const [key, val] of Object.entries(patch)) {
+                  setCustomField(key, val);
+                }
+              }}
+              disabled={disabled || isBusy}
+              sector={String(mergedCustomFields.primarySector ?? '')}
+              role={String(mergedCustomFields.desiredRole ?? '')}
+              experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+              errors={{
+                requiredResponsibilities: resolveFieldError(
+                  fieldErrors,
+                  'requiredResponsibilities',
+                ),
+                requiredResponsibilitiesOther: resolveFieldError(
+                  fieldErrors,
+                  'requiredResponsibilitiesOther',
+                ),
+                requiredAchievements: resolveFieldError(fieldErrors, 'requiredAchievements'),
+                requiredAchievementsOther: resolveFieldError(
+                  fieldErrors,
+                  'requiredAchievementsOther',
+                ),
+              }}
             />
           )}
 
@@ -1270,6 +1393,7 @@ export function CategoryListingForm({
                 }
               }}
               disabled={disabled || isBusy}
+              audience={categoryId === CATEGORY_IDS.iseAl ? 'hire' : 'seeker'}
               sector={String(
                 mergedCustomFields.primarySector
                   ?? parseCareerExperiences(mergedCustomFields.experiences)[0]?.sector
@@ -1300,6 +1424,7 @@ export function CategoryListingForm({
                   }
                 }}
                 disabled={disabled || isBusy}
+                audience={categoryId === CATEGORY_IDS.iseAl ? 'hire' : 'seeker'}
                 errors={{
                   educationLevel: resolveFieldError(fieldErrors, 'educationLevel'),
                   educationField: resolveFieldError(fieldErrors, 'educationField'),
@@ -1415,8 +1540,9 @@ export function CategoryListingForm({
               {isCareerSummaryStep ? (
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
-                    Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık.
-                    Kullanabilir veya tamamen kendiniz yazabilirsiniz.
+                    {categoryId === CATEGORY_IDS.iseAl
+                      ? 'Açık pozisyon, yetkinlik ve teklif bilgilerinize göre bir taslak hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
+                      : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
                     type="button"
@@ -1614,6 +1740,9 @@ export function CategoryListingForm({
         onOpenChange={setPreviewOpen}
         values={formValues}
         listingType={listingType}
+        overrideContent={
+          careerPreviewData ? <CareerProfilePreview data={careerPreviewData} /> : undefined
+        }
       />
     </>
   );

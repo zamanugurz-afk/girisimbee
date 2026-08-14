@@ -70,7 +70,11 @@ export function listingToContentItem(
   const cardDisplay = resolveListingCardDisplay(listing);
   const listingTypeSlug =
     resolveDbListingTypeSlug(dbListing)
-    ?? (categorySlug === 'is-bul' || categorySlug === 'is-ariyorum' ? 'is-ariyorum' : undefined);
+    ?? (categorySlug === 'is-bul' || categorySlug === 'is-ariyorum'
+      ? 'is-ariyorum'
+      : categorySlug === 'ise-al' || categorySlug === 'ise-aliyorum'
+        ? 'ise-aliyorum'
+        : undefined);
 
   const locationParts = [listing.city, listing.country === 'TR' ? 'Türkiye' : listing.country]
     .filter((part) => !isEmptyDisplayValue(part));
@@ -100,14 +104,20 @@ export function listingToContentItem(
       group: cardDisplay.group,
       sector: typeof listing.customFields?.primarySector === 'string'
         ? listing.customFields.primarySector
-        : null,
+        : typeof listing.industry === 'string'
+          ? listing.industry
+          : null,
       role: resolveCareerCoverRole(
         typeof listing.customFields?.desiredRole === 'string'
           ? listing.customFields.desiredRole
-          : null,
+          : typeof listing.customFields?.positionTitle === 'string'
+            ? listing.customFields.positionTitle
+            : null,
         typeof listing.customFields?.desiredRoleOther === 'string'
           ? listing.customFields.desiredRoleOther
-          : null,
+          : typeof listing.customFields?.positionTitleOther === 'string'
+            ? listing.customFields.positionTitleOther
+            : null,
       ),
       gender: typeof listing.customFields?.profileGender === 'string'
         ? listing.customFields.profileGender
