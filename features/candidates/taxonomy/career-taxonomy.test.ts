@@ -253,4 +253,11 @@ describe('career taxonomy', () => {
     expect(serialized).toContain('İngilizce — İleri');
     expect(serialized).toContain('Korece — Temel');
   });
+
+  it('keeps trailing spaces in languageOther while typing', () => {
+    const parsed = parseCareerLanguages([
+      { id: '1', language: 'Diğer', languageOther: 'Korece ', level: 'Temel' },
+    ]);
+    expect(parsed[0]?.languageOther).toBe('Korece ');
+  });
 });

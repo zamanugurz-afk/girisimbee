@@ -123,6 +123,28 @@ describe('career experience validation', () => {
     expect(validateCareerExperiences([row])).toMatch(/Pozisyon|sorumluluk/i);
   });
 
+  it('keeps spaces in manual other text while typing', () => {
+    const parsed = parseCareerExperiences([
+      {
+        ...createEmptyCareerExperience(),
+        sector: 'Finans / Bankacılık',
+        role: MANUAL_OPTION,
+        roleOther: 'şube müdürü ',
+        selectedResponsibilities: [MANUAL_OPTION],
+        responsibilitiesOther: 'ekip hedeflerini ',
+        selectedAchievements: [MANUAL_OPTION],
+        achievementsOther: 'kârlılığı ',
+        achievementMetric: '%35 satış ',
+        company: 'Gizli Banka ',
+      },
+    ]);
+    expect(parsed[0]?.roleOther).toBe('şube müdürü ');
+    expect(parsed[0]?.responsibilitiesOther).toBe('ekip hedeflerini ');
+    expect(parsed[0]?.achievementsOther).toBe('kârlılığı ');
+    expect(parsed[0]?.achievementMetric).toBe('%35 satış ');
+    expect(parsed[0]?.company).toBe('Gizli Banka ');
+  });
+
   it('parses legacy duration-only rows and redacts company via separate fields', () => {
     const parsed = parseCareerExperiences([
       {

@@ -5,9 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  isManualCareerOption,
-} from '@/features/candidates/taxonomy/career-taxonomy';
+import { isManualCareerOption } from '@/features/candidates/taxonomy/career-taxonomy';
 import { cn } from '@/lib/utils';
 
 export function CareerMultiSelect({
@@ -55,17 +53,6 @@ export function CareerMultiSelect({
     onChange(selected.filter((item) => item !== option));
   }
 
-  const manualField = showManual && onManualChange ? (
-    <Textarea
-      value={manualValue ?? ''}
-      disabled={disabled}
-      rows={4}
-      className="mt-2 min-h-[96px]"
-      placeholder={manualPlaceholder ?? 'Kendi ifadenizi yazın'}
-      onChange={(e) => onManualChange(e.target.value)}
-    />
-  ) : null;
-
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -79,32 +66,39 @@ export function CareerMultiSelect({
       ) : null}
       <div
         className={cn(
-          'grid max-h-72 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
+          'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
           error && 'border-destructive/40',
         )}
       >
         {visible.map((option) => {
           const checked = selected.includes(option);
-          const isManual = isManualCareerOption(option);
           return (
-            <div
+            <label
               key={option}
-              className={cn(isManual && 'sm:col-span-2')}
+              className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/40"
             >
-              <label className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/40">
-                <Checkbox
-                  checked={checked}
-                  disabled={disabled}
-                  onCheckedChange={(next) => toggle(option, next === true)}
-                />
-                <span className="leading-snug">{option}</span>
-              </label>
-              {isManual ? manualField : null}
-            </div>
+              <Checkbox
+                checked={checked}
+                disabled={disabled}
+                onCheckedChange={(next) => toggle(option, next === true)}
+              />
+              <span className="leading-snug">{option}</span>
+            </label>
           );
         })}
       </div>
-      {showManual && !visible.some((option) => isManualCareerOption(option)) ? manualField : null}
+      {showManual && onManualChange ? (
+        <Textarea
+          value={manualValue ?? ''}
+          disabled={disabled}
+          rows={4}
+          className="min-h-[96px]"
+          placeholder={manualPlaceholder ?? 'Kendi ifadenizi yazın'}
+          onKeyDownCapture={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          onChange={(e) => onManualChange(e.target.value)}
+        />
+      ) : null}
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );

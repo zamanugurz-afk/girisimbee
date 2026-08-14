@@ -159,6 +159,7 @@ export function CareerExperienceEditor({
                     value={row.roleOther ?? ''}
                     disabled={disabled}
                     placeholder="Pozisyonunuzu yazın"
+                    onKeyDown={(event) => event.stopPropagation()}
                     onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
                   />
                 ) : null}
@@ -172,6 +173,7 @@ export function CareerExperienceEditor({
                 value={row.company ?? ''}
                 disabled={disabled}
                 placeholder="Yalnızca sizin kaydınızda saklanır"
+                onKeyDown={(event) => event.stopPropagation()}
                 onChange={(e) => updateRow(row.id, { company: e.target.value })}
               />
             </div>
@@ -301,6 +303,7 @@ export function CareerExperienceEditor({
                 value={row.achievementMetric ?? ''}
                 disabled={disabled}
                 placeholder='Örn: %35 satış artışı · 12 kişilik ekip · 250+ müşteri'
+                onKeyDown={(event) => event.stopPropagation()}
                 onChange={(e) => updateRow(row.id, { achievementMetric: e.target.value })}
               />
             </div>

@@ -102,6 +102,7 @@ export function CareerEducationExtras({
             value={educationFieldOther ?? ''}
             disabled={disabled}
             placeholder="Bölüm / alan yazın"
+            onKeyDown={(event) => event.stopPropagation()}
             onChange={(e) => onChange({ educationFieldOther: e.target.value })}
           />
         ) : null}

@@ -1506,7 +1506,7 @@ export function parseCareerLanguages(value: unknown): CareerLanguageEntry[] {
       rows.push({
         id: typeof r.id === 'string' && r.id ? r.id : crypto.randomUUID(),
         language: String(r.language ?? '').trim(),
-        languageOther: String(r.languageOther ?? '').trim(),
+        languageOther: String(r.languageOther ?? ''),
         level: String(r.level ?? '').trim(),
       });
     }

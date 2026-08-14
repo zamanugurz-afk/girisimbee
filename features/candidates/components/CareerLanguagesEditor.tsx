@@ -72,6 +72,7 @@ export function CareerLanguagesEditor({
                   value={row.languageOther ?? ''}
                   disabled={disabled}
                   placeholder="Dil adını yazın"
+                  onKeyDown={(event) => event.stopPropagation()}
                   onChange={(e) => updateRow(row.id, { languageOther: e.target.value })}
                 />
               ) : null}
