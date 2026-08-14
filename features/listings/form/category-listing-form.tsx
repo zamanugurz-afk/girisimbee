@@ -268,6 +268,7 @@ function buildCareerCardPreviewData(
     longDescription,
     experiences: isHire ? [] : parseCareerExperiences(customFields.experiences),
     birthDate: isHire ? '' : String(customFields.birthDate ?? ''),
+    gender: isHire ? '' : String(customFields.profileGender ?? ''),
     residenceCity: isHire ? '' : String(customFields.residenceCity ?? ''),
     residenceDistrict: isHire ? '' : String(customFields.residenceDistrict ?? ''),
     personalInfoPreview: !isHire,

@@ -58,7 +58,10 @@ export function formatCareerPeriod(input: {
     if (input.isCurrent) return `${start} – Halen`;
     const endM = input.endMonth ?? null;
     const endY = input.endYear ?? null;
-    if (endM && endY) return `${start} – ${monthLabel(endM)} ${endY}`;
+    if (endM && endY) {
+      if (endM === startM && endY === startY) return start;
+      return `${start} – ${monthLabel(endM)} ${endY}`;
+    }
     return start;
   }
   return (input.duration ?? '').trim();

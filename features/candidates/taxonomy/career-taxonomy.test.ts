@@ -116,6 +116,43 @@ describe('career taxonomy', () => {
     expect(reception).not.toContain('Günlük operasyonların yürütülmesi');
   });
 
+  it('gives Şube müdürü management duties instead of teller work', () => {
+    const manager = withoutManual(
+      suggestResponsibilities({ sector: 'Finans / Bankacılık', role: 'Şube müdürü' }),
+    );
+    const teller = withoutManual(
+      suggestResponsibilities({
+        sector: 'Finans / Bankacılık',
+        role: 'Banka müşteri temsilcisi',
+      }),
+    );
+    expect(manager).not.toEqual(teller);
+    expect(manager.some((item) => /kârlılık|kadro|hedef|denetlen|yönetilmesi/i.test(item))).toBe(
+      true,
+    );
+    expect(manager).not.toContain('Şube müşteri işlemlerinin karşılanması');
+    expect(teller).toEqual(
+      expect.arrayContaining(['Şube gişesinde müşteri işlem ve ürün yönlendirmesinin yapılması']),
+    );
+
+    const managerWins = withoutManual(
+      suggestAchievements({ sector: 'Finans / Bankacılık', role: 'Şube müdürü' }),
+    );
+    expect(managerWins.some((item) => /kârlılık|memnuniyet|devir|satış/i.test(item))).toBe(true);
+  });
+
+  it('keeps other manager titles distinct from their IC counterparts', () => {
+    expect(withoutManual(suggestResponsibilities({ role: 'Mağaza müdürü' }))).not.toEqual(
+      withoutManual(suggestResponsibilities({ role: 'Satış danışmanı' })),
+    );
+    expect(withoutManual(suggestResponsibilities({ role: 'Restoran müdürü' }))).not.toEqual(
+      withoutManual(suggestResponsibilities({ role: 'Garson' })),
+    );
+    expect(withoutManual(suggestResponsibilities({ role: 'Okul müdürü' }))).not.toEqual(
+      withoutManual(suggestResponsibilities({ role: 'Eğitmen / öğretmen' })),
+    );
+  });
+
   it('gives every taxonomy position a role-shaped responsibility list', () => {
     const positions = getAllTaxonomyPositions().filter((role) => role !== MANUAL_OPTION);
     expect(positions.length).toBeGreaterThan(80);

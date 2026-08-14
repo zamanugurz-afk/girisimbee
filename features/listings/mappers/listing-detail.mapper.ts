@@ -34,6 +34,11 @@ import {
   resolveListingCoverUrl,
 } from '@/features/listings/config/listing-cover.config';
 import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
+import {
+  ageFromBirthDate,
+  maskDisplaySurname,
+  publicGenderLabel,
+} from '@/features/candidates/lib/career-public-identity';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { formatListingNumber } from '@/features/listings/utils/listing-number';
 import {
@@ -460,6 +465,8 @@ export function aggregateToListingDetail(
             variant: 'seeker',
             revealPersonal: revealCareerPersonal,
             birthDate: toDisplayValue(sourceCf.birthDate),
+            gender: toDisplayValue(sourceCf.profileGender),
+            displayName: context?.profile?.displayName ?? null,
             residenceCity: toDisplayValue(sourceCf.residenceCity),
             residenceDistrict: toDisplayValue(sourceCf.residenceDistrict),
             city: listing.city,
@@ -482,6 +489,8 @@ function buildCareerCard(
     variant?: 'seeker' | 'hire';
     revealPersonal?: boolean;
     birthDate?: string | null;
+    gender?: string | null;
+    displayName?: string | null;
     residenceCity?: string | null;
     residenceDistrict?: string | null;
     city?: string | null;
@@ -536,6 +545,11 @@ function buildCareerCard(
     requiredAchievements: toDisplayValue(cf.requiredAchievements),
     longDescription: polishCareerSummary(longDescription) || null,
     experiences: variant === 'hire' ? [] : experiences,
+    displayName: personal?.revealPersonal ? personal.displayName || null : null,
+    displayNameMasked:
+      variant === 'hire' ? null : maskDisplaySurname(personal?.displayName),
+    age: variant === 'hire' ? null : ageFromBirthDate(personal?.birthDate),
+    gender: variant === 'hire' ? null : publicGenderLabel(personal?.gender),
     birthDate: personal?.revealPersonal ? personal.birthDate || null : null,
     residenceCity: personal?.revealPersonal ? personal.residenceCity || null : null,
     residenceDistrict: personal?.revealPersonal ? personal.residenceDistrict || null : null,

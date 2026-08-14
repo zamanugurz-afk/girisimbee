@@ -191,7 +191,7 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
       {values.core.longDescription && (
         <div className="rounded-xl border border-border/80 p-4 dark:border-white/10">
           <h3 className="mb-2 text-sm font-semibold text-foreground">
-            {listingType.categoryId === CATEGORY_IDS.isBul ? 'Kariyer özetim' : 'Detaylı Açıklama'}
+            {listingType.categoryId === CATEGORY_IDS.isBul ? 'Kariyer özeti önerisi' : 'Detaylı Açıklama'}
           </h3>
           <ListingRichText
             content={values.core.longDescription}

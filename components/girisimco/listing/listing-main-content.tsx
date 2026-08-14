@@ -100,17 +100,23 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   return (
     <div className="space-y-8">
       {showCareerCard && listing.careerCard ? (
-        <DetailSectionIf
-          title={listing.careerCard.variant === 'hire' ? 'İş İlanı Kartı' : 'Kariyer Kartı'}
-          visible
-        >
-          <CareerProfilePreview
-            data={{
-              ...listing.careerCard,
-              coverUrl: listing.gallery[0]?.imageUrl ?? listing.careerCard.coverUrl,
-            }}
-          />
-        </DetailSectionIf>
+        <CareerProfilePreview
+          headingAs="h1"
+          data={{
+            ...listing.careerCard,
+            coverUrl: listing.gallery[0]?.imageUrl ?? listing.careerCard.coverUrl,
+          }}
+          chrome={{
+            listingId: listing.listingId,
+            listingNumber: listing.listingNumber,
+            publishedAt: listing.publishedAt,
+            updatedAt: listing.updatedAt,
+            views: listing.views,
+            listingTitle: listing.title,
+            identityGated: listing.identityRedacted || listing.category.id === 'find-job',
+            ownerUserId: listing.ownerUserId,
+          }}
+        />
       ) : null}
 
       {showAbout ? (

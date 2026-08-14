@@ -13,6 +13,7 @@ describe('buildCareerSummaryDraft', () => {
       technicalSkills: 'CRM · Excel',
       educationLevel: 'Lisans',
       educationField: 'İşletme',
+      languages: 'İngilizce — Orta',
       preferredCity: 'Adıyaman',
       workplacePreference: 'Hibrit',
       workType: 'Tam zamanlı',
@@ -31,6 +32,13 @@ describe('buildCareerSummaryDraft', () => {
 
     expect(draft).toMatch(/Sigorta satış uzmanı/);
     expect(draft).toMatch(/CRM|Excel|İletişim/);
+    expect(draft).toMatch(/Sigorta satış uzmanı olarak/);
+    expect(draft).toMatch(/yıldır çalışıyorum/);
+    expect(draft).toMatch(/İngilizcem orta seviyede/);
+    expect(draft).toMatch(/Adıyaman'da/);
+    expect(draft).not.toMatch(
+      /Eğitim geçmişim|Öne çıkan yetkinliklerim|Yabancı dilim|seviyem |konumunda|alanında [^.]+ olarak|dilinde [^.]+ seviyedeyim|yıllık deneyimim var/,
+    );
     expect(draft.length).toBeGreaterThanOrEqual(100);
     expect(draft).not.toMatch(/@|https?:\/\//i);
     expect(draft).not.toMatch(/İletişim platform|telefon, e-posta|firma adı paylaşmıyorum/i);
@@ -94,9 +102,14 @@ describe('buildCareerSummaryDraft', () => {
       ],
     });
 
-    expect(draft).toMatch(/Resepsiyonist olarak Turizm \/ Otelcilik/);
+    expect(draft).toMatch(/Resepsiyonist olarak Turizm \/ Otelcilik sektöründe/);
+    expect(draft).toMatch(/yıldır çalışıyorum/);
     expect(draft).not.toMatch(/Resepsiyonist olarak Turizm \/ Otelcilik, Sigorta/);
-    expect(draft).toMatch(/Eğitim geçmişim/);
+    expect(draft).toMatch(/Makine Mühendisliği alanında lisans mezunuyum/);
+    expect(draft).toMatch(/İstanbul Anadolu Yakası'nda/);
+    expect(draft).not.toMatch(
+      /Eğitim geçmişim|Öne çıkan yetkinliklerim|Yabancı dilim|odaklı |konumunda|alanında [^.]+ olarak/,
+    );
     expect(draft).toMatch(/Host \/ hostes/);
     expect(draft).toMatch(/Sigorta|Finans/);
   });

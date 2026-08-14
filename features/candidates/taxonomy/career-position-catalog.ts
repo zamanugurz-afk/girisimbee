@@ -16,38 +16,57 @@ type RoleFamily =
   | 'housekeeping'
   | 'hotelOps'
   | 'restaurant'
+  | 'restaurantManager'
   | 'kitchen'
+  | 'kitchenChef'
   | 'retail'
+  | 'storeManager'
   | 'cashier'
   | 'callCenter'
   | 'customerSuccess'
   | 'salesIndoor'
   | 'salesField'
+  | 'salesManager'
+  | 'regionalManager'
   | 'insuranceOps'
   | 'bankFront'
+  | 'branchManager'
+  | 'portfolioManager'
   | 'credit'
   | 'accounting'
   | 'software'
+  | 'techLead'
   | 'data'
   | 'product'
   | 'design'
   | 'devops'
   | 'qa'
   | 'teacher'
+  | 'schoolPrincipal'
   | 'hr'
+  | 'hrManager'
   | 'marketing'
+  | 'brandManager'
   | 'legal'
   | 'logistics'
+  | 'warehouseLead'
   | 'driver'
   | 'factory'
+  | 'productionLead'
+  | 'shiftSupervisor'
   | 'construction'
+  | 'siteChief'
   | 'autoService'
+  | 'serviceManager'
   | 'public'
   | 'energy'
   | 'farm'
+  | 'farmLead'
   | 'media'
+  | 'mediaLead'
   | 'consulting'
   | 'admin'
+  | 'officeManager'
   | 'beauty'
   | 'security';
 
@@ -616,6 +635,302 @@ const FAMILIES: Record<RoleFamily, PositionBundle> = {
     professionalSkills: ['Gözlem', 'Prosedür uyumu', 'Kriz anı sakinliği'],
     technicalSkills: ['Kamera izleme', 'Turnike / kartlı geçiş', 'Telsiz'],
   },
+  kitchenChef: {
+    responsibilities: [
+      'Mutfak ekibinin vardiya ve istasyon planının yönetilmesi',
+      'Menü, reçete ve porsiyon standartlarının denetlenmesi',
+      'Gıda güvenliği, fire ve stok maliyetinin kontrolü',
+      'Servis temposuna göre üretim akışının yönetilmesi',
+      'Tedarikçi ve malzeme kalitesinin takip edilmesi',
+    ],
+    achievements: [
+      'Fire oranının düşürülmesi',
+      'Mutfak teslim süresinin kısaltılması',
+      'Gıda güvenliği denetim skorunun yükseltilmesi',
+    ],
+    professionalSkills: ['Mutfak yönetimi', 'Maliyet kontrolü', 'Ekip yönetimi', 'Hijyen'],
+    technicalSkills: ['Reçete yazılımı', 'Stok takip', 'Excel'],
+  },
+  restaurantManager: {
+    responsibilities: [
+      'Restoran ciro, maliyet ve vardiya planının yönetilmesi',
+      'Servis ve mutfak ekiplerinin koordinasyonunun sağlanması',
+      'Misafir deneyimi, şikâyet ve rezervasyon standartlarının denetlenmesi',
+      'Gıda güvenliği, fire ve stok maliyetinin kontrolü',
+      'Personel performans ve eğitim planının yürütülmesi',
+    ],
+    achievements: [
+      'Restoran kârlılığının artırılması',
+      'Misafir memnuniyet skorunun yükseltilmesi',
+      'Fire ve personel maliyetinin düşürülmesi',
+    ],
+    professionalSkills: ['Restoran yönetimi', 'Ekip yönetimi', 'Maliyet kontrolü', 'Misafir deneyimi'],
+    technicalSkills: ['POS', 'Rezervasyon sistemi', 'Excel'],
+  },
+  storeManager: {
+    responsibilities: [
+      'Mağaza ciro, kadro ve vardiya planının yönetilmesi',
+      'Satış hedeflerinin ekiple kırılıp takip edilmesi',
+      'Teşhir, stok ve kasa kapanış standartlarının denetlenmesi',
+      'Müşteri şikâyeti ve iade süreçlerinin çözülmesi',
+      'Personel performans ve eğitim planının yürütülmesi',
+    ],
+    achievements: [
+      'Mağaza ciro hedefinin aşılması',
+      'Personel verimliliğinin artırılması',
+      'Stok kayıp oranının düşürülmesi',
+    ],
+    professionalSkills: ['Mağaza yönetimi', 'Ekip yönetimi', 'Hedef takibi', 'Müşteri deneyimi'],
+    technicalSkills: ['Mağaza POS', 'Stok sistemi', 'Excel'],
+  },
+  salesManager: {
+    responsibilities: [
+      'Satış ekibinin hedef, pipeline ve performansının yönetilmesi',
+      'Bölge / kanal kârlılığının planlanması',
+      'Kritik müşteri ve ihale süreçlerinin yönetilmesi',
+      'Tahmin, raporlama ve üst yönetime sonuç sunumu',
+      'Satış sürecinin koçluk ve standartlarla iyileştirilmesi',
+    ],
+    achievements: [
+      'Ekip satış hedefinin aşılması',
+      'Pipeline dönüşüm oranının artırılması',
+      'Ortalama anlaşma değerinin yükseltilmesi',
+    ],
+    professionalSkills: ['Satış yönetimi', 'Koçluk', 'Hedef kırılımı', 'Müzakere'],
+    technicalSkills: ['CRM', 'Excel', 'Power BI'],
+  },
+  regionalManager: {
+    responsibilities: [
+      'Bölge şube / mağaza performansının yönetilmesi',
+      'Saha ziyareti ve operasyon denetiminin yapılması',
+      'Bölge bütçe ve kadro planının yürütülmesi',
+      'Müdür kadrosunun koçluk ve gelişiminin sağlanması',
+      'Bölge risk, stok ve müşteri deneyiminin izlenmesi',
+    ],
+    achievements: [
+      'Bölge ciro ve kârlılığın artırılması',
+      'Şube / mağaza standart sapmasının azaltılması',
+    ],
+    professionalSkills: ['Bölge yönetimi', 'Saha denetimi', 'Koçluk', 'Bütçe takibi'],
+    technicalSkills: ['CRM', 'Excel', 'Power BI'],
+  },
+  branchManager: {
+    responsibilities: [
+      'Şube kârlılık, kadro ve günlük operasyonun yönetilmesi',
+      'Mevduat, kredi ve ürün hedeflerinin ekiple gerçekleştirilmesi',
+      'Şube risk, kasa, evrak ve iç kontrolün denetlenmesi',
+      'Personel performans, vardiya ve eğitim planının yürütülmesi',
+      'Müşteri şikâyeti ve kritik hesap ilişkilerinin yönetilmesi',
+      'Bölge müdürlüğüne şube sonuç raporunun sunulması',
+    ],
+    achievements: [
+      'Şube kârlılığının artırılması',
+      'Müşteri memnuniyet skorunun yükseltilmesi',
+      'Personel devir oranının düşürülmesi',
+      'Hedef ürün satışının aşılması',
+    ],
+    professionalSkills: ['Şube yönetimi', 'Ekip yönetimi', 'Hedef takibi', 'İç kontrol', 'Müşteri ilişkileri'],
+    technicalSkills: ['Banka çekirdek sistemi', 'Excel', 'Outlook'],
+  },
+  portfolioManager: {
+    responsibilities: [
+      'Müşteri portföyünün risk ve getiri dengesinin yönetilmesi',
+      'Yatırım / ürün önerisinin ihtiyaç analizine göre sunulması',
+      'Portföy performansının izlenmesi ve raporlanması',
+      'Yeni varlık kazanımı ve mevcut ilişkinin derinleştirilmesi',
+      'Uyulması gereken mevzuat ve uygunluk kontrollerinin yapılması',
+    ],
+    achievements: [
+      'Yönetilen varlık hacminin artırılması',
+      'Portföy getirisinin kıyas grubunun üzerine çıkarılması',
+      'Müşteri tutma oranının yükseltilmesi',
+    ],
+    professionalSkills: ['Portföy yönetimi', 'Yatırım danışmanlığı', 'Risk-getiri analizi'],
+    technicalSkills: ['Portföy / hazine sistemi', 'Excel', 'Bloomberg / matriks'],
+  },
+  techLead: {
+    responsibilities: [
+      'Teknik yol haritası ve mimari kararların yönetilmesi',
+      'Yazılım ekibinin iş dağılımı ve kod kalitesinin denetlenmesi',
+      'Kritik sürüm, kapasite ve teknik borç planının yürütülmesi',
+      'Paydaşlarla kapsam ve teslim taahhüdünün netleştirilmesi',
+      'Ekip koçluğu ve teknik standartların yerleştirilmesi',
+    ],
+    achievements: [
+      'Teslim öngörülebilirliğinin artırılması',
+      'Canlı hata oranının düşürülmesi',
+      'Ekip teslim hızının yükseltilmesi',
+    ],
+    professionalSkills: ['Teknik liderlik', 'Mimari karar', 'Ekip yönetimi', 'Paydaş yönetimi'],
+    technicalSkills: ['Git', 'CI/CD', 'Cloud', 'Jira'],
+  },
+  schoolPrincipal: {
+    responsibilities: [
+      'Okul akademik ve idari işleyişinin yönetilmesi',
+      'Öğretmen kadrosu, ders programı ve denetimin planlanması',
+      'Öğrenci başarı, disiplin ve veli ilişkisinin yönetilmesi',
+      'Okul bütçesi, tesis ve mevzuat uyumunun sağlanması',
+      'İl / ilçe müdürlüğü raporlama ve denetim süreçlerinin yürütülmesi',
+    ],
+    achievements: [
+      'Öğrenci başarı ortalamasının yükseltilmesi',
+      'Öğretmen devam ve gelişim planının güçlendirilmesi',
+      'Veli memnuniyetinin artırılması',
+    ],
+    professionalSkills: ['Okul yönetimi', 'Eğitim liderliği', 'Veli ilişkileri', 'Mevzuat'],
+    technicalSkills: ['e-Okul / MEBBİS', 'Excel', 'PowerPoint'],
+  },
+  hrManager: {
+    responsibilities: [
+      'İK politikası, kadro ve bütçe planının yönetilmesi',
+      'İşe alım, performans ve ücret süreçlerinin denetlenmesi',
+      'Yönetici kadrosuna koçluk ve organizasyon tasarımı',
+      'Çalışan ilişkileri, disiplin ve yasal uyumun sağlanması',
+      'İK metriklerinin üst yönetime raporlanması',
+    ],
+    achievements: [
+      'İşe alım süresinin kısaltılması',
+      'Çalışan bağlılığının artırılması',
+      'Devir oranının düşürülmesi',
+    ],
+    professionalSkills: ['İK yönetimi', 'Organizasyon tasarımı', 'Performans yönetimi', 'İş hukuku'],
+    technicalSkills: ['HRIS / ATS', 'Excel', 'Power BI'],
+  },
+  brandManager: {
+    responsibilities: [
+      'Marka konumlandırma ve yıllık planın yönetilmesi',
+      'Kampanya, bütçe ve ajans koordinasyonunun yürütülmesi',
+      'Marka sağlık metriklerinin izlenmesi',
+      'Ürün / kanal ekipleriyle lansman planının yapılması',
+      'Rakip ve pazar içgörüsünün kararlara bağlanması',
+    ],
+    achievements: [
+      'Marka bilinirliğinin artırılması',
+      'Kampanya ROI değerinin yükseltilmesi',
+    ],
+    professionalSkills: ['Marka yönetimi', 'Konumlandırma', 'Kampanya yönetimi'],
+    technicalSkills: ['Google Analytics', 'Excel', 'PowerPoint'],
+  },
+  warehouseLead: {
+    responsibilities: [
+      'Depo ekibi, vardiya ve mal kabul-sevkiyat planının yönetilmesi',
+      'Stok doğruluğu, adresleme ve sayım disiplininin denetlenmesi',
+      'İş güvenliği ve ekipman kullanım standartlarının sağlanması',
+      'Taşıyıcı ve iç müşteri SLA takibinin yapılması',
+      'Depo KPI raporunun hazırlanması',
+    ],
+    achievements: [
+      'Zamanında sevkiyat oranının artırılması',
+      'Stok sapmasının azaltılması',
+      'Depo iş kazası riskinin düşürülmesi',
+    ],
+    professionalSkills: ['Depo yönetimi', 'Ekip planlama', 'Stok kontrolü', 'İSG'],
+    technicalSkills: ['WMS', 'SAP', 'Excel'],
+  },
+  productionLead: {
+    responsibilities: [
+      'Üretim planı, kapasite ve vardiya dengesinin yönetilmesi',
+      'Hat verimi, fire ve kalite hedeflerinin takibi',
+      'Bakım, malzeme ve operatör koordinasyonunun sağlanması',
+      'İSG ve kalite standartlarının denetlenmesi',
+      'Üretim gerçekleşme raporunun sunulması',
+    ],
+    achievements: [
+      'Hat OEE / veriminin artırılması',
+      'Fire oranının düşürülmesi',
+      'Planlanan üretim miktarına uyumun yükseltilmesi',
+    ],
+    professionalSkills: ['Üretim yönetimi', 'Planlama', 'Kalite', 'İSG'],
+    technicalSkills: ['MES / ERP', 'Excel'],
+  },
+  shiftSupervisor: {
+    responsibilities: [
+      'Vardiya kadrosunun iş dağılımı ve tesliminin yönetilmesi',
+      'Hat duruş, kalite sapması ve İSG olayının anlık çözülmesi',
+      'Üretim kaydı ve vardiya raporunun tutulması',
+      'Operatör performans ve eğitim ihtiyacının iletilmesi',
+    ],
+    achievements: [
+      'Vardiya duruş süresinin kısaltılması',
+      'Vardiya kalite sapmasının azaltılması',
+    ],
+    professionalSkills: ['Vardiya yönetimi', 'Problem çözme', 'İSG'],
+    technicalSkills: ['MES / üretim kaydı', 'Excel'],
+  },
+  siteChief: {
+    responsibilities: [
+      'Şantiye imalat, ekip ve taşeron planının yönetilmesi',
+      'İş programı, malzeme ve makine koordinasyonunun yapılması',
+      'İş güvenliği, kalite ve metraj kontrolünün denetlenmesi',
+      'İlerleme, hakediş ve saha raporunun hazırlanması',
+      'İşveren / proje müdürlüğü ile saha koordinasyonu',
+    ],
+    achievements: [
+      'Saha tesliminin programına yaklaştırılması',
+      'İş kazası oranının düşürülmesi',
+      'Revizyon ve fire maliyetinin azaltılması',
+    ],
+    professionalSkills: ['Şantiye yönetimi', 'Ekip / taşeron yönetimi', 'İSG', 'Metraj'],
+    technicalSkills: ['Şantiye takip yazılımı', 'Excel', 'AutoCAD temel'],
+  },
+  serviceManager: {
+    responsibilities: [
+      'Servis atölyesi kapasite, randevu ve kadro planının yönetilmesi',
+      'İş emri süresi, parça ve müşteri vaadinin denetlenmesi',
+      'Teknisyen performans ve kalite tekrar işçilik takibi',
+      'Müşteri şikâyeti ve garanti süreçlerinin yönetilmesi',
+      'Servis ciro / verim raporunun sunulması',
+    ],
+    achievements: [
+      'Servis teslim süresinin kısaltılması',
+      'Tekrar işçilik oranının düşürülmesi',
+      'Servis müşteri memnuniyetinin artırılması',
+    ],
+    professionalSkills: ['Servis yönetimi', 'Ekip yönetimi', 'Müşteri deneyimi'],
+    technicalSkills: ['DMS / servis yazılımı', 'Excel'],
+  },
+  officeManager: {
+    responsibilities: [
+      'Ofis idari süreç, tedarik ve tesis yönetiminin yapılması',
+      'Destek ekibi ve dış tedarikçi koordinasyonunun sağlanması',
+      'Bütçe, sözleşme ve fatura takibinin yürütülmesi',
+      'Ziyaretçi, toplantı ve iç hizmet standartlarının denetlenmesi',
+    ],
+    achievements: [
+      'İdari talep kapanış süresinin kısaltılması',
+      'Ofis işletme maliyetinin düşürülmesi',
+    ],
+    professionalSkills: ['İdari yönetim', 'Tedarik', 'Organizasyon'],
+    technicalSkills: ['Outlook', 'Excel', 'Satınalma yazılımı'],
+  },
+  farmLead: {
+    responsibilities: [
+      'Üretim / sera planı ve saha ekibinin yönetilmesi',
+      'Sulama, gübre ve hasat takviminin denetlenmesi',
+      'Verim, hastalık ve girdi maliyetinin izlenmesi',
+      'Hasat kalitesi ve sevkiyat koordinasyonunun sağlanması',
+    ],
+    achievements: [
+      'Verim kaybının azaltılması',
+      'Hasat planına uyumun artırılması',
+    ],
+    professionalSkills: ['Tarımsal üretim yönetimi', 'Saha ekibi', 'Hasat planlama'],
+    technicalSkills: ['Çiftlik kayıt sistemi', 'Excel'],
+  },
+  mediaLead: {
+    responsibilities: [
+      'Yayın / içerik takvimi ve ekip iş dağılımının yönetilmesi',
+      'Editoryal standart ve teslim kalitesinin denetlenmesi',
+      'Kanal performansı ve kriz içeriğinin yönetilmesi',
+      'Ajans / stüdyo ve paydaş koordinasyonunun yapılması',
+    ],
+    achievements: [
+      'Yayın aksaklıklarının azaltılması',
+      'İçerik etkileşiminin artırılması',
+    ],
+    professionalSkills: ['Yayın yönetimi', 'Editoryal liderlik', 'Ekip planlama'],
+    technicalSkills: ['Yayın / CMS aracı', 'Excel', 'Analytics'],
+  },
 };
 
 const ROLE_FAMILY: Record<string, RoleFamily> = {
@@ -631,19 +946,19 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   Garson: 'restaurant',
   'Servis elemanı': 'restaurant',
   Komi: 'restaurant',
-  'Restoran müdürü': 'hotelOps',
+  'Restoran müdürü': 'restaurantManager',
   Aşçı: 'kitchen',
   'Aşçı yardımcısı': 'kitchen',
-  'Şef / mutfak şefi': 'kitchen',
+  'Şef / mutfak şefi': 'kitchenChef',
   Barista: 'kitchen',
   'Mutfak personeli': 'kitchen',
   'Gıda mühendisi': 'factory',
   'Satış danışmanı': 'retail',
-  'Mağaza müdürü': 'retail',
+  'Mağaza müdürü': 'storeManager',
   Kasiyer: 'cashier',
   'Market personeli': 'retail',
   'Vitrin sorumlusu': 'retail',
-  'Bölge müdürü': 'salesField',
+  'Bölge müdürü': 'regionalManager',
   'Müşteri temsilcisi': 'callCenter',
   'Çağrı merkezi temsilcisi': 'callCenter',
   'Çağrı merkezi satış temsilcisi': 'salesIndoor',
@@ -653,8 +968,8 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'İç satış uzmanı': 'salesIndoor',
   'Key account manager': 'salesIndoor',
   'Hesap yöneticisi': 'salesIndoor',
-  'Bölge satış müdürü': 'salesField',
-  'Satış müdürü': 'salesField',
+  'Bölge satış müdürü': 'salesManager',
+  'Satış müdürü': 'salesManager',
   'İş geliştirme uzmanı': 'salesIndoor',
   'Sigorta teknik uzmanı': 'insuranceOps',
   'Hasar uzmanı': 'insuranceOps',
@@ -662,11 +977,11 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Acente temsilcisi': 'salesField',
   Underwriter: 'insuranceOps',
   'Poliçe operasyon uzmanı': 'insuranceOps',
-  'Portföy yöneticisi': 'bankFront',
+  'Portföy yöneticisi': 'portfolioManager',
   'Risk değerlendirme uzmanı': 'credit',
   'Banka müşteri temsilcisi': 'bankFront',
   'Bankacı / banka personeli': 'bankFront',
-  'Şube müdürü': 'bankFront',
+  'Şube müdürü': 'branchManager',
   'Kredi uzmanı': 'credit',
   'Finans uzmanı': 'credit',
   'Risk analisti': 'credit',
@@ -690,7 +1005,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Teknik destek uzmanı': 'callCenter',
   'Bilgisayar teknik servis': 'devops',
   'Scrum Master': 'product',
-  'CTO / Teknik lider': 'software',
+  'CTO / Teknik lider': 'techLead',
   'Yapay zeka / ML mühendisi': 'data',
   'Veri analisti': 'data',
   'Data engineer': 'data',
@@ -706,7 +1021,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Eğitmen / öğretmen': 'teacher',
   Akademisyen: 'teacher',
   'Eğitim koordinatörü': 'teacher',
-  'Okul müdürü': 'teacher',
+  'Okul müdürü': 'schoolPrincipal',
   'Rehber öğretmen': 'teacher',
   'Özel ders öğretmeni': 'teacher',
   'Kurumsal eğitmen': 'teacher',
@@ -714,7 +1029,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'İdari personel': 'admin',
   'Pazarlama uzmanı': 'marketing',
   'Sosyal medya uzmanı': 'marketing',
-  'Marka yöneticisi': 'marketing',
+  'Marka yöneticisi': 'brandManager',
   'İçerik uzmanı': 'media',
   'Medya planlama uzmanı': 'marketing',
   'Grafik tasarımcı': 'design',
@@ -726,7 +1041,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'İK iş ortağı': 'hr',
   'Eğitim ve gelişim uzmanı': 'hr',
   'Organizasyonel gelişim uzmanı': 'hr',
-  'İK yöneticisi': 'hr',
+  'İK yöneticisi': 'hrManager',
   Avukat: 'legal',
   'Hukuk müşaviri': 'legal',
   'Hukuk asistanı': 'legal',
@@ -738,7 +1053,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Büro personeli': 'admin',
   'Proje uzmanı': 'consulting',
   'Vatandaş ilişkileri personeli': 'public',
-  'İdari işler sorumlusu': 'admin',
+  'İdari işler sorumlusu': 'officeManager',
   'Enerji mühendisi': 'energy',
   Teknisyen: 'energy',
   'Proje mühendisi': 'construction',
@@ -750,17 +1065,17 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Yedek parça sorumlusu': 'autoService',
   'Boya / kaporta ustası': 'autoService',
   'Oto yıkama personeli': 'autoService',
-  'Servis müdürü': 'autoService',
+  'Servis müdürü': 'serviceManager',
   'Çiftçi / tarım işçisi': 'farm',
   'Ziraat mühendisi': 'farm',
   'Tarım danışmanı': 'farm',
-  'Sera sorumlusu': 'farm',
-  'Üretim sorumlusu': 'factory',
+  'Sera sorumlusu': 'farmLead',
+  'Üretim sorumlusu': 'productionLead',
   'İçerik editörü': 'media',
   'Video editörü': 'media',
   Muhabir: 'media',
   'Topluluk yöneticisi': 'media',
-  'Yayın yönetmeni': 'media',
+  'Yayın yönetmeni': 'mediaLead',
   'Yönetim danışmanı': 'consulting',
   'Strateji danışmanı': 'consulting',
   'Süreç iyileştirme uzmanı': 'consulting',
@@ -773,23 +1088,23 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Mühendis (endüstri)': 'factory',
   'Mühendis (makine)': 'factory',
   'Mühendis (elektrik)': 'energy',
-  'Vardiya amiri': 'factory',
+  'Vardiya amiri': 'shiftSupervisor',
   'Depo görevlisi': 'logistics',
   'İş sağlığı ve güvenliği uzmanı': 'factory',
   'İnşaat işçisi': 'construction',
   'Mühendis (inşaat)': 'construction',
   Mimar: 'construction',
   'İç mimar': 'design',
-  'Şantiye şefi': 'construction',
+  'Şantiye şefi': 'siteChief',
   'Gayrimenkul danışmanı': 'salesField',
   Elektrikçi: 'construction',
   Tesisatçı: 'construction',
   Boyacı: 'construction',
   Marangoz: 'construction',
   'Lojistik planlama uzmanı': 'logistics',
-  'Depo sorumlusu': 'logistics',
+  'Depo sorumlusu': 'warehouseLead',
   'Forklift operatörü': 'logistics',
-  'Sevkiyat sorumlusu': 'logistics',
+  'Sevkiyat sorumlusu': 'warehouseLead',
   'Kurye / motokurye': 'driver',
   'Şoför (kamyon / TIR)': 'driver',
   'Şoför (hafif ticari)': 'driver',
@@ -800,7 +1115,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Güvenlik görevlisi': 'security',
   'Temizlik görevlisi': 'housekeeping',
   Sekreter: 'admin',
-  'Ofis yöneticisi': 'admin',
+  'Ofis yöneticisi': 'officeManager',
   'Çaycı / ofis destek': 'admin',
   'Çelik işçisi': 'factory',
   Kaynakçı: 'factory',
@@ -832,6 +1147,46 @@ const ROLE_OPENERS: Record<string, { responsibility: string; achievement: string
     responsibility: 'Ön büro vardiya ve kasa kapanışının yönetilmesi',
     achievement: 'Ön büro gece denetim bulgularının azaltılması',
   },
+  'Şube müdürü': {
+    responsibility: 'Şube kârlılık, kadro ve günlük operasyonun yönetilmesi',
+    achievement: 'Şube kârlılığının ve müşteri memnuniyetinin artırılması',
+  },
+  'Banka müşteri temsilcisi': {
+    responsibility: 'Şube gişesinde müşteri işlem ve ürün yönlendirmesinin yapılması',
+    achievement: 'İşlem bekleme süresinin kısaltılması',
+  },
+  'Mağaza müdürü': {
+    responsibility: 'Mağaza ciro, kadro ve vardiya planının yönetilmesi',
+    achievement: 'Mağaza ciro hedefinin aşılması',
+  },
+  'Satış danışmanı': {
+    responsibility: 'Mağaza müşterisine ürün danışmanlığı ve satış kapanışı',
+    achievement: 'Kişisel satış hedefinin yakalanması',
+  },
+  'Restoran müdürü': {
+    responsibility: 'Restoran ciro, maliyet ve vardiya planının yönetilmesi',
+    achievement: 'Restoran kârlılığının artırılması',
+  },
+  Garson: {
+    responsibility: 'Masa servisi ve sipariş alımının yapılması',
+    achievement: 'Servis süresinin kısaltılması',
+  },
+  'Otel müdürü': {
+    responsibility: 'Otel doluluk, gelir ve birim operasyonunun yönetilmesi',
+    achievement: 'Doluluk ve RevPAR değerinin artırılması',
+  },
+  'Okul müdürü': {
+    responsibility: 'Okul akademik ve idari işleyişinin yönetilmesi',
+    achievement: 'Öğrenci başarı ortalamasının yükseltilmesi',
+  },
+  'İK yöneticisi': {
+    responsibility: 'İK politikası, kadro ve bütçe planının yönetilmesi',
+    achievement: 'Devir oranının düşürülmesi',
+  },
+  'Satış müdürü': {
+    responsibility: 'Satış ekibinin hedef, pipeline ve performansının yönetilmesi',
+    achievement: 'Ekip satış hedefinin aşılması',
+  },
 };
 
 function normalizeRole(role: string): string {
@@ -840,34 +1195,51 @@ function normalizeRole(role: string): string {
 
 function inferFamily(role: string): RoleFamily | null {
   const hay = normalizeRole(role);
+  if (/şube müdür/.test(hay)) return 'branchManager';
+  if (/mağaza müdür/.test(hay)) return 'storeManager';
+  if (/restoran müdür/.test(hay)) return 'restaurantManager';
+  if (/okul müdür/.test(hay)) return 'schoolPrincipal';
+  if (/servis müdür/.test(hay)) return 'serviceManager';
+  if (/satış müdür|bölge satış/.test(hay)) return 'salesManager';
+  if (/bölge müdür/.test(hay)) return 'regionalManager';
+  if (/ik yönetici|insan kaynakları yönetici/.test(hay)) return 'hrManager';
+  if (/ofis yönetici|idari işler/.test(hay)) return 'officeManager';
+  if (/şantiye şefi/.test(hay)) return 'siteChief';
+  if (/vardiya amiri/.test(hay)) return 'shiftSupervisor';
+  if (/üretim sorumlusu/.test(hay)) return 'productionLead';
+  if (/depo sorumlusu|sevkiyat sorumlusu/.test(hay)) return 'warehouseLead';
+  if (/mutfak şefi|şef \/ mutfak/.test(hay)) return 'kitchenChef';
+  if (/portföy yönet/.test(hay)) return 'portfolioManager';
+  if (/\bcto\b|teknik lider/.test(hay)) return 'techLead';
+  if (/marka yönet/.test(hay)) return 'brandManager';
+  if (/yayın yönetmen/.test(hay)) return 'mediaLead';
+  if (/sera sorumlusu/.test(hay)) return 'farmLead';
   if (/resepsiyon|ön büro|rezervasyon/.test(hay)) return 'reception';
   if (/host|hostes|animatör/.test(hay)) return 'host';
   if (/kat görev|housekeep/.test(hay)) return 'housekeeping';
   if (/otel müdür|turizm/.test(hay)) return 'hotelOps';
   if (/garson|servis eleman|komi/.test(hay)) return 'restaurant';
-  if (/aşçı|şef|barista|mutfak/.test(hay)) return 'kitchen';
+  if (/aşçı|barista|mutfak/.test(hay)) return 'kitchen';
   if (/kasiyer/.test(hay)) return 'cashier';
   if (/satış danışman|mağaza|market|vitrin/.test(hay)) return 'retail';
   if (/çağrı merkezi|müşteri temsil|destek uzman|şikayet/.test(hay)) return 'callCenter';
   if (/müşteri başarı/.test(hay)) return 'customerSuccess';
-  if (/servis danışman|otomotiv|yedek parça|kaporta|oto yıkama|servis müdür/.test(hay)) {
-    return 'autoService';
-  }
-  if (/saha satış|bölge satış|satış müdür/.test(hay)) return 'salesField';
+  if (/servis danışman|otomotiv|yedek parça|kaporta|oto yıkama/.test(hay)) return 'autoService';
+  if (/saha satış/.test(hay)) return 'salesField';
   if (/satış|key account|iş geliştirme/.test(hay)) return 'salesIndoor';
   if (/sigorta|hasar|poliçe|broker|underwriter|acente/.test(hay)) return 'insuranceOps';
   if (/kredi|risk|hazine|uyum|iç kontrol|yatırım|finansal/.test(hay)) return 'credit';
   if (/muhasebe|mali müşavir/.test(hay)) return 'accounting';
-  if (/banka|şube müdür|portföy/.test(hay)) return 'bankFront';
+  if (/banka/.test(hay)) return 'bankFront';
   if (/devops|cloud|sistem yöneticisi|teknik servis/.test(hay)) return 'devops';
   if (/\bqa\b|test uzman/.test(hay)) return 'qa';
   if (/veri|data|yapay zeka|mlops|iş zekâ|prompt/.test(hay)) return 'data';
   if (/ürün yöneticisi|scrum|product/.test(hay)) return 'product';
   if (/tasarım|ux|ui|grafik|iç mimar/.test(hay)) return 'design';
-  if (/geliştirici|yazılım|cto/.test(hay)) return 'software';
+  if (/geliştirici|yazılım/.test(hay)) return 'software';
   if (/öğretmen|eğitmen|akademisyen|eğitim/.test(hay)) return 'teacher';
   if (/insan kaynak|işe alım|bordro|ik /.test(hay)) return 'hr';
-  if (/pazarlama|reklam|sosyal medya|seo|marka|e-ticaret/.test(hay)) return 'marketing';
+  if (/pazarlama|reklam|sosyal medya|seo|e-ticaret/.test(hay)) return 'marketing';
   if (/avukat|hukuk|sözleşme|uyuşmazlık/.test(hay)) return 'legal';
   if (/şoför|kurye|personel servis/.test(hay)) return 'driver';
   if (/depo|lojistik|forklift|sevkiyat|tedarik/.test(hay)) return 'logistics';
@@ -880,7 +1252,7 @@ function inferFamily(role: string): RoleFamily | null {
   if (/tarım|ziraat|sera|çiftçi|veteriner/.test(hay)) return 'farm';
   if (/içerik|video|muhabir|yayın|topluluk/.test(hay)) return 'media';
   if (/danışman|analist|süreç iyileştir|proje/.test(hay)) return 'consulting';
-  if (/büro|idari|operasyon uzman|sekreter|ofis yönetici|çaycı/.test(hay)) return 'admin';
+  if (/büro|idari|operasyon uzman|sekreter|çaycı/.test(hay)) return 'admin';
   if (/berber|kuaför|güzellik/.test(hay)) return 'beauty';
   if (/güvenlik/.test(hay)) return 'security';
   if (/temizlik/.test(hay)) return 'housekeeping';

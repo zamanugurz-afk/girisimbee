@@ -91,7 +91,7 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-      {listing.listingId && !isOwner ? (
+      {listing.listingId && !isOwner && !listing.careerCard ? (
         <ListingContactCta
           listingId={listing.listingId}
           listingTitle={listing.title}

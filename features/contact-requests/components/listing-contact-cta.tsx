@@ -35,6 +35,8 @@ export interface ListingContactCtaProps {
   /** Career / anonymous listings — stronger privacy copy before accept. */
   identityGated?: boolean;
   variant?: CtaVariant;
+  /** Presentation-only label for the primary button. Does not change request flow. */
+  buttonLabel?: string;
   className?: string;
   /** Controlled open for mobile bar / shared modal */
   open?: boolean;
@@ -66,6 +68,7 @@ export function ListingContactCta({
   isOwner = false,
   identityGated = false,
   variant = 'card',
+  buttonLabel,
   className,
   open: controlledOpen,
   onOpenChange,
@@ -210,7 +213,7 @@ export function ListingContactCta({
       disabled={authLoading || (!!user && mine === undefined)}
     >
       <MessageSquare className="mr-2 h-4 w-4" />
-      {user ? 'İletişim Talebi Gönder' : 'Giriş yapıp talep gönder'}
+      {user ? (buttonLabel ?? 'İletişim Talebi Gönder') : 'Giriş yapıp talep gönder'}
     </Button>
   );
 

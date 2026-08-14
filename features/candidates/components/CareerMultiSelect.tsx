@@ -4,7 +4,10 @@ import { useMemo, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  isManualCareerOption,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 import { cn } from '@/lib/utils';
 
 export function CareerMultiSelect({
@@ -31,22 +34,37 @@ export function CareerMultiSelect({
   error?: string | null;
 }) {
   const selected = value ?? [];
-  const showManual = selected.includes(MANUAL_OPTION);
+  const showManual = selected.some((item) => isManualCareerOption(item));
   const [query, setQuery] = useState('');
 
   const visible = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('tr-TR');
     if (!q) return options;
     return options.filter((option) => {
-      if (option === MANUAL_OPTION || selected.includes(option)) return true;
+      if (isManualCareerOption(option) || selected.includes(option)) return true;
       return option.toLocaleLowerCase('tr-TR').includes(q);
     });
   }, [options, query, selected]);
 
   function toggle(option: string, checked: boolean) {
-    if (checked) onChange([...selected, option]);
-    else onChange(selected.filter((item) => item !== option));
+    if (checked) {
+      const next = selected.includes(option) ? selected : [...selected, option];
+      onChange(next);
+      return;
+    }
+    onChange(selected.filter((item) => item !== option));
   }
+
+  const manualField = showManual && onManualChange ? (
+    <Textarea
+      value={manualValue ?? ''}
+      disabled={disabled}
+      rows={4}
+      className="mt-2 min-h-[96px]"
+      placeholder={manualPlaceholder ?? 'Kendi ifadenizi yazın'}
+      onChange={(e) => onManualChange(e.target.value)}
+    />
+  ) : null;
 
   return (
     <div className="space-y-2">
@@ -61,35 +79,32 @@ export function CareerMultiSelect({
       ) : null}
       <div
         className={cn(
-          'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
+          'grid max-h-72 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
           error && 'border-destructive/40',
         )}
       >
         {visible.map((option) => {
           const checked = selected.includes(option);
+          const isManual = isManualCareerOption(option);
           return (
-            <label
+            <div
               key={option}
-              className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/40"
+              className={cn(isManual && 'sm:col-span-2')}
             >
-              <Checkbox
-                checked={checked}
-                disabled={disabled}
-                onCheckedChange={(next) => toggle(option, next === true)}
-              />
-              <span className="leading-snug">{option}</span>
-            </label>
+              <label className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/40">
+                <Checkbox
+                  checked={checked}
+                  disabled={disabled}
+                  onCheckedChange={(next) => toggle(option, next === true)}
+                />
+                <span className="leading-snug">{option}</span>
+              </label>
+              {isManual ? manualField : null}
+            </div>
           );
         })}
       </div>
-      {showManual && onManualChange ? (
-        <Input
-          value={manualValue ?? ''}
-          disabled={disabled}
-          placeholder={manualPlaceholder ?? 'Kendi ifadenizi yazın'}
-          onChange={(e) => onManualChange(e.target.value)}
-        />
-      ) : null}
+      {showManual && !visible.some((option) => isManualCareerOption(option)) ? manualField : null}
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );

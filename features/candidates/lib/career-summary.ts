@@ -67,7 +67,51 @@ function take(values: string[], limit: number): string[] {
 function sentence(text: string): string {
   const trimmed = text.replace(/\s+/g, ' ').trim();
   if (!trimmed) return '';
-  return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  const capped = trimmed.charAt(0).toLocaleUpperCase('tr-TR') + trimmed.slice(1);
+  return /[.!?…]$/.test(capped) ? capped : `${capped}.`;
+}
+
+function lcFirst(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toLocaleLowerCase('tr-TR') + trimmed.slice(1);
+}
+
+function joinAsClause(parts: string[]): string {
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0]!;
+  return joinTr([parts[0]!, ...parts.slice(1).map(lcFirst)]);
+}
+
+/** Spoken locative for city / region labels: Adıyaman'da, İstanbul Anadolu Yakası'nda. */
+function placeLocative(place: string): string {
+  const trimmed = place.trim();
+  if (!trimmed) return '';
+  if (/(?:'|’)n?[dt][aeAE]$/.test(trimmed)) return trimmed;
+  if (/yakas[ıi]$/i.test(trimmed)) return `${trimmed}'nda`;
+
+  const chars = [...trimmed];
+  const last = chars[chars.length - 1]!.toLocaleLowerCase('tr-TR');
+  let lastVowel = '';
+  for (let i = chars.length - 1; i >= 0; i -= 1) {
+    const ch = chars[i]!.toLocaleLowerCase('tr-TR');
+    if ('aeıioöuü'.includes(ch)) {
+      lastVowel = ch;
+      break;
+    }
+  }
+  const front = 'eiöü'.includes(lastVowel);
+  const voiceless = 'pçtksşfh'.includes(last);
+  return `${trimmed}'${voiceless ? 't' : 'd'}${front ? 'e' : 'a'}`;
+}
+
+/** İngilizce → İngilizcem, Almanca → Almancam */
+function languageSubject(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return '';
+  const last = trimmed.slice(-1).toLocaleLowerCase('tr-TR');
+  if ('aeıioöuü'.includes(last)) return `${trimmed}m`;
+  return `${trimmed}im`;
 }
 
 function norm(value: string): string {
@@ -99,29 +143,6 @@ function rolesRelated(a: string, b: string): boolean {
   const aTokens = roleTokens(a);
   const bTokens = roleTokens(b);
   return aTokens.some((token) => bTokens.includes(token));
-}
-
-function roleVoice(role: string): string {
-  const hay = norm(role);
-  if (/resepsiyon|ön büro|host|hostes/.test(hay)) {
-    return 'misafir karşılama ve ön büro süreçlerine katkı veriyorum';
-  }
-  if (/satış|danışman|temsilci/.test(hay)) {
-    return 'müşteri kazanımı ve hedef yönetimine katkı veriyorum';
-  }
-  if (/geliştirici|yazılım|devops|veri|analist/.test(hay)) {
-    return 'ürün ve teknik teslimata katkı veriyorum';
-  }
-  if (/hemşire|doktor|hasta|klinik/.test(hay)) {
-    return 'hasta bakım ve klinik süreçlere katkı veriyorum';
-  }
-  if (/öğretmen|eğitmen/.test(hay)) {
-    return 'öğrenme süreçlerine katkı veriyorum';
-  }
-  if (/muhasebe|kredi|banka|finans/.test(hay)) {
-    return 'mali süreçlerin düzenli işlemesine katkı veriyorum';
-  }
-  return 'ekiplere düzenli ve ölçülebilir katkı veriyorum';
 }
 
 /** Removes leftover contact-policy sentences from stored career summaries. */
@@ -176,13 +197,6 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
 
   const professional = take(parseSelectedList(input.professionalSkills), 3);
   const technical = take(parseSelectedList(input.technicalSkills), 3);
-  const languages = parseCareerLanguages(input.languages)
-    .map((entry) => {
-      const name = entry.languageOther?.trim() || entry.language;
-      return name && entry.level ? `${name} (${entry.level})` : name;
-    })
-    .filter(Boolean)
-    .slice(0, 2);
   const educationLevel = (input.educationLevel ?? '').trim();
   const educationField = (input.educationField ?? '').trim();
   const place = (input.preferredCity ?? '').trim();
@@ -192,54 +206,83 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
 
   const sentences: string[] = [];
   const years = roleYears && roleYears > 0 ? roleYears : totalYears;
+  const levelLc = level ? level.toLocaleLowerCase('tr-TR') : '';
+  const sectorLead = roleSectors[0] ?? '';
+  const sectorClause = sectorLead ? ` ${sectorLead} sektöründe` : '';
 
-  if (years != null && years > 0 && roleSectors.length > 0) {
-    sentences.push(
-      sentence(`${role} olarak ${joinTr(roleSectors)} alanında ${years} yıllık deneyimle ${roleVoice(role)}`),
-    );
-  } else if (years != null && years > 0) {
-    sentences.push(sentence(`${role} olarak ${years} yıllık deneyimle ${roleVoice(role)}`));
-  } else if (level) {
-    sentences.push(
-      sentence(
-        `${role} rolünde ${level.toLocaleLowerCase('tr-TR')} profiliyle ${roleSectors[0] ? `${roleSectors[0]} alanında ` : ''}sorumluluk almaya hazırım`,
-      ),
-    );
+  if (years != null && years > 0) {
+    sentences.push(sentence(`${role} olarak${sectorClause} ${years} yıldır çalışıyorum`));
+  } else if (levelLc) {
+    sentences.push(sentence(`${levelLc} ${role} olarak${sectorClause} işe başlamak istiyorum`));
   } else {
-    sentences.push(sentence(`${role} pozisyonunda düzenli ve müşteri odaklı çalışmayla katkı vermek istiyorum`));
+    sentences.push(sentence(`${role} olarak${sectorClause} çalışmak istiyorum`));
   }
 
   if (relatedPastRoles.length > 0) {
-    sentences.push(sentence(`Aynı hatta daha önce ${joinTr(relatedPastRoles)} görevlerinde bulundum`));
+    sentences.push(sentence(`Daha önce ${joinTr(relatedPastRoles)} olarak da çalıştım`));
   }
   if (otherPastRoles.length > 0) {
-    const where = otherSectors.length > 0 ? ` ${joinTr(otherSectors)} tarafında` : '';
-    sentences.push(sentence(`Bunun dışında${where} ${joinTr(otherPastRoles)} deneyimim de var`));
+    sentences.push(sentence(`Ayrıca ${joinTr(otherPastRoles)} olarak da çalıştım`));
   }
 
   if (professional.length > 0) {
-    sentences.push(sentence(`Öne çıkan yetkinliklerim ${joinTr(professional)}`));
+    sentences.push(sentence(`${joinAsClause(professional)} işlerinde yetkinim`));
   }
   if (technical.length > 0) {
-    sentences.push(sentence(`İşlerimde ${joinTr(technical)} kullanıyorum`));
+    sentences.push(sentence(`${joinAsClause(technical)} kullanıyorum`));
   }
-  if (educationLevel || educationField) {
-    const edu = [educationLevel, educationField].filter(Boolean).join(' — ');
-    sentences.push(sentence(`Eğitim geçmişim ${edu}`));
+  const educationLevelLc = educationLevel.toLocaleLowerCase('tr-TR');
+  if (educationLevel && educationField) {
+    sentences.push(sentence(`${educationField} alanında ${educationLevelLc} mezunuyum`));
+  } else if (educationLevel) {
+    sentences.push(sentence(`${educationLevelLc} mezunuyum`));
+  } else if (educationField) {
+    sentences.push(sentence(`${educationField} eğitimi aldım`));
   }
-  if (languages.length > 0) {
-    sentences.push(sentence(`Yabancı dilim ${joinTr(languages)}`));
+  const languageEntries = parseCareerLanguages(input.languages)
+    .map((entry) => {
+      const name = (entry.languageOther?.trim() || entry.language).trim();
+      if (!name) return null;
+      return { name, level: entry.level ? entry.level.toLocaleLowerCase('tr-TR') : '' };
+    })
+    .filter((entry): entry is { name: string; level: string } => Boolean(entry))
+    .slice(0, 2);
+  if (languageEntries.length === 1) {
+    const only = languageEntries[0]!;
+    sentences.push(
+      sentence(
+        only.level
+          ? `${languageSubject(only.name)} ${only.level} seviyede`
+          : `${only.name} biliyorum`,
+      ),
+    );
+  } else if (languageEntries.length > 1) {
+    const bits = languageEntries.map((entry, index) => {
+      const subject = languageSubject(entry.name);
+      const phrase = entry.level ? `${subject} ${entry.level} seviyede` : `${entry.name} biliyorum`;
+      return index === 0 ? phrase : lcFirst(phrase);
+    });
+    sentences.push(sentence(joinTr(bits)));
   }
   if (openSectors.length > 0) {
-    sentences.push(sentence(`Ayrıca ${joinTr(openSectors)} alanlarına da açığım`));
+    sentences.push(sentence(`${joinAsClause(openSectors)} sektörlerinde de çalışabilirim`));
   }
 
   const prefBits = [workplace, workType].filter(Boolean);
-  if (place || prefBits.length > 0 || availability) {
-    const model = prefBits.length > 0 ? `${joinTr(prefBits)} çalışmaya açığım` : 'esnek çalışma modellerine açığım';
-    const where = place ? `${place} odaklı ` : '';
-    const when = availability ? `; ${availability.toLocaleLowerCase('tr-TR')} başlayabilirim` : '';
-    sentences.push(sentence(`${where}${model}${when}`));
+  if (place && prefBits.length > 0) {
+    sentences.push(
+      sentence(`${placeLocative(place)} ${joinTr(prefBits.map(lcFirst))} çalışabilirim`),
+    );
+  } else if (place) {
+    sentences.push(sentence(`${placeLocative(place)} çalışabilirim`));
+  } else if (prefBits.length > 0) {
+    sentences.push(sentence(`${joinAsClause(prefBits)} çalışabilirim`));
+  }
+  if (availability) {
+    const availLc = availability.toLocaleLowerCase('tr-TR');
+    sentences.push(
+      sentence(/başla/.test(availLc) ? availLc : `${availLc} işe başlayabilirim`),
+    );
   }
 
   let draft = polishCareerSummary(sentences.filter(Boolean).join(' '));

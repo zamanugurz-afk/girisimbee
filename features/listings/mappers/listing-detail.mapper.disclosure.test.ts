@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aggregateToListingDetail } from '@/features/listings/mappers/listing-detail.mapper';
+import { ageFromBirthDate } from '@/features/candidates/lib/career-public-identity';
 import { createListing } from '@/features/listings/factories/listing.factory';
 import { resolveContactDisclosure } from '@/features/contact-requests/lib/contact-disclosure';
 import { ECOSYSTEM_CATEGORY_IDS, DEFAULT_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
@@ -26,6 +27,7 @@ function makeAggregate(overrides: Partial<Listing> = {}): ListingAggregate {
       desiredRole: 'Satış ve İş Geliştirme Uzmanı',
       experienceLevel: '8 yıl',
       birthDate: '1992-04-18',
+      profileGender: 'Erkek',
       residenceCity: 'Ağrı',
       residenceDistrict: 'Merkez',
       companyName: 'Gizli Firma A.Ş.',
@@ -103,6 +105,10 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(JSON.stringify(detail)).not.toMatch(/Uğur Zaman|Gizli Firma|secret\.example|1992-04-18|Ağrı/i);
     expect(detail.careerCard?.birthDate).toBeFalsy();
     expect(detail.careerCard?.residenceCity).toBeFalsy();
+    expect(detail.careerCard?.displayName).toBeFalsy();
+    expect(detail.careerCard?.displayNameMasked).toBe('Uğur *****');
+    expect(detail.careerCard?.age).toBe(ageFromBirthDate('1992-04-18'));
+    expect(detail.careerCard?.gender).toBe('Erkek');
   });
 
   it('reveals identity after accepted contact request', () => {
@@ -121,6 +127,7 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.publisher.name).toBe('Uğur Zaman');
     expect(detail.publisher.href).toContain('ugur-zaman');
     expect(detail.ownerUserId).toBe(OWNER);
+    expect(detail.careerCard?.displayName).toBe('Uğur Zaman');
     expect(detail.careerCard?.birthDate).toBe('1992-04-18');
     expect(detail.careerCard?.residenceCity).toBe('Ağrı');
     expect(detail.careerCard?.residenceDistrict).toBe('Merkez');

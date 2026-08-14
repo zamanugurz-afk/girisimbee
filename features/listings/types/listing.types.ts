@@ -155,6 +155,10 @@ export interface ListingDetail {
     requiredAchievements?: string | null;
     longDescription?: string | null;
     coverUrl?: string | null;
+    displayName?: string | null;
+    displayNameMasked?: string | null;
+    age?: number | null;
+    gender?: string | null;
     /** Shown only after accepted contact request / owner / admin. */
     birthDate?: string | null;
     residenceCity?: string | null;

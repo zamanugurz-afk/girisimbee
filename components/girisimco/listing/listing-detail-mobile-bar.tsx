@@ -40,7 +40,18 @@ export function ListingDetailMobileBar({ listing }: { listing: ListingDetail }) 
             listingTitle={listing.title}
             isOwner={isOwner}
             variant="compact"
-            className="h-11 flex-[1.4] rounded-2xl"
+            buttonLabel={
+              listing.category.id === 'hire'
+                ? 'İlana Başvur'
+                : listing.category.id === 'find-job'
+                  ? 'İletişim Talebi Gönder'
+                  : undefined
+            }
+            className={
+              listing.category.id === 'find-job'
+                ? 'h-11 flex-[1.4] rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700'
+                : 'h-11 flex-[1.4] rounded-2xl'
+            }
           />
         ) : (
           <Button type="button" className="h-11 flex-1 rounded-2xl" disabled>

@@ -24,6 +24,15 @@ describe('career experience dates', () => {
         isCurrent: true,
       }),
     ).toBe('Ağustos 2022 – Halen');
+
+    expect(
+      formatCareerPeriod({
+        startMonth: 11,
+        startYear: 2025,
+        endMonth: 11,
+        endYear: 2025,
+      }),
+    ).toBe('Kasım 2025');
   });
 
   it('validates required start/end and current-job exclusivity', () => {

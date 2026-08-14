@@ -136,7 +136,7 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
       placeholder:
         'Örn: Son yıllarda e-ticaret ve SaaS ürünlerinde frontend ile API geliştirme yaptım. Güçlü yanlarım TypeScript, takım içi kod kalitesi ve kullanıcı odaklı düşünmek. Kısa vadede ürün ekibinde kıdemli geliştirici veya teknik liderlik yolunda ilerlemek istiyorum.',
       helperText:
-        'Girdiğiniz bilgilere göre bir taslak doldurulur; kullanabilir veya kendiniz yazabilirsiniz. En az 100 karakter. İletişim platform üzerinden yapılır; telefon, e-posta veya firma adı yazmayın.',
+        'Bu bir kariyer özeti önerisidir. Taslağı olduğu gibi kullanabilir veya kendi özetinizi yazabilirsiniz. En az 100 karakter. Telefon, e-posta veya firma adı yazmayın.',
       maxLength: 10000,
     },
   },
@@ -241,7 +241,7 @@ export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
   Record<CategoryId, Partial<Record<keyof CoreListingFieldsInput, string>>>
 > = {
   [CATEGORY_IDS.isBul]: {
-    longDescription: 'Kariyer özetim',
+    longDescription: 'Kariyer özeti önerisi',
   },
   [CATEGORY_IDS.bayilikAl]: {
     shortDescription: 'Firma Hakkında',
@@ -347,12 +347,12 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   profileGender: {
     placeholder: 'Cinsiyet seçin',
     helperText:
-      'Kamu kartında yazılmaz. Mesleğe uygun kapak fotoğrafını seçmek için kullanılır.',
+      'Kartta yaş ve cinsiyet görünür. Kapak fotoğrafı da buna göre seçilir.',
   },
   birthDate: {
     placeholder: 'Doğum tarihi',
     helperText:
-      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir.',
+      'Kartta yalnızca yaş görünür. Tam doğum tarihi iletişim talebi kabul edilince işverene gösterilir.',
   },
   residenceCity: {
     placeholder: 'Yaşadığınız ili seçin',
