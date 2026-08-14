@@ -16,7 +16,6 @@ import {
   Monitor,
   Shield,
   User,
-  Wallet,
 } from 'lucide-react';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 import {
@@ -102,6 +101,13 @@ function asList(value: string[] | string | null | undefined): string[] {
   return parseSelectedList(value);
 }
 
+function splitLines(value: string | null | undefined): string[] {
+  return (value ?? '')
+    .split(/\n|·/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function roleInitials(role: string | null | undefined): string {
   const words = (role ?? '')
     .split(/\s+/)
@@ -114,11 +120,10 @@ function roleInitials(role: string | null | undefined): string {
 
 function ChipRow({
   values,
-  limit = 4,
+  limit = 5,
 }: {
   values: string[];
   limit?: number;
-  tone?: 'hire' | 'seeker';
 }) {
   const [expanded, setExpanded] = useState(false);
   if (values.length === 0) return <p className="text-sm text-muted-foreground">—</p>;
@@ -164,10 +169,9 @@ function SectionLabel({
 }: {
   icon: typeof Briefcase;
   title: string;
-  tone?: 'hire' | 'seeker';
 }) {
   return (
-    <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+    <p className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
       <Icon className="h-3.5 w-3.5 text-primary" aria-hidden />
       {title}
     </p>
@@ -182,10 +186,9 @@ function CompactList({
   values: string[];
   limit?: number;
   icon?: typeof Check;
-  tone?: 'hire' | 'seeker';
 }) {
   const [expanded, setExpanded] = useState(false);
-  if (values.length === 0) return <p className="text-sm text-muted-foreground">—</p>;
+  if (values.length === 0) return null;
   const visible = expanded ? values : values.slice(0, limit);
   const hidden = values.length - visible.length;
   return (
@@ -215,85 +218,53 @@ function CompactList({
   );
 }
 
-function EducationBlock({
-  data,
-  tone,
+function ExpandableText({
+  text,
+  lines = 4,
 }: {
-  data: CareerCardInput;
-  tone: 'hire' | 'seeker';
+  text: string;
+  lines?: number;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const needsToggle = text.length > 220;
   return (
-    <div className="min-w-0">
-      <SectionLabel
-        icon={GraduationCap}
-        title={tone === 'hire' ? 'Eğitim beklentisi' : 'Eğitim'}
-      />
-      {data.educationLevel || data.educationField ? (
-        <div>
-          <p className="text-sm font-semibold text-foreground">
-            {data.educationLevel || 'Eğitim'}
-          </p>
-          {data.educationField ? (
-            <p className="mt-0.5 text-sm text-primary">{data.educationField}</p>
-          ) : null}
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">Belirtilmedi</p>
-      )}
+    <div>
+      <p
+        className={cn(
+          'text-sm leading-7 text-foreground/90',
+          !expanded && needsToggle && (lines <= 3 ? 'line-clamp-3' : 'line-clamp-5'),
+        )}
+      >
+        {text}
+      </p>
+      {needsToggle ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="mt-2 text-[12px] font-medium text-primary hover:text-primary/80"
+        >
+          {expanded ? 'Daha az göster' : 'Devamını gör'}
+        </button>
+      ) : null}
     </div>
   );
 }
 
-function CertLanguageBlock({
-  certificates,
-  languages,
+function HeroFact({
+  label,
+  value,
 }: {
-  certificates: string[];
-  languages: ReturnType<typeof parseCareerLanguages>;
-  tone?: 'hire' | 'seeker';
+  label: string;
+  value: string;
 }) {
   return (
     <div className="min-w-0">
-      <SectionLabel icon={Award} title="Sertifika / Dil" />
-      <div className="space-y-2.5">
-        {certificates.length > 0 ? (
-          <CompactList values={certificates} icon={Check} />
-        ) : null}
-        {languages.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {languages.map((entry) => {
-              const name = entry.languageOther?.trim() || entry.language;
-              return (
-                <span
-                  key={`${name}-${entry.level}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs"
-                >
-                  <Languages className="h-3 w-3 text-primary" aria-hidden />
-                  <span className="font-medium text-foreground">{name}</span>
-                  <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                    {entry.level}
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-        ) : null}
-        {certificates.length === 0 && languages.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Belirtilmedi</p>
-        ) : null}
-      </div>
+      <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 truncate text-sm font-medium text-foreground">{value}</dd>
     </div>
   );
-}
-
-function experienceDuties(exp: CareerExperience): string[] {
-  const selected = (exp.selectedResponsibilities ?? []).filter(Boolean);
-  if (selected.length > 0) return selected.slice(0, 2);
-  return (exp.responsibilities ?? '')
-    .split(/\n|·/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 2);
 }
 
 function CoverThumb({
@@ -304,7 +275,7 @@ function CoverThumb({
   initials: string;
 }) {
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted sm:w-[148px] sm:shrink-0 lg:w-[168px]">
+    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted sm:w-[152px] sm:shrink-0 lg:w-[176px]">
       {coverUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={coverUrl} alt="" className="h-full w-full object-cover" />
@@ -315,6 +286,20 @@ function CoverThumb({
       )}
     </div>
   );
+}
+
+function experienceResponsibilities(exp: CareerExperience): string[] {
+  const selected = (exp.selectedResponsibilities ?? []).filter(Boolean);
+  if (selected.length > 0) return selected;
+  return splitLines(exp.responsibilities);
+}
+
+function experienceAchievements(exp: CareerExperience): string[] {
+  const selected = (exp.selectedAchievements ?? []).filter(Boolean);
+  if (selected.length > 0) return selected;
+  const lines = splitLines(exp.achievements);
+  const metric = (exp.achievementMetric ?? '').trim();
+  return metric && !lines.includes(metric) ? [...lines, metric] : lines;
 }
 
 /** Public/preview card shared by İş Arıyorum (seeker) and İşe Alıyorum (hire). */
@@ -328,7 +313,6 @@ export function CareerProfilePreview({
   headingAs?: 'h1' | 'h2' | 'h3';
 }) {
   const isHire = data.variant === 'hire';
-  const tone: 'hire' | 'seeker' = isHire ? 'hire' : 'seeker';
   const preferredSectors = asList(data.preferredSectors);
   const sectorChips = isHire
     ? (data.primarySector ? [data.primarySector] : [])
@@ -351,7 +335,12 @@ export function CareerProfilePreview({
     if (aInterval && bInterval) return bInterval.end - aInterval.end;
     return 0;
   });
-  const visibleExperiences = isHire ? [] : experiences.slice(0, 3);
+  const [experiencesOpen, setExperiencesOpen] = useState(false);
+  const visibleExperiences = isHire
+    ? []
+    : experiencesOpen
+      ? experiences
+      : experiences.slice(0, 3);
   const extraExperienceCount = isHire ? 0 : Math.max(0, experiences.length - 3);
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const totalYears = estimateTotalExperienceYears(experiences);
@@ -383,22 +372,25 @@ export function CareerProfilePreview({
     || (!listingId && !isHire ? maskDisplaySurname(user?.displayName) : null);
   const age = data.age ?? (!isHire ? ageFromBirthDate(data.birthDate) : null);
   const gender = isHire ? null : publicGenderLabel(data.gender);
-  const pills = [
-    levelLabel,
-    experienceHeadline,
-    data.preferredCity,
-    data.workplacePreference,
-    data.workType,
-    data.availability,
-  ].filter((value): value is string => Boolean(value && value.trim()));
   const showRevealedPersonal =
     !isHire
     && !data.personalInfoPreview
     && Boolean(data.birthDate || data.residenceCity || data.residenceDistrict);
+  const heroFacts = [
+    levelLabel ? { label: 'Kariyer seviyesi', value: levelLabel } : null,
+    experienceHeadline ? { label: 'Toplam deneyim', value: experienceHeadline } : null,
+    data.preferredCity ? { label: 'Tercih edilen il', value: data.preferredCity } : null,
+    data.workplacePreference ? { label: 'Çalışma modeli', value: data.workplacePreference } : null,
+    data.workType ? { label: 'Çalışma tercihi', value: data.workType } : null,
+    data.availability ? { label: 'İşe başlama', value: data.availability } : null,
+    salary ? { label: isHire ? 'Ücret aralığı' : 'Ücret beklentisi', value: salary } : null,
+  ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
+
+  const sectionClass = 'border-t border-border/40 px-5 py-6 sm:px-6 lg:px-8 lg:py-7';
 
   return (
     <article className="overflow-hidden rounded-3xl border border-primary/15 bg-white shadow-[0_8px_30px_-18px_rgba(15,23,42,0.18)] dark:bg-card">
-      <div className="relative px-5 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <div className="relative px-5 py-6 sm:px-6 sm:py-7 lg:px-8">
         <div className="absolute right-5 top-5 sm:right-6 lg:right-8">
           {listingId ? (
             <FavoriteButton
@@ -413,7 +405,7 @@ export function CareerProfilePreview({
           )}
         </div>
 
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <CoverThumb coverUrl={data.coverUrl} initials={initials} />
           <div className="min-w-0 flex-1 pr-12">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
@@ -433,133 +425,189 @@ export function CareerProfilePreview({
                 {gender ? <span>{gender}</span> : null}
               </p>
             ) : null}
-            <Heading className="mt-1 font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-[1.75rem]">
+            <Heading className="mt-2 font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-[1.8rem]">
               {data.desiredRole || (isHire ? 'Açık pozisyon belirtilmedi' : 'Pozisyon belirtilmedi')}
             </Heading>
             {data.primarySector ? (
-              <p className="mt-1 text-sm font-medium text-primary">{data.primarySector}</p>
+              <p className="mt-1.5 text-sm font-medium text-primary">{data.primarySector}</p>
             ) : null}
-            {pills.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {pills.map((pill) => (
-                  <span
-                    key={pill}
-                    className="inline-flex rounded-full bg-muted px-2.5 py-1 text-[12px] font-medium text-foreground/80"
-                  >
-                    {pill}
-                  </span>
+            {heroFacts.length > 0 ? (
+              <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3">
+                {heroFacts.map((fact) => (
+                  <HeroFact key={fact.label} label={fact.label} value={fact.value} />
                 ))}
-              </div>
-            ) : null}
-            {salary ? (
-              <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                <Wallet className="h-3.5 w-3.5 text-primary" aria-hidden />
-                {salary}
-              </p>
+              </dl>
             ) : null}
           </div>
         </div>
       </div>
 
+      {summary ? (
+        <div className={sectionClass}>
+          <SectionLabel icon={User} title={isHire ? 'Pozisyon özeti' : 'Profesyonel profil'} />
+          <ExpandableText text={summary} lines={3} />
+        </div>
+      ) : null}
+
+      <div className={sectionClass}>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="min-w-0">
+            <SectionLabel
+              icon={Briefcase}
+              title={isHire ? 'Sektör' : 'Uzmanlık alanları'}
+            />
+            <ChipRow values={sectorChips} />
+          </div>
+          <div className="min-w-0">
+            <SectionLabel
+              icon={Award}
+              title={isHire ? 'Aranan mesleki yetkinlikler' : 'Mesleki yetkinlikler'}
+            />
+            <ChipRow values={professional} />
+          </div>
+          <div className="min-w-0">
+            <SectionLabel
+              icon={Monitor}
+              title={isHire ? 'Aranan teknik yetkinlikler' : 'Teknik yetkinlikler'}
+            />
+            <ChipRow values={technical} />
+          </div>
+        </div>
+      </div>
+
       {isHire ? (
-        <>
-          <div className="grid gap-5 border-t border-border/50 px-5 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
-            <div className="min-w-0">
-              <SectionLabel icon={Briefcase} title="Sektör" />
-              <ChipRow values={sectorChips} />
+        <div className={sectionClass}>
+          <SectionLabel icon={Briefcase} title="İş tanımı" />
+          {hireDuties.length > 0 || hireWins.length > 0 ? (
+            <div className="grid gap-5 sm:grid-cols-2">
+              {hireDuties.length > 0 ? <CompactList values={hireDuties} /> : null}
+              {hireWins.length > 0 ? <CompactList values={hireWins} icon={Check} limit={2} /> : null}
             </div>
-            <div className="min-w-0">
-              <SectionLabel icon={Award} title="Aranan mesleki yetkinlikler" />
-              <ChipRow values={professional} />
-            </div>
-            <div className="min-w-0">
-              <SectionLabel icon={Monitor} title="Aranan teknik yetkinlikler" />
-              <ChipRow values={technical} />
-            </div>
-          </div>
-          <div className="grid gap-5 border-t border-border/50 px-5 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
-            <div className="min-w-0">
-              <SectionLabel icon={Briefcase} title="İş tanımı" />
-              {hireDuties.length > 0 || hireWins.length > 0 ? (
-                <div className="space-y-3">
-                  {hireDuties.length > 0 ? <CompactList values={hireDuties} /> : null}
-                  {hireWins.length > 0 ? (
-                    <CompactList values={hireWins} icon={Check} limit={2} />
-                  ) : null}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">İş tanımı eklenmedi</p>
-              )}
-            </div>
-            <EducationBlock data={data} tone={tone} />
-            <CertLanguageBlock certificates={certificates} languages={languages} />
-          </div>
-        </>
+          ) : (
+            <p className="text-sm text-muted-foreground">İş tanımı eklenmedi</p>
+          )}
+        </div>
       ) : (
-        <>
-          <div className="grid gap-5 border-t border-border/50 px-5 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
-            <div className="min-w-0">
-              <SectionLabel icon={Briefcase} title="Uzmanlık" />
-              <ChipRow values={sectorChips} />
-            </div>
-            <EducationBlock data={data} tone={tone} />
-            <CertLanguageBlock certificates={certificates} languages={languages} />
-          </div>
-          <div className="grid gap-5 border-t border-border/50 px-5 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
-            <div className="min-w-0">
-              <SectionLabel icon={Briefcase} title="Deneyim" />
-              {experiences.length > 0 ? (
-                <div className="space-y-3">
-                  {visibleExperiences.map((exp) => {
-                    const period = formatCareerPeriod(exp) || exp.duration;
-                    const duties = experienceDuties(exp);
-                    return (
-                      <div key={exp.id} className="min-w-0">
-                        <p className="text-sm font-semibold text-foreground">{exp.role}</p>
-                        {exp.sector || period ? (
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {[exp.sector, period].filter(Boolean).join(' · ')}
+        <div className={sectionClass}>
+          <SectionLabel icon={Briefcase} title="Kariyer deneyimi" />
+          {experiences.length > 0 ? (
+            <ol className="space-y-0">
+              {visibleExperiences.map((exp, index) => {
+                const period = formatCareerPeriod(exp) || exp.duration;
+                const duties = experienceResponsibilities(exp);
+                const wins = experienceAchievements(exp);
+                const isLast = index === visibleExperiences.length - 1;
+                return (
+                  <li
+                    key={exp.id}
+                    className="relative grid grid-cols-1 gap-2 border-l border-border pl-4 sm:grid-cols-[8rem_1rem_minmax(0,1fr)] sm:gap-x-4 sm:border-l-0 sm:pl-0"
+                  >
+                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-primary bg-white sm:hidden dark:bg-card" />
+                    <p className="pt-0.5 text-xs font-medium leading-5 text-muted-foreground sm:text-right">
+                      {period || 'Tarih belirtilmedi'}
+                    </p>
+                    <div className="relative hidden sm:block">
+                      <span className="absolute left-1/2 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-primary bg-white dark:bg-card" />
+                      {!isLast ? (
+                        <span className="absolute bottom-[-14px] left-1/2 top-4 w-px -translate-x-1/2 bg-border" />
+                      ) : null}
+                    </div>
+                    <div className={cn('min-w-0 pb-6', isLast && extraExperienceCount === 0 && 'pb-0')}>
+                      <p className="text-sm font-semibold text-foreground">{exp.role}</p>
+                      {exp.sector ? (
+                        <p className="mt-0.5 text-xs text-muted-foreground">{exp.sector}</p>
+                      ) : null}
+                      {duties.length > 0 ? (
+                        <div className="mt-2.5">
+                          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                            Temel sorumluluklar
                           </p>
-                        ) : null}
-                        {duties.length > 0 ? (
-                          <ul className="mt-1.5 space-y-1">
-                            {duties.map((duty) => (
-                              <li key={duty} className="flex gap-2 text-xs leading-snug text-foreground/80">
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                                <span>{duty}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : null}
-                      </div>
+                          <CompactList values={duties} limit={3} />
+                        </div>
+                      ) : null}
+                      {wins.length > 0 ? (
+                        <div className="mt-2.5">
+                          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                            Öne çıkan başarılar
+                          </p>
+                          <CompactList values={wins} icon={Check} limit={2} />
+                        </div>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <p className="text-sm text-muted-foreground">Deneyim eklenmedi</p>
+          )}
+          {extraExperienceCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => setExperiencesOpen((value) => !value)}
+              className="mt-1 text-[12px] font-medium text-primary hover:text-primary/80"
+            >
+              {experiencesOpen
+                ? 'Daha az göster'
+                : `+ ${extraExperienceCount} deneyim daha`}
+            </button>
+          ) : null}
+        </div>
+      )}
+
+      <div className={sectionClass}>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="min-w-0">
+            <SectionLabel
+              icon={GraduationCap}
+              title={isHire ? 'Eğitim beklentisi' : 'Eğitim'}
+            />
+            {data.educationLevel || data.educationField ? (
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {data.educationLevel || 'Eğitim'}
+                </p>
+                {data.educationField ? (
+                  <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
+                ) : null}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Belirtilmedi</p>
+            )}
+          </div>
+          <div className="min-w-0">
+            <SectionLabel icon={Award} title="Sertifika / Dil" />
+            <div className="space-y-3">
+              {certificates.length > 0 ? <CompactList values={certificates} icon={Check} /> : null}
+              {languages.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {languages.map((entry) => {
+                    const name = entry.languageOther?.trim() || entry.language;
+                    return (
+                      <span
+                        key={`${name}-${entry.level}`}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs"
+                      >
+                        <Languages className="h-3 w-3 text-primary" aria-hidden />
+                        <span className="font-medium text-foreground">{name}</span>
+                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                          {entry.level}
+                        </span>
+                      </span>
                     );
                   })}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Deneyim eklenmedi</p>
-              )}
-              {extraExperienceCount > 0 ? (
-                <p className="mt-3 text-xs font-medium text-muted-foreground">
-                  {totalYears != null && totalYears > 0
-                    ? `Toplam deneyim süresi: ${totalYears} yıl`
-                    : `Toplam ${experiences.length} deneyim`}
-                </p>
+              ) : null}
+              {certificates.length === 0 && languages.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Belirtilmedi</p>
               ) : null}
             </div>
-            <div className="min-w-0">
-              <SectionLabel icon={Award} title="Mesleki" />
-              <ChipRow values={professional} />
-            </div>
-            <div className="min-w-0">
-              <SectionLabel icon={Monitor} title="Teknik" />
-              <ChipRow values={technical} />
-            </div>
           </div>
-        </>
-      )}
+        </div>
+      </div>
 
       {summary ? (
-        <div className="border-t border-border/50 px-5 py-5 sm:px-6 lg:px-8">
+        <div className="border-t border-border/40 bg-muted/30 px-5 py-6 sm:px-6 lg:px-8 lg:py-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {isHire ? 'Pozisyon özeti' : data.personalInfoPreview ? 'Kariyer özeti önerisi' : 'Kariyer özeti'}
           </p>
@@ -568,13 +616,15 @@ export function CareerProfilePreview({
               Taslağı kullanabilir veya kendi özetinizi yazabilirsiniz.
             </p>
           ) : null}
-          <p className="mt-2 text-sm leading-7 text-foreground/90">{summary}</p>
+          <div className="mt-3">
+            <ExpandableText text={summary} lines={5} />
+          </div>
         </div>
       ) : null}
 
       {showRevealedPersonal ? (
-        <div className="border-t border-border/50 px-5 py-4 sm:px-6 lg:px-8">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="border-t border-border/40 px-5 py-5 sm:px-6 lg:px-8">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden />
             Kişisel bilgiler
           </p>
@@ -596,56 +646,56 @@ export function CareerProfilePreview({
       ) : null}
 
       {showChromeMeta || showPublicCta ? (
-      <div className="flex flex-col gap-3 border-t border-border/50 bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-          {chrome?.listingNumber ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5" aria-hidden />
-              {chrome.listingNumber}
-            </span>
-          ) : null}
-          {chrome?.publishedAt ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" aria-hidden />
-              {chrome.publishedAt}
-            </span>
-          ) : null}
-          {chrome?.updatedAt ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" aria-hidden />
-              Güncelleme {chrome.updatedAt}
-            </span>
-          ) : null}
-          {typeof chrome?.views === 'number' ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Eye className="h-3.5 w-3.5" aria-hidden />
-              {chrome.views.toLocaleString('tr-TR')} görüntülenme
-            </span>
+        <div className="flex flex-col gap-3 border-t border-border/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+            {chrome?.listingNumber ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Hash className="h-3 w-3" aria-hidden />
+                {chrome.listingNumber}
+              </span>
+            ) : null}
+            {chrome?.publishedAt ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3 w-3" aria-hidden />
+                {chrome.publishedAt}
+              </span>
+            ) : null}
+            {chrome?.updatedAt ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-3 w-3" aria-hidden />
+                Güncelleme {chrome.updatedAt}
+              </span>
+            ) : null}
+            {typeof chrome?.views === 'number' ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Eye className="h-3 w-3" aria-hidden />
+                {chrome.views.toLocaleString('tr-TR')} görüntülenme
+              </span>
+            ) : null}
+          </div>
+          {showPublicCta ? (
+            <div className="w-full shrink-0 sm:max-w-sm">
+              {listingId && !isOwner ? (
+                <ListingContactCta
+                  listingId={listingId}
+                  listingTitle={chrome?.listingTitle}
+                  isOwner={isOwner}
+                  identityGated={chrome?.identityGated ?? !isHire}
+                  variant="compact"
+                  buttonLabel={ctaLabel}
+                  className="h-11 w-full rounded-2xl px-6 font-semibold sm:w-auto"
+                />
+              ) : (
+                <Button type="button" disabled className="h-11 w-full rounded-2xl px-6 sm:w-auto">
+                  Sizin ilanınız
+                </Button>
+              )}
+            </div>
           ) : null}
         </div>
-        {showPublicCta ? (
-        <div className="w-full shrink-0 sm:max-w-sm">
-          {listingId && !isOwner ? (
-            <ListingContactCta
-              listingId={listingId}
-              listingTitle={chrome?.listingTitle}
-              isOwner={isOwner}
-              identityGated={chrome?.identityGated ?? !isHire}
-              variant="compact"
-              buttonLabel={ctaLabel}
-              className="h-11 w-full rounded-2xl px-6 font-semibold sm:w-auto"
-            />
-          ) : (
-            <Button type="button" disabled className="h-11 w-full rounded-2xl px-6 sm:w-auto">
-              Sizin ilanınız
-            </Button>
-          )}
-        </div>
-        ) : null}
-      </div>
       ) : null}
 
-      <div className="flex items-start gap-2.5 border-t border-primary/10 bg-primary/[0.04] px-5 py-3.5 text-[12px] leading-relaxed text-muted-foreground sm:px-6 lg:px-8">
+      <div className="flex items-start gap-2.5 border-t border-primary/10 bg-primary/[0.04] px-5 py-3 text-[11px] leading-relaxed text-muted-foreground sm:px-6 lg:px-8">
         <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
         <p>
           {isHire
