@@ -46,8 +46,6 @@ describe('career preference suggestions from experience', () => {
     expect(roles).toEqual(
       expect.arrayContaining([
         'Portföy yöneticisi',
-        'Kredi uzmanı',
-        'İç kontrol uzmanı',
         'Yönetim danışmanı',
         MANUAL_OPTION,
       ]),
@@ -56,6 +54,14 @@ describe('career preference suggestions from experience', () => {
     expect(roles).not.toContain('Müşteri temsilcisi');
     expect(roles).not.toContain('Banka müşteri temsilcisi');
     expect(roles).not.toContain('Çağrı merkezi temsilcisi');
+    expect(roles).not.toContain('Acente temsilcisi');
+    expect(roles).not.toContain('İç satış uzmanı');
+    expect(roles).not.toContain('Hesap yöneticisi');
+    expect(roles).not.toContain('Bordro uzmanı');
+    expect(roles).not.toContain('İnsan kaynakları uzmanı');
+    expect(roles).not.toContain('Underwriter');
+    expect(roles).not.toContain('Kredi uzmanı');
+    expect(roles).not.toContain('Yatırım danışmanı');
     expect(roles).not.toContain('Bankacı / banka personeli');
     expect(roles).not.toContain('Yazılım geliştirici');
     expect(roles).not.toContain('Garson');
@@ -122,7 +128,28 @@ describe('career preference suggestions from experience', () => {
     );
     expect(roles).not.toContain('Kasiyer');
     expect(roles).not.toContain('Satış danışmanı');
+    expect(roles).not.toContain('Satış temsilcisi');
     expect(roles).not.toContain('Market personeli');
+    expect(roles).not.toContain('İç satış uzmanı');
+  });
+
+  it('hides waiters from a restaurant manager and payroll from an HR manager', () => {
+    const restaurantRoles = suggestPreferredRoles({
+      experiences: [{ sector: 'Gıda / Restoran', role: 'Restoran müdürü', roleOther: '' }],
+    });
+    expect(restaurantRoles[0]).toBe('Restoran müdürü');
+    expect(restaurantRoles).toEqual(expect.arrayContaining(['Otel müdürü', 'Şef / mutfak şefi', MANUAL_OPTION]));
+    expect(restaurantRoles).not.toContain('Garson');
+    expect(restaurantRoles).not.toContain('Komi');
+    expect(restaurantRoles).not.toContain('Aşçı yardımcısı');
+
+    const hrRoles = suggestPreferredRoles({
+      experiences: [{ sector: 'İnsan kaynakları', role: 'İK yöneticisi', roleOther: '' }],
+    });
+    expect(hrRoles[0]).toBe('İK yöneticisi');
+    expect(hrRoles).not.toContain('Bordro uzmanı');
+    expect(hrRoles).not.toContain('İnsan kaynakları uzmanı');
+    expect(hrRoles).not.toContain('İşe alım uzmanı');
   });
 
   it('lets a bank teller see frontline peers and a promotion path', () => {

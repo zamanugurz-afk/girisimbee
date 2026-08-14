@@ -96,39 +96,37 @@ const FRONTLINE_SECTORS = new Set([
   'Güvenlik',
 ]);
 
-/** Peer clusters. Do not mix unit managers with gişe / çağrı / kasiyer families. */
+/** Peer clusters. Managers stay with managers; specialists stay with specialists. */
 const FAMILY_CLUSTERS: RoleFamily[][] = [
   [
     'branchManager',
     'regionalManager',
     'salesManager',
     'portfolioManager',
-    'credit',
-    'accounting',
-    'insuranceOps',
     'officeManager',
     'consulting',
     'hrManager',
   ],
-  ['bankFront', 'callCenter', 'customerSuccess', 'salesIndoor'],
+  ['credit', 'accounting', 'insuranceOps', 'portfolioManager'],
+  ['bankFront', 'callCenter', 'customerSuccess'],
+  ['salesIndoor', 'salesField', 'customerSuccess'],
   [
     'storeManager',
     'regionalManager',
     'salesManager',
-    'salesIndoor',
-    'salesField',
     'warehouseLead',
     'brandManager',
   ],
   ['retail', 'cashier'],
   ['restaurantManager', 'kitchenChef', 'hotelOps'],
   ['restaurant', 'kitchen', 'reception', 'host', 'housekeeping'],
-  ['software', 'techLead', 'data', 'product', 'design', 'devops', 'qa', 'consulting'],
-  ['hr', 'hrManager', 'officeManager', 'legal', 'public', 'teacher', 'schoolPrincipal'],
-  ['marketing', 'brandManager', 'media', 'mediaLead', 'design', 'salesIndoor'],
+  ['software', 'techLead', 'data', 'product', 'design', 'devops', 'qa'],
+  ['hr', 'legal', 'public', 'teacher'],
+  ['hrManager', 'officeManager', 'schoolPrincipal'],
+  ['marketing', 'brandManager', 'media', 'mediaLead', 'design'],
   ['warehouseLead', 'productionLead', 'shiftSupervisor', 'siteChief'],
   ['logistics', 'driver', 'factory', 'construction'],
-  ['autoService', 'salesField'],
+  ['autoService'],
   ['serviceManager', 'salesManager'],
   ['farm', 'farmLead'],
   ['beauty', 'retail', 'cashier'],
@@ -183,7 +181,6 @@ const SECTOR_SEEDS: Record<string, readonly string[]> = {
     'Holding / Yönetim',
     'Danışmanlık',
     'Satış',
-    'İnsan kaynakları',
   ],
   Sigorta: [
     'Finans / Bankacılık',
@@ -353,9 +350,19 @@ function uniq(values: string[]): string[] {
 }
 
 function minAcceptableSeniority(sourceSeniority: number): number {
-  if (sourceSeniority >= 3) return 1;
+  if (sourceSeniority >= 3) return 2;
   if (sourceSeniority >= 2) return 1;
   return 0;
+}
+
+const JUNIOR_TITLE_RE =
+  /temsilci|kasiyer|garson|komi|kurye|hostes|sekreter|çaycı|gişe|görevlisi|asistan|yardımcısı|işçi|operatör|uzman(?:ı)?|personeli|broker|underwriter|analist|analyst|iç satış|saha satış|bordro/i;
+
+function isJuniorPreferenceTitle(title: string): boolean {
+  const hay = title.toLocaleLowerCase('tr-TR');
+  if (/hesap yöneticisi/.test(hay)) return true;
+  if (/yönetim danışmanı|strateji danışmanı/.test(hay)) return false;
+  return JUNIOR_TITLE_RE.test(hay);
 }
 
 function familyFitsSource(sourceFamily: RoleFamily | null, sourceSeniority: number, family: RoleFamily): boolean {
@@ -370,10 +377,12 @@ function titleFitsSeed(
   title: string,
 ): boolean {
   if (seed.role && title === seed.role) return true;
+  if (sourceSeniority >= 3 && isJuniorPreferenceTitle(title)) return false;
   const family = resolveRoleFamily(title);
   if (!family) {
     if (sourceSeniority < 2) return true;
-    return /müdür|yönetici|direktör|şef|sorumlu|lider|chief|cto|müdür yardımcısı/i.test(title);
+    return /müdür|yönetici|direktör|şef|lider|cto|yönetmen|chief|portföy/i.test(title)
+      && !/hesap yöneticisi/i.test(title);
   }
   return familyFitsSource(seed.family, sourceSeniority, family);
 }
@@ -518,7 +527,10 @@ export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[
         seed.weight
         + (same ? 300 : 0)
         + (upwardOrPeer ? 180 + seniority * 20 : 40 + seniority * 8);
-      for (const title of titlesForFamily(family)) add(title, familyScore);
+      for (const title of titlesForFamily(family)) {
+        if (!titleFitsSeed(seed, sourceSeniority, title)) continue;
+        add(title, familyScore);
+      }
     }
   }
 
