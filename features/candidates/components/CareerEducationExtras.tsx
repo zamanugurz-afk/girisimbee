@@ -1,14 +1,16 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
 import {
-  CERTIFICATE_OPTIONS,
   EDUCATION_FIELD_OPTIONS,
   joinSelectedList,
   MANUAL_OPTION,
+  needsEducationField,
   parseSelectedList,
+  suggestCertificates,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-field-options';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
@@ -23,6 +25,10 @@ export function CareerEducationExtras({
   disabled,
   errors,
   audience = 'seeker',
+  sector,
+  role,
+  roleOther,
+  experienceLevel,
 }: {
   educationLevel: string;
   educationField: string;
@@ -43,10 +49,27 @@ export function CareerEducationExtras({
     certificates?: string;
   };
   audience?: 'seeker' | 'hire';
+  sector?: string | null;
+  role?: string | null;
+  roleOther?: string | null;
+  experienceLevel?: string | null;
 }) {
   const isHire = audience === 'hire';
+  const showEducationField = needsEducationField(educationLevel);
   const fieldIsManual =
     educationField === MANUAL_OPTION || educationField === 'Diğer / Kendim gireceğim';
+  const certificateOptions = useMemo(
+    () =>
+      suggestCertificates({
+        audience: isHire ? 'hire' : 'seeker',
+        sector,
+        role,
+        roleOther,
+        experienceLevel,
+        certificates,
+      }),
+    [isHire, sector, role, roleOther, experienceLevel, certificates],
+  );
 
   return (
     <div className="space-y-5">
@@ -59,7 +82,15 @@ export function CareerEducationExtras({
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
           value={educationLevel}
           disabled={disabled}
-          onChange={(e) => onChange({ educationLevel: e.target.value })}
+          onChange={(e) => {
+            const nextLevel = e.target.value;
+            onChange({
+              educationLevel: nextLevel,
+              ...(needsEducationField(nextLevel)
+                ? {}
+                : { educationField: '', educationFieldOther: '' }),
+            });
+          }}
         >
           <option value="">Seçin</option>
           {CAREER_EDUCATION_LEVELS.map((opt) => (
@@ -73,63 +104,65 @@ export function CareerEducationExtras({
         ) : null}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="educationField">
-          {isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
-        </Label>
-        <select
-          id="educationField"
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          value={educationField}
-          disabled={disabled}
-          onChange={(e) =>
-            onChange({
-              educationField: e.target.value,
-              educationFieldOther:
-                e.target.value === MANUAL_OPTION ? educationFieldOther : '',
-            })
-          }
-        >
-          <option value="">Seçin</option>
-          {EDUCATION_FIELD_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-        {fieldIsManual ? (
-          <>
-            <Input
-              className="mt-2"
-              value={educationFieldOther ?? ''}
-              disabled={disabled}
-              placeholder="Bölüm / alan yazın"
-              onKeyDown={(event) => event.stopPropagation()}
-              onChange={(e) => onChange({ educationFieldOther: e.target.value })}
-            />
-            {!isHire ? (
-              <CareerManualAssist
-                kind="education"
-                text={educationFieldOther ?? ''}
-                catalog={[...EDUCATION_FIELD_OPTIONS]}
+      {showEducationField ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="educationField">
+            {isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
+          </Label>
+          <select
+            id="educationField"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            value={educationField}
+            disabled={disabled}
+            onChange={(e) =>
+              onChange({
+                educationField: e.target.value,
+                educationFieldOther:
+                  e.target.value === MANUAL_OPTION ? educationFieldOther : '',
+              })
+            }
+          >
+            <option value="">Seçin</option>
+            {EDUCATION_FIELD_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          {fieldIsManual ? (
+            <>
+              <Input
+                className="mt-2"
+                value={educationFieldOther ?? ''}
                 disabled={disabled}
-                onAcceptCatalog={(items) => {
-                  const first = items[0];
-                  if (!first) return;
-                  onChange({ educationField: first, educationFieldOther: '' });
-                }}
+                placeholder="Bölüm / alan yazın"
+                onKeyDown={(event) => event.stopPropagation()}
+                onChange={(e) => onChange({ educationFieldOther: e.target.value })}
               />
-            ) : null}
-          </>
-        ) : null}
-        {errors?.educationField ? (
-          <p className="text-sm text-destructive">{errors.educationField}</p>
-        ) : null}
-      </div>
+              {!isHire ? (
+                <CareerManualAssist
+                  kind="education"
+                  text={educationFieldOther ?? ''}
+                  catalog={[...EDUCATION_FIELD_OPTIONS]}
+                  disabled={disabled}
+                  onAcceptCatalog={(items) => {
+                    const first = items[0];
+                    if (!first) return;
+                    onChange({ educationField: first, educationFieldOther: '' });
+                  }}
+                />
+              ) : null}
+            </>
+          ) : null}
+          {errors?.educationField ? (
+            <p className="text-sm text-destructive">{errors.educationField}</p>
+          ) : null}
+        </div>
+      ) : null}
 
       <CareerMultiSelect
         label={isHire ? 'Aranan sertifikalar' : 'Sertifikalar'}
-        options={[...CERTIFICATE_OPTIONS]}
+        options={certificateOptions}
         value={parseSelectedList(certificates)}
         onChange={(next) => onChange({ certificates: joinSelectedList(next) })}
         manualValue={certificatesOther ?? ''}
@@ -142,7 +175,7 @@ export function CareerEducationExtras({
         <CareerManualAssist
           kind="certificate"
           text={certificatesOther ?? ''}
-          catalog={[...CERTIFICATE_OPTIONS]}
+          catalog={certificateOptions}
           disabled={disabled}
           onAcceptCatalog={(items) => {
             const current = parseSelectedList(certificates);

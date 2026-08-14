@@ -461,6 +461,9 @@ function optionAllowed(value: string, context: OccupationalContext, kind: Occupa
     }
     if (kind !== 'professional') return false;
   }
+  if (context.family === 'factory' && /^(excel|word|powerpoint|outlook|microsoft teams)$/i.test(fold(value))) {
+    return false;
+  }
   if (value === 'CRM' || value === 'Salesforce' || value === 'HubSpot') {
     return context.family ? CRM_FAMILIES.has(context.family) : /satış|çağrı|sigorta/.test(fold(`${context.sector} ${context.role}`));
   }
@@ -493,7 +496,7 @@ function scoreOption(
   if (kind === 'tools' && (value === 'SAP' || value === 'SAP PP' || value === 'MS Project' || value === 'AutoCAD' || value === 'SolidWorks' || value === 'Power BI')) {
     score += context.adjacentStrength >= 2 || context.levelSeniority >= 2 ? 2 : -4;
   }
-  if (kind === 'tools' && value === 'Excel') score += 3;
+  if (kind === 'tools' && value === 'Excel' && context.family !== 'factory') score += 3;
   return score;
 }
 
@@ -601,9 +604,9 @@ export function familyCoreTools(family: RoleFamily | null): string[] {
     salesField: ['CRM', 'Excel'],
     salesManager: ['CRM', 'Excel', 'Power BI'],
     regionalManager: ['CRM', 'Excel', 'Power BI'],
-    factory: ['Excel'],
-    shiftSupervisor: ['Excel', 'MES / üretim kaydı'],
-    productionLead: ['Excel', 'MES / ERP'],
+    factory: ['MES / üretim kaydı'],
+    shiftSupervisor: ['MES / üretim kaydı'],
+    productionLead: ['MES / ERP'],
     hr: ['Excel', 'Outlook'],
     hrManager: ['Excel', 'Outlook'],
     credit: ['Excel', 'Power BI'],
@@ -614,8 +617,9 @@ export function familyCoreTools(family: RoleFamily | null): string[] {
 }
 
 export function officeToolSeeds(context: OccupationalContext): string[] {
+  if (context.family === 'factory') return [];
   if (context.family && !OFFICE_FAMILIES.has(context.family) && context.familySeniority === 0) {
-    return ['Excel'];
+    return [];
   }
   return ['Excel', 'Word', 'Outlook', 'Microsoft Teams'];
 }

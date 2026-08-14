@@ -4,6 +4,7 @@ import {
   joinSelectedList,
   MANUAL_OPTION,
   MANUAL_OPTION_SHORT,
+  needsEducationField,
   parseCareerLanguages,
   parseSelectedList,
   serializeCareerLanguages,
@@ -113,10 +114,11 @@ export function validateCareerEducationStep(
   customFields: Record<string, unknown>,
 ): Record<string, string> {
   const errors: Record<string, string> = {};
+  const educationLevel = String(customFields.educationLevel ?? '').trim();
   const educationField = String(customFields.educationField ?? '').trim();
   const educationFieldOther = String(customFields.educationFieldOther ?? '').trim();
 
-  if (isManualCareerOption(educationField)) {
+  if (needsEducationField(educationLevel) && isManualCareerOption(educationField)) {
     const issue = findCareerTextQualityIssue(educationFieldOther, {
       fieldLabel: 'Bölüm / alan',
       minLength: 2,
@@ -179,9 +181,11 @@ export function validateCareerEducationStep(
 export function materializeCareerEducationFields(
   customFields: Record<string, unknown>,
 ): Record<string, unknown> {
+  const educationLevel = String(customFields.educationLevel ?? '').trim();
   const educationFieldRaw = String(customFields.educationField ?? '').trim();
-  const educationField =
-    isManualCareerOption(educationFieldRaw)
+  const educationField = !needsEducationField(educationLevel)
+    ? ''
+    : isManualCareerOption(educationFieldRaw)
       ? String(customFields.educationFieldOther ?? '').trim()
       : educationFieldRaw;
 

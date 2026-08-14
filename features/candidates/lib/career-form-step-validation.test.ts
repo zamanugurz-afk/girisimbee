@@ -40,6 +40,7 @@ describe('career form step validation', () => {
     expect(skillErrors.professionalSkillsOther).toMatch(/zorunlu/);
 
     const educationErrors = validateCareerEducationStep({
+      educationLevel: 'Lisans',
       educationField: MANUAL_OPTION,
       educationFieldOther: '   ',
       certificates: MANUAL_OPTION,
@@ -47,6 +48,14 @@ describe('career form step validation', () => {
     });
     expect(educationErrors.educationField).toMatch(/zorunlu/);
     expect(educationErrors.certificates).toMatch(/zorunlu/);
+
+    expect(
+      validateCareerEducationStep({
+        educationLevel: 'Lise',
+        educationField: MANUAL_OPTION,
+        educationFieldOther: '',
+      }),
+    ).toEqual({});
   });
 
   it('requires a related sector pick and quality-checks manual preference text', () => {

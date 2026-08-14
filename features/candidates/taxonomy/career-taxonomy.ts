@@ -5,7 +5,10 @@
 
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortPositionsPopularThenAz } from '@/features/listings/lib/picker-sort';
-import { resolvePositionBundle } from '@/features/candidates/taxonomy/career-position-catalog';
+import {
+  resolvePositionBundle,
+  type RoleFamily,
+} from '@/features/candidates/taxonomy/career-position-catalog';
 import {
   adjacentFamilyBundles,
   buildOccupationalContext,
@@ -126,6 +129,14 @@ export const EDUCATION_FIELD_OPTIONS = [
   'Tarım',
   MANUAL_OPTION,
 ] as const;
+
+/** University / MYO majors — hidden for İlköğretim and Lise. */
+export function needsEducationField(educationLevel?: string | null): boolean {
+  const hay = (educationLevel ?? '').trim().toLocaleLowerCase('tr-TR');
+  if (!hay) return false;
+  if (hay === 'ilköğretim' || hay === 'ilkogretim' || hay === 'lise') return false;
+  return true;
+}
 
 type SectorKey = (typeof JOB_SECTOR_OPTIONS)[number];
 
@@ -1555,6 +1566,122 @@ export const CERTIFICATE_OPTIONS = [
   'Excel ileri seviye',
   MANUAL_OPTION,
 ] as const;
+
+const CERTIFICATES_BY_FAMILY: Partial<Record<RoleFamily, readonly string[]>> = {
+  factory: ['İSG C Sınıfı', 'İlk yardım sertifikası', 'Forklift operatör belgesi'],
+  shiftSupervisor: ['İSG C Sınıfı', 'İSG B Sınıfı', 'İlk yardım sertifikası', 'Forklift operatör belgesi'],
+  productionLead: ['İSG B Sınıfı', 'İSG A Sınıfı', 'İlk yardım sertifikası'],
+  construction: ['İSG C Sınıfı', 'İlk yardım sertifikası'],
+  siteChief: ['İSG B Sınıfı', 'İSG A Sınıfı', 'İlk yardım sertifikası'],
+  driver: ['SRC belgesi', 'İlk yardım sertifikası'],
+  logistics: ['Forklift operatör belgesi', 'SRC belgesi', 'İlk yardım sertifikası'],
+  warehouseLead: ['Forklift operatör belgesi', 'İSG C Sınıfı', 'İlk yardım sertifikası'],
+  autoService: ['İlk yardım sertifikası'],
+  serviceManager: ['İlk yardım sertifikası'],
+  farm: ['İlk yardım sertifikası'],
+  farmLead: ['İlk yardım sertifikası', 'İSG C Sınıfı'],
+  security: ['İlk yardım sertifikası'],
+  beauty: ['İlk yardım sertifikası'],
+  kitchen: ['İlk yardım sertifikası'],
+  kitchenChef: ['İlk yardım sertifikası'],
+  restaurant: ['İlk yardım sertifikası'],
+  restaurantManager: ['İlk yardım sertifikası'],
+  housekeeping: ['İlk yardım sertifikası'],
+  reception: ['İlk yardım sertifikası'],
+  host: ['İlk yardım sertifikası'],
+  hotelOps: ['İlk yardım sertifikası'],
+  retail: ['İlk yardım sertifikası'],
+  cashier: ['İlk yardım sertifikası'],
+  storeManager: ['İlk yardım sertifikası'],
+  callCenter: ['İlk yardım sertifikası'],
+  customerSuccess: ['HubSpot Academy'],
+  salesIndoor: ['HubSpot Academy', 'Google Ads Sertifikası'],
+  salesField: ['HubSpot Academy', 'Google Ads Sertifikası'],
+  salesManager: ['HubSpot Academy', 'Google Ads Sertifikası', 'Meta Blueprint'],
+  regionalManager: ['HubSpot Academy', 'Google Ads Sertifikası'],
+  insuranceOps: ['SEGEM', 'BES'],
+  bankFront: ['SEGEM', 'BES'],
+  branchManager: ['SEGEM', 'SPL Seviye 1'],
+  portfolioManager: ['SPL Seviye 1', 'SPL Seviye 2', 'SPK Lisansı'],
+  credit: ['SPL Seviye 1', 'SPL Seviye 2', 'SPK Lisansı'],
+  accounting: ['SMMM Stajyerlik', 'e-Defter / e-Fatura eğitimi'],
+  software: ['AWS Certified', 'Azure Fundamentals', 'Google Cloud Associate', 'Scrum Master'],
+  techLead: ['AWS Certified', 'Scrum Master', 'PMP'],
+  devops: ['AWS Certified', 'Azure Fundamentals', 'Google Cloud Associate'],
+  qa: ['Scrum Master', 'Azure Fundamentals'],
+  data: ['AWS Certified', 'Google Cloud Associate'],
+  product: ['Product Owner', 'Scrum Master', 'PMP'],
+  design: ['Google Ads Sertifikası'],
+  teacher: ['YDS', 'YÖKDİL', 'TOEFL', 'IELTS'],
+  schoolPrincipal: ['YDS', 'YÖKDİL'],
+  hr: ['PMP'],
+  hrManager: ['PMP', 'Scrum Master'],
+  marketing: ['Google Ads Sertifikası', 'Meta Blueprint', 'HubSpot Academy'],
+  brandManager: ['Google Ads Sertifikası', 'Meta Blueprint'],
+  legal: ['YDS', 'YÖKDİL'],
+  consulting: ['PMP', 'PRINCE2', 'Scrum Master'],
+  admin: ['Microsoft Office uzmanlığı', 'Excel ileri seviye'],
+  officeManager: ['Microsoft Office uzmanlığı', 'Excel ileri seviye', 'PMP'],
+};
+
+const FRONTLINE_CERT_BAN = new Set([
+  'TOEFL',
+  'IELTS',
+  'YDS',
+  'YÖKDİL',
+  'SMMM Stajyerlik',
+  'e-Defter / e-Fatura eğitimi',
+  'Microsoft Office uzmanlığı',
+  'Excel ileri seviye',
+  'Google Ads Sertifikası',
+  'Meta Blueprint',
+  'HubSpot Academy',
+  'AWS Certified',
+  'Azure Fundamentals',
+  'Google Cloud Associate',
+  'Cisco CCNA',
+  'PMP',
+  'PRINCE2',
+  'Scrum Master',
+  'Product Owner',
+  'SPL Seviye 1',
+  'SPL Seviye 2',
+  'SPL Seviye 3',
+  'SPK Lisansı',
+  'SEGEM',
+  'BES',
+  'Hasta kabul sertifikası',
+]);
+
+function certificatesForFamily(family: RoleFamily | null): string[] {
+  if (!family) return [];
+  return [...(CERTIFICATES_BY_FAMILY[family] ?? [])];
+}
+
+export function suggestCertificates(input: OccupationalProfileInput): string[] {
+  const context = buildOccupationalContext(input);
+  const existing = parseSelectedList(input.certificates).filter((item) => !isManualCareerOption(item));
+  const values: string[] = [...certificatesForFamily(context.family)];
+  if (context.adjacentStrength >= 2 && context.family !== 'factory') {
+    for (const family of context.adjacentFamilies) {
+      values.push(...certificatesForFamily(family).slice(0, 2));
+    }
+  }
+  const bannedFrontline = context.family === 'factory' || context.familySeniority === 0;
+  const ranked: string[] = [];
+  const seen = new Set<string>();
+  for (const value of [...values, ...existing]) {
+    const trimmed = value.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    if (bannedFrontline && FRONTLINE_CERT_BAN.has(trimmed) && !existing.includes(trimmed)) continue;
+    seen.add(trimmed);
+    ranked.push(trimmed);
+  }
+  if (ranked.length === 0 && !context.family) {
+    ranked.push('İlk yardım sertifikası');
+  }
+  return withManualOption(ranked);
+}
 
 export type CareerLanguageEntry = {
   id: string;

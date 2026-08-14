@@ -1,5 +1,6 @@
 import { suggestTools } from '@/features/candidates/taxonomy/career-tools';
 import {
+  suggestCertificates,
   suggestProfessionalSkills,
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -17,6 +18,7 @@ export type OccupationalSuggestionResult = {
   professionalSkills: string[];
   technicalSkills: string[];
   tools: string[];
+  certificates: string[];
   relatedOccupations: OccupationalRelatedOccupation[];
   confidence: number;
   fingerprint: string;
@@ -33,6 +35,7 @@ export function resolveOccupationalSuggestions(
     professionalSkills: suggestProfessionalSkills(input),
     technicalSkills: suggestTechnicalSkills(input),
     tools: suggestTools(input),
+    certificates: suggestCertificates(input),
     relatedOccupations: relatedOccupationsFor(context),
     confidence,
     fingerprint: occupationalFingerprint(context),

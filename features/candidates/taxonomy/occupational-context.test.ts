@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import { MANUAL_OPTION, needsEducationField } from '@/features/candidates/taxonomy/career-taxonomy';
 import { suggestTools } from '@/features/candidates/taxonomy/career-tools';
 import {
   suggestProfessionalSkills,
@@ -33,10 +33,18 @@ describe('occupational context engine', () => {
       expect.arrayContaining(['Üretim operasyonu', 'Kalite kontrol', 'İSG']),
     );
     expect(result.professionalSkills).not.toEqual(expect.arrayContaining(OFF_TOPIC));
-    expect(result.technicalSkills).toEqual(expect.arrayContaining(['MES / üretim kaydı', 'Excel', MANUAL_OPTION]));
+    expect(result.technicalSkills).toEqual(expect.arrayContaining(['MES / üretim kaydı', MANUAL_OPTION]));
+    expect(result.technicalSkills).not.toContain('Excel');
     expect(result.technicalSkills).not.toEqual(expect.arrayContaining(['SQL', 'Python', 'CRM']));
-    expect(suggestTools(input)).not.toEqual(expect.arrayContaining(['Salesforce', 'HubSpot', 'CRM', 'SQL']));
-    expect(result.tools).toEqual(expect.arrayContaining(['Excel', MANUAL_OPTION]));
+    expect(suggestTools(input)).not.toEqual(expect.arrayContaining(['Salesforce', 'HubSpot', 'CRM', 'SQL', 'Excel']));
+    expect(result.tools).toEqual(expect.arrayContaining(['MES / üretim kaydı', MANUAL_OPTION]));
+    expect(result.tools).not.toContain('Excel');
+    expect(result.certificates).toEqual(
+      expect.arrayContaining(['İSG C Sınıfı', 'İlk yardım sertifikası', 'Forklift operatör belgesi', MANUAL_OPTION]),
+    );
+    expect(result.certificates).not.toEqual(
+      expect.arrayContaining(['TOEFL', 'IELTS', 'Microsoft Office uzmanlığı', 'Excel ileri seviye', 'SMMM Stajyerlik']),
+    );
   });
 
   it('gives senior factory line experience adjacent production skills without CRM/SQL', () => {
@@ -249,5 +257,15 @@ describe('occupational context engine', () => {
     expect(withoutManual(seeker.tools)).toEqual(withoutManual(hire.tools));
     expect(seeker.professionalSkills).toContain(MANUAL_OPTION);
     expect(hire.professionalSkills).toContain(MANUAL_OPTION);
+    expect(withoutManual(seeker.certificates)).toEqual(withoutManual(hire.certificates));
+  });
+
+  it('hides university majors for primary and high school', () => {
+    expect(needsEducationField('İlköğretim')).toBe(false);
+    expect(needsEducationField('Lise')).toBe(false);
+    expect(needsEducationField('')).toBe(false);
+    expect(needsEducationField('Lisans')).toBe(true);
+    expect(needsEducationField('Ön lisans')).toBe(true);
+    expect(needsEducationField('Meslek yüksekokulu')).toBe(true);
   });
 });

@@ -490,7 +490,7 @@ const FAMILIES: Record<RoleFamily, PositionBundle> = {
       'Fire oranının düşürülmesi',
     ],
     professionalSkills: ['Üretim operasyonu', 'Kalite kontrol', 'İSG'],
-    technicalSkills: ['MES / üretim kaydı', 'Excel'],
+    technicalSkills: ['MES / üretim kaydı'],
   },
   construction: {
     responsibilities: [

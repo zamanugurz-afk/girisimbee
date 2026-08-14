@@ -1490,6 +1490,18 @@ export function CategoryListingForm({
                 }}
                 disabled={disabled || isBusy}
                 audience={categoryId === CATEGORY_IDS.iseAl ? 'hire' : 'seeker'}
+                sector={String(
+                  mergedCustomFields.primarySector
+                    ?? parseCareerExperiences(mergedCustomFields.experiences)[0]?.sector
+                    ?? '',
+                )}
+                role={
+                  isManualCareerOption(mergedCustomFields.desiredRole)
+                    ? String(mergedCustomFields.desiredRoleOther ?? '')
+                    : String(mergedCustomFields.desiredRole ?? '')
+                }
+                roleOther={String(mergedCustomFields.desiredRoleOther ?? '')}
+                experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
                 errors={{
                   educationLevel: resolveFieldError(fieldErrors, 'educationLevel'),
                   educationField: resolveFieldError(fieldErrors, 'educationField'),
