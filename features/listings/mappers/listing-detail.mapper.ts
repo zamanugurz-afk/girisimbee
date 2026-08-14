@@ -233,6 +233,12 @@ export type ListingDetailMapContext = {
   company?: Company | null;
   /** When omitted, identity is not redacted (legacy callers / non-gated). */
   disclosure?: ContactDisclosureDecision | null;
+  /**
+   * Career-card name source when marketplace_profiles is unpublished (typical
+   * for seekers) or the viewer cannot SELECT the owner's profile row.
+   * Mapper still masks unless canRevealOwnerIdentity.
+   */
+  ownerDisplayName?: string | null;
 };
 
 /** Map engine aggregate → UI ListingDetail (existing detail view). */
@@ -466,7 +472,10 @@ export function aggregateToListingDetail(
             revealPersonal: revealCareerPersonal,
             birthDate: toDisplayValue(sourceCf.birthDate),
             gender: toDisplayValue(sourceCf.profileGender),
-            displayName: context?.profile?.displayName ?? null,
+            displayName:
+              context?.profile?.displayName
+              || context?.ownerDisplayName
+              || null,
             residenceCity: toDisplayValue(sourceCf.residenceCity),
             residenceDistrict: toDisplayValue(sourceCf.residenceDistrict),
             city: listing.city,
@@ -603,9 +612,9 @@ function buildPublisher(
   };
   return {
     type: 'user',
-    name: profile?.displayName ?? 'Kullanıcı',
+    name: profile?.displayName ?? context?.ownerDisplayName ?? 'Kullanıcı',
     avatarUrl: profile?.avatarUrl ?? null,
-    initials: (profile?.displayName ?? 'K').slice(0, 2).toUpperCase(),
+    initials: (profile?.displayName ?? context?.ownerDisplayName ?? 'K').slice(0, 2).toUpperCase(),
     verified: hasAnyTrustBadge(trust),
     trust,
     href: profile?.username

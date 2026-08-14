@@ -111,6 +111,24 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.careerCard?.gender).toBe('Erkek');
   });
 
+  it('masks career name from ownerDisplayName when the profile row is not loaded', () => {
+    const disclosure = resolveContactDisclosure({
+      listing: { moduleKey: 'candidates', anonymousMode: true, ownerId: String(OWNER) },
+      viewerUserId: null,
+    });
+
+    const detail = aggregateToListingDetail(makeAggregate(), {
+      disclosure,
+      ownerDisplayName: 'Uğur Zaman',
+    });
+
+    expect(detail.identityRedacted).toBe(true);
+    expect(detail.careerCard?.displayName).toBeFalsy();
+    expect(detail.careerCard?.displayNameMasked).toBe('Uğur *****');
+    expect(detail.careerCard?.age).toBe(ageFromBirthDate('1992-04-18'));
+    expect(detail.careerCard?.gender).toBe('Erkek');
+  });
+
   it('reveals identity after accepted contact request', () => {
     const disclosure = resolveContactDisclosure({
       listing: { moduleKey: 'candidates', anonymousMode: true, ownerId: String(OWNER) },
@@ -131,6 +149,24 @@ describe('aggregateToListingDetail identity disclosure', () => {
     expect(detail.careerCard?.birthDate).toBe('1992-04-18');
     expect(detail.careerCard?.residenceCity).toBe('Ağrı');
     expect(detail.careerCard?.residenceDistrict).toBe('Merkez');
+  });
+
+  it('reveals ownerDisplayName after accept when marketplace profile is unpublished', () => {
+    const disclosure = resolveContactDisclosure({
+      listing: { moduleKey: 'candidates', anonymousMode: true, ownerId: String(OWNER) },
+      viewerUserId: 'u0000001-0001-4000-8000-000000000002',
+      hasAcceptedContactRequest: true,
+    });
+
+    const detail = aggregateToListingDetail(makeAggregate(), {
+      disclosure,
+      ownerDisplayName: 'Uğur Zaman',
+    });
+
+    expect(detail.identityRedacted).toBeFalsy();
+    expect(detail.careerCard?.displayName).toBe('Uğur Zaman');
+    expect(detail.careerCard?.birthDate).toBe('1992-04-18');
+    expect(detail.publisher.name).toBe('Uğur Zaman');
   });
 
   it('does not redact employer listings for anonymous viewers', () => {

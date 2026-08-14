@@ -51,6 +51,8 @@ import { CareerEducationExtras } from '@/features/candidates/components/CareerEd
 import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLanguagesEditor';
 import { CareerPreferenceEditor } from '@/features/candidates/components/CareerPreferenceEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
+import { maskDisplaySurname } from '@/features/candidates/lib/career-public-identity';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
 import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
@@ -248,11 +250,13 @@ function buildCareerCardPreviewData(
   categoryId: CategoryId,
   customFields: Record<string, unknown>,
   longDescription?: string | null,
+  displayName?: string | null,
 ) {
   const isHire = categoryId === CATEGORY_IDS.iseAl;
   const role = isManualCareerOption(customFields.desiredRole)
     ? String(customFields.desiredRoleOther ?? '')
     : String(customFields.desiredRole ?? '');
+  const name = isHire ? null : (displayName ?? null);
   return {
     variant: (isHire ? 'hire' : 'seeker') as 'hire' | 'seeker',
     desiredRole: role,
@@ -275,6 +279,8 @@ function buildCareerCardPreviewData(
     requiredAchievements: String(customFields.requiredAchievements ?? ''),
     longDescription,
     experiences: isHire ? [] : parseCareerExperiences(customFields.experiences),
+    displayName: name,
+    displayNameMasked: isHire ? null : maskDisplaySurname(name),
     birthDate: isHire ? '' : String(customFields.birthDate ?? ''),
     gender: isHire ? '' : String(customFields.profileGender ?? ''),
     residenceCity: isHire ? '' : String(customFields.residenceCity ?? ''),
@@ -304,6 +310,7 @@ export function CategoryListingForm({
   showPreviewButton = false,
   showPublishButton = false,
 }: CategoryListingFormProps) {
+  const { user } = useAuth();
   const steps = useMemo(() => getListingFormSteps(categoryId), [categoryId]);
   const allFieldKeys = useMemo(
     () => listingType.fieldSchema.fields.map((f) => f.key),
@@ -516,9 +523,14 @@ export function CategoryListingForm({
   const careerPreviewData = useMemo(
     () =>
       isCareerCardCategory
-        ? buildCareerCardPreviewData(categoryId, mergedCustomFields, core.longDescription)
+        ? buildCareerCardPreviewData(
+            categoryId,
+            mergedCustomFields,
+            core.longDescription,
+            user?.displayName,
+          )
         : null,
-    [categoryId, core.longDescription, isCareerCardCategory, mergedCustomFields],
+    [categoryId, core.longDescription, isCareerCardCategory, mergedCustomFields, user?.displayName],
   );
 
   const stepCustomKeys = useMemo(

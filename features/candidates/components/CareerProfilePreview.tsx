@@ -90,7 +90,8 @@ export type CareerCardChrome = {
 
 function formatCareerBirthDate(value: string | null | undefined): string {
   const raw = (value ?? '').trim();
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  const ymd = raw.length >= 10 ? raw.slice(0, 10) : raw;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
   if (!match) return raw;
   const month = MONTH_OPTIONS[Number(match[2]) - 1]?.label;
   if (!month) return raw;
@@ -369,10 +370,17 @@ export function CareerProfilePreview({
   const listingId = chrome?.listingId;
   const { user } = useAuth();
   const isOwner = Boolean(user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId);
+  const showPublicCta = Boolean(listingId);
+  const showChromeMeta = Boolean(
+    chrome?.listingNumber
+    || chrome?.publishedAt
+    || chrome?.updatedAt
+    || typeof chrome?.views === 'number',
+  );
   const publicName =
     (data.displayName ?? '').trim()
     || data.displayNameMasked
-    || (!isHire ? maskDisplaySurname(user?.displayName) : null);
+    || (!listingId && !isHire ? maskDisplaySurname(user?.displayName) : null);
   const age = data.age ?? (!isHire ? ageFromBirthDate(data.birthDate) : null);
   const gender = isHire ? null : publicGenderLabel(data.gender);
   const pills = [
@@ -587,6 +595,7 @@ export function CareerProfilePreview({
         </div>
       ) : null}
 
+      {showChromeMeta || showPublicCta ? (
       <div className="flex flex-col gap-3 border-t border-border/50 bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
           {chrome?.listingNumber ? (
@@ -614,7 +623,8 @@ export function CareerProfilePreview({
             </span>
           ) : null}
         </div>
-        <div className="w-full shrink-0 sm:w-auto">
+        {showPublicCta ? (
+        <div className="w-full shrink-0 sm:max-w-sm">
           {listingId && !isOwner ? (
             <ListingContactCta
               listingId={listingId}
@@ -625,17 +635,15 @@ export function CareerProfilePreview({
               buttonLabel={ctaLabel}
               className="h-11 w-full rounded-2xl px-6 font-semibold sm:w-auto"
             />
-          ) : listingId && isOwner ? (
+          ) : (
             <Button type="button" disabled className="h-11 w-full rounded-2xl px-6 sm:w-auto">
               Sizin ilanınız
             </Button>
-          ) : (
-            <Button type="button" disabled className="h-11 w-full rounded-2xl px-6 font-semibold sm:w-auto">
-              {ctaLabel}
-            </Button>
           )}
         </div>
+        ) : null}
       </div>
+      ) : null}
 
       <div className="flex items-start gap-2.5 border-t border-primary/10 bg-primary/[0.04] px-5 py-3.5 text-[12px] leading-relaxed text-muted-foreground sm:px-6 lg:px-8">
         <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />

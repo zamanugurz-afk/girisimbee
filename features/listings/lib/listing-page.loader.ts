@@ -13,6 +13,27 @@ import {
   resolveContactDisclosure,
 } from '@/features/contact-requests/lib/contact-disclosure';
 import { isAdmin } from '@/features/authorization/rbac.service';
+import { createServiceRoleClient } from '@/lib/supabase/service';
+
+/** display_name only — never email/phone. Bypasses unpublished-profile RLS for career-card masking. */
+async function loadCareerOwnerDisplayName(ownerId: string | null | undefined): Promise<string | null> {
+  const id = (ownerId ?? '').trim();
+  if (!id) return null;
+  try {
+    const admin = createServiceRoleClient();
+    const { data, error } = await admin
+      .from('marketplace_profiles')
+      .select('display_name')
+      .eq('user_id', id)
+      .is('deleted_at', null)
+      .maybeSingle();
+    if (error) return null;
+    const name = typeof data?.display_name === 'string' ? data.display_name.trim() : '';
+    return name || null;
+  } catch {
+    return null;
+  }
+}
 
 export type ListingPagePayload =
   | { kind: 'detail'; listing: ListingDetail }
@@ -69,22 +90,33 @@ export const loadListingPagePayload = cache(
 
         let viewerIsAdmin = false;
         let hasAcceptedContactRequest = false;
+        let acceptedOwnerDisplayName: string | null = null;
 
         if (viewerUserId && isIdentityGatedListing(listing)) {
-          const isOwner = viewerUserId === String(listing.ownerId);
+          const isOwner = Boolean(listing.ownerId && viewerUserId === String(listing.ownerId));
           if (!isOwner) {
-            const [accountProfile, accepted] = await Promise.all([
+            const [accountProfile, mine] = await Promise.all([
               container.accountService
                 .getProfile(viewerUserId as UserId)
                 .catch(() => null),
-              container.contactRequestService.hasAcceptedPair(
+              container.contactRequestService.getMineForListing(
                 listing.id,
-                listing.ownerId,
                 viewerUserId as UserId,
               ),
             ]);
             viewerIsAdmin = isAdmin(accountProfile?.role);
-            hasAcceptedContactRequest = accepted;
+            hasAcceptedContactRequest = mine?.effectiveStatus === 'accepted';
+            if (hasAcceptedContactRequest) {
+              const fromParts = [mine?.ownerFirstName, mine?.ownerLastName]
+                .filter((part): part is string => Boolean(part && part.trim()))
+                .join(' ')
+                .trim();
+              acceptedOwnerDisplayName =
+                mine?.ownerFullName?.trim()
+                || fromParts
+                || mine?.ownerDisplayName?.trim()
+                || null;
+            }
           }
         }
 
@@ -99,12 +131,12 @@ export const loadListingPagePayload = cache(
           hasAcceptedContactRequest,
         });
 
-        // Skip loading profile/company when identity will be redacted (no PII to hydrate).
+        // Full profile/company only when the viewer may see owner identity.
+        // Career cards still need display_name for surname masking (profiles are often draft).
         const loadIdentity = disclosure.canRevealOwnerIdentity;
+        const loadCareerDisplayName = listing.moduleKey === 'candidates';
 
-        // Public owner display uses marketplace_profiles only — never cross-user
-        // public.profiles (phone/email/role) after own-only RLS hardening.
-        const [tags, images, profile, company] = await Promise.all([
+        const [tags, images, profile, company, privilegedDisplayName] = await Promise.all([
           container.tagRepository.findByListingId(listing.id),
           container.listingImageRepository.findByListingId(listing.id),
           loadIdentity
@@ -112,6 +144,9 @@ export const loadListingPagePayload = cache(
             : Promise.resolve(null),
           loadIdentity && listing.companyId
             ? container.companyService.getById(listing.companyId)
+            : Promise.resolve(null),
+          loadCareerDisplayName
+            ? loadCareerOwnerDisplayName(listing.ownerId)
             : Promise.resolve(null),
         ]);
 
@@ -129,6 +164,11 @@ export const loadListingPagePayload = cache(
               profile,
               company,
               disclosure,
+              ownerDisplayName:
+                acceptedOwnerDisplayName
+                || privilegedDisplayName
+                || profile?.displayName
+                || null,
             },
           ),
         };

@@ -15,7 +15,9 @@ export function ageFromBirthDate(
   value: string | null | undefined,
   now = new Date(),
 ): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec((value ?? '').trim());
+  const raw = (value ?? '').trim();
+  const ymd = raw.length >= 10 ? raw.slice(0, 10) : raw;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
   if (!match) return null;
   const year = Number(match[1]);
   const month = Number(match[2]);

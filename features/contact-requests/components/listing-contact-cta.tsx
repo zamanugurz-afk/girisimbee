@@ -334,14 +334,19 @@ export function ListingContactCta({
   if (variant === 'compact') {
     let compactBody = primaryButton;
     if (user && mine && !canCreate) {
-      if (mine.effectiveStatus === 'accepted' && mine.conversationId) {
+      if (mine.effectiveStatus === 'accepted') {
         compactBody = (
-          <Button asChild className={cn('h-10 rounded-2xl', className)}>
-            <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`}>
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Mesajlara git
-            </Link>
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:min-w-[16rem]">
+            {revealBlock}
+            {mine.conversationId ? (
+              <Button asChild className={cn('h-10 rounded-2xl', className)}>
+                <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Mesajlara git
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         );
       } else {
         compactBody = (
