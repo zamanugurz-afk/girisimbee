@@ -15,10 +15,11 @@ describe('career listing covers', () => {
     expect(resolveCareerCoverTheme('Finans / Bankacılık', 'Kredi uzmanı')).toBe('finans');
     expect(resolveCareerCoverTheme('Eğitim', 'Öğretmen')).toBe('egitim');
     expect(resolveCareerCoverTheme('Üretim / Sanayi', 'Üretim mühendisi')).toBe('uretim');
-    expect(resolveCareerCoverTheme('Otomotiv', 'Servis danışmanı')).toBe('satis');
-    expect(resolveCareerCoverTheme(null, 'Servis danışmanı')).toBe('satis');
-    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Resepsiyonist')).toBe('satis');
-    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Host / hostes')).toBe('satis');
+    expect(resolveCareerCoverTheme('Otomotiv', 'Servis danışmanı')).toBe('genel');
+    expect(resolveCareerCoverTheme(null, 'Servis danışmanı')).toBe('genel');
+    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Resepsiyonist')).toBe('turizm');
+    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Otel resepsiyonisti')).toBe('turizm');
+    expect(resolveCareerCoverTheme('Turizm / Otelcilik', 'Host / hostes')).toBe('turizm');
     expect(resolveCareerCoverTheme('Eğitim', 'Eğitmen / öğretmen')).toBe('egitim');
   });
 
@@ -50,6 +51,21 @@ describe('career listing covers', () => {
         gender: 'Erkek',
       }),
     ).toBe('/covers/career-erkek-finans.jpg');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Finans / Bankacılık',
+        role: 'Bölge müdürü',
+        gender: 'Kadın',
+      }),
+    ).toBe('/covers/career-kadin-finans.jpg');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'is-ariyorum',
+        sector: 'Finans / Bankacılık',
+        role: 'Bölge müdürü',
+      }),
+    ).toBe('/covers/career-finans.jpg');
   });
 
   it('uses profession covers for İş Arıyorum and İşe Alıyorum fallbacks', () => {
@@ -67,14 +83,22 @@ describe('career listing covers', () => {
         sector: 'Otomotiv',
         role: 'Servis danışmanı',
       }),
-    ).toBe('/covers/career-satis.jpg');
+    ).toBe('/covers/is-ariyorum.jpg');
 
     expect(
       resolveDefaultListingCover({
         listingTypeSlug: 'is-bul',
         role: 'Servis danışmanı',
       }),
-    ).toBe('/covers/career-satis.jpg');
+    ).toBe('/covers/is-ariyorum.jpg');
+
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'ise-aliyorum',
+        sector: 'Turizm / Otelcilik',
+        role: 'Otel resepsiyonisti',
+      }),
+    ).toBe('/covers/career-turizm.jpg');
 
     expect(
       resolveDefaultListingCover({

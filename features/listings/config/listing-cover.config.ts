@@ -35,18 +35,20 @@ export type CareerCoverTheme =
   | 'finans'
   | 'egitim'
   | 'uretim'
+  | 'turizm'
   | 'genel';
 
 export type CareerCoverGender = 'erkek' | 'kadin';
 
 const CAREER_SCENE_COVER_BY_THEME: Record<CareerCoverTheme, string> = {
-  sigorta: '/covers/career-satis.jpg',
+  sigorta: '/covers/career-finans.jpg',
   saglik: '/covers/career-saglik.jpg',
   yazilim: '/covers/career-yazilim.jpg',
   satis: '/covers/career-satis.jpg',
   finans: '/covers/career-finans.jpg',
   egitim: '/covers/career-egitim.jpg',
   uretim: '/covers/career-uretim.jpg',
+  turizm: '/covers/career-turizm.jpg',
   genel: '/covers/is-ariyorum.jpg',
 };
 
@@ -106,13 +108,14 @@ export function resolveCareerCoverTheme(
   if (/kredi uzman|bankacı|banka|finans|muhasebe|mali müşavir|kredi|hazine|uyum|iç kontrol/.test(hay)) {
     return 'finans';
   }
-  if (/servis danışman|resepsiyon|ön büro|host|hostes|otel|turizm|garson|aşçı|barista|animatör|kat görev/.test(hay)) {
-    return 'satis';
+  if (/resepsiyon|ön büro|host|hostes|otel|turizm|garson|aşçı|şef \/ mutfak|barista|animatör|kat görev|housekeep|komi/.test(hay)) {
+    return 'turizm';
   }
+  if (/servis danışman/.test(hay)) return 'genel';
   if (/üretim|sanayi|inşaat|otomotiv|enerji|lojistik|depo|sevkiyat|şoför|forklift|şantiye|tarım|ziraat/.test(hay)) {
     return 'uretim';
   }
-  if (/satış|müşteri|ticaret|perakende|pazarlama|çağrı|kasiyer|mağaza|gayrimenkul danışman/.test(hay)) {
+  if (/satış|perakende|pazarlama|kasiyer|mağaza|gayrimenkul danışman|key account/.test(hay)) {
     return 'satis';
   }
   return 'genel';
