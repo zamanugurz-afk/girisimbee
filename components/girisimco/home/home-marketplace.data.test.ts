@@ -25,24 +25,28 @@ describe('career hub on homepage catalog', () => {
     expect(HOME_CATEGORIES.find((cat) => cat.slug === 'ise-al')?.label).not.toContain('&');
   });
 
-  it('exposes only İş Arıyorum and İşe Alıyorum as career landing options', () => {
+  it('exposes İş Arayanlar and İş İlanları as /is browse cards', () => {
     expect(CAREER_HUB_LANDING.badge).toBe('Kariyer ve İş Fırsatları');
     expect(CAREER_HUB_LANDING.title).toContain('hangi tarafta olduğunuzu seçin');
     expect(CAREER_FLOW_OPTIONS.map((item) => item.label)).toEqual([
-      'İş Arıyorum',
-      'İşe Alıyorum',
+      'İş Arayanlar',
+      'İş İlanları',
     ]);
     expect(CAREER_HUB_LANDING.trust).toBe(
       'İletişim bilgileriniz gizli kalır. İlgilendiğiniz kişiyle iletişim talebi üzerinden bağlantı kurarsınız.',
     );
     expect(CAREER_FLOW_OPTIONS[0]?.description).toBe(
-      'İş arayan ilanını inceleyin, uygunluğu değerlendirin ve iletişim talebi gönderin.',
+      'İş arayan profillerini inceleyin; uygun adayla güvenli iletişim kurun.',
     );
     expect(CAREER_FLOW_OPTIONS[1]?.description).toBe(
-      'İş ilanını inceleyin, size uygun mu bakın ve iletişim talebi gönderin.',
+      'Açık pozisyonları inceleyin; iş ilanı sahibiyle güvenli iletişim kurun.',
     );
-    expect(CAREER_FLOW_OPTIONS[0]?.benefits[0]?.title).toBe('Profilini inceleyin');
-    expect(CAREER_FLOW_OPTIONS[1]?.benefits[0]?.title).toBe('Pozisyonu inceleyin');
+    expect(CAREER_FLOW_OPTIONS[0]?.benefits[0]?.title).toBe('Profili inceleyin');
+    expect(CAREER_FLOW_OPTIONS[1]?.benefits[0]?.title).toBe('İlanı inceleyin');
+    expect(CAREER_FLOW_OPTIONS[0]?.benefits[2]?.title).toBe('Güvenli iletişim kurun');
+    expect(CAREER_FLOW_OPTIONS[1]?.benefits[2]?.text).toBe(
+      'İş ilanı sahibiyle iletişim talebi üzerinden bağlantı kurun.',
+    );
     expect(CAREER_FLOW_OPTIONS[0]?.href).toBe('/is?flow=seek');
     expect(CAREER_FLOW_OPTIONS[1]?.href).toBe('/is?flow=hire');
     expect(CAREER_FLOW_OPTIONS[0]?.benefits).toHaveLength(3);

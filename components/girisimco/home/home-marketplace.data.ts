@@ -108,47 +108,51 @@ export type CareerFlowCardCopy = {
   href?: string;
 };
 
-/** /is browse cards — “Bu ilanlarla ne yapabilirim?” */
+/**
+ * /is browse cards — listing type, not viewer intent.
+ * seek: job-seeker profiles (employers review candidates).
+ * hire: employer job ads (job seekers review openings).
+ */
 export const CAREER_FLOW_OPTIONS = [
   {
     id: 'seek',
     href: '/is?flow=seek',
-    label: 'İş Arıyorum',
+    label: 'İş Arayanlar',
     description:
-      'İş arayan ilanını inceleyin, uygunluğu değerlendirin ve iletişim talebi gönderin.',
+      'İş arayan profillerini inceleyin; uygun adayla güvenli iletişim kurun.',
     benefits: [
       {
-        title: 'Profilini inceleyin',
+        title: 'Profili inceleyin',
         text: 'Deneyim ve yetkinliklerini tek yerde görün.',
       },
       {
         title: 'Uygunluğu değerlendirin',
-        text: 'Pozisyon ve beklentileri birlikte değerlendirin.',
+        text: 'Aradığınız rolle birlikte bakın.',
       },
       {
-        title: 'İletişim talebi gönderin',
-        text: 'İlgilendiğiniz adayla güvenli şekilde iletişime geçin.',
+        title: 'Güvenli iletişim kurun',
+        text: 'Adayla iletişim talebi üzerinden bağlantı kurun.',
       },
     ],
   },
   {
     id: 'hire',
     href: '/is?flow=hire',
-    label: 'İşe Alıyorum',
+    label: 'İş İlanları',
     description:
-      'İş ilanını inceleyin, size uygun mu bakın ve iletişim talebi gönderin.',
+      'Açık pozisyonları inceleyin; iş ilanı sahibiyle güvenli iletişim kurun.',
     benefits: [
       {
-        title: 'Pozisyonu inceleyin',
+        title: 'İlanı inceleyin',
         text: 'Rolü, beklentileri ve aranan yetkinlikleri görün.',
       },
       {
-        title: 'Size uygun mu değerlendirin',
+        title: 'Size uygun mu bakın',
         text: 'Deneyiminiz ve hedeflerinizle karşılaştırın.',
       },
       {
-        title: 'İletişim talebi gönderin',
-        text: 'İlan sahibine doğrudan numaranızı vermeden ulaşın.',
+        title: 'Güvenli iletişim kurun',
+        text: 'İş ilanı sahibiyle iletişim talebi üzerinden bağlantı kurun.',
       },
     ],
   },
