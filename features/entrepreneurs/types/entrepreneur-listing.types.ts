@@ -24,11 +24,11 @@ export interface EntrepreneurListingPayload {
   contactEmail?: string | null;
   contactWebsite?: string | null;
   investmentStage?: string | null;
-  investmentTarget?: number | null;
-  valuation?: number | null;
-  monthlyRevenue?: number | null;
-  teamSize?: number | null;
-  businessModel?: string | null;
+  investmentTarget?: number | string | null;
+  valuation?: number | string | null;
+  monthlyRevenue?: number | string | null;
+  teamSize?: number | string | null;
+  businessModel?: string | string[] | null;
   pitchDeckDocumentId?: string | null;
 }
 

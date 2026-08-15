@@ -9,6 +9,16 @@ export const entrepreneurListingBrowseQuerySchema = z.object({
   stage: z.string().optional(),
 });
 
+const optionalMetric = z
+  .union([z.number().int().min(0), z.string().max(80)])
+  .nullable()
+  .optional();
+
+const optionalLabelList = z
+  .union([z.string().max(500), z.array(z.string().max(80)).max(8)])
+  .nullable()
+  .optional();
+
 export const entrepreneurListingCreateSchema = z
   .object({
     title: z.string().min(3).max(200),
@@ -18,11 +28,12 @@ export const entrepreneurListingCreateSchema = z
     district: z.string().max(100).nullable().optional(),
     sector: z.string().max(100).nullable().optional(),
     investmentStage: z.string().max(100).nullable().optional(),
-    investmentTarget: z.number().int().min(0).nullable().optional(),
-    valuation: z.number().int().min(0).nullable().optional(),
-    monthlyRevenue: z.number().int().min(0).nullable().optional(),
-    teamSize: z.number().int().min(0).nullable().optional(),
-    businessModel: z.string().max(500).nullable().optional(),
+    stage: z.string().max(100).nullable().optional(),
+    investmentTarget: optionalMetric,
+    valuation: optionalMetric,
+    monthlyRevenue: optionalMetric,
+    teamSize: optionalMetric,
+    businessModel: optionalLabelList,
     pitchDeckDocumentId: uuidSchema.nullable().optional(),
   })
   .merge(externalContactSchema)
