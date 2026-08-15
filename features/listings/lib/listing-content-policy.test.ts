@@ -58,7 +58,10 @@ describe('listing-content-policy', () => {
   it('flags unsafe image names and dimensions', () => {
     expect(assertSafeListingImageName('vacation-nude.jpg')?.code).toBe('unsafe_image_name');
     expect(assertSafeListingImageName('storefront.jpg')).toBeNull();
-    expect(assertListingImageDimensions(320, 200)?.code).toBe('image_dimensions');
+    expect(assertListingImageDimensions(80, 80)?.code).toBe('image_dimensions');
+    expect(assertListingImageDimensions(0, 0)).toBeNull();
+    expect(assertListingImageDimensions(400, 400)).toBeNull();
+    expect(assertListingImageDimensions(390, 844)).toBeNull();
     expect(assertListingImageDimensions(1200, 800)).toBeNull();
   });
 

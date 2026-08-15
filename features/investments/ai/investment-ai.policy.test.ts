@@ -69,6 +69,27 @@ describe('investment AI policy', () => {
     expect(parsed?.professionalInvestmentSummary).toContain('14');
   });
 
+  it('treats 10%, 10 and yüzde 10 as the same grounded equity claim', () => {
+    const evidence = JSON.stringify(baseContext);
+    expect(hasUngroundedNumbers('10 hisse teklif ediyor', evidence)).toBe(false);
+    expect(hasUngroundedNumbers('yüzde 10 hisse teklif ediyor', evidence)).toBe(false);
+    const parsed = parseInvestmentAiAnalysis(
+      {
+        professionalInvestmentSummary:
+          'RevSaaS 14 müşteri ve 120000 MRR ile yatırım arıyor; 10 hisse teklif ediyor.',
+        shortInvestmentSummary: '14 müşterili SaaS.',
+        investmentHighlights: [],
+        businessModelSummary: 'SaaS',
+        fundingUseSummary: 'Ürün geliştirme',
+        strengths: [],
+        profileGaps: [],
+        improvementSuggestions: [],
+      },
+      evidence,
+    );
+    expect(parsed?.professionalInvestmentSummary).toContain('10 hisse');
+  });
+
   it('rejects invented numbers without a second AI call', () => {
     const evidence = JSON.stringify(baseContext);
     const parsed = parseInvestmentAiAnalysis(

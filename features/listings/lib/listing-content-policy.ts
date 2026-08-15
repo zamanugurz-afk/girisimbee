@@ -110,12 +110,14 @@ const URL_RE =
 const SOCIAL_HANDLE_RE =
   /(?:^|\s)@[a-zA-Z0-9._]{3,}\b/;
 
-/** Min image constraints (client-side). */
-export const LISTING_IMAGE_MIN_WIDTH = 640;
-export const LISTING_IMAGE_MIN_HEIGHT = 360;
+/** Min image constraints (client-side). Logos and phone photos must pass. */
+export const LISTING_IMAGE_MIN_EDGE = 200;
 /** Allowed aspect ratio band (width / height). */
-export const LISTING_IMAGE_MIN_ASPECT = 0.5;
-export const LISTING_IMAGE_MAX_ASPECT = 2.6;
+export const LISTING_IMAGE_MIN_ASPECT = 0.2;
+export const LISTING_IMAGE_MAX_ASPECT = 5;
+/** @deprecated Use LISTING_IMAGE_MIN_EDGE — kept for existing imports/tests. */
+export const LISTING_IMAGE_MIN_WIDTH = LISTING_IMAGE_MIN_EDGE;
+export const LISTING_IMAGE_MIN_HEIGHT = LISTING_IMAGE_MIN_EDGE;
 
 export type ContentPolicyIssueCode =
   | 'title_case'
@@ -246,12 +248,15 @@ export function assertListingImageDimensions(
   width: number,
   height: number,
 ): ContentPolicyIssue | null {
-  if (width < LISTING_IMAGE_MIN_WIDTH || height < LISTING_IMAGE_MIN_HEIGHT) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return null;
+  }
+  if (Math.min(width, height) < LISTING_IMAGE_MIN_EDGE) {
     return {
       code: 'image_dimensions',
       severity: 'block',
       field: 'images',
-      message: `Görsel en az ${LISTING_IMAGE_MIN_WIDTH}×${LISTING_IMAGE_MIN_HEIGHT} piksel olmalıdır.`,
+      message: `Görsel en az ${LISTING_IMAGE_MIN_EDGE}×${LISTING_IMAGE_MIN_EDGE} piksel olmalıdır.`,
     };
   }
   const aspect = width / height;
@@ -266,20 +271,37 @@ export function assertListingImageDimensions(
   return null;
 }
 
-export function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+export async function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const width = bitmap.width;
+      const height = bitmap.height;
+      bitmap.close();
+      if (width > 0 && height > 0) return { width, height };
+    } catch {
+      // Fall through to HTMLImageElement.
+    }
+  }
+
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
-    const img = new Image();
+    const img = document.createElement('img');
+    const finish = (ok: boolean) => {
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      URL.revokeObjectURL(url);
+      if (ok && width > 0 && height > 0) resolve({ width, height });
+      else reject(new Error('Görsel okunamadı'));
+    };
     img.onload = () => {
-      const width = img.naturalWidth;
-      const height = img.naturalHeight;
-      URL.revokeObjectURL(url);
-      resolve({ width, height });
+      if (typeof img.decode === 'function') {
+        void img.decode().then(() => finish(true)).catch(() => finish(true));
+        return;
+      }
+      finish(true);
     };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Görsel okunamadı'));
-    };
+    img.onerror = () => finish(false);
     img.src = url;
   });
 }

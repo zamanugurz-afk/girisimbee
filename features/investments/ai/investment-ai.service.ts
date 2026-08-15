@@ -42,7 +42,7 @@ export async function runInvestmentAiAnalyze(
   const { json } = await openaiJsonCompletion({
     system: INVESTMENT_AI_SYSTEM_ANALYZE,
     user: analyzePrompt(context),
-    maxTokens: 480,
+    maxTokens: 800,
   });
   const parsed = parseInvestmentAiAnalysis(json, JSON.stringify(context));
   if (!parsed) {

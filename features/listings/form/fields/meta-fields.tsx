@@ -78,8 +78,7 @@ export function ImagesInput({
             continue;
           }
         } catch {
-          toast.error('Görsel boyutları okunamadı. Farklı bir dosya deneyin.');
-          continue;
+          // Tip ve 5 MB kontrolü upload tarafında duruyor; boyut okunamazsa engelleme.
         }
         const url = await uploadListingMedia(userId, file);
         uploaded.push({ url, alt: file.name, sortOrder: value.length + uploaded.length });

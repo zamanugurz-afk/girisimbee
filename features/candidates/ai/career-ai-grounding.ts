@@ -15,6 +15,19 @@ function normalizeNumericToken(raw: string): string {
     .replace(/%/g, '%');
 }
 
+/** Treat 10, 10% and %10 as the same claim; keep 2.500.000 aligned with 2500000. */
+function canonicalNumericKeys(token: string): string[] {
+  const noPct = token.replace(/%/g, '');
+  const keys = new Set<string>([token, noPct]);
+  if (/^\d{1,3}(\.\d{3})+$/.test(noPct)) {
+    keys.add(noPct.replace(/\./g, ''));
+  }
+  if (noPct.includes(',')) {
+    keys.add(noPct.replace(',', '.'));
+  }
+  return [...keys];
+}
+
 export function extractNumericTokens(text: string): string[] {
   const hits = text.match(NUMERIC_TOKEN_RE) ?? [];
   NUMERIC_TOKEN_RE.lastIndex = 0;
@@ -31,8 +44,13 @@ export function extractNumericTokens(text: string): string[] {
 
 export function hasUngroundedNumbers(output: string, evidence: string): boolean {
   if (!output.trim()) return false;
-  const allowed = new Set(extractNumericTokens(evidence));
-  return extractNumericTokens(output).some((token) => !allowed.has(token));
+  const allowed = new Set<string>();
+  for (const token of extractNumericTokens(evidence)) {
+    for (const key of canonicalNumericKeys(token)) allowed.add(key);
+  }
+  return extractNumericTokens(output).some(
+    (token) => !canonicalNumericKeys(token).some((key) => allowed.has(key)),
+  );
 }
 
 export function groundedTextOrEmpty(output: string, evidence: string): string {
