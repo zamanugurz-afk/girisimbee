@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ArrowRight,
   BrainCircuit,
@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { CreateListingCareerGroup } from '@/components/girisimco/listing/create-listing-career-group';
 import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
+  CREATE_LISTING_CAREER_HUB,
   CREATE_LISTING_PICKER_ORDER,
 } from '@/components/girisimco/listing/create-listing-career.data';
 
@@ -143,14 +144,26 @@ export function CreateListingCategoryPicker({
   options: CategoryListingTypeConfig[];
   onSelect: (categoryId: CategoryId) => void;
 }) {
+  const [careerStep, setCareerStep] = useState(false);
   const ordered = useMemo(() => {
     // Only CREATE_LISTING_PICKER_ORDER ids render in the flat grid.
-    // Career types (isBul / iseAl) are grouped separately; deferred types stay out.
+    // Career types (isBul / iseAl) open from the parent hub card; deferred types stay out.
     const rank = new Map(CREATE_LISTING_PICKER_ORDER.map((id, i) => [id, i]));
     return [...options]
       .filter((c) => rank.has(c.categoryId) && !CAREER_CREATE_SET.has(c.categoryId))
       .sort((a, b) => (rank.get(a.categoryId) ?? 99) - (rank.get(b.categoryId) ?? 99));
   }, [options]);
+
+  if (careerStep) {
+    return (
+      <section className="mb-10">
+        <CreateListingCareerGroup
+          onSelect={onSelect}
+          onBack={() => setCareerStep(false)}
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="mb-10">
@@ -185,7 +198,26 @@ export function CreateListingCategoryPicker({
         })}
       </div>
 
-      <CreateListingCareerGroup onSelect={onSelect} />
+      <div className="mt-8">
+        <div className="mb-4 max-w-xl">
+          <h3 className="font-display text-lg font-bold tracking-tight text-[#0B1220] dark:text-foreground">
+            {CREATE_LISTING_CAREER_HUB.title}
+          </h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-[#64748B]">
+            {CREATE_LISTING_CAREER_HUB.description}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          <CategoryCardButton
+            title={CREATE_LISTING_CAREER_HUB.cardTitle}
+            description={CREATE_LISTING_CAREER_HUB.cardDescription}
+            audience={CREATE_LISTING_CAREER_HUB.audience}
+            color={GC_CATEGORY_COLORS['ise-al']}
+            Icon={Briefcase}
+            onClick={() => setCareerStep(true)}
+          />
+        </div>
+      </div>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
   CREATE_LISTING_CAREER_COPY,
+  CREATE_LISTING_CAREER_HUB,
   CREATE_LISTING_PICKER_ORDER,
 } from '@/components/girisimco/listing/create-listing-career.data';
 import { CATEGORY_IDS, CATEGORY_SLUG_TO_ID } from '@/features/listings/config/listing-type-config';
@@ -20,12 +21,23 @@ describe('create listing career group', () => {
     expect(CREATE_LISTING_PICKER_ORDER).not.toContain(CATEGORY_IDS.yatirimYap);
   });
 
+  it('uses a single parent hub card before İş Arıyorum / İşe Alıyorum', () => {
+    expect(CREATE_LISTING_CAREER_HUB.title).toBe('Kariyer ve İş Fırsatları');
+    expect(CREATE_LISTING_CAREER_HUB.cardTitle).toBe('Kariyer ve İş Fırsatları');
+    expect(CREATE_LISTING_CAREER_HUB.cardTitle).not.toContain('&');
+    expect(CREATE_LISTING_CAREER_HUB.cardDescription).toBe(
+      'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
+    );
+    expect(CREATE_LISTING_CAREER_COPY.title).toBe(
+      'Ne tür bir kariyer ilanı vermek istiyorsunuz?',
+    );
+  });
+
   it('maps career create cards to the existing isBul / iseAl category IDs', () => {
     expect(CREATE_LISTING_CAREER_CATEGORY_IDS).toEqual([
       CATEGORY_IDS.isBul,
       CATEGORY_IDS.iseAl,
     ]);
-    expect(CREATE_LISTING_CAREER_COPY.title).toBe('Kariyer ve İş Fırsatları');
     expect(CREATE_LISTING_CAREER_COPY.options.map((item) => item.label)).toEqual([
       'İş Arıyorum',
       'İşe Alıyorum',
