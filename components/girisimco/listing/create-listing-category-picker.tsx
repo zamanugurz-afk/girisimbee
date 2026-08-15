@@ -25,6 +25,7 @@ import {
 import { CreateListingCareerGroup } from '@/components/girisimco/listing/create-listing-career-group';
 import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
+  CREATE_LISTING_CAREER_COPY,
   CREATE_LISTING_CAREER_HUB,
   CREATE_LISTING_PICKER_ORDER,
 } from '@/components/girisimco/listing/create-listing-career.data';
@@ -101,10 +102,23 @@ export function CreateListingCategoryPicker({
   if (careerStep) {
     return (
       <section className="mb-10">
-        <CreateListingCareerGroup
-          onSelect={onSelect}
-          onBack={() => setCareerStep(false)}
-        />
+        <CreateListingCareerGroup onBack={() => setCareerStep(false)}>
+          {CREATE_LISTING_CAREER_COPY.options.map((option) => {
+            const visual = CATEGORY_VISUAL[option.categoryId];
+            if (!visual) return null;
+            return (
+              <CategoryCardButton
+                key={option.categoryId}
+                title={option.label}
+                description={option.description}
+                audience={visual.audience}
+                color={visual.color}
+                Icon={visual.Icon}
+                onClick={() => onSelect(option.categoryId)}
+              />
+            );
+          })}
+        </CreateListingCareerGroup>
       </section>
     );
   }
