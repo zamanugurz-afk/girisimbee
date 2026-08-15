@@ -8,6 +8,8 @@ type HomeCategoryDef = {
   audience: string;
   shortCue: string;
   hint: string;
+  /** Homepage / nav: open İş Arıyorum + İşe Alıyorum chooser instead of jumping to /is. */
+  opensCareerHub?: boolean;
 };
 
 /**
@@ -45,11 +47,12 @@ export const HOME_CATEGORIES_CATALOG = [
   {
     slug: 'ise-al',
     href: '/is',
-    label: 'İş İlanları',
+    label: 'Kariyer ve İş Fırsatları',
     color: GC_CATEGORY_COLORS['ise-al'],
     audience: 'İşveren / iş arayan',
     shortCue: 'Pozisyon ve kariyer',
-    hint: 'İşe Alıyorum ve İş Arıyorum ilanlarının tamamını tek sayfada inceleyin.',
+    hint: 'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
+    opensCareerHub: true,
   },
   {
     slug: 'dijital-ai',
@@ -90,6 +93,26 @@ export const HOME_CATEGORIES = HOME_CATEGORIES_CATALOG.filter((cat) =>
 
 /** @deprecated Prefer HOME_CATEGORIES_CATALOG — alias kept for older imports. */
 export const HOME_CATEGORIES_ALL = HOME_CATEGORIES_CATALOG;
+
+/** Landing / nav chooser — existing /is URLs, optional flow chip. */
+export const CAREER_FLOW_OPTIONS = [
+  {
+    id: 'seek',
+    href: '/is?flow=seek',
+    label: 'İş Arıyorum',
+    description: 'Kendinize uygun iş fırsatlarını keşfedin.',
+  },
+  {
+    id: 'hire',
+    href: '/is?flow=hire',
+    label: 'İşe Alıyorum',
+    description: 'Aradığınız doğru çalışanı ve yeteneği bulun.',
+  },
+] as const;
+
+export function parseCareerFlowParam(value: unknown): 'seek' | 'hire' | undefined {
+  return value === 'seek' || value === 'hire' ? value : undefined;
+}
 
 export const FRANCHISE_FLOW_ROUTES = {
   /** Unified franchise listings (posted franchise ads only). */

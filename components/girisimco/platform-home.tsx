@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -17,6 +18,7 @@ import {
   HomeRestSections,
 } from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
+import { CareerFlowDialog } from '@/components/girisimco/home/career-flow-dialog';
 import {
   HOME_CATEGORIES,
   type HomeCategorySlug,
@@ -44,6 +46,7 @@ function homeGatewayGridClass(count: number): string {
 
 /** Intent gateway — larger destination cards under the hero. */
 function HomeCategoryShortcuts() {
+  const [careerOpen, setCareerOpen] = useState(false);
   const cardCount = HOME_CATEGORIES.length;
   /** Slightly taller cards when fewer columns fill the row. Was 11.5rem at 5 cols. */
   const cardMinH = cardCount <= 4 ? 'min-h-[12.75rem]' : 'min-h-[11.5rem]';
@@ -79,44 +82,58 @@ function HomeCategoryShortcuts() {
           <ul className={homeGatewayGridClass(cardCount)}>
             {HOME_CATEGORIES.map((cat) => {
               const Icon = CATEGORY_ICONS[cat.slug];
+              const cardClass = cn(
+                'group flex h-full w-full flex-col rounded-2xl border border-[#E6E8EE] bg-white text-left',
+                cardMinH,
+                'p-5 transition duration-200',
+                'hover:border-[#0B1220]/25 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',
+                'dark:border-border dark:bg-card dark:hover:bg-card',
+              );
+              const cardInner = (
+                <>
+                  <div className="flex items-start justify-between gap-2">
+                    <span
+                      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
+                      style={{ backgroundColor: cat.color }}
+                      aria-hidden
+                    >
+                      <Icon className="h-6 w-6" strokeWidth={2} />
+                    </span>
+                    <ArrowRight
+                      className="mt-1.5 h-5 w-5 shrink-0 text-[#CBD5E1] transition duration-200 group-hover:translate-x-0.5 group-hover:text-[#0B1220]"
+                      aria-hidden
+                    />
+                  </div>
+                  <span className="mt-4 block font-display text-base font-bold leading-snug text-[#0B1220] dark:text-foreground sm:text-[17px]">
+                    {cat.label}
+                  </span>
+                  <span className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-[#64748B] sm:text-sm">
+                    {cat.hint}
+                  </span>
+                </>
+              );
               return (
                 <li key={cat.slug} className="min-w-0">
-                  <Link
-                    href={cat.href}
-                    className={cn(
-                      'group flex h-full flex-col rounded-2xl border border-[#E6E8EE] bg-white',
-                      cardMinH,
-                      'p-5 transition duration-200',
-                      'hover:border-[#0B1220]/25 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',
-                      'dark:border-border dark:bg-card dark:hover:bg-card',
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span
-                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
-                        style={{ backgroundColor: cat.color }}
-                        aria-hidden
-                      >
-                        <Icon className="h-6 w-6" strokeWidth={2} />
-                      </span>
-                      <ArrowRight
-                        className="mt-1.5 h-5 w-5 shrink-0 text-[#CBD5E1] transition duration-200 group-hover:translate-x-0.5 group-hover:text-[#0B1220]"
-                        aria-hidden
-                      />
-                    </div>
-                    <span className="mt-4 block font-display text-base font-bold leading-snug text-[#0B1220] dark:text-foreground sm:text-[17px]">
-                      {cat.label}
-                    </span>
-                    <span className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-[#64748B] sm:text-sm">
-                      {cat.hint}
-                    </span>
-                  </Link>
+                  {'opensCareerHub' in cat && cat.opensCareerHub ? (
+                    <button
+                      type="button"
+                      className={cardClass}
+                      onClick={() => setCareerOpen(true)}
+                    >
+                      {cardInner}
+                    </button>
+                  ) : (
+                    <Link href={cat.href} className={cardClass}>
+                      {cardInner}
+                    </Link>
+                  )}
                 </li>
               );
             })}
           </ul>
         </nav>
+        <CareerFlowDialog open={careerOpen} onOpenChange={setCareerOpen} />
       </div>
     </section>
   );
