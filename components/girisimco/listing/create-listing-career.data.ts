@@ -20,11 +20,7 @@ export const CREATE_LISTING_PICKER_ORDER: CategoryId[] = [
 
 export const CREATE_LISTING_CAREER_HUB = {
   title: 'Kariyer ve İş Fırsatları',
-  description:
-    'İş arıyorsanız veya ekibinize yeni bir yetenek katmak istiyorsanız ilan türünü seçin.',
-  cardTitle: 'Kariyer ve İş Fırsatları',
-  cardDescription:
-    'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
+  description: 'İş arayanlar ve işverenler için doğru fırsatı bulun.',
   audience: 'İşveren / iş arayan',
 } as const;
 

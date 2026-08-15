@@ -23,10 +23,9 @@ describe('create listing career group', () => {
 
   it('uses a single parent hub card before İş Arıyorum / İşe Alıyorum', () => {
     expect(CREATE_LISTING_CAREER_HUB.title).toBe('Kariyer ve İş Fırsatları');
-    expect(CREATE_LISTING_CAREER_HUB.cardTitle).toBe('Kariyer ve İş Fırsatları');
-    expect(CREATE_LISTING_CAREER_HUB.cardTitle).not.toContain('&');
-    expect(CREATE_LISTING_CAREER_HUB.cardDescription).toBe(
-      'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
+    expect(CREATE_LISTING_CAREER_HUB.title).not.toContain('&');
+    expect(CREATE_LISTING_CAREER_HUB.description).toBe(
+      'İş arayanlar ve işverenler için doğru fırsatı bulun.',
     );
     expect(CREATE_LISTING_CAREER_COPY.title).toBe(
       'Ne tür bir kariyer ilanı vermek istiyorsunuz?',
