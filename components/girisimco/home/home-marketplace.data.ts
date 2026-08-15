@@ -96,27 +96,38 @@ export const CAREER_HUB_LANDING = {
   badge: 'Kariyer ve İş Fırsatları',
   title: 'Girişimbee\'de hangi tarafta olduğunuzu seçin',
   description: 'İş fırsatlarını keşfetmek veya doğru yeteneği bulmak için size uygun yolu seçin.',
-  trust: 'Güvenli, şeffaf ve doğru eşleşmeler için buradayız.',
+  trust:
+    'İletişim bilgileriniz gizli kalır. İlgilendiğiniz kişiyle iletişim talebi üzerinden bağlantı kurarsınız.',
 } as const;
 
+export type CareerFlowCardCopy = {
+  id: 'seek' | 'hire';
+  label: string;
+  description: string;
+  benefits: readonly { title: string; text: string }[];
+  href?: string;
+};
+
+/** /is browse cards — “Bu ilanlarla ne yapabilirim?” */
 export const CAREER_FLOW_OPTIONS = [
   {
     id: 'seek',
     href: '/is?flow=seek',
     label: 'İş Arıyorum',
-    description: 'Kendinize uygun iş fırsatlarını keşfedin ve kariyerinizde bir adım öne geçin.',
+    description:
+      'İş arayan ilanını inceleyin, uygunluğu değerlendirin ve iletişim talebi gönderin.',
     benefits: [
       {
-        title: 'Profilinizi ve yetkinliklerinizi oluşturun',
-        text: 'Deneyimlerinizi ve yeteneklerinizi öne çıkarın.',
+        title: 'Profilini inceleyin',
+        text: 'Deneyim ve yetkinliklerini tek yerde görün.',
       },
       {
-        title: 'Size uygun pozisyonları keşfedin',
-        text: 'İlgi alanlarınıza ve deneyiminize uygun fırsatları bulun.',
+        title: 'Uygunluğu değerlendirin',
+        text: 'Pozisyon ve beklentileri birlikte değerlendirin.',
       },
       {
-        title: 'Deneyimlerinize uygun fırsatları görün',
-        text: 'Size uygun iş ilanlarını keşfedin.',
+        title: 'İletişim talebi gönderin',
+        text: 'İlgilendiğiniz adayla güvenli şekilde iletişime geçin.',
       },
     ],
   },
@@ -124,23 +135,24 @@ export const CAREER_FLOW_OPTIONS = [
     id: 'hire',
     href: '/is?flow=hire',
     label: 'İşe Alıyorum',
-    description: 'Aradığınız doğru çalışanı ve yeteneği bulun, ekibinizi güçlendirin.',
+    description:
+      'İş ilanını inceleyin, size uygun mu bakın ve iletişim talebi gönderin.',
     benefits: [
       {
-        title: 'Aradığınız pozisyonu tanımlayın',
-        text: 'İhtiyacınız olan pozisyonu ve detayları belirleyin.',
+        title: 'Pozisyonu inceleyin',
+        text: 'Rolü, beklentileri ve aranan yetkinlikleri görün.',
       },
       {
-        title: 'Beklediğiniz yetkinlikleri belirleyin',
-        text: 'Adaylarda aradığınız mesleki ve teknik yetkinlikleri tanımlayın.',
+        title: 'Size uygun mu değerlendirin',
+        text: 'Deneyiminiz ve hedeflerinizle karşılaştırın.',
       },
       {
-        title: 'Uygun adayları keşfedin',
-        text: 'İhtiyacınıza uygun adaylarla hızlıca iletişime geçin.',
+        title: 'İletişim talebi gönderin',
+        text: 'İlan sahibine doğrudan numaranızı vermeden ulaşın.',
       },
     ],
   },
-] as const;
+] as const satisfies readonly CareerFlowCardCopy[];
 
 export function parseCareerFlowParam(value: unknown): 'seek' | 'hire' | undefined {
   return value === 'seek' || value === 'hire' ? value : undefined;

@@ -24,6 +24,10 @@ export const CREATE_LISTING_CAREER_HUB = {
   audience: 'İşveren / iş arayan',
 } as const;
 
+export const CREATE_LISTING_CAREER_TRUST =
+  'Güvenli, şeffaf ve doğru eşleşmeler için buradayız.';
+
+/** /ilan/olustur cards — “Neden Girişimbee'de ilan oluşturmalıyım?” */
 export const CREATE_LISTING_CAREER_COPY = {
   title: 'Ne tür bir kariyer ilanı vermek istiyorsunuz?',
   description:
@@ -34,14 +38,42 @@ export const CREATE_LISTING_CAREER_COPY = {
       categoryId: CATEGORY_IDS.isBul,
       label: 'İş Arıyorum',
       description:
-        'Kendinize uygun iş fırsatlarını keşfetmek için profilinizi oluşturun.',
+        'Profilinizi oluşturun; uygun fırsatlara gizliliğinizi koruyarak ulaşın.',
+      benefits: [
+        {
+          title: 'Profilinizi oluşturun',
+          text: 'Deneyim ve yetkinliklerinizi tek yerde öne çıkarın.',
+        },
+        {
+          title: 'Size uygun fırsatları keşfedin',
+          text: 'Profilinize uygun ilanlara daha kolay ulaşın.',
+        },
+        {
+          title: 'Gizliliğinizi koruyun',
+          text: 'İletişim bilgileriniz paylaşılmadan talep üzerinden ilerleyin.',
+        },
+      ],
     },
     {
       id: 'hire' as const,
       categoryId: CATEGORY_IDS.iseAl,
       label: 'İşe Alıyorum',
       description:
-        'Aradığınız pozisyonu ve doğru yetkinlikleri belirleyerek adaylara ulaşın.',
+        'Pozisyonunuzu tanımlayın; doğru yeteneklere güvenli iletişimle ulaşın.',
+      benefits: [
+        {
+          title: 'Pozisyonunuzu tanımlayın',
+          text: 'Aradığınız rolü ve beklentilerinizi netleştirin.',
+        },
+        {
+          title: 'Doğru yeteneklere ulaşın',
+          text: 'Aradığınız özellikleri taşıyan adayları keşfedin.',
+        },
+        {
+          title: 'Güvenli iletişim kurun',
+          text: 'İletişim talebiyle adaylarla kontrollü şekilde bağlantı kurun.',
+        },
+      ],
     },
   ],
 } as const;

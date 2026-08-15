@@ -32,12 +32,17 @@ describe('career hub on homepage catalog', () => {
       'İş Arıyorum',
       'İşe Alıyorum',
     ]);
+    expect(CAREER_HUB_LANDING.trust).toBe(
+      'İletişim bilgileriniz gizli kalır. İlgilendiğiniz kişiyle iletişim talebi üzerinden bağlantı kurarsınız.',
+    );
     expect(CAREER_FLOW_OPTIONS[0]?.description).toBe(
-      'Kendinize uygun iş fırsatlarını keşfedin ve kariyerinizde bir adım öne geçin.',
+      'İş arayan ilanını inceleyin, uygunluğu değerlendirin ve iletişim talebi gönderin.',
     );
     expect(CAREER_FLOW_OPTIONS[1]?.description).toBe(
-      'Aradığınız doğru çalışanı ve yeteneği bulun, ekibinizi güçlendirin.',
+      'İş ilanını inceleyin, size uygun mu bakın ve iletişim talebi gönderin.',
     );
+    expect(CAREER_FLOW_OPTIONS[0]?.benefits[0]?.title).toBe('Profilini inceleyin');
+    expect(CAREER_FLOW_OPTIONS[1]?.benefits[0]?.title).toBe('Pozisyonu inceleyin');
     expect(CAREER_FLOW_OPTIONS[0]?.href).toBe('/is?flow=seek');
     expect(CAREER_FLOW_OPTIONS[1]?.href).toBe('/is?flow=hire');
     expect(CAREER_FLOW_OPTIONS[0]?.benefits).toHaveLength(3);

@@ -49,6 +49,18 @@ describe('create listing career group', () => {
     expect(CREATE_LISTING_CAREER_COPY.options.map((item) => item.id)).toEqual(
       CAREER_FLOW_OPTIONS.map((item) => item.id),
     );
+    expect(CREATE_LISTING_CAREER_COPY.options[0]?.benefits[0]?.title).toBe(
+      'Profilinizi oluşturun',
+    );
+    expect(CREATE_LISTING_CAREER_COPY.options[1]?.benefits[0]?.title).toBe(
+      'Pozisyonunuzu tanımlayın',
+    );
+    expect(CREATE_LISTING_CAREER_COPY.options[0]?.description).not.toBe(
+      CAREER_FLOW_OPTIONS[0]?.description,
+    );
+    expect(CREATE_LISTING_CAREER_COPY.options[1]?.description).not.toBe(
+      CAREER_FLOW_OPTIONS[1]?.description,
+    );
   });
 
   it('keeps existing create deep-link slugs for both career types', () => {

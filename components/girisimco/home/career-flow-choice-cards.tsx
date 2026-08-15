@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { ArrowRight, Briefcase, CheckCircle2, UserRoundSearch, type LucideIcon } from 'lucide-react';
-import { CAREER_FLOW_OPTIONS } from '@/components/girisimco/home/home-marketplace.data';
+import {
+  CAREER_FLOW_OPTIONS,
+  type CareerFlowCardCopy,
+} from '@/components/girisimco/home/home-marketplace.data';
 import { buttonVariants } from '@/components/ui/button';
 import {
   JOB_HIRE_CARD_COLOR,
@@ -94,12 +97,14 @@ function CareerFlowChoiceCardBody({
 
 export function CareerFlowChoiceCards({
   onSelect,
+  options = CAREER_FLOW_OPTIONS,
 }: {
   onSelect?: (id: 'seek' | 'hire') => void;
+  options?: readonly CareerFlowCardCopy[];
 }) {
   return (
     <div className="grid auto-rows-fr grid-cols-1 items-stretch gap-4 lg:grid-cols-2 lg:gap-5">
-      {CAREER_FLOW_OPTIONS.map((option) => {
+      {options.map((option) => {
         const visual = FLOW_VISUAL[option.id];
         const Icon = visual.Icon;
 
@@ -129,13 +134,13 @@ export function CareerFlowChoiceCards({
                 className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20"
                 aria-label={option.label}
               />
-            ) : (
+            ) : option.href ? (
               <Link
                 href={option.href}
                 className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20"
                 aria-label={option.label}
               />
-            )}
+            ) : null}
           </div>
         );
       })}
