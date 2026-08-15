@@ -21,14 +21,6 @@ const FLOW_VISUAL = {
   },
 } as const;
 
-const cardClassName = cn(
-  'group flex w-full flex-1 flex-col rounded-2xl border border-[#E6E8EE] bg-white p-5 text-left',
-  'transition duration-200 sm:p-7',
-  'hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',
-  'dark:border-border dark:bg-card',
-);
-
 function CareerFlowChoiceCardBody({
   label,
   description,
@@ -43,7 +35,7 @@ function CareerFlowChoiceCardBody({
   Icon: LucideIcon;
 }) {
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       <div
         className="flex h-24 shrink-0 items-center justify-center rounded-2xl"
         style={{ backgroundColor: `${color}14` }}
@@ -57,16 +49,16 @@ function CareerFlowChoiceCardBody({
         </span>
       </div>
 
-      <h2 className="mt-5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-[22px]">
+      <h2 className="mt-5 shrink-0 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-[22px]">
         {label}
       </h2>
-      <p className="mt-2 min-h-[3rem] text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+      <p className="mt-2 min-h-[3rem] shrink-0 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
         {description}
       </p>
 
-      <ul className="mt-6 flex flex-1 flex-col gap-4">
+      <ul className="mt-6 grid flex-1 grid-rows-3 gap-4">
         {benefits.map((benefit) => (
-          <li key={benefit.title} className="flex gap-3">
+          <li key={benefit.title} className="flex min-h-[3.75rem] gap-3">
             <CheckCircle2
               className="mt-0.5 h-5 w-5 shrink-0"
               style={{ color }}
@@ -84,7 +76,7 @@ function CareerFlowChoiceCardBody({
         ))}
       </ul>
 
-      <div className="mt-auto pt-7">
+      <div className="mt-auto shrink-0 pt-7">
         <span
           className={cn(
             buttonVariants({ size: 'lg' }),
@@ -96,7 +88,7 @@ function CareerFlowChoiceCardBody({
           <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -106,39 +98,42 @@ export function CareerFlowChoiceCards({
   onSelect?: (id: 'seek' | 'hire') => void;
 }) {
   return (
-    <div className="grid auto-rows-fr items-stretch gap-4 lg:grid-cols-2 lg:gap-5">
+    <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2 lg:grid-rows-1 lg:gap-5">
       {CAREER_FLOW_OPTIONS.map((option) => {
         const visual = FLOW_VISUAL[option.id];
         const Icon = visual.Icon;
-        const body = (
-          <CareerFlowChoiceCardBody
-            label={option.label}
-            description={option.description}
-            benefits={option.benefits}
-            color={visual.color}
-            Icon={Icon}
-          />
-        );
 
         return (
-          <div key={option.id} className="flex">
+          <div
+            key={option.id}
+            className={cn(
+              'group relative flex h-full flex-col self-stretch rounded-2xl border border-[#E6E8EE] bg-white p-5 text-left',
+              'transition duration-200 sm:p-7',
+              'hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
+              'dark:border-border dark:bg-card',
+            )}
+            style={{ borderColor: `${visual.color}40` }}
+          >
+            <CareerFlowChoiceCardBody
+              label={option.label}
+              description={option.description}
+              benefits={option.benefits}
+              color={visual.color}
+              Icon={Icon}
+            />
             {onSelect ? (
               <button
                 type="button"
                 onClick={() => onSelect(option.id)}
-                className={cardClassName}
-                style={{ borderColor: `${visual.color}40` }}
-              >
-                {body}
-              </button>
+                className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20"
+                aria-label={option.label}
+              />
             ) : (
               <Link
                 href={option.href}
-                className={cardClassName}
-                style={{ borderColor: `${visual.color}40` }}
-              >
-                {body}
-              </Link>
+                className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20"
+                aria-label={option.label}
+              />
             )}
           </div>
         );
