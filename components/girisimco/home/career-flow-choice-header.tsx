@@ -1,15 +1,53 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { CAREER_HUB_LANDING } from '@/components/girisimco/home/home-marketplace.data';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
+const BACK_CLASS =
+  'inline-flex items-center gap-1.5 text-sm font-semibold text-[#64748B] transition-colors hover:text-[#0B1220] dark:hover:text-foreground';
+
+function CategoriesBackControl({
+  href,
+  onBack,
+}: {
+  href?: string;
+  onBack?: () => void;
+}) {
+  const label = (
+    <>
+      <ArrowLeft className="h-4 w-4" aria-hidden />
+      Kategorilere dön
+    </>
+  );
+
+  if (onBack) {
+    return (
+      <button type="button" onClick={onBack} className={BACK_CLASS}>
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={href ?? '/'} className={BACK_CLASS}>
+      {label}
+    </Link>
+  );
+}
 
 export function CareerFlowChoiceHeader({
   headingLevel = 'h1',
   headingId,
-  action,
+  backHref = '/',
+  onBack,
 }: {
   headingLevel?: 'h1' | 'h2';
   headingId?: string;
-  action?: ReactNode;
+  backHref?: string;
+  onBack?: () => void;
 }) {
   const Heading = headingLevel;
 
@@ -24,11 +62,11 @@ export function CareerFlowChoiceHeader({
       >
         {CAREER_HUB_LANDING.title}
       </Heading>
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-        <p className="text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-          {CAREER_HUB_LANDING.description}
-        </p>
-        {action}
+      <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+        {CAREER_HUB_LANDING.description}
+      </p>
+      <div className={cn('mt-3 flex justify-center')}>
+        <CategoriesBackControl href={backHref} onBack={onBack} />
       </div>
     </header>
   );

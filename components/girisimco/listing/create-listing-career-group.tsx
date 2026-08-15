@@ -1,6 +1,5 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
 import { CareerFlowChoiceCards } from '@/components/girisimco/home/career-flow-choice-cards';
 import { CareerFlowChoiceHeader } from '@/components/girisimco/home/career-flow-choice-header';
 import { CAREER_HUB_LANDING } from '@/components/girisimco/home/home-marketplace.data';
@@ -24,16 +23,7 @@ export function CreateListingCareerGroup({
       <CareerFlowChoiceHeader
         headingLevel="h2"
         headingId="create-career-heading"
-        action={
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#64748B] transition-colors hover:text-[#0B1220] dark:hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            Kategorilere dön
-          </button>
-        }
+        onBack={onBack}
       />
 
       <div className="mt-10 lg:mt-12">
