@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { uploadCompanyMedia } from '@/features/companies/lib/upload-company-media';
+import { assertUploadImageSafe } from '@/features/listings/lib/image-safety';
 import { cn } from '@/lib/utils';
 
 interface CompanyMediaFieldProps {
@@ -31,6 +32,7 @@ export function CompanyMediaField({
     if (!file) return;
     setUploading(true);
     try {
+      await assertUploadImageSafe(file);
       const url = await uploadCompanyMedia(ownerId, file, kind);
       onChange(url);
     } catch (err) {

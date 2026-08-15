@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   resolveCareerCoverGender,
   resolveCareerCoverTheme,
+  resolveCoverSectorHint,
   resolveDefaultListingCover,
   resolveListingCoverUrl,
+  resolveProductCoverTheme,
 } from './listing-cover.config';
 
 describe('career listing covers', () => {
@@ -158,5 +160,32 @@ describe('career listing covers', () => {
         role: 'Hemşire',
       }),
     ).toBe('https://cdn.example.com/custom.jpg');
+  });
+
+  it('uses a sector scene for investment listings only when no product image exists', () => {
+    expect(resolveProductCoverTheme('SaaS / Yazılım')).toBe('yazilim');
+    expect(resolveProductCoverTheme('Fintech')).toBe('finans');
+    expect(resolveCoverSectorHint({
+      customFields: { sector: 'SaaS / Yazılım', primarySector: 'Sağlık' },
+      industry: 'Diğer',
+    })).toBe('SaaS / Yazılım');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'yatirim-ariyorum',
+        sector: 'SaaS / Yazılım',
+      }),
+    ).toBe('/covers/career-yazilim.jpg');
+    expect(
+      resolveListingCoverUrl({
+        uploadedUrl: 'https://cdn.example.com/rota360.png',
+        listingTypeSlug: 'yatirim-ariyorum',
+        sector: 'SaaS / Yazılım',
+      }),
+    ).toBe('https://cdn.example.com/rota360.png');
+    expect(
+      resolveDefaultListingCover({
+        listingTypeSlug: 'yatirim-ariyorum',
+      }),
+    ).toBe('/covers/yatirim-ariyorum.jpg');
   });
 });

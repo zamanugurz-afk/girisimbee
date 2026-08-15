@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { uploadProfileMedia } from '@/features/profiles/lib/upload-profile-media';
+import { assertUploadImageSafe } from '@/features/listings/lib/image-safety';
 import { cn } from '@/lib/utils';
 
 interface ProfileMediaFieldProps {
@@ -32,6 +33,7 @@ export function ProfileMediaField({
 
     setUploading(true);
     try {
+      await assertUploadImageSafe(file);
       const url = await uploadProfileMedia(userId, file, kind);
       onChange(url);
     } catch (err) {

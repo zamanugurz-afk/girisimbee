@@ -31,6 +31,7 @@ import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketp
 import type { ModuleKey } from '@/lib/domain/modules';
 import {
   resolveCareerCoverRole,
+  resolveCoverSectorHint,
   resolveListingCoverUrl,
 } from '@/features/listings/config/listing-cover.config';
 import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
@@ -362,9 +363,10 @@ export function aggregateToListingDetail(
   const careerCoverUrl = resolveListingCoverUrl({
     listingTypeSlug,
     group: cardDisplay.group,
-    sector:
-      toDisplayValue(sourceCf.primarySector)
-      || toDisplayValue(listing.industry),
+    sector: resolveCoverSectorHint({
+      customFields: sourceCf,
+      industry: listing.industry,
+    }),
     role: resolveCareerCoverRole(
       toDisplayValue(sourceCf.desiredRole)
         || toDisplayValue(sourceCf.positionTitle),

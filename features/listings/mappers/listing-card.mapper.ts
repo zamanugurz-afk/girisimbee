@@ -6,6 +6,7 @@ import { categoryRegistry } from '@/features/listings/config/category-registry';
 import { CATEGORY_PAGE_CONFIG } from '@/features/listings/config/marketplace.config';
 import {
   resolveCareerCoverRole,
+  resolveCoverSectorHint,
   resolveListingCoverUrl,
 } from '@/features/listings/config/listing-cover.config';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
@@ -102,11 +103,10 @@ export function listingToContentItem(
           : null),
       listingTypeSlug,
       group: cardDisplay.group,
-      sector: typeof listing.customFields?.primarySector === 'string'
-        ? listing.customFields.primarySector
-        : typeof listing.industry === 'string'
-          ? listing.industry
-          : null,
+      sector: resolveCoverSectorHint({
+        customFields: listing.customFields,
+        industry: listing.industry,
+      }),
       role: resolveCareerCoverRole(
         typeof listing.customFields?.desiredRole === 'string'
           ? listing.customFields.desiredRole

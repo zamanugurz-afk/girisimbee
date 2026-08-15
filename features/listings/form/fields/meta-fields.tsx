@@ -13,9 +13,9 @@ import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with
 import { META_FIELD_UI } from '@/features/listings/form/listing-field-metadata';
 import {
   assertListingImageDimensions,
-  assertSafeListingImageName,
   readImageDimensions,
 } from '@/features/listings/lib/listing-content-policy';
+import { assertUploadImageSafe } from '@/features/listings/lib/image-safety';
 
 function normalizeSortOrder(images: ListingImageInput[]): ListingImageInput[] {
   return images.map((img, index) => ({ ...img, sortOrder: index }));
@@ -65,9 +65,10 @@ export function ImagesInput({
     try {
       const uploaded: ListingImageInput[] = [];
       for (const file of batch) {
-        const unsafe = assertSafeListingImageName(file.name);
-        if (unsafe) {
-          toast.error(unsafe.message);
+        try {
+          await assertUploadImageSafe(file);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : 'Görsel uygun değil.');
           continue;
         }
         try {

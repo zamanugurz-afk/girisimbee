@@ -34,6 +34,7 @@ import {
 } from '@/features/ads/constants/ad-inquiry.constants';
 import { adsPublicApi } from '@/features/ads/lib/ad-inquiry-api';
 import { uploadMarketAdMedia } from '@/features/ads/lib/upload-market-ad-media';
+import { assertUploadImageSafe } from '@/features/listings/lib/image-safety';
 import { PARTNERSHIP_TYPES, type PartnershipType } from '@/features/ads/types/ad-inquiry.types';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES, loginUrl } from '@/features/authentication/constants/routes';
@@ -84,6 +85,7 @@ export function ReklamPageView() {
     }
     setUploadingImage(true);
     try {
+      await assertUploadImageSafe(file);
       const url = await uploadMarketAdMedia(user.id, file);
       setMarket((s) => ({ ...s, imageUrl: url }));
       toast.success('Görsel yüklendi');

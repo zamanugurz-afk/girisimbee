@@ -284,6 +284,46 @@ function resolveCareerCoverPath(opts: {
   return CAREER_SCENE_COVER_BY_THEME[theme];
 }
 
+const PRODUCT_COVER_TYPE_SLUGS = new Set([
+  'yatirim-ariyorum',
+  'yatirim-yapiyorum',
+  'ortak-ariyorum',
+]);
+
+/** Sector from investment (`sector`) or career (`primarySector`) custom fields. */
+export function resolveCoverSectorHint(input: {
+  customFields?: Record<string, unknown> | null;
+  industry?: string | null;
+}): string | null {
+  const cf = input.customFields ?? {};
+  for (const value of [cf.sector, cf.primarySector, input.industry]) {
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+/** Map startup/investor sector labels onto existing scene covers. */
+export function resolveProductCoverTheme(sector?: string | null): CareerCoverTheme | null {
+  const hay = (sector ?? '').toLocaleLowerCase('tr-TR');
+  if (!hay.trim()) return null;
+  if (/saas|yazılım|yazilim|yapay zeka|mobil uygulama|siber|oyun/.test(hay)) return 'yazilim';
+  if (/fintech|finans/.test(hay)) return 'finans';
+  if (/sağlık|saglik|health/.test(hay)) return 'saglik';
+  if (/eğitim|egitim|edtech/.test(hay)) return 'egitim';
+  if (/e-ticaret|eticaret|perakende|medya|marketplace|pazar/.test(hay)) return 'satis';
+  if (/lojistik|enerji|tarım|tarim|gıda|gida|iklim|proptech|üretim|uretim/.test(hay)) return 'uretim';
+  return null;
+}
+
+function resolveProductSceneCover(
+  listingTypeSlug?: string | null,
+  sector?: string | null,
+): string | null {
+  if (!listingTypeSlug || !PRODUCT_COVER_TYPE_SLUGS.has(listingTypeSlug)) return null;
+  const theme = resolveProductCoverTheme(sector);
+  return theme ? CAREER_SCENE_COVER_BY_THEME[theme] : null;
+}
+
 /** Resolve fallback cover from listing type slug or card group. */
 export function resolveDefaultListingCover(opts: {
   listingTypeSlug?: string | null;
@@ -298,6 +338,8 @@ export function resolveDefaultListingCover(opts: {
   if (opts.listingTypeSlug === 'ise-aliyorum' || opts.listingTypeSlug === 'ise-al') {
     return resolveCareerCoverPath({ ...opts, gender: null });
   }
+  const productCover = resolveProductSceneCover(opts.listingTypeSlug, opts.sector);
+  if (productCover) return productCover;
   if (opts.listingTypeSlug && COVER_BY_TYPE_SLUG[opts.listingTypeSlug]) {
     return COVER_BY_TYPE_SLUG[opts.listingTypeSlug];
   }

@@ -772,7 +772,7 @@ export const META_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   images: {
     helperText:
-      'JPEG, PNG, WebP veya GIF. Sürükleyerek sıralayın; ilk görsel kapak olur. En fazla 5 MB / görsel, en fazla 10 görsel. Kapak için 640×360 px ve üzeri önerilir; kare logo da kabul edilir.',
+      'JPEG, PNG, WebP veya GIF. Sürükleyerek sıralayın; ilk görsel kapak olur. En fazla 5 MB / görsel, en fazla 10 görsel. Kapak için 640×360 px ve üzeri önerilir; kare logo da kabul edilir. Çıplaklık ve uygunsuz içerik yüklenemez.',
   },
 };
 
