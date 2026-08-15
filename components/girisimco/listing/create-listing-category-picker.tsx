@@ -20,21 +20,13 @@ import {
 import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
+import { CreateListingCareerGroup } from '@/components/girisimco/listing/create-listing-career-group';
+import {
+  CREATE_LISTING_CAREER_CATEGORY_IDS,
+  CREATE_LISTING_PICKER_ORDER,
+} from '@/components/girisimco/listing/create-listing-career.data';
 
-/**
- * Display order on /ilan/olustur.
- * Deferred types (yatirimYap, genelIlan) kept in CATEGORY_VISUAL for restore.
- */
-const PICKER_ORDER: CategoryId[] = [
-  CATEGORY_IDS.yatirimBul,
-  // CATEGORY_IDS.yatirimYap, // deferred — restore with CREATE_LISTING_DEFERRED_CATEGORY_IDS
-  CATEGORY_IDS.ortakBul,
-  CATEGORY_IDS.bayilikAl,
-  CATEGORY_IDS.iseAl,
-  CATEGORY_IDS.isBul,
-  CATEGORY_IDS.dijitalAi,
-  // CATEGORY_IDS.genelIlan, // deferred — restore with CREATE_LISTING_DEFERRED_CATEGORY_IDS
-];
+const CAREER_CREATE_SET = new Set<string>(CREATE_LISTING_CAREER_CATEGORY_IDS);
 
 const CATEGORY_VISUAL: Record<
   string,
@@ -152,11 +144,11 @@ export function CreateListingCategoryPicker({
   onSelect: (categoryId: CategoryId) => void;
 }) {
   const ordered = useMemo(() => {
-    // Only PICKER_ORDER ids render — deferred (e.g. yatirimYap) cannot appear
-    // even if a caller accidentally passes LISTING_TYPE_CONFIGS.
-    const rank = new Map(PICKER_ORDER.map((id, i) => [id, i]));
+    // Only CREATE_LISTING_PICKER_ORDER ids render in the flat grid.
+    // Career types (isBul / iseAl) are grouped separately; deferred types stay out.
+    const rank = new Map(CREATE_LISTING_PICKER_ORDER.map((id, i) => [id, i]));
     return [...options]
-      .filter((c) => rank.has(c.categoryId))
+      .filter((c) => rank.has(c.categoryId) && !CAREER_CREATE_SET.has(c.categoryId))
       .sort((a, b) => (rank.get(a.categoryId) ?? 99) - (rank.get(b.categoryId) ?? 99));
   }, [options]);
 
@@ -192,6 +184,8 @@ export function CreateListingCategoryPicker({
           );
         })}
       </div>
+
+      <CreateListingCareerGroup onSelect={onSelect} />
     </section>
   );
 }
