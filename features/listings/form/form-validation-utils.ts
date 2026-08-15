@@ -41,6 +41,7 @@ import {
 } from '@/features/listings/lib/listing-content-policy';
 import { evaluateListingContentQuality } from '@/features/listings/lib/listing-content-quality';
 import { getListingTextFingerprints } from '@/features/listings/lib/listing-duplicate-registry';
+import { materializeSeekingInvestmentFields } from '@/features/investments/lib/seeking-form-visibility';
 
 export interface ValidationFormSnapshot {
   core: Record<string, unknown>;
@@ -622,6 +623,19 @@ export function validateListingFormBeforePublish(options: {
       materializeCareerEducationFields(options.snapshot.customFields),
       materializeHireRoleNeedsFields(options.snapshot.customFields),
     );
+  }
+
+  if (options.categoryId === CATEGORY_IDS.yatirimBul) {
+    Object.assign(
+      options.snapshot.customFields,
+      materializeSeekingInvestmentFields({
+        customFields: options.snapshot.customFields,
+        title: options.snapshot.core.title,
+      }),
+    );
+    if (!String(options.snapshot.core.city ?? '').trim()) {
+      errors.city = 'Girişiminizin şehrini seçin.';
+    }
   }
 
   if (!options.publishConsents || !validatePublishConsents(options.publishConsents)) {

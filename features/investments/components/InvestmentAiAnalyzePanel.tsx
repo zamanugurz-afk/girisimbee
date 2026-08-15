@@ -12,17 +12,16 @@ import {
 } from '@/features/investments/ai/investment-ai-context';
 import { shouldReuseInvestmentAiFingerprint } from '@/features/investments/ai/investment-ai-persist';
 import { getInvestmentAiCache } from '@/features/investments/ai/investment-ai-cache';
-import { prepareTextForCareerAi } from '@/features/candidates/ai/career-ai-pii';
 import type { InvestmentAiAnalysis, InvestmentAiStoredAnalysis } from '@/features/investments/ai/investment-ai.types';
 import { buildInvestmentContext, hasInvestmentProfileReady } from '@/features/investments/lib/investment-context';
 
-type PanelView = 'idle' | 'preview' | 'edit' | 'polish';
+type PanelView = 'idle' | 'preview' | 'edit';
 
 export function InvestmentAiAnalyzePanel({
   title,
   city,
   customFields,
-  longDescription,
+  longDescription: _longDescription,
   disabled,
   stored,
   onStore,
@@ -40,9 +39,7 @@ export function InvestmentAiAnalyzePanel({
   const { loading, error, run, cancel } = useInvestmentAi();
   const [local, setLocal] = useState<InvestmentAiAnalysis & { fingerprint: string } | null>(null);
   const [draft, setDraft] = useState('');
-  const [polishDraft, setPolishDraft] = useState('');
   const [view, setView] = useState<PanelView>('idle');
-  const [piiError, setPiiError] = useState<string | null>(null);
   const [dismissedFingerprint, setDismissedFingerprint] = useState<string | null>(null);
 
   const context = useMemo(
@@ -72,17 +69,13 @@ export function InvestmentAiAnalyzePanel({
           ? { ...cachedAnalyze, fingerprint }
           : null;
 
-  const manualText = longDescription.trim();
-  const canPolishManual = manualText.length >= 40;
-
   const applyDraft = useCallback((next: InvestmentAiAnalysis & { fingerprint: string }) => {
     setLocal(next);
     setDraft(next.professionalInvestmentSummary);
-    setView((current) => (current === 'edit' || current === 'polish' ? current : 'preview'));
+    setView((current) => (current === 'edit' ? current : 'preview'));
   }, []);
 
   const startAnalyze = useCallback(async () => {
-    setPiiError(null);
     if (!profileReady) return;
     if (analysis?.professionalInvestmentSummary) {
       applyDraft({
@@ -117,23 +110,6 @@ export function InvestmentAiAnalyzePanel({
     });
   }, [analysis, applyDraft, context, fingerprint, profileReady, run]);
 
-  async function handlePolishManual() {
-    setPiiError(null);
-    const prepared = prepareTextForCareerAi(manualText, 24);
-    if (prepared.blocked) {
-      setPiiError('Kişisel iletişim bilgisi AI isteğine eklenemez. Telefon, e-posta veya açık adresi silin.');
-      return;
-    }
-    const result = await run({
-      action: 'polish',
-      kind: 'summary',
-      text: prepared.text,
-    });
-    if (!result || result.action !== 'polish') return;
-    setPolishDraft(result.polished);
-    setView('polish');
-  }
-
   function handleAccept(summary: string) {
     const text = summary.trim();
     if (!text) return;
@@ -154,7 +130,6 @@ export function InvestmentAiAnalyzePanel({
   function handleReject() {
     setLocal(null);
     setDraft('');
-    setPolishDraft('');
     setDismissedFingerprint(fingerprint);
     setView('idle');
     onStore(null);
@@ -165,14 +140,13 @@ export function InvestmentAiAnalyzePanel({
   return (
     <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/[0.03] px-3 py-3">
       <div className="space-y-1">
-        <p className="text-sm font-medium text-foreground">AI ile yatırımcı özetini oluştur</p>
+        <p className="text-sm font-medium text-foreground">AI ile yatırımcı özetini geliştir</p>
         <p className="text-xs text-muted-foreground">
-          Tek analiz çağrısı yapılandırılmış veriyi sentezler. Onayınız olmadan özet alanına yazılmaz.
-          Aynı profil için tekrar AI çağrılmaz.
+          Girdiğiniz bilgilerden bir öneri hazırlar. Kullan demeden ilana yazılmaz.
         </p>
       </div>
 
-      {loading && view !== 'polish' ? (
+      {loading ? (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           Yatırımcı özeti hazırlanıyor…
@@ -190,7 +164,7 @@ export function InvestmentAiAnalyzePanel({
             disabled={disabled || loading || !profileReady}
             onClick={() => void startAnalyze()}
           >
-            AI ile yatırımcı özetini oluştur
+            AI ile yatırımcı özetini geliştir
           </Button>
           {showRestore ? (
             <Button
@@ -206,26 +180,14 @@ export function InvestmentAiAnalyzePanel({
               Kayıtlı AI taslağını göster
             </Button>
           ) : null}
-          {canPolishManual ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={disabled || loading}
-              onClick={() => void handlePolishManual()}
-            >
-              AI ile iyileştir
-            </Button>
-          ) : null}
         </div>
       ) : null}
 
       {!profileReady ? (
         <p className="text-xs text-muted-foreground">
-          Sektör, aşama, iş modeli, problem/çözüm, traction ve yatırım ihtiyacını doldurunca AI kullanılabilir.
+          Sektör, aşama, iş modeli, problem/çözüm, kanıt ve yatırım ihtiyacını doldurunca AI kullanılabilir.
         </p>
       ) : null}
-      {piiError ? <p className="text-xs text-destructive">{piiError}</p> : null}
       {error ? (
         <p className="text-xs text-destructive">
           {error.includes('manuel')
@@ -271,7 +233,7 @@ export function InvestmentAiAnalyzePanel({
               Düzenle
             </Button>
             <Button type="button" size="sm" variant="ghost" disabled={disabled} onClick={handleReject}>
-              Kullanma / Manuel yaz
+              Kullanma
             </Button>
           </div>
         </div>
@@ -301,36 +263,6 @@ export function InvestmentAiAnalyzePanel({
         </div>
       ) : null}
 
-      {view === 'polish' ? (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">Yazım ve anlatım düzeltmesi (yeni bilgi eklenmez).</p>
-          <Textarea
-            rows={6}
-            value={polishDraft}
-            disabled={disabled}
-            onChange={(event) => setPolishDraft(event.target.value)}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              disabled={disabled || !polishDraft.trim()}
-              onClick={() => {
-                onAcceptSummary({
-                  longDescription: polishDraft.trim(),
-                  shortDescription: polishDraft.trim().slice(0, 500),
-                });
-                setView('idle');
-              }}
-            >
-              Kullan
-            </Button>
-            <Button type="button" size="sm" variant="ghost" onClick={() => setView('idle')}>
-              Kullanma
-            </Button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

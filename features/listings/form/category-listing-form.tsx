@@ -67,6 +67,15 @@ import {
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
 import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
 import { polishInvestmentText } from '@/features/investments/lib/investment-text';
+import {
+  displaySeekingMetricValue,
+  filterVisibleSeekingCustomFields,
+  hasDistinctProductName,
+  materializeSeekingInvestmentFields,
+  seekingFieldChangeExtras,
+} from '@/features/investments/lib/seeking-form-visibility';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { InvestorAiAnalyzePanel } from '@/features/investors/components/InvestorAiAnalyzePanel';
 import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
 import { acceptedInvestorAiAnalysisOrNull } from '@/features/investors/ai/investor-ai-persist';
@@ -396,6 +405,13 @@ export function CategoryListingForm({
   const [lastAutoSaved, setLastAutoSaved] = useState<Date | null>(null);
   const [showSampleFill, setShowSampleFill] = useState(false);
   const [restoredDraft, setRestoredDraft] = useState(false);
+  const [showDistinctProductName, setShowDistinctProductName] = useState(() =>
+    hasDistinctProductName(defaults.core.title, defaults.customFields.productName),
+  );
+  const [showUseOfFundsDetail, setShowUseOfFundsDetail] = useState(() =>
+    Boolean(String(defaults.customFields.useOfFundsDetail ?? '').trim()),
+  );
+  const [editingInvestmentSummary, setEditingInvestmentSummary] = useState(false);
 
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
@@ -551,17 +567,6 @@ export function CategoryListingForm({
     isInvestmentSummaryStep,
   ]);
 
-  const applyInvestmentSummaryDraft = useCallback(() => {
-    if (!investmentSummaryDraft) return;
-    lastAutoInvestmentSummaryRef.current = investmentSummaryDraft.longDescription;
-    lastAutoInvestmentShortRef.current = investmentSummaryDraft.shortDescription;
-    setCore((prev) => ({
-      ...prev,
-      longDescription: investmentSummaryDraft.longDescription,
-      shortDescription: investmentSummaryDraft.shortDescription,
-    }));
-  }, [investmentSummaryDraft]);
-
   const investorSummaryDraft = useMemo(() => {
     if (categoryId !== CATEGORY_IDS.yatirimYap) return null;
     return buildInvestorSummaryDraft(
@@ -714,14 +719,34 @@ export function CategoryListingForm({
     () => resolveStepCustomFields(currentStep, allFieldKeys),
     [currentStep, allFieldKeys],
   );
+  const visibleStepCustomKeys = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.yatirimBul) return stepCustomKeys;
+    return filterVisibleSeekingCustomFields(stepCustomKeys, {
+      customFields: mergedCustomFields,
+      title: core.title,
+      revealProductName: showDistinctProductName,
+      revealUseOfFundsDetail: showUseOfFundsDetail,
+    });
+  }, [
+    categoryId,
+    core.title,
+    mergedCustomFields,
+    showDistinctProductName,
+    showUseOfFundsDetail,
+    stepCustomKeys,
+  ]);
   const leadCustomKeys = useMemo(() => {
     const lead = currentStep.leadCustomFieldKeys ?? [];
-    return lead.filter((key) => stepCustomKeys.includes(key));
-  }, [currentStep.leadCustomFieldKeys, stepCustomKeys]);
+    return lead.filter((key) => visibleStepCustomKeys.includes(key));
+  }, [currentStep.leadCustomFieldKeys, visibleStepCustomKeys]);
   const restCustomKeys = useMemo(
-    () => stepCustomKeys.filter((key) => !leadCustomKeys.includes(key)),
-    [stepCustomKeys, leadCustomKeys],
+    () => visibleStepCustomKeys.filter((key) => !leadCustomKeys.includes(key)),
+    [visibleStepCustomKeys, leadCustomKeys],
   );
+  const isSeekingIdentityStep =
+    categoryId === CATEGORY_IDS.yatirimBul && currentStep.id === 'identity';
+  const isSeekingFundingStep =
+    categoryId === CATEGORY_IDS.yatirimBul && currentStep.id === 'funding';
 
   const { clearDraft, restoreDraft, peekDraftMeta } = useListingFormAutosave({
     storageKey,
@@ -755,6 +780,10 @@ export function CategoryListingForm({
     setCustomFields(
       mergeCustomFieldDefaults(listingType.fieldSchema, draft.customFields),
     );
+    setShowDistinctProductName(
+      hasDistinctProductName(draft.core?.title, draft.customFields?.productName),
+    );
+    setShowUseOfFundsDetail(Boolean(String(draft.customFields?.useOfFundsDetail ?? '').trim()));
     setTags(draft.tags);
     setImages(draft.images);
     setCvUrl(draft.cvUrl ?? null);
@@ -895,8 +924,14 @@ export function CategoryListingForm({
         && !value.map(String).some((item) => isManualCareerOption(item))) {
         setCustomField('preferredRolesOther', '');
       }
+      if (categoryId === CATEGORY_IDS.yatirimBul) {
+        const extras = seekingFieldChangeExtras(key, value);
+        for (const [extraKey, extraValue] of Object.entries(extras)) {
+          setCustomField(extraKey, extraValue);
+        }
+      }
     },
-    [setCustomField],
+    [categoryId, setCustomField],
   );
 
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
@@ -1111,6 +1146,14 @@ export function CategoryListingForm({
       }
     }
 
+    if (categoryId === CATEGORY_IDS.yatirimBul && currentStep.coreFields?.includes('city')) {
+      if (!String(core.city ?? '').trim()) {
+        setFieldErrors({ city: 'Girişiminizin şehrini seçin.' });
+        toast.error('Girişiminizin şehrini seçin.');
+        return false;
+      }
+    }
+
     if (categoryId === CATEGORY_IDS.yatirimBul && stepCustomKeys.includes('investmentAmount')) {
       const fundingErrors = validateInvestmentFundingFields(mergedCustomFields);
       if (Object.keys(fundingErrors).length > 0) {
@@ -1170,7 +1213,7 @@ export function CategoryListingForm({
 
       validateListingFormStep(
         listingType.fieldSchema,
-        stepValidationInput(currentStep, stepCustomKeys),
+        stepValidationInput(currentStep, visibleStepCustomKeys),
         {
           core: formValues.core,
           customFields: mergedCustomFields,
@@ -1312,6 +1355,12 @@ export function CategoryListingForm({
     }
     if (categoryId === CATEGORY_IDS.iseAl) {
       customFieldsWithCv = materializeHireRoleNeedsFields(customFieldsWithCv);
+    }
+    if (categoryId === CATEGORY_IDS.yatirimBul) {
+      customFieldsWithCv = materializeSeekingInvestmentFields({
+        customFields: customFieldsWithCv,
+        title: core.title,
+      });
     }
 
     const derivedCore =
@@ -1532,6 +1581,15 @@ export function CategoryListingForm({
                         ...prev,
                         ...sample.customFields,
                       }),
+                    );
+                    setShowDistinctProductName(
+                      hasDistinctProductName(
+                        sample.core?.title ?? core.title,
+                        sample.customFields.productName,
+                      ),
+                    );
+                    setShowUseOfFundsDetail(
+                      Boolean(String(sample.customFields.useOfFundsDetail ?? '').trim()),
                     );
                   }
                   if (sample.tags) setTags(sample.tags);
@@ -1878,14 +1936,12 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep || isInvestmentSummaryStep || isInvestorSummaryStep ? (
+              {isCareerSummaryStep || isInvestorSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
                     {categoryId === CATEGORY_IDS.iseAl
                       ? 'Açık pozisyon, yetkinlik ve teklif bilgilerinize göre bir taslak hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
-                      : categoryId === CATEGORY_IDS.yatirimBul
-                        ? 'Yapılandırılmış bilgilerden bir yatırımcı özeti hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : categoryId === CATEGORY_IDS.yatirimYap
                         ? 'Yapılandırılmış kriterlerden bir yatırımcı profili hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
@@ -1897,10 +1953,8 @@ export function CategoryListingForm({
                     className="shrink-0"
                     disabled={disabled || isBusy}
                     onClick={
-                      isInvestmentSummaryStep
-                        ? applyInvestmentSummaryDraft
-                        : isInvestorSummaryStep
-                          ? applyInvestorSummaryDraft
+                      isInvestorSummaryStep
+                        ? applyInvestorSummaryDraft
                         : applyCareerSummaryDraft
                     }
                   >
@@ -1945,35 +1999,43 @@ export function CategoryListingForm({
                     }
                   />
                 ) : null}
-                {categoryId === CATEGORY_IDS.yatirimBul ? (
-                  <InvestmentAiAnalyzePanel
-                    title={core.title ?? ''}
-                    city={core.city}
-                    customFields={mergedCustomFields}
-                    longDescription={core.longDescription ?? ''}
-                    disabled={disabled || isBusy}
-                    stored={acceptedInvestmentAiAnalysisOrNull(
-                      mergedCustomFields.investmentAiAnalysis,
-                    )}
-                    onStore={(value) =>
-                      setCustomField(
-                        'investmentAiAnalysis',
-                        acceptedInvestmentAiAnalysisOrNull(value),
-                      )
-                    }
-                    onAcceptSummary={({ longDescription, shortDescription }) =>
-                      setCore((prev) => ({
-                        ...prev,
-                        longDescription,
-                        shortDescription: shortDescription || prev.shortDescription,
-                      }))
-                    }
-                  />
-                ) : null}
                 </div>
               ) : null}
 
-              {currentStep.coreFields && currentStep.coreFields.length > 0 && (
+              {isInvestmentSummaryStep && !editingInvestmentSummary ? (
+                <div className="space-y-3 rounded-xl border border-border/70 bg-muted/20 px-4 py-3">
+                  <p className="text-sm font-medium text-foreground">Yatırımcı özeti</p>
+                  <p className="text-xs text-muted-foreground">
+                    Önceki adımlardan otomatik oluştu. Dilerseniz düzenleyin. AI ayrı bir işlemdir.
+                  </p>
+                  {core.shortDescription ? (
+                    <p className="text-sm text-muted-foreground">{core.shortDescription}</p>
+                  ) : null}
+                  {core.longDescription ? (
+                    <p className="whitespace-pre-wrap text-sm text-foreground">
+                      {core.longDescription}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Önceki adımları tamamlayınca özet burada görünür.
+                    </p>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={disabled || isBusy}
+                    onClick={() => setEditingInvestmentSummary(true)}
+                  >
+                    Düzenle
+                  </Button>
+                </div>
+              ) : null}
+
+              {currentStep.coreFields
+                && currentStep.coreFields.length > 0
+                && !isSeekingIdentityStep
+                && !(isInvestmentSummaryStep && !editingInvestmentSummary) && (
                 <CoreListingFields
                   values={core}
                   onChange={(next) => {
@@ -1999,14 +2061,111 @@ export function CategoryListingForm({
                 />
               )}
 
-              {restCustomKeys.map((key) => {
+              {isInvestmentSummaryStep && editingInvestmentSummary ? (
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={disabled || isBusy}
+                    onClick={() => setEditingInvestmentSummary(false)}
+                  >
+                    Kaydet
+                  </Button>
+                </div>
+              ) : null}
+
+              {isInvestmentSummaryStep ? (
+                <InvestmentAiAnalyzePanel
+                  title={core.title ?? ''}
+                  city={core.city}
+                  customFields={mergedCustomFields}
+                  longDescription={core.longDescription ?? ''}
+                  disabled={disabled || isBusy}
+                  stored={acceptedInvestmentAiAnalysisOrNull(
+                    mergedCustomFields.investmentAiAnalysis,
+                  )}
+                  onStore={(value) =>
+                    setCustomField(
+                      'investmentAiAnalysis',
+                      acceptedInvestmentAiAnalysisOrNull(value),
+                    )
+                  }
+                  onAcceptSummary={({ longDescription, shortDescription }) => {
+                    setCore((prev) => ({
+                      ...prev,
+                      longDescription,
+                      shortDescription: shortDescription || prev.shortDescription,
+                    }));
+                    setEditingInvestmentSummary(false);
+                  }}
+                />
+              ) : null}
+
+              {isSeekingIdentityStep ? (
+                <CoreListingFields
+                  values={core}
+                  onChange={handleCoreChange}
+                  include={['title']}
+                  labels={getCoreFieldLabelsForCategory(categoryId)}
+                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
+                  errors={{
+                    title: resolveFieldError(fieldErrors, 'title'),
+                  }}
+                  disabled={disabled || isBusy}
+                />
+              ) : null}
+
+              {isSeekingIdentityStep ? (
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="seeking-distinct-product-name"
+                      checked={showDistinctProductName}
+                      onCheckedChange={(checked) => {
+                        const next = checked === true;
+                        setShowDistinctProductName(next);
+                        if (!next) setCustomField('productName', '');
+                      }}
+                      disabled={disabled || isBusy}
+                    />
+                    <Label
+                      htmlFor="seeking-distinct-product-name"
+                      className="text-sm font-normal leading-5"
+                    >
+                      Ürün veya marka adı girişim adından farklı
+                    </Label>
+                  </div>
+                  {showDistinctProductName && fieldByKey.get('productName') ? (
+                    <DynamicField
+                      field={fieldByKey.get('productName')!}
+                      value={mergedCustomFields.productName}
+                      onChange={(val) => handleCustomFieldChange('productName', val)}
+                      error={resolveFieldError(fieldErrors, 'productName')}
+                      disabled={disabled || isBusy}
+                      context={{
+                        values: mergedCustomFields,
+                        coreCity: core.city ?? null,
+                      }}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+
+              {(isSeekingIdentityStep
+                ? restCustomKeys.filter((key) => key !== 'productName')
+                : restCustomKeys
+              ).map((key) => {
                 const field = fieldByKey.get(key);
                 if (!field) return null;
                 return (
                   <div key={key} className="space-y-2">
                     <DynamicField
                       field={field}
-                      value={mergedCustomFields[key]}
+                      value={
+                        categoryId === CATEGORY_IDS.yatirimBul
+                          ? displaySeekingMetricValue(key, mergedCustomFields)
+                          : mergedCustomFields[key]
+                      }
                       onChange={(val) => handleCustomFieldChange(key, val)}
                       error={resolveFieldError(fieldErrors, key)}
                       disabled={disabled || isBusy}
@@ -2036,6 +2195,41 @@ export function CategoryListingForm({
                   </div>
                 );
               })}
+
+              {isSeekingFundingStep && !visibleStepCustomKeys.includes('useOfFundsDetail') ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={disabled || isBusy}
+                  onClick={() => setShowUseOfFundsDetail(true)}
+                >
+                  Kullanım detayı ekle
+                </Button>
+              ) : null}
+
+              {isSeekingIdentityStep ? (
+                <CoreListingFields
+                  values={core}
+                  onChange={(next) => {
+                    const cityChanged = next.city !== core.city;
+                    handleCoreChange(next);
+                    if (cityChanged) {
+                      setCustomField('district', '');
+                      setCustomField('districtOther', '');
+                    }
+                  }}
+                  include={['city']}
+                  extendedCities={usesExtendedCities}
+                  cityRequired
+                  labels={getCoreFieldLabelsForCategory(categoryId)}
+                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
+                  errors={{
+                    city: resolveFieldError(fieldErrors, 'city'),
+                  }}
+                  disabled={disabled || isBusy}
+                />
+              ) : null}
 
               {currentStep.meta?.includes('tags') && (
                 <StructuredTagsSelect

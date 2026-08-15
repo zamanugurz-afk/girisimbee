@@ -50,15 +50,15 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
       maxLength: 80,
     },
     shortDescription: {
-      placeholder: 'Yapılandırılmış bilgilerden kısa özet üretilir; düzenleyebilirsiniz.',
+      placeholder: 'Kısa özet önceki adımlardan otomatik oluşur; dilerseniz düzeltin.',
       helperText:
-        'Kartlarda görünür. En az 30 karakter. Telefon, e-posta veya dış link yazmayın.',
+        'Kartlarda görünür. Sistem üretir; sıfırdan yazmak zorunda değilsiniz. Telefon veya link yazmayın.',
       maxLength: 500,
     },
     longDescription: {
-      placeholder: 'Yatırımcı özeti yapılandırılmış veriden üretilir; kabul etmeden AI yazılmaz.',
+      placeholder: 'Yatırımcı özeti önceki adımlardan otomatik oluşur. AI yalnız butona basınca çalışır.',
       helperText:
-        'Yatırımcının 10 saniyede okuyacağı özet. En az 100 karakter. Yeni rakam eklemeyin.',
+        'Yatırımcının 10 saniyede okuyacağı özet. Sistem üretir; AI sonucu Kullan demeden yazılmaz.',
       maxLength: 2000,
     },
     city: {
@@ -271,12 +271,12 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   investmentAmountCustom: {
     placeholder: 'Örn. 3.200.000 TL',
-    helperText: 'Yalnızca aralık dışında bir tutar arıyorsanız doldurun. AI tutar hesaplamaz.',
+    helperText: 'Yalnızca aralık dışında bir tutar arıyorsanız doldurun.',
     maxLength: 60,
   },
   equityOffered: {
     placeholder: 'Örn. 10',
-    helperText: 'Yatırımcılara sunmayı planladığınız hisse oranı (%). AI hisse uydurmaz.',
+    helperText: 'Yatırımcılara sunmayı planladığınız hisse oranı (%).',
   },
   valuation: {
     placeholder: 'Örn. 30.000.000 TL',
@@ -284,110 +284,112 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 60,
   },
   stage: {
-    placeholder: 'Girişim aşaması seçin',
-    helperText: 'Yatırımcı eşleşmesinde kullanılacak kanonik aşama.',
+    placeholder: 'Gelişim aşamasını seçin',
+    helperText:
+      'Bu, yatırımcının girişiminizin gelişim/tur aşamasına göre yaptığı filtredir. Ürün durumu ve mevcut müşteri durumundan farklıdır.',
   },
   sector: {
     placeholder: 'Sektör seçin',
-    helperText: 'Ana sektörü listeden seçin.',
+    helperText: 'Yatırımcının sektör filtresinde görünecek ana alan.',
   },
   productStatus: {
-    placeholder: 'Ürün durumu seçin',
-    helperText: 'Aşamadan bağımsız ürün olgunluğu.',
+    placeholder: 'Ürün durumunu seçin',
+    helperText: 'Ürün ne kadar hazır: fikir, MVP, beta veya canlı. Yatırım aşamasından ayrıdır.',
   },
   productName: {
     placeholder: 'Örn. FaturaAI',
-    helperText: 'Girişim adından farklı bir ürün/marka varsa yazın.',
+    helperText: 'Yalnızca girişim adından farklı bir ürün veya marka varsa yazın.',
     maxLength: 80,
   },
   foundedYear: {
     placeholder: 'Örn. 2024',
-    helperText: 'Kuruluş yılı (4 hane).',
+    helperText: 'Şirketin veya girişimin kuruluş yılı.',
     maxLength: 4,
   },
   businessModel: {
-    helperText: 'Gelir modelinizi seçin. Birden fazla seçebilirsiniz.',
+    helperText:
+      'Parayı nasıl kazanıyorsunuz? Birden fazla iş modeli seçebilirsiniz. Örneğin SaaS ve Abonelik birlikte kullanılabilir.',
   },
   targetCustomer: {
-    helperText: 'Kim ödeyecek? Birden fazla seçebilirsiniz.',
+    helperText: 'Kim ödüyor veya kullanıyor? Birden fazla seçebilirsiniz.',
   },
   problem: {
     placeholder: 'Hangi problemi, kimin için çözüyorsunuz?',
-    helperText: 'Kısa tutun. AI yeni problem uydurmaz.',
+    helperText: 'Müşterinin yaşadığı asıl sıkıntıyı bir cümlede yazın.',
     maxLength: 280,
   },
   solution: {
     placeholder: 'Çözümünüz ne yapıyor?',
-    helperText: 'Kısa tutun. Kanıtsız iddia yazmayın.',
+    helperText: 'Bu problemi nasıl çözdüğünüzü kısa ve somut yazın.',
     maxLength: 280,
   },
   differentiation: {
     placeholder: 'Rakiplerden / alternatiflerden farkınız nedir?',
-    helperText: 'Rakip adı, patent veya pazar liderliği uydurmayın.',
+    helperText: 'Neden sizi tercih etsinler? Kanıtsız pazar liderliği yazmayın.',
     maxLength: 280,
   },
   revenueStatus: {
-    placeholder: 'Gelir durumu seçin',
-    helperText: '“Gelir yok” ile “bilgi girilmedi” farklıdır. Mutlaka seçin.',
+    placeholder: 'Gelir durumunu seçin',
+    helperText: 'Bugün fatura kesiyor musunuz? Gelir yoksa bunu seçin; uydurmayın.',
   },
   tractionStatus: {
-    placeholder: 'Müşteri / traction durumu seçin',
-    helperText: 'Rakam yoksa bile durumu seçin.',
+    placeholder: 'Bugünkü durumu seçin',
+    helperText: 'Pazarda kanıt var mı: müşteri yok, pilot, ilk müşteriler veya ölçeklenen taban.',
   },
   monthlyRevenue: {
     placeholder: 'Örn. 120.000 TL',
-    helperText: 'Yalnızca gerçek rakam. AI üretmez.',
+    helperText: 'Son ayın gerçek geliri. MRR ile aynı şeyi tekrar yazmayın.',
     maxLength: 40,
   },
   mrr: {
     placeholder: 'Örn. 120.000 TL',
-    helperText: 'Varsa aylık yinelenen gelir.',
+    helperText: 'Her ay düzenli gelen gelir. Yıllık tutar sizden istenmez.',
     maxLength: 40,
   },
   arr: {
     placeholder: 'Örn. 1.440.000 TL',
-    helperText: 'Varsa yıllık yinelenen gelir.',
+    helperText: 'Yıllık yinelenen gelir. Kullanıcıya sorulmaz.',
     maxLength: 40,
   },
   activeCustomers: {
-    placeholder: 'Örn. 14',
-    helperText: 'Varsa aktif müşteri sayısı.',
+    placeholder: 'Örn. 20',
+    helperText: 'Şu anda aktif veya ödeyen müşteri sayısı.',
     maxLength: 40,
   },
   totalCustomers: {
-    placeholder: 'Örn. 22',
-    helperText: 'Varsa toplam müşteri sayısı.',
+    placeholder: 'Örn. 45',
+    helperText: 'Toplam müşteri. Ayrı zorunlu alan değildir.',
     maxLength: 40,
   },
   users: {
     placeholder: 'Örn. 1.200',
-    helperText: 'Varsa kullanıcı sayısı.',
+    helperText: 'Tüketici veya kullanıcı tabanlı modeller için kayıtlı kullanıcı.',
     maxLength: 40,
   },
   growthRate: {
-    placeholder: 'Örn. %12 aylık',
-    helperText: 'Yalnızca ölçtüğünüz büyüme.',
+    placeholder: 'Örn. 12',
+    helperText: 'Ölçtüğünüz büyüme oranı. Birim yüzde (%). Yoksa boş bırakın.',
     maxLength: 40,
   },
   gmv: {
     placeholder: 'Örn. 800.000 TL',
-    helperText: 'Marketplace / e-ticaret işlem hacmi varsa.',
+    helperText: 'Marketplace veya e-ticaret işlem hacmi varsa yazın.',
     maxLength: 40,
   },
   founderCount: {
     placeholder: 'Kurucu sayısı',
-    helperText: 'Kişisel kimlik bilgisi istemeyiz.',
+    helperText: 'Kaç kurucu var? Kişisel kimlik istemeyiz.',
   },
   teamSize: {
     placeholder: 'Ekip büyüklüğü',
-    helperText: 'Kurucular dahil yaklaşık ekip.',
+    helperText: 'Kurucular dahil yaklaşık ekip büyüklüğü.',
   },
   founderExpertise: {
-    helperText: 'Kurucu ekibin uzmanlıkları. Birden fazla seçebilirsiniz.',
+    helperText: 'Kurucu ve çekirdek ekibin uzmanlıkları. Birden fazla seçebilirsiniz.',
   },
   useOfFundsDetail: {
     placeholder: 'Örn. İlk 6 ay ürün ve 2 satış kişisi',
-    helperText: 'İsteğe bağlı kısa açıklama. AI yeni kalem eklemez.',
+    helperText: 'İsteğe bağlı. Paranın nasıl dağılacağını kısaca yazın.',
     maxLength: 280,
   },
   minInvestment: {
@@ -399,7 +401,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Tek bir yatırımcıdan kabul edeceğiniz maksimum tutar.',
   },
   useOfFunds: {
-    helperText: 'Yatırımın kullanılacağı alanları seçin. Birden fazla seçebilirsiniz.',
+    helperText: 'Bu turda paranın gideceği alanları seçin. Birden fazla seçebilirsiniz.',
   },
   currency: {
     placeholder: 'Para birimi seçin',

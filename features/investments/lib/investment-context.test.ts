@@ -67,6 +67,13 @@ describe('investment context', () => {
     expect(ctx.investmentThesisSignals).not.toContain('has-customers');
   });
 
+  it('does not list monthlyRevenue twice when it matches MRR', () => {
+    const ctx = saasMvp({ monthlyRevenue: '120000', mrr: '120000' });
+    const keys = listEnteredMetrics(ctx).map((row) => row.key);
+    expect(keys).toContain('mrr');
+    expect(keys).not.toContain('monthlyRevenue');
+  });
+
   it('requires custom amount when Özel tutar is selected', () => {
     expect(
       validateInvestmentFundingFields({

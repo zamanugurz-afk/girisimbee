@@ -67,9 +67,9 @@ export function listingFormValuesToModulePayload(
       return {
         ...base,
         sector: readString(customFields.sector),
-        investmentStage: readString(customFields.stage),
-        stage: readString(customFields.stage),
         ...investmentFields,
+        stage: readString(customFields.stage),
+        investmentStage: readString(customFields.stage),
       };
     }
 

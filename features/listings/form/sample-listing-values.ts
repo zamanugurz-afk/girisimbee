@@ -32,7 +32,6 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
           sector: 'SaaS / Yazılım',
           stage: 'MVP aşaması',
           productStatus: 'MVP',
-          productName: 'FaturaAI',
           foundedYear: '2024',
           businessModel: ['SaaS', 'Abonelik'],
           targetCustomer: ['B2B', 'KOBİ'],

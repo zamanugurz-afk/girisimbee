@@ -178,7 +178,13 @@ export function listEnteredMetrics(ctx: InvestmentContext): Array<{ key: string;
       label: INVESTMENT_METRIC_LABELS[key],
       value: ctx.traction[key],
     }))
-    .filter((row) => row.value);
+    .filter((row) => {
+      if (!row.value) return false;
+      if (row.key === 'monthlyRevenue' && ctx.traction.mrr && ctx.traction.mrr === row.value) {
+        return false;
+      }
+      return true;
+    });
 }
 
 export function formatTeamLabel(ctx: InvestmentContext): string {

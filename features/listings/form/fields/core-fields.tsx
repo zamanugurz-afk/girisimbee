@@ -39,6 +39,8 @@ export interface CoreFieldsProps {
   labels?: Partial<Record<keyof CoreListingFieldsInput, string>>;
   /** Override helper / placeholder text for core fields. */
   fieldUi?: Partial<Record<keyof CoreListingFieldsInput, { helperText?: string; placeholder?: string }>>;
+  /** Show a required asterisk on city when the category validates it. */
+  cityRequired?: boolean;
 }
 
 const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
@@ -65,6 +67,7 @@ export function CoreListingFields({
   extendedCities,
   labels,
   fieldUi,
+  cityRequired,
 }: CoreFieldsProps) {
   const fields = include ?? ALL_CORE_FIELDS;
   const show = (key: keyof CoreListingFieldsInput) => fields.includes(key);
@@ -298,7 +301,7 @@ export function CoreListingFields({
             const ui = uiFor('city');
             return (
               <div className="space-y-2">
-                <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" />
+                <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" required={cityRequired} />
                 <CitySelect
                   id="core-city"
                   value={values.city ?? null}

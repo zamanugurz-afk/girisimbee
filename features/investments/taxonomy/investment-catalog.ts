@@ -67,13 +67,13 @@ export const INVESTMENT_METRIC_KEYS = [
 
 export const INVESTMENT_METRIC_LABELS: Record<(typeof INVESTMENT_METRIC_KEYS)[number], string> = {
   monthlyRevenue: 'Aylık gelir',
-  mrr: 'MRR',
+  mrr: 'Aylık düzenli gelir (MRR)',
   arr: 'ARR',
   activeCustomers: 'Aktif müşteri',
   totalCustomers: 'Toplam müşteri',
   users: 'Kullanıcı',
   growthRate: 'Büyüme',
-  gmv: 'GMV',
+  gmv: 'İşlem hacmi',
 };
 
 export function isCustomInvestmentAmount(value: unknown): boolean {
