@@ -3,6 +3,10 @@
 import { ArrowRight, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+/** Shared picker grid — level 1 and career level 2 use the same density. */
+export const CREATE_LISTING_CATEGORY_CARD_GRID =
+  'grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3';
+
 export function CategoryCardButton({
   title,
   description,
@@ -10,7 +14,6 @@ export function CategoryCardButton({
   color,
   Icon,
   onClick,
-  ctaLabel = 'Devam et',
 }: {
   title: string;
   description: string;
@@ -18,7 +21,6 @@ export function CategoryCardButton({
   color: string;
   Icon: LucideIcon;
   onClick: () => void;
-  ctaLabel?: string;
 }) {
   return (
     <button
@@ -56,7 +58,7 @@ export function CategoryCardButton({
         className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold opacity-80 transition-opacity group-hover:opacity-100"
         style={{ color }}
       >
-        {ctaLabel}
+        Devam et
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </span>
     </button>

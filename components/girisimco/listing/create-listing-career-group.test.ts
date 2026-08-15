@@ -43,6 +43,10 @@ describe('create listing career group', () => {
     ]);
     expect(CREATE_LISTING_CAREER_COPY.options[0]?.categoryId).toBe(CATEGORY_IDS.isBul);
     expect(CREATE_LISTING_CAREER_COPY.options[1]?.categoryId).toBe(CATEGORY_IDS.iseAl);
+    for (const option of CREATE_LISTING_CAREER_COPY.options) {
+      expect(option).not.toHaveProperty('benefits');
+      expect(option.description.length).toBeLessThan(120);
+    }
   });
 
   it('keeps existing create deep-link slugs for both career types', () => {

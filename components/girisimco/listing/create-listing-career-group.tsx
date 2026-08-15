@@ -1,32 +1,15 @@
 'use client';
 
-import { ArrowLeft, Briefcase, UserRoundSearch } from 'lucide-react';
-import { CategoryCardButton } from '@/components/girisimco/listing/create-listing-category-card';
+import type { ReactNode } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { CREATE_LISTING_CATEGORY_CARD_GRID } from '@/components/girisimco/listing/create-listing-category-card';
 import { CREATE_LISTING_CAREER_COPY } from '@/components/girisimco/listing/create-listing-career.data';
-import {
-  JOB_HIRE_CARD_COLOR,
-  JOB_SEEKER_CARD_COLOR,
-} from '@/features/listings/utils/listing-card-display';
-import type { CategoryId } from '@/lib/domain/ids';
-
-const FLOW_VISUAL = {
-  seek: {
-    color: JOB_SEEKER_CARD_COLOR,
-    Icon: UserRoundSearch,
-    audience: 'İş arayanlar · kariyer profili',
-  },
-  hire: {
-    color: JOB_HIRE_CARD_COLOR,
-    Icon: Briefcase,
-    audience: 'İşverenler · açık pozisyon',
-  },
-} as const;
 
 export function CreateListingCareerGroup({
-  onSelect,
+  children,
   onBack,
 }: {
-  onSelect: (categoryId: CategoryId) => void;
+  children: ReactNode;
   onBack: () => void;
 }) {
   return (
@@ -55,23 +38,7 @@ export function CreateListingCareerGroup({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {CREATE_LISTING_CAREER_COPY.options.map((option) => {
-          const visual = FLOW_VISUAL[option.id];
-          return (
-            <CategoryCardButton
-              key={option.categoryId}
-              title={option.label}
-              description={option.description}
-              audience={visual.audience}
-              color={visual.color}
-              Icon={visual.Icon}
-              ctaLabel={option.label}
-              onClick={() => onSelect(option.categoryId)}
-            />
-          );
-        })}
-      </div>
+      <div className={CREATE_LISTING_CATEGORY_CARD_GRID}>{children}</div>
     </section>
   );
 }
