@@ -5,7 +5,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 export const NAV_LINKS = [
   { label: 'Keşfet', href: '/kesfet' },
   { label: 'Yatırım Arıyorum', href: '/invest' },
-  { label: 'Kariyer ve İş Fırsatları', href: '/is', hub: 'career' as const },
+  { label: 'Kariyer ve İş Fırsatları', href: '/is' },
   { label: 'Ortak Arıyorum', href: '/partners' },
   { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
   { label: 'Franchise İlanları', href: '/franchise/buy' },

@@ -3,7 +3,7 @@ import { NAV_LINKS, getFooterLinks } from '@/features/shared/constants/navigatio
 
 describe('career hub navigation labels', () => {
   it('groups jobs under Kariyer ve İş Fırsatları in the header', () => {
-    const career = NAV_LINKS.find((link) => 'hub' in link && link.hub === 'career');
+    const career = NAV_LINKS.find((link) => link.href === '/is');
     expect(career?.label).toBe('Kariyer ve İş Fırsatları');
     expect(career?.href).toBe('/is');
     expect(NAV_LINKS.some((link) => link.label === 'Yatırım Arıyorum')).toBe(true);

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -18,7 +17,6 @@ import {
   HomeRestSections,
 } from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
-import { CareerFlowDialog } from '@/components/girisimco/home/career-flow-dialog';
 import {
   HOME_CATEGORIES,
   type HomeCategorySlug,
@@ -46,7 +44,6 @@ function homeGatewayGridClass(count: number): string {
 
 /** Intent gateway — larger destination cards under the hero. */
 function HomeCategoryShortcuts() {
-  const [careerOpen, setCareerOpen] = useState(false);
   const cardCount = HOME_CATEGORIES.length;
   /** Slightly taller cards when fewer columns fill the row. Was 11.5rem at 5 cols. */
   const cardMinH = cardCount <= 4 ? 'min-h-[12.75rem]' : 'min-h-[11.5rem]';
@@ -115,25 +112,14 @@ function HomeCategoryShortcuts() {
               );
               return (
                 <li key={cat.slug} className="min-w-0">
-                  {'opensCareerHub' in cat && cat.opensCareerHub ? (
-                    <button
-                      type="button"
-                      className={cardClass}
-                      onClick={() => setCareerOpen(true)}
-                    >
-                      {cardInner}
-                    </button>
-                  ) : (
-                    <Link href={cat.href} className={cardClass}>
-                      {cardInner}
-                    </Link>
-                  )}
+                  <Link href={cat.href} className={cardClass}>
+                    {cardInner}
+                  </Link>
                 </li>
               );
             })}
           </ul>
         </nav>
-        <CareerFlowDialog open={careerOpen} onOpenChange={setCareerOpen} />
       </div>
     </section>
   );

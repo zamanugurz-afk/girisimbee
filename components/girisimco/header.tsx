@@ -10,7 +10,6 @@ import { AuthMenu } from '@/features/authentication/components/auth-menu';
 import { MobileAuthLinks } from '@/features/authentication/components/mobile-auth-links';
 import { MarketplaceNotificationsBell } from '@/components/girisimco/marketplace-notifications-bell';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { CareerFlowDialog } from '@/components/girisimco/home/career-flow-dialog';
 import { cn } from '@/lib/utils';
 
 const iconBtnClass =
@@ -26,7 +25,6 @@ export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [careerOpen, setCareerOpen] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -57,35 +55,16 @@ export function Header() {
         >
           {NAV_LINKS.map((link) => {
             const isActive = isNavLinkActive(pathname, link.href);
-            const className = cn(
-              'relative whitespace-nowrap px-2.5 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-3 lg:text-gc-sm',
-              isActive
-                ? 'text-primary'
-                : 'text-[#475569] hover:text-[#0F172A] dark:text-slate-300 dark:hover:text-white',
-            );
-            if ('hub' in link && link.hub === 'career') {
-              return (
-                <button
-                  key={link.href + link.label}
-                  type="button"
-                  className={className}
-                  onClick={() => setCareerOpen(true)}
-                >
-                  {link.label}
-                  {isActive ? (
-                    <span
-                      className="absolute inset-x-2.5 -bottom-0.5 h-0.5 rounded-full bg-primary lg:inset-x-3"
-                      aria-hidden
-                    />
-                  ) : null}
-                </button>
-              );
-            }
             return (
               <Link
                 key={link.href + link.label}
                 href={link.href}
-                className={className}
+                className={cn(
+                  'relative whitespace-nowrap px-2.5 py-2 text-gc-xs font-medium transition-colors duration-200 lg:px-3 lg:text-gc-sm',
+                  isActive
+                    ? 'text-primary'
+                    : 'text-[#475569] hover:text-[#0F172A] dark:text-slate-300 dark:hover:text-white',
+                )}
               >
                 {link.label}
                 {isActive ? (
@@ -143,39 +122,21 @@ export function Header() {
             İlan ara…
           </Link>
           <nav className="flex flex-col gap-0.5">
-            {NAV_LINKS.map((link) => {
-              const className = cn(
-                'rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
-                isNavLinkActive(pathname, link.href)
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A] dark:text-foreground',
-              );
-              if ('hub' in link && link.hub === 'career') {
-                return (
-                  <button
-                    key={link.href + link.label}
-                    type="button"
-                    className={className}
-                    onClick={() => {
-                      setMobileOpen(false);
-                      setCareerOpen(true);
-                    }}
-                  >
-                    {link.label}
-                  </button>
-                );
-              }
-              return (
-                <Link
-                  key={link.href + link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={className}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  'rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
+                  isNavLinkActive(pathname, link.href)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A] dark:text-foreground',
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
           <div className="mt-4 flex flex-col gap-2">
             <MobileAuthLinks onNavigate={() => setMobileOpen(false)} />
@@ -191,7 +152,6 @@ export function Header() {
           </div>
         </div>
       )}
-      <CareerFlowDialog open={careerOpen} onOpenChange={setCareerOpen} />
     </header>
   );
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CAREER_FLOW_OPTIONS,
+  CAREER_HUB_LANDING,
   HOME_CATEGORIES,
   HOME_CATEGORIES_CATALOG,
   parseCareerFlowParam,
@@ -20,22 +21,27 @@ describe('career hub on homepage catalog', () => {
     expect(HOME_CATEGORIES.find((cat) => cat.slug === 'ise-al')?.label).toBe(
       'Kariyer ve İş Fırsatları',
     );
+    expect(HOME_CATEGORIES.find((cat) => cat.slug === 'ise-al')?.href).toBe('/is');
     expect(HOME_CATEGORIES.find((cat) => cat.slug === 'ise-al')?.label).not.toContain('&');
   });
 
-  it('exposes only İş Arıyorum and İşe Alıyorum as career chooser options', () => {
+  it('exposes only İş Arıyorum and İşe Alıyorum as career landing options', () => {
+    expect(CAREER_HUB_LANDING.badge).toBe('Kariyer ve İş Fırsatları');
+    expect(CAREER_HUB_LANDING.title).toContain('hangi tarafta olduğunuzu seçin');
     expect(CAREER_FLOW_OPTIONS.map((item) => item.label)).toEqual([
       'İş Arıyorum',
       'İşe Alıyorum',
     ]);
     expect(CAREER_FLOW_OPTIONS[0]?.description).toBe(
-      'Kendinize uygun iş fırsatlarını keşfedin.',
+      'Kendinize uygun iş fırsatlarını keşfedin ve kariyerinizde bir adım öne geçin.',
     );
     expect(CAREER_FLOW_OPTIONS[1]?.description).toBe(
-      'Aradığınız doğru çalışanı ve yeteneği bulun.',
+      'Aradığınız doğru çalışanı ve yeteneği bulun, ekibinizi güçlendirin.',
     );
     expect(CAREER_FLOW_OPTIONS[0]?.href).toBe('/is?flow=seek');
     expect(CAREER_FLOW_OPTIONS[1]?.href).toBe('/is?flow=hire');
+    expect(CAREER_FLOW_OPTIONS[0]?.benefits).toHaveLength(3);
+    expect(CAREER_FLOW_OPTIONS[1]?.benefits).toHaveLength(3);
   });
 
   it('keeps direct /is and catalog slug for the job group', () => {

@@ -8,8 +8,6 @@ type HomeCategoryDef = {
   audience: string;
   shortCue: string;
   hint: string;
-  /** Homepage / nav: open İş Arıyorum + İşe Alıyorum chooser instead of jumping to /is. */
-  opensCareerHub?: boolean;
 };
 
 /**
@@ -52,7 +50,6 @@ export const HOME_CATEGORIES_CATALOG = [
     audience: 'İşveren / iş arayan',
     shortCue: 'Pozisyon ve kariyer',
     hint: 'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
-    opensCareerHub: true,
   },
   {
     slug: 'dijital-ai',
@@ -94,19 +91,54 @@ export const HOME_CATEGORIES = HOME_CATEGORIES_CATALOG.filter((cat) =>
 /** @deprecated Prefer HOME_CATEGORIES_CATALOG — alias kept for older imports. */
 export const HOME_CATEGORIES_ALL = HOME_CATEGORIES_CATALOG;
 
-/** Landing / nav chooser — existing /is URLs, optional flow chip. */
+/** /is selection landing — CTAs keep existing ?flow=seek|hire browse chips. */
+export const CAREER_HUB_LANDING = {
+  badge: 'Kariyer ve İş Fırsatları',
+  title: 'Girişimbee\'de hangi tarafta olduğunuzu seçin',
+  description: 'İş fırsatlarını keşfetmek veya doğru yeteneği bulmak için size uygun yolu seçin.',
+  trust: 'Güvenli, şeffaf ve doğru eşleşmeler için buradayız.',
+} as const;
+
 export const CAREER_FLOW_OPTIONS = [
   {
     id: 'seek',
     href: '/is?flow=seek',
     label: 'İş Arıyorum',
-    description: 'Kendinize uygun iş fırsatlarını keşfedin.',
+    description: 'Kendinize uygun iş fırsatlarını keşfedin ve kariyerinizde bir adım öne geçin.',
+    benefits: [
+      {
+        title: 'Profilinizi ve yetkinliklerinizi oluşturun',
+        text: 'Deneyimlerinizi ve yeteneklerinizi öne çıkarın.',
+      },
+      {
+        title: 'Size uygun pozisyonları keşfedin',
+        text: 'İlgi alanlarınıza ve deneyiminize uygun fırsatları bulun.',
+      },
+      {
+        title: 'Deneyimlerinize uygun fırsatları görün',
+        text: 'Size uygun iş ilanlarını keşfedin.',
+      },
+    ],
   },
   {
     id: 'hire',
     href: '/is?flow=hire',
     label: 'İşe Alıyorum',
-    description: 'Aradığınız doğru çalışanı ve yeteneği bulun.',
+    description: 'Aradığınız doğru çalışanı ve yeteneği bulun, ekibinizi güçlendirin.',
+    benefits: [
+      {
+        title: 'Aradığınız pozisyonu tanımlayın',
+        text: 'İhtiyacınız olan pozisyonu ve detayları belirleyin.',
+      },
+      {
+        title: 'Beklediğiniz yetkinlikleri belirleyin',
+        text: 'Adaylarda aradığınız mesleki ve teknik yetkinlikleri tanımlayın.',
+      },
+      {
+        title: 'Uygun adayları keşfedin',
+        text: 'İhtiyacınıza uygun adaylarla hızlıca iletişime geçin.',
+      },
+    ],
   },
 ] as const;
 
