@@ -9,6 +9,7 @@ import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { InvestmentProfilePreview } from '@/features/investments/components/InvestmentProfilePreview';
+import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -85,17 +86,23 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showInvestmentCard =
     Boolean(listing.investmentCard)
     && listing.category.id === 'find-investment';
+  const showInvestorCard =
+    Boolean(listing.investorCard)
+    && listing.category.id === 'invest';
   const showInvestment =
     !showInvestmentCard
+    && !showInvestorCard
     && INVESTMENT_CATEGORIES.has(listing.category.id)
     && hasInvestmentFacts(listing);
   const showCustomFacts =
     !showCareerCard
     && !showInvestmentCard
+    && !showInvestorCard
     && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
   const showCompany =
     !showCareerCard
+    && !showInvestorCard
     && hasCompanyFacts(listing)
     && listing.category.id !== 'find-investment';
   const companySectionTitle = isFranchiseBrandListing(listing)
@@ -106,6 +113,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showAbout =
     !showCareerCard
     && !showInvestmentCard
+    && !showInvestorCard
     && !isEmptyDisplayValue(listing.longDescription);
   const customFactsTitle = customFactsSectionTitle(listing);
   const isSeekingInvestment = listing.category.id === 'find-investment';
@@ -134,6 +142,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
 
       {showInvestmentCard && listing.investmentCard ? (
         <InvestmentProfilePreview data={listing.investmentCard} showTitle={false} />
+      ) : null}
+
+      {showInvestorCard && listing.investorCard ? (
+        <InvestorProfilePreview data={listing.investorCard} showTitle={false} />
       ) : null}
 
       {showAbout ? (

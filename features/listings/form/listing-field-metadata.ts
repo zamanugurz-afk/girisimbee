@@ -68,22 +68,19 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.yatirimYap]: {
     title: {
-      placeholder: 'Örn: Erken Aşama Yapay Zeka ve Fintech Girişimlerine Yatırım Yapıyorum',
-      helperText:
-        'Yatırımcı profilinizi özetleyen bir başlık yazın. Her kelimenin ilk harfi büyük.',
-      maxLength: 200,
+      placeholder: 'Örn: Erken Aşama SaaS ve Fintech Yatırımcısı',
+      helperText: 'Kısa bir yatırımcı kimliği yazın. Uzun slogan yazmayın.',
+      maxLength: 80,
     },
     shortDescription: {
-      placeholder:
-        'Örn: Seed ve pre-seed aşamasında 500 bin–2 milyon TL bilet ile yapay zeka, fintech ve B2B SaaS girişimlerine odaklanıyorum.',
-      helperText: 'Kartlarda görünür. En az 30 karakter; iletişim bilgisi yazmayın.',
+      placeholder: 'Yapılandırılmış kriterlerden kısa özet üretilir; düzenleyebilirsiniz.',
+      helperText: 'Kartlarda görünür. En az 30 karakter. İletişim bilgisi yazmayın.',
       maxLength: 500,
     },
     longDescription: {
-      placeholder:
-        'Örn: Operasyonel geçmişim e-ticaret ve yazılım satışında. Portföyümde erken aşama ürünlere go-to-market ve kurumsal satış desteği sunuyorum. Kurucularla düzenli mentorluk yapmayı ve takip turlarında yanlarında olmayı tercih ediyorum. Türkiye merkezli, global potansiyeli olan ekiplere öncelik veriyorum.',
-      helperText: 'Detay sayfasında gösterilir. En az 100 karakter.',
-      maxLength: 10000,
+      placeholder: 'Yatırımcı özeti kriterlerden üretilir; AI onayınız olmadan yazılmaz.',
+      helperText: 'Kurucunun 10 saniyede okuyacağı profil. En az 100 karakter. Yeni kriter eklemeyin.',
+      maxLength: 2000,
     },
   },
   [CATEGORY_IDS.iseAl]: {
@@ -256,6 +253,11 @@ export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
     shortDescription: 'Kısa yatırımcı özeti',
     longDescription: 'Yatırımcı özeti',
   },
+  [CATEGORY_IDS.yatirimYap]: {
+    title: 'Yatırımcı kimliği',
+    shortDescription: 'Kısa yatırımcı özeti',
+    longDescription: 'Yatırımcı özeti',
+  },
   [CATEGORY_IDS.ortakBul]: {
     title: 'Ortaklık ilanı başlığı',
     shortDescription: 'Kısa özet',
@@ -412,11 +414,65 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Tek bir yatırımda ayırmayı planladığınız maksimum tutar.',
   },
   preferredStages: {
-    placeholder: 'Tercih edilen aşama seçin',
-    helperText: 'Yatırım yapmayı tercih ettiğiniz girişim aşamaları.',
+    placeholder: 'Aşama seçin',
+    helperText: 'Birden fazla aşama seçebilirsiniz. Tüm aşamalar tüm kanonik aşamaları kapsar.',
   },
   sectors: {
-    helperText: 'İlgilendiğiniz sektörleri seçin (birden fazla seçebilirsiniz).',
+    helperText: 'Yatırım Arıyorum ile aynı sektör kataloğu. Birden fazla seçebilirsiniz.',
+  },
+  investorType: {
+    placeholder: 'Yatırımcı tipi seçin',
+    helperText: 'Melek, VC, kurumsal veya fon.',
+  },
+  preferredProductStatuses: {
+    helperText: 'Yatırım Arıyorum ürün durumu ile aynı katalog.',
+  },
+  preferredBusinessModels: {
+    helperText: 'Yatırım Arıyorum iş modeli ile aynı katalog.',
+  },
+  preferredTargetCustomers: {
+    helperText: 'Yatırım Arıyorum hedef müşteri ile aynı katalog.',
+  },
+  revenueExpectation: {
+    placeholder: 'Gelir beklentisi',
+    helperText: '“Gelir yok” = gelir öncesi girişimler uygun. Seeking revenueStatus ile aynı değerler.',
+  },
+  tractionExpectation: {
+    placeholder: 'Traction beklentisi',
+    helperText: 'Seeking tractionStatus ile aynı kanonik değerler.',
+  },
+  preferredGeographies: {
+    helperText: 'Türkiye geneli, yurt dışı veya iller. Seeking geography ile karşılaştırılır.',
+  },
+  equityPreference: {
+    placeholder: 'Hisse yaklaşımı',
+    helperText: 'Yatırım tavsiyesi değil; sizin kriteriniz.',
+  },
+  valuationApproach: {
+    placeholder: 'Değerleme yaklaşımı',
+    helperText: 'Yatırım tavsiyesi değil; sizin kriteriniz.',
+  },
+  preferredUseOfFunds: {
+    helperText: 'Seeking useOfFunds ile aynı katalog. İsteğe bağlı.',
+  },
+  investmentThesis: {
+    placeholder: 'Ne tür girişimlere yatırım yapmak istiyorsunuz?',
+    helperText: 'Kısa tutun. AI yeni sektör veya tutar eklemez.',
+    maxLength: 280,
+  },
+  mustHaveSignals: {
+    helperText: 'Olmazsa olmaz kriterler. Yapılandırılmış seçim.',
+  },
+  dealBreakers: {
+    helperText: 'Kesinlikle istemediğiniz durumlar.',
+  },
+  ticketMin: {
+    placeholder: 'Örn. 750000',
+    helperText: 'Özel tutar için minimum TL. Bant seçildiyse otomatik hesaplanır.',
+  },
+  ticketMax: {
+    placeholder: 'Örn. 2000000',
+    helperText: 'Özel tutar için maksimum TL.',
   },
   investmentFocus: {
     placeholder: 'Örn: Yapay zeka, erken aşama SaaS ve Türkiye odaklı yatırımlar',

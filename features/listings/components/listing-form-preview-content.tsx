@@ -56,7 +56,7 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
 
   const customEntries = Object.entries(values.customFields).filter(
     ([key, val]) =>
-      !['kvkkConsents', 'capabilities', 'investmentAiAnalysis', 'careerAiAnalysis'].includes(key)
+      !['kvkkConsents', 'capabilities', 'investmentAiAnalysis', 'investorAiAnalysis', 'careerAiAnalysis'].includes(key)
       && !isEmptyDisplayValue(val),
   );
 

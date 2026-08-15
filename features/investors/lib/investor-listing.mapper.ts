@@ -3,25 +3,35 @@ import type {
   InvestorListingDetails,
   InvestorListingPayload,
 } from '@/features/investors/types/investor-listing.types';
+import { resolveInvestorTicket } from '@/features/investors/lib/investor-ticket';
 
-const DETAIL_KEYS = [
-  'investorType',
-  'investmentStage',
-  'minimumInvestment',
-  'maximumInvestment',
-  'portfolioSize',
-  'sectors',
-  'investmentAmount',
-  'preferredStages',
-] as const;
+const CORE_PAYLOAD_KEYS = new Set([
+  'title',
+  'shortDescription',
+  'longDescription',
+  'city',
+  'district',
+  'sector',
+  'contactPhone',
+  'contactWhatsapp',
+  'contactEmail',
+  'contactWebsite',
+  'publishConsents',
+  'anonymousMode',
+]);
 
 export function extractInvestorListingDetails(listing: Listing): InvestorListingDetails {
   const cf = listing.customFields;
+  const ticket = resolveInvestorTicket(cf);
   return {
     investorType: (cf.investorType as string | null | undefined) ?? null,
     investmentStage: (cf.investmentStage as string | null | undefined) ?? null,
-    minimumInvestment: (cf.minimumInvestment as number | null | undefined) ?? null,
-    maximumInvestment: (cf.maximumInvestment as number | null | undefined) ?? null,
+    minimumInvestment:
+      (cf.minimumInvestment as number | null | undefined)
+      ?? ticket.min,
+    maximumInvestment:
+      (cf.maximumInvestment as number | null | undefined)
+      ?? ticket.max,
     portfolioSize: (cf.portfolioSize as number | null | undefined) ?? null,
     sectors: (cf.sectors as string[] | null | undefined) ?? null,
   };
@@ -29,10 +39,9 @@ export function extractInvestorListingDetails(listing: Listing): InvestorListing
 
 function buildCustomFields(payload: Record<string, unknown>): Record<string, unknown> {
   const customFields: Record<string, unknown> = {};
-  for (const key of DETAIL_KEYS) {
-    if (payload[key] !== undefined) {
-      customFields[key] = payload[key];
-    }
+  for (const [key, value] of Object.entries(payload)) {
+    if (CORE_PAYLOAD_KEYS.has(key) || value === undefined) continue;
+    customFields[key] = value;
   }
   return customFields;
 }

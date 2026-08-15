@@ -321,9 +321,54 @@ export const STARTUP_STAGES = [
   'Ölçeklenme aşaması',
 ] as const;
 
+export const ALL_STARTUP_STAGES_OPTION = 'Tüm aşamalar';
+
 export const STARTUP_STAGES_WITH_ALL = [
   ...STARTUP_STAGES,
-  'Tüm aşamalar',
+  ALL_STARTUP_STAGES_OPTION,
+] as const;
+
+export const INVESTOR_TYPE_OPTIONS = [
+  'Melek yatırımcı',
+  'VC',
+  'Kurumsal yatırımcı',
+  'Fon',
+  'Şirket',
+  'Diğer',
+] as const;
+
+export const EQUITY_PREFERENCE_OPTIONS = [
+  'Esnek',
+  'Azınlık payı',
+  'Kontrol payı',
+  'Belirli aralık',
+] as const;
+
+export const VALUATION_APPROACH_OPTIONS = [
+  'Esnek',
+  'Gelir bazlı',
+  'Traction bazlı',
+  'Görüşmeye açık',
+] as const;
+
+export const INVESTOR_MUST_HAVE_OPTIONS = [
+  'Gelir şart',
+  'Aktif müşteri şart',
+  'Canlı ürün veya sonrası',
+  'Türkiye odaklı',
+] as const;
+
+export const INVESTOR_DEAL_BREAKER_OPTIONS = [
+  'Fikir aşaması istemiyorum',
+  'Gelir yok istemiyorum',
+  'Müşteri yok istemiyorum',
+  'Yurt dışı istemiyorum',
+] as const;
+
+export const INVESTOR_GEOGRAPHY_OPTIONS = [
+  'Türkiye geneli',
+  'Yurt dışı',
+  ...TURKISH_CITIES,
 ] as const;
 
 /**

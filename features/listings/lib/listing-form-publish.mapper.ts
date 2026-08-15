@@ -5,7 +5,11 @@ import { getListingCategoryModule } from '@/features/listings/config/listing-cat
 import { listingFormValuesToFranchiseGivePayload } from '@/features/listings/lib/franchise-listing-form.mapper';
 import { acceptedCareerAiAnalysisOrNull } from '@/features/candidates/ai/career-ai-persist';
 import { acceptedInvestmentAiAnalysisOrNull } from '@/features/investments/ai/investment-ai-persist';
+import { acceptedInvestorAiAnalysisOrNull } from '@/features/investors/ai/investor-ai-persist';
 import { INVESTMENT_PUBLISH_CUSTOM_KEYS } from '@/features/investments/taxonomy/investment-catalog';
+import { INVESTOR_PUBLISH_CUSTOM_KEYS } from '@/features/investors/lib/investor-criteria';
+import { ALL_STARTUP_STAGES_OPTION } from '@/features/listings/config/listing-field-options';
+import { resolveInvestorTicket } from '@/features/investors/lib/investor-ticket';
 
 function readString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -69,16 +73,35 @@ export function listingFormValuesToModulePayload(
       };
     }
 
-    case 'investors':
+    case 'investors': {
+      const investorFields: Record<string, unknown> = {};
+      for (const key of INVESTOR_PUBLISH_CUSTOM_KEYS) {
+        if (key === 'investorAiAnalysis') {
+          investorFields[key] = acceptedInvestorAiAnalysisOrNull(customFields[key]);
+          continue;
+        }
+        if (customFields[key] !== undefined) {
+          investorFields[key] = customFields[key];
+        }
+      }
+      const stages = readStringArray(customFields.preferredStages) ?? [];
+      const allStages = stages.includes(ALL_STARTUP_STAGES_OPTION);
+      const ticket = resolveInvestorTicket(customFields);
       return {
         ...base,
-        investmentStage: readString(customFields.preferredStages),
-        preferredStages: readString(customFields.preferredStages),
+        ...investorFields,
+        investmentStage: allStages ? ALL_STARTUP_STAGES_OPTION : (stages[0] ?? null),
+        preferredStages: stages,
         sectors: readStringArray(customFields.sectors) ?? (
           readString(customFields.sectors) ? [String(customFields.sectors)] : undefined
         ),
         investmentAmount: customFields.investmentAmount,
+        minimumInvestment: ticket.min,
+        maximumInvestment: ticket.max,
+        ticketMin: ticket.min,
+        ticketMax: ticket.max,
       };
+    }
 
     case 'candidates': {
       const role = readString(customFields.desiredRole);

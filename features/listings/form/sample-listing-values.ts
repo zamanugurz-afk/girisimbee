@@ -54,19 +54,33 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
     case CATEGORY_IDS.yatirimYap:
       return {
         core: {
-          title: 'Erken Aşama Yapay Zeka ve Fintech Girişimlerine Yatırım Yapıyorum',
+          title: 'Erken Aşama SaaS ve Fintech Yatırımcısı',
           shortDescription:
-            'Seed ve pre-seed aşamasında 500 bin–2 milyon TL bilet ile yapay zeka, fintech ve B2B SaaS girişimlerine odaklanıyorum.',
+            'Melek yatırımcı; Yapay zeka, Fintech, SaaS / Yazılım odaklı; Fikir aşaması, MVP aşaması, İlk müşteriler aşamalarına yatırım yapıyor; bilet 500.000 - 1.000.000 TL.',
           longDescription:
-            'Operasyonel geçmişim e-ticaret ve yazılım satışında. Portföyümde erken aşama ürünlere go-to-market ve kurumsal satış desteği sunuyorum. Kurucularla düzenli mentorluk yapmayı ve takip turlarında yanlarında olmayı tercih ediyorum. Türkiye merkezli, global potansiyeli olan ekiplere öncelik veriyorum.',
+            'Erken Aşama SaaS ve Fintech Yatırımcısı bir melek yatırımcı. Odak sektörler: Yapay zeka, Fintech, SaaS / Yazılım. Tercih edilen aşamalar: Fikir aşaması, MVP aşaması, İlk müşteriler. Yatırım bileti 500.000 - 1.000.000 TL (min 500000 TL, max 1000000 TL). Ürün durumu: MVP, Beta, Canlı ürün. iş modeli SaaS, Abonelik; hedef müşteri B2B, KOBİ. Beklenti: İlk gelir · Pilot. Coğrafya: Türkiye geneli, İstanbul. hisse Azınlık payı; değerleme Görüşmeye açık. Kullanım tercihi: Ürün geliştirme, Satış. Tez: Erken aşama B2B SaaS ve fintech ekiplerine operasyonel destekle yatırım yapmak istiyorum. Olmazsa olmaz: Türkiye odaklı. İstemedikleri: Yurt dışı istemiyorum.',
           city: 'İstanbul',
           country: 'TR',
           remotePolicy: null,
         },
         customFields: {
+          investorType: 'Melek yatırımcı',
           investmentAmount: '500.000 - 1.000.000 TL',
-          preferredStages: 'MVP aşaması',
+          preferredStages: ['Fikir aşaması', 'MVP aşaması', 'İlk müşteriler'],
           sectors: ['Yapay zeka', 'Fintech', 'SaaS / Yazılım'],
+          preferredProductStatuses: ['MVP', 'Beta', 'Canlı ürün'],
+          preferredBusinessModels: ['SaaS', 'Abonelik'],
+          preferredTargetCustomers: ['B2B', 'KOBİ'],
+          revenueExpectation: 'İlk gelir',
+          tractionExpectation: 'Pilot',
+          preferredGeographies: ['Türkiye geneli', 'İstanbul'],
+          equityPreference: 'Azınlık payı',
+          valuationApproach: 'Görüşmeye açık',
+          preferredUseOfFunds: ['Ürün geliştirme', 'Satış'],
+          investmentThesis:
+            'Erken aşama B2B SaaS ve fintech ekiplerine operasyonel destekle yatırım yapmak istiyorum.',
+          mustHaveSignals: ['Türkiye odaklı'],
+          dealBreakers: ['Yurt dışı istemiyorum'],
         },
       };
     case CATEGORY_IDS.iseAl:

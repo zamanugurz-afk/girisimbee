@@ -50,6 +50,8 @@ import { parseCareerExperiences } from '@/features/candidates/config/career-prof
 import { getExperienceLevelLabel } from '@/features/candidates/taxonomy/career-taxonomy';
 import { buildInvestmentContext } from '@/features/investments/lib/investment-context';
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
+import { buildInvestorCriteriaContext } from '@/features/investors/lib/investor-criteria';
+import { buildInvestorCardData } from '@/features/investors/lib/investor-card';
 import { isCustomInvestmentAmount } from '@/features/investments/taxonomy/investment-catalog';
 import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
 import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
@@ -104,6 +106,24 @@ const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
   'teamSize',
   'founderExpertise',
   'investmentAiAnalysis',
+  'investorType',
+  'preferredProductStatuses',
+  'preferredBusinessModels',
+  'preferredTargetCustomers',
+  'revenueExpectation',
+  'tractionExpectation',
+  'preferredGeographies',
+  'equityPreference',
+  'valuationApproach',
+  'preferredUseOfFunds',
+  'investmentThesis',
+  'mustHaveSignals',
+  'dealBreakers',
+  'ticketMin',
+  'ticketMax',
+  'minimumInvestment',
+  'maximumInvestment',
+  'investorAiAnalysis',
 ]);
 
 /** Shown as feature cards on Digital & AI detail — omit from flat fact rows. */
@@ -495,7 +515,10 @@ export function aggregateToListingDetail(
     })),
     similar: [],
     customFacts:
-      categorySlug === 'is-bul' || categorySlug === 'ise-al' || categorySlug === 'yatirim-bul'
+      categorySlug === 'is-bul'
+      || categorySlug === 'ise-al'
+      || categorySlug === 'yatirim-bul'
+      || categorySlug === 'yatirim-yap'
         ? []
         : customFacts,
     investmentCard:
@@ -509,6 +532,18 @@ export function aggregateToListingDetail(
             longDescription: listing.longDescription,
             shortDescription: listing.shortDescription,
             storedAnalysis: cf.investmentAiAnalysis,
+          })
+        : undefined,
+    investorCard:
+      categorySlug === 'yatirim-yap'
+        ? buildInvestorCardData({
+            context: buildInvestorCriteriaContext({
+              title: listing.title,
+              customFields: cf,
+            }),
+            longDescription: listing.longDescription,
+            shortDescription: listing.shortDescription,
+            storedAnalysis: cf.investorAiAnalysis,
           })
         : undefined,
     careerCard:

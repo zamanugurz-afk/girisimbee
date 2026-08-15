@@ -67,6 +67,15 @@ import {
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
 import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
 import { polishInvestmentText } from '@/features/investments/lib/investment-text';
+import { InvestorAiAnalyzePanel } from '@/features/investors/components/InvestorAiAnalyzePanel';
+import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
+import { acceptedInvestorAiAnalysisOrNull } from '@/features/investors/ai/investor-ai-persist';
+import {
+  buildInvestorCriteriaContext,
+} from '@/features/investors/lib/investor-criteria';
+import { buildInvestorCardData } from '@/features/investors/lib/investor-card';
+import { buildInvestorSummaryDraft } from '@/features/investors/lib/investor-summary';
+import { validateInvestorTicketFields } from '@/features/investors/lib/investor-ticket';
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
 import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
 import {
@@ -405,12 +414,16 @@ export function CategoryListingForm({
   const isInvestmentSummaryStep =
     categoryId === CATEGORY_IDS.yatirimBul
     && Boolean(currentStep.coreFields?.includes('longDescription'));
+  const isInvestorSummaryStep =
+    categoryId === CATEGORY_IDS.yatirimYap
+    && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
     || categoryId === CATEGORY_IDS.iseAl
     || categoryId === CATEGORY_IDS.bayilikAl
     || categoryId === CATEGORY_IDS.yatirimBul
+    || categoryId === CATEGORY_IDS.yatirimYap
     || categoryId === CATEGORY_IDS.ortakBul;
   const isLastStep = stepIndex === steps.length - 1;
   const isFirstStep = stepIndex === 0;
@@ -422,6 +435,8 @@ export function CategoryListingForm({
   const lastAutoCareerSummaryRef = useRef('');
   const lastAutoInvestmentSummaryRef = useRef('');
   const lastAutoInvestmentShortRef = useRef('');
+  const lastAutoInvestorSummaryRef = useRef('');
+  const lastAutoInvestorShortRef = useRef('');
   const careerSummaryDraft = useMemo(() => {
     if (categoryId === CATEGORY_IDS.iseAl) {
       return buildHiringSummaryDraft({
@@ -547,6 +562,54 @@ export function CategoryListingForm({
     }));
   }, [investmentSummaryDraft]);
 
+  const investorSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.yatirimYap) return null;
+    return buildInvestorSummaryDraft(
+      buildInvestorCriteriaContext({
+        title: core.title,
+        customFields: mergedCustomFields,
+      }),
+    );
+  }, [categoryId, core.title, mergedCustomFields]);
+
+  useEffect(() => {
+    if (!isInvestorSummaryStep || !investorSummaryDraft) return;
+    const currentLong = polishInvestmentText(core.longDescription);
+    const currentShort = polishInvestmentText(core.shortDescription);
+    const longUntouched =
+      !currentLong || currentLong === lastAutoInvestorSummaryRef.current;
+    const shortUntouched =
+      !currentShort || currentShort === lastAutoInvestorShortRef.current;
+    if (!longUntouched && !shortUntouched) return;
+    lastAutoInvestorSummaryRef.current = investorSummaryDraft.longDescription;
+    lastAutoInvestorShortRef.current = investorSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: longUntouched
+        ? investorSummaryDraft.longDescription
+        : prev.longDescription,
+      shortDescription: shortUntouched
+        ? investorSummaryDraft.shortDescription
+        : prev.shortDescription,
+    }));
+  }, [
+    core.longDescription,
+    core.shortDescription,
+    investorSummaryDraft,
+    isInvestorSummaryStep,
+  ]);
+
+  const applyInvestorSummaryDraft = useCallback(() => {
+    if (!investorSummaryDraft) return;
+    lastAutoInvestorSummaryRef.current = investorSummaryDraft.longDescription;
+    lastAutoInvestorShortRef.current = investorSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: investorSummaryDraft.longDescription,
+      shortDescription: investorSummaryDraft.shortDescription,
+    }));
+  }, [investorSummaryDraft]);
+
   const formValues = useMemo(
     (): ListingFormValues => ({
       core,
@@ -589,6 +652,7 @@ export function CategoryListingForm({
   const isCareerCardCategory =
     categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl;
   const isInvestmentCardCategory = categoryId === CATEGORY_IDS.yatirimBul;
+  const isInvestorCardCategory = categoryId === CATEGORY_IDS.yatirimYap;
   const investmentPreviewData = useMemo(
     () =>
       isInvestmentCardCategory
@@ -609,6 +673,27 @@ export function CategoryListingForm({
       core.shortDescription,
       core.title,
       isInvestmentCardCategory,
+      mergedCustomFields,
+    ],
+  );
+  const investorPreviewData = useMemo(
+    () =>
+      isInvestorCardCategory
+        ? buildInvestorCardData({
+            context: buildInvestorCriteriaContext({
+              title: core.title,
+              customFields: mergedCustomFields,
+            }),
+            longDescription: core.longDescription,
+            shortDescription: core.shortDescription,
+            storedAnalysis: mergedCustomFields.investorAiAnalysis,
+          })
+        : null,
+    [
+      core.longDescription,
+      core.shortDescription,
+      core.title,
+      isInvestorCardCategory,
       mergedCustomFields,
     ],
   );
@@ -1031,6 +1116,15 @@ export function CategoryListingForm({
       if (Object.keys(fundingErrors).length > 0) {
         setFieldErrors(fundingErrors);
         toast.error(Object.values(fundingErrors)[0] ?? 'Yatırım tutarını kontrol edin.');
+        return false;
+      }
+    }
+
+    if (categoryId === CATEGORY_IDS.yatirimYap && stepCustomKeys.includes('investmentAmount')) {
+      const ticketErrors = validateInvestorTicketFields(mergedCustomFields);
+      if (Object.keys(ticketErrors).length > 0) {
+        setFieldErrors(ticketErrors);
+        toast.error(Object.values(ticketErrors)[0] ?? 'Yatırım biletini kontrol edin.');
         return false;
       }
     }
@@ -1460,7 +1554,11 @@ export function CategoryListingForm({
             <InvestmentProfilePreview data={investmentPreviewData} />
           )}
 
-          {isPreviewStep && !isCareerCardCategory && !isInvestmentCardCategory && (
+          {isPreviewStep && investorPreviewData && (
+            <InvestorProfilePreview data={investorPreviewData} />
+          )}
+
+          {isPreviewStep && !isCareerCardCategory && !isInvestmentCardCategory && !isInvestorCardCategory && (
             <ListingFormPreviewContent
               values={formValues}
               listingType={listingType}
@@ -1731,9 +1829,15 @@ export function CategoryListingForm({
                     ? acceptedInvestmentAiAnalysisOrNull(
                         mergedCustomFields.investmentAiAnalysis,
                       )
+                    : categoryId === CATEGORY_IDS.yatirimYap
+                      ? acceptedInvestorAiAnalysisOrNull(
+                          mergedCustomFields.investorAiAnalysis,
+                        )
                     : acceptedCareerAiAnalysisOrNull(mergedCustomFields.careerAiAnalysis);
                 if (
-                  (categoryId !== CATEGORY_IDS.isBul && categoryId !== CATEGORY_IDS.yatirimBul)
+                  (categoryId !== CATEGORY_IDS.isBul
+                    && categoryId !== CATEGORY_IDS.yatirimBul
+                    && categoryId !== CATEGORY_IDS.yatirimYap)
                   || !acceptedAnalysis
                   || acceptedAnalysis.profileGaps.length === 0
                 ) {
@@ -1774,7 +1878,7 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep || isInvestmentSummaryStep ? (
+              {isCareerSummaryStep || isInvestmentSummaryStep || isInvestorSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
@@ -1782,6 +1886,8 @@ export function CategoryListingForm({
                       ? 'Açık pozisyon, yetkinlik ve teklif bilgilerinize göre bir taslak hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : categoryId === CATEGORY_IDS.yatirimBul
                         ? 'Yapılandırılmış bilgilerden bir yatırımcı özeti hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
+                      : categoryId === CATEGORY_IDS.yatirimYap
+                        ? 'Yapılandırılmış kriterlerden bir yatırımcı profili hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
@@ -1793,6 +1899,8 @@ export function CategoryListingForm({
                     onClick={
                       isInvestmentSummaryStep
                         ? applyInvestmentSummaryDraft
+                        : isInvestorSummaryStep
+                          ? applyInvestorSummaryDraft
                         : applyCareerSummaryDraft
                     }
                   >
@@ -1810,6 +1918,30 @@ export function CategoryListingForm({
                     }
                     onAcceptSummary={(summary) =>
                       setCore((prev) => ({ ...prev, longDescription: summary }))
+                    }
+                  />
+                ) : null}
+                {categoryId === CATEGORY_IDS.yatirimYap ? (
+                  <InvestorAiAnalyzePanel
+                    title={core.title ?? ''}
+                    customFields={mergedCustomFields}
+                    longDescription={core.longDescription ?? ''}
+                    disabled={disabled || isBusy}
+                    stored={acceptedInvestorAiAnalysisOrNull(
+                      mergedCustomFields.investorAiAnalysis,
+                    )}
+                    onStore={(value) =>
+                      setCustomField(
+                        'investorAiAnalysis',
+                        acceptedInvestorAiAnalysisOrNull(value),
+                      )
+                    }
+                    onAcceptSummary={({ longDescription, shortDescription }) =>
+                      setCore((prev) => ({
+                        ...prev,
+                        longDescription,
+                        shortDescription: shortDescription || prev.shortDescription,
+                      }))
                     }
                   />
                 ) : null}

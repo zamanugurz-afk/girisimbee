@@ -28,6 +28,24 @@ export interface InvestorListingPayload {
   maximumInvestment?: number | null;
   portfolioSize?: number | null;
   sectors?: string[] | null;
+  preferredStages?: string[] | string | null;
+  investmentAmount?: string | null;
+  investmentAmountCustom?: string | null;
+  ticketMin?: number | null;
+  ticketMax?: number | null;
+  preferredProductStatuses?: string[] | null;
+  preferredBusinessModels?: string[] | null;
+  preferredTargetCustomers?: string[] | null;
+  revenueExpectation?: string | null;
+  tractionExpectation?: string | null;
+  preferredGeographies?: string[] | null;
+  equityPreference?: string | null;
+  valuationApproach?: string | null;
+  preferredUseOfFunds?: string[] | null;
+  investmentThesis?: string | null;
+  mustHaveSignals?: string[] | null;
+  dealBreakers?: string[] | null;
+  investorAiAnalysis?: unknown;
 }
 
 export interface InvestorListingFilter {

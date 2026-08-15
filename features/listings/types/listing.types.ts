@@ -3,6 +3,7 @@ import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import { hasAnyTrustBadge } from '@/features/authentication/types/trust.types';
 import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
 import type { InvestmentCardData } from '@/features/investments/lib/investment-card';
+import type { InvestorCardData } from '@/features/investors/lib/investor-card';
 
 export interface ListingAttachment {
   id: string;
@@ -182,6 +183,8 @@ export interface ListingDetail {
   };
   /** Yatırım Arıyorum — structured investor-facing card. */
   investmentCard?: InvestmentCardData;
+  /** Yatırım Yapacağım — structured founder-facing investor card. */
+  investorCard?: InvestorCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).
