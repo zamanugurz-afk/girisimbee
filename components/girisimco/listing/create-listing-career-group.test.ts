@@ -33,6 +33,10 @@ describe('create listing career group', () => {
     );
     expect(CAREER_HUB_LANDING.badge).toBe(CREATE_LISTING_CAREER_HUB.title);
     expect(CAREER_HUB_LANDING.title).toContain('hangi tarafta olduğunuzu seçin');
+    expect(CREATE_LISTING_CAREER_COPY.title).toBe(
+      'Ne tür bir kariyer ilanı vermek istiyorsunuz?',
+    );
+    expect(CREATE_LISTING_CAREER_COPY.title).not.toBe(CAREER_HUB_LANDING.title);
   });
 
   it('maps career create cards to the existing isBul / iseAl category IDs', () => {

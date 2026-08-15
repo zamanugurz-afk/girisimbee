@@ -41,11 +41,15 @@ function CategoriesBackControl({
 export function CareerFlowChoiceHeader({
   headingLevel = 'h1',
   headingId,
+  title = CAREER_HUB_LANDING.title,
+  description = CAREER_HUB_LANDING.description,
   backHref = '/',
   onBack,
 }: {
   headingLevel?: 'h1' | 'h2';
   headingId?: string;
+  title?: string;
+  description?: string;
   backHref?: string;
   onBack?: () => void;
 }) {
@@ -60,10 +64,10 @@ export function CareerFlowChoiceHeader({
         id={headingId}
         className="mt-4 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl lg:text-[2rem]"
       >
-        {CAREER_HUB_LANDING.title}
+        {title}
       </Heading>
       <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-        {CAREER_HUB_LANDING.description}
+        {description}
       </p>
       <div className={cn('mt-3 flex justify-center')}>
         <CategoriesBackControl href={backHref} onBack={onBack} />

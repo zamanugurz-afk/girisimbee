@@ -26,6 +26,8 @@ export function CreateListingCareerGroup({
       <CareerFlowChoiceHeader
         headingLevel="h2"
         headingId="create-career-heading"
+        title={CREATE_LISTING_CAREER_COPY.title}
+        description={CREATE_LISTING_CAREER_COPY.description}
         onBack={onBack}
       />
 
