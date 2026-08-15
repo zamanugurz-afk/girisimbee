@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CAREER_FLOW_OPTIONS } from '@/components/girisimco/home/home-marketplace.data';
 import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
   CREATE_LISTING_CAREER_COPY,
@@ -43,6 +44,9 @@ describe('create listing career group', () => {
     ]);
     expect(CREATE_LISTING_CAREER_COPY.options[0]?.categoryId).toBe(CATEGORY_IDS.isBul);
     expect(CREATE_LISTING_CAREER_COPY.options[1]?.categoryId).toBe(CATEGORY_IDS.iseAl);
+    expect(CREATE_LISTING_CAREER_COPY.options.map((item) => item.id)).toEqual(
+      CAREER_FLOW_OPTIONS.map((item) => item.id),
+    );
   });
 
   it('keeps existing create deep-link slugs for both career types', () => {
