@@ -61,6 +61,7 @@ function CreateListingContent() {
       : null;
 
   const [categoryId, setCategoryId] = useState<CategoryId | null>(initialCategory);
+  const [careerStep, setCareerStep] = useState(false);
   const [listingTypeId, setListingTypeId] = useState<ListingTypeId | null>(() => {
     if (!initialCategory) return null;
     return (
@@ -112,6 +113,7 @@ function CreateListingContent() {
   function resetCategorySelection() {
     setCategoryId(null);
     setListingTypeId(null);
+    setCareerStep(false);
   }
 
   async function handlePublish(values: ListingFormValues) {
@@ -258,21 +260,25 @@ function CreateListingContent() {
         categoryId ? 'max-w-2xl' : 'max-w-[1280px]',
       )}
     >
-      <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-          İlan Oluştur
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-          {categoryId
-            ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-            : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
-        </p>
-      </div>
+      {!careerStep || categoryId ? (
+        <div className="mb-8">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+            İlan Oluştur
+          </h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+            {categoryId
+              ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
+              : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+          </p>
+        </div>
+      ) : null}
 
       {!categoryId ? (
         <CreateListingCategoryPicker
           options={CREATE_LISTING_TYPE_CONFIGS}
           onSelect={selectCategory}
+          careerStep={careerStep}
+          onCareerStepChange={setCareerStep}
         />
       ) : null}
 

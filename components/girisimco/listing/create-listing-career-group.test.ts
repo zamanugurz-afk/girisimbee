@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { CAREER_FLOW_OPTIONS } from '@/components/girisimco/home/home-marketplace.data';
+import {
+  CAREER_FLOW_OPTIONS,
+  CAREER_HUB_LANDING,
+} from '@/components/girisimco/home/home-marketplace.data';
 import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
   CREATE_LISTING_CAREER_COPY,
@@ -28,9 +31,8 @@ describe('create listing career group', () => {
     expect(CREATE_LISTING_CAREER_HUB.description).toBe(
       'İş arayanlar ve işverenler için doğru fırsatı bulun.',
     );
-    expect(CREATE_LISTING_CAREER_COPY.title).toBe(
-      'Ne tür bir kariyer ilanı vermek istiyorsunuz?',
-    );
+    expect(CAREER_HUB_LANDING.badge).toBe(CREATE_LISTING_CAREER_HUB.title);
+    expect(CAREER_HUB_LANDING.title).toContain('hangi tarafta olduğunuzu seçin');
   });
 
   it('maps career create cards to the existing isBul / iseAl category IDs', () => {

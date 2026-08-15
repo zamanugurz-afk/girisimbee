@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   BrainCircuit,
   Briefcase,
@@ -84,11 +84,14 @@ const CATEGORY_VISUAL: Record<
 export function CreateListingCategoryPicker({
   options,
   onSelect,
+  careerStep,
+  onCareerStepChange,
 }: {
   options: CategoryListingTypeConfig[];
   onSelect: (categoryId: CategoryId) => void;
+  careerStep: boolean;
+  onCareerStepChange: (open: boolean) => void;
 }) {
-  const [careerStep, setCareerStep] = useState(false);
   const ordered = useMemo(() => {
     // Only CREATE_LISTING_PICKER_ORDER ids render in the flat grid.
     // Career types (isBul / iseAl) open from the parent hub card; deferred types stay out.
@@ -103,7 +106,7 @@ export function CreateListingCategoryPicker({
       <section className="mb-10">
         <CreateListingCareerGroup
           onSelect={onSelect}
-          onBack={() => setCareerStep(false)}
+          onBack={() => onCareerStepChange(false)}
         />
       </section>
     );
@@ -146,7 +149,7 @@ export function CreateListingCategoryPicker({
           audience={CREATE_LISTING_CAREER_HUB.audience}
           color={GC_CATEGORY_COLORS['ise-al']}
           Icon={Briefcase}
-          onClick={() => setCareerStep(true)}
+          onClick={() => onCareerStepChange(true)}
         />
       </div>
     </section>
