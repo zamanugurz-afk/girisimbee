@@ -81,7 +81,7 @@ function CreateListingContent() {
 
   if (authLoading || !sessionReady) {
     return (
-      <main className="mx-auto max-w-5xl px-5 pb-16 pt-20 lg:px-8">
+      <main className="mx-auto max-w-[1280px] px-5 pb-16 pt-20 lg:px-8">
         <div className="mb-8 space-y-2">
           <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
           <div className="h-4 w-72 animate-pulse rounded bg-muted" />
@@ -255,7 +255,7 @@ function CreateListingContent() {
     <main
       className={cn(
         'relative mx-auto bg-[#FAFBFC] px-5 pb-16 pt-20 dark:bg-background lg:px-8',
-        categoryId ? 'max-w-2xl' : 'max-w-5xl',
+        categoryId ? 'max-w-2xl' : 'max-w-[1280px]',
       )}
     >
       <div className="mb-8">
@@ -309,7 +309,7 @@ export default function CreateListingPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto max-w-5xl px-5 pb-16 pt-20 lg:px-8">
+        <main className="mx-auto max-w-[1280px] px-5 pb-16 pt-20 lg:px-8">
           <div className="mb-8 space-y-2">
             <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
             <div className="h-4 w-72 animate-pulse rounded bg-muted" />
