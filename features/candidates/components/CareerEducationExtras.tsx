@@ -14,6 +14,7 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-field-options';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
 
 export function CareerEducationExtras({
   educationLevel,
@@ -138,6 +139,11 @@ export function CareerEducationExtras({
                 placeholder="Bölüm / alan yazın"
                 onKeyDown={(event) => event.stopPropagation()}
                 onChange={(e) => onChange({ educationFieldOther: e.target.value })}
+                onBlur={() => {
+                  if (educationFieldOther?.trim()) {
+                    onChange({ educationFieldOther: suggestTitleCaseTr(educationFieldOther) });
+                  }
+                }}
               />
               {!isHire ? (
                 <CareerManualAssist

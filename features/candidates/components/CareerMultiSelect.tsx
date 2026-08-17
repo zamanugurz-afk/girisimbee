@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { isManualCareerOption } from '@/features/candidates/taxonomy/career-taxonomy';
+import { formatTurkishSentence } from '@/features/candidates/lib/career-text-quality';
 import { cn } from '@/lib/utils';
 
 export function CareerMultiSelect({
@@ -97,6 +98,11 @@ export function CareerMultiSelect({
           onKeyDownCapture={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
           onChange={(e) => onManualChange(e.target.value)}
+          onBlur={() => {
+            if (manualValue?.trim()) {
+              onManualChange(formatTurkishSentence(manualValue));
+            }
+          }}
         />
       ) : null}
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

@@ -20,21 +20,108 @@ export function normalizeCareerTextWhitespace(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
+const SMALL_CONJUNCTIONS = new Set(['ve', 'veya', 'ile', 'için', 'de', 'da', 'ki']);
+
+const TITLE_WHITELIST: Record<string, string> = {
+  ai: 'AI',
+  ml: 'ML',
+  saas: 'SaaS',
+  b2b: 'B2B',
+  b2c: 'B2C',
+  crm: 'CRM',
+  erp: 'ERP',
+  devops: 'DevOps',
+  qa: 'QA',
+  seo: 'SEO',
+  sem: 'SEM',
+  ui: 'UI',
+  ux: 'UX',
+  'ui/ux': 'UI/UX',
+  cto: 'CTO',
+  cfo: 'CFO',
+  chro: 'CHRO',
+  cso: 'CSO',
+  ceo: 'CEO',
+  api: 'API',
+  sql: 'SQL',
+  wfm: 'WFM',
+  sla: 'SLA',
+  isg: 'İSG',
+  smmm: 'SMMM',
+  nps: 'NPS',
+  csat: 'CSAT',
+  oee: 'OEE',
+  kobi: 'KOBİ',
+  llm: 'LLM',
+  nlp: 'NLP',
+  mlops: 'MLOps',
+  atc: 'ATC',
+  pms: 'PMS',
+  revpar: 'RevPAR',
+  'in-house': 'In-House',
+  'full-stack': 'Full-Stack',
+  'front-end': 'Front-End',
+  'back-end': 'Back-End',
+};
+
 /**
- * Soft title-case for short professional labels (roles, education fields).
- * Does not rewrite long prose paragraphs.
+ * Intelligent Title Casing for Turkish roles, skills, and fields.
+ * Capitalizes each word, handles slashes, parentheses, acronyms, and conjunctions.
  */
 export function suggestTitleCaseTr(value: string): string {
   const trimmed = normalizeCareerTextWhitespace(value);
   if (!trimmed || trimmed.length > 80) return trimmed;
+
   return trimmed
     .split(' ')
-    .map((word) => {
-      if (!word) return word;
-      const lower = word.toLocaleLowerCase('tr-TR');
+    .map((token, index) => {
+      if (!token) return token;
+
+      if (token.startsWith('(') && token.endsWith(')')) {
+        const inner = token.slice(1, -1);
+        const innerFormatted = suggestTitleCaseTr(inner);
+        return `(${innerFormatted})`;
+      }
+
+      if (token.includes('/')) {
+        return token
+          .split('/')
+          .map((sub) => suggestTitleCaseTr(sub))
+          .join('/');
+      }
+
+      if (token.includes('-')) {
+        return token
+          .split('-')
+          .map((sub) => suggestTitleCaseTr(sub))
+          .join('-');
+      }
+
+      const lower = token.toLocaleLowerCase('tr-TR');
+      if (TITLE_WHITELIST[lower]) return TITLE_WHITELIST[lower];
+      if (index > 0 && SMALL_CONJUNCTIONS.has(lower)) return lower;
+
       return lower.charAt(0).toLocaleUpperCase('tr-TR') + lower.slice(1);
     })
     .join(' ');
+}
+
+/**
+ * Formats Turkish sentences: capitalization after punctuation and correct punctuation spacing.
+ */
+export function formatTurkishSentence(value: string): string {
+  if (!value) return value;
+  let text = normalizeCareerTextWhitespace(value);
+  text = text
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/([,.;:!?])(?!\s|$)/g, '$1 ')
+    .replace(/\s{2,}/g, ' ');
+
+  text = text.replace(/(^|[.!?…]\s+)(\p{L})/gu, (_, boundary: string, letter: string) => {
+    return `${boundary}${letter.toLocaleUpperCase('tr-TR')}`;
+  });
+
+  return text.trim();
 }
 
 export function findCareerTextQualityIssue(

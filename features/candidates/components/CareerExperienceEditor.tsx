@@ -18,6 +18,10 @@ import {
   yearOptions,
 } from '@/features/candidates/lib/career-experience-dates';
 import {
+  suggestTitleCaseTr,
+  formatTurkishSentence,
+} from '@/features/candidates/lib/career-text-quality';
+import {
   getPositionsForSector,
   isManualCareerOption,
   MANUAL_OPTION,
@@ -208,6 +212,11 @@ export function CareerExperienceEditor({
                       placeholder="Pozisyonunuzu yazın"
                       onKeyDown={(event) => event.stopPropagation()}
                       onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
+                      onBlur={() => {
+                        if (row.roleOther?.trim()) {
+                          updateRow(row.id, { roleOther: suggestTitleCaseTr(row.roleOther) });
+                        }
+                      }}
                     />
                     <CareerManualAssist
                       kind="role"

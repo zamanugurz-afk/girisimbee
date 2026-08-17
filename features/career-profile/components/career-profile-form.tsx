@@ -20,6 +20,10 @@ import {
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import {
+  suggestTitleCaseTr,
+  formatTurkishSentence,
+} from '@/features/candidates/lib/career-text-quality';
+import {
   CAREER_AVAILABILITY_OPTIONS,
   CAREER_EDUCATION_LEVELS,
   CAREER_WORK_TYPE_OPTIONS,
@@ -380,10 +384,10 @@ export function CareerProfileForm({
 
   // Handlers for Role Chips
   const handleAddRole = (roleToAdd: string) => {
-    const trimmed = roleToAdd.trim();
-    if (!trimmed || selectedRoles.includes(trimmed)) return;
-    setSelectedRoles((prev) => [...prev, trimmed]);
-    if (!primaryRole) setPrimaryRole(trimmed);
+    const formatted = suggestTitleCaseTr(roleToAdd);
+    if (!formatted || selectedRoles.includes(formatted)) return;
+    setSelectedRoles((prev) => [...prev, formatted]);
+    if (!primaryRole) setPrimaryRole(formatted);
     setRoleInput('');
   };
 
@@ -406,9 +410,9 @@ export function CareerProfileForm({
 
   // Handlers for Skill Chips
   const handleAddProfSkill = (skill: string) => {
-    const trimmed = skill.trim();
-    if (!trimmed || selectedProfSkills.includes(trimmed)) return;
-    setSelectedProfSkills((prev) => [...prev, trimmed]);
+    const formatted = suggestTitleCaseTr(skill);
+    if (!formatted || selectedProfSkills.includes(formatted)) return;
+    setSelectedProfSkills((prev) => [...prev, formatted]);
     setProfSkillInput('');
   };
 
@@ -417,9 +421,9 @@ export function CareerProfileForm({
   };
 
   const handleAddTechSkill = (skill: string) => {
-    const trimmed = skill.trim();
-    if (!trimmed || selectedTechSkills.includes(trimmed)) return;
-    setSelectedTechSkills((prev) => [...prev, trimmed]);
+    const formatted = suggestTitleCaseTr(skill);
+    if (!formatted || selectedTechSkills.includes(formatted)) return;
+    setSelectedTechSkills((prev) => [...prev, formatted]);
     setTechSkillInput('');
   };
 
@@ -428,9 +432,9 @@ export function CareerProfileForm({
   };
 
   const handleAddTool = (tool: string) => {
-    const trimmed = tool.trim();
-    if (!trimmed || selectedTools.includes(trimmed)) return;
-    setSelectedTools((prev) => [...prev, trimmed]);
+    const formatted = suggestTitleCaseTr(tool);
+    if (!formatted || selectedTools.includes(formatted)) return;
+    setSelectedTools((prev) => [...prev, formatted]);
     setToolInput('');
   };
 
@@ -761,6 +765,9 @@ export function CareerProfileForm({
                             type="text"
                             value={primaryRole}
                             onChange={(e) => setPrimaryRole(e.target.value)}
+                            onBlur={() => {
+                              if (primaryRole.trim()) setPrimaryRole(suggestTitleCaseTr(primaryRole));
+                            }}
                             placeholder="Örn: Çağrı Merkezi Satış Müdürü, Full Stack Developer..."
                             className={fieldClass}
                             autoFocus
@@ -1523,6 +1530,9 @@ export function CareerProfileForm({
                             type="text"
                             value={primaryRole}
                             onChange={(e) => setPrimaryRole(e.target.value)}
+                            onBlur={() => {
+                              if (primaryRole.trim()) setPrimaryRole(suggestTitleCaseTr(primaryRole));
+                            }}
                             placeholder="Örn: Senior Frontend Developer, Satış Lideri..."
                             className={fieldClass}
                             autoFocus
