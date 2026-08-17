@@ -23,6 +23,7 @@ export type RoleFamily =
   | 'storeManager'
   | 'cashier'
   | 'callCenter'
+  | 'callCenterManager'
   | 'customerSuccess'
   | 'salesIndoor'
   | 'salesField'
@@ -211,6 +212,24 @@ const FAMILIES: Record<RoleFamily, PositionBundle> = {
     ],
     professionalSkills: ['Çağrı karşılama', 'Aktif dinleme', 'Sorun çözme'],
     technicalSkills: ['Çağrı merkezi yazılımı', 'CRM', 'Excel'],
+  },
+  callCenterManager: {
+    responsibilities: [
+      'Çağrı merkezi operasyon, SLA ve KPI hedeflerinin yönetilmesi',
+      'Takım liderleri ve temsilci ekiplerinin performans takibi',
+      'Vardiya planlama, kapasite yönetimi (WFM) ve çağrı kuyruk optimizasyonu',
+      'Hizmet kalitesi, çağrı kayıt denetimleri ve koçluk süreçlerinin yürütülmesi',
+      'Müşteri memnuniyeti (CSAT/NPS) ve ilk temasta çözüm oranının artırılması',
+      'Kritik müşteri şikayetlerinin eskalasyon yönetimi ve çözümü',
+    ],
+    achievements: [
+      'Çağrı merkezi SLA karşılama oranının %95+ üzerine çıkarılması',
+      'Müşteri memnuniyet (CSAT) skorunun hedeflerin üzerine çıkarılması',
+      'Temsilci başına verimlilik ve ilk temasta çözüm (FCR) artışı',
+      'Çağrı kaçırma oranının (Abandonment Rate) düşürülmesi',
+    ],
+    professionalSkills: ['Çağrı merkezi yönetimi', 'Takım liderliği', 'SLA & KPI yönetimi', 'Kapasite planlama (WFM)', 'Kriz yönetimi', 'Kalite denetimi'],
+    technicalSkills: ['Çağrı merkezi santral yazılımı (Genesys/Avaya/AloTech)', 'CRM', 'Excel / Raporlama', 'WFM Yazılımları', 'Power BI / Dashboard'],
   },
   customerSuccess: {
     responsibilities: [
@@ -961,11 +980,11 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Vitrin sorumlusu': 'retail',
   'Bölge müdürü': 'regionalManager',
   'Müdür': 'public',
-  'Çağrı merkezi müdürü': 'callCenter',
-  'Çağrı merkezi operasyon müdürü': 'callCenter',
+  'Çağrı merkezi müdürü': 'callCenterManager',
+  'Çağrı merkezi operasyon müdürü': 'callCenterManager',
   'Çağrı merkezi satış müdürü': 'salesManager',
-  'Çağrı merkezi takım lideri': 'callCenter',
-  'Çağrı merkezi süpervizörü': 'callCenter',
+  'Çağrı merkezi takım lideri': 'callCenterManager',
+  'Çağrı merkezi süpervizörü': 'callCenterManager',
   'Pazarlama müdürü': 'brandManager',
   'İnsan kaynakları müdürü': 'hrManager',
   'Müşteri hizmetleri müdürü': 'customerSuccess',
@@ -1276,7 +1295,7 @@ function normalizeRole(role: string): string {
 
 function inferFamily(role: string): RoleFamily | null {
   const hay = normalizeRole(role);
-  if (/çağrı merkezi.*müdür|çağrı merkezi.*operasyon|çağrı merkezi.*yönetici|çağrı merkezi.*süpervizör|çağrı merkezi.*lider/.test(hay)) return 'callCenter';
+  if (/çağrı merkezi.*müdür|çağrı merkezi.*operasyon|çağrı merkezi.*yönetici|çağrı merkezi.*süpervizör|çağrı merkezi.*lider|call center.*manager/.test(hay)) return 'callCenterManager';
   if (/pazarlama.*müdür|pazarlama.*direktör/.test(hay)) return 'brandManager';
   if (/ik yönetici|insan kaynakları yönetici|ik müdür|insan kaynakları müdür/.test(hay)) return 'hrManager';
   if (/müşteri hizmetleri.*müdür|müşteri deneyimi.*yönetici/.test(hay)) return 'customerSuccess';

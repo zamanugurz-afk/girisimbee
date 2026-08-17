@@ -1494,6 +1494,14 @@ const RESPONSIBILITY_TEMPLATES: Record<string, readonly string[]> = {
     'Veli / paydaş iletişimi',
     'Eğitim programı koordinasyonu',
   ],
+  yonetim: [
+    'Departman hedefleri, bütçe ve KPI planlarının yönetilmesi',
+    'Ekip performans takibi, koçluk ve gelişim süreçlerinin yürütülmesi',
+    'Operasyonel verimlilik ve süreç optimizasyonu',
+    'Üst yönetim ve paydaşlara periyodik raporlama',
+    'Kritik eskalasyon ve kriz anlarında çözüm yönetimi',
+    'Hizmet kalitesi ve kurumsal standartlara uyum denetimi',
+  ],
   genel: [
     'Günlük operasyonların yürütülmesi',
     'Ekip içi koordinasyon',
@@ -1512,6 +1520,13 @@ const ACHIEVEMENT_TEMPLATES: Record<string, readonly string[]> = {
     'Ekip performansının artırılması',
     'Müşteri portföyünün büyütülmesi',
     'Operasyonel verimlilik artışı',
+  ],
+  yonetim: [
+    'Ekip KPI ve operasyonel hedeflerinin %100+ aşılması',
+    'Operasyonel maliyetlerin düşürülmesi ve verimlilik artışı',
+    'Müşteri memnuniyet skorlarının hedeflerin üzerine çıkarılması',
+    'Personel bağlılığının artırılması ve devir oranının düşürülmesi',
+    'Süreç iyileştirme ve otomasyon projelerinin başarıyla tamamlanması',
   ],
   genel: [
     'Operasyonel verimlilik artışı',
@@ -1537,6 +1552,10 @@ const ACHIEVEMENT_TEMPLATES: Record<string, readonly string[]> = {
 };
 
 function templateTheme(sector: string, role: string): string {
+  const normalizedRole = (role || '').toLocaleLowerCase('tr-TR');
+  if (/müdür|yönetici|direktör|lider|lead|koordinatör|başkan|süpervizör|supervisor|manager|şef/.test(normalizedRole)) {
+    return 'yonetim';
+  }
   const keys = themeKeysFor(sector, role);
   if (keys.includes('sigorta')) return 'sigorta';
   if (keys.includes('satış')) return 'satış';
