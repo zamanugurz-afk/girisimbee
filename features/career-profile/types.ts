@@ -1,4 +1,5 @@
 import type { CareerListingKind } from '@/features/matching-engine/types';
+import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 
 export type CareerPersonaKind = 'seek' | 'hire' | 'partner';
 
@@ -34,28 +35,51 @@ export interface CareerProfileCompletion {
 }
 
 export interface CareerProfileFormValues {
+  // Primary role & sector
   role: string;
   roles?: string[];
   sector: string;
   sectors?: string[];
   experienceLevel: string;
-  professionalSkills: string;
-  professionalSkillsList?: string[];
-  technicalSkills: string;
-  technicalSkillsList?: string[];
   workType: string;
   workplacePreference: string;
   city: string;
   educationLevel: string;
+  educationField?: string;
   languages: string;
+  certificates?: string;
   availability: string;
   candidateTraits: string;
+  professionalSkills: string;
+  professionalSkillsList?: string[];
+  technicalSkills: string;
+  technicalSkillsList?: string[];
+  tools?: string;
+  toolsList?: string[];
   salary?: string;
   salaryMin?: number | null;
   salaryMax?: number | null;
+
+  // Personal / demographics (for job seeker)
+  profileGender?: string;
+  birthDate?: string;
+  residenceCity?: string;
+  residenceDistrict?: string;
+  preferredDistrict?: string;
+
+  // Work experience history
+  experiences?: CareerExperience[];
+
+  // Employer / Hiring specific
   companyName?: string;
+  requiredAchievements?: string;
+
+  // Partnership specific
   partnerType?: string;
+  stage?: string;
+  businessModel?: string;
   capitalContribution?: string;
+  equityOffered?: string;
 }
 
 export interface CareerProfileRecord {

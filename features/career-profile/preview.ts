@@ -20,21 +20,41 @@ export function toSafeCareerPreviewInput(input: {
   displayName?: string | null;
 }): CareerCardInput {
   const values = valuesFromCareerSource(input.source);
+  const cf = (input.source.customFields ?? {}) as Record<string, unknown>;
+
+  const salaryDisplay =
+    values.salary ||
+    (values.salaryMin && values.salaryMax
+      ? `${values.salaryMin.toLocaleString('tr-TR')} - ${values.salaryMax.toLocaleString('tr-TR')} TL`
+      : values.salaryMin
+        ? `${values.salaryMin.toLocaleString('tr-TR')} TL+`
+        : null);
+
   const preview: CareerCardInput = {
     variant: input.kind === 'hire' ? 'hire' : 'seeker',
-    desiredRole: values.role || null,
+    desiredRole: values.role || (typeof cf.desiredRole === 'string' ? cf.desiredRole : null),
     experienceLevel: getExperienceLevelLabel(values.experienceLevel) || values.experienceLevel || null,
-    primarySector: values.sector || null,
+    primarySector: values.sector || (typeof cf.primarySector === 'string' ? cf.primarySector : null),
+    preferredSectors: values.sectors && values.sectors.length > 0 ? values.sectors : null,
     workType: values.workType || null,
     professionalSkills: values.professionalSkills || null,
     technicalSkills: values.technicalSkills || null,
     educationLevel: values.educationLevel || null,
+    educationField: values.educationField || null,
+    certificates: values.certificates || null,
     languages: values.languages || null,
-    preferredCity: values.city || null,
+    preferredCity: values.city || (typeof cf.preferredCity === 'string' ? cf.preferredCity : null),
     workplacePreference: values.workplacePreference || null,
+    salaryExpectation: salaryDisplay,
     availability: values.availability || null,
     requiredResponsibilities: values.candidateTraits || null,
-    displayName: null,
+    requiredAchievements: values.requiredAchievements || null,
+    experiences: values.experiences && values.experiences.length > 0 ? values.experiences : undefined,
+    birthDate: values.birthDate || null,
+    gender: values.profileGender || null,
+    residenceCity: values.residenceCity || null,
+    residenceDistrict: values.residenceDistrict || null,
+    displayName: input.kind === 'hire' ? input.displayName || values.companyName || null : null,
     displayNameMasked: input.kind === 'seek' ? maskDisplaySurname(input.displayName) : null,
   };
 

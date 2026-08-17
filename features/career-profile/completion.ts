@@ -131,6 +131,21 @@ export function valuesFromCareerSource(source: CareerFieldSource): CareerProfile
     salary: profile.salary ?? '',
     salaryMin: profile.salaryMin,
     salaryMax: profile.salaryMax,
+    experiences: Array.isArray(cf.experiences) ? (cf.experiences as any) : undefined,
+    educationField: typeof cf.educationField === 'string' ? cf.educationField : '',
+    certificates: typeof cf.certificates === 'string' ? cf.certificates : '',
+    tools: typeof cf.tools === 'string' ? cf.tools : '',
+    profileGender: typeof cf.profileGender === 'string' ? cf.profileGender : '',
+    birthDate: typeof cf.birthDate === 'string' ? cf.birthDate : '',
+    residenceCity: typeof cf.residenceCity === 'string' ? cf.residenceCity : '',
+    residenceDistrict: typeof cf.residenceDistrict === 'string' ? cf.residenceDistrict : '',
+    preferredDistrict: typeof cf.preferredDistrict === 'string' ? cf.preferredDistrict : '',
+    companyName: typeof cf.companyName === 'string' ? cf.companyName : '',
+    requiredAchievements: typeof cf.requiredAchievements === 'string' ? cf.requiredAchievements : '',
+    stage: typeof cf.stage === 'string' ? cf.stage : '',
+    businessModel: typeof cf.businessModel === 'string' ? cf.businessModel : '',
+    capitalContribution: typeof cf.capitalContribution === 'string' ? cf.capitalContribution : '',
+    equityOffered: typeof cf.equityOffered === 'string' ? cf.equityOffered : '',
   };
 }
 

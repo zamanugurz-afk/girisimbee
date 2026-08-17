@@ -33,17 +33,31 @@ export const ALLOWED_CAREER_KEYS = [
   'professionalSkillsOther',
   'technicalSkills',
   'technicalSkillsOther',
+  'tools',
+  'toolsOther',
   'workType',
   'employmentType',
   'workplacePreference',
   'preferredCity',
+  'preferredDistrict',
   'educationLevel',
+  'educationField',
+  'certificates',
   'languages',
   'availability',
   'requiredResponsibilities',
+  'requiredAchievements',
+  'profileGender',
+  'birthDate',
+  'residenceCity',
+  'residenceDistrict',
+  'experiences',
   'companyName',
   'partnerType',
+  'stage',
+  'businessModel',
   'capitalContribution',
+  'equityOffered',
   'salary',
   'salaryMin',
   'salaryMax',
@@ -119,6 +133,20 @@ export function formValuesToCustomFields(
     languages: values.languages.trim(),
   };
 
+  if (values.tools) fields.tools = values.tools.trim();
+  if (values.educationField) fields.educationField = values.educationField.trim();
+  if (values.certificates) fields.certificates = values.certificates.trim();
+  if (values.profileGender) fields.profileGender = values.profileGender.trim();
+  if (values.birthDate) fields.birthDate = values.birthDate.trim();
+  if (values.residenceCity) fields.residenceCity = values.residenceCity.trim();
+  if (values.residenceDistrict) fields.residenceDistrict = values.residenceDistrict.trim();
+  if (values.preferredDistrict) fields.preferredDistrict = values.preferredDistrict.trim();
+  if (values.experiences && values.experiences.length > 0) fields.experiences = values.experiences;
+  if (values.requiredAchievements) fields.requiredAchievements = values.requiredAchievements.trim();
+  if (values.stage) fields.stage = values.stage.trim();
+  if (values.businessModel) fields.businessModel = values.businessModel.trim();
+  if (values.equityOffered) fields.equityOffered = values.equityOffered.trim();
+
   if (values.salaryMin || values.salaryMax) {
     fields.salaryMin = values.salaryMin;
     fields.salaryMax = values.salaryMax;
@@ -153,6 +181,7 @@ export function formValuesToCustomFields(
   }
   return fields;
 }
+
 
 export class CareerProfileService {
   constructor(private readonly listings: CareerProfileListingStore) {}
