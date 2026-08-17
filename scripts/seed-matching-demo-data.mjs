@@ -136,6 +136,7 @@ function makeRow(data, idx) {
     is_verified: data.is_verified ?? true,
     is_featured: data.is_featured ?? false,
     is_urgent: false,
+    expires_at: data.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     published_at: now,
     created_at: now,
     updated_at: now,
@@ -568,6 +569,43 @@ async function seedData() {
       console.error('Insert error at chunk', i, insErr);
       throw insErr;
     }
+  }
+
+  // Seed sample favorites for target user's listings
+  const targetListings = rows.filter((r) => r.owner_id === targetUserId);
+  const favoriteRows = targetListings.map((l, i) => ({
+    id: randomUUID(),
+    user_id: counterpartUserId,
+    listing_id: l.id,
+    status: 'active',
+    note: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    deleted_at: null,
+  }));
+
+  if (favoriteRows.length > 0) {
+    const { error: favErr } = await supabase.from('marketplace_favorites').insert(favoriteRows);
+    if (favErr) console.log('Fav seed info:', favErr.message);
+  }
+
+  // Seed sample contact requests for target user's listings
+  const contactRows = targetListings.slice(0, 3).map((l) => ({
+    id: randomUUID(),
+    listing_id: l.id,
+    owner_user_id: targetUserId,
+    requester_user_id: counterpartUserId,
+    status: 'pending',
+    message: 'Merhaba, ilanınızla ilgileniyoruz. Detayları görüşmek isteriz.',
+    terms_version: 'v1.0',
+    terms_accepted_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date().toISOString(),
+  }));
+
+  if (contactRows.length > 0) {
+    const { error: cntErr } = await supabase.from('marketplace_listing_contact_requests').insert(contactRows);
+    if (cntErr) console.log('Contact seed info:', cntErr.message);
   }
 
   console.log(`Successfully seeded database! ${rows.length} listings published.`);

@@ -1,5 +1,6 @@
 import type { Listing } from '@/features/listings/types/listing.entity.types';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
+import { computeListingExpiry } from '@/features/listings/utils/listing-expiry';
 import type {
   AccountListingCardData,
   AccountListingStatus,
@@ -14,8 +15,14 @@ function mapStatus(listing: Listing): AccountListingStatus {
 export function mapListingToAccountCard(
   listing: Listing,
   favoriteCount = 0,
+  applicationCount = 0,
 ): AccountListingCardData {
   const display = resolveListingCardDisplay(listing);
+  const publishDate = listing.publishedAt ?? listing.createdAt;
+  const expiryDate =
+    listing.expiresAt ??
+    (publishDate ? computeListingExpiry(new Date(publishDate), 30) : computeListingExpiry());
+
   return {
     id: String(listing.id),
     slug: listing.slug ?? String(listing.id),
@@ -33,13 +40,13 @@ export function mapListingToAccountCard(
     price: display.price ?? null,
     status: mapStatus(listing),
     rawStatus: listing.status,
-    publishedAt: listing.publishedAt ?? listing.createdAt,
+    publishedAt: publishDate,
     createdAt: listing.createdAt,
     updatedAt: listing.updatedAt,
-    endsAt: listing.expiresAt ?? listing.publishedAt ?? listing.createdAt,
+    endsAt: expiryDate,
     viewCount: listing.viewCount ?? 0,
     favoriteCount,
-    applicationCount: listing.applicationCount ?? listing.interestedCount ?? 0,
+    applicationCount: Math.max(applicationCount, listing.applicationCount ?? 0, listing.interestedCount ?? 0),
     isShowcase: listing.isFeatured ?? false,
     isUrgentShowcase: listing.isUrgent ?? false,
     isVerified: listing.isVerified ?? false,
