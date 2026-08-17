@@ -2253,10 +2253,10 @@ export function CategoryListingForm({
                         coreCity: core.city ?? null,
                       }}
                     />
-                    {categoryId === CATEGORY_IDS.isBul && key === 'desiredRoleOther' ? (
+                    {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
                       <CareerManualAssist
                         kind="role"
-                        text={String(mergedCustomFields.desiredRoleOther ?? '')}
+                        text={String(mergedCustomFields[key] ?? '')}
                         catalog={getPositionsForSector(
                           String(mergedCustomFields.primarySector ?? ''),
                         )}
@@ -2266,8 +2266,9 @@ export function CategoryListingForm({
                         onAcceptCatalog={(items) => {
                           const first = items[0];
                           if (!first) return;
-                          setCustomField('desiredRole', first);
-                          setCustomField('desiredRoleOther', '');
+                          const targetKey = key === 'desiredRoleOther' ? 'desiredRole' : 'role';
+                          setCustomField(targetKey, first);
+                          setCustomField(key, '');
                         }}
                       />
                     ) : null}
