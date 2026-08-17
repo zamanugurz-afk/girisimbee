@@ -19,6 +19,7 @@ export const ACCOUNT_LISTING_CATEGORIES = [
   'İş',
   'Franchise İlanları',
   'Ortaklık',
+  'Dijital & AI Çözümleri',
 ] as const;
 
 export const ACCOUNT_LISTING_STATUS_LABELS: Record<

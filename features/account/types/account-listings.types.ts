@@ -13,15 +13,31 @@ export type AccountListingsSort =
 
 export interface AccountListingCardData {
   id: string;
+  slug: string;
   title: string;
+  shortDescription?: string;
   category: string;
+  group?: string;
+  groupColor?: string;
+  typeLabel?: string;
+  iconKey?: string;
   status: AccountListingStatus;
+  rawStatus?: string;
   publishedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   endsAt: string;
+  location?: string | null;
+  city?: string | null;
+  district?: string | null;
+  industry?: string | null;
+  price?: string | null;
   viewCount: number;
   favoriteCount: number;
+  applicationCount?: number;
   isShowcase: boolean;
   isUrgentShowcase: boolean;
+  isVerified?: boolean;
 }
 
 export interface AccountListingsFilterState {

@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccountListingCard } from '@/features/account/components/AccountListingCard';
@@ -11,6 +13,7 @@ import { ACCOUNT_LISTINGS_TABS } from '@/features/account/types/account-listings
 import type { AccountListingsPageLoadResult } from '@/features/account/types/account-listings-page.types';
 import type {
   AccountListingCardData,
+  AccountListingStatus,
   AccountListingsFilterState,
   AccountListingsTab,
 } from '@/features/account/types/account-listings.types';
@@ -30,7 +33,7 @@ export function AccountMyListings({
   const [loadError] = useState<string | null>(
     initial.ok ? null : initial.error,
   );
-  const [listings] = useState<AccountListingCardData[]>(
+  const [listings, setListings] = useState<AccountListingCardData[]>(
     initial.ok ? initial.data : [],
   );
   const [tab, setTab] = useState<AccountListingsTab>('all');
@@ -41,9 +44,19 @@ export function AccountMyListings({
     [listings, tab, filters],
   );
 
+  const handleStatusChange = (id: string, newStatus: AccountListingStatus) => {
+    setListings((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item)),
+    );
+  };
+
+  const handleDelete = (id: string) => {
+    setListings((prev) => prev.filter((item) => item.id !== id));
+  };
+
   if (loadError) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-10 text-center">
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-10 text-center">
         <h2 className="font-display text-lg font-semibold text-foreground">
           İlanlar yüklenemedi
         </h2>
@@ -62,47 +75,58 @@ export function AccountMyListings({
 
   return (
     <div className="space-y-6">
-      <Tabs
-        value={tab}
-        onValueChange={(value) => setTab(value as AccountListingsTab)}
-      >
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-xl bg-muted/40 p-1">
-          {ACCOUNT_LISTINGS_TABS.map((item) => (
-            <TabsTrigger
-              key={item.id}
-              value={item.id}
-              className="rounded-lg px-3 py-2 text-sm"
-            >
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <Tabs
+          value={tab}
+          onValueChange={(value) => setTab(value as AccountListingsTab)}
+          className="w-full sm:w-auto"
+        >
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-xl bg-muted/40 p-1">
+            {ACCOUNT_LISTINGS_TABS.map((item) => (
+              <TabsTrigger
+                key={item.id}
+                value={item.id}
+                className="rounded-lg px-3 py-2 text-sm"
+              >
+                {item.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-        {ACCOUNT_LISTINGS_TABS.map((item) => (
-          <TabsContent key={item.id} value={item.id} className="mt-6 space-y-6">
-            <AccountListingFilters value={filters} onChange={setFilters} />
+        <Button asChild className="rounded-xl font-medium gap-1.5 shrink-0 self-start sm:self-auto">
+          <Link href="/ilan/olustur">
+            <Plus className="h-4 w-4" />
+            <span>Yeni İlan Ver</span>
+          </Link>
+        </Button>
+      </div>
 
-            {listings.length === 0 ? (
-              <AccountListingsEmpty />
-            ) : visible.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border/80 px-6 py-12 text-center text-sm text-muted-foreground dark:border-white/10">
-                Bu filtrelerle eşleşen ilan bulunamadı.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  {visible.length} ilan gösteriliyor
-                </p>
-                <div className="space-y-4">
-                  {visible.map((listing) => (
-                    <AccountListingCard key={listing.id} listing={listing} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      <AccountListingFilters value={filters} onChange={setFilters} />
+
+      {listings.length === 0 ? (
+        <AccountListingsEmpty />
+      ) : visible.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border/80 px-6 py-12 text-center text-sm text-muted-foreground dark:border-zinc-800">
+          Bu filtrelerle eşleşen ilan bulunamadı.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+            <span>{visible.length} ilan listeleniyor</span>
+          </div>
+          <div className="space-y-4">
+            {visible.map((listing) => (
+              <AccountListingCard
+                key={listing.id}
+                listing={listing}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
