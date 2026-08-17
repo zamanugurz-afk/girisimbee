@@ -166,7 +166,7 @@ export function CareerMatchCardView({ card, direction }: { card: CareerMatchCard
           {reasons.slice(0, 5).map((reason) => (
             <li key={`${reason.kind}-${reason.text}`} className="flex items-start gap-1.5 break-words">
               <span className={reason.kind === 'match' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}>
-                {reason.kind === 'match' ? '✓' : '◐'}
+                {reason.kind === 'match' ? '✓' : '•'}
               </span>
               <span>{reason.text}</span>
             </li>

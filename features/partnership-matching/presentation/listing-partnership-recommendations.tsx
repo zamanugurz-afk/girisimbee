@@ -179,14 +179,24 @@ export function ListingPartnershipRecommendations({
           </p>
         </div>
       ) : (
-        <div className={PARTNERSHIP_MATCH_GRID_CLASS}>
-          {matches.map((card) => (
-            <PartnershipMatchCardView
-              key={card.listingId}
-              card={card}
-              direction={section.direction}
-            />
-          ))}
+        <div className="space-y-6">
+          <div className={PARTNERSHIP_MATCH_GRID_CLASS}>
+            {matches.map((card) => (
+              <PartnershipMatchCardView
+                key={card.listingId}
+                card={card}
+                direction={section.direction}
+              />
+            ))}
+          </div>
+
+          <div className="flex justify-center pt-4">
+            <Button asChild variant="outline" className="rounded-xl px-6">
+              <Link href={section.direction === 'partners' ? '/partners?intent=seeking' : '/partners?intent=joining'}>
+                {section.direction === 'partners' ? 'Tüm uygun ortakları gör' : 'Tüm uygun girişimleri gör'}
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </section>

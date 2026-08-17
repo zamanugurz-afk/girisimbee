@@ -22,7 +22,7 @@ export const MATCH_SECTION_COPY: Record<
     whyTitle: 'Neden bu eşleşme?',
     reviewCta: 'İlanı İncele',
     viewAllCta: 'Tüm uygun iş ilanlarını gör',
-    viewAllHref: '/is?flow=hire',
+    viewAllHref: '/is?flow=seek',
   },
   candidates: {
     title: 'Size Uygun Adaylar',
@@ -30,7 +30,7 @@ export const MATCH_SECTION_COPY: Record<
     whyTitle: 'Neden bu eşleşme?',
     reviewCta: 'Adayı İncele',
     viewAllCta: 'Tüm aday profillerini gör',
-    viewAllHref: '/is?flow=seek',
+    viewAllHref: '/is?flow=hire',
   },
 };
 

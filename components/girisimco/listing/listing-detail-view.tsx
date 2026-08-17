@@ -11,6 +11,8 @@ import { ListingSidebar } from '@/components/girisimco/listing/listing-sidebar';
 import { ListingSimilar } from '@/components/girisimco/listing/listing-similar';
 import { ListingCareerRecommendations } from '@/features/matching-engine/components/listing-career-recommendations';
 import { ListingPartnershipRecommendations } from '@/features/partnership-matching/presentation/listing-partnership-recommendations';
+import { ListingDigitalRecommendations } from '@/features/digital-solution-matching/presentation/listing-digital-recommendations';
+import { ListingFranchiseRecommendations } from '@/features/franchise-matching/presentation/listing-franchise-recommendations';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
@@ -27,6 +29,8 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
   const isPartnershipListing = listing.category.id === 'find-partner';
+  const isDigitalSolutionListing = listing.category.id === 'digital-ai';
+  const isFranchiseListing = listing.category.id === 'franchise';
 
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background pt-14 dark:from-background dark:via-background">
@@ -68,6 +72,14 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
 
         {isPartnershipListing && listing.listingId ? (
           <ListingPartnershipRecommendations listingId={listing.listingId} />
+        ) : null}
+
+        {isDigitalSolutionListing && listing.listingId ? (
+          <ListingDigitalRecommendations listingId={listing.listingId} />
+        ) : null}
+
+        {isFranchiseListing && listing.listingId ? (
+          <ListingFranchiseRecommendations listingId={listing.listingId} />
         ) : null}
 
         <ListingSimilar listing={listing} />

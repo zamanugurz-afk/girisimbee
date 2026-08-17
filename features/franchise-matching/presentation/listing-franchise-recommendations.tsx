@@ -3,20 +3,20 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { CareerMatchCardView } from '@/features/matching-engine/components/career-match-results';
-import { MATCH_GRID_CLASS } from '@/features/matching-engine/presentation/career-match-layout';
-import type { CareerMatchSection } from '@/features/matching-engine/types';
+import { FRANCHISE_MATCH_GRID_CLASS } from '@/features/franchise-matching/presentation/franchise-match-layout';
+import { FranchiseMatchCardView } from '@/features/franchise-matching/presentation/franchise-match-card';
+import type { FranchiseMatchSection } from '@/features/franchise-matching/types';
 
-interface ListingCareerRecommendationsProps {
+interface ListingFranchiseRecommendationsProps {
   listingId: string;
-  initialSection?: CareerMatchSection | null;
+  initialSection?: FranchiseMatchSection | null;
 }
 
-export function ListingCareerRecommendations({
+export function ListingFranchiseRecommendations({
   listingId,
   initialSection = null,
-}: ListingCareerRecommendationsProps) {
-  const [section, setSection] = useState<CareerMatchSection | null>(initialSection);
+}: ListingFranchiseRecommendationsProps) {
+  const [section, setSection] = useState<FranchiseMatchSection | null>(initialSection);
   const [loading, setLoading] = useState(!initialSection);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function ListingCareerRecommendations({
     let active = true;
     setLoading(true);
 
-    fetch(`/api/career/recommendations?listingId=${encodeURIComponent(listingId)}`)
+    fetch(`/api/franchise/recommendations?listingId=${encodeURIComponent(listingId)}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error('Failed'))))
       .then((data) => {
         if (active) {
@@ -47,9 +47,9 @@ export function ListingCareerRecommendations({
   if (loading) {
     return (
       <div className="mt-14 space-y-4 border-t border-border/80 pt-10 dark:border-white/10">
-        <div className="h-6 w-48 animate-pulse rounded-md bg-muted/60" />
-        <div className="h-4 w-72 animate-pulse rounded-md bg-muted/40" />
-        <div className={MATCH_GRID_CLASS}>
+        <div className="h-6 w-56 animate-pulse rounded-md bg-muted/60" />
+        <div className="h-4 w-80 animate-pulse rounded-md bg-muted/40" />
+        <div className={FRANCHISE_MATCH_GRID_CLASS}>
           {[1, 2, 3].map((n) => (
             <div key={n} className="h-64 animate-pulse rounded-2xl border border-border/60 bg-muted/20" />
           ))}
@@ -60,7 +60,6 @@ export function ListingCareerRecommendations({
 
   if (!section) return null;
 
-  const isSeeker = section.direction === 'opportunities';
   const matches = section.matches || [];
 
   return (
@@ -75,36 +74,23 @@ export function ListingCareerRecommendations({
       {matches.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-10 text-center">
           <p className="text-base font-semibold text-foreground">
-            {isSeeker ? 'Sana uygun iş ilanı henüz bulunmuyor.' : 'İlanınıza uygun aday henüz bulunmuyor.'}
+            Şu anda benzer bir franchise fırsatı bulunmuyor.
           </p>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {isSeeker
-              ? 'Profilinizi ve tercihlerinizi güncelledikçe daha uygun ilanlar bulabiliriz.'
-              : 'İlan detaylarınızı güncelledikçe daha uygun adaylar bulabiliriz.'}
+            Platforma yeni markalar eklendikçe burada listelenecektir.
           </p>
-          {isSeeker ? (
-            <Button asChild className="mt-4 h-10 rounded-2xl">
-              <Link href="/dashboard/kariyer-profilim">Profilimi Güncelle</Link>
-            </Button>
-          ) : null}
         </div>
       ) : (
         <div className="space-y-6">
-          <div className={MATCH_GRID_CLASS}>
+          <div className={FRANCHISE_MATCH_GRID_CLASS}>
             {matches.map((card) => (
-              <CareerMatchCardView
-                key={card.listingId}
-                card={card}
-                direction={section.direction}
-              />
+              <FranchiseMatchCardView key={card.listingId} card={card} />
             ))}
           </div>
 
           <div className="flex justify-center pt-4">
             <Button asChild variant="outline" className="rounded-xl px-6">
-              <Link href={isSeeker ? '/is?flow=seek' : '/is?flow=hire'}>
-                {isSeeker ? 'Tüm uygun iş ilanlarını gör' : 'Tüm uygun adayları gör'}
-              </Link>
+              <Link href="/franchise/buy">Tüm uygun franchise fırsatlarını gör</Link>
             </Button>
           </div>
         </div>

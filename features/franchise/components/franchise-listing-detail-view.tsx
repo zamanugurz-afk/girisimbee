@@ -22,6 +22,7 @@ import {
   FRANCHISE_DETAIL_BACK_LABEL,
   FRANCHISE_DETAIL_EYEBROW,
 } from '@/features/franchise/presentation/franchise-copy';
+import { ListingFranchiseRecommendations } from '@/features/franchise-matching/presentation/listing-franchise-recommendations';
 
 function MediaLink({ href, label }: { href: string; label: string }) {
   const url = href.startsWith('http') ? href : `https://${href}`;
@@ -41,7 +42,7 @@ function MediaLink({ href, label }: { href: string; label: string }) {
 interface FranchiseListingDetailViewProps {
   data: FranchiseListingDetailViewModel;
   backHref: string;
-  backLabel: string;
+  backLabel?: string;
 }
 
 export function FranchiseListingDetailView({
@@ -53,13 +54,6 @@ export function FranchiseListingDetailView({
 
   const locationParts = [listing.city, listing.district ?? details.districts].filter((part) => toDisplayValue(part));
   const location = locationParts.join(', ');
-  const publishedAt = listing.publishedAt
-    ? new Date(listing.publishedAt).toLocaleDateString('tr-TR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-    : '';
 
   const investmentRange =
     flow === 'buy' && (details.minimumYatirim != null || details.maksimumYatirim != null)
@@ -70,6 +64,7 @@ export function FranchiseListingDetailView({
 
   const availableCities = details.availableCities?.join(', ') ?? '';
   const coverImage = details.coverImageUrl ?? details.brandLogoUrl;
+  const description = listing.longDescription || listing.shortDescription || '';
 
   return (
     <div className="gc-header-offset min-w-0 overflow-x-hidden">
@@ -78,114 +73,99 @@ export function FranchiseListingDetailView({
           ← {backLabel}
         </Link>
 
-        <div className="mt-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {FRANCHISE_DETAIL_EYEBROW}
-          </p>
-          <h1 className="gc-page-heading mt-1 text-gc-xl">{listing.title}</h1>
-          {details.companyName && (
-            <p className="mt-1 text-sm text-muted-foreground">{details.companyName}</p>
-          )}
-          {location && (
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              {location}
-            </p>
-          )}
-          {publishedAt && (
-            <p className="mt-1 text-xs text-muted-foreground">Yayın: {publishedAt}</p>
-          )}
-        </div>
-
-        {coverImage && (
-          <div className="mt-8 overflow-hidden rounded-xl border border-border/80">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={coverImage}
-              alt={listing.title}
-              className="aspect-[16/9] w-full object-cover"
-            />
-          </div>
-        )}
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_320px]">
+        <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
-            <DetailCard>
-              <DetailSection title="Açıklama">
-                <ListingRichText
-                  content={listing.longDescription || listing.shortDescription || ''}
-                  className="text-sm"
+            <header className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {FRANCHISE_DETAIL_EYEBROW}
+              </span>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                {listing.title}
+              </h1>
+              {location && (
+                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  {location}
+                </p>
+              )}
+            </header>
+
+            {coverImage && (
+              <div className="overflow-hidden rounded-xl border border-border/80 bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverImage}
+                  alt={listing.title}
+                  className="aspect-[16/9] w-full object-cover"
                 />
-              </DetailSection>
-            </DetailCard>
+              </div>
+            )}
+
+            {description && (
+              <DetailCard>
+                <DetailSection title="Açıklama">
+                  <ListingRichText content={description} />
+                </DetailSection>
+              </DetailCard>
+            )}
 
             {flow === 'give' && (
               <>
                 <DetailCard>
-                  <DetailSection title="Marka Bilgileri">
+                  <DetailSection title="Finansal Bilgiler">
                     <FactGrid>
-                      <FactRow label="Şirket" value={toDisplayValue(details.companyName)} />
-                      <FactRow label="Kuruluş Yılı" value={toDisplayValue(details.establishmentYear)} />
-                      <FactRow label="Sektör" value={toDisplayValue(listing.industry)} />
-                      <FactRow label="Şube Sayısı" value={toDisplayValue(details.branchCount)} />
-                      <FactRow label="Web Sitesi" value={toDisplayValue(details.website)} />
-                    </FactGrid>
-                  </DetailSection>
-                </DetailCard>
-
-                <DetailCard>
-                  <DetailSection title="Yatırım Bilgileri">
-                    <FactGrid>
-                      <FactRow label="Toplam Yatırım Bütçesi" value={formatMoney(details.totalInvestment)} />
+                      <FactRow label="Toplam Yatırım" value={formatMoney(details.totalInvestment)} />
+                      <FactRow label="Min. Sermaye" value={formatMoney(details.minCapitalRequirement)} />
                       <FactRow label="İsim Hakkı Bedeli" value={formatMoney(details.franchiseFee)} />
-                      <FactRow label="Kar Marjı" value={formatPercentage(details.profitMargin)} />
-                      <FactRow label="Cirodan Alınan Pay" value={formatPercentage(details.royaltyFee)} />
-                      <FactRow label="Yatırımın Geri Dönüş Süresi" value={toDisplayValue(details.returnPeriod)} />
-                      <FactRow label="Ortalama Kurulum Süresi" value={toDisplayValue(details.averageSetupDuration)} />
-                      <FactRow
-                        label="Minimum M²"
-                        value={details.minSquareMeters != null ? `${details.minSquareMeters} m²` : ''}
-                      />
-                      <FactRow label="Minimum Sermaye" value={formatMoney(details.minCapitalRequirement)} />
+                      <FactRow label="Giriş Bedeli" value={formatMoney(details.entryFee)} />
+                      <FactRow label="Kâr Marjı" value={formatPercentage(details.profitMargin)} />
+                      <FactRow label="Royalty (Ciro Payı)" value={formatPercentage(details.royaltyFee)} />
+                      <FactRow label="Reklam Katkı Payı" value={formatPercentage(details.advertisingFee)} />
+                      <FactRow label="Yatırımın Geri Dönüşü" value={toDisplayValue(details.returnPeriod)} />
                     </FactGrid>
                   </DetailSection>
                 </DetailCard>
 
                 <DetailCard>
-                  <DetailSection title="Lokasyon">
+                  <DetailSection title="Operasyonel Bilgiler">
                     <FactGrid>
-                      <FactRow label="Uygun Şehirler" value={availableCities} />
-                      <FactRow label="İlçeler" value={toDisplayValue(details.districts)} />
-                      <FactRow label="Min. Nüfus" value={toDisplayValue(details.minPopulation)} />
-                      <FactRow label="Mağaza Büyüklüğü" value={toDisplayValue(details.storeSize)} />
-                      <FactRow label="AVM" value={formatBoolean(details.mallAvailable)} />
-                      <FactRow label="Cadde Mağazası" value={formatBoolean(details.streetStoreAvailable)} />
-                    </FactGrid>
-                  </DetailSection>
-                </DetailCard>
-
-                <DetailCard>
-                  <DetailSection title="İş Modeli">
-                    <FactGrid>
-                      <FactRow label="Franchise modeli" value={toDisplayValue(details.businessCategory)} />
-                      <FactRow label="Çalışan Sayısı" value={toDisplayValue(details.employeeCount)} />
-                      <FactRow label="Günlük Kapasite" value={toDisplayValue(details.dailyCustomerCapacity)} />
+                      <FactRow label="Kuruluş Yılı" value={toDisplayValue(details.establishmentYear)} />
+                      <FactRow label="Şube Sayısı" value={toDisplayValue(details.branchCount)} />
+                      <FactRow label="Franchise Modeli" value={toDisplayValue(details.businessCategory)} />
+                      <FactRow label="Ortalama Kurulum" value={toDisplayValue(details.averageSetupDuration)} />
                       <FactRow label="Çalışma Saatleri" value={toDisplayValue(details.workingHours)} />
+                      <FactRow
+                        label="Destekler"
+                        value={formatSupportFlags(details)}
+                      />
                     </FactGrid>
                   </DetailSection>
                 </DetailCard>
 
-                <DetailSectionIf title="Marka avantajları" visible={Boolean(formatSupportFlags(details))}>
-                  <DetailCard>
-                    <p className="text-sm text-foreground">{formatSupportFlags(details)}</p>
-                  </DetailCard>
-                </DetailSectionIf>
+                <DetailCard>
+                  <DetailSection title="Lokasyon ve Mağaza Şartları">
+                    <FactGrid>
+                      <FactRow label="Uygun Şehirler" value={availableCities || 'Tüm Türkiye'} />
+                      <FactRow label="İlçeler" value={toDisplayValue(details.districts)} />
+                      <FactRow label="Mağaza Büyüklüğü" value={toDisplayValue(details.storeSize)} />
+                      <FactRow
+                        label="Min. Alan"
+                        value={details.minSquareMeters ? `${details.minSquareMeters} m²` : '—'}
+                      />
+                      <FactRow label="AVM Mağazası" value={formatBoolean(details.mallAvailable, 'Uygun', 'Uygun Değil')} />
+                      <FactRow
+                        label="Cadde Mağazası"
+                        value={formatBoolean(details.streetStoreAvailable, 'Uygun', 'Uygun Değil')}
+                      />
+                    </FactGrid>
+                  </DetailSection>
+                </DetailCard>
 
                 <DetailCard>
-                  <DetailSection title="Franchise Gereksinimleri">
+                  <DetailSection title="Aday Şartları">
                     <FactGrid>
-                      <FactRow label="Deneyim" value={toDisplayValue(details.experienceRequirement)} />
-                      <FactRow label="Eğitim" value={toDisplayValue(details.educationRequirement)} />
+                      <FactRow label="Deneyim Şartı" value={toDisplayValue(details.experienceRequirement)} />
+                      <FactRow label="Eğitim Şartı" value={toDisplayValue(details.educationRequirement)} />
                       <FactRow
                         label="Şirket Kuruluşu"
                         value={formatBoolean(details.companyEstablishmentRequired, 'Gerekli', 'Gerekmez')}
@@ -257,6 +237,8 @@ export function FranchiseListingDetailView({
             />
           </aside>
         </div>
+
+        <ListingFranchiseRecommendations listingId={String(listing.id)} />
       </div>
     </div>
   );
