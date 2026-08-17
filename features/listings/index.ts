@@ -192,6 +192,7 @@ export {
   LISTING_SORT_OPTIONS,
   getCategorySlugFromIntent,
   getCategoryRoutePath,
+  getUserDiscoverableCategorySlugs,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 export {
@@ -199,7 +200,9 @@ export {
   resolveBrowseCategory,
   getBrowseCategorySlugs,
   isBrowseCategoryDeferred,
+  isUserDiscoverableListing,
   BROWSE_DEFERRED_CATEGORY_SLUGS,
+  USER_DISCOVERY_HIDDEN_CATEGORY_SLUGS,
 } from '@/features/listings/config/marketplace-category-map';
 export type {
   JobFlowFilter,

@@ -132,6 +132,8 @@ export interface ListingDetail {
   similar: ListingSimilar[];
   /** Category-specific detail rows derived from custom fields. */
   customFacts?: { label: string; value: string }[];
+  /** Partnership detail lead — seeking vs joining. */
+  intentHeadline?: string;
   /** Digital & AI capability modules for feature-card detail section. */
   capabilityModules?: DigitalAiCapability[];
   /** İş Arıyorum — structured Kariyer Kartı (identity already redacted in mapper). */

@@ -19,7 +19,7 @@ import { isMaintenanceBypassPath, isMaintenanceMode } from '@/lib/site-mode';
 import {
   isClientIpAllowlisted,
   isSiteIpAllowlistEnabled,
-  PREVIEW_COOKIE,
+  isIpGatePublicPath,
   getRequestClientIps,
 } from '@/lib/site-ip-allowlist';
 
@@ -101,24 +101,6 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
-  // One-click preview unlock: /?gb_preview=1 sets a cookie (backup if IP/IPv6 drifts).
-  const previewParam = request.nextUrl.searchParams.get('gb_preview');
-  if (previewParam === '1' || previewParam === 'girisimbee-preview') {
-    const secret = process.env.SITE_PREVIEW_SECRET?.trim() || 'girisimbee-preview';
-    const dest = request.nextUrl.clone();
-    dest.searchParams.delete('gb_preview');
-    if (dest.pathname === '/bakim') dest.pathname = '/';
-    const res = NextResponse.redirect(dest);
-    res.cookies.set(PREVIEW_COOKIE, secret, {
-      path: '/',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30,
-    });
-    return attachTiming(res, nowMs() - mwStart);
-  }
-
   // Live mode: never leave testers stuck on the maintenance URL/cache.
   if (!isMaintenanceMode() && pathname === '/bakim') {
     // IP preview: non-allowlisted clients must stay on /bakim.
@@ -131,36 +113,12 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
   }
 
-  // IP allowlist preview — full live site only for listed client IPs / preview cookie.
+  // IP allowlist preview — full live site only for this machine. Everyone else → /bakim.
   if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
-    const ipBypass =
-      pathname === '/bakim'
-      || pathname.startsWith('/_next/')
-      || pathname.startsWith('/api/')
-      || pathname === '/favicon.ico'
-      || pathname === '/icon.svg'
-      || pathname === '/icon.png'
-      || pathname === '/robots.txt'
-      || pathname === '/sitemap.xml'
-      || pathname.startsWith('/brand/')
-      || pathname.startsWith('/images/')
-      || pathname.startsWith('/fonts/')
-      || pathname.startsWith('/dashboard')
-      || pathname.startsWith('/admin')
-      || pathname === '/mesajlarim'
-      || pathname === '/iletisim-talepleri'
-      || pathname === '/ilan/olustur'
-      || pathname.startsWith('/ilanlarim')
-      || pathname === '/giris'
-      || pathname === '/kayit'
-      || pathname === '/destek'
-      || pathname === '/reklam'
-      || pathname.startsWith('/auth/');
-    if (!ipBypass) {
+    if (!isIpGatePublicPath(pathname)) {
       const url = request.nextUrl.clone();
       url.pathname = '/bakim';
       const rewritten = NextResponse.rewrite(url);
-      // Debug (safe): helps confirm gate vs wrong IP without exposing secrets.
       rewritten.headers.set('x-gb-gate', 'ip-block');
       rewritten.headers.set('x-gb-ip', getRequestClientIps(request).join('|') || 'none');
       return attachTiming(rewritten, nowMs() - mwStart);
@@ -213,7 +171,8 @@ export async function middleware(request: NextRequest) {
   // Login/register pages handle an existing session in the UI instead.
 
   if (!user && isProtectedRoute(pathname)) {
-    return NextResponse.redirect(new URL(loginUrl(pathname), request.url));
+    const next = `${pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(new URL(loginUrl(next), request.url));
   }
 
   if (user && matchesPrefix(pathname, MODERATOR_ROUTE_PREFIXES) && !canAccess(role, pathname)) {

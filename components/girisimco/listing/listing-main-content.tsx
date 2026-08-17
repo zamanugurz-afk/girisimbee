@@ -1,4 +1,4 @@
-import { FileText, Link2, Play } from 'lucide-react';
+import { FileText, Link2, Play, ShieldCheck } from 'lucide-react';
 import {
   DetailCard,
   DetailSectionIf,
@@ -8,7 +8,6 @@ import {
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
-import { InvestmentProfilePreview } from '@/features/investments/components/InvestmentProfilePreview';
 import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
@@ -24,7 +23,7 @@ const attachmentIcons = {
   link: Link2,
 };
 
-const INVESTMENT_CATEGORIES = new Set(['find-investment', 'invest']);
+const INVESTMENT_CATEGORIES = new Set(['invest']);
 
 function hasInvestmentFacts(listing: ListingDetail): boolean {
   const { investment } = listing;
@@ -67,7 +66,6 @@ function customFactsSectionTitle(listing: ListingDetail): string {
       return 'Pozisyon Detayları';
     case 'find-partner':
       return 'Ortaklık Bilgileri';
-    case 'find-investment':
     case 'invest':
       return 'Ek Bilgiler';
     case 'franchise':
@@ -83,20 +81,15 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showCareerCard =
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
-  const showInvestmentCard =
-    Boolean(listing.investmentCard)
-    && listing.category.id === 'find-investment';
   const showInvestorCard =
     Boolean(listing.investorCard)
     && listing.category.id === 'invest';
   const showInvestment =
-    !showInvestmentCard
-    && !showInvestorCard
+    !showInvestorCard
     && INVESTMENT_CATEGORIES.has(listing.category.id)
     && hasInvestmentFacts(listing);
   const showCustomFacts =
     !showCareerCard
-    && !showInvestmentCard
     && !showInvestorCard
     && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
@@ -112,11 +105,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showTimeline = listing.timeline.length > 0;
   const showAbout =
     !showCareerCard
-    && !showInvestmentCard
     && !showInvestorCard
     && !isEmptyDisplayValue(listing.longDescription);
   const customFactsTitle = customFactsSectionTitle(listing);
-  const isSeekingInvestment = listing.category.id === 'find-investment';
 
   return (
     <div className="space-y-8">
@@ -140,13 +131,31 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         />
       ) : null}
 
-      {showInvestmentCard && listing.investmentCard ? (
-        <InvestmentProfilePreview data={listing.investmentCard} showTitle={false} />
-      ) : null}
-
       {showInvestorCard && listing.investorCard ? (
         <InvestorProfilePreview data={listing.investorCard} showTitle={false} />
       ) : null}
+
+      {listing.category.id === 'find-partner' && listing.intentHeadline ? (
+        <p className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/[0.03]">
+          {listing.intentHeadline}
+        </p>
+      ) : null}
+
+      <div className="rounded-2xl border border-blue-500/25 bg-blue-500/[0.04] p-4 sm:p-5">
+        <div className="flex items-start gap-3.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+            <ShieldCheck className="h-5 w-5" />
+          </span>
+          <div>
+            <h4 className="font-display text-sm font-semibold text-foreground">
+              Girişimbee Güvenli İletişim & Gizlilik Koruması
+            </h4>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Bu ilanda telefon numarası ve e-posta gibi doğrudan iletişim bilgileri korunmaktadır. İlan sahibiyle güvenli iletişim talebi oluşturarak bağlantı kurabilirsiniz.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {showAbout ? (
         <DetailSectionIf title="İlan içeriği" visible={showAbout}>
@@ -166,23 +175,17 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
           <DetailCard>
             <FactGrid>
               <FactRow
-                label={isSeekingInvestment ? 'Aranan yatırım' : 'Yatırım tutarı'}
+                label="Yatırım tutarı"
                 value={listing.investment.requested}
               />
               <FactRow label="Sunulan hisse" value={listing.investment.equity} />
               <FactRow label="Aşama" value={listing.investment.stage} />
-              {isSeekingInvestment ? (
-                <FactRow label="Fon kullanımı" value={listing.investment.useOfFunds ?? ''} />
-              ) : (
-                <FactRow label="Sektörler" value={listing.investment.industry} />
-              )}
-              {!isSeekingInvestment ? (
-                <FactRow
-                  label="Website"
-                  value={listing.investment.website}
-                  href={listing.investment.website}
-                />
-              ) : null}
+              <FactRow label="Sektörler" value={listing.investment.industry} />
+              <FactRow
+                label="Website"
+                value={listing.investment.website}
+                href={listing.investment.website}
+              />
             </FactGrid>
           </DetailCard>
         </DetailSectionIf>

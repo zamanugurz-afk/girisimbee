@@ -1,49 +1,47 @@
 import { filterPremiumLabels } from '@/features/shared/config/features';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 
-/** Primary header navigation — marketplace browse destinations. */
+/** Primary header navigation — homepage information architecture. */
 export const NAV_LINKS = [
-  { label: 'Keşfet', href: '/kesfet' },
-  { label: 'Yatırım Arıyorum', href: '/invest' },
   { label: 'Kariyer ve İş Fırsatları', href: '/is' },
-  { label: 'Ortak Arıyorum', href: '/partners' },
-  { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
-  { label: 'Franchise İlanları', href: '/franchise/buy' },
-  { label: 'MARKET', href: '/market' },
+  { label: 'Girişim ve Ortaklık', href: '/girisim-ortaklik' },
+  { label: 'Fırsatlar', href: '/market' },
+  { label: 'Çözümler', href: '/dijital-ai' },
 ] as const;
 
 export type FooterLinkItem = { label: string; href: string };
 
 /**
- * Footer columns aligned with live site structure:
- * Platform · Kategoriler · Hesap · İletişim (+ yasal)
+ * Footer columns follow homepage IA:
+ * Kariyer · Girişim ve Ortaklık · Fırsatlar · Çözümler · Hesap · İletişim
  */
 const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
-  Platform: [
-    { label: 'Ana sayfa', href: '/' },
-    { label: 'Keşfet', href: '/kesfet' },
-    { label: 'Ara', href: '/ara' },
-    { label: 'MARKET', href: '/market' },
-    { label: 'İlan Ver', href: '/ilan/olustur' },
+  'Kariyer ve İş Fırsatları': [
+    { label: 'İş Arıyorum', href: '/is?flow=hire' },
+    { label: 'İşe Alıyorum', href: '/is?flow=seek' },
   ],
-  Kategoriler: [
-    { label: 'Yatırım Arıyorum', href: '/invest' },
-    { label: 'Ortak Arıyorum', href: '/partners' },
-    { label: 'Franchise İlanları', href: '/franchise/buy' },
-    { label: 'Kariyer ve İş Fırsatları', href: '/is' },
+  'Girişim ve Ortaklık': [
+    { label: 'Ortak Arıyorum', href: '/partners?intent=seeking' },
+    { label: 'Ortak Olmak İstiyorum', href: '/partners?intent=joining' },
+    { label: 'Franchise Fırsatları', href: '/franchise/buy' },
+  ],
+  Fırsatlar: [
+    { label: 'Girişimbee MARKET', href: '/market' },
+  ],
+  Çözümler: [
     { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
-    { label: 'Yatırım Yap', href: '/investors' },
   ],
   Hesap: [
     { label: 'Giriş yap', href: AUTH_ROUTES.login },
     { label: 'Kayıt ol', href: AUTH_ROUTES.register },
     { label: 'Hesabım', href: AUTH_ROUTES.dashboard },
+    { label: 'İlan Ver', href: '/ilan/olustur' },
     { label: 'İlanlarım', href: '/dashboard/ilanlarim' },
     { label: 'Favorilerim', href: '/dashboard/favorilerim' },
   ],
   İletişim: [
     { label: 'Destek', href: '/destek' },
-    { label: 'Reklam & işbirliği', href: '/reklam' },
+    { label: 'Reklam ve işbirliği', href: '/reklam' },
     { label: 'Gizlilik', href: '/yasal/gizlilik' },
     { label: 'KVKK', href: '/yasal/kvkk-aydinlatma' },
     { label: 'Açık rıza', href: '/yasal/acik-riza' },

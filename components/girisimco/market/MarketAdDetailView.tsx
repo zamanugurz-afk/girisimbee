@@ -22,13 +22,13 @@ export function MarketAdDetailView({ item }: { item: MarketItem }) {
   const external = opportunityUrl ? /^https?:\/\//i.test(opportunityUrl) : false;
 
   const buttonClassName = cn(
-    'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5',
-    'text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90',
+    'inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5',
+    'text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto',
   );
 
   return (
-    <main className="gc-header-offset relative min-h-screen bg-[#FAFBFC] dark:bg-background">
-      <div className="relative mx-auto max-w-5xl px-5 py-6 lg:px-8 lg:py-10">
+    <main className="gc-header-offset relative min-h-screen min-w-0 overflow-x-hidden bg-[#FAFBFC] dark:bg-background">
+      <div className="relative mx-auto min-w-0 max-w-5xl px-5 py-6 lg:px-8 lg:py-10">
         <Link
           href="/market"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"

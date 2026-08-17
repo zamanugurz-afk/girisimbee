@@ -420,20 +420,20 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Birden fazla aşama seçebilirsiniz. Tüm aşamalar tüm kanonik aşamaları kapsar.',
   },
   sectors: {
-    helperText: 'Yatırım Arıyorum ile aynı sektör kataloğu. Birden fazla seçebilirsiniz.',
+    helperText: 'Birden fazla sektör seçebilirsiniz.',
   },
   investorType: {
     placeholder: 'Yatırımcı tipi seçin',
     helperText: 'Melek, VC, kurumsal veya fon.',
   },
   preferredProductStatuses: {
-    helperText: 'Yatırım Arıyorum ürün durumu ile aynı katalog.',
+    helperText: 'Tercih ettiğiniz ürün durumlarını seçin.',
   },
   preferredBusinessModels: {
-    helperText: 'Yatırım Arıyorum iş modeli ile aynı katalog.',
+    helperText: 'Tercih ettiğiniz iş modellerini seçin.',
   },
   preferredTargetCustomers: {
-    helperText: 'Yatırım Arıyorum hedef müşteri ile aynı katalog.',
+    helperText: 'Tercih ettiğiniz hedef müşteri tiplerini seçin.',
   },
   revenueExpectation: {
     placeholder: 'Gelir beklentisi',
@@ -503,7 +503,14 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Sunmayı planladığınız maaş aralığı.',
   },
   expertise: {
-    helperText: 'Aradığınız ortağın uzmanlık alanlarını seçin.',
+    helperText: 'Uzmanlık alanlarını seçin.',
+  },
+  offeredSkills: {
+    helperText: 'Sunduğunuz profesyonel veya teknik yetkinlikleri seçin.',
+  },
+  experience: {
+    placeholder: 'Deneyim süresini seçin',
+    helperText: 'İlgili alandaki deneyiminizi seçin.',
   },
   salaryExpectation: {
     placeholder: 'Maaş beklentisi aralığı seçin',
@@ -628,15 +635,15 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   partnershipType: {
     placeholder: 'Ortaklık tipi seçin',
-    helperText: 'Aradığınız ortaklık türünü seçin.',
+    helperText: 'Ortaklık türünü seçin.',
   },
   commitment: {
-    placeholder: 'Taahhüt seviyesi seçin',
-    helperText: 'Ortaktan beklediğiniz zaman taahhüdü.',
+    placeholder: 'Çalışma biçimini seçin',
+    helperText: 'Tam zamanlı, yarı zamanlı veya danışmanlık.',
   },
   projectStage: {
-    placeholder: 'Proje aşaması seçin',
-    helperText: 'Projenizin mevcut gelişim aşaması.',
+    placeholder: 'Girişim / proje aşamasını seçin',
+    helperText: 'Girişim veya proje aşamasını seçin.',
   },
   companyName: {
     placeholder: 'Örn. Abc Gıda A.Ş.',

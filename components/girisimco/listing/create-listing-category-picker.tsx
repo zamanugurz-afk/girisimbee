@@ -1,10 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
 import {
-  BrainCircuit,
   Briefcase,
-  CircleDollarSign,
+  BrainCircuit,
   Handshake,
   Landmark,
   Megaphone,
@@ -12,24 +10,20 @@ import {
   UserRoundSearch,
   type LucideIcon,
 } from 'lucide-react';
-import {
-  CATEGORY_IDS,
-  type CategoryListingTypeConfig,
-} from '@/features/listings/config/listing-type-config';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import type { CategoryId } from '@/lib/domain/ids';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
-import {
-  CategoryCardButton,
-  CREATE_LISTING_CATEGORY_CARD_GRID,
-} from '@/components/girisimco/listing/create-listing-category-card';
+import { CareerFlowChoiceCards } from '@/components/girisimco/home/career-flow-choice-cards';
 import { CreateListingCareerGroup } from '@/components/girisimco/listing/create-listing-career-group';
+import { CreateListingVentureGroup } from '@/components/girisimco/listing/create-listing-venture-group';
 import {
-  CREATE_LISTING_CAREER_CATEGORY_IDS,
   CREATE_LISTING_CAREER_HUB,
-  CREATE_LISTING_PICKER_ORDER,
+  CREATE_LISTING_VENTURE_HUB,
 } from '@/components/girisimco/listing/create-listing-career.data';
+import { Badge } from '@/components/ui/badge';
 
-const CAREER_CREATE_SET = new Set<string>(CREATE_LISTING_CAREER_CATEGORY_IDS);
+export type CreateListingHubStep = 'career' | 'venture' | null;
 
 const CATEGORY_VISUAL: Record<
   string,
@@ -39,11 +33,6 @@ const CATEGORY_VISUAL: Record<
     color: string;
   }
 > = {
-  [CATEGORY_IDS.yatirimBul]: {
-    audience: 'Girişimciler · yatırımcı arayanlar',
-    Icon: CircleDollarSign,
-    color: GC_CATEGORY_COLORS['yatirim-bul'],
-  },
   [CATEGORY_IDS.yatirimYap]: {
     audience: 'Yatırımcılar · profil yayınlayanlar',
     Icon: Landmark,
@@ -82,31 +71,31 @@ const CATEGORY_VISUAL: Record<
 };
 
 export function CreateListingCategoryPicker({
-  options,
   onSelect,
-  careerStep,
-  onCareerStepChange,
+  hubStep,
+  onHubStepChange,
 }: {
-  options: CategoryListingTypeConfig[];
-  onSelect: (categoryId: CategoryId) => void;
-  careerStep: boolean;
-  onCareerStepChange: (open: boolean) => void;
+  onSelect: (categoryId: CategoryId, options?: { partnershipIntent?: PartnershipIntent }) => void;
+  hubStep: CreateListingHubStep;
+  onHubStepChange: (step: CreateListingHubStep) => void;
 }) {
-  const ordered = useMemo(() => {
-    // Only CREATE_LISTING_PICKER_ORDER ids render in the flat grid.
-    // Career types (isBul / iseAl) open from the parent hub card; deferred types stay out.
-    const rank = new Map(CREATE_LISTING_PICKER_ORDER.map((id, i) => [id, i]));
-    return [...options]
-      .filter((c) => rank.has(c.categoryId) && !CAREER_CREATE_SET.has(c.categoryId))
-      .sort((a, b) => (rank.get(a.categoryId) ?? 99) - (rank.get(b.categoryId) ?? 99));
-  }, [options]);
-
-  if (careerStep) {
+  if (hubStep === 'career') {
     return (
       <section className="mb-10">
         <CreateListingCareerGroup
           onSelect={onSelect}
-          onBack={() => onCareerStepChange(false)}
+          onBack={() => onHubStepChange(null)}
+        />
+      </section>
+    );
+  }
+
+  if (hubStep === 'venture') {
+    return (
+      <section className="mb-10">
+        <CreateListingVentureGroup
+          onSelect={onSelect}
+          onBack={() => onHubStepChange(null)}
         />
       </section>
     );
@@ -114,42 +103,48 @@ export function CreateListingCategoryPicker({
 
   return (
     <section className="mb-10">
-      <div className="mb-6 max-w-xl">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
-          Adım 1
-        </p>
-        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-2xl">
+      <header className="mx-auto max-w-2xl text-center">
+        <Badge variant="outline" className="rounded-full px-3 py-1 text-[13px] font-semibold">
+          İlan Oluştur
+        </Badge>
+        <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl lg:text-[2rem]">
           Hangi tür ilan vereceksiniz?
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Kartların üstündeki hedef kitleye göre seçin. Örn. girişimciyseniz
-          “Yatırım Arıyorum”. Form yalnızca seçtiğiniz türe özel alanları gösterir.
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+          Kariyer profili veya iş ilanı yayınlayın; ortaklık ya da franchise fırsatı oluşturun.
         </p>
-      </div>
+      </header>
 
-      <div className={CREATE_LISTING_CATEGORY_CARD_GRID}>
-        {ordered.map((config) => {
-          const visual = CATEGORY_VISUAL[config.categoryId];
-          if (!visual) return null;
-          return (
-            <CategoryCardButton
-              key={config.categoryId}
-              title={config.name}
-              description={config.description}
-              audience={visual.audience}
-              color={visual.color}
-              Icon={visual.Icon}
-              onClick={() => onSelect(config.categoryId)}
-            />
-          );
-        })}
-        <CategoryCardButton
-          title={CREATE_LISTING_CAREER_HUB.title}
-          description={CREATE_LISTING_CAREER_HUB.description}
-          audience={CREATE_LISTING_CAREER_HUB.audience}
-          color={GC_CATEGORY_COLORS['ise-al']}
-          Icon={Briefcase}
-          onClick={() => onCareerStepChange(true)}
+      <div className="mt-10 lg:mt-12">
+        <CareerFlowChoiceCards
+          options={[
+            {
+              id: 'career',
+              label: CREATE_LISTING_CAREER_HUB.title,
+              description: CREATE_LISTING_CAREER_HUB.description,
+              benefits: CREATE_LISTING_CAREER_HUB.benefits,
+            },
+            {
+              id: 'venture',
+              label: CREATE_LISTING_VENTURE_HUB.title,
+              description: CREATE_LISTING_VENTURE_HUB.description,
+              benefits: CREATE_LISTING_VENTURE_HUB.benefits,
+            },
+          ]}
+          visuals={{
+            career: {
+              color: GC_CATEGORY_COLORS['ise-al'],
+              Icon: Briefcase,
+            },
+            venture: {
+              color: GC_CATEGORY_COLORS['ortak-bul'],
+              Icon: Handshake,
+            },
+          }}
+          onSelect={(id) => {
+            if (id === 'career') onHubStepChange('career');
+            if (id === 'venture') onHubStepChange('venture');
+          }}
         />
       </div>
     </section>
@@ -159,14 +154,18 @@ export function CreateListingCategoryPicker({
 export function CreateListingSelectedCategoryBar({
   categoryId,
   label,
+  caption = 'Seçilen kategori',
+  icon: IconOverride,
   onChange,
 }: {
   categoryId: CategoryId;
   label: string;
+  caption?: string;
+  icon?: LucideIcon;
   onChange: () => void;
 }) {
   const visual = CATEGORY_VISUAL[categoryId];
-  const Icon = visual?.Icon;
+  const Icon = IconOverride ?? visual?.Icon;
 
   return (
     <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-[#E6E8EE] bg-white px-4 py-3 dark:border-border dark:bg-card">
@@ -181,7 +180,7 @@ export function CreateListingSelectedCategoryBar({
           </span>
         ) : null}
         <div className="min-w-0">
-          <p className="text-[11px] text-[#64748B]">Seçilen kategori</p>
+          <p className="text-[11px] text-[#64748B]">{caption}</p>
           <p className="truncate text-sm font-semibold text-[#0B1220] dark:text-foreground">
             {label}
           </p>

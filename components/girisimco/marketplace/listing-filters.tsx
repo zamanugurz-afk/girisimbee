@@ -4,7 +4,7 @@ import type { MarketplaceFilterState } from '@/features/listings/types/marketpla
 import {
   LISTING_SORT_OPTIONS,
   MARKETPLACE_CITY_OPTIONS,
-  getAllCategorySlugs,
+  getUserDiscoverableCategorySlugs,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
@@ -44,7 +44,7 @@ export function ListingFilters({
           aria-label="Kategori"
         >
           <option value="">Tüm Kategoriler</option>
-          {getAllCategorySlugs().map((slug) => {
+          {getUserDiscoverableCategorySlugs().map((slug) => {
             const meta = resolveCategorySlug(slug);
             return (
               <option key={slug} value={slug}>

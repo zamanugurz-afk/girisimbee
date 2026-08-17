@@ -23,6 +23,13 @@ export const founderListingCreateSchema = z
     requiredSkills: z.array(z.string()).optional(),
     offeredSkills: z.array(z.string()).optional(),
     sectors: z.array(z.string()).optional(),
+    partnershipIntent: z.enum(['seeking', 'joining']).optional(),
+    projectStage: z.string().max(100).nullable().optional(),
+    experience: z.string().max(80).nullable().optional(),
+    commitment: z.string().max(100).nullable().optional(),
+    partnershipType: z.string().max(100).nullable().optional(),
+    expertise: z.array(z.string()).optional(),
+    equityOffered: z.union([z.string(), z.number()]).nullable().optional(),
   })
   .merge(externalContactSchema)
   .passthrough();

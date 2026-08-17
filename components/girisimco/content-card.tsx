@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import {
+  ArrowRight,
   ArrowUpRight,
   BookOpen,
   Briefcase,
   Building2,
   Clock,
   MapPin,
+  ShieldCheck,
   User,
 } from 'lucide-react';
 import { ContactAction } from '@/features/shared/premium';
@@ -13,28 +15,10 @@ import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { GcTag } from '@/components/girisimco/ui/gc-tag';
-import { ListingTypeIconBadge } from '@/components/girisimco/listing/listing-type-icon';
+import { LISTING_TYPE_ICON_MAP } from '@/components/girisimco/listing/listing-type-icon';
+import { buttonVariants } from '@/components/ui/button';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
-
-function listingBadgeTone(iconKey: ContentItem['listingIconKey']): string {
-  switch (iconKey) {
-    case 'investor':
-    case 'franchise':
-      return 'bg-[#FEF3C7] text-[#B45309]';
-    case 'job-seeker':
-      return 'bg-[#E0F2FE] text-[#0284C8]';
-    case 'employer':
-      return 'bg-[#DCFCE7] text-[#15803D]';
-    case 'partner':
-      return 'bg-[#FEF9C3] text-[#A16207]';
-    case 'digital':
-      return 'bg-[#E0E7FF] text-[#4338CA]';
-    case 'investment':
-    default:
-      return 'bg-[#EEF2FF] text-[#4F46E5]';
-  }
-}
 
 interface ContentCardProps {
   item: ContentItem;
@@ -97,7 +81,7 @@ export function ContentCard({ item, accent }: ContentCardProps) {
   return card;
 }
 
-/** Browse cards are text-first (no cover). Detail pages still show gallery images. */
+/** Linear-grade compact marketplace listing card. */
 function TextListingCardLayout({
   item,
   listingLink,
@@ -106,68 +90,82 @@ function TextListingCardLayout({
   listingLink: string | null;
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
-  const badgeLabel = item.listingGroupLabel ?? item.listingTypeLabel ?? 'İlan';
+  const typeLabel = item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan';
+  const Icon = LISTING_TYPE_ICON_MAP[item.listingIconKey ?? 'general'];
+  const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
+  const description = item.description || item.detail;
 
   return (
     <article
       className={cn(
-        'group relative flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-[#E6E8EE] bg-white',
-        'px-4 pb-4 pt-4 transition duration-200',
-        'shadow-[0_1px_2px_rgba(15,23,42,0.03)]',
-        'hover:-translate-y-0.5 hover:border-[#D0D4DE] hover:shadow-[0_12px_28px_rgba(15,23,42,0.07)]',
-        'dark:border-border dark:bg-card',
+        'group relative flex h-full min-h-[12.5rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
+        'bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md',
+        'border border-slate-200/80 dark:border-zinc-800 rounded-2xl',
+        'shadow-sm transition-all duration-300 ease-out',
+        'hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-md dark:hover:border-zinc-700',
         listingLink && 'cursor-pointer',
       )}
     >
-      <span
-        className="absolute inset-y-0 left-0 w-[3px]"
-        style={{ backgroundColor: accent }}
-        aria-hidden
-      />
+      <div>
+        {/* Top Meta Row: Icon + Type Pill + PII Badge + Price */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-semibold"
+              style={{ backgroundColor: `${accent}12`, color: accent }}
+            >
+              <Icon className="h-3 w-3" />
+              <span>{typeLabel}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+              <ShieldCheck className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
+              <span>İletişim Gizli 🔒</span>
+            </span>
+          </div>
 
-      <div className="flex items-start justify-between gap-3 pl-1.5 pr-8">
-        <span
-          className={cn(
-            'inline-flex max-w-[65%] truncate rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide',
-            listingBadgeTone(item.listingIconKey),
+          {compactPrice ? (
+            <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2 py-0.5 font-display text-[11px] font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+              {compactPrice}
+            </span>
+          ) : (
+            <ArrowUpRight className="h-3.5 w-3.5 text-zinc-400 transition-transform group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           )}
-        >
-          {badgeLabel}
-        </span>
-        {item.price ? (
-          <span className="shrink-0 text-right font-display text-[12px] font-bold tabular-nums leading-tight tracking-tight text-[#0B1220] dark:text-foreground">
-            {item.price}
-          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="mt-3 line-clamp-2 font-display text-[14px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-[15px]">
+          {item.title}
+        </h3>
+
+        {/* Description */}
+        {description ? (
+          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+            {description}
+          </p>
         ) : null}
       </div>
 
-      <h3 className="mt-3 line-clamp-2 pl-1.5 font-display text-[15px] font-semibold leading-snug tracking-tight text-[#0B1220] dark:text-foreground">
-        {item.title}
-      </h3>
+      {/* Footer Meta Strip */}
+      <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3 text-[11px] text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
+        <div className="flex items-center gap-3">
+          {item.location && (
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span className="truncate max-w-[110px]">{item.location}</span>
+            </span>
+          )}
+          {item.timeAgo && (
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>{item.timeAgo}</span>
+            </span>
+          )}
+        </div>
 
-      {item.description ? (
-        <p className="mt-2 line-clamp-2 flex-1 pl-1.5 text-[12.5px] leading-relaxed text-[#64748B]">
-          {item.description}
-        </p>
-      ) : (
-        <div className="flex-1" />
-      )}
-
-      <div className="mt-4 flex items-center gap-3 border-t border-[#F1F3F7] pt-3 pl-1.5 text-[11px] text-[#64748B]">
-        {item.location ? (
-          <span className="inline-flex min-w-0 flex-1 items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
-            <span className="truncate">{item.location}</span>
-          </span>
-        ) : (
-          <span className="flex-1" />
-        )}
-        {item.timeAgo ? (
-          <span className="inline-flex shrink-0 items-center gap-1">
-            <Clock className="h-3.5 w-3.5 opacity-60" aria-hidden />
-            {item.timeAgo}
-          </span>
-        ) : null}
+        <span className="inline-flex items-center gap-0.5 font-semibold text-zinc-600 dark:text-zinc-300 transition-colors group-hover:text-primary">
+          İncele
+          <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        </span>
       </div>
     </article>
   );

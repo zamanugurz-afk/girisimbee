@@ -78,11 +78,25 @@ export function Header() {
           })}
         </nav>
 
-        {/* Opaque right cluster so clipped nav never peeks under icons */}
-        <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 bg-white pl-3 dark:bg-[hsl(var(--background))] sm:gap-2">
-          <Link href="/ara" className={iconBtnClass} aria-label="Ara">
+        {/* Search, Notifications, Auth, CTA cluster */}
+        <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 pl-3 sm:gap-2">
+          <Link
+            href="/ara"
+            className="hidden h-9 items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-3.5 text-xs text-muted-foreground transition-all duration-200 hover:border-primary/40 hover:bg-muted/60 dark:bg-card/40 md:inline-flex"
+            aria-label="İlan veya girişim ara"
+          >
+            <Search className="h-3.5 w-3.5 text-muted-foreground/80" />
+            <span className="hidden lg:inline">İlan veya girişim ara...</span>
+            <span className="lg:hidden">Ara...</span>
+            <kbd className="ml-1 inline-flex h-4 items-center rounded border border-border/80 bg-background/90 px-1 font-mono text-[9px] font-semibold text-muted-foreground">
+              ⌘K
+            </kbd>
+          </Link>
+
+          <Link href="/ara" className={cn(iconBtnClass, 'md:hidden')} aria-label="Ara">
             <Search className="h-4 w-4" />
           </Link>
+
           <MarketplaceNotificationsBell />
 
           <AuthMenu />
@@ -91,7 +105,7 @@ export function Header() {
 
           <Button
             size="sm"
-            className="hidden shadow-md transition-all duration-200 hover:shadow-lg sm:inline-flex"
+            className="hidden bg-amber-500 font-semibold text-slate-950 shadow-md transition-all duration-200 hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20 sm:inline-flex"
             asChild
           >
             <Link href="/ilan/olustur">

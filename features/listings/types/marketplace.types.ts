@@ -1,3 +1,4 @@
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { ListingFilter } from '@/features/listings/types/listing.entity.types';
 import type { PaginationParams } from '@/lib/domain/pagination';
@@ -11,6 +12,7 @@ export interface MarketplaceBrowseParams extends ListingFilter, PaginationParams
   sortBy?: ListingSortBy;
   categorySlug?: string;
   jobFlow?: JobFlowFilter;
+  partnershipIntent?: PartnershipIntent;
 }
 
 export interface MarketplaceFilterState {
@@ -20,6 +22,8 @@ export interface MarketplaceFilterState {
   sortBy: ListingSortBy;
   /** When set on İş İlanları browse, filters to hire or seek listing types. */
   jobFlow?: JobFlowFilter;
+  /** Ortak-bul browse — seeking vs joining. Missing listings count as seeking. */
+  partnershipIntent?: PartnershipIntent;
   isFeatured?: boolean;
   activeFeaturedOnly?: boolean;
   isUrgent?: boolean;

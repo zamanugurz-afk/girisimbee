@@ -3,6 +3,7 @@
  * Placeholders meet min lengths used by the form validators.
  */
 import type { CategoryId } from '@/lib/domain/ids';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import type { ListingFormValues } from '@/features/listings/form/category-listing-form';
 import { createEmptyCareerExperience } from '@/features/candidates/config/career-profile-fields';
@@ -14,7 +15,10 @@ type SamplePatch = {
   images?: ListingFormValues['images'];
 };
 
-export function getSampleListingValues(categoryId: CategoryId): SamplePatch | null {
+export function getSampleListingValues(
+  categoryId: CategoryId,
+  options?: { partnershipIntent?: PartnershipIntent },
+): SamplePatch | null {
   switch (categoryId) {
     case CATEGORY_IDS.yatirimBul:
       return {
@@ -183,6 +187,31 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
       };
     }
     case CATEGORY_IDS.ortakBul:
+      if (options?.partnershipIntent === 'joining') {
+        return {
+          core: {
+            title: 'Teknik Kurucu Ortak Olarak Katılmak İstiyorum',
+            shortDescription:
+              'Yazılım ve ürün yönetimi deneyimimi erken aşama girişimlere sunuyorum; equity konuşulur.',
+            longDescription:
+              'B2B SaaS ürünlerinde teknik liderlik yaptım. Erken aşama ekiplere mimari, ürün ve ekip kurma konusunda katkı vermek istiyorum. Haftalık düzenli zaman ayırabilirim. Tercihen İstanbul veya güçlü uzaktan çalışma disiplinine sahip ekipler. İlk görüşmede geçmiş projeler ve çalışma biçimi paylaşılır.',
+            city: 'İstanbul',
+            country: 'TR',
+            remotePolicy: null,
+          },
+          customFields: {
+            partnershipIntent: 'joining',
+            expertise: ['CTO / Teknik liderlik', 'Yazılım geliştirme'],
+            offeredSkills: ['Yazılım geliştirme', 'Ürün yönetimi'],
+            sectors: ['SaaS / Yazılım'],
+            partnershipType: 'Kurucu Ortak',
+            projectStage: 'MVP aşaması',
+            commitment: 'Yarı zamanlı',
+            experience: '5-10 yıl',
+            equityOffered: 10,
+          },
+        };
+      }
       return {
         core: {
           title: 'Ürün Odaklı Teknik Kurucu Ortak Arıyoruz',
@@ -195,9 +224,13 @@ export function getSampleListingValues(categoryId: CategoryId): SamplePatch | nu
           remotePolicy: null,
         },
         customFields: {
+          partnershipIntent: 'seeking',
+          sector: 'SaaS / Yazılım',
+          projectStage: 'İlk müşteriler',
           partnershipType: 'Kurucu Ortak',
           expertise: ['CTO / Teknik liderlik', 'Yazılım geliştirme'],
           commitment: 'Tam zamanlı',
+          equityOffered: 12,
         },
       };
     case CATEGORY_IDS.dijitalAi:

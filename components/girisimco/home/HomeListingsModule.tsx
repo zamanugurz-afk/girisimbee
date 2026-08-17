@@ -11,7 +11,6 @@ import {
 } from '@/features/home';
 import { HomeListingSectionRow } from '@/components/girisimco/home/HomeListingSectionRow';
 import type { HomeListingSectionsResult } from '@/features/home';
-import { cn } from '@/lib/utils';
 
 const HomeListingsCtx = createContext<HomeListingSectionsResult | null>(null);
 
@@ -36,9 +35,13 @@ export function HomeFeaturedSection() {
   if (!state) return null;
 
   return (
-    <div className="border-b border-[#E8EAF0] bg-white dark:border-border dark:bg-background">
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-10 lg:px-8 lg:py-12">
-        <HomeListingSectionRow config={featured} state={state} showCategoryTabs />
+    <div className="bg-transparent dark:bg-transparent">
+      {/* Market sonrası ve Öne Çıkan İlanlar öncesi net ayrım çizgisi */}
+      <div className="mx-auto w-full max-w-[1280px] px-5 lg:px-8 pt-4 pb-2">
+        <div className="h-[1px] w-full bg-slate-200 dark:bg-zinc-800" />
+      </div>
+      <div className="mx-auto w-full max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
+        <HomeListingSectionRow config={featured} state={state} />
       </div>
     </div>
   );
@@ -49,19 +52,17 @@ export function HomeRestSections() {
   const rest = HOME_LISTING_SECTIONS.filter((s) => s.id !== 'featured');
 
   return (
-    <div className="bg-[#FAFBFC] dark:bg-background">
-      {rest.map((config, index) => {
+    <div className="bg-transparent dark:bg-transparent">
+      {rest.map((config) => {
         const state = sections.find((section) => section.id === config.id);
         if (!state) return null;
         return (
-          <div
-            key={config.id}
-            className={cn(
-              'border-b border-[#E8EAF0] dark:border-border',
-              index % 2 === 1 && 'bg-white dark:bg-background',
-            )}
-          >
-            <div className="mx-auto max-w-[1280px] px-5 py-10 lg:px-8 lg:py-12">
+          <div key={config.id}>
+            {/* İlan bölümleri arasındaki net ayrım çizgisi */}
+            <div className="mx-auto w-full max-w-[1280px] px-5 lg:px-8 pt-4 pb-2">
+              <div className="h-[1px] w-full bg-slate-200 dark:bg-zinc-800" />
+            </div>
+            <div className="mx-auto w-full max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
               <HomeListingSectionRow config={config} state={state} />
             </div>
           </div>

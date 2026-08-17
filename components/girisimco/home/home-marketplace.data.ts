@@ -16,15 +16,6 @@ type HomeCategoryDef = {
  */
 export const HOME_CATEGORIES_CATALOG = [
   {
-    slug: 'yatirim-bul',
-    href: '/invest',
-    label: 'Yatırım Arıyorum',
-    color: GC_CATEGORY_COLORS['yatirim-bul'],
-    audience: 'Girişimciler',
-    shortCue: 'Tur, tutar ve aşama',
-    hint: 'Yatırım tutarı, aşama ve kullanım alanıyla ilan yayınlayın veya keşfedin.',
-  },
-  {
     slug: 'ortak-bul',
     href: '/partners',
     label: 'Ortak Arıyorum',
@@ -60,24 +51,32 @@ export const HOME_CATEGORIES_CATALOG = [
     shortCue: 'Ürün ve çözümler',
     hint: 'Ürün adı, kısa tanıtım ve yetenek kartlarıyla AI / yazılım çözümlerini inceleyin.',
   },
+  {
+    slug: 'girisim-ortaklik',
+    href: '/girisim-ortaklik',
+    label: 'Girişim ve Ortaklık',
+    color: GC_CATEGORY_COLORS['ortak-bul'],
+    audience: 'Kurucular / ortaklar',
+    shortCue: 'Ortaklık ve franchise',
+    hint: 'Ortak arayın, bir girişime katılın veya franchise fırsatlarını keşfedin.',
+  },
 ] as const satisfies readonly HomeCategoryDef[];
 
 export type HomeCategorySlug = (typeof HOME_CATEGORIES_CATALOG)[number]['slug'];
 
 /**
- * Ne arıyorsunuz gateway — set of slugs currently shown.
- * To restore Dijital & AI: add `'dijital-ai'` back here (and grid becomes 5 cols automatically).
- * Previously: all five catalog slugs including `'dijital-ai'`.
+ * Ne arıyorsunuz gateway — homepage discovery only.
+ * Catalog rows stay intact (ortak-bul, franchise, dijital-ai).
  */
 export const HOME_GATEWAY_VISIBLE_SLUGS = [
-  'yatirim-bul',
-  'ortak-bul',
-  'franchise',
   'ise-al',
+  'girisim-ortaklik',
 ] as const satisfies readonly HomeCategorySlug[];
 
-/** Categories intentionally deferred from the gateway (kept for easy restore). */
+/** Hidden from homepage gateway / primary nav — infrastructure kept. */
 export const HOME_GATEWAY_DEFERRED_SLUGS = [
+  'ortak-bul',
+  'franchise',
   'dijital-ai',
 ] as const satisfies readonly HomeCategorySlug[];
 
@@ -94,8 +93,8 @@ export const HOME_CATEGORIES_ALL = HOME_CATEGORIES_CATALOG;
 /** /is selection landing — CTAs keep existing ?flow=seek|hire browse chips. */
 export const CAREER_HUB_LANDING = {
   badge: 'Kariyer ve İş Fırsatları',
-  title: 'Girişimbee\'de hangi tarafta olduğunuzu seçin',
-  description: 'İş fırsatlarını keşfetmek veya doğru yeteneği bulmak için size uygun yolu seçin.',
+  title: 'Kariyer ve İş Fırsatları',
+  description: 'İş ilanlarını keşfedin veya aday profillerini inceleyin.',
   trust:
     'İletişim bilgileriniz gizli kalır. İlgilendiğiniz kişiyle iletişim talebi üzerinden bağlantı kurarsınız.',
 } as const;
@@ -109,42 +108,22 @@ export type CareerFlowCardCopy = {
 };
 
 /**
- * /is browse cards — listing type, not viewer intent.
- * seek: job-seeker profiles (employers review candidates).
- * hire: employer job ads (job seekers review openings).
+ * /is browse cards — viewer intent.
+ * İş Arıyorum → job ads (`flow=hire`).
+ * İşe Alıyorum → candidate profiles (`flow=seek`).
+ * Card ids stay seek/hire so create-listing visuals stay aligned.
  */
 export const CAREER_FLOW_OPTIONS = [
   {
     id: 'seek',
-    href: '/is?flow=seek',
-    label: 'İş Arayanlar',
-    description:
-      'İş arayan profillerini inceleyin; uygun adayla güvenli iletişim kurun.',
-    benefits: [
-      {
-        title: 'Profili inceleyin',
-        text: 'Deneyim ve yetkinliklerini tek yerde görün.',
-      },
-      {
-        title: 'Uygunluğu değerlendirin',
-        text: 'Aradığınız rolle birlikte bakın.',
-      },
-      {
-        title: 'Güvenli iletişim kurun',
-        text: 'Adayla iletişim talebi üzerinden bağlantı kurun.',
-      },
-    ],
-  },
-  {
-    id: 'hire',
     href: '/is?flow=hire',
-    label: 'İş İlanları',
+    label: 'İş Arıyorum',
     description:
-      'Açık pozisyonları inceleyin; iş ilanı sahibiyle güvenli iletişim kurun.',
+      'Yayındaki iş ilanlarını inceleyin, deneyiminize uygun olanı seçin ve iletişim talebiyle ilerleyin.',
     benefits: [
       {
-        title: 'İlanı inceleyin',
-        text: 'Rolü, beklentileri ve aranan yetkinlikleri görün.',
+        title: 'Fırsatları keşfedin',
+        text: 'Açık pozisyonları ve kariyer beklentilerini görün.',
       },
       {
         title: 'Size uygun mu bakın',
@@ -152,7 +131,28 @@ export const CAREER_FLOW_OPTIONS = [
       },
       {
         title: 'Güvenli iletişim kurun',
-        text: 'İş ilanı sahibiyle iletişim talebi üzerinden bağlantı kurun.',
+        text: 'İlan sahibiyle iletişim talebi üzerinden bağlantı kurun.',
+      },
+    ],
+  },
+  {
+    id: 'hire',
+    href: '/is?flow=seek',
+    label: 'İşe Alıyorum',
+    description:
+      'Aday profillerini inceleyin, aradığınız rolle eşleştirin ve iletişim talebi üzerinden bağlanın.',
+    benefits: [
+      {
+        title: 'Adayları inceleyin',
+        text: 'Deneyim ve yetkinliklerini tek yerde görün.',
+      },
+      {
+        title: 'Pozisyona uygunluğu değerlendirin',
+        text: 'Aradığınız rolle birlikte bakın.',
+      },
+      {
+        title: 'Güvenli iletişim kurun',
+        text: 'Adayla iletişim talebi üzerinden bağlantı kurun.',
       },
     ],
   },
@@ -169,6 +169,80 @@ export const FRANCHISE_FLOW_ROUTES = {
   give: '/franchise/buy',
 } as const;
 
+/** Homepage second-level hub — existing /partners and /franchise/buy routes only. */
+export const VENTURE_PARTNERSHIP_HUB = {
+  badge: 'Girişim ve Ortaklık',
+  title: 'Girişim ve Ortaklık',
+  description: 'Ortak arayın, bir girişime katılın veya franchise fırsatlarını keşfedin.',
+  href: '/girisim-ortaklik',
+} as const;
+
+export const VENTURE_PARTNERSHIP_OPTIONS = [
+  {
+    id: 'ortak-ariyorum',
+    href: '/partners?intent=seeking',
+    label: 'Ortak Arıyorum',
+    description: 'Girişiminiz için doğru ortağı bulun.',
+    color: GC_CATEGORY_COLORS['ortak-bul'],
+    benefits: [
+      {
+        title: 'İhtiyacınızı netleştirin',
+        text: 'Aradığınız uzmanlığı ve ortaklık beklentisini görün.',
+      },
+      {
+        title: 'Uygun ortakları inceleyin',
+        text: 'Yetkinlik ve taahhütle birlikte bakın.',
+      },
+      {
+        title: 'Güvenli iletişim kurun',
+        text: 'İletişim talebi üzerinden bağlantı kurun.',
+      },
+    ],
+  },
+  {
+    id: 'ortak-olmak',
+    href: '/partners?intent=joining',
+    label: 'Ortak Olmak İstiyorum',
+    description: 'Uzmanlığınızı sunun, size uygun girişimlerle buluşun.',
+    color: GC_CATEGORY_COLORS['ortak-bul'],
+    benefits: [
+      {
+        title: 'Profilleri keşfedin',
+        text: 'Girişimlerin ne aradığını tek yerde görün.',
+      },
+      {
+        title: 'Size uygun mu bakın',
+        text: 'Uzmanlığınızı ve hedeflerinizi karşılaştırın.',
+      },
+      {
+        title: 'Güvenli iletişim kurun',
+        text: 'İletişim talebi üzerinden bağlantı kurun.',
+      },
+    ],
+  },
+  {
+    id: 'franchise',
+    href: FRANCHISE_FLOW_ROUTES.listings,
+    label: 'Franchise Fırsatları',
+    description: 'Kanıtlanmış iş modellerini inceleyin ve size uygun franchise fırsatlarını keşfedin.',
+    color: GC_CATEGORY_COLORS.franchise,
+    benefits: [
+      {
+        title: 'İş modellerini inceleyin',
+        text: 'Marka, sektör ve şube hakkını görün.',
+      },
+      {
+        title: 'Yatırım ve lokasyona bakın',
+        text: 'Giriş bedeli ve faaliyet bölgelerini karşılaştırın.',
+      },
+      {
+        title: 'Güvenli iletişim kurun',
+        text: 'İletişim talebi üzerinden bağlantı kurun.',
+      },
+    ],
+  },
+] as const;
+
 export const HOME_TRUST_SIGNALS = [
   { label: 'Ücretsiz kayıt' },
   { label: 'Doğrulanmış telefon' },
@@ -179,7 +253,7 @@ export const HOME_STEPS = [
   {
     step: '1',
     title: 'Yolunuzu seçin',
-    description: 'Yatırım, iş ilanı veya ortaklık — size uygun kategoride ilanları inceleyin.',
+    description: 'İş, ortaklık veya franchise — size uygun kategoride ilanları inceleyin.',
   },
   {
     step: '2',
@@ -189,6 +263,6 @@ export const HOME_STEPS = [
   {
     step: '3',
     title: 'Eşleşin ve ilerleyin',
-    description: 'Doğru kişilerle buluşun; yatırım, iş veya ortaklık sürecinizi başlatın.',
+    description: 'Doğru kişilerle buluşun; iş, ortaklık veya franchise sürecinizi başlatın.',
   },
 ] as const;

@@ -9,6 +9,10 @@ import {
   resolveCoverSectorHint,
   resolveListingCoverUrl,
 } from '@/features/listings/config/listing-cover.config';
+import {
+  partnershipIntentLabel,
+  resolvePartnershipIntent,
+} from '@/features/founders/partnership-intent';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
 
@@ -67,7 +71,11 @@ export function listingToContentItem(
   const dbListing = listing as ListingWithDbMeta;
   const categorySlug = resolveDbCategorySlug(dbListing);
   const meta = categorySlug ? CATEGORY_PAGE_CONFIG[categorySlug] : undefined;
-  const contentType = resolveContentTypeFromDb(dbListing);
+  const partnershipIntent = resolvePartnershipIntent(listing);
+  const contentType =
+    categorySlug === 'ortak-bul' && partnershipIntent === 'joining'
+      ? 'person'
+      : resolveContentTypeFromDb(dbListing);
   const cardDisplay = resolveListingCardDisplay(listing);
   const listingTypeSlug =
     resolveDbListingTypeSlug(dbListing)
@@ -86,8 +94,11 @@ export function listingToContentItem(
     listingId: listing.id,
     type: contentType,
     title: listing.title,
-    subtitle: meta?.label,
-    detail: cardDisplay.price,
+    subtitle:
+      categorySlug === 'ortak-bul'
+        ? partnershipIntentLabel(partnershipIntent)
+        : meta?.label,
+    detail: cardDisplay.detail,
     location,
     description: listing.shortDescription.trim() || undefined,
     price: cardDisplay.price,

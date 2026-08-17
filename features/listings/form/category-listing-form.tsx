@@ -18,6 +18,8 @@ import {
   resolveStepCustomFields,
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
+import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
@@ -261,6 +263,8 @@ export interface CategoryListingFormProps {
   showDraftButton?: boolean;
   showPreviewButton?: boolean;
   showPublishButton?: boolean;
+  /** Ortak-bul form variant — ignored for other categories. */
+  partnershipIntent?: PartnershipIntent;
 }
 
 function stepValidationInput(
@@ -341,9 +345,21 @@ export function CategoryListingForm({
   showDraftButton = false,
   showPreviewButton = false,
   showPublishButton = false,
+  partnershipIntent,
 }: CategoryListingFormProps) {
   const { user } = useAuth();
-  const steps = useMemo(() => getListingFormSteps(categoryId), [categoryId]);
+  const steps = useMemo(
+    () => getListingFormSteps(categoryId, { partnershipIntent }),
+    [categoryId, partnershipIntent],
+  );
+  const coreFieldLabels =
+    categoryId === CATEGORY_IDS.ortakBul && partnershipIntent
+      ? partnerCoreFieldLabels(partnershipIntent)
+      : getCoreFieldLabelsForCategory(categoryId);
+  const coreFieldUi =
+    categoryId === CATEGORY_IDS.ortakBul && partnershipIntent === 'joining'
+      ? partnerCoreFieldUi('joining')
+      : getCoreFieldUiOverridesForCategory(categoryId);
   const allFieldKeys = useMemo(
     () => listingType.fieldSchema.fields.map((f) => f.key),
     [listingType.fieldSchema],
@@ -1567,7 +1583,7 @@ export function CategoryListingForm({
                 size="sm"
                 className="h-8 rounded-lg text-xs"
                 onClick={() => {
-                  const sample = getSampleListingValues(categoryId);
+                  const sample = getSampleListingValues(categoryId, { partnershipIntent });
                   if (!sample) {
                     toast.message('Bu kategori için örnek veri yok.');
                     return;
@@ -2048,8 +2064,8 @@ export function CategoryListingForm({
                   }}
                   include={currentStep.coreFields}
                   extendedCities={usesExtendedCities && currentStep.coreFields.includes('city')}
-                  labels={getCoreFieldLabelsForCategory(categoryId)}
-                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
+                  labels={coreFieldLabels}
+                  fieldUi={coreFieldUi}
                   errors={{
                     title: resolveFieldError(fieldErrors, 'title'),
                     shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
@@ -2106,8 +2122,8 @@ export function CategoryListingForm({
                   values={core}
                   onChange={handleCoreChange}
                   include={['title']}
-                  labels={getCoreFieldLabelsForCategory(categoryId)}
-                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
+                  labels={coreFieldLabels}
+                  fieldUi={coreFieldUi}
                   errors={{
                     title: resolveFieldError(fieldErrors, 'title'),
                   }}
@@ -2222,8 +2238,8 @@ export function CategoryListingForm({
                   include={['city']}
                   extendedCities={usesExtendedCities}
                   cityRequired
-                  labels={getCoreFieldLabelsForCategory(categoryId)}
-                  fieldUi={getCoreFieldUiOverridesForCategory(categoryId)}
+                  labels={coreFieldLabels}
+                  fieldUi={coreFieldUi}
                   errors={{
                     city: resolveFieldError(fieldErrors, 'city'),
                   }}

@@ -19,6 +19,9 @@ import {
 } from '@/features/listings/components/listing-publisher-select';
 import { coerceCompanyId } from '@/lib/persistence/supabase-payload';
 import { supportsCompanyPublisher } from '@/features/listings/config/listing-category-module.config';
+import { getPartnerFormSchema } from '@/features/founders/partnership-form';
+import { resolvePartnershipIntent } from '@/features/founders/partnership-intent';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 
 const EDITABLE_STATUSES: ListingStatus[] = [
   'draft',
@@ -109,12 +112,20 @@ export default function EditListingPage() {
         ? coerceCompanyId(publisherCompanyId)
         : null;
 
+    const partnershipIntent =
+      categoryId === CATEGORY_IDS.ortakBul
+        ? resolvePartnershipIntent({ customFields: values.customFields })
+        : undefined;
+
     const payload = {
       core: {
         ...values.core,
         companyId,
       },
-      customFields: values.customFields,
+      customFields: {
+        ...values.customFields,
+        ...(partnershipIntent ? { partnershipIntent } : {}),
+      },
       tags: values.tags,
       images: values.images,
       asDraft,
@@ -216,9 +227,23 @@ export default function EditListingPage() {
               />
             )}
             <CategoryListingForm
-              listingType={listingType}
+              listingType={
+                categoryId === CATEGORY_IDS.ortakBul
+                  ? {
+                      ...listingType,
+                      fieldSchema: getPartnerFormSchema(
+                        resolvePartnershipIntent({ customFields: formInitialValues.customFields }),
+                      ),
+                    }
+                  : listingType
+              }
               categoryId={categoryId}
               listingId={listingId}
+              partnershipIntent={
+                categoryId === CATEGORY_IDS.ortakBul
+                  ? resolvePartnershipIntent({ customFields: formInitialValues.customFields })
+                  : undefined
+              }
               initialValues={formInitialValues}
               userId={actorId}
               onSubmit={handleSave}

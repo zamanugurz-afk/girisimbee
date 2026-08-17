@@ -7,7 +7,7 @@ import {
 } from '@/features/categories/services/category.service';
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
 
-export function useCategoryIntent(initial: CategoryIntentId = 'find-investment') {
+export function useCategoryIntent(initial: CategoryIntentId = 'hire') {
   const [intentId, setIntentId] = useState<CategoryIntentId>(initial);
   const intent = useMemo(() => getCategoryIntent(intentId), [intentId]);
   const allIntents = useMemo(() => getAllCategoryIntents(), []);

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ok, apiError } from '@/lib/api/response';
 import type { HeroStatsCounts } from '@/features/home/types/hero-stats.types';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,40 +28,40 @@ export async function GET() {
 
     const [
       totalRes,
-      entrepreneursRes,
-      investorsRes,
       employersRes,
       candidatesRes,
       partnersRes,
       franchiseRes,
+      opportunitiesRes,
+      solutionsRes,
     ] = await Promise.all([
       published(),
-      published().eq('module_key', 'entrepreneurs'),
-      published().eq('module_key', 'investors'),
       published().eq('module_key', 'employers'),
       published().eq('module_key', 'candidates'),
       published().eq('module_key', 'founders'),
       published().eq('module_key', 'franchise'),
+      published().eq('category_id', CATEGORY_IDS.genelIlan),
+      published().eq('category_id', CATEGORY_IDS.dijitalAi),
     ]);
 
     const firstError = [
       totalRes,
-      entrepreneursRes,
-      investorsRes,
       employersRes,
       candidatesRes,
       partnersRes,
       franchiseRes,
+      opportunitiesRes,
+      solutionsRes,
     ].find((r) => r.error)?.error;
     if (firstError) throw new Error(firstError.message);
 
     const stats: HeroStatsCounts = {
       total: totalRes.count ?? 0,
-      entrepreneurs: entrepreneursRes.count ?? 0,
-      investors: investorsRes.count ?? 0,
       jobs: (employersRes.count ?? 0) + (candidatesRes.count ?? 0),
       partners: partnersRes.count ?? 0,
       franchise: franchiseRes.count ?? 0,
+      opportunities: opportunitiesRes.count ?? 0,
+      solutions: solutionsRes.count ?? 0,
     };
 
     return ok(stats);

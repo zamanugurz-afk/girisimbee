@@ -1,12 +1,15 @@
 /**
- * Seed 5 realistic published listings for each home marketplace card:
- * Yatırım Bul, Ortak Bul, Franchise, İş İlanları, Dijital ve AI.
+ * Wipe ALL marketplace listings and seed 5 published listings per active
+ * listing type in the current IA:
+ *   İş Arıyorum, İşe Alıyorum, Ortak Arıyorum, Ortak Olmak İstiyorum,
+ *   Franchise, Dijital & AI.
+ *
+ * Does NOT seed Yatırım Arıyorum / Yatırım Yap.
  *
  * Usage:
  *   node scripts/seed-home-card-listings.mjs
  *
  * Requires SUPABASE_SERVICE_ROLE_KEY in .env.local.
- * Wipes marketplace_listings then inserts 25 demo rows.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -87,143 +90,311 @@ function contactFor(i) {
   };
 }
 
-/** Home card titles → listing payloads (5 each). IDs resolved at runtime. */
+/** 5 listings per active product type. IDs resolved against live taxonomy. */
 const CARD_SPECS = [
   {
-    label: 'Yatırım Bul',
-    typeSlugs: ['yatirim-ariyorum'],
-    categorySlugs: ['yatirim-bul', 'yatirim'],
-    moduleKey: 'entrepreneurs',
-    fallbackCategoryId: 'e1000001-0001-4000-8000-000000000001',
-    fallbackTypeId: 'e1000001-0001-4000-8000-000000000001',
+    label: 'İş Arıyorum',
+    typeSlugs: ['is-ariyorum'],
+    categorySlugs: ['is-ariyorum', 'is-bul', 'is'],
+    moduleKey: 'candidates',
+    anonymousMode: true,
+    fallbackCategoryId: 'e1000001-0001-4000-8000-000000000002',
+    fallbackTypeId: 'e1000001-0001-4000-8000-000000000003',
     listings: [
       {
-        title: 'PayFlow: KOBİ tahsilat otomasyonu için 2.5M TL tohum turu',
+        title: 'Kıdemli full-stack yazılım geliştirici — React & Node',
         short_description:
-          'B2B fintech SaaS. 48 ödeme müşterisi, aylık 180K GMV. Seed turunda ürün ve satış ekibini büyütüyoruz.',
-        long_description: `## Girişim
-PayFlow, KOBİ’lerin çek/senet ve açık hesap tahsilatını otomatikleştiren bir SaaS.
+          'B2B SaaS ürünlerinde 6 yıl uçtan uca geliştirme. TypeScript, PostgreSQL, AWS. Tam zamanlı, hibrit veya uzaktan.',
+        long_description: `## Profil
+B2B SaaS ekiplerinde API, ödeme entegrasyonu ve admin paneli teslim ettim.
 
-## Traction
-- 48 aktif işletme
-- Aylık işlem hacmi ~180K TL
-- Net retention %112
+## Aradığım rol
+Kıdemli full-stack. İlk 90 günde somut teslimat.
 
-## Tur
-2.5M TL tohum; %12–15 hisse görüşmeye açık. Fon: ürün, compliance ve satış.
-
-## Ekip
-2 kurucu (fintech + backend), 1 full-stack, 1 CSM.`,
+## Yetkinlikler
+TypeScript, React, Node.js, PostgreSQL, AWS.`,
         city: 'İstanbul',
         district: 'Kadıköy',
-        industry: 'Fintech',
+        industry: 'Bilişim / Yazılım',
         remote_policy: 'hybrid',
         custom_fields: {
-          investmentAmount: '1.000.000 - 2.500.000 TL',
-          equityOffered: 12,
-          stage: 'Gelir elde ediliyor',
-          useOfFunds: ['Ürün geliştirme', 'Satış / pazarlama', 'Operasyon'],
+          primarySector: 'Bilişim / Yazılım',
+          desiredRole: 'Yazılım Geliştirici',
+          experienceLevel: 'Senior',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İstanbul',
+          preferredDistrict: 'Kadıköy',
+          workplacePreference: 'Hibrit',
+          salaryExpectation: '100.000 - 150.000 TL',
+          availability: '1 ay içinde',
         },
       },
       {
-        title: 'MediSlot: Klinik randevu AI asistanına Series A öncesi yatırım',
+        title: 'Ürün yöneticisi — B2B SaaS discovery ve roadmap',
         short_description:
-          'Sağlık teknolojisi. 22 klinik, 14K aylık randevu. Regülasyon uyumlu dil modeli ile no-show oranını düşürüyoruz.',
-        long_description: `## Problem
-Klinikler randevu kaçırma ve telefon yoğunluğu yüzünden kapasite kaybediyor.
+          '0→1 ve 1→n ürün yolculuğu. Discovery, PRD ve sprint sahipliği. Uzaktan veya Ankara hibrit.',
+        long_description: `## Profil
+Kullanıcı görüşmeleri, metrik odaklı önceliklendirme ve çapraz ekip koordinasyonu.
 
-## Çözüm
-WhatsApp + panel üzerinden AI asistan; randevu, hatırlatma ve triyaj.
+## Aradığım rol
+B2B ürün yöneticisi. SQL okuryazarlığı mevcut.
 
-## Metrikler
-22 klinik · 14K randevu/ay · no-show −28%.
-
-## Aranan yatırım
-4M TL. Kullanım: model iyileştirme, hastane satışları, KVKK süreçleri.`,
+## Çalışma
+Uzaktan tercih, ayda birkaç gün ofis kabul.`,
         city: 'Ankara',
         district: 'Çankaya',
-        industry: 'Sağlık teknolojisi',
-        remote_policy: 'hybrid',
-        custom_fields: {
-          investmentAmount: '2.500.000 - 5.000.000 TL',
-          equityOffered: 10,
-          stage: 'Gelir elde ediliyor',
-          useOfFunds: ['Ürün geliştirme', 'Satış / pazarlama'],
-        },
-      },
-      {
-        title: 'RouteWise: Son mil rota optimizasyonu MVP yatırım arıyor',
-        short_description:
-          'Lojistik SaaS. 6 pilot kurye ağı, ortalama %18 maliyet düşüşü. Seed ile İstanbul ölçeğine çıkıyoruz.',
-        long_description: `## Ürün
-Canlı trafik + teslimat penceresi ile rota motoru.
-
-## Pilot
-6 operatör, 3 ay, ortalama %18 yakıt/süre tasarrufu.
-
-## Tur
-1.2M TL. Hisse %14. Fon: motor, mobil app, 2 satış.`,
-        city: 'İzmir',
-        district: 'Bayraklı',
-        industry: 'Lojistik',
-        remote_policy: 'onsite',
-        custom_fields: {
-          investmentAmount: '1.000.000 - 2.500.000 TL',
-          equityOffered: 14,
-          stage: 'MVP aşaması',
-          useOfFunds: ['Ürün geliştirme', 'Operasyon'],
-        },
-      },
-      {
-        title: 'LearnLoop: Kurumsal mikro-öğrenme platformuna angel yatırım',
-        short_description:
-          'EdTech. 9 kurumsal müşteri, 6.2K aktif öğrenen. İçerik stüdyosu ve satış için 800K–1.5M TL arıyoruz.',
-        long_description: `## Model
-Abonelik + içerik paketi. NPS 61.
-
-## Müşteriler
-Perakende ve çağrı merkezi odaklı 9 sözleşme.
-
-## Tur
-Angel / pre-seed. Fon: içerik üretimi, CSM, outbound.`,
-        city: 'İstanbul',
-        district: 'Şişli',
-        industry: 'Eğitim teknolojisi',
+        industry: 'Bilişim / Yazılım',
         remote_policy: 'remote',
         custom_fields: {
-          investmentAmount: '500.000 - 1.000.000 TL',
-          equityOffered: 15,
-          stage: 'İlk müşteriler',
-          useOfFunds: ['Satış / pazarlama', 'Ürün geliştirme'],
+          primarySector: 'Bilişim / Yazılım',
+          desiredRole: 'Ürün Yöneticisi',
+          experienceLevel: 'Senior',
+          workType: 'Tam zamanlı',
+          preferredCity: 'Ankara',
+          preferredDistrict: 'Çankaya',
+          workplacePreference: 'Uzaktan',
+          salaryExpectation: '100.000 - 150.000 TL',
+          availability: '2 hafta içinde',
         },
       },
       {
-        title: 'GreenMeter: Enerji izleme IoT için pre-Series A',
+        title: 'Performans pazarlama uzmanı — Meta & Google Ads',
         short_description:
-          'Temiz enerji. 35 fabrika sensör kurulumu, yıllık 2.1M TL ARR. Üretim ve Avrupa satış için büyüme turu.',
-        long_description: `## Traction
-ARR 2.1M TL · gross margin %68 · churn %0.9/ay.
+          'Aylık medya bütçesi yönetimi, CAC/ROAS odaklı test ritmi. Tam zamanlı, İstanbul hibrit.',
+        long_description: `## Profil
+Kampanya kurgusu, creative test ve haftalık raporlama.
 
-## Kullanım
-Donanım ölçekleme, Almanya partner, veri platformu.
+## Yetkinlikler
+Meta Ads, Google Ads, GA4, Looker Studio.
 
-## Tur
-7.5M TL. Term sheet görüşmeye açık.`,
-        city: 'Bursa',
-        district: 'Nilüfer',
-        industry: 'Temiz enerji',
+## Tercih
+Hibrit İstanbul. Hemen başlayabilirim.`,
+        city: 'İstanbul',
+        district: 'Şişli',
+        industry: 'Pazarlama / Reklam',
         remote_policy: 'hybrid',
         custom_fields: {
-          investmentAmount: '5.000.000 TL üzeri',
-          equityOffered: 9,
-          stage: 'Büyüme aşaması',
-          useOfFunds: ['Operasyon', 'Satış / pazarlama', 'Ürün geliştirme'],
+          primarySector: 'Pazarlama / Reklam',
+          desiredRole: 'Pazarlama Uzmanı',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İstanbul',
+          preferredDistrict: 'Şişli',
+          workplacePreference: 'Hibrit',
+          salaryExpectation: '50.000 - 75.000 TL',
+          availability: 'Hemen',
+        },
+      },
+      {
+        title: 'Veri analisti — growth ve ürün metrikleri',
+        short_description:
+          'Funnel, retention ve gelir dashboard’ları. SQL, Python. Tam zamanlı, İzmir veya uzaktan.',
+        long_description: `## Profil
+Haftalık growth review’ları ve tek kaynaktan metrik okuma.
+
+## Stack
+SQL, Python, Metabase.
+
+## Tercih
+Uzaktan veya İzmir hibrit.`,
+        city: 'İzmir',
+        district: 'Bornova',
+        industry: 'Yapay zeka / Veri',
+        remote_policy: 'remote',
+        custom_fields: {
+          primarySector: 'Yapay zeka / Veri',
+          desiredRole: 'Veri Analisti',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İzmir',
+          preferredDistrict: 'Bornova',
+          workplacePreference: 'Uzaktan',
+          salaryExpectation: '50.000 - 75.000 TL',
+          availability: '1 ay içinde',
+        },
+      },
+      {
+        title: 'İK uzmanı — teknik işe alım ve onboarding',
+        short_description:
+          'Teknik ve non-teknik roller, skor kartı ve 30-60-90 onboarding. Tam zamanlı, Bursa ofis veya hibrit.',
+        long_description: `## Profil
+Uçtan uca hiring ve işveren markası içeriği.
+
+## Aradığım rol
+İK / talent acquisition. ATS disiplini mevcut.
+
+## Tercih
+Bursa ofis veya hibrit.`,
+        city: 'Bursa',
+        district: 'Nilüfer',
+        industry: 'İnsan kaynakları',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          primarySector: 'İnsan kaynakları',
+          desiredRole: 'İnsan Kaynakları Uzmanı',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'Bursa',
+          preferredDistrict: 'Nilüfer',
+          workplacePreference: 'Hibrit',
+          salaryExpectation: '50.000 - 75.000 TL',
+          availability: 'Esnek',
         },
       },
     ],
   },
   {
-    label: 'Ortak Bul',
+    label: 'İşe Alıyorum',
+    typeSlugs: ['ise-aliyorum'],
+    categorySlugs: ['ise-al', 'is'],
+    moduleKey: 'employers',
+    fallbackCategoryId: 'e1000001-0001-4000-8000-000000000002',
+    fallbackTypeId: 'e1000001-0001-4000-8000-000000000004',
+    listings: [
+      {
+        title: 'Kıdemli full-stack geliştirici — Node.js / React',
+        short_description:
+          'Fintech ürün ekibi. 4+ yıl TypeScript. Hibrit İstanbul. Maaş bandı 100.000–150.000 TL.',
+        long_description: `## Rol
+Ödeme paneli ve API geliştirme.
+
+## Aranan
+TypeScript, Node, React, PostgreSQL.
+
+## Teklif
+Hibrit, yemek ve öğrenme bütçesi görüşmede.`,
+        city: 'İstanbul',
+        district: 'Kadıköy',
+        industry: 'Finans / Bankacılık',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          primarySector: 'Finans / Bankacılık',
+          desiredRole: 'Yazılım Geliştirici',
+          experienceLevel: 'Senior',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İstanbul',
+          preferredDistrict: 'Kadıköy',
+          workplacePreference: 'Hibrit',
+          salaryRange: '100.000 - 150.000 TL',
+          availability: '1 ay içinde',
+        },
+      },
+      {
+        title: 'Ürün yöneticisi — B2B SaaS',
+        short_description:
+          'Roadmap, discovery ve metrik sahipliği. 3+ yıl PM. Uzaktan, ayda 2 gün Ankara.',
+        long_description: `## Sorumluluk
+Quarterly roadmap, kullanıcı araştırması, sprint önceliği.
+
+## Aranan
+B2B SaaS PM, SQL temel, net iletişim.
+
+## Çalışma
+Uzaktan öncelikli.`,
+        city: 'Ankara',
+        district: 'Çankaya',
+        industry: 'Bilişim / Yazılım',
+        remote_policy: 'remote',
+        custom_fields: {
+          primarySector: 'Bilişim / Yazılım',
+          desiredRole: 'Ürün Yöneticisi',
+          experienceLevel: 'Senior',
+          workType: 'Tam zamanlı',
+          preferredCity: 'Ankara',
+          preferredDistrict: 'Çankaya',
+          workplacePreference: 'Uzaktan',
+          salaryRange: '75.000 - 100.000 TL',
+          availability: '2 hafta içinde',
+        },
+      },
+      {
+        title: 'Kurumsal satış temsilcisi — saha',
+        short_description:
+          'Lojistik yazılımı B2B satış. Primli model. 2+ yıl saha satış. İzmir ofis / saha.',
+        long_description: `## Hedef
+Yeni müşteri ve mevcut hesap büyütme.
+
+## Aranan
+B2B satış, CRM disiplini, ehliyet.
+
+## Ücret
+Sabit + prim.`,
+        city: 'İzmir',
+        district: 'Bornova',
+        industry: 'Lojistik / Depolama',
+        remote_policy: 'onsite',
+        custom_fields: {
+          primarySector: 'Lojistik / Depolama',
+          desiredRole: 'Satış Temsilcisi',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İzmir',
+          preferredDistrict: 'Bornova',
+          workplacePreference: 'Saha',
+          salaryRange: '35.000 - 50.000 TL',
+          availability: 'Hemen',
+        },
+      },
+      {
+        title: 'Veri analisti — e-ticaret metrikleri',
+        short_description:
+          'Pazaryeri ve D2C analiz. SQL zorunlu. Hibrit İstanbul. 2–4 yıl deneyim.',
+        long_description: `## İş
+Cohort, birim ekonomi, kampanya analizi.
+
+## Stack
+SQL, dashboard; Python artı.
+
+## Ortam
+Haftada 2 gün ofis.`,
+        city: 'İstanbul',
+        district: 'Şişli',
+        industry: 'E-ticaret / Pazaryeri',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          primarySector: 'E-ticaret / Pazaryeri',
+          desiredRole: 'Veri Analisti',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'İstanbul',
+          preferredDistrict: 'Şişli',
+          workplacePreference: 'Hibrit',
+          salaryRange: '50.000 - 75.000 TL',
+          availability: '1 ay içinde',
+        },
+      },
+      {
+        title: 'Müşteri başarı uzmanı — SaaS onboarding',
+        short_description:
+          'Kickoff, QBR ve yenileme. 2–4 yıl CSM veya hesap yönetimi. Antalya hibrit.',
+        long_description: `## Görev
+Onboarding, churn önleme, memnuniyet.
+
+## KPI
+Yenileme, churn, CSAT.
+
+## Çalışma
+Hibrit, TR saatleri.`,
+        city: 'Antalya',
+        district: 'Konyaaltı',
+        industry: 'Bilişim / Yazılım',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          primarySector: 'Bilişim / Yazılım',
+          desiredRole: 'Müşteri Başarı Uzmanı',
+          experienceLevel: 'Mid',
+          workType: 'Tam zamanlı',
+          preferredCity: 'Antalya',
+          preferredDistrict: 'Konyaaltı',
+          workplacePreference: 'Hibrit',
+          salaryRange: '25.000 - 50.000 TL',
+          availability: 'Esnek',
+        },
+      },
+    ],
+  },
+  {
+    label: 'Ortak Arıyorum',
     typeSlugs: ['ortak-ariyorum'],
     categorySlugs: ['ortak-bul', 'ortaklik'],
     moduleKey: 'founders',
@@ -233,47 +404,48 @@ Donanım ölçekleme, Almanya partner, veri platformu.
       {
         title: 'B2B SaaS için teknik kurucu ortak (CTO) arıyorum',
         short_description:
-          'Satış tarafı hazır, ilk 11 müşteri kapandı. Ürün ve mimari sahipliği için tam zamanlı teknik ortak.',
+          'İlk müşteriler kapandı. Mimari ve ürün sahipliği için tam zamanlı teknik ortak. Hisse görüşmeye açık.',
         long_description: `## Durum
-MVP canlı, 11 ödeme yapan müşteri. Ben satış/operasyondayım.
+MVP canlı, ödeme yapan müşteri var. Satış tarafı bende.
 
-## Aradığım ortak
-Backend + cloud mimari deneyimi, equity odaklı.
+## Aranan ortak
+Backend + cloud, equity odaklı.
 
 ## Teklif
-%20–25 hisse + kurucu unvanı. İstanbul hibrit.`,
+Kurucu unvanı, İstanbul hibrit.`,
         city: 'İstanbul',
         district: 'Beşiktaş',
-        industry: 'SaaS',
+        industry: 'SaaS / Yazılım',
         remote_policy: 'hybrid',
         custom_fields: {
-          partnerType: 'Kurucu Ortak',
+          partnershipIntent: 'seeking',
+          sector: 'SaaS / Yazılım',
+          projectStage: 'İlk müşteriler',
+          partnershipType: 'Kurucu Ortak',
           expertise: ['CTO / Teknik liderlik', 'Yazılım geliştirme'],
-          stage: 'İlk müşteriler',
           equityOffered: 22,
           commitment: 'Tam zamanlı',
         },
       },
       {
-        title: 'E-ticaret markasına operasyon / COO ortağı',
+        title: 'E-ticaret operasyonu için COO ortağı arıyorum',
         short_description:
-          'Aylık 1.4M ciro. Depo, iade ve kanal yönetimi için operasyon ortağı arıyorum.',
-        long_description: `## İş
-D2C + pazaryeri. 4 kişi ekip.
-
-## İhtiyaç
+          'Sipariş hacmi arttı. Depo, iade ve kanal yönetimi için tam zamanlı operasyon ortağı.',
+        long_description: `## İhtiyaç
 Stok, fulfillment, birim ekonomi.
 
 ## Ortaklık
-%15 hisse + kâr paylaşımı. Bursa ofis.`,
+Hisse + operasyon sahipliği. Bursa ofis.`,
         city: 'Bursa',
         district: 'Osmangazi',
         industry: 'E-ticaret',
         remote_policy: 'onsite',
         custom_fields: {
-          partnerType: 'İş Ortağı',
+          partnershipIntent: 'seeking',
+          sector: 'E-ticaret',
+          projectStage: 'Gelir elde ediliyor',
+          partnershipType: 'İş Ortağı',
           expertise: ['COO / Operasyon', 'Satış'],
-          stage: 'Gelir elde ediliyor',
           equityOffered: 15,
           commitment: 'Tam zamanlı',
         },
@@ -286,68 +458,218 @@ Stok, fulfillment, birim ekonomi.
 Hasta takip paneli MVP.
 
 ## Ortak profili
-UX + ürün yönetimi, sağlık domain bilgisi artı.
+UX + ürün yönetimi.
 
-## Hisse
-%18–25. Ankara / remote.`,
+## Çalışma
+Ankara veya uzaktan.`,
         city: 'Ankara',
         district: 'Çankaya',
         industry: 'Sağlık teknolojisi',
         remote_policy: 'remote',
         custom_fields: {
-          partnerType: 'Kurucu Ortak',
+          partnershipIntent: 'seeking',
+          sector: 'Sağlık teknolojisi',
+          projectStage: 'MVP aşaması',
+          partnershipType: 'Kurucu Ortak',
           expertise: ['Ürün yönetimi', 'Tasarım / UX'],
-          stage: 'MVP aşaması',
           equityOffered: 20,
           commitment: 'Tam zamanlı',
         },
       },
       {
-        title: 'Franchise zincirine satış ve iş geliştirme ortağı',
+        title: 'Yerel büyüme için iş geliştirme ortağı',
         short_description:
-          '12 şubelik yerel marka. Yeni şehir açılışları için satış ortağı / franchise geliştirme.',
-        long_description: `## Marka
-Kahve + atıştırmalık. 12 şube.
-
-## Rol
-Aday bayilik görüşmeleri, lokasyon, sözleşme.
+          'Ürün çalışıyor. Ankara/İzmir açılışı için yerel network ve satış kapasitesi arıyorum.',
+        long_description: `## Neden ortak?
+Talep üretimi ve yerel hesap yönetimi.
 
 ## Model
-%10 hisse + performans primi.`,
+Yarı zamanlı başlayıp tam zamana geçilebilir.`,
         city: 'Antalya',
         district: 'Muratpaşa',
-        industry: 'Perakende',
+        industry: 'Marketplace',
         remote_policy: 'hybrid',
         custom_fields: {
-          partnerType: 'İş Ortağı',
+          partnershipIntent: 'seeking',
+          sector: 'Marketplace',
+          projectStage: 'Büyüme aşaması',
+          partnershipType: 'İş Ortağı',
           expertise: ['İş geliştirme', 'Satış'],
-          stage: 'Büyüme aşaması',
           equityOffered: 10,
-          commitment: 'Tam zamanlı',
+          commitment: 'Yarı zamanlı',
         },
       },
       {
-        title: 'AI ajan ürününe growth / pazarlama ortağı',
+        title: 'Yapay zeka ürününe growth / pazarlama ortağı',
         short_description:
-          'Ürün canlı, PLG funnel zayıf. İçerik + performans pazarlaması ile büyütmek için ortak.',
-        long_description: `## Metrik
-1.8K MAU, %4 freemium→paid.
-
-## Aranan
-Growth marketing, SEO/content, paid social.
+          'Ürün canlı, PLG funnel zayıf. İçerik ve performans pazarlaması ile büyüme ortağı arıyorum.',
+        long_description: `## Aranan
+Growth marketing, SEO, paid social.
 
 ## Teklif
-%12 hisse + danışmanlık opsiyonu. Remote.`,
+Hisse + danışmanlık opsiyonu. Remote.`,
         city: 'İstanbul',
         district: 'Ataşehir',
         industry: 'Yapay zeka',
         remote_policy: 'remote',
         custom_fields: {
-          partnerType: 'Danışman',
-          expertise: ['Pazarlama', 'İş geliştirme'],
-          stage: 'İlk müşteriler',
+          partnershipIntent: 'seeking',
+          sector: 'Yapay zeka',
+          projectStage: 'İlk müşteriler',
+          partnershipType: 'Danışman',
+          expertise: ['Büyüme pazarlaması', 'İş geliştirme'],
           equityOffered: 12,
           commitment: 'Yarı zamanlı',
+        },
+      },
+    ],
+  },
+  {
+    label: 'Ortak Olmak İstiyorum',
+    typeSlugs: ['ortak-ariyorum'],
+    categorySlugs: ['ortak-bul', 'ortaklik'],
+    moduleKey: 'founders',
+    fallbackCategoryId: 'e1000001-0001-4000-8000-000000000003',
+    fallbackTypeId: 'e1000001-0001-4000-8000-000000000005',
+    listings: [
+      {
+        title: 'Teknik kurucu / CTO olarak girişimlere katılıyorum',
+        short_description:
+          '10+ yıl yazılım. Mimari, ekip kurma ve MVP. SaaS ve fintech. Tam zamanlı, hisse beklentisi net.',
+        long_description: `## Sunduğum
+Teknik liderlik, sprint ritmi, cloud maliyet disiplini.
+
+## İlgilendiğim
+MVP veya ilk müşteri aşaması, B2B ürünler.
+
+## Çalışma
+İstanbul hibrit veya uzaktan.`,
+        city: 'İstanbul',
+        district: 'Beşiktaş',
+        industry: 'SaaS / Yazılım',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          partnershipIntent: 'joining',
+          expertise: ['CTO / Teknik liderlik', 'Yazılım geliştirme'],
+          offeredSkills: ['CTO / Teknik liderlik', 'Yazılım geliştirme', 'Yapay zeka / ML'],
+          sectors: ['SaaS / Yazılım', 'Fintech', 'Yapay zeka'],
+          partnershipType: 'Kurucu Ortak',
+          projectStage: 'MVP aşaması',
+          commitment: 'Tam zamanlı',
+          experience: '10+ yıl',
+          equityOffered: 20,
+        },
+      },
+      {
+        title: 'Operasyon ve finans disiplini ile ortak olmak istiyorum',
+        short_description:
+          'COO/CFO profili. Nakit, süreç ve saha operasyonu. Gelir üreten ekiplere tam zamanlı katılım.',
+        long_description: `## Sunduğum
+Birim ekonomi, tedarik, raporlama.
+
+## İlgilendiğim
+E-ticaret, lojistik, hizmet operasyonu.
+
+## Lokasyon
+Bursa / İstanbul, ofis ağırlıklı.`,
+        city: 'Bursa',
+        district: 'Nilüfer',
+        industry: 'E-ticaret',
+        remote_policy: 'onsite',
+        custom_fields: {
+          partnershipIntent: 'joining',
+          expertise: ['COO / Operasyon', 'CFO / Finans'],
+          offeredSkills: ['COO / Operasyon', 'CFO / Finans'],
+          sectors: ['E-ticaret', 'Lojistik', 'Gıda teknolojisi'],
+          partnershipType: 'İş Ortağı',
+          projectStage: 'Gelir elde ediliyor',
+          commitment: 'Tam zamanlı',
+          experience: '5-10 yıl',
+          equityOffered: 15,
+        },
+      },
+      {
+        title: 'Ürün ve UX ile erken aşama ekiplere katılıyorum',
+        short_description:
+          'Discovery, prototip ve tasarım sistemi. Healthtech ve SaaS. Tam zamanlı veya yoğun yarı zamanlı.',
+        long_description: `## Sunduğum
+Kullanıcı araştırması, akış, Figma sistemi.
+
+## İlgilendiğim
+MVP ve ilk müşteri aşaması.
+
+## Çalışma
+Ankara veya remote.`,
+        city: 'Ankara',
+        district: 'Çankaya',
+        industry: 'Sağlık teknolojisi',
+        remote_policy: 'remote',
+        custom_fields: {
+          partnershipIntent: 'joining',
+          expertise: ['Ürün yönetimi', 'Tasarım / UX'],
+          offeredSkills: ['Ürün yönetimi', 'Tasarım / UX'],
+          sectors: ['Sağlık teknolojisi', 'SaaS / Yazılım', 'Eğitim teknolojisi'],
+          partnershipType: 'Kurucu Ortak',
+          projectStage: 'MVP aşaması',
+          commitment: 'Tam zamanlı',
+          experience: '5-10 yıl',
+          equityOffered: 18,
+        },
+      },
+      {
+        title: 'B2B satış ve iş geliştirme ortağı olarak katılıyorum',
+        short_description:
+          'Kurumsal pipeline, demo ve kapanış. Marketplace ve SaaS. Tam zamanlı saha + hibrit.',
+        long_description: `## Sunduğum
+Hesap haritası, teklif, partner kanalı.
+
+## İlgilendiğim
+İlk müşteriden büyümeye kadar.
+
+## Bölge
+İzmir ve Ege.`,
+        city: 'İzmir',
+        district: 'Karşıyaka',
+        industry: 'Marketplace',
+        remote_policy: 'hybrid',
+        custom_fields: {
+          partnershipIntent: 'joining',
+          expertise: ['Satış', 'İş geliştirme'],
+          offeredSkills: ['Satış', 'İş geliştirme'],
+          sectors: ['Marketplace', 'SaaS / Yazılım', 'Lojistik'],
+          partnershipType: 'İş Ortağı',
+          projectStage: 'İlk müşteriler',
+          commitment: 'Tam zamanlı',
+          experience: '5-10 yıl',
+          equityOffered: 12,
+        },
+      },
+      {
+        title: 'Growth pazarlama danışmanı olarak hisse karşılığı katkı',
+        short_description:
+          'SEO, içerik, paid social. PLG funnel. Yarı zamanlı / danışmanlık. AI ve edtech.',
+        long_description: `## Sunduğum
+Kanal testi, yaratıcı ritmi, aktivasyon deneyleri.
+
+## İlgilendiğim
+İlk müşteri ve büyüme aşaması.
+
+## Model
+Danışmanlık, remote.`,
+        city: 'İstanbul',
+        district: 'Üsküdar',
+        industry: 'Yapay zeka',
+        remote_policy: 'remote',
+        custom_fields: {
+          partnershipIntent: 'joining',
+          expertise: ['Büyüme pazarlaması', 'CMO / Pazarlama'],
+          offeredSkills: ['Büyüme pazarlaması', 'CMO / Pazarlama'],
+          sectors: ['Yapay zeka', 'Eğitim teknolojisi', 'SaaS / Yazılım'],
+          partnershipType: 'Danışman',
+          projectStage: 'Büyüme aşaması',
+          commitment: 'Danışmanlık',
+          experience: '3-5 yıl',
+          equityOffered: 8,
         },
       },
     ],
@@ -363,277 +685,180 @@ Growth marketing, SEO/content, paid social.
       {
         title: 'Brew&Go kahve zinciri — İstanbul Anadolu yakası bayiliği',
         short_description:
-          'Hızlı servis kahve. 28 şube. Yatırım 1.8–2.4M TL. Eğitim, ekipman ve açılış desteği dahil.',
+          'Hızlı servis kahve. 28 şube. Toplam yatırım tahmini 1.8–2.4M TL. Eğitim ve açılış desteği dahil.',
         long_description: `## Marka
-Brew&Go — ofis ve AVM odaklı.
-
-## Yatırım
-Franchise bedeli + dekor + stok: 1.8–2.4M TL.
+Ofis ve AVM odaklı kahve konsepti.
 
 ## Destek
-2 hafta eğitim, 90 gün saha koçu, merkezi tedarik.`,
+2 hafta eğitim, 90 gün saha koçu, merkezi tedarik.
+
+## Süreç
+Ön görüşme → lokasyon → eğitim → açılış.`,
         city: 'İstanbul',
         district: 'Ataşehir',
-        industry: 'Yiyecek & içecek',
+        industry: 'Gıda & İçecek',
         remote_policy: 'onsite',
         custom_fields: {
-          businessCategory: 'Yeme-İçme',
-          sector: 'Kahve',
-          investmentRange: '1.000.000 - 2.500.000 TL',
+          companyName: 'Brew&Go',
+          establishmentYear: 2014,
+          sector: 'Gıda & İçecek',
+          branchCount: 28,
+          website: 'https://www.brewgo.example',
+          entryFee: 450000,
           franchiseFee: 450000,
-          storeSize: '40-80 m²',
+          totalInvestment: 2100000,
+          businessCategory: 'Cafe & Restoran',
+          storeSize: '50-100 m²',
           returnPeriod: '24-36 ay',
-          setupDuration: '2-3 ay',
-          experienceRequirement: 'Tercihen perakende/yeme-içme',
-          educationRequirement: 'Lise ve üzeri',
+          experienceRequirement: '1-3 yıl işletme deneyimi',
+          educationRequirement: 'Lise mezunu',
           companyEstablishmentRequired: true,
+          trainingSupport: true,
+          operationalSupport: true,
+          marketingSupport: true,
+          workingHours: '08:00 - 22:00',
         },
       },
       {
-        title: 'FitBox spor stüdyosu — Ankara Çankaya master franchise',
+        title: 'FitBox spor stüdyosu — Ankara Çankaya franchise',
         short_description:
-          'Boutique fitness. 14 stüdyo. Açılış paketi 2.2M TL’den. Marka bilinirliği ve dijital üyelik sistemi hazır.',
+          'Boutique fitness. 14 stüdyo. Açılış paketi ekipman ve yazılım dahil. Marka ve üyelik sistemi hazır.',
         long_description: `## Format
 Küçük metrekare, yüksek üyelik dönüşümü.
 
 ## Paket
-Ekipman, yazılım, eğitim, soft opening.
-
-## Aday
-Spor işletme veya satış deneyimi artı.`,
+Ekipman, yazılım, eğitim, soft opening.`,
         city: 'Ankara',
         district: 'Çankaya',
-        industry: 'Spor & sağlıklı yaşam',
+        industry: 'Sağlık & Güzellik',
         remote_policy: 'onsite',
         custom_fields: {
-          businessCategory: 'Hizmet',
-          sector: 'Fitness',
-          investmentRange: '2.500.000 - 5.000.000 TL',
+          companyName: 'FitBox',
+          establishmentYear: 2016,
+          sector: 'Sağlık & Güzellik',
+          branchCount: 14,
+          website: 'https://www.fitbox.example',
+          entryFee: 600000,
           franchiseFee: 600000,
-          storeSize: '120-200 m²',
-          returnPeriod: '30-40 ay',
-          setupDuration: '3-4 ay',
-          experienceRequirement: 'İşletme deneyimi tercih edilir',
-          educationRequirement: 'Önlisans / lisans',
+          totalInvestment: 2800000,
+          businessCategory: 'Hizmet noktası',
+          storeSize: '100-200 m²',
+          returnPeriod: '24-36 ay',
+          experienceRequirement: '3-5 yıl işletme deneyimi',
+          educationRequirement: 'Ön lisans / Lisans',
           companyEstablishmentRequired: true,
+          trainingSupport: true,
+          operationalSupport: true,
+          marketingSupport: true,
+          workingHours: '06:30 - 22:00',
         },
       },
       {
         title: 'PetCare klinik formatı — İzmir bayilik fırsatı',
         short_description:
-          'Veteriner + pet shop hibrit. 9 nokta. Yatırım bandı 3M TL bandı. Merkezi stok ve klinik protokol.',
+          'Veteriner + pet shop hibrit. 9 nokta. Merkezi stok ve klinik protokol. Cadde veya site altı.',
         long_description: `## Model
 Klinik hizmet + perakende.
 
 ## Destek
-Klinik SOP, tedarik, marka reklam fonu.
-
-## Lokasyon
-Ana cadde / site altı 150–250 m².`,
+SOP, tedarik, marka reklam fonu.`,
         city: 'İzmir',
         district: 'Karşıyaka',
         industry: 'Perakende',
         remote_policy: 'onsite',
         custom_fields: {
-          businessCategory: 'Perakende',
-          sector: 'Pet',
-          investmentRange: '2.500.000 - 5.000.000 TL',
+          companyName: 'PetCare',
+          establishmentYear: 2012,
+          sector: 'Perakende',
+          branchCount: 9,
+          website: 'https://www.petcare.example',
+          entryFee: 550000,
           franchiseFee: 550000,
-          storeSize: '150-250 m²',
-          returnPeriod: '36 ay',
-          setupDuration: '4-5 ay',
-          experienceRequirement: 'Yok / eğitim verilir',
-          educationRequirement: 'Lise ve üzeri',
+          totalInvestment: 3200000,
+          businessCategory: 'Perakende mağaza',
+          storeSize: '100-200 m²',
+          returnPeriod: '36+ ay',
+          experienceRequirement: 'Deneyim gerekmez',
+          educationRequirement: 'Lise mezunu',
           companyEstablishmentRequired: true,
+          trainingSupport: true,
+          operationalSupport: true,
+          marketingSupport: true,
+          workingHours: '09:00 - 21:00',
         },
       },
       {
         title: 'QuickWash oto yıkama — Bursa Nilüfer şube hakkı',
         short_description:
-          'Su tasarruflu otomatik yıkama. 6 şube. Yatırım ~1.1M TL. Operasyon basit, vardiya modeli net.',
+          'Su tasarruflu otomatik yıkama. 6 şube. Operasyon basit, vardiya modeli net. Hedef geri dönüş 24–30 ay.',
         long_description: `## Avantaj
 Düşük personel, yüksek tekrar ziyaret.
 
 ## Paket
-Makine, yazılım, saha eğitimi.
-
-## ROI
-Hedef 24–30 ay.`,
+Makine, yazılım, saha eğitimi.`,
         city: 'Bursa',
         district: 'Nilüfer',
-        industry: 'Otomotiv hizmet',
+        industry: 'Otomotiv',
         remote_policy: 'onsite',
         custom_fields: {
-          businessCategory: 'Hizmet',
-          sector: 'Oto yıkama',
-          investmentRange: '1.000.000 - 2.500.000 TL',
+          companyName: 'QuickWash',
+          establishmentYear: 2018,
+          sector: 'Otomotiv',
+          branchCount: 6,
+          website: 'https://www.quickwash.example',
+          entryFee: 280000,
           franchiseFee: 280000,
-          storeSize: '200-400 m²',
-          returnPeriod: '24-30 ay',
-          setupDuration: '2 ay',
-          experienceRequirement: 'Yok',
-          educationRequirement: 'Lise',
+          totalInvestment: 1100000,
+          businessCategory: 'Hizmet noktası',
+          storeSize: '200-500 m²',
+          returnPeriod: '18-24 ay',
+          experienceRequirement: 'Deneyim gerekmez',
+          educationRequirement: 'Eğitim şartı yok',
           companyEstablishmentRequired: true,
+          trainingSupport: true,
+          operationalSupport: true,
+          marketingSupport: true,
+          workingHours: '08:00 - 20:00',
         },
       },
       {
         title: 'EduKids dil okulu — Gaziantep franchise',
         short_description:
-          'Çocuk İngilizce. 11 kampüs. Açılış 1.6–2.0M TL. Müfredat, öğretmen akademisi ve CRM dahil.',
+          'Çocuk İngilizce. 11 kampüs. Müfredat, öğretmen akademisi ve CRM dahil. Eğitim veya satış geçmişi tercih.',
         long_description: `## Segment
 4–12 yaş.
 
 ## Destek
-Müfredat, öğretmen eğitimi, kayıt funnel’ı.
-
-## Aday
-Eğitim veya satış geçmişi tercih.`,
+Müfredat, öğretmen eğitimi, kayıt funnel’ı.`,
         city: 'Gaziantep',
         district: 'Şehitkamil',
         industry: 'Eğitim',
         remote_policy: 'onsite',
         custom_fields: {
-          businessCategory: 'Eğitim',
-          sector: 'Dil okulu',
-          investmentRange: '1.000.000 - 2.500.000 TL',
+          companyName: 'EduKids',
+          establishmentYear: 2010,
+          sector: 'Eğitim',
+          branchCount: 11,
+          website: 'https://www.edukids.example',
+          entryFee: 400000,
           franchiseFee: 400000,
-          storeSize: '180-300 m²',
-          returnPeriod: '30-36 ay',
-          setupDuration: '3 ay',
-          experienceRequirement: 'Eğitim sektörü tercih',
-          educationRequirement: 'Lisans tercih',
+          totalInvestment: 1800000,
+          businessCategory: 'Hizmet noktası',
+          storeSize: '100-200 m²',
+          returnPeriod: '24-36 ay',
+          experienceRequirement: '1-3 yıl işletme deneyimi',
+          educationRequirement: 'Ön lisans / Lisans',
           companyEstablishmentRequired: true,
+          trainingSupport: true,
+          operationalSupport: true,
+          marketingSupport: true,
+          workingHours: '09:00 - 19:00',
         },
       },
     ],
   },
   {
-    label: 'İş İlanları',
-    typeSlugs: ['ise-aliyorum'],
-    categorySlugs: ['ise-al', 'is'],
-    moduleKey: 'employers',
-    fallbackCategoryId: 'e1000001-0001-4000-8000-000000000002',
-    fallbackTypeId: 'e1000001-0001-4000-8000-000000000004',
-    listings: [
-      {
-        title: 'Senior Full-Stack Developer (Node.js / React) — hibrit İstanbul',
-        short_description:
-          'Fintech ürün ekibi. 4+ yıl deneyim. Net 95–120K TL + yan haklar. Hibrit Kadıköy.',
-        long_description: `## Rol
-Ödeme paneli ve API geliştirmesi.
-
-## Aranan
-TypeScript, Node, React, PostgreSQL.
-
-## Paket
-Maaş bandı 95–120K net, yemek, özel sağlık.`,
-        city: 'İstanbul',
-        district: 'Kadıköy',
-        industry: 'Fintech',
-        remote_policy: 'hybrid',
-        custom_fields: {
-          position: 'Full-Stack Developer',
-          experienceLevel: 'Senior (4-6 yıl)',
-          salaryRange: '75.000 - 100.000 TL',
-          workType: 'Hibrit',
-        },
-      },
-      {
-        title: 'Product Manager — B2B SaaS (Ankara / remote)',
-        short_description:
-          'KOBİ SaaS. Roadmap, discovery ve metrik sahipliği. 3+ yıl PM deneyimi.',
-        long_description: `## Sorumluluk
-Quarterly roadmap, kullanıcı araştırması, sprint önceliklendirme.
-
-## Aranan
-B2B SaaS PM, SQL temel, iyi iletişim.
-
-## Çalışma
-Remote-first, ayda 2 gün Ankara.`,
-        city: 'Ankara',
-        district: 'Çankaya',
-        industry: 'SaaS',
-        remote_policy: 'remote',
-        custom_fields: {
-          position: 'Product Manager',
-          experienceLevel: 'Mid-Senior (3-5 yıl)',
-          salaryRange: '60.000 - 85.000 TL',
-          workType: 'Uzaktan',
-        },
-      },
-      {
-        title: 'Satış Temsilcisi — Kurumsal (İzmir)',
-        short_description:
-          'Lojistik yazılımı saha satışı. Primli model. 2+ yıl B2B satış.',
-        long_description: `## Hedef
-Yeni logos + upsell.
-
-## Araçlar
-CRM, demo ortamı, saha kit.
-
-## Ücret
-Sabit + prim; başarılı aylarda 2x sabit mümkün.`,
-        city: 'İzmir',
-        district: 'Bornova',
-        industry: 'Lojistik',
-        remote_policy: 'onsite',
-        custom_fields: {
-          position: 'Satış Temsilcisi',
-          experienceLevel: 'Junior-Mid (1-3 yıl)',
-          salaryRange: '35.000 - 50.000 TL',
-          workType: 'Ofis',
-        },
-      },
-      {
-        title: 'Data Analyst — e-ticaret (İstanbul hibrit)',
-        short_description:
-          'Pazaryeri ve D2C metrikleri. SQL + Looker/Metabase. 2–4 yıl deneyim.',
-        long_description: `## İş
-Cohort, birim ekonomi, kampanya analizi.
-
-## Stack
-BigQuery/SQL, Python bonus.
-
-## Ortam
-Hibrit, 2 gün ofis.`,
-        city: 'İstanbul',
-        district: 'Şişli',
-        industry: 'E-ticaret',
-        remote_policy: 'hybrid',
-        custom_fields: {
-          position: 'Data Analyst',
-          experienceLevel: 'Mid (2-4 yıl)',
-          salaryRange: '45.000 - 65.000 TL',
-          workType: 'Hibrit',
-        },
-      },
-      {
-        title: 'Müşteri Başarı Uzmanı (CSM) — SaaS',
-        short_description:
-          'Onboarding ve churn önleme. 40 hesap portföyü. İyi iletişim, SaaS deneyimi artı.',
-        long_description: `## Görev
-Kickoff, QBR, yenileme.
-
-## KPI
-NRR, churn, CSAT.
-
-## Lokasyon
-Antalya ofis veya remote (TR saatleri).`,
-        city: 'Antalya',
-        district: 'Konyaaltı',
-        industry: 'SaaS',
-        remote_policy: 'hybrid',
-        custom_fields: {
-          position: 'Customer Success',
-          experienceLevel: 'Mid (2-4 yıl)',
-          salaryRange: '40.000 - 55.000 TL',
-          workType: 'Hibrit',
-        },
-      },
-    ],
-  },
-  {
-    label: 'Dijital ve AI Çözümleri',
+    label: 'Dijital & AI Çözümleri',
     typeSlugs: ['dijital-ai-cozum'],
     categorySlugs: ['dijital-ai'],
     moduleKey: null,
@@ -643,36 +868,34 @@ Antalya ofis veya remote (TR saatleri).`,
       {
         title: 'WhatsApp satış asistanı — KOBİ’ler için hazır AI ajan',
         short_description:
-          'Sipariş, SSS ve randevu. 7 günde canlı. Aylık abonelik + kurulum. TR dil modeli ince ayarlı.',
+          'Sipariş, SSS ve randevu. 7 günde canlı. Aylık abonelik + kurulum. Türkçe dil modeli.',
         long_description: `## Çözüm
-Hazır WhatsApp AI ajanı; katalog ve stok bağlantısı.
+Hazır WhatsApp AI ajanı; katalog bağlantısı.
 
 ## Teslim
-Kurulum 7 gün, eğitim 1 oturum.
+Kurulum 7 gün, bir eğitim oturumu.
 
-## Fiyatlandırma
-Kurulum + aylık kullanım. Demo mevcut.`,
+## Model
+Kurulum + aylık kullanım.`,
         city: 'İstanbul',
         district: 'Üsküdar',
         industry: 'Yapay zeka',
         remote_policy: 'remote',
         custom_fields: {
-          solutionType: 'AI Asistan / Chatbot',
-          deliveryModel: 'SaaS abonelik',
+          solutionType: 'Yapay zeka asistanı / ajan',
+          deliveryModel: 'Abonelik (SaaS)',
           targetAudience: 'KOBİ',
-          capabilities: ['Müşteri desteği', 'Satış otomasyonu', 'WhatsApp entegrasyonu'],
-          languages: ['Türkçe'],
+          priceRange: '5.000 - 25.000 TL',
+          capabilities: ['Yapay Zeka Asistanı', 'İş Akışı Otomasyonu'],
+          supportedLanguages: ['Türkçe'],
         },
       },
       {
         title: 'E-ticaret ürün açıklaması ve SEO metin otomasyonu',
         short_description:
-          'Pazaryeri / Shopify için toplu içerik üretimi. Marka tonu profili + kalite kontrol paneli.',
+          'Pazaryeri / mağaza için toplu içerik. Marka tonu profili ve kalite paneli. TR/EN çıktı.',
         long_description: `## Kullanım
-CSV/API ile ürün basma, TR/EN çıktı.
-
-## Sonuç
-İçerik ekibinde %60 süre tasarrufu (pilot).
+CSV/API ile ürün basma.
 
 ## Model
 Kredi paketi veya aylık plan.`,
@@ -681,70 +904,64 @@ Kredi paketi veya aylık plan.`,
         industry: 'E-ticaret',
         remote_policy: 'remote',
         custom_fields: {
-          solutionType: 'İçerik / SEO AI',
-          deliveryModel: 'SaaS abonelik',
-          targetAudience: 'E-ticaret markaları',
-          capabilities: ['İçerik üretimi', 'SEO', 'Toplu işlem'],
-          languages: ['Türkçe', 'İngilizce'],
+          solutionType: 'NLP / metin işleme',
+          deliveryModel: 'Abonelik (SaaS)',
+          targetAudience: 'KOBİ',
+          priceRange: '1.000 - 5.000 TL',
+          capabilities: ['AI Destekli İçerik Üretimi'],
+          supportedLanguages: ['Türkçe', 'İngilizce'],
         },
       },
       {
-        title: 'Çağrı merkezi sesli AI — banka / telecom pilot paketi',
+        title: 'Çağrı merkezi sesli AI — niyet ve özet paketi',
         short_description:
-          'IVR sonrası niyet sınıflandırma ve özet. On-prem veya VPC. KVKK uyumlu mimari.',
+          'IVR sonrası niyet sınıflandırma ve ajan özeti. VPC kurulum. Kurumsal lisans.',
         long_description: `## Kapsam
-Niyet, sentiment, agent assist özeti.
+Niyet, özet, ajan desteği.
 
 ## Kurulum
-8–12 haftalık pilot.
-
-## Uyum
-Log maskeleme, rol bazlı erişim.`,
+8–12 haftalık pilot.`,
         city: 'Ankara',
         district: 'Çankaya',
         industry: 'Yapay zeka',
         remote_policy: 'hybrid',
         custom_fields: {
-          solutionType: 'Sesli AI / Call center',
-          deliveryModel: 'Kurumsal lisans + kurulum',
+          solutionType: 'Chatbot & müşteri desteği',
+          deliveryModel: 'Kurulum + bakım',
           targetAudience: 'Kurumsal',
-          capabilities: ['Ses işleme', 'Agent assist', 'Analitik'],
-          languages: ['Türkçe'],
+          priceRange: '100.000 TL ve üzeri',
+          capabilities: ['Yapay Zeka Asistanı', 'Veri Analitiği & Raporlama'],
+          supportedLanguages: ['Türkçe'],
         },
       },
       {
         title: 'İşe alım CV eleme ve mülakat soru asistanı',
         short_description:
-          'ATS eklentisi. Rol profiline göre skor + soru seti. İnsan onaylı kısa liste.',
-        long_description: `## Entegrasyon
-Greenhouse / özel ATS webhook.
-
-## Değer
-Ön eleme süresini kısaltır, bias kontrol checklist’i var.
+          'Rol profiline göre skor ve soru seti. İnsan onaylı kısa liste. Aylık koltuk modeli.',
+        long_description: `## Değer
+Ön eleme süresini kısaltır.
 
 ## Satış
-HR ekiplerine aylık koltuk.`,
+İK ekiplerine abonelik.`,
         city: 'İzmir',
         district: 'Konak',
         industry: 'İnsan kaynakları',
         remote_policy: 'remote',
         custom_fields: {
-          solutionType: 'İK / İşe alım AI',
-          deliveryModel: 'SaaS abonelik',
-          targetAudience: 'İK ekipleri',
-          capabilities: ['CV analiz', 'Mülakat desteği', 'ATS entegrasyonu'],
-          languages: ['Türkçe', 'İngilizce'],
+          solutionType: 'SaaS ürünü',
+          deliveryModel: 'Abonelik (SaaS)',
+          targetAudience: 'Kurumsal',
+          priceRange: '5.000 - 25.000 TL',
+          capabilities: ['Yapay Zeka Asistanı', 'Entegrasyon & API'],
+          supportedLanguages: ['Türkçe', 'İngilizce'],
         },
       },
       {
         title: 'Üretim hattı görüntü kontrolü — kalite AI kiti',
         short_description:
-          'Kamera + edge model. Çizik/eksik parça tespiti. Fabrika sahasında 4–6 haftada POC.',
+          'Kamera + edge model. Çizik/eksik parça. Fabrika sahasında 4–6 haftada POC.',
         long_description: `## Donanım
-Endüstriyel kamera önerisi + edge box.
-
-## Yazılım
-Dashboard, alarm, vardiya raporu.
+Endüstriyel kamera önerisi + edge kutu.
 
 ## POC
 Tek hat, başarı kriteri birlikte tanımlanır.`,
@@ -753,11 +970,12 @@ Tek hat, başarı kriteri birlikte tanımlanır.`,
         industry: 'Üretim',
         remote_policy: 'onsite',
         custom_fields: {
-          solutionType: 'Görüntü / kalite AI',
-          deliveryModel: 'POC + lisans',
-          targetAudience: 'Üretici firmalar',
-          capabilities: ['Görüntü işleme', 'Kalite kontrol', 'Edge inference'],
-          languages: ['Türkçe'],
+          solutionType: 'Bilgisayarlı görü',
+          deliveryModel: 'Proje bazlı',
+          targetAudience: 'Kurumsal',
+          priceRange: '25.000 - 100.000 TL',
+          capabilities: ['Veri Analitiği & Raporlama', 'İş Akışı Otomasyonu'],
+          supportedLanguages: ['Türkçe'],
         },
       },
     ],
@@ -910,16 +1128,16 @@ async function main() {
         industry: item.industry,
         country: 'TR',
         remote_policy: item.remote_policy,
-        anonymous_mode: false,
+        anonymous_mode: spec.anonymousMode === true,
         ...contacts,
         custom_fields: item.custom_fields,
         view_count: 80 + index * 17,
         interested_count: 3 + (index % 12),
         application_count: 1 + (index % 8),
         is_verified: index % 3 === 0,
-        is_featured: index <= 5,
+        is_featured: true,
         is_urgent: index % 7 === 0,
-        featured_until: index <= 5 ? daysFromNow(30) : null,
+        featured_until: daysFromNow(30),
         urgent_until: index % 7 === 0 ? daysFromNow(7) : null,
         published_at: daysAgo(index % 20),
         expires_at: daysFromNow(60),
@@ -940,13 +1158,25 @@ async function main() {
     }
   }
 
-  const { count } = await supabase
+  const { data: published } = await supabase
     .from('marketplace_listings')
-    .select('id', { count: 'exact', head: true })
+    .select('title, module_key, listing_type_id, custom_fields')
     .eq('status', 'published')
     .is('deleted_at', null);
 
-  console.log('Done. Published listings:', count);
+  const byLabel = {};
+  for (const spec of CARD_SPECS) {
+    byLabel[spec.label] = spec.listings.length;
+  }
+
+  console.log('Done. Published listings:', published?.length ?? 0);
+  console.log('By type:', byLabel);
+  const seekingYatirim = (published ?? []).filter((row) => {
+    const intent = row.custom_fields?.partnershipIntent;
+    const title = String(row.title ?? '').toLocaleLowerCase('tr-TR');
+    return title.includes('yatırım arıyorum') || row.module_key === 'entrepreneurs';
+  });
+  console.log('Investment-seeking leftovers:', seekingYatirim.length);
   for (const r of rows) {
     console.log(' -', r.title);
   }

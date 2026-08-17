@@ -23,6 +23,13 @@ import { loginUrl } from '@/features/authentication/constants/routes';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { CONTACT_REQUEST_CONFIG } from '@/features/contact-requests/config/contact-request.config';
+import {
+  CONTACT_CTA_PRIVACY_SHORT,
+  CONTACT_CTA_SUBMIT_LABEL,
+  isCareerContactCategory,
+  resolveContactCtaLabel,
+  resolveContactStatusLabel,
+} from '@/features/contact-requests/config/contact-cta-copy';
 import type { ContactRequestPublicView } from '@/features/contact-requests/types/contact-request.types';
 import { cn } from '@/lib/utils';
 
@@ -37,29 +44,20 @@ export interface ListingContactCtaProps {
   variant?: CtaVariant;
   /** Presentation-only label for the primary button. Does not change request flow. */
   buttonLabel?: string;
+  /** Listing category intent — used only for CTA label when buttonLabel is omitted. */
+  categoryId?: string;
   className?: string;
   /** Controlled open for mobile bar / shared modal */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-function statusLabel(view: ContactRequestPublicView, identityGated: boolean): string {
-  switch (view.effectiveStatus) {
-    case 'pending':
-      return 'Talebiniz ilan sahibine iletildi. Yanıt bekleniyor.';
-    case 'accepted':
-      return identityGated
-        ? 'İletişim talebi kabul edildi. Ad soyad ve izin verilen iletişim bilgileri size açıldı; mesajlaşabilirsiniz.'
-        : 'Talebiniz kabul edildi. Mesajlaşabilir; telefon ve ad-soyad bilgisi size açıldı.';
-    case 'rejected':
-      return 'Talebiniz reddedildi.';
-    case 'expired':
-      return 'Talebinizin süresi doldu. Yeni talep gönderebilirsiniz.';
-    case 'cancelled':
-      return 'Talebinizi iptal ettiniz. Yeni talep gönderebilirsiniz.';
-    default:
-      return '';
-  }
+function statusLabel(
+  view: ContactRequestPublicView,
+  identityGated: boolean,
+  categoryId?: string | null,
+): string {
+  return resolveContactStatusLabel(view.effectiveStatus, { categoryId, identityGated });
 }
 
 export function ListingContactCta({
@@ -69,6 +67,7 @@ export function ListingContactCta({
   identityGated = false,
   variant = 'card',
   buttonLabel,
+  categoryId,
   className,
   open: controlledOpen,
   onOpenChange,
@@ -84,6 +83,7 @@ export function ListingContactCta({
 
   const open = controlledOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
+  const careerCandidate = identityGated && isCareerContactCategory(categoryId);
 
   const loadMine = useCallback(async () => {
     if (!user || isOwner) {
@@ -155,7 +155,9 @@ export function ListingContactCta({
       setOpen(false);
       setMessage('');
       setAcceptTerms(false);
-      toast.success('İletişim talebiniz gönderildi');
+      toast.success('İletişim talebiniz gönderildi.', {
+        description: 'Karşı taraf talebinizi kabul ettiğinde bağlantı kurabilirsiniz.',
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Talep gönderilemedi');
     } finally {
@@ -187,10 +189,13 @@ export function ListingContactCta({
       <div className="space-y-2 rounded-xl border border-primary/25 bg-primary/[0.04] px-3 py-2.5 dark:border-primary/30">
         {ownerNameLabel ? (
           <p className="text-sm font-medium text-foreground">
-            İlan sahibi: <span className="text-primary">{ownerNameLabel}</span>
+            {careerCandidate ? 'Aday' : 'İlan sahibi'}:{' '}
+            <span className="text-primary">{ownerNameLabel}</span>
           </p>
         ) : (
-          <p className="text-sm text-muted-foreground">İlan sahibi adı henüz eklenmemiş.</p>
+          <p className="text-sm text-muted-foreground">
+            {careerCandidate ? 'Aday adı henüz eklenmemiş.' : 'İlan sahibi adı henüz eklenmemiş.'}
+          </p>
         )}
         <p className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Phone className="h-4 w-4 shrink-0 text-primary" aria-hidden />
@@ -213,14 +218,16 @@ export function ListingContactCta({
       disabled={authLoading || (!!user && mine === undefined)}
     >
       <MessageSquare className="mr-2 h-4 w-4" />
-      {user ? (buttonLabel ?? 'İletişim Talebi Gönder') : 'Giriş yapıp talep gönder'}
+      {user
+        ? (buttonLabel ?? resolveContactCtaLabel(categoryId))
+        : 'Giriş yapıp talep gönder'}
     </Button>
   );
 
   const statusBlock =
     mine && !canCreate ? (
       <div className="space-y-2 text-sm text-muted-foreground">
-        <p>{statusLabel(mine, identityGated)}</p>
+        <p>{statusLabel(mine, identityGated, categoryId)}</p>
         {mine.effectiveStatus === 'accepted' && mine.conversationId ? (
           <Button asChild className="h-10 w-full rounded-2xl" variant={variant === 'compact' ? 'default' : 'secondary'}>
             <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`}>
@@ -261,24 +268,32 @@ export function ListingContactCta({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>İletişim talebi gönder</DialogTitle>
+          <DialogTitle>{buttonLabel ?? resolveContactCtaLabel(categoryId)}</DialogTitle>
           <DialogDescription>
-            {listingTitle
-              ? `“${listingTitle}” ilanı için ilan sahibine talep gönderin.`
-              : 'İlan sahibiyle iletişime geçmek için talep gönderin.'}
+            {careerCandidate
+              ? listingTitle
+                ? `“${listingTitle}” profili için iletişim talebi gönderin.`
+                : 'Adayla iletişime geçmek için talep gönderin.'
+              : listingTitle
+                ? `“${listingTitle}” ilanı için iletişim talebi gönderin.`
+                : 'İlan sahibiyle iletişime geçmek için talep gönderin.'}
+            {' '}
+            {CONTACT_CTA_PRIVACY_SHORT}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-1">
           <div className="space-y-1.5">
             <Label htmlFor="contact-request-message">
-              Mesaj (zorunlu, en az {CONTACT_REQUEST_CONFIG.messageMinLength} karakter)
+              {careerCandidate
+                ? 'Adayla neden iletişime geçmek istediğinizi kısaca belirtin.'
+                : 'Neden iletişime geçmek istediğinizi kısaca belirtin.'}
             </Label>
             <Textarea
               id="contact-request-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={CONTACT_REQUEST_CONFIG.messageMaxLength}
-              placeholder="Kendinizi ve talebinizi en az 30 karakterle kısaca anlatın…"
+              placeholder="Örn. Bu pozisyonla ilgileniyorum. 8 yıllık satış deneyimim bulunuyor."
               rows={4}
               required
             />
@@ -324,7 +339,7 @@ export function ListingContactCta({
             }
           >
             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Gönder
+            {CONTACT_CTA_SUBMIT_LABEL}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -379,8 +394,8 @@ export function ListingContactCta({
       </h3>
       <p className="mt-1.5 text-sm text-muted-foreground">
         {identityGated
-          ? 'Bu profil anonimdir. Kişisel bilgiler adayın onayı olmadan paylaşılmaz.'
-          : 'Telefon ve ad-soyad kamuya kapalıdır. Talep kabul edilirse yalnızca size açılır; mesajlaşma Platform üzerinden başlar.'}
+          ? `${CONTACT_CTA_PRIVACY_SHORT} Bu profil anonimdir. Talep kabul edilirse bağlantı açılır.`
+          : `${CONTACT_CTA_PRIVACY_SHORT} Talep kabul edilirse mesajlaşma platform üzerinden başlar.`}
       </p>
       <div className="mt-3">
         {canCreate || !user ? primaryButton : statusBlock}

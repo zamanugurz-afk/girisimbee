@@ -43,7 +43,7 @@ const TAB_EMPTY_COPY: Record<
     title: 'Henüz favori listeniz boş.',
     description:
       'İlgilendiğiniz girişim ilanlarını favorilerinize ekleyerek daha sonra kolayca ulaşabilirsiniz.',
-    ctaHref: '/invest',
+    ctaHref: '/girisim-ortaklik',
     ctaLabel: 'Girişimleri keşfet',
   },
   sirketler: {

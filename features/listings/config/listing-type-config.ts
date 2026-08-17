@@ -944,7 +944,7 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
     { key: 'streetStoreAvailable', label: 'Cadde Mağazası Açılabilir', type: 'boolean' },
     {
       key: 'businessCategory',
-      label: 'İş Kategorisi',
+      label: 'Franchise modeli',
       type: 'enum',
       required: true,
       options: [...FRANCHISE_BUSINESS_CATEGORY_OPTIONS],
@@ -974,7 +974,7 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
-/** Ortak Arıyorum — ortaklık ilanı */
+/** Ortak Arıyorum / Ortak Olmak — shared schema; form steps pick the intent subset. */
 export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -997,6 +997,36 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'multi-enum',
       required: true,
       options: [...PARTNER_EXPERTISE_OPTIONS],
+    },
+    {
+      key: 'projectStage',
+      label: 'Girişim / proje aşaması',
+      type: 'enum',
+      options: [...STARTUP_STAGES],
+    },
+    {
+      key: 'sector',
+      label: 'Sektör',
+      type: 'enum',
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+    {
+      key: 'sectors',
+      label: 'Sektörler',
+      type: 'multi-enum',
+      options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+    {
+      key: 'offeredSkills',
+      label: 'Sunduğu yetkinlikler',
+      type: 'multi-enum',
+      options: [...PARTNER_EXPERTISE_OPTIONS],
+    },
+    {
+      key: 'experience',
+      label: 'Deneyim',
+      type: 'string',
+      max: 80,
     },
   ],
 };
@@ -1183,6 +1213,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
  * Restore by removing the id from this list (+ uncomment PICKER_ORDER entry).
  */
 export const CREATE_LISTING_DEFERRED_CATEGORY_IDS: readonly CategoryId[] = [
+  CATEGORY_IDS.yatirimBul,
   CATEGORY_IDS.yatirimYap,
   CATEGORY_IDS.genelIlan,
 ];

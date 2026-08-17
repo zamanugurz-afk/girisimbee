@@ -12,6 +12,8 @@ import type { ListingId, UserId, CompanyId } from '@/lib/domain/ids';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
 import {
   expandListingTypeIdFilter,
+  isInvestmentSeekingBrowseSlug,
+  isUserDiscoverableListing,
   MARKETPLACE_LISTING_TYPE_IDS,
   resolveListingTypeIdsFromBrowseSlug,
 } from '@/features/listings/config/marketplace-category-map';
@@ -20,6 +22,7 @@ import {
   BROWSE_FAVORITE_SORT_CAP,
   BROWSE_PAGE_SIZE,
 } from '@/features/listings/config/marketplace.config';
+import { resolvePartnershipIntent } from '@/features/founders/partnership-intent';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import { loadListingCoverUrlsByIds } from '@/features/listings/utils/load-listing-cover-urls';
 import { sortListings } from '@/features/listings/utils/listing-sort';
@@ -68,7 +71,14 @@ export class ListingBrowseService {
 
   async countPublished(params: MarketplaceBrowseParams = {}): Promise<number> {
     const filter = this.buildFilter(params);
-    return this.listingRepo.count({ ...filter, status: 'published' });
+    const partnershipIntent =
+      params.partnershipIntent
+      ?? (params.categorySlug === 'ortak-bul' ? 'seeking' : undefined);
+    if (!partnershipIntent) {
+      return this.listingRepo.count({ ...filter, status: 'published' });
+    }
+    const { listings } = await this.fetchPublishedUpToCap(filter, BROWSE_FAVORITE_SORT_CAP);
+    return listings.filter((listing) => resolvePartnershipIntent(listing) === partnershipIntent).length;
   }
 
   async browse(params: MarketplaceBrowseParams = {}): Promise<PaginatedResult<ContentItem>> {
@@ -84,39 +94,60 @@ export class ListingBrowseService {
     }
 
     const filter = this.buildFilter(params);
+    const partnershipIntent =
+      params.partnershipIntent
+      ?? (params.categorySlug === 'ortak-bul' ? 'seeking' : undefined);
 
-    let result =
-      (params.sortBy ?? filter.sortBy) === 'most_favorited'
-        ? await this.browseMostFavorited(filter, page, limit)
-        : await this.listingRepo.findPublished(filter, { page, limit });
+    let result: PaginatedResult<Listing>;
+    if ((params.sortBy ?? filter.sortBy) === 'most_favorited') {
+      const sorted = await this.resolveMostFavoritedSortedListings(filter);
+      const scoped = partnershipIntent
+        ? sorted.filter((listing) => resolvePartnershipIntent(listing) === partnershipIntent)
+        : sorted;
+      const start = (page - 1) * limit;
+      result = {
+        data: scoped.slice(start, start + limit),
+        total: scoped.length,
+        page,
+        limit,
+        hasMore: start + limit < scoped.length,
+      };
+    } else if (partnershipIntent) {
+      result = await this.browsePartnershipIntent(filter, partnershipIntent, page, limit);
+    } else {
+      result = await this.listingRepo.findPublished(filter, { page, limit });
+    }
+
+    const pageListings = isInvestmentSeekingBrowseSlug(params.categorySlug)
+      ? []
+      : result.data.filter(isUserDiscoverableListing);
 
     const [trustByListingId, coverByListingId] = await Promise.all([
-      this.buildTrustMap(result.data),
-      this.buildCoverMap(result.data),
+      this.buildTrustMap(pageListings),
+      this.buildCoverMap(pageListings),
     ]);
 
     return {
       ...result,
-      data: listingsToContentItems(result.data, trustByListingId, coverByListingId),
+      data: listingsToContentItems(pageListings, trustByListingId, coverByListingId),
     };
   }
 
-  private async browseMostFavorited(
+  private async browsePartnershipIntent(
     filter: ListingFilter,
+    intent: 'seeking' | 'joining',
     page: number,
     limit: number,
   ): Promise<PaginatedResult<Listing>> {
-    const sorted = await this.resolveMostFavoritedSortedListings(filter);
-    const total = sorted.length;
+    const { listings } = await this.fetchPublishedUpToCap(filter, BROWSE_FAVORITE_SORT_CAP);
+    const filtered = listings.filter((listing) => resolvePartnershipIntent(listing) === intent);
     const start = (page - 1) * limit;
-    const data = sorted.slice(start, start + limit);
-
     return {
-      data,
-      total,
+      data: filtered.slice(start, start + limit),
+      total: filtered.length,
       page,
       limit,
-      hasMore: start + limit < total,
+      hasMore: start + limit < filtered.length,
     };
   }
 

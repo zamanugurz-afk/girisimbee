@@ -96,6 +96,7 @@ export function ListingSidebar({ listing }: ListingSidebarProps) {
           listingId={listing.listingId}
           listingTitle={listing.title}
           isOwner={isOwner}
+          categoryId={listing.category.id}
           identityGated={identityRedacted || listing.category.id === 'find-job'}
         />
       ) : null}

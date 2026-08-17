@@ -90,7 +90,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
       const res = await fetch(`/api/contact-requests/${id}/reject`, { method: 'POST' });
       const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(json.error ?? 'Reddedilemedi');
-      toast.message('Talep reddedildi');
+      toast.message('İletişim talebi reddedildi.');
       await load();
       window.dispatchEvent(new Event('girisimbee:contact-requests-changed'));
     } catch (error) {
@@ -118,7 +118,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
       };
       if (!res.ok) throw new Error(json.error ?? 'Kabul edilemedi');
       const conversationId = json.data?.request?.conversationId;
-      toast.success('Talep kabul edildi. Mesajlaşma açıldı.');
+      toast.success('İletişim talebi kabul edildi.');
       setAcceptTarget(null);
       setAcceptTerms(false);
       await load();

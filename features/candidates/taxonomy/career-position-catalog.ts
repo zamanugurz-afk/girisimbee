@@ -1298,10 +1298,16 @@ export function resolveRoleFamily(role: string | null | undefined): RoleFamily |
   return inferFamily(trimmed);
 }
 
+const TITLES_BY_FAMILY = new Map<RoleFamily, string[]>();
+
 export function titlesForFamily(family: RoleFamily): string[] {
-  return Object.entries(ROLE_FAMILY)
+  const cached = TITLES_BY_FAMILY.get(family);
+  if (cached) return cached;
+  const titles = Object.entries(ROLE_FAMILY)
     .filter(([, value]) => value === family)
     .map(([title]) => title);
+  TITLES_BY_FAMILY.set(family, titles);
+  return titles;
 }
 
 export function resolvePositionBundle(role: string | null | undefined): PositionBundle | undefined {

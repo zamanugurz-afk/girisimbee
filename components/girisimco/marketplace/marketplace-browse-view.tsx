@@ -19,9 +19,15 @@ interface MarketplaceBrowsePageProps {
   initialFilters?: Partial<MarketplaceFilterState>;
   title?: string;
   description?: string;
+  eyebrow?: string;
   accent?: string;
   hideCategoryFilter?: boolean;
   showJobFlowFilters?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyCta?: { label: string; href: string };
+  relatedCategorySlugs?: string[];
+  resultNoun?: string;
 }
 
 export function MarketplaceBrowseView({
@@ -30,9 +36,15 @@ export function MarketplaceBrowseView({
   initialFilters,
   title,
   description,
+  eyebrow,
   accent,
   hideCategoryFilter,
   showJobFlowFilters = false,
+  emptyTitle,
+  emptyDescription,
+  emptyCta,
+  relatedCategorySlugs,
+  resultNoun = 'ilan',
 }: MarketplaceBrowsePageProps) {
   const categoryMeta = categorySlug ? resolveCategorySlug(categorySlug) : null;
   const headerAccent = accent ?? categoryMeta?.accent;
@@ -60,24 +72,50 @@ export function MarketplaceBrowseView({
       : filters.jobFlow === 'hire'
         ? JOB_HIRE_CARD_COLOR
         : headerAccent;
+  const hasExtraFilters = Boolean(
+    filters.query
+    || filters.city
+    || filters.isFeatured
+    || filters.isUrgent
+    || filters.publishedAfter,
+  );
+  const relatedCategories = (relatedCategorySlugs ?? ['ortak-bul', 'bayilik-al', 'ise-al', 'dijital-ai'])
+    .filter((slug) => slug !== categorySlug)
+    .map((slug) => ({ slug, meta: resolveCategorySlug(slug) }))
+    .filter((item): item is { slug: string; meta: NonNullable<typeof item.meta> } => Boolean(item.meta));
+
+  const isCareerCategory = categorySlug === 'ise-al' || categorySlug === 'is-ariyorum';
+  const resolvedAuraColor = isCareerCategory
+    ? filters.jobFlow === 'seek'
+      ? '#0EA5E9'
+      : '#10B981'
+    : (headerAccent ?? '#3B82F6');
 
   return (
-    <div className="gc-header-offset bg-[#FAFBFC] dark:bg-background">
-      <div className="relative border-b border-[#EEF0F4] bg-white dark:border-border dark:bg-background">
+    <div className="gc-header-offset bg-background">
+      <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
+        <div
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full blur-[120px] opacity-[0.035] dark:opacity-[0.05]"
+          style={{ backgroundColor: resolvedAuraColor }}
+        />
         <div className="relative mx-auto max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
-          {categoryMeta && (
-            <p
-              className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-              style={{ color: headerAccent }}
+          {(eyebrow ?? categoryMeta) && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+              style={{
+                color: resolvedAuraColor,
+                backgroundColor: `${resolvedAuraColor}10`,
+                border: `1px solid ${resolvedAuraColor}25`,
+              }}
             >
-              {categoryMeta.label}
-            </p>
+              {eyebrow ?? categoryMeta?.label}
+            </span>
           )}
-          <h1 className="mt-1.5 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+          <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
             {title ?? categoryMeta?.label ?? (initialQuery ? `"${initialQuery}" araması` : 'İlanları Keşfet')}
           </h1>
           {(description ?? categoryMeta?.description) && (
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               {description ?? categoryMeta?.description}
             </p>
           )}
@@ -98,7 +136,7 @@ export function MarketplaceBrowseView({
 
         {!isLoading && !error && (
           <p className="mb-4 text-[12px] tabular-nums text-[#64748B]">
-            {total.toLocaleString('tr-TR')} ilan
+            {total.toLocaleString('tr-TR')} {resultNoun}
           </p>
         )}
 
@@ -119,38 +157,46 @@ export function MarketplaceBrowseView({
           isLoadingMore={isLoadingMore}
           onLoadMore={loadMore}
           emptyMessage={
-            filters.query ||
-            filters.categorySlug ||
-            filters.city ||
-            filters.jobFlow ||
-            filters.isFeatured ||
-            filters.isUrgent ||
-            filters.publishedAfter
-              ? 'Bu filtrelere uygun ilan bulunmuyor.'
-              : undefined
+            emptyTitle
+              ? (
+                filters.query
+                || filters.city
+                || filters.isFeatured
+                || filters.isUrgent
+                || filters.publishedAfter
+                  ? 'Bu filtrelere uygun sonuç bulunmuyor.'
+                  : emptyTitle
+              )
+              : (
+                filters.query
+                || filters.categorySlug
+                || filters.city
+                || filters.jobFlow
+                || filters.isFeatured
+                || filters.isUrgent
+                || filters.publishedAfter
+                  ? 'Bu filtrelere uygun ilan bulunmuyor.'
+                  : undefined
+              )
           }
+          emptyDescription={emptyTitle && !hasExtraFilters ? emptyDescription : undefined}
+          emptyCta={emptyTitle && !hasExtraFilters ? emptyCta : undefined}
         />
 
-        {categorySlug && (
+        {categorySlug && relatedCategories.length > 0 ? (
           <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-[#EEF0F4] pt-8 dark:border-border">
             <span className="text-[12px] text-[#64748B]">Diğer kategoriler:</span>
-            {['yatirim-bul', 'ortak-bul', 'bayilik-al', 'ise-al', 'dijital-ai']
-              .filter((s) => s !== categorySlug)
-              .map((slug) => {
-                const meta = resolveCategorySlug(slug);
-                if (!meta) return null;
-                return (
-                  <Link
-                    key={slug}
-                    href={getCategoryRoutePath(slug)}
-                    className="rounded-md border border-[#E6E8EE] bg-white px-2.5 py-1 text-[12px] font-medium text-[#475569] transition-colors hover:border-[#C7CBD6] hover:text-[#0B1220] dark:border-border dark:bg-card"
-                  >
-                    {meta.label}
-                  </Link>
-                );
-              })}
+            {relatedCategories.map(({ slug, meta }) => (
+              <Link
+                key={slug}
+                href={getCategoryRoutePath(slug)}
+                className="rounded-md border border-[#E6E8EE] bg-white px-2.5 py-1 text-[12px] font-medium text-[#475569] transition-colors hover:border-[#C7CBD6] hover:text-[#0B1220] dark:border-border dark:bg-card"
+              >
+                {meta.label}
+              </Link>
+            ))}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     title: q ? `"${q}" Arama Sonuçları — Girisimbee` : 'İlan Ara — Girisimbee',
     description: q
       ? `${q} için Girisimbee marketplace arama sonuçları.`
-      : 'Girişim, yatırım, kariyer ve ortaklık ilanlarında arama yapın.',
+      : 'Kariyer, ortaklık ve fırsat ilanlarında arama yapın.',
   };
 }
 
@@ -23,7 +23,7 @@ export default function SearchPage({ searchParams }: PageProps) {
       key={query ?? 'all'}
       initialQuery={query}
       title={query ? `"${query}" araması` : 'İlan Ara'}
-      description="Yatırım, kariyer ve ortaklık fırsatlarında arama yapın."
+      description="Kariyer, ortaklık ve fırsat ilanlarında arama yapın."
     />
   );
 }

@@ -3,6 +3,7 @@ import { getServerSession } from '@/features/authentication/lib/get-session';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 import { AccountDashboard } from '@/features/account/components/AccountDashboard';
 import { loadAccountHubPage } from '@/features/account/lib/load-account-hub-page';
+import { loadCareerProfilePage } from '@/features/career-profile/load-career-profile-page';
 import { DashboardPageHeader } from '@/features/dashboard/panel';
 
 export const metadata = {
@@ -15,7 +16,10 @@ export default async function DashboardOverviewPage() {
     redirect(AUTH_ROUTES.login);
   }
 
-  const { view, stats } = await loadAccountHubPage(user);
+  const [{ view, stats }, careerProfile] = await Promise.all([
+    loadAccountHubPage(user),
+    loadCareerProfilePage(user.id),
+  ]);
 
   return (
     <>
@@ -24,7 +28,7 @@ export default async function DashboardOverviewPage() {
         description="Hesap bilgilerinizi yönetin, ilanlarınızı takip edin ve doğrulama işlemlerinizi tamamlayın."
       />
       <div className="px-5 py-8 sm:px-8">
-        <AccountDashboard view={view} stats={stats} />
+        <AccountDashboard view={view} stats={stats} careerProfile={careerProfile} />
       </div>
     </>
   );

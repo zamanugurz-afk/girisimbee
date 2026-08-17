@@ -4,10 +4,11 @@ import { isSiteIpAllowlistEnabled } from '@/lib/site-ip-allowlist';
  * Public site visibility gate.
  *
  * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
- * NEXT_PUBLIC_SITE_MODE=live        → full site
+ * NEXT_PUBLIC_SITE_MODE=live        → full site for everyone
  *
- * When an IP allowlist is active (env and/or built-in preview IPs), production
- * is live for those clients; others are rewritten to /bakim in middleware.
+ * Do NOT set live until the owner explicitly asks to open publicly.
+ * An IP allowlist keeps production usable for this machine only; everyone
+ * else is rewritten to /bakim in middleware.
  *
  * When unset: development → live; production → maintenance until launch.
  */
@@ -28,43 +29,15 @@ export function isMaintenanceMode(): boolean {
   return resolveSiteMode() === 'maintenance';
 }
 
-/** Paths that must stay reachable while the public site is gated. */
+/** Paths anonymous visitors may hit while the public site is gated. */
 export function isMaintenanceBypassPath(pathname: string): boolean {
   if (pathname === '/bakim') return true;
-
-  if (pathname.startsWith('/api/')) return true;
-
   if (pathname.startsWith('/_next/')) return true;
+  if (pathname.startsWith('/brand/')) return true;
+  if (pathname.startsWith('/images/')) return true;
+  if (pathname.startsWith('/fonts/')) return true;
 
-  // Auth round-trips + login / account surfaces (needed while public site is gated)
-  if (
-    pathname === '/auth/callback'
-    || pathname === '/auth/pkce'
-    || pathname === '/auth/recovery-continue'
-    || pathname === '/auth/verify-success'
-    || pathname === '/auth/verify-error'
-    || pathname === '/auth/signout'
-    || pathname === '/auth/yasal-onay'
-    || pathname === '/iletisim-talepleri'
-    || pathname === '/mesajlarim'
-    || pathname === '/auth/google-setup'
-    || pathname === '/giris'
-    || pathname === '/kayit'
-    || pathname === '/sifremi-unuttum'
-    || pathname === '/sifre-sifirla'
-    || pathname === '/sifre-yenile'
-    || pathname === '/eposta-dogrula'
-    || pathname === '/destek'
-    || pathname === '/reklam'
-    || pathname.startsWith('/dashboard')
-    || pathname.startsWith('/admin')
-    || pathname.startsWith('/ilan/')
-  ) {
-    return true;
-  }
-
-  // Icons / SEO endpoints
-  if (
+  return (
     pathname === '/favicon.ico'
     || pathname === '/icon.svg'
     || pathname === '/icon.png'
@@ -73,21 +46,5 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
     || pathname === '/apple-icon.png'
     || pathname === '/apple-touch-icon.png'
     || pathname === '/robots.txt'
-    || pathname === '/sitemap.xml'
-    || pathname === '/manifest.webmanifest'
-    || pathname === '/manifest.json'
-  ) {
-    return true;
-  }
-
-  // Public brand assets under /brand, /images, etc.
-  if (
-    pathname.startsWith('/brand/')
-    || pathname.startsWith('/images/')
-    || pathname.startsWith('/fonts/')
-  ) {
-    return true;
-  }
-
-  return false;
+  );
 }

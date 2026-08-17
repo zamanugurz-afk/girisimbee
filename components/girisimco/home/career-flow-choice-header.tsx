@@ -41,6 +41,7 @@ function CategoriesBackControl({
 export function CareerFlowChoiceHeader({
   headingLevel = 'h1',
   headingId,
+  badge = CAREER_HUB_LANDING.badge,
   title = CAREER_HUB_LANDING.title,
   description = CAREER_HUB_LANDING.description,
   backHref = '/',
@@ -48,6 +49,7 @@ export function CareerFlowChoiceHeader({
 }: {
   headingLevel?: 'h1' | 'h2';
   headingId?: string;
+  badge?: string;
   title?: string;
   description?: string;
   backHref?: string;
@@ -58,7 +60,7 @@ export function CareerFlowChoiceHeader({
   return (
     <header className="mx-auto max-w-2xl text-center">
       <Badge variant="outline" className="rounded-full px-3 py-1 text-[13px] font-semibold">
-        {CAREER_HUB_LANDING.badge}
+        {badge}
       </Badge>
       <Heading
         id={headingId}

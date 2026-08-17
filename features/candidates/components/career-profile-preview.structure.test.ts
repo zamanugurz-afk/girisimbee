@@ -51,7 +51,7 @@ describe('CareerProfilePreview hire card structure', () => {
   });
 
   it('does not change public CTA or KVKK gating', () => {
-    expect(source).toContain("const ctaLabel = isHire ? 'İlana Başvur' : 'İletişim Talebi Gönder'");
+    expect(source).toContain("const ctaLabel = 'İletişim Talebi Gönder'");
     expect(source).toContain('identityGated={chrome?.identityGated ?? !isHire}');
     expect(listingMain).toContain("identityGated: listing.identityRedacted || listing.category.id === 'find-job'");
   });

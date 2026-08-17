@@ -34,7 +34,9 @@ export function CreateListingCareerGroup({
       <div className="mt-10 lg:mt-12">
         <CareerFlowChoiceCards
           options={CREATE_LISTING_CAREER_COPY.options}
-          onSelect={(id) => onSelect(FLOW_TO_CATEGORY[id])}
+          onSelect={(id) => {
+            if (id === 'seek' || id === 'hire') onSelect(FLOW_TO_CATEGORY[id]);
+          }}
         />
       </div>
 

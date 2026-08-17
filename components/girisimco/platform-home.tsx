@@ -1,14 +1,13 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
-import {
-  ArrowRight,
-  Briefcase,
-  Handshake,
-  Rocket,
-  Sparkles,
-  Store,
-  type LucideIcon,
+import { 
+  Briefcase, 
+  Users2, 
+  Store, 
+  Sparkles, 
+  ArrowUpRight 
 } from 'lucide-react';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import {
@@ -17,129 +16,175 @@ import {
   HomeRestSections,
 } from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
-import {
-  HOME_CATEGORIES,
-  type HomeCategorySlug,
-} from '@/components/girisimco/home/home-marketplace.data';
-import { cn } from '@/lib/utils';
 
-const CATEGORY_ICONS: Record<HomeCategorySlug, LucideIcon> = {
-  'yatirim-bul': Rocket,
-  'ise-al': Briefcase,
-  'ortak-bul': Handshake,
-  franchise: Store,
-  'dijital-ai': Sparkles,
-};
-
-/**
- * Gateway grid — auto-tracks visible card count.
- * Was `lg:grid-cols-5` when Dijital & AI was in HOME_GATEWAY_VISIBLE_SLUGS.
- */
-function homeGatewayGridClass(count: number): string {
-  if (count >= 5) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4';
-  if (count === 4) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4';
-  if (count === 3) return 'grid grid-cols-1 gap-3.5 sm:grid-cols-3 lg:grid-cols-3 lg:gap-4';
-  return 'grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-2 lg:gap-4';
-}
-
-/** Intent gateway — larger destination cards under the hero. */
-function HomeCategoryShortcuts() {
-  const cardCount = HOME_CATEGORIES.length;
-  /** Slightly taller cards when fewer columns fill the row. Was 11.5rem at 5 cols. */
-  const cardMinH = cardCount <= 4 ? 'min-h-[12.75rem]' : 'min-h-[11.5rem]';
-
-  return (
-    <section
-      className="relative shrink-0 bg-transparent dark:bg-transparent"
-      aria-labelledby="home-category-heading"
-    >
-      <div className="mx-auto max-w-[1280px] px-5 pb-5 pt-2 lg:px-8 lg:pb-6">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2
-              id="home-category-heading"
-              className="font-display text-lg font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-xl"
-            >
-              Ne arıyorsunuz?
-            </h2>
-            <p className="mt-1 text-[13px] text-[#64748B] sm:text-sm">
-              Bir kategori seçin — ilgili ilanlara anında geçin.
-            </p>
-          </div>
-          <Link
-            href="/kesfet"
-            className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#0B1220] transition-opacity hover:opacity-70 dark:text-foreground"
-          >
-            Tüm ilanlar
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-          </Link>
-        </div>
-
-        <nav aria-label="İlan kategorileri">
-          <ul className={homeGatewayGridClass(cardCount)}>
-            {HOME_CATEGORIES.map((cat) => {
-              const Icon = CATEGORY_ICONS[cat.slug];
-              const cardClass = cn(
-                'group flex h-full w-full flex-col rounded-2xl border border-[#E6E8EE] bg-white text-left',
-                cardMinH,
-                'p-5 transition duration-200',
-                'hover:border-[#0B1220]/25 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220]/20',
-                'dark:border-border dark:bg-card dark:hover:bg-card',
-              );
-              const cardInner = (
-                <>
-                  <div className="flex items-start justify-between gap-2">
-                    <span
-                      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
-                      style={{ backgroundColor: cat.color }}
-                      aria-hidden
-                    >
-                      <Icon className="h-6 w-6" strokeWidth={2} />
-                    </span>
-                    <ArrowRight
-                      className="mt-1.5 h-5 w-5 shrink-0 text-[#CBD5E1] transition duration-200 group-hover:translate-x-0.5 group-hover:text-[#0B1220]"
-                      aria-hidden
-                    />
-                  </div>
-                  <span className="mt-4 block font-display text-base font-bold leading-snug text-[#0B1220] dark:text-foreground sm:text-[17px]">
-                    {cat.label}
-                  </span>
-                  <span className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-[#64748B] sm:text-sm">
-                    {cat.hint}
-                  </span>
-                </>
-              );
-              return (
-                <li key={cat.slug} className="min-w-0">
-                  <Link href={cat.href} className={cardClass}>
-                    {cardInner}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </div>
-    </section>
-  );
-}
-
-/** First viewport: Hero + Categories. Below: MARKET then listings. */
 export function PlatformHome() {
   return (
     <HomeListingsProvider>
-      <div className="gc-header-offset bg-[#FAFBFC] dark:bg-background">
-        <div className="flex h-[calc(100dvh-var(--gc-header-height))] max-h-[calc(100dvh-var(--gc-header-height))] flex-col overflow-hidden">
-          <PlatformHero className="min-h-0 flex-1" />
-          <HomeCategoryShortcuts />
+      <div className="gc-header-offset relative bg-slate-50/50 dark:bg-background">
+        
+        {/* ========================================================================= */}
+        {/* 1. EKRAN / HERO BÖLÜMÜ (STANDART 1280PX GRID İLE MÜKEMMEL HİZALANMIŞ)     */}
+        {/* ========================================================================= */}
+        <div className="relative min-h-[calc(100vh-var(--gc-header-height,3.75rem))] flex flex-col justify-between overflow-hidden py-6 sm:py-8 lg:py-10">
+          
+          {/* ARKA PLAN RENK IŞIMALARI (GLOW MESH 1. KATMAN - ULTRA SOFT & DIFUZ) */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden>
+            {/* Sol Üst Kehribar Glow */}
+            <div 
+              className="absolute -top-32 left-1/4 w-[600px] h-[600px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.11) 0%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+            {/* Sağ Orta Mor/Mavi Glow */}
+            <div 
+              className="absolute top-1/4 right-0 w-[550px] h-[550px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.09) 0%, rgba(96,165,250,0.06) 50%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+            {/* Alt Orta Yumuşak Yeşil/Turkuaz Glow */}
+            <div 
+              className="absolute -bottom-10 left-1/3 w-[550px] h-[320px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.10) 0%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+          </div>
+
+          {/* 1. ÜST ALAN: BÜYÜTÜLMÜŞ HERO ALANI (BAŞLIK, ÇEMBER/YÖRÜNGE, SAYAÇLAR) */}
+          <div className="relative z-10 shrink-0 my-auto w-full">
+            <PlatformHero className="min-h-0" />
+          </div>
+
+          {/* 2. ALT ALAN: 4'LÜ BENTO KARTLARI (TAM STANDART 1280PX GRID ÇİZGİSİNE HİZALI) */}
+          <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-6 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* Kariyer */}
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300"><Briefcase className="w-4 h-4" /></span>
+                    <Link href="/is" aria-label="Kariyer detayına git">
+                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                    </Link>
+                  </div>
+                  <Link href="/is" className="block">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">Kariyer ve İş Fırsatları</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Yeteneklerinizi sergileyin, büyüme odaklı ekiplerle buluşun.</p>
+                  </Link>
+                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
+                    <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors">İş İlanları</Link>
+                    <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors">İş Arayanlar</Link>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+                  <Link href="/is" className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● 10 Aktif İlan</Link>
+                </div>
+              </div>
+
+              {/* Ortaklık */}
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform duration-300"><Users2 className="w-4 h-4" /></span>
+                    <Link href="/girisim-ortaklik" aria-label="Girişim detayına git">
+                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                    </Link>
+                  </div>
+                  <Link href="/girisim-ortaklik" className="block">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Girişim ve Ortaklık</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Fikrinizi hayata geçirecek doğru kurucu ortakları bulun.</p>
+                  </Link>
+                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
+                    <Link href="/partners?intent=seeking" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Ortak Arayanlar</Link>
+                    <Link href="/investors" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Yatırımcılar</Link>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+                  <Link href="/girisim-ortaklik" className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">● 10 Aktif İlan</Link>
+                </div>
+              </div>
+
+              {/* Franchise */}
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform duration-300"><Store className="w-4 h-4" /></span>
+                    <Link href="/franchise/buy" aria-label="Franchise detayına git">
+                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-rose-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                    </Link>
+                  </div>
+                  <Link href="/franchise/buy" className="block">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200">Franchise ve Bayilik</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi büyütün.</p>
+                  </Link>
+                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
+                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Bayilik Fırsatları</Link>
+                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Fırsatları</Link>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+                  <Link href="/franchise/buy" className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● 5 Aktif Fırsat</Link>
+                </div>
+              </div>
+
+              {/* Çözümler */}
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-purple-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform duration-300"><Sparkles className="w-4 h-4" /></span>
+                    <Link href="/dijital-ai" aria-label="Çözümler detayına git">
+                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-purple-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                    </Link>
+                  </div>
+                  <Link href="/dijital-ai" className="block">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">Dijital ve Startup Çözümler</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
+                  </Link>
+                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
+                    <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-purple-500/10 hover:text-purple-600 transition-colors">Yazılım & AI</Link>
+                    <Link href="/market" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-purple-500/10 hover:text-purple-600 transition-colors">Girişim Market</Link>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+                  <Link href="/dijital-ai" className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">● 5 Aktif Çözüm</Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <HomeMarketSection />
-          <HomeFeaturedSection />
-          <HomeRestSections />
+
+        {/* ========================================================================= */}
+        {/* 2. EKRAN / DOĞAL GEÇİŞLİ MARKET & VİTRİNLER SAYFASI (TAMAMLAYICI PALET)   */}
+        {/* ========================================================================= */}
+        <div className="relative z-10 pt-4 pb-24 overflow-hidden">
+          
+          {/* 2. SAYFA DOĞAL GEÇİŞLİ AMBİYANS IŞIMA KATMANI (DIFUZ & GÖZ YORMAYAN SOFT MESH) */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden>
+            {/* Market Alanı / Sağ Üst: Çok Hafif Ilık Şeftali & Kehribar */}
+            <div 
+              className="absolute top-10 right-0 w-[550px] h-[450px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(251,146,60,0.06) 0%, rgba(245,158,11,0.04) 60%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+
+            {/* Öne Çıkanlar / Sol Orta: Çok Hafif Mint & Zümrüt Yeşili */}
+            <div 
+              className="absolute top-[480px] left-0 w-[520px] h-[480px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+
+            {/* Alt Bölümler: Çok Hafif Pastel Lavanta & Gök Mavisi */}
+            <div 
+              className="absolute bottom-20 right-5 w-[500px] h-[450px] rounded-full" 
+              style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.05) 0%, rgba(14,165,233,0.04) 50%, transparent 70%)', filter: 'blur(100px)' }} 
+            />
+          </div>
+
+          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET, ÖNE ÇIKAN İLANLAR, DİĞER KATEGORİLER) */}
+          <div className="relative z-10 space-y-4">
+            <HomeMarketSection />
+            <HomeFeaturedSection />
+            <HomeRestSections />
+          </div>
         </div>
       </div>
     </HomeListingsProvider>
   );
 }
+
+export default PlatformHome;

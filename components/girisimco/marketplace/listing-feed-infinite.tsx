@@ -16,6 +16,8 @@ interface ListingFeedInfiniteProps {
   onLoadMore: () => void;
   emptyVariant?: MarketplaceEmptyVariant;
   emptyMessage?: string;
+  emptyDescription?: string;
+  emptyCta?: { label: string; href: string };
 }
 
 export function ListingFeedInfinite({
@@ -27,6 +29,8 @@ export function ListingFeedInfinite({
   onLoadMore,
   emptyVariant,
   emptyMessage,
+  emptyDescription,
+  emptyCta,
 }: ListingFeedInfiniteProps) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +60,8 @@ export function ListingFeedInfinite({
         accent={accent}
         emptyVariant={emptyVariant}
         emptyMessage={emptyMessage}
+        emptyDescription={emptyDescription}
+        emptyCta={emptyCta}
       />
       <div ref={sentinelRef} className="h-4" aria-hidden />
       {isLoadingMore && (

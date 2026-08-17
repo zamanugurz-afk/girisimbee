@@ -251,3 +251,14 @@ export function formatBoolean(value: boolean | null | undefined, trueLabel = 'Ev
   if (value == null) return '';
   return value ? trueLabel : falseLabel;
 }
+
+/** Public browse/detail payload — never expose private contact channels. */
+export function toPublicFranchiseListing(listing: Listing): Listing {
+  return {
+    ...listing,
+    contactPhone: null,
+    contactEmail: null,
+    contactWhatsapp: null,
+    contactWebsite: null,
+  };
+}

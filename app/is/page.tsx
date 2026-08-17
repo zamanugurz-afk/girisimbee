@@ -44,6 +44,7 @@ export default function IsListingsPage({
       categorySlug={CATEGORY_SLUG}
       showJobFlowFilters
       initialJobFlow={jobFlow}
+      relatedCategorySlugs={[]}
     />
   );
 }

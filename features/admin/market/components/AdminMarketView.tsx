@@ -372,7 +372,7 @@ export function AdminMarketView() {
                 id="market-link"
                 value={form.linkUrl}
                 onChange={(e) => setForm((prev) => ({ ...prev, linkUrl: e.target.value }))}
-                placeholder="/invest veya https://..."
+                placeholder="/market veya https://..."
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

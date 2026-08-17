@@ -2,15 +2,19 @@ import { AccountHubProfileHero } from '@/features/account/components/AccountHubP
 import { AccountHubStatsGrid } from '@/features/account/components/AccountHubStatsGrid';
 import { AccountHubProfileInfo } from '@/features/account/components/AccountHubProfileInfo';
 import { AccountHubVerification } from '@/features/account/components/AccountHubVerification';
+import { CareerProfileOverviewCard } from '@/features/career-profile/components/career-profile-overview-card';
 import type { AccountHubStats } from '@/features/account/types/account-panel.types';
 import type { AccountHubViewModel } from '@/features/account/types/account-hub.types';
+import type { CareerProfilePageData } from '@/features/career-profile/types';
 
 export function AccountDashboard({
   view,
   stats,
+  careerProfile,
 }: {
   view: AccountHubViewModel;
   stats: AccountHubStats;
+  careerProfile?: CareerProfilePageData;
 }) {
   return (
     <div className="space-y-6">
@@ -22,6 +26,8 @@ export function AccountDashboard({
       />
 
       <AccountHubStatsGrid stats={stats} />
+
+      {careerProfile ? <CareerProfileOverviewCard data={careerProfile} /> : null}
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
         <AccountHubProfileInfo

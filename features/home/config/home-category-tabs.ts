@@ -3,19 +3,30 @@ import type { ContentItem } from '@/features/categories/types/category.types';
 /** Öne Çıkan İlanlar category tabs only (other home sections stay unfiltered). */
 export type HomeCategoryTabId =
   | 'all'
-  | 'entrepreneur'
   | 'partner'
   | 'franchise'
   | 'job'
   | 'digital-ai';
 
 export const HOME_CATEGORY_TAB_SLUG: Partial<Record<HomeCategoryTabId, string>> = {
-  entrepreneur: 'yatirim-bul',
   partner: 'ortak-bul',
   franchise: 'bayilik-al',
   job: 'ise-al',
   'digital-ai': 'dijital-ai',
 };
+
+export function isInvestmentSeekingContentItem(item: ContentItem): boolean {
+  const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
+  return (
+    item.listingIconKey === 'investment'
+    || type.includes('yatırım arıyorum')
+    || (item.listingGroupLabel === 'Yatırım' && item.listingIconKey !== 'investor' && !type.includes('yatırım yap'))
+  );
+}
+
+export function isUserDiscoverableContentItem(item: ContentItem): boolean {
+  return !isInvestmentSeekingContentItem(item);
+}
 
 export const HOME_CATEGORY_TABS: {
   id: HomeCategoryTabId;
@@ -27,20 +38,7 @@ export const HOME_CATEGORY_TABS: {
     id: 'all',
     label: 'Tümü',
     viewAllHref: '/kesfet?featured=1',
-    match: () => true,
-  },
-  {
-    id: 'entrepreneur',
-    label: 'Yatırım Arıyorum',
-    viewAllHref: '/invest',
-    match: (item) => {
-      const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
-      return (
-        item.listingIconKey === 'investment'
-        || type.includes('yatırım arıyorum')
-        || (item.listingGroupLabel === 'Yatırım' && item.listingIconKey !== 'investor' && !type.includes('yatırım yap'))
-      );
-    },
+    match: isUserDiscoverableContentItem,
   },
   {
     id: 'partner',
@@ -52,7 +50,7 @@ export const HOME_CATEGORY_TABS: {
   },
   {
     id: 'franchise',
-    label: 'Franchise İlanlar',
+    label: 'Franchise Fırsatları',
     viewAllHref: '/franchise/buy',
     match: (item) => {
       const type = item.listingTypeLabel?.toLocaleLowerCase('tr-TR') ?? '';
@@ -87,6 +85,13 @@ export const HOME_CATEGORY_TABS: {
     },
   },
 ];
+
+/** Hidden from homepage featured chips — catalog/API match kept. */
+export const HOME_FEATURED_HIDDEN_TAB_IDS = ['digital-ai'] as const;
+
+export function isHomeFeaturedTabVisible(id: HomeCategoryTabId): boolean {
+  return !HOME_FEATURED_HIDDEN_TAB_IDS.includes(id as (typeof HOME_FEATURED_HIDDEN_TAB_IDS)[number]);
+}
 
 export function resolveHomeCategoryTab(id: string): HomeCategoryTabId | null {
   return HOME_CATEGORY_TABS.some((tab) => tab.id === id) ? (id as HomeCategoryTabId) : null;

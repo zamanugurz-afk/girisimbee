@@ -20,7 +20,7 @@ const NODES: {
 }[] = [
   {
     id: 'franchise',
-    label: 'Franchise',
+    label: 'Fırsatlar',
     Icon: Store,
     className: 'left-1/2 top-[1%] -translate-x-1/2',
     color: gcCategoryColors.franchise,
@@ -28,7 +28,7 @@ const NODES: {
   },
   {
     id: 'investor',
-    label: 'Yatırımcı',
+    label: 'Çözümler',
     Icon: UserRound,
     className: 'right-[1%] top-1/2 -translate-y-1/2',
     color: gcCategoryColors['dijital-ai'],
@@ -44,7 +44,7 @@ const NODES: {
   },
   {
     id: 'job',
-    label: 'İş Fırsatı',
+    label: 'Kariyer',
     Icon: Briefcase,
     className: 'left-[1%] top-1/2 -translate-y-1/2',
     color: gcCategoryColors['ise-al'],

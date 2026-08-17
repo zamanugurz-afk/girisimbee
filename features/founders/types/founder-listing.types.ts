@@ -7,6 +7,14 @@ export interface FounderListingDetails {
   requiredSkills?: string[] | null;
   offeredSkills?: string[] | null;
   sectors?: string[] | null;
+  sector?: string | null;
+  partnershipIntent?: string | null;
+  experience?: string | null;
+  commitment?: string | null;
+  partnershipType?: string | null;
+  expertise?: string[] | null;
+  projectStage?: string | null;
+  equityOffered?: unknown;
 }
 
 /** Input payload for create/update founder co-founder search listings. */
@@ -26,6 +34,13 @@ export interface FounderListingPayload {
   requiredSkills?: string[] | null;
   offeredSkills?: string[] | null;
   sectors?: string[] | null;
+  partnershipIntent?: string | null;
+  projectStage?: string | null;
+  experience?: string | null;
+  commitment?: string | null;
+  partnershipType?: string | null;
+  expertise?: string[] | null;
+  equityOffered?: unknown;
 }
 
 export interface FounderListingFilter {

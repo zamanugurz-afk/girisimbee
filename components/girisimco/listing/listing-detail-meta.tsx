@@ -14,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { VerifiedBadgeGroup } from '@/components/girisimco/trust/verified-badge';
 import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
+import { isContactIdentityGated } from '@/features/contact-requests/config/contact-cta-copy';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import type { LucideIcon } from 'lucide-react';
@@ -48,6 +49,8 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
   const showLocation =
     (listing.category.id === 'find-job'
       || listing.category.id === 'hire'
+      || listing.category.id === 'find-partner'
+      || listing.category.id === 'franchise'
       || listing.category.id === 'find-investment')
     && !isEmptyDisplayValue(listing.location);
 
@@ -85,6 +88,12 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
         {listing.title}
       </h1>
 
+      {listing.category.id === 'find-partner' && listing.intentHeadline ? (
+        <p className="mt-2 text-sm font-medium text-foreground/80">
+          {listing.intentHeadline}
+        </p>
+      ) : null}
+
       {!isEmptyDisplayValue(listing.shortDescription) ? (
         <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
           {listing.shortDescription}
@@ -97,6 +106,11 @@ export function ListingDetailMeta({ listing }: { listing: ListingDetail }) {
             listingId={listing.listingId}
             listingTitle={listing.title}
             isOwner={isOwner}
+            categoryId={listing.category.id}
+            identityGated={isContactIdentityGated(
+              listing.category.id,
+              listing.identityRedacted,
+            )}
           />
         </div>
       ) : null}

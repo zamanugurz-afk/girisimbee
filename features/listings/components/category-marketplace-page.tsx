@@ -5,6 +5,7 @@ import {
   resolveCategorySlug,
   resolveCanonicalCategorySlug,
 } from '@/features/listings/config/marketplace.config';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import type { JobFlowFilter } from '@/features/listings/types/marketplace.types';
 
 export function buildCategoryMetadata(categorySlug: string): Metadata {
@@ -25,11 +26,29 @@ export function CategoryMarketplacePage({
   categorySlug,
   showJobFlowFilters = false,
   initialJobFlow,
+  partnershipIntent,
+  title,
+  description,
+  eyebrow,
+  emptyTitle,
+  emptyDescription,
+  emptyCta,
+  relatedCategorySlugs,
+  resultNoun,
 }: {
   categorySlug: string;
   /** Unified İş İlanları page — hire/seek chips above city/sort filters. */
   showJobFlowFilters?: boolean;
   initialJobFlow?: JobFlowFilter;
+  partnershipIntent?: PartnershipIntent;
+  title?: string;
+  description?: string;
+  eyebrow?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyCta?: { label: string; href: string };
+  relatedCategorySlugs?: string[];
+  resultNoun?: string;
 }) {
   const meta = resolveCategorySlug(categorySlug);
   if (!meta) notFound();
@@ -39,7 +58,18 @@ export function CategoryMarketplacePage({
       categorySlug={resolveCanonicalCategorySlug(categorySlug)}
       hideCategoryFilter
       showJobFlowFilters={showJobFlowFilters}
-      initialFilters={initialJobFlow ? { jobFlow: initialJobFlow } : undefined}
+      title={title}
+      description={description}
+      eyebrow={eyebrow}
+      emptyTitle={emptyTitle}
+      emptyDescription={emptyDescription}
+      emptyCta={emptyCta}
+      relatedCategorySlugs={relatedCategorySlugs}
+      resultNoun={resultNoun}
+      initialFilters={{
+        ...(initialJobFlow ? { jobFlow: initialJobFlow } : {}),
+        ...(partnershipIntent ? { partnershipIntent } : {}),
+      }}
     />
   );
 }

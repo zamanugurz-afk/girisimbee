@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  hasPreviewCookie,
-  isClientIpAllowlisted,
-} from '@/lib/site-ip-allowlist';
+import { isClientIpAllowlisted } from '@/lib/site-ip-allowlist';
 
 /** Production-only OpenAI connectivity check. Never returns the API key. */
 export async function GET(request: NextRequest) {
-  if (!hasPreviewCookie(request) && !isClientIpAllowlisted(request)) {
+  if (!isClientIpAllowlisted(request)) {
     return NextResponse.json({ ok: false, reason: 'forbidden' }, { status: 403 });
   }
 

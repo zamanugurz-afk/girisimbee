@@ -10,7 +10,10 @@ import {
   HOME_CATEGORY_TABS,
   type HomeCategoryTabId,
 } from '@/features/home/config/home-category-tabs';
-import { resolveListingTypeIdsFromBrowseSlug } from '@/features/listings/config/marketplace-category-map';
+import {
+  isUserDiscoverableListing,
+  resolveListingTypeIdsFromBrowseSlug,
+} from '@/features/listings/config/marketplace-category-map';
 import { listingsToContentItems } from '@/features/listings/mappers/listing-card.mapper';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
@@ -58,16 +61,17 @@ async function fetchSection(
     total = fallback.total;
   }
 
+  const visible = listings.filter(isUserDiscoverableListing);
   return {
     id: sectionId,
-    items: listingsToContentItems(listings),
+    items: listingsToContentItems(visible),
     total,
   };
 }
 
 function matchTabItems(tab: string, items: ContentItem[]): ContentItem[] {
   const tabConfig = HOME_CATEGORY_TABS.find((entry) => entry.id === tab);
-  if (!tabConfig || tabConfig.id === 'all') return items;
+  if (!tabConfig) return items;
   return items.filter(tabConfig.match);
 }
 

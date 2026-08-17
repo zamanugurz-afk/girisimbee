@@ -6,6 +6,7 @@ import {
   BROWSE_CATEGORY_SLUG_ALIASES,
   getBrowseCategorySlugs,
   isBrowseCategoryDeferred,
+  USER_DISCOVERY_HIDDEN_CATEGORY_SLUGS,
   resolveBrowseCategory,
   resolveBrowseCategorySlug,
 } from '@/features/listings/config/marketplace-category-map';
@@ -29,7 +30,6 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string> = {
 
 /** Canonical English route paths for category browse pages. */
 export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
-  'yatirim-bul': '/invest',
   'yatirim-yap': '/investors',
   'ise-al': '/is',
   'is-ariyorum': '/is-ariyorum',
@@ -71,14 +71,14 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoDescription: 'Kurucu ortak ve iş ortaklığı fırsatları.',
   },
   'bayilik-al': {
-    description: 'Yayınlanan franchise fırsatlarını keşfedin',
-    seoTitle: 'Franchise İlanları | Girisimbee',
-    seoDescription: 'Türkiye genelinde yayınlanan franchise fırsatlarını keşfedin.',
+    description: 'Yatırım yapmak istediğiniz sektöre ve lokasyona uygun franchise fırsatlarını keşfedin',
+    seoTitle: 'Franchise Fırsatları | Girisimbee',
+    seoDescription: 'Yatırım yapmak istediğiniz sektöre ve lokasyona uygun franchise fırsatlarını keşfedin.',
   },
   'dijital-ai': {
-    description: 'Yazılım, otomasyon ve yapay zeka çözümleri',
+    description: 'İşletmeniz için ihtiyaç duyduğunuz dijital ürünleri, yazılım çözümlerini ve yapay zeka uygulamalarını keşfedin.',
     seoTitle: 'Dijital & AI Çözümleri | Girisimbee',
-    seoDescription: 'SaaS, otomasyon ve yapay zeka çözümlerini inceleyin; doğrudan arayın.',
+    seoDescription: 'İşletmeniz için dijital ürün, yazılım ve yapay zeka çözümlerini keşfedin.',
   },
   'genel-ilan': {
     description: 'Ürün, hizmet ve duyuru ilanları',
@@ -182,6 +182,13 @@ export function resolveCanonicalCategorySlug(slug: string): string {
 
 export function getAllCategorySlugs(): string[] {
   return getBrowseCategorySlugs();
+}
+
+/** Mixed discovery pickers (ara / keşfet) — no investment categories. */
+export function getUserDiscoverableCategorySlugs(): string[] {
+  return getBrowseCategorySlugs().filter(
+    (slug) => !(USER_DISCOVERY_HIDDEN_CATEGORY_SLUGS as readonly string[]).includes(slug),
+  );
 }
 
 export function getCategorySlugFromIntent(intentId: CategoryIntentId): string {

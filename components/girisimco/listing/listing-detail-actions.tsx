@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
+import { isContactIdentityGated } from '@/features/contact-requests/config/contact-cta-copy';
 import { ListingReportDialog } from '@/components/girisimco/listing/listing-report-dialog';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
@@ -46,6 +47,21 @@ export function ListingDetailActions({
         className,
       )}
     >
+      {!isOwner && listing.listingId ? (
+        <ListingContactCta
+          listingId={listing.listingId}
+          listingTitle={listing.title}
+          isOwner={isOwner}
+          categoryId={listing.category.id}
+          identityGated={isContactIdentityGated(
+            listing.category.id,
+            listing.identityRedacted,
+          )}
+          variant="compact"
+          className="h-10 rounded-2xl px-4"
+        />
+      ) : null}
+
       {listing.listingId ? (
         <div className="inline-flex h-10 items-center gap-2 rounded-2xl border border-border/70 bg-background px-2.5 transition-colors hover:border-primary/30 dark:border-white/10">
           <FavoriteButton
@@ -64,16 +80,6 @@ export function ListingDetailActions({
 
       {!isOwner && listing.ownerUserId ? (
         <FollowUserButton targetUserId={listing.ownerUserId} className="h-10" />
-      ) : null}
-
-      {!isOwner && listing.listingId ? (
-        <ListingContactCta
-          listingId={listing.listingId}
-          listingTitle={listing.title}
-          isOwner={isOwner}
-          variant="compact"
-          className="h-10 rounded-2xl px-4"
-        />
       ) : null}
 
       <Button

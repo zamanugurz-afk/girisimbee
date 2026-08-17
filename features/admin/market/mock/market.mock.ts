@@ -1,8 +1,9 @@
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 import { MARKET_MAX_PUBLISHED } from '@/features/admin/market/types/market.types';
+import { toPublicMarketItem } from '@/features/admin/market/lib/public-market-item';
 
-/** Homepage MARKET teaser — always 3 sponsored ads. */
-export const MARKET_HOME_PREVIEW_COUNT = 3;
+/** Homepage MARKET teaser — 4 sponsored opportunity ads for 4-col bento grid symmetry. */
+export const MARKET_HOME_PREVIEW_COUNT = 4;
 
 /** Temporary UI-only seed. Replace with API when Supabase MARKET tables are live. */
 export const MOCK_MARKET_ITEMS: MarketItem[] = [
@@ -12,7 +13,7 @@ export const MOCK_MARKET_ITEMS: MarketItem[] = [
     description:
       'B2B abonelik modeliyle büyüyen yazılım ekibi, stratejik yatırımcı ve mentor arıyor.',
     imageUrl: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=500&fit=crop&q=80',
-    linkUrl: '/invest',
+    linkUrl: null,
     ctaLabel: 'Fırsatı incele',
     sortOrder: 1,
     status: 'published',
@@ -60,7 +61,7 @@ export const MOCK_MARKET_ITEMS: MarketItem[] = [
     description:
       'Ödeme altyapısı geliştiren ekip, sektör deneyimli yatırımcı ve iş geliştirme ortağı arıyor.',
     imageUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=500&fit=crop&q=80',
-    linkUrl: '/invest',
+    linkUrl: null,
     ctaLabel: 'Fırsatı incele',
     sortOrder: 4,
     status: 'published',
@@ -113,7 +114,8 @@ export function getMockPublishedMarketItems(items?: MarketItem[]): MarketItem[] 
   return source
     .filter((item) => item.status === 'published' && !item.deletedAt)
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .slice(0, MARKET_MAX_PUBLISHED);
+    .slice(0, MARKET_MAX_PUBLISHED)
+    .map(toPublicMarketItem);
 }
 
 /** Homepage teaser — fixed 3 sponsored ads. */

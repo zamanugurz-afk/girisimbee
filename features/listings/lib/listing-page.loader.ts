@@ -14,6 +14,7 @@ import {
 } from '@/features/contact-requests/lib/contact-disclosure';
 import { isAdmin } from '@/features/authorization/rbac.service';
 import { createServiceRoleClient } from '@/lib/supabase/service';
+import { isUserDiscoverableListing } from '@/features/listings/config/marketplace-category-map';
 
 /** display_name only — never email/phone. Bypasses unpublished-profile RLS for career-card masking. */
 async function loadCareerOwnerDisplayName(ownerId: string | null | undefined): Promise<string | null> {
@@ -75,6 +76,7 @@ export const loadListingPagePayload = cache(
         const container = getServerContainer(supabase);
         const listing = await resolveListingRow(idOrSlug, container);
         if (!listing) return null;
+        if (!isUserDiscoverableListing(listing)) return null;
 
         if (listing.moduleKey === 'franchise' && listing.slug) {
           return {

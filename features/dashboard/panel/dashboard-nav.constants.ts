@@ -9,6 +9,9 @@ export const DASHBOARD_ROUTES = {
   gizlilik: `${DASHBOARD_BASE}/gizlilik`,
   dogrulamalar: `${DASHBOARD_BASE}/dogrulamalar`,
   ilanlarim: `${DASHBOARD_BASE}/ilanlarim`,
+  kariyerProfilim: `${DASHBOARD_BASE}/kariyer-profilim`,
+  eslesmeler: `${DASHBOARD_BASE}/eslesmeler`,
+  ortaklikEslesmeleri: `${DASHBOARD_BASE}/ortaklik-eslesmeleri`,
   favorilerim: `${DASHBOARD_BASE}/favorilerim`,
   mesajlarim: '/mesajlarim',
   iletisimTalepleri: `${DASHBOARD_BASE}/iletisim-talepleri`,
@@ -27,6 +30,9 @@ export type DashboardNavId =
   | 'gizlilik'
   | 'dogrulamalar'
   | 'ilanlarim'
+  | 'kariyerProfilim'
+  | 'eslesmeler'
+  | 'ortaklikEslesmeleri'
   | 'favorilerim'
   | 'mesajlarim'
   | 'iletisimTalepleri'
@@ -43,6 +49,9 @@ export type DashboardNavIcon =
   | 'Lock'
   | 'BadgeCheck'
   | 'Megaphone'
+  | 'Briefcase'
+  | 'Sparkles'
+  | 'Handshake'
   | 'Star'
   | 'MessageSquare'
   | 'Users'
@@ -92,6 +101,24 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     label: 'İlanlarım',
     href: DASHBOARD_ROUTES.ilanlarim,
     icon: 'Megaphone',
+  },
+  {
+    id: 'kariyerProfilim',
+    label: 'Kariyer Profilim',
+    href: DASHBOARD_ROUTES.kariyerProfilim,
+    icon: 'Briefcase',
+  },
+  {
+    id: 'eslesmeler',
+    label: 'Eşleşmeler',
+    href: DASHBOARD_ROUTES.eslesmeler,
+    icon: 'Sparkles',
+  },
+  {
+    id: 'ortaklikEslesmeleri',
+    label: 'Ortaklık Eşleşmeleri',
+    href: DASHBOARD_ROUTES.ortaklikEslesmeleri,
+    icon: 'Handshake',
   },
   {
     id: 'favorilerim',

@@ -12,7 +12,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Keşfet — Girisimbee Marketplace',
-  description: 'Yatırım, kariyer ve ortaklık ilanlarını keşfedin.',
+  description: 'Kariyer, ortaklık ve fırsat ilanlarını keşfedin.',
 };
 
 const SORT_VALUES: ListingSortBy[] = ['newest', 'most_viewed', 'most_favorited', 'recently_updated'];

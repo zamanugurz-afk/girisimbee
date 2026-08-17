@@ -7,7 +7,7 @@ const BASE = process.env.NAV_BASE ?? 'http://localhost:3002';
 const ROUTES = [
   ['/', 'Home'],
   ['/kesfet', 'Explore'],
-  ['/kategori/yatirim-bul', 'Category'],
+  ['/kategori/ise-al', 'Category'],
   ['/dashboard', 'Dashboard'],
   ['/mesajlar', 'Messages'],
   ['/giris', 'Login'],

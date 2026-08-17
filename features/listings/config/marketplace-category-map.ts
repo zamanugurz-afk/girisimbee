@@ -202,6 +202,7 @@ export function resolveBrowseCategory(slug: string): BrowseCategoryEntry | null 
  */
 export const BROWSE_DEFERRED_CATEGORY_SLUGS: readonly string[] = [
   'genel-ilan',
+  'yatirim-bul',
 ];
 
 const BROWSE_DEFERRED_SET = new Set(BROWSE_DEFERRED_CATEGORY_SLUGS);
@@ -251,4 +252,45 @@ export function expandListingTypeIdFilter(listingTypeId: ListingTypeId): Listing
 
 function uniqueIds(values: ListingTypeId[]): ListingTypeId[] {
   return [...new Set(values)];
+}
+
+/** Retired Yatırım Arıyorum — not a live product. */
+export const RETIRED_INVESTMENT_SEEKING_SLUGS = ['yatirim-bul'] as const;
+
+/**
+ * Hidden from mixed user-facing pickers (ara / keşfet).
+ * Includes retired seeking plus Yatırım Yap so mixed search has no yatırım category.
+ */
+export const USER_DISCOVERY_HIDDEN_CATEGORY_SLUGS = [
+  'yatirim-bul',
+  'yatirim-yap',
+] as const;
+
+const INVESTMENT_SEEKING_TYPE_IDS = new Set<ListingTypeId>([
+  LISTING_TYPE_IDS.yatirimBulDefault,
+  MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum,
+]);
+
+export function isInvestmentSeekingBrowseSlug(slug: string | null | undefined): boolean {
+  if (!slug) return false;
+  return (RETIRED_INVESTMENT_SEEKING_SLUGS as readonly string[]).includes(
+    resolveBrowseCategorySlug(slug),
+  );
+}
+
+type UserDiscoveryListing = {
+  categoryId: CategoryId;
+  listingTypeId: ListingTypeId;
+  moduleKey?: string | null;
+  categorySlug?: string | null;
+  listingTypeSlug?: string | null;
+};
+
+/** True when a listing may appear on mixed home / keşfet surfaces. */
+export function isUserDiscoverableListing(listing: UserDiscoveryListing): boolean {
+  if (isInvestmentSeekingBrowseSlug(listing.categorySlug)) return false;
+  if (listing.listingTypeSlug === 'yatirim-ariyorum') return false;
+  if (listing.moduleKey === 'entrepreneurs') return false;
+  if (listing.categoryId === CATEGORY_IDS.yatirimBul) return false;
+  return !INVESTMENT_SEEKING_TYPE_IDS.has(listing.listingTypeId);
 }

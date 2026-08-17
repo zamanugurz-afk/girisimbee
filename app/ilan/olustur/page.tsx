@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Users } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   CategoryListingForm,
@@ -32,6 +33,7 @@ import {
 import { notifyPackageActivated } from '@/features/monetization/lib/package-payment-notifications';
 import { isPremiumEnabled } from '@/features/shared/config/features';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { loginUrl } from '@/features/authentication/constants/routes';
 import {
   collectSuspiciousFlags,
   validateListingContentPolicy,
@@ -42,6 +44,14 @@ import {
   CreateListingCategoryPicker,
   CreateListingSelectedCategoryBar,
 } from '@/components/girisimco/listing/create-listing-category-picker';
+import { getPartnerFormSchema } from '@/features/founders/partnership-form';
+import {
+  parsePartnershipIntentParam,
+  partnershipCreateHref,
+  partnershipCreatePageCopy,
+  type PartnershipIntent,
+} from '@/features/founders/partnership-intent';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 
 function CreateListingContent() {
   const router = useRouter();
@@ -50,8 +60,11 @@ function CreateListingContent() {
   const { user, isLoading: authLoading } = useAuth();
   const [sessionReady, setSessionReady] = useState(false);
 
+  const urlPartnershipIntent = parsePartnershipIntentParam(searchParams.get('intent'));
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
-    searchParams.get('category') ?? searchParams.get('intent') ?? '',
+    searchParams.get('category')
+    ?? (urlPartnershipIntent ? '' : searchParams.get('intent'))
+    ?? '',
   );
   /** Deferred create types (e.g. Yatırım Yapacağım) cannot be opened via ?category= */
   const initialCategory =
@@ -60,25 +73,37 @@ function CreateListingContent() {
       ? resolvedInitialCategory
       : null;
 
-  const [categoryId, setCategoryId] = useState<CategoryId | null>(initialCategory);
-  const [careerStep, setCareerStep] = useState(false);
-  const [listingTypeId, setListingTypeId] = useState<ListingTypeId | null>(() => {
-    if (!initialCategory) return null;
-    return (
-      CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === initialCategory)?.listingTypeId
+  const [careerHubOpen, setCareerHubOpen] = useState(false);
+  const categoryId = initialCategory;
+  const partnershipIntent: PartnershipIntent | null =
+    categoryId === CATEGORY_IDS.ortakBul
+      ? (urlPartnershipIntent ?? 'seeking')
+      : null;
+  const listingTypeId: ListingTypeId | null = categoryId
+    ? (
+      CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.listingTypeId
+      ?? categoryRegistry.getDefaultListingType(categoryId)?.id
       ?? null
-    );
-  });
+    )
+    : null;
+  const hubStep: 'career' | 'venture' | null = categoryId
+    ? null
+    : searchParams.get('hub') === 'venture'
+      ? 'venture'
+      : careerHubOpen
+        ? 'career'
+        : null;
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);
 
   useEffect(() => {
     if (authLoading) return;
     if (!isAuthenticated || !user) {
-      router.replace(`/giris?next=${encodeURIComponent('/ilan/olustur')}`);
+      const qs = searchParams.toString();
+      router.replace(loginUrl(qs ? `/ilan/olustur?${qs}` : '/ilan/olustur'));
       return;
     }
     setSessionReady(true);
-  }, [authLoading, isAuthenticated, user, router]);
+  }, [authLoading, isAuthenticated, user, router, searchParams]);
 
   if (authLoading || !sessionReady) {
     return (
@@ -88,7 +113,7 @@ function CreateListingContent() {
           <div className="h-4 w-72 animate-pulse rounded bg-muted" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
               className="h-40 animate-pulse rounded-2xl border border-border/80 bg-muted/40"
@@ -99,21 +124,38 @@ function CreateListingContent() {
     );
   }
 
-  function selectCategory(id: CategoryId) {
+  function selectCategory(id: CategoryId, options?: { partnershipIntent?: PartnershipIntent }) {
     if (CREATE_LISTING_DEFERRED_CATEGORY_IDS.includes(id)) return;
-    setCategoryId(id);
-    const fromConfig = CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === id);
-    const defaultType =
-      fromConfig?.listingTypeId
-      ?? categoryRegistry.getDefaultListingType(id)?.id
-      ?? null;
-    setListingTypeId(defaultType);
+    setCareerHubOpen(false);
+    if (id === CATEGORY_IDS.ortakBul) {
+      router.push(partnershipCreateHref(options?.partnershipIntent ?? urlPartnershipIntent ?? 'seeking'));
+      return;
+    }
+    const slug = categoryRegistry.getCategory(id)?.slug;
+    router.push(slug ? `/ilan/olustur?category=${slug}` : '/ilan/olustur');
   }
 
   function resetCategorySelection() {
-    setCategoryId(null);
-    setListingTypeId(null);
-    setCareerStep(false);
+    setCareerHubOpen(false);
+    if (categoryId === CATEGORY_IDS.ortakBul || categoryId === CATEGORY_IDS.bayilikAl) {
+      router.push('/ilan/olustur?hub=venture');
+      return;
+    }
+    router.push('/ilan/olustur');
+  }
+
+  function handleHubStepChange(step: 'career' | 'venture' | null) {
+    if (step === 'venture') {
+      setCareerHubOpen(false);
+      router.push('/ilan/olustur?hub=venture');
+      return;
+    }
+    if (step === 'career') {
+      setCareerHubOpen(true);
+      return;
+    }
+    setCareerHubOpen(false);
+    router.push('/ilan/olustur');
   }
 
   async function handlePublish(values: ListingFormValues) {
@@ -135,7 +177,13 @@ function CreateListingContent() {
     if (usesModulePublish(categoryId)) {
       let payload: Record<string, unknown>;
       try {
-        payload = listingFormValuesToModulePayload(categoryId, values);
+        payload = listingFormValuesToModulePayload(categoryId, {
+          ...values,
+          customFields: {
+            ...values.customFields,
+            ...(partnershipIntent ? { partnershipIntent } : {}),
+          },
+        });
         traceListingPublish(String(moduleKey), 'mapper', { payload });
       } catch (error) {
         traceListingPublish(String(moduleKey), 'mapper_exception', { error });
@@ -165,7 +213,10 @@ function CreateListingContent() {
             longDescription: values.core.longDescription,
             city: values.core.city ?? null,
           },
-          customFields: values.customFields,
+          customFields: {
+            ...values.customFields,
+            ...(partnershipIntent ? { partnershipIntent } : {}),
+          },
           tags: values.tags,
           images: values.images,
           asDraft: true,
@@ -250,8 +301,21 @@ function CreateListingContent() {
     router.push(getModuleListingDetailPath(categoryId, listing.slug));
   }
 
+  const createCopy =
+    categoryId === CATEGORY_IDS.ortakBul && partnershipIntent
+      ? partnershipCreatePageCopy(partnershipIntent)
+      : null;
   const selectedLabel =
-    CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.name ?? '';
+    createCopy?.title
+    ?? CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.name
+    ?? '';
+  const formListingType =
+    listingType && categoryId === CATEGORY_IDS.ortakBul
+      ? {
+          ...listingType,
+          fieldSchema: getPartnerFormSchema(partnershipIntent ?? 'seeking'),
+        }
+      : listingType;
 
   return (
     <main
@@ -260,25 +324,22 @@ function CreateListingContent() {
         categoryId ? 'max-w-2xl' : 'max-w-[1280px]',
       )}
     >
-      {!careerStep || categoryId ? (
+      {categoryId ? (
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-            İlan Oluştur
+            {createCopy?.title ?? 'İlan Oluştur'}
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-            {categoryId
-              ? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'
-              : 'Önce kategorinizi seçin — form yalnızca o kategoriye özel alanları gösterir.'}
+            {createCopy?.description ?? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'}
           </p>
         </div>
       ) : null}
 
       {!categoryId ? (
         <CreateListingCategoryPicker
-          options={CREATE_LISTING_TYPE_CONFIGS}
           onSelect={selectCategory}
-          careerStep={careerStep}
-          onCareerStepChange={setCareerStep}
+          hubStep={hubStep}
+          onHubStepChange={handleHubStepChange}
         />
       ) : null}
 
@@ -286,15 +347,22 @@ function CreateListingContent() {
         <CreateListingSelectedCategoryBar
           categoryId={categoryId}
           label={selectedLabel}
+          caption={
+            categoryId === CATEGORY_IDS.ortakBul
+              ? 'Seçilen ilan türü'
+              : 'Seçilen kategori'
+          }
+          icon={partnershipIntent === 'joining' ? Users : undefined}
           onChange={resetCategorySelection}
         />
       )}
 
-      {isReady && listingType && categoryId ? (
+      {isReady && formListingType && categoryId ? (
         <CategoryListingForm
-          key={categoryId}
-          listingType={listingType}
+          key={`${categoryId}-${partnershipIntent ?? 'none'}`}
+          listingType={formListingType}
           categoryId={categoryId}
+          partnershipIntent={partnershipIntent ?? undefined}
           userId={actorId}
           onPublish={handlePublish}
           showPreviewButton
@@ -321,7 +389,7 @@ export default function CreateListingPage() {
             <div className="h-4 w-72 animate-pulse rounded bg-muted" />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: 2 }).map((_, i) => (
               <div
                 key={i}
                 className="h-40 animate-pulse rounded-2xl border border-border/80 bg-muted/40"

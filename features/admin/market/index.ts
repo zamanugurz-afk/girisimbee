@@ -22,3 +22,13 @@ export {
   getMockPublishedMarketItems,
   getMockHomeMarketAds,
 } from '@/features/admin/market/mock/market.mock';
+export { toPublicMarketItem } from '@/features/admin/market/lib/public-market-item';
+export {
+  MARKET_BRAND_NAME,
+  MARKET_HOME_SUBTITLE,
+  MARKET_HOME_CTA_LABEL,
+  MARKET_HOME_CTA_HREF,
+  MARKET_EMPTY_TITLE,
+  MARKET_EMPTY_BACK_CTA,
+  isMarketSafePublicHref,
+} from '@/features/admin/market/presentation/market-copy';

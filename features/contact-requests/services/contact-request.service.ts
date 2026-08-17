@@ -17,6 +17,8 @@ import {
 import { LEGAL_DOCUMENT_VERSIONS } from '@/features/legal/config/legal-documents.config';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
 import { shouldRevealAcceptedOwnerPii } from '@/features/contact-requests/lib/contact-disclosure';
+import { careerContactNotificationCopy } from '@/features/contact-requests/config/career-contact-notification-copy';
+import { classifyCareerListingKind } from '@/features/matching-engine/adapters/career-listing-kinds';
 
 function effectiveStatus(row: ListingContactRequest, now = new Date()): ContactRequestStatus {
   if (row.status === 'pending' && new Date(row.expiresAt).getTime() < now.getTime()) {
@@ -171,12 +173,15 @@ export class ContactRequestService {
 
     const requester = await this.profiles.findByUserId(input.requesterUserId);
     const requesterName = requester?.displayName?.trim() || 'Bir kullanıcı';
+    const careerCopy = careerContactNotificationCopy(classifyCareerListingKind(listing));
     try {
       await this.notifications.send({
         userId: listing.ownerId,
         type: 'system',
-        title: 'Yeni iletişim talebi',
-        body: `${requesterName}, “${listing.title}” ilanınız için iletişim talebi gönderdi.`,
+        title: careerCopy?.created.title ?? 'Yeni iletişim talebi',
+        body: careerCopy
+          ? careerCopy.created.body(requesterName, listing.title)
+          : `${requesterName}, “${listing.title}” ilanınız için iletişim talebi gönderdi.`,
         actionUrl: `${DASHBOARD_ROUTES.iletisimTalepleri}?talep=${created.id}`,
         entityType: 'listing',
         entityId: String(listing.id),
@@ -236,12 +241,14 @@ export class ContactRequestService {
       respondedAt: now,
     });
 
+    const listing = await this.listings.findById(row.listingId);
+    const careerCopy = listing ? careerContactNotificationCopy(classifyCareerListingKind(listing)) : null;
     try {
       await this.notifications.send({
         userId: row.requesterUserId,
         type: 'system',
-        title: 'İletişim talebi reddedildi',
-        body: 'İletişim talebiniz ilan sahibi tarafından reddedildi.',
+        title: careerCopy?.rejected.title ?? 'İletişim talebi reddedildi',
+        body: careerCopy?.rejected.body ?? 'İletişim talebiniz ilan sahibi tarafından reddedildi.',
         actionUrl: `/ilan/${row.listingId}`,
         entityType: 'listing',
         entityId: String(row.listingId),
@@ -301,17 +308,21 @@ export class ContactRequestService {
     });
 
     const conversationId = updated.conversationId;
+    const careerCopy = careerContactNotificationCopy(classifyCareerListingKind(listing));
 
     try {
-      if (conversationId) {
+      if (conversationId || careerCopy) {
         await this.notifications.send({
           userId: row.requesterUserId,
           type: 'system',
-          title: 'İletişim talebiniz kabul edildi',
-          body: 'İlan sahibi iletişim talebinizi kabul etti. Mesajlaşabilir; telefon ve ad-soyad bilgisi yalnızca size açıldı.',
-          actionUrl: `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`,
-          entityType: 'conversation',
-          entityId: String(conversationId),
+          title: careerCopy?.accepted.title ?? 'İletişim talebiniz kabul edildi',
+          body: careerCopy?.accepted.body
+            ?? 'İlan sahibi iletişim talebinizi kabul etti. Mesajlaşabilir; telefon ve ad-soyad bilgisi yalnızca size açıldı.',
+          actionUrl: conversationId
+            ? `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`
+            : `${DASHBOARD_ROUTES.iletisimTalepleri}?talep=${row.id}`,
+          entityType: conversationId ? 'conversation' : 'listing',
+          entityId: conversationId ? String(conversationId) : String(row.listingId),
           metadata: {
             kind: 'contact_request',
             event: 'CONTACT_REQUEST_ACCEPTED',

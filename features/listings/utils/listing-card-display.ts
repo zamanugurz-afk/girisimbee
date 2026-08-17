@@ -1,11 +1,16 @@
 import type { Listing } from '@/features/listings/types/listing.entity.types';
 import type { ModuleKey } from '@/lib/domain/modules';
+import { resolvePartnershipIntent } from '@/features/founders/partnership-intent';
 import { categoryRegistry } from '@/features/listings/config/category-registry';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import {
   MARKETPLACE_LISTING_TYPE_IDS,
 } from '@/features/listings/config/marketplace-category-map';
 import { toDisplayValue } from '@/features/listings/utils/display-value';
+import {
+  extractFranchiseListingDetails,
+  formatMoney,
+} from '@/features/franchise/lib/franchise-listing.mapper';
 
 export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise' | 'genel' | 'dijital';
 
@@ -83,6 +88,12 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   'ortak-ariyorum': {
     emoji: '🤝',
     label: 'ORTAK ARIYORUM',
+    group: 'ortaklik',
+    iconKey: 'partner',
+  },
+  'ortak-olmak-istiyorum': {
+    emoji: '🤝',
+    label: 'ORTAK OLMAK İSTİYORUM',
     group: 'ortaklik',
     iconKey: 'partner',
   },
@@ -178,7 +189,10 @@ export interface ListingCardDisplayMeta {
   groupLabel: string;
   groupColor: string;
   iconKey: ListingTypeIconKey;
+  /** Compact money / salary for the card header. */
   price?: string;
+  /** Extra facts shown under the listing title — not on the badge row. */
+  detail?: string;
 }
 
 function resolveListingTypeDisplay(listing: ListingWithDisplayMeta): ListingTypeDisplay {
@@ -220,6 +234,78 @@ function resolveListingTypeDisplay(listing: ListingWithDisplayMeta): ListingType
   return { emoji: '📋', label: 'İLAN', group: 'genel', iconKey: 'general' };
 }
 
+function firstDisplay(...values: unknown[]): string {
+  for (const value of values) {
+    const text = toDisplayValue(value);
+    if (text) return text;
+  }
+  return '';
+}
+
+function formatFranchiseCardDetail(listing: Listing): string {
+  const details = extractFranchiseListingDetails(listing);
+  const investment =
+    formatMoney(details.totalInvestment)
+    || formatMoney(details.franchiseFee)
+    || formatMoney(details.entryFee)
+    || formatMoney(details.minCapitalRequirement)
+    || [
+      formatMoney(details.minimumYatirim),
+      formatMoney(details.maksimumYatirim),
+    ]
+      .filter(Boolean)
+      .join(' – ');
+  const location =
+    [listing.city, listing.district].filter((part) => toDisplayValue(part)).join(', ')
+    || details.availableCities?.slice(0, 2).join(', ')
+    || '';
+  const parts = [
+    toDisplayValue(listing.industry) || toDisplayValue(listing.customFields?.sector),
+    toDisplayValue(details.businessCategory),
+    location,
+    investment,
+  ].filter(Boolean);
+  return parts.slice(0, 4).join(' · ');
+}
+
+function formatDigitalAiCardDetail(listing: Listing): string {
+  const cf = listing.customFields;
+  const parts = [
+    toDisplayValue(cf.solutionType),
+    toDisplayValue(cf.targetAudience),
+    toDisplayValue(cf.priceRange),
+  ].filter(Boolean);
+  return parts.slice(0, 3).join(' · ');
+}
+
+function formatPartnershipCardDetail(listing: Listing): string | undefined {
+  const cf = listing.customFields;
+  const intent = resolvePartnershipIntent(listing);
+
+  if (intent === 'joining') {
+    const parts = [
+      firstDisplay(cf.expertise),
+      firstDisplay(cf.sectors, cf.sector),
+      firstDisplay(cf.experience),
+      firstDisplay(cf.offeredSkills),
+      firstDisplay(cf.commitment),
+      firstDisplay(cf.partnershipType, listing.partnerDetails?.partnerType),
+    ].filter(Boolean);
+    return parts.slice(0, 4).join(' · ') || undefined;
+  }
+
+  const parts = [
+    firstDisplay(cf.sector, cf.sectors),
+    firstDisplay(cf.projectStage, cf.startupStage),
+    firstDisplay(cf.partnershipType, listing.partnerDetails?.partnerType),
+    firstDisplay(cf.expertise, cf.requiredSkills),
+    firstDisplay(cf.commitment),
+  ].filter(Boolean);
+  const equity = firstDisplay(cf.equityOffered, listing.partnerDetails?.equityOffered);
+  if (equity) parts.push(`%${equity.replace(/%/g, '')} hisse`);
+  return parts.slice(0, 4).join(' · ') || undefined;
+}
+
 function formatListingPrice(listing: Listing, group: ListingCardGroup): string | undefined {
   const cf = listing.customFields;
 
@@ -249,21 +335,7 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
     }
   }
 
-  if (group === 'franchise') {
-    const fee =
-      toDisplayValue(cf.franchiseFee)
-      || toDisplayValue(cf.franchiseBedeli)
-      || toDisplayValue(cf.totalInvestment)
-      || toDisplayValue(cf.minimumSermaye);
-    if (fee) return fee;
-  }
-
-  if (group === 'ortaklik') {
-    const partnership = toDisplayValue(cf.partnershipType) || toDisplayValue(listing.partnerDetails?.partnerType);
-    if (partnership) return partnership;
-  }
-
-  if (group === 'dijital' || group === 'genel') {
+  if (group === 'genel') {
     const price = toDisplayValue(cf.priceRange);
     if (price) return price;
   }
@@ -271,8 +343,19 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
   return undefined;
 }
 
+function formatListingDetail(listing: Listing, group: ListingCardGroup): string | undefined {
+  if (group === 'franchise') return formatFranchiseCardDetail(listing) || undefined;
+  if (group === 'ortaklik') return formatPartnershipCardDetail(listing);
+  if (group === 'dijital') return formatDigitalAiCardDetail(listing) || undefined;
+  return undefined;
+}
+
 export function resolveListingCardDisplay(listing: Listing): ListingCardDisplayMeta {
-  const typeDisplay = resolveListingTypeDisplay(listing as ListingWithDisplayMeta);
+  const resolved = resolveListingTypeDisplay(listing as ListingWithDisplayMeta);
+  const typeDisplay =
+    resolved.group === 'ortaklik' && resolvePartnershipIntent(listing) === 'joining'
+      ? LISTING_TYPE_SLUG_DISPLAY['ortak-olmak-istiyorum']
+      : resolved;
   const group = typeDisplay.group;
   const groupColor =
     typeDisplay.iconKey === 'job-seeker'
@@ -289,5 +372,6 @@ export function resolveListingCardDisplay(listing: Listing): ListingCardDisplayM
     groupColor,
     iconKey: typeDisplay.iconKey,
     price: formatListingPrice(listing, group),
+    detail: formatListingDetail(listing, group),
   };
 }

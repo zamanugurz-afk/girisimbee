@@ -670,35 +670,58 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
   Diğer: [],
 };
 
+const POSITIONS_FOR_SECTOR_CACHE = new Map<string, string[]>();
+let allTaxonomyPositionsCache: string[] | null = null;
+let sectorsByPositionLower: Map<string, string[]> | null = null;
+
 /** Flatten unique positions across sectors (plus legacy JOB_POSITION_OPTIONS consumers). */
 export function getAllTaxonomyPositions(): string[] {
+  if (allTaxonomyPositionsCache) return allTaxonomyPositionsCache;
   const set = new Set<string>();
   for (const list of Object.values(SECTOR_POSITIONS)) {
     for (const p of list ?? []) set.add(p);
   }
   set.add(MANUAL_OPTION);
-  return sortPositionsPopularThenAz(Array.from(set), [MANUAL_OPTION]);
+  allTaxonomyPositionsCache = sortPositionsPopularThenAz(Array.from(set), [MANUAL_OPTION]);
+  return allTaxonomyPositionsCache;
 }
 
 export function getPositionsForSector(sector: string | null | undefined): string[] {
-  if (!sector) return getAllTaxonomyPositions();
-  const list = SECTOR_POSITIONS[sector as SectorKey];
-  if (!list || list.length === 0) {
-    return [MANUAL_OPTION];
+  const key = sector ?? '';
+  const cached = POSITIONS_FOR_SECTOR_CACHE.get(key);
+  if (cached) return cached;
+  let result: string[];
+  if (!sector) {
+    result = getAllTaxonomyPositions();
+  } else {
+    const list = SECTOR_POSITIONS[sector as SectorKey];
+    result = !list || list.length === 0
+      ? [MANUAL_OPTION]
+      : sortPositionsPopularThenAz([...list, MANUAL_OPTION], [MANUAL_OPTION]);
   }
-  return sortPositionsPopularThenAz([...list, MANUAL_OPTION], [MANUAL_OPTION]);
+  POSITIONS_FOR_SECTOR_CACHE.set(key, result);
+  return result;
+}
+
+function getSectorsByPositionIndex(): Map<string, string[]> {
+  if (sectorsByPositionLower) return sectorsByPositionLower;
+  const index = new Map<string, string[]>();
+  for (const [sector, list] of Object.entries(SECTOR_POSITIONS)) {
+    for (const title of list ?? []) {
+      const key = title.toLocaleLowerCase('tr-TR');
+      const bucket = index.get(key);
+      if (bucket) bucket.push(sector);
+      else index.set(key, [sector]);
+    }
+  }
+  sectorsByPositionLower = index;
+  return index;
 }
 
 export function getSectorsForPosition(role: string | null | undefined): string[] {
   const needle = (role ?? '').trim();
   if (!needle || isManualCareerOption(needle)) return [];
-  const lowered = needle.toLocaleLowerCase('tr-TR');
-  const out: string[] = [];
-  for (const [sector, list] of Object.entries(SECTOR_POSITIONS)) {
-    if (!list?.some((title) => title.toLocaleLowerCase('tr-TR') === lowered)) continue;
-    out.push(sector);
-  }
-  return out;
+  return getSectorsByPositionIndex().get(needle.toLocaleLowerCase('tr-TR')) ?? [];
 }
 
 const PROFESSIONAL_SKILLS_BY_THEME: Record<string, readonly string[]> = {

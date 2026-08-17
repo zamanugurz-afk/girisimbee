@@ -7,11 +7,11 @@ export type { HeroStatKey, HeroStatsCounts } from '@/features/home/types/hero-st
 
 const EMPTY_COUNTS: HeroStatsCounts = {
   total: 0,
-  entrepreneurs: 0,
-  investors: 0,
   jobs: 0,
   partners: 0,
   franchise: 0,
+  opportunities: 0,
+  solutions: 0,
 };
 
 const REFRESH_INTERVAL_MS = 120_000;

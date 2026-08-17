@@ -8,10 +8,18 @@ import {
   MarketAdvertiseBanner,
   MarketAdvertiseCta,
 } from '@/features/ads';
-import { ADS_ROUTES } from '@/features/ads/constants/ad-inquiry.constants';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 import { getMockPublishedMarketItems } from '@/features/admin/market';
 import { Button } from '@/components/ui/button';
+import { toPublicMarketItem } from '@/features/admin/market/lib/public-market-item';
+import {
+  MARKET_BRAND_NAME,
+  MARKET_CATALOG_DESCRIPTION,
+  MARKET_CATALOG_TITLE,
+  MARKET_EMPTY_BACK_CTA,
+  MARKET_EMPTY_DESCRIPTION,
+  MARKET_EMPTY_TITLE,
+} from '@/features/admin/market/presentation/market-copy';
 
 export function MarketCatalogView() {
   const [items, setItems] = useState<MarketItem[]>(() => getMockPublishedMarketItems());
@@ -28,7 +36,11 @@ export function MarketCatalogView() {
         if (!res.ok) throw new Error('load failed');
         const json = (await res.json()) as { data?: { items?: MarketItem[] } };
         const live = json.data?.items ?? [];
-        if (!cancelled) setItems(live.length > 0 ? live : getMockPublishedMarketItems());
+        if (!cancelled) {
+          setItems(
+            live.length > 0 ? live.map(toPublicMarketItem) : getMockPublishedMarketItems(),
+          );
+        }
       } catch {
         if (!cancelled) {
           setItems(getMockPublishedMarketItems());
@@ -45,18 +57,18 @@ export function MarketCatalogView() {
   }, []);
 
   return (
-    <div className="gc-header-offset border-b border-[#EEF0F4] bg-[#FAFBFC] dark:border-border dark:bg-background">
-      <div className="mx-auto max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
+    <div className="gc-header-offset min-w-0 overflow-x-hidden border-b border-[#EEF0F4] bg-[#FAFBFC] dark:border-border dark:bg-background">
+      <div className="mx-auto min-w-0 max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
         <div className="mb-8 max-w-2xl">
           <p className="inline-flex items-center gap-1.5 font-display text-[13px] font-bold tracking-tight text-[#0B1220] dark:text-foreground">
             <Store className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            Girişimbee MARKET
+            {MARKET_BRAND_NAME}
           </p>
           <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-            Güncel fırsat ve işbirlikleri
+            {MARKET_CATALOG_TITLE}
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-            Yalnızca MARKET üzerinden yayınlanan seçili reklam ve iş birliği fırsatları.
+            {MARKET_CATALOG_DESCRIPTION}
           </p>
         </div>
 
@@ -77,16 +89,14 @@ export function MarketCatalogView() {
           </div>
         ) : items.length === 0 ? (
           <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-10 sm:flex-row sm:items-center sm:justify-between dark:border-border dark:bg-card">
-            <div>
+            <div className="min-w-0">
               <h2 className="font-display text-base font-semibold text-[#0B1220] dark:text-foreground">
-                Henüz yayınlanmış MARKET ilanı yok
+                {MARKET_EMPTY_TITLE}
               </h2>
-              <p className="mt-1 text-sm text-[#64748B]">
-                Kartınızı 5.000 TL ile hemen yayınlayabilir veya özel işbirliği talebi bırakabilirsiniz.
-              </p>
+              <p className="mt-1 text-sm text-[#64748B]">{MARKET_EMPTY_DESCRIPTION}</p>
             </div>
-            <Button asChild className="rounded-lg">
-              <Link href={ADS_ROUTES.public}>Reklam &amp; işbirliği</Link>
+            <Button asChild className="w-full rounded-lg sm:w-auto">
+              <Link href={MARKET_EMPTY_BACK_CTA.href}>{MARKET_EMPTY_BACK_CTA.label}</Link>
             </Button>
           </div>
         ) : (

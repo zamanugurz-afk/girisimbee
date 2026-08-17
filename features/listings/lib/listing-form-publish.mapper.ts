@@ -10,6 +10,7 @@ import { INVESTMENT_PUBLISH_CUSTOM_KEYS } from '@/features/investments/taxonomy/
 import { INVESTOR_PUBLISH_CUSTOM_KEYS } from '@/features/investors/lib/investor-criteria';
 import { ALL_STARTUP_STAGES_OPTION } from '@/features/listings/config/listing-field-options';
 import { resolveInvestorTicket } from '@/features/investors/lib/investor-ticket';
+import { resolvePartnershipIntent } from '@/features/founders/partnership-intent';
 
 function readString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -209,17 +210,26 @@ export function listingFormValuesToModulePayload(
       };
     }
 
-    case 'founders':
+    case 'founders': {
+      const sectors = readStringArray(customFields.sectors);
+      const sector = readString(customFields.sector) ?? sectors?.[0] ?? null;
       return {
         ...base,
+        sector,
         founderType: readString(customFields.partnershipType),
         partnershipType: readString(customFields.partnershipType),
+        partnershipIntent: resolvePartnershipIntent({ customFields }),
         startupStage: readString(customFields.projectStage),
+        projectStage: readString(customFields.projectStage),
         requiredSkills: readStringArray(customFields.expertise),
         expertise: readStringArray(customFields.expertise),
+        offeredSkills: readStringArray(customFields.offeredSkills),
+        sectors,
+        experience: readString(customFields.experience),
         equityOffered: customFields.equityOffered,
         commitment: readString(customFields.commitment),
       };
+    }
 
     case 'franchise':
       return { ...listingFormValuesToFranchiseGivePayload(values) } as Record<string, unknown> & { flow: 'give' };

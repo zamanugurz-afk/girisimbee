@@ -10,11 +10,14 @@ const DETAIL_KEYS = [
   'requiredSkills',
   'offeredSkills',
   'sectors',
+  'sector',
   'equityOffered',
   'commitment',
   'partnershipType',
   'expertise',
   'projectStage',
+  'partnershipIntent',
+  'experience',
 ] as const;
 
 export function extractFounderListingDetails(listing: Listing): FounderListingDetails {
@@ -25,6 +28,14 @@ export function extractFounderListingDetails(listing: Listing): FounderListingDe
     requiredSkills: (cf.requiredSkills as string[] | null | undefined) ?? null,
     offeredSkills: (cf.offeredSkills as string[] | null | undefined) ?? null,
     sectors: (cf.sectors as string[] | null | undefined) ?? null,
+    sector: (cf.sector as string | null | undefined) ?? null,
+    partnershipIntent: (cf.partnershipIntent as string | null | undefined) ?? null,
+    experience: (cf.experience as string | null | undefined) ?? null,
+    commitment: (cf.commitment as string | null | undefined) ?? null,
+    partnershipType: (cf.partnershipType as string | null | undefined) ?? null,
+    expertise: (cf.expertise as string[] | null | undefined) ?? null,
+    projectStage: (cf.projectStage as string | null | undefined) ?? null,
+    equityOffered: cf.equityOffered,
   };
 }
 

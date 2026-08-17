@@ -1,17 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { Sparkles, Flame, Calendar, TrendingUp, type LucideIcon } from 'lucide-react';
 import type { ContentItem } from '@/features/categories/types/category.types';
 import { ContentCard } from '@/components/girisimco/content-card';
+import { HomeSectionHeader } from '@/components/girisimco/home/home-section-header';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { ListingCardSkeleton } from '@/components/girisimco/ui/listing-card-skeleton';
 import type { HomeListingSectionConfig } from '@/features/home/config/home-sections.config';
-import {
-  HOME_CATEGORY_TABS,
-  type HomeCategoryTabId,
-} from '@/features/home/config/home-category-tabs';
 import type { HomeListingSectionState } from '@/features/home/types/home-section.types';
 import type { ListingId } from '@/lib/domain/ids';
 import { cn } from '@/lib/utils';
@@ -19,220 +14,52 @@ import { cn } from '@/lib/utils';
 interface HomeListingSectionRowProps {
   config: HomeListingSectionConfig;
   state: HomeListingSectionState;
-  /** Category tabs only on Öne Çıkan — does not affect other home sections. */
-  showCategoryTabs?: boolean;
 }
 
 const DESKTOP_LIMIT = 4;
-const SECTION_GRID_CLASS = 'hidden gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-4';
+
+const SECTION_VARIANT_MAP: Record<
+  string,
+  { icon: LucideIcon; variant: 'emerald' | 'rose' | 'sky' | 'purple' }
+> = {
+  featured: {
+    icon: Sparkles,
+    variant: 'emerald',
+  },
+  urgent: {
+    icon: Flame,
+    variant: 'rose',
+  },
+  today: {
+    icon: Calendar,
+    variant: 'sky',
+  },
+  most_viewed: {
+    icon: TrendingUp,
+    variant: 'purple',
+  },
+};
 
 export function HomeListingSectionRow({
   config,
   state,
-  showCategoryTabs = false,
 }: HomeListingSectionRowProps) {
-  const [categoryTab, setCategoryTab] = useState<HomeCategoryTabId>('all');
-  const activeTab = showCategoryTabs ? categoryTab : 'all';
-
-  const activeTabConfig =
-    HOME_CATEGORY_TABS.find((tab) => tab.id === activeTab) ?? HOME_CATEGORY_TABS[0];
-
-  const localFiltered = useMemo(() => {
-    if (activeTab === 'all') {
-      return state.items.slice(0, DESKTOP_LIMIT);
-    }
-    return state.items.filter(activeTabConfig.match).slice(0, DESKTOP_LIMIT);
-  }, [activeTab, activeTabConfig, state.items]);
-
-  const [remoteItems, setRemoteItems] = useState<ContentItem[] | null>(null);
-  const [remoteTab, setRemoteTab] = useState<HomeCategoryTabId | null>(null);
-  const [remoteLoading, setRemoteLoading] = useState(false);
-  const [remoteError, setRemoteError] = useState<string | null>(null);
-  const fetchGenRef = useRef(0);
-  const cacheRef = useRef<Partial<Record<string, ContentItem[]>>>({});
-
-  const needsRemote =
-    showCategoryTabs
-    && activeTab !== 'all'
-    && !state.isLoading
-    && localFiltered.length === 0;
-
-  useEffect(() => {
-    if (!needsRemote) {
-      fetchGenRef.current += 1;
-      setRemoteLoading(false);
-      setRemoteError(null);
-      return;
-    }
-
-    const cacheKey = `${config.id}:${activeTab}`;
-    if (Object.prototype.hasOwnProperty.call(cacheRef.current, cacheKey)) {
-      setRemoteItems(cacheRef.current[cacheKey] ?? []);
-      setRemoteTab(activeTab);
-      setRemoteLoading(false);
-      setRemoteError(null);
-      return;
-    }
-
-    const tabId = activeTab;
-    const generation = ++fetchGenRef.current;
-    const controller = new AbortController();
-    setRemoteLoading(true);
-    setRemoteError(null);
-    setRemoteItems(null);
-    setRemoteTab(tabId);
-
-    void (async () => {
-      try {
-        const params = new URLSearchParams({
-          categoryTab: tabId,
-          sectionId: config.id,
-        });
-        const res = await fetch(`/api/marketplace/home-sections?${params}`, {
-          method: 'GET',
-          signal: controller.signal,
-        });
-        const body = (await res.json()) as {
-          data?: { items?: ContentItem[] };
-          error?: string;
-        };
-        if (generation !== fetchGenRef.current) return;
-        if (!res.ok) {
-          throw new Error(body.error ?? 'İlanlar yüklenemedi');
-        }
-        const tabMatch =
-          HOME_CATEGORY_TABS.find((entry) => entry.id === tabId)?.match
-          ?? (() => false);
-        const items = (body.data?.items ?? [])
-          .filter(tabMatch)
-          .slice(0, DESKTOP_LIMIT);
-        cacheRef.current[cacheKey] = items;
-        setRemoteItems(items);
-        setRemoteTab(tabId);
-      } catch (error) {
-        if (generation !== fetchGenRef.current) return;
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        if (error instanceof Error && error.name === 'AbortError') return;
-        setRemoteItems([]);
-        setRemoteTab(tabId);
-        setRemoteError(error instanceof Error ? error.message : 'İlanlar yüklenemedi');
-      } finally {
-        if (generation === fetchGenRef.current) {
-          setRemoteLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      controller.abort();
-    };
-  }, [needsRemote, activeTab, config.id]);
-
-  const visibleItems = useMemo(() => {
-    if (activeTab === 'all') return localFiltered;
-    if (localFiltered.length > 0) return localFiltered;
-    if (remoteTab === activeTab && remoteItems) return remoteItems;
-    return [];
-  }, [activeTab, localFiltered, remoteItems, remoteTab]);
-
-  const viewAllHref =
-    showCategoryTabs && activeTab !== 'all'
-      ? activeTabConfig.viewAllHref
-      : config.viewAllHref;
-
-  const showLoading =
-    state.isLoading
-    || (needsRemote && remoteLoading && !(remoteTab === activeTab && remoteItems));
-
-  function selectTab(id: HomeCategoryTabId) {
-    if (id === categoryTab) return;
-    setCategoryTab(id);
-  }
+  const visibleItems = state.items.slice(0, DESKTOP_LIMIT);
+  const showLoading = state.isLoading;
+  const sectionMeta = SECTION_VARIANT_MAP[config.id];
 
   return (
     <section className="space-y-5" aria-labelledby={`home-section-${config.id}`}>
-      <div className="flex flex-col gap-4">
-        <div
-          className={cn(
-            'relative overflow-hidden rounded-2xl border border-[#E8EAF0] bg-white/90',
-            'shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-18px_rgba(15,23,42,0.18)]',
-            'dark:border-border dark:bg-card',
-          )}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-90"
-            style={{
-              background: `radial-gradient(ellipse 70% 120% at 0% 0%, ${config.accent}14, transparent 55%)`,
-            }}
-            aria-hidden
-          />
-          <div
-            className="absolute inset-y-3 left-0 w-[3px] rounded-full"
-            style={{ backgroundColor: config.accent }}
-            aria-hidden
-          />
-
-          <div className="relative flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
-            <div className="min-w-0 pl-2 sm:pl-2.5">
-              <h2
-                id={`home-section-${config.id}`}
-                className={cn(
-                  'font-display text-xl font-bold tracking-tight sm:text-2xl',
-                  config.titleClassName,
-                )}
-              >
-                {config.title}
-              </h2>
-              <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-[#64748B]">
-                {config.description}
-              </p>
-            </div>
-
-            <Link
-              href={viewAllHref}
-              className={cn(
-                'inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl border border-[#E6E8EE] bg-white/95',
-                'px-3.5 py-2 text-[13px] font-semibold text-[#0B1220]',
-                'shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all',
-                'hover:border-[#0B1220]/20 hover:bg-white hover:shadow-[0_4px_12px_-6px_rgba(15,23,42,0.2)]',
-                'sm:self-auto dark:border-border dark:bg-card dark:text-foreground',
-              )}
-            >
-              Tümünü Gör
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-            </Link>
-          </div>
-        </div>
-
-        {showCategoryTabs ? (
-          <div
-            className="flex flex-wrap gap-1.5"
-            role="tablist"
-            aria-label="Öne çıkan kategori filtreleri"
-          >
-            {HOME_CATEGORY_TABS.map((tab) => {
-              const selected = tab.id === categoryTab;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  aria-pressed={selected}
-                  onClick={() => selectTab(tab.id)}
-                  className={cn(
-                    'inline-flex items-center rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors',
-                    selected
-                      ? 'bg-[#0B1220] text-white'
-                      : 'bg-[#F1F3F7] text-[#475569] hover:bg-[#E8EAF0] hover:text-[#0B1220] dark:bg-muted dark:text-muted-foreground',
-                  )}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
+      <div>
+        <HomeSectionHeader
+          headingId={`home-section-${config.id}`}
+          title={config.title}
+          description={config.description}
+          href={config.viewAllHref}
+          ctaLabel="Tümünü Gör"
+          icon={sectionMeta?.icon}
+          variant={sectionMeta?.variant ?? 'default'}
+        />
       </div>
 
       {showLoading ? (
@@ -244,32 +71,46 @@ export function HomeListingSectionRow({
               </div>
             ))}
           </div>
-          <div className={SECTION_GRID_CLASS}>
-            {Array.from({ length: DESKTOP_LIMIT }).map((_, index) => (
-              <ListingCardSkeleton key={index} />
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-y-5 lg:gap-y-0 sm:divide-x divide-slate-200 dark:divide-zinc-800">
+            {Array.from({ length: DESKTOP_LIMIT }).map((_, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  'relative h-full',
+                  idx === 0 ? 'sm:pr-4 lg:pr-3 sm:pl-0' : idx === 3 ? 'sm:pl-4 lg:pl-3 sm:pr-0' : 'sm:px-4 lg:px-3'
+                )}
+              >
+                <ListingCardSkeleton />
+              </div>
             ))}
           </div>
         </>
-      ) : state.error || remoteError ? (
-        <p className="rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">
-          {remoteError ?? state.error}
+      ) : state.error ? (
+        <p className="rounded-2xl border border-dashed border-slate-200 bg-white/70 backdrop-blur-sm px-5 py-8 text-sm text-zinc-500">
+          {state.error}
         </p>
       ) : visibleItems.length === 0 ? (
-        <p className="flex min-h-[14rem] items-center rounded-2xl border border-dashed border-[#E6E8EE] bg-white px-5 py-8 text-sm text-[#64748B]">
-          {showCategoryTabs && activeTab !== 'all'
-            ? 'Bu kategoride henüz ilan yok.'
-            : config.emptyMessage}
+        <p className="flex min-h-[14rem] items-center justify-center rounded-2xl border border-dashed border-slate-200/80 bg-white/70 backdrop-blur-sm px-5 py-8 text-sm text-zinc-500">
+          {config.emptyMessage}
         </p>
       ) : (
         <>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 snap-x snap-mandatory ib-scrollbar-none lg:hidden">
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 snap-x snap-mandatory ib-scrollbar-none sm:hidden">
             {visibleItems.map((item) => (
               <HomeSectionCard key={item.id} item={item} layout="scroll" />
             ))}
           </div>
-          <div className={SECTION_GRID_CLASS}>
-            {visibleItems.map((item) => (
-              <HomeSectionCard key={item.id} item={item} layout="grid" />
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-y-5 lg:gap-y-0 sm:divide-x divide-slate-200 dark:divide-zinc-800">
+            {visibleItems.map((item, idx) => (
+              <div
+                key={item.id}
+                className={cn(
+                  'relative h-full',
+                  idx === 0 ? 'sm:pr-4 lg:pr-3 sm:pl-0' : idx === 3 ? 'sm:pl-4 lg:pl-3 sm:pr-0' : 'sm:px-4 lg:px-3'
+                )}
+              >
+                <HomeSectionCard item={item} layout="grid" />
+              </div>
             ))}
           </div>
         </>

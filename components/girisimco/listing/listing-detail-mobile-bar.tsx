@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
+import { isContactIdentityGated } from '@/features/contact-requests/config/contact-cta-copy';
 import { FollowUserButton } from '@/components/girisimco/profile/follow-user-button';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { ListingDetail } from '@/features/listings';
@@ -39,19 +40,13 @@ export function ListingDetailMobileBar({ listing }: { listing: ListingDetail }) 
             listingId={listing.listingId}
             listingTitle={listing.title}
             isOwner={isOwner}
+            categoryId={listing.category.id}
+            identityGated={isContactIdentityGated(
+              listing.category.id,
+              listing.identityRedacted,
+            )}
             variant="compact"
-            buttonLabel={
-              listing.category.id === 'hire'
-                ? 'İlana Başvur'
-                : listing.category.id === 'find-job'
-                  ? 'İletişim Talebi Gönder'
-                  : undefined
-            }
-            className={
-              listing.category.id === 'find-job'
-                ? 'h-11 flex-[1.4] rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700'
-                : 'h-11 flex-[1.4] rounded-2xl'
-            }
+            className="h-11 flex-[1.4] rounded-2xl"
           />
         ) : (
           <Button type="button" className="h-11 flex-1 rounded-2xl" disabled>

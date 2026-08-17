@@ -17,6 +17,11 @@ import type { FranchiseListingDetailViewModel } from '@/features/franchise/types
 import { toDisplayValue } from '@/features/listings/utils/display-value';
 import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
+import {
+  FRANCHISE_CONTACT_CTA,
+  FRANCHISE_DETAIL_BACK_LABEL,
+  FRANCHISE_DETAIL_EYEBROW,
+} from '@/features/franchise/presentation/franchise-copy';
 
 function MediaLink({ href, label }: { href: string; label: string }) {
   const url = href.startsWith('http') ? href : `https://${href}`;
@@ -39,7 +44,11 @@ interface FranchiseListingDetailViewProps {
   backLabel: string;
 }
 
-export function FranchiseListingDetailView({ data, backHref, backLabel }: FranchiseListingDetailViewProps) {
+export function FranchiseListingDetailView({
+  data,
+  backHref,
+  backLabel = FRANCHISE_DETAIL_BACK_LABEL,
+}: FranchiseListingDetailViewProps) {
   const { listing, flow, details } = data;
 
   const locationParts = [listing.city, listing.district ?? details.districts].filter((part) => toDisplayValue(part));
@@ -63,15 +72,15 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
   const coverImage = details.coverImageUrl ?? details.brandLogoUrl;
 
   return (
-    <div className="gc-header-offset">
-      <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+    <div className="gc-header-offset min-w-0 overflow-x-hidden">
+      <div className="mx-auto min-w-0 max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
         <Link href={backHref} className="text-sm text-muted-foreground hover:text-foreground">
           ← {backLabel}
         </Link>
 
         <div className="mt-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {flow === 'buy' ? 'Bayilik Arayışı' : 'Franchise Fırsatı'}
+            {FRANCHISE_DETAIL_EYEBROW}
           </p>
           <h1 className="gc-page-heading mt-1 text-gc-xl">{listing.title}</h1>
           {details.companyName && (
@@ -119,7 +128,7 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
                       <FactRow label="Kuruluş Yılı" value={toDisplayValue(details.establishmentYear)} />
                       <FactRow label="Sektör" value={toDisplayValue(listing.industry)} />
                       <FactRow label="Şube Sayısı" value={toDisplayValue(details.branchCount)} />
-                      <FactRow label="Web Sitesi" value={toDisplayValue(details.website ?? listing.contactWebsite)} />
+                      <FactRow label="Web Sitesi" value={toDisplayValue(details.website)} />
                     </FactGrid>
                   </DetailSection>
                 </DetailCard>
@@ -158,7 +167,7 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
                 <DetailCard>
                   <DetailSection title="İş Modeli">
                     <FactGrid>
-                      <FactRow label="Kategori" value={toDisplayValue(details.businessCategory)} />
+                      <FactRow label="Franchise modeli" value={toDisplayValue(details.businessCategory)} />
                       <FactRow label="Çalışan Sayısı" value={toDisplayValue(details.employeeCount)} />
                       <FactRow label="Günlük Kapasite" value={toDisplayValue(details.dailyCustomerCapacity)} />
                       <FactRow label="Çalışma Saatleri" value={toDisplayValue(details.workingHours)} />
@@ -166,7 +175,7 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
                   </DetailSection>
                 </DetailCard>
 
-                <DetailSectionIf title="Destek Seçenekleri" visible={Boolean(formatSupportFlags(details))}>
+                <DetailSectionIf title="Marka avantajları" visible={Boolean(formatSupportFlags(details))}>
                   <DetailCard>
                     <p className="text-sm text-foreground">{formatSupportFlags(details)}</p>
                   </DetailCard>
@@ -242,6 +251,9 @@ export function FranchiseListingDetailView({ data, backHref, backLabel }: Franch
             <ListingContactCta
               listingId={String(listing.id)}
               listingTitle={listing.title}
+              categoryId="franchise"
+              buttonLabel={FRANCHISE_CONTACT_CTA}
+              identityGated
             />
           </aside>
         </div>

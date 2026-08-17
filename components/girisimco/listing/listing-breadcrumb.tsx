@@ -8,12 +8,15 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import type { ListingDetail } from '@/features/listings';
+import { resolveListingCategoryHref } from '@/components/girisimco/listing/listing-breadcrumb-href';
 
 interface ListingBreadcrumbProps {
   listing: ListingDetail;
 }
 
 export function ListingBreadcrumb({ listing }: ListingBreadcrumbProps) {
+  const categoryHref = resolveListingCategoryHref(listing);
+
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -28,7 +31,7 @@ export function ListingBreadcrumb({ listing }: ListingBreadcrumbProps) {
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link
-              href="/"
+              href={categoryHref}
               className="text-muted-foreground hover:text-foreground dark:hover:text-white"
             >
               {listing.category.label}

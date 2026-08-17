@@ -3,6 +3,11 @@
 import Link from 'next/link';
 import { ArrowRight, Megaphone, Sparkles } from 'lucide-react';
 import { ADS_ROUTES, MARKET_AD_PRICE_LABEL } from '@/features/ads/constants/ad-inquiry.constants';
+import {
+  MARKET_ADVERTISE_AVAILABLE_LABEL,
+  MARKET_ADVERTISE_CTA_LABEL,
+  MARKET_ADVERTISE_TITLE,
+} from '@/features/admin/market/presentation/market-copy';
 import { cn } from '@/lib/utils';
 
 export function MarketAdvertiseBanner({ className }: { className?: string }) {
@@ -70,13 +75,13 @@ export function MarketAdvertiseCta({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[9px] font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
-            Bu alan müsait
+            {MARKET_ADVERTISE_AVAILABLE_LABEL}
           </span>
           <span className="mt-1 block truncate font-display text-[13px] font-semibold text-[#0B1220] dark:text-foreground">
-            Buraya reklam verin
+            {MARKET_ADVERTISE_TITLE}
           </span>
           <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-[#0B1220]">
-            Hemen başla
+            {MARKET_ADVERTISE_CTA_LABEL}
             <ArrowRight
               className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
               aria-hidden
@@ -103,18 +108,18 @@ export function MarketAdvertiseCta({
           <Sparkles className="h-5 w-5" aria-hidden />
         </span>
         <span className="text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">
-          Bu alan müsait
+          {MARKET_ADVERTISE_AVAILABLE_LABEL}
         </span>
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-display text-[15px] font-semibold text-[#0B1220] dark:text-foreground">
-          Buraya reklam verin
+          {MARKET_ADVERTISE_TITLE}
         </h3>
         <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-[#64748B]">
           Girişimci ve yatırımcı kitlesine ulaşın. Yayın {MARKET_AD_PRICE_LABEL}.
         </p>
         <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[13px] font-semibold text-[#0B1220]">
-          Hemen başla
+          {MARKET_ADVERTISE_CTA_LABEL}
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </span>
       </div>

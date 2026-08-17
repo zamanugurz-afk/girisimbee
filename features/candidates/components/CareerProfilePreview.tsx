@@ -408,7 +408,7 @@ export function CareerProfilePreview({
   const summary = polishCareerSummary(data.longDescription);
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
   const Heading = headingAs;
-  const ctaLabel = isHire ? 'İlana Başvur' : 'İletişim Talebi Gönder';
+  const ctaLabel = 'İletişim Talebi Gönder';
   const listingId = chrome?.listingId;
   const { user } = useAuth();
   const isOwner = Boolean(user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId);
@@ -864,6 +864,7 @@ export function CareerProfilePreview({
                   listingId={listingId}
                   listingTitle={chrome?.listingTitle}
                   isOwner={isOwner}
+                  categoryId={isHire ? 'hire' : 'find-job'}
                   identityGated={chrome?.identityGated ?? !isHire}
                   variant="compact"
                   buttonLabel={ctaLabel}
@@ -883,7 +884,7 @@ export function CareerProfilePreview({
         <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
         <p>
           {isHire
-            ? 'Telefon ve e-posta kartta görünmez. Adaylar “İletişim Talebi Gönder” ile başvurur; kabul edilince iletişim açılır.'
+            ? 'Telefon ve e-posta kartta görünmez. Adaylar “İletişim Talebi Gönder” ile ulaşır; kabul edilince iletişim açılır.'
             : 'Soyad yıldızla gizlenir. Tam ad, doğum tarihi, adres ve iletişim bilgileri talep kabulünden sonra açılır.'}
         </p>
       </div>

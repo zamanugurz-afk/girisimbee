@@ -40,6 +40,12 @@ import {
   maskDisplaySurname,
   publicGenderLabel,
 } from '@/features/candidates/lib/career-public-identity';
+import { getPartnerFormSchema } from '@/features/founders/partnership-form';
+import {
+  partnershipDetailHeadline,
+  partnershipIntentLabel,
+  resolvePartnershipIntent,
+} from '@/features/founders/partnership-intent';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { formatListingNumber } from '@/features/listings/utils/listing-number';
 import {
@@ -129,6 +135,20 @@ const INVESTMENT_BLOCK_CUSTOM_KEYS = new Set([
 
 /** Shown as feature cards on Digital & AI detail — omit from flat fact rows. */
 const DIGITAL_AI_CAPABILITY_FACT_KEYS = new Set(['capabilities']);
+
+/** Never surface intent flags or direct contact channels on public facts. */
+const PRIVATE_CUSTOM_FACT_KEYS = new Set([
+  'partnershipIntent',
+  'phone',
+  'email',
+  'whatsapp',
+  'contactPhone',
+  'contactEmail',
+  'contactWhatsapp',
+  'contactWebsite',
+  'phoneNumber',
+  'mobile',
+]);
 
 /** Form schema key → possible stored aliases after module publish remap. */
 const CUSTOM_FIELD_ALIASES: Record<string, string[]> = {
@@ -239,15 +259,17 @@ function formatDate(iso: string | null): string {
 function buildCustomFacts(
   categorySlug: string,
   customFields: Record<string, unknown>,
+  schemaOverride?: ListingFieldSchema,
 ): { label: string; value: string }[] {
-  const schema = CATEGORY_FIELD_SCHEMAS[categorySlug];
+  const schema = schemaOverride ?? CATEGORY_FIELD_SCHEMAS[categorySlug];
   if (!schema) return [];
 
   const hideInvestmentKeys =
     categorySlug === 'yatirim-bul' || categorySlug === 'yatirim-yap';
 
   const facts = schema.fields
-    .filter((field) => !COMPANY_BLOCK_CUSTOM_KEYS.has(field.key))
+    .filter((field) => categorySlug === 'ortak-bul' || !COMPANY_BLOCK_CUSTOM_KEYS.has(field.key))
+    .filter((field) => !PRIVATE_CUSTOM_FACT_KEYS.has(field.key))
     .filter((field) => !(hideInvestmentKeys && INVESTMENT_BLOCK_CUSTOM_KEYS.has(field.key)))
     .filter((field) => !(categorySlug === 'dijital-ai' && DIGITAL_AI_CAPABILITY_FACT_KEYS.has(field.key)))
     .map((field) => {
@@ -309,6 +331,20 @@ export function aggregateToListingDetail(
 
   const sourceCf = listing.customFields ?? {};
   const cf: Record<string, unknown> = { ...sourceCf };
+  const partnershipIntent =
+    categorySlug === 'ortak-bul' ? resolvePartnershipIntent(listing) : undefined;
+  if (categorySlug === 'ortak-bul' || categorySlug === 'dijital-ai') {
+    delete cf.partnershipIntent;
+    delete cf.phone;
+    delete cf.email;
+    delete cf.whatsapp;
+    delete cf.contactPhone;
+    delete cf.contactEmail;
+    delete cf.contactWhatsapp;
+    delete cf.contactWebsite;
+    delete cf.phoneNumber;
+    delete cf.mobile;
+  }
   if (redactIdentity || categorySlug === 'is-bul') {
     // Career public card: never surface employer/company-shaped fields.
     delete cf.companyName;
@@ -332,7 +368,13 @@ export function aggregateToListingDetail(
   const publisher = redactIdentity
     ? buildAnonymousPublisher()
     : buildPublisher(listing.companyId, listing.ownerId, context);
-  const customFacts = buildCustomFacts(categorySlug, cf);
+  const customFacts = buildCustomFacts(
+    categorySlug,
+    cf,
+    categorySlug === 'ortak-bul'
+      ? getPartnerFormSchema(partnershipIntent ?? 'seeking')
+      : undefined,
+  );
   const capabilityModules: DigitalAiCapability[] =
     categorySlug === 'dijital-ai' ? resolveDigitalAiCapabilities(cf.capabilities) : [];
 
@@ -416,7 +458,7 @@ export function aggregateToListingDetail(
   const companyEmployees = redactIdentity
     ? ''
     : toDisplayValue(context?.company?.employeeCount) || toDisplayValue(cf.employeeCount);
-  const companySector = redactIdentity
+  const companySector = redactIdentity || categorySlug === 'ortak-bul'
     ? ''
     : toDisplayValue(cf.sector) || toDisplayValue(listing.industry);
   const companyBranchCount = redactIdentity ? '' : toDisplayValue(cf.branchCount);
@@ -430,8 +472,10 @@ export function aggregateToListingDetail(
         : 'find-investment');
 
   const metaLabel =
-    CATEGORY_PAGE_CONFIG[categorySlug]?.label
-    ?? (categorySlug === 'is-bul' ? 'İş Arıyorum' : undefined);
+    categorySlug === 'ortak-bul' && partnershipIntent
+      ? partnershipIntentLabel(partnershipIntent)
+      : CATEGORY_PAGE_CONFIG[categorySlug]?.label
+        ?? (categorySlug === 'is-bul' ? 'İş Arıyorum' : undefined);
 
   const languageTags = Array.isArray(cf.languageTags)
     ? (cf.languageTags as unknown[]).map((t) => String(t).trim()).filter(Boolean)
@@ -448,7 +492,7 @@ export function aggregateToListingDetail(
     listingId: listing.id,
     listingNumber: formatListingNumber(listing.id),
     // Omit owner/company ids when identity-gated so clients cannot enumerate /uye/{id}.
-    ownerUserId: redactIdentity ? undefined : listing.ownerId,
+    ownerUserId: redactIdentity || categorySlug === 'dijital-ai' ? undefined : listing.ownerId,
     // Public detail never exposes direct contact channels — contact-request flow only.
     contactPhone: null,
     contactWhatsapp: null,
@@ -516,6 +560,10 @@ export function aggregateToListingDetail(
       time: formatDate(a.createdAt),
     })),
     similar: [],
+    intentHeadline:
+      categorySlug === 'ortak-bul' && partnershipIntent
+        ? partnershipDetailHeadline(partnershipIntent)
+        : undefined,
     customFacts:
       categorySlug === 'is-bul'
       || categorySlug === 'ise-al'

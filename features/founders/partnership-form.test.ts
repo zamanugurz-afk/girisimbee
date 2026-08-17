@@ -1,0 +1,79 @@
+import { describe, expect, it } from 'vitest';
+import {
+  getPartnerFormFieldKeys,
+  getPartnerFormSchema,
+  partnerCoreFieldLabels,
+} from '@/features/founders/partnership-form';
+import { getListingFormSteps } from '@/features/listings/config/listing-form-steps.config';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+
+describe('partner form variants', () => {
+  it('uses different fields for seeking and joining', () => {
+    const seeking = getPartnerFormFieldKeys('seeking');
+    const joining = getPartnerFormFieldKeys('joining');
+
+    expect(seeking).toEqual([
+      'sector',
+      'projectStage',
+      'partnershipType',
+      'expertise',
+      'commitment',
+      'equityOffered',
+    ]);
+    expect(joining).toEqual([
+      'expertise',
+      'offeredSkills',
+      'sectors',
+      'partnershipType',
+      'projectStage',
+      'commitment',
+      'experience',
+      'equityOffered',
+    ]);
+    expect(seeking).not.toContain('offeredSkills');
+    expect(seeking).not.toContain('experience');
+    expect(joining).toContain('offeredSkills');
+    expect(joining).toContain('experience');
+  });
+
+  it('labels joining fields as a profile offer, not a partner search', () => {
+    const seeking = getPartnerFormSchema('seeking').fields;
+    const joining = getPartnerFormSchema('joining').fields;
+
+    expect(seeking.find((field) => field.key === 'expertise')?.label).toBe('Aranan uzmanlıklar');
+    expect(joining.find((field) => field.key === 'expertise')?.label).toBe('Uzmanlık alanları');
+    expect(joining.find((field) => field.key === 'partnershipType')?.label).toBe(
+      'İlgilendiğim girişim / proje tipi',
+    );
+    expect(joining.find((field) => field.key === 'offeredSkills')?.label).toBe(
+      'Sunduğum yetkinlikler',
+    );
+    expect(joining.find((field) => field.key === 'equityOffered')?.label).toBe(
+      'Hisse beklentisi (%)',
+    );
+    expect(partnerCoreFieldLabels('seeking').title).toBe('Girişim / proje başlığı');
+    expect(partnerCoreFieldLabels('joining').title).toBe('Profil başlığı');
+  });
+
+  it('builds different create steps for joining vs seeking', () => {
+    const seeking = getListingFormSteps(CATEGORY_IDS.ortakBul, { partnershipIntent: 'seeking' });
+    const joining = getListingFormSteps(CATEGORY_IDS.ortakBul, { partnershipIntent: 'joining' });
+
+    expect(seeking.find((step) => step.id === 'partnership')?.title).toBe('Aranan ortak');
+    expect(joining.find((step) => step.id === 'partnership')?.title).toBe('Sunduğum değer');
+    expect(joining.find((step) => step.id === 'basics')?.title).toBe('Profiliniz');
+    expect(joining.find((step) => step.id === 'details')?.coreFields).toEqual([
+      'longDescription',
+      'city',
+    ]);
+    expect(seeking.find((step) => step.id === 'partnership')?.customFieldKeys).toEqual([
+      'sector',
+      'projectStage',
+      'partnershipType',
+      'expertise',
+      'commitment',
+      'equityOffered',
+    ]);
+    expect(JSON.stringify(joining)).not.toMatch(/Aranan ortak|Aranan uzmanlık/);
+  });
+});

@@ -78,6 +78,12 @@ describe('resolveListingCardDisplay', () => {
         listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
         title: 'AI çözüm',
         shortDescription: 'Dijital AI kısa açıklama metni.',
+        customFields: {
+          solutionType: 'SaaS ürünü',
+          targetAudience: 'KOBİ',
+          priceRange: 'Aylık abonelik',
+          contactPhone: '05551234567',
+        },
       }),
       listingTypeSlug: 'dijital-ai-cozum',
       categorySlug: 'dijital-ai',
@@ -86,5 +92,57 @@ describe('resolveListingCardDisplay', () => {
     const display = resolveListingCardDisplay(listing);
     expect(display.iconKey).toBe('digital');
     expect(display.group).toBe('dijital');
+    expect(display.detail).toContain('SaaS ürünü');
+    expect(display.detail).toContain('KOBİ');
+    expect(display.detail).toContain('Aylık abonelik');
+    expect(display.detail).not.toContain('05551234567');
+    expect(display.price).toBeUndefined();
+  });
+
+  it('labels legacy ortak listings as seeking', () => {
+    const listing = createListing({
+      ownerId: ids.user('u0000001-0001-4000-8000-000000000001'),
+      categoryId: CATEGORY_IDS.ortakBul,
+      listingTypeId: LISTING_TYPE_IDS.ortakBulDefault,
+      moduleKey: 'founders',
+      title: 'Teknik ortak arıyoruz',
+      shortDescription: 'Ortaklık ilanı kısa açıklama metnidir.',
+      customFields: {
+        sector: 'SaaS / Yazılım',
+        partnershipType: 'Kurucu Ortak',
+        equityOffered: 12,
+      },
+    });
+
+    const display = resolveListingCardDisplay(listing);
+    expect(display.typeLabel).toBe('ORTAK ARIYORUM');
+    expect(display.group).toBe('ortaklik');
+    expect(display.detail).toContain('SaaS / Yazılım');
+    expect(display.detail).toContain('Kurucu Ortak');
+    expect(display.detail).toContain('hisse');
+    expect(display.price).toBeUndefined();
+  });
+
+  it('labels joining listings separately', () => {
+    const listing = createListing({
+      ownerId: ids.user('u0000001-0001-4000-8000-000000000001'),
+      categoryId: CATEGORY_IDS.ortakBul,
+      listingTypeId: LISTING_TYPE_IDS.ortakBulDefault,
+      moduleKey: 'founders',
+      title: 'Ortak olmak istiyorum',
+      shortDescription: 'Ortaklık ilanı kısa açıklama metnidir.',
+      customFields: {
+        partnershipIntent: 'joining',
+        expertise: ['Ürün yönetimi'],
+        experience: '5-10 yıl',
+        sectors: ['SaaS / Yazılım'],
+      },
+    });
+
+    const display = resolveListingCardDisplay(listing);
+    expect(display.typeLabel).toBe('ORTAK OLMAK İSTİYORUM');
+    expect(display.detail).toContain('Ürün yönetimi');
+    expect(display.detail).toContain('5-10 yıl');
+    expect(display.price).toBeUndefined();
   });
 });

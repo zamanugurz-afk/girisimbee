@@ -3,6 +3,8 @@
  */
 import type { CategoryId } from '@/lib/domain/ids';
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
+import { getPartnerFormFieldKeys } from '@/features/founders/partnership-form';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 
 export type CoreFieldKey = keyof CoreListingFieldsInput;
@@ -263,7 +265,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       id: 'partnership',
       title: 'Ortaklık Detayları',
       description: 'Aradığınız ortak tipi, uzmanlık ve taahhüt beklentileri',
-      customFieldKeys: 'all',
+      customFieldKeys: getPartnerFormFieldKeys('seeking'),
     },
     STEP_IMAGES,
   ),
@@ -385,16 +387,28 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
   [CATEGORY_IDS.bayilikAl]: withPublishFlow(
     {
       id: 'brand',
-      title: 'Marka Bilgileri',
-      description: 'Marka adı, kısa tarihçe ve şirket bilgileri — kartlarda özet görünür',
+      title: 'Marka ve fırsat',
+      description: 'Franchise fırsatınızı yayınlayın. Markanızı tanıtın.',
       leadCustomFieldKeys: ['companyName'],
       coreFields: ['title', 'shortDescription', 'longDescription'],
-      customFieldKeys: ['companyName', 'establishmentYear', 'sector', 'branchCount', 'website'],
+      customFieldKeys: ['companyName', 'sector', 'establishmentYear', 'branchCount', 'website'],
+    },
+    {
+      id: 'business-model',
+      title: 'Franchise modeli',
+      description: 'Franchise modelinizi açıklayın. Operasyon ve marka avantajlarını ekleyin.',
+      customFieldKeys: [
+        'businessCategory',
+        'workingHours',
+        'trainingSupport',
+        'operationalSupport',
+        'marketingSupport',
+      ],
     },
     {
       id: 'investment',
-      title: 'Yatırım Bilgileri',
-      description: 'Yatırım bütçesi, giriş / isim hakkı bedeli ve geri dönüş beklentileri',
+      title: 'Yatırım bilgileri',
+      description: 'Yatırım aralığını belirtin. Giriş ve franchise bedelini ekleyin.',
       customFieldKeys: [
         'totalInvestment',
         'entryFee',
@@ -409,8 +423,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'location',
-      title: 'Lokasyon Bilgileri',
-      description: 'Franchise açılabilecek şehirler ve mağaza gereksinimleri',
+      title: 'Lokasyon',
+      description: 'Faaliyet göstermek istediğiniz lokasyonları belirtin.',
       customFieldKeys: [
         'availableCities',
         'districts',
@@ -421,21 +435,9 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       ],
     },
     {
-      id: 'business-model',
-      title: 'İş Modeli',
-      description: 'Operasyon modeli ve destek seçenekleri',
-      customFieldKeys: [
-        'businessCategory',
-        'workingHours',
-        'trainingSupport',
-        'operationalSupport',
-        'marketingSupport',
-      ],
-    },
-    {
       id: 'requirements',
-      title: 'Franchise Gereksinimleri',
-      description: 'Yatırımcılardan beklenen sermaye ve deneyim şartları',
+      title: 'Franchise şartları',
+      description: 'Beklenen sermaye, deneyim ve diğer şartları belirtin.',
       customFieldKeys: [
         'minCapitalRequirement',
         'experienceRequirement',
@@ -446,7 +448,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'media',
-      title: 'Medya ve Belgeler',
+      title: 'Görseller ve belgeler',
       description: 'Marka görselleri, tanıtım videosu ve sunum belgeleri',
       meta: ['images'],
       customFieldKeys: ['introductionVideoUrl', 'presentationPdfUrl', 'sampleContractUrl'],
@@ -500,7 +502,61 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
   ),
 };
 
-export function getListingFormSteps(categoryId: CategoryId): ListingFormStepDef[] {
+export function getListingFormSteps(
+  categoryId: CategoryId,
+  options?: { partnershipIntent?: PartnershipIntent },
+): ListingFormStepDef[] {
+  if (categoryId === CATEGORY_IDS.ortakBul) {
+    const intent = options?.partnershipIntent ?? 'seeking';
+    const keys = getPartnerFormFieldKeys(intent);
+    if (intent === 'joining') {
+      const joiningOfferKeys = keys.filter((key) => key !== 'equityOffered');
+      return withPublishFlow(
+        {
+          id: 'basics',
+          title: 'Profiliniz',
+          description: 'Kartlarda görünecek başlık ve kısa tanıtım',
+          coreFields: ['title', 'shortDescription'],
+        },
+        {
+          id: 'partnership',
+          title: 'Sunduğum değer',
+          description: 'Uzmanlık, yetkinlik ve ilgilendiğiniz girişimler',
+          customFieldKeys: joiningOfferKeys,
+        },
+        {
+          id: 'details',
+          title: 'Kendinizi tanıtın',
+          description: 'Kısa profil, lokasyon ve isteğe bağlı hisse beklentisi',
+          coreFields: ['longDescription', 'city'],
+          customFieldKeys: keys.includes('equityOffered') ? ['equityOffered'] : [],
+        },
+        STEP_IMAGES,
+      );
+    }
+    return withPublishFlow(
+      {
+        id: 'basics',
+        title: 'Girişim / proje',
+        description: 'Kartlarda görünecek başlık ve kısa özet',
+        coreFields: ['title', 'shortDescription'],
+      },
+      {
+        id: 'partnership',
+        title: 'Aranan ortak',
+        description: 'Sektör, aşama, ortak tipi ve uzmanlık',
+        customFieldKeys: keys,
+      },
+      {
+        id: 'details',
+        title: 'Proje ve konum',
+        description: 'Ortaklık beklentinizi ve lokasyonu anlatın',
+        coreFields: ['longDescription', 'city'],
+      },
+      STEP_IMAGES,
+    );
+  }
+
   return LISTING_FORM_STEPS[categoryId] ?? withPublishFlow(
     STEP_BASICS,
     STEP_DETAILS,
