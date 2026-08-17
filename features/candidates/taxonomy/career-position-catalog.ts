@@ -951,6 +951,7 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Aşçı yardımcısı': 'kitchen',
   'Şef / mutfak şefi': 'kitchenChef',
   Barista: 'kitchen',
+  'Barmen / Barmaid': 'kitchen',
   'Mutfak personeli': 'kitchen',
   'Gıda mühendisi': 'factory',
   'Satış danışmanı': 'retail',
@@ -986,15 +987,18 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Bankacı / banka personeli': 'bankFront',
   'Şube müdürü': 'branchManager',
   'Kredi uzmanı': 'credit',
-  'Kredi analisti': 'credit',
+  'Finans direktörü (CFO)': 'credit',
+  'Finans müdürü': 'credit',
   'Finans uzmanı': 'credit',
   'Risk analisti': 'credit',
   'Hazine uzmanı': 'credit',
+  'Bütçe ve raporlama uzmanı': 'accounting',
   Muhasebeci: 'accounting',
   'Mali müşavir yardımcısı': 'accounting',
   'Yatırım danışmanı': 'credit',
   'Operasyon uzmanı': 'admin',
   'İç kontrol uzmanı': 'credit',
+  'İç denetim / İç kontrol uzmanı': 'credit',
   'Uyum (compliance) uzmanı': 'credit',
   'Yazılım geliştirici': 'software',
   'Frontend geliştirici': 'software',
@@ -1229,7 +1233,7 @@ function inferFamily(role: string): RoleFamily | null {
   if (/aşçı|barista|mutfak/.test(hay)) return 'kitchen';
   if (/kasiyer/.test(hay)) return 'cashier';
   if (/satış danışman|mağaza|market|vitrin/.test(hay)) return 'retail';
-  if (/çağrı merkezi|müşteri temsil|destek uzman|şikayet/.test(hay)) return 'callCenter';
+  if (/çağrı merkezi|müşteri temsil|destek uzman|şikayet|helpdesk/.test(hay)) return 'callCenter';
   if (/müşteri başarı/.test(hay)) return 'customerSuccess';
   if (/servis danışman|otomotiv|yedek parça|kaporta|oto yıkama/.test(hay)) return 'autoService';
   if (/saha satış/.test(hay)) return 'salesField';
@@ -1247,7 +1251,7 @@ function inferFamily(role: string): RoleFamily | null {
   if (/geliştirici|yazılım/.test(hay)) return 'software';
   if (/öğretmen|eğitmen|akademisyen|eğitim/.test(hay)) return 'teacher';
   if (/insan kaynak|işe alım|bordro|ik /.test(hay)) return 'hr';
-  if (/pazarlama|reklam|sosyal medya|seo|e-ticaret/.test(hay)) return 'marketing';
+  if (/pazarlama|reklam|sosyal medya|seo|e-ticaret|growth|büyüme/.test(hay)) return 'marketing';
   if (/avukat|hukuk|sözleşme|uyuşmazlık/.test(hay)) return 'legal';
   if (/şoför|kurye|personel servis/.test(hay)) return 'driver';
   if (/depo|lojistik|forklift|sevkiyat|tedarik/.test(hay)) return 'logistics';

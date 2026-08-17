@@ -227,17 +227,6 @@ export function CareerExperienceEditor({
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor={`company-${row.id}`}>Şirket (isteğe bağlı, kamuya kapalı)</Label>
-              <Input
-                id={`company-${row.id}`}
-                value={row.company ?? ''}
-                disabled={disabled}
-                placeholder="Yalnızca sizin kaydınızda saklanır"
-                onKeyDown={(event) => event.stopPropagation()}
-                onChange={(e) => updateRow(row.id, { company: e.target.value })}
-              />
-            </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">

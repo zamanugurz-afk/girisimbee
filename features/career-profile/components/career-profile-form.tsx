@@ -29,6 +29,7 @@ import {
   PARTNER_EXPERTISE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
 import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
 import { presentCareerJourney } from '@/features/career-profile/journey';
 import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
 import type { CareerProfileFormValues, CareerProfileRecord } from '@/features/career-profile/types';
@@ -60,6 +61,7 @@ import {
   Wrench,
   PieChart,
   Rocket,
+  Wand2,
 } from 'lucide-react';
 
 const fieldClass =
@@ -68,6 +70,33 @@ const selectClass =
   'h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900';
 const areaClass =
   'min-h-[110px] w-full min-w-0 rounded-xl border border-slate-200 bg-white p-3 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 leading-relaxed';
+
+const POPULAR_TOOLS_CATALOG = [
+  'Jira',
+  'Figma',
+  'Slack',
+  'Notion',
+  'Postman',
+  'Git / GitHub',
+  'Docker',
+  'Google Analytics',
+  'Excel (İleri)',
+  'SAP',
+  'Salesforce',
+  'Canva',
+  'Trello',
+  'VS Code',
+  'Photoshop',
+  'Premiere Pro',
+  'Power BI',
+  'Tableau',
+  'SQL Server',
+  'MongoDB',
+  'AWS',
+  'HubSpot',
+  'Shopify',
+  'Zendesk',
+];
 
 function FormSection({
   stepNumber,
@@ -137,7 +166,7 @@ export function CareerProfileForm({
   persona?: CareerPersonaKind;
   displayName?: string | null;
 }) {
-  // Extract initial multi-select values or fallback from comma-delimited strings
+  // Initial multi-select values
   const initialRoles = useMemo(() => {
     if (record.values.roles && record.values.roles.length > 0) return record.values.roles;
     if (record.values.role) {
@@ -186,6 +215,16 @@ export function CareerProfileForm({
     return [];
   }, [record.values.technicalSkillsList, record.values.technicalSkills]);
 
+  const initialTools = useMemo(() => {
+    if (record.values.tools) {
+      return record.values.tools
+        .split(/[·,]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }, [record.values.tools]);
+
   // Primary Basics
   const [primaryRole, setPrimaryRole] = useState(record.values.role || initialRoles[0] || '');
   const [primarySector, setPrimarySector] = useState(record.values.sector || initialSectors[0] || '');
@@ -197,7 +236,7 @@ export function CareerProfileForm({
   const [birthDate, setBirthDate] = useState(record.values.birthDate || '');
   const [profileGender, setProfileGender] = useState(record.values.profileGender || '');
 
-  // Career Experience History
+  // Career Experience History (Job seeker without company name)
   const [experiences, setExperiences] = useState<CareerExperience[]>(
     record.values.experiences && record.values.experiences.length > 0
       ? record.values.experiences
@@ -214,7 +253,8 @@ export function CareerProfileForm({
   const [profSkillInput, setProfSkillInput] = useState('');
   const [selectedTechSkills, setSelectedTechSkills] = useState<string[]>(initialTechSkills);
   const [techSkillInput, setTechSkillInput] = useState('');
-  const [tools, setTools] = useState(record.values.tools || '');
+  const [selectedTools, setSelectedTools] = useState<string[]>(initialTools);
+  const [toolInput, setToolInput] = useState('');
 
   // Education & Languages & Certificates
   const [educationLevel, setEducationLevel] = useState(record.values.educationLevel || '');
@@ -239,7 +279,14 @@ export function CareerProfileForm({
   const [equityOffered, setEquityOffered] = useState(record.values.equityOffered || '');
 
   const [saving, setSaving] = useState(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [completion, setCompletion] = useState(record.completion);
+
+  // Dynamic Districts for chosen City
+  const availableDistricts = useMemo(() => {
+    if (!city) return [];
+    return getDistrictsForCity(city);
+  }, [city]);
 
   // Sector-filtered roles
   const sectorPositions = useMemo(() => {
@@ -258,6 +305,12 @@ export function CareerProfileForm({
     }
     return false;
   });
+
+  const handleCityChange = (newCity: string) => {
+    setCity(newCity);
+    setResidenceDistrict('');
+    setPreferredDistrict('');
+  };
 
   const handleSectorChange = (newSector: string) => {
     setPrimarySector(newSector);
@@ -309,16 +362,20 @@ export function CareerProfileForm({
   const smartProfSkillSuggestions = useMemo(() => {
     const sec = primarySector || selectedSectors[0] || '';
     const role = primaryRole || selectedRoles[0] || '';
-    const suggestions = suggestProfessionalSkills({ sector: sec, role });
-    return suggestions.filter((s) => !selectedProfSkills.includes(s)).slice(0, 8);
-  }, [primarySector, selectedSectors, primaryRole, selectedRoles, selectedProfSkills]);
+    const suggestions = suggestProfessionalSkills({ sector: sec, role, experienceLevel });
+    return suggestions.filter((s) => !selectedProfSkills.includes(s)).slice(0, 10);
+  }, [primarySector, selectedSectors, primaryRole, selectedRoles, selectedProfSkills, experienceLevel]);
 
   const smartTechSkillSuggestions = useMemo(() => {
     const sec = primarySector || selectedSectors[0] || '';
     const role = primaryRole || selectedRoles[0] || '';
     const suggestions = suggestTechnicalSkills({ sector: sec, role });
-    return suggestions.filter((s) => !selectedTechSkills.includes(s)).slice(0, 8);
+    return suggestions.filter((s) => !selectedTechSkills.includes(s)).slice(0, 10);
   }, [primarySector, selectedSectors, primaryRole, selectedRoles, selectedTechSkills]);
+
+  const suggestedTools = useMemo(() => {
+    return POPULAR_TOOLS_CATALOG.filter((t) => !selectedTools.includes(t)).slice(0, 12);
+  }, [selectedTools]);
 
   // Handlers for Role Chips
   const handleAddRole = (roleToAdd: string) => {
@@ -369,6 +426,83 @@ export function CareerProfileForm({
     setSelectedTechSkills((prev) => prev.filter((s) => s !== skill));
   };
 
+  const handleAddTool = (tool: string) => {
+    const trimmed = tool.trim();
+    if (!trimmed || selectedTools.includes(trimmed)) return;
+    setSelectedTools((prev) => [...prev, trimmed]);
+    setToolInput('');
+  };
+
+  const handleRemoveTool = (tool: string) => {
+    setSelectedTools((prev) => prev.filter((t) => t !== tool));
+  };
+
+  // AI Summary Generator
+  async function handleGenerateAiSummary() {
+    setIsGeneratingAi(true);
+    try {
+      const role = primaryRole || selectedRoles[0] || 'Profesyonel';
+      const sector = primarySector || selectedSectors[0] || '';
+      const expLevel = experienceLevel || 'Deneyimli';
+      const topSkills = [...selectedTechSkills.slice(0, 4), ...selectedProfSkills.slice(0, 3)].join(', ');
+      const topTools = selectedTools.slice(0, 4).join(', ');
+      const edu = educationField || educationLevel || '';
+
+      let promptIntro = '';
+      if (persona === 'seek') {
+        promptIntro = `${sector ? sector + ' sektöründe ' : ''}${expLevel} seviyesinde ${role} olarak kariyerime devam ediyorum. ${
+          edu ? edu + ' eğitimi aldım. ' : ''
+        }${topSkills ? 'Uzmanlık alanlarım: ' + topSkills + '. ' : ''}${
+          topTools ? 'Kullandığım araçlar: ' + topTools + '. ' : ''
+        }Yüksek sorumluluk bilinci ve ekip çalışmasıyla değer katabileceğim projelere odaklanıyorum.`;
+      } else if (persona === 'hire') {
+        promptIntro = `${companyName ? companyName + ' bünyesinde ' : 'Ekibimizde '}${
+          sector ? sector + ' sektöründe ' : ''
+        }${expLevel} seviyesinde ${role} arayışımız bulunmaktadır. ${
+          topSkills ? 'Aranan temel yetkinlikler: ' + topSkills + '. ' : ''
+        }Yenilikçi projelerimizde dinamik ve vizyoner çalışma arkadaşları ile büyümeyi hedefliyoruz.`;
+      } else {
+        promptIntro = `${companyName ? companyName + ' girişimi için ' : 'Girişimimiz bünyesinde '}${
+          sector ? sector + ' sektöründe ' : ''
+        }birlikte değer üreteceğimiz ${role} odağında kurucu ortak arıyoruz. ${
+          topSkills ? 'Beklenen uzmanlıklar: ' + topSkills + '. ' : ''
+        }Ortak vizyon ve hisse ortaklığı modeliyle girişimimizi ölçeklendirmeyi amaçlıyoruz.`;
+      }
+
+      // Try server AI polish or fallback to crafted synthesis
+      let generated = promptIntro;
+      try {
+        const aiRes = await fetch('/api/candidates/career-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'polish',
+            kind: 'summary',
+            text: promptIntro,
+            role,
+            sector,
+            experienceLevel: expLevel,
+          }),
+        });
+        if (aiRes.ok) {
+          const aiJson = await aiRes.json();
+          if (aiJson.data?.polished) {
+            generated = aiJson.data.polished;
+          }
+        }
+      } catch {
+        // use synthesized grounded text
+      }
+
+      setCandidateTraits(generated);
+      toast.success('✨ Yapay zeka ile profesyonel özet oluşturuldu!');
+    } catch {
+      toast.error('Özet oluşturulurken bir sorun oluştu.');
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  }
+
   // Live Preview Object
   const preview = useMemo(
     () =>
@@ -386,7 +520,7 @@ export function CareerProfileForm({
             experiences,
             professionalSkills: selectedProfSkills.join(', '),
             technicalSkills: selectedTechSkills.join(', '),
-            tools,
+            tools: selectedTools.join(', '),
             workType,
             workplacePreference,
             preferredCity: city,
@@ -427,7 +561,7 @@ export function CareerProfileForm({
       experiences,
       selectedProfSkills,
       selectedTechSkills,
-      tools,
+      selectedTools,
       workType,
       workplacePreference,
       preferredDistrict,
@@ -493,7 +627,8 @@ export function CareerProfileForm({
         professionalSkillsList: selectedProfSkills,
         technicalSkills: selectedTechSkills.join(', '),
         technicalSkillsList: selectedTechSkills,
-        tools,
+        tools: selectedTools.join(', '),
+        toolsList: selectedTools,
         workType,
         workplacePreference,
         city,
@@ -711,10 +846,11 @@ export function CareerProfileForm({
                     </select>
                   </Field>
 
+                  {/* Dynamic City & District Cascading Select */}
                   <Field label="İkamet Şehri" required>
                     <select
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => handleCityChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
@@ -726,14 +862,20 @@ export function CareerProfileForm({
                     </select>
                   </Field>
 
-                  <Field label="İkamet İlçesi" hint="Gizli tutulur">
-                    <input
-                      type="text"
+                  <Field label="İkamet İlçesi" hint={city ? 'Şehre göre listelenir (Gizli tutulur)' : 'Önce şehri seçiniz'}>
+                    <select
                       value={residenceDistrict}
                       onChange={(e) => setResidenceDistrict(e.target.value)}
-                      placeholder="Örn: Kadıköy, Çankaya..."
-                      className={fieldClass}
-                    />
+                      disabled={!city || availableDistricts.length === 0}
+                      className={selectClass}
+                    >
+                      <option value="">{city ? 'İlçe Seçiniz' : '← Önce Şehir Seçiniz'}</option>
+                      {availableDistricts.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
                   </Field>
 
                   <Field label="Doğum Tarihi" hint="Yalnızca yaş olarak gösterilir">
@@ -759,12 +901,12 @@ export function CareerProfileForm({
                 </div>
               </FormSection>
 
-              {/* Step 2: Kariyer Deneyimi (İş Geçmişi) */}
+              {/* Step 2: Kariyer Deneyimi (İş Geçmişi - Şirket adı olmadan) */}
               <FormSection
                 stepNumber={2}
                 title="Kariyer Deneyimi & İş Geçmişi"
                 icon={History}
-                description="Kariyer kartınızda ve işveren önizlemelerinde yer alacak geçmiş iş deneyimlerinizi ekleyin."
+                description="Geçmiş deneyimlerinizi sektör, pozisyon, tarih ve başarılarınızla ekleyin. Şirket ismi girilmez, gizliliğiniz korunur."
               >
                 <CareerExperienceEditor
                   value={experiences}
@@ -778,14 +920,14 @@ export function CareerProfileForm({
                 stepNumber={3}
                 title="Uzmanlık Alanları, Yetkinlikler & Araçlar"
                 icon={Sparkles}
-                description="Teknik becerileriniz, mesleki yetkinlikleriniz ve uzmanı olduğunuz yazılımlar."
+                description="Sektör ve pozisyonunuza göre önerilen teknik ve mesleki yetkinlikleri tek tıkla seçin veya kendiniz ekleyin."
               >
                 {/* Technical Skills */}
-                <Field label="Teknik Yetkinlikler" hint="Yazılımlar, programlama dilleri, framework'ler">
+                <Field label="Teknik Yetkinlikler" hint="Yazılımlar, programlama dilleri, sistemler">
                   <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                     {selectedTechSkills.length === 0 ? (
                       <span className="text-xs text-muted-foreground px-1">
-                        Teknik beceri eklenmedi. Önerilerden seçin veya yazarak ekleyin.
+                        Teknik beceri eklenmedi. Aşağıdaki önerilerden tek tıkla seçin veya yazarak ekleyin.
                       </span>
                     ) : (
                       selectedTechSkills.map((sk) => (
@@ -833,9 +975,9 @@ export function CareerProfileForm({
                   </div>
 
                   {smartTechSkillSuggestions.length > 0 && (
-                    <div className="mt-2">
-                      <span className="text-[11px] font-medium text-muted-foreground block mb-1">
-                        Önerilen Teknik Beceriler:
+                    <div className="mt-2.5">
+                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
+                        Önerilen Teknik Beceriler ({primarySector || 'Genel'}):
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {smartTechSkillSuggestions.map((sug) => (
@@ -843,7 +985,7 @@ export function CareerProfileForm({
                             key={sug}
                             type="button"
                             onClick={() => handleAddTechSkill(sug)}
-                            className="rounded-lg border border-blue-500/30 bg-blue-500/5 px-2.5 py-0.5 text-xs text-blue-600 hover:bg-blue-500/15 dark:text-blue-400 transition-colors"
+                            className="rounded-xl border border-blue-500/30 bg-blue-500/5 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-500/20 dark:text-blue-300 transition-colors"
                           >
                             + {sug}
                           </button>
@@ -855,11 +997,11 @@ export function CareerProfileForm({
 
                 {/* Professional Skills */}
                 <div className="mt-5 pt-5 border-t border-border/50">
-                  <Field label="Mesleki & Sektörel Yetkinlikler" hint="Liderlik, bütçe yönetimi, müzakere vb.">
+                  <Field label="Mesleki & Sektörel Yetkinlikler" hint="Liderlik, bütçe yönetimi, müzakere, kriz yönetimi">
                     <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                       {selectedProfSkills.length === 0 ? (
                         <span className="text-xs text-muted-foreground px-1">
-                          Mesleki yetkinlik eklenmedi.
+                          Mesleki yetkinlik eklenmedi. Önerilerden seçin veya yazın.
                         </span>
                       ) : (
                         selectedProfSkills.map((sk) => (
@@ -907,8 +1049,8 @@ export function CareerProfileForm({
                     </div>
 
                     {smartProfSkillSuggestions.length > 0 && (
-                      <div className="mt-2">
-                        <span className="text-[11px] font-medium text-muted-foreground block mb-1">
+                      <div className="mt-2.5">
+                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
                           Önerilen Mesleki Yetkinlikler:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -917,7 +1059,7 @@ export function CareerProfileForm({
                               key={sug}
                               type="button"
                               onClick={() => handleAddProfSkill(sug)}
-                              className="rounded-lg border border-purple-500/30 bg-purple-500/5 px-2.5 py-0.5 text-xs text-purple-600 hover:bg-purple-500/15 dark:text-purple-400 transition-colors"
+                              className="rounded-xl border border-purple-500/30 bg-purple-500/5 px-2.5 py-1 text-xs font-medium text-purple-700 hover:bg-purple-500/20 dark:text-purple-300 transition-colors"
                             >
                               + {sug}
                             </button>
@@ -930,14 +1072,76 @@ export function CareerProfileForm({
 
                 {/* Tools & Softwares */}
                 <div className="mt-5 pt-5 border-t border-border/50">
-                  <Field label="Kullanılan Araçlar & Yazılımlar" hint="Virgülle ayırarak yazın">
-                    <input
-                      type="text"
-                      value={tools}
-                      onChange={(e) => setTools(e.target.value)}
-                      placeholder="Örn: Jira, Figma, Slack, Notion, Google Analytics, Docker, Git..."
-                      className={fieldClass}
-                    />
+                  <Field label="Kullanılan Araçlar & Yazılımlar" hint="Popüler araçlardan tek tıkla seçin veya kendiniz ekleyin">
+                    <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
+                      {selectedTools.length === 0 ? (
+                        <span className="text-xs text-muted-foreground px-1">
+                          Araç eklenmedi. Aşağıdaki popüler araçlardan seçebilir veya yazabilirsiniz.
+                        </span>
+                      ) : (
+                        selectedTools.map((t) => (
+                          <Badge
+                            key={t}
+                            variant="secondary"
+                            className="gap-1.5 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
+                          >
+                            <span>{t}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTool(t)}
+                              className="text-emerald-700 hover:text-rose-600 dark:text-emerald-400 dark:hover:text-rose-400"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={toolInput}
+                        onChange={(e) => setToolInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddTool(toolInput);
+                          }
+                        }}
+                        placeholder="Araç yaz (örn: Jira, Figma, Excel, SAP, Slack, Notion, Docker)..."
+                        className={fieldClass}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleAddTool(toolInput)}
+                        disabled={!toolInput.trim()}
+                        className="shrink-0 rounded-xl"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {suggestedTools.length > 0 && (
+                      <div className="mt-2.5">
+                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
+                          Popüler Araçlar & Yazılımlar:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {suggestedTools.map((sug) => (
+                            <button
+                              key={sug}
+                              type="button"
+                              onClick={() => handleAddTool(sug)}
+                              className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300 transition-colors"
+                            >
+                              + {sug}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </Field>
                 </div>
               </FormSection>
@@ -970,7 +1174,7 @@ export function CareerProfileForm({
                       type="text"
                       value={educationField}
                       onChange={(e) => setEducationField(e.target.value)}
-                      placeholder="Örn: Endüstri Mühendisliği, İktisat..."
+                      placeholder="Örn: Endüstri Mühendisliği, İktisat, İletişim..."
                       className={fieldClass}
                     />
                   </Field>
@@ -990,7 +1194,7 @@ export function CareerProfileForm({
                       type="text"
                       value={certificates}
                       onChange={(e) => setCertificates(e.target.value)}
-                      placeholder="Örn: AWS Certified Developer, PMP..."
+                      placeholder="Örn: AWS Certified Developer, PMP, Six Sigma..."
                       className={fieldClass}
                     />
                   </Field>
@@ -1009,7 +1213,7 @@ export function CareerProfileForm({
                   <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                     {selectedRoles.length === 0 ? (
                       <span className="text-xs text-muted-foreground px-1">
-                        Pozisyon eklenmedi. Önerilerden seçin veya yazın.
+                        Pozisyon eklenmedi. Aşağıdaki önerilerden seçin veya yazın.
                       </span>
                     ) : (
                       selectedRoles.map((r) => (
@@ -1057,8 +1261,8 @@ export function CareerProfileForm({
                   </div>
 
                   {suggestedRoles.length > 0 && (
-                    <div className="mt-2">
-                      <span className="text-[11px] font-medium text-muted-foreground block mb-1">
+                    <div className="mt-2.5">
+                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
                         Önerilen Hedef Pozisyonlar:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
@@ -1067,7 +1271,7 @@ export function CareerProfileForm({
                             key={sug}
                             type="button"
                             onClick={() => handleAddRole(sug)}
-                            className="rounded-lg border border-slate-200 bg-white px-2.5 py-0.5 text-xs text-foreground/80 hover:border-amber-500 hover:text-amber-600 dark:border-zinc-800 dark:bg-zinc-900 transition-colors"
+                            className="rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-foreground/80 hover:border-amber-500 hover:text-amber-600 dark:border-zinc-800 dark:bg-zinc-900 transition-colors"
                           >
                             + {sug}
                           </button>
@@ -1165,21 +1369,46 @@ export function CareerProfileForm({
                 </div>
               </FormSection>
 
-              {/* Step 6: Kariyer Özeti */}
+              {/* Step 6: Kariyer Özeti (AI Destekli) */}
               <FormSection
                 stepNumber={6}
                 title="Kariyer Özeti & Hakkımda"
                 icon={FileText}
                 description="Profilinizin ve eşleşmelerinizin en üstünde yer alacak profesyonel özetiniz."
               >
-                <Field label="Kariyer Özeti">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground/85">Kariyer Özeti</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isGeneratingAi}
+                      onClick={handleGenerateAiSummary}
+                      className="h-8 gap-1.5 rounded-xl border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 font-medium text-xs shadow-2xs"
+                    >
+                      {isGeneratingAi ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-3.5 w-3.5 text-amber-500" />
+                      )}
+                      <span>
+                        {candidateTraits
+                          ? '✨ Yapay Zeka ile Yeniden Düzenle'
+                          : '✨ Yapay Zeka ile Otomatik Oluştur'}
+                      </span>
+                    </Button>
+                  </div>
                   <textarea
                     value={candidateTraits}
                     onChange={(e) => setCandidateTraits(e.target.value)}
-                    placeholder="Kariyer hedefleriniz, temel uzmanlık alanlarınız, şirkete ve ekibe katabileceğiniz değerler hakkında bilgi verin..."
+                    placeholder="Kariyer hedefleriniz, temel uzmanlık alanlarınız, şirkete ve ekibe katabileceğiniz değerler hakkında bilgi verin veya yukarıdaki '✨ Yapay Zeka ile Oluştur' butonuna basın..."
                     className={areaClass}
                   />
-                </Field>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 İpucu: Formdaki alanları doldurduktan sonra Yapay Zeka butonuna basarak 1 saniyede profesyonel özet üretebilirsiniz.
+                  </p>
+                </div>
               </FormSection>
             </>
           )}
@@ -1197,7 +1426,7 @@ export function CareerProfileForm({
                 description="İlan kartlarında açıkça gösterilecek ve adayların güvenini artıracak şirket bilgileri."
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Şirket / Girişim İsmi" required hint="İlan kartında açıkça görüntülenir">
+                  <Field label="Şirket / Girişim İsmi" hint="İlan kartında açıkça görüntülenir">
                     <div className="relative">
                       <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <input
@@ -1210,10 +1439,10 @@ export function CareerProfileForm({
                     </div>
                   </Field>
 
-                  <Field label="Şirket Sektörü" required>
+                  <Field label="Şirket Sektörü" required hint="Önce sektör seçiniz">
                     <select
                       value={primarySector}
-                      onChange={(e) => setPrimarySector(e.target.value)}
+                      onChange={(e) => handleSectorChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Sektör Seçiniz</option>
@@ -1228,7 +1457,7 @@ export function CareerProfileForm({
                   <Field label="Çalışma İli / Lokasyon" required>
                     <select
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => handleCityChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
@@ -1240,14 +1469,20 @@ export function CareerProfileForm({
                     </select>
                   </Field>
 
-                  <Field label="İlçe" hint="İsteğe bağlı">
-                    <input
-                      type="text"
+                  <Field label="İlçe" hint={city ? 'Şehre göre listelenir' : 'Önce şehri seçiniz'}>
+                    <select
                       value={preferredDistrict}
                       onChange={(e) => setPreferredDistrict(e.target.value)}
-                      placeholder="Örn: Maslak, Şişli, Ataşehir..."
-                      className={fieldClass}
-                    />
+                      disabled={!city || availableDistricts.length === 0}
+                      className={selectClass}
+                    >
+                      <option value="">{city ? 'İlçe Seçiniz' : '← Önce Şehir Seçiniz'}</option>
+                      {availableDistricts.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
                   </Field>
                 </div>
               </FormSection>
@@ -1382,14 +1617,32 @@ export function CareerProfileForm({
                 icon={Award}
                 description="Pozisyondan beklenen sorumluluklar ve başarı ölçütleri."
               >
-                <Field label="Temel Sorumluluklar" required>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground/85">Temel Sorumluluklar *</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isGeneratingAi}
+                      onClick={handleGenerateAiSummary}
+                      className="h-8 gap-1.5 rounded-xl border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 font-medium text-xs shadow-2xs"
+                    >
+                      {isGeneratingAi ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-3.5 w-3.5 text-amber-500" />
+                      )}
+                      <span>✨ Yapay Zeka ile İş Tanımı Oluştur</span>
+                    </Button>
+                  </div>
                   <textarea
                     value={candidateTraits}
                     onChange={(e) => setCandidateTraits(e.target.value)}
                     placeholder="Adayın üstleneceği temel görev ve sorumluluklar..."
                     className={areaClass}
                   />
-                </Field>
+                </div>
 
                 <div className="mt-4 pt-4 border-t border-border/50">
                   <Field label="Başarı Beklentisi & Hedefler" hint="İlk 3-6 ayda beklenen çıktılar">
@@ -1414,7 +1667,7 @@ export function CareerProfileForm({
                   <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                     {selectedTechSkills.length === 0 ? (
                       <span className="text-xs text-muted-foreground px-1">
-                        Teknik beceri eklenmedi.
+                        Teknik beceri eklenmedi. Önerilerden seçin veya yazın.
                       </span>
                     ) : (
                       selectedTechSkills.map((sk) => (
@@ -1441,6 +1694,12 @@ export function CareerProfileForm({
                       type="text"
                       value={techSkillInput}
                       onChange={(e) => setTechSkillInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddTechSkill(techSkillInput);
+                        }
+                      }}
                       placeholder="Teknik beceri ekle (örn: Next.js, Node.js, PostgreSQL)..."
                       className={fieldClass}
                     />
@@ -1454,9 +1713,29 @@ export function CareerProfileForm({
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
+
+                  {smartTechSkillSuggestions.length > 0 && (
+                    <div className="mt-2.5">
+                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
+                        Önerilen Teknik Yetkinlikler:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {smartTechSkillSuggestions.map((sug) => (
+                          <button
+                            key={sug}
+                            type="button"
+                            onClick={() => handleAddTechSkill(sug)}
+                            className="rounded-xl border border-blue-500/30 bg-blue-500/5 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-500/20 dark:text-blue-300 transition-colors"
+                          >
+                            + {sug}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </Field>
 
-                <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="mt-5 pt-5 border-t border-border/50">
                   <Field label="Aranan Mesleki Yetkinlikler">
                     <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                       {selectedProfSkills.length === 0 ? (
@@ -1488,6 +1767,12 @@ export function CareerProfileForm({
                         type="text"
                         value={profSkillInput}
                         onChange={(e) => setProfSkillInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddProfSkill(profSkillInput);
+                          }
+                        }}
                         placeholder="Mesleki yetkinlik ekle..."
                         className={fieldClass}
                       />
@@ -1501,6 +1786,26 @@ export function CareerProfileForm({
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
+
+                    {smartProfSkillSuggestions.length > 0 && (
+                      <div className="mt-2.5">
+                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
+                          Önerilen Mesleki Yetkinlikler:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {smartProfSkillSuggestions.map((sug) => (
+                            <button
+                              key={sug}
+                              type="button"
+                              onClick={() => handleAddProfSkill(sug)}
+                              className="rounded-xl border border-purple-500/30 bg-purple-500/5 px-2.5 py-1 text-xs font-medium text-purple-700 hover:bg-purple-500/20 dark:text-purple-300 transition-colors"
+                            >
+                              + {sug}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </Field>
                 </div>
               </FormSection>
@@ -1606,7 +1911,7 @@ export function CareerProfileForm({
                   <Field label="Ana Sektör" required>
                     <select
                       value={primarySector}
-                      onChange={(e) => setPrimarySector(e.target.value)}
+                      onChange={(e) => handleSectorChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Sektör Seçiniz</option>
@@ -1621,7 +1926,7 @@ export function CareerProfileForm({
                   <Field label="Şehir / Lokasyon" required>
                     <select
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => handleCityChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
@@ -1707,13 +2012,51 @@ export function CareerProfileForm({
 
                 <div className="mt-4 pt-4 border-t border-border/50">
                   <Field label="Aranan Teknik & Özel Yetkinlikler">
-                    <input
-                      type="text"
-                      value={tools}
-                      onChange={(e) => setTools(e.target.value)}
-                      placeholder="Örn: Mobil Geliştirme, B2B Kurumsal Satış, Dijital Pazarlama..."
-                      className={fieldClass}
-                    />
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={techSkillInput}
+                        onChange={(e) => setTechSkillInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddTechSkill(techSkillInput);
+                          }
+                        }}
+                        placeholder="Örn: Mobil Geliştirme, B2B Satış, Dijital Pazarlama..."
+                        className={fieldClass}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleAddTechSkill(techSkillInput)}
+                        disabled={!techSkillInput.trim()}
+                        className="shrink-0 rounded-xl"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {selectedTechSkills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedTechSkills.map((sk) => (
+                          <Badge
+                            key={sk}
+                            variant="secondary"
+                            className="gap-1.5 bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
+                          >
+                            <span>{sk}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTechSkill(sk)}
+                              className="text-blue-700 hover:text-rose-600 dark:text-blue-400 dark:hover:text-rose-400"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </Field>
                 </div>
               </FormSection>
@@ -1776,21 +2119,39 @@ export function CareerProfileForm({
                 </div>
               </FormSection>
 
-              {/* Step 5: Girişim Özeti */}
+              {/* Step 5: Girişim Özeti (AI Destekli) */}
               <FormSection
                 stepNumber={5}
                 title="Girişim Vizyonu & Proje Özeti"
                 icon={FileText}
                 description="Girişiminizin çözdüğü problem, hedef pazar ve ortaktan beklentileriniz."
               >
-                <Field label="Proje Özeti & Vizyon">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground/85">Proje Özeti & Vizyon</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isGeneratingAi}
+                      onClick={handleGenerateAiSummary}
+                      className="h-8 gap-1.5 rounded-xl border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 font-medium text-xs shadow-2xs"
+                    >
+                      {isGeneratingAi ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-3.5 w-3.5 text-amber-500" />
+                      )}
+                      <span>✨ Yapay Zeka ile Vizyon Özeti Oluştur</span>
+                    </Button>
+                  </div>
                   <textarea
                     value={candidateTraits}
                     onChange={(e) => setCandidateTraits(e.target.value)}
-                    placeholder="Girişim fikriniz, mevcut durumunuz, hedef pazarınız ve aradığınız ortaktan beklentilerinizi detaylandırın..."
+                    placeholder="Girişim fikriniz, mevcut durumunuz, hedef pazarınız ve aradığınız ortaktan beklentilerinizi detaylandırın veya Yapay Zeka butonuna basın..."
                     className={areaClass}
                   />
-                </Field>
+                </div>
               </FormSection>
             </>
           )}
