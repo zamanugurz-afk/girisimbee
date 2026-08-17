@@ -960,6 +960,25 @@ const ROLE_FAMILY: Record<string, RoleFamily> = {
   'Market personeli': 'retail',
   'Vitrin sorumlusu': 'retail',
   'Bölge müdürü': 'regionalManager',
+  'Müdür': 'public',
+  'Çağrı merkezi müdürü': 'callCenter',
+  'Çağrı merkezi operasyon müdürü': 'callCenter',
+  'Çağrı merkezi satış müdürü': 'salesManager',
+  'Çağrı merkezi takım lideri': 'callCenter',
+  'Çağrı merkezi süpervizörü': 'callCenter',
+  'Pazarlama müdürü': 'brandManager',
+  'İnsan kaynakları müdürü': 'hrManager',
+  'Müşteri hizmetleri müdürü': 'customerSuccess',
+  'Müşteri deneyimi yöneticisi': 'customerSuccess',
+  'Üretim müdürü': 'productionLead',
+  'Fabrika müdürü': 'productionLead',
+  'Lojistik müdürü': 'warehouseLead',
+  'Depo müdürü': 'warehouseLead',
+  'Proje müdürü': 'consulting',
+  'Ön büro müdürü': 'hotelOps',
+  'E-ticaret müdürü': 'storeManager',
+  'Sigorta müdürü': 'salesManager',
+  'Muhasebe müdürü': 'accounting',
   'Müşteri temsilcisi': 'callCenter',
   'Çağrı merkezi temsilcisi': 'callCenter',
   'Çağrı merkezi satış temsilcisi': 'salesIndoor',
@@ -1197,6 +1216,58 @@ const ROLE_OPENERS: Record<string, { responsibility: string; achievement: string
     responsibility: 'Satış ekibinin hedef, pipeline ve performansının yönetilmesi',
     achievement: 'Ekip satış hedefinin aşılması',
   },
+  'Çağrı merkezi müdürü': {
+    responsibility: 'Çağrı merkezi operasyon, SLA ve ekip performansının yönetilmesi',
+    achievement: 'Müşteri memnuniyet skoru ve ilk temasta çözüm oranının artırılması',
+  },
+  'Pazarlama müdürü': {
+    responsibility: 'Pazarlama stratejisi, bütçe ve marka kampanyalarının yönetilmesi',
+    achievement: 'Müşteri edinim maliyetinin düşürülmesi ve pazar payının artırılması',
+  },
+  'İnsan kaynakları müdürü': {
+    responsibility: 'Yetenek yönetimi, bordro, işe alım ve organizasyonel gelişim süreçlerinin yönetilmesi',
+    achievement: 'Çalışan bağlılığının artırılması ve personel devir oranının düşürülmesi',
+  },
+  'Müşteri hizmetleri müdürü': {
+    responsibility: 'Müşteri deneyimi, şikayet çözümü ve destek ekiplerinin yönetilmesi',
+    achievement: 'NPS ve CSAT skorlarının hedeflerin üzerine çıkarılması',
+  },
+  'Üretim müdürü': {
+    responsibility: 'Üretim hedefleri, verimlilik ve hat operasyonlarının yönetilmesi',
+    achievement: 'OEE oranının yükseltilmesi ve duruş sürelerinin azaltılması',
+  },
+  'Fabrika müdürü': {
+    responsibility: 'Fabrika genel işleyişi, bütçe, İSG ve üretim kapasitesinin yönetilmesi',
+    achievement: 'Birim üretim maliyetinin düşürülmesi ve kalite standartlarının korunması',
+  },
+  'Lojistik müdürü': {
+    responsibility: 'Tedarik zinciri, dağıtım ağı ve lojistik maliyetlerinin yönetilmesi',
+    achievement: 'Teslimat sürelerinin kısaltılması ve navlun maliyetlerinin optimize edilmesi',
+  },
+  'Depo müdürü': {
+    responsibility: 'Depo stok doğruluğu, mal kabul ve sevkiyat operasyonlarının yönetilmesi',
+    achievement: 'Stok sapma oranının %0.1 altına indirilmesi',
+  },
+  'Proje müdürü': {
+    responsibility: 'Proje kapsamı, bütçe, kaynak ve takvim planının uçtan uca yönetilmesi',
+    achievement: 'Projelerin zamanında ve bütçe dahilinde başarıyla tamamlanması',
+  },
+  'Ön büro müdürü': {
+    responsibility: 'Ön büro ekibi, misafir karşılama ve oda gelirlerinin yönetilmesi',
+    achievement: 'Misafir memnuniyeti ve oda doluluk oranının artırılması',
+  },
+  'E-ticaret müdürü': {
+    responsibility: 'E-ticaret platformları, kampanya yönetimi ve satış hedeflerinin yönetilmesi',
+    achievement: 'Dönüşüm oranının artırılması ve online ciro büyümesi',
+  },
+  'Sigorta müdürü': {
+    responsibility: 'Acente ve şube satış hedefleri ile portföy kârlılığının yönetilmesi',
+    achievement: 'Prim üretiminin artırılması ve hasar-prim oranının dengelenmesi',
+  },
+  'Muhasebe müdürü': {
+    responsibility: 'Genel muhasebe, vergi beyannameleri ve mali tabloların yönetilmesi',
+    achievement: 'Mali denetimlerin eksiksiz tamamlanması ve vergi risklerinin önlenmesi',
+  },
 };
 
 function normalizeRole(role: string): string {
@@ -1205,7 +1276,17 @@ function normalizeRole(role: string): string {
 
 function inferFamily(role: string): RoleFamily | null {
   const hay = normalizeRole(role);
-  if (/finans müdür|mali işler müdür/.test(hay)) return 'accounting';
+  if (/çağrı merkezi.*müdür|çağrı merkezi.*operasyon|çağrı merkezi.*yönetici|çağrı merkezi.*süpervizör|çağrı merkezi.*lider/.test(hay)) return 'callCenter';
+  if (/pazarlama.*müdür|pazarlama.*direktör/.test(hay)) return 'brandManager';
+  if (/ik yönetici|insan kaynakları yönetici|ik müdür|insan kaynakları müdür/.test(hay)) return 'hrManager';
+  if (/müşteri hizmetleri.*müdür|müşteri deneyimi.*yönetici/.test(hay)) return 'customerSuccess';
+  if (/üretim müdür|fabrika müdür/.test(hay)) return 'productionLead';
+  if (/depo müdür|lojistik müdür/.test(hay)) return 'warehouseLead';
+  if (/proje müdür/.test(hay)) return 'consulting';
+  if (/ön büro müdür/.test(hay)) return 'hotelOps';
+  if (/e-ticaret müdür/.test(hay)) return 'storeManager';
+  if (/sigorta müdür/.test(hay)) return 'salesManager';
+  if (/muhasebe müdür|finans müdür|mali işler müdür/.test(hay)) return 'accounting';
   if (/şube müdür/.test(hay)) return 'branchManager';
   if (/mağaza müdür/.test(hay)) return 'storeManager';
   if (/restoran müdür/.test(hay)) return 'restaurantManager';
@@ -1213,7 +1294,6 @@ function inferFamily(role: string): RoleFamily | null {
   if (/servis müdür/.test(hay)) return 'serviceManager';
   if (/satış müdür|bölge satış/.test(hay)) return 'salesManager';
   if (/bölge müdür/.test(hay)) return 'regionalManager';
-  if (/ik yönetici|insan kaynakları yönetici/.test(hay)) return 'hrManager';
   if (/ofis yönetici|idari işler/.test(hay)) return 'officeManager';
   if (/şantiye şefi/.test(hay)) return 'siteChief';
   if (/vardiya amiri/.test(hay)) return 'shiftSupervisor';

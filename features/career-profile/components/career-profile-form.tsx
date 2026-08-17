@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
+import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 import {
   EXPERIENCE_LEVEL_VALUES,
@@ -776,6 +777,21 @@ export function CareerProfileForm({
                             Listeden Seç
                           </Button>
                         </div>
+                        {primaryRole.trim().length >= 2 && (
+                          <CareerManualAssist
+                            kind="role"
+                            text={primaryRole}
+                            catalog={sectorPositions}
+                            sector={primarySector}
+                            experienceLevel={experienceLevel}
+                            onAcceptCatalog={(items) => {
+                              if (items[0]) {
+                                setPrimaryRole(items[0]);
+                                setIsCustomRoleMode(false);
+                              }
+                            }}
+                          />
+                        )}
                         <p className="text-[11px] text-muted-foreground">
                           Listede olmayan unvanınızı kendiniz girdiniz. Dilerseniz &ldquo;Listeden Seç&rdquo; ile dönebilirsiniz.
                         </p>
@@ -1523,6 +1539,21 @@ export function CareerProfileForm({
                             Listeden Seç
                           </Button>
                         </div>
+                        {primaryRole.trim().length >= 2 && (
+                          <CareerManualAssist
+                            kind="role"
+                            text={primaryRole}
+                            catalog={sectorPositions}
+                            sector={primarySector}
+                            experienceLevel={experienceLevel}
+                            onAcceptCatalog={(items) => {
+                              if (items[0]) {
+                                setPrimaryRole(items[0]);
+                                setIsCustomRoleMode(false);
+                              }
+                            }}
+                          />
+                        )}
                         <p className="text-[11px] text-muted-foreground">
                           Listede olmayan pozisyon unvanını kendiniz girdiniz.
                         </p>
