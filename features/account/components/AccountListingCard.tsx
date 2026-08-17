@@ -266,10 +266,10 @@ export function AccountListingCard({
           </div>
         </div>
 
-        {/* Bottom Section: Unified Metrics Capsule & Elegant Action Toolbar */}
-        <div className="mt-5 pt-4 border-t border-border/70 flex flex-col gap-3.5 xl:flex-row xl:items-center xl:justify-between">
+        {/* Bottom Section: Unified Metrics Capsule & Elegant Single-Strip Action Toolbar */}
+        <div className="mt-5 pt-4 border-t border-border/70 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Live Metrics: Clean Single Segmented Strip */}
-          <div className="inline-flex items-center rounded-xl bg-slate-50/90 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/60 px-3.5 py-1.5 text-xs text-muted-foreground self-start shadow-2xs">
+          <div className="inline-flex items-center rounded-xl bg-slate-50/90 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/60 px-3.5 py-1.5 text-xs text-muted-foreground self-start shrink-0 shadow-2xs">
             <div className="flex items-center gap-1.5 pr-3 border-r border-slate-200 dark:border-zinc-700">
               <Eye className="h-3.5 w-3.5 text-blue-500" />
               <strong className="text-foreground font-semibold tabular-nums">{listing.viewCount}</strong>
@@ -289,14 +289,14 @@ export function AccountListingCard({
             </div>
           </div>
 
-          {/* Action Toolbar: Compact, Unified, Clean Line */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {/* Action Toolbar: Strictly Single-Strip flex-nowrap */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto no-scrollbar py-0.5">
             {/* Düzenle */}
             <Button
               asChild
               size="sm"
               variant="outline"
-              className="h-8.5 px-3 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
+              className="h-8.5 px-3 shrink-0 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all whitespace-nowrap"
             >
               <Link href={editHref}>
                 <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
@@ -310,7 +310,7 @@ export function AccountListingCard({
               size="sm"
               variant="outline"
               onClick={() => setStatsOpen(true)}
-              className="h-8.5 px-3 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
+              className="h-8.5 px-3 shrink-0 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all whitespace-nowrap"
             >
               <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
               <span>İstatistikler</span>
@@ -322,7 +322,7 @@ export function AccountListingCard({
               size="sm"
               variant="outline"
               onClick={() => setPromoteOpen(true)}
-              className="h-8.5 px-3 rounded-lg gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 hover:border-amber-400/50 dark:text-amber-400 transition-all"
+              className="h-8.5 px-3 shrink-0 rounded-lg gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 hover:border-amber-400/50 dark:text-amber-400 transition-all whitespace-nowrap"
             >
               <Sparkles className="h-3.5 w-3.5" />
               <span>Vitrine Taşı</span>
@@ -335,7 +335,7 @@ export function AccountListingCard({
               variant="outline"
               disabled={isActionBusy}
               onClick={handleToggleStatus}
-              className="h-8.5 px-3 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
+              className="h-8.5 px-3 shrink-0 rounded-lg gap-1.5 text-xs font-medium hover:border-slate-300 dark:hover:border-zinc-700 transition-all whitespace-nowrap"
             >
               {isActionBusy ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -359,7 +359,7 @@ export function AccountListingCard({
               variant="outline"
               disabled={isActionBusy}
               onClick={() => setDeleteDialogOpen(true)}
-              className="h-8.5 px-2.5 sm:px-3 rounded-lg gap-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all"
+              className="h-8.5 px-3 shrink-0 rounded-lg gap-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all whitespace-nowrap"
               aria-label="İlanı Sil"
             >
               <Trash2 className="h-3.5 w-3.5" />
