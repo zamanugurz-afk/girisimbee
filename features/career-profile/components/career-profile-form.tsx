@@ -20,6 +20,10 @@ import {
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import {
+  suggestPreferredRoles,
+  suggestPreferredSectors,
+} from '@/features/candidates/taxonomy/career-preference-suggestions';
+import {
   suggestTitleCaseTr,
   formatTurkishSentence,
 } from '@/features/candidates/lib/career-text-quality';
@@ -337,31 +341,39 @@ export function CareerProfileForm({
     }
   };
 
-  // All taxonomy positions for auto-suggestions
-  const allPositions = useMemo(() => getAllTaxonomyPositions(), []);
+  // Ranked Sectors for "İlgilenilen Hedef Sektörler": En Uyumlular First, then all other sectors A-Z
+  const rankedPreferredSectors = useMemo(() => {
+    const suggested = suggestPreferredSectors({
+      experiences,
+      primarySector,
+      desiredRole: primaryRole,
+      selected: selectedSectors,
+    }).filter((s) => s !== MANUAL_OPTION && s !== 'Diğer');
 
-  // Filtered positions based on typing and selected sectors
+    const remaining = JOB_SECTOR_OPTIONS.filter(
+      (s) => s !== 'Diğer' && !suggested.includes(s),
+    ).sort((a, b) => a.localeCompare(b, 'tr'));
+
+    return [...suggested, ...remaining];
+  }, [experiences, primarySector, primaryRole, selectedSectors]);
+
+  // Ranked Roles for "Açık Olduğum Hedef Pozisyonlar": En Uyumlular First, then A-Z
   const suggestedRoles = useMemo(() => {
-    let list: string[] = [];
-    if (primarySector) {
-      list.push(...getPositionsForSector(primarySector));
+    const rawSuggestions = suggestPreferredRoles({
+      experiences,
+      primarySector,
+      desiredRole: primaryRole,
+      selected: selectedRoles,
+    }).filter((r) => r !== MANUAL_OPTION && r !== 'Diğer');
+
+    const query = roleInput.trim().toLocaleLowerCase('tr-TR');
+    if (!query) {
+      return rawSuggestions.filter((r) => !selectedRoles.includes(r)).slice(0, 16);
     }
-    if (selectedSectors.length > 0) {
-      for (const sec of selectedSectors) {
-        list.push(...getPositionsForSector(sec));
-      }
-    }
-    if (list.length === 0) {
-      list = allPositions;
-    }
-    const query = roleInput.trim().toLowerCase();
-    const filtered = list.filter(
-      (p) =>
-        !selectedRoles.includes(p) &&
-        (query ? p.toLowerCase().includes(query) : true),
-    );
-    return Array.from(new Set(filtered)).slice(0, 10);
-  }, [allPositions, primarySector, selectedSectors, selectedRoles, roleInput]);
+    return rawSuggestions
+      .filter((r) => !selectedRoles.includes(r) && r.toLocaleLowerCase('tr-TR').includes(query))
+      .slice(0, 16);
+  }, [experiences, primarySector, primaryRole, selectedRoles, roleInput]);
 
   // Smart suggestions for skills based on selected positions and sectors
   const smartProfSkillSuggestions = useMemo(() => {
@@ -1286,7 +1298,7 @@ export function CareerProfileForm({
                   {suggestedRoles.length > 0 && (
                     <div className="mt-2.5">
                       <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                        Önerilen Hedef Pozisyonlar:
+                        Önerilen Hedef Pozisyonlar (Önce En Uyumlular, ardından A–Z):
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {suggestedRoles.map((sug) => (
@@ -1306,9 +1318,12 @@ export function CareerProfileForm({
 
                 {/* Target Sectors Multi-select */}
                 <div className="mt-5 pt-5 border-t border-border/50">
-                  <Field label="İlgilenilen Hedef Sektörler" hint="Birden fazla sektör seçebilirsiniz">
+                  <Field
+                    label="İlgilenilen Hedef Sektörler"
+                    hint="Kariyer profilinize en uyumlu sektörler başta listelenir (ardından A–Z)"
+                  >
                     <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                      {JOB_SECTOR_OPTIONS.map((sec) => {
+                      {rankedPreferredSectors.map((sec) => {
                         const isSelected = selectedSectors.includes(sec);
                         return (
                           <button
