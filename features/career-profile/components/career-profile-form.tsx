@@ -9,13 +9,10 @@ import { CareerProfilePreview } from '@/features/candidates/components/CareerPro
 import {
   EXPERIENCE_LEVEL_VALUES,
   EXPERIENCE_LEVEL_LABELS,
-  getExperienceLevelLabel,
   getAllTaxonomyPositions,
   getPositionsForSector,
   suggestProfessionalSkills,
   suggestTechnicalSkills,
-  CAREER_LANGUAGE_OPTIONS,
-  CAREER_LANGUAGE_LEVEL_OPTIONS,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import {
   CAREER_AVAILABILITY_OPTIONS,
@@ -28,6 +25,7 @@ import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
 import { presentCareerJourney } from '@/features/career-profile/journey';
 import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
 import type { CareerProfileFormValues, CareerProfileRecord } from '@/features/career-profile/types';
+import type { CareerPersonaKind } from '@/features/career-profile/components/career-persona-selector';
 import {
   Briefcase,
   Layers,
@@ -47,6 +45,8 @@ import {
   Loader2,
   ExternalLink,
   ChevronRight,
+  Building2,
+  Handshake,
 } from 'lucide-react';
 
 const fieldClass =
@@ -112,9 +112,11 @@ function Field({
 
 export function CareerProfileForm({
   record,
+  persona = 'seek',
   displayName,
 }: {
   record: CareerProfileRecord;
+  persona?: CareerPersonaKind;
   displayName?: string | null;
 }) {
   // Extract initial multi-select values or fallback from comma-delimited strings
@@ -175,6 +177,9 @@ export function CareerProfileForm({
   const [selectedTechSkills, setSelectedTechSkills] = useState<string[]>(initialTechSkills);
   const [techSkillInput, setTechSkillInput] = useState('');
 
+  const [companyName, setCompanyName] = useState(record.values.companyName || '');
+  const [partnerType, setPartnerType] = useState(record.values.partnerType || 'seeking_partner');
+  const [capitalContribution, setCapitalContribution] = useState(record.values.capitalContribution || '');
   const [experienceLevel, setExperienceLevel] = useState(record.values.experienceLevel || '');
   const [workType, setWorkType] = useState(record.values.workType || '');
   const [workplacePreference, setWorkplacePreference] = useState(record.values.workplacePreference || '');
@@ -275,12 +280,12 @@ export function CareerProfileForm({
     setSelectedTechSkills((prev) => prev.filter((s) => s !== skill));
   };
 
-  // Live Career Preview Object
+  // Live Preview Object
   const preview = useMemo(
     () =>
       toSafeCareerPreviewInput({
-        kind: record.kind,
-        displayName,
+        kind: persona === 'hire' ? 'hire' : 'seek',
+        displayName: companyName || displayName,
         source: {
           city,
           customFields: {
@@ -298,6 +303,7 @@ export function CareerProfileForm({
             languages,
             availability,
             requiredResponsibilities: candidateTraits,
+            companyName,
             salaryMin,
             salaryMax,
           },
@@ -305,7 +311,8 @@ export function CareerProfileForm({
       }),
     [
       displayName,
-      record.kind,
+      companyName,
+      persona,
       city,
       selectedRoles,
       selectedSectors,
@@ -334,9 +341,8 @@ export function CareerProfileForm({
     if (workType) score += 5;
     if (workplacePreference) score += 5;
     if (city) score += 5;
-    if (educationLevel) score += 5;
-    if (languages) score += 5;
-    if (availability || candidateTraits) score += 5;
+    if (educationLevel || companyName) score += 5;
+    if (languages || capitalContribution) score += 5;
     return Math.min(score, 100);
   }, [
     selectedRoles,
@@ -348,9 +354,9 @@ export function CareerProfileForm({
     workplacePreference,
     city,
     educationLevel,
+    companyName,
     languages,
-    availability,
-    candidateTraits,
+    capitalContribution,
   ]);
 
   // Save handler
@@ -374,6 +380,9 @@ export function CareerProfileForm({
         languages,
         availability,
         candidateTraits,
+        companyName,
+        partnerType,
+        capitalContribution,
         salaryMin,
         salaryMax,
       };
@@ -381,7 +390,11 @@ export function CareerProfileForm({
       const res = await fetch('/api/career/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId: record.listingId, values: payloadValues }),
+        body: JSON.stringify({
+          listingId: record.listingId.startsWith('draft') ? undefined : record.listingId,
+          persona,
+          values: payloadValues,
+        }),
       });
 
       if (!res.ok) {
@@ -393,7 +406,7 @@ export function CareerProfileForm({
       if (body.profile) {
         setCompletion(body.profile.completion);
       }
-      toast.success('Kariyer profiliniz ve hedef tercihleriniz başarıyla güncellendi.');
+      toast.success('Kariyer profiliniz ve tercihleriniz başarıyla kaydedildi.');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Bir hata oluştu');
     } finally {
@@ -438,9 +451,69 @@ export function CareerProfileForm({
           </div>
         </div>
 
-        {/* Section 1: Target Positions (Multi-Select) */}
+        {/* Section 0: Company Info (Only for Employer / Hire) */}
+        {persona === 'hire' && (
+          <FormSection
+            title="Firma & Şirket Bilgisi"
+            icon={Building2}
+            description="İlanınızda ve aramalarda adayların göreceği açık şirket bilginiz."
+          >
+            <Field label="Şirket / Girişim İsmi" hint="İlan kartında açıkça görüntülenir">
+              <div className="relative">
+                <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="Örn: Trendyol Tech, ABC Yazılım A.Ş., Hive FinTech..."
+                  className={`${fieldClass} pl-10`}
+                />
+              </div>
+            </Field>
+          </FormSection>
+        )}
+
+        {/* Section 0: Partner Details (Only for Partner) */}
+        {persona === 'partner' && (
+          <FormSection
+            title="Ortaklık Modeli & Katkı"
+            icon={Handshake}
+            description="Arayışınızdaki ortaklık türü ve sermaye/katkı modeli."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Ortaklık Türü" required>
+                <select
+                  value={partnerType}
+                  onChange={(e) => setPartnerType(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="seeking_partner">Girişimime Ortak Arıyorum</option>
+                  <option value="become_partner">Bir Girişime Ortak Olmak İstiyorum</option>
+                </select>
+              </Field>
+
+              <Field label="Sermaye Katkısı / Beklentisi" hint="İsteğe bağlı">
+                <input
+                  type="text"
+                  value={capitalContribution}
+                  onChange={(e) => setCapitalContribution(e.target.value)}
+                  placeholder="Örn: 250.000 TL - 500.000 TL / Efor Odaklı"
+                  className={fieldClass}
+                />
+              </Field>
+            </div>
+          </FormSection>
+        )}
+
+        {/* Section 1: Positions / Roles (Multi-Select) */}
         <FormSection
-          title="Hedef Pozisyonlar & Meslekler"
+          title={
+            persona === 'hire'
+              ? 'Aranan Açık Pozisyonlar'
+              : persona === 'partner'
+                ? 'Hedef Uzmanlık & Pozisyon Alanları'
+                : 'Hedef Pozisyonlar & Meslekler'
+          }
           icon={Briefcase}
           description="Aramak istediğiniz veya uzmanı olduğunuz tüm pozisyonları ekleyin. Birden fazla pozisyon seçebilirsiniz."
         >
@@ -449,7 +522,7 @@ export function CareerProfileForm({
             <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2 rounded-xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2.5">
               {selectedRoles.length === 0 ? (
                 <span className="text-xs text-muted-foreground px-1">
-                  Henüz hedef pozisyon eklenmedi. Aşağıdan seçin veya yazarak ekleyin.
+                  Henüz pozisyon eklenmedi. Aşağıdan seçin veya yazarak ekleyin.
                 </span>
               ) : (
                 selectedRoles.map((r) => (
@@ -484,7 +557,7 @@ export function CareerProfileForm({
                     handleAddRole(roleInput);
                   }
                 }}
-                placeholder="Pozisyon ara veya kendin yaz (örn: Full Stack Developer, Satış Uzmanı)..."
+                placeholder="Pozisyon ara veya kendin yaz (örn: Full Stack Developer, Büyüme Lideri)..."
                 className={fieldClass}
               />
               <Button
@@ -526,7 +599,7 @@ export function CareerProfileForm({
         <FormSection
           title="Hedef Sektörler"
           icon={Layers}
-          description="İlgilendiğiniz veya deneyim sahibi olduğunuz sektörleri seçin."
+          description="İlgilendiğiniz veya faaliyet gösterdiğiniz sektörleri seçin."
         >
           <Field label="Sektörler" required hint="Birden fazla sektör seçebilirsiniz">
             <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto p-2 rounded-xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50">
@@ -707,11 +780,11 @@ export function CareerProfileForm({
           </div>
         </FormSection>
 
-        {/* Section 4: Work Rules & Experience Settings */}
+        {/* Section 4: Work Rules & Preferences */}
         <FormSection
-          title="Çalışma Tercihleri ve Deneyim"
+          title="Çalışma Koşulları ve Detaylar"
           icon={Award}
-          description="Eşleşme kurallarında kullanılacak çalışma modeli ve deneyim detayları."
+          description="Eşleşme kurallarında ve ilan kartlarında kullanılacak çalışma detayları."
         >
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Experience Level */}
@@ -763,7 +836,7 @@ export function CareerProfileForm({
             </Field>
 
             {/* City */}
-            <Field label="Tercih Edilen Şehir" required>
+            <Field label="Tercih Edilen Şehir / Lokasyon" required>
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
@@ -813,7 +886,14 @@ export function CareerProfileForm({
 
           {/* Salary Expectations */}
           <div className="mt-4 pt-4 border-t border-border/50">
-            <Field label="Aylık Net Maaş Beklentisi (TL)" hint="İsteğe bağlı aralık">
+            <Field
+              label={
+                persona === 'hire'
+                  ? 'Aylık Net Bütçe / Maaş Aralığı (TL)'
+                  : 'Aylık Net Maaş Beklentisi (TL)'
+              }
+              hint="İsteğe bağlı aralık"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-xs text-muted-foreground font-semibold">Min:</span>
@@ -855,13 +935,25 @@ export function CareerProfileForm({
           {/* About / Candidate Traits */}
           <div className="mt-4 pt-4 border-t border-border/50">
             <Field
-              label={record.kind === 'hire' ? 'Aranan Aday Nitelikleri' : 'Hakkımda & Kariyer Özeti'}
+              label={
+                persona === 'hire'
+                  ? 'Aranan Aday Nitelikleri'
+                  : persona === 'partner'
+                    ? 'Girişim & Proje Özeti'
+                    : 'Hakkımda & Kariyer Özeti'
+              }
               hint="Profilinizin ve eşleşmelerinizin en üstünde görünür"
             >
               <textarea
                 value={candidateTraits}
                 onChange={(e) => setCandidateTraits(e.target.value)}
-                placeholder="Kariyer hedefleriniz, uzmanlık alanlarınız ve şirkete katabileceğiniz değerleri kısaca anlatın..."
+                placeholder={
+                  persona === 'hire'
+                    ? 'Pozisyondan beklenen sorumluluklar ve aranan özellikler...'
+                    : persona === 'partner'
+                      ? 'Girişim fikriniz, mevcut aşamanız ve ortaktan beklentileriniz...'
+                      : 'Kariyer hedefleriniz, uzmanlık alanlarınız ve şirkete katabileceğiniz değerler...'
+                }
                 className={areaClass}
               />
             </Field>
@@ -871,7 +963,7 @@ export function CareerProfileForm({
         {/* Save Button Bar */}
         <div className="sticky bottom-4 z-20 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/95">
           <div className="text-xs text-muted-foreground">
-            Değişiklikler anında eşleşme motoruna yansır.
+            Değişiklikler anında eşleşme motoruna ve yeni ilanlarınıza yansır.
           </div>
           <Button
             type="button"
@@ -893,17 +985,19 @@ export function CareerProfileForm({
               <Sparkles className="h-4 w-4 text-amber-500" />
               <span className="font-display text-sm font-bold text-foreground">Canlı Kart Önizlemesi</span>
             </div>
-            <Link
-              href={record.editHref}
-              className="text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"
-            >
-              <span>İlanı Düzenle</span>
-              <ExternalLink className="h-3 w-3" />
-            </Link>
+            {!record.listingId.startsWith('draft') && (
+              <Link
+                href={record.editHref}
+                className="text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"
+              >
+                <span>İlanı Düzenle</span>
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            )}
           </div>
 
           <p className="text-xs text-muted-foreground mb-4">
-            İşverenler ve girişimciler kariyer kartınızı aramalarda ve eşleşmelerde bu şekilde görecek:
+            İşverenler ve girişimciler kartınızı aramalarda ve eşleşmelerde bu şekilde görecek:
           </p>
 
           <CareerProfilePreview data={preview} />

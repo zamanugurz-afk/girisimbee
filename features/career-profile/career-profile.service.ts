@@ -1,12 +1,26 @@
-import type { Listing, ListingFilter, UpdateListingInput } from '@/features/listings/types/listing.entity.types';
+import type {
+  Listing,
+  ListingFilter,
+  UpdateListingInput,
+  CreateListingInput,
+} from '@/features/listings/types/listing.entity.types';
 import type { ListingId, UserId } from '@/lib/domain/ids';
 import type { PaginatedResult, PaginationParams } from '@/lib/domain/pagination';
 import { classifyCareerListingKind } from '@/features/matching-engine/adapters/career-listing-kinds';
-import { calculateCareerProfileCompletion, valuesFromCareerSource } from '@/features/career-profile/completion';
-import type { CareerProfileFormValues, CareerProfilePageData, CareerProfileRecord } from '@/features/career-profile/types';
+import {
+  calculateCareerProfileCompletion,
+  valuesFromCareerSource,
+} from '@/features/career-profile/completion';
+import type {
+  CareerProfileFormValues,
+  CareerProfilePageData,
+  CareerProfileRecord,
+  CareerPersonaKind,
+} from '@/features/career-profile/types';
 import type { CareerListingKind } from '@/features/matching-engine/types';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 
-const ALLOWED_CAREER_KEYS = [
+export const ALLOWED_CAREER_KEYS = [
   'desiredRole',
   'desiredRoleOther',
   'preferredRoles',
@@ -27,6 +41,9 @@ const ALLOWED_CAREER_KEYS = [
   'languages',
   'availability',
   'requiredResponsibilities',
+  'companyName',
+  'partnerType',
+  'capitalContribution',
   'salary',
   'salaryMin',
   'salaryMax',
@@ -35,6 +52,7 @@ const ALLOWED_CAREER_KEYS = [
 export interface CareerProfileListingStore {
   search(filter: ListingFilter, pagination?: PaginationParams): Promise<PaginatedResult<Listing>>;
   findById(id: ListingId): Promise<Listing | null>;
+  create?(input: CreateListingInput): Promise<Listing>;
   update(id: ListingId, input: UpdateListingInput): Promise<Listing>;
 }
 
@@ -76,13 +94,15 @@ export function formValuesToCustomFields(
   const sectors = values.sectors && values.sectors.length > 0 ? values.sectors : values.sector ? [values.sector] : [];
   const primarySector = sectors[0] || values.sector || '';
 
-  const profSkills = values.professionalSkillsList && values.professionalSkillsList.length > 0
-    ? values.professionalSkillsList.join(', ')
-    : values.professionalSkills.trim();
+  const profSkills =
+    values.professionalSkillsList && values.professionalSkillsList.length > 0
+      ? values.professionalSkillsList.join(', ')
+      : values.professionalSkills.trim();
 
-  const techSkills = values.technicalSkillsList && values.technicalSkillsList.length > 0
-    ? values.technicalSkillsList.join(', ')
-    : values.technicalSkills.trim();
+  const techSkills =
+    values.technicalSkillsList && values.technicalSkillsList.length > 0
+      ? values.technicalSkillsList.join(', ')
+      : values.technicalSkills.trim();
 
   const fields: Record<string, unknown> = {
     desiredRole: primaryRole,
@@ -103,12 +123,24 @@ export function formValuesToCustomFields(
     fields.salaryMin = values.salaryMin;
     fields.salaryMax = values.salaryMax;
     if (values.salaryMin && values.salaryMax) {
-      fields.salary = `${values.salaryMin.toLocaleString('tr-TR')} – ${values.salaryMax.toLocaleString('tr-TR')} TL`;
+      fields.salary = `${values.salaryMin.toLocaleString('tr-TR')} - ${values.salaryMax.toLocaleString('tr-TR')} TL`;
     } else if (values.salaryMin) {
       fields.salary = `${values.salaryMin.toLocaleString('tr-TR')} TL+`;
     } else if (values.salaryMax) {
       fields.salary = `${values.salaryMax.toLocaleString('tr-TR')} TL`;
     }
+  }
+
+  if (values.companyName) {
+    fields.companyName = values.companyName.trim();
+  }
+
+  if (values.partnerType) {
+    fields.partnerType = values.partnerType;
+  }
+
+  if (values.capitalContribution) {
+    fields.capitalContribution = values.capitalContribution.trim();
   }
 
   if (kind === 'hire') {
@@ -117,6 +149,7 @@ export function formValuesToCustomFields(
     fields.requiredResponsibilities = values.candidateTraits.trim();
   } else {
     fields.availability = values.availability.trim();
+    fields.requiredResponsibilities = values.candidateTraits.trim();
   }
   return fields;
 }
@@ -149,32 +182,65 @@ export class CareerProfileService {
 
   async saveProfile(
     userId: UserId,
-    listingId: ListingId,
+    listingId: ListingId | undefined,
     values: CareerProfileFormValues,
+    persona?: CareerPersonaKind,
   ): Promise<CareerProfileRecord> {
-    const listing = await this.listings.findById(listingId);
-    if (!listing || listing.ownerId !== userId) {
-      throw new Error('Kariyer profili bulunamadı.');
-    }
-    const kind = classifyCareerListingKind(listing);
-    if (!kind) {
-      throw new Error('Bu ilan bir kariyer profili değil.');
+    const kind: CareerListingKind = persona === 'hire' ? 'hire' : 'seek';
+
+    let listing: Listing | null = null;
+    if (listingId && !String(listingId).startsWith('draft')) {
+      listing = await this.listings.findById(listingId);
     }
 
-    const nextFields = { ...listing.customFields };
+    if (!listing) {
+      const owned = await this.listings.search(
+        { ownerId: userId, status: ['published', 'draft', 'paused'] },
+        { page: 1, limit: 100 },
+      );
+      const matches = owned.data.filter((l) => classifyCareerListingKind(l) === kind);
+      listing = pickLatest(matches);
+    }
+
     const updates = formValuesToCustomFields(kind, values);
-    for (const key of ALLOWED_CAREER_KEYS) {
-      if (updates[key] !== undefined) {
-        nextFields[key] = updates[key];
+    const primaryTitle =
+      values.roles?.[0] || values.role || (kind === 'hire' ? 'İşe Alım İlanı' : 'Kariyer Kartı');
+    const city = values.city?.trim() || 'İstanbul';
+
+    if (listing) {
+      const nextFields = { ...listing.customFields };
+      for (const key of ALLOWED_CAREER_KEYS) {
+        if (updates[key] !== undefined) {
+          nextFields[key] = updates[key];
+        }
       }
+      const updated = await this.listings.update(listing.id, {
+        customFields: nextFields,
+        city: values.city?.trim() || listing.city,
+      });
+      return toRecord(updated, kind);
     }
 
-    const city = values.city.trim() || listing.city;
-    const updated = await this.listings.update(listingId, {
-      customFields: nextFields,
-      city,
-    });
+    if (typeof this.listings.create === 'function') {
+      const categoryId = kind === 'hire' ? CATEGORY_IDS.iseAl : CATEGORY_IDS.isBul;
+      const listingTypeId = kind === 'hire' ? LISTING_TYPE_IDS.iseAlDefault : LISTING_TYPE_IDS.isBulDefault;
 
-    return toRecord(updated, kind);
+      const created = await this.listings.create({
+        ownerId: userId,
+        categoryId,
+        listingTypeId,
+        title: primaryTitle,
+        shortDescription: values.candidateTraits || `${primaryTitle} pozisyonu için kariyer profili`,
+        city,
+        location: city,
+        status: 'draft',
+        workflowStatus: 'draft',
+        customFields: updates,
+      });
+
+      return toRecord(created, kind);
+    }
+
+    throw new Error('Kariyer profili kaydedilemedi.');
   }
 }

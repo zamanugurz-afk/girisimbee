@@ -147,6 +147,9 @@ export function listingToContentItem(
     timeAgo: formatTimeAgo(listing.publishedAt ?? listing.createdAt),
     emoji: cardDisplay.typeEmoji,
     initials: contentType === 'person' ? listing.title.slice(0, 2).toUpperCase() : undefined,
+    companyName: typeof listing.customFields?.companyName === 'string' && listing.customFields.companyName.trim()
+      ? listing.customFields.companyName.trim()
+      : undefined,
   };
 }
 

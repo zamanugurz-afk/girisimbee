@@ -54,6 +54,8 @@ export interface ContentItem {
   price?: string;
   /** Listing card — uploaded cover or category fallback. */
   coverUrl?: string;
+  /** Listing card — open company name for employers. */
+  companyName?: string;
 }
 
 export interface CategorySection {

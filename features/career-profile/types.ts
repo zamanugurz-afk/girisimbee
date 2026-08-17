@@ -1,5 +1,7 @@
 import type { CareerListingKind } from '@/features/matching-engine/types';
 
+export type CareerPersonaKind = 'seek' | 'hire' | 'partner';
+
 export type CareerProfileFieldKey =
   | 'role'
   | 'sector'
@@ -51,6 +53,9 @@ export interface CareerProfileFormValues {
   salary?: string;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  companyName?: string;
+  partnerType?: string;
+  capitalContribution?: string;
 }
 
 export interface CareerProfileRecord {
@@ -66,4 +71,5 @@ export interface CareerProfileRecord {
 export interface CareerProfilePageData {
   seek: CareerProfileRecord | null;
   hire: CareerProfileRecord | null;
+  partner?: CareerProfileRecord | null;
 }

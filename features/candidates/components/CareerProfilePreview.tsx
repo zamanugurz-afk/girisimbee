@@ -287,13 +287,13 @@ function CoverThumb({
   initials: string;
 }) {
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted sm:w-[152px] sm:shrink-0 lg:w-[176px]">
+    <div className="relative aspect-square w-16 sm:w-20 md:w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
       {coverUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={coverUrl} alt="" className="h-full w-full object-cover" />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-muted">
-          <span className="text-3xl font-semibold tracking-wide text-primary/80">{initials}</span>
+          <span className="text-xl sm:text-2xl font-semibold tracking-wide text-primary/80">{initials}</span>
         </div>
       )}
     </div>
@@ -470,17 +470,17 @@ export function CareerProfilePreview({
           )}
         </div>
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <div className="flex items-start gap-4 sm:gap-5">
           <CoverThumb coverUrl={data.coverUrl} initials={initials} />
-          <div className="min-w-0 flex-1 pr-12">
+          <div className="min-w-0 flex-1 pr-8 sm:pr-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               {isHire ? 'İş ilanı kartı' : 'Kariyer kartı'}
             </p>
             {!isHire && (publicName || age || gender) ? (
-              <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground">
+              <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 {publicName ? (
-                  <span className="inline-flex items-center gap-1.5 font-semibold tracking-tight text-foreground">
-                    <User className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  <span className="inline-flex items-center gap-1 font-semibold tracking-tight text-foreground">
+                    <User className="h-3 w-3 text-primary" aria-hidden />
                     {publicName}
                   </span>
                 ) : null}
@@ -490,7 +490,7 @@ export function CareerProfilePreview({
                 {gender ? <span>{gender}</span> : null}
               </p>
             ) : null}
-            <Heading className="mt-2 break-words font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-[1.8rem]">
+            <Heading className="mt-1.5 break-normal font-display text-lg sm:text-xl font-bold leading-snug tracking-tight text-foreground">
               {data.desiredRole || (isHire ? 'Açık pozisyon belirtilmedi' : 'Pozisyon belirtilmedi')}
             </Heading>
             {isHire ? (

@@ -137,6 +137,14 @@ function TextListingCardLayout({
           {item.title}
         </h3>
 
+        {/* Open Company Name (for employer hiring listings) */}
+        {item.companyName ? (
+          <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <Building2 className="h-3 w-3 shrink-0" />
+            <span className="truncate">{item.companyName}</span>
+          </div>
+        ) : null}
+
         {/* Description */}
         {description ? (
           <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">

@@ -14,7 +14,12 @@ export const CAREER_CONTACT_STATUS_COPY = {
 
 export function resolveContactCtaLabel(categoryId?: string | null): string {
   switch (categoryId) {
+    case 'hire':
+    case 'ise-al':
+    case 'c1000001-0001-4000-8000-000000000004':
+      return 'Doğrudan Mesaj Gönder';
     case 'find-partner':
+    case 'ortak-bul':
       return 'Ortaklık İletişim Talebi Gönder';
     case 'franchise':
       return 'Franchise İletişim Talebi Gönder';

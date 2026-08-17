@@ -11,7 +11,7 @@ import {
 describe('contact CTA copy', () => {
   it('keeps career labels on the shared contact-request phrase', () => {
     expect(resolveContactCtaLabel('find-job')).toBe(CONTACT_CTA_DEFAULT_LABEL);
-    expect(resolveContactCtaLabel('hire')).toBe(CONTACT_CTA_DEFAULT_LABEL);
+    expect(resolveContactCtaLabel('hire')).toBe('Doğrudan Mesaj Gönder');
   });
 
   it('uses partnership and franchise labels without new request types', () => {

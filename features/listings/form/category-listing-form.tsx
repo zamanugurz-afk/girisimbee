@@ -854,6 +854,69 @@ export function CategoryListingForm({
     };
   }, [userId]);
 
+  /** Auto-prefill career profile data into listing creation if no initial values provided */
+  useEffect(() => {
+    if (initialValues || !userId) return;
+    const isCareerCat =
+      categoryId === CATEGORY_IDS.isBul ||
+      categoryId === CATEGORY_IDS.iseAl ||
+      categoryId === CATEGORY_IDS.ortakBul;
+    if (!isCareerCat) return;
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch('/api/career/profile');
+        if (!res.ok || cancelled) return;
+        const json = await res.json();
+        const data = json.data;
+        if (!data) return;
+
+        const profileRecord =
+          categoryId === CATEGORY_IDS.iseAl
+            ? data.hire
+            : categoryId === CATEGORY_IDS.ortakBul
+              ? data.partner || data.seek
+              : data.seek;
+
+        if (!profileRecord?.values) return;
+        const pv = profileRecord.values;
+
+        setCore((prev) => ({
+          ...prev,
+          title: prev.title || pv.roles?.[0] || pv.role || prev.title,
+          city: prev.city || pv.city || prev.city,
+          shortDescription: prev.shortDescription || pv.candidateTraits || prev.shortDescription,
+        }));
+
+        setCustomFields((prev) => {
+          const next = { ...prev };
+          if (pv.role && !next.desiredRole) next.desiredRole = pv.roles?.[0] || pv.role;
+          if (pv.roles && pv.roles.length > 0 && !next.preferredRoles) next.preferredRoles = pv.roles;
+          if (pv.sector && !next.primarySector) next.primarySector = pv.sectors?.[0] || pv.sector;
+          if (pv.sectors && pv.sectors.length > 0 && !next.preferredSectors) next.preferredSectors = pv.sectors;
+          if (pv.experienceLevel && !next.experienceLevel) next.experienceLevel = pv.experienceLevel;
+          if (pv.workType && !next.workType) next.workType = pv.workType;
+          if (pv.workplacePreference && !next.workplacePreference) next.workplacePreference = pv.workplacePreference;
+          if (pv.professionalSkills && !next.professionalSkills) next.professionalSkills = pv.professionalSkills;
+          if (pv.technicalSkills && !next.technicalSkills) next.technicalSkills = pv.technicalSkills;
+          if (pv.educationLevel && !next.educationLevel) next.educationLevel = pv.educationLevel;
+          if (pv.languages && !next.languages) next.languages = pv.languages;
+          if (pv.availability && !next.availability) next.availability = pv.availability;
+          if (pv.companyName && !next.companyName) next.companyName = pv.companyName;
+          if (pv.salaryMin && !next.salaryMin) next.salaryMin = pv.salaryMin;
+          if (pv.salaryMax && !next.salaryMax) next.salaryMax = pv.salaryMax;
+          return next;
+        });
+      } catch {
+        /* best effort */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialValues, userId, categoryId]);
+
   /** Load whether this category still has a free listing slot for the user. */
   useEffect(() => {
     if (!userId || isPaidPublishCategory(categoryId)) {

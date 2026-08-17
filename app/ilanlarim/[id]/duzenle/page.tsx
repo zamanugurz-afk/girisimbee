@@ -144,6 +144,61 @@ export default function EditListingPage() {
     }
 
     await updateListing(listingId, buildPayload(values, false));
+
+    // Two-Way Sync: Update central career profile
+    const isCareerCat =
+      categoryId === CATEGORY_IDS.isBul ||
+      categoryId === CATEGORY_IDS.iseAl ||
+      categoryId === CATEGORY_IDS.ortakBul;
+
+    if (isCareerCat) {
+      const persona =
+        categoryId === CATEGORY_IDS.iseAl
+          ? 'hire'
+          : categoryId === CATEGORY_IDS.ortakBul
+            ? 'partner'
+            : 'seek';
+
+      const custom = values.customFields || {};
+      const syncValues = {
+        role: String(custom.desiredRole || custom.positionTitle || values.core.title || ''),
+        roles: Array.isArray(custom.preferredRoles)
+          ? custom.preferredRoles
+          : typeof custom.preferredRoles === 'string'
+            ? custom.preferredRoles.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : undefined,
+        sector: String(custom.primarySector || ''),
+        sectors: Array.isArray(custom.preferredSectors)
+          ? custom.preferredSectors
+          : typeof custom.preferredSectors === 'string'
+            ? custom.preferredSectors.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : undefined,
+        experienceLevel: String(custom.experienceLevel || ''),
+        workType: String(custom.workType || custom.employmentType || ''),
+        workplacePreference: String(custom.workplacePreference || ''),
+        city: String(custom.preferredCity || values.core.city || ''),
+        professionalSkills: String(custom.professionalSkills || ''),
+        technicalSkills: String(custom.technicalSkills || ''),
+        educationLevel: String(custom.educationLevel || ''),
+        languages: String(custom.languages || ''),
+        availability: String(custom.availability || ''),
+        candidateTraits: String(custom.requiredResponsibilities || values.core.shortDescription || ''),
+        companyName: String(custom.companyName || ''),
+        salaryMin: typeof custom.salaryMin === 'number' ? custom.salaryMin : undefined,
+        salaryMax: typeof custom.salaryMax === 'number' ? custom.salaryMax : undefined,
+      };
+
+      void fetch('/api/career/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId,
+          persona,
+          values: syncValues,
+        }),
+      }).catch(() => undefined);
+    }
+
     toast.success('İlan güncellendi');
     router.push('/ilanlarim');
   }
@@ -170,6 +225,61 @@ export default function EditListingPage() {
     }
 
     await updateListing(listingId, buildPayload(values, false));
+
+    // Two-Way Sync
+    const isCareerCat =
+      categoryId === CATEGORY_IDS.isBul ||
+      categoryId === CATEGORY_IDS.iseAl ||
+      categoryId === CATEGORY_IDS.ortakBul;
+
+    if (isCareerCat) {
+      const persona =
+        categoryId === CATEGORY_IDS.iseAl
+          ? 'hire'
+          : categoryId === CATEGORY_IDS.ortakBul
+            ? 'partner'
+            : 'seek';
+
+      const custom = values.customFields || {};
+      const syncValues = {
+        role: String(custom.desiredRole || custom.positionTitle || values.core.title || ''),
+        roles: Array.isArray(custom.preferredRoles)
+          ? custom.preferredRoles
+          : typeof custom.preferredRoles === 'string'
+            ? custom.preferredRoles.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : undefined,
+        sector: String(custom.primarySector || ''),
+        sectors: Array.isArray(custom.preferredSectors)
+          ? custom.preferredSectors
+          : typeof custom.preferredSectors === 'string'
+            ? custom.preferredSectors.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : undefined,
+        experienceLevel: String(custom.experienceLevel || ''),
+        workType: String(custom.workType || custom.employmentType || ''),
+        workplacePreference: String(custom.workplacePreference || ''),
+        city: String(custom.preferredCity || values.core.city || ''),
+        professionalSkills: String(custom.professionalSkills || ''),
+        technicalSkills: String(custom.technicalSkills || ''),
+        educationLevel: String(custom.educationLevel || ''),
+        languages: String(custom.languages || ''),
+        availability: String(custom.availability || ''),
+        candidateTraits: String(custom.requiredResponsibilities || values.core.shortDescription || ''),
+        companyName: String(custom.companyName || ''),
+        salaryMin: typeof custom.salaryMin === 'number' ? custom.salaryMin : undefined,
+        salaryMax: typeof custom.salaryMax === 'number' ? custom.salaryMax : undefined,
+      };
+
+      void fetch('/api/career/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId,
+          persona,
+          values: syncValues,
+        }),
+      }).catch(() => undefined);
+    }
+
     const published = await publishListing(listingId);
 
     if (published.listing.status === 'pending_review') {
