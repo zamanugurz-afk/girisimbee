@@ -13,6 +13,8 @@ import {
   EXPERIENCE_LEVEL_LABELS,
   getAllTaxonomyPositions,
   getPositionsForSector,
+  isManualCareerOption,
+  MANUAL_OPTION,
   suggestProfessionalSkills,
   suggestTechnicalSkills,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -238,6 +240,44 @@ export function CareerProfileForm({
 
   const [saving, setSaving] = useState(false);
   const [completion, setCompletion] = useState(record.completion);
+
+  // Sector-filtered roles
+  const sectorPositions = useMemo(() => {
+    if (!primarySector) return [];
+    return getPositionsForSector(primarySector);
+  }, [primarySector]);
+
+  // Custom role mode state
+  const [isCustomRoleMode, setIsCustomRoleMode] = useState<boolean>(() => {
+    const role = record.values.role || initialRoles[0] || '';
+    if (!role) return false;
+    const sec = record.values.sector || initialSectors[0] || '';
+    if (sec) {
+      const list = getPositionsForSector(sec);
+      return !list.includes(role) || isManualCareerOption(role);
+    }
+    return false;
+  });
+
+  const handleSectorChange = (newSector: string) => {
+    setPrimarySector(newSector);
+    if (newSector) {
+      const list = getPositionsForSector(newSector);
+      if (!isCustomRoleMode && primaryRole && !list.includes(primaryRole)) {
+        setPrimaryRole('');
+      }
+    }
+  };
+
+  const handleRoleSelectChange = (val: string) => {
+    if (val === MANUAL_OPTION || val === '__CUSTOM__') {
+      setIsCustomRoleMode(true);
+      setPrimaryRole('');
+    } else {
+      setIsCustomRoleMode(false);
+      setPrimaryRole(val);
+    }
+  };
 
   // All taxonomy positions for auto-suggestions
   const allPositions = useMemo(() => getAllTaxonomyPositions(), []);
@@ -553,23 +593,14 @@ export function CareerProfileForm({
                 stepNumber={1}
                 title="Temel Kariyer Bilgileri"
                 icon={User}
-                description="Ana uzmanlık pozisyonunuz, deneyim seviyeniz ve temel bilgileriniz."
+                description="Önce sektörünüzü seçin; ardından o sektöre ait meslekler otomatik listelenir veya kendiniz yazabilirsiniz."
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Ana Pozisyon / Meslek" required hint="Kariyer kartınızın ana unvanı">
-                    <input
-                      type="text"
-                      value={primaryRole}
-                      onChange={(e) => setPrimaryRole(e.target.value)}
-                      placeholder="Örn: Full Stack Developer, Pazarlama Müdürü..."
-                      className={fieldClass}
-                    />
-                  </Field>
-
-                  <Field label="Ana Sektör" required>
+                  {/* 1. Ana Sektör (Önce Seçilir) */}
+                  <Field label="Ana Sektör" required hint="Önce sektörünüzü seçin">
                     <select
                       value={primarySector}
-                      onChange={(e) => setPrimarySector(e.target.value)}
+                      onChange={(e) => handleSectorChange(e.target.value)}
                       className={selectClass}
                     >
                       <option value="">Sektör Seçiniz</option>
@@ -579,6 +610,75 @@ export function CareerProfileForm({
                         </option>
                       ))}
                     </select>
+                  </Field>
+
+                  {/* 2. Sektöre Göre Dinamik Meslek / Pozisyon Seçimi */}
+                  <Field
+                    label="Ana Pozisyon / Meslek"
+                    required
+                    hint={isCustomRoleMode ? 'Özel unvanınızı kendiniz yazıyorsunuz' : 'Sektöre göre otomatik listelenir'}
+                  >
+                    {isCustomRoleMode ? (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={primaryRole}
+                            onChange={(e) => setPrimaryRole(e.target.value)}
+                            placeholder="Örn: Çağrı Merkezi Satış Müdürü, Full Stack Developer..."
+                            className={fieldClass}
+                            autoFocus
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setIsCustomRoleMode(false);
+                              setPrimaryRole('');
+                            }}
+                            className="shrink-0 rounded-xl text-xs"
+                          >
+                            Listeden Seç
+                          </Button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Listede olmayan unvanınızı kendiniz girdiniz. Dilerseniz &ldquo;Listeden Seç&rdquo; ile dönebilirsiniz.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <select
+                          value={primaryRole}
+                          onChange={(e) => handleRoleSelectChange(e.target.value)}
+                          disabled={!primarySector}
+                          className={selectClass}
+                        >
+                          <option value="">
+                            {primarySector ? 'Meslek / Pozisyon Seçiniz' : '← Önce Ana Sektör Seçiniz'}
+                          </option>
+                          {sectorPositions.map((pos) => (
+                            <option key={pos} value={pos}>
+                              {pos === MANUAL_OPTION ? '✍️ Listede yok, kendim yazacağım' : pos}
+                            </option>
+                          ))}
+                          {!sectorPositions.includes(MANUAL_OPTION) && (
+                            <option value="__CUSTOM__">✍️ Listede yok, kendim yazacağım</option>
+                          )}
+                        </select>
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+                          <span>Aradığınız unvan listede yoksa:</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsCustomRoleMode(true);
+                            }}
+                            className="text-primary hover:underline font-medium cursor-pointer"
+                          >
+                            Kendim Gireceğim
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </Field>
 
                   <Field label="Deneyim Seviyesi" required>
@@ -1160,14 +1260,72 @@ export function CareerProfileForm({
                 description="Aranan açık pozisyon, deneyim seviyesi ve çalışma şartları."
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Açık Pozisyon Unvanı" required>
-                    <input
-                      type="text"
-                      value={primaryRole}
-                      onChange={(e) => setPrimaryRole(e.target.value)}
-                      placeholder="Örn: Senior Frontend Developer, Satış Lideri..."
-                      className={fieldClass}
-                    />
+                  <Field
+                    label="Açık Pozisyon Unvanı"
+                    required
+                    hint={isCustomRoleMode ? 'Özel unvanınızı kendiniz yazıyorsunuz' : 'Sektöre göre otomatik listelenir'}
+                  >
+                    {isCustomRoleMode ? (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={primaryRole}
+                            onChange={(e) => setPrimaryRole(e.target.value)}
+                            placeholder="Örn: Senior Frontend Developer, Satış Lideri..."
+                            className={fieldClass}
+                            autoFocus
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setIsCustomRoleMode(false);
+                              setPrimaryRole('');
+                            }}
+                            className="shrink-0 rounded-xl text-xs"
+                          >
+                            Listeden Seç
+                          </Button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Listede olmayan pozisyon unvanını kendiniz girdiniz.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <select
+                          value={primaryRole}
+                          onChange={(e) => handleRoleSelectChange(e.target.value)}
+                          disabled={!primarySector}
+                          className={selectClass}
+                        >
+                          <option value="">
+                            {primarySector ? 'Meslek / Pozisyon Seçiniz' : '← Önce 1. Adımdan Şirket Sektörünü Seçiniz'}
+                          </option>
+                          {sectorPositions.map((pos) => (
+                            <option key={pos} value={pos}>
+                              {pos === MANUAL_OPTION ? '✍️ Listede yok, kendim yazacağım' : pos}
+                            </option>
+                          ))}
+                          {!sectorPositions.includes(MANUAL_OPTION) && (
+                            <option value="__CUSTOM__">✍️ Listede yok, kendim yazacağım</option>
+                          )}
+                        </select>
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+                          <span>Aradığınız unvan listede yoksa:</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsCustomRoleMode(true);
+                            }}
+                            className="text-primary hover:underline font-medium cursor-pointer"
+                          >
+                            Kendim Gireceğim
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </Field>
 
                   <Field label="Aranan Deneyim Seviyesi" required>
