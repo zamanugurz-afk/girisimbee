@@ -15,14 +15,57 @@ function fold(value: string): string {
     .trim();
 }
 
+/** Strips common Turkish noun / role suffixes for flexible root matching. */
+function stemTr(word: string): string {
+  let s = fold(word);
+  s = s.replace(/(leri|lari|ler|lar|lik|lik|luk|luk)$/g, '');
+  s = s.replace(/(si|si|su|su)$/g, '');
+  s = s.replace(/(i|i|u|u)$/g, '');
+  s = s.replace(/(ci|ci|cu|cu)$/g, '');
+  return s;
+}
+
 function tokens(value: string): string[] {
   return fold(value)
     .split(' ')
-    .filter((token) => token.length >= 3);
+    .filter((token) => token.length >= 2);
+}
+
+function stems(value: string): string[] {
+  return tokens(value).map(stemTr).filter((s) => s.length >= 2);
+}
+
+const MANAGER_KEYWORDS = new Set([
+  'mudur',
+  'yonetici',
+  'direktor',
+  'baskan',
+  'lider',
+  'sef',
+  'supervizor',
+  'head',
+  'lead',
+  'manager',
+  'director',
+]);
+
+const JUNIOR_KEYWORDS = new Set([
+  'stajyer',
+  'asistan',
+  'yardimci',
+  'giris',
+  'baslangic',
+  'mezun',
+  'eleman',
+  'temsilci',
+]);
+
+function hasKeyword(stemList: string[], keywordSet: Set<string>): boolean {
+  return stemList.some((s) => keywordSet.has(s) || Array.from(keywordSet).some((k) => s.includes(k)));
 }
 
 /**
- * Rank existing catalog options against free text. Does not invent options.
+ * Intelligently rank catalog options against free text with Turkish stemming & role seniority alignment.
  */
 export function matchTaxonomyOptions(
   text: string,
@@ -30,24 +73,75 @@ export function matchTaxonomyOptions(
   limit = 5,
 ): string[] {
   const query = fold(text);
-  if (query.length < 3) return [];
+  if (query.length < 2) return [];
   const queryTokens = tokens(text);
-  if (queryTokens.length === 0) return [];
+  const queryStems = stems(text);
+  if (queryTokens.length === 0 || queryStems.length === 0) return [];
+
+  const queryIsManager = hasKeyword(queryStems, MANAGER_KEYWORDS);
+  const queryIsJunior = !queryIsManager && hasKeyword(queryStems, JUNIOR_KEYWORDS);
 
   const scored = catalog
     .filter((option) => option && !isManualCareerOption(option) && option !== MANUAL_OPTION)
     .map((option) => {
       const folded = fold(option);
       if (!folded) return { option, score: 0 };
-      if (folded === query) return { option, score: 100 };
-      if (folded.includes(query) || query.includes(folded)) return { option, score: 80 };
+      if (folded === query) return { option, score: 120 };
+
       const optionTokens = tokens(option);
-      const overlap = queryTokens.filter((token) => optionTokens.includes(token)).length;
-      if (overlap === 0) return { option, score: 0 };
-      const exactToken = queryTokens.some((token) => optionTokens.includes(token) && token.length >= 3);
-      const ratio = overlap / Math.max(queryTokens.length, optionTokens.length);
-      const score = exactToken ? Math.max(55, Math.round(ratio * 70)) : Math.round(ratio * 70);
-      return { option, score };
+      const optionStems = stems(option);
+
+      // Exact stem match
+      if (queryStems.join(' ') === optionStems.join(' ')) {
+        return { option, score: 110 };
+      }
+
+      // Exact token presence check (e.g. "crm", "satis", "yonetim")
+      const exactTokenMatch = queryTokens.some(
+        (token) => optionTokens.includes(token) && token.length >= 3,
+      );
+
+      // Compute token & stem overlaps
+      const stemOverlap = queryStems.filter((qs) =>
+        optionStems.some((os) => os === qs || os.includes(qs) || qs.includes(os)),
+      ).length;
+
+      if (stemOverlap === 0 && !exactTokenMatch) return { option, score: 0 };
+
+      const ratio = stemOverlap / Math.max(queryStems.length, optionStems.length);
+      let baseScore = exactTokenMatch
+        ? Math.max(55, Math.round(ratio * 80))
+        : Math.round(ratio * 80);
+
+      // Full containment bonus
+      if (folded.includes(query) || query.includes(folded)) {
+        baseScore = Math.max(baseScore, 85);
+      }
+
+      // If all query stems are present in candidate
+      if (stemOverlap === queryStems.length && queryStems.length > 1) {
+        baseScore = Math.max(baseScore, 90);
+      }
+
+      // Seniority Alignment Boost / Penalty
+      const optionIsManager = hasKeyword(optionStems, MANAGER_KEYWORDS);
+      const optionIsJunior = hasKeyword(optionStems, JUNIOR_KEYWORDS);
+
+      if (queryIsManager) {
+        if (optionIsManager) {
+          baseScore += 30; // Boost managerial roles
+        } else if (optionIsJunior) {
+          baseScore -= 50; // Heavily demote entry/rep roles when query has Manager
+        }
+      } else if (queryIsJunior) {
+        if (optionIsJunior) {
+          baseScore += 20;
+        } else if (optionIsManager) {
+          baseScore -= 30;
+        }
+      }
+
+      return { option, score: baseScore };
     })
     .filter((row) => row.score >= 50)
     .sort((a, b) => b.score - a.score || a.option.localeCompare(b.option, 'tr'));

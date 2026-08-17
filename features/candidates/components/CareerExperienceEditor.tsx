@@ -22,6 +22,7 @@ import {
   formatTurkishSentence,
 } from '@/features/candidates/lib/career-text-quality';
 import {
+  getAllTaxonomyPositions,
   getPositionsForSector,
   isManualCareerOption,
   MANUAL_OPTION,
@@ -221,7 +222,7 @@ export function CareerExperienceEditor({
                     <CareerManualAssist
                       kind="role"
                       text={row.roleOther ?? ''}
-                      catalog={positions}
+                      catalog={positions.length > 0 ? positions : getAllTaxonomyPositions()}
                       sector={row.sector}
                       experienceLevel={experienceLevel ?? undefined}
                       disabled={disabled}
