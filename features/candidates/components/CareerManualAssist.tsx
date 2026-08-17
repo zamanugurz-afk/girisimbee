@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, Check, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { useCareerAi } from '@/features/candidates/hooks/use-career-ai';
 import type { CareerAiManualKind } from '@/features/candidates/ai/career-ai.types';
 import { matchTaxonomyOptions } from '@/features/candidates/ai/match-taxonomy';
@@ -66,7 +67,7 @@ export function CareerManualAssist({
       setPiiError('Kişisel iletişim bilgisi AI isteğine eklenemez.');
       return;
     }
-    const suggestions = matchTaxonomyOptions(prepared.text, catalog ?? [], 5);
+    const suggestions = matchTaxonomyOptions(prepared.text, catalog ?? [], 6);
     setTaxonomySuggestions(suggestions);
     setPicked(suggestions);
     reset();
@@ -125,8 +126,8 @@ export function CareerManualAssist({
   const suggestResult = taxonomySuggestions;
 
   return (
-    <div className="space-y-2 rounded-lg border border-border/60 bg-muted/10 px-3 py-2">
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-2.5 rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-primary/5 to-transparent p-3 transition-all">
+      <div className="flex flex-wrap items-center gap-2">
         {canSuggest ? (
           <Button
             type="button"
@@ -134,8 +135,10 @@ export function CareerManualAssist({
             size="sm"
             disabled={disabled || loading || Boolean(qualityIssue)}
             onClick={handleSuggest}
+            className="h-8 gap-1.5 rounded-xl border-amber-500/40 bg-white/90 px-3 text-xs font-medium text-amber-700 shadow-2xs hover:bg-amber-500/10 dark:border-amber-500/30 dark:bg-zinc-900 dark:text-amber-300"
           >
-            Yakın seçenekleri öner
+            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+            <span>✨ Yapay Zeka ile Yakın Seçenekleri Öner</span>
           </Button>
         ) : null}
         {canPolish ? (
@@ -145,66 +148,98 @@ export function CareerManualAssist({
             size="sm"
             disabled={disabled || loading || Boolean(qualityIssue)}
             onClick={() => void handlePolish()}
+            className="h-8 gap-1.5 rounded-xl border-purple-500/40 bg-white/90 px-3 text-xs font-medium text-purple-700 shadow-2xs hover:bg-purple-500/10 dark:border-purple-500/30 dark:bg-zinc-900 dark:text-purple-300"
           >
-            {loading ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-            AI ile bu ifadeyi geliştir
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Wand2 className="h-3.5 w-3.5 text-purple-500" />
+            )}
+            <span>✨ AI ile İfadeyi Profesyonelleştir</span>
           </Button>
         ) : null}
         {loading ? (
-          <Button type="button" variant="ghost" size="sm" onClick={cancel}>
+          <Button type="button" variant="ghost" size="sm" onClick={cancel} className="h-8 text-xs">
             İptal
           </Button>
         ) : null}
       </div>
+
       {qualityIssue ? (
-        <p className="text-xs text-muted-foreground">Öneri için önce geçerli bir metin yazın.</p>
+        <p className="text-[11px] text-muted-foreground">
+          Yapay zeka önerisi almak için önce ilgili alana en az {minLength} harf yazın.
+        </p>
       ) : null}
       {piiError ? <p className="text-xs text-destructive">{piiError}</p> : null}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
 
       {suggestResult && onAcceptCatalog ? (
-        <div className="space-y-2">
+        <div className="space-y-2.5 rounded-xl border border-amber-500/30 bg-white/95 p-3 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-foreground/90 flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              Yapay Zeka ile Eşleşen Seçenekler:
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              Tek tıkla seçip uygulayabilirsiniz
+            </span>
+          </div>
+
           {suggestResult.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Yakın bir katalog seçeneği bulunamadı.</p>
+            <p className="text-xs text-muted-foreground py-1">
+              Yazdığınız ifadeye uygun katalog seçeneği bulunamadı; girdiğiniz özel unvan aynen korunacak.
+            </p>
           ) : (
-            <ul className="space-y-1">
+            <div className="flex flex-wrap gap-1.5 py-1">
               {suggestResult.map((item) => {
                 const checked = picked.includes(item);
                 return (
-                  <li key={item}>
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        disabled={disabled}
-                        onChange={(event) => {
-                          setPicked((prev) =>
-                            event.target.checked
-                              ? [...prev, item]
-                              : prev.filter((value) => value !== item),
-                          );
-                        }}
-                      />
-                      <span>{item}</span>
-                    </label>
-                  </li>
+                  <button
+                    key={item}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      // 1-click accept direct match if single choice
+                      if (kind === 'role') {
+                        onAcceptCatalog([item]);
+                        setTaxonomySuggestions(null);
+                        setPicked([]);
+                      } else {
+                        setPicked((prev) =>
+                          checked ? prev.filter((v) => v !== item) : [...prev, item],
+                        );
+                      }
+                    }}
+                    className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-medium transition-all ${
+                      checked
+                        ? 'border border-amber-500/50 bg-amber-500/15 text-amber-900 dark:text-amber-200 shadow-2xs'
+                        : 'border border-slate-200 bg-slate-50 text-foreground/80 hover:border-amber-400 hover:bg-amber-50/50 dark:border-zinc-800 dark:bg-zinc-800'
+                    }`}
+                  >
+                    <span>+ {item}</span>
+                  </button>
                 );
               })}
-            </ul>
+            </div>
           )}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              disabled={disabled || picked.length === 0}
-              onClick={() => {
-                onAcceptCatalog(picked);
-                setTaxonomySuggestions(null);
-                setPicked([]);
-              }}
-            >
-              Seçilenleri ekle
-            </Button>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border/40">
+            {kind !== 'role' && suggestResult.length > 0 && (
+              <Button
+                type="button"
+                size="sm"
+                disabled={disabled || picked.length === 0}
+                onClick={() => {
+                  onAcceptCatalog(picked);
+                  setTaxonomySuggestions(null);
+                  setPicked([]);
+                }}
+                className="h-7.5 text-xs rounded-xl px-3"
+              >
+                <Check className="mr-1 h-3.5 w-3.5" />
+                Seçilenleri Ekle ({picked.length})
+              </Button>
+            )}
             <Button
               type="button"
               size="sm"
@@ -213,20 +248,26 @@ export function CareerManualAssist({
                 setTaxonomySuggestions(null);
                 setPicked([]);
               }}
+              className="h-7.5 text-xs rounded-xl"
             >
-              Reddet
+              Kapat
             </Button>
           </div>
         </div>
       ) : null}
 
       {polishResult && onAcceptPolished ? (
-        <div className="space-y-2">
+        <div className="space-y-2.5 rounded-xl border border-purple-500/30 bg-white/95 p-3 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-xs">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300">
+            <Wand2 className="h-3.5 w-3.5 text-purple-500" />
+            <span>Yapay Zeka ile Geliştirilmiş İfade:</span>
+          </div>
           <Textarea
             rows={3}
             value={draft}
             disabled={disabled}
             onChange={(event) => setDraft(event.target.value)}
+            className="text-xs rounded-xl border-purple-300 dark:border-purple-900"
           />
           <div className="flex flex-wrap gap-2">
             <Button
@@ -238,8 +279,10 @@ export function CareerManualAssist({
                 setShowPolish(false);
                 reset();
               }}
+              className="h-7.5 text-xs rounded-xl px-3 bg-purple-600 hover:bg-purple-700 text-white"
             >
-              Kabul et
+              <Check className="mr-1 h-3.5 w-3.5" />
+              Metni Uygula
             </Button>
             <Button
               type="button"
@@ -249,8 +292,9 @@ export function CareerManualAssist({
                 setShowPolish(false);
                 reset();
               }}
+              className="h-7.5 text-xs rounded-xl"
             >
-              Reddet
+              Vazgeç
             </Button>
           </div>
         </div>
