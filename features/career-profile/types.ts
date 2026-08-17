@@ -33,10 +33,14 @@ export interface CareerProfileCompletion {
 
 export interface CareerProfileFormValues {
   role: string;
+  roles?: string[];
   sector: string;
+  sectors?: string[];
   experienceLevel: string;
   professionalSkills: string;
+  professionalSkillsList?: string[];
   technicalSkills: string;
+  technicalSkillsList?: string[];
   workType: string;
   workplacePreference: string;
   city: string;
@@ -44,6 +48,9 @@ export interface CareerProfileFormValues {
   languages: string;
   availability: string;
   candidateTraits: string;
+  salary?: string;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
 }
 
 export interface CareerProfileRecord {

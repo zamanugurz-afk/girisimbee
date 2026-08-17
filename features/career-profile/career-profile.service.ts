@@ -8,10 +8,17 @@ import type { CareerListingKind } from '@/features/matching-engine/types';
 
 const ALLOWED_CAREER_KEYS = [
   'desiredRole',
+  'desiredRoleOther',
+  'preferredRoles',
+  'preferredRolesOther',
+  'positionTitle',
   'primarySector',
+  'preferredSectors',
   'experienceLevel',
   'professionalSkills',
+  'professionalSkillsOther',
   'technicalSkills',
+  'technicalSkillsOther',
   'workType',
   'employmentType',
   'workplacePreference',
@@ -20,7 +27,9 @@ const ALLOWED_CAREER_KEYS = [
   'languages',
   'availability',
   'requiredResponsibilities',
-  'positionTitle',
+  'salary',
+  'salaryMin',
+  'salaryMax',
 ] as const;
 
 export interface CareerProfileListingStore {
@@ -60,22 +69,50 @@ function toRecord(listing: Listing, kind: CareerListingKind): CareerProfileRecor
 export function formValuesToCustomFields(
   kind: CareerListingKind,
   values: CareerProfileFormValues,
-): Record<string, string> {
-  const role = values.role.trim();
-  const fields: Record<string, string> = {
-    desiredRole: role,
-    primarySector: values.sector.trim(),
+): Record<string, unknown> {
+  const roles = values.roles && values.roles.length > 0 ? values.roles : values.role ? [values.role] : [];
+  const primaryRole = roles[0] || values.role || '';
+
+  const sectors = values.sectors && values.sectors.length > 0 ? values.sectors : values.sector ? [values.sector] : [];
+  const primarySector = sectors[0] || values.sector || '';
+
+  const profSkills = values.professionalSkillsList && values.professionalSkillsList.length > 0
+    ? values.professionalSkillsList.join(', ')
+    : values.professionalSkills.trim();
+
+  const techSkills = values.technicalSkillsList && values.technicalSkillsList.length > 0
+    ? values.technicalSkillsList.join(', ')
+    : values.technicalSkills.trim();
+
+  const fields: Record<string, unknown> = {
+    desiredRole: primaryRole,
+    preferredRoles: roles.join(', '),
+    primarySector: primarySector,
+    preferredSectors: sectors.join(', '),
     experienceLevel: values.experienceLevel.trim(),
-    professionalSkills: values.professionalSkills.trim(),
-    technicalSkills: values.technicalSkills.trim(),
+    professionalSkills: profSkills,
+    technicalSkills: techSkills,
     workType: values.workType.trim(),
     workplacePreference: values.workplacePreference.trim(),
     preferredCity: values.city.trim(),
     educationLevel: values.educationLevel.trim(),
     languages: values.languages.trim(),
   };
+
+  if (values.salaryMin || values.salaryMax) {
+    fields.salaryMin = values.salaryMin;
+    fields.salaryMax = values.salaryMax;
+    if (values.salaryMin && values.salaryMax) {
+      fields.salary = `${values.salaryMin.toLocaleString('tr-TR')} – ${values.salaryMax.toLocaleString('tr-TR')} TL`;
+    } else if (values.salaryMin) {
+      fields.salary = `${values.salaryMin.toLocaleString('tr-TR')} TL+`;
+    } else if (values.salaryMax) {
+      fields.salary = `${values.salaryMax.toLocaleString('tr-TR')} TL`;
+    }
+  }
+
   if (kind === 'hire') {
-    fields.positionTitle = role;
+    fields.positionTitle = primaryRole;
     fields.employmentType = values.workType.trim();
     fields.requiredResponsibilities = values.candidateTraits.trim();
   } else {

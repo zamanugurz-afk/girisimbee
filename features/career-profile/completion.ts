@@ -104,18 +104,23 @@ export function emptyCareerProfileValues(): CareerProfileFormValues {
     languages: '',
     availability: '',
     candidateTraits: '',
+    salary: '',
   };
 }
 
 export function valuesFromCareerSource(source: CareerFieldSource): CareerProfileFormValues {
   const profile = normalizeCareerSource(source);
-  const cf = source.customFields ?? {};
+  const cf = (source.customFields ?? {}) as Record<string, unknown>;
   return {
     role: profile.role ?? '',
+    roles: profile.roles && profile.roles.length > 0 ? profile.roles : profile.role ? [profile.role] : [],
     sector: profile.sector ?? '',
+    sectors: profile.sectors && profile.sectors.length > 0 ? profile.sectors : profile.sector ? [profile.sector] : [],
     experienceLevel: profile.experienceLevel ?? '',
     professionalSkills: displayList(profile.professionalSkills) ?? '',
+    professionalSkillsList: profile.professionalSkills ?? [],
     technicalSkills: displayList(profile.technicalSkills) ?? '',
+    technicalSkillsList: profile.technicalSkills ?? [],
     workType: profile.workType ?? '',
     workplacePreference: profile.workplacePreference ?? '',
     city: profile.city ?? '',
@@ -123,6 +128,9 @@ export function valuesFromCareerSource(source: CareerFieldSource): CareerProfile
     languages: typeof cf.languages === 'string' ? cf.languages : displayList(profile.languages) ?? '',
     availability: profile.availability ?? '',
     candidateTraits: profile.requiredResponsibilities ?? '',
+    salary: profile.salary ?? '',
+    salaryMin: profile.salaryMin,
+    salaryMax: profile.salaryMax,
   };
 }
 
