@@ -10,7 +10,7 @@ export function DashboardPanelLayout({ children }: { children: ReactNode }) {
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0 gc-dot-grid opacity-20" aria-hidden />
-      <div className="relative mx-auto flex min-h-screen max-w-7xl">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[1780px] px-4 sm:px-6 lg:px-8">
         <div className="hidden w-64 shrink-0 md:block lg:w-72">
           <div className="sticky top-0 h-screen">
             <DashboardSidebar />

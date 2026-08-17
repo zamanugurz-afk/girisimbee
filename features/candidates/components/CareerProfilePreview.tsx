@@ -183,9 +183,9 @@ function SectionLabel({
   title: string;
 }) {
   return (
-    <p className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-      <Icon className="h-3.5 w-3.5 text-primary" aria-hidden />
-      {title}
+    <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary whitespace-normal break-words leading-tight">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+      <span>{title}</span>
     </p>
   );
 }
@@ -650,7 +650,7 @@ export function CareerProfilePreview({
       ) : (
         <>
       <div className={sectionClass}>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="min-w-0">
             <SectionLabel
               icon={Briefcase}

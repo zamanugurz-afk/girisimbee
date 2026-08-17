@@ -510,8 +510,8 @@ export function CareerProfileForm({
   return (
     <div className="w-full">
       <div className="grid gap-8 lg:grid-cols-12 items-start">
-        {/* Left Column: Comprehensive Form Steps (8 cols) */}
-        <div className="space-y-6 lg:col-span-8">
+        {/* Left Column: Comprehensive Form Steps (7 cols) */}
+        <div className="space-y-6 lg:col-span-7 xl:col-span-7">
           {/* Profile Completion Bar */}
           <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/80">
             <div className="flex items-center justify-between gap-4">
@@ -1654,8 +1654,8 @@ export function CareerProfileForm({
           </div>
         </div>
 
-        {/* Right Column: Sticky Live Candidate Preview (4 cols) */}
-        <div className="space-y-6 lg:col-span-4 lg:sticky lg:top-24">
+        {/* Right Column: Sticky Live Candidate Preview (5 cols) */}
+        <div className="space-y-6 lg:col-span-5 xl:col-span-5 lg:sticky lg:top-24">
           <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-xs dark:border-zinc-800/80 dark:bg-zinc-900/90">
             <div className="flex items-center justify-between border-b border-border/60 pb-3 mb-4">
               <div className="flex items-center gap-2">
