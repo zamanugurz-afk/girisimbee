@@ -54,6 +54,12 @@ export function AccountMyListings({
     setListings((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handlePromote = (id: string) => {
+    setListings((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isShowcase: true } : item)),
+    );
+  };
+
   if (loadError) {
     return (
       <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-10 text-center">
@@ -122,6 +128,7 @@ export function AccountMyListings({
                 listing={listing}
                 onStatusChange={handleStatusChange}
                 onDelete={handleDelete}
+                onPromote={handlePromote}
               />
             ))}
           </div>

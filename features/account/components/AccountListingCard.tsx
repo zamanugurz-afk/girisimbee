@@ -33,14 +33,12 @@ import {
   Loader2,
   Zap,
 } from 'lucide-react';
-import { useListingEngine } from '@/features/listings/hooks/use-listing-engine';
 import { LISTING_TYPE_ICON_MAP } from '@/components/girisimco/listing/listing-type-icon';
 import type { ListingTypeIconKey } from '@/features/listings/utils/listing-card-display';
 import { AccountListingStatsModal } from '@/features/account/components/AccountListingStatsModal';
 import { AccountListingPromoteModal } from '@/features/account/components/AccountListingPromoteModal';
 import type { AccountListingCardData, AccountListingStatus } from '@/features/account/types/account-listings.types';
 import { ACCOUNT_LISTING_STATUS_LABELS } from '@/features/account/types/account-listings.constants';
-import type { ListingId } from '@/lib/domain/ids';
 
 function formatDate(value?: string | null): string {
   if (!value) return '';
@@ -65,11 +63,11 @@ function getListingPrimaryBadge(listing: AccountListingCardData): {
   let iconKey: ListingTypeIconKey = (listing.iconKey as ListingTypeIconKey) || 'general';
   let color = listing.groupColor || '#10B981';
 
-  if (typeUpper.includes('İŞE AL') || catUpper === 'İŞ' && typeUpper.includes('AL')) {
+  if (typeUpper.includes('İŞE AL') || (catUpper === 'İŞ' && typeUpper.includes('AL'))) {
     label = 'İşe Alıyorum';
     iconKey = 'employer';
     color = '#10B981';
-  } else if (typeUpper.includes('İŞ AR') || catUpper === 'İŞ' && typeUpper.includes('AR')) {
+  } else if (typeUpper.includes('İŞ AR') || (catUpper === 'İŞ' && typeUpper.includes('AR'))) {
     label = 'İş Arıyorum';
     iconKey = 'job-seeker';
     color = '#0EA5E9';
@@ -98,13 +96,13 @@ export function AccountListingCard({
   listing,
   onStatusChange,
   onDelete,
+  onPromote,
 }: {
   listing: AccountListingCardData;
   onStatusChange?: (id: string, newStatus: AccountListingStatus) => void;
   onDelete?: (id: string) => void;
+  onPromote?: (id: string) => void;
 }) {
-  const { pauseListing, publishListing, softDeleteListing } = useListingEngine();
-
   const [statsOpen, setStatsOpen] = useState(false);
   const [promoteOpen, setPromoteOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -117,19 +115,25 @@ export function AccountListingCard({
   const publicHref = `/ilan/${listing.slug || listing.id}`;
   const editHref = `/ilanlarim/${listing.id}/duzenle`;
 
-  // Status toggle handler
+  // Status toggle handler via Server API
   const handleToggleStatus = async () => {
     setIsActionBusy(true);
     try {
-      if (isPublished) {
-        await pauseListing(listing.id as ListingId);
-        toast.success('İlan başarıyla duraklatıldı');
-        onStatusChange?.(listing.id, 'unpublished');
-      } else {
-        await publishListing(listing.id as ListingId);
-        toast.success('İlan tekrar yayına alındı');
-        onStatusChange?.(listing.id, 'active');
+      const nextAction = isPublished ? 'pause' : 'publish';
+      const res = await fetch(`/api/account/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: nextAction }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'İşlem gerçekleştirilemedi');
       }
+
+      const nextStatus: AccountListingStatus = isPublished ? 'unpublished' : 'active';
+      toast.success(isPublished ? 'İlan başarıyla duraklatıldı' : 'İlan tekrar yayına alındı');
+      onStatusChange?.(listing.id, nextStatus);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'İşlem gerçekleştirilemedi');
     } finally {
@@ -137,12 +141,20 @@ export function AccountListingCard({
     }
   };
 
-  // Delete handler
+  // Delete handler via Server API
   const handleDeleteConfirm = async () => {
     setIsActionBusy(true);
     try {
-      await softDeleteListing(listing.id as ListingId);
-      toast.success('İlan silindi');
+      const res = await fetch(`/api/account/listings/${listing.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'İlan silinemedi');
+      }
+
+      toast.success('İlan başarıyla silindi');
       setDeleteDialogOpen(false);
       onDelete?.(listing.id);
     } catch (err) {
@@ -150,6 +162,10 @@ export function AccountListingCard({
     } finally {
       setIsActionBusy(false);
     }
+  };
+
+  const handlePromoteSuccess = (id: string) => {
+    onPromote?.(id);
   };
 
   return (
@@ -382,6 +398,7 @@ export function AccountListingCard({
         listing={listing}
         open={promoteOpen}
         onOpenChange={setPromoteOpen}
+        onPromoted={handlePromoteSuccess}
       />
 
       {/* Delete Confirmation Alert Dialog */}

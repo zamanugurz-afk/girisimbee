@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -9,18 +11,46 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, Flame, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Zap, Flame, ArrowRight, ShieldCheck, Check, Loader2 } from 'lucide-react';
 import type { AccountListingCardData } from '@/features/account/types/account-listings.types';
 
 export function AccountListingPromoteModal({
   listing,
   open,
   onOpenChange,
+  onPromoted,
 }: {
   listing: AccountListingCardData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onPromoted?: (id: string) => void;
 }) {
+  const [isActivating, setIsActivating] = useState(false);
+
+  const handleInstantBoost = async () => {
+    setIsActivating(true);
+    try {
+      const res = await fetch(`/api/account/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'showcase' }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Vitrine taşıma işlemi başarısız oldu.');
+      }
+
+      toast.success('İlanınız başarıyla vitrine taşındı ve öne çıkarıldı!');
+      onPromoted?.(listing.id);
+      onOpenChange(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'İşlem başarısız');
+    } finally {
+      setIsActivating(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl overflow-hidden rounded-2xl p-0 border border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl">
@@ -49,11 +79,18 @@ export function AccountListingPromoteModal({
                     <Sparkles className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="font-display text-sm font-bold text-foreground">
-                      Ana Sayfa Vitrin Paketi
-                    </h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-display text-sm font-bold text-foreground">
+                        Ana Sayfa Vitrin Paketi
+                      </h4>
+                      {listing.isShowcase && (
+                        <span className="rounded-full bg-emerald-500/15 text-emerald-600 px-2 py-0.5 text-[10px] font-semibold">
+                          Şu an Aktif
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      Girişimbee ana sayfasındaki premium vitrinde 7 gün boyunca en üst sırada listelenin.
+                      Girişimbee ana sayfasındaki premium vitrinde en üst sırada listelenin.
                     </p>
                     <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                       <ShieldCheck className="h-3.5 w-3.5" />
@@ -99,7 +136,7 @@ export function AccountListingPromoteModal({
                       Kategori Sabitleme
                     </h4>
                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      İlgili kategorinin listeleme sayfasında 14 gün boyunca ilk sırada kalın.
+                      İlgili kategorinin listeleme sayfasında ilk sırada kalın.
                     </p>
                   </div>
                 </div>
@@ -117,15 +154,34 @@ export function AccountListingPromoteModal({
             onClick={() => onOpenChange(false)}
             className="rounded-lg"
           >
-            Vazgeç
+            Kapat
           </Button>
 
-          <Button asChild size="sm" className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white gap-1.5 shadow-sm">
-            <Link href="/reklam" onClick={() => onOpenChange(false)}>
-              <span>Reklam & Vitrin Paketlerini İncele</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {!listing.isShowcase && (
+              <Button
+                type="button"
+                size="sm"
+                disabled={isActivating}
+                onClick={handleInstantBoost}
+                className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white gap-1.5 shadow-sm font-medium"
+              >
+                {isActivating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                <span>Hemen Vitrine Taşı</span>
+              </Button>
+            )}
+
+            <Button asChild variant="outline" size="sm" className="rounded-lg gap-1.5">
+              <Link href="/reklam" onClick={() => onOpenChange(false)}>
+                <span>Tüm Paketler</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
