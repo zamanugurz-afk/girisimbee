@@ -34,6 +34,8 @@ export const EXPERIENCE_LEVEL_VALUES = [
   'Mid',
   'Senior',
   'Uzman',
+  'Takım Lideri',
+  'Orta Düzey Yönetici',
   'Yönetici',
   'Direktör',
 ] as const;
@@ -49,6 +51,8 @@ export const EXPERIENCE_LEVEL_LABELS: Record<string, string> = {
   Mid: 'Orta Seviye',
   Senior: 'Kıdemli',
   Uzman: 'Uzman',
+  'Takım Lideri': 'Takım Lideri / Şef',
+  'Orta Düzey Yönetici': 'Orta Düzey Yönetici',
   Yönetici: 'Yönetici',
   Direktör: 'Üst Düzey Yönetici',
 };

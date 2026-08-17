@@ -383,6 +383,8 @@ export const EXPERIENCE_LEVELS = [
   'Mid',
   'Senior',
   'Uzman',
+  'Takım Lideri',
+  'Orta Düzey Yönetici',
   'Yönetici',
   'Direktör',
 ] as const;
