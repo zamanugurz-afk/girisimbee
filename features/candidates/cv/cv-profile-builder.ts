@@ -1,0 +1,149 @@
+import type {
+  CanonicalTaxonomyMappingResult,
+  CvProfileDraftResult,
+} from '@/features/candidates/cv/cv.types';
+import type { CareerProfileFormValues } from '@/features/career-profile/types';
+
+/**
+ * Builds a safe, normalized CareerProfileFormValues draft from canonical CV extraction results.
+ * Strictly leaves user preference fields (salary, availability, target role preference, work model)
+ * flagged as requiring explicit confirmation.
+ */
+export function buildProfileDraftFromCanonicalResult(
+  canonical: CanonicalTaxonomyMappingResult,
+  cvFileName?: string,
+  cvDocumentId?: string,
+): CvProfileDraftResult {
+  const cvFilledFieldKeys: string[] = [];
+
+  // Calculate experience level from total years
+  const totalYears = canonical.experiences.reduce((sum, exp) => {
+    const yrs = parseInt(exp.duration, 10) || 1;
+    return sum + yrs;
+  }, 0);
+
+  let experienceLevel = '1-3 yıl';
+  if (totalYears === 0) experienceLevel = 'Stajyer / Yeni Mezun';
+  else if (totalYears < 2) experienceLevel = 'Başlangıç (0-2 yıl)';
+  else if (totalYears <= 5) experienceLevel = '3-5 yıl';
+  else if (totalYears <= 10) experienceLevel = '5-10 yıl';
+  else experienceLevel = '10+ yıl';
+
+  const formValues: Partial<CareerProfileFormValues> = {
+    // 1. Role & Sector (extracted from historical CV data)
+    role: canonical.primaryRole || '',
+    roles: canonical.matchedRoles.length > 0 ? canonical.matchedRoles : canonical.primaryRole ? [canonical.primaryRole] : [],
+    sector: canonical.primarySector || '',
+    sectors: canonical.matchedSectors.length > 0 ? canonical.matchedSectors : canonical.primarySector ? [canonical.primarySector] : [],
+
+    // 2. Experience History & Level
+    experienceLevel,
+    experiences: canonical.experiences,
+
+    // 3. Skills & Tools
+    professionalSkills: canonical.professionalSkills.join(', '),
+    professionalSkillsList: canonical.professionalSkills,
+    technicalSkills: canonical.technicalSkills.join(', '),
+    technicalSkillsList: canonical.technicalSkills,
+    tools: canonical.tools.join(', '),
+    toolsList: canonical.tools,
+
+    // 4. Education, Languages & Certificates
+    educationLevel: canonical.educationLevel || 'Lisans',
+    educationField: canonical.educationField || '',
+    languages: canonical.languages || '',
+    certificates: canonical.certificates || '',
+
+    // 5. Residence Location (from historical location)
+    residenceCity: canonical.residenceCity || '',
+    city: canonical.residenceCity || '',
+
+    // 6. Career Summary (grounded synthesis)
+    candidateTraits: canonical.summary || '',
+
+    // 7. CV File Metadata
+    cvFileName,
+    cvDocumentId,
+    cvUploadedAt: new Date().toISOString(),
+
+    // 8. PREFERENCE FIELDS — Deliberately left unforced / empty for user confirmation
+    workType: '',
+    workplacePreference: '',
+    preferredDistrict: '',
+    availability: '',
+    salaryMin: null,
+    salaryMax: null,
+    salary: '',
+  };
+
+  // Record filled keys
+  if (formValues.role) cvFilledFieldKeys.push('role', 'roles');
+  if (formValues.sector) cvFilledFieldKeys.push('sector', 'sectors');
+  if (formValues.experiences && formValues.experiences.length > 0) cvFilledFieldKeys.push('experiences');
+  if (formValues.professionalSkills) cvFilledFieldKeys.push('professionalSkills');
+  if (formValues.technicalSkills) cvFilledFieldKeys.push('technicalSkills');
+  if (formValues.tools) cvFilledFieldKeys.push('tools');
+  if (formValues.educationLevel) cvFilledFieldKeys.push('educationLevel');
+  if (formValues.educationField) cvFilledFieldKeys.push('educationField');
+  if (formValues.languages) cvFilledFieldKeys.push('languages');
+  if (formValues.certificates) cvFilledFieldKeys.push('certificates');
+  if (formValues.residenceCity) cvFilledFieldKeys.push('residenceCity', 'city');
+  if (formValues.candidateTraits) cvFilledFieldKeys.push('candidateTraits');
+
+  // Explicit unconfirmed preference keys
+  const unconfirmedPreferenceKeys = [
+    'desiredRole',
+    'preferredRoles',
+    'preferredSectors',
+    'preferredCity',
+    'preferredDistrict',
+    'workType',
+    'workplacePreference',
+    'salaryMin',
+    'salaryMax',
+    'availability',
+  ];
+
+  const categoriesFound = {
+    experiences: canonical.experiences.length,
+    roles: canonical.matchedRoles.length,
+    sectors: canonical.matchedSectors.length,
+    skills: canonical.professionalSkills.length + canonical.technicalSkills.length,
+    tools: canonical.tools.length,
+    education: Boolean(canonical.educationLevel),
+    languages: canonical.languages ? canonical.languages.split(',').length : 0,
+    certificates: canonical.certificates ? canonical.certificates.split(',').length : 0,
+    locations: canonical.residenceCity ? 1 : 0,
+    summary: Boolean(canonical.summary),
+  };
+
+  const extractedCount =
+    categoriesFound.experiences +
+    categoriesFound.roles +
+    categoriesFound.sectors +
+    categoriesFound.skills +
+    categoriesFound.tools +
+    (categoriesFound.education ? 1 : 0) +
+    categoriesFound.languages +
+    categoriesFound.certificates +
+    categoriesFound.locations +
+    (categoriesFound.summary ? 1 : 0);
+
+  return {
+    formValues,
+    cvFilledFieldKeys: [...new Set(cvFilledFieldKeys)],
+    unconfirmedPreferenceKeys,
+    ambiguousItems: canonical.ambiguousItems,
+    summary: canonical.summary,
+    extractedCount,
+    categoriesFound,
+    metrics: {
+      aiCallCount: 1,
+      piiMaskedCount: 0,
+      deterministicFieldsCount: 5,
+      aiExtractedFieldsCount: extractedCount,
+      taxonomyMappedCount: categoriesFound.roles + categoriesFound.sectors,
+      ambiguousCount: canonical.ambiguousItems.length,
+    },
+  };
+}

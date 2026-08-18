@@ -61,6 +61,9 @@ export const ALLOWED_CAREER_KEYS = [
   'salary',
   'salaryMin',
   'salaryMax',
+  'cvFileName',
+  'cvDocumentId',
+  'cvUploadedAt',
 ] as const;
 
 export interface CareerProfileListingStore {
@@ -158,6 +161,10 @@ export function formValuesToCustomFields(
       fields.salary = `${values.salaryMax.toLocaleString('tr-TR')} TL`;
     }
   }
+
+  if (values.cvFileName) fields.cvFileName = values.cvFileName;
+  if (values.cvDocumentId) fields.cvDocumentId = values.cvDocumentId;
+  if (values.cvUploadedAt) fields.cvUploadedAt = values.cvUploadedAt;
 
   if (values.companyName) {
     fields.companyName = values.companyName.trim();

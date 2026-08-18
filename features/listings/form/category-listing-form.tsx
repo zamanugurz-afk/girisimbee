@@ -938,6 +938,10 @@ export function CategoryListingForm({
             next.salaryRange = matchedBand;
           }
 
+          if (pv.cvFileName) next.cvFileName = pv.cvFileName;
+          if (pv.cvDocumentId) next.cvDocumentId = pv.cvDocumentId;
+          if (pv.cvUploadedAt) next.cvUploadedAt = pv.cvUploadedAt;
+
           if (pv.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
           if (pv.candidateTraits) next.requiredResponsibilities = pv.candidateTraits;
           if (pv.partnerType) next.partnerType = pv.partnerType;

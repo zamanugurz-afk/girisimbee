@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { CvUploadStep } from '@/features/career-profile/components/cv-upload-step';
+import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 import {
   EXPERIENCE_LEVEL_VALUES,
@@ -147,19 +149,26 @@ function Field({
   label,
   required,
   hint,
+  badge,
   children,
 }: {
   label: string;
   required?: boolean;
   hint?: string;
+  badge?: string;
   children: ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-foreground/85 flex items-center gap-1">
+        <label className="text-xs font-semibold text-foreground/85 flex items-center gap-1.5">
           <span>{label}</span>
           {required && <span className="text-rose-500">*</span>}
+          {badge && (
+            <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-300">
+              {badge}
+            </span>
+          )}
         </label>
         {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
       </div>
@@ -288,6 +297,61 @@ export function CareerProfileForm({
   const [businessModel, setBusinessModel] = useState(record.values.businessModel || '');
   const [capitalContribution, setCapitalContribution] = useState(record.values.capitalContribution || '');
   const [equityOffered, setEquityOffered] = useState(record.values.equityOffered || '');
+
+  // CV Attachment & Pre-Upload Step States
+  const [cvFileName, setCvFileName] = useState(record.values.cvFileName || '');
+  const [cvDocumentId, setCvDocumentId] = useState(record.values.cvDocumentId || '');
+  const [cvUploadedAt, setCvUploadedAt] = useState(record.values.cvUploadedAt || '');
+  const [cvFilledKeys, setCvFilledKeys] = useState<Set<string>>(new Set());
+  const [showCvUploadStep, setShowCvUploadStep] = useState<boolean>(() => {
+    return (
+      persona === 'seek' &&
+      !record.values.role &&
+      (!record.values.experiences || record.values.experiences.length === 0) &&
+      !record.values.cvFileName
+    );
+  });
+
+  const handleApplyCvDraft = (draft: CvProfileDraftResult) => {
+    const fv = draft.formValues;
+    if (fv.role) setPrimaryRole(fv.role);
+    if (fv.roles && fv.roles.length > 0) setSelectedRoles(fv.roles);
+    if (fv.sector) setPrimarySector(fv.sector);
+    if (fv.sectors && fv.sectors.length > 0) setSelectedSectors(fv.sectors);
+    if (fv.experienceLevel) setExperienceLevel(fv.experienceLevel);
+    if (fv.experiences && fv.experiences.length > 0) setExperiences(fv.experiences);
+    if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
+      setSelectedProfSkills(fv.professionalSkillsList);
+    }
+    if (fv.technicalSkillsList && fv.technicalSkillsList.length > 0) {
+      setSelectedTechSkills(fv.technicalSkillsList);
+    }
+    if (fv.toolsList && fv.toolsList.length > 0) {
+      setSelectedTools(fv.toolsList);
+    }
+    if (fv.educationLevel) setEducationLevel(fv.educationLevel);
+    if (fv.educationField) setEducationField(fv.educationField);
+    if (fv.languages) setLanguages(fv.languages);
+    if (fv.certificates) setCertificates(fv.certificates);
+    if (fv.residenceCity) {
+      setCity(fv.residenceCity);
+    }
+    if (fv.candidateTraits) setCandidateTraits(fv.candidateTraits);
+    if (fv.cvFileName) setCvFileName(fv.cvFileName);
+    if (fv.cvDocumentId) setCvDocumentId(fv.cvDocumentId);
+    if (fv.cvUploadedAt) setCvUploadedAt(fv.cvUploadedAt);
+
+    setCvFilledKeys(new Set(draft.cvFilledFieldKeys));
+    setShowCvUploadStep(false);
+    toast.success('✨ CV bilgileri profile aktarıldı. Tercihlerinizi gözden geçirebilirsiniz.');
+  };
+
+  const handleRemoveCv = () => {
+    setCvFileName('');
+    setCvDocumentId('');
+    setCvUploadedAt('');
+    toast.info('CV profilden kaldırıldı.');
+  };
 
   const [saving, setSaving] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
@@ -670,6 +734,9 @@ export function CareerProfileForm({
         equityOffered,
         salaryMin,
         salaryMax,
+        cvFileName,
+        cvDocumentId,
+        cvUploadedAt,
       };
 
       const res = await fetch('/api/career/profile', {
@@ -787,6 +854,56 @@ export function CareerProfileForm({
           {/* ========================================================= */}
           {persona === 'seek' && (
             <>
+              {/* CV Upload First Step / Mode */}
+              {showCvUploadStep ? (
+                <CvUploadStep
+                  onDraftReady={handleApplyCvDraft}
+                  onSkipManual={() => setShowCvUploadStep(false)}
+                  currentCvName={cvFileName}
+                  onRemoveCv={handleRemoveCv}
+                />
+              ) : (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200">
+                        {cvFileName ? `Ekli CV: ${cvFileName}` : 'CV ile Otomatik Doldurma'}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                        {cvFileName
+                          ? 'CV’nizdeki bilgiler profile aktarıldı.'
+                          : 'PDF veya DOCX yükleyerek formu otomatik doldurabilirsiniz.'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowCvUploadStep(true)}
+                      className="rounded-xl text-xs font-medium"
+                    >
+                      {cvFileName ? 'CV’yi Değiştir' : 'CV Yükle'}
+                    </Button>
+                    {cvFileName && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveCv}
+                        className="rounded-xl text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/30"
+                      >
+                        CV'yi Kaldır
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Step 1: Temel Kariyer Bilgileri */}
               <FormSection
                 stepNumber={1}
@@ -796,7 +913,12 @@ export function CareerProfileForm({
               >
                 <div className="grid gap-4 sm:grid-cols-2">
                   {/* 1. Ana Sektör (Önce Seçilir) */}
-                  <Field label="Ana Sektör" required hint="Önce sektörünüzü seçin">
+                  <Field
+                    label="Ana Sektör"
+                    required
+                    hint="Önce sektörünüzü seçin"
+                    badge={cvFilledKeys.has('sector') ? "CV'den aktarıldı" : undefined}
+                  >
                     <select
                       value={primarySector}
                       onChange={(e) => handleSectorChange(e.target.value)}

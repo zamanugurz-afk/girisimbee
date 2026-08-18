@@ -74,6 +74,11 @@ export interface CareerProfileFormValues {
   companyName?: string;
   requiredAchievements?: string;
 
+  // CV File Attachment metadata
+  cvFileName?: string;
+  cvDocumentId?: string;
+  cvUploadedAt?: string;
+
   // Partnership specific
   partnerType?: string;
   stage?: string;
