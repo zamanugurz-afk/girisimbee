@@ -383,7 +383,7 @@ export async function extractCvText(
 
   if (!text || text.trim().length < 10) {
     throw new CvExtractionError(
-      "CV'den yeterli bilgi çıkarılamadı. Lütfen bilgileri manuel olarak tamamlayın.",
+      'Bu PDF görüntü tabanlı olduğu için metin okunamadı. Lütfen metin içeren bir PDF veya DOCX yükleyin veya bilgileri manuel olarak tamamlayın.',
     );
   }
 

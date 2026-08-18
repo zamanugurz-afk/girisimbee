@@ -74,6 +74,7 @@ export interface CanonicalTaxonomyMappingResult {
   tools: string[];
   educationLevel: string;
   educationField: string;
+  educationList: Array<{ level: string; field?: string; school?: string; graduationYear?: number | null }>;
   languages: string;
   certificates: string;
   residenceCity: string;
@@ -81,6 +82,31 @@ export interface CanonicalTaxonomyMappingResult {
   summary: string;
   ambiguousItems: RawAmbiguousCvItem[];
   canonicalConfidence: number;
+}
+
+export const CV_EXTRACTION_VERSION = '2.0';
+export const CAREER_TAXONOMY_VERSION = '2.0';
+export const CV_PARSER_VERSION = '2.0';
+
+export interface CvExtractionMetrics {
+  aiCallCount: number;
+  aiCalled: boolean;
+  aiSkipped: boolean;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
+  deterministicFieldsCount: number;
+  aiExtractedFieldsCount: number;
+  taxonomyMappedCount: number;
+  ambiguousCount: number;
+  piiMaskedCount: number;
+  cacheHit: boolean;
+  extractionVersion: string;
+  taxonomyVersion: string;
+  parserVersion: string;
+  coverageScore: number;
+  confidenceScores: Record<string, number>;
+  processingTimeMs?: number;
 }
 
 export interface CvProfileDraftResult {
@@ -96,18 +122,11 @@ export interface CvProfileDraftResult {
     sectors: number;
     skills: number;
     tools: number;
-    education: boolean;
+    education: number;
     languages: number;
     certificates: number;
     locations: number;
     summary: boolean;
   };
-  metrics: {
-    aiCallCount: number;
-    piiMaskedCount: number;
-    deterministicFieldsCount: number;
-    aiExtractedFieldsCount: number;
-    taxonomyMappedCount: number;
-    ambiguousCount: number;
-  };
+  metrics: CvExtractionMetrics;
 }

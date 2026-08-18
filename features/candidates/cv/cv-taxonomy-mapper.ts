@@ -111,6 +111,19 @@ const ROLE_ALIASES: Record<string, string> = {
   'operasyon direktörü': 'Operasyon Müdürü',
   'satış direktörü': 'Satış Müdürü',
   'kanal satış müdürü': 'Satış Müdürü',
+  'sales director': 'Satış Müdürü',
+  'operations director': 'Operasyon Müdürü',
+  'head of sales': 'Satış Müdürü',
+  'head of marketing': 'Pazarlama Müdürü',
+  'head of operations': 'Operasyon Müdürü',
+  'call center operations manager': 'Çağrı Merkezi Yöneticisi',
+  'audit specialist': 'Denetim Uzmanı',
+  'auditor': 'Denetim Uzmanı',
+  'branch manager': 'Şube Müdürü',
+  'managing director': 'Genel Müdür',
+  'deputy general manager': 'Genel Müdür Yardımcısı',
+  'assistant general manager': 'Genel Müdür Yardımcısı',
+  'vice president': 'Genel Müdür Yardımcısı',
 };
 
 // Canonical Alias Dictionary for Sectors
@@ -499,12 +512,19 @@ export function mapCvToCanonicalTaxonomy(
     if (fieldPart) {
       eduFieldParts.push(`${fieldPart} (${canonicalLvl}${schoolPart})`);
     } else if (edu.school) {
-      eduFieldParts.push(suggestTitleCaseTr(edu.school));
+      eduFieldParts.push(`${canonicalLvl} - ${suggestTitleCaseTr(edu.school)}`);
     }
   }
 
+  const mappedEducationList: Array<{ level: string; field?: string; school?: string; graduationYear?: number | null }> = eduList.map((edu) => ({
+    level: normalizeCanonicalEduLevel(edu.level),
+    field: edu.field ? suggestTitleCaseTr(edu.field) : undefined,
+    school: edu.school ? suggestTitleCaseTr(edu.school) : undefined,
+    graduationYear: edu.graduationYear ?? null,
+  }));
+
   const educationField = eduFieldParts.length > 0
-    ? eduFieldParts.join(', ')
+    ? eduFieldParts.join(' / ')
     : (eduList[0]?.field ? suggestTitleCaseTr(eduList[0].field) : '');
 
   const languages = (payload.languages || []).join(', ');
@@ -521,6 +541,7 @@ export function mapCvToCanonicalTaxonomy(
     tools: [...new Set(tools)],
     educationLevel,
     educationField,
+    educationList: mappedEducationList,
     languages,
     certificates,
     residenceCity,
@@ -568,9 +589,24 @@ function isTechnicalSkill(skill: string): boolean {
     'microservices',
     'cad',
     'sap',
+    'crm',
+    'erp',
     'excel',
     'power bi',
     'tableau',
+    'salesforce',
+    'hubspot',
+    'postman',
+    'jira',
+    'figma',
+    'slack',
+    'pacs',
+    'his',
+    'dijital',
+    'lead generation',
+    'telemarketing',
+    'inbound',
+    'outbound',
   ];
   return techKeywords.some((k) => lower.includes(k));
 }

@@ -55,6 +55,7 @@ export type CareerCardInput = {
   preferredSectors?: string[] | string | null;
   professionalSkills?: string | null;
   technicalSkills?: string | null;
+  tools?: string | null;
   educationLevel?: string | null;
   educationField?: string | null;
   languages?: string | null;
@@ -335,8 +336,9 @@ export function CareerProfilePreview({
     : data.primarySector
       ? [data.primarySector]
       : [];
+  const toolsAll = asList(data.tools);
   const professionalAll = asList(data.professionalSkills);
-  const technicalAll = asList(data.technicalSkills);
+  const technicalAll = [...new Set([...asList(data.technicalSkills), ...toolsAll])];
   const highlightedSkills = isHire
     ? pickHighlightedSkills({
         professionalSkills: data.professionalSkills,
@@ -355,12 +357,8 @@ export function CareerProfilePreview({
           experiences: data.experiences,
           limit: 7,
         }));
-  const professional = isHire
-    ? prioritizeListedSkills(professionalAll, highlightedSkills)
-    : highlightedSkills.filter((skill) => professionalAll.includes(skill));
-  const technical = isHire
-    ? prioritizeListedSkills(technicalAll, highlightedSkills)
-    : highlightedSkills.filter((skill) => technicalAll.includes(skill));
+  const professional = prioritizeListedSkills(professionalAll, highlightedSkills);
+  const technical = prioritizeListedSkills(technicalAll, highlightedSkills);
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
     (entry) => (entry.languageOther || entry.language) && entry.level,
@@ -405,7 +403,7 @@ export function CareerProfilePreview({
         ? `${experiences.length} deneyim`
         : null;
   const initials = roleInitials(data.desiredRole);
-  const summary = polishCareerSummary(data.longDescription);
+  const summary = polishCareerSummary(data.longDescription || data.requiredResponsibilities);
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
   const Heading = headingAs;
   const ctaLabel = 'İletişim Talebi Gönder';
@@ -551,13 +549,25 @@ export function CareerProfilePreview({
                     Eğitim
                   </p>
                   {data.educationLevel || data.educationField ? (
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {data.educationLevel || 'Eğitim'}
-                      </p>
-                      {data.educationField ? (
-                        <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
-                      ) : null}
+                    <div className="space-y-2">
+                      {data.educationField && data.educationField.includes(' / ') ? (
+                        data.educationField.split(' / ').map((degree, idx) => (
+                          <div key={idx} className="space-y-0.5">
+                            <p className="text-sm font-semibold text-foreground">
+                              {degree}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {data.educationLevel || 'Eğitim'}
+                          </p>
+                          {data.educationField ? (
+                            <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">Belirtilmedi</p>
@@ -761,13 +771,25 @@ export function CareerProfilePreview({
               title="Eğitim"
             />
             {data.educationLevel || data.educationField ? (
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {data.educationLevel || 'Eğitim'}
-                </p>
-                {data.educationField ? (
-                  <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
-                ) : null}
+              <div className="space-y-2">
+                {data.educationField && data.educationField.includes(' / ') ? (
+                  data.educationField.split(' / ').map((degree, idx) => (
+                    <div key={idx} className="space-y-0.5">
+                      <p className="text-sm font-semibold text-foreground">
+                        {degree}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {data.educationLevel || 'Eğitim'}
+                    </p>
+                    {data.educationField ? (
+                      <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
+                    ) : null}
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">Belirtilmedi</p>

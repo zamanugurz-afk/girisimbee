@@ -52,6 +52,7 @@ export const ALLOWED_CAREER_KEYS = [
   'residenceCity',
   'residenceDistrict',
   'experiences',
+  'educationHistory',
   'companyName',
   'partnerType',
   'stage',
@@ -64,6 +65,9 @@ export const ALLOWED_CAREER_KEYS = [
   'cvFileName',
   'cvDocumentId',
   'cvUploadedAt',
+  'toolsList',
+  'professionalSkillsList',
+  'technicalSkillsList',
 ] as const;
 
 export interface CareerProfileListingStore {
@@ -145,6 +149,14 @@ export function formValuesToCustomFields(
   if (values.residenceDistrict) fields.residenceDistrict = values.residenceDistrict.trim();
   if (values.preferredDistrict) fields.preferredDistrict = values.preferredDistrict.trim();
   if (values.experiences && values.experiences.length > 0) fields.experiences = values.experiences;
+  if (values.educationHistory && values.educationHistory.length > 0) fields.educationHistory = values.educationHistory;
+  if (values.toolsList && values.toolsList.length > 0) fields.toolsList = values.toolsList;
+  if (values.professionalSkillsList && values.professionalSkillsList.length > 0) {
+    fields.professionalSkillsList = values.professionalSkillsList;
+  }
+  if (values.technicalSkillsList && values.technicalSkillsList.length > 0) {
+    fields.technicalSkillsList = values.technicalSkillsList;
+  }
   if (values.requiredAchievements) fields.requiredAchievements = values.requiredAchievements.trim();
   if (values.stage) fields.stage = values.stage.trim();
   if (values.businessModel) fields.businessModel = values.businessModel.trim();

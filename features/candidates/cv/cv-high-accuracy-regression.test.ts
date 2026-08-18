@@ -239,6 +239,6 @@ ET
     expect(draft.extractedCount).toBeGreaterThan(5);
     expect(draft.cvFilledFieldKeys.length).toBeGreaterThan(3);
     expect(draft.categoriesFound.roles).toBeGreaterThanOrEqual(1);
-    expect(draft.metrics.aiCallCount).toBe(1);
+    expect(draft.metrics.aiCallCount).toBe(0);
   });
 });

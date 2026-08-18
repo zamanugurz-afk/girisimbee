@@ -14,6 +14,7 @@ describe('CV Preference Guard QA', () => {
       tools: ['Salesforce'],
       educationLevel: 'Lisans',
       educationField: 'İktisat',
+      educationList: [{ level: 'Lisans', field: 'İktisat' }],
       languages: 'İngilizce',
       certificates: 'SEGEM',
       residenceCity: 'İstanbul',

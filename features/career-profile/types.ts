@@ -70,6 +70,14 @@ export interface CareerProfileFormValues {
   // Work experience history
   experiences?: CareerExperience[];
 
+  // Structured education history
+  educationHistory?: Array<{
+    level?: string;
+    field?: string;
+    school?: string;
+    graduationYear?: number | null;
+  }>;
+
   // Employer / Hiring specific
   companyName?: string;
   requiredAchievements?: string;

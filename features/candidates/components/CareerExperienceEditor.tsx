@@ -198,6 +198,11 @@ export function CareerExperienceEditor({
                   }
                 >
                   <option value="">{row.sector ? 'Seçin' : 'Önce sektör seçin'}</option>
+                  {row.role && !positions.includes(row.role) && !isManualCareerOption(row.role) && (
+                    <option key={row.role} value={row.role}>
+                      {row.role}
+                    </option>
+                  )}
                   {positions.map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}

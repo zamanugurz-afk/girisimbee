@@ -1,6 +1,9 @@
-import type {
-  CanonicalTaxonomyMappingResult,
-  CvProfileDraftResult,
+import {
+  CV_EXTRACTION_VERSION,
+  CAREER_TAXONOMY_VERSION,
+  CV_PARSER_VERSION,
+  type CanonicalTaxonomyMappingResult,
+  type CvProfileDraftResult,
 } from '@/features/candidates/cv/cv.types';
 import type { CareerProfileFormValues } from '@/features/career-profile/types';
 
@@ -55,6 +58,7 @@ export function buildProfileDraftFromCanonicalResult(
     // 4. Education, Languages & Certificates
     educationLevel: canonical.educationLevel || 'Lisans',
     educationField: canonical.educationField || '',
+    educationHistory: canonical.educationList,
     languages: canonical.languages || '',
     certificates: canonical.certificates || '',
 
@@ -84,6 +88,7 @@ export function buildProfileDraftFromCanonicalResult(
   if (formValues.role) cvFilledFieldKeys.push('role', 'roles');
   if (formValues.sector) cvFilledFieldKeys.push('sector', 'sectors');
   if (formValues.experiences && formValues.experiences.length > 0) cvFilledFieldKeys.push('experiences');
+  if (formValues.experienceLevel) cvFilledFieldKeys.push('experienceLevel');
   if (formValues.professionalSkills) cvFilledFieldKeys.push('professionalSkills');
   if (formValues.technicalSkills) cvFilledFieldKeys.push('technicalSkills');
   if (formValues.tools) cvFilledFieldKeys.push('tools');
@@ -108,13 +113,15 @@ export function buildProfileDraftFromCanonicalResult(
     'availability',
   ];
 
+  const educationCount = canonical.educationList?.length || (canonical.educationLevel ? 1 : 0);
+
   const categoriesFound = {
     experiences: canonical.experiences.length,
-    roles: canonical.matchedRoles.length,
-    sectors: canonical.matchedSectors.length,
+    roles: canonical.matchedRoles.length || (canonical.primaryRole ? 1 : 0),
+    sectors: canonical.matchedSectors.length || (canonical.primarySector ? 1 : 0),
     skills: canonical.professionalSkills.length + canonical.technicalSkills.length,
     tools: canonical.tools.length,
-    education: Boolean(canonical.educationLevel),
+    education: educationCount,
     languages: canonical.languages ? canonical.languages.split(',').length : 0,
     certificates: canonical.certificates ? canonical.certificates.split(',').length : 0,
     locations: canonical.residenceCity ? 1 : 0,
@@ -127,7 +134,7 @@ export function buildProfileDraftFromCanonicalResult(
     categoriesFound.sectors +
     categoriesFound.skills +
     categoriesFound.tools +
-    (categoriesFound.education ? 1 : 0) +
+    categoriesFound.education +
     categoriesFound.languages +
     categoriesFound.certificates +
     categoriesFound.locations +
@@ -142,12 +149,23 @@ export function buildProfileDraftFromCanonicalResult(
     extractedCount,
     categoriesFound,
     metrics: {
-      aiCallCount: 1,
+      aiCallCount: 0,
+      aiCalled: false,
+      aiSkipped: true,
+      inputTokens: 0,
+      outputTokens: 0,
+      estimatedCostUsd: 0,
       piiMaskedCount: 0,
-      deterministicFieldsCount: 5,
-      aiExtractedFieldsCount: extractedCount,
+      deterministicFieldsCount: extractedCount,
+      aiExtractedFieldsCount: 0,
       taxonomyMappedCount: categoriesFound.roles + categoriesFound.sectors,
       ambiguousCount: canonical.ambiguousItems.length,
+      cacheHit: false,
+      extractionVersion: CV_EXTRACTION_VERSION,
+      taxonomyVersion: CAREER_TAXONOMY_VERSION,
+      parserVersion: CV_PARSER_VERSION,
+      coverageScore: 100,
+      confidenceScores: {},
     },
   };
 }

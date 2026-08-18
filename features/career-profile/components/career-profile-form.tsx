@@ -321,7 +321,16 @@ export function CareerProfileForm({
 
   const handleApplyCvDraft = (draft: CvProfileDraftResult) => {
     const fv = draft.formValues;
-    if (fv.role) setPrimaryRole(fv.role);
+    if (fv.role) {
+      setPrimaryRole(fv.role);
+      const sec = fv.sector || primarySector || '';
+      const list = sec ? getPositionsForSector(sec) : [];
+      if (list.length > 0 && !list.includes(fv.role)) {
+        setIsCustomRoleMode(true);
+      } else {
+        setIsCustomRoleMode(false);
+      }
+    }
     if (fv.roles && fv.roles.length > 0) setSelectedRoles(fv.roles);
     if (fv.sector) setPrimarySector(fv.sector);
     if (fv.sectors && fv.sectors.length > 0) setSelectedSectors(fv.sectors);
@@ -336,7 +345,12 @@ export function CareerProfileForm({
     if (fv.toolsList && fv.toolsList.length > 0) {
       setSelectedTools(fv.toolsList);
     }
-    if (fv.educationLevel) setEducationLevel(fv.educationLevel);
+    if (fv.educationLevel) {
+      const matchLvl = CAREER_EDUCATION_LEVELS.find(
+        (opt) => opt.toLocaleLowerCase('tr-TR') === fv.educationLevel?.toLocaleLowerCase('tr-TR'),
+      );
+      setEducationLevel(matchLvl || fv.educationLevel);
+    }
     if (fv.educationField) setEducationField(fv.educationField);
     if (fv.languages) setLanguages(fv.languages);
     if (fv.certificates) setCertificates(fv.certificates);
@@ -1061,6 +1075,11 @@ export function CareerProfileForm({
                           <option value="">
                             {primarySector ? 'Meslek / Pozisyon Seçiniz' : '← Önce Ana Sektör Seçiniz'}
                           </option>
+                          {primaryRole && !sectorPositions.includes(primaryRole) && !isManualCareerOption(primaryRole) && (
+                            <option key={primaryRole} value={primaryRole}>
+                              {primaryRole}
+                            </option>
+                          )}
                           {sectorPositions.map((pos) => (
                             <option key={pos} value={pos}>
                               {pos === MANUAL_OPTION ? '✍️ Listede yok, kendim yazacağım' : pos}
@@ -1457,7 +1476,11 @@ export function CareerProfileForm({
                     badge={cvFilledKeys.has('educationLevel') ? "CV'den aktarıldı" : undefined}
                   >
                     <select
-                      value={educationLevel}
+                      value={
+                        CAREER_EDUCATION_LEVELS.find(
+                          (opt) => opt.toLocaleLowerCase('tr-TR') === educationLevel.toLocaleLowerCase('tr-TR'),
+                        ) || educationLevel
+                      }
                       onChange={(e) => {
                         setEducationLevel(e.target.value);
                         clearCvBadge('educationLevel');
