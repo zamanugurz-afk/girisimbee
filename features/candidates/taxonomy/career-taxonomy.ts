@@ -16,6 +16,7 @@ import {
   rankOccupationalOptions,
   type OccupationalProfileInput,
 } from '@/features/candidates/taxonomy/occupational-context';
+import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
 
 export const MANUAL_OPTION = 'Diğer / Kendim gireceğim' as const;
 export const MANUAL_OPTION_SHORT = 'Diğer' as const;
@@ -712,7 +713,7 @@ export function getAllTaxonomyPositions(): string[] {
   if (allTaxonomyPositionsCache) return allTaxonomyPositionsCache;
   const set = new Set<string>();
   for (const list of Object.values(SECTOR_POSITIONS)) {
-    for (const p of list ?? []) set.add(p);
+    for (const p of list ?? []) set.add(suggestTitleCaseTr(p));
   }
   set.add(MANUAL_OPTION);
   allTaxonomyPositionsCache = sortPositionsPopularThenAz(Array.from(set), [MANUAL_OPTION]);
@@ -730,7 +731,7 @@ export function getPositionsForSector(sector: string | null | undefined): string
     const list = SECTOR_POSITIONS[sector as SectorKey];
     result = !list || list.length === 0
       ? [MANUAL_OPTION]
-      : sortPositionsPopularThenAz([...list, MANUAL_OPTION], [MANUAL_OPTION]);
+      : sortPositionsPopularThenAz([...(list ?? []).map(suggestTitleCaseTr), MANUAL_OPTION], [MANUAL_OPTION]);
   }
   POSITIONS_FOR_SECTOR_CACHE.set(key, result);
   return result;

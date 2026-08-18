@@ -38,7 +38,7 @@ describe('İş Arıyorum preference fields stay on existing option lists', () =>
     const sectors = field('preferredSectors')?.options ?? [];
     expect(sectors).toEqual(expect.arrayContaining([...JOB_SECTOR_OPTIONS, MANUAL_OPTION]));
     expect(field('preferredRoles')?.options).toEqual(
-      expect.arrayContaining(['Şube müdürü', 'Yazılım geliştirici', MANUAL_OPTION]),
+      expect.arrayContaining(['Şube Müdürü', 'Yazılım Geliştirici', MANUAL_OPTION]),
     );
     expect(field('preferredRolesOther')?.type).toBe('string');
   });

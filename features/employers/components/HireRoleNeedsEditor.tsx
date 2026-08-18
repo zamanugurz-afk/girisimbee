@@ -66,7 +66,7 @@ export function HireRoleNeedsEditor({
             kind="responsibility"
             text={value.requiredResponsibilitiesOther}
             catalog={respOptions}
-            sector={sector}
+            sector={sector ?? undefined}
             experienceLevel={experienceLevel ?? undefined}
             disabled={disabled}
             onAcceptCatalog={(items) => {
@@ -101,7 +101,7 @@ export function HireRoleNeedsEditor({
             kind="achievement"
             text={value.requiredAchievementsOther}
             catalog={achOptions}
-            sector={sector}
+            sector={sector ?? undefined}
             experienceLevel={experienceLevel ?? undefined}
             disabled={disabled}
             onAcceptCatalog={(items) => {

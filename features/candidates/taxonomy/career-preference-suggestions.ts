@@ -15,6 +15,7 @@ import {
   isManualCareerOption,
   MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 
 const SECTOR_SET = new Set<string>(JOB_SECTOR_OPTIONS);
@@ -645,9 +646,9 @@ export function suggestPreferredRoles(input: PreferenceSuggestionInput): string[
   const scored = new Map<string, { score: number; band: PreferenceBand }>();
 
   function add(role: string, score: number, band: PreferenceBand) {
-    const trimmed = role.trim();
-    if (!trimmed || isManualCareerOption(trimmed)) return;
-    addScored(scored, trimmed, score, band);
+    const formatted = suggestTitleCaseTr(role.trim());
+    if (!formatted || isManualCareerOption(formatted)) return;
+    addScored(scored, formatted, score, band);
   }
 
   for (const seed of seeds) {

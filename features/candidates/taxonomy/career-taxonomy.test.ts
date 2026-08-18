@@ -37,7 +37,7 @@ describe('career taxonomy', () => {
 
     const finance = getPositionsForSector('Finans / Bankacılık');
     expect(finance).toEqual(
-      expect.arrayContaining(['Banka müşteri temsilcisi', 'Portföy yöneticisi', MANUAL_OPTION]),
+      expect.arrayContaining(['Banka Müşteri Temsilcisi', 'Portföy Yöneticisi', MANUAL_OPTION]),
     );
 
     const emptySector = getPositionsForSector('Diğer');
@@ -45,7 +45,7 @@ describe('career taxonomy', () => {
 
     const callCenter = getPositionsForSector('Çağrı merkezi');
     expect(callCenter).toEqual(
-      expect.arrayContaining(['Çağrı merkezi temsilcisi', 'Müşteri temsilcisi', MANUAL_OPTION]),
+      expect.arrayContaining(['Çağrı Merkezi Temsilcisi', 'Müşteri Temsilcisi', MANUAL_OPTION]),
     );
   });
 

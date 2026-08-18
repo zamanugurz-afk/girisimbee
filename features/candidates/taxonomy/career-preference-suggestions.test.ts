@@ -39,32 +39,32 @@ describe('career preference suggestions from experience', () => {
     expect(sectors).not.toContain('Yapay zeka / Veri');
 
     const roles = suggestPreferredRoles(input);
-    expect(roles[0]).toBe('Şube müdürü');
+    expect(roles[0]).toBe('Şube Müdürü');
     const managerSlice = roles.slice(0, 12);
     expect(managerSlice).toEqual(
-      expect.arrayContaining(['Şube müdürü', 'Bölge müdürü', 'Satış müdürü']),
+      expect.arrayContaining(['Şube Müdürü', 'Bölge Müdürü', 'Satış Müdürü']),
     );
     expect(roles).toEqual(
       expect.arrayContaining([
-        'Portföy yöneticisi',
-        'Yönetim danışmanı',
+        'Portföy Yöneticisi',
+        'Yönetim Danışmanı',
         MANUAL_OPTION,
       ]),
     );
     expect(roles.at(-1)).toBe(MANUAL_OPTION);
-    expect(roles).not.toContain('Müşteri temsilcisi');
-    expect(roles).not.toContain('Banka müşteri temsilcisi');
-    expect(roles).not.toContain('Çağrı merkezi temsilcisi');
-    expect(roles).not.toContain('Acente temsilcisi');
-    expect(roles).not.toContain('İç satış uzmanı');
-    expect(roles).not.toContain('Hesap yöneticisi');
-    expect(roles).not.toContain('Bordro uzmanı');
-    expect(roles).not.toContain('İnsan kaynakları uzmanı');
+    expect(roles).not.toContain('Müşteri Temsilcisi');
+    expect(roles).not.toContain('Banka Müşteri Temsilcisi');
+    expect(roles).not.toContain('Çağrı Merkezi Temsilcisi');
+    expect(roles).not.toContain('Acente Temsilcisi');
+    expect(roles).not.toContain('İç Satış Uzmanı');
+    expect(roles).not.toContain('Hesap Yöneticisi');
+    expect(roles).not.toContain('Bordro Uzmanı');
+    expect(roles).not.toContain('İnsan Kaynakları Uzmanı');
     expect(roles).not.toContain('Underwriter');
-    expect(roles).not.toContain('Kredi uzmanı');
-    expect(roles).not.toContain('Yatırım danışmanı');
-    expect(roles).not.toContain('Bankacı / banka personeli');
-    expect(roles).not.toContain('Yazılım geliştirici');
+    expect(roles).not.toContain('Kredi Uzmanı');
+    expect(roles).not.toContain('Yatırım Danışmanı');
+    expect(roles).not.toContain('Bankacı / Banka Personeli');
+    expect(roles).not.toContain('Yazılım Geliştirici');
     expect(roles).not.toContain('Garson');
   });
 
@@ -96,20 +96,20 @@ describe('career preference suggestions from experience', () => {
         },
       ],
     });
-    expect(roles).toEqual(expect.arrayContaining(['şube müdürü', 'Bölge müdürü', 'Satış müdürü', MANUAL_OPTION]));
+    expect(roles).toEqual(expect.arrayContaining(['Şube Müdürü', 'Bölge Müdürü', 'Satış Müdürü', MANUAL_OPTION]));
   });
 
   it('does not dump the full market for a software developer', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Bilişim / Yazılım', role: 'Yazılım geliştirici', roleOther: '' }],
     });
-    expect(roles[0]).toBe('Yazılım geliştirici');
+    expect(roles[0]).toBe('Yazılım Geliştirici');
     expect(roles).toEqual(
-      expect.arrayContaining(['Frontend geliştirici', 'CTO / Teknik lider', 'Ürün yöneticisi', MANUAL_OPTION]),
+      expect.arrayContaining(['Frontend Geliştirici', 'CTO / Teknik Lider', 'Ürün Yöneticisi', MANUAL_OPTION]),
     );
-    expect(roles.indexOf('CTO / Teknik lider')).toBeLessThan(roles.indexOf('QA / Test uzmanı'));
-    expect(roles.indexOf('Ürün yöneticisi')).toBeLessThan(roles.indexOf('QA / Test uzmanı'));
-    expect(roles).not.toContain('Şube müdürü');
+    expect(roles.indexOf('CTO / Teknik Lider')).toBeLessThan(roles.indexOf('QA / Test Uzmanı'));
+    expect(roles.indexOf('Ürün Yöneticisi')).toBeLessThan(roles.indexOf('QA / Test Uzmanı'));
+    expect(roles).not.toContain('Şube Müdürü');
     expect(roles).not.toContain('Aşçı');
   });
 
@@ -125,43 +125,43 @@ describe('career preference suggestions from experience', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Perakende / Mağaza', role: 'Mağaza müdürü', roleOther: '' }],
     });
-    expect(roles[0]).toBe('Mağaza müdürü');
+    expect(roles[0]).toBe('Mağaza Müdürü');
     expect(roles).toEqual(
-      expect.arrayContaining(['Bölge müdürü', 'Satış müdürü', MANUAL_OPTION]),
+      expect.arrayContaining(['Bölge Müdürü', 'Satış Müdürü', MANUAL_OPTION]),
     );
     expect(roles).not.toContain('Kasiyer');
-    expect(roles).not.toContain('Satış danışmanı');
-    expect(roles).not.toContain('Satış temsilcisi');
-    expect(roles).not.toContain('Market personeli');
-    expect(roles).not.toContain('İç satış uzmanı');
+    expect(roles).not.toContain('Satış Danışmanı');
+    expect(roles).not.toContain('Satış Temsilcisi');
+    expect(roles).not.toContain('Market Personeli');
+    expect(roles).not.toContain('İç Satış Uzmanı');
   });
 
   it('hides waiters from a restaurant manager and payroll from an HR manager', () => {
     const restaurantRoles = suggestPreferredRoles({
       experiences: [{ sector: 'Gıda / Restoran', role: 'Restoran müdürü', roleOther: '' }],
     });
-    expect(restaurantRoles[0]).toBe('Restoran müdürü');
-    expect(restaurantRoles).toEqual(expect.arrayContaining(['Otel müdürü', 'Şef / mutfak şefi', MANUAL_OPTION]));
+    expect(restaurantRoles[0]).toBe('Restoran Müdürü');
+    expect(restaurantRoles).toEqual(expect.arrayContaining(['Otel Müdürü', 'Şef / Mutfak Şefi', MANUAL_OPTION]));
     expect(restaurantRoles).not.toContain('Garson');
     expect(restaurantRoles).not.toContain('Komi');
-    expect(restaurantRoles).not.toContain('Aşçı yardımcısı');
+    expect(restaurantRoles).not.toContain('Aşçı Yardımcısı');
 
     const hrRoles = suggestPreferredRoles({
       experiences: [{ sector: 'İnsan kaynakları', role: 'İK yöneticisi', roleOther: '' }],
     });
-    expect(hrRoles[0]).toBe('İK yöneticisi');
-    expect(hrRoles).not.toContain('Bordro uzmanı');
-    expect(hrRoles).not.toContain('İnsan kaynakları uzmanı');
-    expect(hrRoles).not.toContain('İşe alım uzmanı');
+    expect(hrRoles[0]).toBe('İK Yöneticisi');
+    expect(hrRoles).not.toContain('Bordro Uzmanı');
+    expect(hrRoles).not.toContain('İnsan Kaynakları Uzmanı');
+    expect(hrRoles).not.toContain('İşe Alım Uzmanı');
   });
 
   it('lets a bank teller see frontline peers and a promotion path', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Finans / Bankacılık', role: 'Banka müşteri temsilcisi', roleOther: '' }],
     });
-    expect(roles[0]).toBe('Banka müşteri temsilcisi');
+    expect(roles[0]).toBe('Banka Müşteri Temsilcisi');
     expect(roles).toEqual(
-      expect.arrayContaining(['Müşteri temsilcisi', 'Şube müdürü', MANUAL_OPTION]),
+      expect.arrayContaining(['Müşteri Temsilcisi', 'Şube Müdürü', MANUAL_OPTION]),
     );
   });
 
@@ -188,18 +188,18 @@ describe('career preference suggestions from experience', () => {
     expect(pickLatestExperience(input.experiences)?.role).toBe('Bölge müdürü');
 
     const roles = suggestPreferredRoles(input);
-    expect(roles[0]).toBe('Bölge müdürü');
-    expect(roles).toEqual(expect.arrayContaining(['Satış müdürü', 'Mağaza müdürü', MANUAL_OPTION]));
-    expect(roles).not.toContain('Satış temsilcisi');
-    expect(roles).not.toContain('İç satış uzmanı');
-    expect(roles).not.toContain('Saha satış uzmanı');
-    expect(roles).not.toContain('Medikal satış temsilcisi');
-    expect(roles).not.toContain('Hesap yöneticisi');
-    expect(roles).not.toContain('Key account manager');
-    expect(roles).not.toContain('Bordro uzmanı');
-    expect(roles).not.toContain('İnsan kaynakları uzmanı');
-    expect(roles).not.toContain('Sigorta satış uzmanı');
-    expect(roles).not.toContain('İş geliştirme uzmanı');
+    expect(roles[0]).toBe('Bölge Müdürü');
+    expect(roles).toEqual(expect.arrayContaining(['Satış Müdürü', 'Mağaza Müdürü', MANUAL_OPTION]));
+    expect(roles).not.toContain('Satış Temsilcisi');
+    expect(roles).not.toContain('İç Satış Uzmanı');
+    expect(roles).not.toContain('Saha Satış Uzmanı');
+    expect(roles).not.toContain('Medikal Satış Temsilcisi');
+    expect(roles).not.toContain('Hesap Yöneticisi');
+    expect(roles).not.toContain('Key Account Manager');
+    expect(roles).not.toContain('Bordro Uzmanı');
+    expect(roles).not.toContain('İnsan Kaynakları Uzmanı');
+    expect(roles).not.toContain('Sigorta Satış Uzmanı');
+    expect(roles).not.toContain('İş Geliştirme Uzmanı');
   });
 
   it('puts shop-floor peers first for a factory worker, then related titles A–Z', () => {
@@ -221,33 +221,33 @@ describe('career preference suggestions from experience', () => {
     expect(sectors).not.toContain('Tarım');
 
     const roles = suggestPreferredRoles(input);
-    expect(roles[0]).toBe('Fabrika işçisi');
+    expect(roles[0]).toBe('Fabrika İşçisi');
     expect(roles).toEqual(
-      expect.arrayContaining(['Üretim işçisi', 'Makine operatörü', 'Vardiya amiri', MANUAL_OPTION]),
+      expect.arrayContaining(['Üretim İşçisi', 'Makine Operatörü', 'Vardiya Amiri', MANUAL_OPTION]),
     );
-    expect(roles.indexOf('Üretim işçisi')).toBeLessThan(roles.indexOf('İş sağlığı ve güvenliği uzmanı'));
-    expect(roles.indexOf('Makine operatörü')).toBeLessThan(roles.indexOf('Kalite kontrol uzmanı'));
-    expect(roles.indexOf('Vardiya amiri')).toBeLessThan(roles.indexOf('Mühendis (makine)'));
+    expect(roles.indexOf('Üretim İşçisi')).toBeLessThan(roles.indexOf('İş Sağlığı ve Güvenliği Uzmanı'));
+    expect(roles.indexOf('Makine Operatörü')).toBeLessThan(roles.indexOf('Kalite Kontrol Uzmanı'));
+    expect(roles.indexOf('Vardiya Amiri')).toBeLessThan(roles.indexOf('Mühendis (Makine)'));
 
     const relatedStart = Math.min(
-      ...['Bakım teknisyeni', 'İş sağlığı ve güvenliği uzmanı', 'Kalite kontrol uzmanı', 'Mühendis (endüstri)']
+      ...['Bakım Teknisyeni', 'İş Sağlığı ve Güvenliği Uzmanı', 'Kalite Kontrol Uzmanı', 'Mühendis (Endüstri)']
         .map((title) => roles.indexOf(title))
         .filter((index) => index >= 0),
     );
     const relatedRoles = roles.slice(relatedStart, -1).filter((title) => {
-      return !['Fabrika işçisi', 'Üretim işçisi', 'Makine operatörü', 'Vardiya amiri', 'Üretim sorumlusu', 'Bakım teknisyeni'].includes(title);
+      return !['Fabrika İşçisi', 'Üretim İşçisi', 'Makine Operatörü', 'Vardiya Amiri', 'Üretim Sorumlusu', 'Bakım Teknisyeni'].includes(title);
     });
     const specialistTail = roles.filter((title) =>
-      ['İş sağlığı ve güvenliği uzmanı', 'Kalite kontrol uzmanı', 'Mühendis (endüstri)', 'Mühendis (makine)', 'Üretim planlama uzmanı'].includes(title),
+      ['İş Sağlığı ve Güvenliği Uzmanı', 'Kalite Kontrol Uzmanı', 'Mühendis (Endüstri)', 'Mühendis (Makine)', 'Üretim Planlama Uzmanı'].includes(title),
     );
     expect(specialistTail.length).toBeGreaterThan(1);
     expect(specialistTail).toEqual([...specialistTail].sort((a, b) => a.localeCompare(b, 'tr')));
 
-    expect(roles).not.toContain('Gıda mühendisi');
-    expect(roles).not.toContain('Çelik işçisi');
+    expect(roles).not.toContain('Gıda Mühendisi');
+    expect(roles).not.toContain('Çelik İşçisi');
     expect(roles).not.toContain('Kaynakçı');
-    expect(roles).not.toContain('Mobilya ustası');
-    expect(roles).not.toContain('Torna / freze operatörü');
+    expect(roles).not.toContain('Mobilya Ustası');
+    expect(roles).not.toContain('Torna / Freze Operatörü');
     expect(relatedRoles.length).toBeGreaterThanOrEqual(0);
   });
 
@@ -255,33 +255,33 @@ describe('career preference suggestions from experience', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Demir-çelik / Metal', role: 'Çelik işçisi', roleOther: '' }],
     });
-    expect(roles[0]).toBe('Çelik işçisi');
-    expect(roles).toEqual(expect.arrayContaining(['Kaynakçı', 'Torna / freze operatörü', 'Üretim işçisi', MANUAL_OPTION]));
-    expect(roles.indexOf('Kaynakçı')).toBeLessThan(roles.indexOf('İş sağlığı ve güvenliği uzmanı') === -1 ? roles.length : roles.indexOf('İş sağlığı ve güvenliği uzmanı'));
-    expect(roles).not.toContain('Mobilya ustası');
-    expect(roles).not.toContain('Gıda mühendisi');
+    expect(roles[0]).toBe('Çelik İşçisi');
+    expect(roles).toEqual(expect.arrayContaining(['Kaynakçı', 'Torna / Freze Operatörü', 'Üretim İşçisi', MANUAL_OPTION]));
+    expect(roles.indexOf('Kaynakçı')).toBeLessThan(roles.indexOf('İş Sağlığı ve Güvenliği Uzmanı') === -1 ? roles.length : roles.indexOf('İş Sağlığı ve Güvenliği Uzmanı'));
+    expect(roles).not.toContain('Mobilya Ustası');
+    expect(roles).not.toContain('Gıda Mühendisi');
   });
 
   it('ranks İSG with quality peers, not as a generic factory dump', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Üretim / Sanayi', role: 'İş sağlığı ve güvenliği uzmanı', roleOther: '' }],
     });
-    expect(roles[0]).toBe('İş sağlığı ve güvenliği uzmanı');
-    expect(roles).toEqual(expect.arrayContaining(['Kalite kontrol uzmanı', MANUAL_OPTION]));
-    expect(roles.indexOf('Kalite kontrol uzmanı')).toBeLessThan(roles.indexOf('Fabrika işçisi'));
-    expect(roles).not.toContain('Gıda mühendisi');
-    expect(roles).not.toContain('Çelik işçisi');
+    expect(roles[0]).toBe('İş Sağlığı ve Güvenliği Uzmanı');
+    expect(roles).toEqual(expect.arrayContaining(['Kalite Kontrol Uzmanı', MANUAL_OPTION]));
+    expect(roles.indexOf('Kalite Kontrol Uzmanı')).toBeLessThan(roles.indexOf('Fabrika İşçisi'));
+    expect(roles).not.toContain('Gıda Mühendisi');
+    expect(roles).not.toContain('Çelik İşçisi');
   });
 
   it('keeps machine engineers with engineers, not line workers', () => {
     const roles = suggestPreferredRoles({
       experiences: [{ sector: 'Üretim / Sanayi', role: 'Mühendis (makine)', roleOther: '' }],
     });
-    expect(roles[0]).toBe('Mühendis (makine)');
-    expect(roles).toEqual(expect.arrayContaining(['Mühendis (endüstri)', MANUAL_OPTION]));
-    expect(roles).not.toContain('Fabrika işçisi');
+    expect(roles[0]).toBe('Mühendis (Makine)');
+    expect(roles).toEqual(expect.arrayContaining(['Mühendis (Endüstri)', MANUAL_OPTION]));
+    expect(roles).not.toContain('Fabrika İşçisi');
     expect(roles).not.toContain('Kaynakçı');
-    expect(roles).not.toContain('Gıda mühendisi');
+    expect(roles).not.toContain('Gıda Mühendisi');
   });
 
   it('keeps nurse titles in health and construction trades off the sales desk', () => {
@@ -291,22 +291,22 @@ describe('career preference suggestions from experience', () => {
     expect(nurseRoles[0]).toBe('Hemşire');
     expect(nurseRoles).toEqual(expect.arrayContaining(['Doktor', 'Ebe', MANUAL_OPTION]));
     expect(nurseRoles).not.toContain('Garson');
-    expect(nurseRoles).not.toContain('Satış temsilcisi');
+    expect(nurseRoles).not.toContain('Satış Temsilcisi');
 
     const constructionRoles = suggestPreferredRoles({
       experiences: [{ sector: 'İnşaat / Gayrimenkul', role: 'İnşaat işçisi', roleOther: '' }],
     });
-    expect(constructionRoles[0]).toBe('İnşaat işçisi');
-    expect(constructionRoles).toEqual(expect.arrayContaining(['Şantiye şefi', MANUAL_OPTION]));
-    expect(constructionRoles).not.toContain('Gayrimenkul danışmanı');
-    expect(constructionRoles).not.toContain('Fabrika işçisi');
+    expect(constructionRoles[0]).toBe('İnşaat İşçisi');
+    expect(constructionRoles).toEqual(expect.arrayContaining(['Şantiye Şefi', MANUAL_OPTION]));
+    expect(constructionRoles).not.toContain('Gayrimenkul Danışmanı');
+    expect(constructionRoles).not.toContain('Fabrika İşçisi');
 
     const driverRoles = suggestPreferredRoles({
       experiences: [{ sector: 'Ulaşım / Şoförlük', role: 'Şoför (kamyon / TIR)', roleOther: '' }],
     });
-    expect(driverRoles[0]).toBe('Şoför (kamyon / TIR)');
-    expect(driverRoles).toEqual(expect.arrayContaining(['Şoför (hafif ticari)', MANUAL_OPTION]));
-    expect(driverRoles).not.toContain('Fabrika işçisi');
+    expect(driverRoles[0]).toBe('Şoför (Kamyon / TIR)');
+    expect(driverRoles).toEqual(expect.arrayContaining(['Şoför (Hafif Ticari)', MANUAL_OPTION]));
+    expect(driverRoles).not.toContain('Fabrika İşçisi');
     expect(driverRoles).not.toContain('Kaynakçı');
   });
 });

@@ -3,6 +3,8 @@
  * Options are keyed by role, not sector, so two roles in the same sector stay distinct.
  */
 
+import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
+
 export type PositionBundle = {
   responsibilities: readonly string[];
   achievements: readonly string[];
@@ -1371,7 +1373,17 @@ function inferFamily(role: string): RoleFamily | null {
 }
 
 function specialize(role: string, base: PositionBundle): PositionBundle {
-  const opener = ROLE_OPENERS[role];
+  const exactOpener = ROLE_OPENERS[role];
+  let opener = exactOpener;
+  if (!opener) {
+    const needle = normalizeRole(role);
+    for (const [key, val] of Object.entries(ROLE_OPENERS)) {
+      if (normalizeRole(key) === needle) {
+        opener = val;
+        break;
+      }
+    }
+  }
   const responsibilities = opener
     ? [opener.responsibility, ...base.responsibilities.filter((item) => item !== opener.responsibility)]
     : [...base.responsibilities];
@@ -1408,7 +1420,7 @@ export function titlesForFamily(family: RoleFamily): string[] {
   if (cached) return cached;
   const titles = Object.entries(ROLE_FAMILY)
     .filter(([, value]) => value === family)
-    .map(([title]) => title);
+    .map(([title]) => suggestTitleCaseTr(title));
   TITLES_BY_FAMILY.set(family, titles);
   return titles;
 }

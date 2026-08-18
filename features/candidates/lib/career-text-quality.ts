@@ -58,6 +58,15 @@ const TITLE_WHITELIST: Record<string, string> = {
   atc: 'ATC',
   pms: 'PMS',
   revpar: 'RevPAR',
+  ik: 'İK',
+  hr: 'HR',
+  tir: 'TIR',
+  tır: 'TIR',
+  'ar-ge': 'Ar-Ge',
+  cad: 'CAD',
+  cam: 'CAM',
+  'cad/cam': 'CAD/CAM',
+  it: 'IT',
   'in-house': 'In-House',
   'full-stack': 'Full-Stack',
   'front-end': 'Front-End',
@@ -74,34 +83,51 @@ export function suggestTitleCaseTr(value: string): string {
 
   return trimmed
     .split(' ')
-    .map((token, index) => {
-      if (!token) return token;
+    .map((rawToken, index) => {
+      if (!rawToken) return rawToken;
 
-      if (token.startsWith('(') && token.endsWith(')')) {
-        const inner = token.slice(1, -1);
-        const innerFormatted = suggestTitleCaseTr(inner);
-        return `(${innerFormatted})`;
+      let prefix = '';
+      let suffix = '';
+      let token = rawToken;
+
+      if (token.startsWith('(')) {
+        prefix = '(';
+        token = token.slice(1);
+      }
+      if (token.endsWith(')')) {
+        suffix = ')';
+        token = token.slice(0, -1);
       }
 
+      let formatted = token;
+
       if (token.includes('/')) {
-        return token
+        formatted = token
           .split('/')
           .map((sub) => suggestTitleCaseTr(sub))
           .join('/');
+      } else if (token.includes('-')) {
+        const lower = token.toLocaleLowerCase('tr-TR');
+        if (TITLE_WHITELIST[lower]) {
+          formatted = TITLE_WHITELIST[lower];
+        } else {
+          formatted = token
+            .split('-')
+            .map((sub) => suggestTitleCaseTr(sub))
+            .join('-');
+        }
+      } else {
+        const lower = token.toLocaleLowerCase('tr-TR');
+        if (TITLE_WHITELIST[lower]) {
+          formatted = TITLE_WHITELIST[lower];
+        } else if (index > 0 && SMALL_CONJUNCTIONS.has(lower)) {
+          formatted = lower;
+        } else {
+          formatted = lower.charAt(0).toLocaleUpperCase('tr-TR') + lower.slice(1);
+        }
       }
 
-      if (token.includes('-')) {
-        return token
-          .split('-')
-          .map((sub) => suggestTitleCaseTr(sub))
-          .join('-');
-      }
-
-      const lower = token.toLocaleLowerCase('tr-TR');
-      if (TITLE_WHITELIST[lower]) return TITLE_WHITELIST[lower];
-      if (index > 0 && SMALL_CONJUNCTIONS.has(lower)) return lower;
-
-      return lower.charAt(0).toLocaleUpperCase('tr-TR') + lower.slice(1);
+      return `${prefix}${formatted}${suffix}`;
     })
     .join(' ');
 }
