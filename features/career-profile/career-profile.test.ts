@@ -194,7 +194,12 @@ describe('career profile does not change matching or existing career flows', () 
     expect(JSON.stringify(saved)).not.toContain('gizli@example.com');
     const stored = await repo.findById(listing.id);
     expect(stored?.customFields.desiredRole).toBe('Yazılım geliştirici');
+    expect(stored?.title).toBe('Yazılım geliştirici');
+    expect(stored?.city).toBe('İstanbul');
     expect(stored?.contactPhone).toBe('05551234567');
+
+    const deleted = await service.deleteProfile(ownerId, listing.id, 'seek');
+    expect(deleted).toBe(true);
   });
 
   it('does not write contact channels when mapping form values', () => {

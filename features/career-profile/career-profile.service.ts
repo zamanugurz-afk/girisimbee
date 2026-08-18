@@ -244,8 +244,11 @@ export class CareerProfileService {
         }
       }
       const updated = await this.listings.update(listing.id, {
+        title: primaryTitle,
+        shortDescription: values.candidateTraits || `${primaryTitle} pozisyonu için kariyer profili`,
         customFields: nextFields,
         city: values.city?.trim() || listing.city,
+        location: values.city?.trim() || listing.location,
       });
       return toRecord(updated, kind);
     }

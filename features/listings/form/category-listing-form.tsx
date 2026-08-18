@@ -884,35 +884,39 @@ export function CategoryListingForm({
 
         setCore((prev) => ({
           ...prev,
-          title: prev.title || pv.roles?.[0] || pv.role || prev.title,
-          city: prev.city || pv.city || prev.city,
-          shortDescription: prev.shortDescription || pv.candidateTraits || prev.shortDescription,
+          title: pv.roles?.[0] || pv.role || prev.title,
+          city: pv.city || prev.city,
+          shortDescription: pv.candidateTraits || prev.shortDescription,
+          longDescription: prev.longDescription || pv.candidateTraits || prev.longDescription,
         }));
 
         setCustomFields((prev) => {
           const next = { ...prev };
-          if (pv.role && !next.desiredRole) next.desiredRole = pv.roles?.[0] || pv.role;
-          if (pv.roles && pv.roles.length > 0 && !next.preferredRoles) next.preferredRoles = pv.roles;
-          if (pv.sector && !next.primarySector) next.primarySector = pv.sectors?.[0] || pv.sector;
-          if (pv.sectors && pv.sectors.length > 0 && !next.preferredSectors) next.preferredSectors = pv.sectors;
-          if (pv.experienceLevel && !next.experienceLevel) next.experienceLevel = pv.experienceLevel;
-          if (pv.workType && !next.workType) next.workType = pv.workType;
-          if (pv.workplacePreference && !next.workplacePreference) next.workplacePreference = pv.workplacePreference;
-          if (pv.professionalSkills && !next.professionalSkills) next.professionalSkills = pv.professionalSkills;
-          if (pv.technicalSkills && !next.technicalSkills) next.technicalSkills = pv.technicalSkills;
-          if (pv.educationLevel && !next.educationLevel) next.educationLevel = pv.educationLevel;
-          if (pv.languages && !next.languages) next.languages = pv.languages;
-          if (pv.availability && !next.availability) next.availability = pv.availability;
-          if (pv.companyName && !next.companyName) next.companyName = pv.companyName;
-          if (pv.salaryMin && !next.salaryMin) next.salaryMin = pv.salaryMin;
-          if (pv.salaryMax && !next.salaryMax) next.salaryMax = pv.salaryMax;
-          if (pv.tools && !next.tools) next.tools = pv.tools;
-          if (pv.certificates && !next.certificates) next.certificates = pv.certificates;
-          if (pv.requiredAchievements && !next.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
-          if (pv.candidateTraits && !next.requiredResponsibilities) next.requiredResponsibilities = pv.candidateTraits;
-          if (pv.preferredDistrict && !next.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
-          if (pv.residenceDistrict && !next.district) next.district = pv.residenceDistrict;
-          if (pv.experiences && pv.experiences.length > 0 && (!next.experiences || (Array.isArray(next.experiences) && next.experiences.length === 0))) {
+          const role = pv.roles?.[0] || pv.role;
+          const sector = pv.sectors?.[0] || pv.sector;
+          if (role) next.desiredRole = role;
+          if (pv.roles && pv.roles.length > 0) next.preferredRoles = pv.roles;
+          if (sector) next.primarySector = sector;
+          if (pv.sectors && pv.sectors.length > 0) next.preferredSectors = pv.sectors;
+          if (pv.experienceLevel) next.experienceLevel = pv.experienceLevel;
+          if (pv.workType) next.workType = pv.workType;
+          if (pv.workplacePreference) next.workplacePreference = pv.workplacePreference;
+          if (pv.professionalSkills) next.professionalSkills = pv.professionalSkills;
+          if (pv.technicalSkills) next.technicalSkills = pv.technicalSkills;
+          if (pv.educationLevel) next.educationLevel = pv.educationLevel;
+          if (pv.educationField) next.educationField = pv.educationField;
+          if (pv.languages) next.languages = pv.languages;
+          if (pv.availability) next.availability = pv.availability;
+          if (pv.companyName) next.companyName = pv.companyName;
+          if (pv.salaryMin) next.salaryMin = pv.salaryMin;
+          if (pv.salaryMax) next.salaryMax = pv.salaryMax;
+          if (pv.tools) next.tools = pv.tools;
+          if (pv.certificates) next.certificates = pv.certificates;
+          if (pv.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
+          if (pv.candidateTraits) next.requiredResponsibilities = pv.candidateTraits;
+          if (pv.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
+          if (pv.residenceDistrict) next.district = pv.residenceDistrict;
+          if (pv.experiences && pv.experiences.length > 0) {
             next.experiences = pv.experiences;
           }
           return next;

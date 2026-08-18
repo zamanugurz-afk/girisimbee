@@ -691,6 +691,22 @@ export function CareerProfileForm({
       if (body.profile) {
         setCompletion(body.profile.completion);
       }
+
+      if (typeof window !== 'undefined') {
+        try {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && (k.startsWith('listing-draft-') || k.startsWith('girisimbee-listing-draft'))) {
+              keysToRemove.push(k);
+            }
+          }
+          keysToRemove.forEach((k) => localStorage.removeItem(k));
+        } catch {
+          /* ignore */
+        }
+      }
+
       toast.success('Kariyer profiliniz başarıyla kaydedildi.');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Bir hata oluştu');
