@@ -85,10 +85,24 @@ const ROLE_ALIASES: Record<string, string> = {
   'graphic designer': 'Grafik Tasarımcı',
   'product designer': 'Ürün Tasarımcısı',
 
-  // Customer Service
+  // Customer Service & Operations & Sales Management
   'customer success specialist': 'Müşteri Başarı Uzmanı',
   'customer support specialist': 'Müşteri Temsilcisi',
   'call center agent': 'Çağrı Merkezi Temsilcisi',
+  'call center manager': 'Çağrı Merkezi Müdürü',
+  'telemarketing ve çağrı merkezi operasyonları direktörü': 'Çağrı Merkezi Operasyon Müdürü',
+  'telemarketing ve ticari destek operasyonları müdürü': 'Çağrı Merkezi Operasyon Müdürü',
+  'alternatif satış kanalları müdürü': 'Satış Müdürü',
+  'sigorta çağrı merkezi operasyon müdürü': 'Çağrı Merkezi Operasyon Müdürü',
+  'sigorta dijital kanal çağrı merkezi satış müdürü': 'Çağrı Merkezi Satış Müdürü',
+  'outsource kanal operasyon müdürü': 'Operasyon Müdürü',
+  'çağrı merkezi operasyon müdürü': 'Çağrı Merkezi Operasyon Müdürü',
+  'çağrı merkezi müdürü': 'Çağrı Merkezi Müdürü',
+  'çağrı merkezi satış müdürü': 'Çağrı Merkezi Satış Müdürü',
+  'çağrı merkezi takım lideri': 'Çağrı Merkezi Takım Lideri',
+  'operasyon direktörü': 'Operasyon Müdürü',
+  'satış direktörü': 'Satış Müdürü',
+  'kanal satış müdürü': 'Satış Müdürü',
 };
 
 // Canonical Alias Dictionary for Sectors
@@ -105,8 +119,16 @@ const SECTOR_ALIASES: Record<string, string> = {
   'banking': 'Finans / Bankacılık',
   'fintech': 'Finans / Bankacılık',
   'bankacılık': 'Finans / Bankacılık',
+  'finans': 'Finans / Bankacılık',
+  'sermaye piyasası': 'Finans / Bankacılık',
   'sigorta': 'Sigortacılık',
+  'sigortacılık': 'Sigortacılık',
   'insurance': 'Sigortacılık',
+  'çağrı merkezi': 'Hizmet / Danışmanlık',
+  'telemarketing': 'Hizmet / Danışmanlık',
+  'telekomünikasyon': 'Telekomünikasyon',
+  'telecom': 'Telekomünikasyon',
+  'bpo': 'Hizmet / Danışmanlık',
 
   'e-commerce': 'E-Ticaret / Perakende',
   'ecommerce': 'E-Ticaret / Perakende',
@@ -151,6 +173,21 @@ const SECTOR_ALIASES: Record<string, string> = {
   'turizm': 'Turizm / Otelcilik',
 };
 
+function normalizeTrMatch(s: string): string {
+  return s
+    .toLocaleLowerCase('tr-TR')
+    .replace(/i̇/g, 'i')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /**
  * Finds the closest canonical taxonomy position.
  */
@@ -160,6 +197,7 @@ export function matchCanonicalPosition(rawRole: string): {
   candidates: string[];
 } {
   const clean = rawRole.trim().toLowerCase();
+  const norm = normalizeTrMatch(rawRole);
   const allPositions = getAllTaxonomyPositions();
 
   // 1. Direct Alias Match
@@ -171,22 +209,51 @@ export function matchCanonicalPosition(rawRole: string): {
     };
   }
 
-  // 2. Exact match in taxonomy (case-insensitive)
-  const exact = allPositions.find((p) => p.toLowerCase() === clean);
+  // Check normalized alias key
+  for (const [aliasKey, canonicalVal] of Object.entries(ROLE_ALIASES)) {
+    const aliasNorm = normalizeTrMatch(aliasKey);
+    if (norm === aliasNorm || norm.includes(aliasNorm)) {
+      return {
+        canonical: canonicalVal,
+        isAmbiguous: false,
+        candidates: [canonicalVal],
+      };
+    }
+  }
+
+  // 2. Exact match in taxonomy (normalized)
+  const exact = allPositions.find((p) => normalizeTrMatch(p) === norm);
   if (exact) {
     return { canonical: exact, isAmbiguous: false, candidates: [exact] };
   }
 
-  // 3. Partial / Substring match
-  const matches = allPositions.filter(
-    (p) =>
-      p.toLowerCase().includes(clean) ||
-      clean.includes(p.toLowerCase()) ||
-      clean.split(' ').some((w) => w.length >= 4 && p.toLowerCase().includes(w)),
-  );
+  // 3. Relevance-scored candidate match
+  const scoreMatch = (candidate: string): number => {
+    const pNorm = normalizeTrMatch(candidate);
+    if (pNorm === norm) return 1000;
+    if (norm.includes(pNorm)) return 500 + pNorm.length;
+    if (pNorm.includes(norm)) return 300 + norm.length;
+    const queryWords = norm.split(' ').filter((w) => w.length >= 3);
+    const candWords = pNorm.split(' ').filter((w) => w.length >= 3);
+    let common = 0;
+    for (const qw of queryWords) {
+      if (candWords.some((cw) => cw === qw)) {
+        common += 10;
+      } else if (candWords.some((cw) => cw.includes(qw) || qw.includes(cw))) {
+        common += 5;
+      }
+    }
+    return common;
+  };
 
-  if (matches.length === 1 && matches[0].toLowerCase() === clean) {
-    return { canonical: matches[0], isAmbiguous: false, candidates: matches };
+  const matches = allPositions
+    .map((p) => ({ position: p, score: scoreMatch(p) }))
+    .filter((m) => m.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((m) => m.position);
+
+  if (matches.length >= 1 && scoreMatch(matches[0]) >= 300) {
+    return { canonical: matches[0], isAmbiguous: false, candidates: matches.slice(0, 3) };
   }
 
   if (matches.length >= 1) {
@@ -215,6 +282,7 @@ export function matchCanonicalSector(rawSector: string): {
   candidates: string[];
 } {
   const clean = rawSector.trim().toLowerCase();
+  const norm = normalizeTrMatch(rawSector);
 
   // 1. Direct Alias
   if (SECTOR_ALIASES[clean]) {
@@ -225,20 +293,56 @@ export function matchCanonicalSector(rawSector: string): {
     };
   }
 
-  // 2. Exact in options
-  const exact = JOB_SECTOR_OPTIONS.find((s) => s.toLowerCase() === clean);
-  if (exact) {
-    return { canonical: exact, isAmbiguous: false, candidates: [exact] };
+  for (const [aliasKey, canonicalVal] of Object.entries(SECTOR_ALIASES)) {
+    const aliasNorm = normalizeTrMatch(aliasKey);
+    if (norm === aliasNorm || norm.includes(aliasNorm)) {
+      return {
+        canonical: canonicalVal,
+        isAmbiguous: false,
+        candidates: [canonicalVal],
+      };
+    }
   }
 
-  // 3. Substring
-  const matches = JOB_SECTOR_OPTIONS.filter(
-    (s) => s.toLowerCase().includes(clean) || clean.includes(s.toLowerCase()),
-  );
-  if (matches.length > 0) {
+  // 2. Exact in options
+  const exact = JOB_SECTOR_OPTIONS.find((s) => normalizeTrMatch(s) === norm);
+  // 3. Relevance-scored candidate match
+  const scoreSector = (candidate: string): number => {
+    const sNorm = normalizeTrMatch(candidate);
+    if (sNorm === norm) return 1000;
+    if (norm.includes(sNorm)) return 500 + sNorm.length;
+    if (sNorm.includes(norm)) return 300 + norm.length;
+    const queryWords = norm.split(' ').filter((w) => w.length >= 3);
+    const candWords = sNorm.split(' ').filter((w) => w.length >= 3);
+    let common = 0;
+    for (const qw of queryWords) {
+      if (candWords.some((cw) => cw === qw)) {
+        common += 10;
+      } else if (candWords.some((cw) => cw.includes(qw) || qw.includes(cw))) {
+        common += 5;
+      }
+    }
+    return common;
+  };
+
+  const matches = [...JOB_SECTOR_OPTIONS]
+    .map((s) => ({ sector: s, score: scoreSector(s) }))
+    .filter((m) => m.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((m) => m.sector);
+
+  if (matches.length >= 1 && scoreSector(matches[0]) >= 300) {
     return {
       canonical: matches[0],
-      isAmbiguous: matches.length > 1,
+      isAmbiguous: false,
+      candidates: matches.slice(0, 3),
+    };
+  }
+
+  if (matches.length >= 1) {
+    return {
+      canonical: matches[0],
+      isAmbiguous: true,
       candidates: matches.slice(0, 3),
     };
   }
@@ -246,7 +350,7 @@ export function matchCanonicalSector(rawSector: string): {
   return {
     canonical: suggestTitleCaseTr(rawSector),
     isAmbiguous: true,
-    candidates: [...JOB_SECTOR_OPTIONS.slice(0, 3)],
+    candidates: [...JOB_SECTOR_OPTIONS].slice(0, 3),
   };
 }
 
@@ -331,13 +435,60 @@ export function mapCvToCanonicalTaxonomy(
   const tools = (payload.tools || []).map((t) => suggestTitleCaseTr(t));
 
   // 5. Education & Languages
-  const primaryEdu = payload.education?.[0];
-  const educationLevel = primaryEdu?.level
-    ? suggestTitleCaseTr(primaryEdu.level)
-    : 'Lisans';
-  const educationField = primaryEdu?.field
-    ? suggestTitleCaseTr(primaryEdu.field)
-    : '';
+  let educationLevel = 'Lisans';
+  const eduFieldParts: string[] = [];
+
+  const eduRank: Record<string, number> = {
+    'Doktora': 5,
+    'Yüksek lisans': 4,
+    'Yüksek Lisans': 4,
+    'Lisans': 3,
+    'Ön lisans': 2,
+    'Ön Lisans': 2,
+    'Meslek yüksekokulu': 2,
+    'Lise': 1,
+    'İlköğretim': 0,
+    'Diğer': 0,
+  };
+
+  const normalizeCanonicalEduLevel = (raw?: string): string => {
+    const norm = (raw || '').toLowerCase();
+    if (norm.includes('doktora') || norm.includes('phd')) return 'Doktora';
+    if (norm.includes('yüksek') || norm.includes('master') || norm.includes('tezli') || norm.includes('tezsiz')) {
+      return 'Yüksek lisans';
+    }
+    if (norm.includes('ön lisans') || norm.includes('myo') || norm.includes('meslek yüksek')) {
+      return 'Ön lisans';
+    }
+    if (norm.includes('lisans') || norm.includes('bachelor') || norm.includes('fakülte')) {
+      return 'Lisans';
+    }
+    if (norm.includes('lise')) return 'Lise';
+    return 'Lisans';
+  };
+
+  let maxRank = -1;
+  const eduList = Array.isArray(payload.education) && payload.education.length > 0 ? payload.education : [];
+
+  for (const edu of eduList) {
+    const canonicalLvl = normalizeCanonicalEduLevel(edu.level);
+    const rank = eduRank[canonicalLvl] ?? 3;
+    if (rank > maxRank) {
+      maxRank = rank;
+      educationLevel = canonicalLvl;
+    }
+    const schoolPart = edu.school ? ` - ${suggestTitleCaseTr(edu.school)}` : '';
+    const fieldPart = edu.field ? suggestTitleCaseTr(edu.field) : '';
+    if (fieldPart) {
+      eduFieldParts.push(`${fieldPart} (${canonicalLvl}${schoolPart})`);
+    } else if (edu.school) {
+      eduFieldParts.push(suggestTitleCaseTr(edu.school));
+    }
+  }
+
+  const educationField = eduFieldParts.length > 0
+    ? eduFieldParts.join(', ')
+    : (eduList[0]?.field ? suggestTitleCaseTr(eduList[0].field) : '');
 
   const languages = (payload.languages || []).join(', ');
   const certificates = (payload.certificates || []).join(', ');
