@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
 import { calculateCareerProfileCompletion } from '@/features/career-profile/completion';
+import { formValuesToCustomFields } from '@/features/career-profile/career-profile.service';
 import {
   CAREER_DATA_CONTRACT,
   CAREER_FIELD_ALIASES,
@@ -450,5 +451,77 @@ describe('end-to-end career matching integrity', () => {
     expect(card?.workModel).toBe(preview.workplacePreference);
     expectNoContactLeak(preview);
     expectNoContactLeak(card);
+  });
+
+  it('preserves and maps every single field between CareerProfileFormValues and customFields', () => {
+    const fullFormValues = {
+      role: 'Kıdemli Yazılım Geliştirici',
+      roles: ['Kıdemli Yazılım Geliştirici', 'Yazılım Mimarı'],
+      sector: 'Bilişim / Yazılım',
+      sectors: ['Bilişim / Yazılım', 'Finans'],
+      experienceLevel: '5+ yıl',
+      workType: 'Tam zamanlı',
+      workplacePreference: 'Uzaktan',
+      city: 'İzmir',
+      educationLevel: 'Yüksek Lisans',
+      educationField: 'Bilgisayar Mühendisliği',
+      languages: 'İngilizce — İleri Düzey',
+      certificates: 'AWS Certified Solutions Architect',
+      availability: '1 ay içinde',
+      candidateTraits: '10 yıllık backend ve mimari deneyimli yazılımcı.',
+      professionalSkills: 'Mikroservis Mimarisi, Sistem Tasarımı',
+      professionalSkillsList: ['Mikroservis Mimarisi', 'Sistem Tasarımı'],
+      technicalSkills: 'TypeScript, Node.js, PostgreSQL, Redis',
+      technicalSkillsList: ['TypeScript', 'Node.js', 'PostgreSQL', 'Redis'],
+      tools: 'Docker, Kubernetes, Git, Figma',
+      salaryMin: 90000,
+      salaryMax: 130000,
+      profileGender: 'Erkek',
+      birthDate: '1992-05-14',
+      residenceCity: 'İzmir',
+      residenceDistrict: 'Bornova',
+      preferredDistrict: 'Konak',
+      companyName: 'Tech Girişimi A.Ş.',
+      requiredAchievements: 'SLA oranının %99.99 seviyesinde tutulması',
+      experiences: [
+        {
+          id: 'exp-1',
+          sector: 'Bilişim / Yazılım',
+          role: 'Backend Developer',
+          duration: '4 yıl',
+          durationYears: 4,
+          responsibilities: 'API geliştirme ve veritabanı optimizasyonu',
+          achievements: '%40 performans artışı sağlandı',
+        },
+      ],
+    };
+
+    const customFields = formValuesToCustomFields('seek', fullFormValues);
+    expect(customFields.desiredRole).toBe('Kıdemli Yazılım Geliştirici');
+    expect(customFields.preferredRoles).toContain('Yazılım Mimarı');
+    expect(customFields.primarySector).toBe('Bilişim / Yazılım');
+    expect(customFields.preferredSectors).toContain('Finans');
+    expect(customFields.experienceLevel).toBe('5+ yıl');
+    expect(customFields.workType).toBe('Tam zamanlı');
+    expect(customFields.workplacePreference).toBe('Uzaktan');
+    expect(customFields.preferredCity).toBe('İzmir');
+    expect(customFields.educationLevel).toBe('Yüksek Lisans');
+    expect(customFields.educationField).toBe('Bilgisayar Mühendisliği');
+    expect(customFields.languages).toBe('İngilizce — İleri Düzey');
+    expect(customFields.certificates).toBe('AWS Certified Solutions Architect');
+    expect(customFields.availability).toBe('1 ay içinde');
+    expect(customFields.professionalSkills).toContain('Mikroservis Mimarisi');
+    expect(customFields.technicalSkills).toContain('TypeScript');
+    expect(customFields.tools).toContain('Docker');
+    expect(customFields.profileGender).toBe('Erkek');
+    expect(customFields.birthDate).toBe('1992-05-14');
+    expect(customFields.residenceCity).toBe('İzmir');
+    expect(customFields.residenceDistrict).toBe('Bornova');
+    expect(customFields.preferredDistrict).toBe('Konak');
+    expect(customFields.companyName).toBe('Tech Girişimi A.Ş.');
+    expect(customFields.requiredAchievements).toBe('SLA oranının %99.99 seviyesinde tutulması');
+    expect(customFields.experiences).toHaveLength(1);
+    expect(customFields.salaryMin).toBe(90000);
+    expect(customFields.salaryMax).toBe(130000);
   });
 });

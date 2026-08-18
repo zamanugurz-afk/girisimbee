@@ -885,7 +885,8 @@ export function CategoryListingForm({
         setCore((prev) => ({
           ...prev,
           title: pv.roles?.[0] || pv.role || prev.title,
-          city: pv.city || prev.city,
+          city: pv.city || prev.city || 'İstanbul',
+          location: pv.city || prev.location || 'İstanbul',
           shortDescription: pv.candidateTraits || prev.shortDescription,
           longDescription: prev.longDescription || pv.candidateTraits || prev.longDescription,
         }));
@@ -901,21 +902,49 @@ export function CategoryListingForm({
           if (pv.experienceLevel) next.experienceLevel = pv.experienceLevel;
           if (pv.workType) next.workType = pv.workType;
           if (pv.workplacePreference) next.workplacePreference = pv.workplacePreference;
+          if (pv.profileGender) next.profileGender = pv.profileGender;
+          if (pv.birthDate) next.birthDate = pv.birthDate;
+          if (pv.residenceCity || pv.city) next.residenceCity = pv.residenceCity || pv.city;
+          if (pv.residenceDistrict) {
+            next.residenceDistrict = pv.residenceDistrict;
+            next.district = pv.residenceDistrict;
+          }
+          if (pv.city) next.preferredCity = pv.city;
+          if (pv.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
           if (pv.professionalSkills) next.professionalSkills = pv.professionalSkills;
           if (pv.technicalSkills) next.technicalSkills = pv.technicalSkills;
+          if (pv.tools) next.tools = pv.tools;
           if (pv.educationLevel) next.educationLevel = pv.educationLevel;
           if (pv.educationField) next.educationField = pv.educationField;
           if (pv.languages) next.languages = pv.languages;
+          if (pv.certificates) next.certificates = pv.certificates;
           if (pv.availability) next.availability = pv.availability;
           if (pv.companyName) next.companyName = pv.companyName;
           if (pv.salaryMin) next.salaryMin = pv.salaryMin;
           if (pv.salaryMax) next.salaryMax = pv.salaryMax;
-          if (pv.tools) next.tools = pv.tools;
-          if (pv.certificates) next.certificates = pv.certificates;
+          if (pv.salary) next.salary = pv.salary;
+
+          const maxNum = pv.salaryMax || pv.salaryMin;
+          if (maxNum) {
+            let matchedBand = '50.000 - 75.000 TL';
+            if (maxNum <= 25000) matchedBand = '25.000 TL\'ye kadar';
+            else if (maxNum <= 50000) matchedBand = '25.000 - 50.000 TL';
+            else if (maxNum <= 75000) matchedBand = '50.000 - 75.000 TL';
+            else if (maxNum <= 100000) matchedBand = '75.000 - 100.000 TL';
+            else if (maxNum <= 150000) matchedBand = '100.000 - 150.000 TL';
+            else if (maxNum <= 200000) matchedBand = '150.000 - 200.000 TL';
+            else matchedBand = '200.000 TL ve üzeri';
+            next.salaryExpectation = matchedBand;
+            next.salaryRange = matchedBand;
+          }
+
           if (pv.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
           if (pv.candidateTraits) next.requiredResponsibilities = pv.candidateTraits;
-          if (pv.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
-          if (pv.residenceDistrict) next.district = pv.residenceDistrict;
+          if (pv.partnerType) next.partnerType = pv.partnerType;
+          if (pv.stage) next.stage = pv.stage;
+          if (pv.businessModel) next.businessModel = pv.businessModel;
+          if (pv.capitalContribution) next.capitalContribution = pv.capitalContribution;
+          if (pv.equityOffered) next.equityOffered = pv.equityOffered;
           if (pv.experiences && pv.experiences.length > 0) {
             next.experiences = pv.experiences;
           }
