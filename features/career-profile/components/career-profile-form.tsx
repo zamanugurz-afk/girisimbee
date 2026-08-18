@@ -71,6 +71,8 @@ import {
   PieChart,
   Rocket,
   Wand2,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 
 const fieldClass =
@@ -694,6 +696,35 @@ export function CareerProfileForm({
       toast.error(err instanceof Error ? err.message : 'Bir hata oluştu');
     } finally {
       setSaving(false);
+    }
+  }
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Delete profile handler
+  async function handleDeleteProfile() {
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/career/profile', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId: record.listingId,
+          persona,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Profil silinemedi.');
+      }
+      toast.success('Kariyer profiliniz başarıyla silindi.');
+      setShowDeleteModal(false);
+      window.location.reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Profil silinirken bir hata oluştu.');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -2212,22 +2243,70 @@ export function CareerProfileForm({
             </>
           )}
 
-          {/* Save Button Bar */}
-          <div className="sticky bottom-4 z-20 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/95">
-            <div className="text-xs text-muted-foreground">
-              Değişiklikler anında eşleşme motoruna ve yeni ilanlarınıza yansır.
-            </div>
+          {/* Save & Delete Button Bar */}
+          <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/95">
             <Button
               type="button"
-              disabled={saving}
+              variant="outline"
+              disabled={saving || deleting}
+              onClick={() => setShowDeleteModal(true)}
+              className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30 gap-1.5 text-xs h-10 px-3.5 shrink-0 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Profili Sil</span>
+            </Button>
+
+            <Button
+              type="button"
+              disabled={saving || deleting}
               onClick={handleSave}
-              className="rounded-xl px-7 font-medium gap-2 shadow-sm"
+              className="rounded-xl px-7 font-medium gap-2 shadow-sm shrink-0"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               <span>{saving ? 'Kaydediliyor…' : 'Kariyer Profilini Kaydet'}</span>
             </Button>
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+            <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 animate-in zoom-in-95 duration-150">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 mb-4">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+
+              <h3 className="font-display text-lg font-bold text-foreground mb-2">
+                Kariyer Profilinizi Silmek İstiyor Musunuz?
+              </h3>
+
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                Bu işlem kariyer profilinizi, iş deneyimlerinizi ve yetkinlik tercihlerinizi silecek ve eşleşme profilinizi sıfırlayacaktır. Bu işlem geri alınamaz.
+              </p>
+
+              <div className="flex items-center justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={deleting}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="rounded-xl px-4 text-xs font-medium"
+                >
+                  Vazgeç
+                </Button>
+                <Button
+                  type="button"
+                  disabled={deleting}
+                  onClick={handleDeleteProfile}
+                  className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-5 text-xs font-medium gap-2 shadow-sm"
+                >
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  <span>{deleting ? 'Siliniyor…' : 'Evet, Profili Sil'}</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Right Column: Sticky Live Candidate Preview (5 cols) */}
         <div className="space-y-6 lg:col-span-5 xl:col-span-5 lg:sticky lg:top-24">

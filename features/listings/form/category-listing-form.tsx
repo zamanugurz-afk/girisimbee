@@ -906,6 +906,15 @@ export function CategoryListingForm({
           if (pv.companyName && !next.companyName) next.companyName = pv.companyName;
           if (pv.salaryMin && !next.salaryMin) next.salaryMin = pv.salaryMin;
           if (pv.salaryMax && !next.salaryMax) next.salaryMax = pv.salaryMax;
+          if (pv.tools && !next.tools) next.tools = pv.tools;
+          if (pv.certificates && !next.certificates) next.certificates = pv.certificates;
+          if (pv.requiredAchievements && !next.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
+          if (pv.candidateTraits && !next.requiredResponsibilities) next.requiredResponsibilities = pv.candidateTraits;
+          if (pv.preferredDistrict && !next.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
+          if (pv.residenceDistrict && !next.district) next.district = pv.residenceDistrict;
+          if (pv.experiences && pv.experiences.length > 0 && (!next.experiences || (Array.isArray(next.experiences) && next.experiences.length === 0))) {
+            next.experiences = pv.experiences;
+          }
           return next;
         });
       } catch {

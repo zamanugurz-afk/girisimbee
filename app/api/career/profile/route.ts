@@ -33,3 +33,22 @@ export const PATCH = withAuth(async (ctx, request) => {
     return apiError(error instanceof Error ? error.message : 'Profil kaydedilemedi.', 400);
   }
 });
+
+export const DELETE = withAuth(async (ctx, request) => {
+  const body = (await request.json().catch(() => ({}))) as {
+    listingId?: string;
+    persona?: CareerPersonaKind;
+  };
+
+  const service = new CareerProfileService(ctx.container.listingRepository);
+  try {
+    const listingId = body.listingId && !body.listingId.startsWith('draft')
+      ? ids.listing(body.listingId)
+      : undefined;
+
+    const deleted = await service.deleteProfile(ctx.userId, listingId, body.persona);
+    return ok({ success: true, deleted });
+  } catch (error) {
+    return apiError(error instanceof Error ? error.message : 'Profil silinemedi.', 400);
+  }
+});

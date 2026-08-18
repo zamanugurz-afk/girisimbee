@@ -272,4 +272,36 @@ export class CareerProfileService {
 
     throw new Error('Kariyer profili kaydedilemedi.');
   }
+
+  async deleteProfile(
+    userId: UserId,
+    listingId?: ListingId,
+    persona?: CareerPersonaKind,
+  ): Promise<boolean> {
+    const kind: CareerListingKind = persona === 'hire' ? 'hire' : 'seek';
+    let listing: Listing | null = null;
+    if (listingId && !String(listingId).startsWith('draft')) {
+      listing = await this.listings.findById(listingId);
+    }
+    if (!listing) {
+      const owned = await this.listings.search(
+        { ownerId: userId, status: ['published', 'draft', 'paused'] },
+        { page: 1, limit: 100 },
+      );
+      const matches = owned.data.filter((l) => classifyCareerListingKind(l) === kind);
+      listing = pickLatest(matches);
+    }
+    if (listing && listing.ownerId === userId) {
+      const storeWithDelete = this.listings as unknown as { delete?: (id: ListingId) => Promise<unknown> };
+      if (typeof storeWithDelete.delete === 'function') {
+        await storeWithDelete.delete(listing.id);
+        return true;
+      }
+      await this.listings.update(listing.id, {
+        status: 'archived' as Listing['status'],
+      });
+      return true;
+    }
+    return false;
+  }
 }
