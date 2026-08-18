@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { openaiJsonCompletion, OpenAiUnavailableError } from '@/lib/openai/career-openai';
+import { openaiJsonCompletion } from '@/lib/openai/career-openai';
 import type {
   AiCvExtractionPayload,
   DeterministicCvSignals,
@@ -11,10 +11,12 @@ Görevin: Kullanıcının sağladığı maskelenmiş CV metninden gerçeğe %100
 
 KESİN KURALLAR:
 1. CV'de AÇIKÇA yazmayan hiçbir bilgi, unvan, başarı, şirket, teknoloji, dil veya yüzde UYDURMA (NO HALLUCINATION).
-2. Kullanıcı adına tercih, hedef maaş, çalışma modeli veya hedef pozisyon UYDURMA. Sadece geçmiş verileri çıkar.
-3. İletişim bilgileri ([EMAIL], [PHONE], vb.) zaten maskelenmiştir.
-4. "summary" alanı: Adayın CV'deki gerçek deneyimine dayanan, 2-3 cümlelik, profesyonel, doğal Türkçe bir kariyer özeti olmalıdır.
-5. Yanıtı SADECE ve YALNIZCA aşağıdaki JSON şemasına uygun olarak döndür:
+2. CV'deki TÜM iş deneyimlerini (tarihleri, şirketleri, unvanları ve sorumlulukları ile) eksiksiz çıkar. Sadece ilk deneyimi alıp durma, tamamını listele.
+3. CV'deki TÜM eğitim bilgilerini (üniversite, bölüm, derece) eksiksiz çıkar.
+4. CV'deki TÜM mesleki ve teknik yetkinlikleri çıkar.
+5. Kullanıcı adına tercih, hedef maaş, çalışma modeli veya hedef pozisyon UYDURMA. Sadece geçmiş verileri çıkar.
+6. "summary" alanı: Adayın CV'deki gerçek deneyimine dayanan, 2-3 cümlelik, profesyonel, doğal Türkçe bir kariyer özeti olmalıdır.
+7. Yanıtı SADECE ve YALNIZCA aşağıdaki JSON şemasına uygun olarak döndür:
 
 {
   "experiences": [
@@ -47,6 +49,72 @@ KESİN KURALLAR:
   "summary": "string",
   "ambiguousItems": []
 }`;
+
+/**
+ * Merges two experience lists without dropping any historical position from either source.
+ * If baseline found more historical roles than AI, baseline is preserved.
+ * If AI found equal or more structured roles, AI is used.
+ */
+function mergeExperienceSets(
+  baseline: AiCvExtractionPayload['experiences'],
+  ai: AiCvExtractionPayload['experiences'],
+): AiCvExtractionPayload['experiences'] {
+  if (!ai || ai.length === 0) return baseline;
+  if (!baseline || baseline.length === 0) return ai;
+
+  if (baseline.length > ai.length) {
+    // Baseline found more experiences than AI (AI under-extracted)
+    const results = baseline.map((b) => ({ ...b }));
+    for (const aiExp of ai) {
+      const normAiComp = normalizeTr(aiExp.company || '');
+      const existing = results.find((r) => normAiComp && normalizeTr(r.company || '').includes(normAiComp));
+      if (existing) {
+        if (aiExp.responsibilities) existing.responsibilities = aiExp.responsibilities;
+        if (aiExp.achievements) existing.achievements = aiExp.achievements;
+      }
+    }
+    return results;
+  }
+
+  // AI has equal or more experiences
+  return ai;
+}
+
+/**
+ * Merges two education lists without dropping any degree.
+ */
+function mergeEducationSets(
+  baseline: AiCvExtractionPayload['education'],
+  ai: AiCvExtractionPayload['education'],
+): AiCvExtractionPayload['education'] {
+  if (!ai || ai.length === 0) return baseline;
+  if (!baseline || baseline.length === 0) return ai;
+
+  const results: AiCvExtractionPayload['education'] = baseline.map((b) => ({ ...b }));
+
+  for (const aiEdu of ai) {
+    const normAiLevel = normalizeTr(aiEdu.level || '');
+    const normAiField = normalizeTr(aiEdu.field || '');
+
+    const existing = results.find((b) => {
+      const normBLevel = normalizeTr(b.level || '');
+      const normBField = normalizeTr(b.field || '');
+      return (
+        (normAiLevel && normBLevel && normAiLevel === normBLevel) ||
+        (normAiField && normBField && (normAiField.includes(normBField) || normBField.includes(normAiField)))
+      );
+    });
+
+    if (existing) {
+      if (aiEdu.school && !existing.school) existing.school = aiEdu.school;
+      if (aiEdu.field && !existing.field) existing.field = aiEdu.field;
+    } else {
+      results.push(aiEdu);
+    }
+  }
+
+  return results;
+}
 
 /**
  * Executes a SINGLE OpenAI API call to extract structured CV data and synthesize a grounded summary.
@@ -82,10 +150,11 @@ ${maskedCvText.slice(0, 12000)}
 
     const json = res.json as any;
 
-    // Intelligently merge AI response with baseline
-    const aiExperiences = Array.isArray(json?.experiences) && json.experiences.length > 0
-      ? json.experiences
-      : baseline.experiences;
+    const aiExperiences: AiCvExtractionPayload['experiences'] = Array.isArray(json?.experiences) ? json.experiences : [];
+    const aiEducation: AiCvExtractionPayload['education'] = Array.isArray(json?.education) ? json.education : [];
+
+    const mergedExperiences = mergeExperienceSets(baseline.experiences, aiExperiences);
+    const mergedEducation = mergeEducationSets(baseline.education, aiEducation);
 
     const mergedRoles = Array.from(
       new Set([
@@ -115,10 +184,6 @@ ${maskedCvText.slice(0, 12000)}
       ].filter(Boolean)),
     );
 
-    const mergedEducation = Array.isArray(json?.education) && json.education.length > 0
-      ? json.education
-      : baseline.education;
-
     const mergedLanguages = Array.from(
       new Set([
         ...(Array.isArray(json?.languages) ? json.languages : []),
@@ -145,7 +210,7 @@ ${maskedCvText.slice(0, 12000)}
       : baseline.summary;
 
     return {
-      experiences: aiExperiences.length > 0 ? aiExperiences : baseline.experiences,
+      experiences: mergedExperiences.length > 0 ? mergedExperiences : baseline.experiences,
       roles: mergedRoles.length > 0 ? mergedRoles : baseline.roles,
       sectors: mergedSectors.length > 0 ? mergedSectors : baseline.sectors,
       skills: mergedSkills.length > 0 ? mergedSkills : baseline.skills,
@@ -165,7 +230,7 @@ ${maskedCvText.slice(0, 12000)}
 }
 
 /**
- * Fallback deterministic extractor when OpenAI is not configured or in offline test mode.
+ * Normalizes Turkish characters for reliable pattern matching.
  */
 function normalizeTr(s: string): string {
   return s
@@ -258,6 +323,8 @@ export function fallbackDeterministicAiExtraction(
       pendingExp = null;
     }
   };
+
+  const SKILL_BULLET_PATTERN = /^(dijital lead|lead generation|satis yonetimi|operasyon yonetimi|musteri yonetimi|butce yonetimi|kurumsal musteri|performans yonetimi|kalite yonetimi|ekip yonetimi|saha satis|yeni musteri kazanimi|outsource operasyon|musteri iliskileri)/i;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -365,11 +432,24 @@ export function fallbackDeterministicAiExtraction(
         );
 
       const isJobTitleLine =
+        !/^[-•*·▪>]/.test(line.trim()) &&
         /(?:^|[^a-z])(mudur[a-z]*|direktor[a-z]*|yonetici[a-z]*|lider[a-z]*|uzman[a-z]*|gelistirici[a-z]*|muhendis[a-z]*|temsilci[a-z]*|analist[a-z]*|manager[a-z]*|director[a-z]*|lead[a-z]*|specialist[a-z]*|developer[a-z]*|engineer[a-z]*)(?:[^a-z]|$)/i.test(
           normLine,
         ) && !/^(sorumluluklar|basarilar|achievements|responsibilities)\s*[:|-]/i.test(normLine);
 
-      if (isJobTitleLine) {
+      const isPureSkillBullet = pendingExp && SKILL_BULLET_PATTERN.test(normLine) && !hasDateRange && !line.includes(',');
+
+      if (isPureSkillBullet && pendingExp) {
+        // Line is actually a bullet/skill under the active job experience
+        const subItems = line.split(/[|·•]/).map((s) => s.trim()).filter(Boolean);
+        for (const item of subItems) {
+          const cleanItem = item.replace(/^(sorumluluklar|basarilar|achievements|responsibilities)\s*[:|-]?\s*/i, '').trim();
+          if (cleanItem.length >= 3) {
+            pendingExp.responsibilities?.push(cleanItem);
+            detectedSkills.push(cleanItem);
+          }
+        }
+      } else if (isJobTitleLine) {
         flushPendingExp();
         const cleanedLine = line.replace(/^(deneyim|is\s+deneyimi|experience)\s*[:|-]?\s*/i, '');
         const parts = cleanedLine
