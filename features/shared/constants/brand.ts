@@ -6,7 +6,7 @@ export const BRAND_TAGLINE_HIGHLIGHT = 'Doğar.';
 
 /** Compact pitch for sidebars / dense chrome */
 export const BRAND_PITCH_SHORT =
-  'Yatırım, ortaklık, iş, franchise ve dijital çözümler — tek yerde.';
+  'Ortaklık, iş, franchise ve dijital çözümler — tek yerde.';
 
 export const BRAND_PAGE_TITLE = `${BRAND_NAME} — ${BRAND_TAGLINE}`;
 

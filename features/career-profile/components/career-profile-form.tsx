@@ -116,12 +116,14 @@ function FormSection({
   title,
   icon: Icon,
   description,
+  badge,
   children,
 }: {
   stepNumber: number;
   title: string;
   icon: React.ComponentType<{ className?: string }>;
   description?: string;
+  badge?: string;
   children: ReactNode;
 }) {
   return (
@@ -134,6 +136,11 @@ function FormSection({
           <div className="flex items-center gap-2">
             <Icon className="h-4 w-4 text-amber-500" />
             <h3 className="font-display text-base font-bold text-foreground">{title}</h3>
+            {badge && (
+              <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                {badge}
+              </span>
+            )}
           </div>
           {description && (
             <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">{description}</p>
@@ -381,14 +388,26 @@ export function CareerProfileForm({
     return false;
   });
 
+  const clearCvBadge = (key: string) => {
+    setCvFilledKeys((prev) => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  };
+
   const handleCityChange = (newCity: string) => {
     setCity(newCity);
+    clearCvBadge('city');
+    clearCvBadge('residenceCity');
     setResidenceDistrict('');
     setPreferredDistrict('');
   };
 
   const handleSectorChange = (newSector: string) => {
     setPrimarySector(newSector);
+    clearCvBadge('sector');
     if (newSector) {
       const list = getPositionsForSector(newSector);
       if (!isCustomRoleMode && primaryRole && !list.includes(primaryRole)) {
@@ -398,6 +417,7 @@ export function CareerProfileForm({
   };
 
   const handleRoleSelectChange = (val: string) => {
+    clearCvBadge('role');
     if (val === MANUAL_OPTION || val === '__CUSTOM__') {
       setIsCustomRoleMode(true);
       setPrimaryRole('');
@@ -491,33 +511,39 @@ export function CareerProfileForm({
     const formatted = suggestTitleCaseTr(skill);
     if (!formatted || selectedProfSkills.includes(formatted)) return;
     setSelectedProfSkills((prev) => [...prev, formatted]);
+    clearCvBadge('professionalSkills');
     setProfSkillInput('');
   };
 
   const handleRemoveProfSkill = (skill: string) => {
     setSelectedProfSkills((prev) => prev.filter((s) => s !== skill));
+    clearCvBadge('professionalSkills');
   };
 
   const handleAddTechSkill = (skill: string) => {
     const formatted = suggestTitleCaseTr(skill);
     if (!formatted || selectedTechSkills.includes(formatted)) return;
     setSelectedTechSkills((prev) => [...prev, formatted]);
+    clearCvBadge('technicalSkills');
     setTechSkillInput('');
   };
 
   const handleRemoveTechSkill = (skill: string) => {
     setSelectedTechSkills((prev) => prev.filter((s) => s !== skill));
+    clearCvBadge('technicalSkills');
   };
 
   const handleAddTool = (tool: string) => {
     const formatted = suggestTitleCaseTr(tool);
     if (!formatted || selectedTools.includes(formatted)) return;
     setSelectedTools((prev) => [...prev, formatted]);
+    clearCvBadge('tools');
     setToolInput('');
   };
 
   const handleRemoveTool = (tool: string) => {
     setSelectedTools((prev) => prev.filter((t) => t !== tool));
+    clearCvBadge('tools');
   };
 
   // AI Summary Generator
@@ -695,6 +721,40 @@ export function CareerProfileForm({
     experiences,
   ]);
 
+  const missingFieldsCount = useMemo(() => {
+    let missing = 0;
+    if (!primaryRole && selectedRoles.length === 0) missing++;
+    if (!primarySector && selectedSectors.length === 0) missing++;
+    if (!experienceLevel) missing++;
+    if (selectedProfSkills.length === 0) missing++;
+    if (selectedTechSkills.length === 0 && selectedTools.length === 0) missing++;
+    if (!workType) missing++;
+    if (!workplacePreference) missing++;
+    if (!city) missing++;
+    if (!educationLevel && experiences.length === 0) missing++;
+    if (!languages && !certificates) missing++;
+    if (persona === 'seek' && !availability) missing++;
+    return missing;
+  }, [
+    primaryRole,
+    selectedRoles,
+    primarySector,
+    selectedSectors,
+    experienceLevel,
+    selectedProfSkills,
+    selectedTechSkills,
+    selectedTools,
+    workType,
+    workplacePreference,
+    city,
+    educationLevel,
+    experiences,
+    languages,
+    certificates,
+    persona,
+    availability,
+  ]);
+
   // Save handler
   async function handleSave() {
     setSaving(true);
@@ -830,13 +890,13 @@ export function CareerProfileForm({
                 </h4>
               </div>
               <div className="text-right">
-                {currentCompletionPercent >= 80 ? (
+                {missingFieldsCount === 0 ? (
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4" /> Mükemmel Eşleşme Potansiyeli
+                    <CheckCircle2 className="h-4 w-4" /> Tüm temel bilgiler tamamlandı
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-                    <AlertCircle className="h-4 w-4" /> Eksik adımları tamamlayarak eşleşme şansınızı artırın
+                    <AlertCircle className="h-4 w-4" /> Profilinizi tamamlamak için {missingFieldsCount} bilgi kaldı
                   </span>
                 )}
               </div>
@@ -938,6 +998,7 @@ export function CareerProfileForm({
                     label="Ana Pozisyon / Meslek"
                     required
                     hint={isCustomRoleMode ? 'Özel unvanınızı kendiniz yazıyorsunuz' : 'Sektöre göre otomatik listelenir'}
+                    badge={cvFilledKeys.has('role') ? "CV'den aktarıldı" : undefined}
                   >
                     {isCustomRoleMode ? (
                       <div className="space-y-2">
@@ -945,7 +1006,10 @@ export function CareerProfileForm({
                           <input
                             type="text"
                             value={primaryRole}
-                            onChange={(e) => setPrimaryRole(e.target.value)}
+                            onChange={(e) => {
+                              setPrimaryRole(e.target.value);
+                              clearCvBadge('role');
+                            }}
                             onBlur={() => {
                               if (primaryRole.trim()) setPrimaryRole(suggestTitleCaseTr(primaryRole));
                             }}
@@ -959,6 +1023,7 @@ export function CareerProfileForm({
                             onClick={() => {
                               setIsCustomRoleMode(false);
                               setPrimaryRole('');
+                              clearCvBadge('role');
                             }}
                             className="shrink-0 rounded-xl text-xs"
                           >
@@ -976,6 +1041,7 @@ export function CareerProfileForm({
                               if (items[0]) {
                                 setPrimaryRole(items[0]);
                                 setIsCustomRoleMode(false);
+                                clearCvBadge('role');
                               }
                             }}
                           />
@@ -1020,10 +1086,17 @@ export function CareerProfileForm({
                     )}
                   </Field>
 
-                  <Field label="Deneyim Seviyesi" required>
+                  <Field
+                    label="Deneyim Seviyesi"
+                    required
+                    badge={cvFilledKeys.has('experienceLevel') ? "CV'den aktarıldı" : undefined}
+                  >
                     <select
                       value={experienceLevel}
-                      onChange={(e) => setExperienceLevel(e.target.value)}
+                      onChange={(e) => {
+                        setExperienceLevel(e.target.value);
+                        clearCvBadge('experienceLevel');
+                      }}
                       className={selectClass}
                     >
                       <option value="">Seçiniz</option>
@@ -1051,7 +1124,11 @@ export function CareerProfileForm({
                   </Field>
 
                   {/* Dynamic City & District Cascading Select */}
-                  <Field label="İkamet Şehri" required>
+                  <Field
+                    label="İkamet Şehri"
+                    required
+                    badge={cvFilledKeys.has('residenceCity') || cvFilledKeys.has('city') ? "CV'den aktarıldı" : undefined}
+                  >
                     <select
                       value={city}
                       onChange={(e) => handleCityChange(e.target.value)}
@@ -1111,10 +1188,14 @@ export function CareerProfileForm({
                 title="Kariyer Deneyimi & İş Geçmişi"
                 icon={History}
                 description="Geçmiş deneyimlerinizi sektör, pozisyon, tarih ve başarılarınızla ekleyin. Şirket ismi girilmez, gizliliğiniz korunur."
+                badge={cvFilledKeys.has('experiences') ? "CV'den aktarıldı" : undefined}
               >
                 <CareerExperienceEditor
                   value={experiences}
-                  onChange={setExperiences}
+                  onChange={(val) => {
+                    setExperiences(val);
+                    clearCvBadge('experiences');
+                  }}
                   experienceLevel={experienceLevel}
                 />
               </FormSection>
@@ -1127,7 +1208,11 @@ export function CareerProfileForm({
                 description="Sektör ve pozisyonunuza göre önerilen teknik ve mesleki yetkinlikleri tek tıkla seçin veya kendiniz ekleyin."
               >
                 {/* Technical Skills */}
-                <Field label="Teknik Yetkinlikler" hint="Yazılımlar, programlama dilleri, sistemler">
+                <Field
+                  label="Teknik Yetkinlikler"
+                  hint="Yazılımlar, programlama dilleri, sistemler"
+                  badge={cvFilledKeys.has('technicalSkills') ? "CV'den aktarıldı" : undefined}
+                >
                   <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                     {selectedTechSkills.length === 0 ? (
                       <span className="text-xs text-muted-foreground px-1">
@@ -1201,7 +1286,11 @@ export function CareerProfileForm({
 
                 {/* Professional Skills */}
                 <div className="mt-5 pt-5 border-t border-border/50">
-                  <Field label="Mesleki & Sektörel Yetkinlikler" hint="Liderlik, bütçe yönetimi, müzakere, kriz yönetimi">
+                  <Field
+                    label="Mesleki & Sektörel Yetkinlikler"
+                    hint="Liderlik, bütçe yönetimi, müzakere, kriz yönetimi"
+                    badge={cvFilledKeys.has('professionalSkills') ? "CV'den aktarıldı" : undefined}
+                  >
                     <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                       {selectedProfSkills.length === 0 ? (
                         <span className="text-xs text-muted-foreground px-1">
@@ -1276,7 +1365,11 @@ export function CareerProfileForm({
 
                 {/* Tools & Softwares */}
                 <div className="mt-5 pt-5 border-t border-border/50">
-                  <Field label="Kullanılan Araçlar & Yazılımlar" hint="Popüler araçlardan tek tıkla seçin veya kendiniz ekleyin">
+                  <Field
+                    label="Kullanılan Araçlar & Yazılımlar"
+                    hint="Popüler araçlardan tek tıkla seçin veya kendiniz ekleyin"
+                    badge={cvFilledKeys.has('tools') ? "CV'den aktarıldı" : undefined}
+                  >
                     <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
                       {selectedTools.length === 0 ? (
                         <span className="text-xs text-muted-foreground px-1">
@@ -1358,10 +1451,17 @@ export function CareerProfileForm({
                 description="Mezuniyet dereceniz, bitirdiğiniz bölüm, yabancı dilleriniz ve sertifikalarınız."
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Eğitim Seviyesi" required>
+                  <Field
+                    label="Eğitim Seviyesi"
+                    required
+                    badge={cvFilledKeys.has('educationLevel') ? "CV'den aktarıldı" : undefined}
+                  >
                     <select
                       value={educationLevel}
-                      onChange={(e) => setEducationLevel(e.target.value)}
+                      onChange={(e) => {
+                        setEducationLevel(e.target.value);
+                        clearCvBadge('educationLevel');
+                      }}
                       className={selectClass}
                     >
                       <option value="">Seçiniz</option>
@@ -1373,31 +1473,52 @@ export function CareerProfileForm({
                     </select>
                   </Field>
 
-                  <Field label="Üniversite / Bölüm" hint="Örn: Bilgisayar Mühendisliği">
+                  <Field
+                    label="Üniversite / Bölüm"
+                    hint="Örn: Bilgisayar Mühendisliği"
+                    badge={cvFilledKeys.has('educationField') ? "CV'den aktarıldı" : undefined}
+                  >
                     <input
                       type="text"
                       value={educationField}
-                      onChange={(e) => setEducationField(e.target.value)}
+                      onChange={(e) => {
+                        setEducationField(e.target.value);
+                        clearCvBadge('educationField');
+                      }}
                       placeholder="Örn: Endüstri Mühendisliği, İktisat, İletişim..."
                       className={fieldClass}
                     />
                   </Field>
 
-                  <Field label="Yabancı Diller" hint="Dil ve seviye belirtin">
+                  <Field
+                    label="Yabancı Diller"
+                    hint="Dil ve seviye belirtin"
+                    badge={cvFilledKeys.has('languages') ? "CV'den aktarıldı" : undefined}
+                  >
                     <input
                       type="text"
                       value={languages}
-                      onChange={(e) => setLanguages(e.target.value)}
+                      onChange={(e) => {
+                        setLanguages(e.target.value);
+                        clearCvBadge('languages');
+                      }}
                       placeholder="Örn: İngilizce (İleri), Almanca (Orta)..."
                       className={fieldClass}
                     />
                   </Field>
 
-                  <Field label="Sertifikalar" hint="Örn: PMP, AWS Certified, Scrum Master">
+                  <Field
+                    label="Sertifikalar"
+                    hint="Örn: PMP, AWS Certified, Scrum Master"
+                    badge={cvFilledKeys.has('certificates') ? "CV'den aktarıldı" : undefined}
+                  >
                     <input
                       type="text"
                       value={certificates}
-                      onChange={(e) => setCertificates(e.target.value)}
+                      onChange={(e) => {
+                        setCertificates(e.target.value);
+                        clearCvBadge('certificates');
+                      }}
                       placeholder="Örn: AWS Certified Developer, PMP, Six Sigma..."
                       className={fieldClass}
                     />
@@ -1582,6 +1703,7 @@ export function CareerProfileForm({
                 title="Kariyer Özeti & Hakkımda"
                 icon={FileText}
                 description="Profilinizin ve eşleşmelerinizin en üstünde yer alacak profesyonel özetiniz."
+                badge={cvFilledKeys.has('candidateTraits') || cvFilledKeys.has('summary') ? "CV'den aktarıldı" : undefined}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -1608,7 +1730,11 @@ export function CareerProfileForm({
                   </div>
                   <textarea
                     value={candidateTraits}
-                    onChange={(e) => setCandidateTraits(e.target.value)}
+                    onChange={(e) => {
+                      setCandidateTraits(e.target.value);
+                      clearCvBadge('candidateTraits');
+                      clearCvBadge('summary');
+                    }}
                     placeholder="Kariyer hedefleriniz, temel uzmanlık alanlarınız, şirkete ve ekibe katabileceğiniz değerler hakkında bilgi verin veya yukarıdaki '✨ Yapay Zeka ile Oluştur' butonuna basın..."
                     className={areaClass}
                   />

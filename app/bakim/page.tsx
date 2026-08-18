@@ -41,7 +41,7 @@ export default function MaintenancePage() {
 
         <p className="mt-5 max-w-xl animate-[gc-maint-fade_0.9s_ease-out_0.18s_both] text-base leading-relaxed text-[#334155] sm:text-lg">
           Yeni <span className="font-semibold text-[#0F172A]">Girisimbee</span> logomuz ve
-          yenilenen yapıyla en kısa sürede yeniden açıyoruz. Yatırım, ortaklık, iş, franchise ve
+          yenilenen yapıyla en kısa sürede yeniden açıyoruz. Ortaklık, iş, franchise ve
           dijital çözümleri tek platformda buluşturan deneyim için son hazırlıklarımız devam
           ediyor.
         </p>
