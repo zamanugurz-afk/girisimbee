@@ -78,6 +78,14 @@ const ROLE_ALIASES: Record<string, string> = {
   'finance manager': 'Finans Müdürü',
   'mali müşavir': 'Mali Müşavir',
 
+  'yönetici': 'Operasyon Müdürü',
+  'müdür': 'Operasyon Müdürü',
+  'direktör': 'Operasyon Müdürü',
+  'genel müdür': 'Genel Müdür',
+  'operasyon yöneticisi': 'Operasyon Müdürü',
+  'satış yöneticisi': 'Satış Müdürü',
+  'çağrı merkezi yöneticisi': 'Çağrı Merkezi Operasyon Müdürü',
+
   // Design
   'ui/ux designer': 'UI/UX Tasarımcı',
   'ux designer': 'UI/UX Tasarımcı',
@@ -124,11 +132,12 @@ const SECTOR_ALIASES: Record<string, string> = {
   'sigorta': 'Sigortacılık',
   'sigortacılık': 'Sigortacılık',
   'insurance': 'Sigortacılık',
-  'çağrı merkezi': 'Hizmet / Danışmanlık',
-  'telemarketing': 'Hizmet / Danışmanlık',
-  'telekomünikasyon': 'Telekomünikasyon',
-  'telecom': 'Telekomünikasyon',
-  'bpo': 'Hizmet / Danışmanlık',
+  'çağrı merkezi': 'Müşteri Hizmetleri / Çağrı Merkezi',
+  'müşteri hizmetleri': 'Müşteri Hizmetleri / Çağrı Merkezi',
+  'telemarketing': 'Müşteri Hizmetleri / Çağrı Merkezi',
+  'outsource': 'Hizmet / Danışmanlık',
+  'danışmanlık': 'Hizmet / Danışmanlık',
+  'consulting': 'Hizmet / Danışmanlık',
 
   'e-commerce': 'E-Ticaret / Perakende',
   'ecommerce': 'E-Ticaret / Perakende',
@@ -231,6 +240,14 @@ export function matchCanonicalPosition(rawRole: string): {
   const scoreMatch = (candidate: string): number => {
     const pNorm = normalizeTrMatch(candidate);
     if (pNorm === norm) return 1000;
+
+    // Strictly block false domain mappings (e.g. general 'yönetici' matching 'hastane yöneticisi')
+    const isHealthcareRole = pNorm.includes('hastane') || pNorm.includes('hemsire') || pNorm.includes('doktor') || pNorm.includes('saglik') || pNorm.includes('klinik');
+    const isHealthcareQuery = norm.includes('hastane') || norm.includes('hemsire') || norm.includes('doktor') || norm.includes('saglik') || norm.includes('klinik');
+    if (isHealthcareRole && !isHealthcareQuery) {
+      return 0;
+    }
+
     if (norm.includes(pNorm)) return 500 + pNorm.length;
     if (pNorm.includes(norm)) return 300 + norm.length;
     const queryWords = norm.split(' ').filter((w) => w.length >= 3);

@@ -17,10 +17,14 @@ export function buildProfileDraftFromCanonicalResult(
   const cvFilledFieldKeys: string[] = [];
 
   // Calculate experience level from total years
-  const totalYears = canonical.experiences.reduce((sum, exp) => {
+  const sumYears = canonical.experiences.reduce((sum, exp) => {
     const yrs = parseInt(exp.duration, 10) || 1;
     return sum + yrs;
   }, 0);
+
+  const summaryMatch = (canonical.summary || '').match(/(\d{1,2})\s*yıl/i);
+  const summaryYears = summaryMatch ? parseInt(summaryMatch[1], 10) : 0;
+  const totalYears = Math.max(sumYears, summaryYears);
 
   let experienceLevel = '1-3 yıl';
   if (totalYears === 0) experienceLevel = 'Stajyer / Yeni Mezun';
