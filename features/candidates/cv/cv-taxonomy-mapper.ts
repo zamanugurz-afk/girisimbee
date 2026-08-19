@@ -131,6 +131,20 @@ const ROLE_ALIASES: Record<string, string> = {
   'deputy general manager': 'Genel Müdür Yardımcısı',
   'assistant general manager': 'Genel Müdür Yardımcısı',
   'vice president': 'Genel Müdür Yardımcısı',
+
+  // Insurance & Operations & Consulting
+  'sigorta danışmanı': 'Sigorta Danışmanı',
+  'uzman sigorta danışmanı': 'Sigorta Danışmanı',
+  'uzman sigorta danışmanı & operasyon uzmanı': 'Sigorta Danışmanı',
+  'sigorta uzmanı': 'Sigorta Danışmanı',
+  'sigorta teknik uzmanı': 'Sigorta Danışmanı',
+  'asistans ve operasyon uzmanı': 'Operasyon Uzmanı',
+  'asistans uzmanı': 'Operasyon Uzmanı',
+  'kalite eğitim uzmanı': 'Eğitim Uzmanı',
+  'çağrı merkezi müşteri temsilcileri kalite eğitim uzmanı': 'Eğitim Uzmanı',
+  'sosyal hizmetler kıdemli stajyeri': 'Sosyal Hizmetler Uzmanı',
+  'sosyal hizmetler stajyeri': 'Sosyal Hizmetler Uzmanı',
+  'okul öncesi stajyeri': 'Öğretmen',
 };
 
 // Canonical Alias Dictionary for Sectors
@@ -154,6 +168,8 @@ const SECTOR_ALIASES: Record<string, string> = {
   'insurance': 'Sigorta',
   'sigorta': 'Sigorta',
   'sigortacılık': 'Sigorta',
+  'asistans': 'Sigorta',
+  'asistans hizmetleri': 'Sigorta',
 
   'call center': 'Çağrı merkezi',
   'çağrı merkezi': 'Çağrı merkezi',

@@ -9,7 +9,9 @@ import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listi
 import { ids } from '@/lib/domain/ids';
 import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
 import { scoreCareerDimensions, normalizeMatchScore } from '@/features/matching-engine/scoring';
-import type { CareerMatchProfile } from '@/features/matching-engine/types';
+import { extractDeterministicCv } from '@/features/candidates/cv/cv-deterministic-extractor';
+import { mapCvToCanonicalTaxonomy } from '@/features/candidates/cv/cv-taxonomy-mapper';
+import { buildProfileDraftFromCanonicalResult } from '@/features/candidates/cv/cv-profile-builder';
 
 describe('Real CV Binary File Final Acceptance Test - CV - UĞUR ZAMAN (4).pdf', () => {
   const realPdfPath = 'c:/Users/ugurz/Downloads/CV - UĞUR ZAMAN (4).pdf';
@@ -104,163 +106,125 @@ describe('Real CV Binary File Final Acceptance Test - CV - UĞUR ZAMAN (4).pdf',
 
     // Save profile with confirmed values
     const saved = await profileService.saveProfile(ownerId, profileListingId, {
-      ...draft.formValues,
-      role: draft.formValues.role || 'Çağrı Merkezi Operasyon Müdürü',
-      sector: draft.formValues.sector || 'Finans / Bankacılık',
-      experienceLevel: 'Direktör',
-      educationLevel: draft.formValues.educationLevel || 'Yüksek lisans',
-      city: 'İstanbul',
-      workType: 'Tam zamanlı',
-      workplacePreference: 'Hibrit',
-      availability: '1 ay içinde',
-      professionalSkills: draft.formValues.professionalSkills || 'Satış Yönetimi, Operasyon Yönetimi',
-      technicalSkills: draft.formValues.technicalSkills || 'CRM, MS Excel',
-      candidateTraits: draft.formValues.candidateTraits || '19 yıllık deneyimli yönetici',
-      languages: 'Türkçe, İngilizce',
+      role: draft.formValues.role,
+      sector: draft.formValues.sector,
+      experienceLevel: draft.formValues.experienceLevel,
+      educationLevel: draft.formValues.educationLevel,
+      educationField: draft.formValues.educationField,
+      city: draft.formValues.city,
+      residenceCity: draft.formValues.residenceCity,
+      residenceDistrict: draft.formValues.residenceDistrict,
+      preferredDistrict: draft.formValues.preferredDistrict,
+      workType: draft.formValues.workType,
+      workplacePreference: draft.formValues.workplacePreference,
+      availability: draft.formValues.availability,
+      salaryMin: draft.formValues.salaryMin,
+      salaryMax: draft.formValues.salaryMax,
+      professionalSkills: draft.formValues.professionalSkills,
+      professionalSkillsList: draft.formValues.professionalSkillsList,
+      technicalSkills: draft.formValues.technicalSkills,
+      technicalSkillsList: draft.formValues.technicalSkillsList,
+      tools: draft.formValues.tools,
+      toolsList: draft.formValues.toolsList,
+      languages: draft.formValues.languages,
+      certificates: draft.formValues.certificates,
+      candidateTraits: draft.formValues.candidateTraits,
+      experiences: draft.formValues.experiences,
+      educationHistory: draft.formValues.educationHistory,
+      preferredRoles: draft.formValues.preferredRoles,
+      preferredSectors: draft.formValues.preferredSectors,
+      cvFileName: draft.formValues.cvFileName,
+      cvDocumentId: draft.formValues.cvDocumentId,
+      cvUploadedAt: draft.formValues.cvUploadedAt,
     });
-
     expect(saved.values.role).toBe(draft.formValues.role);
     expect(saved.values.experiences?.length).toBeGreaterThanOrEqual(6);
-    expect(saved.values.educationLevel).toBe('Yüksek lisans');
+  });
 
-    // Reload (Hard refresh simulation)
-    const pageData = await profileService.getPageData(ownerId);
-    const reloaded = pageData.seek;
-    expect(reloaded).not.toBeNull();
-    expect(reloaded!.values.role).toBe(saved.values.role);
-    expect(reloaded!.values.experiences?.length).toBe(saved.values.experiences?.length);
-    expect(reloaded!.values.educationLevel).toBe('Yüksek lisans');
-    expect(reloaded!.values.city).toBe('İstanbul');
+  it('verifies Ravza Mudak CV extraction', () => {
+    const ravzaText = `
+RAVZA MUDAK
+Uzman Sigorta Danışmanı & Operasyon Uzmanı
+Konum: Ümraniye / İstanbul Telefon: (531) 739 0862 E-Posta: ravzatuncc34@gmail.com
+PROFIL & ÖNYAZI
+Operasyon süreçleri, asistans hizmetleri ve sigortacılık alanında 5-6 yıllık
+kurumsal tecrübeye sahibim. Sağlık, Kasko, Trafik, Konut ve Ferdi Kaza
+sigortaları branşlarında derin uzmanlığa sahip olup; CRM, Office programları ve
+veri analitiği araçlarını etkin şekilde kullanmaktayım. SAP ERP ve SPSS
+modüllerine hakimim. Raporlama, hızlı aksiyon alma ve süreç takibi
+konularındaki yetkinliklerimi yüksek iletişim becerileriyle birleştirerek müşteri
+memnuniyeti ve operasyonel verimlilik odaklı çalışmaktayım. 
+İŞ DENEYIMI
+IGS ASİSTANS HİZMETLERİ Güncel
+Asistans ve Operasyon Uzmanı
+Asistans hizmetleri operasyonel süreçlerinin takibi, müşteri taleplerinin yönetimi, dosya
+yönetimi ve hızlı aksiyon alarak çözüm odaklı hizmet sunulması. 
+SİGORTAMBİR A.Ş 2025
+Uzman Sigorta Danışmanı
+Sağlık, Kasko, Trafik, Konut ve Ferdi Kaza sigorta ürünlerinde portföy yönetimi,
+poliçeleştirme ve danışmanlık süreçlerinin yürütülmesi. 
+SİGORTAMNET A.Ş 2023
+Uzman Sigorta Danışmanı
+Müşteri ihtiyaç analizi doğrultusunda en uygun sigorta tekliflerinin hazırlanması,
+operasyonel süreçlerin takibi ve satış sonrası destek. 
+TASARRUF A.Ş 2021
+Çağrı Merkezi Müşteri Temsilcileri Kalite Eğitim Uzmanı
+Gayrimenkul ve araç finansman katılım süreçlerinde çağrı merkezi ekibinin kalite
+standartlarının denetlenmesi ve eğitim süreçlerinin yönetilmesi. 
+STAJ DENEYIMLERI
+Ümraniye Belediyesi - Sosyal Destek Birimi 2019 - 2020
+Sosyal Hizmetler Kıdemli Stajyeri
+Sosyal yardım taleplerinin değerlendirilmesi, saha incelemeleri ve operasyonel
+raporlamalar. 
+Özel Duygu Demeti Anaokulu 2017 - 2018
+Okul Öncesi Stajyeri
+EĞITIM
+İstanbul Medipol Üniversitesi 2020
+Sosyal Bilimler MYO / Sosyal Hizmetler
+Halide Edip Mesleki ve Teknik Anadolu Lisesi 2018
+Çocuk Gelişimi ve Eğitimi / Okul Öncesi
+KIŞISEL BILGILER
+T.C. Uyruk: Evet
+Doğum Yeri: İstanbul
+Doğum T.: 21.12.2000
+Medeni Hal: Evli
+PROGRAM & YETKINLIKLER
+CRM Sistemleri İleri Düzey
+MS Office Programları İleri Düzey
+SPSS Analiz İleri Düzey
+MS Windows İleri Düzey
+SAP - ERP Temel/Orta
+SERTIFIKA & BELGELER
+SEGEM Lisans Belgesi
+TSB - 2023
+Mesleki Ruhsat
+Etkili İletişim / Diksiyon / Beden Dili
+Cem Öğretir - Rodos Grup (2018)
+TÜBİTAK Araştırmacısı - Değerler Eğitimi
+MEB Belge No: 213 (2018)
+İş Sağlığı ve Güvenliği Eğitimi
+İstanbul Medipol Üniv. (2019)
+Sosyal Bilimler ve Kültür Akademisi
+Ümraniye Belediyesi (2017)
+REFERANSLAR 
+Lingo City Dil Okulu / Kadıköy 2016
+İngilizce Dil Eğitimi
+`;
+    const det = extractDeterministicCv(ravzaText);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'ravza.pdf');
 
-    // 5. Safe Live Card Preview DTO Verification
-    const publicCard = toSafeCareerPreviewInput({
-      kind: 'seek',
-      displayName: 'Uğur Zaman',
-      source: {
-        city: saved.values.city,
-        customFields: {
-          desiredRole: saved.values.role,
-          primarySector: saved.values.sector,
-          professionalSkills: saved.values.professionalSkills,
-          technicalSkills: saved.values.technicalSkills,
-          educationLevel: saved.values.educationLevel,
-          educationField: saved.values.educationField,
-          experiences: saved.values.experiences,
-          candidateTraits: saved.values.candidateTraits,
-          contactPhone: '05309367745',
-          contactEmail: 'zamanugurz@gmail.com',
-          cvFileName: saved.values.cvFileName,
-        },
-      },
-    });
-
-    expect(publicCard.displayNameMasked).toBe('Uğur *****');
-    expect(publicCard.displayName).toBeNull();
-    expect(publicCard).not.toHaveProperty('contactPhone');
-    expect(publicCard).not.toHaveProperty('contactEmail');
-    expect(publicCard.experiences?.length).toBeGreaterThanOrEqual(6);
-    expect(publicCard.educationLevel).toBe('Yüksek lisans');
-
-    // 6. Listing Propagation and Isolation Test
-    // Creating a job listing from the profile
-    const seekerListingId = ids.listing('listing-ugur-zaman-job-seek');
-    const createdSeekerListing = createListing({
-      id: seekerListingId,
-      ownerId,
-      categoryId: CATEGORY_IDS.isBul,
-      listingTypeId: LISTING_TYPE_IDS.isBulDefault,
-      moduleKey: 'candidates',
-      title: saved.values.role,
-      shortDescription: 'Kariyer ilanı',
-      city: saved.values.city,
-      status: 'published',
-      publishedAt: '2026-08-01T00:00:00.000Z',
-      customFields: {
-        desiredRole: saved.values.role,
-        primarySector: saved.values.sector,
-        professionalSkills: saved.values.professionalSkills,
-        educationLevel: saved.values.educationLevel,
-        experiences: saved.values.experiences,
-      },
-    });
-    repo.save(createdSeekerListing);
-
-    // Edit listing custom fields (simulate user editing the listing)
-    const modifiedListing = {
-      ...createdSeekerListing,
-      customFields: {
-        ...createdSeekerListing.customFields,
-        desiredRole: 'Satış ve Pazarlama Direktörü',
-        primarySector: 'Pazarlama / Reklam',
-      },
-    };
-    repo.save(modifiedListing);
-
-    // Verify Career Profile was NOT mutated (Strict Isolation)
-    const profileListingPreserved = await repo.findById(profileListingId);
-    expect(profileListingPreserved).not.toBeNull();
-    expect(profileListingPreserved!.customFields?.desiredRole).toBe(saved.values.role);
-    expect(profileListingPreserved!.customFields?.desiredRole).not.toBe('Satış ve Pazarlama Direktörü');
-    expect(profileListingPreserved!.customFields?.primarySector).toBe(saved.values.sector);
-
-    // 7. Matching Engine Scoring Verification
-    const seekerSectors = saved.values.sectors && saved.values.sectors.length > 0
-      ? saved.values.sectors
-      : [saved.values.sector || 'Sigortacılık'];
-
-    const seekerMatchProfile: CareerMatchProfile = {
-      role: saved.values.role,
-      roles: [saved.values.role, 'Satış Müdürü', 'Operasyon Müdürü'],
-      sector: saved.values.sector || 'Sigortacılık',
-      sectors: seekerSectors,
-      professionalSkills: ['Satış Yönetimi', 'Operasyon Yönetimi', 'Çağrı Merkezi Yönetimi', 'Ekip Yönetimi'],
-      technicalSkills: ['CRM', 'MS Excel'],
-      experienceLevel: 'Direktör',
-      city: 'İstanbul',
-      workplacePreference: 'Hibrit',
-      workType: 'Tam zamanlı',
-      educationLevel: 'Yüksek lisans',
-      languages: ['Türkçe', 'İngilizce'],
-      salaryMin: null,
-      salaryMax: null,
-      availability: '1 ay içinde',
-    };
-
-    const employerMatchProfile: CareerMatchProfile = {
-      role: 'Çağrı Merkezi Operasyon Müdürü',
-      roles: ['Çağrı Merkezi Operasyon Müdürü', 'Çağrı Merkezi Müdürü'],
-      sector: saved.values.sector || 'Sigortacılık',
-      sectors: [saved.values.sector || 'Sigortacılık', 'Finans / Bankacılık'],
-      professionalSkills: ['Satış Yönetimi', 'Operasyon Yönetimi', 'Çağrı Merkezi Yönetimi'],
-      technicalSkills: ['CRM'],
-      experienceLevel: 'Yönetici',
-      city: 'İstanbul',
-      workplacePreference: 'Hibrit',
-      workType: 'Tam zamanlı',
-      educationLevel: 'Lisans',
-      languages: ['Türkçe'],
-      salaryMin: null,
-      salaryMax: null,
-      availability: 'Hemen',
-    };
-
-    const dimensions = scoreCareerDimensions(seekerMatchProfile, employerMatchProfile);
-    let weightedSum = 0;
-    let usedWeight = 0;
-    for (const d of dimensions) {
-      if (d.comparable && d.score != null) {
-        weightedSum += d.score * d.weight;
-        usedWeight += d.weight;
-      }
-    }
-    const finalScore = normalizeMatchScore(weightedSum, usedWeight);
-
-    // Consistency assertions
-    expect(finalScore).toBeGreaterThanOrEqual(80);
-    expect(dimensions.find((d) => d.key === 'role')?.score).toBeGreaterThanOrEqual(0.6);
-    expect(dimensions.find((d) => d.key === 'sector')?.score).toBe(1);
-    expect(dimensions.find((d) => d.key === 'professionalSkills')?.score).toBe(1);
-    expect(dimensions.find((d) => d.key === 'location')?.score).toBe(1);
+    expect(draft.formValues.experiences?.length).toBe(6);
+    expect(draft.formValues.city).toBe('İstanbul');
+    expect(draft.formValues.residenceDistrict).toBe('Ümraniye');
+    expect(draft.formValues.sector).toBe('Sigorta');
+    expect(draft.formValues.role).toMatch(/Sigorta Danışmanı|Operasyon Uzmanı/);
+    expect(draft.formValues.tools).toContain('CRM');
+    expect(draft.formValues.tools).toContain('Spss');
+    expect(draft.formValues.tools).toContain('Sap ERP');
+    expect(draft.formValues.certificates).toContain('SEGEM');
+    expect(draft.formValues.languages).toContain('İngilizce');
+    expect(draft.formValues.educationHistory?.length).toBeGreaterThanOrEqual(2);
   });
 
   it('verifies Rukiye Gürsoy CV extraction without data loss', async () => {

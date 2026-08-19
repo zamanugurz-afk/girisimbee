@@ -159,10 +159,10 @@ export async function extractCvWithSingleAiCall(
 
   // 3. Prepare minimal semantic payload for AI
   const unknownBlocks = gate.unknownSemanticBlocks;
-  const minimalPrompt = `Aşağıdaki CV bölümünü analiz et ve eksik anlamsal alanları tamamla:
+  const minimalPrompt = `Aşağıdaki CV metnini analiz et ve eksik anlamsal alanları tamamla:
 
---- BAĞLAM SNIPPET ---
-${unknownBlocks?.minimalContextSnippet || maskedCvText.slice(0, 1500)}
+--- CV METNİ ---
+${unknownBlocks?.minimalContextSnippet || maskedCvText.slice(0, 3500)}
 --- BİTİŞ ---
 
 Tespit Edilen Rol Adayları: ${unknownBlocks?.unresolvedRoles?.join(', ') || 'Belirtilmedi'}
@@ -173,7 +173,7 @@ Tespit Edilen Rol Adayları: ${unknownBlocks?.unresolvedRoles?.join(', ') || 'Be
     const res = await openaiJsonCompletion({
       system: CV_AI_EXTRACTION_SYSTEM,
       user: minimalPrompt,
-      maxTokens: 600,
+      maxTokens: 800,
       temperature: 0.1,
     });
 
@@ -187,50 +187,50 @@ Tespit Edilen Rol Adayları: ${unknownBlocks?.unresolvedRoles?.join(', ') || 'Be
 
     const mergedRoles = Array.from(
       new Set([
-        ...(Array.isArray(json?.roles) ? json.roles : []),
         ...deterministic.roles,
+        ...(Array.isArray(json?.roles) ? json.roles : []),
       ].filter(Boolean)),
     );
 
     const mergedSectors = Array.from(
       new Set([
-        ...(Array.isArray(json?.sectors) ? json.sectors : []),
         ...deterministic.sectors,
+        ...(Array.isArray(json?.sectors) ? json.sectors : []),
       ].filter(Boolean)),
     );
 
     const mergedSkills = Array.from(
       new Set([
-        ...(Array.isArray(json?.skills) ? json.skills : []),
         ...deterministic.skills,
+        ...(Array.isArray(json?.skills) ? json.skills : []),
       ].filter(Boolean)),
     );
 
     const mergedTools = Array.from(
       new Set([
-        ...(Array.isArray(json?.tools) ? json.tools : []),
         ...deterministic.tools,
+        ...(Array.isArray(json?.tools) ? json.tools : []),
       ].filter(Boolean)),
     );
 
     const mergedLanguages = Array.from(
       new Set([
-        ...(Array.isArray(json?.languages) ? json.languages : []),
         ...deterministic.languages,
+        ...(Array.isArray(json?.languages) ? json.languages : []),
       ].filter(Boolean)),
     );
 
     const mergedCertificates = Array.from(
       new Set([
-        ...(Array.isArray(json?.certificates) ? json.certificates : []),
         ...deterministic.certificates,
+        ...(Array.isArray(json?.certificates) ? json.certificates : []),
       ].filter(Boolean)),
     );
 
     const mergedLocations = Array.from(
       new Set([
-        ...(Array.isArray(json?.locations) ? json.locations : []),
         ...deterministic.locations,
+        ...(Array.isArray(json?.locations) ? json.locations : []),
       ].filter(Boolean)),
     );
 

@@ -226,10 +226,17 @@ export const KNOWN_TOOLS_DICTIONARY: Record<string, string> = {
 
   // CRM, ERP & Operations
   crm: 'CRM',
+  'crm sistemleri': 'CRM Sistemleri',
   erp: 'ERP',
   salesforce: 'Salesforce',
   hubspot: 'HubSpot',
-  sap: 'SAP',
+  sap: 'SAP ERP',
+  'sap erp': 'SAP ERP',
+  'sap - erp': 'SAP ERP',
+  spss: 'SPSS',
+  'spss analiz': 'SPSS Analiz',
+  'ms windows': 'MS Windows',
+  windows: 'MS Windows',
   oracle: 'Oracle',
   logo: 'Logo',
   'logo tiger': 'Logo',
@@ -563,8 +570,48 @@ export function formatTurkishTitle(str: string): string {
 }
 
 export function isRoleTitle(line: string): boolean {
-  if (!line || line.length > 90) return false;
-  const norm = normalizeTrForMatch(line);
+  if (!line) return false;
+  const clean = line.trim();
+  if (clean.length > 70) return false;
+  if (clean.endsWith('.') || clean.endsWith(';') || clean.endsWith(':')) return false;
+
+  const norm = normalizeTrForMatch(clean);
+  // Block company / institution suffixes
+  if (
+    norm.includes('hizmetleri') ||
+    norm.includes('insaat') ||
+    norm.includes('belediyesi') ||
+    norm.includes('universitesi') ||
+    norm.includes('enstitusu') ||
+    norm.includes('holding') ||
+    norm.includes('a s') ||
+    norm.includes('ltd') ||
+    norm.includes('sti') ||
+    norm.includes('sirketi') ||
+    norm.includes('kurumu') ||
+    norm.includes('bakanligi') ||
+    norm.includes('mudurlugu')
+  ) {
+    return false;
+  }
+
+  // Block responsibility sentence patterns
+  if (
+    norm.includes('surecleri') ||
+    norm.includes('sureclerinin') ||
+    norm.includes('yurutulmesi') ||
+    norm.includes('saglanmasi') ||
+    norm.includes('yapilmasi') ||
+    norm.includes('sunulmasi') ||
+    norm.includes('takibi') ||
+    norm.includes('yonetimi ve') ||
+    norm.includes('alaninda') ||
+    norm.includes('sahibim') ||
+    norm.includes('calismaktayim')
+  ) {
+    return false;
+  }
+
   return (
     norm.includes('mudur') ||
     norm.includes('direktor') ||
@@ -748,7 +795,7 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
     .replace(/e\s*k\s*i\s*m/g, 'ekim');
 
   const months = 'ocak|subat|şubat|mart|nisan|mayis|mayıs|haziran|temmuz|agustos|ağustos|eylul|eylül|ekim|kasim|kasım|aralik|aralık|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
-  const activePattern = 'günümüz|gunumuz|devam(?:\\s*ediyor)?|present|current|halen|hala(?:\\s*çalışıyorum|\\s*calisiyorum)?|çalışıyorum|calisiyorum|sürüyor|suruyor|now';
+  const activePattern = 'günümüz|gunumuz|güncel|guncel|devam(?:\\s*ediyor)?|present|current|halen|hala(?:\\s*çalışıyorum|\\s*calisiyorum)?|çalışıyorum|calisiyorum|sürüyor|suruyor|now';
 
   const rangeRegex = new RegExp(
     `(?:(?:${months}|\\d{1,2})[.\\s/]+)?(19\\d{2}|20\\d{2})\\s*(?:-|to|ila|ile|/)\\s*(?:(?:${months}|\\d{1,2})[.\\s/]+)?(19\\d{2}|20\\d{2}|${activePattern})`,
@@ -756,34 +803,59 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
   );
   const match = norm.match(rangeRegex);
 
-  if (!match) {
-    const singleYearCurrent = norm.match(new RegExp(`\\b(19\\d{2}|20\\d{2})\\s*-\\s*(${activePattern})\\b`, 'i'));
-    if (singleYearCurrent) {
-      return {
-        startYear: parseInt(singleYearCurrent[1], 10),
-        endYear: new Date().getFullYear(),
-        isCurrent: true,
-        raw: singleYearCurrent[0],
-      };
-    }
-    return null;
+  if (match) {
+    const startYear = parseInt(match[1], 10);
+    const endStr = match[2].toLowerCase();
+    const isCurrent = new RegExp(activePattern, 'i').test(endStr);
+    const endYear = isCurrent ? new Date().getFullYear() : parseInt(endStr, 10);
+
+    const durationMatch = line.match(/\(([^)]*(?:yıl|ay|sene|year|month)[^)]*)\)/i);
+    const duration = durationMatch ? durationMatch[1].trim() : undefined;
+
+    return {
+      startYear: Number.isFinite(startYear) ? startYear : null,
+      endYear: Number.isFinite(endYear) ? endYear : null,
+      isCurrent,
+      duration,
+      raw: match[0],
+    };
   }
 
-  const startYear = parseInt(match[1], 10);
-  const endStr = match[2].toLowerCase();
-  const isCurrent = new RegExp(activePattern, 'i').test(endStr);
-  const endYear = isCurrent ? new Date().getFullYear() : parseInt(endStr, 10);
+  const singleYearCurrent = norm.match(new RegExp(`\\b(19\\d{2}|20\\d{2})\\s*-\\s*(${activePattern})\\b`, 'i'));
+  if (singleYearCurrent) {
+    return {
+      startYear: parseInt(singleYearCurrent[1], 10),
+      endYear: new Date().getFullYear(),
+      isCurrent: true,
+      raw: singleYearCurrent[0],
+    };
+  }
 
-  const durationMatch = line.match(/\(([^)]*(?:yıl|ay|sene|year|month)[^)]*)\)/i);
-  const duration = durationMatch ? durationMatch[1].trim() : undefined;
+  // Check for standalone active keyword on line (e.g. "IGS ASİSTANS HİZMETLERİ Güncel" or "Güncel")
+  const singleActive = norm.match(new RegExp(`\\b(${activePattern})\\b`, 'i'));
+  if (singleActive) {
+    const yr = new Date().getFullYear();
+    return {
+      startYear: yr,
+      endYear: yr,
+      isCurrent: true,
+      raw: singleActive[0],
+    };
+  }
 
-  return {
-    startYear: Number.isFinite(startYear) ? startYear : null,
-    endYear: Number.isFinite(endYear) ? endYear : null,
-    isCurrent,
-    duration,
-    raw: match[0],
-  };
+  // Check for 4-digit year (e.g. "SİGORTAMBİR A.Ş 2025" or "2023" or "(2021)")
+  const singleYear = norm.match(/(?:^|\s|\()((?:19[7-9]\d|20[0-3]\d))(?:\s|\)|$)/);
+  if (singleYear) {
+    const yr = parseInt(singleYear[1], 10);
+    return {
+      startYear: yr,
+      endYear: yr,
+      isCurrent: false,
+      raw: singleYear[1],
+    };
+  }
+
+  return null;
 }
 
 // ============================================================================
@@ -1004,6 +1076,57 @@ function isPureDateLine(line: string): boolean {
   return words.every((w) => monthsAndTerms.includes(w) || /^\d+$/.test(w) || /^[-–—/()]+$/.test(w));
 }
 
+function isExperienceSectionHeader(line: string): boolean {
+  if (!line || line.length > 50) return false;
+  const norm = normalizeTrForMatch(line);
+  return (
+    norm === 'is deneyimi' ||
+    norm === 'is deneyimleri' ||
+    norm === 'deneyim' ||
+    norm === 'deneyimler' ||
+    norm === 'staj' ||
+    norm === 'stajlar' ||
+    norm === 'staj ve deneyim' ||
+    norm === 'staj ve deneyimler' ||
+    norm === 'staj deneyimi' ||
+    norm === 'staj deneyimleri' ||
+    norm === 'work experience' ||
+    norm === 'experience' ||
+    norm === 'employment history' ||
+    norm === 'career history' ||
+    norm === 'kariyer' ||
+    norm === 'profesyonel deneyim' ||
+    norm === 'professional experience' ||
+    norm === 'is gecmisi' ||
+    norm.startsWith('is deneyim') ||
+    norm.startsWith('is gecmis') ||
+    norm.startsWith('staj ve') ||
+    norm.startsWith('staj deneyim')
+  );
+}
+
+function isEduLine(line: string): boolean {
+  if (!line) return false;
+  const norm = normalizeTrForMatch(line);
+  return (
+    norm.includes('universite') ||
+    norm.includes('university') ||
+    norm.includes('fakulte') ||
+    norm.includes('faculty') ||
+    norm.includes('enstitu') ||
+    norm.includes('institute') ||
+    norm.includes('lisesi') ||
+    norm.includes('myo') ||
+    norm.includes('yuksek lisans') ||
+    norm.includes('on lisans') ||
+    norm.includes('lisans:') ||
+    norm.startsWith('lisans') ||
+    norm.startsWith('egitim') ||
+    norm.startsWith('ogrenim') ||
+    norm.startsWith('education')
+  );
+}
+
 export function extractDeterministicExperiences(text: string): RawExtractedExperience[] {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const experiences: RawExtractedExperience[] = [];
@@ -1015,22 +1138,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     const line = lines[i];
     const norm = normalizeTrForMatch(line);
 
-    if (
-      norm === 'is deneyimi' ||
-      norm === 'is deneyimleri' ||
-      norm === 'deneyim' ||
-      norm === 'deneyimler' ||
-      norm === 'work experience' ||
-      norm === 'experience' ||
-      norm === 'employment history' ||
-      norm === 'career history' ||
-      norm === 'kariyer' ||
-      norm === 'profesyonel deneyim' ||
-      norm === 'professional experience' ||
-      norm === 'is gecmisi' ||
-      norm.startsWith('is deneyim') ||
-      norm.startsWith('is gecmis')
-    ) {
+    if (isExperienceSectionHeader(line)) {
       inExpSection = true;
       continue;
     }
@@ -1050,7 +1158,8 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         norm.startsWith('projeler') ||
         norm.startsWith('referans') ||
         norm.startsWith('hobi') ||
-        norm.startsWith('ozel bilgi')
+        norm.startsWith('ozel bilgi') ||
+        norm.startsWith('kisisel')
       ) {
         break;
       }
@@ -1073,8 +1182,37 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
   };
 
+  const getCleanPrevNonHeaderLines = (currentIndex: number): string[] => {
+    const result: string[] = [];
+    for (let j = currentIndex - 1; j >= 0 && result.length < 2; j--) {
+      const l = targetLines[j];
+      if (
+        !isExperienceSectionHeader(l) &&
+        !isEduSectionHeader(l) &&
+        !isOtherSectionHeader(l) &&
+        !isEduLine(l) &&
+        l.length >= 2 &&
+        l.length <= 90
+      ) {
+        result.push(l);
+      }
+    }
+    return result;
+  };
+
   for (let i = 0; i < targetLines.length; i++) {
     const line = targetLines[i];
+    if (isExperienceSectionHeader(line)) {
+      // Don't treat section headers as company/role/responsibility
+      continue;
+    }
+    if (isEduLine(line) || isEduSectionHeader(line) || isOtherSectionHeader(line)) {
+      if (currentExp && (currentExp.company || currentExp.role)) {
+        flushExp();
+      }
+      continue;
+    }
+
     const norm = normalizeTrForMatch(line);
     const dateInfo = parseDateRangeText(line);
 
@@ -1090,10 +1228,18 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         duration: dateInfo.duration,
       };
 
-      const prev1 = i > 0 ? targetLines[i - 1] : null;
-      const prev2 = i > 1 ? targetLines[i - 2] : null;
+      const prevs = getCleanPrevNonHeaderLines(i);
+      const prev1 = prevs[0] || null;
+      const prev2 = prevs[1] || null;
       const isPureDate = isPureDateLine(line);
-      const rawRemainder = isPureDate ? '' : line.replace(dateInfo.raw, '').replace(/\([^)]*\)/g, '').trim();
+      let rawRemainder = isPureDate ? '' : line;
+      if (!isPureDate && dateInfo.raw) {
+        const escaped = dateInfo.raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        rawRemainder = rawRemainder
+          .replace(new RegExp(`\\b${escaped}\\b|${escaped}`, 'gi'), '')
+          .replace(/\([^)]*\)/g, '')
+          .trim();
+      }
 
       if (!isPureDate && rawRemainder.length >= 2) {
         const parts = rawRemainder.split(/[|–—]/).map((p) => p.replace(/^deneyim:\s*/i, '').trim()).filter(Boolean);
@@ -1106,9 +1252,13 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
             currentExp.role = parts[1];
           }
         } else {
-          currentExp.company = parts[0] || rawRemainder;
-          if (prev1 && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
-            currentExp.role = prev1;
+          if (isRoleTitle(rawRemainder)) {
+            currentExp.role = rawRemainder;
+            if (prev1 && !isRoleTitle(prev1) && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
+              currentExp.company = prev1;
+            }
+          } else {
+            currentExp.company = parts[0] || rawRemainder;
           }
         }
       } else {
@@ -1127,16 +1277,13 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
           }
         } else if (prev1 && isRoleTitle(prev1)) {
           currentExp.role = prev1;
-          if (prev2 && !parseDateRangeText(prev2)) {
+          if (prev2 && !isRoleTitle(prev2) && !parseDateRangeText(prev2)) {
             currentExp.company = prev2;
           }
-        } else if (prev1) {
+        } else if (prev1 && !isRoleTitle(prev1)) {
           if (prev2 && isRoleTitle(prev2)) {
             currentExp.role = prev2;
             currentExp.company = prev1;
-          } else if (prev2) {
-            currentExp.company = prev2;
-            currentExp.role = prev1;
           } else {
             currentExp.company = prev1;
           }
