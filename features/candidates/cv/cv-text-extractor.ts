@@ -187,7 +187,7 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
 
 /**
  * Fallback binary stream parser for PDF files. Handles compressed streams,
- * hex strings `<0048...>`, and standard PDF text operators (`Tj`, `TJ`).
+ * ToUnicode CMaps, hex strings `<0048...>`, and standard PDF text operators (`Tj`, `TJ`).
  */
 function extractTextFromPdfStreams(buffer: Buffer): string {
   const rawBinary = buffer.toString('binary');
@@ -195,7 +195,7 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     return '';
   }
 
-  const textPieces: string[] = [];
+  const decompressedStreams: string[] = [];
 
   // Locate all stream objects in the PDF
   const streamRegex = /stream[\r\n]+([\s\S]*?)[\r\n]+endstream/g;
@@ -208,19 +208,32 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     let decompressed = '';
     try {
       const unzipped = zlib.inflateSync(streamBuffer);
-      decompressed = unzipped.toString('binary');
+      decompressed = unzipped.toString('latin1');
     } catch {
       try {
         const unzippedRaw = zlib.inflateRawSync(streamBuffer);
-        decompressed = unzippedRaw.toString('binary');
+        decompressed = unzippedRaw.toString('latin1');
       } catch {
         decompressed = streamContent;
       }
     }
 
-    const extractedFromStream = parsePdfStreamText(decompressed);
-    if (extractedFromStream) {
-      textPieces.push(extractedFromStream);
+    decompressedStreams.push(decompressed);
+  }
+
+  // Build combined ToUnicode CMap across all streams
+  const cmap = new Map<string, string>();
+  for (const s of decompressedStreams) {
+    if (s.includes('beginbfchar') || s.includes('beginbfrange')) {
+      parseCMapIntoMap(s, cmap);
+    }
+  }
+
+  const textPieces: string[] = [];
+  for (const s of decompressedStreams) {
+    const extracted = parsePdfStreamTextWithCMap(s, cmap);
+    if (extracted) {
+      textPieces.push(extracted);
     }
   }
 
@@ -228,7 +241,7 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
 
   // If streams didn't yield enough text, parse text outside streams
   if (fullText.length < 30) {
-    const rawExtracted = parsePdfStreamText(rawBinary);
+    const rawExtracted = parsePdfStreamTextWithCMap(rawBinary, cmap);
     if (rawExtracted.length > fullText.length) {
       fullText = rawExtracted;
     }
@@ -242,13 +255,55 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
 }
 
 /**
- * Parses PDF text commands: `(Text) Tj`, `<Hex> Tj`, `[...] TJ`.
+ * Parses ToUnicode CMap beginbfchar / beginbfrange sections into a glyph mapping dictionary.
  */
-function parsePdfStreamText(stream: string): string {
+function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
+  // Parse beginbfchar
+  const bfcharRegex = /(\d+)\s+beginbfchar([\s\S]*?)endbfchar/g;
+  let m: RegExpExecArray | null;
+  while ((m = bfcharRegex.exec(cmapStr)) !== null) {
+    const lines = m[2].trim().split(/\r?\n/);
+    for (const line of lines) {
+      const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
+      if (parts) {
+        const src = parts[1].toLowerCase().padStart(4, '0');
+        const dstCode = parseInt(parts[2], 16);
+        if (dstCode > 0) {
+          map.set(src, String.fromCharCode(dstCode));
+        }
+      }
+    }
+  }
+
+  // Parse beginbfrange
+  const bfrangeRegex = /(\d+)\s+beginbfrange([\s\S]*?)endbfrange/g;
+  while ((m = bfrangeRegex.exec(cmapStr)) !== null) {
+    const lines = m[2].trim().split(/\r?\n/);
+    for (const line of lines) {
+      const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
+      if (parts) {
+        const start = parseInt(parts[1], 16);
+        const end = parseInt(parts[2], 16);
+        let dst = parseInt(parts[3], 16);
+        for (let code = start; code <= end; code++) {
+          const hexKey = code.toString(16).toLowerCase().padStart(4, '0');
+          if (dst > 0) {
+            map.set(hexKey, String.fromCharCode(dst));
+          }
+          dst++;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Parses PDF text commands: `(Text) Tj`, `<Hex> Tj`, `[...] TJ` using CMap.
+ */
+function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): string {
   const result: string[] = [];
 
-  // Match (Text) Tj, <Hex> Tj, [ (Text) -10 <Hex> ] TJ
-  const tjRegex = /(?:\((?:\\\(|\\\)|[^()])*\)\s*Tj|<[0-9a-fA-F\s]+>\s*Tj|\[(?:[^\]]*)\]\s*TJ|'(?:[^\r\n]*)'|"(?:[^\r\n]*)")/g;
+  const tjRegex = /(?:\((?:\\\(|\\\)|[^()])*\)\s*Tj|<[0-9a-fA-F\s]+>\s*Tj|\[([\s\S]*?)\]\s*TJ|'(?:[^\r\n]*)'|"(?:[^\r\n]*)")/g;
   let tjMatch: RegExpExecArray | null;
 
   while ((tjMatch = tjRegex.exec(stream)) !== null) {
@@ -264,7 +319,7 @@ function parsePdfStreamText(stream: string): string {
     // Case 2: Hex <00480065> Tj
     const hexTj = rawCmd.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
     if (hexTj) {
-      result.push(decodePdfHexString(hexTj[1]));
+      result.push(decodePdfHexWithCMap(hexTj[1], cmap));
       continue;
     }
 
@@ -278,7 +333,7 @@ function parsePdfStreamText(stream: string): string {
               return decodePdfString(part.slice(1, -1));
             }
             if (part.startsWith('<') && part.endsWith('>')) {
-              return decodePdfHexString(part.slice(1, -1));
+              return decodePdfHexWithCMap(part.slice(1, -1), cmap);
             }
             return '';
           })
@@ -311,15 +366,35 @@ function decodePdfString(str: string): string {
 }
 
 /**
- * Decodes PDF Hex strings (ASCII or UTF-16BE)
+ * Decodes PDF Hex strings using CMap or fallback UTF-16BE / ASCII
  */
-function decodePdfHexString(hex: string): string {
+function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
   const cleanHex = hex.replace(/\s+/g, '');
-  if (cleanHex.length % 2 !== 0) return '';
+  if (cleanHex.length === 0) return '';
 
+  // If CMap is present and has mappings
+  if (cmap.size > 0) {
+    let text = '';
+    let hasValidMatch = false;
+    for (let i = 0; i < cleanHex.length; i += 4) {
+      const chunk = cleanHex.slice(i, i + 4).toLowerCase().padStart(4, '0');
+      if (cmap.has(chunk)) {
+        text += cmap.get(chunk);
+        hasValidMatch = true;
+      } else {
+        const code = parseInt(chunk, 16);
+        if (code > 0 && code < 65535) {
+          text += String.fromCharCode(code);
+        }
+      }
+    }
+    if (hasValidMatch && text.trim().length > 0) {
+      return text;
+    }
+  }
+
+  // Check UTF-16BE with 0x00 interleaved
   const bytes = Buffer.from(cleanHex, 'hex');
-
-  // Check for UTF-16BE (starts with 0xFEFF or has 0x00 interleaved)
   if (bytes.length >= 2 && bytes[0] === 0x00) {
     let text = '';
     for (let i = 0; i < bytes.length; i += 2) {
