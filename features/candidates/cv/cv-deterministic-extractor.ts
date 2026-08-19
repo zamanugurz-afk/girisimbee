@@ -66,6 +66,22 @@ export const COMMON_TURKISH_DISTRICTS: Record<string, { city: string; district: 
   karsiyaka: { city: 'İzmir', district: 'Karşıyaka' },
   konak: { city: 'İzmir', district: 'Konak' },
   buca: { city: 'İzmir', district: 'Buca' },
+  karabaglar: { city: 'İzmir', district: 'Karabağlar' },
+  bayrakli: { city: 'İzmir', district: 'Bayraklı' },
+  cigli: { city: 'İzmir', district: 'Çiğli' },
+  gaziemir: { city: 'İzmir', district: 'Gaziemir' },
+  balcova: { city: 'İzmir', district: 'Balçova' },
+  narlidere: { city: 'İzmir', district: 'Narlıdere' },
+  menemen: { city: 'İzmir', district: 'Menemen' },
+  torbali: { city: 'İzmir', district: 'Torbalı' },
+  kemalpasa: { city: 'İzmir', district: 'Kemalpaşa' },
+  urla: { city: 'İzmir', district: 'Urla' },
+  cesme: { city: 'İzmir', district: 'Çeşme' },
+  seferihisar: { city: 'İzmir', district: 'Seferihisar' },
+  odemis: { city: 'İzmir', district: 'Ödemiş' },
+  tire: { city: 'İzmir', district: 'Tire' },
+  bergama: { city: 'İzmir', district: 'Bergama' },
+  aliaga: { city: 'İzmir', district: 'Aliağa' },
   nilufer: { city: 'Bursa', district: 'Nilüfer' },
   osmangazi: { city: 'Bursa', district: 'Osmangazi' },
   yildirim: { city: 'Bursa', district: 'Yıldırım' },
@@ -656,6 +672,7 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('yazar') ||
     norm.includes('editor') ||
     norm.includes('muhasebeci') ||
+    norm.includes('stajyer') ||
     norm.includes('manager') ||
     norm.includes('director') ||
     norm.includes('lead') ||
@@ -665,10 +682,10 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('consultant') ||
     norm.includes('analyst') ||
     norm.includes('executive') ||
-    norm.includes('intern') ||
-    norm.includes('stajyer') ||
-    norm.includes('agent') ||
     norm.includes('officer') ||
+    norm.includes('assistant') ||
+    norm.includes('intern') ||
+    norm.includes('agent') ||
     norm.includes('clerk') ||
     norm.includes('associate') ||
     norm.includes('worker') ||
@@ -797,17 +814,18 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
   const months = 'ocak|subat|şubat|mart|nisan|mayis|mayıs|haziran|temmuz|agustos|ağustos|eylul|eylül|ekim|kasim|kasım|aralik|aralık|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
   const activePattern = 'günümüz|gunumuz|güncel|guncel|devam(?:\\s*ediyor)?|present|current|halen|hala(?:\\s*çalışıyorum|\\s*calisiyorum)?|çalışıyorum|calisiyorum|sürüyor|suruyor|now';
 
-  const rangeRegex = new RegExp(
-    `(?:(?:${months}|\\d{1,2})[.\\s/]+)?(19\\d{2}|20\\d{2})\\s*(?:-|to|ila|ile|/)\\s*(?:(?:${months}|\\d{1,2})[.\\s/]+)?(19\\d{2}|20\\d{2}|${activePattern})`,
-    'i'
-  );
+  const singleDatePattern = `(?:(?:\\d{1,2}[.\\s/]+){1,2}|(?:${months})[.\\s/]+)?(19\\d{2}|20\\d{2})`;
+  const endPattern = `(?:(?:(?:\\d{1,2}[.\\s/]+){1,2}|(?:${months})[.\\s/]+)?(19\\d{2}|20\\d{2})|(${activePattern}))`;
+  const rangeRegex = new RegExp(`(${singleDatePattern})\\s*(?:-|to|ila|ile|/)\\s*(${endPattern})`, 'i');
   const match = norm.match(rangeRegex);
 
   if (match) {
-    const startYear = parseInt(match[1], 10);
-    const endStr = match[2].toLowerCase();
+    const startYearMatch = match[1].match(/\b(19\d{2}|20\d{2})\b/);
+    const startYear = startYearMatch ? parseInt(startYearMatch[1], 10) : null;
+    const endStr = match[3] || match[2] || '';
     const isCurrent = new RegExp(activePattern, 'i').test(endStr);
-    const endYear = isCurrent ? new Date().getFullYear() : parseInt(endStr, 10);
+    const endYearMatch = endStr.match(/\b(19\d{2}|20\d{2})\b/);
+    const endYear = isCurrent ? new Date().getFullYear() : (endYearMatch ? parseInt(endYearMatch[1], 10) : null);
 
     const durationMatch = line.match(/\(([^)]*(?:yıl|ay|sene|year|month)[^)]*)\)/i);
     const duration = durationMatch ? durationMatch[1].trim() : undefined;
@@ -1405,15 +1423,61 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
   }
 
-  // 4. Extract Roles Mentioned
+  // 3.5. Extract Headline Roles from Top 12 Lines
   const textLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const topLines = textLines.slice(0, 12);
+  for (let i = 0; i < topLines.length; i++) {
+    const l = topLines[i];
+    if (isExperienceSectionHeader(l) || isEduSectionHeader(l) || isOtherSectionHeader(l)) break;
+
+    // Check single line role title
+    if (isRoleTitle(l) && !isPureDateLine(l)) {
+      const clean = formatTurkishTitle(l);
+      if (!roles.includes(clean)) roles.push(clean);
+    } else if (i < topLines.length - 1) {
+      // Check multi-line header role (e.g. "Ekonomi & Finans \n Uzmanı")
+      const combined = `${l} ${topLines[i + 1]}`.trim();
+      if (isRoleTitle(combined) && !isRoleTitle(l) && !isPureDateLine(combined)) {
+        const clean = formatTurkishTitle(combined);
+        if (!roles.includes(clean)) roles.push(clean);
+      }
+    }
+  }
+
+  // 4. Extract Roles Mentioned
+  let inNonRoleSection = false;
   for (const line of textLines) {
-    const roleRegex = /([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:[ \t]+[A-ZÇĞİÖŞÜa-zçğıöşü]+)*(?:[ \t]+(?:Müdürü|Direktörü|Yöneticisi|Uzmanı|Lideri|Temsilcisi|Mühendisi|Analisti|Danışmanı|Geliştiricisi|Elemanı|Personeli|Görevlisi|Sorumlusu|Asistanı|Operatörü|Kasiyeri|Müdür|Direktör|Yönetici|Uzman|Lider|Temsilci|Mühendis|Analist|Danışman|Geliştirici|Eleman|Personel|Görevli|Sorumlu|Asistan|Operatör|Kasiyer|Manager|Director|Lead|Specialist|Developer|Engineer|Consultant|Analyst|Executive)))/gi;
-    const matches = line.match(roleRegex) || [];
-    for (const match of matches) {
-      const cleanRole = formatTurkishTitle(match.trim());
-      if (cleanRole.length >= 4 && !roles.includes(cleanRole)) {
-        roles.push(cleanRole);
+    const norm = normalizeTrForMatch(line);
+    if (
+      norm.startsWith('yetkinlik') ||
+      norm.startsWith('yetenek') ||
+      norm.startsWith('beceri') ||
+      norm.startsWith('skills') ||
+      norm.startsWith('sertifika') ||
+      norm.startsWith('program') ||
+      norm.startsWith('diller') ||
+      norm.startsWith('egitim') ||
+      norm.startsWith('referans')
+    ) {
+      inNonRoleSection = true;
+      continue;
+    }
+    if (isExperienceSectionHeader(line)) {
+      inNonRoleSection = false;
+      continue;
+    }
+    if (inNonRoleSection) continue;
+    if (line.endsWith('.') || line.endsWith(';') || line.endsWith(':')) continue;
+
+    const roleRegex = /(?:^|[|•·,\n])\s*([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+){0,3}\s+(?:Müdürü|Direktörü|Yöneticisi|Uzmanı|Lideri|Temsilcisi|Mühendisi|Analisti|Danışmanı|Geliştiricisi|Elemanı|Personeli|Görevlisi|Sorumlusu|Asistanı|Operatörü|Kasiyeri|Müdür|Direktör|Yönetici|Uzman|Lider|Temsilci|Mühendis|Analist|Danışman|Geliştirici|Eleman|Personel|Görevli|Sorumlu|Asistan|Operatör|Kasiyer|Manager|Director|Lead|Specialist|Developer|Engineer|Consultant|Analyst|Executive))\b/gi;
+    let m: RegExpExecArray | null;
+    while ((m = roleRegex.exec(line)) !== null) {
+      const candidate = m[1].trim();
+      if (isRoleTitle(candidate)) {
+        const cleanRole = formatTurkishTitle(candidate);
+        if (cleanRole.length >= 4 && !roles.includes(cleanRole)) {
+          roles.push(cleanRole);
+        }
       }
     }
   }

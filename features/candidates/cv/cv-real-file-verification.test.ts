@@ -232,20 +232,82 @@ Lingo City Dil Okulu / Kadıköy 2016
     expect(fs.existsSync(rukiyePdfPath)).toBe(true);
     const pdfBuffer = fs.readFileSync(rukiyePdfPath);
 
-    const ext = await extractCvText(pdfBuffer, 'Rukiye Gürsoy Özgemiş_241122_232243.pdf');
-    console.log('=== RUKIYE EXTRACTED TEXT ===\n', ext.text);
-
     const draft = await cvService.processCvBuffer({
       buffer: pdfBuffer,
       fileName: 'Rukiye Gürsoy Özgemiş_241122_232243.pdf',
       mimeType: 'application/pdf',
     });
 
-    console.log('=== RUKIYE DRAFT FORM VALUES ===\n', JSON.stringify(draft.formValues, null, 2));
-    console.log('=== RUKIYE CATEGORIES FOUND ===\n', draft.categoriesFound);
-
     expect(draft.formValues.experiences?.length).toBeGreaterThanOrEqual(4);
     expect(draft.formValues.city).toBe('İstanbul');
     expect(draft.formValues.residenceDistrict).toBe('Çekmeköy');
+  });
+
+  it('verifies Dorukhan Şengel CV extraction', () => {
+    const dorukhanText = `
+DORUKHAN ŞENGEL
+Ekonomi & Finans
+Uzmanı
+İLETİŞİM
+Peker Mah. 5127/1 Sokak No: 5/1A Kat: 2 Karabağlar / İZMİR
+Sengeldorukhan@gmail.com
+05527132986
+YETKİNLİKLER
+Finansal Analiz & Raporlama
+Finansal Okuryazarlık (Düzey 1-2-3)
+Bilanço & Gelir Tablosu Analizi
+Proje & Risk Yönetimi
+Stratejik Planlama
+Ürün Yönetimi (Product Owner)
+CRM & Müşteri İlişkileri
+Marka Yönetimi & İletişim
+İngilizce: Başlangıç (Mesleki Terminoloji)
+KİŞİSEL BECERİLER
+Analitik Düşünme
+Takım Çalışması
+Sunum Becerileri
+Kriz Yönetimi
+Sonuç Odaklılık
+HAKKIMDA
+Manisa Celal Bayar Üniversitesi Ekonomi ve Finans mezunu olarak yatırım operasyonları, müşteri ilişkileri ve portföy geliştirme alanlarında deneyim kazandım. Gedik Yatırım'da görev aldığım süre boyunca şube operasyonlarının yürütülmesi, yeni müşteri kazanımı, portföy büyütme çalışmaları ve yatırımcı ilişkileri süreçlerinde aktif rol aldım. Güçlü iletişim becerim, analitik düşünce yapım ve sonuç odaklı çalışma anlayışımla kurumuma değer katmayı hedefliyorum.
+İŞ DENEYİMİ
+Gedik Yatırım 03.10.2024 - 03.04.2025
+Manisa Yatırım Operasyonları & Portföy kazanımı
+Müşteri hesap açılışları, portföy devir işlemleri ve yatırımcı taleplerinin takibi gerçekleştirildi.
+Yeni müşteri kazanımı ve portföy geliştirme çalışmalarında aktif rol alındı.
+Saha faaliyetleri ve müşteri görüşmeleriyle yatırım ürünlerinin tanıtımına ve müşteri ilişkilerinin geliştirilmesine katkı sağlandı.
+Müşteri İlişkileri (CRM): Yatırımcı taleplerinin karşılanması ve memnuniyetin artırılması süreçlerinde şube yönetimine asistanlık yapıldı.
+EĞİTİM VE SERTİFİKALAR
+EĞİTİMLER
+Manisa Celal Bayar Üniversitesi | Ekonomi ve Finans (Lisans)(Eylül 2021 – Haziran 2025 )
+Anadolu Üniversitesi | Sermaye Piyasası ve Menkul Değerler (Ön Lisans)(2024 – Devam Ediyor)
+SERTİFİKALAR
+İleri Düzey Finansal Okuryazarlık (SPL 1-2-3): Piyasa analizi ve bütçe yönetimi.
+Şirket Değerleme ve Yatırım Analizi: Bilanço ve değerleme teknikleri.
+Proje ve Risk Yönetimi (ODTÜ): Kaynak planlama ve kriz yönetimi.
+Product Owner (Agile): Ürün vizyonu ve değer odaklı analiz.
+Müşteri İlişkileri Yönetimi (CRM): Tüketici analizi ve ikna teknikleri.
+Dış Ticaret Uzmanlığı: İthalat-ihracat ve gümrük mevzuatı.
+REFERANSLAR
+Uğur ZAMAN
+Head of Telemarkerting and commercial support
+Mail: zamanugurz@gmail.com
+Doğucan ŞENGEL
+İş Ortaklıkları Müdürü
+Mail: dogucan.sengell@Outlook.com
+`;
+    const det = extractDeterministicCv(dorukhanText);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'dorukhan.pdf');
+
+    expect(draft.formValues.role).toBe('Finans Uzmanı');
+    expect(draft.formValues.sector).toBe('Finans / Bankacılık');
+    expect(draft.formValues.city).toBe('İzmir');
+    expect(draft.formValues.residenceDistrict).toBe('Karabağlar');
+    expect(draft.formValues.experiences?.length).toBe(1);
+    expect(draft.formValues.experiences?.[0].company).toBe('Gedik Yatırım');
+    expect(draft.formValues.experiences?.[0].role).toBe('Finans Uzmanı');
+    expect(draft.formValues.experiences?.[0].startYear).toBe(2024);
+    expect(draft.formValues.experiences?.[0].endYear).toBe(2025);
   });
 });

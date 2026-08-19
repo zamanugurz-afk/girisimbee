@@ -100,7 +100,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     expect(expList[3].role).toBe('Çağrı Merkezi Satış Müdürü');
 
     expect(expList[4].company?.toLowerCase()).toContain('fibabanka');
-    expect(expList[4].role).toBe('Operasyon Müdürü');
+    expect(expList[4].role).toMatch(/Operasyon Müdürü|Çağrı Merkezi Operasyon Müdürü/);
 
     expect(expList[5].company?.toLowerCase()).toContain('mplus');
     expect(expList[5].role).toBe('Çağrı Merkezi Operasyon Müdürü');

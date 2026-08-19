@@ -112,7 +112,7 @@ const ROLE_ALIASES: Record<string, string> = {
   'alternatif satış kanalları müdürü': 'Satış Müdürü',
   'sigorta çağrı merkezi operasyon müdürü': 'Çağrı Merkezi Operasyon Müdürü',
   'sigorta dijital kanal çağrı merkezi satış müdürü': 'Çağrı Merkezi Satış Müdürü',
-  'outsource kanal operasyon müdürü': 'Operasyon Müdürü',
+  'outsource kanal operasyon müdürü': 'Çağrı Merkezi Operasyon Müdürü',
   'çağrı merkezi satış müdürü': 'Çağrı Merkezi Satış Müdürü',
   'çağrı merkezi takım lideri': 'Çağrı Merkezi Takım Lideri',
   'operasyon direktörü': 'Operasyon Müdürü',
@@ -145,6 +145,23 @@ const ROLE_ALIASES: Record<string, string> = {
   'sosyal hizmetler kıdemli stajyeri': 'Sosyal Hizmetler Uzmanı',
   'sosyal hizmetler stajyeri': 'Sosyal Hizmetler Uzmanı',
   'okul öncesi stajyeri': 'Öğretmen',
+
+  // Finance, Economics, Banking & Investment
+  'ekonomi & finans uzmanı': 'Finans Uzmanı',
+  'ekonomi ve finans uzmanı': 'Finans Uzmanı',
+  'ekonomi ve finans': 'Finans Uzmanı',
+  'ekonomi & finans': 'Finans Uzmanı',
+  'finans uzmanı': 'Finans Uzmanı',
+  'finansal analist': 'Finansal Analist',
+  'finans analisti': 'Finansal Analist',
+  'yatırım uzmanı': 'Yatırım Danışmanı',
+  'yatırım danışmanı': 'Yatırım Danışmanı',
+  'yatırım operasyonları': 'Finans Uzmanı',
+  'yatırım operasyonları & portföy kazanımı': 'Finans Uzmanı',
+  'portföy yöneticisi': 'Finans Uzmanı',
+  'portföy uzmanı': 'Finans Uzmanı',
+  'portföy danışmanı': 'Finans Uzmanı',
+  'menkul değerler uzmanı': 'Finans Uzmanı',
 };
 
 // Canonical Alias Dictionary for Sectors
@@ -163,6 +180,11 @@ const SECTOR_ALIASES: Record<string, string> = {
   'bankacılık': 'Finans / Bankacılık',
   'finans': 'Finans / Bankacılık',
   'sermaye piyasası': 'Finans / Bankacılık',
+  'ekonomi': 'Finans / Bankacılık',
+  'ekonomi ve finans': 'Finans / Bankacılık',
+  'yatırım': 'Finans / Bankacılık',
+  'menkul değerler': 'Finans / Bankacılık',
+  'portföy': 'Finans / Bankacılık',
   'finans / bankacılık': 'Finans / Bankacılık',
 
   'insurance': 'Sigorta',
@@ -299,15 +321,17 @@ export function matchCanonicalPosition(rawRole: string): {
       return 0;
     }
 
-    if (norm.includes(pNorm)) return 500 + pNorm.length;
-    if (pNorm.includes(norm)) return 300 + norm.length;
+    // Require full word match or long substring (>= 5 chars) with word boundary
+    if (norm.length >= 5 && pNorm.includes(norm)) return 300 + norm.length;
+    if (pNorm.length >= 5 && norm.includes(pNorm)) return 500 + pNorm.length;
+
     const queryWords = norm.split(' ').filter((w) => w.length >= 3);
     const candWords = pNorm.split(' ').filter((w) => w.length >= 3);
     let common = 0;
     for (const qw of queryWords) {
       if (candWords.some((cw) => cw === qw)) {
         common += 10;
-      } else if (candWords.some((cw) => cw.includes(qw) || qw.includes(cw))) {
+      } else if (qw.length >= 5 && candWords.some((cw) => cw.length >= 5 && (cw.startsWith(qw.slice(0, 4)) || qw.startsWith(cw.slice(0, 4))))) {
         common += 5;
       }
     }
@@ -491,8 +515,19 @@ export function mapCvToCanonicalTaxonomy(
 
   // 3. Map Experiences
   const experiences: CareerExperience[] = (payload.experiences || []).map((exp, idx) => {
-    const roleMatch = exp.role ? matchCanonicalPosition(exp.role) : { canonical: 'Yazılım Geliştirici' };
     const resolvedSector = inferExpSector(exp);
+    const defaultRole =
+      matchedRoles[0] ||
+      (resolvedSector === 'Finans / Bankacılık'
+        ? 'Finans Uzmanı'
+        : resolvedSector === 'Sigorta'
+          ? 'Sigorta Danışmanı'
+          : resolvedSector === 'Çağrı merkezi'
+            ? 'Müşteri Temsilcisi'
+            : resolvedSector === 'Bilişim / Yazılım'
+              ? 'Yazılım Geliştirici'
+              : 'Uzman');
+    const roleMatch = exp.role ? matchCanonicalPosition(exp.role) : { canonical: defaultRole };
 
     const startYear = exp.startYear ?? null;
     const endYear = exp.isCurrent ? null : (exp.endYear ?? null);
@@ -613,11 +648,12 @@ export function mapCvToCanonicalTaxonomy(
   const residenceCity = payload.locations?.[0] ? suggestTitleCaseTr(payload.locations[0]) : '';
   const residenceDistrict = payload.locations?.[1] ? suggestTitleCaseTr(payload.locations[1]) : '';
 
+  const candidateHeadlineRole = payload.roles?.[0] ? matchCanonicalPosition(payload.roles[0]).canonical : '';
   const mostRecentRole = experiences[0]?.role ? matchCanonicalPosition(experiences[0].role).canonical : '';
   const mostRecentSector = experiences[0]?.sector || '';
 
   return {
-    primaryRole: mostRecentRole || matchedRoles[0] || (experiences[0]?.role ?? ''),
+    primaryRole: mostRecentRole || candidateHeadlineRole || matchedRoles[0] || (experiences[0]?.role ?? ''),
     matchedRoles,
     primarySector: mostRecentSector || matchedSectors[0] || '',
     matchedSectors,

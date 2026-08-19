@@ -1215,15 +1215,20 @@ export function CategoryListingForm({
   const handleApplyCvDraft = useCallback(
     (draft: CvProfileDraftResult) => {
       const fv = draft.formValues;
-      if (fv.role) {
-        setCustomField('desiredRole', fv.role);
-        setCore((prev) => ({ ...prev, title: fv.role || prev.title }));
+      const roleName = fv.role || '';
+      const sectorName = fv.sector || '';
+      const cityName = fv.residenceCity || fv.city || '';
+      const districtName = fv.residenceDistrict || '';
+
+      if (roleName) {
+        setCustomField('desiredRole', roleName);
+        setCore((prev) => ({ ...prev, title: roleName || prev.title }));
       }
       if (fv.roles && fv.roles.length > 0) {
         setCustomField('preferredRoles', fv.roles);
       }
-      if (fv.sector) {
-        setCustomField('primarySector', fv.sector);
+      if (sectorName) {
+        setCustomField('primarySector', sectorName);
       }
       if (fv.sectors && fv.sectors.length > 0) {
         setCustomField('preferredSectors', fv.sectors);
@@ -1237,14 +1242,20 @@ export function CategoryListingForm({
       if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
         setCustomField('professionalSkills', fv.professionalSkillsList.join(', '));
         setCustomField('professionalSkillsList', fv.professionalSkillsList);
+      } else if (fv.professionalSkills) {
+        setCustomField('professionalSkills', fv.professionalSkills);
       }
       if (fv.technicalSkillsList && fv.technicalSkillsList.length > 0) {
         setCustomField('technicalSkills', fv.technicalSkillsList.join(', '));
         setCustomField('technicalSkillsList', fv.technicalSkillsList);
+      } else if (fv.technicalSkills) {
+        setCustomField('technicalSkills', fv.technicalSkills);
       }
       if (fv.toolsList && fv.toolsList.length > 0) {
         setCustomField('tools', fv.toolsList.join(', '));
         setCustomField('toolsList', fv.toolsList);
+      } else if (fv.tools) {
+        setCustomField('tools', fv.tools);
       }
       if (fv.educationLevel) {
         setCustomField('educationLevel', fv.educationLevel);
@@ -1261,15 +1272,13 @@ export function CategoryListingForm({
       if (fv.certificates) {
         setCustomField('certificates', fv.certificates);
       }
-      if (fv.residenceCity || fv.city) {
-        const cityName = fv.residenceCity || fv.city;
+      if (cityName) {
         setCustomField('residenceCity', cityName);
         setCustomField('preferredCity', cityName);
         setCore((prev) => ({ ...prev, city: cityName || prev.city }));
       }
-      if (fv.residenceDistrict) {
-        setCustomField('residenceDistrict', fv.residenceDistrict);
-      }
+      setCustomField('residenceDistrict', districtName);
+
       if (fv.candidateTraits) {
         setCore((prev) => ({
           ...prev,
