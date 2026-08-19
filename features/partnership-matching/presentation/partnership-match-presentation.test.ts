@@ -165,15 +165,12 @@ describe('partnership match presentation', () => {
     ).toEqual(['c', 'a']);
   });
 
-  it('adds Ortaklık Eşleşmeleri after career Eşleşmeler without splitting the career pair', () => {
+  it('retires Ortaklık Eşleşmeleri and career Eşleşmeler from sidebar nav', () => {
     const navIds = DASHBOARD_NAV_ITEMS.map((item) => item.id);
     expect(DASHBOARD_ROUTES.ortaklikEslesmeleri).toBe('/dashboard/ortaklik-eslesmeleri');
     expect(DASHBOARD_ROUTES.eslesmeler).toBe('/dashboard/eslesmeler');
-    expect(navIds.indexOf('eslesmeler') - navIds.indexOf('kariyerProfilim')).toBe(1);
-    expect(navIds.indexOf('ortaklikEslesmeleri')).toBe(navIds.indexOf('eslesmeler') + 1);
-    expect(DASHBOARD_NAV_ITEMS.find((item) => item.id === 'ortaklikEslesmeleri')?.label).toBe(
-      'Ortaklık Eşleşmeleri',
-    );
+    expect(navIds).not.toContain('ortaklikEslesmeleri');
+    expect(navIds).not.toContain('eslesmeler');
   });
 
   it('keeps Ortaklık Eşleşmeleri highlight separate from career Eşleşmeler', () => {

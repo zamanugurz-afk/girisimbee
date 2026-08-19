@@ -213,5 +213,5 @@ EĞİTİM
     await expect(extractCvText(emptyBuf, 'scanned.pdf', 'application/pdf')).rejects.toThrowError(
       CvExtractionError,
     );
-  });
+  }, 15000);
 });

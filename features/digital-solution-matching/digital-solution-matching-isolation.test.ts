@@ -44,8 +44,8 @@ describe('Digital Solution Matching Isolation', () => {
     expect(DASHBOARD_ROUTES.kariyerProfilim).toBe('/dashboard/kariyer-profilim');
     expect(DASHBOARD_ROUTES.eslesmeler).toBe('/dashboard/eslesmeler');
     expect(DASHBOARD_ROUTES.ortaklikEslesmeleri).toBe('/dashboard/ortaklik-eslesmeleri');
-    expect(DASHBOARD_NAV_ITEMS.some((item) => item.id === 'eslesmeler')).toBe(true);
-    expect(DASHBOARD_NAV_ITEMS.some((item) => item.id === 'ortaklikEslesmeleri')).toBe(true);
+    expect(DASHBOARD_NAV_ITEMS.some((item) => item.id === 'eslesmeler')).toBe(false);
+    expect(DASHBOARD_NAV_ITEMS.some((item) => item.id === 'ortaklikEslesmeleri')).toBe(false);
   });
 
   it('keeps navigation and footer clean and free of investment discovery', () => {

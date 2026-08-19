@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import type { ListingType } from '@/features/listings/types/listing-type.types';
 import type { CategoryId, ListingId } from '@/lib/domain/ids';
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
@@ -31,6 +32,11 @@ import { CoreListingFields } from '@/features/listings/form/fields/core-fields';
 import { ImagesInput } from '@/features/listings/form/fields/meta-fields';
 import { StructuredTagsSelect } from '@/features/listings/form/fields/structured-tags-select';
 import { CvUploadField } from '@/features/listings/form/fields/cv-upload-field';
+import { CvUploadCard } from '@/features/listings/form/fields/cv-upload-card';
+import { CvExtractionHud } from '@/features/listings/form/fields/cv-extraction-hud';
+import { ListingQualityChecklist } from '@/features/listings/form/fields/listing-quality-checklist';
+import { StickyActionBar } from '@/features/listings/form/fields/sticky-action-bar';
+import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import {
   EMPTY_KVKK_CONSENTS,
   type KvkkConsentValues,
@@ -428,6 +434,29 @@ export function CategoryListingForm({
     Boolean(String(defaults.customFields.useOfFundsDetail ?? '').trim()),
   );
   const [editingInvestmentSummary, setEditingInvestmentSummary] = useState(false);
+  const [isManualCvMode, setIsManualCvMode] = useState(false);
+  const [cvFilledKeys, setCvFilledKeys] = useState<Set<string>>(new Set());
+  const [cvDraftInfo, setCvDraftInfo] = useState<{
+    fileName?: string;
+    experienceCount: number;
+    educationCount: number;
+    languageCount: number;
+    skillCount: number;
+    location?: string;
+  } | null>(() => {
+    const experiences = parseCareerExperiences(defaults.customFields.experiences);
+    if (experiences.length > 0 && defaults.customFields.cvFileName) {
+      return {
+        fileName: String(defaults.customFields.cvFileName ?? ''),
+        experienceCount: experiences.length,
+        educationCount: defaults.customFields.educationLevel ? 1 : 0,
+        languageCount: defaults.customFields.languages ? String(defaults.customFields.languages).split(',').length : 0,
+        skillCount: String(defaults.customFields.professionalSkills ?? '').split(',').filter(Boolean).length,
+        location: defaults.customFields.residenceCity ? String(defaults.customFields.residenceCity) : undefined,
+      };
+    }
+    return null;
+  });
 
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
@@ -464,6 +493,122 @@ export function CategoryListingForm({
     () => mergeCustomFieldDefaults(listingType.fieldSchema, customFields),
     [listingType.fieldSchema, customFields],
   );
+
+  const qualityChecklistItems = useMemo(() => {
+    if (categoryId === CATEGORY_IDS.isBul) {
+      const hasRole = Boolean(mergedCustomFields.desiredRole);
+      const hasSector = Boolean(mergedCustomFields.primarySector);
+      const exps = parseCareerExperiences(mergedCustomFields.experiences);
+      const hasSkills = Boolean(
+        mergedCustomFields.professionalSkills || mergedCustomFields.technicalSkills,
+      );
+      const hasWorkType = Boolean(
+        mergedCustomFields.workType || mergedCustomFields.workplacePreference,
+      );
+      const hasLocation = Boolean(mergedCustomFields.preferredCity || core.city);
+
+      return [
+        {
+          id: 'role-sector',
+          label: 'Pozisyon ve Sektör',
+          isComplete: hasRole && hasSector,
+          isRequired: true,
+          stepIndex: 0,
+        },
+        {
+          id: 'experience',
+          label: exps.length > 0 ? `${exps.length} Deneyim eklendi` : 'Deneyim geçmişi ekleyin',
+          isComplete: exps.length > 0,
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'skills',
+          label: 'Yetkinlikler ve Eğitim',
+          isComplete: hasSkills,
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'preferences',
+          label: 'Çalışma Modeli ve Tercihler',
+          isComplete: hasWorkType,
+          isRequired: false,
+          stepIndex: 2,
+        },
+        {
+          id: 'location',
+          label: 'Hedef Lokasyon',
+          isComplete: hasLocation,
+          isRequired: true,
+          stepIndex: 2,
+        },
+      ];
+    }
+    if (categoryId === CATEGORY_IDS.iseAl) {
+      const hasRole = Boolean(mergedCustomFields.desiredRole);
+      const hasSector = Boolean(mergedCustomFields.primarySector);
+      const hasCompany = Boolean(mergedCustomFields.companyName);
+      const hasSkills = Boolean(
+        mergedCustomFields.professionalSkills || mergedCustomFields.technicalSkills,
+      );
+      const hasLocation = Boolean(mergedCustomFields.preferredCity || core.city);
+
+      return [
+        {
+          id: 'role-company',
+          label: 'Şirket ve Pozisyon',
+          isComplete: hasRole && hasSector && hasCompany,
+          isRequired: true,
+          stepIndex: 0,
+        },
+        {
+          id: 'needs',
+          label: 'İş Tanımı ve Yetkinlikler',
+          isComplete: hasSkills,
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'offer',
+          label: 'Teklif ve Lokasyon',
+          isComplete: hasLocation,
+          isRequired: true,
+          stepIndex: 2,
+        },
+      ];
+    }
+    if (categoryId === CATEGORY_IDS.ortakBul) {
+      const hasTitle = Boolean(core.title);
+      const hasShort = Boolean(core.shortDescription);
+      const hasDetails = Boolean(core.longDescription);
+
+      return [
+        {
+          id: 'basics',
+          label: 'Girişim Başlığı ve Özet',
+          isComplete: hasTitle && hasShort,
+          isRequired: true,
+          stepIndex: 0,
+        },
+        {
+          id: 'partnership',
+          label: 'Ortaklık Kriterleri',
+          isComplete: Boolean(mergedCustomFields.partnerType),
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'details',
+          label: 'Detaylı Açıklama',
+          isComplete: hasDetails,
+          isRequired: true,
+          stepIndex: 2,
+        },
+      ];
+    }
+    return [];
+  }, [categoryId, mergedCustomFields, core.title, core.shortDescription, core.longDescription, core.city]);
   const lastAutoCareerSummaryRef = useRef('');
   const lastAutoInvestmentSummaryRef = useRef('');
   const lastAutoInvestmentShortRef = useRef('');
@@ -1059,6 +1204,116 @@ export function CategoryListingForm({
     [categoryId, setCustomField],
   );
 
+  const handleApplyCvDraft = useCallback(
+    (draft: CvProfileDraftResult) => {
+      const fv = draft.formValues;
+      if (fv.role) {
+        setCustomField('desiredRole', fv.role);
+        setCore((prev) => ({ ...prev, title: fv.role || prev.title }));
+      }
+      if (fv.roles && fv.roles.length > 0) {
+        setCustomField('preferredRoles', fv.roles);
+      }
+      if (fv.sector) {
+        setCustomField('primarySector', fv.sector);
+      }
+      if (fv.sectors && fv.sectors.length > 0) {
+        setCustomField('preferredSectors', fv.sectors);
+      }
+      if (fv.experienceLevel) {
+        setCustomField('experienceLevel', fv.experienceLevel);
+      }
+      if (fv.experiences && fv.experiences.length > 0) {
+        setCustomField('experiences', fv.experiences);
+      }
+      if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
+        setCustomField('professionalSkills', fv.professionalSkillsList.join(', '));
+        setCustomField('professionalSkillsList', fv.professionalSkillsList);
+      }
+      if (fv.technicalSkillsList && fv.technicalSkillsList.length > 0) {
+        setCustomField('technicalSkills', fv.technicalSkillsList.join(', '));
+        setCustomField('technicalSkillsList', fv.technicalSkillsList);
+      }
+      if (fv.toolsList && fv.toolsList.length > 0) {
+        setCustomField('tools', fv.toolsList.join(', '));
+        setCustomField('toolsList', fv.toolsList);
+      }
+      if (fv.educationLevel) {
+        setCustomField('educationLevel', fv.educationLevel);
+      }
+      if (fv.educationField) {
+        setCustomField('educationField', fv.educationField);
+      }
+      if (fv.educationHistory && fv.educationHistory.length > 0) {
+        setCustomField('educationHistory', fv.educationHistory);
+      }
+      if (fv.languages) {
+        setCustomField('languages', fv.languages);
+      }
+      if (fv.certificates) {
+        setCustomField('certificates', fv.certificates);
+      }
+      if (fv.residenceCity || fv.city) {
+        const cityName = fv.residenceCity || fv.city;
+        setCustomField('residenceCity', cityName);
+        setCustomField('preferredCity', cityName);
+        setCore((prev) => ({ ...prev, city: cityName || prev.city }));
+      }
+      if (fv.residenceDistrict) {
+        setCustomField('residenceDistrict', fv.residenceDistrict);
+      }
+      if (fv.candidateTraits) {
+        setCore((prev) => ({
+          ...prev,
+          longDescription: fv.candidateTraits || prev.longDescription,
+        }));
+      }
+      if (fv.cvFileName) {
+        setCustomField('cvFileName', fv.cvFileName);
+      }
+      if (fv.cvDocumentId) {
+        setCustomField('cvDocumentId', fv.cvDocumentId);
+      }
+      if (fv.cvUploadedAt) {
+        setCustomField('cvUploadedAt', fv.cvUploadedAt);
+      }
+
+      const expCount = fv.experiences?.length ?? 0;
+      const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
+      const langCount = fv.languages ? fv.languages.split(',').length : 0;
+      const skillCount =
+        (fv.professionalSkillsList?.length ?? 0) +
+        (fv.technicalSkillsList?.length ?? 0) +
+        (fv.toolsList?.length ?? 0);
+      const loc = fv.residenceCity
+        ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
+        : undefined;
+
+      setCvDraftInfo({
+        fileName: fv.cvFileName,
+        experienceCount: expCount,
+        educationCount: eduCount,
+        languageCount: langCount,
+        skillCount,
+        location: loc,
+      });
+
+      setCvFilledKeys(new Set(draft.cvFilledFieldKeys));
+      setIsManualCvMode(false);
+      toast.success('✨ CV bilgileri ilanınıza başarıyla aktarıldı.');
+    },
+    [setCustomField],
+  );
+
+  const handleRemoveCv = useCallback(() => {
+    setCvDraftInfo(null);
+    setCustomField('cvFileName', '');
+    setCustomField('cvDocumentId', '');
+    setCustomField('cvUploadedAt', '');
+    setCvFilledKeys(new Set());
+    toast.info('CV kaldırıldı. Formu dilediğiniz gibi düzenleyebilirsiniz.');
+  }, [setCustomField]);
+
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
     setCore(next);
     setFieldErrors((prev) => {
@@ -1197,7 +1452,7 @@ export function CategoryListingForm({
       return true;
     }
 
-    if (isCvStep) {
+    if (isCvStep && categoryId !== CATEGORY_IDS.isBul) {
       if (!cvUrl) {
         setFieldErrors({ cvUrl: 'Özgeçmiş yüklemeniz gerekmektedir.' });
         toast.error('Lütfen özgeçmişinizi yükleyin.');
@@ -1660,12 +1915,67 @@ export function CategoryListingForm({
 
   return (
     <>
-      <div className="gc-card overflow-hidden">
-        <div className="border-b border-border/60 px-4 py-5 sm:px-6 sm:py-6">
-          <FormStepIndicator steps={steps} currentIndex={stepIndex} />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+        {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop) */}
+        <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
+          <div className="rounded-2xl border border-border/80 bg-white p-5 shadow-xs dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              İlan Adımları
+            </p>
+            <nav className="mt-4 space-y-2">
+              {steps.map((step, idx) => {
+                const isCurrent = idx === stepIndex;
+                const isPast = idx < stepIndex;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => goToStep(idx, 'sidebar-click')}
+                    disabled={disabled || isBusy || (idx > stepIndex + 1 && !isPast)}
+                    className={cn(
+                      'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors',
+                      isCurrent
+                        ? 'bg-amber-500/10 font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+                        : isPast
+                          ? 'text-foreground hover:bg-muted/50'
+                          : 'text-muted-foreground opacity-60 cursor-not-allowed',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                        isCurrent
+                          ? 'bg-amber-500 text-slate-950'
+                          : isPast
+                            ? 'bg-emerald-500 text-white'
+                            : 'border border-border bg-muted/30 text-muted-foreground',
+                      )}
+                    >
+                      {isPast ? '✓' : `0${idx + 1}`}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium truncate">{step.title}</p>
+                      {step.description && (
+                        <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                          {step.description}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
 
-        <div className="p-6 sm:p-8">
+        {/* MIDDLE COLUMN: Active Step Form (6 cols on desktop) */}
+        <div className="col-span-1 lg:col-span-6 space-y-6">
+          <div className="gc-card overflow-hidden">
+            <div className="border-b border-border/60 px-4 py-4 lg:hidden sm:px-6">
+              <FormStepIndicator steps={steps} currentIndex={stepIndex} />
+            </div>
+
+            <div className="p-6 sm:p-8">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-gc-xs font-medium uppercase tracking-wide text-primary">
@@ -1729,6 +2039,29 @@ export function CategoryListingForm({
         </div>
 
         <div className="space-y-4">
+          {(isCvStep || (stepIndex === 0 && categoryId === CATEGORY_IDS.isBul)) && categoryId === CATEGORY_IDS.isBul && (
+            <div className="mb-6">
+              {cvDraftInfo ? (
+                <CvExtractionHud
+                  fileName={cvDraftInfo.fileName}
+                  experienceCount={cvDraftInfo.experienceCount}
+                  educationCount={cvDraftInfo.educationCount}
+                  languageCount={cvDraftInfo.languageCount}
+                  skillCount={cvDraftInfo.skillCount}
+                  location={cvDraftInfo.location}
+                  onReupload={() => setCvDraftInfo(null)}
+                  onRemove={handleRemoveCv}
+                />
+              ) : (
+                <CvUploadCard
+                  onDraftReady={handleApplyCvDraft}
+                  onSkipManual={() => setIsManualCvMode(true)}
+                  isManualMode={isManualCvMode}
+                />
+              )}
+            </div>
+          )}
+
           {isPreviewStep && careerPreviewData && (
             <CareerProfilePreview data={careerPreviewData} />
           )}
@@ -2291,7 +2624,17 @@ export function CategoryListingForm({
                           ? displaySeekingMetricValue(key, mergedCustomFields)
                           : mergedCustomFields[key]
                       }
-                      onChange={(val) => handleCustomFieldChange(key, val)}
+                      onChange={(val) => {
+                        handleCustomFieldChange(key, val);
+                        if (cvFilledKeys.has(key)) {
+                          setCvFilledKeys((prev) => {
+                            const next = new Set(prev);
+                            next.delete(key);
+                            return next;
+                          });
+                        }
+                      }}
+                      isCvFilled={cvFilledKeys.has(key)}
                       error={resolveFieldError(fieldErrors, key)}
                       disabled={disabled || isBusy}
                       context={{
@@ -2488,6 +2831,36 @@ export function CategoryListingForm({
           Adım {stepIndex + 1} / {steps.length}
         </p>
         </div>
+      </div>
+      </div>
+
+      {/* RIGHT COLUMN: Live Preview & Quality Checklist (3 cols on desktop) */}
+      <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
+        {qualityChecklistItems.length > 0 && (
+          <ListingQualityChecklist
+            items={qualityChecklistItems}
+            onNavigateToStep={(stepIdx) => goToStep(stepIdx, 'quality-checklist-click')}
+          />
+        )}
+
+        {/* Live Preview Card */}
+        {careerPreviewData && (
+          <div className="rounded-2xl border border-border/80 bg-white p-4 shadow-xs dark:bg-zinc-900 space-y-3">
+            <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
+              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Canlı İlan Önizlemesi
+              </h4>
+              <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Canlı
+              </span>
+            </div>
+            <div className="scale-95 origin-top pointer-events-none select-none">
+              <CareerProfilePreview data={careerPreviewData} />
+            </div>
+          </div>
+        )}
+      </div>
       </div>
 
       <ListingPreviewDialog

@@ -16,14 +16,6 @@ export default async function DashboardEslesmelerPage() {
     redirect(AUTH_ROUTES.login);
   }
 
-  const result = await loadCareerMatchesPage(user.id);
-
-  return (
-    <>
-      <DashboardPageHeader title={MATCH_PAGE_TITLE} />
-      <div className="px-5 py-8 sm:px-8">
-        <CareerMatchResults result={result} />
-      </div>
-    </>
-  );
+  // Matches menu retired from standalone user flow; redirect to listings
+  redirect('/dashboard/ilanlarim');
 }

@@ -88,6 +88,7 @@ export interface DynamicFieldProps {
   error?: string;
   disabled?: boolean;
   context?: DynamicFieldContext;
+  isCvFilled?: boolean;
 }
 
 export function DynamicField({
@@ -97,6 +98,7 @@ export function DynamicField({
   error,
   disabled,
   context,
+  isCvFilled,
 }: DynamicFieldProps) {
   const id = `field-${field.key}`;
   const ui = getCustomFieldUi(field.key);
@@ -110,10 +112,17 @@ export function DynamicField({
   if (field.key === 'capabilities') {
     return (
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          {field.label}
-          {field.required && <span className="ml-1 text-destructive">*</span>}
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">
+            {field.label}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
+          </Label>
+          {isCvFilled && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+              ✨ CV&apos;den aktarıldı
+            </span>
+          )}
+        </div>
         <DigitalAiCapabilityPicker
           value={value}
           onChange={onChange}
@@ -126,10 +135,17 @@ export function DynamicField({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-sm font-medium">
-        {field.label}
-        {field.required && <span className="ml-1 text-destructive">*</span>}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label htmlFor={id} className="text-sm font-medium">
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        {isCvFilled && (
+          <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+            ✨ CV&apos;den aktarıldı
+          </span>
+        )}
+      </div>
 
       <FieldControl
         id={id}

@@ -16,17 +16,6 @@ export default async function DashboardKariyerProfilimPage() {
     redirect(AUTH_ROUTES.login);
   }
 
-  const data = await loadCareerProfilePage(user.id);
-
-  return (
-    <>
-      <DashboardPageHeader
-        title={CAREER_PROFILE_PAGE_TITLE}
-        description="Kariyer bilgilerinizi tamamlayarak daha doğru eşleşmeler bulun."
-      />
-      <div className="px-5 py-8 sm:px-8">
-        <CareerProfilePage data={data} displayName={user.displayName} />
-      </div>
-    </>
-  );
+  // Kariyer Profilim is deprecated; redirect to unified Job Seeker listing creation
+  redirect('/ilan/olustur?category=is-bul');
 }

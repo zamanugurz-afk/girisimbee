@@ -103,24 +103,6 @@ export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
     icon: 'Megaphone',
   },
   {
-    id: 'kariyerProfilim',
-    label: 'Kariyer Profilim',
-    href: DASHBOARD_ROUTES.kariyerProfilim,
-    icon: 'Briefcase',
-  },
-  {
-    id: 'eslesmeler',
-    label: 'Eşleşmeler',
-    href: DASHBOARD_ROUTES.eslesmeler,
-    icon: 'Sparkles',
-  },
-  {
-    id: 'ortaklikEslesmeleri',
-    label: 'Ortaklık Eşleşmeleri',
-    href: DASHBOARD_ROUTES.ortaklikEslesmeleri,
-    icon: 'Handshake',
-  },
-  {
     id: 'favorilerim',
     label: 'Favorilerim',
     href: DASHBOARD_ROUTES.favorilerim,

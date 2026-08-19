@@ -17,14 +17,6 @@ export default async function DashboardOrtaklikEslesmeleriPage() {
     redirect(AUTH_ROUTES.login);
   }
 
-  const result = await loadPartnershipMatchesPage(user.id);
-
-  return (
-    <>
-      <DashboardPageHeader title={PARTNERSHIP_MATCH_PAGE_TITLE} />
-      <div className={PARTNERSHIP_MATCH_PAGE_CLASS}>
-        <PartnershipMatchResults result={result} />
-      </div>
-    </>
-  );
+  // Partnership matches menu retired from standalone user flow; redirect to listings
+  redirect('/dashboard/ilanlarim');
 }

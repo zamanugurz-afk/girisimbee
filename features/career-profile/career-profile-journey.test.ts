@@ -201,9 +201,10 @@ describe('career journey matching connections', () => {
     expect(after.recommendable).toBe(before.recommendable);
   });
 
-  it('keeps Kariyer Profilim and Eşleşmeler next to each other', () => {
+  it('retires Kariyer Profilim and Eşleşmeler from primary sidebar navigation', () => {
     const ids = DASHBOARD_NAV_ITEMS.map((item) => item.id);
-    expect(ids.indexOf('eslesmeler') - ids.indexOf('kariyerProfilim')).toBe(1);
+    expect(ids).not.toContain('kariyerProfilim');
+    expect(ids).not.toContain('eslesmeler');
   });
 
   it('separates matching empty states for profile, listing, incomplete, and no-match', () => {

@@ -29,7 +29,7 @@ describe('Real CV Binary File Final Acceptance Test - CV - UĞUR ZAMAN (4).pdf',
       documentId: 'doc-real-ugur-zaman',
     });
 
-    console.log('UGUR EXTRACTED TEXT:\n', draft.extractedText);
+    console.log('UGUR EXTRACTED TEXT:\n', txt.text);
     console.log('UGUR EXPS:', JSON.stringify(draft.formValues.experiences, null, 2));
 
     // 3. Minimum Acceptance Criteria Assertions
