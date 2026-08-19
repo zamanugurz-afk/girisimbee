@@ -78,6 +78,7 @@ export interface CanonicalTaxonomyMappingResult {
   languages: string;
   certificates: string;
   residenceCity: string;
+  residenceDistrict?: string;
   experiences: CareerExperience[];
   summary: string;
   ambiguousItems: RawAmbiguousCvItem[];

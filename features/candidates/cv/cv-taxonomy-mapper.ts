@@ -426,10 +426,35 @@ export function mapCvToCanonicalTaxonomy(
     }
   }
 
+  // Helper to infer appropriate sector for an individual experience
+  const inferExpSector = (exp: { sector?: string; role?: string; company?: string }): string => {
+    if (exp.sector) {
+      const match = matchCanonicalSector(exp.sector);
+      if (match.canonical) return match.canonical;
+    }
+    const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
+    if (text.includes('banka') || text.includes('yatırım') || text.includes('finans') || text.includes('kredi') || text.includes('borsa')) {
+      return 'Finans / Bankacılık';
+    }
+    if (text.includes('sigorta') || text.includes('emeklilik') || text.includes('hayat')) {
+      return 'Sigorta';
+    }
+    if (text.includes('çağrı') || text.includes('cagri') || text.includes('call center') || text.includes('telemarketing') || text.includes('mplus') || text.includes('mehrwerk')) {
+      return 'Çağrı merkezi';
+    }
+    if (text.includes('yazılım') || text.includes('bilişim') || text.includes('developer') || text.includes('teknoloji')) {
+      return 'Bilişim / Yazılım';
+    }
+    if (text.includes('satış') || text.includes('sales')) {
+      return 'Satış';
+    }
+    return matchedSectors[0] || 'Finans / Bankacılık';
+  };
+
   // 3. Map Experiences
   const experiences: CareerExperience[] = (payload.experiences || []).map((exp, idx) => {
     const roleMatch = exp.role ? matchCanonicalPosition(exp.role) : { canonical: 'Yazılım Geliştirici' };
-    const sectorMatch = exp.sector ? matchCanonicalSector(exp.sector) : { canonical: 'Bilişim / Yazılım' };
+    const resolvedSector = inferExpSector(exp);
 
     const startYear = exp.startYear ?? null;
     const endYear = exp.isCurrent ? null : (exp.endYear ?? null);
@@ -439,9 +464,23 @@ export function mapCvToCanonicalTaxonomy(
         ? `${Math.max(1, endYear - startYear)} yıl`
         : '1 yıl';
 
+    const selectedResponsibilities = exp.responsibilities
+      ? exp.responsibilities
+          .split(/[|·•\n]/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 3)
+      : [];
+
+    const selectedAchievements = exp.achievements
+      ? exp.achievements
+          .split(/[|·•\n]/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 3)
+      : [];
+
     return {
-      id: `cv-exp-${idx + 1}-${Date.now()}`,
-      sector: sectorMatch.canonical,
+      id: `cv-exp-${idx + 1}-${Date.now() + idx}`,
+      sector: resolvedSector,
       role: roleMatch.canonical,
       company: exp.company ? suggestTitleCaseTr(exp.company) : undefined,
       startYear,
@@ -449,7 +488,11 @@ export function mapCvToCanonicalTaxonomy(
       isCurrent: exp.isCurrent ?? false,
       duration,
       responsibilities: exp.responsibilities ? exp.responsibilities.trim() : '',
+      selectedResponsibilities,
+      responsibilitiesOther: exp.responsibilities ? exp.responsibilities.trim() : undefined,
       achievements: exp.achievements ? exp.achievements.trim() : '',
+      selectedAchievements,
+      achievementsOther: exp.achievements ? exp.achievements.trim() : undefined,
     };
   });
 
@@ -530,6 +573,7 @@ export function mapCvToCanonicalTaxonomy(
   const languages = (payload.languages || []).join(', ');
   const certificates = (payload.certificates || []).join(', ');
   const residenceCity = payload.locations?.[0] ? suggestTitleCaseTr(payload.locations[0]) : '';
+  const residenceDistrict = payload.locations?.[1] ? suggestTitleCaseTr(payload.locations[1]) : '';
 
   return {
     primaryRole: matchedRoles[0] || (experiences[0]?.role ?? ''),
@@ -545,6 +589,7 @@ export function mapCvToCanonicalTaxonomy(
     languages,
     certificates,
     residenceCity,
+    residenceDistrict,
     experiences,
     summary: payload.summary || '',
     ambiguousItems,

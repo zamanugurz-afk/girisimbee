@@ -127,7 +127,10 @@ export function valuesFromCareerSource(source: CareerFieldSource): CareerProfile
     educationLevel: profile.educationLevel ?? '',
     languages: typeof cf.languages === 'string' ? cf.languages : displayList(profile.languages) ?? '',
     availability: profile.availability ?? '',
-    candidateTraits: profile.requiredResponsibilities ?? '',
+    candidateTraits:
+      typeof cf.candidateTraits === 'string' && cf.candidateTraits
+        ? cf.candidateTraits
+        : profile.requiredResponsibilities ?? '',
     salary: profile.salary ?? '',
     salaryMin: profile.salaryMin,
     salaryMax: profile.salaryMax,

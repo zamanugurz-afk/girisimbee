@@ -163,7 +163,7 @@ describe('CV to Profile Data Mapping Trace & Regression Test', () => {
 
     expect(draft.formValues.experiences?.length).toBe(6);
     expect(draft.formValues.educationHistory?.length).toBe(2);
-    expect(draft.formValues.experienceLevel).toBe('10+ yıl');
+    expect(draft.formValues.experienceLevel).toBe('Yönetici');
     expect(draft.categoriesFound.experiences).toBe(6);
     expect(draft.categoriesFound.education).toBe(2);
 

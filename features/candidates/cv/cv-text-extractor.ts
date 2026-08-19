@@ -125,8 +125,20 @@ export function extractTextFromDocx(buffer: Buffer): string {
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   // Strategy 1: PDFParse (pdf.js) — handles CID fonts, ToUnicode CMaps, multi-column layouts
   try {
-    const { PDFParse } = require('pdf-parse');
-    const parser = new PDFParse({ data: buffer });
+    let PDFParseClass: any;
+    try {
+      const { createRequire } = require('module');
+      const path = require('path');
+      const cjsPath = path.resolve(process.cwd(), 'node_modules/pdf-parse/dist/pdf-parse/cjs/index.cjs');
+      const unbundledRequire = createRequire(cjsPath);
+      const mod = unbundledRequire(cjsPath);
+      PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
+    } catch {
+      const mod = require('pdf-parse');
+      PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
+    }
+
+    const parser = new PDFParseClass({ data: buffer });
     try {
       const res = await parser.getText();
       const rawText = (res?.text || '')
@@ -140,7 +152,7 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
         return rawText;
       }
     } finally {
-      if (typeof parser.destroy === 'function') {
+      if (typeof parser?.destroy === 'function') {
         try {
           await parser.destroy();
         } catch {
@@ -148,8 +160,8 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
         }
       }
     }
-  } catch {
-    // Strategy 1 failed, fallback to Strategy 2
+  } catch (err: any) {
+    console.error('Strategy 1 PDFParse error in Next.js:', err?.message || err);
   }
 
   // Strategy 2: Deep binary stream and hex/Tj/TJ decoder

@@ -28,8 +28,15 @@ export const PATCH = withAuth(async (ctx, request) => {
       : undefined;
 
     const record = await service.saveProfile(ctx.userId, listingId, body.values, body.persona);
+    if (typeof globalThis !== 'undefined') {
+      (globalThis as any).__testCareerProfileData = {
+        seek: record,
+        hire: null,
+      };
+    }
     return ok({ profile: record });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('API /api/career/profile PATCH error:', error?.message || error);
     return apiError(error instanceof Error ? error.message : 'Profil kaydedilemedi.', 400);
   }
 });

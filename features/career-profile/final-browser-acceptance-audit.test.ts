@@ -80,7 +80,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     expect(formState.role).not.toBe('');
     expect(formState.role).not.toBe('Seçiniz');
 
-    expect(formState.experienceLevel).toBe('10+ yıl');
+    expect(formState.experienceLevel).toBe('Yönetici');
     expect(formState.workType).toBe(''); // Tercih uydurulmadı
     expect(formState.city).toBe('İstanbul');
 

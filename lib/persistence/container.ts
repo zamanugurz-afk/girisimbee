@@ -712,12 +712,21 @@ export function getClientContainer(): PersistenceContainer {
 }
 
 /** Server-side factory — pass Supabase server client. */
+let sharedMemoryContainer: PersistenceContainer | null = null;
+
+export function getSharedMemoryContainer(): PersistenceContainer {
+  if (!sharedMemoryContainer) {
+    sharedMemoryContainer = createMemoryContainer();
+  }
+  return sharedMemoryContainer;
+}
+
 export function getServerContainer(supabase: SupabaseClient): PersistenceContainer {
   const driver = resolvePersistenceDriver();
   // Server hydrates ownerId (LISTING_SAFE_SELECT omits owner_id for PostgREST lockdown).
   return driver === 'supabase'
-    ? createSupabaseContainer(supabase, { enrichListingOwnerId: true })
-    : createMemoryContainer();
+    ? createSupabaseContainer(supabase, { enrichListingOwnerId: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY) })
+    : getSharedMemoryContainer();
 }
 
 /** Reset container — for tests. */

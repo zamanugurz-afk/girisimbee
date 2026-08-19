@@ -286,6 +286,11 @@ export function CareerProfileForm({
   // Education & Languages & Certificates
   const [educationLevel, setEducationLevel] = useState(record.values.educationLevel || '');
   const [educationField, setEducationField] = useState(record.values.educationField || '');
+  const [educationHistory, setEducationHistory] = useState<Array<{ level?: string; field?: string; school?: string; graduationYear?: number | null }>>(
+    record.values.educationHistory && record.values.educationHistory.length > 0
+      ? record.values.educationHistory
+      : [],
+  );
   const [certificates, setCertificates] = useState(record.values.certificates || '');
   const [languages, setLanguages] = useState(record.values.languages || '');
 
@@ -334,7 +339,20 @@ export function CareerProfileForm({
     if (fv.roles && fv.roles.length > 0) setSelectedRoles(fv.roles);
     if (fv.sector) setPrimarySector(fv.sector);
     if (fv.sectors && fv.sectors.length > 0) setSelectedSectors(fv.sectors);
-    if (fv.experienceLevel) setExperienceLevel(fv.experienceLevel);
+    if (fv.experienceLevel) {
+      const matchLvl = EXPERIENCE_LEVEL_VALUES.find(
+        (lvl) => lvl.toLowerCase() === fv.experienceLevel?.toLowerCase(),
+      );
+      if (matchLvl) {
+        setExperienceLevel(matchLvl);
+      } else if (fv.experienceLevel.includes('10+') || fv.experienceLevel.toLowerCase().includes('yönetici')) {
+        setExperienceLevel('Yönetici');
+      } else if (fv.experienceLevel.toLowerCase().includes('kıdemli') || fv.experienceLevel.toLowerCase().includes('senior')) {
+        setExperienceLevel('Senior');
+      } else {
+        setExperienceLevel(fv.experienceLevel);
+      }
+    }
     if (fv.experiences && fv.experiences.length > 0) setExperiences(fv.experiences);
     if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
       setSelectedProfSkills(fv.professionalSkillsList);
@@ -352,10 +370,16 @@ export function CareerProfileForm({
       setEducationLevel(matchLvl || fv.educationLevel);
     }
     if (fv.educationField) setEducationField(fv.educationField);
+    if (fv.educationHistory && fv.educationHistory.length > 0) {
+      setEducationHistory(fv.educationHistory);
+    }
     if (fv.languages) setLanguages(fv.languages);
     if (fv.certificates) setCertificates(fv.certificates);
-    if (fv.residenceCity) {
-      setCity(fv.residenceCity);
+    if (fv.residenceCity || fv.city) {
+      setCity(fv.residenceCity || fv.city || '');
+    }
+    if (fv.residenceDistrict) {
+      setResidenceDistrict(fv.residenceDistrict);
     }
     if (fv.candidateTraits) setCandidateTraits(fv.candidateTraits);
     if (fv.cvFileName) setCvFileName(fv.cvFileName);
@@ -650,6 +674,7 @@ export function CareerProfileForm({
             preferredDistrict,
             educationLevel,
             educationField,
+            educationHistory,
             certificates,
             languages,
             availability,
@@ -789,12 +814,14 @@ export function CareerProfileForm({
         workType,
         workplacePreference,
         city,
+        residenceCity: city,
         residenceDistrict,
         preferredDistrict,
         birthDate,
         profileGender,
         educationLevel,
         educationField,
+        educationHistory,
         certificates,
         languages,
         availability,
@@ -2619,6 +2646,36 @@ export function CareerProfileForm({
             </p>
 
             <CareerProfilePreview data={preview} />
+          </div>
+
+          {/* Create Listing CTA Card */}
+          <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-5 dark:border-amber-500/20 dark:bg-zinc-900/90 shadow-xs">
+            <div className="flex items-center gap-2 mb-2">
+              <Plus className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <h4 className="font-display text-sm font-bold text-foreground">
+                İlan Vermeye Hazır mısınız?
+              </h4>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+              Kariyer profilinizdeki unvan, sektör, yetkinlikler ve eğitim bilgileri ilan formuna otomatik olarak aktarılacaktır.
+            </p>
+            <Button
+              asChild
+              className="w-full rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-sm gap-2"
+            >
+              <Link
+                href={
+                  persona === 'hire'
+                    ? '/ilan/olustur?type=ise-al'
+                    : persona === 'partner'
+                      ? '/ilan/olustur?type=ortak-bul'
+                      : '/ilan/olustur?type=is-bul'
+                }
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>+ İlan Ver</span>
+              </Link>
+            </Button>
           </div>
 
           {/* Journey Card */}

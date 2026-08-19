@@ -29,12 +29,23 @@ export function buildProfileDraftFromCanonicalResult(
   const summaryYears = summaryMatch ? parseInt(summaryMatch[1], 10) : 0;
   const totalYears = Math.max(sumYears, summaryYears);
 
-  let experienceLevel = '1-3 yıl';
-  if (totalYears === 0) experienceLevel = 'Stajyer / Yeni Mezun';
-  else if (totalYears < 2) experienceLevel = 'Başlangıç (0-2 yıl)';
-  else if (totalYears <= 5) experienceLevel = '3-5 yıl';
-  else if (totalYears <= 10) experienceLevel = '5-10 yıl';
-  else experienceLevel = '10+ yıl';
+  let experienceLevel = 'Uzman';
+  const roleText = `${canonical.primaryRole || ''} ${canonical.experiences.map((e) => e.role).join(' ')}`.toLowerCase();
+  if (roleText.includes('direktör') || roleText.includes('director')) {
+    experienceLevel = 'Direktör';
+  } else if (roleText.includes('müdür') || roleText.includes('manager') || roleText.includes('head of') || totalYears >= 10) {
+    experienceLevel = 'Yönetici';
+  } else if (roleText.includes('lider') || roleText.includes('lead') || roleText.includes('şef') || totalYears >= 7) {
+    experienceLevel = 'Takım Lideri';
+  } else if (totalYears >= 5) {
+    experienceLevel = 'Senior';
+  } else if (totalYears >= 3) {
+    experienceLevel = 'Mid';
+  } else if (totalYears >= 1) {
+    experienceLevel = 'Junior';
+  } else if (totalYears === 0) {
+    experienceLevel = 'Yeni Mezun';
+  }
 
   const formValues: Partial<CareerProfileFormValues> = {
     // 1. Role & Sector (extracted from historical CV data)
@@ -65,6 +76,7 @@ export function buildProfileDraftFromCanonicalResult(
     // 5. Residence Location (from historical location)
     residenceCity: canonical.residenceCity || '',
     city: canonical.residenceCity || '',
+    residenceDistrict: canonical.residenceDistrict || '',
 
     // 6. Career Summary (grounded synthesis)
     candidateTraits: canonical.summary || '',
@@ -97,6 +109,7 @@ export function buildProfileDraftFromCanonicalResult(
   if (formValues.languages) cvFilledFieldKeys.push('languages');
   if (formValues.certificates) cvFilledFieldKeys.push('certificates');
   if (formValues.residenceCity) cvFilledFieldKeys.push('residenceCity', 'city');
+  if (formValues.residenceDistrict) cvFilledFieldKeys.push('residenceDistrict');
   if (formValues.candidateTraits) cvFilledFieldKeys.push('candidateTraits');
 
   // Explicit unconfirmed preference keys

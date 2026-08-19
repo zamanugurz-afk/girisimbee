@@ -58,6 +58,7 @@ export type CareerCardInput = {
   tools?: string | null;
   educationLevel?: string | null;
   educationField?: string | null;
+  educationHistory?: Array<{ level: string; field?: string; school?: string; graduationYear?: number | null }>;
   languages?: string | null;
   certificates?: string | null;
   preferredCity?: string | null;
@@ -770,7 +771,20 @@ export function CareerProfilePreview({
               icon={GraduationCap}
               title="Eğitim"
             />
-            {data.educationLevel || data.educationField ? (
+            {data.educationHistory && data.educationHistory.length > 0 ? (
+              <div className="space-y-2">
+                {data.educationHistory.map((edu, idx) => (
+                  <div key={idx} className="space-y-0.5">
+                    <p className="text-sm font-semibold text-foreground">
+                      {edu.level ? `${edu.level} — ` : ''}{edu.field || 'Genel'}
+                    </p>
+                    {edu.school ? (
+                      <p className="text-xs text-muted-foreground">{edu.school}{edu.graduationYear ? ` · ${edu.graduationYear}` : ''}</p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : data.educationLevel || data.educationField ? (
               <div className="space-y-2">
                 {data.educationField && data.educationField.includes(' / ') ? (
                   data.educationField.split(' / ').map((degree, idx) => (

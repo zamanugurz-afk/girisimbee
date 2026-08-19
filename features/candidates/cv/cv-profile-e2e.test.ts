@@ -75,7 +75,7 @@ Türkçe, İngilizce
     const draft = buildProfileDraftFromCanonicalResult(canonical, 'cv.pdf', 'doc-99');
     expect(draft.formValues.experiences?.length).toBe(6);
     expect(draft.formValues.educationHistory?.length).toBe(2);
-    expect(draft.formValues.experienceLevel).toBe('10+ yıl');
+    expect(draft.formValues.experienceLevel).toBe('Yönetici');
 
     // 4. Form State Simulation
     const formState: CareerProfileFormValues = {

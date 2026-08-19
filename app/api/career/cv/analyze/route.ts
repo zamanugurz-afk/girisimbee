@@ -68,6 +68,18 @@ export async function POST(req: NextRequest) {
       mimeType,
     });
 
+    console.log(
+      'API /api/career/cv/analyze POST:',
+      'buffer size =',
+      buffer?.length,
+      'fileName =',
+      fileName,
+      'experiences =',
+      draft?.formValues?.experiences?.length,
+      'skills =',
+      draft?.formValues?.professionalSkillsList?.length,
+    );
+
     return NextResponse.json({
       success: true,
       data: draft,

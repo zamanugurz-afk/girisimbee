@@ -68,6 +68,7 @@ export const ALLOWED_CAREER_KEYS = [
   'toolsList',
   'professionalSkillsList',
   'technicalSkillsList',
+  'candidateTraits',
 ] as const;
 
 export interface CareerProfileListingStore {
@@ -118,36 +119,36 @@ export function formValuesToCustomFields(
   const profSkills =
     values.professionalSkillsList && values.professionalSkillsList.length > 0
       ? values.professionalSkillsList.join(', ')
-      : values.professionalSkills.trim();
+      : (values.professionalSkills || '').trim();
 
   const techSkills =
     values.technicalSkillsList && values.technicalSkillsList.length > 0
       ? values.technicalSkillsList.join(', ')
-      : values.technicalSkills.trim();
+      : (values.technicalSkills || '').trim();
 
   const fields: Record<string, unknown> = {
     desiredRole: primaryRole,
     preferredRoles: roles.join(', '),
     primarySector: primarySector,
     preferredSectors: sectors.join(', '),
-    experienceLevel: values.experienceLevel.trim(),
+    experienceLevel: (values.experienceLevel || '').trim(),
     professionalSkills: profSkills,
     technicalSkills: techSkills,
-    workType: values.workType.trim(),
-    workplacePreference: values.workplacePreference.trim(),
-    preferredCity: values.city.trim(),
-    educationLevel: values.educationLevel.trim(),
-    languages: values.languages.trim(),
+    workType: (values.workType || '').trim(),
+    workplacePreference: (values.workplacePreference || '').trim(),
+    preferredCity: (values.city || '').trim(),
+    educationLevel: (values.educationLevel || '').trim(),
+    languages: (values.languages || '').trim(),
   };
 
-  if (values.tools) fields.tools = values.tools.trim();
-  if (values.educationField) fields.educationField = values.educationField.trim();
-  if (values.certificates) fields.certificates = values.certificates.trim();
-  if (values.profileGender) fields.profileGender = values.profileGender.trim();
-  if (values.birthDate) fields.birthDate = values.birthDate.trim();
-  if (values.residenceCity) fields.residenceCity = values.residenceCity.trim();
-  if (values.residenceDistrict) fields.residenceDistrict = values.residenceDistrict.trim();
-  if (values.preferredDistrict) fields.preferredDistrict = values.preferredDistrict.trim();
+  if (values.tools) fields.tools = (values.tools || '').trim();
+  if (values.educationField) fields.educationField = (values.educationField || '').trim();
+  if (values.certificates) fields.certificates = (values.certificates || '').trim();
+  if (values.profileGender) fields.profileGender = (values.profileGender || '').trim();
+  if (values.birthDate) fields.birthDate = (values.birthDate || '').trim();
+  if (values.residenceCity) fields.residenceCity = (values.residenceCity || '').trim();
+  if (values.residenceDistrict) fields.residenceDistrict = (values.residenceDistrict || '').trim();
+  if (values.preferredDistrict) fields.preferredDistrict = (values.preferredDistrict || '').trim();
   if (values.experiences && values.experiences.length > 0) fields.experiences = values.experiences;
   if (values.educationHistory && values.educationHistory.length > 0) fields.educationHistory = values.educationHistory;
   if (values.toolsList && values.toolsList.length > 0) fields.toolsList = values.toolsList;
@@ -157,10 +158,10 @@ export function formValuesToCustomFields(
   if (values.technicalSkillsList && values.technicalSkillsList.length > 0) {
     fields.technicalSkillsList = values.technicalSkillsList;
   }
-  if (values.requiredAchievements) fields.requiredAchievements = values.requiredAchievements.trim();
-  if (values.stage) fields.stage = values.stage.trim();
-  if (values.businessModel) fields.businessModel = values.businessModel.trim();
-  if (values.equityOffered) fields.equityOffered = values.equityOffered.trim();
+  if (values.requiredAchievements) fields.requiredAchievements = (values.requiredAchievements || '').trim();
+  if (values.stage) fields.stage = (values.stage || '').trim();
+  if (values.businessModel) fields.businessModel = (values.businessModel || '').trim();
+  if (values.equityOffered) fields.equityOffered = (values.equityOffered || '').trim();
 
   if (values.salaryMin || values.salaryMax) {
     fields.salaryMin = values.salaryMin;
@@ -190,13 +191,17 @@ export function formValuesToCustomFields(
     fields.capitalContribution = values.capitalContribution.trim();
   }
 
+  if (values.candidateTraits) {
+    fields.candidateTraits = values.candidateTraits.trim();
+  }
+
   if (kind === 'hire') {
     fields.positionTitle = primaryRole;
-    fields.employmentType = values.workType.trim();
-    fields.requiredResponsibilities = values.candidateTraits.trim();
+    fields.employmentType = (values.workType || '').trim();
+    fields.requiredResponsibilities = (values.candidateTraits || '').trim();
   } else {
-    fields.availability = values.availability.trim();
-    fields.requiredResponsibilities = values.candidateTraits.trim();
+    fields.availability = (values.availability || '').trim();
+    fields.requiredResponsibilities = (values.candidateTraits || '').trim();
   }
   return fields;
 }

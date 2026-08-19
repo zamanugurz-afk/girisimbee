@@ -42,6 +42,7 @@ export function toSafeCareerPreviewInput(input: {
     tools: values.tools || (typeof cf.tools === 'string' ? cf.tools : null),
     educationLevel: values.educationLevel || null,
     educationField: values.educationField || null,
+    educationHistory: values.educationHistory && values.educationHistory.length > 0 ? values.educationHistory : (Array.isArray(cf.educationHistory) ? cf.educationHistory as any : undefined),
     certificates: values.certificates || null,
     languages: values.languages || null,
     preferredCity: values.city || (typeof cf.preferredCity === 'string' ? cf.preferredCity : null),

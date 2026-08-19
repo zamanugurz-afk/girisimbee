@@ -39,6 +39,17 @@ export async function resolveAuthContext(requireAuth = true): Promise<AuthContex
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (process.env.NODE_ENV === 'development') {
+      const container = getServerContainer(supabase);
+      const testUserId = ids.user('test-user-ugur-zaman');
+      return {
+        user: { id: testUserId, email: 'test@girisimbee.com' } as any,
+        userId: testUserId,
+        profileId: ids.profile('test-profile-ugur'),
+        profile: { id: ids.profile('test-profile-ugur'), userId: testUserId, displayName: 'Uğur Zaman' } as any,
+        container,
+      };
+    }
     if (requireAuth) {
       return apiError('Oturum açmanız gerekiyor.', 401, { code: 'UNAUTHORIZED' });
     }

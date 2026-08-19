@@ -1268,7 +1268,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     education: edu,
     languages: langAndCerts.languages,
     certificates: langAndCerts.certificates,
-    locations: loc.city ? [loc.city] : [],
+    locations: [loc.city, loc.district].filter(Boolean) as string[],
     summary,
     ambiguousItems: [],
   };
