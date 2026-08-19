@@ -110,6 +110,8 @@ export const EDUCATION_FIELD_OPTIONS = [
   'Muhasebe',
   'Finans',
   'Bankacılık ve Sigortacılık',
+  'Sermaye Piyasası ve Borsa',
+  'Sermaye Piyasaları',
   'İnsan Kaynakları',
   'Hemşirelik',
   'Tıp',
