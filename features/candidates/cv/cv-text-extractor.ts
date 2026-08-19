@@ -234,29 +234,52 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
     const bfcharRegex = /(\d+)\s+beginbfchar([\s\S]*?)endbfchar/g;
     let m: RegExpExecArray | null;
     while ((m = bfcharRegex.exec(str)) !== null) {
-      const lines = m[2].trim().split(/\r?\n/);
-      for (const line of lines) {
-        const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
-        if (parts) {
-          const src = parts[1].toLowerCase().padStart(4, '0');
-          const dstCode = parseInt(parts[2], 16);
-          if (dstCode > 0) map.set(src, String.fromCharCode(dstCode));
+      const section = m[2];
+      const pairs = section.matchAll(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g);
+      for (const p of pairs) {
+        const src = p[1].toLowerCase().padStart(4, '0');
+        const dstHex = p[2];
+        let dstStr = '';
+        for (let i = 0; i < dstHex.length; i += 4) {
+          const code = parseInt(dstHex.slice(i, i + 4), 16);
+          if (code > 0) dstStr += String.fromCharCode(code);
         }
+        if (dstStr) map.set(src, dstStr);
       }
     }
+
     const bfrangeRegex = /(\d+)\s+beginbfrange([\s\S]*?)endbfrange/g;
     while ((m = bfrangeRegex.exec(str)) !== null) {
-      const lines = m[2].trim().split(/\r?\n/);
+      const section = m[2];
+      const lines = section.trim().split(/\r?\n/);
       for (const line of lines) {
-        const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
-        if (parts) {
-          const start = parseInt(parts[1], 16);
-          const end = parseInt(parts[2], 16);
-          let dst = parseInt(parts[3], 16);
+        const rangeMatch = line.match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
+        if (rangeMatch) {
+          const start = parseInt(rangeMatch[1], 16);
+          const end = parseInt(rangeMatch[2], 16);
+          let dst = parseInt(rangeMatch[3], 16);
           for (let code = start; code <= end; code++) {
             const hexKey = code.toString(16).toLowerCase().padStart(4, '0');
-            if (dst > 0) map.set(hexKey, String.fromCharCode(dst));
+            map.set(hexKey, String.fromCharCode(dst));
             dst++;
+          }
+        } else {
+          const arrMatch = line.match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*\[([\s\S]*?)\]/);
+          if (arrMatch) {
+            const start = parseInt(arrMatch[1], 16);
+            const end = parseInt(arrMatch[2], 16);
+            const dsts = arrMatch[3].match(/<([0-9a-fA-F]+)>/g) || [];
+            let idx = 0;
+            for (let code = start; code <= end && idx < dsts.length; code++, idx++) {
+              const hexKey = code.toString(16).toLowerCase().padStart(4, '0');
+              const dstHex = dsts[idx].slice(1, -1);
+              let dstStr = '';
+              for (let i = 0; i < dstHex.length; i += 4) {
+                const c = parseInt(dstHex.slice(i, i + 4), 16);
+                if (c > 0) dstStr += String.fromCharCode(c);
+              }
+              if (dstStr) map.set(hexKey, dstStr);
+            }
           }
         }
       }
@@ -276,108 +299,171 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
     }
   }
 
-  const fontNameMap = new Map<string, Map<string, string>>();
-  const fontDictMatch = raw.match(/\/Font\s*<<([^>]+)>>/);
-  if (fontDictMatch) {
-    const entries = fontDictMatch[1].match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/g);
-    for (const e of entries || []) {
-      const em = e.match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/);
-      if (em) {
-        const fontName = em[1];
-        const fontObjId = parseInt(em[2], 10);
-        const cmap = fontToCMap.get(fontObjId);
-        if (cmap) fontNameMap.set(fontName, cmap);
+  interface PageInfo {
+    fontMap: Map<string, Map<string, string>>;
+    contentIds: number[];
+  }
+  const pages: PageInfo[] = [];
+
+  for (const [, body] of objMap.entries()) {
+    if (body.includes('/Type/Page') || body.includes('/Type /Page')) {
+      const fontMap = new Map<string, Map<string, string>>();
+      const fontDictMatch = body.match(/\/Font\s*<<([^>]+)>>/);
+      if (fontDictMatch) {
+        const entries = fontDictMatch[1].match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/g);
+        for (const e of entries || []) {
+          const em = e.match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/);
+          if (em) {
+            const fontName = em[1];
+            const fontObjId = parseInt(em[2], 10);
+            const cmap = fontToCMap.get(fontObjId);
+            if (cmap) fontMap.set(fontName, cmap);
+          }
+        }
       }
+
+      const contentsMatch = body.match(/\/Contents\s+(\d+)\s+0\s+R/);
+      const contentsArrayMatch = body.match(/\/Contents\s*\[([^\]]+)\]/);
+      let contentIds: number[] = [];
+      if (contentsMatch) {
+        contentIds.push(parseInt(contentsMatch[1], 10));
+      } else if (contentsArrayMatch) {
+        const cMatches = contentsArrayMatch[1].match(/(\d+)\s+0\s+R/g);
+        if (cMatches) {
+          contentIds = cMatches.map((c) => parseInt(c.match(/\d+/)![0], 10));
+        }
+      }
+
+      pages.push({ fontMap, contentIds });
     }
   }
 
+  if (pages.length === 0) {
+    const globalFontMap = new Map<string, Map<string, string>>();
+    for (const [, body] of objMap.entries()) {
+      const fontDictMatch = body.match(/\/Font\s*<<([^>]+)>>/);
+      if (fontDictMatch) {
+        const entries = fontDictMatch[1].match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/g);
+        for (const e of entries || []) {
+          const em = e.match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/);
+          if (em) {
+            const fontName = em[1];
+            const fontObjId = parseInt(em[2], 10);
+            const cmap = fontToCMap.get(fontObjId);
+            if (cmap) globalFontMap.set(fontName, cmap);
+          }
+        }
+      }
+    }
+    pages.push({ fontMap: globalFontMap, contentIds: Array.from(objMap.keys()) });
+  }
+
   let fullText = '';
-  let lastY = -9999;
 
-  for (const [, body] of objMap.entries()) {
-    const stream = getDecompressedStream(body);
-    if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ'))) continue;
+  for (const page of pages) {
+    let pageText = '';
+    let curY = 0;
+    let lastY = -9999;
 
-    const btRegex = /BT([\s\S]*?)ET/g;
-    let btm: RegExpExecArray | null;
-    while ((btm = btRegex.exec(stream)) !== null) {
-      const block = btm[1];
-      let currentFont = fontNameMap.values().next().value || new Map<string, string>();
-      let blockText = '';
-      let blockY = lastY;
+    for (const cId of page.contentIds) {
+      const stream = getDecompressedStream(objMap.get(cId) || '');
+      if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ'))) continue;
 
-      const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\\(|\\\)|[^()])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
+      const btRegex = /BT([\s\S]*?)ET/g;
+      let btm: RegExpExecArray | null;
+      while ((btm = btRegex.exec(stream)) !== null) {
+        const block = btm[1];
+        let currentFont = page.fontMap.values().next().value || new Map<string, string>();
 
-      for (const tok of tokens || []) {
-        if (tok === 'T*') {
-          blockText += '\n';
-          blockY += 14;
-        } else if (tok.endsWith('Tf')) {
-          const fn = tok.split(/\s+/)[0].slice(1);
-          if (fontNameMap.has(fn)) currentFont = fontNameMap.get(fn)!;
-        } else if (tok.endsWith('Tm')) {
-          const nums = tok.split(/\s+/).map(Number);
-          blockY = nums[5] || 0;
-        } else if (tok.endsWith('Tj')) {
-          const hexM = tok.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
-          if (hexM) {
-            const clean = hexM[1].replace(/\s+/g, '');
-            let str = '';
-            for (let i = 0; i < clean.length; i += 4) {
-              const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
-              if (currentFont.has(chunk)) {
-                str += currentFont.get(chunk);
-              } else {
-                const code = parseInt(chunk, 16);
-                if (code > 0 && code < 65535) str += String.fromCharCode(code);
+        const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\\(|\\\)|[^()])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
+
+        for (const tok of tokens || []) {
+          if (tok === 'T*') {
+            pageText = pageText.trimEnd() + '\n';
+            curY -= 14;
+            lastY = curY;
+          } else if (tok.endsWith('Tf')) {
+            const fn = tok.split(/\s+/)[0].slice(1);
+            if (page.fontMap.has(fn)) currentFont = page.fontMap.get(fn)!;
+          } else if (tok.endsWith('Tm')) {
+            const nums = tok.split(/\s+/).map(Number);
+            curY = Math.abs(nums[5] || 0);
+            if (lastY !== -9999 && Math.abs(curY - lastY) > 8) {
+              pageText = pageText.trimEnd() + '\n';
+            }
+            lastY = curY;
+          } else if (tok.endsWith('Td')) {
+            const nums = tok.split(/\s+/).map(Number);
+            const dx = nums[0] || 0;
+            const dy = nums[1] || 0;
+            curY += dy;
+            if (Math.abs(dy) > 8) {
+              pageText = pageText.trimEnd() + '\n';
+            } else if (dx > 18 && !pageText.endsWith(' ') && !pageText.endsWith('\n')) {
+              pageText += ' ';
+            }
+            lastY = curY;
+          } else if (tok.endsWith('Tj')) {
+            const hexM = tok.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
+            if (hexM) {
+              const clean = hexM[1].replace(/\s+/g, '');
+              let str = '';
+              for (let i = 0; i < clean.length; i += 4) {
+                const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
+                if (currentFont.has(chunk)) {
+                  str += currentFont.get(chunk);
+                } else {
+                  const code = parseInt(chunk, 16);
+                  if (code > 0 && code < 65535) str += String.fromCharCode(code);
+                }
+              }
+              if (str) pageText += str;
+            } else {
+              const singleM = tok.match(/^\(((?:\\\(|\\\)|[^()])*)\)\s*Tj$/);
+              if (singleM) {
+                const decoded = decodePdfString(singleM[1]);
+                if (decoded) pageText += decoded;
               }
             }
-            if (str) blockText += str;
-          } else {
-            const singleM = tok.match(/^\(((?:\\\(|\\\)|[^()])*)\)\s*Tj$/);
-            if (singleM) {
-              const decoded = decodePdfString(singleM[1]);
-              if (decoded) blockText += decoded;
-            }
-          }
-        } else if (tok.startsWith('[') && tok.endsWith('TJ')) {
-          const parts = tok.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>/g);
-          if (parts) {
-            for (const part of parts) {
-              if (part.startsWith('(') && part.endsWith(')')) {
-                blockText += decodePdfString(part.slice(1, -1));
-              } else if (part.startsWith('<') && part.endsWith('>')) {
-                const clean = part.slice(1, -1).replace(/\s+/g, '');
-                let str = '';
-                for (let i = 0; i < clean.length; i += 4) {
-                  const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
-                  if (currentFont.has(chunk)) str += currentFont.get(chunk);
-                  else {
-                    const code = parseInt(chunk, 16);
-                    if (code > 0 && code < 65535) str += String.fromCharCode(code);
+          } else if (tok.startsWith('[') && tok.endsWith('TJ')) {
+            const parts = tok.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>|([0-9.\-]+)/g);
+            if (parts) {
+              for (const part of parts) {
+                if (part.startsWith('(') && part.endsWith(')')) {
+                  pageText += decodePdfString(part.slice(1, -1));
+                } else if (part.startsWith('<') && part.endsWith('>')) {
+                  const clean = part.slice(1, -1).replace(/\s+/g, '');
+                  let str = '';
+                  for (let i = 0; i < clean.length; i += 4) {
+                    const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
+                    if (currentFont.has(chunk)) str += currentFont.get(chunk);
+                    else {
+                      const code = parseInt(chunk, 16);
+                      if (code > 0 && code < 65535) str += String.fromCharCode(code);
+                    }
+                  }
+                  if (str) pageText += str;
+                } else {
+                  const num = Number(part);
+                  if (num < -150 && !pageText.endsWith(' ') && !pageText.endsWith('\n')) {
+                    pageText += ' ';
                   }
                 }
-                if (str) blockText += str;
               }
             }
           }
         }
       }
+    }
 
-      if (blockText) {
-        if (lastY === -9999) {
-          fullText += blockText;
-        } else if (Math.abs(blockY - lastY) > 3) {
-          fullText += '\n' + blockText;
-        } else {
-          fullText += blockText;
-        }
-        lastY = blockY;
-      }
+    if (pageText.trim()) {
+      fullText += pageText.trim() + '\n\n';
     }
   }
 
   return fullText
+    .replace(/([|–—,\/:])([a-zA-ZçğıöşüÇĞİÖŞÜ0-9])/g, '$1 $2')
+    .replace(/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9])([|–—,\/:])/g, '$1 $2')
     .replace(/\r\n/g, '\n')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')

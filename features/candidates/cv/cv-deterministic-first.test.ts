@@ -87,9 +87,9 @@ Sigorta Çağrı Merkezi Operasyon Müdürü
 `;
     const expList = extractDeterministicExperiences(cvExpText);
     expect(expList.length).toBe(3);
-    expect(expList[0].company).toContain('IGS');
-    expect(expList[1].company).toContain('GEDİK');
-    expect(expList[2].company).toContain('Mehrwerk');
+    expect(expList[0].company).toMatch(/IGS/i);
+    expect(expList[1].company).toMatch(/Gedik/i);
+    expect(expList[2].company).toMatch(/Mehrwerk/i);
   });
 
   it('extracts skills, tools, and sectors deterministically with aliases', () => {

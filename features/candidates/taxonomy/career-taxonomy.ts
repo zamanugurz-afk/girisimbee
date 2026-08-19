@@ -204,6 +204,8 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Muhasebeci',
     'Mali müşavir yardımcısı',
     'Yatırım danışmanı',
+    'Çağrı merkezi operasyon müdürü',
+    'Çağrı merkezi müdürü',
     'Operasyon uzmanı',
     'İç kontrol uzmanı',
     'Uyum (compliance) uzmanı',

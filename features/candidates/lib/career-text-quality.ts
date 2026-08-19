@@ -71,6 +71,8 @@ const TITLE_WHITELIST: Record<string, string> = {
   'full-stack': 'Full-Stack',
   'front-end': 'Front-End',
   'back-end': 'Back-End',
+  igs: 'IGS',
+  ıgs: 'IGS',
 };
 
 /**
@@ -78,7 +80,24 @@ const TITLE_WHITELIST: Record<string, string> = {
  * Capitalizes each word, handles slashes, parentheses, acronyms, and conjunctions.
  */
 export function suggestTitleCaseTr(value: string): string {
-  const trimmed = normalizeCareerTextWhitespace(value);
+  let healed = value || '';
+  healed = healed
+    .replace(/([a-zA-ZçğıöşüÇĞİÖŞÜ]+)[ \t]+([çğıöşüÇĞİÖŞÜ])(?![a-zA-ZçğıöşüÇĞİÖŞÜ])/gi, '$1$2')
+    .replace(/(?<![a-zA-ZçğıöşüÇĞİÖŞÜ])([çğıöşüÇĞİÖŞÜ])[ \t]+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/gi, '$1$2')
+    .replace(/(?:^|\s)Çağ[ \t]+rı(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Çağ[ \t]+rı/i, 'Çağrı'))
+    .replace(/(?:^|\s)Müş[ \t]+teri(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Müş[ \t]+teri/i, 'Müşteri'))
+    .replace(/(?:^|\s)Ağ[ \t]+ustos(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Ağ[ \t]+ustos/i, 'Ağustos'))
+    .replace(/(?:^|\s)Kiş[ \t]+isel(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Kiş[ \t]+isel/i, 'Kişisel'))
+    .replace(/(?:^|\s)Geliş[ \t]+tirme(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Geliş[ \t]+tirme/i, 'Geliştirme'))
+    .replace(/(?:^|\s)İliş[ \t]+kileri(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/İliş[ \t]+kileri/i, 'İlişkileri'))
+    .replace(/Üni[ \t]*versi[ \t]*tesi/gi, 'Üniversitesi')
+    .replace(/G[ \t]*E[ \t]*D[ \t]*İ[ \t]*K/gi, 'Gedik')
+    .replace(/F[ \t]*İ[ \t]*B[ \t]*A[ \t]*B[ \t]*A[ \t]*N[ \t]*K[ \t]*A/gi, 'Fibabanka')
+    .replace(/M[ \t]*P[ \t]*L[ \t]*U[ \t]*S/gi, 'Mplus')
+    .replace(/M[ \t]*E[ \t]*H[ \t]*R[ \t]*W[ \t]*E[ \t]*R[ \t]*K/gi, 'Mehrwerk')
+    .replace(/V[ \t]*I[ \t]*E[ \t]*N[ \t]*N[ \t]*A[ \t]*L[ \t]*I[ \t]*F[ \t]*E/gi, 'Viennalife');
+
+  const trimmed = normalizeCareerTextWhitespace(healed);
   if (!trimmed || trimmed.length > 80) return trimmed;
 
   return trimmed

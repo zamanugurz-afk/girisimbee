@@ -111,10 +111,10 @@ export function formValuesToCustomFields(
   values: CareerProfileFormValues,
 ): Record<string, unknown> {
   const roles = values.roles && values.roles.length > 0 ? values.roles : values.role ? [values.role] : [];
-  const primaryRole = roles[0] || values.role || '';
+  const primaryRole = values.role || roles[0] || '';
 
   const sectors = values.sectors && values.sectors.length > 0 ? values.sectors : values.sector ? [values.sector] : [];
-  const primarySector = sectors[0] || values.sector || '';
+  const primarySector = values.sector || sectors[0] || '';
 
   const profSkills =
     values.professionalSkillsList && values.professionalSkillsList.length > 0

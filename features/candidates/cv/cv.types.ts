@@ -32,6 +32,8 @@ export interface RawExtractedExperience {
   endYear?: number | null;
   isCurrent?: boolean;
   duration?: string;
+  employmentType?: string;
+  department?: string;
   responsibilities?: string;
   achievements?: string;
 }
@@ -85,9 +87,9 @@ export interface CanonicalTaxonomyMappingResult {
   canonicalConfidence: number;
 }
 
-export const CV_EXTRACTION_VERSION = '2.3';
-export const CAREER_TAXONOMY_VERSION = '2.3';
-export const CV_PARSER_VERSION = '2.3';
+export const CV_EXTRACTION_VERSION = '2.4';
+export const CAREER_TAXONOMY_VERSION = '2.4';
+export const CV_PARSER_VERSION = '2.4';
 
 export interface CvExtractionMetrics {
   aiCallCount: number;

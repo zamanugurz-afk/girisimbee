@@ -69,3 +69,4 @@ next-env.d.ts
 *.log
 .cursor/
 .env*
+/scratch/
