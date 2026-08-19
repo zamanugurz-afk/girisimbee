@@ -378,41 +378,59 @@ function CreateListingContent() {
   return (
     <main
       className={cn(
-        'relative mx-auto bg-[#FAFBFC] px-5 pb-16 pt-20 dark:bg-background lg:px-8',
-        categoryId ? 'max-w-[1360px]' : 'max-w-[1280px]',
+        'relative mx-auto bg-[#FAFBFC] px-4 pb-6 pt-3 dark:bg-background lg:px-8',
+        categoryId ? 'max-w-[1440px]' : 'max-w-[1280px]',
       )}
     >
-      {categoryId ? (
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-            {createCopy?.title ?? 'İlan Oluştur'}
-          </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-            {createCopy?.description ?? 'Formu doldurun; yayın öncesi içerik kontrolünden geçer.'}
-          </p>
-        </div>
-      ) : null}
-
       {!categoryId ? (
-        <CreateListingCategoryPicker
-          onSelect={selectCategory}
-          hubStep={hubStep}
-          onHubStepChange={handleHubStepChange}
-        />
-      ) : null}
+        <>
+          <div className="mb-8">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
+              İlan Oluştur
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
+              Formu doldurun; yayın öncesi içerik kontrolünden geçer.
+            </p>
+          </div>
+          <CreateListingCategoryPicker
+            onSelect={selectCategory}
+            hubStep={hubStep}
+            onHubStepChange={handleHubStepChange}
+          />
+        </>
+      ) : (
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900 px-6 py-3.5 shadow-xs">
+          <div className="flex items-center gap-3">
+            <span className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">
+              Girişim<span className="text-amber-500">bee</span>
+            </span>
+            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-700" />
+            <span className="font-display font-semibold text-slate-800 dark:text-zinc-200 text-sm sm:text-base">
+              {selectedLabel} İlanı Oluştur
+            </span>
+          </div>
 
-      {categoryId && (
-        <CreateListingSelectedCategoryBar
-          categoryId={categoryId}
-          label={selectedLabel}
-          caption={
-            categoryId === CATEGORY_IDS.ortakBul
-              ? 'Seçilen ilan türü'
-              : 'Seçilen kategori'
-          }
-          icon={partnershipIntent === 'joining' ? Users : undefined}
-          onChange={resetCategorySelection}
-        />
+          <div className="flex items-center gap-5 text-xs text-slate-500 dark:text-zinc-400">
+            <div className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Taslak kaydedildi</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => alert('İlanınızı adım adım doldurarak tek bakışta canlı önizlemesini görebilirsiniz.')}
+              className="flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              <span>(?) Yardım</span>
+            </button>
+            <button
+              type="button"
+              onClick={resetCategorySelection}
+              className="flex items-center gap-1 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+            >
+              <span>Taslağı Sil</span>
+            </button>
+          </div>
+        </div>
       )}
 
       {isReady && formListingType && categoryId ? (

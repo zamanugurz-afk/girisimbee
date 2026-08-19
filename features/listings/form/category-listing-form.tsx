@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Cloud, Shield } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cloud, Shield, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ListingLiveCardPreview } from '@/features/listings/components/listing-live-card-preview';
 import { cn } from '@/lib/utils';
 import type { ListingType } from '@/features/listings/types/listing-type.types';
 import type { CategoryId, ListingId } from '@/lib/domain/ids';
@@ -1922,146 +1923,144 @@ export function CategoryListingForm({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
         {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
-          <div className="rounded-2xl border border-border/80 bg-white p-5 shadow-xs dark:bg-zinc-900">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              İlan Adımları
-            </p>
-            <nav className="mt-4 space-y-2">
-              {steps.map((step, idx) => {
-                const isCurrent = idx === stepIndex;
-                const isPast = idx < stepIndex;
-                return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    onClick={() => goToStep(idx, 'sidebar-click')}
-                    disabled={disabled || isBusy || (idx > stepIndex + 1 && !isPast)}
-                    className={cn(
-                      'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-all',
-                      isCurrent
-                        ? `border-l-4 ${theme.stepperActiveBorder} ${theme.stepperActiveBg} ${theme.stepperActiveText} shadow-2xs`
-                        : isPast
-                          ? 'text-foreground hover:bg-muted/50'
-                          : 'text-muted-foreground opacity-60 cursor-not-allowed',
-                    )}
-                  >
-                    <span
+        <div className="hidden lg:block lg:col-span-3 h-full">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                İlan Adımları
+              </p>
+              <nav className="space-y-3">
+                {steps.map((step, idx) => {
+                  const isCurrent = idx === stepIndex;
+                  const isPast = idx < stepIndex;
+                  return (
+                    <button
+                      key={step.id}
+                      type="button"
+                      onClick={() => goToStep(idx, 'sidebar-click')}
+                      disabled={disabled || isBusy || (idx > stepIndex + 1 && !isPast)}
                       className={cn(
-                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                        'flex w-full items-start gap-3.5 rounded-xl p-3.5 text-left transition-all relative',
                         isCurrent
-                          ? theme.stepperActiveNumberBg
+                          ? `border-l-4 ${theme.stepperActiveBorder} ${theme.stepperActiveBg} ${theme.stepperActiveText}`
                           : isPast
-                            ? 'bg-emerald-500 text-white'
-                            : 'border border-border bg-muted/30 text-muted-foreground',
+                            ? 'text-slate-800 hover:bg-slate-50 dark:text-zinc-200'
+                            : 'text-slate-400 opacity-60 cursor-not-allowed',
                       )}
                     >
-                      {isPast ? '✓' : `0${idx + 1}`}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium truncate">{step.title}</p>
-                      {step.description && (
-                        <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
-                          {step.description}
+                      <span
+                        className={cn(
+                          'font-display text-2xl font-bold tracking-tight shrink-0',
+                          isCurrent
+                            ? theme.categoryLabelText
+                            : isPast
+                              ? 'text-emerald-600'
+                              : 'text-slate-300 dark:text-zinc-600',
+                        )}
+                      >
+                        0{idx + 1}
+                      </span>
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <p className={cn('text-sm font-bold truncate', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
+                          {step.title}
                         </p>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </nav>
+                        {step.description && (
+                          <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                            {step.description}
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
 
-            <div className="mt-6 pt-4 border-t border-border/60 flex items-start gap-2.5 text-xs text-muted-foreground">
-              <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+            <div className="mt-8 pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-start gap-3 text-xs text-slate-500">
+              <Shield className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-foreground">Bilgileriniz KVKK&apos;ya uygun olarak korunur.</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Kişisel verileriniz güvende.</p>
+                <p className="font-semibold text-slate-900 dark:text-zinc-100">
+                  Bilgileriniz KVKK&apos;ya uygun olarak korunur.
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Kişisel verileriniz güvende.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* MIDDLE COLUMN: Active Step Form (6 cols on desktop) */}
-        <div className="col-span-1 lg:col-span-6 space-y-6">
-          <div className="gc-card overflow-hidden">
-            <div className="border-b border-border/60 px-4 py-4 lg:hidden sm:px-6">
-              <FormStepIndicator steps={steps} currentIndex={stepIndex} />
-            </div>
-
-            <div className="p-6 sm:p-8">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-border/50 pb-5">
-          <div className="flex items-start gap-3.5">
-            <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl mt-0.5', theme.stepBadgeBg)}>
-              <span className="font-display text-sm font-bold">0{stepIndex + 1}</span>
-            </div>
+        <div className="col-span-1 lg:col-span-6 h-full">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
             <div>
-              <p className={cn('text-gc-xs font-bold uppercase tracking-wide', theme.categoryLabelText)}>
-                {listingType.name}
-              </p>
-              <h2 className="mt-0.5 font-display text-gc-lg font-bold text-foreground">
-                {currentStep.title}
-              </h2>
-              {currentStep.description && (
-                <p className="mt-1 text-gc-sm text-muted-foreground">{currentStep.description}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <span className={cn('rounded-full px-3 py-1 text-xs font-bold', theme.stepCounterBadge)}>
-              {stepIndex + 1} / {steps.length}
-            </span>
-            {lastAutoSaved && isFormStep && (
-              <p className="inline-flex items-center gap-1.5 text-gc-xs text-muted-foreground">
-                <Cloud className="h-3.5 w-3.5" />
-                Otomatik kayıt: {formatAutosaveTime(lastAutoSaved)}
-              </p>
-            )}
-            {isFormStep && !disabled && showSampleFill && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 rounded-lg text-xs"
-                onClick={() => {
-                  const sample = getSampleListingValues(categoryId, { partnershipIntent });
-                  if (!sample) {
-                    toast.message('Bu kategori için örnek veri yok.');
-                    return;
-                  }
-                  if (sample.core) {
-                    setCore((prev) => ({ ...prev, ...sample.core! }));
-                  }
-                  if (sample.customFields) {
-                    setCustomFields((prev) =>
-                      mergeCustomFieldDefaults(listingType.fieldSchema, {
-                        ...prev,
-                        ...sample.customFields,
-                      }),
-                    );
-                    setShowDistinctProductName(
-                      hasDistinctProductName(
-                        sample.core?.title ?? core.title,
-                        sample.customFields.productName,
-                      ),
-                    );
-                    setShowUseOfFundsDetail(
-                      Boolean(String(sample.customFields.useOfFundsDetail ?? '').trim()),
-                    );
-                  }
-                  if (sample.tags) setTags(sample.tags);
-                  if (sample.images) setImages(sample.images);
-                  toast.success('Örnek içerik dolduruldu. Gözden geçirip düzenleyebilirsiniz.');
-                }}
-              >
-                Örnek doldur
-              </Button>
-            )}
-          </div>
-        </div>
+              <div className="border-b border-border/60 pb-4 mb-4 lg:hidden">
+                <FormStepIndicator steps={steps} currentIndex={stepIndex} />
+              </div>
 
-        <div className="space-y-4">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 dark:border-zinc-800 pb-5">
+                <div className="flex items-center gap-3.5">
+                  <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', theme.stepBadgeBg)}>
+                    <User className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                      {currentStep.title}
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {stepIndex === 0 ? 'İlanınızın temelini oluşturalım.' : currentStep.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {isFormStep && !disabled && showSampleFill && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-lg text-xs"
+                      onClick={() => {
+                        const sample = getSampleListingValues(categoryId, { partnershipIntent });
+                        if (!sample) {
+                          toast.message('Bu kategori için örnek veri yok.');
+                          return;
+                        }
+                        if (sample.core) {
+                          setCore((prev) => ({ ...prev, ...sample.core! }));
+                        }
+                        if (sample.customFields) {
+                          setCustomFields((prev) =>
+                            mergeCustomFieldDefaults(listingType.fieldSchema, {
+                              ...prev,
+                              ...sample.customFields,
+                            }),
+                          );
+                          setShowDistinctProductName(
+                            hasDistinctProductName(
+                              sample.core?.title ?? core.title,
+                              sample.customFields.productName,
+                            ),
+                          );
+                          setShowUseOfFundsDetail(
+                            Boolean(String(sample.customFields.useOfFundsDetail ?? '').trim()),
+                          );
+                        }
+                        toast.success('Örnek içerik dolduruldu. Gözden geçirip düzenleyebilirsiniz.');
+                      }}
+                    >
+                      Örnek doldur
+                    </Button>
+                  )}
+                  <span className={cn('rounded-full px-3 py-1 text-xs font-bold', theme.stepCounterBadge)}>
+                    {stepIndex + 1} / {steps.length}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
           {(isCvStep || (stepIndex === 0 && categoryId === CATEGORY_IDS.isBul)) && categoryId === CATEGORY_IDS.isBul && (
             <div className="mb-6">
               {cvDraftInfo ? (
@@ -3015,129 +3014,120 @@ export function CategoryListingForm({
             </>
           )}
         </div>
+        </div>
 
-        <div className="mt-8 flex flex-col gap-2 border-t border-border/60 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex gap-2">
-            {!isFirstStep && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={goBack}
-                disabled={disabled || isBusy}
-                className="h-10 px-5 rounded-xl text-xs font-semibold"
-              >
-                <ChevronLeft className="mr-1 h-4 w-4" />
-                Geri
-              </Button>
-            )}
-            {!isLastStep && (
-              <Button
-                type="button"
-                onClick={goNext}
-                disabled={disabled || isBusy}
-                className={cn('h-10 px-6 rounded-xl text-xs font-semibold', theme.ctaButtonBg)}
-              >
-                Devam Et
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            )}
-          </div>
+            {/* Middle Card Footer */}
+            <div className="mt-8 pt-4 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2.5 text-xs text-slate-500 max-w-sm">
+                <Shield className="h-4 w-4 text-blue-600 shrink-0" />
+                <span className="text-[11px] leading-tight">
+                  Bilgileriniz KVKK&apos;ya uygun olarak korunur. Kişisel verileriniz güvenle işlenir ve saklanır.
+                </span>
+              </div>
 
-          {isPreviewStep && showPreviewButton && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={disabled || isBusy}
-              onClick={() => setPreviewOpen(true)}
-              className="h-10 px-5 rounded-xl text-xs font-semibold"
-            >
-              Tam Ekran Önizle
-            </Button>
-          )}
+              <div className="flex items-center gap-2.5">
+                {!isFirstStep && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={goBack}
+                    disabled={disabled || isBusy}
+                    className="h-10 px-5 rounded-xl text-xs font-semibold"
+                  >
+                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    Geri
+                  </Button>
+                )}
+                {!isLastStep && (
+                  <Button
+                    type="button"
+                    onClick={goNext}
+                    disabled={disabled || isBusy}
+                    className="h-10 px-6 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-sm flex items-center gap-1.5"
+                  >
+                    <span>Devam Et</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
 
-          {isPublishStep && (
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              {showDraftButton && onSaveDraft && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={disabled || isBusy}
-                  onClick={() => void runFinalStepAction('draft', onSaveDraft)}
-                  className="h-10 px-5 rounded-xl text-xs font-semibold"
-                >
-                  {submitting === 'draft' ? 'Kaydediliyor…' : 'Taslak Kaydet'}
-                </Button>
-              )}
-              {onSubmit && (
-                <Button
-                  type="button"
-                  variant={showPublishButton ? 'outline' : 'default'}
-                  disabled={disabled || isBusy}
-                  onClick={() => void runFinalStepAction('save', onSubmit)}
-                  className="h-10 px-5 rounded-xl text-xs font-semibold"
-                >
-                  {submitting === 'save' ? 'Kaydediliyor…' : submitLabel}
-                </Button>
-              )}
-              {showPublishButton && onPublish && (
-                <Button
-                  type="button"
-                  disabled={disabled || isBusy}
-                  onClick={() => void runFinalStepAction('publish', onPublish)}
-                  className={cn('h-10 px-6 rounded-xl text-xs font-semibold', theme.ctaButtonBg)}
-                >
-                  {submitting === 'publish' ? 'Gönderiliyor…' : 'Yayınla'}
-                </Button>
-              )}
+                {isPreviewStep && showPreviewButton && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={disabled || isBusy}
+                    onClick={() => setPreviewOpen(true)}
+                    className="h-10 px-5 rounded-xl text-xs font-semibold"
+                  >
+                    Tam Ekran Önizle
+                  </Button>
+                )}
+
+                {isPublishStep && (
+                  <div className="flex items-center gap-2">
+                    {showDraftButton && onSaveDraft && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={disabled || isBusy}
+                        onClick={() => void runFinalStepAction('draft', onSaveDraft)}
+                        className="h-10 px-5 rounded-xl text-xs font-semibold"
+                      >
+                        {submitting === 'draft' ? 'Kaydediliyor…' : 'Taslak Kaydet'}
+                      </Button>
+                    )}
+                    {showPublishButton && onPublish && (
+                      <Button
+                        type="button"
+                        disabled={disabled || isBusy}
+                        onClick={() => void runFinalStepAction('publish', onPublish)}
+                        className="h-10 px-6 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-sm flex items-center gap-1.5"
+                      >
+                        {submitting === 'publish' ? 'Gönderiliyor…' : 'Yayınla'}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-
-        <p className="mt-4 text-center text-gc-xs text-muted-foreground">
-          Adım {stepIndex + 1} / {steps.length}
-        </p>
-        </div>
-      </div>
-      </div>
-
-      {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop) */}
-      <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
-        {/* Live Preview Card */}
-        <div className="rounded-2xl border border-border/80 bg-white p-4 shadow-xs dark:bg-zinc-900 space-y-3">
-          <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
-            <h4 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              CANLI ÖNİZLEME
-            </h4>
-            <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
-              Taslak
-            </span>
           </div>
-          <ListingLivePreviewContainer fixedHeight={440} canonicalWidth={520}>
-            {careerPreviewData ? (
-              <CareerProfilePreview data={careerPreviewData} />
-            ) : investmentPreviewData ? (
-              <InvestmentProfilePreview data={investmentPreviewData} />
-            ) : investorPreviewData ? (
-              <InvestorProfilePreview data={investorPreviewData} />
-            ) : (
-              <ListingFormPreviewContent
-                values={formValues}
-                listingType={listingType}
-                readOnly
-              />
-            )}
-          </ListingLivePreviewContainer>
         </div>
 
-        {/* Dynamic Progress Status */}
-        <ListingProgressStatus
-          currentStepIndex={stepIndex}
-          totalSteps={steps.length}
-          steps={steps}
-          categoryId={categoryId}
-          onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
-        />
-      </div>
+        {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop) */}
+        <div className="hidden lg:block lg:col-span-3 h-full">
+          <div className="h-full flex flex-col justify-between gap-4">
+            {/* Live Preview Card */}
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3 mb-3">
+                  <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-500">
+                    CANLI ÖNİZLEME
+                  </h4>
+                  <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
+                    Taslak
+                  </span>
+                </div>
+
+                <ListingLiveCardPreview
+                  categoryId={categoryId}
+                  values={formValues}
+                  listingType={listingType}
+                  partnershipIntent={partnershipIntent}
+                  userName={user?.displayName || 'İlan Sahibi'}
+                  userAvatar={user?.avatarUrl ?? undefined}
+                />
+              </div>
+            </div>
+
+            {/* Dynamic Progress Status */}
+            <ListingProgressStatus
+              currentStepIndex={stepIndex}
+              totalSteps={steps.length}
+              steps={steps}
+              categoryId={categoryId}
+              onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
+            />
+          </div>
+        </div>
       </div>
 
       <ListingPreviewDialog
