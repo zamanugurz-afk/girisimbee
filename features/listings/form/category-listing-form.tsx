@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Cloud } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cloud, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ListingType } from '@/features/listings/types/listing-type.types';
@@ -22,6 +22,7 @@ import {
 import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
 import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
@@ -34,7 +35,10 @@ import { StructuredTagsSelect } from '@/features/listings/form/fields/structured
 import { CvUploadField } from '@/features/listings/form/fields/cv-upload-field';
 import { CvUploadCard } from '@/features/listings/form/fields/cv-upload-card';
 import { CvExtractionHud } from '@/features/listings/form/fields/cv-extraction-hud';
-import { ListingQualityChecklist } from '@/features/listings/form/fields/listing-quality-checklist';
+import {
+  ListingQualityChecklist,
+  ListingProgressStatus,
+} from '@/features/listings/form/fields/listing-quality-checklist';
 import { StickyActionBar } from '@/features/listings/form/fields/sticky-action-bar';
 import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import {
@@ -134,6 +138,8 @@ import {
 } from '@/features/listings/form/listing-package-selection-step';
 import { ListingPreviewDialog } from '@/features/listings/components/listing-preview-dialog';
 import { ListingFormPreviewContent } from '@/features/listings/components/listing-form-preview-content';
+import { ListingLivePreviewContainer } from '@/features/listings/components/listing-live-preview-container';
+import { getListingCategoryTheme } from '@/features/listings/config/listing-form-theme.config';
 import {
   DIGITAL_AI_PUBLISH_CONFIG,
   FRANCHISE_PUBLISH_CONFIG,
@@ -378,6 +384,7 @@ export function CategoryListingForm({
     () => new Map(listingType.fieldSchema.fields.map((f) => [f.key, f])),
     [listingType.fieldSchema],
   );
+  const theme = useMemo(() => getListingCategoryTheme(categoryId), [categoryId]);
 
   const defaults = useMemo(() => {
     const base = getListingFormDefaults(listingType.fieldSchema);
@@ -1902,7 +1909,7 @@ export function CategoryListingForm({
         stepIndex,
         stepId: currentStep.id,
         error: err,
-        publishErrorMessages,
+        publishErrors,
       });
 
       setPublishErrors(publishErrorMessages);
@@ -1919,7 +1926,7 @@ export function CategoryListingForm({
         {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop) */}
         <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
           <div className="rounded-2xl border border-border/80 bg-white p-5 shadow-xs dark:bg-zinc-900">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               İlan Adımları
             </p>
             <nav className="mt-4 space-y-2">
@@ -1933,9 +1940,9 @@ export function CategoryListingForm({
                     onClick={() => goToStep(idx, 'sidebar-click')}
                     disabled={disabled || isBusy || (idx > stepIndex + 1 && !isPast)}
                     className={cn(
-                      'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors',
+                      'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-all',
                       isCurrent
-                        ? 'bg-amber-500/10 font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+                        ? `border-l-4 ${theme.stepperActiveBorder} ${theme.stepperActiveBg} ${theme.stepperActiveText} shadow-2xs`
                         : isPast
                           ? 'text-foreground hover:bg-muted/50'
                           : 'text-muted-foreground opacity-60 cursor-not-allowed',
@@ -1945,7 +1952,7 @@ export function CategoryListingForm({
                       className={cn(
                         'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
                         isCurrent
-                          ? 'bg-amber-500 text-slate-950'
+                          ? theme.stepperActiveNumberBg
                           : isPast
                             ? 'bg-emerald-500 text-white'
                             : 'border border-border bg-muted/30 text-muted-foreground',
@@ -1965,6 +1972,14 @@ export function CategoryListingForm({
                 );
               })}
             </nav>
+
+            <div className="mt-6 pt-4 border-t border-border/60 flex items-start gap-2.5 text-xs text-muted-foreground">
+              <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-foreground">Bilgileriniz KVKK&apos;ya uygun olarak korunur.</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Kişisel verileriniz güvende.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1976,19 +1991,27 @@ export function CategoryListingForm({
             </div>
 
             <div className="p-6 sm:p-8">
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-gc-xs font-medium uppercase tracking-wide text-primary">
-              {listingType.name}
-            </p>
-            <h2 className="mt-1 font-display text-gc-lg font-semibold text-foreground">
-              {currentStep.title}
-            </h2>
-            {currentStep.description && (
-              <p className="mt-1.5 text-gc-sm text-muted-foreground">{currentStep.description}</p>
-            )}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-border/50 pb-5">
+          <div className="flex items-start gap-3.5">
+            <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl mt-0.5', theme.stepBadgeBg)}>
+              <span className="font-display text-sm font-bold">0{stepIndex + 1}</span>
+            </div>
+            <div>
+              <p className={cn('text-gc-xs font-bold uppercase tracking-wide', theme.categoryLabelText)}>
+                {listingType.name}
+              </p>
+              <h2 className="mt-0.5 font-display text-gc-lg font-bold text-foreground">
+                {currentStep.title}
+              </h2>
+              {currentStep.description && (
+                <p className="mt-1 text-gc-sm text-muted-foreground">{currentStep.description}</p>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <span className={cn('rounded-full px-3 py-1 text-xs font-bold', theme.stepCounterBadge)}>
+              {stepIndex + 1} / {steps.length}
+            </span>
             {lastAutoSaved && isFormStep && (
               <p className="inline-flex items-center gap-1.5 text-gc-xs text-muted-foreground">
                 <Cloud className="h-3.5 w-3.5" />
@@ -2277,6 +2300,16 @@ export function CategoryListingForm({
               variant={packageVariantForCategory(categoryId)}
               categoryFreeAvailable={categoryFreeAvailable}
             />
+          )}
+
+          {isKvkkStep && (
+            <div className="rounded-xl border border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground">
+              <p className="font-semibold text-foreground">KVKK & Güvenli İletişim Güvencesi</p>
+              <p className="mt-1">
+                İş Arayan kariyer kartınızda soyadınız, telefon numaranız, e-posta adresiniz ve doğum tarihiniz asla açık olarak yayınlanmaz.
+                İşverenlerle iletişim yalnızca karşılıklı onaylanan iletişim talepleri üzerinden güvenle sağlanır.
+              </p>
+            </div>
           )}
 
           {isPublishStep && (
@@ -2609,61 +2642,284 @@ export function CategoryListingForm({
                 </div>
               ) : null}
 
-              {(isSeekingIdentityStep
-                ? restCustomKeys.filter((key) => key !== 'productName')
-                : restCustomKeys
-              ).map((key) => {
-                const field = fieldByKey.get(key);
-                if (!field) return null;
-                return (
-                  <div key={key} className="space-y-2">
-                    <DynamicField
-                      field={field}
-                      value={
-                        categoryId === CATEGORY_IDS.yatirimBul
-                          ? displaySeekingMetricValue(key, mergedCustomFields)
-                          : mergedCustomFields[key]
-                      }
-                      onChange={(val) => {
-                        handleCustomFieldChange(key, val);
-                        if (cvFilledKeys.has(key)) {
-                          setCvFilledKeys((prev) => {
-                            const next = new Set(prev);
-                            next.delete(key);
-                            return next;
-                          });
-                        }
-                      }}
-                      isCvFilled={cvFilledKeys.has(key)}
-                      error={resolveFieldError(fieldErrors, key)}
-                      disabled={disabled || isBusy}
-                      context={{
-                        values: mergedCustomFields,
-                        coreCity: core.city ?? null,
-                      }}
-                    />
-                    {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
-                      <CareerManualAssist
-                        kind="role"
-                        text={String(mergedCustomFields[key] ?? '')}
-                        catalog={getPositionsForSector(
-                          String(mergedCustomFields.primarySector ?? ''),
-                        )}
-                        sector={String(mergedCustomFields.primarySector ?? '')}
-                        experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+              {isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) ? (
+                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                  {/* Middle Vertical Divider */}
+                  <div
+                    aria-hidden="true"
+                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px', theme.dividerColor)}
+                  />
+
+                  {/* Left Column: Pozisyon, Lokasyon, Deneyim Seviyesi */}
+                  <div className="space-y-4 md:pr-4">
+                    {/* Pozisyon */}
+                    {fieldByKey.get('desiredRole') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('desiredRole')!}
+                          value={mergedCustomFields.desiredRole}
+                          onChange={(val) => {
+                            handleCustomFieldChange('desiredRole', val);
+                            if (cvFilledKeys.has('desiredRole')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('desiredRole');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('desiredRole')}
+                          error={resolveFieldError(fieldErrors, 'desiredRole')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                        {String(mergedCustomFields.desiredRoleOther ?? '').trim() ? (
+                          <CareerManualAssist
+                            kind="role"
+                            text={String(mergedCustomFields.desiredRoleOther ?? '')}
+                            catalog={getPositionsForSector(
+                              String(mergedCustomFields.primarySector ?? ''),
+                            )}
+                            sector={String(mergedCustomFields.primarySector ?? '')}
+                            experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+                            disabled={disabled || isBusy}
+                            onAcceptCatalog={(items) => {
+                              const first = items[0];
+                              if (!first) return;
+                              setCustomField('desiredRole', first);
+                              setCustomField('desiredRoleOther', '');
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    {/* Lokasyon (İl & İlçe) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {fieldByKey.get('residenceCity') ? (
+                        <DynamicField
+                          field={fieldByKey.get('residenceCity')!}
+                          value={mergedCustomFields.residenceCity}
+                          onChange={(val) => {
+                            handleCustomFieldChange('residenceCity', val);
+                            if (cvFilledKeys.has('residenceCity')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('residenceCity');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('residenceCity')}
+                          error={resolveFieldError(fieldErrors, 'residenceCity')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+
+                      {fieldByKey.get('residenceDistrict') ? (
+                        <DynamicField
+                          field={fieldByKey.get('residenceDistrict')!}
+                          value={mergedCustomFields.residenceDistrict}
+                          onChange={(val) => {
+                            handleCustomFieldChange('residenceDistrict', val);
+                            if (cvFilledKeys.has('residenceDistrict')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('residenceDistrict');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('residenceDistrict')}
+                          error={resolveFieldError(fieldErrors, 'residenceDistrict')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+                    </div>
+
+                    {/* Deneyim Seviyesi */}
+                    {fieldByKey.get('experienceLevel') ? (
+                      <DynamicField
+                        field={fieldByKey.get('experienceLevel')!}
+                        value={mergedCustomFields.experienceLevel}
+                        onChange={(val) => {
+                          handleCustomFieldChange('experienceLevel', val);
+                          if (cvFilledKeys.has('experienceLevel')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('experienceLevel');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('experienceLevel')}
+                        error={resolveFieldError(fieldErrors, 'experienceLevel')}
                         disabled={disabled || isBusy}
-                        onAcceptCatalog={(items) => {
-                          const first = items[0];
-                          if (!first) return;
-                          const targetKey = key === 'desiredRoleOther' ? 'desiredRole' : 'role';
-                          setCustomField(targetKey, first);
-                          setCustomField(key, '');
+                        context={{
+                          values: mergedCustomFields,
+                          coreCity: core.city ?? null,
                         }}
                       />
                     ) : null}
                   </div>
-                );
-              })}
+
+                  {/* Right Column: Sektör, Demografi */}
+                  <div className="space-y-4 md:pl-4">
+                    {/* Sektör */}
+                    {fieldByKey.get('primarySector') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('primarySector')!}
+                          value={mergedCustomFields.primarySector}
+                          onChange={(val) => {
+                            handleCustomFieldChange('primarySector', val);
+                            if (cvFilledKeys.has('primarySector')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('primarySector');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('primarySector')}
+                          error={resolveFieldError(fieldErrors, 'primarySector')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* Demografi & Ek alanlar */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {fieldByKey.get('profileGender') ? (
+                        <DynamicField
+                          field={fieldByKey.get('profileGender')!}
+                          value={mergedCustomFields.profileGender}
+                          onChange={(val) => {
+                            handleCustomFieldChange('profileGender', val);
+                            if (cvFilledKeys.has('profileGender')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('profileGender');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('profileGender')}
+                          error={resolveFieldError(fieldErrors, 'profileGender')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+
+                      {fieldByKey.get('birthDate') ? (
+                        <DynamicField
+                          field={fieldByKey.get('birthDate')!}
+                          value={mergedCustomFields.birthDate}
+                          onChange={(val) => {
+                            handleCustomFieldChange('birthDate', val);
+                            if (cvFilledKeys.has('birthDate')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('birthDate');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('birthDate')}
+                          error={resolveFieldError(fieldErrors, 'birthDate')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+                    </div>
+
+                    {/* Bilgilendirme */}
+                    <div className="rounded-xl border border-border/60 bg-muted/20 p-3.5 text-xs text-muted-foreground">
+                      <p className="font-semibold text-foreground">Bilgileriniz KVKK&apos;ya uygun olarak korunur.</p>
+                      <p className="mt-1">
+                        Kişisel verileriniz güvenle işlenir ve saklanır.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                (isSeekingIdentityStep
+                  ? restCustomKeys.filter((key) => key !== 'productName')
+                  : restCustomKeys
+                ).map((key) => {
+                  const field = fieldByKey.get(key);
+                  if (!field) return null;
+                  return (
+                    <div key={key} className="space-y-2">
+                      <DynamicField
+                        field={field}
+                        value={
+                          categoryId === CATEGORY_IDS.yatirimBul
+                            ? displaySeekingMetricValue(key, mergedCustomFields)
+                            : mergedCustomFields[key]
+                        }
+                        onChange={(val) => {
+                          handleCustomFieldChange(key, val);
+                          if (cvFilledKeys.has(key)) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete(key);
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has(key)}
+                        error={resolveFieldError(fieldErrors, key)}
+                        disabled={disabled || isBusy}
+                        context={{
+                          values: mergedCustomFields,
+                          coreCity: core.city ?? null,
+                        }}
+                      />
+                      {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
+                        <CareerManualAssist
+                          kind="role"
+                          text={String(mergedCustomFields[key] ?? '')}
+                          catalog={getPositionsForSector(
+                            String(mergedCustomFields.primarySector ?? ''),
+                          )}
+                          sector={String(mergedCustomFields.primarySector ?? '')}
+                          experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+                          disabled={disabled || isBusy}
+                          onAcceptCatalog={(items) => {
+                            const first = items[0];
+                            if (!first) return;
+                            const targetKey = key === 'desiredRoleOther' ? 'desiredRole' : 'role';
+                            setCustomField(targetKey, first);
+                            setCustomField(key, '');
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  );
+                })
+              )}
 
               {isSeekingFundingStep && !visibleStepCustomKeys.includes('useOfFundsDetail') ? (
                 <Button
@@ -2768,14 +3024,20 @@ export function CategoryListingForm({
                 variant="outline"
                 onClick={goBack}
                 disabled={disabled || isBusy}
+                className="h-10 px-5 rounded-xl text-xs font-semibold"
               >
                 <ChevronLeft className="mr-1 h-4 w-4" />
                 Geri
               </Button>
             )}
             {!isLastStep && (
-              <Button type="button" onClick={goNext} disabled={disabled || isBusy}>
-                İleri
+              <Button
+                type="button"
+                onClick={goNext}
+                disabled={disabled || isBusy}
+                className={cn('h-10 px-6 rounded-xl text-xs font-semibold', theme.ctaButtonBg)}
+              >
+                Devam Et
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             )}
@@ -2787,6 +3049,7 @@ export function CategoryListingForm({
               variant="outline"
               disabled={disabled || isBusy}
               onClick={() => setPreviewOpen(true)}
+              className="h-10 px-5 rounded-xl text-xs font-semibold"
             >
               Tam Ekran Önizle
             </Button>
@@ -2800,6 +3063,7 @@ export function CategoryListingForm({
                   variant="outline"
                   disabled={disabled || isBusy}
                   onClick={() => void runFinalStepAction('draft', onSaveDraft)}
+                  className="h-10 px-5 rounded-xl text-xs font-semibold"
                 >
                   {submitting === 'draft' ? 'Kaydediliyor…' : 'Taslak Kaydet'}
                 </Button>
@@ -2810,6 +3074,7 @@ export function CategoryListingForm({
                   variant={showPublishButton ? 'outline' : 'default'}
                   disabled={disabled || isBusy}
                   onClick={() => void runFinalStepAction('save', onSubmit)}
+                  className="h-10 px-5 rounded-xl text-xs font-semibold"
                 >
                   {submitting === 'save' ? 'Kaydediliyor…' : submitLabel}
                 </Button>
@@ -2819,6 +3084,7 @@ export function CategoryListingForm({
                   type="button"
                   disabled={disabled || isBusy}
                   onClick={() => void runFinalStepAction('publish', onPublish)}
+                  className={cn('h-10 px-6 rounded-xl text-xs font-semibold', theme.ctaButtonBg)}
                 >
                   {submitting === 'publish' ? 'Gönderiliyor…' : 'Yayınla'}
                 </Button>
@@ -2834,32 +3100,43 @@ export function CategoryListingForm({
       </div>
       </div>
 
-      {/* RIGHT COLUMN: Live Preview & Quality Checklist (3 cols on desktop) */}
+      {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop) */}
       <div className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
-        {qualityChecklistItems.length > 0 && (
-          <ListingQualityChecklist
-            items={qualityChecklistItems}
-            onNavigateToStep={(stepIdx) => goToStep(stepIdx, 'quality-checklist-click')}
-          />
-        )}
-
         {/* Live Preview Card */}
-        {careerPreviewData && (
-          <div className="rounded-2xl border border-border/80 bg-white p-4 shadow-xs dark:bg-zinc-900 space-y-3">
-            <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Canlı İlan Önizlemesi
-              </h4>
-              <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Canlı
-              </span>
-            </div>
-            <div className="scale-95 origin-top pointer-events-none select-none">
-              <CareerProfilePreview data={careerPreviewData} />
-            </div>
+        <div className="rounded-2xl border border-border/80 bg-white p-4 shadow-xs dark:bg-zinc-900 space-y-3">
+          <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
+            <h4 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              CANLI ÖNİZLEME
+            </h4>
+            <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
+              Taslak
+            </span>
           </div>
-        )}
+          <ListingLivePreviewContainer fixedHeight={440} canonicalWidth={520}>
+            {careerPreviewData ? (
+              <CareerProfilePreview data={careerPreviewData} />
+            ) : investmentPreviewData ? (
+              <InvestmentProfilePreview data={investmentPreviewData} />
+            ) : investorPreviewData ? (
+              <InvestorProfilePreview data={investorPreviewData} />
+            ) : (
+              <ListingFormPreviewContent
+                values={formValues}
+                listingType={listingType}
+                readOnly
+              />
+            )}
+          </ListingLivePreviewContainer>
+        </div>
+
+        {/* Dynamic Progress Status */}
+        <ListingProgressStatus
+          currentStepIndex={stepIndex}
+          totalSteps={steps.length}
+          steps={steps}
+          categoryId={categoryId}
+          onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
+        />
       </div>
       </div>
 

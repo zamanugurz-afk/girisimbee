@@ -117,10 +117,10 @@ export function CvUploadCard({
           onClick={() => !isUploading && fileInputRef.current?.click()}
           className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border-2 p-6 transition-all duration-200 ${
             isDragging
-              ? 'border-amber-500 bg-amber-50/50 shadow-md dark:border-amber-400 dark:bg-amber-950/20'
+              ? 'border-sky-500 bg-sky-50/50 shadow-md dark:border-sky-400 dark:bg-sky-950/20'
               : isUploading
                 ? 'border-border/80 bg-muted/30 opacity-80'
-                : 'border-dashed border-amber-300/80 bg-linear-to-br from-amber-50/40 via-white to-orange-50/30 hover:border-amber-500 hover:shadow-sm dark:border-amber-800/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/20 dark:hover:border-amber-600'
+                : 'border-dashed border-sky-300/80 bg-linear-to-br from-sky-50/40 via-white to-blue-50/30 hover:border-sky-500 hover:shadow-sm dark:border-sky-800/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-sky-950/20 dark:hover:border-sky-600'
           }`}
         >
           <input
@@ -134,27 +134,27 @@ export function CvUploadCard({
 
           <div>
             <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 transition-colors group-hover:bg-amber-500 group-hover:text-white dark:bg-amber-500/20 dark:text-amber-400">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 transition-colors group-hover:bg-sky-500 group-hover:text-white dark:bg-sky-500/20 dark:text-sky-400">
                 {isUploading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <Sparkles className="h-5 w-5" />
                 )}
               </div>
-              <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+              <span className="rounded-full bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
                 Hızlı & Önerilen
               </span>
             </div>
 
             <h3 className="mt-4 font-display text-base font-bold text-foreground">
-              CV ile Otomatik Doldur
+              CV&apos;den devam et
             </h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Özgeçmişinizi yükleyin; deneyim, yetkinlik ve eğitim bilgileriniz saniyeler içinde ilana aktarılsın.
+              CV&apos;nizdeki bilgileri otomatik alalım.
             </p>
           </div>
 
-          <div className="mt-5 flex items-center justify-between border-t border-amber-100/80 pt-3 text-xs font-medium text-amber-700 dark:border-amber-900/40 dark:text-amber-400">
+          <div className="mt-5 flex items-center justify-between border-t border-sky-100/80 pt-3 text-xs font-medium text-sky-700 dark:border-sky-900/40 dark:text-sky-400">
             <span>{isUploading ? 'Analiz ediliyor…' : 'PDF veya DOCX seçin'}</span>
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
           </div>
@@ -180,10 +180,10 @@ export function CvUploadCard({
             </div>
 
             <h3 className="mt-4 font-display text-base font-bold text-foreground">
-              Manuel Olarak Devam Et
+              Manuel devam et
             </h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Bilgilerinizi adım adım kendiniz girin. Sektör ve pozisyon önerileriyle kolayca tamamlayın.
+              Bilgileri kendiniz girebilirsiniz.
             </p>
           </div>
 

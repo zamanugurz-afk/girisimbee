@@ -1,7 +1,8 @@
 'use client';
 
-import { CheckCircle2, AlertTriangle, Sparkles, ChevronRight } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Sparkles, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getListingCategoryTheme } from '@/features/listings/config/listing-form-theme.config';
 
 export interface QualityCheckItem {
   id: string;
@@ -29,7 +30,7 @@ export function ListingQualityChecklist({
 
   return (
     <div
-      className={`rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs dark:border-zinc-800/90 dark:bg-zinc-900 ${className}`}
+      className={`rounded-2xl border border-border/80 bg-white p-5 shadow-xs dark:bg-zinc-900 ${className}`}
     >
       <div className="flex items-center justify-between border-b border-border/50 pb-3">
         <div className="flex items-center gap-2">
@@ -37,7 +38,7 @@ export function ListingQualityChecklist({
             <Sparkles className="h-4 w-4" />
           </div>
           <h4 className="font-display text-sm font-bold text-foreground">
-            İlan Kalite & Eşleşme Kontrolü
+            İlan Kalite & Eşleşme
           </h4>
         </div>
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:bg-zinc-800 dark:text-slate-300">
@@ -94,6 +95,93 @@ export function ListingQualityChecklist({
           ✨ İlanınız yayına hazır ve yüksek eşleşme puanına sahip!
         </div>
       )}
+    </div>
+  );
+}
+
+export interface ListingProgressStatusProps {
+  currentStepIndex: number;
+  totalSteps: number;
+  steps: { id: string; title: string }[];
+  categoryId?: string | null;
+  onNavigateToStep?: (stepIndex: number) => void;
+  className?: string;
+}
+
+export function ListingProgressStatus({
+  currentStepIndex,
+  totalSteps,
+  steps,
+  categoryId,
+  onNavigateToStep,
+  className = '',
+}: ListingProgressStatusProps) {
+  const percentage = Math.round(((currentStepIndex + 1) / Math.max(1, totalSteps)) * 100);
+  const theme = getListingCategoryTheme(categoryId);
+
+  return (
+    <div
+      className={`rounded-2xl border border-border/80 bg-white p-5 shadow-xs dark:bg-zinc-900 space-y-4 ${className}`}
+    >
+      <div className="flex items-center justify-between">
+        <h4 className="font-display text-sm font-bold text-foreground">
+          İlerleme Durumu
+        </h4>
+        <span className={`text-xs font-bold ${theme.progressText}`}>
+          %{percentage} tamamlandı
+        </span>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
+        <div
+          className={`h-full rounded-full ${theme.progressBarBg} transition-all duration-300`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+
+      {/* Steps List */}
+      <div className="space-y-2 pt-1">
+        {steps.map((step, idx) => {
+          const isCurrent = idx === currentStepIndex;
+          const isPast = idx < currentStepIndex;
+
+          return (
+            <div
+              key={step.id}
+              onClick={() => {
+                if (onNavigateToStep && isPast) {
+                  onNavigateToStep(idx);
+                }
+              }}
+              className={`flex items-center gap-2.5 text-xs transition-colors ${
+                isPast ? 'cursor-pointer hover:text-foreground' : ''
+              } ${
+                isCurrent
+                  ? 'font-semibold text-foreground'
+                  : isPast
+                    ? 'text-muted-foreground'
+                    : 'text-muted-foreground/60'
+              }`}
+            >
+              {isPast ? (
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  <Check className="h-2.5 w-2.5" />
+                </div>
+              ) : isCurrent ? (
+                <div className={`flex h-4 w-4 items-center justify-center rounded-full ${theme.progressActiveBg}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${theme.progressActiveDot}`} />
+                </div>
+              ) : (
+                <div className="flex h-4 w-4 items-center justify-center rounded-full border border-border/80 text-muted-foreground/60">
+                  <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+                </div>
+              )}
+              <span className="truncate">0{idx + 1} {step.title}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

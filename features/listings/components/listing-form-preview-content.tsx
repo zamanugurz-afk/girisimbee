@@ -19,6 +19,7 @@ import {
 import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-ai-capability-grid';
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
+import { getListingCategoryTheme } from '@/features/listings/config/listing-form-theme.config';
 
 const REMOTE_LABELS: Record<string, string> = {
   onsite: 'Ofis',
@@ -103,6 +104,8 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
     [values.tags, knownTagOptions],
   );
 
+  const theme = useMemo(() => getListingCategoryTheme(listingType.categoryId), [listingType.categoryId]);
+
   return (
     <div
       className={cn('space-y-6', readOnly && 'pointer-events-none select-none')}
@@ -124,7 +127,7 @@ export function ListingFormPreviewContent({ values, listingType, readOnly }: Lis
       )}
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-primary">{listingType.name}</p>
+        <p className={cn('text-xs font-bold uppercase tracking-wide', theme.categoryLabelText)}>{listingType.name}</p>
         <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
           {values.core.title || 'Başlıksız ilan'}
         </h2>

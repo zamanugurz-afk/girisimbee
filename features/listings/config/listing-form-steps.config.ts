@@ -120,7 +120,25 @@ const STEP_PUBLISH: ListingFormStepDef = {
   publish: true,
 };
 
-/** Terminal flow shared by all categories: kvkk (if missing) → preview → package → publish */
+export const STEP_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
+  id: 'publish',
+  title: 'Önizleme ve Yayınla',
+  description: 'Son kontrol, paket seçimi ve yayınlama',
+  preview: true,
+  package: true,
+  kvkk: true,
+  publish: true,
+};
+
+/** Terminal flow with 4-step consolidation (isBul, iseAl, ortakBul) */
+function withConsolidatedPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
+  return [
+    ...steps,
+    STEP_PREVIEW_AND_PUBLISH,
+  ];
+}
+
+/** Terminal flow shared by multi-stage categories: kvkk → preview → package → publish */
 function withPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
   const hasKvkk = steps.some((step) => step.kvkk);
   return [
@@ -248,32 +266,32 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     STEP_IMAGES,
   ),
-  [CATEGORY_IDS.ortakBul]: withPublishFlow(
+  [CATEGORY_IDS.ortakBul]: withConsolidatedPublishFlow(
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Ortaklık ilanı başlığı, kısa özet ve konum',
+      description: 'Girişim başlığı, kısa özet ve sektör',
       coreFields: ['title', 'shortDescription', 'city'],
     },
     {
       id: 'partnership',
       title: 'Girişim & Ortaklık',
-      description: 'Aradığınız ortak tipi, uzmanlık ve taahhüt beklentileri',
+      description: 'Aranan ortak tipi, uzmanlık ve taahhüt beklentileri',
       customFieldKeys: getPartnerFormFieldKeys('seeking'),
     },
     {
       id: 'details',
       title: 'Koşullar & Detay',
-      description: 'Vizyon, ekip ve ortaklık detaylı açıklaması',
+      description: 'Detaylı açıklama, vizyon, ekip ve ortaklık modeli',
       coreFields: ['longDescription'],
       meta: ['images'],
     },
   ),
-  [CATEGORY_IDS.isBul]: withPublishFlow(
+  [CATEGORY_IDS.isBul]: withConsolidatedPublishFlow(
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Pozisyon, sektör, lokasyon, deneyim seviyesi ve CV veya manuel seçim',
+      description: 'Pozisyon, sektör ve lokasyon',
       cv: true,
       customFieldKeys: [
         'primarySector',
@@ -289,7 +307,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'profile',
       title: 'Kariyer Bilgileriniz',
-      description: 'Geçmiş deneyimleriniz, eğitim geçmişiniz, yabancı diller, yetkinlikler ve profesyonel özet',
+      description: 'Deneyim, eğitim, dil, yetkinlikler',
       experienceEditor: true,
       careerSkillsEditor: true,
       careerEducationEditor: true,
@@ -299,7 +317,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'preferences',
       title: 'İlan Tercihleriniz',
-      description: 'Çalışma şekli, çalışma modeli, hedef lokasyon, maaş beklentisi ve işe başlama durumu',
+      description: 'Çalışma şekli, maaş, başlangıç',
       careerPreferenceEditor: true,
       customFieldKeys: [
         'workType',
@@ -312,11 +330,11 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       ],
     },
   ),
-  [CATEGORY_IDS.iseAl]: withPublishFlow(
+  [CATEGORY_IDS.iseAl]: withConsolidatedPublishFlow(
     {
       id: 'basics',
       title: 'Temel Bilgiler',
-      description: 'Şirket adı, sektör, açık pozisyon, aranan seviye ve çalışma tipi',
+      description: 'Şirket, pozisyon, sektör ve seviye',
       customFieldKeys: [
         'companyName',
         'primarySector',
@@ -329,7 +347,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'profile',
       title: 'Pozisyon & Aranan Profil',
-      description: 'Sorumluluklar, beklentiler, aranan yetkinlikler, eğitim ve pozisyon özeti',
+      description: 'İş tanımı, aranan nitelikler ve yetkinlikler',
       hireRoleNeedsEditor: true,
       careerSkillsEditor: true,
       careerEducationEditor: true,
@@ -339,7 +357,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'offer',
       title: 'İlan Tercihleri',
-      description: 'İl / ilçe, çalışma modeli, ücret aralığı, yan haklar ve başlama zamanı',
+      description: 'Lokasyon, çalışma modeli ve ücret aralığı',
       customFieldKeys: [
         'preferredCity',
         'preferredDistrict',
@@ -477,7 +495,7 @@ export function getListingFormSteps(
     const keys = getPartnerFormFieldKeys(intent);
     if (intent === 'joining') {
       const joiningOfferKeys = keys.filter((key) => key !== 'equityOffered');
-      return withPublishFlow(
+      return withConsolidatedPublishFlow(
         {
           id: 'basics',
           title: 'Profiliniz',
@@ -496,38 +514,37 @@ export function getListingFormSteps(
           description: 'Kısa profil, lokasyon ve isteğe bağlı hisse beklentisi',
           coreFields: ['longDescription', 'city'],
           customFieldKeys: keys.includes('equityOffered') ? ['equityOffered'] : [],
+          meta: ['images'],
         },
-        STEP_IMAGES,
       );
     }
-    return withPublishFlow(
+    return withConsolidatedPublishFlow(
       {
         id: 'basics',
-        title: 'Girişim / proje',
-        description: 'Kartlarda görünecek başlık ve kısa özet',
+        title: 'Temel Bilgiler',
+        description: 'Girişim başlığı, kısa özet ve sektör',
         coreFields: ['title', 'shortDescription'],
       },
       {
         id: 'partnership',
-        title: 'Aranan ortak',
-        description: 'Sektör, aşama, ortak tipi ve uzmanlık',
+        title: 'Girişim & Ortaklık',
+        description: 'Aranan ortak tipi, uzmanlık ve taahhüt beklentileri',
         customFieldKeys: keys,
       },
       {
         id: 'details',
-        title: 'Proje ve konum',
-        description: 'Ortaklık beklentinizi ve lokasyonu anlatın',
+        title: 'Koşullar & Detay',
+        description: 'Detaylı açıklama, vizyon, ekip, konum ve ortaklık modeli',
         coreFields: ['longDescription', 'city'],
+        meta: ['images'],
       },
-      STEP_IMAGES,
     );
   }
 
-  return LISTING_FORM_STEPS[categoryId] ?? withPublishFlow(
+  return LISTING_FORM_STEPS[categoryId] ?? withConsolidatedPublishFlow(
     STEP_BASICS,
     STEP_DETAILS,
     { id: 'custom', title: 'Ek Bilgiler', customFieldKeys: 'all' },
-    STEP_IMAGES,
   );
 }
 
@@ -548,7 +565,7 @@ export function collectWizardVisibleFieldPaths(
   const paths = new Set<string>();
 
   for (const step of steps) {
-    if (step.preview || step.publish || step.package || step.kvkk || step.cv) continue;
+    if (step.publish || step.package || (step.preview && !step.coreFields && !step.customFieldKeys) || (step.kvkk && !step.coreFields && !step.customFieldKeys) || (step.cv && !step.customFieldKeys && !step.coreFields)) continue;
 
     step.coreFields?.forEach((key) => {
       paths.add(`core.${key}`);

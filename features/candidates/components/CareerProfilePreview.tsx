@@ -273,7 +273,7 @@ function HeroFact({
 }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+      <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground whitespace-normal break-words leading-tight">
         {label}
       </dt>
       <dd className="mt-1 truncate text-sm font-medium text-foreground">{value}</dd>
@@ -472,14 +472,21 @@ export function CareerProfilePreview({
         <div className="flex items-start gap-4 sm:gap-5">
           <CoverThumb coverUrl={data.coverUrl} initials={initials} />
           <div className="min-w-0 flex-1 pr-8 sm:pr-10">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <p
+              className={cn(
+                'text-[11px] font-semibold uppercase tracking-[0.16em]',
+                isHire
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-sky-600 dark:text-sky-400',
+              )}
+            >
               {isHire ? 'İş ilanı kartı' : 'Kariyer kartı'}
             </p>
             {!isHire && (publicName || age || gender) ? (
               <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 {publicName ? (
                   <span className="inline-flex items-center gap-1 font-semibold tracking-tight text-foreground">
-                    <User className="h-3 w-3 text-primary" aria-hidden />
+                    <User className="h-3 w-3 text-sky-600 dark:text-sky-400" aria-hidden />
                     {publicName}
                   </span>
                 ) : null}
@@ -496,7 +503,9 @@ export function CareerProfilePreview({
               data.primarySector || levelLabel ? (
                 <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   {data.primarySector ? (
-                    <span className="font-medium text-primary">{data.primarySector}</span>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                      {data.primarySector}
+                    </span>
                   ) : null}
                   {data.primarySector && levelLabel ? (
                     <span className="text-muted-foreground" aria-hidden>
@@ -511,7 +520,9 @@ export function CareerProfilePreview({
             ) : (
               <>
                 {data.primarySector ? (
-                  <p className="mt-1.5 text-sm font-medium text-primary">{data.primarySector}</p>
+                  <p className="mt-1.5 text-sm font-medium text-sky-600 dark:text-sky-400">
+                    {data.primarySector}
+                  </p>
                 ) : null}
                 {heroFacts.length > 0 ? (
                   <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3">
