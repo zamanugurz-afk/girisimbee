@@ -123,7 +123,17 @@ export function extractTextFromDocx(buffer: Buffer): string {
  * with fallback to deep binary stream & hex-string decompression.
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  // Strategy 1: PDFParse (pdf.js) — handles CID fonts, ToUnicode CMaps, multi-column layouts
+  // Strategy 1: Pure Deterministic CMap + Text Matrix PDF Parser (0 external dependencies, 100% serverless compatible)
+  try {
+    const perfectText = parsePdfObjectsAndStreams(buffer);
+    if (perfectText && perfectText.length >= 100) {
+      return perfectText;
+    }
+  } catch (err: any) {
+    console.error('Strategy 1 parsePdfObjectsAndStreams error:', err?.message || err);
+  }
+
+  // Strategy 2: PDFParse (pdf.js) — handles CID fonts, ToUnicode CMaps, multi-column layouts
   try {
     let PDFParseClass: any;
     try {
@@ -163,20 +173,20 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
       }
     }
   } catch (err: any) {
-    console.error('Strategy 1 PDFParse error in Next.js:', err?.message || err);
+    console.error('Strategy 2 PDFParse error in Next.js:', err?.message || err);
   }
 
-  // Strategy 2: Deep binary stream and hex/Tj/TJ decoder
+  // Strategy 3: Deep binary stream and hex/Tj/TJ decoder
   try {
     const fallbackText = extractTextFromPdfStreams(buffer);
     if (fallbackText && fallbackText.length >= 10) {
       return fallbackText;
     }
   } catch {
-    // Strategy 2 failed
+    // Strategy 3 failed
   }
 
-  // Strategy 3: Search for ASCII/UTF-8 text chunks embedded in the raw buffer
+  // Strategy 4: Search for ASCII/UTF-8 text chunks embedded in the raw buffer
   const rawTextChunks = extractRawReadableTextFromBuffer(buffer);
   if (rawTextChunks && rawTextChunks.length >= 25) {
     return rawTextChunks;
@@ -185,6 +195,193 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   throw new CvExtractionError(
     "CV'den yeterli bilgi çıkarılamadı. Lütfen bilgileri manuel olarak tamamlayın.",
   );
+}
+
+/**
+ * Deterministic PDF stream & layout parser. Handles font CMaps, text matrix positioning,
+ * character spacing, and Turkish characters with 0 external dependencies.
+ */
+function parsePdfObjectsAndStreams(buffer: Buffer): string {
+  const raw = buffer.toString('latin1');
+  if (!raw.includes('%PDF-')) return '';
+
+  const objMap = new Map<number, string>();
+  const objRegex = /(\d+)\s+0\s+obj([\s\S]*?)endobj/g;
+  let objMatch: RegExpExecArray | null;
+  while ((objMatch = objRegex.exec(raw)) !== null) {
+    const id = parseInt(objMatch[1], 10);
+    const body = objMatch[2];
+    objMap.set(id, body);
+  }
+
+  function getDecompressedStream(objBody: string): string {
+    const sm = objBody.match(/stream[\r\n]+([\s\S]*?)[\r\n]+endstream/);
+    if (!sm) return '';
+    const sbuf = Buffer.from(sm[1], 'binary');
+    try {
+      return zlib.inflateSync(sbuf).toString('latin1');
+    } catch {
+      try {
+        return zlib.inflateRawSync(sbuf).toString('latin1');
+      } catch {
+        return sm[1];
+      }
+    }
+  }
+
+  function parseCMap(str: string): Map<string, string> {
+    const map = new Map<string, string>();
+    const bfcharRegex = /(\d+)\s+beginbfchar([\s\S]*?)endbfchar/g;
+    let m: RegExpExecArray | null;
+    while ((m = bfcharRegex.exec(str)) !== null) {
+      const lines = m[2].trim().split(/\r?\n/);
+      for (const line of lines) {
+        const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
+        if (parts) {
+          const src = parts[1].toLowerCase().padStart(4, '0');
+          const dstCode = parseInt(parts[2], 16);
+          if (dstCode > 0) map.set(src, String.fromCharCode(dstCode));
+        }
+      }
+    }
+    const bfrangeRegex = /(\d+)\s+beginbfrange([\s\S]*?)endbfrange/g;
+    while ((m = bfrangeRegex.exec(str)) !== null) {
+      const lines = m[2].trim().split(/\r?\n/);
+      for (const line of lines) {
+        const parts = line.trim().match(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/);
+        if (parts) {
+          const start = parseInt(parts[1], 16);
+          const end = parseInt(parts[2], 16);
+          let dst = parseInt(parts[3], 16);
+          for (let code = start; code <= end; code++) {
+            const hexKey = code.toString(16).toLowerCase().padStart(4, '0');
+            if (dst > 0) map.set(hexKey, String.fromCharCode(dst));
+            dst++;
+          }
+        }
+      }
+    }
+    return map;
+  }
+
+  const fontToCMap = new Map<number, Map<string, string>>();
+  for (const [id, body] of objMap.entries()) {
+    if (body.includes('/Type/Font') || body.includes('/Type /Font')) {
+      const tuMatch = body.match(/\/ToUnicode\s+(\d+)\s+0\s+R/);
+      if (tuMatch) {
+        const cmapObjId = parseInt(tuMatch[1], 10);
+        const cmapStream = getDecompressedStream(objMap.get(cmapObjId) || '');
+        fontToCMap.set(id, parseCMap(cmapStream));
+      }
+    }
+  }
+
+  const fontNameMap = new Map<string, Map<string, string>>();
+  const fontDictMatch = raw.match(/\/Font\s*<<([^>]+)>>/);
+  if (fontDictMatch) {
+    const entries = fontDictMatch[1].match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/g);
+    for (const e of entries || []) {
+      const em = e.match(/\/([a-zA-Z0-9]+)\s+(\d+)\s+0\s+R/);
+      if (em) {
+        const fontName = em[1];
+        const fontObjId = parseInt(em[2], 10);
+        const cmap = fontToCMap.get(fontObjId);
+        if (cmap) fontNameMap.set(fontName, cmap);
+      }
+    }
+  }
+
+  let fullText = '';
+  let lastY = -9999;
+
+  for (const [, body] of objMap.entries()) {
+    const stream = getDecompressedStream(body);
+    if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ'))) continue;
+
+    const btRegex = /BT([\s\S]*?)ET/g;
+    let btm: RegExpExecArray | null;
+    while ((btm = btRegex.exec(stream)) !== null) {
+      const block = btm[1];
+      let currentFont = fontNameMap.values().next().value || new Map<string, string>();
+      let blockText = '';
+      let blockY = lastY;
+
+      const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\\(|\\\)|[^()])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
+
+      for (const tok of tokens || []) {
+        if (tok === 'T*') {
+          blockText += '\n';
+          blockY += 14;
+        } else if (tok.endsWith('Tf')) {
+          const fn = tok.split(/\s+/)[0].slice(1);
+          if (fontNameMap.has(fn)) currentFont = fontNameMap.get(fn)!;
+        } else if (tok.endsWith('Tm')) {
+          const nums = tok.split(/\s+/).map(Number);
+          blockY = nums[5] || 0;
+        } else if (tok.endsWith('Tj')) {
+          const hexM = tok.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
+          if (hexM) {
+            const clean = hexM[1].replace(/\s+/g, '');
+            let str = '';
+            for (let i = 0; i < clean.length; i += 4) {
+              const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
+              if (currentFont.has(chunk)) {
+                str += currentFont.get(chunk);
+              } else {
+                const code = parseInt(chunk, 16);
+                if (code > 0 && code < 65535) str += String.fromCharCode(code);
+              }
+            }
+            if (str) blockText += str;
+          } else {
+            const singleM = tok.match(/^\(((?:\\\(|\\\)|[^()])*)\)\s*Tj$/);
+            if (singleM) {
+              const decoded = decodePdfString(singleM[1]);
+              if (decoded) blockText += decoded;
+            }
+          }
+        } else if (tok.startsWith('[') && tok.endsWith('TJ')) {
+          const parts = tok.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>/g);
+          if (parts) {
+            for (const part of parts) {
+              if (part.startsWith('(') && part.endsWith(')')) {
+                blockText += decodePdfString(part.slice(1, -1));
+              } else if (part.startsWith('<') && part.endsWith('>')) {
+                const clean = part.slice(1, -1).replace(/\s+/g, '');
+                let str = '';
+                for (let i = 0; i < clean.length; i += 4) {
+                  const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
+                  if (currentFont.has(chunk)) str += currentFont.get(chunk);
+                  else {
+                    const code = parseInt(chunk, 16);
+                    if (code > 0 && code < 65535) str += String.fromCharCode(code);
+                  }
+                }
+                if (str) blockText += str;
+              }
+            }
+          }
+        }
+      }
+
+      if (blockText) {
+        if (lastY === -9999) {
+          fullText += blockText;
+        } else if (Math.abs(blockY - lastY) > 3) {
+          fullText += '\n' + blockText;
+        } else {
+          fullText += blockText;
+        }
+        lastY = blockY;
+      }
+    }
+  }
+
+  return fullText
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 /**

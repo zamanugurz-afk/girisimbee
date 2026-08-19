@@ -85,9 +85,9 @@ export interface CanonicalTaxonomyMappingResult {
   canonicalConfidence: number;
 }
 
-export const CV_EXTRACTION_VERSION = '2.1';
-export const CAREER_TAXONOMY_VERSION = '2.1';
-export const CV_PARSER_VERSION = '2.1';
+export const CV_EXTRACTION_VERSION = '2.2';
+export const CAREER_TAXONOMY_VERSION = '2.2';
+export const CV_PARSER_VERSION = '2.2';
 
 export interface CvExtractionMetrics {
   aiCallCount: number;
