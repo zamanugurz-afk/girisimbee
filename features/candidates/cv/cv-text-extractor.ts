@@ -127,15 +127,17 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   try {
     let PDFParseClass: any;
     try {
-      const { createRequire } = require('module');
-      const path = require('path');
-      const cjsPath = path.resolve(process.cwd(), 'node_modules/pdf-parse/dist/pdf-parse/cjs/index.cjs');
-      const unbundledRequire = createRequire(cjsPath);
-      const mod = unbundledRequire(cjsPath);
-      PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
-    } catch {
       const mod = require('pdf-parse');
       PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
+    } catch {
+      try {
+        const { createRequire } = require('module');
+        const customRequire = createRequire(__filename);
+        const mod = customRequire('pdf-parse');
+        PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
+      } catch (loadErr: any) {
+        console.error('PDFParse load error:', loadErr?.message);
+      }
     }
 
     const parser = new PDFParseClass({ data: buffer });
