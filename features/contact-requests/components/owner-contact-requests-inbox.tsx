@@ -184,69 +184,92 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
           </p>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-4">
           {visible.map((req) => (
             <li
               key={req.id}
               id={`talep-${req.id}`}
               className={cn(
-                'rounded-2xl border border-border/80 bg-card/90 p-4 shadow-sm dark:border-white/10',
-                highlightId === req.id && 'ring-2 ring-primary/40',
+                'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all dark:border-zinc-800 dark:bg-zinc-900/90 hover:border-amber-500/30 hover:shadow-md',
+                highlightId === req.id && 'ring-2 ring-amber-500/50 border-amber-500/50',
               )}
             >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {req.requesterDisplayName ?? 'Kullanıcı'}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {req.listingTitle ?? 'İlan'} · {statusLabel(req.effectiveStatus)}
-                  </p>
-                </div>
-                <Link
-                  href={`/ilan/${req.listingId}`}
-                  className="text-xs font-medium text-primary underline-offset-2 hover:underline"
-                >
-                  İlana git
-                </Link>
-              </div>
-              {req.message ? (
-                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{req.message}</p>
-              ) : null}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {req.effectiveStatus === 'pending' ? (
-                  <>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="rounded-xl"
-                      disabled={busyId === req.id}
-                      onClick={() => {
-                        setAcceptTerms(false);
-                        setAcceptTarget(req);
-                      }}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="space-y-2 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-display text-base font-bold tracking-tight text-slate-950 dark:text-white">
+                      {req.requesterDisplayName ?? 'Kullanıcı'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                        req.effectiveStatus === 'pending' &&
+                          'border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400',
+                        req.effectiveStatus === 'accepted' &&
+                          'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+                        req.effectiveStatus === 'rejected' &&
+                          'border border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-400',
+                        (req.effectiveStatus === 'expired' || req.effectiveStatus === 'cancelled') &&
+                          'border border-zinc-500/30 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400',
+                      )}
                     >
-                      Kabul et
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-xl"
-                      disabled={busyId === req.id}
-                      onClick={() => void reject(req.id)}
+                      {statusLabel(req.effectiveStatus)}
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
+                    İlan:{' '}
+                    <Link
+                      href={`/ilan/${req.listingId}`}
+                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-semibold underline-offset-2 hover:underline"
                     >
-                      Reddet
-                    </Button>
-                  </>
-                ) : null}
-                {req.effectiveStatus === 'accepted' && req.conversationId ? (
-                  <Button asChild size="sm" className="rounded-xl">
-                    <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${req.conversationId}`}>
-                      Mesajlara git
+                      {req.listingTitle ?? 'İlan'}
                     </Link>
-                  </Button>
-                ) : null}
+                  </p>
+
+                  {req.message ? (
+                    <div className="mt-2 rounded-xl bg-slate-50 p-3.5 text-xs sm:text-sm text-slate-700 dark:bg-zinc-800/60 dark:text-zinc-300 border border-slate-100 dark:border-zinc-700/50">
+                      {req.message}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+                  {req.effectiveStatus === 'pending' ? (
+                    <>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-8.5 rounded-xl text-xs font-semibold shadow-2xs"
+                        disabled={busyId === req.id}
+                        onClick={() => {
+                          setAcceptTerms(false);
+                          setAcceptTarget(req);
+                        }}
+                      >
+                        Kabul Et
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-8.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                        disabled={busyId === req.id}
+                        onClick={() => void reject(req.id)}
+                      >
+                        Reddet
+                      </Button>
+                    </>
+                  ) : null}
+                  {req.effectiveStatus === 'accepted' && req.conversationId ? (
+                    <Button asChild size="sm" className="h-8.5 rounded-xl text-xs font-semibold shadow-2xs">
+                      <Link href={`${DASHBOARD_ROUTES.mesajlarim}?c=${req.conversationId}`}>
+                        <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
+                        Mesajlara Git
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </li>
           ))}

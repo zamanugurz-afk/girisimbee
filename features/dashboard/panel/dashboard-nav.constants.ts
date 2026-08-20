@@ -131,26 +131,14 @@ export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
       },
       {
         id: 'guvenlik',
-        label: 'Güvenlik',
+        label: 'Güvenlik & Doğrulamalar',
         href: DASHBOARD_ROUTES.guvenlik,
         icon: 'Shield',
-      },
-      {
-        id: 'dogrulamalar',
-        label: 'Doğrulamalar',
-        href: DASHBOARD_ROUTES.dogrulamalar,
-        icon: 'BadgeCheck',
-      },
-      {
-        id: 'takipcilerim',
-        label: 'Takipçilerim',
-        href: DASHBOARD_ROUTES.takipcilerim,
-        icon: 'Users',
       },
     ],
   },
   {
-    title: 'FİNANS & PAKETLER',
+    title: 'PAKETLER & AYARLAR',
     items: [
       {
         id: 'paketlerim',
@@ -158,17 +146,6 @@ export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
         href: DASHBOARD_ROUTES.paketlerim,
         icon: 'Package',
       },
-      {
-        id: 'odemelerim',
-        label: 'Ödemelerim',
-        href: DASHBOARD_ROUTES.odemelerim,
-        icon: 'CreditCard',
-      },
-    ],
-  },
-  {
-    title: 'SİSTEM',
-    items: [
       {
         id: 'ayarlar',
         label: 'Ayarlar',

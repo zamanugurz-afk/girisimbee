@@ -121,7 +121,7 @@ export function AccountMyListings({
           <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
             <span>{visible.length} ilan listeleniyor</span>
           </div>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-stretch">
             {visible.map((listing) => (
               <AccountListingCard
                 key={listing.id}

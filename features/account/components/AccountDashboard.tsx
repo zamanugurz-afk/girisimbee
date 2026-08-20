@@ -2,23 +2,25 @@ import { AccountHubProfileHero } from '@/features/account/components/AccountHubP
 import { AccountHubStatsGrid } from '@/features/account/components/AccountHubStatsGrid';
 import { AccountHubProfileInfo } from '@/features/account/components/AccountHubProfileInfo';
 import { AccountHubVerification } from '@/features/account/components/AccountHubVerification';
-import { CareerProfileOverviewCard } from '@/features/career-profile/components/career-profile-overview-card';
-import { AccountDashboardMatchingHighlights } from '@/features/account/components/AccountDashboardMatchingHighlights';
+import { AccountFollowersCard } from '@/features/account/components/AccountFollowersCard';
 import type { AccountHubStats } from '@/features/account/types/account-panel.types';
 import type { AccountHubViewModel } from '@/features/account/types/account-hub.types';
-import type { CareerProfilePageData } from '@/features/career-profile/types';
-import type { CareerMatchesResult } from '@/features/matching-engine/types';
+import type { FollowNetworkUser } from '@/features/profiles/types/follow.types';
 
 export function AccountDashboard({
   view,
   stats,
-  careerProfile,
-  careerMatches,
+  followers = [],
+  following = [],
+  followersCount = 0,
+  followingCount = 0,
 }: {
   view: AccountHubViewModel;
   stats: AccountHubStats;
-  careerProfile?: CareerProfilePageData;
-  careerMatches?: CareerMatchesResult | null;
+  followers?: FollowNetworkUser[];
+  following?: FollowNetworkUser[];
+  followersCount?: number;
+  followingCount?: number;
 }) {
   return (
     <div className="space-y-6">
@@ -31,22 +33,25 @@ export function AccountDashboard({
 
       <AccountHubStatsGrid stats={stats} />
 
-      <AccountDashboardMatchingHighlights careerMatches={careerMatches} />
-
-      {careerProfile ? <CareerProfileOverviewCard data={careerProfile} /> : null}
-
       <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-        <AccountHubProfileInfo
-          fullName={view.displayName}
-          username={view.username}
-          email={view.email}
-          phone={view.phone}
+        <AccountFollowersCard
+          followers={followers}
+          following={following}
+          followersCount={followersCount}
+          followingCount={followingCount}
         />
         <AccountHubVerification
           emailVerified={view.emailVerified}
           phoneVerified={view.phoneVerified}
         />
       </div>
+
+      <AccountHubProfileInfo
+        fullName={view.displayName}
+        username={view.username}
+        email={view.email}
+        phone={view.phone}
+      />
     </div>
   );
 }

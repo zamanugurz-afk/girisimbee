@@ -40,80 +40,70 @@ export function AccountShowcaseCard({
   const canCancel = item.status === 'active' || item.status === 'expiring';
 
   return (
-    <article className="rounded-xl border border-border/80 bg-background p-5 dark:border-white/10">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 space-y-3">
-          <div className="space-y-1.5">
-            <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">
-              {item.listingTitle}
-            </h3>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">
-                {ACCOUNT_SHOWCASE_PACKAGE_LABELS[item.packageType]}
-              </Badge>
-              <Badge variant={statusVariant(item.status)}>
-                {ACCOUNT_SHOWCASE_STATUS_LABELS[item.status]}
-              </Badge>
-            </div>
+    <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90">
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <Badge variant="secondary" className="font-semibold text-xs rounded-md">
+            {ACCOUNT_SHOWCASE_PACKAGE_LABELS[item.packageType]}
+          </Badge>
+          <Badge variant={statusVariant(item.status)} className="font-semibold text-xs rounded-md">
+            {ACCOUNT_SHOWCASE_STATUS_LABELS[item.status]}
+          </Badge>
+        </div>
+
+        <h3 className="font-display text-base font-bold tracking-tight text-slate-950 dark:text-white line-clamp-2">
+          <Link href={item.listingHref} className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+            {item.listingTitle}
+          </Link>
+        </h3>
+
+        <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-zinc-400 border-t border-slate-100 dark:border-zinc-800 pt-2.5">
+          <div>
+            <span className="text-slate-400 dark:text-zinc-500">Kalan Süre:</span>
+            <p className="font-bold text-slate-900 dark:text-white mt-0.5">{item.remainingLabel}</p>
           </div>
-
-          <dl className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-            <div className="flex gap-2">
-              <dt className="shrink-0">Başlangıç:</dt>
-              <dd className="text-foreground">{formatDate(item.startsAt)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0">Bitiş:</dt>
-              <dd className="text-foreground">{formatDate(item.endsAt)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0">Kalan süre:</dt>
-              <dd className="text-foreground">{item.remainingLabel}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0">Görüntülenme:</dt>
-              <dd className="tabular-nums text-foreground">{item.viewCount}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0">Favori:</dt>
-              <dd className="tabular-nums text-foreground">{item.favoriteCount}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0">Tıklanma:</dt>
-              <dd className="tabular-nums text-foreground">{item.clickCount}</dd>
-            </div>
-          </dl>
+          <div>
+            <span className="text-slate-400 dark:text-zinc-500">Bitiş Tarihi:</span>
+            <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatDate(item.endsAt)}</p>
+          </div>
+          <div>
+            <span className="text-slate-400 dark:text-zinc-500">Görüntüleme:</span>
+            <p className="font-bold text-slate-900 dark:text-white mt-0.5 tabular-nums">{item.viewCount}</p>
+          </div>
+          <div>
+            <span className="text-slate-400 dark:text-zinc-500">Favori:</span>
+            <p className="font-bold text-slate-900 dark:text-white mt-0.5 tabular-nums">{item.favoriteCount}</p>
+          </div>
         </div>
+      </div>
 
-        <div className="flex flex-wrap gap-2 lg:max-w-xs lg:justify-end">
-          <Button asChild type="button" size="sm" variant="outline" className="rounded-lg">
-            <Link href={item.listingHref}>İlana git</Link>
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap items-center gap-2">
+        <Button asChild type="button" size="sm" variant="outline" className="h-8.5 flex-1 rounded-xl text-xs font-semibold">
+          <Link href={item.listingHref}>İlana Git</Link>
+        </Button>
+        {canExtend ? (
+          <Button
+            type="button"
+            size="sm"
+            className="h-8.5 rounded-xl text-xs font-semibold shadow-2xs"
+            disabled={busy}
+            onClick={onExtend}
+          >
+            Süreyi Uzat
           </Button>
-          {canExtend ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="rounded-lg"
-              disabled={busy}
-              onClick={onExtend}
-            >
-              Süreyi uzat
-            </Button>
-          ) : null}
-          {canCancel ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="rounded-lg text-destructive hover:text-destructive"
-              disabled={busy}
-              onClick={onCancel}
-            >
-              İptal et
-            </Button>
-          ) : null}
-        </div>
+        ) : null}
+        {canCancel ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-8.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={busy}
+            onClick={onCancel}
+          >
+            İptal
+          </Button>
+        ) : null}
       </div>
     </article>
   );
