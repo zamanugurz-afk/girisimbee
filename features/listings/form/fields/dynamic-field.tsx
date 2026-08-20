@@ -278,13 +278,7 @@ function FieldControl({
             )}
           />
           <FormFieldFooter
-            helperText={
-              TITLE_CASE_FIELD_KEYS.has(field.key)
-                ? (ui.helperText
-                    ? `${ui.helperText} Her kelimenin ilk harfi büyük olur.`
-                    : 'Her kelimenin ilk harfi büyük olmalıdır. Alanı terk edince otomatik düzeltilir.')
-                : ui.helperText
-            }
+            helperText={ui.helperText}
             error={error}
             currentLength={ui.maxLength ? stringLength : undefined}
             maxLength={ui.maxLength}

@@ -387,7 +387,7 @@ function CreateListingContent() {
   return (
     <main
       className={cn(
-        'relative mx-auto bg-[#FAFBFC] px-4 pb-16 pt-8 sm:pt-10 dark:bg-background lg:px-8',
+        'gc-header-offset relative mx-auto bg-[#FAFBFC] px-4 pb-16 pt-6 sm:pt-8 dark:bg-background lg:px-8',
         categoryId ? 'max-w-[1440px]' : 'max-w-[1280px]',
       )}
     >
