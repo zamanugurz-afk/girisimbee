@@ -50,7 +50,7 @@ export function Header() {
         <SiteLogo className="mr-1 shrink-0" />
 
         <nav
-          className="pointer-events-none hidden min-w-0 flex-1 items-center justify-center gap-1.5 overflow-hidden xl:flex [&_a]:pointer-events-auto"
+          className="pointer-events-none hidden min-w-0 flex-1 items-center justify-center gap-2 overflow-hidden xl:flex [&_a]:pointer-events-auto"
           aria-label="Ana menü"
         >
           {NAV_LINKS.map((link) => {
@@ -60,10 +60,10 @@ export function Header() {
                 key={link.href + link.label}
                 href={link.href}
                 className={cn(
-                  'relative whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-full',
+                  'relative whitespace-nowrap px-4 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-xl border',
                   isActive
-                    ? 'bg-primary/10 text-primary font-bold dark:bg-primary/20 dark:text-primary shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800/80',
+                    ? 'border-primary/50 bg-primary/10 text-primary font-bold dark:border-primary/50 dark:bg-primary/20 dark:text-primary shadow-2xs'
+                    : 'border-slate-200 bg-white/90 text-slate-800 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/90 dark:hover:text-white shadow-2xs',
                 )}
               >
                 {link.label}
@@ -129,17 +129,17 @@ export function Header() {
             <Search className="h-4 w-4 shrink-0" />
             İlan ara…
           </Link>
-          <nav className="flex flex-col gap-0.5">
+          <nav className="flex flex-col gap-1.5">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href + link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  'rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
+                  'rounded-xl border px-3.5 py-2.5 text-left text-xs font-semibold transition-all duration-200 shadow-2xs',
                   isNavLinkActive(pathname, link.href)
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-[#334155] hover:bg-primary/5 hover:text-[#0F172A] dark:text-foreground',
+                    ? 'border-primary/50 bg-primary/10 text-primary font-bold dark:border-primary/50 dark:bg-primary/20 dark:text-primary'
+                    : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200',
                 )}
               >
                 {link.label}
