@@ -1,6 +1,5 @@
 import { AccountHubProfileHero } from '@/features/account/components/AccountHubProfileHero';
 import { AccountHubStatsGrid } from '@/features/account/components/AccountHubStatsGrid';
-import { AccountHubProfileInfo } from '@/features/account/components/AccountHubProfileInfo';
 import { AccountHubVerification } from '@/features/account/components/AccountHubVerification';
 import { AccountFollowersCard } from '@/features/account/components/AccountFollowersCard';
 import type { AccountHubStats } from '@/features/account/types/account-panel.types';
@@ -45,13 +44,6 @@ export function AccountDashboard({
           phoneVerified={view.phoneVerified}
         />
       </div>
-
-      <AccountHubProfileInfo
-        fullName={view.displayName}
-        username={view.username}
-        email={view.email}
-        phone={view.phone}
-      />
     </div>
   );
 }

@@ -20,25 +20,30 @@ export function AccountSecurity({
   const [twoFactor, setTwoFactor] = useState(initial.twoFactor);
 
   return (
-    <div className="space-y-6">
-      <AccountHubVerification
-        emailVerified={emailVerified}
-        phoneVerified={phoneVerified}
-      />
-      <AccountPasswordCard />
-      <AccountSessionsCard sessions={sessions} />
-      <AccountTwoFactorCard twoFactor={twoFactor} onChange={setTwoFactor} />
-      <AccountDangerZone
-        onSignOutAll={() =>
-          setSessions((prev) =>
-            prev.map((session) => ({
-              ...session,
-              status: 'ended' as const,
-              isCurrent: false,
-            })),
-          )
-        }
-      />
+    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="space-y-6">
+        <AccountHubVerification
+          emailVerified={emailVerified}
+          phoneVerified={phoneVerified}
+        />
+        <AccountPasswordCard />
+        <AccountDangerZone
+          onSignOutAll={() =>
+            setSessions((prev) =>
+              prev.map((session) => ({
+                ...session,
+                status: 'ended' as const,
+                isCurrent: false,
+              })),
+            )
+          }
+        />
+      </div>
+
+      <div className="space-y-6">
+        <AccountSessionsCard sessions={sessions} />
+        <AccountTwoFactorCard twoFactor={twoFactor} onChange={setTwoFactor} />
+      </div>
     </div>
   );
 }

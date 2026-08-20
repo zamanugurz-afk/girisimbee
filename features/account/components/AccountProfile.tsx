@@ -108,26 +108,22 @@ export function AccountProfile({
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="space-y-6">
-        <div className="rounded-xl border border-dashed border-border/80 px-5 py-12 text-center dark:border-white/10">
-          <h2 className="font-display text-lg font-semibold text-foreground">
-            Profil kaydı bulunamadı
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Bu hesap için henüz bir profil satırı yok. Herkese açık profilinizi
-            tamamlamak için profil düzenleme sayfasına gidin.
-          </p>
-          <Button asChild className="mt-5 rounded-lg" size="sm">
-            <Link href="/ayarlar">Profili tamamla</Link>
-          </Button>
-        </div>
-        <AccountConsentsCard consent={consent} />
-        <AccountSettingsSummaryCard settings={settings} />
-      </div>
-    );
-  }
+  const activeProfile: AccountProfile = profile ?? {
+    id: ids.accountProfile(userId),
+    userId: ids.user(userId),
+    firstName: user?.displayName?.split(' ')[0] ?? null,
+    lastName: user?.displayName?.split(' ').slice(1).join(' ') ?? null,
+    username: user?.username ?? null,
+    email: emailDisplay,
+    phone: null,
+    role: 'user',
+    status: 'active',
+    emailVerified: emailVerified,
+    phoneVerified: false,
+    lastLoginAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 
   async function saveProfile(next: {
     firstName: string;
@@ -138,7 +134,7 @@ export function AccountProfile({
     setSaving(true);
     try {
       const nextPhone = next.phone.trim() || null;
-      const phoneChanged = (profile?.phone ?? null) !== nextPhone;
+      const phoneChanged = (activeProfile?.phone ?? null) !== nextPhone;
       const updated = await getAccountService().updateProfile(ids.user(userId), {
         firstName: next.firstName.trim() || null,
         lastName: next.lastName.trim() || null,
@@ -170,20 +166,27 @@ export function AccountProfile({
 
   return (
     <div className="space-y-6">
-      <AccountProfileCard
-        profile={profile}
-        emailVerified={emailVerified}
-        emailDisplay={emailDisplay}
-        onEdit={() => setEditOpen(true)}
-        onVerifyEmail={() => setEmailVerifyOpen(true)}
-        onVerifyPhone={() => setPhoneVerifyOpen(true)}
-      />
-      <AccountConsentsCard consent={consent} />
-      <AccountSettingsSummaryCard settings={settings} />
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <div className="space-y-6">
+          <AccountProfileCard
+            profile={activeProfile}
+            emailVerified={emailVerified}
+            emailDisplay={emailDisplay}
+            onEdit={() => setEditOpen(true)}
+            onVerifyEmail={() => setEmailVerifyOpen(true)}
+            onVerifyPhone={() => setPhoneVerifyOpen(true)}
+          />
+          <AccountSettingsSummaryCard settings={settings} />
+        </div>
+
+        <div className="space-y-6">
+          <AccountConsentsCard consent={consent} />
+        </div>
+      </div>
 
       <AccountProfileEditModal
         open={editOpen}
-        profile={profile}
+        profile={activeProfile}
         saving={saving}
         onClose={() => {
           if (!saving) setEditOpen(false);
@@ -199,7 +202,7 @@ export function AccountProfile({
 
       <AccountPhoneVerifyDialog
         open={phoneVerifyOpen}
-        profile={profile}
+        profile={activeProfile}
         onClose={() => setPhoneVerifyOpen(false)}
         onVerified={(patch) => {
           setProfile((prev) => (prev ? { ...prev, ...patch, phoneVerified: true } : prev));

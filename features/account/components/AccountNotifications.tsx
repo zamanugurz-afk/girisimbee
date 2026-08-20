@@ -361,7 +361,7 @@ export function AccountNotifications({
                 Bu filtrelerle eşleşen bildirim bulunamadı.
               </div>
             ) : (
-              <div className="grid gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
                 {visible.map((notification) => (
                   <AccountNotificationCard
                     key={notification.id}
