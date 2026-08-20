@@ -351,13 +351,11 @@ function FieldControl({
       }
       if (field.key === 'desiredRole') {
         const sector = String(context?.values?.primarySector ?? '');
-        if (sector) {
-          const filtered = getPositionsForSector(sector);
-          const current = value ? String(value) : '';
-          options = current && !filtered.includes(current)
-            ? [...filtered, current]
-            : filtered;
-        }
+        const filtered = getPositionsForSector(sector || undefined);
+        const current = value ? String(value) : '';
+        options = current && !filtered.includes(current)
+          ? [...filtered, current]
+          : filtered;
       }
       if (field.key === 'workplacePreference') {
         const rawRole = String(context?.values?.desiredRole ?? '');
@@ -375,15 +373,11 @@ function FieldControl({
           <Select
             value={value ? String(value) : ''}
             onValueChange={onChange}
-            disabled={disabled || (field.key === 'desiredRole' && !context?.values?.primarySector)}
+            disabled={disabled}
           >
             <SelectTrigger id={id} className={formControlErrorClass(error)}>
               <SelectValue
-                placeholder={
-                  field.key === 'desiredRole' && !context?.values?.primarySector
-                    ? 'Önce sektör seçin'
-                    : (ui.placeholder ?? `${field.label} seçin`)
-                }
+                placeholder={ui.placeholder ?? `${field.label} seçin`}
               />
             </SelectTrigger>
             <SelectContent>

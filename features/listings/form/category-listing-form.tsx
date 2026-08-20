@@ -123,6 +123,7 @@ import {
 import {
   getExperienceLevelLabel,
   getPositionsForSector,
+  getSectorsForPosition,
   isManualCareerOption,
   parseCareerLanguages,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -1078,12 +1079,28 @@ export function CategoryListingForm({
       if (key === 'district' && value !== 'Diğer') {
         setCustomField('districtOther', '');
       }
-      if (key === 'desiredRole' && !isManualCareerOption(value)) {
-        setCustomField('desiredRoleOther', '');
+      if (key === 'desiredRole') {
+        if (!isManualCareerOption(value)) {
+          setCustomField('desiredRoleOther', '');
+          const valStr = String(value || '');
+          if (valStr && !mergedCustomFields.primarySector) {
+            const possibleSectors = getSectorsForPosition(valStr);
+            if (possibleSectors && possibleSectors.length > 0) {
+              setCustomField('primarySector', possibleSectors[0]);
+            }
+          }
+        }
       }
       if (key === 'primarySector') {
-        setCustomField('desiredRole', '');
-        setCustomField('desiredRoleOther', '');
+        const newSector = String(value || '');
+        const currentRole = String(mergedCustomFields.desiredRole || '');
+        if (currentRole && !isManualCareerOption(currentRole)) {
+          const allowedRoles = getPositionsForSector(newSector);
+          if (!allowedRoles.includes(currentRole)) {
+            setCustomField('desiredRole', '');
+            setCustomField('desiredRoleOther', '');
+          }
+        }
       }
       if (key === 'positionTitle' && value !== 'Diğer') {
         setCustomField('positionTitleOther', '');
