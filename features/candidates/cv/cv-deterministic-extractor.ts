@@ -721,7 +721,7 @@ export function isRoleTitle(line: string): boolean {
     return false;
   }
 
-  // Block responsibility sentence patterns
+  // Block responsibility & demographic patterns
   if (
     norm.includes('surecleri') ||
     norm.includes('sureclerinin') ||
@@ -733,7 +733,15 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('yonetimi ve') ||
     norm.includes('alaninda') ||
     norm.includes('sahibim') ||
-    norm.includes('calismaktayim')
+    norm.includes('calismaktayim') ||
+    norm.includes('surucu') ||
+    norm.includes('ehliyet') ||
+    norm.includes('cinsiyet') ||
+    norm.includes('vatandaslik') ||
+    norm.includes('medeni durum') ||
+    norm.includes('askerlik') ||
+    norm.includes('ozel bilgi') ||
+    norm.includes('kisisel bilgi')
   ) {
     return false;
   }
@@ -1542,6 +1550,11 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
               }
             } else {
               currentExp.company = (parts[0] || rawRemainder).replace(/^(?:sirket|kurum|company|isyeri)[\s:]*/i, '').trim();
+              if (prev1 && isRoleTitle(prev1)) {
+                currentExp.role = prev1;
+              } else if (prev2 && isRoleTitle(prev2)) {
+                currentExp.role = prev2;
+              }
             }
           }
         }
@@ -1623,6 +1636,17 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         line.length <= 70
       ) {
         currentExp.company = line;
+        continue;
+      }
+
+      if (
+        isRoleTitle(line) &&
+        !line.startsWith('-') &&
+        !line.startsWith('•') &&
+        !line.startsWith('*') &&
+        !line.startsWith('·')
+      ) {
+        // Belongs to next experience entry
         continue;
       }
 
@@ -1735,7 +1759,12 @@ export function extractDeterministicSkillsAndTools(text: string): {
       norm.startsWith('program') ||
       norm.startsWith('diller') ||
       norm.startsWith('egitim') ||
-      norm.startsWith('referans')
+      norm.startsWith('referans') ||
+      norm.startsWith('ozel bilgi') ||
+      norm.startsWith('kisisel bilgi') ||
+      norm.startsWith('surucu') ||
+      norm.startsWith('cinsiyet') ||
+      norm.startsWith('vatandaslik')
     ) {
       inNonRoleSection = true;
       continue;

@@ -77,6 +77,25 @@ Karacan Akademi | Nisan 2016 - Haziran 2016
       'doc-meryem-123',
     );
 
+    expect(canonical.experiences[0].role).toBe('Satış Temsilcisi');
+    expect(canonical.experiences[0].company).toBe('Angel City İnşaat');
+    expect(canonical.experiences[1].role).toBe('Satış Danışmanı');
+    expect(canonical.experiences[1].company).toBe('Yaba İnşaat');
+    expect(canonical.experiences[2].role).toBe('Satış Danışmanı');
+    expect(canonical.experiences[2].company).toBe('Hocaoğlu İnşaat');
+    expect(canonical.experiences[3].role).toBe('Satış Danışmanı');
+    expect(canonical.experiences[3].company).toBe('Dap Holding');
+    expect(canonical.experiences[4].role).toBe('Satış Müdürü');
+    expect(canonical.experiences[4].company).toBe('Özel Adatıphastanesi');
+    expect(canonical.experiences[5].role).toBe('Doktor Asistanı');
+    expect(canonical.experiences[5].company).toBe('Stardent Ağız-Diş Polikliniği');
+    expect(canonical.experiences[6].role).toBe('Doktor Asistanı');
+    expect(canonical.experiences[6].company).toBe('Kurtköy Tıp Merkezi');
+    expect(canonical.experiences[7].role).toBe('Satış Danışmanı');
+    expect(canonical.experiences[7].company).toBe('Mavi Jeans');
+
+    expect(canonical.primaryRole).toBe('Satış Temsilcisi');
+
     expect(draft.formValues.profileGender).toBe('Kadın');
     expect(draft.formValues.birthDate).toBe('1993-01-01');
     expect(draft.formValues.residenceCity).toBe('İstanbul');
