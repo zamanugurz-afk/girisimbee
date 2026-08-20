@@ -23,6 +23,7 @@ import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadat
 import { rankWorkplaceOptions } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
+import { cn } from '@/lib/utils';
 import {
   getExperienceLevelLabel,
   getPositionsForSector,
@@ -375,9 +376,10 @@ function FieldControl({
             onValueChange={onChange}
             disabled={disabled}
           >
-            <SelectTrigger id={id} className={formControlErrorClass(error)}>
+            <SelectTrigger id={id} className={cn('w-full min-w-0 truncate text-left', formControlErrorClass(error))}>
               <SelectValue
                 placeholder={ui.placeholder ?? `${field.label} seçin`}
+                className="truncate"
               />
             </SelectTrigger>
             <SelectContent>

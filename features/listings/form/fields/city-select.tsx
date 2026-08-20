@@ -53,12 +53,12 @@ export function CitySelect({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              'h-10 w-full justify-between font-normal',
+              'h-10 w-full min-w-0 justify-between font-normal text-left',
               !value && 'text-muted-foreground',
               formControlErrorClass(error),
             )}
           >
-            {selectedLabel ?? placeholder}
+            <span className="truncate flex-1">{selectedLabel ?? placeholder}</span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

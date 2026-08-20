@@ -130,6 +130,16 @@ export const STEP_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
   publish: true,
 };
 
+export const STEP_CAREER_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
+  id: 'publish',
+  title: 'Kariyer Özeti ve Önizleme',
+  description: 'Kariyer özeti kontrolü, son önizleme, paket seçimi ve yayınlama',
+  preview: true,
+  package: true,
+  kvkk: true,
+  publish: true,
+};
+
 /** Terminal flow with 4-step consolidation (isBul, iseAl, ortakBul) */
 function withConsolidatedPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
   return [
@@ -179,41 +189,50 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'traction',
-      title: 'Bugünkü durum',
-      description: 'Bugün bunu destekleyen hangi kanıtlar var? Rakam yoksa boş bırakın.',
+      title: 'Çekiş & metrikler',
+      description: 'Finansal büyüklükler, gelir, büyüme ve ekip.',
       customFieldKeys: [
-        'revenueStatus',
-        'tractionStatus',
+        'revenueModel',
         'monthlyRevenue',
-        'mrr',
-        'activeCustomers',
-        'users',
-        'growthRate',
-        'gmv',
+        'lastTwelveMonthsRevenue',
+        'growthRateAnnual',
+        'teamSize',
+        'totalCustomers',
       ],
     },
     {
       id: 'funding',
-      title: 'Yatırım talebi',
-      description: 'Ne kadar yatırım arıyorsunuz ve karşılığında ne sunuyorsunuz?',
+      title: 'Yatırım hedefi',
+      description: 'Ne kadar arıyorsunuz, ne teklif ediyorsunuz, fonu nerede kullanacaksınız?',
       customFieldKeys: [
-        'stage',
-        'investmentAmount',
-        'investmentAmountCustom',
-        'equityOffered',
-        'valuation',
+        'investmentStage',
+        'fundingAmount',
+        'fundingCurrency',
+        'offeredSharePercentage',
+        'companyValuation',
         'useOfFunds',
         'useOfFundsDetail',
+        'shareClass',
+        'fundingInstrument',
+        'minimumInvestment',
+        'previouslyRaised',
+        'targetInvestorTypes',
+        'closeDeadline',
+        'hasLeadInvestor',
       ],
     },
     {
-      id: 'summary',
-      title: 'Ekip ve yatırımcı özeti',
-      description:
-        'Kim yapıyor ve yatırımcı ne görmeli? Özet yapılandırılmış veriden üretilir; AI isteğe bağlıdır.',
-      leadCustomFieldKeys: ['founderCount', 'teamSize', 'founderExpertise'],
-      customFieldKeys: ['founderCount', 'teamSize', 'founderExpertise'],
-      coreFields: ['shortDescription', 'longDescription'],
+      id: 'story',
+      title: 'Hikaye & detay',
+      description: 'Yatırımcının okuyacağı detaylı açıklama. İsteğe bağlı AI metin asistanı.',
+      coreFields: ['longDescription'],
+      customFieldKeys: [
+        'pitchDeckUrl',
+        'demoUrl',
+        'financialProjectionsSummary',
+        'exitStrategy',
+        'competitiveAdvantage',
+      ],
     },
     STEP_IMAGES,
   ),
@@ -287,11 +306,11 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       meta: ['images'],
     },
   ),
-  [CATEGORY_IDS.isBul]: withConsolidatedPublishFlow(
+  [CATEGORY_IDS.isBul]: [
     {
       id: 'basics',
-      title: 'Temel Bilgiler',
-      description: 'Pozisyon, sektör ve lokasyon',
+      title: 'Genel Bilgiler',
+      description: 'Pozisyon, sektör, lokasyon ve demografi',
       cv: true,
       customFieldKeys: [
         'primarySector',
@@ -305,19 +324,24 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       ],
     },
     {
-      id: 'profile',
-      title: 'Kariyer Bilgileriniz',
-      description: 'Deneyim, eğitim, dil, yetkinlikler',
+      id: 'experiences',
+      title: 'Deneyimlerin',
+      description: 'İş tecrübeleri ve sorumluluklar',
       experienceEditor: true,
-      careerSkillsEditor: true,
-      careerEducationEditor: true,
-      coreFields: ['longDescription'],
       customFieldKeys: [],
     },
     {
-      id: 'preferences',
-      title: 'İlan Tercihleriniz',
-      description: 'Çalışma şekli, maaş, başlangıç',
+      id: 'education',
+      title: 'Eğitim ve Gelişim',
+      description: 'Eğitim geçmişi, yabancı dil ve sertifikalar',
+      careerEducationEditor: true,
+      customFieldKeys: [],
+    },
+    {
+      id: 'skills',
+      title: 'Uzmanlıkların',
+      description: 'Mesleki yetkinlikler, araçlar ve çalışma tercihleri',
+      careerSkillsEditor: true,
       careerPreferenceEditor: true,
       customFieldKeys: [
         'workType',
@@ -329,7 +353,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'availability',
       ],
     },
-  ),
+    STEP_CAREER_PREVIEW_AND_PUBLISH,
+  ],
   [CATEGORY_IDS.iseAl]: withConsolidatedPublishFlow(
     {
       id: 'basics',

@@ -51,12 +51,12 @@ export function DistrictSelect({
             aria-expanded={open}
             disabled={disabled || cityMissing || districts.length === 0}
             className={cn(
-              'h-10 w-full justify-between font-normal',
+              'h-10 w-full min-w-0 justify-between font-normal text-left',
               !value && 'text-muted-foreground',
               formControlErrorClass(error),
             )}
           >
-            {cityMissing ? 'Önce il seçin' : (value ?? placeholder)}
+            <span className="truncate flex-1">{cityMissing ? 'Önce il seçin' : (value ?? placeholder)}</span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Cloud, Shield, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cloud, Shield, Sparkles, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ListingLiveCardPreview } from '@/features/listings/components/listing-live-card-preview';
 import { cn } from '@/lib/utils';
@@ -1206,7 +1206,27 @@ export function CategoryListingForm({
         }));
       }
 
-      // 5. CV File Metadata
+      // 5. Demographics & Residence (Step 1: Genel Bilgiler)
+      if (fv.profileGender) {
+        setCustomField('profileGender', fv.profileGender);
+      }
+      if (fv.birthDate) {
+        setCustomField('birthDate', fv.birthDate);
+      }
+      const cityName = fv.residenceCity || fv.city || '';
+      const districtName = fv.residenceDistrict || '';
+      if (cityName) {
+        setCustomField('residenceCity', cityName);
+        setCustomField('preferredCity', cityName);
+        setCore((prev) => ({ ...prev, city: cityName || prev.city, location: cityName || prev.location }));
+      }
+      if (districtName) {
+        setCustomField('residenceDistrict', districtName);
+        setCustomField('preferredDistrict', districtName);
+        setCustomField('district', districtName);
+      }
+
+      // 6. CV File Metadata
       if (fv.cvFileName) {
         setCustomField('cvFileName', fv.cvFileName);
       }
@@ -1216,9 +1236,6 @@ export function CategoryListingForm({
       if (fv.cvUploadedAt) {
         setCustomField('cvUploadedAt', fv.cvUploadedAt);
       }
-
-      // NOTE: Step 1 fields (Aranan Pozisyon, Sektör, Kariyer Seviyesi, Yaşadığı İl, Yaşadığı İlçe)
-      // are intentionally NOT auto-filled here, remaining blank for manual user selection.
 
       const appliedKeys = [
         'experiences',
@@ -1232,11 +1249,15 @@ export function CategoryListingForm({
         'tools',
         'candidateTraits',
         'longDescription',
+        ...(fv.profileGender ? ['profileGender'] : []),
+        ...(fv.birthDate ? ['birthDate'] : []),
+        ...(cityName ? ['residenceCity', 'city', 'preferredCity'] : []),
+        ...(districtName ? ['residenceDistrict', 'district', 'preferredDistrict'] : []),
       ];
       setCvFilledKeys(new Set(appliedKeys));
       setIsCvApplied(true);
       setIsManualCvMode(false);
-      toast.success('✨ CV deneyimleri, eğitimleri ve yetkinlikleri ilgili adımlara aktarıldı.');
+      toast.success('✨ CV deneyimleri, eğitimleri, yetkinlikleri ve demografi bilgileri adımlara aktarıldı.');
     },
     [pendingCvDraft, setCustomField],
   );
@@ -1922,8 +1943,8 @@ export function CategoryListingForm({
           </div>
         </div>
 
-        {/* MIDDLE COLUMN: Active Step Form (6 cols on desktop) */}
-        <div className="col-span-1 lg:col-span-6 h-full">
+        {/* MIDDLE COLUMN: Active Step Form (9 cols for isBul, 6 cols for others) */}
+        <div className={cn('col-span-1 h-full', categoryId === CATEGORY_IDS.isBul ? 'lg:col-span-9' : 'lg:col-span-6')}>
           <div className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
             <div>
               <div className="border-b border-border/60 pb-4 mb-4 lg:hidden">
@@ -2248,7 +2269,81 @@ export function CategoryListingForm({
           )}
 
           {isPublishStep && (
-            <div className="space-y-3">
+            <div className="space-y-5">
+              {categoryId === CATEGORY_IDS.isBul && (
+                <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
+                  <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h4 className="font-display text-sm font-bold text-foreground flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        Kariyer Özeti ve Önizleme
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Deneyim ve yetkinliklerinize göre oluşturulan profil özetiniz. İlanınızda bu metin öne çıkacaktır.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={disabled || isBusy}
+                      onClick={applyCareerSummaryDraft}
+                      className="text-xs h-8 shrink-0"
+                    >
+                      Özeti Yeniden Oluştur
+                    </Button>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="career-final-summary" className="text-xs font-semibold">
+                      Kariyer Özeti Açıklaması
+                    </Label>
+                    <textarea
+                      id="career-final-summary"
+                      className="w-full min-h-[110px] rounded-xl border border-input bg-background p-3 text-sm focus:ring-2 focus:ring-primary focus:outline-hidden"
+                      value={core.longDescription ?? ''}
+                      disabled={disabled || isBusy}
+                      placeholder="Kariyer hedeflerinizi ve öne çıkan deneyimlerinizi özetleyin..."
+                      onChange={(e) => setCore((prev) => ({ ...prev, longDescription: e.target.value }))}
+                    />
+                  </div>
+
+                  <CareerAiAnalyzePanel
+                    customFields={mergedCustomFields}
+                    longDescription={core.longDescription ?? ''}
+                    disabled={disabled || isBusy}
+                    stored={acceptedCareerAiAnalysisOrNull(mergedCustomFields.careerAiAnalysis)}
+                    onStore={(value) =>
+                      setCustomField('careerAiAnalysis', acceptedCareerAiAnalysisOrNull(value))
+                    }
+                    onAcceptSummary={(summary) =>
+                      setCore((prev) => ({ ...prev, longDescription: summary }))
+                    }
+                  />
+
+                  {/* Complete Live Career Card Preview */}
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50 mt-4">
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-2.5 mb-3">
+                      <h5 className="font-display text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                        Canlı Kariyer Kartı Önizlemesi
+                      </h5>
+                      <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold', theme.previewBadge)}>
+                        Yayına Hazır
+                      </span>
+                    </div>
+
+                    <ListingLiveCardPreview
+                      categoryId={categoryId}
+                      values={formValues}
+                      listingType={listingType}
+                      partnershipIntent={partnershipIntent}
+                      userName={user?.displayName || 'İlan Sahibi'}
+                      userAvatar={user?.avatarUrl ?? undefined}
+                    />
+                  </div>
+                </div>
+              )}
+
               <p className="text-gc-sm text-muted-foreground">
                 {(() => {
                   const cfg = publishConfigForCategory(categoryId);
@@ -3028,42 +3123,44 @@ export function CategoryListingForm({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop) */}
-        <div className="hidden lg:block lg:col-span-3 h-full">
-          <div className="h-full flex flex-col justify-between gap-4">
-            {/* Live Preview Card */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3 mb-3">
-                  <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-500">
-                    CANLI ÖNİZLEME
-                  </h4>
-                  <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
-                    Taslak
-                  </span>
+        {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop, hidden for isBul) */}
+        {categoryId !== CATEGORY_IDS.isBul && (
+          <div className="hidden lg:block lg:col-span-3 h-full">
+            <div className="h-full flex flex-col justify-between gap-4">
+              {/* Live Preview Card */}
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3 mb-3">
+                    <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-500">
+                      CANLI ÖNİZLEME
+                    </h4>
+                    <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
+                      Taslak
+                    </span>
+                  </div>
+
+                  <ListingLiveCardPreview
+                    categoryId={categoryId}
+                    values={formValues}
+                    listingType={listingType}
+                    partnershipIntent={partnershipIntent}
+                    userName={user?.displayName || 'İlan Sahibi'}
+                    userAvatar={user?.avatarUrl ?? undefined}
+                  />
                 </div>
-
-                <ListingLiveCardPreview
-                  categoryId={categoryId}
-                  values={formValues}
-                  listingType={listingType}
-                  partnershipIntent={partnershipIntent}
-                  userName={user?.displayName || 'İlan Sahibi'}
-                  userAvatar={user?.avatarUrl ?? undefined}
-                />
               </div>
-            </div>
 
-            {/* Dynamic Progress Status */}
-            <ListingProgressStatus
-              currentStepIndex={stepIndex}
-              totalSteps={steps.length}
-              steps={steps}
-              categoryId={categoryId}
-              onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
-            />
+              {/* Dynamic Progress Status */}
+              <ListingProgressStatus
+                currentStepIndex={stepIndex}
+                totalSteps={steps.length}
+                steps={steps}
+                categoryId={categoryId}
+                onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <ListingPreviewDialog
