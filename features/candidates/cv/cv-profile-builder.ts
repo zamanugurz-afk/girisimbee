@@ -83,7 +83,8 @@ export function buildProfileDraftFromCanonicalResult(
     // 6. Career Summary (grounded synthesis)
     candidateTraits: canonical.summary || '',
 
-    // 6.5. Demographics (from CV)
+    // 6.5. Demographics & Identity (from CV)
+    fullName: canonical.fullName || '',
     profileGender: canonical.gender || '',
     birthDate: canonical.birthDate || '',
 
@@ -103,6 +104,7 @@ export function buildProfileDraftFromCanonicalResult(
   };
 
   // Record filled keys
+  if (formValues.fullName) cvFilledFieldKeys.push('fullName');
   if (formValues.role) cvFilledFieldKeys.push('role', 'roles');
   if (formValues.sector) cvFilledFieldKeys.push('sector', 'sectors');
   if (formValues.experiences && formValues.experiences.length > 0) cvFilledFieldKeys.push('experiences');

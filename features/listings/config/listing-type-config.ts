@@ -382,6 +382,13 @@ export const INVESTOR_FIELD_SCHEMA: ListingFieldSchema = {
 export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
+      key: 'fullName',
+      label: 'İsim Soyisim',
+      type: 'string',
+      required: false,
+      max: 100,
+    },
+    {
       key: 'primarySector',
       label: 'Uzmanlık Sektörü',
       type: 'enum',

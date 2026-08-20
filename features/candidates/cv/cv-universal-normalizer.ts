@@ -27,6 +27,7 @@ export interface ParsedUniversalLocation {
 }
 
 export interface ParsedUniversalDemographics {
+  fullName?: string;
   gender?: 'Kadın' | 'Erkek';
   birthDate?: string;
   birthYear?: number;
@@ -246,7 +247,32 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
     }
   }
 
-  return { gender, birthDate, birthYear };
+  // 3. Full Name Extraction from Header / Label
+  let fullName: string | undefined;
+  const nameLabelMatch = text.match(/(?:isim|ad\s*soyad|adı\s*soyadı|ad|adınız|full\s*name|name)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+){1,3})/i);
+  if (nameLabelMatch) {
+    const candidate = nameLabelMatch[1].trim();
+    if (!/^(?:bilgiler|bilgileri|ozel|kisisel)$/i.test(candidate)) {
+      fullName = candidate;
+    }
+  }
+
+  if (!fullName) {
+    const topLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, 6);
+    for (const l of topLines) {
+      const words = l.split(/\s+/);
+      const isHeaderOrSection = /^(?:özgeçmiş|ozgecmis|curriculum|resume|cv|eğitim|egitim|iş\s*deneyimi|is\s*deneyimi|kişisel|kisisel|iletişim|iletisim|hakkımda|hakkimda|beceriler|referanslar)$/i.test(l);
+      if (!isHeaderOrSection && words.length >= 2 && words.length <= 4 && l.length <= 40 && !l.includes('@') && !l.includes('/') && !l.includes(':') && !/\d/.test(l)) {
+        const normFirst = normalizeTrUniversal(words[0]);
+        if (EXTENSIVE_TURKISH_MALE_NAMES.has(normFirst) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(normFirst) || /^[A-ZÇĞİÖŞÜ]/.test(l)) {
+          fullName = l;
+          break;
+        }
+      }
+    }
+  }
+
+  return { fullName, gender, birthDate, birthYear };
 }
 
 // 6. Universal Certificate Scanner

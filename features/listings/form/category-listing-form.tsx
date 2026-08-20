@@ -2669,8 +2669,35 @@ export function CategoryListingForm({
                     className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px', theme.dividerColor)}
                   />
 
-                  {/* Left Column: Pozisyon, Lokasyon, Deneyim Seviyesi */}
+                  {/* Left Column: İsim Soyisim, Pozisyon, Lokasyon */}
                   <div className="space-y-4 md:pr-4">
+                    {/* İsim Soyisim */}
+                    {fieldByKey.get('fullName') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('fullName')!}
+                          value={mergedCustomFields.fullName || (user?.displayName ?? '')}
+                          onChange={(val) => {
+                            handleCustomFieldChange('fullName', val);
+                            if (cvFilledKeys.has('fullName')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('fullName');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('fullName')}
+                          error={resolveFieldError(fieldErrors, 'fullName')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      </div>
+                    ) : null}
+
                     {/* Pozisyon */}
                     {fieldByKey.get('desiredRole') ? (
                       <div className="space-y-2">
@@ -2766,34 +2793,9 @@ export function CategoryListingForm({
                         />
                       ) : null}
                     </div>
-
-                    {/* Deneyim Seviyesi */}
-                    {fieldByKey.get('experienceLevel') ? (
-                      <DynamicField
-                        field={fieldByKey.get('experienceLevel')!}
-                        value={mergedCustomFields.experienceLevel}
-                        onChange={(val) => {
-                          handleCustomFieldChange('experienceLevel', val);
-                          if (cvFilledKeys.has('experienceLevel')) {
-                            setCvFilledKeys((prev) => {
-                              const next = new Set(prev);
-                              next.delete('experienceLevel');
-                              return next;
-                            });
-                          }
-                        }}
-                        isCvFilled={cvFilledKeys.has('experienceLevel')}
-                        error={resolveFieldError(fieldErrors, 'experienceLevel')}
-                        disabled={disabled || isBusy}
-                        context={{
-                          values: mergedCustomFields,
-                          coreCity: core.city ?? null,
-                        }}
-                      />
-                    ) : null}
                   </div>
 
-                  {/* Right Column: Sektör, Demografi */}
+                  {/* Right Column: Sektör, Seviye, Demografi */}
                   <div className="space-y-4 md:pl-4">
                     {/* Sektör */}
                     {fieldByKey.get('primarySector') ? (
@@ -2822,7 +2824,32 @@ export function CategoryListingForm({
                       </div>
                     ) : null}
 
-                    {/* Demografi & Ek alanlar */}
+                    {/* Deneyim Seviyesi */}
+                    {fieldByKey.get('experienceLevel') ? (
+                      <DynamicField
+                        field={fieldByKey.get('experienceLevel')!}
+                        value={mergedCustomFields.experienceLevel}
+                        onChange={(val) => {
+                          handleCustomFieldChange('experienceLevel', val);
+                          if (cvFilledKeys.has('experienceLevel')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('experienceLevel');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('experienceLevel')}
+                        error={resolveFieldError(fieldErrors, 'experienceLevel')}
+                        disabled={disabled || isBusy}
+                        context={{
+                          values: mergedCustomFields,
+                          coreCity: core.city ?? null,
+                        }}
+                      />
+                    ) : null}
+
+                    {/* Demografi (Cinsiyet & Doğum Tarihi) */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {fieldByKey.get('profileGender') ? (
                         <DynamicField

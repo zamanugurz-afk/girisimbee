@@ -323,6 +323,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       description: 'Pozisyon, sektör, lokasyon ve demografi',
       cv: true,
       customFieldKeys: [
+        'fullName',
         'primarySector',
         'desiredRole',
         'desiredRoleOther',

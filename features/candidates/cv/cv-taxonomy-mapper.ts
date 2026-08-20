@@ -886,6 +886,7 @@ export function mapCvToCanonicalTaxonomy(
     certificates,
     residenceCity,
     residenceDistrict,
+    fullName: payload.fullName,
     gender: payload.gender,
     birthDate: payload.birthDate,
     experiences,

@@ -32,6 +32,7 @@ import {
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
+  'fullName',
   'companyName',
   'brandName',
   'displayName',

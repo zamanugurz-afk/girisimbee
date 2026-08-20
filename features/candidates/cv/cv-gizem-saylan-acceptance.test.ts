@@ -86,6 +86,7 @@ Ekonomik Analiz
     });
 
     expect(raw.experiences.length).toBe(4);
+    expect(draft.formValues.fullName).toBe('Gizem Şaylan');
     expect(draft.formValues.city).toBe('İstanbul');
     expect(draft.formValues.residenceDistrict).toMatch(/Eyüp|Eyüpsultan/i);
     expect(draft.formValues.profileGender).toBe('Kadın');

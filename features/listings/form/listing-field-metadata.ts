@@ -517,6 +517,9 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   residenceCity: {
     placeholder: 'Yaşadığınız ili seçin',
   },
+  fullName: {
+    placeholder: 'Örn: Gizem Şaylan',
+  },
   residenceDistrict: {
     placeholder: 'Yaşadığınız ilçeyi seçin',
   },

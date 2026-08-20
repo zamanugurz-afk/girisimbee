@@ -2104,6 +2104,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     certificates: langAndCerts.certificates,
     locations: [loc.city, loc.district].filter(Boolean) as string[],
     summary,
+    fullName: universalDemo.fullName,
     gender: finalGender,
     birthDate: finalBirthDate,
     ambiguousItems: [],
