@@ -12,6 +12,11 @@ import type {
   RawExtractedEducation,
   AiCvExtractionPayload,
 } from '@/features/candidates/cv/cv.types';
+import {
+  scanUniversalCertificates,
+  extractUniversalDemographics,
+  isCorporateEntity,
+} from './cv-universal-normalizer';
 
 // ============================================================================
 // CONSTANTS & REGEXES
@@ -712,10 +717,7 @@ export function isRoleTitle(line: string): boolean {
   if (clean.length > 70) return false;
   const norm = normalizeTrForMatch(clean);
   // Block company / institution suffixes (as standalone words or phrases)
-  if (
-    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu|mudurluk|genel\s*mudurluk|genel\s*mudurlugu|bolge\s*mudurluk|bolge\s*mudurlugu|sube\s*mudurluk|sube\s*mudurlugu|hizmetleri|sanayi|ticaret|platformu|vakfi|dernegi|kulubu)\b/i.test(norm) ||
-    /\ba\s*s\b/i.test(norm)
-  ) {
+  if (isCorporateEntity(clean) || /\ba\s*s\b/i.test(norm)) {
     return false;
   }
 
@@ -1923,6 +1925,9 @@ export function extractDeterministicLanguagesAndCerts(text: string): {
     }
   }
 
+  const universalCerts = scanUniversalCertificates(text);
+  certificates.push(...universalCerts);
+
   return {
     languages: languages.length > 0 ? [...new Set(languages)] : ['Türkçe'],
     certificates: [...new Set(certificates)],
@@ -2064,6 +2069,9 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   const skillsAndTools = extractDeterministicSkillsAndTools(text);
   const langAndCerts = extractDeterministicLanguagesAndCerts(text);
   const demographics = extractDeterministicDemographics(text);
+  const universalDemo = extractUniversalDemographics(text);
+  const finalGender = demographics.gender || universalDemo.gender;
+  const finalBirthDate = demographics.birthDate || universalDemo.birthDate;
 
   let totalYears = 0;
   for (const e of exp) {
@@ -2092,8 +2100,8 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     certificates: langAndCerts.certificates,
     locations: [loc.city, loc.district].filter(Boolean) as string[],
     summary,
-    gender: demographics.gender,
-    birthDate: demographics.birthDate,
+    gender: finalGender,
+    birthDate: finalBirthDate,
     ambiguousItems: [],
   };
 }

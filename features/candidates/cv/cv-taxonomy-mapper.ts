@@ -8,8 +8,11 @@ import type {
 } from '@/features/candidates/cv/cv.types';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 
+import { UNIVERSAL_ROLE_ALIASES } from './cv-universal-dictionary';
+
 // Canonical Alias Dictionary for Roles (lower-case raw -> canonical Turkish Title Case)
 const ROLE_ALIASES: Record<string, string> = {
+  ...UNIVERSAL_ROLE_ALIASES,
   // Software / Tech
   'software engineer': 'Yazılım Geliştirici',
   'software developer': 'Yazılım Geliştirici',
@@ -622,9 +625,9 @@ export function inferSectorFromRole(role: string): string {
   const r = normalizeTrMatch(role);
   if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql/i.test(r)) return 'Bilişim / Yazılım';
   if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data/i.test(r)) return 'Yapay zeka / Veri';
+  if (/sigorta|guvence|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
   if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
-  if (/sigorta|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
   if (/cagri\s*merkezi|call\s*center/i.test(r)) return 'Çağrı merkezi';
   if (/musteri\s*(hizmet|iliski|basari|temsil)/i.test(r)) return 'Müşteri hizmetleri';
   if (/insan\s*kaynak|hr|recruiter|yetenek|bordro|is\s*ortag|partner/i.test(r)) return 'İnsan kaynakları';
@@ -860,7 +863,7 @@ export function mapCvToCanonicalTaxonomy(
   return {
     primaryRole: resolvedRole,
     matchedRoles,
-    primarySector: roleInferredSector || mostRecentSector || matchedSectors[0] || '',
+    primarySector: mostRecentSector || roleInferredSector || matchedSectors[0] || '',
     matchedSectors,
     professionalSkills: [...new Set(professionalSkills)],
     technicalSkills: [...new Set(technicalSkills)],
