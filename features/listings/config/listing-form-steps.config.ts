@@ -394,12 +394,17 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'profile',
-      title: 'Pozisyon & Aranan Profil',
-      description: 'İş tanımı, aranan nitelikler ve yetkinlikler',
+      title: 'Pozisyon & Yetkinlikler',
+      description: 'İş tanımı, aranan sorumluluklar ve yetkinlikler',
       hireRoleNeedsEditor: true,
       careerSkillsEditor: true,
+      customFieldKeys: [],
+    },
+    {
+      id: 'education',
+      title: 'Eğitim ve Gelişim',
+      description: 'Aranan eğitim seviyesi, yabancı dil ve sertifikalar',
       careerEducationEditor: true,
-      coreFields: ['longDescription'],
       customFieldKeys: [],
     },
     {
@@ -415,6 +420,13 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'salaryRange',
         'availability',
       ],
+    },
+    {
+      id: 'description',
+      title: 'İlan Detayları',
+      description: 'İş ilanı genel açıklaması ve ek bilgiler',
+      coreFields: ['longDescription'],
+      customFieldKeys: [],
     },
   ),
   [CATEGORY_IDS.bayilikAl]: withPublishFlow(
