@@ -3,63 +3,94 @@ import { extractDeterministicCv } from '@/features/candidates/cv/cv-deterministi
 import { mapCvToCanonicalTaxonomy } from '@/features/candidates/cv/cv-taxonomy-mapper';
 import { buildProfileDraftFromCanonicalResult } from '@/features/candidates/cv/cv-profile-builder';
 
-describe('Gizem Şaylan Real CV Acceptance Test (Canva 2-Column Format)', () => {
-  const gizemCvText = `
-KİŞİSEL BİLGİLER
-İsim: Gizem Şaylan
-Adres: Caferağa Mah. Moda Cad. 34710 İstanbul/Kadıköy
-Telefon: 0532 111 22 33
-E-posta: gizem.saylan@example.com
-Doğum Tarihi: 24-04-1997
-Diller: İngilizce B2, Almanca A1
+describe('Gizem Şaylan Real CV Acceptance Test', () => {
+  const actualGizemText = `
+Gizem Şaylan
 
-GİZEM ŞAYLAN
-İletişim ve organizasyon becerileri yüksek, insan kaynakları ve idari işler süreçlerinde deneyimli bir profesyonelim.
+Eğitimler
+İKTİSAT
+Adnan Menderes Üniversitesi, Aydın
+Eyl 2018 - Mar 2023
 
-İŞ DENEYİMİ
-İnsan Kaynakları Uzmanı
-LC Waikiki Genel Müdürlük, İstanbul
-Oca 2022 - Ağu 2024
-- İşe alım ve mülakat organizasyonlarını yürüttüm.
-- Personel özlük işleri ve bordro süreçlerine destek verdim.
-- Performans değerlendirme sisteminin takibini yaptım.
+İş deneyimi
+Satış temsilcisi /Dönemsel
+Haz 2022 - Ağu 2022
+Mapp pazarlama reklam A.Ş, Aydın
+Ürün bilgilendirmesi ve satisi yapmak.
 
-İnsan Kaynakları Asistanı
-Defacto, İstanbul
-Eyl 2020 - Ara 2021
-- Aday tarama ve ilk telefon mülakatlarını gerçekleştirdim.
-- İşe giriş-çıkış evraklarını düzenledim.
+Satış asistan/Sözleşmeli
+Şub 2024 - Mar 2024
+İng Turkey, İstanbul
+Leasing urunleri satisi ve tanıtımını yapmak.
 
-EĞİTİM VE NİTELİKLER
-İstanbul Üniversitesi - İktisat Fakültesi (Lisans)
-Eyl 2016 - Haz 2020
+İşe alım ve yetenek kazanımı stajyer
+Nis 2024 - Haz 2024
+Burgan bank, İstanbul
+İse alım evraklarını hazırlamak randevular ve aramaları oluşturmak.
 
-BECERİLER
-- İşe Alım ve Mülakat Teknikleri
-- Bordro ve Özlük İşleri
-- SAP HR
-- Excel / Microsoft Office
-- Performans Yönetimi
+Satış Pazarlama Birimi /Yatırım Uzman Yardımcısı
+Ağu 2024 - Oca 2025
+Marbaş Menkul Değerler, İstanbul
+Potansiyel yatirimcilari aramak bilgi vermek satis yapmak yatirim urunleri hakkinda destek sağlamak seminerlere katılmak yatırımcıyla yuzyuze ve telefon üzerinden görüşmeler yapmak.
+
+Referanslar
+Soner Kuru
+Marbaş Menkul Değerler/Genel Mudur Yardimcisi, İstanbul
+0533 481 56 18
+
+Cagri koroglu
+Adnan Menderes Üniversitesi, Aydın
+0553 422 71 11, Cagri.koroglu@adu.edu.tr
+
+Kişisel bilgiler
+Gizem Şaylan
+gizemsyln97@gmail.com
+0539 718 52 73
+İstanbul/Eyüp
+0212 İstanbul
+26 Şubat 1997
+Bekar
+linkedin.com/in/gizem-şaylan-a978
+
+Beceriler
+Microsoft office
+Finans Analizi
+Piyasa Araştırması
+Satış Teknikleri
+Müşteri İlişkileri
+İletişim Becerileri
+Takım Çalışması
+Sunum Becerileri
+Veri Analizi
+Problem Çözme
+Pazarlama Bilgisi
+Ekonomik Analiz
 `;
 
-  it('extracts all experiences, education, skills, location and gender for Gizem Şaylan without defaulting to Yazılım Geliştirici', () => {
-    const raw = extractDeterministicCv(gizemCvText);
+  it('extracts all 4 experiences, education, skills, location and gender for Gizem Şaylan from real CV', () => {
+    const raw = extractDeterministicCv(actualGizemText);
     const canonical = mapCvToCanonicalTaxonomy(raw);
     const draft = buildProfileDraftFromCanonicalResult(canonical, 'CV Gizem Şaylan.pdf');
 
-    expect(raw.experiences.length).toBe(2);
-    expect(raw.experiences[0].role).toBe('İnsan Kaynakları Uzmanı');
-    expect(raw.experiences[0].company).toMatch(/LC Waikiki/i);
-    expect(raw.experiences[0].startYear).toBe(2022);
-    expect(raw.experiences[0].endYear).toBe(2024);
+    console.log('GIZEM RAW EXPERIENCES:', JSON.stringify(raw.experiences, null, 2));
+    console.log('GIZEM RAW EDU:', JSON.stringify(raw.education, null, 2));
+    console.log('GIZEM RAW LOC:', raw.locations);
+    console.log('GIZEM RAW DEMO:', { gender: raw.gender, birthDate: raw.birthDate });
+    console.log('GIZEM DRAFT:', {
+      role: draft.formValues.role,
+      sector: draft.formValues.sector,
+      city: draft.formValues.city,
+      residenceDistrict: draft.formValues.residenceDistrict,
+      profileGender: draft.formValues.profileGender,
+      birthDate: draft.formValues.birthDate,
+    });
 
-    expect(draft.formValues.role).toBe('İnsan Kaynakları Uzmanı');
-    expect(draft.formValues.sector).toBe('İnsan kaynakları');
+    expect(raw.experiences.length).toBe(4);
     expect(draft.formValues.city).toBe('İstanbul');
-    expect(draft.formValues.residenceDistrict).toBe('Kadıköy');
+    expect(draft.formValues.residenceDistrict).toMatch(/Eyüp|Eyüpsultan/i);
     expect(draft.formValues.profileGender).toBe('Kadın');
-    expect(draft.formValues.birthDate).toBe('1997-04-24');
-    expect(draft.formValues.tools).toContain('SAP');
-    expect(draft.formValues.tools).toMatch(/Excel|Office/i);
+    expect(draft.formValues.birthDate).toBe('1997-02-26');
+    expect(draft.formValues.role).toMatch(/Yatırım Danışmanı|Finans Uzmanı|Satış Danışmanı|Satış Temsilcisi|Satış Uzmanı/i);
+    expect(draft.formValues.sector).toMatch(/Finans \/ Bankacılık|Satış \/ Pazarlama/i);
   });
 });

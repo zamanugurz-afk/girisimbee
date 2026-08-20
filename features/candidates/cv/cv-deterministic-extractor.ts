@@ -53,6 +53,7 @@ export const COMMON_TURKISH_DISTRICTS: Record<string, { city: string; district: 
   zeytinburnu: { city: 'İstanbul', district: 'Zeytinburnu' },
   fatih: { city: 'İstanbul', district: 'Fatih' },
   beyoglu: { city: 'İstanbul', district: 'Beyoğlu' },
+  eyup: { city: 'İstanbul', district: 'Eyüp' },
   eyupsultan: { city: 'İstanbul', district: 'Eyüpsultan' },
   gaziosmanpasa: { city: 'İstanbul', district: 'Gaziosmanpaşa' },
   kagithane: { city: 'İstanbul', district: 'Kağıthane' },
@@ -880,7 +881,7 @@ export function extractDeterministicLocations(text: string): {
         }
       }
 
-      const distRegex = new RegExp(`(?:^|\\s)${distKey}(?:\\s|$)`, 'i');
+      const distRegex = new RegExp(`(?:^|[^a-z0-9])${distKey}(?:$|[^a-z0-9])`, 'i');
       if (distRegex.test(lineNorm)) {
         return {
           city: data.city,
@@ -901,7 +902,7 @@ export function extractDeterministicLocations(text: string): {
       const cityNorm = normalizeTrForMatch(data.city);
       if (!normText.includes(cityNorm)) continue;
     }
-    const regex = new RegExp(`(?:^|\\s)${distKey}(?:\\s|$)`, 'i');
+    const regex = new RegExp(`(?:^|[^a-z0-9])${distKey}(?:$|[^a-z0-9])`, 'i');
     if (regex.test(normText)) {
       detectedCity = data.city;
       detectedDistrict = data.district;
@@ -1592,7 +1593,8 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
           }
         } else if (cleanPrev1 && isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev1;
-          if (cleanPrev2 && !isRoleTitle(cleanPrev2) && !parseDateRangeText(cleanPrev2)) {
+          const isSentence = cleanPrev2 && (cleanPrev2.length > 50 || cleanPrev2.endsWith('.') || /\b(?:etmek|yapmak|yurutmek|saglamak|olusturmak|calismak|hazirlamak|yonetmek|katilmak)\b/i.test(normalizeTrForMatch(cleanPrev2)));
+          if (cleanPrev2 && !isSentence && !isRoleTitle(cleanPrev2) && !parseDateRangeText(cleanPrev2) && cleanPrev2.length <= 60) {
             currentExp.company = cleanPrev2;
           }
         } else if (cleanPrev1 && !isRoleTitle(cleanPrev1)) {
@@ -1608,16 +1610,18 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
 
     if (currentExp) {
-      if (
-        norm.includes('tam zamanli') ||
-        norm.includes('yari zamanli') ||
-        norm.includes('surekli') ||
-        norm.includes('donemsel') ||
-        norm.includes('part time') ||
-        norm.includes('full time') ||
-        norm.includes('freelance') ||
-        norm.includes('sozlesmeli')
-      ) {
+      const isPureEmploymentType = line.length <= 35 && !isRoleTitle(line) && (
+        norm === 'tam zamanli' ||
+        norm === 'yari zamanli' ||
+        norm === 'surekli' ||
+        norm === 'donemsel' ||
+        norm === 'part time' ||
+        norm === 'full time' ||
+        norm === 'freelance' ||
+        norm === 'sozlesmeli' ||
+        norm === 'stajyer'
+      );
+      if (isPureEmploymentType) {
         currentExp.employmentType = line;
         continue;
       }

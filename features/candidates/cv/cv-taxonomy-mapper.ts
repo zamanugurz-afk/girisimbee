@@ -704,8 +704,19 @@ export function mapCvToCanonicalTaxonomy(
     return matchedSectors[0] || '';
   };
 
-  // 3. Map Experiences
-  const experiences: CareerExperience[] = (payload.experiences || []).map((exp, idx) => {
+  // 3. Map Experiences (sorted by recency so current/latest job is first)
+  const sortedRawExperiences = [...(payload.experiences || [])].sort((a, b) => {
+    if (a.isCurrent && !b.isCurrent) return -1;
+    if (!a.isCurrent && b.isCurrent) return 1;
+    const aEnd = a.endYear ?? a.startYear ?? 0;
+    const bEnd = b.endYear ?? b.startYear ?? 0;
+    if (bEnd !== aEnd) return bEnd - aEnd;
+    const aStart = a.startYear ?? 0;
+    const bStart = b.startYear ?? 0;
+    return bStart - aStart;
+  });
+
+  const experiences: CareerExperience[] = sortedRawExperiences.map((exp, idx) => {
     const resolvedSector = inferExpSector(exp);
     const defaultRole =
       matchedRoles[0] ||

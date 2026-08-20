@@ -229,6 +229,23 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
     }
   }
 
+  // Pattern C: Full Turkish Month birth dates (e.g. "26 Şubat 1997", "15 Mart 1995")
+  if (!birthDate) {
+    const monthDobMatch = text.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i);
+    if (monthDobMatch) {
+      const day = monthDobMatch[1].padStart(2, '0');
+      const mName = normalizeTrUniversal(monthDobMatch[2]);
+      const monthMap: Record<string, string> = {
+        ocak: '01', subat: '02', mart: '03', nisan: '04', mayis: '05', haziran: '06',
+        temmuz: '07', agustos: '08', eylul: '09', ekim: '10', kasim: '11', aralik: '12',
+      };
+      const month = monthMap[mName] || '01';
+      const year = monthDobMatch[3];
+      birthYear = parseInt(year, 10);
+      birthDate = `${year}-${month}-${day}`;
+    }
+  }
+
   return { gender, birthDate, birthYear };
 }
 
