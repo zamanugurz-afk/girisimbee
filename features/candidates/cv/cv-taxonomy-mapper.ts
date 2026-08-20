@@ -31,10 +31,19 @@ const ROLE_ALIASES: Record<string, string> = {
   'test engineer': 'QA / Test uzmanı',
   'data scientist': 'Veri Bilimci',
   'data analyst': 'Veri Analisti',
-  'data engineer': 'Veri Mühendisi',
   'system admin': 'Sistem Yöneticisi',
   'system administrator': 'Sistem Yöneticisi',
   'cyber security specialist': 'Siber Güvenlik Uzmanı',
+  'cloud architect': 'DevOps Mühendisi',
+  'security architect': 'Siber Güvenlik Uzmanı',
+  'cloud infrastructure & security architect': 'DevOps Mühendisi',
+  'cloud infrastructure and security architect': 'DevOps Mühendisi',
+  'software architect': 'Yazılım Geliştirici',
+  'solutions architect': 'Yazılım Geliştirici',
+  'finansal güvence danışmanı': 'Sigorta Danışmanı',
+  'finansal guvence danismani': 'Sigorta Danışmanı',
+  'vardiya müdürü': 'Vardiya Amiri / Müdürü',
+  'vardiya muduru': 'Vardiya Amiri / Müdürü',
 
   // Sales & Marketing
   'sales specialist': 'Satış Uzmanı',
@@ -754,9 +763,14 @@ export function mapCvToCanonicalTaxonomy(
   ]);
 
   const formatSkillOrTool = (item: string): string => {
-    const upper = item.trim().toUpperCase();
-    if (KNOWN_UPPERCASE_ACRONYMS.has(upper)) return upper;
-    return suggestTitleCaseTr(item);
+    return item
+      .split(/\s+/)
+      .map((word) => {
+        const upper = word.trim().toUpperCase();
+        if (KNOWN_UPPERCASE_ACRONYMS.has(upper)) return upper;
+        return suggestTitleCaseTr(word);
+      })
+      .join(' ');
   };
 
   const professionalSkills = (payload.skills || [])

@@ -221,8 +221,8 @@ Lingo City Dil Okulu / Kadıköy 2016
     expect(draft.formValues.sector).toBe('Sigorta');
     expect(draft.formValues.role).toMatch(/Sigorta Danışmanı|Operasyon Uzmanı|Müşteri Hizmetleri/);
     expect(draft.formValues.tools).toContain('CRM');
-    expect(draft.formValues.tools).toContain('Spss');
-    expect(draft.formValues.tools).toContain('Sap ERP');
+    expect(draft.formValues.tools).toContain('SPSS');
+    expect(draft.formValues.tools).toContain('SAP ERP');
     expect(draft.formValues.certificates).toContain('SEGEM');
     expect(draft.formValues.languages).toContain('İngilizce');
     expect(draft.formValues.educationHistory?.length).toBeGreaterThanOrEqual(2);

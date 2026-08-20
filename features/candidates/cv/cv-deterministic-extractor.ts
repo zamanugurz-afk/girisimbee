@@ -710,12 +710,10 @@ export function isRoleTitle(line: string): boolean {
   if (!line) return false;
   const clean = line.trim();
   if (clean.length > 70) return false;
-  if (clean.endsWith('.') || clean.endsWith(';') || clean.endsWith(':')) return false;
-
   const norm = normalizeTrForMatch(clean);
-  // Block company / institution suffixes (as standalone words)
+  // Block company / institution suffixes (as standalone words or phrases)
   if (
-    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu|hizmetleri|sanayi|ticaret)\b/i.test(norm) ||
+    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu|mudurluk|genel\s*mudurluk|genel\s*mudurlugu|bolge\s*mudurluk|bolge\s*mudurlugu|sube\s*mudurluk|sube\s*mudurlugu|hizmetleri|sanayi|ticaret|platformu|vakfi|dernegi|kulubu)\b/i.test(norm) ||
     /\ba\s*s\b/i.test(norm)
   ) {
     return false;
@@ -786,7 +784,7 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('avukat') ||
     norm.includes('ogretmen') ||
     norm.includes('egitmen') ||
-    norm.includes('mimar') ||
+    (/\b(?:mimar|mimari|architect)\b/i.test(norm) && !norm.includes('mimarisi') && !norm.includes('mimarlik')) ||
     norm.includes('tasarimci') ||
     norm.includes('musavir') ||
     norm.includes('yazar') ||
@@ -1031,20 +1029,20 @@ export interface ParsedDateRange {
 export function parseDateRangeText(line: string): ParsedDateRange | null {
   let norm = line.toLowerCase().replace(/[–—]/g, '-').trim();
   norm = norm
-    .replace(/a\s*g\s*u\s*s\s*t\s*o\s*s|a\s*ğ\s*u\s*s\s*t\s*o\s*s/g, 'ağustos')
-    .replace(/e\s*y\s*l\s*ü\s*l|e\s*y\s*l\s*u\s*l/g, 'eylül')
-    .replace(/k\s*a\s*s\s*ı\s*m|k\s*a\s*s\s*i\s*m/g, 'kasım')
-    .replace(/a\s*r\s*a\s*l\s*ı\s*k|a\s*r\s*a\s*l\s*i\s*k/g, 'aralık')
-    .replace(/ş\s*u\s*b\s*a\s*t|s\s*u\s*b\s*a\s*t/g, 'şubat')
-    .replace(/h\s*a\s*z\s*i\s*r\s*a\s*n/g, 'haziran')
-    .replace(/t\s*e\s*m\s*m\s*u\s*z/g, 'temmuz')
-    .replace(/m\s*a\s*y\s*ı\s*s|m\s*a\s*y\s*i\s*s/g, 'mayıs')
-    .replace(/n\s*i\s*s\s*a\s*n/g, 'nisan')
-    .replace(/o\s*c\s*a\s*k/g, 'ocak')
-    .replace(/m\s*a\s*r\s*t/g, 'mart')
-    .replace(/e\s*k\s*i\s*m/g, 'ekim');
+    .replace(/\b(?:a\s*ğ\s*u\s*s\s*t\s*o\s*s|a\s*g\s*u\s*s\s*t\s*o\s*s|ağu|agu)\b/g, 'ağustos')
+    .replace(/\b(?:e\s*y\s*l\s*ü\s*l|e\s*y\s*l\s*u\s*l|eyl)\b/g, 'eylül')
+    .replace(/\b(?:k\s*a\s*s\s*ı\s*m|k\s*a\s*s\s*i\s*m|kas)\b/g, 'kasım')
+    .replace(/\b(?:a\s*r\s*a\s*l\s*ı\s*k|a\s*r\s*a\s*l\s*i\s*k|ara)\b/g, 'aralık')
+    .replace(/\b(?:ş\s*u\s*b\s*a\s*t|s\s*u\s*b\s*a\s*t|şub|sub)\b/g, 'şubat')
+    .replace(/\b(?:h\s*a\s*z\s*i\s*r\s*a\s*n|haz)\b/g, 'haziran')
+    .replace(/\b(?:t\s*e\s*m\s*m\s*u\s*z|tem)\b/g, 'temmuz')
+    .replace(/\b(?:m\s*a\s*y\s*ı\s*s|m\s*a\s*y\s*i\s*s|may)\b/g, 'mayıs')
+    .replace(/\b(?:n\s*i\s*s\s*a\s*n|nis)\b/g, 'nisan')
+    .replace(/\b(?:o\s*c\s*a\s*k|oca)\b/g, 'ocak')
+    .replace(/\b(?:m\s*a\s*r\s*t|mar)\b/g, 'mart')
+    .replace(/\b(?:e\s*k\s*i\s*m|eki)\b/g, 'ekim');
 
-  const months = 'ocak|subat|şubat|mart|nisan|mayis|mayıs|haziran|temmuz|agustos|ağustos|eylul|eylül|ekim|kasim|kasım|aralik|aralık|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
+  const months = 'ocak|subat|şubat|mart|nisan|mayis|mayıs|haziran|temmuz|agustos|ağustos|eylul|eylül|ekim|kasim|kasım|aralik|aralık|oca|sub|şub|mar|nis|may|haz|tem|agu|ağu|eyl|eki|kas|ara|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
   const activePattern = 'günümüz|gunumuz|güncel|guncel|devam(?:\\s*ediyor)?|present|current|halen|hala(?:\\s*çalışıyorum|\\s*calisiyorum)?|çalışıyorum|calisiyorum|sürüyor|suruyor|now';
 
   const singleDatePattern = `(?:(?:\\d{1,2}[.\\s/]+){1,2}|(?:${months})[.\\s/]+)?(19\\d{2}|20\\d{2})`;
@@ -1095,7 +1093,7 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
   }
 
   // Check for 4-digit year (e.g. "SİGORTAMBİR A.Ş 2025" or "2023" or "(2021)")
-  const singleYear = norm.match(/(?:^|\s|\()((?:19[7-9]\d|20[0-3]\d))(?:\s|\)|$)/);
+  const singleYear = norm.match(/(?:^|\s|\()((?:19[7-9]\d|20[0-4]\d))(?:\s|\)|$)/);
   if (singleYear) {
     const yr = parseInt(singleYear[1], 10);
     return {
@@ -1137,6 +1135,7 @@ export const EDU_HEADER_NORMS = new Set([
   'egitim', 'egitimbilgileri', 'egitimgecmisi', 'egitimdurumu', 'ogrenim',
   'ogrenimbilgileri', 'ogrenimdurumu', 'akademikegitim', 'akademikgecmis',
   'akademikbilgiler', 'egitimveakademikbilgiler', 'egitimveogrenim',
+  'egitimvenitelikler', 'egitimvenitelik', 'egitimvesertifikalar',
   'education', 'educationalbackground', 'academicbackground', 'academichistory',
   'academic', 'qualifications', 'academicqualifications', 'degrees', 'studies',
   'academicprofile', 'educationtraining'
@@ -1144,6 +1143,7 @@ export const EDU_HEADER_NORMS = new Set([
 
 export const OTHER_HEADER_NORMS = new Set([
   ...EXP_HEADER_NORMS,
+  ...EDU_HEADER_NORMS,
   'yetkinlikler', 'yetkinlik', 'yetenekler', 'yetenek', 'beceriler', 'beceri',
   'uzmanlikalanlari', 'uzmanlik', 'teknikbeceriler', 'teknikyetkinlikler',
   'meslekiyetkinlikler', 'kisiselyetkinlikler', 'bilgisayarbecerileri', 'araclar',
@@ -1152,7 +1152,7 @@ export const OTHER_HEADER_NORMS = new Set([
   'technicalproficiencies', 'areasofexpertise', 'toolstechnologies', 'tools',
   'technologies', 'abilities', 'proficiencies', 'expertise', 'softskills',
   'hardskills', 'professionalqualifications',
-  'sertifikalar', 'sertifika', 'kurslarvesertifikalar', 'lisanslarvesertifikalar',
+  'sertifikalar', 'sertifika', 'kurslar', 'kurs', 'kurslarvesertifikalar', 'lisanslarvesertifikalar',
   'egitimlervesertifikalar', 'sertifikalarvelisanslar', 'kurslarveegitimler',
   'belgeler', 'sertifikavebelgeler', 'certificates', 'certifications', 'licenses',
   'coursescertificates', 'accreditations', 'certificationslicenses', 'courses',
@@ -1371,7 +1371,8 @@ function isPureDateLine(line: string): boolean {
   const monthsAndTerms = [
     'ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran',
     'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik',
-    'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+    'oca', 'sub', 'mar', 'nis', 'may', 'haz', 'tem', 'agu', 'eyl', 'eki', 'kas', 'ara',
+    'jan', 'feb', 'apr', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
     'yil', 'ay', 'gunumuz', 'devam', 'present', 'current', 'halen', 'to', 'ila', 'ile',
     'year', 'years', 'month', 'months', 'duration', 'sure'
   ];
@@ -1434,7 +1435,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
 
   const targetLines = expLines.length > 0 ? expLines : lines;
   let currentExp: Partial<RawExtractedExperience> | null = null;
-  const collectedResponsibilities: string[] = [];
+  let collectedResponsibilities: string[] = [];
 
   const flushExp = () => {
     if (currentExp && (currentExp.company || currentExp.role || currentExp.startYear)) {
@@ -1486,6 +1487,17 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     const dateInfo = parseDateRangeText(line);
 
     if (dateInfo) {
+      const prevs = getCleanPrevNonHeaderLines(i);
+      const prev1 = prevs[0] || null;
+      const prev2 = prevs[1] || null;
+
+      if (prev1) {
+        collectedResponsibilities = collectedResponsibilities.filter((r) => r.trim() !== prev1.trim());
+      }
+      if (prev2) {
+        collectedResponsibilities = collectedResponsibilities.filter((r) => r.trim() !== prev2.trim());
+      }
+
       if (currentExp && (currentExp.company || currentExp.role)) {
         flushExp();
       }
@@ -1496,10 +1508,6 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         isCurrent: dateInfo.isCurrent,
         duration: dateInfo.duration,
       };
-
-      const prevs = getCleanPrevNonHeaderLines(i);
-      const prev1 = prevs[0] || null;
-      const prev2 = prevs[1] || null;
       const isPureDate = isPureDateLine(line);
       let rawRemainder = isPureDate ? '' : line;
       if (!isPureDate && dateInfo.raw) {
@@ -1558,12 +1566,21 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
         const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
 
-        if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|'))) {
+        if (cleanPrev2 && isRoleTitle(cleanPrev2) && cleanPrev1 && !isRoleTitle(cleanPrev1)) {
+          currentExp.role = cleanPrev2;
+          currentExp.company = cleanPrev1;
+        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|'))) {
           const parts = cleanPrev1.split(/[,–—|-]/).map((p) => p.trim());
           if (parts.length >= 2) {
-            if (isRoleTitle(parts[0])) {
+            if (isRoleTitle(parts[0]) && !isRoleTitle(parts[1])) {
               currentExp.role = parts[0];
               currentExp.company = parts[1];
+            } else if (isRoleTitle(parts[1]) && !isRoleTitle(parts[0])) {
+              currentExp.company = parts[0];
+              currentExp.role = parts[1];
+            } else if (cleanPrev2 && isRoleTitle(cleanPrev2)) {
+              currentExp.role = cleanPrev2;
+              currentExp.company = cleanPrev1;
             } else {
               currentExp.company = parts[0];
               currentExp.role = parts[1];
@@ -1644,6 +1661,16 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       ) {
         // Belongs to next experience entry
         continue;
+      }
+
+      if (
+        (i > 0 && isRoleTitle(lines[i - 1])) ||
+        (i + 1 < lines.length && parseDateRangeText(lines[i + 1])) ||
+        (i + 2 < lines.length && parseDateRangeText(lines[i + 2]) && isRoleTitle(lines[i + 1]))
+      ) {
+        if (!line.startsWith('-') && !line.startsWith('•') && !line.startsWith('*') && !line.startsWith('·')) {
+          continue;
+        }
       }
 
       if (line.length >= 3 && !line.startsWith('---')) {
@@ -1933,6 +1960,22 @@ export function generateDeterministicSummary(input: {
 // 7.5. DETERMINISTIC DEMOGRAPHICS PARSER (Gender & Birth Date)
 // ============================================================================
 
+const TURKISH_MALE_FIRST_NAMES = new Set([
+  'ahmet', 'mehmet', 'mustafa', 'ali', 'burak', 'batil', 'ugur', 'can', 'emre', 'murat', 'hakan',
+  'omer', 'osman', 'ibrahim', 'huseyin', 'hasan', 'serkan', 'kaan', 'alp', 'efe', 'mert',
+  'doruk', 'dorukhan', 'selim', 'kerem', 'baris', 'tolga', 'onur', 'volkan', 'fatih', 'kemal',
+  'yigit', 'cem', 'sinan', 'eren', 'oguz', 'berk', 'bora', 'gokhan', 'alper', 'koray', 'arda',
+  'yasin', 'tayfun', 'tarik', 'samet', 'furkan', 'eray', 'enes', 'anil', 'umut', 'oguzhan'
+]);
+
+const TURKISH_FEMALE_FIRST_NAMES = new Set([
+  'ayse', 'fatma', 'emine', 'hatice', 'zeynep', 'elif', 'meryem', 'bursa', 'busra', 'gizem',
+  'merve', 'gamze', 'rukiye', 'ravza', 'selin', 'ece', 'bahar', 'ebru', 'esra', 'kubra', 'seyma',
+  'irem', 'damla', 'duygu', 'pinar', 'tugba', 'ozge', 'burcu', 'ezgi', 'asli', 'eda', 'ceren',
+  'yasemin', 'sema', 'dilek', 'songul', 'hulya', 'melis', 'melisa', 'hilal', 'beyza', 'nur',
+  'cansu', 'ilayda', 'hande', 'asuman', 'sevil', 'sinem', 'mine', 'neslihan'
+]);
+
 export function extractDeterministicDemographics(text: string): {
   gender?: string;
   birthDate?: string;
@@ -1943,7 +1986,7 @@ export function extractDeterministicDemographics(text: string): {
   let birthDate: string | undefined;
   let birthYear: number | undefined;
 
-  // 1. Gender Detection
+  // 1. Gender Detection (Explicit)
   if (
     /(?:^|\s)cinsiyet\b[\s:]*(kadin|bayan)\b/i.test(normText) ||
     /(?:^|\n)\s*cinsiyet\s*\n\s*(kadin|bayan)/i.test(normText) ||
@@ -1960,6 +2003,24 @@ export function extractDeterministicDemographics(text: string): {
     gender = 'Erkek';
   }
 
+  // 1.5. Gender Detection (First Name Inference from Top Lines)
+  if (!gender) {
+    const lines = text.split(/\r?\n/).slice(0, 10);
+    for (const l of lines) {
+      const words = normalizeTrForMatch(l).split(/[\s,.:/|–—]+/).filter((w) => w.length >= 3);
+      for (const w of words) {
+        if (TURKISH_MALE_FIRST_NAMES.has(w)) {
+          gender = 'Erkek';
+          break;
+        } else if (TURKISH_FEMALE_FIRST_NAMES.has(w)) {
+          gender = 'Kadın';
+          break;
+        }
+      }
+      if (gender) break;
+    }
+  }
+
   // 2. Birth Date / Year Detection
   // Pattern A: "1993 (32 Yaş)" or "1993 (32 yas)"
   const ageMatch = text.match(/\b(19\d{2}|200\d)\s*\(\s*\d{1,2}\s*(?:yaş|yas|yaşında|yasinda)?\s*\)/i);
@@ -1968,9 +2029,9 @@ export function extractDeterministicDemographics(text: string): {
     birthDate = `${birthYear}-01-01`;
   }
 
-  // Pattern B: "Doğum Tarihi: 15.05.1993" or "15/05/1993" or "1993"
+  // Pattern B: "Doğum Tarihi: 15.05.1993" or "13-06-1996" or "1993"
   if (!birthDate) {
-    const dobMatch = text.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|200\d)|(?:19\d{2}|200\d))/i);
+    const dobMatch = text.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|20\d{2})|(?:19\d{2}|20\d{2}))/i);
     if (dobMatch) {
       const rawDate = dobMatch[1];
       if (/^\d{4}$/.test(rawDate)) {
