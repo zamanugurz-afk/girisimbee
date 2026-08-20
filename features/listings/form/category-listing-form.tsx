@@ -2269,30 +2269,166 @@ export function CategoryListingForm({
           )}
 
           {isPublishStep && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               {categoryId === CATEGORY_IDS.isBul && (
-                <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
-                  <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h4 className="font-display text-sm font-bold text-foreground flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-primary" />
-                        Kariyer Özeti ve Önizleme
+                <>
+                  {/* 1. İlan & Çalışma Tercihleri */}
+                  <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
+                    <div className="border-b border-border/60 pb-3">
+                      <h4 className="font-display text-sm font-bold text-foreground">
+                        Çalışma Modeli &amp; İlan Tercihleri
                       </h4>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Deneyim ve yetkinliklerinize göre oluşturulan profil özetiniz. İlanınızda bu metin öne çıkacaktır.
+                        Çalışma şekli, lokasyon, maaş beklentisi ve işe başlama zamanı tercihlerinizi belirleyin.
                       </p>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {fieldByKey.get('workType') ? (
+                        <DynamicField
+                          field={fieldByKey.get('workType')!}
+                          value={mergedCustomFields.workType}
+                          onChange={(val) => handleCustomFieldChange('workType', val)}
+                          error={resolveFieldError(fieldErrors, 'workType')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+
+                      {fieldByKey.get('workplacePreference') ? (
+                        <DynamicField
+                          field={fieldByKey.get('workplacePreference')!}
+                          value={mergedCustomFields.workplacePreference}
+                          onChange={(val) => handleCustomFieldChange('workplacePreference', val)}
+                          error={resolveFieldError(fieldErrors, 'workplacePreference')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {fieldByKey.get('preferredCity') ? (
+                        <DynamicField
+                          field={fieldByKey.get('preferredCity')!}
+                          value={mergedCustomFields.preferredCity}
+                          onChange={(val) => handleCustomFieldChange('preferredCity', val)}
+                          error={resolveFieldError(fieldErrors, 'preferredCity')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+
+                      {fieldByKey.get('preferredDistrict') ? (
+                        <DynamicField
+                          field={fieldByKey.get('preferredDistrict')!}
+                          value={mergedCustomFields.preferredDistrict}
+                          onChange={(val) => handleCustomFieldChange('preferredDistrict', val)}
+                          error={resolveFieldError(fieldErrors, 'preferredDistrict')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {fieldByKey.get('salaryExpectation') ? (
+                        <DynamicField
+                          field={fieldByKey.get('salaryExpectation')!}
+                          value={mergedCustomFields.salaryExpectation}
+                          onChange={(val) => handleCustomFieldChange('salaryExpectation', val)}
+                          error={resolveFieldError(fieldErrors, 'salaryExpectation')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+
+                      {fieldByKey.get('availability') ? (
+                        <DynamicField
+                          field={fieldByKey.get('availability')!}
+                          value={mergedCustomFields.availability}
+                          onChange={(val) => handleCustomFieldChange('availability', val)}
+                          error={resolveFieldError(fieldErrors, 'availability')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      ) : null}
+                    </div>
+
+                    <CareerPreferenceEditor
+                      experiences={parseCareerExperiences(mergedCustomFields.experiences)}
+                      primarySector={String(mergedCustomFields.primarySector ?? '')}
+                      desiredRole={
+                        isManualCareerOption(mergedCustomFields.desiredRole)
+                          ? String(mergedCustomFields.desiredRoleOther ?? '')
+                          : String(mergedCustomFields.desiredRole ?? '')
+                      }
+                      value={{
+                        preferredSectors: Array.isArray(mergedCustomFields.preferredSectors)
+                          ? mergedCustomFields.preferredSectors.map(String)
+                          : [],
+                        sectorOther: String(mergedCustomFields.sectorOther ?? ''),
+                        preferredRoles: Array.isArray(mergedCustomFields.preferredRoles)
+                          ? mergedCustomFields.preferredRoles.map(String)
+                          : [],
+                        preferredRolesOther: String(mergedCustomFields.preferredRolesOther ?? ''),
+                      }}
+                      onChange={(patch) => {
+                        for (const [key, val] of Object.entries(patch)) {
+                          setCustomField(key, val);
+                        }
+                      }}
                       disabled={disabled || isBusy}
-                      onClick={applyCareerSummaryDraft}
-                      className="text-xs h-8 shrink-0"
-                    >
-                      Özeti Yeniden Oluştur
-                    </Button>
+                      errors={{
+                        preferredSectors: resolveFieldError(fieldErrors, 'preferredSectors'),
+                        sectorOther: resolveFieldError(fieldErrors, 'sectorOther'),
+                        preferredRoles: resolveFieldError(fieldErrors, 'preferredRoles'),
+                        preferredRolesOther: resolveFieldError(fieldErrors, 'preferredRolesOther'),
+                      }}
+                    />
                   </div>
+
+                  {/* 2. Kariyer Özeti ve Önizleme */}
+                  <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
+                    <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <h4 className="font-display text-sm font-bold text-foreground flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          Kariyer Özeti ve Önizleme
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Deneyim ve yetkinliklerinize göre oluşturulan profil özetiniz. İlanınızda bu metin öne çıkacaktır.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={disabled || isBusy}
+                        onClick={applyCareerSummaryDraft}
+                        className="text-xs h-8 shrink-0"
+                      >
+                        Özeti Yeniden Oluştur
+                      </Button>
+                    </div>
 
                   <div className="space-y-1.5">
                     <Label htmlFor="career-final-summary" className="text-xs font-semibold">
@@ -2342,7 +2478,8 @@ export function CategoryListingForm({
                     />
                   </div>
                 </div>
-              )}
+              </>
+            )}
 
               <p className="text-gc-sm text-muted-foreground">
                 {(() => {
