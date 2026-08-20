@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Cloud, Shield, Sparkles, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ListingLiveCardPreview } from '@/features/listings/components/listing-live-card-preview';
 import { cn } from '@/lib/utils';
 import type { ListingType } from '@/features/listings/types/listing-type.types';
 import type { CategoryId, ListingId } from '@/lib/domain/ids';
@@ -36,10 +35,7 @@ import { StructuredTagsSelect } from '@/features/listings/form/fields/structured
 import { CvUploadField } from '@/features/listings/form/fields/cv-upload-field';
 import { CvUploadCard } from '@/features/listings/form/fields/cv-upload-card';
 import { CvExtractionHud } from '@/features/listings/form/fields/cv-extraction-hud';
-import {
-  ListingQualityChecklist,
-  ListingProgressStatus,
-} from '@/features/listings/form/fields/listing-quality-checklist';
+import { ListingQualityChecklist } from '@/features/listings/form/fields/listing-quality-checklist';
 import { StickyActionBar } from '@/features/listings/form/fields/sticky-action-bar';
 import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import {
@@ -1990,8 +1986,8 @@ export function CategoryListingForm({
           </div>
         </div>
 
-        {/* MIDDLE COLUMN: Active Step Form (9 cols for isBul, 6 cols for others) */}
-        <div className={cn('col-span-1 h-full', categoryId === CATEGORY_IDS.isBul ? 'lg:col-span-9' : 'lg:col-span-6')}>
+        {/* MAIN COLUMN: Active Step Form (9 cols on desktop across all categories) */}
+        <div className="col-span-1 lg:col-span-9 h-full">
           <div className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
             <div>
               <div className="border-b border-border/60 pb-4 mb-4 lg:hidden">
@@ -3053,7 +3049,7 @@ export function CategoryListingForm({
             </>
           )}
         </div>
-        </div>
+      </div>
 
             {/* Middle Card Footer */}
             <div className="mt-8 pt-4 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -3130,45 +3126,6 @@ export function CategoryListingForm({
             </div>
           </div>
         </div>
-
-        {/* RIGHT COLUMN: Live Preview & Progress Status (3 cols on desktop, hidden for isBul) */}
-        {categoryId !== CATEGORY_IDS.isBul && (
-          <div className="hidden lg:block lg:col-span-3 h-full">
-            <div className="h-full flex flex-col justify-between gap-4">
-              {/* Live Preview Card */}
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3 mb-3">
-                    <h4 className="font-display text-xs font-bold uppercase tracking-wider text-slate-500">
-                      CANLI ÖNİZLEME
-                    </h4>
-                    <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-semibold', theme.previewBadge)}>
-                      Taslak
-                    </span>
-                  </div>
-
-                  <ListingLiveCardPreview
-                    categoryId={categoryId}
-                    values={formValues}
-                    listingType={listingType}
-                    partnershipIntent={partnershipIntent}
-                    userName={user?.displayName || 'İlan Sahibi'}
-                    userAvatar={user?.avatarUrl ?? undefined}
-                  />
-                </div>
-              </div>
-
-              {/* Dynamic Progress Status */}
-              <ListingProgressStatus
-                currentStepIndex={stepIndex}
-                totalSteps={steps.length}
-                steps={steps}
-                categoryId={categoryId}
-                onNavigateToStep={(sIdx) => goToStep(sIdx, 'progress-click')}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       <ListingPreviewDialog
