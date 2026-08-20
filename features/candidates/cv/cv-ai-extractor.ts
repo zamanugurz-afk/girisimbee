@@ -157,12 +157,12 @@ export async function extractCvWithSingleAiCall(
     };
   }
 
-  // 3. Prepare minimal semantic payload for AI
+  // 3. Prepare rich semantic payload for AI
   const unknownBlocks = gate.unknownSemanticBlocks;
   const minimalPrompt = `Aşağıdaki CV metnini analiz et ve eksik anlamsal alanları tamamla:
 
 --- CV METNİ ---
-${unknownBlocks?.minimalContextSnippet || maskedCvText.slice(0, 3500)}
+${maskedCvText.slice(0, 6000)}
 --- BİTİŞ ---
 
 Tespit Edilen Rol Adayları: ${unknownBlocks?.unresolvedRoles?.join(', ') || 'Belirtilmedi'}

@@ -37,8 +37,10 @@ export interface CareerProfileCompletion {
 export interface CareerProfileFormValues {
   // Primary role & sector
   role: string;
+  desiredRole?: string;
   roles?: string[];
   sector: string;
+  primarySector?: string;
   sectors?: string[];
   experienceLevel: string;
   workType: string;

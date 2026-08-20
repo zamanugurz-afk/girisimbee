@@ -1432,12 +1432,6 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
   }
 
-  const hasAnySectionHeader = lines.some((l) => isEduSectionHeader(l) || isOtherSectionHeader(l) || isExperienceSectionHeader(l));
-  if (expLines.length === 0 && hasAnySectionHeader) {
-    // Structured CV with other sections (e.g. Education, Projects, Skills) but NO Experience section -> Fresh Graduate / Student
-    return [];
-  }
-
   const targetLines = expLines.length > 0 ? expLines : lines;
   let currentExp: Partial<RawExtractedExperience> | null = null;
   const collectedResponsibilities: string[] = [];
@@ -1478,8 +1472,10 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       continue;
     }
     const hasDate = Boolean(parseDateRangeText(line));
-    const isDegreeEdu = /lisans|doktora|phd|master|bachelor|lise|myo|fakulte|enstitu/i.test(normalizeTrForMatch(line));
-    if (isEduSectionHeader(line) || isOtherSectionHeader(line) || isDegreeEdu || (isEduLine(line) && !hasDate)) {
+    const isExplicitDegree = /\b(?:lisans|doktora|phd|master|bachelor|lise|onlisans|myo|mezun(?:u|iyet|lar[ıi])?|not ortalamas[ıi]|gpa)\b/i.test(normalizeTrForMatch(line));
+    const hasRoleInLine = isRoleTitle(line) || /\b(?:arastirma gorevlisi|ogretim gorevlisi|uzman[ıi]?|mudur[uü]?|asistan[ıi]?|doktor|hemsire|ogretmen|egitmen|muhendisi|stajyer|danisman[ıi]?)\b/i.test(normalizeTrForMatch(line));
+
+    if (isEduSectionHeader(line) || isOtherSectionHeader(line) || (isExplicitDegree && !hasRoleInLine) || (isEduLine(line) && !hasRoleInLine && !hasDate)) {
       if (currentExp && (currentExp.company || currentExp.role)) {
         flushExp();
       }

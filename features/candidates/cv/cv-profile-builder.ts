@@ -50,8 +50,10 @@ export function buildProfileDraftFromCanonicalResult(
   const formValues: Partial<CareerProfileFormValues> = {
     // 1. Role & Sector (extracted from historical CV data)
     role: canonical.primaryRole || '',
+    desiredRole: canonical.primaryRole || '',
     roles: canonical.matchedRoles.length > 0 ? canonical.matchedRoles : canonical.primaryRole ? [canonical.primaryRole] : [],
     sector: canonical.primarySector || '',
+    primarySector: canonical.primarySector || '',
     sectors: canonical.matchedSectors.length > 0 ? canonical.matchedSectors : canonical.primarySector ? [canonical.primarySector] : [],
 
     // 2. Experience History & Level

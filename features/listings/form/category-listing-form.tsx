@@ -126,6 +126,8 @@ import {
   getSectorsForPosition,
   isManualCareerOption,
   parseCareerLanguages,
+  MANUAL_OPTION,
+  MANUAL_OPTION_SHORT,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { getSampleListingValues } from '@/features/listings/form/sample-listing-values';
 import {
@@ -1123,37 +1125,48 @@ export function CategoryListingForm({
     [categoryId, setCustomField],
   );
 
-  const handleCvDraftAnalyzed = useCallback((draft: CvProfileDraftResult) => {
-    const fv = draft.formValues;
-    const expCount = fv.experiences?.length ?? 0;
-    const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
-    const langCount = fv.languages ? fv.languages.split(',').length : 0;
-    const skillCount =
-      (fv.professionalSkillsList?.length ?? 0) +
-      (fv.technicalSkillsList?.length ?? 0) +
-      (fv.toolsList?.length ?? 0);
-    const loc = fv.residenceCity
-      ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
-      : undefined;
-
-    setPendingCvDraft(draft);
-    setIsCvApplied(false);
-    setCvDraftInfo({
-      fileName: fv.cvFileName,
-      experienceCount: expCount,
-      educationCount: eduCount,
-      languageCount: langCount,
-      skillCount,
-      location: loc,
-    });
-    toast.success('✨ CV başarıyla analiz edildi! Bilgileri form adımlarına aktarmak için "CV\'yi Aktar" butonuna tıklayabilirsiniz.');
-  }, []);
-
   const handleApplyCvDraft = useCallback(
     (draft?: CvProfileDraftResult | null) => {
       const activeDraft = draft || pendingCvDraft;
       if (!activeDraft) return;
       const fv = activeDraft.formValues;
+
+      // 0. Position & Sector & Experience Level (Step 1: Genel Bilgiler)
+      const extractedRole = fv.desiredRole || fv.role || (fv.experiences && fv.experiences[0]?.role) || '';
+      const extractedSector = fv.primarySector || fv.sector || (fv.experiences && fv.experiences[0]?.sector) || '';
+
+      if (extractedSector) {
+        setCustomField('primarySector', extractedSector);
+      } else if (extractedRole) {
+        const possibleSectors = getSectorsForPosition(extractedRole);
+        if (possibleSectors && possibleSectors.length > 0) {
+          setCustomField('primarySector', possibleSectors[0]);
+        }
+      }
+
+      if (extractedRole) {
+        const currentSector = extractedSector || (getSectorsForPosition(extractedRole)?.[0] ?? '');
+        const allowedRoles = getPositionsForSector(currentSector);
+        if (allowedRoles.includes(extractedRole)) {
+          setCustomField('desiredRole', extractedRole);
+          setCustomField('desiredRoleOther', '');
+        } else {
+          const matched = allowedRoles.find(
+            (r) => r.toLocaleLowerCase('tr-TR') === extractedRole.toLocaleLowerCase('tr-TR'),
+          );
+          if (matched && matched !== MANUAL_OPTION && matched !== MANUAL_OPTION_SHORT) {
+            setCustomField('desiredRole', matched);
+            setCustomField('desiredRoleOther', '');
+          } else {
+            setCustomField('desiredRole', 'Diğer');
+            setCustomField('desiredRoleOther', extractedRole);
+          }
+        }
+      }
+
+      if (fv.experienceLevel) {
+        setCustomField('experienceLevel', fv.experienceLevel);
+      }
 
       // 1. Work Experiences (Step 2: Kariyer Bilgileriniz)
       if (fv.experiences && fv.experiences.length > 0) {
@@ -1238,6 +1251,9 @@ export function CategoryListingForm({
       }
 
       const appliedKeys = [
+        'desiredRole',
+        'primarySector',
+        'experienceLevel',
         'experiences',
         'educationHistory',
         'educationLevel',
@@ -1257,9 +1273,40 @@ export function CategoryListingForm({
       setCvFilledKeys(new Set(appliedKeys));
       setIsCvApplied(true);
       setIsManualCvMode(false);
-      toast.success('✨ CV deneyimleri, eğitimleri, yetkinlikleri ve demografi bilgileri adımlara aktarıldı.');
+      toast.success('✨ CV bilgileri adımlara başarıyla aktarıldı.');
     },
     [pendingCvDraft, setCustomField],
+  );
+
+  const handleCvDraftAnalyzed = useCallback(
+    (draft: CvProfileDraftResult) => {
+      const fv = draft.formValues;
+      const expCount = fv.experiences?.length ?? 0;
+      const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
+      const langCount = fv.languages ? fv.languages.split(',').length : 0;
+      const skillCount =
+        (fv.professionalSkillsList?.length ?? 0) +
+        (fv.technicalSkillsList?.length ?? 0) +
+        (fv.toolsList?.length ?? 0);
+      const loc = fv.residenceCity
+        ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
+        : undefined;
+
+      setPendingCvDraft(draft);
+      setIsCvApplied(true);
+      setCvDraftInfo({
+        fileName: fv.cvFileName,
+        experienceCount: expCount,
+        educationCount: eduCount,
+        languageCount: langCount,
+        skillCount,
+        location: loc,
+      });
+
+      // Automatically apply draft directly to form state without requiring extra clicks!
+      handleApplyCvDraft(draft);
+    },
+    [handleApplyCvDraft],
   );
 
   const handleRemoveCv = useCallback(() => {
