@@ -2317,33 +2317,6 @@ export function CategoryListingForm({
 
           {isPublishStep && (
             <div className="space-y-6">
-              {categoryId === CATEGORY_IDS.isBul && (
-                <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3 mb-4">
-                    <div>
-                      <h4 className="font-display text-sm font-bold text-foreground">
-                        Canlı Kariyer Kartı ve İlan Önizlemesi
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        İlanınız yayına alındığında işverenler ve arama sonuçlarında bu şekilde görüntülenecektir.
-                      </p>
-                    </div>
-                    <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', theme.previewBadge)}>
-                      Yayına Hazır
-                    </span>
-                  </div>
-
-                  <ListingLiveCardPreview
-                    categoryId={categoryId}
-                    values={formValues}
-                    listingType={listingType}
-                    partnershipIntent={partnershipIntent}
-                    userName={user?.displayName || 'İlan Sahibi'}
-                    userAvatar={user?.avatarUrl ?? undefined}
-                  />
-                </div>
-              )}
-
               {/* Yayın Onayları & KVKK / Açık Rıza İzinleri */}
               <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
                 <PublishConsentFields
