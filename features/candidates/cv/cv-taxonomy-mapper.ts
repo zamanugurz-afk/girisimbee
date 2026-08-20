@@ -148,7 +148,15 @@ const ROLE_ALIASES: Record<string, string> = {
   'okul öncesi öğretmeni': 'Okul Öncesi Öğretmeni',
   'sosyal hizmetler uzmanı': 'Sosyal Hizmet Uzmanı',
   'sosyal hizmet uzmanı': 'Sosyal Hizmet Uzmanı',
-  'hasta hizmetleri yöneticisi': 'Sağlık Yöneticisi',
+  'hasta hizmetleri yöneticisi': 'Hastane yöneticisi',
+  'medikal direktör': 'Hastane yöneticisi',
+  'tıbbi direktör': 'Hastane yöneticisi',
+  'kurumsal müşteri yöneticisi': 'Müşteri Yöneticisi',
+  'müşteri yöneticisi': 'Müşteri Yöneticisi',
+  'aşçı': 'Aşçı',
+  'executive chef': 'Aşçı',
+  'şef aşçı': 'Aşçı',
+  'mutfak koordinatörü': 'Aşçı',
   'mimar': 'Mimar',
   'şantiye şefi': 'Şantiye Şefi',
   'mimar & şantiye şefi': 'Şantiye Şefi',
@@ -605,7 +613,7 @@ export function inferSectorFromRole(role: string): string {
   if (/pazarlama|marketing|seo|sosyal\s*medya|icerik|grafik|tasarim|video|kurgu|animasyon|sanat/i.test(r)) return 'Pazarlama / Reklam';
   if (/satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
   if (/magaza|kasiyer|perakende/i.test(r)) return 'Perakende / Mağaza';
-  if (/otel|resepsiyon|on\s*buro|turizm/i.test(r)) return 'Turizm / Otelcilik';
+  if (/otel|resepsiyon|on\s*buro|turizm|asci|chef|mutfak|gastronomi|barista/i.test(r)) return 'Turizm / Otelcilik';
   if (/sosyal\s*hizmet|stk|vakif|dernek/i.test(r)) return 'Sosyal hizmet / STK';
   if (/uretim|imalat|sanayi|fabrika|makine\s*muhend/i.test(r)) return 'Üretim / Sanayi';
   return '';
@@ -727,7 +735,7 @@ export function mapCvToCanonicalTaxonomy(
 
   // 4. Skills & Tools
   const KNOWN_UPPERCASE_ACRONYMS = new Set([
-    'SIEM', 'AWS', 'GCP', 'SAP', 'CRM', 'ERP', 'SQL', 'API', 'CI/CD', 'SEO', 'HR', 'IT', 'BI', 'SPSS', 'ETL', 'REST', 'JIRA', 'HTML', 'CSS', 'CAD', 'CAM', 'CNC', 'PLC', 'GIS', 'BIM', 'ADR', 'SRC', 'IFRS', 'SPK', 'SMMM', 'CEH', 'OSCP', 'CISA', 'CISM', 'CISSP', 'CCNA', 'CCNP', 'PMP', 'TOGAF'
+    'SIEM', 'AWS', 'GCP', 'SAP', 'CRM', 'ERP', 'SQL', 'API', 'CI/CD', 'SEO', 'HR', 'IT', 'BI', 'SPSS', 'ETL', 'REST', 'JIRA', 'HTML', 'CSS', 'CAD', 'CAM', 'CNC', 'PLC', 'GIS', 'BIM', 'ADR', 'SRC', 'IFRS', 'SPK', 'SMMM', 'CEH', 'OSCP', 'CISA', 'CISM', 'CISSP', 'CCNA', 'CCNP', 'PMP', 'TOGAF', 'PDKS', 'ISO', 'HACCP', 'EDR', 'SOC', 'SCADA', 'IATF', 'MEB', 'UDY', 'ODY', 'YDS', 'TOEFL', 'IELTS', 'CKA'
   ]);
 
   const formatSkillOrTool = (item: string): string => {

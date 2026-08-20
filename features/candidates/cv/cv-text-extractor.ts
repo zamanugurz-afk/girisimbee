@@ -123,17 +123,7 @@ export function extractTextFromDocx(buffer: Buffer): string {
  * with fallback to deep binary stream & hex-string decompression.
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  // Strategy 1: Pure Deterministic CMap + Text Matrix PDF Parser (0 external dependencies, 100% serverless compatible)
-  try {
-    const perfectText = parsePdfObjectsAndStreams(buffer);
-    if (perfectText && perfectText.length >= 100) {
-      return perfectText;
-    }
-  } catch (err: any) {
-    console.error('Strategy 1 parsePdfObjectsAndStreams error:', err?.message || err);
-  }
-
-  // Strategy 2: PDFParse (pdf.js) — handles CID fonts, ToUnicode CMaps, multi-column layouts
+  // Strategy 1: PDFParse (pdf.js) — standard engine for full PDF layout & CID fonts
   try {
     let PDFParseClass: any;
     try {
@@ -146,34 +136,46 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
         const mod = customRequire('pdf-parse');
         PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
       } catch (loadErr: any) {
-        console.error('PDFParse load error:', loadErr?.message);
+        // ignore load error and proceed to deterministic parser
       }
     }
 
-    const parser = new PDFParseClass({ data: buffer });
-    try {
-      const res = await parser.getText();
-      const rawText = (res?.text || '')
-        .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, '')
-        .replace(/\r\n/g, '\n')
-        .replace(/[ \t]+/g, ' ')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+    if (PDFParseClass) {
+      const parser = new PDFParseClass({ data: buffer });
+      try {
+        const res = await parser.getText();
+        const rawText = (res?.text || '')
+          .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, '')
+          .replace(/\r\n/g, '\n')
+          .replace(/[ \t]+/g, ' ')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
 
-      if (rawText && rawText.length >= 10) {
-        return rawText;
-      }
-    } finally {
-      if (typeof parser?.destroy === 'function') {
-        try {
-          await parser.destroy();
-        } catch {
-          // ignore cleanup errors
+        if (rawText && rawText.length >= 10) {
+          return rawText;
+        }
+      } finally {
+        if (typeof parser?.destroy === 'function') {
+          try {
+            await parser.destroy();
+          } catch {
+            // ignore cleanup errors
+          }
         }
       }
     }
   } catch (err: any) {
-    console.error('Strategy 2 PDFParse error in Next.js:', err?.message || err);
+    // Strategy 1 fallback
+  }
+
+  // Strategy 2: Pure Deterministic CMap + Text Matrix PDF Parser (0 external dependencies, serverless / in-memory streams)
+  try {
+    const perfectText = parsePdfObjectsAndStreams(buffer);
+    if (perfectText && perfectText.length >= 10) {
+      return perfectText;
+    }
+  } catch (err: any) {
+    console.error('Deterministic parsePdfObjectsAndStreams error:', err?.message || err);
   }
 
   // Strategy 3: Deep binary stream and hex/Tj/TJ decoder
@@ -215,17 +217,42 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
   }
 
   function getDecompressedStream(objBody: string): string {
-    const sm = objBody.match(/stream[\r\n]+([\s\S]*?)[\r\n]+endstream/);
-    if (!sm) return '';
-    const sbuf = Buffer.from(sm[1], 'binary');
+    const streamIdx = objBody.indexOf('stream');
+    if (streamIdx === -1) return '';
+    let startIdx = streamIdx + 6;
+    if (objBody.charCodeAt(startIdx) === 0x0D) startIdx++;
+    if (objBody.charCodeAt(startIdx) === 0x0A) startIdx++;
+
+    let endIdx = objBody.lastIndexOf('endstream');
+    const lenMatch = objBody.match(/\/Length\s+(\d+)/);
+    if (lenMatch) {
+      const declaredLen = parseInt(lenMatch[1], 10);
+      if (declaredLen > 0 && startIdx + declaredLen <= objBody.length) {
+        endIdx = startIdx + declaredLen;
+      }
+    }
+    if (endIdx <= startIdx) return '';
+
+    const sbuf = Buffer.from(objBody.slice(startIdx, endIdx), 'latin1');
+    let uncompressedBuf: Buffer;
     try {
-      return zlib.inflateSync(sbuf).toString('latin1');
+      uncompressedBuf = zlib.inflateSync(sbuf);
     } catch {
       try {
-        return zlib.inflateRawSync(sbuf).toString('latin1');
+        uncompressedBuf = zlib.inflateRawSync(sbuf);
       } catch {
-        return sm[1];
+        uncompressedBuf = sbuf;
       }
+    }
+
+    try {
+      const utf8Str = uncompressedBuf.toString('utf8');
+      if (!utf8Str.includes('\uFFFD')) {
+        return utf8Str;
+      }
+      return uncompressedBuf.toString('latin1');
+    } catch {
+      return uncompressedBuf.toString('latin1');
     }
   }
 
@@ -369,13 +396,13 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
       const stream = getDecompressedStream(objMap.get(cId) || '');
       if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ'))) continue;
 
-      const btRegex = /BT([\s\S]*?)ET/g;
+      const btRegex = /(?:^|\s)BT\s([\s\S]*?)\sET(?:\s|$)/g;
       let btm: RegExpExecArray | null;
       while ((btm = btRegex.exec(stream)) !== null) {
         const block = btm[1];
         let currentFont = page.fontMap.values().next().value || new Map<string, string>();
 
-        const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\\(|\\\)|[^()])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
+        const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\.|[^()\\])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
 
         for (const tok of tokens || []) {
           if (tok === 'T*') {
@@ -406,43 +433,22 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
           } else if (tok.endsWith('Tj')) {
             const hexM = tok.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
             if (hexM) {
-              const clean = hexM[1].replace(/\s+/g, '');
-              let str = '';
-              for (let i = 0; i < clean.length; i += 4) {
-                const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
-                if (currentFont.has(chunk)) {
-                  str += currentFont.get(chunk);
-                } else {
-                  const code = parseInt(chunk, 16);
-                  if (code > 0 && code < 65535) str += String.fromCharCode(code);
-                }
-              }
-              if (str) pageText += str;
+              pageText += decodePdfHexWithCMap(hexM[1], currentFont);
             } else {
-              const singleM = tok.match(/^\(((?:\\\(|\\\)|[^()])*)\)\s*Tj$/);
+              const singleM = tok.match(/^\(((?:\\.|[^()\\])*)\)\s*Tj$/);
               if (singleM) {
                 const decoded = decodePdfString(singleM[1]);
                 if (decoded) pageText += decoded;
               }
             }
           } else if (tok.startsWith('[') && tok.endsWith('TJ')) {
-            const parts = tok.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>|([0-9.\-]+)/g);
+            const parts = tok.match(/\(((?:\\.|[^()\\])*)\)|<([0-9a-fA-F\s]+)>|([0-9.\-]+)/g);
             if (parts) {
               for (const part of parts) {
                 if (part.startsWith('(') && part.endsWith(')')) {
                   pageText += decodePdfString(part.slice(1, -1));
                 } else if (part.startsWith('<') && part.endsWith('>')) {
-                  const clean = part.slice(1, -1).replace(/\s+/g, '');
-                  let str = '';
-                  for (let i = 0; i < clean.length; i += 4) {
-                    const chunk = clean.slice(i, i + 4).toLowerCase().padStart(4, '0');
-                    if (currentFont.has(chunk)) str += currentFont.get(chunk);
-                    else {
-                      const code = parseInt(chunk, 16);
-                      if (code > 0 && code < 65535) str += String.fromCharCode(code);
-                    }
-                  }
-                  if (str) pageText += str;
+                  pageText += decodePdfHexWithCMap(part.slice(1, -1), currentFont);
                 } else {
                   const num = Number(part);
                   if (num < -150 && !pageText.endsWith(' ') && !pageText.endsWith('\n')) {
@@ -639,7 +645,22 @@ function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): 
  */
 function decodePdfString(str: string): string {
   return str
-    .replace(/\\([0-7]{1,3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8)))
+    .replace(/\\([0-7]{1,3})/g, (_, oct) => {
+      const code = parseInt(oct, 8);
+      if (code === 0o376 || code === 254) return 'ş';
+      if (code === 0o336 || code === 222) return 'Ş';
+      if (code === 0o360 || code === 240) return 'ğ';
+      if (code === 0o320 || code === 208) return 'Ğ';
+      if (code === 0o375 || code === 253) return 'ı';
+      if (code === 0o335 || code === 221) return 'İ';
+      if (code === 0o347 || code === 231) return 'ç';
+      if (code === 0o307 || code === 199) return 'Ç';
+      if (code === 0o366 || code === 246) return 'ö';
+      if (code === 0o326 || code === 214) return 'Ö';
+      if (code === 0o374 || code === 252) return 'ü';
+      if (code === 0o334 || code === 220) return 'Ü';
+      return String.fromCharCode(code);
+    })
     .replace(/\\n/g, '\n')
     .replace(/\\r/g, '\r')
     .replace(/\\t/g, '\t')

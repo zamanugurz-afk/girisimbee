@@ -121,10 +121,20 @@ export const COMMON_TURKISH_DISTRICTS: Record<string, { city: string; district: 
   yunusemre: { city: 'Manisa', district: 'Yunusemre' },
   sehzadeler: { city: 'Manisa', district: 'Şehzadeler' },
   ilkadim: { city: 'Samsun', district: 'İlkadım' },
-  atakam: { city: 'Samsun', district: 'Atakum' },
   bodrum: { city: 'Muğla', district: 'Bodrum' },
   fethiye: { city: 'Muğla', district: 'Fethiye' },
   marmaris: { city: 'Muğla', district: 'Marmaris' },
+  tarsus: { city: 'Mersin', district: 'Tarsus' },
+  bandirma: { city: 'Balıkesir', district: 'Bandırma' },
+  edremit: { city: 'Balıkesir', district: 'Edremit' },
+  ayvalik: { city: 'Balıkesir', district: 'Ayvalık' },
+  corlu: { city: 'Tekirdağ', district: 'Çorlu' },
+  cerkezkoy: { city: 'Tekirdağ', district: 'Çerkezköy' },
+  inegol: { city: 'Bursa', district: 'İnegöl' },
+  alanya: { city: 'Antalya', district: 'Alanya' },
+  manavgat: { city: 'Antalya', district: 'Manavgat' },
+  kusadasi: { city: 'Aydın', district: 'Kuşadası' },
+  didim: { city: 'Aydın', district: 'Didim' },
 };
 
 const KNOWN_UNIVERSITIES = [
@@ -326,6 +336,16 @@ export const KNOWN_TOOLS_DICTIONARY: Record<string, string> = {
   autocad: 'AutoCAD',
   revit: 'Revit',
   siem: 'SIEM',
+  splunk: 'Splunk',
+  wireshark: 'Wireshark',
+  terraform: 'Terraform',
+  ansible: 'Ansible',
+  helm: 'Helm',
+  grafana: 'Grafana',
+  prometheus: 'Prometheus',
+  linux: 'Linux',
+  firewall: 'Firewall',
+  pdks: 'PDKS',
   'cisco ccna': 'Cisco CCNA',
   ccna: 'Cisco CCNA',
 
@@ -342,10 +362,20 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   finans: 'Finans / Bankacılık',
   finance: 'Finans / Bankacılık',
   fintech: 'Finans / Bankacılık',
+  finansal: 'Finans / Bankacılık',
+  kredi: 'Finans / Bankacılık',
   yatirim: 'Finans / Bankacılık',
   investment: 'Finans / Bankacılık',
   'sermaye piyasasi': 'Finans / Bankacılık',
   borsa: 'Finans / Bankacılık',
+  akbank: 'Finans / Bankacılık',
+  garanti: 'Finans / Bankacılık',
+  yapikredi: 'Finans / Bankacılık',
+  isbank: 'Finans / Bankacılık',
+  vakifbank: 'Finans / Bankacılık',
+  halkbank: 'Finans / Bankacılık',
+  denizbank: 'Finans / Bankacılık',
+  qnb: 'Finans / Bankacılık',
 
   sigorta: 'Sigortacılık',
   sigortacilik: 'Sigortacılık',
@@ -571,10 +601,20 @@ export const KNOWN_CERTIFICATES_MAP: Record<string, string> = {
   azure: 'Microsoft Certified: Azure',
   'google cloud': 'Google Cloud Certified',
 
+  // Quality, Food & Automotive
+  haccp: 'HACCP Gıda Güvenliği',
+  'iso 22000': 'ISO 22000',
+  'hijyen belgesi': 'Hijyen Belgesi',
+  'iatf 16949': 'IATF 16949',
+  'yg isletme': 'YG İşletme Sorumluluğu',
+  cka: 'CKA',
+  isg: 'İSG Belgesi',
+
   // Finance, Insurance & Legal
   segem: 'SEGEM',
   spl: 'SPL',
-  bes: 'Bireysel Emeklilik Aracılığı (BES)',
+  'bireysel emeklilik': 'Bireysel Emeklilik Aracılığı (BES)',
+  'bes lisansi': 'Bireysel Emeklilik Aracılığı (BES)',
   cfa: 'CFA',
   smmm: 'SMMM',
   'spk duzey 3': 'SPK Düzey 3',
@@ -618,7 +658,17 @@ export function normalizeTrForMatch(str: string): string {
     .replace(/(?<![a-zA-ZçğıöşüÇĞİÖŞÜ])([çğıöşüÇĞİÖŞÜ])[ \t]+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/gi, '$1$2')
     .replace(/(?:^|\s)Çağ[ \t]+rı(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Çağ[ \t]+rı/i, 'Çağrı'))
     .replace(/(?:^|\s)Müş[ \t]+teri(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Müş[ \t]+teri/i, 'Müşteri'))
-    .replace(/(?:^|\s)Ağ[ \t]+ustos(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Ağ[ \t]+ustos/i, 'Ağustos'))
+    .replace(/(?:^|\s)A[ \t]+ustos(?=\s|$|[,;.\-\/])/gi, ' Ağustos ')
+    .replace(/(?:^|\s)Ağ[ \t]+ustos(?=\s|$|[,;.\-\/])/gi, ' Ağustos ')
+    .replace(/(?:^|\s)Eyl[ \t]+[uü]l(?=\s|$|[,;.\-\/])/gi, ' Eylül ')
+    .replace(/(?:^|\s)May[ \t]+[ıi]s(?=\s|$|[,;.\-\/])/gi, ' Mayıs ')
+    .replace(/(?:^|\s)Kas[ \t]+[ıi]m(?=\s|$|[,;.\-\/])/gi, ' Kasım ')
+    .replace(/(?:^|\s)Aral[ \t]+[ıi]k(?=\s|$|[,;.\-\/])/gi, ' Aralık ')
+    .replace(/(?:^|\s)Haz[ \t]+iran(?=\s|$|[,;.\-\/])/gi, ' Haziran ')
+    .replace(/(?:^|\s)Tem[ \t]+muz(?=\s|$|[,;.\-\/])/gi, ' Temmuz ')
+    .replace(/(?:^|\s)Sub[ \t]+at(?=\s|$|[,;.\-\/])/gi, ' Şubat ')
+    .replace(/(?:^|\s)Nis[ \t]+an(?=\s|$|[,;.\-\/])/gi, ' Nisan ')
+    .replace(/(?:^|\s)Oca[ \t]+k(?=\s|$|[,;.\-\/])/gi, ' Ocak ')
     .replace(/(?:^|\s)Kiş[ \t]+isel(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Kiş[ \t]+isel/i, 'Kişisel'))
     .replace(/(?:^|\s)Geliş[ \t]+tirme(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/Geliş[ \t]+tirme/i, 'Geliştirme'))
     .replace(/(?:^|\s)İliş[ \t]+kileri(?=\s|$|[,;.\-\/])/gi, (m) => m.replace(/İliş[ \t]+kileri/i, 'İlişkileri'))
@@ -744,6 +794,13 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('okutman') ||
     norm.includes('docent') ||
     norm.includes('profesor') ||
+    norm.includes('asci') ||
+    norm.includes('chef') ||
+    norm.includes('garson') ||
+    norm.includes('barista') ||
+    norm.includes('depocu') ||
+    norm.includes('kurye') ||
+    norm.includes('guvenlik') ||
     norm.includes('manager') ||
     norm.includes('director') ||
     norm.includes('lead') ||
@@ -777,13 +834,35 @@ export function extractDeterministicLocations(text: string): {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const detectedCities: string[] = [];
 
-  const HOMONYM_DISTRICT_KEYS = new Set(['fatih', 'kartal', 'eyup', 'kemal', 'selcuk', 'ali', 'hasan', 'huseyin']);
+  const HOMONYM_DISTRICT_KEYS = new Set([
+    'fatih', 'kartal', 'eyup', 'kemal', 'selcuk', 'ali', 'hasan', 'huseyin',
+    'yildirim', 'kaya', 'dogan', 'demir', 'celik', 'arslan', 'sahin', 'koc',
+    'aydin', 'guler', 'tekin', 'cakir', 'aksoy', 'ozdemir', 'yilmaz', 'gunes',
+    'yildiz', 'tas', 'kurt', 'cukurova', 'murat', 'battal', 'deniz', 'mert',
+    'ece', 'efe', 'alp', 'can', 'baran', 'kaan', 'serkan', 'burak', 'emre',
+  ]);
 
   // Check top 20 lines (header / contact section) first for district
   for (let i = 0; i < Math.min(lines.length, 20); i++) {
     const rawLine = lines[i];
     const lineNorm = ` ${normalizeTrForMatch(rawLine)} `;
     const hasLocationCue = /[\/,\-\|]|\b(sehir|il|ilce|adres|lokasyon|ikamet|cad|sok|mah)\b/i.test(rawLine);
+
+    // If line has structured delimiter (e.g. "Adana / Seyhan", "Mersin / Tarsus", "Balıkesir / Bandırma")
+    if (rawLine.includes('/') || rawLine.includes(',') || rawLine.includes('-') || rawLine.includes('|')) {
+      const parts = rawLine.split(/[/,\-|]/).map((p) => p.trim()).filter(Boolean);
+      for (const p of parts) {
+        const pNorm = normalizeTrForMatch(p);
+        if (COMMON_TURKISH_DISTRICTS[pNorm]) {
+          const data = COMMON_TURKISH_DISTRICTS[pNorm];
+          return {
+            city: data.city,
+            district: data.district,
+            detectedCities: [data.city],
+          };
+        }
+      }
+    }
 
     for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
       if (HOMONYM_DISTRICT_KEYS.has(distKey)) {
@@ -1424,11 +1503,12 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         rawRemainder = rawRemainder
           .replace(new RegExp(`\\b${escaped}\\b|${escaped}`, 'gi'), '')
           .replace(/\([^)]*\)/g, '')
+          .replace(/^(?:d[oö]nem|tarih|date|period|years|y[ıi]llar)[\s:]*/i, '')
           .trim();
       }
 
       if (!isPureDate && rawRemainder.length >= 2) {
-        const parts = rawRemainder.split(/[|–—]/).map((p) => p.replace(/^deneyim:\s*/i, '').trim()).filter(Boolean);
+        const parts = rawRemainder.split(/[|–—]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company)[\s:]*/i, '').trim()).filter(Boolean);
         if (parts.length >= 2) {
           if (isRoleTitle(parts[0])) {
             currentExp.role = parts[0];
@@ -1438,18 +1518,39 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
             currentExp.role = parts[1];
           }
         } else {
-          if (isRoleTitle(rawRemainder)) {
-            currentExp.role = rawRemainder;
-            if (prev1 && !isRoleTitle(prev1) && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
-              currentExp.company = prev1;
+          // Check if single rawRemainder contains both company and role (e.g. "Koc Holding Finans Muduru")
+          const words = rawRemainder.split(/\s+/);
+          let splitFound = false;
+          if (words.length >= 3 && words.length <= 8) {
+            for (let w = 1; w < words.length; w++) {
+              const prefix = words.slice(0, w).join(' ');
+              const suffix = words.slice(w).join(' ');
+              if (isRoleTitle(suffix) && !isRoleTitle(prefix)) {
+                currentExp.company = prefix;
+                currentExp.role = suffix;
+                splitFound = true;
+                break;
+              }
             }
-          } else {
-            currentExp.company = parts[0] || rawRemainder;
+          }
+
+          if (!splitFound) {
+            if (isRoleTitle(rawRemainder)) {
+              currentExp.role = rawRemainder;
+              if (prev1 && !isRoleTitle(prev1) && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
+                currentExp.company = prev1.replace(/^(?:sirket|kurum|company|isyeri)[\s:]*/i, '').trim();
+              }
+            } else {
+              currentExp.company = (parts[0] || rawRemainder).replace(/^(?:sirket|kurum|company|isyeri)[\s:]*/i, '').trim();
+            }
           }
         }
       } else {
-        if (prev1 && (prev1.includes(',') || prev1.includes('-') || prev1.includes('|'))) {
-          const parts = prev1.split(/[,–—|-]/).map((p) => p.trim());
+        const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
+        const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
+
+        if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|'))) {
+          const parts = cleanPrev1.split(/[,–—|-]/).map((p) => p.trim());
           if (parts.length >= 2) {
             if (isRoleTitle(parts[0])) {
               currentExp.role = parts[0];
@@ -1459,19 +1560,19 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
               currentExp.role = parts[1];
             }
           } else {
-            currentExp.company = prev1;
+            currentExp.company = cleanPrev1;
           }
-        } else if (prev1 && isRoleTitle(prev1)) {
-          currentExp.role = prev1;
-          if (prev2 && !isRoleTitle(prev2) && !parseDateRangeText(prev2)) {
-            currentExp.company = prev2;
+        } else if (cleanPrev1 && isRoleTitle(cleanPrev1)) {
+          currentExp.role = cleanPrev1;
+          if (cleanPrev2 && !isRoleTitle(cleanPrev2) && !parseDateRangeText(cleanPrev2)) {
+            currentExp.company = cleanPrev2;
           }
-        } else if (prev1 && !isRoleTitle(prev1)) {
-          if (prev2 && isRoleTitle(prev2)) {
-            currentExp.role = prev2;
-            currentExp.company = prev1;
+        } else if (cleanPrev1 && !isRoleTitle(cleanPrev1)) {
+          if (cleanPrev2 && isRoleTitle(cleanPrev2)) {
+            currentExp.role = cleanPrev2;
+            currentExp.company = cleanPrev1;
           } else {
-            currentExp.company = prev1;
+            currentExp.company = cleanPrev1;
           }
         }
       }
@@ -1722,7 +1823,7 @@ export function extractDeterministicLanguagesAndCerts(text: string): {
   languages: string[];
   certificates: string[];
 } {
-  const normText = ` ${normalizeTrForMatch(text)} `;
+  const normText = ` ${normalizeTrForMatch(text).replace(/[,;:.\-()\/\\|]/g, ' ')} `;
   const languages: string[] = [];
   const certificates: string[] = [];
 
