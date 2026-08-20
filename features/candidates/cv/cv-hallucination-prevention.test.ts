@@ -28,8 +28,8 @@ Satış Uzmanı olarak ABC Sigorta şirketinde çalıştı.
     expect(extracted.certificates).toHaveLength(0);
 
     // 3. Assert no invented percentage claims in responsibilities
-    expect(extracted.experiences[0].responsibilities).not.toContain('%40');
-    expect(extracted.experiences[0].responsibilities).not.toContain('10 kişilik ekip');
+    expect(extracted.experiences[0]?.responsibilities || '').not.toContain('%40');
+    expect(extracted.experiences[0]?.responsibilities || '').not.toContain('10 kişilik ekip');
 
     // 4. Summary is strictly grounded to Istanbul and Satis Uzmani
     expect(extracted.summary).toContain('İstanbul');

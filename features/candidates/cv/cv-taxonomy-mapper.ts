@@ -27,8 +27,8 @@ const ROLE_ALIASES: Record<string, string> = {
   'ios developer': 'Mobil Uygulama Geliştirici',
   'android developer': 'Mobil Uygulama Geliştirici',
   'devops engineer': 'DevOps Mühendisi',
-  'qa engineer': 'Yazılım Test Mühendisi',
-  'test engineer': 'Yazılım Test Mühendisi',
+  'qa engineer': 'QA / Test uzmanı',
+  'test engineer': 'QA / Test uzmanı',
   'data scientist': 'Veri Bilimci',
   'data analyst': 'Veri Analisti',
   'data engineer': 'Veri Mühendisi',
@@ -144,9 +144,8 @@ const ROLE_ALIASES: Record<string, string> = {
   'çağrı merkezi müşteri temsilcileri kalite eğitim uzmanı': 'Eğitim Uzmanı',
   'sosyal hizmetler kıdemli stajyeri': 'Sosyal Hizmet Uzmanı',
   'sosyal hizmetler stajyeri': 'Sosyal Hizmet Uzmanı',
-  'okul öncesi stajyeri': 'Öğretmen',
+  'okul öncesi stajyeri': 'Okul Öncesi Öğretmeni',
   'okul öncesi öğretmeni': 'Okul Öncesi Öğretmeni',
-  'öğretmen': 'Öğretmen',
   'sosyal hizmetler uzmanı': 'Sosyal Hizmet Uzmanı',
   'sosyal hizmet uzmanı': 'Sosyal Hizmet Uzmanı',
   'hasta hizmetleri yöneticisi': 'Sağlık Yöneticisi',
@@ -157,8 +156,9 @@ const ROLE_ALIASES: Record<string, string> = {
   'hukuk müşaviri': 'Hukuk Danışmanı',
   'avukat & hukuk müşaviri': 'Avukat',
   'tedarik zinciri müdürü': 'Tedarik Zinciri Müdürü',
-  'yapay zeka mühendisi': 'Yapay Zeka Uzmanı',
-  'araştırma görevlisi': 'Araştırma Görevlisi',
+  'yapay zeka mühendisi': 'Yapay zeka / ML mühendisi',
+  'yapay zeka uzmanı': 'Yapay zeka / ML mühendisi',
+  'araştırma görevlisi': 'Eğitmen / öğretmen',
   'ağır vasıta şoförü': 'Şoför (Kamyon / TIR)',
   'tır şoförü': 'Şoför (Kamyon / TIR)',
   'tır şoförü / ağır vasıta sürücüsü': 'Şoför (Kamyon / TIR)',
@@ -166,11 +166,21 @@ const ROLE_ALIASES: Record<string, string> = {
   'şoför': 'Makam Şoförü / Şoför',
   'mağaza müdürü': 'Mağaza Müdürü',
   'ön büro müdürü': 'Ön Büro Müdürü',
-  'siber güvenlik uzmanı': 'Siber Güvenlik Uzmanı',
-  'qa automation engineer': 'Yazılım Test Mühendisi',
-  'test otomasyon mühendisi': 'Yazılım Test Mühendisi',
-  'senior qa automation engineer': 'Yazılım Test Mühendisi',
-  'mobil yazılım geliştirici': 'Mobil Uygulama Geliştirici',
+  'otel resepsiyonisti': 'Otel resepsiyonisti',
+  'veritabanı yöneticisi': 'Sistem yöneticisi',
+  'database administrator': 'Sistem yöneticisi',
+  'dba': 'Sistem yöneticisi',
+  'video editörü': 'Grafik tasarımcı',
+  'video editor': 'Grafik tasarımcı',
+  'tıbbi satış mümessili': 'Saha satış uzmanı',
+  'siber güvenlik uzmanı': 'Mühendis (yazılım)',
+  'veri mühendisi': 'Data engineer',
+  'qa automation engineer': 'QA / Test uzmanı',
+  'test otomasyon mühendisi': 'QA / Test uzmanı',
+  'yazılım test mühendisi': 'QA / Test uzmanı',
+  'senior qa automation engineer': 'QA / Test uzmanı',
+  'test uzmanı': 'QA / Test uzmanı',
+  'yazılım test uzmanı': 'QA / Test uzmanı',
   'dijital pazarlama ve seo uzmanı': 'Dijital Pazarlama Uzmanı',
   'dijital pazarlama uzmanı': 'Dijital Pazarlama Uzmanı',
   'insan kaynakları iş ortağı': 'İnsan Kaynakları Uzmanı',
@@ -195,11 +205,68 @@ const ROLE_ALIASES: Record<string, string> = {
   'portföy uzmanı': 'Finans Uzmanı',
   'portföy danışmanı': 'Finans Uzmanı',
   'menkul değerler uzmanı': 'Finans Uzmanı',
+
+  // Engineering & Technical
+  'civil engineer': 'İnşaat Mühendisi',
+  'inşaat mühendisi': 'İnşaat Mühendisi',
+  'mechanical engineer': 'Makine Mühendisi',
+  'makine mühendisi': 'Makine Mühendisi',
+  'electrical engineer': 'Elektrik / Elektronik Mühendisi',
+  'elektrik mühendisi': 'Elektrik / Elektronik Mühendisi',
+  'elektrik elektronik mühendisi': 'Elektrik / Elektronik Mühendisi',
+  'industrial engineer': 'Endüstri Mühendisi',
+  'endüstri mühendisi': 'Endüstri Mühendisi',
+
+  // Logistics & Supply Chain
+  'logistics specialist': 'Lojistik Uzmanı',
+  'lojistik uzmanı': 'Lojistik Uzmanı',
+  'warehouse manager': 'Depo Müdürü',
+  'depo müdürü': 'Depo Müdürü',
+  'depo sorumlusu': 'Depo Sorumlusu',
+  'procurement specialist': 'Satınalma Uzmanı',
+  'satınalma uzmanı': 'Satınalma Uzmanı',
+
+  // Healthcare
+  'doctor': 'Doktor',
+  'doktor': 'Doktor',
+  'hekim': 'Doktor',
+  'nurse': 'Hemşire',
+  'hemşire': 'Hemşire',
+  'pharmacist': 'Eczacı',
+  'eczacı': 'Eczacı',
+
+  // Legal & Compliance
+  'legal counsel': 'Hukuk Danışmanı',
+  'hukuk danışmanı': 'Hukuk Danışmanı',
+  'compliance specialist': 'Uyum Uzmanı',
+  'uyum uzmanı': 'Uyum Uzmanı',
+
+  // Education & Academics
+  'öğretim görevlisi': 'Eğitmen / öğretmen',
+  'academician': 'Eğitmen / öğretmen',
+  'akademisyen': 'Eğitmen / öğretmen',
+  'öğretmen': 'Eğitmen / öğretmen',
+  'eğitmen': 'Eğitmen / öğretmen',
+
+  // Retail & Hospitality
+  'store manager': 'Mağaza Müdürü',
+  'cashier': 'Kasiyer',
+  'kasiyer': 'Kasiyer',
+  'hotel manager': 'Otel Müdürü',
+  'otel müdürü': 'Otel Müdürü',
+  'receptionist': 'Resepsiyonist',
+  'resepsiyonist': 'Resepsiyonist',
+
+  // Quality & Testing
+  'quality assurance engineer': 'Yazılım Test Mühendisi',
+  'quality control specialist': 'Kalite Kontrol Uzmanı',
+  'kalite kontrol uzmanı': 'Kalite Kontrol Uzmanı',
 };
 
 // Canonical Alias Dictionary for Sectors
 const SECTOR_ALIASES: Record<string, string> = {
   'it': 'Bilişim / Yazılım',
+  'it sektörü': 'Bilişim / Yazılım',
   'software': 'Bilişim / Yazılım',
   'tech': 'Bilişim / Yazılım',
   'technology': 'Bilişim / Yazılım',
@@ -459,7 +526,7 @@ export function matchCanonicalSector(rawSector: string): {
 
   for (const [aliasKey, canonicalVal] of Object.entries(SECTOR_ALIASES)) {
     const aliasNorm = normalizeTrMatch(aliasKey);
-    if (norm === aliasNorm || norm.includes(aliasNorm)) {
+    if (norm === aliasNorm || (aliasNorm.length >= 4 && norm.includes(aliasNorm))) {
       return {
         canonical: canonicalVal,
         isAmbiguous: false,
@@ -521,22 +588,22 @@ export function matchCanonicalSector(rawSector: string): {
 export function inferSectorFromRole(role: string): string {
   if (!role) return '';
   const r = normalizeTrMatch(role);
-  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber/i.test(r)) return 'Bilişim / Yazılım';
+  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql/i.test(r)) return 'Bilişim / Yazılım';
   if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data/i.test(r)) return 'Yapay zeka / Veri';
   if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
-  if (/sigorta|hasar|aktuer|underwrit/i.test(r)) return 'Sigorta';
+  if (/sigorta|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
   if (/cagri\s*merkezi|call\s*center/i.test(r)) return 'Çağrı merkezi';
   if (/musteri\s*(hizmet|iliski|basari|temsil)/i.test(r)) return 'Müşteri hizmetleri';
-  if (/insan\s*kaynak|hr|recruiter|yetenek|bordro/i.test(r)) return 'İnsan kaynakları';
+  if (/insan\s*kaynak|hr|recruiter|yetenek|bordro|is\s*ortag|partner/i.test(r)) return 'İnsan kaynakları';
   if (/mimar|insaat|santiye|gayrimenkul|emlak/i.test(r)) return 'İnşaat / Gayrimenkul';
-  if (/tedarik|lojistik|depo|sevkiyat/i.test(r)) return 'Lojistik / Depolama';
+  if (/tedarik|lojistik|depo|sevkiyat|satinalma|procurement/i.test(r)) return 'Lojistik / Depolama';
   if (/sofor|surucu|kurye|nakliye|kamyon|tir/i.test(r)) return 'Ulaşım / Şoförlük';
   if (/avukat|hukuk|legal/i.test(r)) return 'Hukuk';
-  if (/ogretmen|egitim|akademisyen|arastirma\s*gorev/i.test(r)) return 'Eğitim';
-  if (/saglik|doktor|hemsire|hasta\s*hizmet|medikal/i.test(r)) return 'Sağlık';
-  if (/pazarlama|marketing|seo|sosyal\s*medya/i.test(r)) return 'Pazarlama / Reklam';
-  if (/satis|sales|is\s*gelistirme/i.test(r)) return 'Satış';
+  if (/ogretmen|egitmen|egitim|akademisyen|arastirma|ogretim|profesor|docent|okutman/i.test(r)) return 'Eğitim';
+  if (/saglik|doktor|hemsire|hasta\s*hizmet|medikal|biyomedikal/i.test(r)) return 'Sağlık';
+  if (/pazarlama|marketing|seo|sosyal\s*medya|icerik|grafik|tasarim|video|kurgu|animasyon|sanat/i.test(r)) return 'Pazarlama / Reklam';
+  if (/satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
   if (/magaza|kasiyer|perakende/i.test(r)) return 'Perakende / Mağaza';
   if (/otel|resepsiyon|on\s*buro|turizm/i.test(r)) return 'Turizm / Otelcilik';
   if (/sosyal\s*hizmet|stk|vakif|dernek/i.test(r)) return 'Sosyal hizmet / STK';
@@ -599,7 +666,7 @@ export function mapCvToCanonicalTaxonomy(
     const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
     const fromText = inferSectorFromRole(text);
     if (fromText) return fromText;
-    return matchedSectors[0] || 'Bilişim / Yazılım';
+    return matchedSectors[0] || '';
   };
 
   // 3. Map Experiences
@@ -659,15 +726,25 @@ export function mapCvToCanonicalTaxonomy(
   });
 
   // 4. Skills & Tools
+  const KNOWN_UPPERCASE_ACRONYMS = new Set([
+    'SIEM', 'AWS', 'GCP', 'SAP', 'CRM', 'ERP', 'SQL', 'API', 'CI/CD', 'SEO', 'HR', 'IT', 'BI', 'SPSS', 'ETL', 'REST', 'JIRA', 'HTML', 'CSS', 'CAD', 'CAM', 'CNC', 'PLC', 'GIS', 'BIM', 'ADR', 'SRC', 'IFRS', 'SPK', 'SMMM', 'CEH', 'OSCP', 'CISA', 'CISM', 'CISSP', 'CCNA', 'CCNP', 'PMP', 'TOGAF'
+  ]);
+
+  const formatSkillOrTool = (item: string): string => {
+    const upper = item.trim().toUpperCase();
+    if (KNOWN_UPPERCASE_ACRONYMS.has(upper)) return upper;
+    return suggestTitleCaseTr(item);
+  };
+
   const professionalSkills = (payload.skills || [])
     .filter((s) => !isTechnicalSkill(s))
-    .map((s) => suggestTitleCaseTr(s));
+    .map(formatSkillOrTool);
 
   const technicalSkills = (payload.skills || [])
     .filter((s) => isTechnicalSkill(s))
-    .map((s) => suggestTitleCaseTr(s));
+    .map(formatSkillOrTool);
 
-  const tools = (payload.tools || []).map((t) => suggestTitleCaseTr(t));
+  const tools = (payload.tools || []).map(formatSkillOrTool);
 
   // 5. Education & Languages
   let educationLevel = 'Lisans';
@@ -746,7 +823,7 @@ export function mapCvToCanonicalTaxonomy(
   return {
     primaryRole: resolvedRole,
     matchedRoles,
-    primarySector: mostRecentSector || roleInferredSector || matchedSectors[0] || '',
+    primarySector: roleInferredSector || mostRecentSector || matchedSectors[0] || '',
     matchedSectors,
     professionalSkills: [...new Set(professionalSkills)],
     technicalSkills: [...new Set(technicalSkills)],

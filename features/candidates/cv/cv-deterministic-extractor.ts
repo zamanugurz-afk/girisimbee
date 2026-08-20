@@ -115,6 +115,16 @@ export const COMMON_TURKISH_DISTRICTS: Record<string, { city: string; district: 
   baglar: { city: 'Diyarbakır', district: 'Bağlar' },
   kayapinar: { city: 'Diyarbakır', district: 'Kayapınar' },
   yenisehir: { city: 'Diyarbakır', district: 'Yenişehir' },
+  dulkadiroglu: { city: 'Kahramanmaraş', district: 'Dulkadiroğlu' },
+  onikisubat: { city: 'Kahramanmaraş', district: 'Onikişubat' },
+  urgup: { city: 'Nevşehir', district: 'Ürgüp' },
+  yunusemre: { city: 'Manisa', district: 'Yunusemre' },
+  sehzadeler: { city: 'Manisa', district: 'Şehzadeler' },
+  ilkadim: { city: 'Samsun', district: 'İlkadım' },
+  atakam: { city: 'Samsun', district: 'Atakum' },
+  bodrum: { city: 'Muğla', district: 'Bodrum' },
+  fethiye: { city: 'Muğla', district: 'Fethiye' },
+  marmaris: { city: 'Muğla', district: 'Marmaris' },
 };
 
 const KNOWN_UNIVERSITIES = [
@@ -352,8 +362,20 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   bilisim: 'Bilişim / Yazılım',
   software: 'Bilişim / Yazılım',
   teknoloji: 'Bilişim / Yazılım',
-  it: 'Bilişim / Yazılım',
+  'bilgi teknolojileri': 'Bilişim / Yazılım',
   'information technology': 'Bilişim / Yazılım',
+
+  'insan kaynaklari': 'İnsan Kaynakları',
+  'human resources': 'İnsan Kaynakları',
+  recruitment: 'İnsan Kaynakları',
+
+  hukuk: 'Hukuk',
+  legal: 'Hukuk',
+  avukatlik: 'Hukuk',
+
+  pazarlama: 'Pazarlama / Reklam',
+  marketing: 'Pazarlama / Reklam',
+  reklam: 'Pazarlama / Reklam',
 
   perakende: 'Perakende / Mağazacılık',
   magazacilik: 'Perakende / Mağazacılık',
@@ -404,11 +426,6 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
 
   telekom: 'Telekomünikasyon',
   telekomunikasyon: 'Telekomünikasyon',
-  telecommunications: 'Telekomünikasyon',
-
-  pazarlama: 'Pazarlama / Reklam',
-  reklam: 'Pazarlama / Reklam',
-  marketing: 'Pazarlama / Reklam',
   advertising: 'Pazarlama / Reklam',
 
   enerji: 'Enerji',
@@ -526,25 +543,68 @@ export const KNOWN_SKILL_ALIASES: Record<string, string> = {
 };
 
 export const KNOWN_CERTIFICATES_MAP: Record<string, string> = {
-  segem: 'SEGEM',
-  spl: 'SPL',
-  bes: 'Bireysel Emeklilik Aracılığı (BES)',
+  // Cyber Security & IT
+  ceh: 'CEH',
+  oscp: 'OSCP',
+  'iso 27001': 'ISO 27001',
+  'comptia security+': 'CompTIA Security+',
+  cisa: 'CISA',
+  cism: 'CISM',
+  cissp: 'CISSP',
+  ccnp: 'Cisco CCNP',
+  ccna: 'Cisco CCNA',
+
+  // Project & Management & Quality
   pmp: 'PMP (Project Management Professional)',
   scrum: 'Scrum Master',
   'scrum master': 'Scrum Master',
   psm: 'PSM (Professional Scrum Master)',
   'psm i': 'PSM (Professional Scrum Master)',
+  itil: 'ITIL Foundation',
+  'six sigma': 'Six Sigma',
+  'yalin uretim': 'Yalın Üretim',
+  'iso 9001': 'ISO 9001 Kalite Yönetimi',
+
+  // Cloud & Tech
   aws: 'AWS Certified',
   'aws certified': 'AWS Certified',
   azure: 'Microsoft Certified: Azure',
   'google cloud': 'Google Cloud Certified',
-  itil: 'ITIL Foundation',
+
+  // Finance, Insurance & Legal
+  segem: 'SEGEM',
+  spl: 'SPL',
+  bes: 'Bireysel Emeklilik Aracılığı (BES)',
   cfa: 'CFA',
   smmm: 'SMMM',
-  ccna: 'Cisco CCNA',
-  'iso 9001': 'ISO 9001 Kalite Yönetimi',
-  'six sigma': 'Six Sigma',
-  'yalin uretim': 'Yalın Üretim',
+  'spk duzey 3': 'SPK Düzey 3',
+  'spk duzey 2': 'SPK Düzey 2',
+  'spk duzey 1': 'SPK Düzey 1',
+  'spk turev': 'SPK Türev Araçlar',
+  'spk gayrimenkul degerleme': 'SPK Gayrimenkul Değerleme Lisansı',
+
+  // Transport & Logistics
+  'src 1': 'SRC 1',
+  'src 2': 'SRC 2',
+  'src 3': 'SRC 3',
+  'src 4': 'SRC 4',
+  'src 5': 'SRC 5',
+  src: 'SRC Belgesi',
+  psikoteknik: 'Psikoteknik',
+  'udy 1': 'ÜDY 1',
+  'udy 2': 'ÜDY 2',
+  'udy 3': 'ÜDY 3',
+  'udy 4': 'ÜDY 4',
+  'ody 1': 'ODY 1',
+  'ody 2': 'ODY 2',
+  'ody 3': 'ODY 3',
+  'ody 4': 'ODY 4',
+  adr: 'ADR',
+
+  // Education & Language
+  'pedagojik formasyon': 'Pedagojik Formasyon',
+  toefl: 'TOEFL',
+  ielts: 'IELTS',
 };
 
 // ============================================================================
@@ -605,7 +665,7 @@ export function isRoleTitle(line: string): boolean {
   const norm = normalizeTrForMatch(clean);
   // Block company / institution suffixes (as standalone words)
   if (
-    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu)\b/i.test(norm) ||
+    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu|hizmetleri|sanayi|ticaret)\b/i.test(norm) ||
     /\ba\s*s\b/i.test(norm)
   ) {
     return false;
@@ -649,6 +709,7 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('teknisyen') ||
     norm.includes('tekniker') ||
     norm.includes('kasiyer') ||
+    norm.includes('resepsiyon') ||
     norm.includes('sofor') ||
     norm.includes('surucu') ||
     norm.includes('usta') ||
@@ -669,10 +730,20 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('egitmen') ||
     norm.includes('mimar') ||
     norm.includes('tasarimci') ||
+    norm.includes('musavir') ||
     norm.includes('yazar') ||
     norm.includes('editor') ||
     norm.includes('muhasebeci') ||
     norm.includes('stajyer') ||
+    norm.includes('partner') ||
+    norm.includes('ortak') ||
+    norm.includes('ortag') ||
+    norm.includes('mumessil') ||
+    norm.includes('satis') ||
+    norm.includes('akademisyen') ||
+    norm.includes('okutman') ||
+    norm.includes('docent') ||
+    norm.includes('profesor') ||
     norm.includes('manager') ||
     norm.includes('director') ||
     norm.includes('lead') ||
@@ -706,10 +777,22 @@ export function extractDeterministicLocations(text: string): {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const detectedCities: string[] = [];
 
+  const HOMONYM_DISTRICT_KEYS = new Set(['fatih', 'kartal', 'eyup', 'kemal', 'selcuk', 'ali', 'hasan', 'huseyin']);
+
   // Check top 20 lines (header / contact section) first for district
   for (let i = 0; i < Math.min(lines.length, 20); i++) {
-    const lineNorm = ` ${normalizeTrForMatch(lines[i])} `;
+    const rawLine = lines[i];
+    const lineNorm = ` ${normalizeTrForMatch(rawLine)} `;
+    const hasLocationCue = /[\/,\-\|]|\b(sehir|il|ilce|adres|lokasyon|ikamet|cad|sok|mah)\b/i.test(rawLine);
+
     for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
+      if (HOMONYM_DISTRICT_KEYS.has(distKey)) {
+        const cityNorm = normalizeTrForMatch(data.city);
+        if (!hasLocationCue && !lineNorm.includes(cityNorm)) {
+          continue;
+        }
+      }
+
       const distRegex = new RegExp(`(?:^|\\s)${distKey}(?:\\s|$)`, 'i');
       if (distRegex.test(lineNorm)) {
         return {
@@ -727,6 +810,10 @@ export function extractDeterministicLocations(text: string): {
 
   // Check District Dictionary
   for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
+    if (HOMONYM_DISTRICT_KEYS.has(distKey)) {
+      const cityNorm = normalizeTrForMatch(data.city);
+      if (!normText.includes(cityNorm)) continue;
+    }
     const regex = new RegExp(`(?:^|\\s)${distKey}(?:\\s|$)`, 'i');
     if (regex.test(normText)) {
       detectedCity = data.city;
@@ -753,6 +840,7 @@ export function extractDeterministicLocations(text: string): {
     samsun: 'Samsun',
     denizli: 'Denizli',
     sanliurfa: 'Şanlıurfa',
+    urfa: 'Şanlıurfa',
     adapazari: 'Sakarya',
     sakarya: 'Sakarya',
     kocaeli: 'Kocaeli',
@@ -764,6 +852,64 @@ export function extractDeterministicLocations(text: string): {
     batman: 'Batman',
     elazig: 'Elazığ',
     tekirdag: 'Tekirdağ',
+    kahramanmaras: 'Kahramanmaraş',
+    maras: 'Kahramanmaraş',
+    mugla: 'Muğla',
+    nevsehir: 'Nevşehir',
+    manisa: 'Manisa',
+    aydin: 'Aydın',
+    balikesir: 'Balıkesir',
+    canakkale: 'Çanakkale',
+    edirne: 'Edirne',
+    kirklareli: 'Kırklareli',
+    afyon: 'Afyonkarahisar',
+    afyonkarahisar: 'Afyonkarahisar',
+    kutahya: 'Kütahya',
+    usak: 'Uşak',
+    isparta: 'Isparta',
+    burdur: 'Burdur',
+    aksaray: 'Aksaray',
+    nigde: 'Niğde',
+    kirsehir: 'Kırşehir',
+    yozgat: 'Yozgat',
+    sivas: 'Sivas',
+    tokat: 'Tokat',
+    amasya: 'Amasya',
+    corum: 'Çorum',
+    sinop: 'Sinop',
+    kastamonu: 'Kastamonu',
+    zonguldak: 'Zonguldak',
+    karabuk: 'Karabük',
+    bartin: 'Bartın',
+    duzce: 'Düzce',
+    bolu: 'Bolu',
+    yalova: 'Yalova',
+    bilecik: 'Bilecik',
+    ordu: 'Ordu',
+    giresun: 'Giresun',
+    rize: 'Rize',
+    artvin: 'Artvin',
+    gumushane: 'Gümüşhane',
+    bayburt: 'Bayburt',
+    kars: 'Kars',
+    ardahan: 'Ardahan',
+    igdir: 'Iğdır',
+    agri: 'Ağrı',
+    mus: 'Muş',
+    bingol: 'Bingöl',
+    bitlis: 'Bitlis',
+    siirt: 'Siirt',
+    sirnak: 'Şırnak',
+    hakkari: 'Hakkari',
+    mardin: 'Mardin',
+    adiyaman: 'Adıyaman',
+    kilis: 'Kilis',
+    osmaniye: 'Osmaniye',
+    hatay: 'Hatay',
+    antakya: 'Hatay',
+    iskenderun: 'Hatay',
+    karaman: 'Karaman',
+    cankiri: 'Çankırı',
   };
 
   for (const [cKey, cName] of Object.entries(cityAliases)) {
@@ -880,70 +1026,96 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
 // 3. EDUCATION DETERMINISTIC PARSER (100% Deterministic)
 // ============================================================================
 
+export function cleanHeaderLine(line: string): string {
+  if (!line) return '';
+  return line
+    .replace(/^[#\s\-=~_*●•▪▫►✔✓★\[\]\(\)\d\.\:\/\|\\]+/, '')
+    .replace(/[#\s\-=~_*●•▪▫►✔✓★\[\]\(\)\.\:\/\|\\]+$/, '')
+    .trim();
+}
+
+export const EXP_HEADER_NORMS = new Set([
+  'isdeneyimi', 'isdeneyimleri', 'isdeneyim', 'deneyimler', 'deneyim', 'istecrubesi',
+  'istecrubeleri', 'tecrubeler', 'tecrube', 'meslekideneyim', 'meslekideneyimler',
+  'meslekigecmis', 'meslekitecrube', 'kariyergecmisi', 'calismahayati', 'istihdamgecmisi',
+  'isgecmisi', 'isvemeslekigecmis', 'stajvedeneyim', 'stajvedeneyimler', 'stajdeneyimi',
+  'stajdeneyimleri', 'stajlar', 'staj', 'kariyer', 'profesyoneldeneyim',
+  'workexperience', 'workexperiences', 'experience', 'experiences', 'employmenthistory',
+  'careerhistory', 'workhistory', 'workbackground', 'professionalexperience',
+  'positionsheld', 'practicalexperience', 'internships', 'internship', 'currentexperience',
+  'previousexperience', 'employment', 'work'
+]);
+
+export const EDU_HEADER_NORMS = new Set([
+  'egitim', 'egitimbilgileri', 'egitimgecmisi', 'egitimdurumu', 'ogrenim',
+  'ogrenimbilgileri', 'ogrenimdurumu', 'akademikegitim', 'akademikgecmis',
+  'akademikbilgiler', 'egitimveakademikbilgiler', 'egitimveogrenim',
+  'education', 'educationalbackground', 'academicbackground', 'academichistory',
+  'academic', 'qualifications', 'academicqualifications', 'degrees', 'studies',
+  'academicprofile', 'educationtraining'
+]);
+
+export const OTHER_HEADER_NORMS = new Set([
+  ...EXP_HEADER_NORMS,
+  'yetkinlikler', 'yetkinlik', 'yetenekler', 'yetenek', 'beceriler', 'beceri',
+  'uzmanlikalanlari', 'uzmanlik', 'teknikbeceriler', 'teknikyetkinlikler',
+  'meslekiyetkinlikler', 'kisiselyetkinlikler', 'bilgisayarbecerileri', 'araclar',
+  'teknolojiler', 'araclarveteknolojiler', 'yazilimbecerileri', 'programlamadilleri',
+  'skills', 'keyskills', 'corecompetencies', 'competencies', 'technicalskills',
+  'technicalproficiencies', 'areasofexpertise', 'toolstechnologies', 'tools',
+  'technologies', 'abilities', 'proficiencies', 'expertise', 'softskills',
+  'hardskills', 'professionalqualifications',
+  'sertifikalar', 'sertifika', 'kurslarvesertifikalar', 'lisanslarvesertifikalar',
+  'egitimlervesertifikalar', 'sertifikalarvelisanslar', 'kurslarveegitimler',
+  'belgeler', 'sertifikavebelgeler', 'certificates', 'certifications', 'licenses',
+  'coursescertificates', 'accreditations', 'certificationslicenses', 'courses',
+  'diller', 'dil', 'yabancidiller', 'dilbecerileri', 'yabancidil', 'languages',
+  'foreignlanguages', 'languageproficiencies', 'language', 'languageskills',
+  'projeler', 'proje', 'kisiselprojeler', 'projedeyimi', 'projelerveyayinlar',
+  'projects', 'selectedprojects', 'keyprojects', 'portfolio', 'personalprojects',
+  'ozet', 'profesyonelozet', 'hakkimda', 'kariyerhedefi', 'kisiselprofil',
+  'profil', 'ozgecmis', 'kariyeramaci', 'kisaotobiyografi', 'summary',
+  'professionalsummary', 'executivesummary', 'profile', 'aboutme', 'careerobjective',
+  'objective', 'personalprofile', 'personalstatement', 'overview',
+  'iletisim', 'iletisimbilgileri', 'iletisimbilgisi', 'kisiselbilgiler',
+  'contact', 'contactinfo', 'contactinformation', 'personaldetails', 'personalinfo',
+  'referanslar', 'referans', 'references', 'reference',
+  'hobiler', 'hobi', 'ilgialanlari', 'interests', 'hobbies'
+]);
+
 function isEduSectionHeader(line: string): boolean {
-  if (!line || line.length > 45 || line.includes(',') || line.includes('.')) return false;
-  const norm = normalizeTrForMatch(line).replace(/[^a-z0-9]/g, '');
-  return (
-    norm === 'egitim' ||
-    norm === 'egitimbilgileri' ||
-    norm === 'egitimgecmisi' ||
-    norm === 'education' ||
-    norm === 'academichistory' ||
-    norm === 'academic' ||
-    norm === 'ogrenim' ||
-    norm === 'ogrenimbilgileri'
-  );
+  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  const clean = cleanHeaderLine(line);
+  if (!clean || clean.length > 40) return false;
+  const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
+  return EDU_HEADER_NORMS.has(norm);
 }
 
 function isOtherSectionHeader(line: string): boolean {
-  if (!line || line.length > 45 || line.includes(',') || line.includes('.')) return false;
-  const norm = normalizeTrForMatch(line).replace(/[^a-z0-9]/g, '');
+  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  const clean = cleanHeaderLine(line);
+  if (!clean || clean.length > 40) return false;
+  const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
+  return OTHER_HEADER_NORMS.has(norm);
+}
+
+export function isNoiseOrFooterLine(line: string): boolean {
+  if (!line) return false;
+  const clean = cleanHeaderLine(line);
+  const norm = normalizeTrForMatch(clean);
   return (
-    norm === 'isdeneyimleri' ||
-    norm === 'isdeneyimi' ||
-    norm === 'deneyimler' ||
-    norm === 'deneyim' ||
-    norm === 'isgecmisi' ||
-    norm === 'workexperience' ||
-    norm === 'experience' ||
-    norm === 'employmenthistory' ||
-    norm === 'stajvedeneyim' ||
-    norm === 'staj' ||
-    norm === 'internships' ||
-    norm === 'yetkinlikler' ||
-    norm === 'yetkinlik' ||
-    norm === 'yetenekler' ||
-    norm === 'yetenek' ||
-    norm === 'skills' ||
-    norm === 'beceriler' ||
-    norm === 'beceri' ||
-    norm === 'sertifikalar' ||
-    norm === 'sertifika' ||
-    norm === 'certificates' ||
-    norm === 'certifications' ||
-    norm === 'diller' ||
-    norm === 'languages' ||
-    norm === 'projeler' ||
-    norm === 'projects' ||
-    norm === 'referanslar' ||
-    norm === 'referans' ||
-    norm === 'references' ||
-    norm === 'iletisim' ||
-    norm === 'contact' ||
-    norm === 'hakkimda' ||
-    norm === 'about' ||
-    norm === 'ozet' ||
-    norm === 'summary' ||
-    norm === 'profil' ||
-    norm === 'profile' ||
-    norm === 'hobiler' ||
-    norm === 'hobi' ||
-    norm === 'interests'
+    /^(?:page|sayfa)\s*\d+(?:\s*(?:of|\/)\s*\d+)?$/i.test(norm) ||
+    /^(?:page|sayfa)\s*\d+$/i.test(norm) ||
+    /^(?:curriculum\s*vitae|cv|ozgecmis)$/i.test(norm) ||
+    /generated\s*by\s*(?:linkedin|kariyer|indeed|novoresume|canva|europass)/i.test(norm) ||
+    /^(?:confidential|gizli|kisisel\s*belge)$/i.test(norm) ||
+    /^(?:copyright|all\s*rights\s*reserved|tum\s*haklari\s*saklidir)/i.test(norm) ||
+    /^https?:\/\/\S+$/i.test(norm)
   );
 }
 
 export function extractDeterministicEducation(text: string): RawExtractedEducation[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => Boolean(l) && !isNoiseOrFooterLine(l));
   const eduRecords: RawExtractedEducation[] = [];
 
   let inEduSection = false;
@@ -1074,10 +1246,10 @@ export function extractDeterministicEducation(text: string): RawExtractedEducati
     eduRecords.push(currentEdu);
   }
 
-  // Merge and group by school/field to prevent line fragmentation
+  // Merge and group by school + level to prevent line fragmentation while preserving multi-degree records
   const schoolGroups: Record<string, RawExtractedEducation> = {};
   for (const e of eduRecords) {
-    const key = e.school ? normalizeTrForMatch(e.school) : e.field ? normalizeTrForMatch(e.field) : 'edu';
+    const key = `${e.school ? normalizeTrForMatch(e.school) : 'school'}_${e.level ? normalizeTrForMatch(e.level) : (e.field ? normalizeTrForMatch(e.field) : 'level')}`;
     if (!schoolGroups[key]) {
       schoolGroups[key] = { ...e };
     } else {
@@ -1120,32 +1292,11 @@ function isPureDateLine(line: string): boolean {
 }
 
 function isExperienceSectionHeader(line: string): boolean {
-  if (!line || line.length > 50) return false;
-  const norm = normalizeTrForMatch(line);
-  return (
-    norm === 'is deneyimi' ||
-    norm === 'is deneyimleri' ||
-    norm === 'deneyim' ||
-    norm === 'deneyimler' ||
-    norm === 'staj' ||
-    norm === 'stajlar' ||
-    norm === 'staj ve deneyim' ||
-    norm === 'staj ve deneyimler' ||
-    norm === 'staj deneyimi' ||
-    norm === 'staj deneyimleri' ||
-    norm === 'work experience' ||
-    norm === 'experience' ||
-    norm === 'employment history' ||
-    norm === 'career history' ||
-    norm === 'kariyer' ||
-    norm === 'profesyonel deneyim' ||
-    norm === 'professional experience' ||
-    norm === 'is gecmisi' ||
-    norm.startsWith('is deneyim') ||
-    norm.startsWith('is gecmis') ||
-    norm.startsWith('staj ve') ||
-    norm.startsWith('staj deneyim')
-  );
+  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  const clean = cleanHeaderLine(line);
+  if (!clean || clean.length > 40) return false;
+  const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
+  return EXP_HEADER_NORMS.has(norm);
 }
 
 function isEduLine(line: string): boolean {
@@ -1172,7 +1323,7 @@ function isEduLine(line: string): boolean {
 }
 
 export function extractDeterministicExperiences(text: string): RawExtractedExperience[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => Boolean(l) && !isNoiseOrFooterLine(l));
   const experiences: RawExtractedExperience[] = [];
 
   let inExpSection = false;
@@ -1192,6 +1343,12 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       }
       expLines.push(line);
     }
+  }
+
+  const hasAnySectionHeader = lines.some((l) => isEduSectionHeader(l) || isOtherSectionHeader(l) || isExperienceSectionHeader(l));
+  if (expLines.length === 0 && hasAnySectionHeader) {
+    // Structured CV with other sections (e.g. Education, Projects, Skills) but NO Experience section -> Fresh Graduate / Student
+    return [];
   }
 
   const targetLines = expLines.length > 0 ? expLines : lines;
@@ -1354,7 +1511,16 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         continue;
       }
 
-      if (!currentExp.company && /[A-ZÇĞİÖŞÜ]{2,}|A\.Ş\.|Ltd\.|Holding|Grup|Group|Bank|Sigorta|Banka|Company|Tech/i.test(line)) {
+      if (
+        !currentExp.company &&
+        !isRoleTitle(line) &&
+        !line.startsWith('-') &&
+        !line.startsWith('•') &&
+        !line.startsWith('*') &&
+        !line.startsWith('·') &&
+        line.length >= 2 &&
+        line.length <= 70
+      ) {
         currentExp.company = line;
         continue;
       }
@@ -1655,16 +1821,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   const yearInText = text.match(/(\d{1,2})\s*yıllık/i);
   if (yearInText) totalYears = Math.max(totalYears, parseInt(yearInText[1], 10));
 
-  if (exp.length === 0 && (skillsAndTools.roles.length > 0 || skillsAndTools.sectors.length > 0)) {
-    exp.push({
-      role: skillsAndTools.roles[0] || 'Uzman',
-      company: undefined,
-      sector: skillsAndTools.sectors[0] || '',
-      duration: undefined,
-      isCurrent: false,
-      responsibilities: '',
-    });
-  }
+
 
   const summary = generateDeterministicSummary({
     text,
