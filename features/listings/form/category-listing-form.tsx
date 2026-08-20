@@ -1920,7 +1920,7 @@ export function CategoryListingForm({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
         {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop) */}
         <div className="hidden lg:block lg:col-span-3 h-full">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
+          <div className={cn('rounded-2xl border bg-white p-6 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200', theme.cardBorder, theme.cardGlow)}>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
                 İlan Adımları
@@ -1972,7 +1972,7 @@ export function CategoryListingForm({
               </nav>
             </div>
 
-            <div className="mt-8 pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-start gap-3 text-xs text-slate-500">
+            <div className={cn('mt-8 pt-4 border-t flex items-start gap-3 text-xs text-slate-500', theme.footerBorder)}>
               <Shield className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-slate-900 dark:text-zinc-100">
@@ -1988,13 +1988,13 @@ export function CategoryListingForm({
 
         {/* MAIN COLUMN: Active Step Form (9 cols on desktop across all categories) */}
         <div className="col-span-1 lg:col-span-9 h-full">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 h-full flex flex-col justify-between">
+          <div className={cn('rounded-2xl border bg-white p-6 sm:p-7 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200', theme.cardBorder, theme.cardGlow)}>
             <div>
               <div className="border-b border-border/60 pb-4 mb-4 lg:hidden">
                 <FormStepIndicator steps={steps} currentIndex={stepIndex} />
               </div>
 
-              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 dark:border-zinc-800 pb-5">
+              <div className={cn('mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-5', theme.headerBorder)}>
                 <div className="flex items-center gap-3.5">
                   <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', theme.stepBadgeBg)}>
                     <User className="h-5 w-5" />
@@ -3069,7 +3069,7 @@ export function CategoryListingForm({
       </div>
 
             {/* Middle Card Footer */}
-            <div className="mt-8 pt-4 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className={cn('mt-8 pt-4 border-t flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between', theme.footerBorder)}>
               <div className="flex items-center gap-2.5 text-xs text-slate-500 max-w-sm">
                 <Shield className="h-4 w-4 text-blue-600 shrink-0" />
                 <span className="text-[11px] leading-tight">
@@ -3095,7 +3095,7 @@ export function CategoryListingForm({
                     type="button"
                     onClick={goNext}
                     disabled={disabled || isBusy}
-                    className="h-10 px-6 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-sm flex items-center gap-1.5"
+                    className={cn('h-10 px-6 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all', theme.ctaButtonBg)}
                   >
                     <span>Devam Et</span>
                     <ChevronRight className="h-4 w-4" />

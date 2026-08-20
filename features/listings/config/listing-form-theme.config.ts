@@ -5,6 +5,11 @@ export interface ListingCategoryTheme {
   categoryId: string;
   name: string;
   colorHex: string;
+  // Card & Container borders:
+  cardBorder: string;
+  cardGlow: string;
+  headerBorder: string;
+  footerBorder: string;
   // Stepper active state:
   stepperActiveBorder: string;
   stepperActiveBg: string;
@@ -34,6 +39,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.isBul,
     name: 'İş Arıyorum',
     colorHex: '#0EA5E9',
+    cardBorder: 'border-sky-300/80 dark:border-sky-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)]',
+    headerBorder: 'border-sky-100 dark:border-sky-900/60',
+    footerBorder: 'border-sky-100 dark:border-sky-900/60',
     stepperActiveBorder: 'border-sky-500',
     stepperActiveBg: 'bg-sky-500/10 dark:bg-sky-500/20',
     stepperActiveText: 'text-sky-950 dark:text-sky-100 font-semibold',
@@ -56,6 +65,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.iseAl,
     name: 'İşe Alıyorum',
     colorHex: '#10B981',
+    cardBorder: 'border-emerald-300/80 dark:border-emerald-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(16,185,129,0.12)]',
+    headerBorder: 'border-emerald-100 dark:border-emerald-900/60',
+    footerBorder: 'border-emerald-100 dark:border-emerald-900/60',
     stepperActiveBorder: 'border-emerald-500',
     stepperActiveBg: 'bg-emerald-500/10 dark:bg-emerald-500/20',
     stepperActiveText: 'text-emerald-950 dark:text-emerald-100 font-semibold',
@@ -78,6 +91,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.ortakBul,
     name: 'Ortak Arıyorum',
     colorHex: '#F59E0B',
+    cardBorder: 'border-amber-300/80 dark:border-amber-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(245,158,11,0.12)]',
+    headerBorder: 'border-amber-100 dark:border-amber-900/60',
+    footerBorder: 'border-amber-100 dark:border-amber-900/60',
     stepperActiveBorder: 'border-amber-500',
     stepperActiveBg: 'bg-amber-500/10 dark:bg-amber-500/20',
     stepperActiveText: 'text-amber-950 dark:text-amber-100 font-semibold',
@@ -100,6 +117,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.yatirimBul,
     name: 'Yatırım Arıyorum',
     colorHex: '#3B82F6',
+    cardBorder: 'border-blue-300/80 dark:border-blue-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(59,130,246,0.12)]',
+    headerBorder: 'border-blue-100 dark:border-blue-900/60',
+    footerBorder: 'border-blue-100 dark:border-blue-900/60',
     stepperActiveBorder: 'border-blue-500',
     stepperActiveBg: 'bg-blue-500/10 dark:bg-blue-500/20',
     stepperActiveText: 'text-blue-950 dark:text-blue-100 font-semibold',
@@ -122,6 +143,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.yatirimYap,
     name: 'Yatırım Yapıyorum',
     colorHex: '#6C63FF',
+    cardBorder: 'border-indigo-300/80 dark:border-indigo-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(108,99,255,0.12)]',
+    headerBorder: 'border-indigo-100 dark:border-indigo-900/60',
+    footerBorder: 'border-indigo-100 dark:border-indigo-900/60',
     stepperActiveBorder: 'border-indigo-500',
     stepperActiveBg: 'bg-indigo-500/10 dark:bg-indigo-500/20',
     stepperActiveText: 'text-indigo-950 dark:text-indigo-100 font-semibold',
@@ -144,6 +169,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.bayilikAl,
     name: 'Franchise',
     colorHex: '#EC4899',
+    cardBorder: 'border-pink-300/80 dark:border-pink-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(236,72,153,0.12)]',
+    headerBorder: 'border-pink-100 dark:border-pink-900/60',
+    footerBorder: 'border-pink-100 dark:border-pink-900/60',
     stepperActiveBorder: 'border-pink-500',
     stepperActiveBg: 'bg-pink-500/10 dark:bg-pink-500/20',
     stepperActiveText: 'text-pink-950 dark:text-pink-100 font-semibold',
@@ -166,6 +195,10 @@ export const LISTING_CATEGORY_THEMES: Record<string, ListingCategoryTheme> = {
     categoryId: CATEGORY_IDS.dijitalAi,
     name: 'Dijital & AI',
     colorHex: '#8B5CF6',
+    cardBorder: 'border-purple-300/80 dark:border-purple-800/80',
+    cardGlow: 'shadow-[0_4px_24px_-4px_rgba(139,92,246,0.12)]',
+    headerBorder: 'border-purple-100 dark:border-purple-900/60',
+    footerBorder: 'border-purple-100 dark:border-purple-900/60',
     stepperActiveBorder: 'border-purple-500',
     stepperActiveBg: 'bg-purple-500/10 dark:bg-purple-500/20',
     stepperActiveText: 'text-purple-950 dark:text-purple-100 font-semibold',
@@ -190,6 +223,10 @@ const DEFAULT_THEME: ListingCategoryTheme = {
   categoryId: 'default',
   name: 'İlan',
   colorHex: '#5B5CF6',
+  cardBorder: 'border-slate-300/80 dark:border-zinc-700/80',
+  cardGlow: 'shadow-sm',
+  headerBorder: 'border-slate-100 dark:border-zinc-800',
+  footerBorder: 'border-slate-100 dark:border-zinc-800',
   stepperActiveBorder: 'border-primary',
   stepperActiveBg: 'bg-primary/10 dark:bg-primary/20',
   stepperActiveText: 'text-foreground font-semibold',
