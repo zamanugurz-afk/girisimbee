@@ -5,11 +5,12 @@
  * clarificationText = bilgilendirme (aydınlatma), not explicit consent.
  */
 
-export const PUBLISH_CONSENT_VERSION = '2026-08-10';
+export const PUBLISH_CONSENT_VERSION = '2026-08-20';
 
 export const PUBLISH_CONSENT_KEYS = [
   'clarificationText',
   'phoneDisplay',
+  'thirdPartyHrSharing',
   'explicitConsent',
 ] as const;
 
@@ -30,15 +31,21 @@ export const PUBLISH_CONSENT_POLICY_ITEMS: readonly PublishConsentPolicyItem[] =
   },
   {
     key: 'phoneDisplay',
-    label: 'Telefon görünürlüğü açık rızası',
+    label: 'Telefon ve iletişim açık rızası',
     description:
-      'Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla görüntülenmesine ve aranmasına açık rıza veriyorum. Birincil iletişim telefon üzerindendir; platform içi mesajlaşma ürün yapılandırmasına bağlıdır.',
+      'Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla kullanılmasına ve iletişime geçilmesine açık rıza veriyorum.',
+  },
+  {
+    key: 'thirdPartyHrSharing',
+    label: '3. Taraf İK profesyonelleri ve işverenlerle paylaşım açık rızası',
+    description:
+      'Özgeçmişimin, kariyer profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi ve uygun pozisyonlarla eşleştirilmem amacıyla 3. taraf işverenler, kurumsal insan kaynakları profesyonelleri ve yetkili istihdam danışmanları ile paylaşılmasına açık rıza veriyorum.',
   },
   {
     key: 'explicitConsent',
-    label: 'İlan yayınlama açık rızası',
+    label: 'İlan yayınlama ve kullanıcı sözleşmesi onayı',
     description:
-      'İlanımın yayınlanması ve iletişim amacıyla belirtilen kişisel verilerimin işlenmesine açık rıza veriyorum. Rızamı geri çekebilirim.',
+      'İlanımın yayınlanması ve kişisel verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyor, kullanıcı sözleşmesini kabul ediyorum.',
   },
 ] as const;
 
@@ -47,6 +54,7 @@ export type PublishConsentValues = Record<PublishConsentKey, boolean>;
 export const EMPTY_PUBLISH_CONSENTS: PublishConsentValues = {
   clarificationText: false,
   phoneDisplay: false,
+  thirdPartyHrSharing: false,
   explicitConsent: false,
 };
 

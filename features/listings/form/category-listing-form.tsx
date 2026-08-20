@@ -2297,52 +2297,68 @@ export function CategoryListingForm({
                 </div>
               )}
 
-              <p className="text-gc-sm text-muted-foreground">
-                {(() => {
-                  const cfg = publishConfigForCategory(categoryId);
-                  if (!cfg) return 'Tüm bilgiler doğrulandı. İlanınızı yayınlayabilirsiniz.';
-                  const duration =
-                    cfg.durationDays != null
-                      ? `${cfg.durationDays} gün süreyle`
-                      : 'ilan başına ücretle';
-                  return `Ödeme tamamlandı. İlanınızı ${duration} yayınlayabilirsiniz.`;
-                })()}
-              </p>
-              <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
-                <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
-                  Seçilen paket
-                </p>
-                <p className="mt-1 text-gc-sm font-medium text-foreground">
-                  {(() => {
-                    const cfg = publishConfigForCategory(categoryId);
-                    if (cfg) {
-                      const extras = packageSelection.placements
-                        .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
-                        .join(' + ');
-                      return extras ? `${cfg.name} + ${extras}` : cfg.name;
-                    }
-                    return packageSelection.placements.length === 0
-                      ? STANDARD_PUBLISH_CONFIG.name
-                      : packageSelection.placements
+              {/* Yayın Onayları & KVKK / Açık Rıza İzinleri */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
+                <PublishConsentFields
+                  value={publishConsents}
+                  onChange={setPublishConsents}
+                  disabled={disabled || isBusy}
+                  variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
+                  error={
+                    resolveFieldError(fieldErrors, 'publishConsents')
+                    || resolveFieldError(fieldErrors, 'contactPhone')
+                  }
+                  phoneHint={contactPhone}
+                  userId={userId}
+                  onPhoneSaved={(phone) => {
+                    setContactPhone(phone);
+                    setFieldErrors((prev) => {
+                      if (!prev.contactPhone && !prev.publishConsents) return prev;
+                      const next = { ...prev };
+                      delete next.contactPhone;
+                      return next;
+                    });
+                  }}
+                />
+              </div>
+
+              {categoryId !== CATEGORY_IDS.isBul && (
+                <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
+                  <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
+                    Seçilen paket
+                  </p>
+                  <p className="mt-1 text-gc-sm font-medium text-foreground">
+                    {(() => {
+                      const cfg = publishConfigForCategory(categoryId);
+                      if (cfg) {
+                        const extras = packageSelection.placements
                           .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
                           .join(' + ');
-                  })()}
-                </p>
-                {(isPaidPublishCategory(categoryId) ||
-                  packageSelection.placements.length > 0) && (
-                  <p className="mt-0.5 text-gc-xs text-muted-foreground">
-                    Toplam:{' '}
-                    {formatPlacementPriceTry(
-                      (publishConfigForCategory(categoryId)?.priceCents ?? 0) +
-                        packageSelection.placements.reduce(
-                          (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
-                          0,
-                        ),
-                    )}
-                    {' · ödeme simülasyonu tamamlandı'}
+                        return extras ? `${cfg.name} + ${extras}` : cfg.name;
+                      }
+                      return packageSelection.placements.length === 0
+                        ? STANDARD_PUBLISH_CONFIG.name
+                        : packageSelection.placements
+                            .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
+                            .join(' + ');
+                    })()}
                   </p>
-                )}
-              </div>
+                  {(isPaidPublishCategory(categoryId) ||
+                    packageSelection.placements.length > 0) && (
+                    <p className="mt-0.5 text-gc-xs text-muted-foreground">
+                      Toplam:{' '}
+                      {formatPlacementPriceTry(
+                        (publishConfigForCategory(categoryId)?.priceCents ?? 0) +
+                          packageSelection.placements.reduce(
+                            (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+                            0,
+                          ),
+                      )}
+                      {' · ödeme simülasyonu tamamlandı'}
+                    </p>
+                  )}
+                </div>
+              )}
               {publishErrors.length > 0 && (
                 <div
                   role="alert"

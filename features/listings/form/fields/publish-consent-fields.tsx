@@ -67,6 +67,15 @@ function consentDescription(key: PublishConsentKey, variant: 'default' | 'career
           <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza metni</LegalDocLink>.
         </>
       );
+    case 'thirdPartyHrSharing':
+      return (
+        <>
+          Özgeçmişimin, kariyer profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi
+          ve istihdam süreçleri kapsamında 3. taraf işverenler, insan kaynakları profesyonelleri ve
+          yetkili istihdam danışmanları ile paylaşılmasına{' '}
+          <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza</LegalDocLink> veriyorum.
+        </>
+      );
     case 'explicitConsent':
       return (
         <>
