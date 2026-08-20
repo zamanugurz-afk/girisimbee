@@ -286,7 +286,7 @@ export function AccountListingCard({
         {/* Bottom Section: Metrics & Action Buttons */}
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 space-y-3">
           {/* Metrics Capsule */}
-          <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/70 dark:border-zinc-700/60 px-3 py-1.5 text-xs">
+          <div className="flex items-center justify-between rounded-xl bg-sky-50/40 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/40 px-3 py-1.5 text-xs">
             <div className="flex items-center gap-1.5">
               <Eye className="h-3.5 w-3.5 text-blue-500" />
               <strong className="text-slate-900 dark:text-white font-bold tabular-nums">{listing.viewCount}</strong>

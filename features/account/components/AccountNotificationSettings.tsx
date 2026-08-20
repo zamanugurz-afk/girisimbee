@@ -51,7 +51,7 @@ export function AccountNotificationSettings({
         {ROWS.map((row) => (
           <div
             key={row.key}
-            className="flex items-start justify-between gap-4 rounded-xl border border-slate-200/70 bg-slate-50/40 p-4 dark:border-zinc-800 dark:bg-zinc-800/40"
+            className="flex items-start justify-between gap-4 rounded-xl border border-sky-200/70 bg-sky-50/40 p-4 dark:border-sky-800/40 dark:bg-sky-950/20"
           >
             <div className="min-w-0 space-y-1">
               <Label htmlFor={`notif-${row.key}`} className="text-sm font-medium">

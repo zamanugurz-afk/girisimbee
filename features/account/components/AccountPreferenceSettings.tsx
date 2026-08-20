@@ -37,14 +37,14 @@ export function AccountPreferenceSettings({
 
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <div className="space-y-1.5">
-          <Label className="text-sm">Dil seçimi</Label>
+          <Label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Dil seçimi</Label>
           <Select
             value={value.language}
             onValueChange={(language) =>
               onChange({ ...value, language: language as AccountLanguage })
             }
           >
-            <SelectTrigger className="rounded-lg">
+            <SelectTrigger className="rounded-xl border border-sky-200/80 bg-sky-50/30 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -58,12 +58,12 @@ export function AccountPreferenceSettings({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm">Saat dilimi</Label>
+          <Label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Saat dilimi</Label>
           <Select
             value={value.timezone}
             onValueChange={(timezone) => onChange({ ...value, timezone })}
           >
-            <SelectTrigger className="rounded-lg">
+            <SelectTrigger className="rounded-xl border border-sky-200/80 bg-sky-50/30 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,14 +77,14 @@ export function AccountPreferenceSettings({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm">Tarih biçimi</Label>
+          <Label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Tarih biçimi</Label>
           <Select
             value={value.dateFormat}
             onValueChange={(dateFormat) =>
               onChange({ ...value, dateFormat: dateFormat as AccountDateFormat })
             }
           >
-            <SelectTrigger className="rounded-lg">
+            <SelectTrigger className="rounded-xl border border-sky-200/80 bg-sky-50/30 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

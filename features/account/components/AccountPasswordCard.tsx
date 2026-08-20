@@ -48,7 +48,7 @@ export function AccountPasswordCard() {
             autoComplete="current-password"
             value={form.currentPassword}
             onChange={(e) => setForm({ ...form, currentPassword: e.target.value })}
-            className="rounded-lg"
+            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
           />
         </Field>
         <Field label="Yeni şifre">
@@ -57,7 +57,7 @@ export function AccountPasswordCard() {
             autoComplete="new-password"
             value={form.newPassword}
             onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
-            className="rounded-lg"
+            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
           />
         </Field>
         <Field label="Yeni şifre tekrarı">
@@ -66,11 +66,11 @@ export function AccountPasswordCard() {
             autoComplete="new-password"
             value={form.confirmPassword}
             onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-            className="rounded-lg"
+            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
           />
         </Field>
-        <Button type="submit" className="rounded-lg">
-          Şifreyi güncelle
+        <Button type="submit" className="h-8.5 rounded-xl text-xs font-bold shadow-2xs">
+          Şifreyi Güncelle
         </Button>
       </form>
     </section>
@@ -80,7 +80,7 @@ export function AccountPasswordCard() {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-sm">{label}</Label>
+      <Label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">{label}</Label>
       {children}
     </div>
   );

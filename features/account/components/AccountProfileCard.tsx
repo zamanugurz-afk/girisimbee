@@ -1,14 +1,13 @@
 import type { AccountProfile } from '@/features/account/types/account-profile.types';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { AccountPanelCard } from '@/features/account/components/AccountPanelCard';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-      <dt className="w-44 shrink-0 text-sm font-semibold text-foreground/70">{label}</dt>
-      <dd className="text-sm font-semibold text-foreground">{value || '—'}</dd>
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-sky-200/70 bg-sky-50/40 px-3.5 py-2.5 dark:border-sky-800/40 dark:bg-sky-950/20">
+      <dt className="text-xs font-semibold text-slate-500 dark:text-zinc-400">{label}</dt>
+      <dd className="text-xs font-bold text-slate-900 dark:text-white">{value || '—'}</dd>
     </div>
   );
 }
@@ -25,18 +24,24 @@ function VerificationRow({
   verifyLabel: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-      <dt className="w-44 shrink-0 text-sm font-semibold text-foreground/70">{label}</dt>
-      <dd className="flex flex-wrap items-center gap-2">
-        <Badge variant={verified ? 'default' : 'outline'} className="font-semibold">
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200/80 bg-amber-50/40 px-3.5 py-2.5 dark:border-amber-800/40 dark:bg-amber-950/20">
+      <dt className="text-xs font-semibold text-slate-500 dark:text-zinc-400">{label}</dt>
+      <dd className="flex items-center gap-2">
+        <span
+          className={cn(
+            'rounded-md px-2 py-0.5 text-[10px] font-bold',
+            verified
+              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+              : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20',
+          )}
+        >
           {verified ? 'Doğrulandı' : 'Doğrulanmadı'}
-        </Badge>
+        </span>
         {!verified && onVerify ? (
           <Button
             type="button"
             size="sm"
-            variant="secondary"
-            className="h-7 rounded-lg px-2.5 text-xs font-semibold"
+            className="h-6 rounded-lg px-2 text-[11px] font-bold shadow-2xs"
             onClick={onVerify}
           >
             {verifyLabel}
@@ -59,9 +64,7 @@ export function AccountProfileCard({
   onEdit: () => void;
   onVerifyEmail?: () => void;
   onVerifyPhone?: () => void;
-  /** Supabase Auth `email_confirmed_at` — source of truth for the badge. */
   emailVerified: boolean;
-  /** Prefer Auth session email when account profile email is empty. */
   emailDisplay?: string;
   onChangeEmail?: () => void;
   onChangePhone?: () => void;
@@ -72,44 +75,44 @@ export function AccountProfileCard({
   const email = (emailDisplay ?? profile.email ?? '').trim();
 
   return (
-    <AccountPanelCard>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-display text-lg font-bold tracking-tight text-foreground">
-            Profil bilgileri
+          <h2 className="font-display text-base font-bold text-slate-950 dark:text-white">
+            Profil Bilgileri
           </h2>
-          <p className="mt-1 text-sm font-medium leading-relaxed text-foreground/70">
-            Kayıt sırasında alınan kimlik bilgileri. E-posta ve SMS doğrulamasını buradan yönetebilirsiniz.
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+            Kayıt sırasında alınan kimlik bilgileri ve doğrulama durumunuz.
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button type="button" size="sm" className="rounded-2xl" onClick={onEdit}>
-            Hesap bilgilerini düzenle
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" size="sm" className="h-8 rounded-xl text-xs font-semibold shadow-2xs" onClick={onEdit}>
+            Düzenle
           </Button>
-          <Button asChild type="button" size="sm" variant="outline" className="rounded-2xl">
-            <Link href="/ayarlar">Herkese açık profili düzenle</Link>
+          <Button asChild type="button" size="sm" variant="outline" className="h-8 rounded-xl text-xs font-semibold">
+            <Link href="/ayarlar">Açık Profil</Link>
           </Button>
         </div>
       </div>
 
-      <dl className="mt-6 space-y-3">
-        <Row label="Ad soyad" value={fullName} />
-        <Row label="Kullanıcı adı" value={profile.username ? `@${profile.username}` : ''} />
+      <dl className="mt-4 space-y-2">
+        <Row label="Ad Soyad" value={fullName} />
+        <Row label="Kullanıcı Adı" value={profile.username ? `@${profile.username}` : ''} />
         <Row label="Telefon" value={profile.phone ?? ''} />
         <Row label="E-posta" value={email} />
         <VerificationRow
-          label="E-posta doğrulama"
+          label="E-posta Doğrulama"
           verified={emailVerified}
           onVerify={onVerifyEmail}
           verifyLabel="Doğrula"
         />
         <VerificationRow
-          label="SMS / telefon doğrulama"
+          label="SMS / Telefon Doğrulama"
           verified={profile.phoneVerified}
           onVerify={onVerifyPhone}
-          verifyLabel={profile.phone ? 'Doğrula' : 'Telefon ekle / doğrula'}
+          verifyLabel={profile.phone ? 'Doğrula' : 'Telefon Ekle / Doğrula'}
         />
       </dl>
-    </AccountPanelCard>
+    </section>
   );
 }

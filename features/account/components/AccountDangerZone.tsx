@@ -60,38 +60,38 @@ export function AccountDangerZone({ onSignOutAll }: { onSignOutAll: () => void }
         Verilerinizi indirin veya hesabınızı silin. İspat için gerekli kayıtlar saklanabilir.
       </p>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <Button
           type="button"
           size="sm"
           variant="outline"
-          className="rounded-lg"
+          className="h-8.5 rounded-xl text-xs font-semibold"
           disabled={exporting}
           onClick={() => void exportData()}
         >
-          {exporting ? 'Hazırlanıyor…' : 'Verilerimi indir'}
+          {exporting ? 'Hazırlanıyor…' : 'Verilerimi İndir'}
         </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
-          className="rounded-lg text-destructive hover:text-destructive"
+          className="h-8.5 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
           disabled={deleting}
           onClick={() => void deleteAccount()}
         >
-          {deleting ? 'Siliniyor…' : 'Hesabımı sil'}
+          {deleting ? 'Siliniyor…' : 'Hesabımı Sil'}
         </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
-          className="rounded-lg"
+          className="h-8.5 rounded-xl text-xs font-semibold"
           onClick={() => {
             onSignOutAll();
             toast.success('Oturum kapatıldı');
           }}
         >
-          Tüm cihazlardan çıkış yap
+          Tüm Cihazlardan Çıkış Yap
         </Button>
       </div>
     </section>

@@ -228,7 +228,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
                   </p>
 
                   {req.message ? (
-                    <div className="mt-2 rounded-xl bg-slate-50 p-3.5 text-xs sm:text-sm text-slate-700 dark:bg-zinc-800/60 dark:text-zinc-300 border border-slate-100 dark:border-zinc-700/50">
+                    <div className="mt-2 rounded-xl border border-sky-200/80 bg-sky-50/40 p-3.5 text-xs sm:text-sm text-slate-800 dark:border-sky-800/40 dark:bg-sky-950/20 dark:text-zinc-200">
                       {req.message}
                     </div>
                   ) : null}
