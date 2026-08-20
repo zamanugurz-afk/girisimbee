@@ -27,7 +27,7 @@ export function BrandMarkSlot({
         alt=""
         width={size * 2}
         height={size * 2}
-        className="h-full w-full object-contain object-center"
+        className="h-full w-full object-contain object-center transition-all duration-200 dark:brightness-110 dark:contrast-125 dark:drop-shadow-[0_0_8px_rgba(245,158,11,0.35)]"
         priority={priority}
       />
     </span>

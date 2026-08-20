@@ -39,7 +39,7 @@ export function AccountNotificationSettings({
   onChange: (next: AccountNotificationSettingsState) => void;
 }) {
   return (
-    <section className="rounded-xl border border-border/80 bg-background p-5 dark:border-white/10 sm:p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
       <h2 className="font-display text-lg font-semibold text-foreground">
         Bildirim ayarları
       </h2>

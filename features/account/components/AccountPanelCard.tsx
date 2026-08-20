@@ -17,7 +17,7 @@ export function AccountPanelCard({
     <Comp
       id={id}
       className={cn(
-        'gc-card p-5',
+        'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all dark:border-zinc-800 dark:bg-zinc-900/90 text-foreground',
         className,
       )}
     >

@@ -31,7 +31,7 @@ function statusVariant(
 
 export function AccountPaymentCard({ item }: { item: AccountPaymentCardData }) {
   return (
-    <article className="rounded-xl border border-border/80 bg-background p-5 dark:border-white/10">
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 transition-all">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 space-y-3">
           <div className="space-y-1.5">

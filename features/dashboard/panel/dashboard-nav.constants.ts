@@ -68,86 +68,120 @@ export interface DashboardNavItem {
   children?: readonly DashboardNavItem[];
 }
 
-/**
- * User panel sidebar only — never includes /admin links.
- * Admin lives exclusively under /admin.
- */
-export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = [
+export interface DashboardNavSection {
+  title?: string;
+  items: readonly DashboardNavItem[];
+}
+
+export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
   {
-    id: 'overview',
-    label: 'Genel Bakış',
-    href: DASHBOARD_ROUTES.overview,
-    icon: 'LayoutDashboard',
+    title: 'GENEL',
+    items: [
+      {
+        id: 'overview',
+        label: 'Genel Bakış',
+        href: DASHBOARD_ROUTES.overview,
+        icon: 'LayoutDashboard',
+      },
+    ],
   },
   {
-    id: 'account',
-    label: 'Hesabım',
-    href: DASHBOARD_ROUTES.profil,
-    icon: 'User',
-    children: [
-      { id: 'profil', label: 'Profil', href: DASHBOARD_ROUTES.profil, icon: 'User' },
-      { id: 'guvenlik', label: 'Güvenlik', href: DASHBOARD_ROUTES.guvenlik, icon: 'Shield' },
-      // Gizlilik deferred — hide from nav for now
+    title: 'İLAN & İLETİŞİM',
+    items: [
+      {
+        id: 'ilanlarim',
+        label: 'İlanlarım',
+        href: DASHBOARD_ROUTES.ilanlarim,
+        icon: 'Megaphone',
+      },
+      {
+        id: 'favorilerim',
+        label: 'Favorilerim',
+        href: DASHBOARD_ROUTES.favorilerim,
+        icon: 'Star',
+      },
+      {
+        id: 'iletisimTalepleri',
+        label: 'İletişim Talepleri',
+        href: DASHBOARD_ROUTES.iletisimTalepleri,
+        icon: 'MessageSquare',
+      },
+      {
+        id: 'mesajlarim',
+        label: 'Mesajlarım',
+        href: DASHBOARD_ROUTES.mesajlarim,
+        icon: 'MessageSquare',
+      },
+      {
+        id: 'bildirimlerim',
+        label: 'Bildirimlerim',
+        href: DASHBOARD_ROUTES.bildirimlerim,
+        icon: 'Bell',
+      },
+    ],
+  },
+  {
+    title: 'HESAP & GÜVENLİK',
+    items: [
+      {
+        id: 'profil',
+        label: 'Profil Bilgileri',
+        href: DASHBOARD_ROUTES.profil,
+        icon: 'User',
+      },
+      {
+        id: 'guvenlik',
+        label: 'Güvenlik',
+        href: DASHBOARD_ROUTES.guvenlik,
+        icon: 'Shield',
+      },
       {
         id: 'dogrulamalar',
         label: 'Doğrulamalar',
         href: DASHBOARD_ROUTES.dogrulamalar,
         icon: 'BadgeCheck',
       },
+      {
+        id: 'takipcilerim',
+        label: 'Takipçilerim',
+        href: DASHBOARD_ROUTES.takipcilerim,
+        icon: 'Users',
+      },
     ],
   },
   {
-    id: 'ilanlarim',
-    label: 'İlanlarım',
-    href: DASHBOARD_ROUTES.ilanlarim,
-    icon: 'Megaphone',
+    title: 'FİNANS & PAKETLER',
+    items: [
+      {
+        id: 'paketlerim',
+        label: 'Paketlerim',
+        href: DASHBOARD_ROUTES.paketlerim,
+        icon: 'Package',
+      },
+      {
+        id: 'odemelerim',
+        label: 'Ödemelerim',
+        href: DASHBOARD_ROUTES.odemelerim,
+        icon: 'CreditCard',
+      },
+    ],
   },
   {
-    id: 'favorilerim',
-    label: 'Favorilerim',
-    href: DASHBOARD_ROUTES.favorilerim,
-    icon: 'Star',
+    title: 'SİSTEM',
+    items: [
+      {
+        id: 'ayarlar',
+        label: 'Ayarlar',
+        href: DASHBOARD_ROUTES.ayarlar,
+        icon: 'Settings',
+      },
+    ],
   },
-  {
-    id: 'iletisimTalepleri',
-    label: 'İletişim Talepleri',
-    href: DASHBOARD_ROUTES.iletisimTalepleri,
-    icon: 'MessageSquare',
-  },
-  {
-    id: 'mesajlarim',
-    label: 'Mesajlarım',
-    href: DASHBOARD_ROUTES.mesajlarim,
-    icon: 'MessageSquare',
-  },
-  {
-    id: 'takipcilerim',
-    label: 'Takipçilerim',
-    href: DASHBOARD_ROUTES.takipcilerim,
-    icon: 'Users',
-  },
-  {
-    id: 'bildirimlerim',
-    label: 'Bildirimlerim',
-    href: DASHBOARD_ROUTES.bildirimlerim,
-    icon: 'Bell',
-  },
-  {
-    id: 'odemelerim',
-    label: 'Ödemelerim',
-    href: DASHBOARD_ROUTES.odemelerim,
-    icon: 'CreditCard',
-  },
-  {
-    id: 'paketlerim',
-    label: 'Paketlerim',
-    href: DASHBOARD_ROUTES.paketlerim,
-    icon: 'Package',
-  },
-  {
-    id: 'ayarlar',
-    label: 'Ayarlar',
-    href: DASHBOARD_ROUTES.ayarlar,
-    icon: 'Settings',
-  },
-] as const;
+];
+
+/**
+ * Backward compatibility flat items list
+ */
+export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] = DASHBOARD_NAV_SECTIONS.flatMap(
+  (s) => s.items,
+);

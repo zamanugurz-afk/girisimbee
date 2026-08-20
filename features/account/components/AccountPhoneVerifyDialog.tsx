@@ -119,7 +119,7 @@ export function AccountPhoneVerifyDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="phone-verify-title"
-        className="relative z-10 w-full max-w-md rounded-t-2xl border border-border/80 bg-background p-5 shadow-lg sm:rounded-2xl sm:p-6 dark:border-white/10"
+        className="relative z-10 w-full max-w-md rounded-t-2xl border border-slate-200/90 bg-white p-5 shadow-2xl sm:rounded-2xl sm:p-6 dark:border-zinc-800 dark:bg-zinc-900"
       >
         <h2 id="phone-verify-title" className="font-display text-xl font-semibold text-foreground">
           Telefon doğrulama

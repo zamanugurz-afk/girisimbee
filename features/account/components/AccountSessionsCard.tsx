@@ -16,7 +16,7 @@ function formatDateTime(value: string): string {
 
 export function AccountSessionsCard({ sessions }: { sessions: AccountSecuritySession[] }) {
   return (
-    <section className="rounded-xl border border-border/80 bg-background p-5 dark:border-white/10 sm:p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
       <h2 className="font-display text-lg font-semibold text-foreground">Oturum geçmişi</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Son girişlerinizin cihaz ve konum özeti (IP kısmen maskelenir).

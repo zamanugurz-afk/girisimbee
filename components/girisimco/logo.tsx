@@ -44,11 +44,11 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
 
       {!isMark && (
         <span className="font-display text-[1.2rem] font-bold leading-none tracking-tight sm:text-[1.35rem] inline-flex items-baseline">
-          {/* 'ir' kısmı (Lacivert) */}
-          <span className="text-[#0F172A] dark:text-slate-100">ir</span>
+          {/* 'ir' kısmı (Lacivert / Dark mode Beyaz) */}
+          <span className="text-[#0F172A] dark:text-white transition-colors">ir</span>
 
           {/* 'işim' kısmı (Zümrüt Yeşili - Sola düşen çengel ile) */}
-          <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-baseline">
+          <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-baseline transition-colors">
             <span>i</span>
             <span className="relative inline-block">
               <span>s</span>
@@ -70,7 +70,7 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
           </span>
 
           {/* 'bee' kısmı (Altın Sarısı) */}
-          <span className="text-[#F59E0B]">bee</span>
+          <span className="text-[#F59E0B] dark:text-amber-400 transition-colors">bee</span>
         </span>
       )}
     </Link>

@@ -41,11 +41,11 @@ export function AccountNotificationCard({
   return (
     <article
       className={cn(
-        'group rounded-2xl border bg-card p-4 shadow-sm transition-all duration-200 sm:p-5',
-        'hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md',
+        'group rounded-2xl border p-4 shadow-xs transition-all duration-200 sm:p-5',
+        'hover:-translate-y-0.5 hover:shadow-md',
         unread
-          ? 'border-primary/30 bg-primary/[0.04] dark:bg-primary/10'
-          : 'border-border/80 dark:border-white/10 dark:bg-card/90',
+          ? 'border-amber-500/30 bg-amber-500/[0.04] dark:border-amber-500/20 dark:bg-amber-500/10'
+          : 'border-slate-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900/90',
       )}
     >
       <div className="flex gap-3 sm:gap-4">

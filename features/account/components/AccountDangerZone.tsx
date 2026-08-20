@@ -54,7 +54,7 @@ export function AccountDangerZone({ onSignOutAll }: { onSignOutAll: () => void }
   }
 
   return (
-    <section className="rounded-xl border border-destructive/30 bg-destructive/[0.03] p-5 sm:p-6">
+    <section className="rounded-2xl border border-destructive/30 bg-destructive/[0.03] p-5 shadow-xs dark:bg-destructive/[0.06] sm:p-6 transition-all">
       <h2 className="font-display text-lg font-semibold text-foreground">Hesap işlemleri</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Verilerinizi indirin veya hesabınızı silin. İspat için gerekli kayıtlar saklanabilir.
