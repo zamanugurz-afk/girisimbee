@@ -354,7 +354,29 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       careerSkillsEditor: true,
       customFieldKeys: [],
     },
-    STEP_CAREER_PREVIEW_AND_PUBLISH,
+    {
+      id: 'preferences',
+      title: 'Çalışma Tercihleri',
+      description: 'Çalışma modeli, şehir, maaş ve başlangıç zamanı',
+      careerPreferenceEditor: true,
+      customFieldKeys: [
+        'workType',
+        'workplacePreference',
+        'preferredCity',
+        'preferredDistrict',
+        'preferredDistrictOther',
+        'salaryExpectation',
+        'availability',
+      ],
+    },
+    {
+      id: 'summary',
+      title: 'Kariyer Özeti',
+      description: 'Profil özeti ve yapay zeka ile metin geliştirme',
+      coreFields: ['longDescription'],
+      customFieldKeys: [],
+    },
+    STEP_PREVIEW_AND_PUBLISH,
   ],
   [CATEGORY_IDS.iseAl]: withConsolidatedPublishFlow(
     {

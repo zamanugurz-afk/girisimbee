@@ -435,12 +435,16 @@ export function CareerExperienceEditor({
                     ))}
                   </select>
                   {roleIsManual ? (
-                    <>
+                    <div className="mt-2 space-y-1.5 rounded-xl border border-amber-300/80 bg-amber-50/60 p-3 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
+                        <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                        <span>Kendi Pozisyonunuzu / Görevinizi Yazın:</span>
+                      </div>
                       <Input
-                        className="mt-2"
+                        className="bg-white dark:bg-zinc-900 border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40"
                         value={row.roleOther ?? ''}
                         disabled={disabled}
-                        placeholder="Kendi pozisyonunuzu yazın"
+                        placeholder="Örn: Kıdemli Satış Uzmanı"
                         onKeyDown={(event) => event.stopPropagation()}
                         onChange={(e) => updateRow(row.id, { roleOther: e.target.value })}
                         onBlur={() => {
@@ -462,7 +466,7 @@ export function CareerExperienceEditor({
                           updateRow(row.id, { role: first, roleOther: '' });
                         }}
                       />
-                    </>
+                    </div>
                   ) : null}
                 </div>
 

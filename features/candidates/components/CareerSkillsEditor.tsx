@@ -181,32 +181,6 @@ export function CareerSkillsEditor({
         />
       ) : null}
 
-      <div className="space-y-1.5">
-        <Label htmlFor="leadershipExperience">
-          {isHire ? 'Yönetim / liderlik beklentisi' : 'Yönetim / liderlik deneyimi'}
-        </Label>
-        <p className="text-xs text-muted-foreground">
-          {isHire
-            ? 'Ekip, proje veya saha sorumluluğu bekliyorsanız kısaca yazın. Zorunlu değil.'
-            : 'Kariyer seviyeniz ne olursa olsun gönüllü liderlik, proje sorumluluğu veya ekip çalışmasını yazabilirsiniz.'}
-        </p>
-        <Textarea
-          id="leadershipExperience"
-          rows={3}
-          value={value.leadershipExperience}
-          disabled={disabled}
-          placeholder={
-            isHire
-              ? 'Örn: 5 kişilik saha ekibini yönetecek; hedef ve performans takibi yapacak.'
-              : 'Örn: Öğrenci kulübünde proje ekibine liderlik ettim; 5 kişilik ekiple etkinlik organize ettim.'
-          }
-          onChange={(e) => onChange({ leadershipExperience: e.target.value })}
-        />
-        {errors?.leadershipExperience ? (
-          <p className="text-sm text-destructive">{errors.leadershipExperience}</p>
-        ) : null}
-      </div>
-
       <CareerMultiSelect
         label={isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}
         options={toolOptions}

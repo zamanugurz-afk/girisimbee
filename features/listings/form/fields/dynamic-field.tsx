@@ -249,9 +249,18 @@ function FieldControl({
   }
 
   switch (field.type) {
-    case 'string':
+    case 'string': {
+      const isOtherField = field.key.endsWith('Other') || field.key.includes('Other');
       return (
-        <>
+        <div className={cn(
+          isOtherField && 'rounded-xl border border-amber-300/90 bg-amber-50/60 p-3.5 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20 space-y-1.5'
+        )}>
+          {isOtherField && (
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
+              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>Özel / Manuel Giriş Alanı:</span>
+            </div>
+          )}
           <Input
             id={id}
             lang="tr"
@@ -262,7 +271,10 @@ function FieldControl({
             disabled={disabled}
             placeholder={ui.placeholder ?? `${field.label} girin`}
             maxLength={ui.maxLength}
-            className={formControlErrorClass(error)}
+            className={cn(
+              formControlErrorClass(error),
+              isOtherField && 'bg-white dark:bg-zinc-900 border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40'
+            )}
           />
           <FormFieldFooter
             helperText={
@@ -276,8 +288,9 @@ function FieldControl({
             currentLength={ui.maxLength ? stringLength : undefined}
             maxLength={ui.maxLength}
           />
-        </>
+        </div>
       );
+    }
 
     case 'number':
     case 'percentage':
