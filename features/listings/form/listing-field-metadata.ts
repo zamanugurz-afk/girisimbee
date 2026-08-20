@@ -619,9 +619,8 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     helperText: 'Girişim veya proje aşamasını seçin.',
   },
   companyName: {
-    placeholder: 'Örn. Abc Gıda A.Ş.',
-    helperText: 'Franchise veren şirketin resmi unvanı. Her kelimenin ilk harfi büyük.',
-    maxLength: 200,
+    placeholder: 'Örn: Acme Teknoloji A.Ş.',
+    maxLength: 120,
   },
   establishmentYear: {
     placeholder: 'Örn. 2010',

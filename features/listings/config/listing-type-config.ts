@@ -628,6 +628,13 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
 export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
+      key: 'companyName',
+      label: 'Firma / Şirket Adı',
+      type: 'string',
+      required: false,
+      max: 120,
+    },
+    {
       key: 'primarySector',
       label: 'Sektör',
       type: 'enum',

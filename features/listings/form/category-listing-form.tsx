@@ -2694,6 +2694,23 @@ export function CategoryListingForm({
                       </div>
                     ) : null}
 
+                    {/* Firma / Şirket Adı */}
+                    {fieldByKey.get('companyName') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('companyName')!}
+                          value={mergedCustomFields.companyName}
+                          onChange={(val) => handleCustomFieldChange('companyName', val)}
+                          error={resolveFieldError(fieldErrors, 'companyName')}
+                          disabled={disabled || isBusy}
+                          context={{
+                            values: mergedCustomFields,
+                            coreCity: core.city ?? null,
+                          }}
+                        />
+                      </div>
+                    ) : null}
+
                     {/* Pozisyon */}
                     {fieldByKey.get('desiredRole') ? (
                       <div className="space-y-2">
