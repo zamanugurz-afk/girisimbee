@@ -142,9 +142,42 @@ const ROLE_ALIASES: Record<string, string> = {
   'asistans uzmanı': 'Operasyon Uzmanı',
   'kalite eğitim uzmanı': 'Eğitim Uzmanı',
   'çağrı merkezi müşteri temsilcileri kalite eğitim uzmanı': 'Eğitim Uzmanı',
-  'sosyal hizmetler kıdemli stajyeri': 'Sosyal Hizmetler Uzmanı',
-  'sosyal hizmetler stajyeri': 'Sosyal Hizmetler Uzmanı',
+  'sosyal hizmetler kıdemli stajyeri': 'Sosyal Hizmet Uzmanı',
+  'sosyal hizmetler stajyeri': 'Sosyal Hizmet Uzmanı',
   'okul öncesi stajyeri': 'Öğretmen',
+  'okul öncesi öğretmeni': 'Okul Öncesi Öğretmeni',
+  'öğretmen': 'Öğretmen',
+  'sosyal hizmetler uzmanı': 'Sosyal Hizmet Uzmanı',
+  'sosyal hizmet uzmanı': 'Sosyal Hizmet Uzmanı',
+  'hasta hizmetleri yöneticisi': 'Sağlık Yöneticisi',
+  'mimar': 'Mimar',
+  'şantiye şefi': 'Şantiye Şefi',
+  'mimar & şantiye şefi': 'Şantiye Şefi',
+  'avukat': 'Avukat',
+  'hukuk müşaviri': 'Hukuk Danışmanı',
+  'avukat & hukuk müşaviri': 'Avukat',
+  'tedarik zinciri müdürü': 'Tedarik Zinciri Müdürü',
+  'yapay zeka mühendisi': 'Yapay Zeka Uzmanı',
+  'araştırma görevlisi': 'Araştırma Görevlisi',
+  'ağır vasıta şoförü': 'Şoför (Kamyon / TIR)',
+  'tır şoförü': 'Şoför (Kamyon / TIR)',
+  'tır şoförü / ağır vasıta sürücüsü': 'Şoför (Kamyon / TIR)',
+  'ağır vasıta sürücüsü': 'Şoför (Kamyon / TIR)',
+  'şoför': 'Makam Şoförü / Şoför',
+  'mağaza müdürü': 'Mağaza Müdürü',
+  'ön büro müdürü': 'Ön Büro Müdürü',
+  'siber güvenlik uzmanı': 'Siber Güvenlik Uzmanı',
+  'qa automation engineer': 'Yazılım Test Mühendisi',
+  'test otomasyon mühendisi': 'Yazılım Test Mühendisi',
+  'senior qa automation engineer': 'Yazılım Test Mühendisi',
+  'mobil yazılım geliştirici': 'Mobil Uygulama Geliştirici',
+  'dijital pazarlama ve seo uzmanı': 'Dijital Pazarlama Uzmanı',
+  'dijital pazarlama uzmanı': 'Dijital Pazarlama Uzmanı',
+  'insan kaynakları iş ortağı': 'İnsan Kaynakları Uzmanı',
+  'insan kaynakları uzmanı': 'İnsan Kaynakları Uzmanı',
+  'kıdemli finansal analist': 'Finansal Analist',
+  'ulusal zincir mağazalar satış müdürü': 'Satış Müdürü',
+  'finansal denetim stajyeri': 'Denetim Uzmanı',
 
   // Finance, Economics, Banking & Investment
   'ekonomi & finans uzmanı': 'Finans Uzmanı',
@@ -173,6 +206,11 @@ const SECTOR_ALIASES: Record<string, string> = {
   'bilişim': 'Bilişim / Yazılım',
   'yazılım': 'Bilişim / Yazılım',
   'bilgi teknolojileri': 'Bilişim / Yazılım',
+  'yapay zeka': 'Yapay zeka / Veri',
+  'veri bilimi': 'Yapay zeka / Veri',
+  'data science': 'Yapay zeka / Veri',
+  'siber güvenlik': 'Bilişim / Yazılım',
+  'cyber security': 'Bilişim / Yazılım',
 
   'finance': 'Finans / Bankacılık',
   'banking': 'Finans / Bankacılık',
@@ -196,6 +234,9 @@ const SECTOR_ALIASES: Record<string, string> = {
   'call center': 'Çağrı merkezi',
   'çağrı merkezi': 'Çağrı merkezi',
   'cagri merkezi': 'Çağrı merkezi',
+  'customer service': 'Müşteri hizmetleri',
+  'customer success': 'Müşteri hizmetleri',
+  'müşteri hizmetleri': 'Müşteri hizmetleri',
 
   'sales': 'Satış',
   'satış': 'Satış',
@@ -205,12 +246,12 @@ const SECTOR_ALIASES: Record<string, string> = {
   'insan kaynakları': 'İnsan kaynakları',
   'personel': 'İnsan kaynakları',
 
-  'sağlık': 'Sağlık / Medikal',
-  'saglik': 'Sağlık / Medikal',
-  'sağlık sektörü': 'Sağlık / Medikal',
-  'health': 'Sağlık / Medikal',
-  'healthcare': 'Sağlık / Medikal',
-  'hospital': 'Sağlık / Medikal',
+  'sağlık': 'Sağlık',
+  'saglik': 'Sağlık',
+  'sağlık sektörü': 'Sağlık',
+  'health': 'Sağlık',
+  'healthcare': 'Sağlık',
+  'hospital': 'Sağlık',
 
   'gıda': 'Gıda / Restoran',
   'gida': 'Gıda / Restoran',
@@ -221,10 +262,10 @@ const SECTOR_ALIASES: Record<string, string> = {
   'perakende': 'Perakende / Mağaza',
   'mağaza': 'Perakende / Mağaza',
   'mağazacılık': 'Perakende / Mağaza',
-  'e-commerce': 'E-Ticaret / Perakende',
-  'ecommerce': 'E-Ticaret / Perakende',
-  'e-ticaret': 'E-Ticaret / Perakende',
-  'eticaret': 'E-Ticaret / Perakende',
+  'e-commerce': 'E-ticaret / Pazaryeri',
+  'ecommerce': 'E-ticaret / Pazaryeri',
+  'e-ticaret': 'E-ticaret / Pazaryeri',
+  'eticaret': 'E-ticaret / Pazaryeri',
 
   'production': 'Üretim / Sanayi',
   'manufacturing': 'Üretim / Sanayi',
@@ -237,15 +278,34 @@ const SECTOR_ALIASES: Record<string, string> = {
   'real estate': 'İnşaat / Gayrimenkul',
   'inşaat': 'İnşaat / Gayrimenkul',
   'gayrimenkul': 'İnşaat / Gayrimenkul',
+  'mimarlık': 'İnşaat / Gayrimenkul',
+  'şantiye': 'İnşaat / Gayrimenkul',
 
   'logistics': 'Lojistik / Depolama',
   'transportation': 'Lojistik / Depolama',
   'lojistik': 'Lojistik / Depolama',
+  'tedarik zinciri': 'Lojistik / Depolama',
+  'ulaşım': 'Ulaşım / Şoförlük',
+  'şoförlük': 'Ulaşım / Şoförlük',
 
   'marketing': 'Pazarlama / Reklam',
   'advertising': 'Pazarlama / Reklam',
   'pazarlama': 'Pazarlama / Reklam',
   'reklam': 'Pazarlama / Reklam',
+  'dijital pazarlama': 'Pazarlama / Reklam',
+
+  'hukuk': 'Hukuk',
+  'law': 'Hukuk',
+  'avukatlık': 'Hukuk',
+
+  'education': 'Eğitim',
+  'eğitim': 'Eğitim',
+  'öğretmenlik': 'Eğitim',
+  'akademik': 'Eğitim',
+
+  'sosyal hizmet': 'Sosyal hizmet / STK',
+  'sosyal hizmetler': 'Sosyal hizmet / STK',
+  'stk': 'Sosyal hizmet / STK',
 
   'energy': 'Enerji',
   'enerji': 'Enerji',
@@ -253,6 +313,7 @@ const SECTOR_ALIASES: Record<string, string> = {
   'otomotiv': 'Otomotiv',
   'tourism': 'Turizm / Otelcilik',
   'turizm': 'Turizm / Otelcilik',
+  'otelcilik': 'Turizm / Otelcilik',
 };
 
 function normalizeTrMatch(s: string): string {
@@ -282,7 +343,12 @@ export function matchCanonicalPosition(rawRole: string): {
   const norm = normalizeTrMatch(rawRole);
   const allPositions = getAllTaxonomyPositions();
 
-  // 1. Direct Alias Match
+  // 1. Direct Canonical Match or Direct Alias Match
+  const exactCanonical = allPositions.find((p) => p.toLowerCase() === clean || normalizeTrMatch(p) === norm);
+  if (exactCanonical) {
+    return { canonical: exactCanonical, isAmbiguous: false, candidates: [exactCanonical] };
+  }
+
   if (ROLE_ALIASES[clean]) {
     return {
       canonical: ROLE_ALIASES[clean],
@@ -291,10 +357,9 @@ export function matchCanonicalPosition(rawRole: string): {
     };
   }
 
-  // Check normalized alias key
+  // 2. Exact Normalized Alias Match
   for (const [aliasKey, canonicalVal] of Object.entries(ROLE_ALIASES)) {
-    const aliasNorm = normalizeTrMatch(aliasKey);
-    if (norm === aliasNorm || norm.includes(aliasNorm)) {
+    if (normalizeTrMatch(aliasKey) === norm) {
       return {
         canonical: canonicalVal,
         isAmbiguous: false,
@@ -303,10 +368,17 @@ export function matchCanonicalPosition(rawRole: string): {
     }
   }
 
-  // 2. Exact match in taxonomy (normalized)
-  const exact = allPositions.find((p) => normalizeTrMatch(p) === norm);
-  if (exact) {
-    return { canonical: exact, isAmbiguous: false, candidates: [exact] };
+  // 3. Sorted Substring Alias Match (longest first)
+  const sortedAliases = Object.entries(ROLE_ALIASES).sort((a, b) => b[0].length - a[0].length);
+  for (const [aliasKey, canonicalVal] of sortedAliases) {
+    const aliasNorm = normalizeTrMatch(aliasKey);
+    if (aliasNorm.length >= 5 && norm.includes(aliasNorm)) {
+      return {
+        canonical: canonicalVal,
+        isAmbiguous: false,
+        candidates: [canonicalVal],
+      };
+    }
   }
 
   // 3. Relevance-scored candidate match
@@ -446,6 +518,32 @@ export function matchCanonicalSector(rawSector: string): {
   };
 }
 
+export function inferSectorFromRole(role: string): string {
+  if (!role) return '';
+  const r = normalizeTrMatch(role);
+  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber/i.test(r)) return 'Bilişim / Yazılım';
+  if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data/i.test(r)) return 'Yapay zeka / Veri';
+  if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi/i.test(r)) return 'Finans / Bankacılık';
+  if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
+  if (/sigorta|hasar|aktuer|underwrit/i.test(r)) return 'Sigorta';
+  if (/cagri\s*merkezi|call\s*center/i.test(r)) return 'Çağrı merkezi';
+  if (/musteri\s*(hizmet|iliski|basari|temsil)/i.test(r)) return 'Müşteri hizmetleri';
+  if (/insan\s*kaynak|hr|recruiter|yetenek|bordro/i.test(r)) return 'İnsan kaynakları';
+  if (/mimar|insaat|santiye|gayrimenkul|emlak/i.test(r)) return 'İnşaat / Gayrimenkul';
+  if (/tedarik|lojistik|depo|sevkiyat/i.test(r)) return 'Lojistik / Depolama';
+  if (/sofor|surucu|kurye|nakliye|kamyon|tir/i.test(r)) return 'Ulaşım / Şoförlük';
+  if (/avukat|hukuk|legal/i.test(r)) return 'Hukuk';
+  if (/ogretmen|egitim|akademisyen|arastirma\s*gorev/i.test(r)) return 'Eğitim';
+  if (/saglik|doktor|hemsire|hasta\s*hizmet|medikal/i.test(r)) return 'Sağlık';
+  if (/pazarlama|marketing|seo|sosyal\s*medya/i.test(r)) return 'Pazarlama / Reklam';
+  if (/satis|sales|is\s*gelistirme/i.test(r)) return 'Satış';
+  if (/magaza|kasiyer|perakende/i.test(r)) return 'Perakende / Mağaza';
+  if (/otel|resepsiyon|on\s*buro|turizm/i.test(r)) return 'Turizm / Otelcilik';
+  if (/sosyal\s*hizmet|stk|vakif|dernek/i.test(r)) return 'Sosyal hizmet / STK';
+  if (/uretim|imalat|sanayi|fabrika|makine\s*muhend/i.test(r)) return 'Üretim / Sanayi';
+  return '';
+}
+
 /**
  * Maps raw extraction payload into Girişimbee canonical taxonomy.
  */
@@ -494,23 +592,14 @@ export function mapCvToCanonicalTaxonomy(
       const match = matchCanonicalSector(exp.sector);
       if (match.canonical) return match.canonical;
     }
+    if (exp.role) {
+      const fromRole = inferSectorFromRole(exp.role);
+      if (fromRole) return fromRole;
+    }
     const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
-    if (text.includes('banka') || text.includes('yatırım') || text.includes('finans') || text.includes('kredi') || text.includes('borsa')) {
-      return 'Finans / Bankacılık';
-    }
-    if (text.includes('sigorta') || text.includes('emeklilik') || text.includes('hayat')) {
-      return 'Sigorta';
-    }
-    if (text.includes('çağrı') || text.includes('cagri') || text.includes('call center') || text.includes('telemarketing') || text.includes('mplus') || text.includes('mehrwerk')) {
-      return 'Çağrı merkezi';
-    }
-    if (text.includes('yazılım') || text.includes('bilişim') || text.includes('developer') || text.includes('teknoloji')) {
-      return 'Bilişim / Yazılım';
-    }
-    if (text.includes('satış') || text.includes('sales')) {
-      return 'Satış';
-    }
-    return matchedSectors[0] || 'Finans / Bankacılık';
+    const fromText = inferSectorFromRole(text);
+    if (fromText) return fromText;
+    return matchedSectors[0] || 'Bilişim / Yazılım';
   };
 
   // 3. Map Experiences
@@ -651,11 +740,13 @@ export function mapCvToCanonicalTaxonomy(
   const candidateHeadlineRole = payload.roles?.[0] ? matchCanonicalPosition(payload.roles[0]).canonical : '';
   const mostRecentRole = experiences[0]?.role ? matchCanonicalPosition(experiences[0].role).canonical : '';
   const mostRecentSector = experiences[0]?.sector || '';
+  const resolvedRole = mostRecentRole || candidateHeadlineRole || matchedRoles[0] || (experiences[0]?.role ?? '');
+  const roleInferredSector = inferSectorFromRole(resolvedRole);
 
   return {
-    primaryRole: mostRecentRole || candidateHeadlineRole || matchedRoles[0] || (experiences[0]?.role ?? ''),
+    primaryRole: resolvedRole,
     matchedRoles,
-    primarySector: mostRecentSector || matchedSectors[0] || '',
+    primarySector: mostRecentSector || roleInferredSector || matchedSectors[0] || '',
     matchedSectors,
     professionalSkills: [...new Set(professionalSkills)],
     technicalSkills: [...new Set(technicalSkills)],

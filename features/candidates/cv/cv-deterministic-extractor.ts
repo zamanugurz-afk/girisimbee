@@ -308,6 +308,14 @@ export const KNOWN_TOOLS_DICTIONARY: Record<string, string> = {
   angular: 'Angular',
   vue: 'Vue.js',
   'vue.js': 'Vue.js',
+  flutter: 'Flutter',
+  swift: 'Swift',
+  kotlin: 'Kotlin',
+  selenium: 'Selenium',
+  cypress: 'Cypress',
+  autocad: 'AutoCAD',
+  revit: 'Revit',
+  siem: 'SIEM',
   'cisco ccna': 'Cisco CCNA',
   ccna: 'Cisco CCNA',
 
@@ -381,8 +389,11 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   tourism: 'Turizm / Otelcilik',
   hospitality: 'Turizm / Otelcilik',
 
-  egitim: 'Eğitim',
-  education: 'Eğitim',
+  'egitim sektoru': 'Eğitim',
+  'egitim kurumlari': 'Eğitim',
+  'ozel okul': 'Eğitim',
+  'anaokulu': 'Eğitim',
+  'kolej': 'Eğitim',
   edtech: 'Eğitim',
 
   gayrimenkul: 'Gayrimenkul',
@@ -592,21 +603,10 @@ export function isRoleTitle(line: string): boolean {
   if (clean.endsWith('.') || clean.endsWith(';') || clean.endsWith(':')) return false;
 
   const norm = normalizeTrForMatch(clean);
-  // Block company / institution suffixes
+  // Block company / institution suffixes (as standalone words)
   if (
-    norm.includes('hizmetleri') ||
-    norm.includes('insaat') ||
-    norm.includes('belediyesi') ||
-    norm.includes('universitesi') ||
-    norm.includes('enstitusu') ||
-    norm.includes('holding') ||
-    norm.includes('a s') ||
-    norm.includes('ltd') ||
-    norm.includes('sti') ||
-    norm.includes('sirketi') ||
-    norm.includes('kurumu') ||
-    norm.includes('bakanligi') ||
-    norm.includes('mudurlugu')
+    /\b(belediyesi|universitesi|enstitusu|holding|ltd|sti|sirketi|kurumu|bakanligi|mudurlugu)\b/i.test(norm) ||
+    /\ba\s*s\b/i.test(norm)
   ) {
     return false;
   }
@@ -881,39 +881,64 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
 // ============================================================================
 
 function isEduSectionHeader(line: string): boolean {
-  if (!line || line.length > 45) return false;
-  const norm = normalizeTrForMatch(line).replace(/[^a-z]/g, '');
+  if (!line || line.length > 45 || line.includes(',') || line.includes('.')) return false;
+  const norm = normalizeTrForMatch(line).replace(/[^a-z0-9]/g, '');
   return (
-    norm.startsWith('egitim') ||
-    norm.startsWith('education') ||
-    norm.startsWith('academic') ||
-    norm.startsWith('ogrenim')
+    norm === 'egitim' ||
+    norm === 'egitimbilgileri' ||
+    norm === 'egitimgecmisi' ||
+    norm === 'education' ||
+    norm === 'academichistory' ||
+    norm === 'academic' ||
+    norm === 'ogrenim' ||
+    norm === 'ogrenimbilgileri'
   );
 }
 
 function isOtherSectionHeader(line: string): boolean {
-  if (!line || line.length > 50) return false;
-  const norm = normalizeTrForMatch(line);
+  if (!line || line.length > 45 || line.includes(',') || line.includes('.')) return false;
+  const norm = normalizeTrForMatch(line).replace(/[^a-z0-9]/g, '');
   return (
-    norm.startsWith('is deneyim') ||
-    norm.startsWith('deneyim') ||
-    norm.startsWith('work experience') ||
-    norm.startsWith('experience') ||
-    norm.startsWith('staj') ||
-    norm.startsWith('yetkinlik') ||
-    norm.startsWith('yetenek') ||
-    norm.startsWith('skills') ||
-    norm.startsWith('beceri') ||
-    norm.startsWith('sertifika') ||
-    norm.startsWith('diller') ||
-    norm.startsWith('languages') ||
-    norm.startsWith('projeler') ||
-    norm.startsWith('referans') ||
-    norm.startsWith('iletisim') ||
-    norm.startsWith('contact') ||
-    norm.startsWith('hakkimda') ||
-    norm.startsWith('ozet') ||
-    norm.startsWith('summary')
+    norm === 'isdeneyimleri' ||
+    norm === 'isdeneyimi' ||
+    norm === 'deneyimler' ||
+    norm === 'deneyim' ||
+    norm === 'isgecmisi' ||
+    norm === 'workexperience' ||
+    norm === 'experience' ||
+    norm === 'employmenthistory' ||
+    norm === 'stajvedeneyim' ||
+    norm === 'staj' ||
+    norm === 'internships' ||
+    norm === 'yetkinlikler' ||
+    norm === 'yetkinlik' ||
+    norm === 'yetenekler' ||
+    norm === 'yetenek' ||
+    norm === 'skills' ||
+    norm === 'beceriler' ||
+    norm === 'beceri' ||
+    norm === 'sertifikalar' ||
+    norm === 'sertifika' ||
+    norm === 'certificates' ||
+    norm === 'certifications' ||
+    norm === 'diller' ||
+    norm === 'languages' ||
+    norm === 'projeler' ||
+    norm === 'projects' ||
+    norm === 'referanslar' ||
+    norm === 'referans' ||
+    norm === 'references' ||
+    norm === 'iletisim' ||
+    norm === 'contact' ||
+    norm === 'hakkimda' ||
+    norm === 'about' ||
+    norm === 'ozet' ||
+    norm === 'summary' ||
+    norm === 'profil' ||
+    norm === 'profile' ||
+    norm === 'hobiler' ||
+    norm === 'hobi' ||
+    norm === 'interests'
   );
 }
 
@@ -1137,8 +1162,9 @@ function isEduLine(line: string): boolean {
     norm.includes('myo') ||
     norm.includes('yuksek lisans') ||
     norm.includes('on lisans') ||
-    norm.includes('lisans:') ||
-    norm.startsWith('lisans') ||
+    norm.includes('doktora') ||
+    norm.includes('phd') ||
+    norm.includes('lisans') ||
     norm.startsWith('egitim') ||
     norm.startsWith('ogrenim') ||
     norm.startsWith('education')
@@ -1154,7 +1180,6 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const norm = normalizeTrForMatch(line);
 
     if (isExperienceSectionHeader(line)) {
       inExpSection = true;
@@ -1162,23 +1187,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
 
     if (inExpSection) {
-      if (
-        norm.startsWith('egitim') ||
-        norm.startsWith('education') ||
-        norm.startsWith('academic') ||
-        norm.startsWith('yetkinlik') ||
-        norm.startsWith('yetenek') ||
-        norm.startsWith('skills') ||
-        norm.startsWith('beceri') ||
-        norm.startsWith('sertifika') ||
-        norm.startsWith('diller') ||
-        norm.startsWith('languages') ||
-        norm.startsWith('projeler') ||
-        norm.startsWith('referans') ||
-        norm.startsWith('hobi') ||
-        norm.startsWith('ozel bilgi') ||
-        norm.startsWith('kisisel')
-      ) {
+      if ((isOtherSectionHeader(line) || isEduSectionHeader(line)) && !isExperienceSectionHeader(line)) {
         break;
       }
       expLines.push(line);
@@ -1224,7 +1233,9 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       // Don't treat section headers as company/role/responsibility
       continue;
     }
-    if (isEduLine(line) || isEduSectionHeader(line) || isOtherSectionHeader(line)) {
+    const hasDate = Boolean(parseDateRangeText(line));
+    const isDegreeEdu = /lisans|doktora|phd|master|bachelor|lise|myo|fakulte|enstitu/i.test(normalizeTrForMatch(line));
+    if (isEduSectionHeader(line) || isOtherSectionHeader(line) || isDegreeEdu || (isEduLine(line) && !hasDate)) {
       if (currentExp && (currentExp.company || currentExp.role)) {
         flushExp();
       }
@@ -1648,7 +1659,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     exp.push({
       role: skillsAndTools.roles[0] || 'Uzman',
       company: undefined,
-      sector: skillsAndTools.sectors[0] || 'Finans / Bankacılık',
+      sector: skillsAndTools.sectors[0] || '',
       duration: undefined,
       isCurrent: false,
       responsibilities: '',

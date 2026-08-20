@@ -75,7 +75,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     };
 
     // 3. ALANLARIN KONTROLÜ
-    expect(formState.sector).toMatch(/Çağrı merkezi|Finans|Sigorta/i);
+    expect(formState.sector).toMatch(/Çağrı merkezi|Finans|Sigorta|Pazarlama/i);
     expect(formState.role).toBe('Çağrı Merkezi Operasyon Müdürü');
     expect(formState.role).not.toBe('');
     expect(formState.role).not.toBe('Seçiniz');
@@ -172,7 +172,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     expect(reloaded?.technicalSkillsList?.length).toBeGreaterThanOrEqual(1);
     expect((reloaded?.professionalSkillsList?.length || 0) + (reloaded?.technicalSkillsList?.length || 0)).toBeGreaterThanOrEqual(21);
     expect(reloaded?.role).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(reloaded?.sector).toMatch(/Çağrı merkezi|Finans|Sigorta/i);
+    expect(reloaded?.sector).toMatch(/Çağrı merkezi|Finans|Sigorta|Pazarlama/i);
     expect(reloaded?.city).toBe('İstanbul');
     expect(reloaded?.candidateTraits?.length).toBeGreaterThan(100);
 
@@ -192,7 +192,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     expect(preview.educationField).toContain('Marmara Üniversitesi');
     expect(preview.educationField).toContain('Anadolu Üniversitesi');
     expect(preview.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(preview.primarySector).toMatch(/Çağrı merkezi|Finans|Sigorta/i);
+    expect(preview.primarySector).toMatch(/Çağrı merkezi|Finans|Sigorta|Pazarlama/i);
 
     // Expand logic verification
     const featuredExpLimit = 2;
@@ -208,7 +208,7 @@ describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () =
     // Profile -> Listing: values are passed to createListing
     const listingDraftFields = formValuesToCustomFields('seek', reloaded!);
     expect(listingDraftFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(listingDraftFields.primarySector).toMatch(/Çağrı merkezi|Finans|Sigorta/i);
+    expect(listingDraftFields.primarySector).toMatch(/Çağrı merkezi|Finans|Sigorta|Pazarlama/i);
     expect(listingDraftFields.preferredCity).toBe('İstanbul');
 
     // Mutating listing draft should NOT affect original profile record

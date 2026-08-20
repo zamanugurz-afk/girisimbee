@@ -22,9 +22,9 @@ export function evaluateAiCallGate(
 ): AiGateDecision {
   const hasExperiences = deterministicPayload.experiences && deterministicPayload.experiences.length >= 1;
   const hasEducation = deterministicPayload.education && deterministicPayload.education.length >= 1;
-  const hasSkills = deterministicPayload.skills && deterministicPayload.skills.length >= 4;
+  const hasSkills = Boolean(deterministicPayload.skills && deterministicPayload.skills.length >= 1);
   const hasRole = (deterministicPayload.roles && deterministicPayload.roles.length > 0) || Boolean(deterministicPayload.experiences?.[0]?.role);
-  const hasSector = deterministicPayload.sectors && deterministicPayload.sectors.length > 0;
+  const hasSector = (deterministicPayload.sectors && deterministicPayload.sectors.length > 0) || Boolean(deterministicPayload.experiences?.[0]?.role);
   const hasSummary = Boolean(deterministicPayload.summary && deterministicPayload.summary.length >= 30);
 
   // If deterministic extraction succeeded across all essential dimensions, SKIP AI COMPLETELY!

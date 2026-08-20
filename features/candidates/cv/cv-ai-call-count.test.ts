@@ -42,20 +42,10 @@ describe('CV AI Call Count QA', () => {
 
     const sampleCvText = `
 Uğur Zaman
-Senior Software Developer
-İzmir, Türkiye
-İletişim: [EMAIL] | [PHONE] | [LINKEDIN]
-
-DENEYİM
-Senior Software Developer — Tech A.Ş. (2020 - 2024)
-- Mikroservis mimarisi geliştirme ve ekip liderliği.
-- Sistem yanıt süresini %35 iyileştirdi.
-
-YETKİNLİKLER & ARAÇLAR
-TypeScript, Node.js, PostgreSQL, Docker, Sistem Mimarisi, Git, Kubernetes, Postman
-
-EĞİTİM
-Ege Üniversitesi — Bilgisayar Mühendisliği (Lisans)
+Senior Software Developer - İzmir
+5 yıllık deneyimim boyunca çeşitli firmalarda mikroservis mimarileri, backend sistemleri geliştirdim.
+Ege Üniversitesi Bilgisayar Mühendisliği mezunuyum.
+Teknolojiler: Node.js, TypeScript, PostgreSQL, Docker.
     `.trim();
 
     const buffer = Buffer.from(sampleCvText, 'utf8');

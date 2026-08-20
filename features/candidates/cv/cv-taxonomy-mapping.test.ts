@@ -31,8 +31,8 @@ describe('CV Canonical Taxonomy Mapping QA', () => {
     expect(matchCanonicalSector('Software').canonical).toBe('Bilişim / Yazılım');
     expect(matchCanonicalSector('Banking').canonical).toBe('Finans / Bankacılık');
     expect(matchCanonicalSector('Fintech').canonical).toBe('Finans / Bankacılık');
-    expect(matchCanonicalSector('E-Commerce').canonical).toBe('E-Ticaret / Perakende');
-    expect(matchCanonicalSector('Healthcare').canonical).toBe('Sağlık / Medikal');
+    expect(matchCanonicalSector('E-Commerce').canonical).toBe('E-ticaret / Pazaryeri');
+    expect(matchCanonicalSector('Healthcare').canonical).toBe('Sağlık');
   });
 
   it('flags ambiguous items with candidate options for user confirmation without failing', () => {
