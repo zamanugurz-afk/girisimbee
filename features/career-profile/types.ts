@@ -63,6 +63,7 @@ export interface CareerProfileFormValues {
   salaryMax?: number | null;
 
   // Personal / demographics (for job seeker)
+  fullName?: string;
   profileGender?: string;
   birthDate?: string;
   residenceCity?: string;
