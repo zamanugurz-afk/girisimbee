@@ -269,3 +269,31 @@ export function isCorporateEntity(line: string): boolean {
 
   return CORPORATE_DIRECTORATE_BLACKLIST_REGEX.test(norm);
 }
+
+// 8. Universal Education Degree Parser
+export function parseUniversalEducationLevel(text: string): 'Doktora' | 'Yüksek Lisans' | 'Lisans' | 'Ön Lisans' | 'Lise' | 'İlköğretim' | null {
+  const norm = normalizeTrUniversal(text);
+  if (/\b(?:doktora|ph\.?d|phd|dr\b|sanatta\s*yeterlik)\b/i.test(norm)) return 'Doktora';
+  if (/\b(?:y[uü]ksek\s*lisans|master|m\.?sc|m\.?a|mba|tezli\s*y[uü]ksek|tezsiz\s*y[uü]ksek|postgraduate)\b/i.test(norm)) return 'Yüksek Lisans';
+  if (/\b(?:lisans|bachelor|b\.?sc|b\.?a|fak[uü]lte|m[uü]hendisli[gğ]i|i[sş]letme|iktisat)\b/i.test(norm) && !norm.includes('on lisans') && !norm.includes('ön lisans')) return 'Lisans';
+  if (/\b(?:[oö]n\s*lisans|myo|meslek\s*y[uü]ksek\s*okulu|associate\s*degree)\b/i.test(norm)) return 'Ön Lisans';
+  if (/\b(?:lise|anadolu\s*lisesi|fen\s*lisesi|meslek\s*lisesi|teknik\s*lise|imam\s*hatip|high\s*school)\b/i.test(norm)) return 'Lise';
+  return null;
+}
+
+// 9. Universal Driver License Parser
+export function parseUniversalDriverLicense(text: string): string[] {
+  const norm = normalizeTrUniversal(text);
+  const found: string[] = [];
+  const licenseMatch = norm.match(/(?:ehliyet|surucu\s*belgesi|surucu\s*ehliyeti|driver\s*licen[sc]e)[\s:]*([a-z0-9,\s\-+/]+)/i);
+  if (licenseMatch) {
+    const rawClasses = licenseMatch[1].toUpperCase();
+    const classes = ['A1', 'A2', 'A', 'B1', 'B', 'BE', 'C1', 'C1E', 'C', 'CE', 'D1', 'D1E', 'D', 'DE', 'F', 'G', 'M'];
+    for (const c of classes) {
+      if (new RegExp(`(?:^|[^A-Z0-9])${c}(?:$|[^A-Z0-9])`, 'i').test(rawClasses)) {
+        found.push(c);
+      }
+    }
+  }
+  return found;
+}

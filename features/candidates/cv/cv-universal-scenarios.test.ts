@@ -106,8 +106,8 @@ Sertifikalar ve Yetkinlikler:
 - MEB Ustalık Belgesi
 `;
       const certs = scanUniversalCertificates(text);
-      expect(certs).toContain('SEGEM');
-      expect(certs).toContain('SPK Düzey 3');
+      expect(certs.some((c) => c.includes('SEGEM'))).toBe(true);
+      expect(certs.some((c) => c.includes('SPK Düzey 3'))).toBe(true);
       expect(certs).toContain('AWS Certified Solutions Architect');
       expect(certs).toContain('CKA (Certified Kubernetes Administrator)');
       expect(certs).toContain('Certified Information Systems Security Professional (CISSP)');
@@ -274,6 +274,192 @@ SERTİFİKALAR
       expect(draft.formValues.residenceDistrict).toBe('Çankaya');
       expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.certificates).toContain('İSG A Sınıfı');
+    });
+
+    it('Archetype D: Senior Cloud & Cyber Security Architect', () => {
+      const cv = `
+Canberk Yıldız
+İzmir / Konak
+0542 333 44 55
+
+İŞ DENEYİMİ
+Cloud Infrastructure & Security Architect
+Trendyol, İzmir
+Oca 2021 - Günümüz
+* AWS ve Azure multi-cloud Kubernetes altyapılarının güvenliğini ve CI/CD pipeline süreçlerini yönettim.
+
+DevSecOps Engineer
+Getir, İstanbul
+Haz 2018 - Ara 2020
+* Kubernetes (CKA) küme yönetimi, Terraform altyapı otomasyonu ve SOC SIEM entegrasyonları.
+
+EĞİTİM
+İYTE - Bilgisayar Mühendisliği (Lisans)
+2014 - 2018
+
+SERTİFİKALAR
+AWS Certified Solutions Architect, CKA (Certified Kubernetes Administrator), CISSP, CEH
+`;
+      const raw = extractDeterministicCv(cv);
+      const canonical = mapCvToCanonicalTaxonomy(raw);
+      const draft = buildProfileDraftFromCanonicalResult(canonical, 'canberk.pdf');
+
+      expect(raw.experiences.length).toBe(2);
+      expect(draft.formValues.role).toMatch(/DevOps Mühendisi|Siber Güvenlik Uzmanı|Yazılım Geliştirici/i);
+      expect(draft.formValues.sector).toBe('Bilişim / Yazılım');
+      expect(draft.formValues.city).toBe('İzmir');
+      expect(draft.formValues.residenceDistrict).toBe('Konak');
+      expect(draft.formValues.profileGender).toBe('Erkek');
+      expect(draft.formValues.certificates).toContain('AWS Certified Solutions Architect');
+      expect(draft.formValues.certificates).toContain('CKA (Certified Kubernetes Administrator)');
+    });
+
+    it('Archetype E: Logistics & Heavy Vehicle Fleet Driver with SRC 5 (ADR) and Forklift License', () => {
+      const cv = `
+Hasan Hüseyin Çelik
+Kocaeli / Gebze
+0555 123 45 67
+Ehliyet: B, CE, G (Forklift)
+
+DENEYİM
+Ağır Vasıta Şoförü
+Ekol Lojistik, Kocaeli
+May 2019 - Halen
+* Uluslararası ve yurtiçi tehlikeli madde (ADR) ve konteyner taşımacılığı.
+
+Forklift Operatörü
+Borusan Lojistik, Kocaeli
+Oca 2016 - Nis 2019
+* Depo içi yükleme, boşaltma ve istifleme operasyonları.
+
+BELGELER
+SRC 4 (Yurtiçi Eşya Taşımacılığı), SRC 5 (ADR Tehlikeli Madde), Psikoteknik Belgesi, Forklift Ehliyeti (G Sınıfı)
+`;
+      const raw = extractDeterministicCv(cv);
+      const canonical = mapCvToCanonicalTaxonomy(raw);
+      const draft = buildProfileDraftFromCanonicalResult(canonical, 'hasan.pdf');
+
+      expect(raw.experiences.length).toBe(2);
+      expect(draft.formValues.role).toMatch(/Şoför|TIR|Kamyon|Ağır Vasıta/i);
+      expect(draft.formValues.city).toBe('Kocaeli');
+      expect(draft.formValues.residenceDistrict).toBe('Gebze');
+      expect(draft.formValues.profileGender).toBe('Erkek');
+      expect(draft.formValues.certificates).toContain('SRC 5 (ADR Tehlikeli Madde Taşımacılığı)');
+      expect(draft.formValues.certificates).toContain('Psikoteknik Değerlendirme Raporu');
+      expect(draft.formValues.certificates).toContain('Forklift Operatörlük Belgesi (G Sınıfı)');
+    });
+
+    it('Archetype F: Executive Chef & Barista Specialist with MEB Ustalık and SCA Barista', () => {
+      const cv = `
+Zeynep Bahar Demir
+Antalya / Muratpaşa
+0530 444 55 66
+
+DENEYİM
+Executive Chef
+Rixos Hotels, Antalya
+Nis 2020 - Halen
+* Akdeniz ve dünya mutfağı menü tasarımı, maliyet kontrolü ve mutfak ekibi yönetimi.
+
+Sous Chef
+Divan Restoranları, İstanbul
+Oca 2016 - Mar 2020
+* A la carte servis ve HACCP gıda güvenliği standartlarının uygulanması.
+
+EĞİTİM
+Akdeniz Üniversitesi - Gastronomi ve Mutfak Sanatları (Lisans)
+2012 - 2016
+
+SERTİFİKALAR
+MEB Ustalık Belgesi, SCA Barista Sertifikası, HACCP Gıda Güvenliği, Hijyen Eğitimi Belgesi
+`;
+      const raw = extractDeterministicCv(cv);
+      const canonical = mapCvToCanonicalTaxonomy(raw);
+      const draft = buildProfileDraftFromCanonicalResult(canonical, 'zeynep.pdf');
+
+      expect(raw.experiences.length).toBe(2);
+      expect(draft.formValues.role).toMatch(/Aşçı|Chef/i);
+      expect(draft.formValues.city).toBe('Antalya');
+      expect(draft.formValues.residenceDistrict).toBe('Muratpaşa');
+      expect(draft.formValues.profileGender).toBe('Kadın');
+      expect(draft.formValues.certificates).toContain('MEB Ustalık Belgesi');
+      expect(draft.formValues.certificates).toContain('HACCP Gıda Güvenliği');
+    });
+
+    it('Archetype G: SMMM / Independent Auditor with SPK Düzey 3 and CFA', () => {
+      const cv = `
+Ahmet Serdar Yılmaz
+Bursa / Nilüfer
+0532 777 88 99
+
+İŞ DENEYİMİ
+Mali Müşavir
+PwC Türkiye, Bursa
+Oca 2020 - Halen
+* Kurumsal firmalarda vergi denetimi, IFRS mali tablo hazırlığı ve KDV iade süreçleri.
+
+İç Denetçi
+Oyak Renault, Bursa
+Eyl 2016 - Ara 2019
+* Mali denetim, risk değerlendirmesi ve iç kontrol sistemlerinin test edilmesi.
+
+EĞİTİM
+Uludağ Üniversitesi - İktisat (Lisans)
+2011 - 2015
+
+BELGELER
+SMMM Ruhsatı, SPK Düzey 3 Lisansı, CFA Level 1, IFRS Sertifikası
+`;
+      const raw = extractDeterministicCv(cv);
+      const canonical = mapCvToCanonicalTaxonomy(raw);
+      const draft = buildProfileDraftFromCanonicalResult(canonical, 'ahmet.pdf');
+
+      expect(raw.experiences.length).toBe(2);
+      expect(draft.formValues.role).toBe('Mali Müşavir');
+      expect(draft.formValues.sector).toBe('Muhasebe / Mali müşavirlik');
+      expect(draft.formValues.city).toBe('Bursa');
+      expect(draft.formValues.residenceDistrict).toBe('Nilüfer');
+      expect(draft.formValues.profileGender).toBe('Erkek');
+      expect(draft.formValues.certificates).toContain('SMMM (Serbest Muhasebeci Mali Müşavir) Ruhsatı');
+      expect(draft.formValues.certificates).toContain('SPK Düzey 3 Lisansı');
+    });
+
+    it('Archetype H: Legal Counsel & Mediator with Arabuluculuk Belgesi', () => {
+      const cv = `
+Av. Selin Gökçe
+Ankara / Çankaya
+0533 123 78 90
+
+DENEYİM
+Hukuk Müşaviri
+ASELSAN, Ankara
+Oca 2021 - Halen
+* Uluslararası sözleşmeler, savunma sanayii regülasyonları ve KVKK uyum süreçleri.
+
+Avukat
+Gökçe Hukuk Bürosu, Ankara
+Eyl 2017 - Ara 2020
+* Ticaret hukuku ve iş hukuku davaları takibi.
+
+EĞİTİM
+Ankara Üniversitesi - Hukuk Fakültesi (Lisans)
+2013 - 2017
+
+SERTİFİKALAR
+Adalet Bakanlığı Arabuluculuk Belgesi, KVKK Uyum Uzmanlığı, Bilirkişilik Sertifikası
+`;
+      const raw = extractDeterministicCv(cv);
+      const canonical = mapCvToCanonicalTaxonomy(raw);
+      const draft = buildProfileDraftFromCanonicalResult(canonical, 'selin.pdf');
+
+      expect(raw.experiences.length).toBe(2);
+      expect(draft.formValues.role).toBe('Hukuk Müşaviri');
+      expect(draft.formValues.sector).toBe('Hukuk');
+      expect(draft.formValues.city).toBe('Ankara');
+      expect(draft.formValues.residenceDistrict).toBe('Çankaya');
+      expect(draft.formValues.profileGender).toBe('Kadın');
+      expect(draft.formValues.certificates).toContain('Adalet Bakanlığı Arabuluculuk Belgesi');
+      expect(draft.formValues.certificates).toContain('Bilirkişilik Sertifikası');
     });
   });
 });
