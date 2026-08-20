@@ -41,35 +41,40 @@ export function AccountPasswordCard() {
         Hesap şifrenizi güncelleyin. Değişiklikler şu an yalnızca arayüzde simüle edilir.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-        <Field label="Mevcut şifre">
-          <Input
-            type="password"
-            autoComplete="current-password"
-            value={form.currentPassword}
-            onChange={(e) => setForm({ ...form, currentPassword: e.target.value })}
-            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
-          />
-        </Field>
-        <Field label="Yeni şifre">
-          <Input
-            type="password"
-            autoComplete="new-password"
-            value={form.newPassword}
-            onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
-            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
-          />
-        </Field>
-        <Field label="Yeni şifre tekrarı">
-          <Input
-            type="password"
-            autoComplete="new-password"
-            value={form.confirmPassword}
-            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-            className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
-          />
-        </Field>
-        <Button type="submit" className="h-8.5 rounded-xl text-xs font-bold shadow-2xs">
+      <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+        <div className="grid sm:grid-cols-3 gap-2.5">
+          <Field label="Mevcut şifre">
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={form.currentPassword}
+              onChange={(e) => setForm({ ...form, currentPassword: e.target.value })}
+              className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
+              placeholder="••••••••"
+            />
+          </Field>
+          <Field label="Yeni şifre">
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={form.newPassword}
+              onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+              className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
+              placeholder="••••••••"
+            />
+          </Field>
+          <Field label="Yeni şifre tekrarı">
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+              className="rounded-xl border border-sky-200/80 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20 text-xs"
+              placeholder="••••••••"
+            />
+          </Field>
+        </div>
+        <Button type="submit" className="h-8 rounded-xl text-xs font-bold shadow-2xs">
           Şifreyi Güncelle
         </Button>
       </form>

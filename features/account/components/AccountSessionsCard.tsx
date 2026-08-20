@@ -1,6 +1,8 @@
+import { Laptop, Smartphone, Tablet } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { AccountSecuritySession } from '@/features/account/types/account-security.types';
 import { ACCOUNT_SESSION_STATUS_LABELS } from '@/features/account/types/account-security.constants';
+import { cn } from '@/lib/utils';
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
@@ -14,49 +16,76 @@ function formatDateTime(value: string): string {
   }).format(date);
 }
 
+function getDeviceIcon(device: string) {
+  const lower = device.toLowerCase();
+  if (lower.includes('mobil') || lower.includes('phone') || lower.includes('ios') || lower.includes('android')) {
+    return Smartphone;
+  }
+  if (lower.includes('tablet') || lower.includes('ipad')) {
+    return Tablet;
+  }
+  return Laptop;
+}
+
 export function AccountSessionsCard({ sessions }: { sessions: AccountSecuritySession[] }) {
+  // Show top 2 sessions for clean single-page unity
+  const displaySessions = sessions.slice(0, 2);
+
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
-      <h2 className="font-display text-lg font-semibold text-foreground">Oturum geçmişi</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Son girişlerinizin cihaz ve konum özeti (IP kısmen maskelenir).
+      <h2 className="font-display text-base font-bold text-slate-950 dark:text-white">
+        Aktif Oturumlar & Cihaz Geçmişi
+      </h2>
+      <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+        Son girişlerinizin cihaz, konum ve IP özeti.
       </p>
 
-      <div className="mt-5 space-y-3">
-        {sessions.map((session) => (
-          <article
-            key={session.id}
-            className="rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/40"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-medium text-foreground">
-                {session.device}
-                {session.isCurrent ? ' · Bu cihaz' : ''}
-              </p>
-              <Badge variant={session.status === 'active' ? 'default' : 'outline'}>
-                {ACCOUNT_SESSION_STATUS_LABELS[session.status]}
-              </Badge>
-            </div>
-            <dl className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-              <div className="flex gap-2">
-                <dt className="shrink-0">Giriş:</dt>
-                <dd className="text-foreground">{formatDateTime(session.loggedInAt)}</dd>
+      <div className="mt-4 space-y-2.5">
+        {displaySessions.map((session) => {
+          const Icon = getDeviceIcon(session.device);
+          return (
+            <article
+              key={session.id}
+              className={cn(
+                'rounded-xl border p-3.5 transition-all',
+                session.isCurrent
+                  ? 'border-emerald-300/80 bg-emerald-50/30 dark:border-emerald-800/40 dark:bg-emerald-950/20'
+                  : 'border-sky-200/70 bg-sky-50/40 dark:border-sky-800/40 dark:bg-sky-950/20',
+              )}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Icon className="h-4 w-4 text-slate-500 shrink-0" />
+                  <p className="font-semibold text-xs text-slate-900 dark:text-white truncate">
+                    {session.device}
+                    {session.isCurrent ? ' · Bu Cihaz' : ''}
+                  </p>
+                  <span
+                    className={cn(
+                      'rounded-md px-1.5 py-0.2 text-[10px] font-bold',
+                      session.status === 'active'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-slate-100 text-slate-500',
+                    )}
+                  >
+                    {ACCOUNT_SESSION_STATUS_LABELS[session.status]}
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-400 dark:text-zinc-500 shrink-0">
+                  {formatDateTime(session.loggedInAt)}
+                </span>
               </div>
-              <div className="flex gap-2">
-                <dt className="shrink-0">İşletim sistemi:</dt>
-                <dd className="text-foreground">{session.os}</dd>
+
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 dark:text-zinc-400 pl-6">
+                <span>{session.os}</span>
+                <span>•</span>
+                <span>{session.browser}</span>
+                <span>•</span>
+                <span className="font-mono">{session.ipAddress}</span>
               </div>
-              <div className="flex gap-2">
-                <dt className="shrink-0">Tarayıcı:</dt>
-                <dd className="text-foreground">{session.browser}</dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="shrink-0">IP:</dt>
-                <dd className="font-mono text-foreground">{session.ipAddress}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

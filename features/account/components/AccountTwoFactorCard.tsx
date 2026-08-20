@@ -14,37 +14,17 @@ export function AccountTwoFactorCard({
 }) {
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
-      <h2 className="font-display text-lg font-semibold text-foreground">
-        İki adımlı doğrulama
+      <h2 className="font-display text-base font-bold text-slate-950 dark:text-white">
+        İki Adımlı Doğrulama (2FA)
       </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Hesabınızı ek doğrulama yöntemleriyle koruyun.
+      <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+        Hesabınızı ek doğrulama ve yedek kod yöntemleriyle koruyun.
       </p>
 
-      <div className="mt-5 space-y-3">
-        <FactorRow
-          title="E-posta doğrulaması"
-          description="Giriş ve kritik işlemlerde e-posta kodu."
-          enabled={twoFactor.emailVerified}
-          actionLabel={twoFactor.emailVerified ? 'Yeniden doğrula' : 'Etkinleştir'}
-          onAction={() => {
-            onChange({ ...twoFactor, emailVerified: true });
-            toast.success('E-posta doğrulaması etkin (mock)');
-          }}
-        />
-        <FactorRow
-          title="Telefon doğrulaması"
-          description="SMS ile tek kullanımlık kod."
-          enabled={twoFactor.phoneVerified}
-          actionLabel={twoFactor.phoneVerified ? 'Yeniden doğrula' : 'Etkinleştir'}
-          onAction={() => {
-            onChange({ ...twoFactor, phoneVerified: true });
-            toast.success('Telefon doğrulaması etkin (mock)');
-          }}
-        />
+      <div className="mt-4 space-y-2.5">
         <FactorRow
           title="Google Authenticator"
-          description="Authenticator uygulaması ile TOTP."
+          description="Authenticator uygulaması ile TOTP kodu."
           enabled={twoFactor.authenticatorEnabled}
           actionLabel={twoFactor.authenticatorEnabled ? 'Yönet' : 'Bağla'}
           onAction={() => {
@@ -57,7 +37,7 @@ export function AccountTwoFactorCard({
           }}
         />
         <FactorRow
-          title="Yedek kodlar"
+          title="Yedek Güvenlik Kodları"
           description={
             twoFactor.backupCodesRemaining
               ? `${twoFactor.backupCodesRemaining} yedek kod kullanılabilir.`
@@ -89,17 +69,17 @@ function FactorRow({
   onAction: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800 dark:bg-zinc-800/40">
-      <div className="min-w-0 space-y-1">
+    <div className="flex flex-col gap-3 rounded-xl border border-sky-200/70 bg-sky-50/40 p-3.5 sm:flex-row sm:items-center sm:justify-between dark:border-sky-800/40 dark:bg-sky-950/20">
+      <div className="min-w-0 space-y-0.5">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-xs sm:text-sm text-foreground">{title}</p>
+          <p className="font-semibold text-xs text-slate-900 dark:text-white">{title}</p>
           <Badge variant={enabled ? 'default' : 'outline'} className="text-[10px] px-2 py-0.5">
             {enabled ? 'Aktif' : 'Kapalı'}
           </Badge>
         </div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-[11px] text-slate-500 dark:text-zinc-400">{description}</p>
       </div>
-      <Button type="button" size="sm" variant="outline" className="rounded-xl h-8 text-xs" onClick={onAction}>
+      <Button type="button" size="sm" variant="outline" className="rounded-xl h-7.5 px-3 text-xs font-semibold" onClick={onAction}>
         {actionLabel}
       </Button>
     </div>
