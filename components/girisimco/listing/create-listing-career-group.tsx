@@ -31,7 +31,7 @@ export function CreateListingCareerGroup({
         onBack={onBack}
       />
 
-      <div className="mt-10 lg:mt-12">
+      <div className="mt-8 lg:mt-10">
         <CareerFlowChoiceCards
           options={CREATE_LISTING_CAREER_COPY.options}
           onSelect={(id) => {

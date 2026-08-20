@@ -105,7 +105,7 @@ export function CreateListingCategoryPicker({
     <section className="mb-10">
       <header className="mx-auto max-w-2xl text-center">
         <Badge variant="outline" className="rounded-full px-3 py-1 text-[13px] font-semibold">
-          İlan Oluştur
+          Kategori Seçimi
         </Badge>
         <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl lg:text-[2rem]">
           Hangi tür ilan vereceksiniz?
@@ -115,7 +115,7 @@ export function CreateListingCategoryPicker({
         </p>
       </header>
 
-      <div className="mt-10 lg:mt-12">
+      <div className="mt-8 lg:mt-10">
         <CareerFlowChoiceCards
           options={[
             {

@@ -392,21 +392,11 @@ function CreateListingContent() {
       )}
     >
       {!categoryId ? (
-        <>
-          <div className="mb-8">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1220] dark:text-foreground sm:text-3xl">
-              İlan Oluştur
-            </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-              Formu doldurun; yayın öncesi içerik kontrolünden geçer.
-            </p>
-          </div>
-          <CreateListingCategoryPicker
-            onSelect={selectCategory}
-            hubStep={hubStep}
-            onHubStepChange={handleHubStepChange}
-          />
-        </>
+        <CreateListingCategoryPicker
+          onSelect={selectCategory}
+          hubStep={hubStep}
+          onHubStepChange={handleHubStepChange}
+        />
       ) : null}
 
       {isReady && formListingType && categoryId ? (

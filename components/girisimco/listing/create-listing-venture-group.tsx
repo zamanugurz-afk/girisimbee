@@ -72,7 +72,7 @@ export function CreateListingVentureGroup({
         </div>
       </header>
 
-      <div className="mt-10 lg:mt-12">
+      <div className="mt-8 lg:mt-10">
         <CareerFlowChoiceCards
           options={CREATE_LISTING_VENTURE_COPY.options}
           visuals={VENTURE_VISUALS}
