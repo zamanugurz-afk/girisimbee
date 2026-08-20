@@ -81,6 +81,10 @@ export function buildProfileDraftFromCanonicalResult(
     // 6. Career Summary (grounded synthesis)
     candidateTraits: canonical.summary || '',
 
+    // 6.5. Demographics (from CV)
+    profileGender: canonical.gender || '',
+    birthDate: canonical.birthDate || '',
+
     // 7. CV File Metadata
     cvFileName,
     cvDocumentId,
@@ -110,6 +114,8 @@ export function buildProfileDraftFromCanonicalResult(
   if (formValues.certificates) cvFilledFieldKeys.push('certificates');
   if (formValues.residenceCity) cvFilledFieldKeys.push('residenceCity', 'city');
   if (formValues.residenceDistrict) cvFilledFieldKeys.push('residenceDistrict');
+  if (formValues.profileGender) cvFilledFieldKeys.push('profileGender');
+  if (formValues.birthDate) cvFilledFieldKeys.push('birthDate');
   if (formValues.candidateTraits) cvFilledFieldKeys.push('candidateTraits');
 
   // Explicit unconfirmed preference keys

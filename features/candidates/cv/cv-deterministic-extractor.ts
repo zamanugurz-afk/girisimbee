@@ -1905,6 +1905,69 @@ export function generateDeterministicSummary(input: {
 }
 
 // ============================================================================
+// 7.5. DETERMINISTIC DEMOGRAPHICS PARSER (Gender & Birth Date)
+// ============================================================================
+
+export function extractDeterministicDemographics(text: string): {
+  gender?: string;
+  birthDate?: string;
+  birthYear?: number;
+} {
+  const normText = normalizeTrForMatch(text);
+  let gender: string | undefined;
+  let birthDate: string | undefined;
+  let birthYear: number | undefined;
+
+  // 1. Gender Detection
+  if (
+    /(?:^|\s)cinsiyet\b[\s:]*(kadin|bayan)\b/i.test(normText) ||
+    /(?:^|\n)\s*cinsiyet\s*\n\s*(kadin|bayan)/i.test(normText) ||
+    /(?:^|\s)cinsiyeti\b[\s:]*(kadin|bayan)\b/i.test(normText) ||
+    (/ozel\s*bilgiler/i.test(normText) && /\bkadin\b/i.test(normText) && !/\berkek\b/i.test(normText))
+  ) {
+    gender = 'Kadın';
+  } else if (
+    /(?:^|\s)cinsiyet\b[\s:]*(erkek|bay)\b/i.test(normText) ||
+    /(?:^|\n)\s*cinsiyet\s*\n\s*(erkek|bay)/i.test(normText) ||
+    /(?:^|\s)cinsiyeti\b[\s:]*(erkek|bay)\b/i.test(normText) ||
+    (/ozel\s*bilgiler/i.test(normText) && /\berkek\b/i.test(normText) && !/\bkadin\b/i.test(normText))
+  ) {
+    gender = 'Erkek';
+  }
+
+  // 2. Birth Date / Year Detection
+  // Pattern A: "1993 (32 Yaş)" or "1993 (32 yas)"
+  const ageMatch = text.match(/\b(19\d{2}|200\d)\s*\(\s*\d{1,2}\s*(?:yaş|yas|yaşında|yasinda)?\s*\)/i);
+  if (ageMatch) {
+    birthYear = parseInt(ageMatch[1], 10);
+    birthDate = `${birthYear}-01-01`;
+  }
+
+  // Pattern B: "Doğum Tarihi: 15.05.1993" or "15/05/1993" or "1993"
+  if (!birthDate) {
+    const dobMatch = text.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|200\d)|(?:19\d{2}|200\d))/i);
+    if (dobMatch) {
+      const rawDate = dobMatch[1];
+      if (/^\d{4}$/.test(rawDate)) {
+        birthYear = parseInt(rawDate, 10);
+        birthDate = `${birthYear}-01-01`;
+      } else {
+        const parts = rawDate.split(/[./\-]/);
+        if (parts.length === 3) {
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          const year = parts[2];
+          birthYear = parseInt(year, 10);
+          birthDate = `${year}-${month}-${day}`;
+        }
+      }
+    }
+  }
+
+  return { gender, birthDate, birthYear };
+}
+
+// ============================================================================
 // 8. UNIFIED HIGH-ACCURACY DETERMINISTIC EXTRACTOR (CV EXTRACTION 2.0)
 // ============================================================================
 
@@ -1914,6 +1977,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   const exp = extractDeterministicExperiences(text);
   const skillsAndTools = extractDeterministicSkillsAndTools(text);
   const langAndCerts = extractDeterministicLanguagesAndCerts(text);
+  const demographics = extractDeterministicDemographics(text);
 
   let totalYears = 0;
   for (const e of exp) {
@@ -1921,8 +1985,6 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   }
   const yearInText = text.match(/(\d{1,2})\s*yıllık/i);
   if (yearInText) totalYears = Math.max(totalYears, parseInt(yearInText[1], 10));
-
-
 
   const summary = generateDeterministicSummary({
     text,
@@ -1944,6 +2006,8 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     certificates: langAndCerts.certificates,
     locations: [loc.city, loc.district].filter(Boolean) as string[],
     summary,
+    gender: demographics.gender,
+    birthDate: demographics.birthDate,
     ambiguousItems: [],
   };
 }

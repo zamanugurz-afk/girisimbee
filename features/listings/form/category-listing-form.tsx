@@ -444,6 +444,8 @@ export function CategoryListingForm({
   const [editingInvestmentSummary, setEditingInvestmentSummary] = useState(false);
   const [isManualCvMode, setIsManualCvMode] = useState(false);
   const [cvFilledKeys, setCvFilledKeys] = useState<Set<string>>(new Set());
+  const [pendingCvDraft, setPendingCvDraft] = useState<CvProfileDraftResult | null>(null);
+  const [isCvApplied, setIsCvApplied] = useState(false);
   const [cvDraftInfo, setCvDraftInfo] = useState<{
     fileName?: string;
     experienceCount: number;
@@ -925,7 +927,7 @@ export function CategoryListingForm({
   });
 
   useEffect(() => {
-    if (restoredDraft || initialValues) return;
+    if (restoredDraft || initialValues || !listingId) return;
 
     const meta = peekDraftMeta();
     if (!meta) {
@@ -966,6 +968,7 @@ export function CategoryListingForm({
     toast.message('Kaydedilmiş taslak geri yüklendi.');
   }, [
     initialValues,
+    listingId,
     listingType.fieldSchema,
     restoreDraft,
     peekDraftMeta,
@@ -1006,115 +1009,6 @@ export function CategoryListingForm({
       cancelled = true;
     };
   }, [userId]);
-
-  /** Auto-prefill career profile data into listing creation if no initial values provided */
-  useEffect(() => {
-    if (initialValues || !userId) return;
-    const isCareerCat =
-      categoryId === CATEGORY_IDS.isBul ||
-      categoryId === CATEGORY_IDS.iseAl ||
-      categoryId === CATEGORY_IDS.ortakBul;
-    if (!isCareerCat) return;
-
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch('/api/career/profile');
-        if (!res.ok || cancelled) return;
-        const json = await res.json();
-        const data = json.data;
-        if (!data) return;
-
-        const profileRecord =
-          categoryId === CATEGORY_IDS.iseAl
-            ? data.hire
-            : categoryId === CATEGORY_IDS.ortakBul
-              ? data.partner || data.seek
-              : data.seek;
-
-        if (!profileRecord?.values) return;
-        const pv = profileRecord.values;
-
-        setCore((prev) => ({
-          ...prev,
-          title: pv.roles?.[0] || pv.role || prev.title,
-          city: pv.city || prev.city || 'İstanbul',
-          location: pv.city || prev.location || 'İstanbul',
-          shortDescription: pv.candidateTraits || prev.shortDescription,
-          longDescription: prev.longDescription || pv.candidateTraits || prev.longDescription,
-        }));
-
-        setCustomFields((prev) => {
-          const next = { ...prev };
-          const role = pv.roles?.[0] || pv.role;
-          const sector = pv.sectors?.[0] || pv.sector;
-          if (role) next.desiredRole = role;
-          if (pv.roles && pv.roles.length > 0) next.preferredRoles = pv.roles;
-          if (sector) next.primarySector = sector;
-          if (pv.sectors && pv.sectors.length > 0) next.preferredSectors = pv.sectors;
-          if (pv.experienceLevel) next.experienceLevel = pv.experienceLevel;
-          if (pv.workType) next.workType = pv.workType;
-          if (pv.workplacePreference) next.workplacePreference = pv.workplacePreference;
-          if (pv.profileGender) next.profileGender = pv.profileGender;
-          if (pv.birthDate) next.birthDate = pv.birthDate;
-          if (pv.residenceCity || pv.city) next.residenceCity = pv.residenceCity || pv.city;
-          if (pv.residenceDistrict) {
-            next.residenceDistrict = pv.residenceDistrict;
-            next.district = pv.residenceDistrict;
-          }
-          if (pv.city) next.preferredCity = pv.city;
-          if (pv.preferredDistrict) next.preferredDistrict = pv.preferredDistrict;
-          if (pv.professionalSkills) next.professionalSkills = pv.professionalSkills;
-          if (pv.technicalSkills) next.technicalSkills = pv.technicalSkills;
-          if (pv.tools) next.tools = pv.tools;
-          if (pv.educationLevel) next.educationLevel = pv.educationLevel;
-          if (pv.educationField) next.educationField = pv.educationField;
-          if (pv.languages) next.languages = pv.languages;
-          if (pv.certificates) next.certificates = pv.certificates;
-          if (pv.availability) next.availability = pv.availability;
-          if (pv.companyName) next.companyName = pv.companyName;
-          if (pv.salaryMin) next.salaryMin = pv.salaryMin;
-          if (pv.salaryMax) next.salaryMax = pv.salaryMax;
-          if (pv.salary) next.salary = pv.salary;
-
-          const maxNum = pv.salaryMax || pv.salaryMin;
-          if (maxNum) {
-            let matchedBand = '50.000 - 75.000 TL';
-            if (maxNum <= 25000) matchedBand = '25.000 TL\'ye kadar';
-            else if (maxNum <= 50000) matchedBand = '25.000 - 50.000 TL';
-            else if (maxNum <= 75000) matchedBand = '50.000 - 75.000 TL';
-            else if (maxNum <= 100000) matchedBand = '75.000 - 100.000 TL';
-            else if (maxNum <= 150000) matchedBand = '100.000 - 150.000 TL';
-            else if (maxNum <= 200000) matchedBand = '150.000 - 200.000 TL';
-            else matchedBand = '200.000 TL ve üzeri';
-            next.salaryExpectation = matchedBand;
-            next.salaryRange = matchedBand;
-          }
-
-          if (pv.cvFileName) next.cvFileName = pv.cvFileName;
-          if (pv.cvDocumentId) next.cvDocumentId = pv.cvDocumentId;
-          if (pv.cvUploadedAt) next.cvUploadedAt = pv.cvUploadedAt;
-
-          if (pv.requiredAchievements) next.requiredAchievements = pv.requiredAchievements;
-          if (pv.candidateTraits) next.requiredResponsibilities = pv.candidateTraits;
-          if (pv.partnerType) next.partnerType = pv.partnerType;
-          if (pv.stage) next.stage = pv.stage;
-          if (pv.businessModel) next.businessModel = pv.businessModel;
-          if (pv.capitalContribution) next.capitalContribution = pv.capitalContribution;
-          if (pv.equityOffered) next.equityOffered = pv.equityOffered;
-          if (pv.experiences && pv.experiences.length > 0) {
-            next.experiences = pv.experiences;
-          }
-          return next;
-        });
-      } catch {
-        /* best effort */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [initialValues, userId, categoryId]);
 
   /** Load whether this category still has a free listing slot for the user. */
   useEffect(() => {
@@ -1212,9 +1106,37 @@ export function CategoryListingForm({
     [categoryId, setCustomField],
   );
 
+  const handleCvDraftAnalyzed = useCallback((draft: CvProfileDraftResult) => {
+    const fv = draft.formValues;
+    const expCount = fv.experiences?.length ?? 0;
+    const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
+    const langCount = fv.languages ? fv.languages.split(',').length : 0;
+    const skillCount =
+      (fv.professionalSkillsList?.length ?? 0) +
+      (fv.technicalSkillsList?.length ?? 0) +
+      (fv.toolsList?.length ?? 0);
+    const loc = fv.residenceCity
+      ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
+      : undefined;
+
+    setPendingCvDraft(draft);
+    setIsCvApplied(false);
+    setCvDraftInfo({
+      fileName: fv.cvFileName,
+      experienceCount: expCount,
+      educationCount: eduCount,
+      languageCount: langCount,
+      skillCount,
+      location: loc,
+    });
+    toast.success('✨ CV başarıyla analiz edildi! Bilgileri form adımlarına aktarmak için "CV\'yi Aktar" butonuna tıklayabilirsiniz.');
+  }, []);
+
   const handleApplyCvDraft = useCallback(
-    (draft: CvProfileDraftResult) => {
-      const fv = draft.formValues;
+    (draft?: CvProfileDraftResult | null) => {
+      const activeDraft = draft || pendingCvDraft;
+      if (!activeDraft) return;
+      const fv = activeDraft.formValues;
       const roleName = fv.role || '';
       const sectorName = fv.sector || '';
       const cityName = fv.residenceCity || fv.city || '';
@@ -1275,14 +1197,25 @@ export function CategoryListingForm({
       if (cityName) {
         setCustomField('residenceCity', cityName);
         setCustomField('preferredCity', cityName);
-        setCore((prev) => ({ ...prev, city: cityName || prev.city }));
+        setCore((prev) => ({ ...prev, city: cityName || prev.city, location: cityName || prev.location }));
       }
-      setCustomField('residenceDistrict', districtName);
+      if (districtName) {
+        setCustomField('residenceDistrict', districtName);
+        setCustomField('preferredDistrict', districtName);
+        setCustomField('district', districtName);
+      }
+      if (fv.profileGender) {
+        setCustomField('profileGender', fv.profileGender);
+      }
+      if (fv.birthDate) {
+        setCustomField('birthDate', fv.birthDate);
+      }
 
       if (fv.candidateTraits) {
         setCore((prev) => ({
           ...prev,
           longDescription: fv.candidateTraits || prev.longDescription,
+          shortDescription: fv.candidateTraits ? fv.candidateTraits.slice(0, 160) : prev.shortDescription,
         }));
       }
       if (fv.cvFileName) {
@@ -1295,40 +1228,23 @@ export function CategoryListingForm({
         setCustomField('cvUploadedAt', fv.cvUploadedAt);
       }
 
-      const expCount = fv.experiences?.length ?? 0;
-      const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
-      const langCount = fv.languages ? fv.languages.split(',').length : 0;
-      const skillCount =
-        (fv.professionalSkillsList?.length ?? 0) +
-        (fv.technicalSkillsList?.length ?? 0) +
-        (fv.toolsList?.length ?? 0);
-      const loc = fv.residenceCity
-        ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
-        : undefined;
-
-      setCvDraftInfo({
-        fileName: fv.cvFileName,
-        experienceCount: expCount,
-        educationCount: eduCount,
-        languageCount: langCount,
-        skillCount,
-        location: loc,
-      });
-
-      setCvFilledKeys(new Set(draft.cvFilledFieldKeys));
+      setCvFilledKeys(new Set(activeDraft.cvFilledFieldKeys));
+      setIsCvApplied(true);
       setIsManualCvMode(false);
-      toast.success('✨ CV bilgileri ilanınıza başarıyla aktarıldı.');
+      toast.success('✨ CV bilgileri tüm form adımlarına aktarıldı.');
     },
-    [setCustomField],
+    [pendingCvDraft, setCustomField],
   );
 
   const handleRemoveCv = useCallback(() => {
     setCvDraftInfo(null);
+    setPendingCvDraft(null);
+    setIsCvApplied(false);
     setCustomField('cvFileName', '');
     setCustomField('cvDocumentId', '');
     setCustomField('cvUploadedAt', '');
     setCvFilledKeys(new Set());
-    toast.info('CV kaldırıldı. Formu dilediğiniz gibi düzenleyebilirsiniz.');
+    toast.info('CV kaldırıldı. Formu manuel doldurarak devam edebilirsiniz.');
   }, [setCustomField]);
 
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
@@ -2080,12 +1996,18 @@ export function CategoryListingForm({
                   languageCount={cvDraftInfo.languageCount}
                   skillCount={cvDraftInfo.skillCount}
                   location={cvDraftInfo.location}
-                  onReupload={() => setCvDraftInfo(null)}
+                  onApply={() => handleApplyCvDraft(pendingCvDraft)}
+                  isApplied={isCvApplied}
+                  onReupload={() => {
+                    setCvDraftInfo(null);
+                    setPendingCvDraft(null);
+                    setIsCvApplied(false);
+                  }}
                   onRemove={handleRemoveCv}
                 />
               ) : (
                 <CvUploadCard
-                  onDraftReady={handleApplyCvDraft}
+                  onDraftReady={handleCvDraftAnalyzed}
                   onSkipManual={() => setIsManualCvMode(true)}
                   isManualMode={isManualCvMode}
                 />

@@ -843,6 +843,8 @@ export function mapCvToCanonicalTaxonomy(
     certificates,
     residenceCity,
     residenceDistrict,
+    gender: payload.gender,
+    birthDate: payload.birthDate,
     experiences,
     summary: payload.summary || '',
     ambiguousItems,

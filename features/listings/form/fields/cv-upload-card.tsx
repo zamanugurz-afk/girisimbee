@@ -92,7 +92,7 @@ export function CvUploadCard({
 
       const draft = ((data.draft || data.data) as CvProfileDraftResult);
       onDraftReady(draft);
-      toast.success('✨ CV başarıyla analiz edildi ve ilanınıza aktarıldı!');
+      toast.success('✨ CV başarıyla analiz edildi!');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'CV analiz edilemedi.';
       setErrorMessage(msg);

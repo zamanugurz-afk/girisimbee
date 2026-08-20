@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Sparkles, FileText, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export interface CvExtractionHudProps {
   fileName?: string;
@@ -10,6 +11,8 @@ export interface CvExtractionHudProps {
   languageCount: number;
   skillCount: number;
   location?: string;
+  onApply?: () => void;
+  isApplied?: boolean;
   onReupload?: () => void;
   onRemove?: () => void;
 }
@@ -21,12 +24,14 @@ export function CvExtractionHud({
   languageCount,
   skillCount,
   location,
+  onApply,
+  isApplied = false,
   onReupload,
   onRemove,
 }: CvExtractionHudProps) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-sky-200/80 bg-linear-to-r from-sky-50/90 via-blue-50/60 to-amber-50/40 p-4 sm:p-5 dark:border-sky-900/50 dark:from-sky-950/30 dark:via-blue-950/20 dark:to-amber-950/20">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400">
             <Sparkles className="h-5 w-5" />
@@ -44,34 +49,65 @@ export function CvExtractionHud({
               )}
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Bilgileriniz otomatik aktarıldı. Alanları aşağıdan kontrol edip düzenleyebilirsiniz.
+              {isApplied
+                ? 'Bilgileriniz tüm form adımlarına aktarıldı. Alanları aşağıdan kontrol edip düzenleyebilirsiniz.'
+                : 'CV analiz edildi. Çıkartılan tüm bilgileri adımlara doldurmak için "CV\'yi Aktar" butonuna tıklayın.'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          {onReupload && (
+        <div className="flex flex-col gap-2 self-end sm:self-center min-w-[140px]">
+          <div className="flex items-center gap-1.5">
+            {onReupload && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onReupload}
+                className="h-8 flex-1 gap-1.5 rounded-lg border-sky-200 bg-white/80 text-xs font-medium text-sky-700 hover:bg-sky-50 dark:border-sky-800 dark:bg-zinc-900 dark:text-sky-300"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span>Yeniden Yükle</span>
+              </Button>
+            )}
+            {onRemove && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onRemove}
+                className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive"
+                aria-label="CV'yi Kaldır"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
+          {onApply && (
             <Button
               type="button"
-              variant="outline"
+              variant={isApplied ? 'outline' : 'default'}
               size="sm"
-              onClick={onReupload}
-              className="h-8 gap-1.5 rounded-lg border-sky-200 bg-white/80 text-xs text-sky-700 hover:bg-sky-50 dark:border-sky-800 dark:bg-zinc-900 dark:text-sky-300"
+              onClick={onApply}
+              className={cn(
+                'h-8 gap-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all w-full',
+                isApplied
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600',
+              )}
             >
-              <RefreshCw className="h-3 w-3" />
-              <span>Yeniden Yükle</span>
-            </Button>
-          )}
-          {onRemove && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onRemove}
-              className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive"
-              aria-label="CV'yi Kaldır"
-            >
-              <X className="h-4 w-4" />
+              {isApplied ? (
+                <>
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>CV Aktarıldı</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>CV&apos;yi Aktar</span>
+                </>
+              )}
             </Button>
           )}
         </div>

@@ -63,6 +63,8 @@ export interface AiCvExtractionPayload {
   certificates: string[];
   locations: string[];
   summary: string;
+  gender?: string;
+  birthDate?: string;
   ambiguousItems: RawAmbiguousCvItem[];
 }
 
@@ -81,6 +83,8 @@ export interface CanonicalTaxonomyMappingResult {
   certificates: string;
   residenceCity: string;
   residenceDistrict?: string;
+  gender?: string;
+  birthDate?: string;
   experiences: CareerExperience[];
   summary: string;
   ambiguousItems: RawAmbiguousCvItem[];
