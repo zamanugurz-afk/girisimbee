@@ -293,7 +293,7 @@ export default function EditListingPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-5 pb-16 pt-20 lg:px-8">
+    <main className="mx-auto max-w-2xl px-5 pb-20 pt-[calc(var(--gc-header-height,3.75rem)+2rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2.75rem)] lg:px-8">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-semibold text-foreground">
             İlanı Düzenle

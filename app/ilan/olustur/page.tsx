@@ -387,7 +387,7 @@ function CreateListingContent() {
   return (
     <main
       className={cn(
-        'gc-header-offset relative mx-auto bg-[#FAFBFC] px-4 pb-16 pt-6 sm:pt-8 dark:bg-background lg:px-8',
+        'relative mx-auto bg-[#FAFBFC] px-4 pb-20 pt-[calc(var(--gc-header-height,3.75rem)+2rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2.75rem)] dark:bg-background lg:px-8',
         categoryId ? 'max-w-[1440px]' : 'max-w-[1280px]',
       )}
     >
@@ -435,7 +435,7 @@ export default function CreateListingPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto max-w-[1280px] px-5 pb-16 pt-20 lg:px-8">
+        <main className="mx-auto max-w-[1280px] px-5 pb-20 pt-[calc(var(--gc-header-height,3.75rem)+2rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2.75rem)] lg:px-8">
           <div className="mb-8 space-y-2">
             <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
             <div className="h-4 w-72 animate-pulse rounded bg-muted" />
