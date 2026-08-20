@@ -1137,30 +1137,13 @@ export function CategoryListingForm({
       const activeDraft = draft || pendingCvDraft;
       if (!activeDraft) return;
       const fv = activeDraft.formValues;
-      const roleName = fv.role || '';
-      const sectorName = fv.sector || '';
-      const cityName = fv.residenceCity || fv.city || '';
-      const districtName = fv.residenceDistrict || '';
 
-      if (roleName) {
-        setCustomField('desiredRole', roleName);
-        setCore((prev) => ({ ...prev, title: roleName || prev.title }));
-      }
-      if (fv.roles && fv.roles.length > 0) {
-        setCustomField('preferredRoles', fv.roles);
-      }
-      if (sectorName) {
-        setCustomField('primarySector', sectorName);
-      }
-      if (fv.sectors && fv.sectors.length > 0) {
-        setCustomField('preferredSectors', fv.sectors);
-      }
-      if (fv.experienceLevel) {
-        setCustomField('experienceLevel', fv.experienceLevel);
-      }
+      // 1. Work Experiences (Step 2: Kariyer Bilgileriniz)
       if (fv.experiences && fv.experiences.length > 0) {
         setCustomField('experiences', fv.experiences);
       }
+
+      // 2. Skills & Tools (Step 2: Kariyer Bilgileriniz)
       if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
         setCustomField('professionalSkills', fv.professionalSkillsList.join(', '));
         setCustomField('professionalSkillsList', fv.professionalSkillsList);
@@ -1179,6 +1162,8 @@ export function CategoryListingForm({
       } else if (fv.tools) {
         setCustomField('tools', fv.tools);
       }
+
+      // 3. Education, Languages & Certificates (Step 2: Kariyer Bilgileriniz)
       if (fv.educationLevel) {
         setCustomField('educationLevel', fv.educationLevel);
       }
@@ -1194,23 +1179,8 @@ export function CategoryListingForm({
       if (fv.certificates) {
         setCustomField('certificates', fv.certificates);
       }
-      if (cityName) {
-        setCustomField('residenceCity', cityName);
-        setCustomField('preferredCity', cityName);
-        setCore((prev) => ({ ...prev, city: cityName || prev.city, location: cityName || prev.location }));
-      }
-      if (districtName) {
-        setCustomField('residenceDistrict', districtName);
-        setCustomField('preferredDistrict', districtName);
-        setCustomField('district', districtName);
-      }
-      if (fv.profileGender) {
-        setCustomField('profileGender', fv.profileGender);
-      }
-      if (fv.birthDate) {
-        setCustomField('birthDate', fv.birthDate);
-      }
 
+      // 4. Candidate Summary & Description (Step 2)
       if (fv.candidateTraits) {
         setCore((prev) => ({
           ...prev,
@@ -1218,6 +1188,8 @@ export function CategoryListingForm({
           shortDescription: fv.candidateTraits ? fv.candidateTraits.slice(0, 160) : prev.shortDescription,
         }));
       }
+
+      // 5. CV File Metadata
       if (fv.cvFileName) {
         setCustomField('cvFileName', fv.cvFileName);
       }
@@ -1228,10 +1200,26 @@ export function CategoryListingForm({
         setCustomField('cvUploadedAt', fv.cvUploadedAt);
       }
 
-      setCvFilledKeys(new Set(activeDraft.cvFilledFieldKeys));
+      // NOTE: Step 1 fields (Aranan Pozisyon, Sektör, Kariyer Seviyesi, Yaşadığı İl, Yaşadığı İlçe)
+      // are intentionally NOT auto-filled here, remaining blank for manual user selection.
+
+      const appliedKeys = [
+        'experiences',
+        'educationHistory',
+        'educationLevel',
+        'educationField',
+        'languages',
+        'certificates',
+        'professionalSkills',
+        'technicalSkills',
+        'tools',
+        'candidateTraits',
+        'longDescription',
+      ];
+      setCvFilledKeys(new Set(appliedKeys));
       setIsCvApplied(true);
       setIsManualCvMode(false);
-      toast.success('✨ CV bilgileri tüm form adımlarına aktarıldı.');
+      toast.success('✨ CV deneyimleri, eğitimleri ve yetkinlikleri ilgili adımlara aktarıldı.');
     },
     [pendingCvDraft, setCustomField],
   );
