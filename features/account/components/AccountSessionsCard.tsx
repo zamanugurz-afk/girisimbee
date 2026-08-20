@@ -26,7 +26,7 @@ export function AccountSessionsCard({ sessions }: { sessions: AccountSecuritySes
         {sessions.map((session) => (
           <article
             key={session.id}
-            className="rounded-lg border border-border/70 p-4 dark:border-white/10"
+            className="rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/40"
           >
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-medium text-foreground">

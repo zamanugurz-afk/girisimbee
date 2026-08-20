@@ -16,10 +16,7 @@ export default async function DashboardOverviewPage() {
     redirect(AUTH_ROUTES.login);
   }
 
-  const [{ view, stats }, network] = await Promise.all([
-    loadAccountHubPage(user),
-    loadFollowNetworkPage(user.id),
-  ]);
+  const { view, stats } = await loadAccountHubPage(user);
 
   return (
     <>
@@ -31,10 +28,6 @@ export default async function DashboardOverviewPage() {
         <AccountDashboard
           view={view}
           stats={stats}
-          followers={network.followers}
-          following={network.following}
-          followersCount={network.followersCount}
-          followingCount={network.followingCount}
         />
       </div>
     </>

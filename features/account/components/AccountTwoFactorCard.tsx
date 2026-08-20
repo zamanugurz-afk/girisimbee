@@ -13,7 +13,7 @@ export function AccountTwoFactorCard({
   onChange: (next: AccountTwoFactorState) => void;
 }) {
   return (
-    <section className="rounded-xl border border-border/80 bg-background p-5 dark:border-white/10 sm:p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-6 transition-all">
       <h2 className="font-display text-lg font-semibold text-foreground">
         İki adımlı doğrulama
       </h2>
@@ -59,14 +59,14 @@ export function AccountTwoFactorCard({
         <FactorRow
           title="Yedek kodlar"
           description={
-            twoFactor.backupCodesRemaining > 0
-              ? `${twoFactor.backupCodesRemaining} yedek kod kaldı`
-              : 'Henüz yedek kod oluşturulmadı'
+            twoFactor.backupCodesRemaining
+              ? `${twoFactor.backupCodesRemaining} yedek kod kullanılabilir.`
+              : 'Acil durum kodları henüz oluşturulmadı.'
           }
           enabled={twoFactor.backupCodesRemaining > 0}
-          actionLabel="Kodları oluştur"
+          actionLabel={twoFactor.backupCodesRemaining > 0 ? 'Yenile' : 'Oluştur'}
           onAction={() => {
-            onChange({ ...twoFactor, backupCodesRemaining: 8 });
+            onChange({ ...twoFactor, backupCodesRemaining: 10 });
             toast.success('Yedek kodlar oluşturuldu (mock)');
           }}
         />
@@ -89,17 +89,17 @@ function FactorRow({
   onAction: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border/70 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+    <div className="flex flex-col gap-3 rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800 dark:bg-zinc-800/40">
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-foreground">{title}</p>
-          <Badge variant={enabled ? 'default' : 'outline'}>
+          <p className="font-medium text-xs sm:text-sm text-foreground">{title}</p>
+          <Badge variant={enabled ? 'default' : 'outline'} className="text-[10px] px-2 py-0.5">
             {enabled ? 'Aktif' : 'Kapalı'}
           </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-      <Button type="button" size="sm" variant="outline" className="rounded-lg" onClick={onAction}>
+      <Button type="button" size="sm" variant="outline" className="rounded-xl h-8 text-xs" onClick={onAction}>
         {actionLabel}
       </Button>
     </div>
