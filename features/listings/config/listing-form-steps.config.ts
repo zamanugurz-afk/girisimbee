@@ -390,7 +390,6 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'desiredRole',
         'desiredRoleOther',
         'experienceLevel',
-        'workType',
       ],
     },
     {
@@ -408,6 +407,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       title: 'İlan Tercihleri',
       description: 'Lokasyon, çalışma modeli ve ücret aralığı',
       customFieldKeys: [
+        'workType',
         'preferredCity',
         'preferredDistrict',
         'preferredDistrictOther',
