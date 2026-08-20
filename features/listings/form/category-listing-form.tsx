@@ -2899,14 +2899,6 @@ export function CategoryListingForm({
                         />
                       ) : null}
                     </div>
-
-                    {/* Bilgilendirme */}
-                    <div className="rounded-xl border border-border/60 bg-muted/20 p-3.5 text-xs text-muted-foreground">
-                      <p className="font-semibold text-foreground">Bilgileriniz KVKK&apos;ya uygun olarak korunur.</p>
-                      <p className="mt-1">
-                        Kişisel verileriniz güvenle işlenir ve saklanır.
-                      </p>
-                    </div>
                   </div>
                 </div>
               ) : (

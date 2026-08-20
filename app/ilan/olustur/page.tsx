@@ -74,10 +74,13 @@ function CreateListingContent() {
       : null;
 
   const [careerHubOpen, setCareerHubOpen] = useState(false);
-  const categoryId = initialCategory;
+  const [overrideCategory, setOverrideCategory] = useState<CategoryId | null>(null);
+  const [overrideIntent, setOverrideIntent] = useState<PartnershipIntent | null>(null);
+
+  const categoryId = initialCategory || overrideCategory;
   const partnershipIntent: PartnershipIntent | null =
     categoryId === CATEGORY_IDS.ortakBul
-      ? (urlPartnershipIntent ?? 'seeking')
+      ? (overrideIntent ?? urlPartnershipIntent ?? 'seeking')
       : null;
   const listingTypeId: ListingTypeId | null = categoryId
     ? (
@@ -130,6 +133,10 @@ function CreateListingContent() {
 
   function selectCategory(id: CategoryId, options?: { partnershipIntent?: PartnershipIntent }) {
     if (CREATE_LISTING_DEFERRED_CATEGORY_IDS.includes(id)) return;
+    setOverrideCategory(id);
+    if (options?.partnershipIntent) {
+      setOverrideIntent(options.partnershipIntent);
+    }
     setCareerHubOpen(false);
     if (id === CATEGORY_IDS.ortakBul) {
       router.push(partnershipCreateHref(options?.partnershipIntent ?? urlPartnershipIntent ?? 'seeking'));
@@ -140,6 +147,8 @@ function CreateListingContent() {
   }
 
   function resetCategorySelection() {
+    setOverrideCategory(null);
+    setOverrideIntent(null);
     setCareerHubOpen(false);
     if (categoryId === CATEGORY_IDS.ortakBul || categoryId === CATEGORY_IDS.bayilikAl) {
       router.push('/ilan/olustur?hub=venture');
@@ -398,40 +407,7 @@ function CreateListingContent() {
             onHubStepChange={handleHubStepChange}
           />
         </>
-      ) : (
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900 px-6 py-3.5 shadow-xs">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">
-              Girişim<span className="text-amber-500">bee</span>
-            </span>
-            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-700" />
-            <span className="font-display font-semibold text-slate-800 dark:text-zinc-200 text-sm sm:text-base">
-              {selectedLabel} İlanı Oluştur
-            </span>
-          </div>
-
-          <div className="flex items-center gap-5 text-xs text-slate-500 dark:text-zinc-400">
-            <div className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Taslak kaydedildi</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => alert('İlanınızı adım adım doldurarak tek bakışta canlı önizlemesini görebilirsiniz.')}
-              className="flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              <span>(?) Yardım</span>
-            </button>
-            <button
-              type="button"
-              onClick={resetCategorySelection}
-              className="flex items-center gap-1 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-            >
-              <span>Taslağı Sil</span>
-            </button>
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {isReady && formListingType && categoryId ? (
         <CategoryListingForm

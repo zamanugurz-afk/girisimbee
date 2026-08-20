@@ -483,101 +483,71 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   },
   desiredRole: {
     placeholder: 'Pozisyon seçin',
-    helperText: 'Pozisyonu listeden seçin. Listede yoksa Diğer’i seçip açıklayın.',
   },
   primarySector: {
     placeholder: 'Sektör seçin',
-    helperText: 'Sektörü seçin; pozisyon listesi buna göre dolar.',
   },
   desiredRoleOther: {
     placeholder: 'Örn: E-ticaret operasyon uzmanı',
-    helperText: 'Listede yoksa pozisyonu kısaca yazın. Yalnızca boşluk kabul edilmez.',
     maxLength: 200,
   },
   experienceLevel: {
     placeholder: 'Deneyim seviyesi seçin',
-    helperText: 'Pozisyonun deneyim seviyesini seçin.',
   },
   salaryRange: {
     placeholder: 'Maaş aralığı seçin',
-    helperText: 'Sunmayı planladığınız maaş aralığı.',
   },
-  expertise: {
-    helperText: 'Uzmanlık alanlarını seçin.',
-  },
-  offeredSkills: {
-    helperText: 'Sunduğunuz profesyonel veya teknik yetkinlikleri seçin.',
-  },
+  expertise: {},
+  offeredSkills: {},
   experience: {
     placeholder: 'Deneyim süresini seçin',
-    helperText: 'İlgili alandaki deneyiminizi seçin.',
   },
   salaryExpectation: {
     placeholder: 'Maaş beklentisi aralığı seçin',
-    helperText: 'Net veya brüt maaş beklentinizi aralık olarak belirtin.',
   },
   workType: {
     placeholder: 'Çalışma tipi seçin',
-    helperText: 'Tam zamanlı, yarı zamanlı, proje bazlı, staj veya sözleşmeli.',
   },
   profileGender: {
     placeholder: 'Cinsiyet seçin',
-    helperText:
-      'Kartta yaş ve cinsiyet görünür. Kapak fotoğrafı da buna göre seçilir.',
   },
   birthDate: {
     placeholder: 'Doğum tarihi',
-    helperText:
-      'Kartta yalnızca yaş görünür. Tam doğum tarihi iletişim talebi kabul edilince işverene gösterilir.',
   },
   residenceCity: {
     placeholder: 'Yaşadığınız ili seçin',
-    helperText:
-      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir.',
   },
   residenceDistrict: {
     placeholder: 'Yaşadığınız ilçeyi seçin',
-    helperText:
-      'Kamu kartında görünmez. İletişim talebi kabul edilince işverene gösterilir. Önce ili seçin.',
   },
   remotePreference: {
     placeholder: 'Uzaktan çalışma tercihi seçin',
-    helperText: 'Ofis, hibrit veya tam uzaktan çalışma tercihiniz.',
   },
   workplacePreference: {
     placeholder: 'Çalışma modeli seçin',
-    helperText:
-      'Ofis, saha, fabrika, vardiya, mağaza veya uzaktan — pozisyona uygun olanı seçin. İş Arıyorum ve İşe Alıyorum aynı listeyi kullanır.',
   },
   positionTitle: {
     placeholder: 'Pozisyon seçin',
-    helperText: 'Açtığınız pozisyonu listeden seçin. Yoksa Diğer’i seçip açıklayın.',
   },
   positionTitleOther: {
     placeholder: 'Örn: Magento e-ticaret uzmanı — katalog ve kampanya yönetimi',
-    helperText: 'Pozisyon listede yoksa en az 30 karakterle net yazın.',
     maxLength: 200,
   },
   preferredCity: {
     placeholder: 'İl seçin',
-    helperText: 'İli seçin; ardından ilçe seçebilirsiniz.',
   },
   preferredDistrict: {
     placeholder: 'İlçe seçin',
-    helperText: 'Tercih ettiğiniz ilçe. Listede yoksa Diğer’i seçip yazın.',
   },
   preferredDistrictOther: {
     placeholder: 'Örn: Yeni mahalle / belde adı',
-    helperText: 'İlçe listede yoksa kısaca yazın.',
     maxLength: 120,
   },
   district: {
     placeholder: 'İlçe seçin',
-    helperText: 'Pozisyonun ilçesi. Listede yoksa Diğer’i seçip yazın.',
   },
   districtOther: {
     placeholder: 'Örn: Yeni mahalle / belde adı',
-    helperText: 'İlçe listede yoksa kısaca yazın.',
     maxLength: 120,
   },
   professionalSkills: {
