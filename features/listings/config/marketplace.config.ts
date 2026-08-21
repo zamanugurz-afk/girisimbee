@@ -135,6 +135,7 @@ export const CATEGORY_CONTENT_TYPE: Record<string, ContentType> = {
   'ortak-bul': 'startup',
   'bayilik-al': 'startup',
   'dijital-ai': 'startup',
+  'isletme-devri': 'startup',
   'genel-ilan': 'startup',
 };
 
@@ -147,6 +148,7 @@ export const CATEGORY_EMOJI: Record<string, string> = {
   'ortak-bul': '🤝',
   'bayilik-al': '🏪',
   'dijital-ai': '🧠',
+  'isletme-devri': '🏢',
   'genel-ilan': '📢',
 };
 

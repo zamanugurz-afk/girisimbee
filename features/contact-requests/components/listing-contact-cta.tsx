@@ -27,6 +27,7 @@ import {
   CONTACT_CTA_PRIVACY_SHORT,
   CONTACT_CTA_SUBMIT_LABEL,
   isCareerContactCategory,
+  isContactRequestEligibleCategory,
   resolveContactCtaLabel,
   resolveContactStatusLabel,
 } from '@/features/contact-requests/config/contact-cta-copy';

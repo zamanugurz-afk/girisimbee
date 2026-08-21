@@ -23,6 +23,8 @@ import {
   FRANCHISE_GIVE_FIELD_SCHEMA,
   GENERAL_LISTING_FIELD_SCHEMA,
   DIGITAL_AI_FIELD_SCHEMA,
+  BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
+  BUSINESS_TRANSFER_BUY_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
@@ -181,6 +183,9 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   franchise: FRANCHISE_GIVE_FIELD_SCHEMA,
   ilan: GENERAL_LISTING_FIELD_SCHEMA,
   'dijital-ai': DIGITAL_AI_FIELD_SCHEMA,
+  'isletme-devri': BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
+  'isletme-devret': BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
+  'isletme-devral': BUSINESS_TRANSFER_BUY_FIELD_SCHEMA,
 };
 
 const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
@@ -190,6 +195,9 @@ const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
   [LISTING_TYPE_IDS.iseAlDefault]: 'ise-al',
   [LISTING_TYPE_IDS.ortakBulDefault]: 'ortak-bul',
   [LISTING_TYPE_IDS.franchiseGiveDefault]: 'bayilik-al',
+  [LISTING_TYPE_IDS.franchiseBuyDefault]: 'bayilik-al',
+  [LISTING_TYPE_IDS.businessTransferSellDefault]: 'isletme-devri',
+  [LISTING_TYPE_IDS.businessTransferBuyDefault]: 'isletme-devri',
   [LISTING_TYPE_IDS.genelIlanDefault]: 'ilan',
   [LISTING_TYPE_IDS.dijitalAiDefault]: 'dijital-ai',
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: 'yatirim-bul',
@@ -221,6 +229,10 @@ const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
   'bayilik-ver': 'bayilik-al',
   'genel-ilan': 'ilan',
   'dijital-ai-cozum': 'dijital-ai',
+  'isletme-devri': 'isletme-devri',
+  'isletme-devret': 'isletme-devri',
+  'isletme-devral': 'isletme-devri',
+  'business-transfer': 'isletme-devri',
 };
 
 function resolveDetailCategorySlug(listing: Listing): string {

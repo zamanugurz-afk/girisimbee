@@ -15,6 +15,22 @@ export default function Error({
     console.error('[app/error]', error);
   }, [error]);
 
+  function handleRetry() {
+    if (typeof window !== 'undefined') {
+      const msg = error.message || '';
+      if (
+        msg.includes('ChunkLoadError') ||
+        msg.includes('Loading chunk') ||
+        msg.includes('Failed to fetch') ||
+        msg.includes('MIME type')
+      ) {
+        window.location.reload();
+        return;
+      }
+    }
+    reset();
+  }
+
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-5 py-16 text-center">
       <p className="text-xs font-semibold uppercase tracking-wide text-destructive">Hata</p>
@@ -26,7 +42,7 @@ export default function Error({
         dönebilirsiniz.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <Button type="button" className="rounded-xl" onClick={reset}>
+        <Button type="button" className="rounded-xl" onClick={handleRetry}>
           Tekrar dene
         </Button>
         <Button asChild variant="outline" className="rounded-xl">
