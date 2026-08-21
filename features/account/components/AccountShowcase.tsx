@@ -2,13 +2,17 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Briefcase, CheckCircle2, Sparkles, Zap, ArrowRight } from 'lucide-react';
+import { Briefcase, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccountShowcaseCard } from '@/features/account/components/AccountShowcaseCard';
 import { AccountShowcaseEmpty } from '@/features/account/components/AccountShowcaseEmpty';
 import { AccountShowcaseStats } from '@/features/account/components/AccountShowcaseStats';
+import {
+  OpportunityCard,
+  OpportunityCardGrid,
+} from '@/components/girisimco/ui/opportunity-card';
 import {
   buildShowcaseStats,
   filterAccountShowcases,
@@ -28,83 +32,74 @@ import { remainingDays } from '@/features/monetization/services/listing-placemen
 const BENEFIT_PACKAGES = [
   {
     id: 'standard',
-    title: 'Standart İlan Paketi',
-    subtitle: 'Temel ilan yayınlama ve ekosistemle buluşma paketi.',
-    icon: Briefcase,
-    color: '#10b981',
-    bgColor: 'bg-emerald-500/10',
-    textColor: 'text-emerald-700 dark:text-emerald-400',
-    borderColor: 'border-emerald-500/20',
-    buttonColor: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-    features: [
+    label: 'Standart İlan Paketi',
+    description: 'Temel ilan yayınlama ve ekosistemle buluşma paketi.',
+    Icon: Briefcase,
+    color: '#10B981',
+    benefits: [
       {
         title: '30 Günlük Kesintisiz Yayın',
-        desc: 'İlanınız 30 gün boyunca platformda aktif kalır.',
+        text: 'İlanınız 30 gün boyunca platformda aktif kalır.',
       },
       {
         title: 'Arama & Kategori Dizini',
-        desc: 'İlgili tüm sektör filtrelerinde listelenir.',
+        text: 'İlgili tüm sektör filtrelerinde listelenir.',
       },
       {
         title: 'Doğrudan İletişim & Başvuru',
-        desc: 'İlgilenen kullanıcılar doğrudan talep gönderebilir.',
+        text: 'İlgilenen kullanıcılar doğrudan talep gönderebilir.',
       },
     ],
-    cta: { label: 'Yeni İlan Ver', href: '/ilan/olustur' },
+    href: '/ilan/olustur',
+    ctaLabel: 'Yeni İlan Ver',
   },
   {
     id: 'showcase',
-    title: 'Vitrin İlanı (Öne Çıkan)',
-    subtitle: 'Ana sayfa ve kategori vitrininde en üstte yer alın.',
-    icon: Sparkles,
-    color: '#d97706',
-    bgColor: 'bg-amber-500/10',
-    textColor: 'text-amber-700 dark:text-amber-400',
-    borderColor: 'border-amber-500/20',
-    buttonColor: 'bg-amber-600 hover:bg-amber-700 text-white',
-    features: [
+    label: 'Vitrin İlanı (Öne Çıkan)',
+    description: 'Ana sayfa ve kategori vitrininde en üstte yer alın.',
+    Icon: Sparkles,
+    color: '#D97706',
+    benefits: [
       {
         title: 'En Üst Sıra Listelenme',
-        desc: 'Ana sayfa ve kategori en üstünde yer alır.',
+        text: 'Ana sayfa ve kategori en üstünde yer alır.',
       },
       {
         title: '5 Kata Kadar Fazla Görüntülenme',
-        desc: 'Vitrin rozetiyle 5 kat daha fazla etkileşim alın.',
+        text: 'Vitrin rozetiyle 5 kat daha fazla etkileşim alın.',
       },
       {
         title: 'Altın Vitrin Rozeti',
-        desc: 'Özel çerçeve ve vitrin etiketiyle öne çıkar.',
+        text: 'Özel çerçeve ve vitrin etiketiyle öne çıkar.',
       },
     ],
-    cta: { label: 'İlanı Vitrine Taşı', href: '/dashboard/ilanlarim' },
+    href: '/dashboard/ilanlarim',
+    ctaLabel: 'İlanı Vitrine Taşı',
   },
   {
     id: 'urgent',
-    title: 'Acil Vitrin Dopingi',
-    subtitle: 'Hızlı sonuç almak için kırmızı flaş acil dopingi.',
-    icon: Zap,
-    color: '#e11d48',
-    bgColor: 'bg-rose-500/10',
-    textColor: 'text-rose-700 dark:text-rose-400',
-    borderColor: 'border-rose-500/20',
-    buttonColor: 'bg-rose-600 hover:bg-rose-700 text-white',
-    features: [
+    label: 'Acil Vitrin Dopingi',
+    description: 'Hızlı sonuç almak için kırmızı flaş acil dopingi.',
+    Icon: Zap,
+    color: '#E11D48',
+    benefits: [
       {
         title: 'Kırmızı Flaş "Acil" Rozeti',
-        desc: 'Aramalarda ilk sırada kırmızı acil etiketiyle parlar.',
+        text: 'Aramalarda ilk sırada kırmızı acil etiketiyle parlar.',
       },
       {
         title: 'Öncelikli Eşleşme Bildirimi',
-        desc: 'İlgili yatırımcı ve adaylara anında iletilir.',
+        text: 'İlgili yatırımcı ve adaylara anında iletilir.',
       },
       {
         title: 'Maksimum Dönüşüm Oranı',
-        desc: 'Acil arayan kitleye doğrudan ulaşır.',
+        text: 'Acil arayan kitleye doğrudan ulaşır.',
       },
     ],
-    cta: { label: 'Acil Doping Uygula', href: '/dashboard/ilanlarim' },
+    href: '/dashboard/ilanlarim',
+    ctaLabel: 'Acil Doping Uygula',
   },
-];
+] as const;
 
 export function AccountShowcase({
   initial,
@@ -238,64 +233,26 @@ export function AccountShowcase({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {BENEFIT_PACKAGES.map((pkg) => {
-            const Icon = pkg.icon;
-            return (
-              <div
+        <div className="mt-8">
+          <OpportunityCardGrid columns={3}>
+            {BENEFIT_PACKAGES.map((pkg) => (
+              <OpportunityCard
                 key={pkg.id}
-                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900/90"
-              >
-                <div>
-                  <div className="flex items-center justify-center">
-                    <div
-                      className={`flex h-16 w-16 items-center justify-center rounded-2xl ${pkg.bgColor} shadow-2xs`}
-                    >
-                      <Icon className="h-8 w-8" style={{ color: pkg.color }} />
-                    </div>
-                  </div>
-
-                  <h3 className="mt-5 text-center font-display text-lg font-bold tracking-tight text-slate-950 dark:text-white">
-                    {pkg.title}
-                  </h3>
-                  <p className="mt-1.5 text-center text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
-                    {pkg.subtitle}
-                  </p>
-
-                  <div className="mt-6 space-y-4 border-t border-slate-100 dark:border-zinc-800 pt-5">
-                    {pkg.features.map((feat) => (
-                      <div key={feat.title} className="flex items-start gap-2.5">
-                        <CheckCircle2
-                          className="h-4 w-4 shrink-0 mt-0.5"
-                          style={{ color: pkg.color }}
-                        />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">
-                            {feat.title}
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-snug">
-                            {feat.desc}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4">
-                  <Button
-                    asChild
-                    className={`w-full h-10 rounded-xl font-bold text-xs gap-1.5 shadow-sm ${pkg.buttonColor}`}
-                  >
-                    <Link href={pkg.cta.href}>
-                      <span>{pkg.cta.label}</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
+                option={{
+                  id: pkg.id,
+                  label: pkg.label,
+                  description: pkg.description,
+                  benefits: pkg.benefits,
+                  href: pkg.href,
+                  ctaLabel: pkg.ctaLabel,
+                }}
+                visual={{
+                  color: pkg.color,
+                  Icon: pkg.Icon,
+                }}
+              />
+            ))}
+          </OpportunityCardGrid>
         </div>
       </div>
 
