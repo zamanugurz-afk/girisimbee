@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, Plus, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo, NAV_LINKS, MVP_COPY } from '@/features/shared';
@@ -23,8 +23,12 @@ function isNavLinkActive(pathname: string, href: string): boolean {
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -36,6 +40,30 @@ export function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Global Cmd+K / Ctrl+K keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleSearchSubmit = (queryStr: string) => {
+    const trimmed = queryStr.trim();
+    if (!trimmed) {
+      if (pathname !== '/ara') {
+        router.push('/ara');
+      }
+      return;
+    }
+    router.push(`/ara?q=${encodeURIComponent(trimmed)}`);
+  };
 
   return (
     <header
@@ -74,18 +102,37 @@ export function Header() {
 
         {/* Search, Notifications, Auth, CTA cluster */}
         <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 pl-2 sm:gap-2">
-          <Link
-            href="/ara"
-            className="hidden h-9 items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-100/70 px-3.5 text-xs font-medium text-slate-500 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 dark:border-zinc-700/80 dark:bg-zinc-800/60 dark:text-zinc-400 dark:hover:border-zinc-600 md:inline-flex"
-            aria-label="İlan veya girişim ara"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearchSubmit(searchQuery);
+            }}
+            className="hidden h-9 items-center rounded-full border border-slate-200/80 bg-slate-100/70 pl-3 pr-2 text-xs font-medium text-slate-500 transition-all duration-200 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 dark:border-zinc-700/80 dark:bg-zinc-800/60 dark:text-zinc-400 dark:focus-within:border-primary/50 dark:focus-within:bg-zinc-900 md:inline-flex"
+            role="search"
           >
-            <Search className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-500" />
-            <span className="hidden lg:inline">İlan veya girişim ara...</span>
-            <span className="lg:hidden">Ara...</span>
-            <kbd className="ml-1 inline-flex h-4 items-center rounded border border-slate-200 bg-white px-1 font-mono text-[9px] font-semibold text-slate-400 shadow-2xs dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500">
+            <button
+              type="submit"
+              className="mr-2 flex shrink-0 items-center justify-center text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+              aria-label="Ara"
+            >
+              <Search className="h-3.5 w-3.5" />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="İlan veya girişim ara..."
+              className="w-32 lg:w-44 bg-transparent text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              aria-label="İlan veya girişim ara"
+            />
+            <kbd
+              onClick={() => searchInputRef.current?.focus()}
+              className="ml-1 inline-flex h-4 items-center rounded border border-slate-200 bg-white px-1 font-mono text-[9px] font-semibold text-slate-400 shadow-2xs dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500 cursor-pointer select-none"
+            >
               ⌘K
             </kbd>
-          </Link>
+          </form>
 
           <Link href="/ara" className={cn(iconBtnClass, 'md:hidden')} aria-label="Ara">
             <Search className="h-4 w-4" />
@@ -121,14 +168,31 @@ export function Header() {
 
       {mobileOpen && (
         <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down dark:bg-background/95">
-          <Link
-            href="/ara"
-            onClick={() => setMobileOpen(false)}
-            className="mb-3 flex items-center gap-2 rounded-xl border border-border/60 bg-white px-3 py-2.5 text-sm font-medium text-[#334155] transition-all hover:border-primary/25 hover:bg-primary/5 dark:bg-card dark:text-foreground"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setMobileOpen(false);
+              handleSearchSubmit(mobileSearchQuery);
+            }}
+            className="mb-3 flex items-center gap-2 rounded-xl border border-border/60 bg-white px-3 py-2 text-sm font-medium text-[#334155] dark:bg-card dark:text-foreground"
+            role="search"
           >
-            <Search className="h-4 w-4 shrink-0" />
-            İlan ara…
-          </Link>
+            <button
+              type="submit"
+              className="flex shrink-0 items-center text-slate-400 hover:text-slate-600 dark:text-zinc-500"
+              aria-label="Ara"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <input
+              type="search"
+              value={mobileSearchQuery}
+              onChange={(e) => setMobileSearchQuery(e.target.value)}
+              placeholder="İlan veya girişim ara..."
+              className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              aria-label="İlan veya girişim ara"
+            />
+          </form>
           <nav className="flex flex-col gap-1.5">
             {NAV_LINKS.map((link) => (
               <Link
