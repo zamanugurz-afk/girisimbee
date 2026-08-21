@@ -80,19 +80,19 @@ describe('franchise presentation', () => {
 
   it('keeps create form steps in publisher-friendly order', () => {
     const steps = getListingFormSteps(CATEGORY_IDS.bayilikAl);
-    expect(steps.slice(0, 6).map((step) => step.id)).toEqual([
-      'brand',
-      'business-model',
+    expect(steps.map((step) => step.id)).toEqual([
+      'basics',
       'investment',
-      'location',
-      'requirements',
-      'media',
+      'details',
+      'publish',
     ]);
-    expect(steps[0]?.coreFields).toEqual(['title', 'shortDescription', 'longDescription']);
+    expect(steps[0]?.coreFields).toEqual(['title', 'shortDescription']);
     expect(steps[0]?.customFieldKeys).toEqual(
       expect.arrayContaining(['companyName', 'sector']),
     );
-    expect(steps[1]?.customFieldKeys?.[0]).toBe('businessCategory');
+    expect(steps[1]?.customFieldKeys).toEqual(
+      expect.arrayContaining(['totalInvestment', 'franchiseFee']),
+    );
     expect(FRANCHISE_GIVE_FIELD_SCHEMA.fields.find((field) => field.key === 'businessCategory')?.label).toBe(
       'Franchise modeli',
     );

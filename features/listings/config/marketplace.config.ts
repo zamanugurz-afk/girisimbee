@@ -36,6 +36,7 @@ export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'ortak-bul': '/partners',
   'bayilik-al': '/franchise/buy',
   'dijital-ai': '/dijital-ai',
+  'isletme-devri': '/isletme-devri',
 };
 
 /** English route path → canonical category slug. */
@@ -80,6 +81,11 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
     seoTitle: 'Dijital & AI Çözümleri | Girisimbee',
     seoDescription: 'İşletmeniz için dijital ürün, yazılım ve yapay zeka çözümlerini keşfedin.',
   },
+  'isletme-devri': {
+    description: 'Faal işletme devri ve hazır işletme devralma fırsatlarını keşfedin.',
+    seoTitle: 'İşletme Devri İlanları | Girisimbee',
+    seoDescription: 'Kafe, restoran, mağaza, e-ticaret ve faal şirket devir fırsatlarını keşfedin.',
+  },
   'genel-ilan': {
     description: 'Ürün, hizmet ve duyuru ilanları',
     seoTitle: 'Genel İlanlar | Girisimbee',
@@ -95,6 +101,7 @@ const CATEGORY_ACCENT_KEYS: Record<string, keyof typeof GC_CATEGORY_COLORS> = {
   'ortak-bul': 'ortak-bul',
   'bayilik-al': 'franchise',
   'dijital-ai': 'dijital-ai',
+  'isletme-devri': 'isletme-devri',
   'genel-ilan': 'ilan',
 };
 

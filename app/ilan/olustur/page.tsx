@@ -425,7 +425,7 @@ function CreateListingContent() {
 
       {isReady && formListingType && categoryId ? (
         <CategoryListingForm
-          key={`${categoryId}-${partnershipIntent ?? 'none'}`}
+          key={`${categoryId}-${listingTypeId ?? 'default'}-${partnershipIntent ?? 'none'}`}
           listingType={formListingType}
           categoryId={categoryId}
           partnershipIntent={partnershipIntent ?? undefined}
