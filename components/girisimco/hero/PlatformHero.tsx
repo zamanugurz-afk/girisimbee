@@ -24,51 +24,65 @@ import { cn } from '@/lib/utils';
 const HERO_SIDEBAR_STATS: {
   key: HeroStatKey;
   label: string;
+  href: string;
   Icon: LucideIcon;
   iconClass: string;
   boxClass: string;
+  hoverBorderClass: string;
 }[] = [
   {
     key: 'total',
     label: 'Toplam İlan',
+    href: '/kesfet',
     Icon: Rocket,
     iconClass: 'text-[#3B82F6]',
     boxClass: 'bg-[#EFF6FF]',
+    hoverBorderClass: 'hover:border-[#3B82F6]/50',
   },
   {
     key: 'jobs',
     label: 'Kariyer',
+    href: '/is',
     Icon: Briefcase,
     iconClass: 'text-[#EA580C]',
     boxClass: 'bg-[#FFF7ED]',
+    hoverBorderClass: 'hover:border-[#EA580C]/50',
   },
   {
     key: 'partners',
     label: 'Ortaklık',
+    href: '/partners',
     Icon: Handshake,
     iconClass: 'text-[#DB2777]',
     boxClass: 'bg-[#FDF2F8]',
+    hoverBorderClass: 'hover:border-[#DB2777]/50',
   },
   {
     key: 'franchise',
     label: 'Franchise',
+    href: '/franchise/buy',
     Icon: Store,
     iconClass: 'text-[#C026D3]',
     boxClass: 'bg-[#FDF4FF]',
+    hoverBorderClass: 'hover:border-[#C026D3]/50',
   },
   {
     key: 'opportunities',
     label: 'Fırsatlar',
+    href: '/market',
     Icon: Megaphone,
     iconClass: 'text-[#0EA5E9]',
     boxClass: 'bg-[#F0F9FF]',
+    hoverBorderClass: 'hover:border-[#0EA5E9]/50',
   },
   {
     key: 'solutions',
     label: 'Çözümler',
+    href: '/dijital-ai',
     Icon: BrainCircuit,
     iconClass: 'text-[#7C3AED]',
     boxClass: 'bg-[#F5F3FF]',
+    hoverBorderClass: 'hover:border-[#7C3AED]/50',
   },
 ];
 
@@ -82,15 +96,24 @@ function StatPill({
   isLoading: boolean;
 }) {
   return (
-    <div
+    <Link
+      href={stat.href}
       className={cn(
-        'flex items-center gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-1.5',
+        'group flex items-center gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-1.5',
         'shadow-[0_1px_3px_rgba(15,23,42,0.04)] backdrop-blur-sm',
+        'cursor-pointer transition-all duration-200 ease-out',
+        'hover:-translate-y-0.5 hover:shadow-md',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:-translate-y-0.5',
         'dark:border-border dark:bg-card',
+        stat.hoverBorderClass,
       )}
+      aria-label={`${stat.label}: ${isLoading ? 'Yükleniyor' : formatHeroStatCount(counts[stat.key])}`}
     >
       <span
-        className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-md', stat.boxClass)}
+        className={cn(
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-transform duration-200 group-hover:scale-105',
+          stat.boxClass,
+        )}
         aria-hidden
       >
         <stat.Icon className={cn('h-3.5 w-3.5', stat.iconClass)} strokeWidth={1.75} />
@@ -98,15 +121,17 @@ function StatPill({
       <span className="min-w-0">
         <span
           className={cn(
-            'block font-display text-[12.5px] font-bold tabular-nums leading-none text-[#0B1220] dark:text-foreground',
+            'block font-display text-[12.5px] font-bold tabular-nums leading-none text-[#0B1220] transition-colors dark:text-foreground',
             isLoading && 'animate-pulse text-muted-foreground',
           )}
         >
           {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
         </span>
-        <span className="mt-0.5 block truncate text-[10px] text-[#64748B]">{stat.label}</span>
+        <span className="mt-0.5 block truncate text-[10px] text-[#64748B] transition-colors group-hover:text-foreground">
+          {stat.label}
+        </span>
       </span>
-    </div>
+    </Link>
   );
 }
 
