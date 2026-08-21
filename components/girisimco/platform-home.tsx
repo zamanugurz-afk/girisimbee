@@ -116,10 +116,6 @@ export function PlatformHome() {
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200">Franchise ve Bayilik</h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10 pointer-events-auto">
-                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise İlanları</Link>
-                    <Link href="/ilan/olustur?category=franchise" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">İlan Ver</Link>
-                  </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
                   <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● 5 Aktif Fırsat</span>
