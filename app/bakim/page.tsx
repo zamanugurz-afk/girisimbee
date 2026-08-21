@@ -31,26 +31,11 @@ export default function MaintenancePage() {
           <BrandWordmark className="font-display text-3xl font-bold tracking-tight sm:text-4xl" />
         </div>
 
-        <p className="mb-4 inline-flex animate-[gc-maint-fade_0.8s_ease-out_0.08s_both] items-center rounded-full bg-[#F59E0B]/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#B45309]">
-          Yenileniyoruz
-        </p>
-
         <h1 className="animate-[gc-maint-fade_0.85s_ease-out_0.12s_both] font-display text-4xl font-bold tracking-tight text-[#0F172A] sm:text-5xl">
           Çok Yakında Buradayız
         </h1>
 
-        <p className="mt-5 max-w-xl animate-[gc-maint-fade_0.9s_ease-out_0.18s_both] text-base leading-relaxed text-[#334155] sm:text-lg">
-          Yeni <span className="font-semibold text-[#0F172A]">Girisimbee</span> logomuz ve
-          yenilenen yapıyla en kısa sürede yeniden açıyoruz. Ortaklık, iş, franchise ve
-          dijital çözümleri tek platformda buluşturan deneyim için son hazırlıklarımız devam
-          ediyor.
-        </p>
-
-        <div className="mt-10 h-px w-24 animate-[gc-maint-fade_1s_ease-out_0.25s_both] bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
-
-        <p className="mt-8 animate-[gc-maint-fade_1s_ease-out_0.3s_both] text-sm text-[#64748B]">
-          Hazır olduğumuzda buradan duyuracağız.
-        </p>
+        <div className="mt-8 h-px w-24 animate-[gc-maint-fade_1s_ease-out_0.25s_both] bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
       </div>
 
       <footer className="relative z-10 pb-8 text-center text-xs text-[#94A3B8]">
