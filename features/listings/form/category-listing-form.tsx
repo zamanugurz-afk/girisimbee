@@ -2661,7 +2661,14 @@ export function CategoryListingForm({
               {currentStep.coreFields
                 && currentStep.coreFields.length > 0
                 && !isSeekingIdentityStep
-                && !(isInvestmentSummaryStep && !editingInvestmentSummary) && (
+                && !(isInvestmentSummaryStep && !editingInvestmentSummary)
+                && !(isFormStep && stepIndex === 0 && (
+                  categoryId === CATEGORY_IDS.isBul
+                  || categoryId === CATEGORY_IDS.iseAl
+                  || categoryId === CATEGORY_IDS.isletmeDevri
+                  || categoryId === CATEGORY_IDS.bayilikAl
+                  || categoryId === CATEGORY_IDS.ortakBul
+                )) && (
                 <CoreListingFields
                   values={core}
                   onChange={(next) => {
@@ -2774,7 +2781,86 @@ export function CategoryListingForm({
                 </div>
               ) : null}
 
-              {isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) ? (
+              {isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul) ? (
+                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                  {/* Middle Vertical Divider */}
+                  <div
+                    aria-hidden="true"
+                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px', theme.dividerColor)}
+                  />
+
+                  {/* Left Column: Başlık, Kısa Açıklama, Varsa Tabela/Marka Adı */}
+                  <div className="space-y-4 md:pr-4">
+                    <CoreListingFields
+                      values={core}
+                      onChange={(next) => {
+                        const cityChanged = next.city !== core.city;
+                        handleCoreChange(next);
+                        if (cityChanged) {
+                          setCustomField('district', '');
+                          setCustomField('districtOther', '');
+                        }
+                      }}
+                      include={['title', 'shortDescription']}
+                      labels={coreFieldLabels}
+                      fieldUi={coreFieldUi}
+                      errors={{
+                        title: resolveFieldError(fieldErrors, 'title'),
+                        shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
+                      }}
+                      disabled={disabled || isBusy}
+                    />
+
+                    {fieldByKey.get('businessName') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('businessName')!}
+                          value={mergedCustomFields.businessName}
+                          onChange={(val) => handleCustomFieldChange('businessName', val)}
+                          error={resolveFieldError(fieldErrors, 'businessName')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                      </div>
+                    ) : null}
+
+                    {fieldByKey.get('brandName') ? (
+                      <div className="space-y-2">
+                        <DynamicField
+                          field={fieldByKey.get('brandName')!}
+                          value={mergedCustomFields.brandName}
+                          onChange={(val) => handleCustomFieldChange('brandName', val)}
+                          error={resolveFieldError(fieldErrors, 'brandName')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Right Column: İşletme Türleri, Sektörler, Ortaklık Türleri */}
+                  <div className="space-y-4 md:pl-4">
+                    {restCustomKeys
+                      .filter((key) => key !== 'businessName' && key !== 'brandName')
+                      .map((key) => {
+                        const field = fieldByKey.get(key);
+                        if (!field) return null;
+                        return (
+                          <div key={key} className="space-y-2">
+                            <DynamicField
+                              field={field}
+                              value={mergedCustomFields[key]}
+                              onChange={(val) => handleCustomFieldChange(key, val)}
+                              error={resolveFieldError(fieldErrors, key)}
+                              disabled={disabled || isBusy}
+                              context={dynamicFieldContext}
+                            />
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ) : isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) ? (
                 <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                   {/* Middle Vertical Divider */}
                   <div
@@ -3005,58 +3091,76 @@ export function CategoryListingForm({
                   </div>
                 </div>
               ) : (
-                (isSeekingIdentityStep
-                  ? restCustomKeys.filter((key) => key !== 'productName')
-                  : restCustomKeys
-                ).map((key) => {
-                  const field = fieldByKey.get(key);
-                  if (!field) return null;
-                  return (
-                    <div key={key} className="space-y-2">
-                      <DynamicField
-                        field={field}
-                        value={
-                          categoryId === CATEGORY_IDS.yatirimBul
-                            ? displaySeekingMetricValue(key, mergedCustomFields)
-                            : mergedCustomFields[key]
-                        }
-                        onChange={(val) => {
-                          handleCustomFieldChange(key, val);
-                          if (cvFilledKeys.has(key)) {
-                            setCvFilledKeys((prev) => {
-                              const next = new Set(prev);
-                              next.delete(key);
-                              return next;
-                            });
+                <div
+                  className={cn(
+                    'grid gap-4',
+                    (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul)
+                      ? 'grid-cols-1 sm:grid-cols-2'
+                      : 'grid-cols-1',
+                  )}
+                >
+                  {(isSeekingIdentityStep
+                    ? restCustomKeys.filter((key) => key !== 'productName')
+                    : restCustomKeys
+                  ).map((key) => {
+                    const field = fieldByKey.get(key);
+                    if (!field) return null;
+                    const isFullWidth =
+                      key === 'transferScope' ||
+                      key === 'reasonForTransfer' ||
+                      key === 'postTransferSupport' ||
+                      key === 'financialSummary' ||
+                      key === 'relevantExperience' ||
+                      key === 'capabilities' ||
+                      key === 'requiredResponsibilities';
+
+                    return (
+                      <div key={key} className={cn('space-y-2', isFullWidth && 'sm:col-span-2')}>
+                        <DynamicField
+                          field={field}
+                          value={
+                            categoryId === CATEGORY_IDS.yatirimBul
+                              ? displaySeekingMetricValue(key, mergedCustomFields)
+                              : mergedCustomFields[key]
                           }
-                        }}
-                        isCvFilled={cvFilledKeys.has(key)}
-                        error={resolveFieldError(fieldErrors, key)}
-                        disabled={disabled || isBusy}
-                        context={dynamicFieldContext}
-                      />
-                      {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
-                        <CareerManualAssist
-                          kind="role"
-                          text={String(mergedCustomFields[key] ?? '')}
-                          catalog={getPositionsForSector(
-                            String(mergedCustomFields.primarySector ?? ''),
-                          )}
-                          sector={String(mergedCustomFields.primarySector ?? '')}
-                          experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
-                          disabled={disabled || isBusy}
-                          onAcceptCatalog={(items) => {
-                            const first = items[0];
-                            if (!first) return;
-                            const targetKey = key === 'desiredRoleOther' ? 'desiredRole' : 'role';
-                            setCustomField(targetKey, first);
-                            setCustomField(key, '');
+                          onChange={(val) => {
+                            handleCustomFieldChange(key, val);
+                            if (cvFilledKeys.has(key)) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete(key);
+                                return next;
+                              });
+                            }
                           }}
+                          isCvFilled={cvFilledKeys.has(key)}
+                          error={resolveFieldError(fieldErrors, key)}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
                         />
-                      ) : null}
-                    </div>
-                  );
-                })
+                        {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
+                          <CareerManualAssist
+                            kind="role"
+                            text={String(mergedCustomFields[key] ?? '')}
+                            catalog={getPositionsForSector(
+                              String(mergedCustomFields.primarySector ?? ''),
+                            )}
+                            sector={String(mergedCustomFields.primarySector ?? '')}
+                            experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
+                            disabled={disabled || isBusy}
+                            onAcceptCatalog={(items) => {
+                              const first = items[0];
+                              if (!first) return;
+                              const targetKey = key === 'desiredRoleOther' ? 'desiredRole' : 'role';
+                              setCustomField(targetKey, first);
+                              setCustomField(key, '');
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
 
               {isSeekingFundingStep && !visibleStepCustomKeys.includes('useOfFundsDetail') ? (

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
 import { CitySelect } from '@/features/listings/form/fields/city-select';
 import { DistrictSelect } from '@/features/listings/form/fields/district-select';
@@ -170,10 +171,17 @@ export function DynamicField({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label htmlFor={id} className="text-sm font-medium">
-          {field.label}
-          {field.required && <span className="ml-1 text-destructive">*</span>}
-        </Label>
+        <div className="flex items-center gap-2">
+          <Label htmlFor={id} className="text-sm font-medium">
+            {field.label}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
+          </Label>
+          {field.type === 'multi-enum' && Array.isArray(value) && value.length > 0 && (
+            <Badge variant="secondary" className="px-2 py-0.5 text-[11px] font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20">
+              {value.length} seçili
+            </Badge>
+          )}
+        </div>
         {isCvFilled && (
           <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
             ✨ CV&apos;den aktarıldı
@@ -425,7 +433,7 @@ function FieldControl({
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
+          {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -438,6 +446,7 @@ function FieldControl({
     case 'multi-enum': {
       const selected = Array.isArray(value) ? value.map(String) : [];
       const options = field.options ?? [];
+      const isCompact = options.length > 6;
 
       function toggleOption(option: string, checked: boolean) {
         const next = checked
@@ -448,22 +457,34 @@ function FieldControl({
 
       return (
         <>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div
+            className={cn(
+              'grid gap-1.5 sm:grid-cols-2',
+              isCompact && 'max-h-[220px] overflow-y-auto pr-1 py-0.5 scrollbar-thin',
+            )}
+          >
             {options.map((option) => {
               const checked = selected.includes(option);
               return (
                 <label
                   key={option}
                   htmlFor={`${id}-${option}`}
-                  className="flex cursor-pointer items-start gap-2 rounded-lg border border-border/80 px-3 py-2.5 text-sm transition-colors hover:bg-muted/30"
+                  className={cn(
+                    'flex cursor-pointer items-start gap-2 rounded-lg border px-2.5 py-2 text-xs transition-all select-none',
+                    checked
+                      ? 'border-amber-500/60 bg-amber-500/8 font-medium text-foreground dark:border-amber-500/50 dark:bg-amber-500/10'
+                      : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',
+                    disabled && 'cursor-not-allowed opacity-60',
+                  )}
                 >
                   <Checkbox
                     id={`${id}-${option}`}
                     checked={checked}
                     onCheckedChange={(next) => toggleOption(option, next === true)}
                     disabled={disabled}
+                    className="mt-0.5 shrink-0 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500"
                   />
-                  <span className="leading-snug text-foreground">{option}</span>
+                  <span className="leading-snug">{option}</span>
                 </label>
               );
             })}

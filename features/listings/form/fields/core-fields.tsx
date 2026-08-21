@@ -236,7 +236,7 @@ export function CoreListingFields({
               }}
               onBlur={() => proposeCorrection('shortDescription')}
               disabled={disabled}
-              rows={4}
+              rows={3}
               placeholder={ui.placeholder}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.shortDescription)}
