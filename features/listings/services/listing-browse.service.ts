@@ -15,6 +15,7 @@ import {
   isInvestmentSeekingBrowseSlug,
   isUserDiscoverableListing,
   MARKETPLACE_LISTING_TYPE_IDS,
+  resolveBrowseCategory,
   resolveListingTypeIdsFromBrowseSlug,
 } from '@/features/listings/config/marketplace-category-map';
 import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
@@ -309,6 +310,10 @@ export class ListingBrowseService {
     };
 
     if (params.categorySlug) {
+      const entry = resolveBrowseCategory(params.categorySlug);
+      if (entry) {
+        filter.categoryId = entry.appCategoryId;
+      }
       const listingTypeIds = resolveListingTypeIdsFromBrowseSlug(params.categorySlug);
       if (listingTypeIds.length === 1) {
         filter.listingTypeId = listingTypeIds[0];

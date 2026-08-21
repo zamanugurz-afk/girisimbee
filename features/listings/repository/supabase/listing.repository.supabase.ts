@@ -371,6 +371,9 @@ export class SupabaseListingRepository implements ListingRepository {
     } else if (queryableCategoryIds.length > 1) {
       q = q.in('category_id', queryableCategoryIds);
       supabaseFilterParts.push(`category_id.in.(${queryableCategoryIds.join(',')})`);
+    } else if (filter.categoryId) {
+      q = q.in('category_id', ['00000000-0000-0000-0000-000000000000']);
+      supabaseFilterParts.push('category_id.eq.00000000-0000-0000-0000-000000000000');
     }
     if (queryableListingTypeIds.length === 1) {
       q = q.eq('listing_type_id', queryableListingTypeIds[0]);
@@ -378,6 +381,9 @@ export class SupabaseListingRepository implements ListingRepository {
     } else if (queryableListingTypeIds.length > 1) {
       q = q.in('listing_type_id', queryableListingTypeIds);
       supabaseFilterParts.push(`listing_type_id.in.(${queryableListingTypeIds.join(',')})`);
+    } else if ((filter.listingTypeId || filter.listingTypeIds?.length) && !filter.categoryId) {
+      q = q.in('listing_type_id', ['00000000-0000-0000-0000-000000000000']);
+      supabaseFilterParts.push('listing_type_id.eq.00000000-0000-0000-0000-000000000000');
     }
     if (filter.subcategoryId) q = q.eq('subcategory_id', filter.subcategoryId);
     if (filter.moduleKey) q = q.eq('module_key', filter.moduleKey);

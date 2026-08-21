@@ -79,4 +79,92 @@ describe('ListingBrowseService partnership intent', () => {
     expect(result.data[0]?.listingTypeLabel).toBe('ORTAK OLMAK İSTİYORUM');
     expect(result.data[0]?.type).toBe('person');
   });
+
+  it('filters strictly to isletme-devri category without leaking other categories', async () => {
+    const jobListing = createListing({
+      ownerId: OWNER,
+      categoryId: CATEGORY_IDS.iseAl,
+      listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
+      title: 'Kıdemli Yazılım Mühendisi',
+      shortDescription: 'İş ilanı açıklaması',
+      status: 'published',
+      workflowStatus: 'published',
+    });
+
+    const transferListing = createListing({
+      ownerId: OWNER,
+      categoryId: CATEGORY_IDS.isletmeDevri,
+      listingTypeId: LISTING_TYPE_IDS.businessTransferSellDefault,
+      title: 'Devren Satılık Butik Kafe',
+      shortDescription: 'Hazır müşteri portföylü devir',
+      status: 'published',
+      workflowStatus: 'published',
+    });
+
+    const mockRepo = {
+      findPublished: vi.fn(async (filter) => {
+        let items = [legacy, seeking, joining, jobListing, transferListing];
+        if (filter.categoryId) {
+          items = items.filter((i) => i.categoryId === filter.categoryId);
+        }
+        return {
+          data: items,
+          total: items.length,
+          page: 1,
+          limit: items.length,
+          hasMore: false,
+        };
+      }),
+      count: vi.fn(async () => 0),
+    };
+
+    const service = new ListingBrowseService(
+      mockRepo as never,
+      {} as never,
+      { findByUserIds: vi.fn(async () => []) } as never,
+      { findByIds: vi.fn(async () => []) } as never,
+      { findByListingId: vi.fn(async () => []) } as never,
+    );
+
+    const result = await service.browse({ categorySlug: 'isletme-devri' });
+
+    expect(mockRepo.findPublished).toHaveBeenCalledWith(
+      expect.objectContaining({ categoryId: CATEGORY_IDS.isletmeDevri }),
+      expect.anything(),
+    );
+    expect(result.data.map((item) => item.title)).toEqual(['Devren Satılık Butik Kafe']);
+    expect(result.total).toBe(1);
+  });
+
+  it('returns empty result (0 listings) for isletme-devri when no transfer listings exist', async () => {
+    const mockRepo = {
+      findPublished: vi.fn(async (filter) => {
+        let items = [legacy, seeking, joining];
+        if (filter.categoryId) {
+          items = items.filter((i) => i.categoryId === filter.categoryId);
+        }
+        return {
+          data: items,
+          total: items.length,
+          page: 1,
+          limit: items.length,
+          hasMore: false,
+        };
+      }),
+      count: vi.fn(async () => 0),
+    };
+
+    const service = new ListingBrowseService(
+      mockRepo as never,
+      {} as never,
+      { findByUserIds: vi.fn(async () => []) } as never,
+      { findByIds: vi.fn(async () => []) } as never,
+      { findByListingId: vi.fn(async () => []) } as never,
+    );
+
+    const result = await service.browse({ categorySlug: 'isletme-devri' });
+
+    expect(result.data).toEqual([]);
+    expect(result.total).toBe(0);
+  });
 });
