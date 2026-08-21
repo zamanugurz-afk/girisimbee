@@ -10,8 +10,11 @@ import {
   ArrowUpRight 
 } from 'lucide-react';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
+import { useHeroStats } from '@/features/home';
 
 export function HeroInteractiveFlow() {
+  const { counts, isLoading } = useHeroStats();
+
   return (
     <div className="relative w-full max-w-7xl mx-auto my-auto py-3 select-none overflow-visible">
       
@@ -143,7 +146,7 @@ export function HeroInteractiveFlow() {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
+            <span className="font-medium text-zinc-600 dark:text-zinc-300">● {isLoading ? '—' : counts.jobs} Aktif İlan</span>
           </div>
         </div>
 
@@ -161,7 +164,7 @@ export function HeroInteractiveFlow() {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Ortaklık ve işletme devri fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
+            <span className="font-medium text-zinc-600 dark:text-zinc-300">● {isLoading ? '—' : counts.partners} Aktif İlan</span>
           </div>
         </div>
 
@@ -179,7 +182,7 @@ export function HeroInteractiveFlow() {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="font-medium text-zinc-600 dark:text-zinc-300">● 5 Aktif Fırsat</span>
+            <span className="font-medium text-zinc-600 dark:text-zinc-300">● {isLoading ? '—' : counts.franchise} Aktif Fırsat</span>
           </div>
         </div>
 
@@ -197,7 +200,7 @@ export function HeroInteractiveFlow() {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="font-medium text-zinc-600 dark:text-zinc-300">● 5 Aktif Çözüm</span>
+            <span className="font-medium text-zinc-600 dark:text-zinc-300">● {isLoading ? '—' : counts.solutions} Aktif Çözüm</span>
           </div>
         </div>
       </div>

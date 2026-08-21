@@ -10,6 +10,7 @@ import {
   ArrowUpRight 
 } from 'lucide-react';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
+import { useHeroStats } from '@/features/home';
 import {
   HomeFeaturedSection,
   HomeListingsProvider,
@@ -18,6 +19,8 @@ import {
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 
 export function PlatformHome() {
+  const { counts, isLoading } = useHeroStats();
+
   return (
     <HomeListingsProvider>
       <div className="gc-header-offset relative bg-slate-50/50 dark:bg-background">
@@ -70,7 +73,7 @@ export function PlatformHome() {
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● 10 Aktif İlan</span>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● {isLoading ? '—' : counts.jobs} Aktif İlan</span>
                 </div>
               </div>
 
@@ -90,7 +93,7 @@ export function PlatformHome() {
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">● 10 Aktif İlan</span>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">● {isLoading ? '—' : counts.partners} Aktif İlan</span>
                 </div>
               </div>
 
@@ -110,7 +113,7 @@ export function PlatformHome() {
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● 5 Aktif Fırsat</span>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● {isLoading ? '—' : counts.franchise} Aktif Fırsat</span>
                 </div>
               </div>
 
@@ -130,7 +133,7 @@ export function PlatformHome() {
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">● 5 Aktif Çözüm</span>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">● {isLoading ? '—' : counts.solutions} Aktif Çözüm</span>
                 </div>
               </div>
             </div>

@@ -39,64 +39,80 @@ export async function GET() {
     };
 
     const [
-      totalRes,
       employersRes,
       candidatesRes,
       partnersRes,
+      isletmeDevriRes,
       franchiseRes,
       opportunitiesCount,
       solutionsRes,
     ] = await Promise.all([
-      published(),
-      published().eq('module_key', 'employers'),
-      published().eq('module_key', 'candidates'),
-      published().eq('module_key', 'founders'),
-      published().eq('module_key', 'franchise'),
+      published().eq('category_id', CATEGORY_IDS.iseAl),
+      published().eq('category_id', CATEGORY_IDS.isBul),
+      published().eq('category_id', CATEGORY_IDS.ortakBul),
+      published().eq('category_id', CATEGORY_IDS.isletmeDevri),
+      published().eq('category_id', CATEGORY_IDS.bayilikAl),
       getOpportunitiesCount(),
       published().eq('category_id', CATEGORY_IDS.dijitalAi),
     ]);
 
     const firstError = [
-      totalRes,
       employersRes,
       candidatesRes,
       partnersRes,
+      isletmeDevriRes,
       franchiseRes,
       solutionsRes,
     ].find((r) => r.error)?.error;
 
     if (firstError) {
       // Fallback for offline/unseeded environments
+      const jobs = 10;
+      const partners = 10;
+      const franchise = 5;
+      const solutions = 5;
+      const opportunities = opportunitiesCount || getMockPublishedMarketItems().length;
       return ok({
-        total: 15,
-        jobs: 5,
-        partners: 2,
-        franchise: 3,
-        opportunities: opportunitiesCount || getMockPublishedMarketItems().length,
-        solutions: 4,
+        total: jobs + partners + franchise + solutions,
+        jobs,
+        partners,
+        franchise,
+        opportunities,
+        solutions,
       });
     }
 
+    const jobsCount = (employersRes.count ?? 0) + (candidatesRes.count ?? 0);
+    const partnersCount = (partnersRes.count ?? 0) + (isletmeDevriRes.count ?? 0);
+    const franchiseCount = franchiseRes.count ?? 0;
+    const solutionsCount = solutionsRes.count ?? 0;
+    const totalCount = jobsCount + partnersCount + franchiseCount + solutionsCount;
+
     const stats: HeroStatsCounts = {
-      total: totalRes.count ?? 0,
-      jobs: (employersRes.count ?? 0) + (candidatesRes.count ?? 0),
-      partners: partnersRes.count ?? 0,
-      franchise: franchiseRes.count ?? 0,
+      total: totalCount,
+      jobs: jobsCount,
+      partners: partnersCount,
+      franchise: franchiseCount,
       opportunities: opportunitiesCount,
-      solutions: solutionsRes.count ?? 0,
+      solutions: solutionsCount,
     };
 
     return ok(stats);
   } catch (error) {
     if (isDynamicServerUsageError(error)) throw error;
     console.error('[hero-stats]', error);
+    const jobs = 10;
+    const partners = 10;
+    const franchise = 5;
+    const solutions = 5;
+    const opportunities = getMockPublishedMarketItems().length;
     return ok({
-      total: 15,
-      jobs: 5,
-      partners: 2,
-      franchise: 3,
-      opportunities: getMockPublishedMarketItems().length,
-      solutions: 4,
+      total: jobs + partners + franchise + solutions,
+      jobs,
+      partners,
+      franchise,
+      opportunities,
+      solutions,
     });
   }
 }
