@@ -743,6 +743,82 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
   supportedLanguages: {
     helperText: 'Ürün veya destek dilini seçin (birden fazla olabilir).',
   },
+  businessName: {
+    placeholder: 'Örn. Moda Coffee & Roastery',
+    helperText: 'İşletmenin bilinen tabela veya ticari unvanı.',
+    maxLength: 150,
+  },
+  businessType: {
+    placeholder: 'İşletme türü seçin',
+    helperText: 'Faaliyet gösterilen işletme / tesis kategorisi.',
+  },
+  businessTypeOther: {
+    placeholder: 'Örn. Butik Otel & Kahvaltı Evi',
+    helperText: 'Listede bulunmayan işletme türünü belirtin.',
+    maxLength: 150,
+  },
+  preferredBusinessTypes: {
+    helperText: 'Devralmak istediğiniz işletme türlerini seçin (birden fazla seçilebilir).',
+  },
+  preferredBusinessTypesOther: {
+    placeholder: 'Örn. Organik Çiftlik & Doğal Ürün Üretimi',
+    helperText: 'Listede bulunmayan işletme türünü belirtin.',
+    maxLength: 150,
+  },
+  transferPrice: {
+    placeholder: '0 TL',
+    helperText: 'İşletme için talep edilen toplam devir bedeli.',
+  },
+  budgetMax: {
+    placeholder: '0 TL',
+    helperText: 'İşletme devralma için ayırdığınız maksimum bütçe.',
+  },
+  monthlyRent: {
+    placeholder: '0 TL',
+    helperText: 'İşletmenin mevcut aylık kira bedeli.',
+  },
+  businessAge: {
+    placeholder: 'Örn. 3',
+    helperText: 'İşletmenin faaliyette olduğu yıl sayısı.',
+  },
+  employeeCount: {
+    placeholder: 'Örn. 4',
+    helperText: 'İşletmede çalışan toplam personel sayısı.',
+  },
+  operationalStatus: {
+    placeholder: 'Faaliyet durumu seçin',
+    helperText: 'İşletmenin mevcut operasyon ve ciro durumu.',
+  },
+  preferredStatus: {
+    placeholder: 'Tercih edilen faaliyet durumu seçin',
+    helperText: 'Devralmak istediğiniz işletmenin çalışma durumu.',
+  },
+  operationalPreference: {
+    placeholder: 'Yönetim biçimi seçin',
+    helperText: 'İşletmeyi kendiniz mi işleteceksiniz yoksa personel mi çalıştıracaksınız?',
+  },
+  transferScope: {
+    helperText: 'Devir bedeline dahil olan demirbaş, ruhsat ve varlıkları seçin.',
+  },
+  reasonForTransfer: {
+    placeholder: 'Devir nedeni seçin',
+    helperText: 'İşletmenizi devretme gerekçeniz (opsiyonel).',
+  },
+  postTransferSupport: {
+    placeholder: 'Örn. 1 ay tedarikçi tanıştırma ve oryantasyon desteği verilecektir.',
+    helperText: 'Devir sonrası alıcıya sağlanacak geçiş desteği.',
+    maxLength: 300,
+  },
+  financialSummary: {
+    placeholder: 'Örn. Aylık ortalama 250.000 TL ciro, %35 kâr marjı.',
+    helperText: 'Ciro, kârlılık veya finansal performans özeti.',
+    maxLength: 500,
+  },
+  relevantExperience: {
+    placeholder: 'Örn. 5 yıl kafe/restoran işletmeciliği tecrübesi.',
+    helperText: 'Sektörel işletmecilik deneyiminiz veya yetkinlikleriniz.',
+    maxLength: 500,
+  },
 };
 
 export const META_FIELD_UI: Record<string, FieldUiMeta> = {

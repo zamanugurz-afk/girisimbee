@@ -23,6 +23,7 @@ import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadat
 import { rankWorkplaceOptions } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
+import { ConditionalSectorPicker } from '@/features/listings/form/fields/conditional-sector-picker';
 import { cn } from '@/lib/utils';
 import {
   getExperienceLevelLabel,
@@ -57,6 +58,15 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
     parentKey: 'positionTitle',
     match: (v) => String(v ?? '') === 'Diğer',
   },
+  businessTypeOther: {
+    parentKey: 'businessType',
+    match: isManualOtherSelection,
+  },
+  preferredBusinessTypesOther: {
+    parentKey: 'preferredBusinessTypes',
+    match: (v) =>
+      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION || item === 'Diğer / Kendim gireceğim'),
+  },
   sectorOther: {
     parentKey: 'preferredSectors',
     match: (v) =>
@@ -81,6 +91,7 @@ export interface DynamicFieldContext {
   /** Sibling custom + core values for dependent fields (city → district). */
   values?: Record<string, unknown>;
   coreCity?: string | null;
+  onDismissPrunedNotice?: () => void;
 }
 
 export interface DynamicFieldProps {
@@ -109,6 +120,27 @@ export function DynamicField({
   if (otherGate) {
     const parentValue = context?.values?.[otherGate.parentKey];
     if (!otherGate.match(parentValue)) return null;
+  }
+
+  if (field.key === 'preferredSectors') {
+    const rawTypes = context?.values?.preferredBusinessTypes;
+    const selectedBusinessTypes = Array.isArray(rawTypes) ? rawTypes.map(String) : [];
+
+    return (
+      <ConditionalSectorPicker
+        id={id}
+        label={field.label}
+        required={field.required}
+        selectedBusinessTypes={selectedBusinessTypes}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        error={error}
+        helperText={ui.helperText}
+        prunedNotice={Boolean(context?.values?.sectorsPrunedNotice)}
+        onDismissPrunedNotice={context?.onDismissPrunedNotice}
+      />
+    );
   }
 
   if (field.key === 'capabilities') {

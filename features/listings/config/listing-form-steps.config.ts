@@ -544,8 +544,10 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       customFieldKeys: [
         'businessName',
         'businessType',
+        'businessTypeOther',
         'sector',
         'preferredBusinessTypes',
+        'preferredBusinessTypesOther',
         'preferredSectors',
       ],
     },

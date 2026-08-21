@@ -7,6 +7,11 @@ import type {
 } from '@/features/business-transfer-matching/types';
 import { normalizeString } from '@/features/business-transfer-matching/normalize';
 
+import {
+  areBusinessTypesRelated,
+  getSectorsForBusinessTypes,
+} from '@/features/listings/config/business-type-sector-map';
+
 export const BUSINESS_TRANSFER_MATCH_WEIGHTS: Record<BusinessTransferMatchDimensionKey, number> = {
   sector: 30,
   budget: 25,
@@ -31,12 +36,21 @@ export function scoreSector(
   if (!oSec) return null;
 
   const sSectors = seeker.preferredSectors.map(normalizeString).filter(Boolean);
-  if (sSectors.length === 0) return null;
-
-  if (sSectors.some((s) => s === oSec || s.includes(oSec) || oSec.includes(s))) {
-    return 1.0;
+  if (sSectors.length > 0) {
+    if (sSectors.some((s) => s === oSec || s.includes(oSec) || oSec.includes(s))) {
+      return 1.0;
+    }
   }
-  return 0.0;
+
+  // If no explicit sector match but business types are mapped to this sector
+  if (seeker.preferredBusinessTypes && seeker.preferredBusinessTypes.length > 0) {
+    const mappedSectors = getSectorsForBusinessTypes(seeker.preferredBusinessTypes).map(normalizeString);
+    if (mappedSectors.some((s) => s === oSec || s.includes(oSec) || oSec.includes(s))) {
+      return 0.75;
+    }
+  }
+
+  return sSectors.length > 0 ? 0.0 : null;
 }
 
 export function scoreBudget(
@@ -102,6 +116,13 @@ export function scoreBusinessType(
   if (sTypes.some((t) => t === oType || t.includes(oType) || oType.includes(t))) {
     return 1.0;
   }
+
+  // Related business type cluster
+  const oppBusinessType = opp.businessType;
+  if (oppBusinessType && seeker.preferredBusinessTypes.some((t) => areBusinessTypesRelated(t, oppBusinessType))) {
+    return 0.75;
+  }
+
   return 0.1;
 }
 

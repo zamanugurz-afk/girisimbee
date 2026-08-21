@@ -649,15 +649,19 @@ export const DIGITAL_AI_LANGUAGE_OPTIONS = [
 export const BUSINESS_TRANSFER_TYPE_OPTIONS = [
   'Kafe / Restoran / Yeme-İçme',
   'Market / Bakkal / Şarküteri',
-  'E-Ticaret / Dijital İşletme',
   'Mağaza / Butik / Perakende',
-  'Hizmet / Danışmanlık / Ofis',
-  'Üretim / Atölye / İmalathane',
+  'E-Ticaret / Dijital İşletme',
   'Güzellik Merkezi / Kuaför / Spa',
   'Oto Servis / Yıkama / Ekspertiz',
+  'Üretim / Atölye / İmalathane',
   'Eğitim / Kurs / Kreş',
-  'Otel / Pansiyon / Konaklama',
   'Sağlık / Klinik / Eczane',
+  'Otel / Pansiyon / Konaklama',
+  'Lojistik / Depolama / Kargo',
+  'Hizmet / Danışmanlık / Ofis',
+  'Tarım / Hayvancılık',
+  'Spor / Fitness Salonu',
+  'İnşaat / Gayrimenkul',
   'Diğer',
 ] as const;
 

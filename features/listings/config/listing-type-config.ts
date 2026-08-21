@@ -1064,6 +1064,13 @@ export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...BUSINESS_TRANSFER_TYPE_OPTIONS],
     },
     {
+      key: 'businessTypeOther',
+      label: 'İşletme Türünü Belirtin',
+      type: 'string',
+      required: false,
+      max: 150,
+    },
+    {
       key: 'sector',
       label: 'Ana Sektör',
       type: 'enum',
@@ -1156,18 +1163,25 @@ export const BUSINESS_TRANSFER_BUY_FIELD_SCHEMA: ListingFieldSchema = {
       min: 0,
     },
     {
-      key: 'preferredSectors',
-      label: 'İlgilenilen Sektörler',
-      type: 'multi-enum',
-      required: true,
-      options: [...JOB_SECTOR_OPTIONS],
-    },
-    {
       key: 'preferredBusinessTypes',
       label: 'Tercih Edilen İşletme Türleri',
       type: 'multi-enum',
       required: true,
       options: [...BUSINESS_TRANSFER_TYPE_OPTIONS],
+    },
+    {
+      key: 'preferredBusinessTypesOther',
+      label: 'İşletme Türünü Belirtin',
+      type: 'string',
+      required: false,
+      max: 150,
+    },
+    {
+      key: 'preferredSectors',
+      label: 'İlgilenilen Sektörler',
+      type: 'multi-enum',
+      required: false,
+      options: [...JOB_SECTOR_OPTIONS],
     },
     {
       key: 'district',

@@ -23,6 +23,7 @@ import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/
 import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { pruneUnsupportedSectors } from '@/features/listings/config/business-type-sector-map';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
@@ -499,9 +500,23 @@ export function CategoryListingForm({
   const isLastStep = stepIndex === steps.length - 1;
   const isFirstStep = stepIndex === 0;
 
+  const [sectorsPrunedNotice, setSectorsPrunedNotice] = useState(false);
+
   const mergedCustomFields = useMemo(
     () => mergeCustomFieldDefaults(listingType.fieldSchema, customFields),
     [listingType.fieldSchema, customFields],
+  );
+
+  const dynamicFieldContext = useMemo(
+    () => ({
+      values: {
+        ...mergedCustomFields,
+        sectorsPrunedNotice,
+      },
+      coreCity: core.city ?? null,
+      onDismissPrunedNotice: () => setSectorsPrunedNotice(false),
+    }),
+    [mergedCustomFields, sectorsPrunedNotice, core.city],
   );
 
   const qualityChecklistItems = useMemo(() => {
@@ -1170,6 +1185,27 @@ export function CategoryListingForm({
         && !value.map(String).some((item) => isManualCareerOption(item))) {
         setCustomField('preferredRolesOther', '');
       }
+      if (key === 'preferredBusinessTypes') {
+        const nextTypes = Array.isArray(value) ? value.map(String) : [];
+        if (!nextTypes.includes('Diğer')) {
+          setCustomField('preferredBusinessTypesOther', '');
+        }
+        const currentSectors = Array.isArray(mergedCustomFields.preferredSectors)
+          ? mergedCustomFields.preferredSectors.map(String)
+          : [];
+        if (currentSectors.length > 0) {
+          const { prunedSectors, removedSectors } = pruneUnsupportedSectors(currentSectors, nextTypes);
+          if (removedSectors.length > 0) {
+            setCustomField('preferredSectors', prunedSectors);
+            setSectorsPrunedNotice(true);
+          }
+        }
+      }
+      if (key === 'businessType') {
+        if (value !== 'Diğer') {
+          setCustomField('businessTypeOther', '');
+        }
+      }
       if (categoryId === CATEGORY_IDS.yatirimBul) {
         const extras = seekingFieldChangeExtras(key, value);
         for (const [extraKey, extraValue] of Object.entries(extras)) {
@@ -1177,7 +1213,7 @@ export function CategoryListingForm({
         }
       }
     },
-    [categoryId, setCustomField],
+    [categoryId, setCustomField, mergedCustomFields.preferredSectors, mergedCustomFields.primarySector, mergedCustomFields.desiredRole],
   );
 
   const handleApplyCvDraft = useCallback(
@@ -2521,10 +2557,7 @@ export function CategoryListingForm({
                     onChange={(val) => handleCustomFieldChange(key, val)}
                     error={resolveFieldError(fieldErrors, key)}
                     disabled={disabled || isBusy}
-                    context={{
-                      values: mergedCustomFields,
-                      coreCity: core.city ?? null,
-                    }}
+                    context={dynamicFieldContext}
                   />
                 );
               })}
@@ -2735,10 +2768,7 @@ export function CategoryListingForm({
                       onChange={(val) => handleCustomFieldChange('productName', val)}
                       error={resolveFieldError(fieldErrors, 'productName')}
                       disabled={disabled || isBusy}
-                      context={{
-                        values: mergedCustomFields,
-                        coreCity: core.city ?? null,
-                      }}
+                      context={dynamicFieldContext}
                     />
                   ) : null}
                 </div>
@@ -2773,10 +2803,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('fullName')}
                           error={resolveFieldError(fieldErrors, 'fullName')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       </div>
                     ) : null}
@@ -2790,10 +2817,7 @@ export function CategoryListingForm({
                           onChange={(val) => handleCustomFieldChange('companyName', val)}
                           error={resolveFieldError(fieldErrors, 'companyName')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       </div>
                     ) : null}
@@ -2817,10 +2841,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('desiredRole')}
                           error={resolveFieldError(fieldErrors, 'desiredRole')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                         {String(mergedCustomFields.desiredRoleOther ?? '').trim() ? (
                           <CareerManualAssist
@@ -2862,10 +2883,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('residenceCity')}
                           error={resolveFieldError(fieldErrors, 'residenceCity')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       ) : null}
 
@@ -2886,10 +2904,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('residenceDistrict')}
                           error={resolveFieldError(fieldErrors, 'residenceDistrict')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       ) : null}
                     </div>
@@ -2916,10 +2931,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('primarySector')}
                           error={resolveFieldError(fieldErrors, 'primarySector')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       </div>
                     ) : null}
@@ -2942,10 +2954,7 @@ export function CategoryListingForm({
                         isCvFilled={cvFilledKeys.has('experienceLevel')}
                         error={resolveFieldError(fieldErrors, 'experienceLevel')}
                         disabled={disabled || isBusy}
-                        context={{
-                          values: mergedCustomFields,
-                          coreCity: core.city ?? null,
-                        }}
+                        context={dynamicFieldContext}
                       />
                     ) : null}
 
@@ -2968,10 +2977,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('profileGender')}
                           error={resolveFieldError(fieldErrors, 'profileGender')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       ) : null}
 
@@ -2992,10 +2998,7 @@ export function CategoryListingForm({
                           isCvFilled={cvFilledKeys.has('birthDate')}
                           error={resolveFieldError(fieldErrors, 'birthDate')}
                           disabled={disabled || isBusy}
-                          context={{
-                            values: mergedCustomFields,
-                            coreCity: core.city ?? null,
-                          }}
+                          context={dynamicFieldContext}
                         />
                       ) : null}
                     </div>
@@ -3030,10 +3033,7 @@ export function CategoryListingForm({
                         isCvFilled={cvFilledKeys.has(key)}
                         error={resolveFieldError(fieldErrors, key)}
                         disabled={disabled || isBusy}
-                        context={{
-                          values: mergedCustomFields,
-                          coreCity: core.city ?? null,
-                        }}
+                        context={dynamicFieldContext}
                       />
                       {(key === 'desiredRoleOther' || key === 'roleOther') && String(mergedCustomFields[key] ?? '').trim() ? (
                         <CareerManualAssist
