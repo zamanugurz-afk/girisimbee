@@ -139,10 +139,10 @@ export function HeroInteractiveFlow() {
               </Link>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Kariyer ve İş Fırsatları</h4>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Yüksek potansiyelli girişimlerde iş veya ekibinize yetenek bulun.</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
             <div className="flex flex-wrap gap-1.5 mt-3">
-              <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş Arıyorum</Link>
-              <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İşe Alıyorum</Link>
+              <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş İlanları</Link>
+              <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş Arayanlar</Link>
             </div>
           </div>
           <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -150,20 +150,20 @@ export function HeroInteractiveFlow() {
           </div>
         </div>
 
-        {/* Ortaklık */}
+        {/* Girişim, Ortaklık ve Devir */}
         <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2.5">
               <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400"><Users2 className="w-4 h-4" /></span>
-              <Link href="/partners" aria-label="Ortaklık detayına git">
+              <Link href="/girisim-ortaklik" aria-label="Girişim detayına git">
                 <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-colors" />
               </Link>
             </div>
-            <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Girişim ve Ortaklık</h4>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Fikrinize kurucu ortak (CTO/CMO) veya melek yatırımcı bulun.</p>
+            <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Girişim, Ortaklık ve Devir</h4>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
             <div className="flex flex-wrap gap-1.5 mt-3">
-              <Link href="/partners?intent=seeking" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Ortak Ara</Link>
-              <Link href="/partners?intent=offering" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Ortak Bul</Link>
+              <Link href="/partners" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Ortaklık</Link>
+              <Link href="/isletme-devri" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İşletme Devri</Link>
             </div>
           </div>
           <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -171,7 +171,7 @@ export function HeroInteractiveFlow() {
           </div>
         </div>
 
-        {/* Franchise */}
+        {/* Franchise ve Bayilik */}
         <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-rose-500/40 transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2.5">
@@ -181,9 +181,10 @@ export function HeroInteractiveFlow() {
               </Link>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Franchise ve Bayilik</h4>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Kanıtlanmış iş modelleriyle kendi işletmenizi büyütün.</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
             <div className="flex flex-wrap gap-1.5 mt-3">
-              <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Bayilik Fırsatları</Link>
+              <Link href="/franchise/give" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Veriyorum</Link>
+              <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Almak İstiyorum</Link>
             </div>
           </div>
           <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -191,7 +192,7 @@ export function HeroInteractiveFlow() {
           </div>
         </div>
 
-        {/* Çözümler */}
+        {/* Dijital ve Startup Çözümler */}
         <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-purple-500/40 transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2.5">
@@ -203,7 +204,8 @@ export function HeroInteractiveFlow() {
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Dijital ve Startup Çözümler</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
             <div className="flex flex-wrap gap-1.5 mt-3">
-              <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Araçları Keşfet</Link>
+              <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Yazılım & AI</Link>
+              <Link href="/market" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Girişim Market</Link>
             </div>
           </div>
           <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">

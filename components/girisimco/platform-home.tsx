@@ -65,7 +65,7 @@ export function PlatformHome() {
                   </div>
                   <Link href="/is" className="block">
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">Kariyer ve İş Fırsatları</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Yeteneklerinizi sergileyin, büyüme odaklı ekiplerle buluşun.</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
                   </Link>
                   <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
                     <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors">İş İlanları</Link>
@@ -77,7 +77,7 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* Ortaklık */}
+              {/* Girişim, Ortaklık ve Devir */}
               <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -87,12 +87,12 @@ export function PlatformHome() {
                     </Link>
                   </div>
                   <Link href="/girisim-ortaklik" className="block">
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Girişim ve Ortaklık</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Fikrinizi hayata geçirecek doğru kurucu ortakları bulun.</p>
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Girişim, Ortaklık ve Devir</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
                   </Link>
                   <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
-                    <Link href="/partners?intent=seeking" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Ortak Arayanlar</Link>
-                    <Link href="/investors" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Yatırımcılar</Link>
+                    <Link href="/partners" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Ortaklık</Link>
+                    <Link href="/isletme-devri" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">İşletme Devri</Link>
                   </div>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -100,7 +100,7 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* Franchise */}
+              {/* Franchise ve Bayilik */}
               <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -111,11 +111,11 @@ export function PlatformHome() {
                   </div>
                   <Link href="/franchise/buy" className="block">
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200">Franchise ve Bayilik</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi büyütün.</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
                   </Link>
                   <div className="flex flex-wrap gap-2 mt-3.5 relative z-10">
-                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Bayilik Fırsatları</Link>
-                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Fırsatları</Link>
+                    <Link href="/franchise/give" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Veriyorum</Link>
+                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Almak İstiyorum</Link>
                   </div>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -123,7 +123,7 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* Çözümler */}
+              {/* Dijital ve Startup Çözümler */}
               <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-purple-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <div>
                   <div className="flex items-center justify-between mb-3">

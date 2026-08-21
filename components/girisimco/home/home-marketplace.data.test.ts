@@ -35,10 +35,11 @@ describe('career hub on homepage catalog', () => {
     expect(HOME_CATEGORIES.map((cat) => cat.label).join(' ')).not.toContain('&');
   });
 
-  it('groups ortak and franchise under Girişim ve Ortaklık without new category IDs', () => {
+  it('groups venture ecosystem under Girişim, Ortaklık ve Devir without new category IDs', () => {
     expect(VENTURE_PARTNERSHIP_HUB.href).toBe('/girisim-ortaklik');
+    expect(VENTURE_PARTNERSHIP_HUB.title).toBe('Girişim, Ortaklık ve Devir');
     expect(VENTURE_PARTNERSHIP_HUB.description).toBe(
-      'Ortak arayın, bir girişime katılın veya franchise fırsatlarını keşfedin.',
+      'Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.',
     );
     expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.label)).toEqual([
       'Ortak Arıyorum',
