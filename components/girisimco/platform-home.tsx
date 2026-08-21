@@ -117,8 +117,8 @@ export function PlatformHome() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3.5 relative z-10 pointer-events-auto">
-                    <Link href="/franchise/give" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Veriyorum</Link>
-                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise Almak İstiyorum</Link>
+                    <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">Franchise İlanları</Link>
+                    <Link href="/ilan/olustur?category=franchise" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/10 hover:text-rose-600 transition-colors">İlan Ver</Link>
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">

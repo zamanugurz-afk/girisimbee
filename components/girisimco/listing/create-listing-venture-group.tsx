@@ -14,7 +14,7 @@ import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import { GC_CATEGORY_COLORS } from '@/lib/design-tokens';
 import type { CategoryId } from '@/lib/domain/ids';
 
-type VentureCategoryKey = 'partnership' | 'franchise' | 'business_transfer';
+type VentureCategoryKey = 'partnership' | 'business_transfer';
 
 const MAIN_CATEGORY_VISUALS = {
   partnership: {
@@ -40,14 +40,6 @@ const SUB_OPTION_VISUALS: Record<string, { color: string; Icon: any }> = {
     color: GC_CATEGORY_COLORS['ortak-bul'],
     Icon: Users,
   },
-  'franchise-ver': {
-    color: GC_CATEGORY_COLORS.franchise,
-    Icon: Store,
-  },
-  'franchise-al': {
-    color: GC_CATEGORY_COLORS.franchise,
-    Icon: DollarSign,
-  },
   'isletme-devret': {
     color: GC_CATEGORY_COLORS['isletme-devri'] ?? '#D97706',
     Icon: Building2,
@@ -61,8 +53,6 @@ const SUB_OPTION_VISUALS: Record<string, { color: string; Icon: any }> = {
 const SUB_ID_TO_CATEGORY: Record<string, CategoryId> = {
   'ortak-ariyorum': CATEGORY_IDS.ortakBul,
   'ortak-olmak': CATEGORY_IDS.ortakBul,
-  'franchise-ver': CATEGORY_IDS.bayilikAl,
-  'franchise-al': CATEGORY_IDS.bayilikAl,
   'isletme-devret': CATEGORY_IDS.isletmeDevri,
   'isletme-devral': CATEGORY_IDS.isletmeDevri,
 };
@@ -171,6 +161,10 @@ export function CreateListingVentureGroup({
           visuals={MAIN_CATEGORY_VISUALS}
           columns={3}
           onSelect={(id) => {
+            if (id === 'franchise') {
+              onSelect(CATEGORY_IDS.bayilikAl);
+              return;
+            }
             setSelectedPillar(id as VentureCategoryKey);
           }}
         />

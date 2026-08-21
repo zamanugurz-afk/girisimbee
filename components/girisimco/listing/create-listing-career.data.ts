@@ -99,19 +99,19 @@ export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
     {
       id: 'franchise',
       label: 'Franchise',
-      description: 'Markanız için bayi/franchise ağı oluşturun veya franchise alın.',
+      description: 'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
       benefits: [
         {
-          title: 'Franchise Veriyorum',
-          text: 'Markanızı, giriş bedelini ve lokasyon hedeflerinizi yayınlayın.',
+          title: 'Markanızı Tanıtın',
+          text: 'Şube sayısı, sektör ve kurumsal bilgilerinizi paylaşın.',
         },
         {
-          title: 'Franchise Almak İstiyorum',
-          text: 'Bütçeniz ve ilgi duyduğunuz sektörlerle yatırım yapın.',
+          title: 'Yatırım ve Şartlar',
+          text: 'Giriş bedeli, royalty ve minimum sermaye gereksinimlerini belirtin.',
         },
         {
-          title: 'Lokasyon & Bütçe Uyumu',
-          text: 'Hedef şehirler ve yatırım aralıklarıyla doğrudan eşleşin.',
+          title: 'Lokasyon Hedefleri',
+          text: 'Büyümek istediğiniz şehir ve bölgelerdeki yatırımcılara ulaşın.',
         },
       ],
     },
@@ -178,50 +178,6 @@ export const CREATE_LISTING_VENTURE_SUB_OPTIONS = {
         {
           title: 'Güvenli iletişim',
           text: 'İletişim bilgileriniz paylaşılmadan talep üzerinden ilerleyin.',
-        },
-      ],
-    },
-  ],
-  franchise: [
-    {
-      id: 'franchise-ver',
-      categoryId: CATEGORY_IDS.bayilikAl,
-      intent: 'give' as const,
-      label: 'Franchise Veriyorum',
-      description: 'Markanızın franchise fırsatını yatırımcılarla buluşturun.',
-      benefits: [
-        {
-          title: 'Markanızı tanıtın',
-          text: 'Şube sayısı, model ve desteklerinizi paylaşın.',
-        },
-        {
-          title: 'Yatırım aralığını belirtin',
-          text: 'Giriş bedeli, royalty ve minimum sermayeyi tanımlayın.',
-        },
-        {
-          title: 'Hedef lokasyonları seçin',
-          text: 'Büyümek istediğiniz şehir ve bölgeleri belirleyin.',
-        },
-      ],
-    },
-    {
-      id: 'franchise-al',
-      categoryId: CATEGORY_IDS.bayilikAl,
-      intent: 'buy' as const,
-      label: 'Franchise Almak İstiyorum',
-      description: 'Bütçeniz ve ilgi alanlarınızla franchise yatırımcısı olun.',
-      benefits: [
-        {
-          title: 'Yatırım bütçenizi belirleyin',
-          text: 'Bütçenize uygun doğrulanmış markalara ulaşın.',
-        },
-        {
-          title: 'Sektör ve şehir tercihi',
-          text: 'Faaliyet göstermek istediğiniz alanları seçin.',
-        },
-        {
-          title: 'İşletme modelinizi seçin',
-          text: 'Bizzat işletme veya profesyonel yönetim tercihini belirtin.',
         },
       ],
     },

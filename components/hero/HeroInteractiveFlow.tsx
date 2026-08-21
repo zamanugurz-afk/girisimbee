@@ -186,8 +186,8 @@ export function HeroInteractiveFlow() {
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Franchise ve Bayilik</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
             <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
-              <Link href="/franchise/give" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Veriyorum</Link>
-              <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Almak İstiyorum</Link>
+              <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise İlanları</Link>
+              <Link href="/ilan/olustur?category=franchise" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İlan Ver</Link>
             </div>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">

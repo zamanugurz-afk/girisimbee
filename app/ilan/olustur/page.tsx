@@ -85,8 +85,8 @@ function CreateListingContent() {
   const searchIntent = searchParams.get('intent');
   const listingTypeId: ListingTypeId | null = categoryId
     ? (
-      categoryId === CATEGORY_IDS.bayilikAl && searchIntent === 'buy'
-        ? LISTING_TYPE_IDS.franchiseBuyDefault
+      categoryId === CATEGORY_IDS.bayilikAl
+        ? LISTING_TYPE_IDS.franchiseGiveDefault
         : categoryId === CATEGORY_IDS.isletmeDevri && (searchIntent === 'buy' || searchIntent === 'devral')
           ? LISTING_TYPE_IDS.businessTransferBuyDefault
           : categoryId === CATEGORY_IDS.isletmeDevri
@@ -153,8 +153,7 @@ function CreateListingContent() {
       return;
     }
     if (id === CATEGORY_IDS.bayilikAl) {
-      const intent = options?.subIntent === 'franchise-al' ? 'buy' : 'give';
-      router.push(`/ilan/olustur?category=franchise&intent=${intent}`);
+      router.push('/ilan/olustur?category=franchise');
       return;
     }
     if (id === CATEGORY_IDS.isletmeDevri) {
