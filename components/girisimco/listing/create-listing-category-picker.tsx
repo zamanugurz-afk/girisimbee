@@ -19,6 +19,7 @@ import { CreateListingCareerGroup } from '@/components/girisimco/listing/create-
 import { CreateListingVentureGroup } from '@/components/girisimco/listing/create-listing-venture-group';
 import {
   CREATE_LISTING_CAREER_HUB,
+  CREATE_LISTING_FRANCHISE_HUB,
   CREATE_LISTING_VENTURE_HUB,
 } from '@/components/girisimco/listing/create-listing-career.data';
 import { Badge } from '@/components/ui/badge';
@@ -120,6 +121,7 @@ export function CreateListingCategoryPicker({
 
       <div className="mt-8 lg:mt-10">
         <CareerFlowChoiceCards
+          columns={3}
           options={[
             {
               id: 'career',
@@ -133,6 +135,12 @@ export function CreateListingCategoryPicker({
               description: CREATE_LISTING_VENTURE_HUB.description,
               benefits: CREATE_LISTING_VENTURE_HUB.benefits,
             },
+            {
+              id: 'franchise',
+              label: CREATE_LISTING_FRANCHISE_HUB.title,
+              description: CREATE_LISTING_FRANCHISE_HUB.description,
+              benefits: CREATE_LISTING_FRANCHISE_HUB.benefits,
+            },
           ]}
           visuals={{
             career: {
@@ -143,10 +151,15 @@ export function CreateListingCategoryPicker({
               color: GC_CATEGORY_COLORS['ortak-bul'],
               Icon: Handshake,
             },
+            franchise: {
+              color: GC_CATEGORY_COLORS.franchise,
+              Icon: Store,
+            },
           }}
           onSelect={(id) => {
             if (id === 'career') onHubStepChange('career');
             if (id === 'venture') onHubStepChange('venture');
+            if (id === 'franchise') onSelect(CATEGORY_IDS.bayilikAl);
           }}
         />
       </div>

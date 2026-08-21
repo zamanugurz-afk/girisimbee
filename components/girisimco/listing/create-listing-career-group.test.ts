@@ -7,6 +7,7 @@ import {
   CREATE_LISTING_CAREER_CATEGORY_IDS,
   CREATE_LISTING_CAREER_COPY,
   CREATE_LISTING_CAREER_HUB,
+  CREATE_LISTING_FRANCHISE_HUB,
   CREATE_LISTING_PICKER_ORDER,
   CREATE_LISTING_ROOT_HIDDEN_CATEGORY_IDS,
   CREATE_LISTING_VENTURE_CATEGORY_IDS,
@@ -90,45 +91,30 @@ describe('create listing career group', () => {
     expect(categoryRegistry.resolveCategoryId('hire')).toBe(CATEGORY_IDS.iseAl);
   });
 
-  it('groups ortak and franchise under Ortaklık ve Devir without new category IDs', () => {
+  it('separates Franchise as 3rd root card alongside Kariyer and Ortaklık ve Devir', () => {
     expect(CREATE_LISTING_VENTURE_HUB.title).toBe('Ortaklık ve Devir');
-    expect(CREATE_LISTING_VENTURE_COPY.options.map((item) => item.label)).toEqual([
-      'Ortak Arıyorum',
-      'Ortak Olmak İstiyorum',
-      'Franchise Fırsatları',
+    expect(CREATE_LISTING_VENTURE_HUB.benefits.map((b) => b.title)).toEqual([
+      'Ortaklık',
+      'İşletme Devri',
     ]);
-    expect(CREATE_LISTING_VENTURE_COPY.options[0]?.categoryId).toBe(CATEGORY_IDS.ortakBul);
-    expect(CREATE_LISTING_VENTURE_COPY.options[0]?.intent).toBe('seeking');
-    expect(CREATE_LISTING_VENTURE_COPY.options[1]?.categoryId).toBe(CATEGORY_IDS.ortakBul);
-    expect(CREATE_LISTING_VENTURE_COPY.options[1]?.intent).toBe('joining');
-    expect(CREATE_LISTING_VENTURE_COPY.options[2]?.categoryId).toBe(CATEGORY_IDS.bayilikAl);
-    expect(CREATE_LISTING_VENTURE_COPY.options[2]?.description).toBe(
-      'Markanızın franchise fırsatını yayınlayın.',
+    expect(CREATE_LISTING_FRANCHISE_HUB.title).toBe('Franchise');
+    expect(CREATE_LISTING_FRANCHISE_HUB.description).toBe(
+      'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
     );
-    expect(CREATE_LISTING_VENTURE_HUB.description).toBe(
-      'Ortak arayın, bir girişime katılın veya franchise fırsatı yayınlayın.',
-    );
-    expect('intent' in CREATE_LISTING_VENTURE_COPY.options[2]!).toBe(false);
-    expect(CREATE_LISTING_VENTURE_CATEGORY_IDS).toEqual([
-      CATEGORY_IDS.ortakBul,
-      CATEGORY_IDS.bayilikAl,
-    ]);
     expect(CATEGORY_SLUG_TO_ID['ortak-bul']).toBe(CATEGORY_IDS.ortakBul);
     expect(CATEGORY_SLUG_TO_ID.franchise).toBe(CATEGORY_IDS.bayilikAl);
     expect(categoryRegistry.resolveCategoryId('ortak-bul')).toBe(CATEGORY_IDS.ortakBul);
     expect(categoryRegistry.resolveCategoryId('franchise')).toBe(CATEGORY_IDS.bayilikAl);
   });
 
-  it('orders venture create cards as Ortaklık, İşletme Devri, Franchise', () => {
+  it('orders venture sub-categories as Ortaklık and İşletme Devri', () => {
     expect(CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories.map((c) => c.label)).toEqual([
       'Ortaklık',
       'İşletme Devri',
-      'Franchise',
     ]);
     expect(CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories.map((c) => c.id)).toEqual([
       'partnership',
       'business_transfer',
-      'franchise',
     ]);
   });
 });

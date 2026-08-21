@@ -43,16 +43,12 @@ export const CREATE_LISTING_CAREER_HUB = {
 
 export const CREATE_LISTING_VENTURE_HUB = {
   title: 'Ortaklık ve Devir',
-  description: 'Ortak arayın, bir girişime katılın veya franchise fırsatı yayınlayın.',
-  audience: 'Kurucu / ortak / franchise / işletme devri',
+  description: 'Ortak arayın, bir girişime katılın veya faal işletmenizi devredin.',
+  audience: 'Kurucu / ortak / işletme devri',
   benefits: [
     {
       title: 'Ortaklık',
       text: 'Ortak arayın veya bir girişime ortak olarak katılın.',
-    },
-    {
-      title: 'Franchise',
-      text: 'Franchise verin veya markaların franchise fırsatlarını alın.',
     },
     {
       title: 'İşletme Devri',
@@ -61,20 +57,38 @@ export const CREATE_LISTING_VENTURE_HUB = {
   ],
 } as const;
 
+export const CREATE_LISTING_FRANCHISE_HUB = {
+  title: 'Franchise',
+  description: 'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
+  audience: 'Franchise veren markalar',
+  benefits: [
+    {
+      title: 'Markanızı Tanıtın',
+      text: 'Şube sayısı, sektör ve kurumsal bilgilerinizi paylaşın.',
+    },
+    {
+      title: 'Yatırım ve Şartlar',
+      text: 'Giriş bedeli, royalty ve minimum sermaye gereksinimlerini belirtin.',
+    },
+    {
+      title: 'Lokasyon Hedefleri',
+      text: 'Büyümek istediğiniz şehir ve bölgelerdeki yatırımcılara ulaşın.',
+    },
+  ],
+} as const;
+
 export const CREATE_LISTING_VENTURE_CATEGORY_IDS = [
   CATEGORY_IDS.ortakBul,
-  CATEGORY_IDS.bayilikAl,
 ] as const;
 
 export const CREATE_LISTING_ALL_VENTURE_CATEGORY_IDS = [
   CATEGORY_IDS.ortakBul,
-  CATEGORY_IDS.bayilikAl,
   CATEGORY_IDS.isletmeDevri,
 ] as const;
 
 export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
   title: 'Hangi girişim alanında ilan vermek istiyorsunuz?',
-  description: 'Ortaklık, franchise veya işletme devri kategorilerinden size uygun olanı seçin.',
+  description: 'Ortaklık veya işletme devri kategorilerinden size uygun olanı seçin.',
   trust: 'İletişim bilgileriniz gizli kalır. Bağlantı, güvenli talep üzerinden kurulur.',
   categories: [
     {
@@ -112,25 +126,6 @@ export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
         {
           title: 'Hızlı & Güvenli Devir',
           text: 'Kira, lokasyon ve bütçe kriterlerine göre nokta eşleşin.',
-        },
-      ],
-    },
-    {
-      id: 'franchise',
-      label: 'Franchise',
-      description: 'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
-      benefits: [
-        {
-          title: 'Markanızı Tanıtın',
-          text: 'Şube sayısı, sektör ve kurumsal bilgilerinizi paylaşın.',
-        },
-        {
-          title: 'Yatırım ve Şartlar',
-          text: 'Giriş bedeli, royalty ve minimum sermaye gereksinimlerini belirtin.',
-        },
-        {
-          title: 'Lokasyon Hedefleri',
-          text: 'Büyümek istediğiniz şehir ve bölgelerdeki yatırımcılara ulaşın.',
         },
       ],
     },

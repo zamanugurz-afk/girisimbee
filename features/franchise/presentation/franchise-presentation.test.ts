@@ -3,7 +3,7 @@ import {
   FRANCHISE_FLOW_ROUTES,
   VENTURE_PARTNERSHIP_OPTIONS,
 } from '@/components/girisimco/home/home-marketplace.data';
-import { CREATE_LISTING_VENTURE_COPY } from '@/components/girisimco/listing/create-listing-career.data';
+import { CREATE_LISTING_FRANCHISE_HUB } from '@/components/girisimco/listing/create-listing-career.data';
 import { isContactRequestEligibleCategory, resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
 import { CATEGORY_IDS, FRANCHISE_GIVE_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
 import { getListingFormSteps } from '@/features/listings/config/listing-form-steps.config';
@@ -60,8 +60,8 @@ describe('franchise presentation', () => {
       'Kanıtlanmış iş modellerini inceleyin ve size uygun franchise fırsatlarını keşfedin.',
     );
     expect(FRANCHISE_BROWSE_TITLE).toBe('Franchise Fırsatları');
-    expect(FRANCHISE_BROWSE_DESCRIPTION).toContain('sektöre ve lokasyona');
-    expect(CREATE_LISTING_VENTURE_COPY.options[2]?.description).toBe(FRANCHISE_CREATE_DESCRIPTION);
+    expect(CREATE_LISTING_FRANCHISE_HUB.title).toBe('Franchise');
+    expect(CREATE_LISTING_FRANCHISE_HUB.description).toContain('franchise');
     expect(isContactRequestEligibleCategory('franchise')).toBe(false);
     expect(FRANCHISE_EMPTY_TITLE).toBe('Henüz uygun bir franchise fırsatı bulunmuyor.');
     expect(FRANCHISE_EMPTY_BACK_CTA.href).toBe('/girisim-ortaklik');

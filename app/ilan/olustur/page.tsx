@@ -171,7 +171,6 @@ function CreateListingContent() {
     setCareerHubOpen(false);
     if (
       categoryId === CATEGORY_IDS.ortakBul ||
-      categoryId === CATEGORY_IDS.bayilikAl ||
       categoryId === CATEGORY_IDS.isletmeDevri
     ) {
       router.push('/ilan/olustur?hub=venture');

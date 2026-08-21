@@ -159,12 +159,8 @@ export function CreateListingVentureGroup({
         <CareerFlowChoiceCards
           options={CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories}
           visuals={MAIN_CATEGORY_VISUALS}
-          columns={3}
+          columns={2}
           onSelect={(id) => {
-            if (id === 'franchise') {
-              onSelect(CATEGORY_IDS.bayilikAl);
-              return;
-            }
             setSelectedPillar(id as VentureCategoryKey);
           }}
         />

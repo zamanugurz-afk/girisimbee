@@ -3,7 +3,7 @@ import { HOME_CATEGORIES } from '@/components/girisimco/home/home-marketplace.da
 import {
   CREATE_LISTING_PICKER_ORDER,
   CREATE_LISTING_ROOT_HIDDEN_CATEGORY_IDS,
-  CREATE_LISTING_VENTURE_COPY,
+  CREATE_LISTING_VENTURE_CATEGORIES_COPY,
 } from '@/components/girisimco/listing/create-listing-career.data';
 import { isContactRequestEligibleCategory, resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
@@ -60,7 +60,7 @@ describe('Dijital & AI Çözümleri presentation', () => {
   it('is not a create-listing category and does not bring back investment', () => {
     expect(CREATE_LISTING_PICKER_ORDER).toEqual([]);
     expect(CREATE_LISTING_ROOT_HIDDEN_CATEGORY_IDS).toContain(CATEGORY_IDS.dijitalAi);
-    expect(CREATE_LISTING_VENTURE_COPY.options.map((item) => item.label)).not.toContain(
+    expect(CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories.map((item) => item.label)).not.toContain(
       'Dijital & AI Çözümleri',
     );
     expect(HOME_CATEGORIES.some((item) => item.slug === 'dijital-ai')).toBe(false);
