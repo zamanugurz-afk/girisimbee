@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Handshake, Store, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Handshake, Users } from 'lucide-react';
 import { CareerFlowChoiceCards } from '@/components/girisimco/home/career-flow-choice-cards';
 import {
   VENTURE_PARTNERSHIP_HUB,
@@ -18,9 +18,9 @@ const VENTURE_VISUALS = {
     color: VENTURE_PARTNERSHIP_OPTIONS[1].color,
     Icon: Users,
   },
-  franchise: {
+  'isletme-devri': {
     color: VENTURE_PARTNERSHIP_OPTIONS[2].color,
-    Icon: Store,
+    Icon: Building2,
   },
 } as const;
 

@@ -10,6 +10,7 @@ import {
   CREATE_LISTING_PICKER_ORDER,
   CREATE_LISTING_ROOT_HIDDEN_CATEGORY_IDS,
   CREATE_LISTING_VENTURE_CATEGORY_IDS,
+  CREATE_LISTING_VENTURE_CATEGORIES_COPY,
   CREATE_LISTING_VENTURE_COPY,
   CREATE_LISTING_VENTURE_HUB,
 } from '@/components/girisimco/listing/create-listing-career.data';
@@ -116,5 +117,18 @@ describe('create listing career group', () => {
     expect(CATEGORY_SLUG_TO_ID.franchise).toBe(CATEGORY_IDS.bayilikAl);
     expect(categoryRegistry.resolveCategoryId('ortak-bul')).toBe(CATEGORY_IDS.ortakBul);
     expect(categoryRegistry.resolveCategoryId('franchise')).toBe(CATEGORY_IDS.bayilikAl);
+  });
+
+  it('orders venture create cards as Ortaklık, İşletme Devri, Franchise', () => {
+    expect(CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories.map((c) => c.label)).toEqual([
+      'Ortaklık',
+      'İşletme Devri',
+      'Franchise',
+    ]);
+    expect(CREATE_LISTING_VENTURE_CATEGORIES_COPY.categories.map((c) => c.id)).toEqual([
+      'partnership',
+      'business_transfer',
+      'franchise',
+    ]);
   });
 });

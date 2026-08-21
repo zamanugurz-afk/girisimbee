@@ -44,11 +44,11 @@ describe('career hub on homepage catalog', () => {
     expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.label)).toEqual([
       'Ortak Arıyorum',
       'Ortak Olmak İstiyorum',
-      'Franchise Fırsatları',
+      'İşletme Devri',
     ]);
     expect(VENTURE_PARTNERSHIP_OPTIONS[0]?.href).toBe('/partners?intent=seeking');
     expect(VENTURE_PARTNERSHIP_OPTIONS[1]?.href).toBe('/partners?intent=joining');
-    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.href).toBe('/franchise/buy');
+    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.href).toBe('/isletme-devri');
     expect(VENTURE_PARTNERSHIP_OPTIONS[0]?.description).toBe(
       'Girişiminiz için doğru ortağı bulun.',
     );
@@ -56,7 +56,7 @@ describe('career hub on homepage catalog', () => {
       'Uzmanlığınızı sunun, size uygun girişimlerle buluşun.',
     );
     expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.description).toBe(
-      'Kanıtlanmış iş modellerini inceleyin ve size uygun franchise fırsatlarını keşfedin.',
+      'Faal işletme devri ve devralma fırsatlarını keşfedin.',
     );
   });
 

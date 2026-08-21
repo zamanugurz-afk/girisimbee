@@ -97,25 +97,6 @@ export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
       ],
     },
     {
-      id: 'franchise',
-      label: 'Franchise',
-      description: 'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
-      benefits: [
-        {
-          title: 'Markanızı Tanıtın',
-          text: 'Şube sayısı, sektör ve kurumsal bilgilerinizi paylaşın.',
-        },
-        {
-          title: 'Yatırım ve Şartlar',
-          text: 'Giriş bedeli, royalty ve minimum sermaye gereksinimlerini belirtin.',
-        },
-        {
-          title: 'Lokasyon Hedefleri',
-          text: 'Büyümek istediğiniz şehir ve bölgelerdeki yatırımcılara ulaşın.',
-        },
-      ],
-    },
-    {
       id: 'business_transfer',
       label: 'İşletme Devri',
       description: 'Faal işletmenizi devredin veya kurulu bir işletmeyi devralın.',
@@ -131,6 +112,25 @@ export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
         {
           title: 'Hızlı & Güvenli Devir',
           text: 'Kira, lokasyon ve bütçe kriterlerine göre nokta eşleşin.',
+        },
+      ],
+    },
+    {
+      id: 'franchise',
+      label: 'Franchise',
+      description: 'Markanız için franchise veya bayilik fırsatınızı yayınlayın.',
+      benefits: [
+        {
+          title: 'Markanızı Tanıtın',
+          text: 'Şube sayısı, sektör ve kurumsal bilgilerinizi paylaşın.',
+        },
+        {
+          title: 'Yatırım ve Şartlar',
+          text: 'Giriş bedeli, royalty ve minimum sermaye gereksinimlerini belirtin.',
+        },
+        {
+          title: 'Lokasyon Hedefleri',
+          text: 'Büyümek istediğiniz şehir ve bölgelerdeki yatırımcılara ulaşın.',
         },
       ],
     },

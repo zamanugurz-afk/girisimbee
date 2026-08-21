@@ -239,6 +239,7 @@ describe('partnership match presentation', () => {
     expect(VENTURE_PARTNERSHIP_HUB.href).toBe('/girisim-ortaklik');
     expect(VENTURE_PARTNERSHIP_OPTIONS[0]?.href).toBe('/partners?intent=seeking');
     expect(VENTURE_PARTNERSHIP_OPTIONS[1]?.href).toBe('/partners?intent=joining');
+    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.href).toBe('/isletme-devri');
     expect(partnershipDetailHeadline('seeking')).toBe('Bu girişim bir ortak arıyor.');
     expect(partnershipDetailHeadline('joining')).toBe('Bu kullanıcı bir girişime ortak olmak istiyor.');
   });

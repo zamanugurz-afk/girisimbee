@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { VENTURE_PARTNERSHIP_OPTIONS } from '@/components/girisimco/home/home-marketplace.data';
+import {
+  FRANCHISE_FLOW_ROUTES,
+  VENTURE_PARTNERSHIP_OPTIONS,
+} from '@/components/girisimco/home/home-marketplace.data';
 import { CREATE_LISTING_VENTURE_COPY } from '@/components/girisimco/listing/create-listing-career.data';
 import { resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
 import { CATEGORY_IDS, FRANCHISE_GIVE_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
@@ -52,8 +55,10 @@ function franchiseListing() {
 
 describe('franchise presentation', () => {
   it('keeps hub, browse, create, and contact copy on the franchise path', () => {
-    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.href).toBe('/franchise/buy');
-    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.description).toBe(FRANCHISE_HUB_DESCRIPTION);
+    expect(FRANCHISE_FLOW_ROUTES.listings).toBe('/franchise/buy');
+    expect(FRANCHISE_HUB_DESCRIPTION).toBe(
+      'Kanıtlanmış iş modellerini inceleyin ve size uygun franchise fırsatlarını keşfedin.',
+    );
     expect(FRANCHISE_BROWSE_TITLE).toBe('Franchise Fırsatları');
     expect(FRANCHISE_BROWSE_DESCRIPTION).toContain('sektöre ve lokasyona');
     expect(CREATE_LISTING_VENTURE_COPY.options[2]?.description).toBe(FRANCHISE_CREATE_DESCRIPTION);
@@ -149,8 +154,8 @@ describe('franchise presentation', () => {
       '/market',
       '/dijital-ai',
     ]);
-    expect(VENTURE_PARTNERSHIP_OPTIONS[2]?.href).toBe('/franchise/buy');
-    expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.href).join(' ')).not.toContain('/is');
+    expect(FRANCHISE_FLOW_ROUTES.listings).toBe('/franchise/buy');
+    expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.href)).not.toContain('/is');
     expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.href).join(' ')).not.toContain(
       '/dashboard/ortaklik-eslesmeleri',
     );

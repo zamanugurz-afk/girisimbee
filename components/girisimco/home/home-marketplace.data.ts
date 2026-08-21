@@ -221,23 +221,23 @@ export const VENTURE_PARTNERSHIP_OPTIONS = [
     ],
   },
   {
-    id: 'franchise',
-    href: FRANCHISE_FLOW_ROUTES.listings,
-    label: 'Franchise Fırsatları',
-    description: 'Kanıtlanmış iş modellerini inceleyin ve size uygun franchise fırsatlarını keşfedin.',
-    color: GC_CATEGORY_COLORS.franchise,
+    id: 'isletme-devri',
+    href: '/isletme-devri',
+    label: 'İşletme Devri',
+    description: 'Faal işletme devri ve devralma fırsatlarını keşfedin.',
+    color: GC_CATEGORY_COLORS['isletme-devri'],
     benefits: [
       {
-        title: 'İş modellerini inceleyin',
-        text: 'Marka, sektör ve şube hakkını görün.',
+        title: 'Devir fırsatlarını keşfedin',
+        text: 'Kafe, restoran, e-ticaret ve faal şirketleri inceleyin.',
       },
       {
-        title: 'Yatırım ve lokasyona bakın',
-        text: 'Giriş bedeli ve faaliyet bölgelerini karşılaştırın.',
+        title: 'Detayları karşılaştırın',
+        text: 'Lokasyon, ciro ve devir şartlarını görün.',
       },
       {
         title: 'Güvenli iletişim kurun',
-        text: 'İletişim talebi üzerinden bağlantı kurun.',
+        text: 'İletişim talebi üzerinden doğrudan bağlantı kurun.',
       },
     ],
   },
