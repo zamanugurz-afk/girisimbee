@@ -8,6 +8,7 @@ import {
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
+import { PartnershipFlowFilters } from '@/components/girisimco/marketplace/partnership-flow-filters';
 import { cn } from '@/lib/utils';
 
 interface ListingFiltersProps {
@@ -17,6 +18,8 @@ interface ListingFiltersProps {
   hideCategory?: boolean;
   /** Show İşe Alıyorum / İş Arıyorum chips (unified /is feed). */
   showJobFlowFilters?: boolean;
+  /** Show Ortak Arıyorum / Ortak Olmak İstiyorum / İşletme Devri chips. */
+  showVentureFlowFilters?: boolean;
   className?: string;
 }
 
@@ -25,6 +28,7 @@ export function ListingFilters({
   onChange,
   hideCategory = false,
   showJobFlowFilters = false,
+  showVentureFlowFilters = false,
   className,
 }: ListingFiltersProps) {
   return (
@@ -33,6 +37,14 @@ export function ListingFilters({
         <JobFlowFilters
           value={filters.jobFlow}
           onChange={(jobFlow) => onChange({ jobFlow })}
+        />
+      ) : null}
+
+      {showVentureFlowFilters ? (
+        <PartnershipFlowFilters
+          categorySlug={filters.categorySlug}
+          partnershipIntent={filters.partnershipIntent}
+          onChange={(patch) => onChange(patch)}
         />
       ) : null}
 

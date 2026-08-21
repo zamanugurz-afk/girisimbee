@@ -13,7 +13,7 @@ export default function IsletmeDevriBrowsePage() {
     <div className="min-w-0 overflow-x-hidden">
       <CategoryMarketplacePage
         categorySlug={CATEGORY_SLUG}
-        eyebrow="Girişim Fırsatları"
+        eyebrow="Ortaklık ve Devir"
         title="İşletme Devri İlanları"
         description="Kafe, restoran, mağaza, e-ticaret ve faal şirket devir fırsatlarını keşfedin."
         emptyTitle="Henüz işletme devri ilanı bulunmuyor"

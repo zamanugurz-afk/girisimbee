@@ -23,6 +23,7 @@ interface MarketplaceBrowsePageProps {
   accent?: string;
   hideCategoryFilter?: boolean;
   showJobFlowFilters?: boolean;
+  showVentureFlowFilters?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyCta?: { label: string; href: string };
@@ -40,6 +41,7 @@ export function MarketplaceBrowseView({
   accent,
   hideCategoryFilter,
   showJobFlowFilters = false,
+  showVentureFlowFilters,
   emptyTitle,
   emptyDescription,
   emptyCta,
@@ -131,6 +133,10 @@ export function MarketplaceBrowseView({
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
           showJobFlowFilters={showJobFlowFilters || categorySlug === 'ise-al'}
+          showVentureFlowFilters={
+            showVentureFlowFilters
+            ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')
+          }
           className="mb-5"
         />
 

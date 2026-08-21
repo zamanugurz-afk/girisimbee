@@ -25,6 +25,7 @@ export function buildCategoryMetadata(categorySlug: string): Metadata {
 export function CategoryMarketplacePage({
   categorySlug,
   showJobFlowFilters = false,
+  showVentureFlowFilters,
   initialJobFlow,
   partnershipIntent,
   title,
@@ -39,6 +40,8 @@ export function CategoryMarketplacePage({
   categorySlug: string;
   /** Unified İş İlanları page — hire/seek chips above city/sort filters. */
   showJobFlowFilters?: boolean;
+  /** Unified Ortaklık ve Devir page — 3-way direction selector chips. */
+  showVentureFlowFilters?: boolean;
   initialJobFlow?: JobFlowFilter;
   partnershipIntent?: PartnershipIntent;
   title?: string;
@@ -58,6 +61,7 @@ export function CategoryMarketplacePage({
       categorySlug={resolveCanonicalCategorySlug(categorySlug)}
       hideCategoryFilter
       showJobFlowFilters={showJobFlowFilters}
+      showVentureFlowFilters={showVentureFlowFilters}
       title={title}
       description={description}
       eyebrow={eyebrow}
