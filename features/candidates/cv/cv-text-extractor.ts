@@ -1,23 +1,27 @@
 import zlib from 'zlib';
+import {
+  detectCvFormatFromBuffer,
+  CvExtractionError,
+  MAX_CV_FILE_SIZE_BYTES,
+} from './cv-format-detector';
+import {
+  reconstructDocumentLayout,
+  type RawSpatialToken,
+} from './cv-spatial-layout-engine';
+import type { CvDocumentModel } from './cv-document-model';
 
-export const MAX_CV_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-
-export class CvExtractionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'CvExtractionError';
-  }
-}
+export { CvExtractionError, MAX_CV_FILE_SIZE_BYTES };
 
 export interface ExtractedCvTextResult {
   text: string;
   pageCount?: number;
   format: 'pdf' | 'docx' | 'txt';
   charCount: number;
+  documentModel?: CvDocumentModel;
 }
 
 /**
- * Extracts plain text from DOCX buffer by scanning all XML parts
+ * Extracts plain text from DOCX buffer by scanning XML parts
  * (document.xml, header*.xml, footer*.xml, footnotes.xml) from the zip package.
  */
 export function extractTextFromDocx(buffer: Buffer): string {
@@ -93,14 +97,14 @@ export function extractTextFromDocx(buffer: Buffer): string {
     const combinedXml = xmlFragments.join('\n');
 
     // Parse XML tags into clean structured text
-    const cleanedText = combinedXml
+    const cleanedFullText = combinedXml
       .replace(/<w:p[^>]*>/g, '\n')
       .replace(/<w:tr[^>]*>/g, '\n')
       .replace(/<w:tc[^>]*>/g, ' \t ')
       .replace(/<w:tab[^>]*\/>/g, ' ')
       .replace(/<w:br[^>]*\/>/g, '\n')
       .replace(/<w:t[^>]*>(.*?)<\/w:t>/g, '$1')
-      .replace(/<[^>]+>/g, '') // remove remaining XML tags
+      .replace(/<[^>]+>/g, '')
       .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
@@ -111,7 +115,7 @@ export function extractTextFromDocx(buffer: Buffer): string {
       .replace(/\n\s*\n/g, '\n\n')
       .trim();
 
-    return cleanedText;
+    return cleanedFullText;
   } catch (err: any) {
     if (err instanceof CvExtractionError) throw err;
     throw new CvExtractionError(`DOCX metni çıkarılırken hata oluştu: ${err.message}`);
@@ -123,7 +127,7 @@ export function extractTextFromDocx(buffer: Buffer): string {
  * with fallback to deep binary stream & hex-string decompression.
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  // Strategy 1: PDFParse (pdf.js) — standard engine for full PDF layout & CID fonts
+  // Strategy 1: PDFParse (pdf.js)
   try {
     let PDFParseClass: any;
     try {
@@ -135,8 +139,8 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
         const customRequire = createRequire(__filename);
         const mod = customRequire('pdf-parse');
         PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod;
-      } catch (loadErr: any) {
-        // ignore load error and proceed to deterministic parser
+      } catch {
+        // ignore load error
       }
     }
 
@@ -164,11 +168,11 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
         }
       }
     }
-  } catch (err: any) {
+  } catch {
     // Strategy 1 fallback
   }
 
-  // Strategy 2: Pure Deterministic CMap + Text Matrix PDF Parser (0 external dependencies, serverless / in-memory streams)
+  // Strategy 2: Pure Deterministic CMap + Text Matrix PDF Parser
   try {
     const perfectText = parsePdfObjectsAndStreams(buffer);
     if (perfectText && perfectText.length >= 10) {
@@ -394,7 +398,8 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
 
     for (const cId of page.contentIds) {
       const stream = getDecompressedStream(objMap.get(cId) || '');
-      if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ'))) continue;
+      if (!stream || (!stream.includes('BT') && !stream.includes('Tj') && !stream.includes('TJ')))
+        continue;
 
       const btRegex = /(?:^|\s)BT\s([\s\S]*?)\sET(?:\s|$)/g;
       let btm: RegExpExecArray | null;
@@ -402,15 +407,18 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
         const block = btm[1];
         let currentFont = page.fontMap.values().next().value || new Map<string, string>();
 
-        const tokens = block.match(/\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\.|[^()\\])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g);
+        const streamTokens = block.match(
+          /\/[a-zA-Z0-9]+\s+[0-9.]+\s+Tf|[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+[0-9.\-]+\s+Tm|[0-9.\-]+\s+[0-9.\-]+\s+Td|<[0-9a-fA-F\s]+>\s*Tj|\((?:\\.|[^()\\])*\)\s*Tj|\[([\s\S]*?)\]\s*TJ|T\*/g,
+        );
 
-        for (const tok of tokens || []) {
+        for (const tok of streamTokens || []) {
           if (tok === 'T*') {
             pageText = pageText.trimEnd() + '\n';
             curY -= 14;
             lastY = curY;
           } else if (tok.endsWith('Tf')) {
-            const fn = tok.split(/\s+/)[0].slice(1);
+            const parts = tok.split(/\s+/);
+            const fn = parts[0].slice(1);
             if (page.fontMap.has(fn)) currentFont = page.fontMap.get(fn)!;
           } else if (tok.endsWith('Tm')) {
             const nums = tok.split(/\s+/).map(Number);
@@ -437,8 +445,7 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
             } else {
               const singleM = tok.match(/^\(((?:\\.|[^()\\])*)\)\s*Tj$/);
               if (singleM) {
-                const decoded = decodePdfString(singleM[1]);
-                if (decoded) pageText += decoded;
+                pageText += decodePdfString(singleM[1]);
               }
             }
           } else if (tok.startsWith('[') && tok.endsWith('TJ')) {
@@ -477,8 +484,7 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
 }
 
 /**
- * Fallback binary stream parser for PDF files. Handles compressed streams,
- * ToUnicode CMaps, hex strings `<0048...>`, and standard PDF text operators (`Tj`, `TJ`).
+ * Fallback binary stream parser for PDF files.
  */
 function extractTextFromPdfStreams(buffer: Buffer): string {
   const rawBinary = buffer.toString('binary');
@@ -487,8 +493,6 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
   }
 
   const decompressedStreams: string[] = [];
-
-  // Locate all stream objects in the PDF
   const streamRegex = /stream[\r\n]+([\s\S]*?)[\r\n]+endstream/g;
   let match: RegExpExecArray | null;
 
@@ -512,7 +516,6 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     decompressedStreams.push(decompressed);
   }
 
-  // Build combined ToUnicode CMap across all streams
   const cmap = new Map<string, string>();
   for (const s of decompressedStreams) {
     if (s.includes('beginbfchar') || s.includes('beginbfrange')) {
@@ -530,7 +533,6 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
 
   let fullText = textPieces.join('\n\n').trim();
 
-  // If streams didn't yield enough text, parse text outside streams
   if (fullText.length < 30) {
     const rawExtracted = parsePdfStreamTextWithCMap(rawBinary, cmap);
     if (rawExtracted.length > fullText.length) {
@@ -545,11 +547,7 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     .trim();
 }
 
-/**
- * Parses ToUnicode CMap beginbfchar / beginbfrange sections into a glyph mapping dictionary.
- */
 function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
-  // Parse beginbfchar
   const bfcharRegex = /(\d+)\s+beginbfchar([\s\S]*?)endbfchar/g;
   let m: RegExpExecArray | null;
   while ((m = bfcharRegex.exec(cmapStr)) !== null) {
@@ -566,7 +564,6 @@ function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
     }
   }
 
-  // Parse beginbfrange
   const bfrangeRegex = /(\d+)\s+beginbfrange([\s\S]*?)endbfrange/g;
   while ((m = bfrangeRegex.exec(cmapStr)) !== null) {
     const lines = m[2].trim().split(/\r?\n/);
@@ -575,7 +572,7 @@ function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
       if (parts) {
         const start = parseInt(parts[1], 16);
         const end = parseInt(parts[2], 16);
-        let dst = parseInt(parts[3], 16);
+        let dst = parseInt(parts[3] || '0', 16);
         for (let code = start; code <= end; code++) {
           const hexKey = code.toString(16).toLowerCase().padStart(4, '0');
           if (dst > 0) {
@@ -588,33 +585,26 @@ function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
   }
 }
 
-/**
- * Parses PDF text commands: `(Text) Tj`, `<Hex> Tj`, `[...] TJ` using CMap.
- */
 function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): string {
   const result: string[] = [];
-
   const tjRegex = /(?:\((?:\\\(|\\\)|[^()])*\)\s*Tj|<[0-9a-fA-F\s]+>\s*Tj|\[([\s\S]*?)\]\s*TJ|'(?:[^\r\n]*)'|"(?:[^\r\n]*)")/g;
   let tjMatch: RegExpExecArray | null;
 
   while ((tjMatch = tjRegex.exec(stream)) !== null) {
     const rawCmd = tjMatch[0];
 
-    // Case 1: Simple (Text) Tj
     const singleTj = rawCmd.match(/^\(((?:\\\(|\\\)|[^()])*)\)\s*Tj$/);
     if (singleTj) {
       result.push(decodePdfString(singleTj[1]));
       continue;
     }
 
-    // Case 2: Hex <00480065> Tj
     const hexTj = rawCmd.match(/^<([0-9a-fA-F\s]+)>\s*Tj$/);
     if (hexTj) {
       result.push(decodePdfHexWithCMap(hexTj[1], cmap));
       continue;
     }
 
-    // Case 3: Array [(Text1) 120 <0048>] TJ
     if (rawCmd.startsWith('[') && rawCmd.endsWith('TJ')) {
       const parts = rawCmd.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>/g);
       if (parts) {
@@ -633,16 +623,12 @@ function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): 
           result.push(decodedLine);
         }
       }
-      continue;
     }
   }
 
   return result.join(' ');
 }
 
-/**
- * Decodes PDF string escape sequences (e.g. \n, \r, \t, \(, \), \\, \ooo octal)
- */
 function decodePdfString(str: string): string {
   return str
     .replace(/\\([0-7]{1,3})/g, (_, oct) => {
@@ -671,14 +657,10 @@ function decodePdfString(str: string): string {
     .replace(/\\\\/g, '\\');
 }
 
-/**
- * Decodes PDF Hex strings using CMap or fallback UTF-16BE / ASCII
- */
 function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
   const cleanHex = hex.replace(/\s+/g, '');
   if (cleanHex.length === 0) return '';
 
-  // If CMap is present and has mappings
   if (cmap.size > 0) {
     let text = '';
     let hasValidMatch = false;
@@ -699,7 +681,6 @@ function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
     }
   }
 
-  // Check UTF-16BE with 0x00 interleaved
   const bytes = Buffer.from(cleanHex, 'hex');
   if (bytes.length >= 2 && bytes[0] === 0x00) {
     let text = '';
@@ -715,12 +696,8 @@ function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
   return bytes.toString('utf8');
 }
 
-/**
- * Extracts printable ASCII/UTF-8 words from a raw binary buffer as a last-resort fallback.
- */
 function extractRawReadableTextFromBuffer(buffer: Buffer): string {
   const str = buffer.toString('utf8');
-  // Match sequences of alphanumeric and Turkish characters of length >= 3
   const words = str.match(/[a-zA-ZğüşıöçĞÜŞİÖÇ0-9@.-]{3,}/g);
   if (!words || words.length < 10) return '';
   return words.join(' ');
@@ -734,44 +711,15 @@ export async function extractCvText(
   fileName: string,
   mimeType?: string,
 ): Promise<ExtractedCvTextResult> {
-  if (!fileBuffer || fileBuffer.length === 0) {
-    throw new CvExtractionError('Yüklenen dosya boş veya okunamıyor.');
-  }
-
-  if (fileBuffer.length > MAX_CV_FILE_SIZE_BYTES) {
-    throw new CvExtractionError(
-      `Dosya boyutu çok büyük. Maksimum dosya boyutu 5 MB olmalıdır (Yüklenen: ${(fileBuffer.length / 1024 / 1024).toFixed(1)} MB).`,
-    );
-  }
-
-  const lowerName = fileName.toLowerCase();
-  const lowerMime = (mimeType || '').toLowerCase();
+  const detection = detectCvFormatFromBuffer(fileBuffer, fileName, mimeType);
 
   let text = '';
-  let format: 'pdf' | 'docx' | 'txt' = 'pdf';
-
-  if (lowerName.endsWith('.docx') || lowerMime.includes('wordprocessingml')) {
-    format = 'docx';
+  if (detection.format === 'docx') {
     text = extractTextFromDocx(fileBuffer);
-  } else if (lowerName.endsWith('.pdf') || lowerMime.includes('pdf')) {
-    format = 'pdf';
+  } else if (detection.format === 'pdf') {
     text = await extractTextFromPdf(fileBuffer);
-  } else if (lowerName.endsWith('.txt') || lowerMime.includes('text/plain')) {
-    format = 'txt';
-    text = fileBuffer.toString('utf8').trim();
   } else {
-    // Try detection via buffer magic numbers
-    if (fileBuffer.subarray(0, 4).toString('utf8') === '%PDF') {
-      format = 'pdf';
-      text = await extractTextFromPdf(fileBuffer);
-    } else if (fileBuffer[0] === 0x50 && fileBuffer[1] === 0x4b) {
-      format = 'docx';
-      text = extractTextFromDocx(fileBuffer);
-    } else {
-      throw new CvExtractionError(
-        'Desteklenmeyen dosya formatı. Lütfen PDF veya DOCX formatında CV yükleyin.',
-      );
-    }
+    text = fileBuffer.toString('utf8').trim();
   }
 
   if (!text || text.trim().length < 10) {
@@ -782,7 +730,7 @@ export async function extractCvText(
 
   return {
     text,
-    format,
+    format: detection.format,
     charCount: text.length,
   };
 }

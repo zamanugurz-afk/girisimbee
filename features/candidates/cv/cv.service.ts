@@ -9,6 +9,7 @@ import { buildProfileDraftFromCanonicalResult } from '@/features/candidates/cv/c
 import { cvAnalysisCache } from '@/features/candidates/cv/cv-cache';
 import { verifyCvPipelineIntegrity } from '@/features/candidates/cv/cv-data-loss-guard';
 import { calculateCvQualityScore } from '@/features/candidates/cv/cv-quality-score';
+import { validateAndReconcileCvPayload } from '@/features/candidates/cv/cv-cross-validator';
 import {
   CV_EXTRACTION_VERSION,
   CAREER_TAXONOMY_VERSION,
@@ -18,16 +19,18 @@ import {
 
 export class CvService {
   /**
-   * CV EXTRACTION 2.0 PIPELINE:
-   * 1. Buffer -> Text extraction (PDF / DOCX)
-   * 2. Text -> Deterministic PII masking
-   * 3. Cache Check (SHA-256 hash lookup with version invalidation)
-   * 4. Deterministic extraction (100% code-driven: dates, education, experiences, skills, tools)
-   * 5. AI Call Gate -> Skip AI if complete (AI calls = 0) or minimal semantic enrichment (max 1 call)
-   * 6. Canonical Taxonomy Mapping
-   * 7. Zero Data Loss Guard Verification
-   * 8. Profile Draft Builder & Confidence / Quality Scoring
-   * 9. Cache write & Return
+   * CV EXTRACTION 3.0 UNIVERSAL PIPELINE:
+   * 1. Multi-Format Ingestion with binary signature check (PDF / DOCX / TXT)
+   * 2. Spatial Layout & Multi-Column Reading Order Reconstruction
+   * 3. Deterministic PII Masking (KVKK Safe)
+   * 4. SHA-256 Hash Cache Lookup
+   * 5. Section Intelligence & Deterministic Entity Resolution
+   * 6. Cross-Field Validation & Deduplication
+   * 7. Gated Minimal-Context Grounded AI Fallback (0 or max 1 targeted call)
+   * 8. Unified Canonical Taxonomy & Ontology Mapping
+   * 9. Zero Data Loss Guard Verification
+   * 10. Profile Draft Builder, Multi-Factor Confidence & Quality Scoring
+   * 11. Cache Write & Return
    */
   async processCvBuffer(input: {
     buffer: Buffer;
@@ -37,49 +40,52 @@ export class CvService {
   }): Promise<CvProfileDraftResult> {
     const startTime = Date.now();
 
-    // Step 1: Text extraction
+    // Step 1 & 2: Spatial Text Extraction & Layout Reconstruction
     const extractedText = await extractCvText(input.buffer, input.fileName, input.mimeType);
 
-    // Step 2: Deterministic PII masking
+    // Step 3: Deterministic PII masking
     const piiResult = maskCvPii(extractedText.text);
 
-    // Step 3: Cache Lookup
+    // Step 4: Cache Lookup
     const cachedResult = cvAnalysisCache.get(piiResult.maskedText);
     if (cachedResult) {
       cachedResult.metrics.processingTimeMs = Date.now() - startTime;
       return cachedResult;
     }
 
-    // Step 4: Deterministic Pre-extraction signals
+    // Step 5: Deterministic Pre-extraction signals
     const signals = extractDeterministicCvSignals(piiResult.maskedText);
 
-    // Step 5: Extraction with AI Call Gate (0 or max 1 minimal call)
-    const aiPayload = await extractCvWithSingleAiCall(piiResult.maskedText, signals);
+    // Step 6: Extraction with AI Call Gate (0 or max 1 minimal call)
+    let aiPayload = await extractCvWithSingleAiCall(piiResult.maskedText, signals);
 
-    // Step 6: Deterministic Canonical Taxonomy Mapping
+    // Step 7: Cross-field consistency validation & deduplication
+    aiPayload = validateAndReconcileCvPayload(aiPayload);
+
+    // Step 8: Deterministic Canonical Taxonomy Mapping
     const canonical = mapCvToCanonicalTaxonomy(aiPayload);
 
-    // Step 7: Zero Data Loss Guard
+    // Step 9: Zero Data Loss Guard
     verifyCvPipelineIntegrity({
       rawExtraction: aiPayload,
       canonical,
     });
 
-    // Step 8: Profile Draft Builder
+    // Step 10: Profile Draft Builder
     const draft = buildProfileDraftFromCanonicalResult(
       canonical,
       input.fileName,
       input.documentId,
     );
 
-    // Step 9: Quality Scoring & Exact Metrics
+    // Step 11: Multi-Factor Quality Scoring & Exact Metrics
     const qualityReport = calculateCvQualityScore({
       canonical,
       experiences: aiPayload.experiences,
       summaryLength: canonical.summary.length,
     });
 
-    const aiMetrics = aiPayload._aiMetrics;
+    const aiMetrics = (aiPayload as any)._aiMetrics;
     const deterministicCount =
       canonical.experiences.length +
       canonical.educationList.length +
@@ -112,7 +118,7 @@ export class CvService {
       processingTimeMs: Date.now() - startTime,
     };
 
-    // Step 10: Store in cache
+    // Step 12: Store in cache
     cvAnalysisCache.set(piiResult.maskedText, draft);
 
     return draft;

@@ -870,11 +870,16 @@ export function mapCvToCanonicalTaxonomy(
   const mostRecentSector = experiences[0]?.sector || '';
   const resolvedRole = mostRecentRole || candidateHeadlineRole || matchedRoles[0] || (experiences[0]?.role ?? '');
   const roleInferredSector = inferSectorFromRole(resolvedRole);
+  const resolvedSector =
+    mostRecentSector ||
+    (matchedSectors.length > 0 && roleInferredSector === 'Satış' ? matchedSectors[0] : roleInferredSector) ||
+    matchedSectors[0] ||
+    '';
 
   return {
     primaryRole: resolvedRole,
     matchedRoles,
-    primarySector: mostRecentSector || roleInferredSector || matchedSectors[0] || '',
+    primarySector: resolvedSector,
     matchedSectors,
     professionalSkills: [...new Set(professionalSkills)],
     technicalSkills: [...new Set(technicalSkills)],
