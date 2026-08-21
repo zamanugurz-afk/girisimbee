@@ -494,7 +494,8 @@ export function CategoryListingForm({
     || categoryId === CATEGORY_IDS.bayilikAl
     || categoryId === CATEGORY_IDS.yatirimBul
     || categoryId === CATEGORY_IDS.yatirimYap
-    || categoryId === CATEGORY_IDS.ortakBul;
+    || categoryId === CATEGORY_IDS.ortakBul
+    || categoryId === CATEGORY_IDS.isletmeDevri;
   const isLastStep = stepIndex === steps.length - 1;
   const isFirstStep = stepIndex === 0;
 
@@ -603,7 +604,7 @@ export function CategoryListingForm({
         {
           id: 'partnership',
           label: 'Ortaklık Kriterleri',
-          isComplete: Boolean(mergedCustomFields.partnerType),
+          isComplete: Boolean(mergedCustomFields.partnershipType || mergedCustomFields.partnerType || mergedCustomFields.expertise),
           isRequired: true,
           stepIndex: 1,
         },
@@ -611,6 +612,64 @@ export function CategoryListingForm({
           id: 'details',
           label: 'Detaylı Açıklama',
           isComplete: hasDetails,
+          isRequired: true,
+          stepIndex: 2,
+        },
+      ];
+    }
+    if (categoryId === CATEGORY_IDS.bayilikAl) {
+      const hasTitle = Boolean(core.title);
+      const hasSector = Boolean(mergedCustomFields.sector || mergedCustomFields.preferredSectors);
+      const hasBudgetOrInvestment = Boolean(mergedCustomFields.totalInvestment || mergedCustomFields.budget);
+
+      return [
+        {
+          id: 'basics',
+          label: 'Franchise / Marka Bilgisi',
+          isComplete: hasTitle && hasSector,
+          isRequired: true,
+          stepIndex: 0,
+        },
+        {
+          id: 'investment',
+          label: 'Yatırım / Bütçe Koşulları',
+          isComplete: hasBudgetOrInvestment,
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'location',
+          label: 'Lokasyon ve Şartlar',
+          isComplete: Boolean(core.city || mergedCustomFields.availableCities),
+          isRequired: true,
+          stepIndex: 2,
+        },
+      ];
+    }
+    if (categoryId === CATEGORY_IDS.isletmeDevri) {
+      const hasTitle = Boolean(core.title);
+      const hasType = Boolean(mergedCustomFields.businessType || mergedCustomFields.preferredBusinessTypes);
+      const hasPriceOrBudget = Boolean(mergedCustomFields.transferPrice || mergedCustomFields.budgetMax);
+
+      return [
+        {
+          id: 'basics',
+          label: 'İşletme Türü ve Sektör',
+          isComplete: hasTitle && hasType,
+          isRequired: true,
+          stepIndex: 0,
+        },
+        {
+          id: 'financials',
+          label: 'Devir / Bütçe Koşulları',
+          isComplete: hasPriceOrBudget,
+          isRequired: true,
+          stepIndex: 1,
+        },
+        {
+          id: 'details',
+          label: 'Lokasyon ve Devir Kapsamı',
+          isComplete: Boolean(core.city || mergedCustomFields.city),
           isRequired: true,
           stepIndex: 2,
         },

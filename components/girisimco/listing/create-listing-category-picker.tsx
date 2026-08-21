@@ -75,7 +75,10 @@ export function CreateListingCategoryPicker({
   hubStep,
   onHubStepChange,
 }: {
-  onSelect: (categoryId: CategoryId, options?: { partnershipIntent?: PartnershipIntent }) => void;
+  onSelect: (
+    categoryId: CategoryId,
+    options?: { partnershipIntent?: PartnershipIntent; subIntent?: string },
+  ) => void;
   hubStep: CreateListingHubStep;
   onHubStepChange: (step: CreateListingHubStep) => void;
 }) {

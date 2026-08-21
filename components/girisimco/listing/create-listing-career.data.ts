@@ -44,19 +44,19 @@ export const CREATE_LISTING_CAREER_HUB = {
 export const CREATE_LISTING_VENTURE_HUB = {
   title: 'Girişim ve Ortaklık',
   description: 'Ortak arayın, bir girişime katılın veya franchise fırsatı yayınlayın.',
-  audience: 'Kurucu / ortak / franchise',
+  audience: 'Kurucu / ortak / franchise / işletme devri',
   benefits: [
     {
-      title: 'Ortak Arıyorum',
-      text: 'Aradığınız uzmanlığı tanımlayın ve ortaklık ilanınızı yayınlayın.',
+      title: 'Ortaklık',
+      text: 'Ortak arayın veya bir girişime ortak olarak katılın.',
     },
     {
-      title: 'Ortak Olmak İstiyorum',
-      text: 'Uzmanlığınızı yayınlayın; size uygun girişimlerle buluşun.',
+      title: 'Franchise',
+      text: 'Franchise verin veya markaların franchise fırsatlarını alın.',
     },
     {
-      title: 'Franchise Fırsatları',
-      text: 'Markanızın franchise fırsatını yayınlayın.',
+      title: 'İşletme Devri',
+      text: 'Faal işletmenizi devredin veya hazır işletme devralın.',
     },
   ],
 } as const;
@@ -66,11 +66,217 @@ export const CREATE_LISTING_VENTURE_CATEGORY_IDS = [
   CATEGORY_IDS.bayilikAl,
 ] as const;
 
+export const CREATE_LISTING_ALL_VENTURE_CATEGORY_IDS = [
+  CATEGORY_IDS.ortakBul,
+  CATEGORY_IDS.bayilikAl,
+  CATEGORY_IDS.isletmeDevri,
+] as const;
+
+export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
+  title: 'Hangi girişim alanında ilan vermek istiyorsunuz?',
+  description: 'Ortaklık, franchise veya işletme devri kategorilerinden size uygun olanı seçin.',
+  trust: 'İletişim bilgileriniz gizli kalır. Bağlantı, güvenli talep üzerinden kurulur.',
+  categories: [
+    {
+      id: 'partnership',
+      label: 'Ortaklık',
+      description: 'Kurucu ortak arayın veya uzmanlığınızla bir girişime ortak olun.',
+      benefits: [
+        {
+          title: 'Ortak Arıyorum',
+          text: 'Aradığınız uzmanlığı ve hisse/model beklentisini tanımlayın.',
+        },
+        {
+          title: 'Ortak Olmak İstiyorum',
+          text: 'Deneyiminizi ve sermaye/zaman katkınızı sunun.',
+        },
+        {
+          title: 'Tamamlayıcı Eşleşme',
+          text: 'Teknik, finans, satış ve operasyon profilleriyle eşleşin.',
+        },
+      ],
+    },
+    {
+      id: 'franchise',
+      label: 'Franchise',
+      description: 'Markanız için bayi/franchise ağı oluşturun veya franchise alın.',
+      benefits: [
+        {
+          title: 'Franchise Veriyorum',
+          text: 'Markanızı, giriş bedelini ve lokasyon hedeflerinizi yayınlayın.',
+        },
+        {
+          title: 'Franchise Almak İstiyorum',
+          text: 'Bütçeniz ve ilgi duyduğunuz sektörlerle yatırım yapın.',
+        },
+        {
+          title: 'Lokasyon & Bütçe Uyumu',
+          text: 'Hedef şehirler ve yatırım aralıklarıyla doğrudan eşleşin.',
+        },
+      ],
+    },
+    {
+      id: 'business_transfer',
+      label: 'İşletme Devri',
+      description: 'Faal işletmenizi devredin veya kurulu bir işletmeyi devralın.',
+      benefits: [
+        {
+          title: 'İşletmemi Devretmek İstiyorum',
+          text: 'Demirbaş, ciro, kira ve faaliyet detaylarıyla ilanınızı açın.',
+        },
+        {
+          title: 'İşletme Devralmak İstiyorum',
+          text: 'Bütçeniz ve hedef sektörünüzle hazır işletmelere ulaşın.',
+        },
+        {
+          title: 'Hızlı & Güvenli Devir',
+          text: 'Kira, lokasyon ve bütçe kriterlerine göre nokta eşleşin.',
+        },
+      ],
+    },
+  ],
+} as const;
+
+export const CREATE_LISTING_VENTURE_SUB_OPTIONS = {
+  partnership: [
+    {
+      id: 'ortak-ariyorum',
+      categoryId: CATEGORY_IDS.ortakBul,
+      intent: 'seeking' as const,
+      label: 'Ortak Arıyorum',
+      description: 'Aradığınız uzmanlığı tanımlayın ve ortaklık ilanınızı yayınlayın.',
+      benefits: [
+        {
+          title: 'İhtiyacınız olan uzmanlığı tanımlayın',
+          text: 'Aradığınız yetkinliği ve ortaklık beklentisini netleştirin.',
+        },
+        {
+          title: 'Size uygun ortakları keşfedin',
+          text: 'İlanınız doğru yetkinlikteki kişilere ulaşsın.',
+        },
+        {
+          title: 'Güvenli iletişim',
+          text: 'İletişim bilgileriniz paylaşılmadan talep üzerinden ilerleyin.',
+        },
+      ],
+    },
+    {
+      id: 'ortak-olmak',
+      categoryId: CATEGORY_IDS.ortakBul,
+      intent: 'joining' as const,
+      label: 'Ortak Olmak İstiyorum',
+      description: 'Uzmanlığınızı yayınlayın; size uygun girişimlerle buluşun.',
+      benefits: [
+        {
+          title: 'Yetkinliklerinizi öne çıkarın',
+          text: 'Deneyiminizi ve katkı modelinizi net gösterin.',
+        },
+        {
+          title: 'Doğru girişimleri keşfedin',
+          text: 'İlgi duyduğunuz sektörlerdeki fırsatlara ulaşın.',
+        },
+        {
+          title: 'Güvenli iletişim',
+          text: 'İletişim bilgileriniz paylaşılmadan talep üzerinden ilerleyin.',
+        },
+      ],
+    },
+  ],
+  franchise: [
+    {
+      id: 'franchise-ver',
+      categoryId: CATEGORY_IDS.bayilikAl,
+      intent: 'give' as const,
+      label: 'Franchise Veriyorum',
+      description: 'Markanızın franchise fırsatını yatırımcılarla buluşturun.',
+      benefits: [
+        {
+          title: 'Markanızı tanıtın',
+          text: 'Şube sayısı, model ve desteklerinizi paylaşın.',
+        },
+        {
+          title: 'Yatırım aralığını belirtin',
+          text: 'Giriş bedeli, royalty ve minimum sermayeyi tanımlayın.',
+        },
+        {
+          title: 'Hedef lokasyonları seçin',
+          text: 'Büyümek istediğiniz şehir ve bölgeleri belirleyin.',
+        },
+      ],
+    },
+    {
+      id: 'franchise-al',
+      categoryId: CATEGORY_IDS.bayilikAl,
+      intent: 'buy' as const,
+      label: 'Franchise Almak İstiyorum',
+      description: 'Bütçeniz ve ilgi alanlarınızla franchise yatırımcısı olun.',
+      benefits: [
+        {
+          title: 'Yatırım bütçenizi belirleyin',
+          text: 'Bütçenize uygun doğrulanmış markalara ulaşın.',
+        },
+        {
+          title: 'Sektör ve şehir tercihi',
+          text: 'Faaliyet göstermek istediğiniz alanları seçin.',
+        },
+        {
+          title: 'İşletme modelinizi seçin',
+          text: 'Bizzat işletme veya profesyonel yönetim tercihini belirtin.',
+        },
+      ],
+    },
+  ],
+  business_transfer: [
+    {
+      id: 'isletme-devret',
+      categoryId: CATEGORY_IDS.isletmeDevri,
+      intent: 'sell' as const,
+      label: 'İşletmemi Devretmek İstiyorum',
+      description: 'Faal veya hazır işletmenizi yeni sahibine güvenle devredin.',
+      benefits: [
+        {
+          title: 'İşletme detaylarını paylaşın',
+          text: 'Kira, çalışan sayısı ve demirbaş kapsamını ekleyin.',
+        },
+        {
+          title: 'Devir bedelini belirleyin',
+          text: 'Hedef devir tutarınızı ve koşullarınızı netleştirin.',
+        },
+        {
+          title: 'Ciddi alıcılara ulaşın',
+          text: 'Yatırım bütçesi hazır girişimcilerle eşleşin.',
+        },
+      ],
+    },
+    {
+      id: 'isletme-devral',
+      categoryId: CATEGORY_IDS.isletmeDevri,
+      intent: 'buy' as const,
+      label: 'İşletme Devralmak İstiyorum',
+      description: 'Sıfırdan kurmak yerine hazır, kurulu bir işletmeyi devralın.',
+      benefits: [
+        {
+          title: 'Bütçenizi ve sektörünüzü seçin',
+          text: 'Aradığınız işletme türü ve lokasyonu tanımlayın.',
+        },
+        {
+          title: 'Aktif işletmeleri inceleyin',
+          text: 'Cirolu, faal veya fırsat işletmeleri değerlendirin.',
+        },
+        {
+          title: 'Güvenli devir süreci',
+          text: 'Detayları doğrudan işletme sahibiyle görüşün.',
+        },
+      ],
+    },
+  ],
+} as const;
+
 export const CREATE_LISTING_VENTURE_COPY = {
-  title: 'Ne tür bir girişim veya ortaklık ilanı vermek istiyorsunuz?',
+  title: 'Ne tür bir girişim veya iş fırsatı ilanı vermek istiyorsunuz?',
   description:
-    'Ortak arıyorsanız, ortak olmak istiyorsanız veya franchise fırsatı yayınlıyorsanız size uygun türü seçin.',
-  trust: 'İletişim bilgileriniz gizli kalır. Bağlantı, iletişim talebiyle kurulur.',
+    'Ortaklık, franchise veya işletme devri alanında size uygun olan kategoriyi ve ilan yönünü seçin.',
+  trust: 'İletişim bilgileriniz gizli kalır. Bağlantı, güvenli iletişim talebiyle kurulur.',
   options: [
     {
       id: 'ortak-ariyorum',
@@ -85,7 +291,7 @@ export const CREATE_LISTING_VENTURE_COPY = {
         },
         {
           title: 'Size uygun ortakları keşfedin',
-          text: 'İlanınız doğru kişilere ulaşsın.',
+          text: 'İlanınız doğru yetkinlikteki kişilere ulaşsın.',
         },
         {
           title: 'Güvenli iletişim talebi gönderin',
@@ -101,12 +307,12 @@ export const CREATE_LISTING_VENTURE_COPY = {
       description: 'Uzmanlığınızı yayınlayın; size uygun girişimlerle buluşun.',
       benefits: [
         {
-          title: 'İlgi alanlarını ve yetkinliklerinizi öne çıkarın',
-          text: 'Deneyiminizi kısa ve net şekilde gösterin.',
+          title: 'Yetkinliklerinizi öne çıkarın',
+          text: 'Deneyiminizi ve katkı modelinizi net gösterin.',
         },
         {
-          title: 'Size uygun girişimleri keşfedin',
-          text: 'Doğru ortaklık fırsatlarına ulaşın.',
+          title: 'Doğru girişimleri keşfedin',
+          text: 'İlgi duyduğunuz sektörlerdeki fırsatlara ulaşın.',
         },
         {
           title: 'Güvenli iletişim talebi gönderin',

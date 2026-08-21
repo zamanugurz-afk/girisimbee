@@ -206,6 +206,7 @@ describe('listing publish consents', () => {
     const full = {
       clarificationText: true,
       phoneDisplay: true,
+      thirdPartyHrSharing: true,
       explicitConsent: true,
     };
     expect(areAllPublishConsentsAccepted(full)).toBe(true);

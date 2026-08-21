@@ -82,11 +82,18 @@ function CreateListingContent() {
     categoryId === CATEGORY_IDS.ortakBul
       ? (overrideIntent ?? urlPartnershipIntent ?? 'seeking')
       : null;
+  const searchIntent = searchParams.get('intent');
   const listingTypeId: ListingTypeId | null = categoryId
     ? (
-      CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.listingTypeId
-      ?? categoryRegistry.getDefaultListingType(categoryId)?.id
-      ?? null
+      categoryId === CATEGORY_IDS.bayilikAl && searchIntent === 'buy'
+        ? LISTING_TYPE_IDS.franchiseBuyDefault
+        : categoryId === CATEGORY_IDS.isletmeDevri && (searchIntent === 'buy' || searchIntent === 'devral')
+          ? LISTING_TYPE_IDS.businessTransferBuyDefault
+          : categoryId === CATEGORY_IDS.isletmeDevri
+            ? LISTING_TYPE_IDS.businessTransferSellDefault
+            : (CREATE_LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.listingTypeId
+              ?? categoryRegistry.getDefaultListingType(categoryId)?.id
+              ?? null)
     )
     : null;
   const hubStep: 'career' | 'venture' | null = categoryId
@@ -131,7 +138,10 @@ function CreateListingContent() {
     );
   }
 
-  function selectCategory(id: CategoryId, options?: { partnershipIntent?: PartnershipIntent }) {
+  function selectCategory(
+    id: CategoryId,
+    options?: { partnershipIntent?: PartnershipIntent; subIntent?: string },
+  ) {
     if (CREATE_LISTING_DEFERRED_CATEGORY_IDS.includes(id)) return;
     setOverrideCategory(id);
     if (options?.partnershipIntent) {
@@ -142,6 +152,16 @@ function CreateListingContent() {
       router.push(partnershipCreateHref(options?.partnershipIntent ?? urlPartnershipIntent ?? 'seeking'));
       return;
     }
+    if (id === CATEGORY_IDS.bayilikAl) {
+      const intent = options?.subIntent === 'franchise-al' ? 'buy' : 'give';
+      router.push(`/ilan/olustur?category=franchise&intent=${intent}`);
+      return;
+    }
+    if (id === CATEGORY_IDS.isletmeDevri) {
+      const intent = options?.subIntent === 'isletme-devral' ? 'buy' : 'sell';
+      router.push(`/ilan/olustur?category=isletme-devri&intent=${intent}`);
+      return;
+    }
     const slug = categoryRegistry.getCategory(id)?.slug;
     router.push(slug ? `/ilan/olustur?category=${slug}` : '/ilan/olustur');
   }
@@ -150,7 +170,11 @@ function CreateListingContent() {
     setOverrideCategory(null);
     setOverrideIntent(null);
     setCareerHubOpen(false);
-    if (categoryId === CATEGORY_IDS.ortakBul || categoryId === CATEGORY_IDS.bayilikAl) {
+    if (
+      categoryId === CATEGORY_IDS.ortakBul ||
+      categoryId === CATEGORY_IDS.bayilikAl ||
+      categoryId === CATEGORY_IDS.isletmeDevri
+    ) {
       router.push('/ilan/olustur?hub=venture');
       return;
     }

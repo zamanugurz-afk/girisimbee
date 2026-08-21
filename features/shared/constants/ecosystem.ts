@@ -10,6 +10,7 @@ export const ECOSYSTEM_CATEGORY_IDS = {
   employers: ids.category('c1000001-0001-4000-8000-000000000004'),
   founders: ids.category('c1000001-0001-4000-8000-000000000005'),
   franchise: ids.category('c1000001-0001-4000-8000-000000000006'),
+  businessTransfer: ids.category('c1000001-0001-4000-8000-000000000009'),
 } as const;
 
 export const FRANCHISE_SUBCATEGORY_IDS: Record<FranchiseSubcategorySlug, SubcategoryId> = {
@@ -22,12 +23,18 @@ export const FRANCHISE_LISTING_TYPE_IDS = {
   give: ids.listingType('a0000007-0001-4000-8000-000000000007'),
 } as const satisfies Record<'buy' | 'give', ListingTypeId>;
 
+export const BUSINESS_TRANSFER_LISTING_TYPE_IDS = {
+  sell: ids.listingType('lt000001-0001-4000-8000-000000000009'),
+  buy: ids.listingType('lt000001-0001-4000-8000-000000000010'),
+} as const satisfies Record<'sell' | 'buy', ListingTypeId>;
+
 export const DEFAULT_LISTING_TYPE_IDS = {
   entrepreneurs: ids.listingType('lt000001-0001-4000-8000-000000000001'),
   investors: ids.listingType('lt000001-0001-4000-8000-000000000002'),
   candidates: ids.listingType('lt000001-0001-4000-8000-000000000003'),
   employers: ids.listingType('lt000001-0001-4000-8000-000000000004'),
   founders: ids.listingType('lt000001-0001-4000-8000-000000000005'),
+  businessTransfer: BUSINESS_TRANSFER_LISTING_TYPE_IDS.sell,
 } as const satisfies Record<string, ListingTypeId>;
 
 export type EcosystemCategoryKey = keyof typeof ECOSYSTEM_CATEGORY_IDS;

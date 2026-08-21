@@ -52,6 +52,12 @@ import {
   DIGITAL_AI_AUDIENCE_OPTIONS,
   DIGITAL_AI_CAPABILITY_OPTIONS,
   DIGITAL_AI_LANGUAGE_OPTIONS,
+  BUSINESS_TRANSFER_TYPE_OPTIONS,
+  BUSINESS_TRANSFER_STATUS_OPTIONS,
+  BUSINESS_TRANSFER_SCOPE_OPTIONS,
+  BUSINESS_TRANSFER_REASON_OPTIONS,
+  BUSINESS_TRANSFER_OPERATIONAL_OPTIONS,
+  BUSINESS_TRANSFER_PRICE_RANGES,
 } from '@/features/listings/config/listing-field-options';
 import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
 import {
@@ -68,6 +74,7 @@ export const CATEGORY_IDS = {
   bayilikAl: ids.category('c1000001-0001-4000-8000-000000000006'),
   genelIlan: ids.category('c1000001-0001-4000-8000-000000000007'),
   dijitalAi: ids.category('c1000001-0001-4000-8000-000000000008'),
+  isletmeDevri: ids.category('c1000001-0001-4000-8000-000000000009'),
 } as const satisfies Record<string, CategoryId>;
 
 export const LISTING_TYPE_IDS = {
@@ -77,6 +84,9 @@ export const LISTING_TYPE_IDS = {
   iseAlDefault: ids.listingType('lt000001-0001-4000-8000-000000000004'),
   ortakBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000005'),
   franchiseGiveDefault: FRANCHISE_LISTING_TYPE_IDS.give,
+  franchiseBuyDefault: FRANCHISE_LISTING_TYPE_IDS.buy,
+  businessTransferSellDefault: ids.listingType('lt000001-0001-4000-8000-000000000009'),
+  businessTransferBuyDefault: ids.listingType('lt000001-0001-4000-8000-000000000010'),
   genelIlanDefault: ids.listingType('lt000001-0001-4000-8000-000000000007'),
   dijitalAiDefault: ids.listingType('d1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, ListingTypeId>;
@@ -988,6 +998,222 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
+/** Franchise Almak İstiyorum — franchise seeker / investor profile */
+export const FRANCHISE_BUY_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'budget',
+      label: 'Yatırım Bütçesi (₺)',
+      type: 'currency',
+      required: true,
+      min: 0,
+    },
+    {
+      key: 'preferredSectors',
+      label: 'İlgilenilen Sektörler',
+      type: 'multi-enum',
+      required: true,
+      options: [...FRANCHISE_SECTOR_OPTIONS],
+    },
+    {
+      key: 'availableCities',
+      label: 'Hedef Şehirler',
+      type: 'multi-enum',
+      required: true,
+      options: [...FRANCHISE_CITY_OPTIONS],
+    },
+    {
+      key: 'businessCategory',
+      label: 'Tercih Edilen İş Modeli',
+      type: 'enum',
+      required: false,
+      options: [...FRANCHISE_BUSINESS_CATEGORY_OPTIONS],
+    },
+    {
+      key: 'operationalPreference',
+      label: 'İşletme Yönetim Tercihi',
+      type: 'enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_OPERATIONAL_OPTIONS],
+    },
+    {
+      key: 'experience',
+      label: 'İşletmecilik / Sektör Deneyimi',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+  ],
+};
+
+/** İşletmemi Devretmek İstiyorum — business seller / transferor */
+export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'businessName',
+      label: 'İşletme / Tabela Adı',
+      type: 'string',
+      required: false,
+      max: 150,
+    },
+    {
+      key: 'businessType',
+      label: 'İşletme Türü',
+      type: 'enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_TYPE_OPTIONS],
+    },
+    {
+      key: 'sector',
+      label: 'Ana Sektör',
+      type: 'enum',
+      required: true,
+      options: [...JOB_SECTOR_OPTIONS],
+    },
+    {
+      key: 'city',
+      label: 'Şehir',
+      type: 'string',
+      required: true,
+      max: 100,
+    },
+    {
+      key: 'district',
+      label: 'İlçe',
+      type: 'string',
+      required: false,
+      max: 100,
+    },
+    {
+      key: 'transferPrice',
+      label: 'Devir Bedeli (₺)',
+      type: 'currency',
+      required: true,
+      min: 0,
+    },
+    {
+      key: 'monthlyRent',
+      label: 'Aylık Kira Bedeli (₺)',
+      type: 'currency',
+      required: false,
+      min: 0,
+    },
+    {
+      key: 'businessAge',
+      label: 'İşletme Yaşı (Yıl)',
+      type: 'number',
+      required: false,
+      min: 0,
+      max: 100,
+    },
+    {
+      key: 'employeeCount',
+      label: 'Çalışan Sayısı',
+      type: 'number',
+      required: false,
+      min: 0,
+      max: 1000,
+    },
+    {
+      key: 'operationalStatus',
+      label: 'Faaliyet Durumu',
+      type: 'enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_STATUS_OPTIONS],
+    },
+    {
+      key: 'transferScope',
+      label: 'Devir Kapsamı',
+      type: 'multi-enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_SCOPE_OPTIONS],
+    },
+    {
+      key: 'reasonForTransfer',
+      label: 'Devir Nedeni',
+      type: 'enum',
+      required: false,
+      options: [...BUSINESS_TRANSFER_REASON_OPTIONS],
+    },
+    {
+      key: 'postTransferSupport',
+      label: 'Devir Sonrası Destek / Oryantasyon',
+      type: 'string',
+      required: false,
+      max: 300,
+    },
+    {
+      key: 'financialSummary',
+      label: 'Finansal Özet / Ciro (Opsiyonel)',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+  ],
+};
+
+/** İşletme Devralmak İstiyorum — business buyer / investor */
+export const BUSINESS_TRANSFER_BUY_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'budgetMax',
+      label: 'Yatırım / Devralma Bütçesi (₺)',
+      type: 'currency',
+      required: true,
+      min: 0,
+    },
+    {
+      key: 'preferredSectors',
+      label: 'İlgilenilen Sektörler',
+      type: 'multi-enum',
+      required: true,
+      options: [...JOB_SECTOR_OPTIONS],
+    },
+    {
+      key: 'preferredBusinessTypes',
+      label: 'Tercih Edilen İşletme Türleri',
+      type: 'multi-enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_TYPE_OPTIONS],
+    },
+    {
+      key: 'city',
+      label: 'Tercih Edilen Şehir',
+      type: 'string',
+      required: true,
+      max: 100,
+    },
+    {
+      key: 'district',
+      label: 'Tercih Edilen İlçe',
+      type: 'string',
+      required: false,
+      max: 100,
+    },
+    {
+      key: 'operationalPreference',
+      label: 'İşletme Yönetim Tercihi',
+      type: 'enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_OPERATIONAL_OPTIONS],
+    },
+    {
+      key: 'preferredStatus',
+      label: 'Tercih Edilen Faaliyet Durumu',
+      type: 'enum',
+      required: false,
+      options: [...BUSINESS_TRANSFER_STATUS_OPTIONS],
+    },
+    {
+      key: 'relevantExperience',
+      label: 'İlgili Sektör / İşletme Deneyimi',
+      type: 'string',
+      required: false,
+      max: 500,
+    },
+  ],
+};
+
 /** Ortak Arıyorum / Ortak Olmak — shared schema; form steps pick the intent subset. */
 export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
@@ -1197,10 +1423,37 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,
     categoryId: CATEGORY_IDS.bayilikAl,
     slug: 'franchise-ilan-ver',
-    name: 'Franchise İlanları',
+    name: 'Franchise Veriyorum',
     description: 'Marka, yatırım ve lokasyon bilgileriyle franchise fırsatınızı yayınlayın',
     fieldSchema: FRANCHISE_GIVE_FIELD_SCHEMA,
     sortOrder: 1,
+  },
+  {
+    listingTypeId: LISTING_TYPE_IDS.franchiseBuyDefault,
+    categoryId: CATEGORY_IDS.bayilikAl,
+    slug: 'franchise-almak-istiyorum',
+    name: 'Franchise Almak İstiyorum',
+    description: 'Yatırım bütçeniz ve ilgi alanlarınızla franchise yatırımcı profilinizi oluşturun',
+    fieldSchema: FRANCHISE_BUY_FIELD_SCHEMA,
+    sortOrder: 2,
+  },
+  {
+    listingTypeId: LISTING_TYPE_IDS.businessTransferSellDefault,
+    categoryId: CATEGORY_IDS.isletmeDevri,
+    slug: 'isletme-devret',
+    name: 'İşletmemi Devretmek İstiyorum',
+    description: 'Faal işletmenizi devir bedeli, kira, demirbaş ve faaliyet detaylarıyla devredin',
+    fieldSchema: BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
+  {
+    listingTypeId: LISTING_TYPE_IDS.businessTransferBuyDefault,
+    categoryId: CATEGORY_IDS.isletmeDevri,
+    slug: 'isletme-devral',
+    name: 'İşletme Devralmak İstiyorum',
+    description: 'Bütçeniz, tercih ettiğiniz sektör ve işletme türüyle devralma talebinizi yayınlayın',
+    fieldSchema: BUSINESS_TRANSFER_BUY_FIELD_SCHEMA,
+    sortOrder: 2,
   },
   {
     listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
@@ -1247,6 +1500,11 @@ export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   'ortak-bul': CATEGORY_IDS.ortakBul,
   franchise: CATEGORY_IDS.bayilikAl,
   'bayilik-al': CATEGORY_IDS.bayilikAl,
+  'isletme-devri': CATEGORY_IDS.isletmeDevri,
+  'isletme-devret': CATEGORY_IDS.isletmeDevri,
+  'isletme-devral': CATEGORY_IDS.isletmeDevri,
+  devret: CATEGORY_IDS.isletmeDevri,
+  devral: CATEGORY_IDS.isletmeDevri,
   'dijital-ai': CATEGORY_IDS.dijitalAi,
   'genel-ilan': CATEGORY_IDS.genelIlan,
   ilan: CATEGORY_IDS.genelIlan,

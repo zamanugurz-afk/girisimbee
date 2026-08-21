@@ -32,6 +32,7 @@ export const gcCategoryColors = {
   'ise-al': '#22C55E',
   'ortak-bul': '#F59E0B',
   franchise: '#EC4899',
+  'isletme-devri': '#D97706',
   ilan: '#0EA5E9',
   'dijital-ai': '#8B5CF6',
 } as const;

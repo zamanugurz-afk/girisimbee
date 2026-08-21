@@ -644,3 +644,68 @@ export const DIGITAL_AI_LANGUAGE_OPTIONS = [
   'Rusça',
   'İspanyolça',
 ] as const;
+
+/** İşletme Devri — İşletme / Firma Türleri */
+export const BUSINESS_TRANSFER_TYPE_OPTIONS = [
+  'Kafe / Restoran / Yeme-İçme',
+  'Market / Bakkal / Şarküteri',
+  'E-Ticaret / Dijital İşletme',
+  'Mağaza / Butik / Perakende',
+  'Hizmet / Danışmanlık / Ofis',
+  'Üretim / Atölye / İmalathane',
+  'Güzellik Merkezi / Kuaför / Spa',
+  'Oto Servis / Yıkama / Ekspertiz',
+  'Eğitim / Kurs / Kreş',
+  'Otel / Pansiyon / Konaklama',
+  'Sağlık / Klinik / Eczane',
+  'Diğer',
+] as const;
+
+/** İşletme Devri — Faaliyet Durumu */
+export const BUSINESS_TRANSFER_STATUS_OPTIONS = [
+  'Aktif Faaliyette (Cirolu & Müşterili)',
+  'Faaliyeti Geçici Durduruldu',
+  'Sezonluk Faaliyet Gösteren',
+  'Yeni Açılmış / Hazır Kurulu Tesis',
+] as const;
+
+/** İşletme Devri — Devir Kapsamı */
+export const BUSINESS_TRANSFER_SCOPE_OPTIONS = [
+  'Demirbaşlar & Ekipmanlar',
+  'İşletme Ruhsatı & İzinler',
+  'Marka & Tabela Hakkı',
+  'Mevcut Ürün Stoku',
+  'Web Sitesi & Sosyal Medya Hesapları',
+  'Müşteri & Tedarikçi Portföyü',
+  'POS & Ödeme Altyapısı',
+] as const;
+
+/** İşletme Devri — Devir Nedeni */
+export const BUSINESS_TRANSFER_REASON_OPTIONS = [
+  'Sektör Değişikliği',
+  'Emeklilik',
+  'Şehir / Yurt Dışı Değişikliği',
+  'Zaman Yetersizliği',
+  'Ortaklık Ayrılığı',
+  'Yeni Projeye Odaklanma',
+  'Sağlık Nedenleri',
+  'Diğer',
+] as const;
+
+/** İşletme Devri — İşletme Tercihi */
+export const BUSINESS_TRANSFER_OPERATIONAL_OPTIONS = [
+  'Kendisi İşletecek',
+  'Yönetici / Personel Çalıştıracak',
+  'Fark Etmez / Esnek',
+] as const;
+
+/** İşletme Devri — Bütçe / Devir Bedeli Aralıkları */
+export const BUSINESS_TRANSFER_PRICE_RANGES = [
+  '250.000 TL\'ye kadar',
+  '250.000 - 500.000 TL',
+  '500.000 - 1.000.000 TL',
+  '1.000.000 - 2.500.000 TL',
+  '2.500.000 - 5.000.000 TL',
+  '5.000.000 TL ve üzeri',
+] as const;
+
