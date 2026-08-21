@@ -18,6 +18,11 @@ import {
   extractUniversalDemographics,
   isCorporateEntity,
 } from './cv-universal-normalizer';
+import { generateCandidateTokens } from './cv-candidate-generator';
+import {
+  resolveExperienceRelationships,
+  resolveEducationRelationships,
+} from './cv-relationship-engine';
 
 // ============================================================================
 // CONSTANTS & REGEXES
@@ -962,7 +967,16 @@ const TURKISH_CITY_ALIASES: Record<string, string> = {
   iskenderun: 'Hatay',
   karaman: 'Karaman',
   cankiri: 'Çankırı',
+  kirikkale: 'Kırıkkale',
 };
+
+// Ensure all 81 canonical Turkish cities are present
+for (const c of TURKISH_CITIES) {
+  const normC = normalizeTrForMatch(c);
+  if (!TURKISH_CITY_ALIASES[normC]) {
+    TURKISH_CITY_ALIASES[normC] = c;
+  }
+}
 
 export function extractDeterministicLocations(text: string): {
   city: string;
@@ -1464,6 +1478,19 @@ export function extractDeterministicEducation(text: string): RawExtractedEducati
     return false;
   });
 
+  if (uniqueEdu.length === 0) {
+    const tokens = generateCandidateTokens(text);
+    const unstructuredEdu = resolveEducationRelationships(tokens);
+    if (unstructuredEdu.length > 0) {
+      return unstructuredEdu.map((ued) => ({
+        school: ued.school,
+        level: ued.level,
+        field: ued.field,
+        graduationYear: ued.graduationYear,
+      }));
+    }
+  }
+
   return uniqueEdu;
 }
 
@@ -1482,9 +1509,9 @@ function isPureDateLine(line: string): boolean {
     'oca', 'sub', 'mar', 'nis', 'may', 'haz', 'tem', 'agu', 'eyl', 'eki', 'kas', 'ara',
     'jan', 'feb', 'apr', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
     'yil', 'ay', 'gunumuz', 'devam', 'present', 'current', 'halen', 'to', 'ila', 'ile',
-    'year', 'years', 'month', 'months', 'duration', 'sure'
+    'year', 'years', 'month', 'months', 'duration', 'sure', 'date', 'dates', 'tarih', 'tarihler', 'period', 'donem', 'donemi'
   ];
-  return words.every((w) => monthsAndTerms.includes(w) || /^\d+$/.test(w) || /^[-–—/()]+$/.test(w));
+  return words.every((w) => monthsAndTerms.includes(w) || /^\d+$/.test(w) || /^[-–—/():]+$/.test(w));
 }
 
 function isExperienceSectionHeader(line: string): boolean {
@@ -1565,11 +1592,35 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     const result: string[] = [];
     for (let j = currentIndex - 1; j >= 0 && result.length < 2; j--) {
       const l = targetLines[j];
+      const normL = normalizeTrForMatch(l);
+      const isEmail = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/.test(l);
+      const isPhone = /(?:\+?90|0?5\d{2})\s*\d{3}/.test(l);
+      const isUrl = /^https?:\/\//i.test(l);
+      const words = l.split(/[\s\/,|–—]+/).map((w) => normalizeTrForMatch(w)).filter(Boolean);
+      const hasCityOrDistrict = words.some((w) => Boolean(TURKISH_CITY_ALIASES[w]) || Boolean(COMMON_TURKISH_DISTRICTS[w]));
+      const isLocationOrContact =
+        (hasCityOrDistrict && (l.includes('/') || l.includes(',') || l.includes('|') || isEmail || isPhone)) ||
+        isEmail ||
+        isPhone ||
+        isUrl ||
+        Boolean(TURKISH_CITY_ALIASES[normL]) ||
+        Boolean(COMMON_TURKISH_DISTRICTS[normL]);
+      const isCandidateName =
+        targetLines === lines &&
+        expLines.length === 0 &&
+        j === 0 &&
+        l.split(/\s+/).length <= 4 &&
+        !isRoleTitle(l) &&
+        !l.includes('@') &&
+        !/^(?:sirket|kurum|company|firma|rol|pozisyon|unvan|role|is deneyim|deneyim)[\s:]*/i.test(l);
+
       if (
         !isExperienceSectionHeader(l) &&
         !isEduSectionHeader(l) &&
         !isOtherSectionHeader(l) &&
         !isEduLine(l) &&
+        !isLocationOrContact &&
+        !isCandidateName &&
         l.length >= 2 &&
         l.length <= 90
       ) {
@@ -1582,7 +1633,6 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
   for (let i = 0; i < targetLines.length; i++) {
     const line = targetLines[i];
     if (isExperienceSectionHeader(line)) {
-      // Don't treat section headers as company/role/responsibility
       continue;
     }
     const hasDate = Boolean(parseDateRangeText(line));
@@ -1628,12 +1678,13 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         rawRemainder = rawRemainder
           .replace(new RegExp(`\\b${escaped}\\b|${escaped}`, 'gi'), '')
           .replace(/\([^)]*\)/g, '')
-          .replace(/^(?:d[oö]nem|tarih|date|period|years|y[ıi]llar)[\s:]*/i, '')
+          .replace(/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar)[\s:]*/i, '')
+          .replace(/^[–—\-:\s]+/, '')
           .trim();
       }
 
-      if (!isPureDate && rawRemainder.length >= 2) {
-        const parts = rawRemainder.split(/[|–—]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company)[\s:]*/i, '').trim()).filter(Boolean);
+      if (!isPureDate && rawRemainder.length >= 2 && !/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s)$/i.test(rawRemainder)) {
+        const parts = rawRemainder.split(/[|–—@]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company)[\s:]*/i, '').trim()).filter(Boolean);
         if (parts.length >= 2) {
           if (isRoleTitle(parts[0])) {
             currentExp.role = parts[0];
@@ -1643,7 +1694,6 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
             currentExp.role = parts[1];
           }
         } else {
-          // Check if single rawRemainder contains both company and role (e.g. "Koc Holding Finans Muduru")
           const words = rawRemainder.split(/\s+/);
           let splitFound = false;
           if (words.length >= 3 && words.length <= 8) {
@@ -1676,14 +1726,14 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
           }
         }
       } else {
-        const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
-        const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role)[\s:]*/i, '').trim() : null;
+        const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role|position)[\s:]*/i, '').trim() : null;
+        const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role|position)[\s:]*/i, '').trim() : null;
 
         if (cleanPrev2 && isRoleTitle(cleanPrev2) && cleanPrev1 && !isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev2;
           currentExp.company = cleanPrev1;
-        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|'))) {
-          const parts = cleanPrev1.split(/[,–—|-]/).map((p) => p.trim());
+        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|') || cleanPrev1.includes('@') || cleanPrev1.includes('/'))) {
+          const parts = cleanPrev1.split(/[,–—|@\/]/).map((p) => p.trim());
           if (parts.length >= 2) {
             if (isRoleTitle(parts[0]) && !isRoleTitle(parts[1])) {
               currentExp.role = parts[0];
@@ -1703,16 +1753,30 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
           }
         } else if (cleanPrev1 && isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev1;
-          const isSentence = cleanPrev2 && (cleanPrev2.length > 50 || cleanPrev2.endsWith('.') || /\b(?:etmek|yapmak|yurutmek|saglamak|olusturmak|calismak|hazirlamak|yonetmek|katilmak)\b/i.test(normalizeTrForMatch(cleanPrev2)));
-          if (cleanPrev2 && !isSentence && !isRoleTitle(cleanPrev2) && !parseDateRangeText(cleanPrev2) && cleanPrev2.length <= 60) {
+          if (cleanPrev2 && !isRoleTitle(cleanPrev2)) {
             currentExp.company = cleanPrev2;
           }
         } else if (cleanPrev1 && !isRoleTitle(cleanPrev1)) {
+          currentExp.company = cleanPrev1;
           if (cleanPrev2 && isRoleTitle(cleanPrev2)) {
             currentExp.role = cleanPrev2;
-            currentExp.company = cleanPrev1;
-          } else {
-            currentExp.company = cleanPrev1;
+          }
+        }
+
+        // Forward lookup for Format C / Format G (Date -> Role -> Company or Date -> Company -> Role)
+        if (!currentExp.role || !currentExp.company) {
+          const next1 = i + 1 < targetLines.length ? targetLines[i + 1] : null;
+          const next2 = i + 2 < targetLines.length ? targetLines[i + 2] : null;
+          if (next1 && isRoleTitle(next1)) {
+            if (!currentExp.role) currentExp.role = next1;
+            if (!currentExp.company && next2 && !parseDateRangeText(next2) && !isEduLine(next2) && !next2.includes('@')) {
+              currentExp.company = next2;
+            }
+          } else if (next1 && !isRoleTitle(next1) && !parseDateRangeText(next1) && !isEduLine(next1) && !next1.includes('@')) {
+            if (!currentExp.company) currentExp.company = next1;
+            if (!currentExp.role && next2 && isRoleTitle(next2)) {
+              currentExp.role = next2;
+            }
           }
         }
       }
@@ -1796,6 +1860,24 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
   }
 
   flushExp();
+
+  if (experiences.length === 0) {
+    const tokens = generateCandidateTokens(text);
+    const unstructuredExp = resolveExperienceRelationships(tokens);
+    if (unstructuredExp.length > 0) {
+      return unstructuredExp.map((ue) => ({
+        company: ue.company,
+        role: ue.role,
+        startYear: ue.startYear,
+        endYear: ue.endYear,
+        isCurrent: ue.isCurrent,
+        responsibilities: ue.responsibilities.join('. '),
+        durationYears:
+          ue.startYear && ue.endYear ? Math.max(1, ue.endYear - ue.startYear) : undefined,
+      }));
+    }
+  }
+
   return experiences;
 }
 
