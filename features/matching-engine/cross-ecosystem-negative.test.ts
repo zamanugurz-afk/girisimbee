@@ -151,7 +151,23 @@ describe('GİRİŞİMBEE — Cross-Ecosystem Invariant & Negative Matching Test 
 
     it('NEGATIVE: İşletme Devri ↛ Employment Listings', () => {
       expect(areEcosystemsCompatible(transferSellListing, jobSeekListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferSellListing, jobHireListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferBuyListing, jobSeekListing)).toBe(false);
       expect(areEcosystemsCompatible(transferBuyListing, jobHireListing)).toBe(false);
+    });
+
+    it('NEGATIVE: İşletme Devri ↛ Ortaklık Listings', () => {
+      expect(areEcosystemsCompatible(transferSellListing, partnerSeekListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferSellListing, partnerJoinListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferBuyListing, partnerSeekListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferBuyListing, partnerJoinListing)).toBe(false);
+    });
+
+    it('NEGATIVE: İşletme Devri ↛ Franchise Listings', () => {
+      expect(areEcosystemsCompatible(transferSellListing, franchiseGiveListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferSellListing, franchiseBuyListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferBuyListing, franchiseGiveListing)).toBe(false);
+      expect(areEcosystemsCompatible(transferBuyListing, franchiseBuyListing)).toBe(false);
     });
 
     it('POSITIVE: Intra-ecosystem listings are compatible', () => {
@@ -159,6 +175,7 @@ describe('GİRİŞİMBEE — Cross-Ecosystem Invariant & Negative Matching Test 
       expect(areEcosystemsCompatible(partnerSeekListing, partnerJoinListing)).toBe(true);
       expect(areEcosystemsCompatible(franchiseGiveListing, franchiseBuyListing)).toBe(true);
       expect(areEcosystemsCompatible(transferSellListing, transferBuyListing)).toBe(true);
+      expect(areEcosystemsCompatible(transferBuyListing, transferSellListing)).toBe(true);
     });
   });
 

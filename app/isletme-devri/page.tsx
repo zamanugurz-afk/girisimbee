@@ -18,7 +18,7 @@ export default function IsletmeDevriBrowsePage() {
         description="Kafe, restoran, mağaza, e-ticaret ve faal şirket devir fırsatlarını keşfedin."
         emptyTitle="Henüz işletme devri ilanı bulunmuyor"
         emptyDescription="Kriterlerinize uygun yeni işletme devir fırsatları yayınlandığında burada listelenecektir."
-        emptyCta="Tüm İlanları Keşfet"
+        emptyCta={{ label: 'Tüm İlanları Keşfet', href: '/kesfet' }}
         relatedCategorySlugs={['franchise', 'ortak-bul']}
         resultNoun="işletme"
       />

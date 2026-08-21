@@ -7,7 +7,12 @@ import { EMAIL_REGEX, PHONE_REGEX, SLUG_REGEX, DOMAIN_DEFAULTS } from '@/lib/dom
 export const timestampSchema = z.string().datetime({ offset: true });
 export const nullableTimestampSchema = timestampSchema.nullable();
 
-export const uuidSchema = z.string().uuid();
+export const uuidSchema = z
+  .string()
+  .regex(
+    /^[0-9a-zA-Z]{2,8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/,
+    'Geçerli bir kimlik girin.',
+  );
 export const slugSchema = z
   .string()
   .min(1)

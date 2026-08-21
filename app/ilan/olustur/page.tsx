@@ -51,7 +51,7 @@ import {
   partnershipCreatePageCopy,
   type PartnershipIntent,
 } from '@/features/founders/partnership-intent';
-import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 
 function CreateListingContent() {
   const router = useRouter();

@@ -35,7 +35,7 @@ export function isBusinessTransferListing(listing: Listing): boolean {
 
 export function extractBusinessTransferOpportunity(listing: Listing): BusinessTransferOpportunityProfile {
   const custom = listing.customFields || {};
-  const transferPrice = Number(custom.transferPrice || listing.price) || null;
+  const transferPrice = Number(custom.transferPrice || (listing as unknown as { price?: number }).price) || null;
   const monthlyRent = Number(custom.monthlyRent) || null;
   const businessAge = Number(custom.businessAge) || null;
   const employeeCount = Number(custom.employeeCount) || null;
@@ -89,7 +89,7 @@ export function extractBusinessTransferSeeker(listingOrSource: {
         custom.budgetMax ||
         custom.budget ||
         custom.investmentBudget ||
-        listing?.price,
+        (listing as unknown as { price?: number })?.price,
     ) || null;
 
   const rawSectors = listingOrSource.preferredSectors || custom.preferredSectors || custom.sector || [];

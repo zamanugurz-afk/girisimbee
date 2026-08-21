@@ -1071,13 +1071,6 @@ export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...JOB_SECTOR_OPTIONS],
     },
     {
-      key: 'city',
-      label: 'Şehir',
-      type: 'string',
-      required: true,
-      max: 100,
-    },
-    {
       key: 'district',
       label: 'İlçe',
       type: 'string',
@@ -1175,13 +1168,6 @@ export const BUSINESS_TRANSFER_BUY_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'multi-enum',
       required: true,
       options: [...BUSINESS_TRANSFER_TYPE_OPTIONS],
-    },
-    {
-      key: 'city',
-      label: 'Tercih Edilen Şehir',
-      type: 'string',
-      required: true,
-      max: 100,
     },
     {
       key: 'district',
