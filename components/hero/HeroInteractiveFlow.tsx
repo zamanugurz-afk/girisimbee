@@ -130,85 +130,89 @@ export function HeroInteractiveFlow() {
       {/* 3. ALTTAKİ 4'LÜ BENTO KARTLARI (ORİJİNAL VE DENGELİ FORMATTA) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4.5 mt-5 mb-1">
         {/* Kariyer */}
-        <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between">
-          <div>
+        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between cursor-pointer">
+          <Link href="/is" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40" aria-label="Kariyer ve İş Fırsatları" />
+          <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
               <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"><Briefcase className="w-4 h-4" /></span>
-              <Link href="/is" aria-label="Kariyer detayına git">
+              <span aria-hidden className="inline-flex">
                 <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
-              </Link>
+              </span>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Kariyer ve İş Fırsatları</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
               <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş İlanları</Link>
               <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş Arayanlar</Link>
             </div>
           </div>
-          <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+          <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
           </div>
         </div>
 
         {/* Girişim, Ortaklık ve Devir */}
-        <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between">
-          <div>
+        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between cursor-pointer">
+          <Link href="/girisim-ortaklik" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40" aria-label="Girişim, Ortaklık ve Devir" />
+          <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
               <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400"><Users2 className="w-4 h-4" /></span>
-              <Link href="/girisim-ortaklik" aria-label="Girişim detayına git">
+              <span aria-hidden className="inline-flex">
                 <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-colors" />
-              </Link>
+              </span>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Girişim, Ortaklık ve Devir</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
               <Link href="/partners" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Ortaklık</Link>
               <Link href="/isletme-devri" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İşletme Devri</Link>
             </div>
           </div>
-          <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+          <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
           </div>
         </div>
 
         {/* Franchise ve Bayilik */}
-        <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-rose-500/40 transition-all flex flex-col justify-between">
-          <div>
+        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-rose-500/40 transition-all flex flex-col justify-between cursor-pointer">
+          <Link href="/franchise/buy" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40" aria-label="Franchise ve Bayilik" />
+          <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
               <span className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400"><Store className="w-4 h-4" /></span>
-              <Link href="/franchise/buy" aria-label="Franchise detayına git">
+              <span aria-hidden className="inline-flex">
                 <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-rose-500 transition-colors" />
-              </Link>
+              </span>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Franchise ve Bayilik</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
               <Link href="/franchise/give" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Veriyorum</Link>
               <Link href="/franchise/buy" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Franchise Almak İstiyorum</Link>
             </div>
           </div>
-          <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+          <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 5 Aktif Fırsat</span>
           </div>
         </div>
 
         {/* Dijital ve Startup Çözümler */}
-        <div className="group bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-purple-500/40 transition-all flex flex-col justify-between">
-          <div>
+        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-purple-500/40 transition-all flex flex-col justify-between cursor-pointer">
+          <Link href="/dijital-ai" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40" aria-label="Dijital ve Startup Çözümler" />
+          <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
               <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400"><Sparkles className="w-4 h-4" /></span>
-              <Link href="/dijital-ai" aria-label="Çözümler detayına git">
+              <span aria-hidden className="inline-flex">
                 <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-purple-500 transition-colors" />
-              </Link>
+              </span>
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Dijital ve Startup Çözümler</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
               <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Yazılım & AI</Link>
               <Link href="/market" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Girişim Market</Link>
             </div>
           </div>
-          <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+          <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 5 Aktif Çözüm</span>
           </div>
         </div>

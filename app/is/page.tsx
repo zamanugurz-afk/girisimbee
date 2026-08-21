@@ -12,12 +12,13 @@ import {
  */
 const CATEGORY_SLUG = 'ise-al';
 
-export function generateMetadata({
+export async function generateMetadata({
   searchParams,
 }: {
-  searchParams?: { flow?: string };
-}): Metadata {
-  if (parseCareerFlowParam(searchParams?.flow)) {
+  searchParams?: Promise<{ flow?: string }>;
+}): Promise<Metadata> {
+  const sp = searchParams ? await searchParams : {};
+  if (parseCareerFlowParam(sp?.flow)) {
     return buildCategoryMetadata(CATEGORY_SLUG);
   }
 
@@ -28,12 +29,13 @@ export function generateMetadata({
   };
 }
 
-export default function IsListingsPage({
+export default async function IsListingsPage({
   searchParams,
 }: {
-  searchParams?: { flow?: string };
+  searchParams?: Promise<{ flow?: string }>;
 }) {
-  const jobFlow = parseCareerFlowParam(searchParams?.flow);
+  const sp = searchParams ? await searchParams : {};
+  const jobFlow = parseCareerFlowParam(sp?.flow);
 
   if (!jobFlow) {
     return <CareerHubLanding />;

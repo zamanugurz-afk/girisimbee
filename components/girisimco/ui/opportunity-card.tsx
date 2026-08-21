@@ -145,7 +145,7 @@ export function OpportunityCard({
   return (
     <div
       className={cn(
-        'group relative grid h-full w-full self-stretch text-left overflow-hidden',
+        'group relative grid h-full w-full self-stretch text-left overflow-hidden cursor-pointer',
         compact
           ? 'min-h-0 grid-rows-[4.25rem_auto_auto_minmax(8.5rem,1fr)_auto] gap-y-3 rounded-2xl p-4 sm:p-5'
           : 'min-h-[36rem] grid-rows-[6rem_auto_3.25rem_minmax(13.5rem,1fr)_auto] gap-y-5 rounded-2xl p-5 sm:p-7',
@@ -174,13 +174,13 @@ export function OpportunityCard({
         <button
           type="button"
           onClick={() => onSelect(option.id)}
-          className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="absolute inset-0 z-20 h-full w-full cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           aria-label={option.label}
         />
       ) : option.href ? (
         <Link
           href={option.href}
-          className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="absolute inset-0 z-20 h-full w-full cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           aria-label={option.label}
         />
       ) : null}
