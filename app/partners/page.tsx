@@ -11,12 +11,13 @@ import {
 
 const CATEGORY_SLUG = 'ortak-bul';
 
-export function generateMetadata({
+export async function generateMetadata({
   searchParams,
 }: {
-  searchParams?: { intent?: string };
-}): Metadata {
-  const intent = parsePartnershipIntentParam(searchParams?.intent) ?? 'seeking';
+  searchParams?: Promise<{ intent?: string }>;
+}): Promise<Metadata> {
+  const sp = searchParams ? await searchParams : {};
+  const intent = parsePartnershipIntentParam(sp?.intent) ?? 'seeking';
   const copy = partnershipBrowseCopy(intent);
   const base = buildCategoryMetadata(CATEGORY_SLUG);
   return {
@@ -26,12 +27,13 @@ export function generateMetadata({
   };
 }
 
-export default function PartnersPage({
+export default async function PartnersPage({
   searchParams,
 }: {
-  searchParams?: { intent?: string };
+  searchParams?: Promise<{ intent?: string }>;
 }) {
-  const intent = parsePartnershipIntentParam(searchParams?.intent) ?? 'seeking';
+  const sp = searchParams ? await searchParams : {};
+  const intent = parsePartnershipIntentParam(sp?.intent) ?? 'seeking';
   const copy = partnershipBrowseCopy(intent);
 
   return (

@@ -51,7 +51,7 @@ const HERO_SIDEBAR_STATS: {
   {
     key: 'partners',
     label: 'Ortaklık',
-    href: '/partners',
+    href: '/girisim-ortaklik',
     Icon: Handshake,
     iconClass: 'text-[#DB2777]',
     boxClass: 'bg-[#FDF2F8]',
