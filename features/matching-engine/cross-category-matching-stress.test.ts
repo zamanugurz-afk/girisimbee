@@ -210,10 +210,10 @@ describe('Girişimbee Cross-Category Isolation & Contact Request Stress Test Sui
 
     const listing = await listings.create({
       ownerId: receiverId,
-      categoryId: CATEGORY_IDS.iseAl,
-      listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
-      title: 'Kıdemli Satış Uzmanı İlanı',
-      shortDescription: 'Kurumsal satış uzmanı arıyoruz, ilan detayları burada.',
+      categoryId: CATEGORY_IDS.isBul,
+      listingTypeId: LISTING_TYPE_IDS.isBulDefault,
+      title: 'Kıdemli Satış Uzmanı Aday Profili',
+      shortDescription: 'Kurumsal satış uzmanı iş arıyor, profil detayları burada.',
       status: 'published',
       contactPhone: '+905551112233',
     });

@@ -10,6 +10,8 @@ import type { IMessagingService } from '@/features/messaging/services/messaging.
 import type { INotificationService } from '@/features/notifications/services/notification.service.interface';
 import type { Conversation } from '@/features/messaging/types/conversation.types';
 
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+
 const OWNER = ids.user('u0000001-0001-4000-8000-000000000001');
 const REQUESTER = ids.user('u0000001-0001-4000-8000-000000000002');
 const STRANGER = ids.user('u0000001-0001-4000-8000-000000000003');
@@ -36,8 +38,8 @@ describe('ContactRequestService', () => {
 
     const listing = await listings.create({
       ownerId,
-      categoryId: ids.category('a0000001-0001-4000-8000-000000000001'),
-      listingTypeId: ids.listingType('a0000002-0001-4000-8000-000000000001'),
+      categoryId: CATEGORY_IDS.isBul,
+      listingTypeId: LISTING_TYPE_IDS.isBulDefault,
       title: 'Test ilan',
       shortDescription: 'Kısa açıklama metni yeterince uzun',
       status: 'published',
@@ -336,5 +338,66 @@ describe('ContactRequestService', () => {
     });
     const expired = await repo.forceStatus(entity.id, 'expired', 'service');
     expect(expired.status).toBe('expired');
+  });
+
+  it('strictly forbids creating contact requests on non-eligible categories', async () => {
+    const ineligibleCategories = [
+      CATEGORY_IDS.iseAl,
+      CATEGORY_IDS.isletmeDevri,
+      CATEGORY_IDS.bayilikAl,
+      CATEGORY_IDS.dijitalAi,
+      CATEGORY_IDS.genelIlan,
+      CATEGORY_IDS.yatirimBul,
+      CATEGORY_IDS.yatirimYap,
+    ];
+
+    for (const catId of ineligibleCategories) {
+      const forbiddenListing = await listings.create({
+        ownerId: OWNER,
+        categoryId: catId,
+        listingTypeId: LISTING_TYPE_IDS.iseAlDefault,
+        title: `Forbidden test listing for ${catId}`,
+        shortDescription: 'Kısa açıklama metni yeterince uzun',
+        status: 'published',
+      });
+      await listings.update(forbiddenListing.id, { publishedAt: new Date().toISOString() });
+
+      await expect(
+        service.create({
+          listingId: forbiddenListing.id,
+          requesterUserId: requesterId,
+          acceptTerms: true,
+          message: VALID_MESSAGE,
+        }),
+      ).rejects.toThrow('Bu ilan tipi için iletişim talebi özelliği bulunmamaktadır.');
+    }
+  });
+
+  it('allows creating contact requests on all 3 allowed categories (isBul, ortakBul seeking, ortakBul joining)', async () => {
+    const allowed = [
+      { cat: CATEGORY_IDS.isBul, lt: LISTING_TYPE_IDS.isBulDefault },
+      { cat: CATEGORY_IDS.ortakBul, lt: LISTING_TYPE_IDS.ortakBulDefault },
+    ];
+
+    for (const item of allowed) {
+      const allowedListing = await listings.create({
+        ownerId: OWNER,
+        categoryId: item.cat,
+        listingTypeId: item.lt,
+        title: `Allowed test listing for ${item.cat}`,
+        shortDescription: 'Kısa açıklama metni yeterince uzun',
+        status: 'published',
+      });
+      await listings.update(allowedListing.id, { publishedAt: new Date().toISOString() });
+
+      const res = await service.create({
+        listingId: allowedListing.id,
+        requesterUserId: requesterId,
+        acceptTerms: true,
+        message: VALID_MESSAGE,
+      });
+      expect(res.entity.status).toBe('pending');
+      expect(res.view.status).toBe('pending');
+    }
   });
 });

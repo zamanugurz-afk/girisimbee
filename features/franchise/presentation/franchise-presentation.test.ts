@@ -4,7 +4,7 @@ import {
   VENTURE_PARTNERSHIP_OPTIONS,
 } from '@/components/girisimco/home/home-marketplace.data';
 import { CREATE_LISTING_VENTURE_COPY } from '@/components/girisimco/listing/create-listing-career.data';
-import { resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
+import { isContactRequestEligibleCategory, resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
 import { CATEGORY_IDS, FRANCHISE_GIVE_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
 import { getListingFormSteps } from '@/features/listings/config/listing-form-steps.config';
 import { createListing } from '@/features/listings/factories/listing.factory';
@@ -62,7 +62,7 @@ describe('franchise presentation', () => {
     expect(FRANCHISE_BROWSE_TITLE).toBe('Franchise Fırsatları');
     expect(FRANCHISE_BROWSE_DESCRIPTION).toContain('sektöre ve lokasyona');
     expect(CREATE_LISTING_VENTURE_COPY.options[2]?.description).toBe(FRANCHISE_CREATE_DESCRIPTION);
-    expect(resolveContactCtaLabel('franchise')).toBe(FRANCHISE_CONTACT_CTA);
+    expect(isContactRequestEligibleCategory('franchise')).toBe(false);
     expect(FRANCHISE_EMPTY_TITLE).toBe('Henüz uygun bir franchise fırsatı bulunmuyor.');
     expect(FRANCHISE_EMPTY_BACK_CTA.href).toBe('/girisim-ortaklik');
     expect(isFranchiseSafePublicHref(FRANCHISE_EMPTY_BACK_CTA.href)).toBe(true);

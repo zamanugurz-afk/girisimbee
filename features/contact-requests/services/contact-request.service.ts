@@ -16,7 +16,10 @@ import {
 } from '@/features/contact-requests/config/contact-request.config';
 import { LEGAL_DOCUMENT_VERSIONS } from '@/features/legal/config/legal-documents.config';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
-import { shouldRevealAcceptedOwnerPii } from '@/features/contact-requests/lib/contact-disclosure';
+import {
+  isContactRequestEligibleListing,
+  shouldRevealAcceptedOwnerPii,
+} from '@/features/contact-requests/lib/contact-disclosure';
 import { careerContactNotificationCopy } from '@/features/contact-requests/config/career-contact-notification-copy';
 import { classifyCareerListingKind } from '@/features/matching-engine/adapters/career-listing-kinds';
 
@@ -31,6 +34,9 @@ function toPublicView(
   row: ListingContactRequest,
   extras?: {
     requesterDisplayName?: string | null;
+    requesterPhone?: string | null;
+    requesterEmail?: string | null;
+    requesterFullName?: string | null;
     listingTitle?: string | null;
     ownerContactPhone?: string | null;
     ownerDisplayName?: string | null;
@@ -51,6 +57,9 @@ function toPublicView(
     respondedAt: row.respondedAt,
     conversationId: row.conversationId ? String(row.conversationId) : null,
     requesterDisplayName: extras?.requesterDisplayName ?? null,
+    requesterPhone: extras?.requesterPhone ?? null,
+    requesterEmail: extras?.requesterEmail ?? null,
+    requesterFullName: extras?.requesterFullName ?? null,
     listingTitle: extras?.listingTitle ?? null,
     ownerContactPhone: extras?.ownerContactPhone ?? null,
     ownerDisplayName: extras?.ownerDisplayName ?? null,
@@ -133,6 +142,9 @@ export class ContactRequestService {
     if (listing.ownerId === input.requesterUserId) {
       throw new ForbiddenError('Kendi ilanınıza iletişim talebi gönderemezsiniz.');
     }
+    if (!isContactRequestEligibleListing(listing)) {
+      throw new ForbiddenError('Bu ilan tipi için iletişim talebi özelliği bulunmamaktadır.');
+    }
 
     const existing = await this.repo.findActiveForListingRequester(
       input.listingId,
@@ -173,15 +185,12 @@ export class ContactRequestService {
 
     const requester = await this.profiles.findByUserId(input.requesterUserId);
     const requesterName = requester?.displayName?.trim() || 'Bir kullanıcı';
-    const careerCopy = careerContactNotificationCopy(classifyCareerListingKind(listing));
     try {
       await this.notifications.send({
         userId: listing.ownerId,
         type: 'system',
-        title: careerCopy?.created.title ?? 'Yeni iletişim talebi',
-        body: careerCopy
-          ? careerCopy.created.body(requesterName, listing.title)
-          : `${requesterName}, “${listing.title}” ilanınız için iletişim talebi gönderdi.`,
+        title: 'Yeni bir iletişim talebiniz var.',
+        body: `${requesterName}, “${listing.title}” ilanınız için iletişim talebi gönderdi.`,
         actionUrl: `${DASHBOARD_ROUTES.iletisimTalepleri}?talep=${created.id}`,
         entityType: 'listing',
         entityId: String(listing.id),
@@ -241,14 +250,12 @@ export class ContactRequestService {
       respondedAt: now,
     });
 
-    const listing = await this.listings.findById(row.listingId);
-    const careerCopy = listing ? careerContactNotificationCopy(classifyCareerListingKind(listing)) : null;
     try {
       await this.notifications.send({
         userId: row.requesterUserId,
         type: 'system',
-        title: careerCopy?.rejected.title ?? 'İletişim talebi reddedildi',
-        body: careerCopy?.rejected.body ?? 'İletişim talebiniz ilan sahibi tarafından reddedildi.',
+        title: 'İletişim talebiniz reddedildi.',
+        body: 'İletişim talebiniz reddedildi.',
         actionUrl: `/ilan/${row.listingId}`,
         entityType: 'listing',
         entityId: String(row.listingId),
@@ -308,28 +315,24 @@ export class ContactRequestService {
     });
 
     const conversationId = updated.conversationId;
-    const careerCopy = careerContactNotificationCopy(classifyCareerListingKind(listing));
 
     try {
-      if (conversationId || careerCopy) {
-        await this.notifications.send({
-          userId: row.requesterUserId,
-          type: 'system',
-          title: careerCopy?.accepted.title ?? 'İletişim talebiniz kabul edildi',
-          body: careerCopy?.accepted.body
-            ?? 'İlan sahibi iletişim talebinizi kabul etti. Mesajlaşabilir; telefon ve ad-soyad bilgisi yalnızca size açıldı.',
-          actionUrl: conversationId
-            ? `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`
-            : `${DASHBOARD_ROUTES.iletisimTalepleri}?talep=${row.id}`,
-          entityType: conversationId ? 'conversation' : 'listing',
-          entityId: conversationId ? String(conversationId) : String(row.listingId),
-          metadata: {
-            kind: 'contact_request',
-            event: 'CONTACT_REQUEST_ACCEPTED',
-            contactRequestId: String(row.id),
-          },
-        });
-      }
+      await this.notifications.send({
+        userId: row.requesterUserId,
+        type: 'system',
+        title: 'İletişim talebiniz kabul edildi.',
+        body: 'İletişim talebiniz kabul edildi. İletişim bilgilerini artık görebilirsiniz.',
+        actionUrl: conversationId
+          ? `${DASHBOARD_ROUTES.mesajlarim}?c=${conversationId}`
+          : `${DASHBOARD_ROUTES.iletisimTalepleri}?talep=${row.id}`,
+        entityType: conversationId ? 'conversation' : 'listing',
+        entityId: conversationId ? String(conversationId) : String(row.listingId),
+        metadata: {
+          kind: 'contact_request',
+          event: 'CONTACT_REQUEST_ACCEPTED',
+          contactRequestId: String(row.id),
+        },
+      });
     } catch {
       // non-fatal
     }
@@ -351,8 +354,13 @@ export class ContactRequestService {
           this.profiles.findByUserId(row.requesterUserId),
           this.listings.findById(row.listingId),
         ]);
+        const status = effectiveStatus(row);
+        const isAccepted = status === 'accepted';
         return toPublicView(row, {
           requesterDisplayName: profile?.displayName ?? 'Kullanıcı',
+          requesterFullName: isAccepted ? (profile?.displayName ?? null) : null,
+          requesterPhone: isAccepted ? (profile?.phone ?? null) : null,
+          requesterEmail: isAccepted ? (profile?.email ?? null) : null,
           listingTitle: listing?.title ?? null,
           ownerContactPhone: null,
         });

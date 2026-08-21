@@ -92,6 +92,7 @@ function TextListingCardLayout({
   const accent = item.listingGroupColor ?? GC_ACCENT;
   const typeLabel = item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan';
   const Icon = LISTING_TYPE_ICON_MAP[item.listingIconKey ?? 'general'];
+  const isContactEligible = item.listingIconKey === 'job-seeker' || item.listingIconKey === 'partner';
   const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
   const description = item.description || item.detail;
 
@@ -117,10 +118,12 @@ function TextListingCardLayout({
               <Icon className="h-3 w-3" />
               <span>{typeLabel}</span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-              <ShieldCheck className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
-              <span>İletişim Gizli 🔒</span>
-            </span>
+            {isContactEligible ? (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                <ShieldCheck className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
+                <span>İletişim Talebi 🔒</span>
+              </span>
+            ) : null}
           </div>
 
           {compactPrice ? (

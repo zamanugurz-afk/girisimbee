@@ -158,70 +158,15 @@ describe('career journey e2e', () => {
     expect(MATCH_SECTION_COPY.candidates.reviewCta).toBe('Adayı İncele');
   });
 
-  it('TEST 3: seeker can send a contact request to the hire listing', async () => {
-    const { view } = await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
-      acceptTerms: true,
-      message: VALID_MESSAGE,
-    });
-    expect(view.effectiveStatus).toBe('pending');
-    expect(view.ownerContactPhone).toBeNull();
-    expect(notifications.send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: hirerId,
-        title: CAREER_CONTACT_NOTIFICATION.created.title,
-        actionUrl: expect.stringContaining('talep='),
+  it('TEST 3: contact requests cannot be sent to employer hire listings', async () => {
+    await expect(
+      contact.create({
+        listingId: hireListingId,
+        requesterUserId: seekerId,
+        acceptTerms: true,
+        message: VALID_MESSAGE,
       }),
-    );
-  });
-
-  it('TEST 4: employer sees the incoming seeker request', async () => {
-    await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
-      acceptTerms: true,
-      message: VALID_MESSAGE,
-    });
-    const incoming = await contact.listIncomingForOwner(hirerId);
-    expect(incoming).toHaveLength(1);
-    expect(incoming[0]?.effectiveStatus).toBe('pending');
-    expect(incoming[0]?.requesterDisplayName).toBe('Ayşe Yılmaz');
-    expect(incoming[0]?.ownerContactPhone).toBeNull();
-  });
-
-  it('TEST 5: employer can accept the seeker request', async () => {
-    const { entity } = await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
-      acceptTerms: true,
-      message: VALID_MESSAGE,
-    });
-    const { view } = await contact.accept({
-      requestId: entity.id,
-      actorUserId: hirerId,
-      acceptTerms: true,
-    });
-    expect(view.effectiveStatus).toBe('accepted');
-    expect(notifications.send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: seekerId,
-        title: CAREER_CONTACT_NOTIFICATION.accepted.title,
-      }),
-    );
-  });
-
-  it('TEST 6: seeker sees the accepted request without a matching-score field', async () => {
-    const { entity } = await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
-      acceptTerms: true,
-      message: VALID_MESSAGE,
-    });
-    await contact.accept({ requestId: entity.id, actorUserId: hirerId, acceptTerms: true });
-    const mine = await contact.getMineForListing(hireListingId, seekerId);
-    expect(mine?.effectiveStatus).toBe('accepted');
-    expect(mine).not.toHaveProperty('matching_score');
+    ).rejects.toThrow('Bu ilan tipi için iletişim talebi özelliği bulunmamaktadır.');
   });
 
   it('TEST 7: employer can send a contact request to the candidate listing', async () => {
@@ -232,15 +177,17 @@ describe('career journey e2e', () => {
       message: VALID_MESSAGE,
     });
     expect(view.effectiveStatus).toBe('pending');
+    expect(view.ownerContactPhone).toBeNull();
     expect(notifications.send).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: seekerId,
-        title: CAREER_CONTACT_NOTIFICATION.created.title,
+        title: 'Yeni bir iletişim talebiniz var.',
+        actionUrl: expect.stringContaining('talep='),
       }),
     );
   });
 
-  it('TEST 8: candidate sees the incoming employer request', async () => {
+  it('TEST 8: candidate sees the incoming employer request in inbox', async () => {
     await contact.create({
       listingId: seekListingId,
       requesterUserId: hirerId,
@@ -248,7 +195,9 @@ describe('career journey e2e', () => {
       message: VALID_MESSAGE,
     });
     const incoming = await contact.listIncomingForOwner(seekerId);
+    expect(incoming).toHaveLength(1);
     expect(incoming[0]?.effectiveStatus).toBe('pending');
+    expect(incoming[0]?.requesterDisplayName).toBe('Açık Yazılım');
     expect(incoming[0]?.ownerContactPhone).toBeNull();
   });
 
@@ -268,39 +217,42 @@ describe('career journey e2e', () => {
     expect(notifications.send).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: hirerId,
-        title: CAREER_CONTACT_NOTIFICATION.accepted.title,
+        title: 'İletişim talebiniz kabul edildi.',
       }),
     );
+    const mine = await contact.getMineForListing(seekListingId, hirerId);
+    expect(mine?.effectiveStatus).toBe('accepted');
+    expect(mine).not.toHaveProperty('matching_score');
   });
 
   it('TEST 10: phone, email, and WhatsApp stay hidden before accept', async () => {
     const matches = await matching.getCareerMatches(seekerId);
     expectNoContactLeak(matches);
     const { view } = await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
+      listingId: seekListingId,
+      requesterUserId: hirerId,
       acceptTerms: true,
       message: VALID_MESSAGE,
     });
     expect(view.ownerContactPhone).toBeNull();
     expect(JSON.stringify(view)).not.toContain('0555');
     expect(JSON.stringify(view)).not.toContain('@example.com');
-    const incoming = await contact.listIncomingForOwner(hirerId);
+    const incoming = await contact.listIncomingForOwner(seekerId);
     expect(incoming[0]?.ownerContactPhone).toBeNull();
     expect(CONTACT_CTA_PRIVACY_SHORT).toBe('İletişim bilgileriniz gizli kalır.');
   });
 
   it('TEST 11: the same user cannot create a duplicate pending request', async () => {
     await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
+      listingId: seekListingId,
+      requesterUserId: hirerId,
       acceptTerms: true,
       message: VALID_MESSAGE,
     });
     await expect(
       contact.create({
-        listingId: hireListingId,
-        requesterUserId: seekerId,
+        listingId: seekListingId,
+        requesterUserId: hirerId,
         acceptTerms: true,
         message: VALID_MESSAGE,
       }),
@@ -349,20 +301,20 @@ describe('career journey e2e', () => {
 
   it('keeps reject notifications on the existing contact-request path', async () => {
     const { entity } = await contact.create({
-      listingId: hireListingId,
-      requesterUserId: seekerId,
+      listingId: seekListingId,
+      requesterUserId: hirerId,
       acceptTerms: true,
       message: VALID_MESSAGE,
     });
-    const { effectiveStatus } = await contact.reject(entity.id, hirerId);
+    const { effectiveStatus } = await contact.reject(entity.id, seekerId);
     expect(effectiveStatus).toBe('rejected');
     expect(notifications.send).toHaveBeenCalledWith(
       expect.objectContaining({
-        userId: seekerId,
-        title: CAREER_CONTACT_NOTIFICATION.rejected.title,
+        userId: hirerId,
+        title: 'İletişim talebiniz reddedildi.',
       }),
     );
-    const mine = await contact.getMineForListing(hireListingId, seekerId);
+    const mine = await contact.getMineForListing(seekListingId, hirerId);
     expect(mine?.ownerContactPhone).toBeNull();
   });
 

@@ -1,3 +1,13 @@
+import {
+  isContactRequestEligibleCategory,
+  isContactRequestEligibleListing,
+} from '@/features/contact-requests/lib/contact-disclosure';
+
+export {
+  isContactRequestEligibleCategory,
+  isContactRequestEligibleListing,
+};
+
 /**
  * Presentation-only contact-request CTA copy.
  * Does not change APIs, status flow, or matching.
@@ -8,38 +18,47 @@ export const CONTACT_CTA_PRIVACY_SHORT = 'İletişim bilgileriniz gizli kalır.'
 
 export const CAREER_CONTACT_STATUS_COPY = {
   pending: 'İletişim talebiniz gönderildi. Karşı tarafın yanıtı bekleniyor.',
-  accepted: 'Karşı taraf talebinizi kabul etti.',
-  rejected: 'İletişim talebi reddedildi.',
+  accepted: 'İletişim talebiniz kabul edildi. İletişim bilgileri açıldı; mesajlaşabilirsiniz.',
+  rejected: 'İletişim talebiniz reddedildi.',
 } as const;
 
 export function resolveContactCtaLabel(categoryId?: string | null): string {
   switch (categoryId) {
-    case 'hire':
-    case 'ise-al':
-    case 'c1000001-0001-4000-8000-000000000004':
-      return 'Doğrudan Mesaj Gönder';
     case 'find-partner':
     case 'ortak-bul':
+    case 'ortak-ariyorum':
+    case 'ortak-olmak':
+    case 'c1000001-0001-4000-8000-000000000005':
       return 'Ortaklık İletişim Talebi Gönder';
-    case 'franchise':
-      return 'Franchise İletişim Talebi Gönder';
-    case 'digital-ai':
-    case 'dijital-ai':
-      return 'Çözüm Hakkında Bilgi Al';
+    case 'find-job':
+    case 'is-bul':
+    case 'is-ariyorum':
+    case 'c1000001-0001-4000-8000-000000000003':
     default:
       return CONTACT_CTA_DEFAULT_LABEL;
   }
 }
 
 export function isCareerContactCategory(categoryId?: string | null): boolean {
-  return categoryId === 'find-job' || categoryId === 'hire' || categoryId === 'is-bul' || categoryId === 'ise-al';
+  return (
+    categoryId === 'find-job' ||
+    categoryId === 'is-bul' ||
+    categoryId === 'is-ariyorum' ||
+    categoryId === 'c1000001-0001-4000-8000-000000000003'
+  );
 }
 
 export function isContactIdentityGated(
   categoryId?: string | null,
   identityRedacted?: boolean,
 ): boolean {
-  return Boolean(identityRedacted) || categoryId === 'find-job' || categoryId === 'is-bul';
+  return (
+    Boolean(identityRedacted) ||
+    categoryId === 'find-job' ||
+    categoryId === 'is-bul' ||
+    categoryId === 'is-ariyorum' ||
+    categoryId === 'c1000001-0001-4000-8000-000000000003'
+  );
 }
 
 export function resolveContactStatusLabel(
@@ -48,23 +67,17 @@ export function resolveContactStatusLabel(
 ): string {
   if (isCareerContactCategory(options?.categoryId)) {
     if (status === 'pending') return CAREER_CONTACT_STATUS_COPY.pending;
-    if (status === 'accepted') {
-      return options?.identityGated
-        ? 'Karşı taraf talebinizi kabul etti. İzin verilen iletişim bilgileri size açıldı.'
-        : 'Karşı taraf talebinizi kabul etti. Mesajlaşabilir; izin verilen iletişim bilgileri size açıldı.';
-    }
+    if (status === 'accepted') return CAREER_CONTACT_STATUS_COPY.accepted;
     if (status === 'rejected') return CAREER_CONTACT_STATUS_COPY.rejected;
   }
 
   switch (status) {
     case 'pending':
-      return 'Talebiniz ilan sahibine iletildi. Yanıt bekleniyor.';
+      return 'İletişim talebiniz gönderildi. Karşı tarafın yanıtı bekleniyor.';
     case 'accepted':
-      return options?.identityGated
-        ? 'İletişim talebi kabul edildi. Ad soyad ve izin verilen iletişim bilgileri size açıldı; mesajlaşabilirsiniz.'
-        : 'Talebiniz kabul edildi. Mesajlaşabilir; telefon ve ad-soyad bilgisi size açıldı.';
+      return 'İletişim talebiniz kabul edildi. İletişim bilgileri açıldı; mesajlaşabilirsiniz.';
     case 'rejected':
-      return 'Talebiniz reddedildi.';
+      return 'İletişim talebiniz reddedildi.';
     case 'expired':
       return 'Talebinizin süresi doldu. Yeni talep gönderebilirsiniz.';
     case 'cancelled':

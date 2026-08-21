@@ -85,8 +85,10 @@ export function ListingContactCta({
   const setOpen = onOpenChange ?? setInternalOpen;
   const careerCandidate = identityGated && isCareerContactCategory(categoryId);
 
+  const isEligible = !categoryId || isContactRequestEligibleCategory(categoryId);
+
   const loadMine = useCallback(async () => {
-    if (!user || isOwner) {
+    if (!user || isOwner || !isEligible) {
       setMine(null);
       return;
     }
@@ -101,14 +103,14 @@ export function ListingContactCta({
     } catch {
       setMine(null);
     }
-  }, [user, isOwner, listingId]);
+  }, [user, isOwner, isEligible, listingId]);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !isEligible) return;
     void loadMine();
-  }, [authLoading, loadMine]);
+  }, [authLoading, isEligible, loadMine]);
 
-  if (isOwner) {
+  if (isOwner || !isEligible) {
     return null;
   }
 
@@ -270,15 +272,7 @@ export function ListingContactCta({
         <DialogHeader>
           <DialogTitle>{buttonLabel ?? resolveContactCtaLabel(categoryId)}</DialogTitle>
           <DialogDescription>
-            {careerCandidate
-              ? listingTitle
-                ? `“${listingTitle}” profili için iletişim talebi gönderin.`
-                : 'Adayla iletişime geçmek için talep gönderin.'
-              : listingTitle
-                ? `“${listingTitle}” ilanı için iletişim talebi gönderin.`
-                : 'İlan sahibiyle iletişime geçmek için talep gönderin.'}
-            {' '}
-            {CONTACT_CTA_PRIVACY_SHORT}
+            İletişim talebi gönderdiğinizde ilan sahibine bağlantı kurma isteğiniz iletilir. İlan sahibi talebi kabul ederse tarafların iletişim bilgileri birbirlerine açılır.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-1">
@@ -320,9 +314,7 @@ export function ListingContactCta({
           </label>
           <p className="flex items-start gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground dark:border-white/10">
             <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
-            {identityGated
-              ? 'Kişisel bilgiler adayın onayı olmadan paylaşılmaz. Talep kabul edilirse ad soyad ve izin verilen iletişim bilgileri yalnızca size açılır.'
-              : 'Telefon numarası kamuya açık gösterilmez. Talep kabul edilirse Platform üzerinden mesajlaşma açılır ve numara yalnızca size gösterilir.'}
+            Kişisel ve iletişim bilgileri onayınız olmadan üçüncü şahıslara gösterilmez. İlan sahibi talebi kabul ettiğinde tarafların iletişim bilgileri karşılıklı olarak yalnızca ilgili kullanıcılara açılır.
           </p>
         </div>
         <DialogFooter>

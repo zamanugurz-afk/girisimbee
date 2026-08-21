@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, MessageSquare } from 'lucide-react';
+import { Loader2, Mail, MessageSquare, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -232,6 +232,23 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
                       {req.message}
                     </div>
                   ) : null}
+
+                  {req.effectiveStatus === 'accepted' && (req.requesterPhone || req.requesterEmail) ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.05] p-3 text-xs text-slate-800 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-zinc-200">
+                      {req.requesterPhone ? (
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>{req.requesterPhone}</span>
+                        </div>
+                      ) : null}
+                      {req.requesterEmail ? (
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <Mail className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>{req.requesterEmail}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
@@ -289,8 +306,7 @@ export function OwnerContactRequestsInbox({ className }: { className?: string })
           <DialogHeader>
             <DialogTitle>Talebi kabul et</DialogTitle>
             <DialogDescription>
-              Kabul sonrası mesajlaşma açılır; telefon ve ad-soyad bilginiz yalnızca bu talep
-              sahibine gösterilir.
+              Kabul sonrası mesajlaşma açılır; karşılıklı iletişim bilgileri yalnızca ilgili taraflara gösterilir.
             </DialogDescription>
           </DialogHeader>
           <label className="flex items-start gap-2.5 text-sm leading-snug">

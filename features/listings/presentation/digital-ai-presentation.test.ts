@@ -5,7 +5,7 @@ import {
   CREATE_LISTING_ROOT_HIDDEN_CATEGORY_IDS,
   CREATE_LISTING_VENTURE_COPY,
 } from '@/components/girisimco/listing/create-listing-career.data';
-import { resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
+import { isContactRequestEligibleCategory, resolveContactCtaLabel } from '@/features/contact-requests/config/contact-cta-copy';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import { CATEGORY_PAGE_CONFIG } from '@/features/listings/config/marketplace.config';
 import { createListing } from '@/features/listings/factories/listing.factory';
@@ -69,7 +69,7 @@ describe('Dijital & AI Çözümleri presentation', () => {
   });
 
   it('keeps contact on the existing request flow and hides private card fields', () => {
-    expect(resolveContactCtaLabel('digital-ai')).toBe(DIGITAL_AI_CONTACT_CTA);
+    expect(isContactRequestEligibleCategory('digital-ai')).toBe(false);
     const listing = createListing({
       ownerId: ids.user('digital-owner'),
       categoryId: CATEGORY_IDS.dijitalAi,

@@ -1,5 +1,53 @@
 import type { ModuleKey } from '@/lib/domain/modules';
 import type { ContactRequestStatus } from '@/features/contact-requests/types/contact-request.types';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { categoryRegistry } from '@/features/listings/config/category-registry';
+
+/** Canonical categories that support contact requests: İş Arıyorum and Ortaklık (seeking/joining). */
+export const ELIGIBLE_CONTACT_REQUEST_CATEGORY_IDS = new Set<string>([
+  CATEGORY_IDS.isBul,
+  CATEGORY_IDS.ortakBul,
+]);
+
+/** Check whether a category string / slug / ID is eligible for contact requests. */
+export function isContactRequestEligibleCategory(categoryId?: string | null): boolean {
+  if (!categoryId) return false;
+  if (
+    categoryId === 'hire' ||
+    categoryId === 'ise-al' ||
+    categoryId === 'ise-aliyorum' ||
+    categoryId === 'franchise' ||
+    categoryId === 'bayilik-al' ||
+    categoryId === 'isletme-devri' ||
+    categoryId === 'dijital-ai' ||
+    categoryId === 'digital-ai' ||
+    categoryId === 'market' ||
+    categoryId === 'firsatlar'
+  ) {
+    return false;
+  }
+  const resolved = categoryRegistry.resolveCategoryId(categoryId) ?? categoryId;
+  return ELIGIBLE_CONTACT_REQUEST_CATEGORY_IDS.has(resolved);
+}
+
+/** Check whether a listing entity / object is eligible for contact requests. */
+export function isContactRequestEligibleListing(listing: {
+  categoryId?: string | null;
+  listingTypeId?: string | null;
+  moduleKey?: ModuleKey | string | null;
+}): boolean {
+  if (listing.moduleKey === 'candidates') return true;
+  if (listing.moduleKey === 'partners' || listing.moduleKey === 'founders') return true;
+  if (
+    listing.moduleKey === 'employers' ||
+    listing.moduleKey === 'franchise' ||
+    listing.moduleKey === 'products' ||
+    listing.moduleKey === 'business_transfers'
+  ) {
+    return false;
+  }
+  return isContactRequestEligibleCategory(listing.categoryId);
+}
 
 /** Listings that hide owner/publisher identity until an accepted contact request. */
 export function isIdentityGatedListing(listing: {

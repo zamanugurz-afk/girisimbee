@@ -48,6 +48,13 @@ export type ContactRequestPublicView = {
   /** Effective status after expiry check */
   effectiveStatus: ContactRequestStatus;
   requesterDisplayName?: string | null;
+  /**
+   * Requester contact info — only populated for the listing owner on an accepted request.
+   * Never returned for pending / rejected / third parties.
+   */
+  requesterPhone?: string | null;
+  requesterEmail?: string | null;
+  requesterFullName?: string | null;
   listingTitle?: string | null;
   /**
    * Owner phone — only populated for the accepted requester of this listing.
