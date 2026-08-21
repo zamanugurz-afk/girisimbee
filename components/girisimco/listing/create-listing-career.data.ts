@@ -42,7 +42,7 @@ export const CREATE_LISTING_CAREER_HUB = {
 } as const;
 
 export const CREATE_LISTING_VENTURE_HUB = {
-  title: 'Girişim ve Ortaklık',
+  title: 'Ortaklık ve Devir',
   description: 'Ortak arayın, bir girişime katılın veya franchise fırsatı yayınlayın.',
   audience: 'Kurucu / ortak / franchise / işletme devri',
   benefits: [

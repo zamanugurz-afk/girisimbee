@@ -35,9 +35,9 @@ describe('career hub on homepage catalog', () => {
     expect(HOME_CATEGORIES.map((cat) => cat.label).join(' ')).not.toContain('&');
   });
 
-  it('groups venture ecosystem under Girişim, Ortaklık ve Devir without new category IDs', () => {
+  it('groups venture ecosystem under Ortaklık ve Devir without new category IDs', () => {
     expect(VENTURE_PARTNERSHIP_HUB.href).toBe('/girisim-ortaklik');
-    expect(VENTURE_PARTNERSHIP_HUB.title).toBe('Girişim, Ortaklık ve Devir');
+    expect(VENTURE_PARTNERSHIP_HUB.title).toBe('Ortaklık ve Devir');
     expect(VENTURE_PARTNERSHIP_HUB.description).toBe(
       'Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.',
     );

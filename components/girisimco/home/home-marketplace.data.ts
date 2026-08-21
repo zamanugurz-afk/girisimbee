@@ -54,7 +54,7 @@ export const HOME_CATEGORIES_CATALOG = [
   {
     slug: 'girisim-ortaklik',
     href: '/girisim-ortaklik',
-    label: 'Girişim, Ortaklık ve Devir',
+    label: 'Ortaklık ve Devir',
     color: GC_CATEGORY_COLORS['ortak-bul'],
     audience: 'Kurucular / ortaklar',
     shortCue: 'Ortaklık, franchise ve devir',
@@ -171,8 +171,8 @@ export const FRANCHISE_FLOW_ROUTES = {
 
 /** Homepage second-level hub — existing /partners and /franchise/buy routes only. */
 export const VENTURE_PARTNERSHIP_HUB = {
-  badge: 'Girişim, Ortaklık ve Devir',
-  title: 'Girişim, Ortaklık ve Devir',
+  badge: 'Ortaklık ve Devir',
+  title: 'Ortaklık ve Devir',
   description: 'Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.',
   href: '/girisim-ortaklik',
 } as const;

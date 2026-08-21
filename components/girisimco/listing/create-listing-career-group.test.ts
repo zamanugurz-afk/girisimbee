@@ -89,8 +89,8 @@ describe('create listing career group', () => {
     expect(categoryRegistry.resolveCategoryId('hire')).toBe(CATEGORY_IDS.iseAl);
   });
 
-  it('groups ortak and franchise under Girişim ve Ortaklık without new category IDs', () => {
-    expect(CREATE_LISTING_VENTURE_HUB.title).toBe('Girişim ve Ortaklık');
+  it('groups ortak and franchise under Ortaklık ve Devir without new category IDs', () => {
+    expect(CREATE_LISTING_VENTURE_HUB.title).toBe('Ortaklık ve Devir');
     expect(CREATE_LISTING_VENTURE_COPY.options.map((item) => item.label)).toEqual([
       'Ortak Arıyorum',
       'Ortak Olmak İstiyorum',

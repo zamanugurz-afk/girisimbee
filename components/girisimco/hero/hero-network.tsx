@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   Briefcase,
   Handshake,
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 const NODES: {
   id: string;
   label: string;
+  href: string;
   Icon: LucideIcon;
   className: string;
   color: string;
@@ -21,6 +23,7 @@ const NODES: {
   {
     id: 'franchise',
     label: 'Fırsatlar',
+    href: '/market',
     Icon: Store,
     className: 'left-1/2 top-[1%] -translate-x-1/2',
     color: gcCategoryColors.franchise,
@@ -29,6 +32,7 @@ const NODES: {
   {
     id: 'investor',
     label: 'Çözümler',
+    href: '/dijital-ai',
     Icon: UserRound,
     className: 'right-[1%] top-1/2 -translate-y-1/2',
     color: gcCategoryColors['dijital-ai'],
@@ -37,6 +41,7 @@ const NODES: {
   {
     id: 'partner',
     label: 'Ortaklık',
+    href: '/girisim-ortaklik',
     Icon: Handshake,
     className: 'bottom-[1%] left-1/2 -translate-x-1/2',
     color: gcCategoryColors['ortak-bul'],
@@ -45,6 +50,7 @@ const NODES: {
   {
     id: 'job',
     label: 'Kariyer',
+    href: '/is',
     Icon: Briefcase,
     className: 'left-[1%] top-1/2 -translate-y-1/2',
     color: gcCategoryColors['ise-al'],
@@ -74,15 +80,15 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
         'relative mx-auto aspect-square w-full max-w-[380px] lg:max-w-[420px]',
         className,
       )}
-      aria-hidden
     >
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.045] blur-2xl" />
       <div className="pointer-events-none absolute right-[6%] top-[6%] h-24 w-24 rounded-full bg-[#FBBF24]/[0.1] blur-xl" />
 
       <svg
-        className="absolute inset-[10%] h-[80%] w-[80%] opacity-[0.05]"
+        className="pointer-events-none absolute inset-[10%] h-[80%] w-[80%] opacity-[0.05]"
         viewBox="0 0 280 280"
         fill="none"
+        aria-hidden
       >
         <defs>
           <pattern id="hero-hex-light" width="20" height="34" patternUnits="userSpaceOnUse">
@@ -92,7 +98,7 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
         <rect width="280" height="280" fill="url(#hero-hex-light)" />
       </svg>
 
-      <div className="gc-hero-orbit absolute inset-[4%]">
+      <div className="gc-hero-orbit pointer-events-none absolute inset-[4%]" aria-hidden>
         <svg className="h-full w-full" viewBox="0 0 300 300" fill="none">
           <circle cx="150" cy="150" r="86" stroke="#E8EAF0" strokeWidth="1.35" />
           <circle
@@ -124,20 +130,25 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
       </div>
 
       {NODES.map((node) => (
-        <div
+        <Link
           key={node.id}
-          className={cn('absolute z-20 flex flex-col items-center gap-1.5', node.className)}
+          href={node.href}
+          className={cn(
+            'group absolute z-20 flex flex-col items-center gap-1.5 cursor-pointer transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-full',
+            node.className,
+          )}
+          aria-label={node.label}
         >
           <span
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm sm:h-11 sm:w-11"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11"
             style={{ backgroundColor: `${node.color}1A`, color: node.color }}
           >
             <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
           </span>
-          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm">
+          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary">
             {node.label}
           </span>
-        </div>
+        </Link>
       ))}
     </div>
   );
