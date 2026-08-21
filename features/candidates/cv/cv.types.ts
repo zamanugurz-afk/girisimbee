@@ -66,6 +66,12 @@ export interface AiCvExtractionPayload {
   fullName?: string;
   gender?: string;
   birthDate?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  website?: string;
+  nationality?: string;
+  address?: string;
   ambiguousItems: RawAmbiguousCvItem[];
 }
 
@@ -87,6 +93,12 @@ export interface CanonicalTaxonomyMappingResult {
   fullName?: string;
   gender?: string;
   birthDate?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  website?: string;
+  nationality?: string;
+  address?: string;
   experiences: CareerExperience[];
   summary: string;
   ambiguousItems: RawAmbiguousCvItem[];

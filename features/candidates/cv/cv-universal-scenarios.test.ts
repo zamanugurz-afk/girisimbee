@@ -127,22 +127,16 @@ Sertifikalar ve Yetkinlikler:
     });
   });
 
-  describe('4. Demographics & Gender Resolution from Turkish First Names', () => {
-    it('infers gender correctly from Turkish first names when no explicit gender label is present', () => {
-      const cvBurak = extractUniversalDemographics('Burak Batıl Özdemir\nİstanbul, Türkiye\n0532 111 22 33');
-      expect(cvBurak.gender).toBe('Erkek');
+  describe('4. Demographics & Gender Resolution (Zero Hallucination)', () => {
+    it('extracts explicit gender and prevents guessing gender when not in CV', () => {
+      const cvExplicitMale = extractUniversalDemographics('Burak Batıl Özdemir\nCinsiyet: Erkek\nİstanbul, Türkiye\n0532 111 22 33');
+      expect(cvExplicitMale.gender).toBe('Erkek');
 
-      const cvGizem = extractUniversalDemographics('Gizem Şaylan\nİstanbul, Türkiye\n0532 222 33 44');
-      expect(cvGizem.gender).toBe('Kadın');
+      const cvExplicitFemale = extractUniversalDemographics('Gizem Şaylan\nCinsiyet: Kadın\nİstanbul, Türkiye\n0532 222 33 44');
+      expect(cvExplicitFemale.gender).toBe('Kadın');
 
-      const cvUgur = extractUniversalDemographics('Uğur Zaman\nİzmir, Türkiye');
-      expect(cvUgur.gender).toBe('Erkek');
-
-      const cvRukiye = extractUniversalDemographics('Rukiye Gürsoy\nAnkara, Türkiye');
-      expect(cvRukiye.gender).toBe('Kadın');
-
-      const cvMeryem = extractUniversalDemographics('Meryem Ekşi\nTrabzon, Türkiye');
-      expect(cvMeryem.gender).toBe('Kadın');
+      const cvNoGender = extractUniversalDemographics('Uğur Zaman\nİzmir, Türkiye');
+      expect(cvNoGender.gender).toBeUndefined(); // Zero hallucination!
     });
 
     it('extracts birth dates across hyphen, dot, and age parenthesized formats', () => {
@@ -198,7 +192,6 @@ Yeni Müşteri Kazanımı, Satış ve İkna, Microsoft Office
       expect(draft.formValues.sector).toBe('Sigorta');
       expect(draft.formValues.city).toBe('İstanbul');
       expect(draft.formValues.residenceDistrict).toBe('Esenyurt');
-      expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.birthDate).toBe('1996-06-13');
     });
 
@@ -235,7 +228,6 @@ BECERİLER VE ARAÇLAR
       expect(draft.formValues.sector).toBe('İnsan kaynakları');
       expect(draft.formValues.city).toBe('İstanbul');
       expect(draft.formValues.residenceDistrict).toBe('Kadıköy');
-      expect(draft.formValues.profileGender).toBe('Kadın');
       expect(draft.formValues.birthDate).toBe('1997-04-24');
     });
 
@@ -272,7 +264,6 @@ SERTİFİKALAR
       expect(draft.formValues.sector).toBe('İnşaat / Gayrimenkul');
       expect(draft.formValues.city).toBe('Ankara');
       expect(draft.formValues.residenceDistrict).toBe('Çankaya');
-      expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.certificates).toContain('İSG A Sınıfı');
     });
 
@@ -309,7 +300,6 @@ AWS Certified Solutions Architect, CKA (Certified Kubernetes Administrator), CIS
       expect(draft.formValues.sector).toBe('Bilişim / Yazılım');
       expect(draft.formValues.city).toBe('İzmir');
       expect(draft.formValues.residenceDistrict).toBe('Konak');
-      expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.certificates).toContain('AWS Certified Solutions Architect');
       expect(draft.formValues.certificates).toContain('CKA (Certified Kubernetes Administrator)');
     });
@@ -343,7 +333,6 @@ SRC 4 (Yurtiçi Eşya Taşımacılığı), SRC 5 (ADR Tehlikeli Madde), Psikotek
       expect(draft.formValues.role).toMatch(/Şoför|TIR|Kamyon|Ağır Vasıta/i);
       expect(draft.formValues.city).toBe('Kocaeli');
       expect(draft.formValues.residenceDistrict).toBe('Gebze');
-      expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.certificates).toContain('SRC 5 (ADR Tehlikeli Madde Taşımacılığı)');
       expect(draft.formValues.certificates).toContain('Psikoteknik Değerlendirme Raporu');
       expect(draft.formValues.certificates).toContain('Forklift Operatörlük Belgesi (G Sınıfı)');
@@ -381,7 +370,6 @@ MEB Ustalık Belgesi, SCA Barista Sertifikası, HACCP Gıda Güvenliği, Hijyen 
       expect(draft.formValues.role).toMatch(/Aşçı|Chef/i);
       expect(draft.formValues.city).toBe('Antalya');
       expect(draft.formValues.residenceDistrict).toBe('Muratpaşa');
-      expect(draft.formValues.profileGender).toBe('Kadın');
       expect(draft.formValues.certificates).toContain('MEB Ustalık Belgesi');
       expect(draft.formValues.certificates).toContain('HACCP Gıda Güvenliği');
     });
@@ -419,7 +407,6 @@ SMMM Ruhsatı, SPK Düzey 3 Lisansı, CFA Level 1, IFRS Sertifikası
       expect(draft.formValues.sector).toBe('Muhasebe / Mali müşavirlik');
       expect(draft.formValues.city).toBe('Bursa');
       expect(draft.formValues.residenceDistrict).toBe('Nilüfer');
-      expect(draft.formValues.profileGender).toBe('Erkek');
       expect(draft.formValues.certificates).toContain('SMMM (Serbest Muhasebeci Mali Müşavir) Ruhsatı');
       expect(draft.formValues.certificates).toContain('SPK Düzey 3 Lisansı');
     });
@@ -457,7 +444,6 @@ Adalet Bakanlığı Arabuluculuk Belgesi, KVKK Uyum Uzmanlığı, Bilirkişilik 
       expect(draft.formValues.sector).toBe('Hukuk');
       expect(draft.formValues.city).toBe('Ankara');
       expect(draft.formValues.residenceDistrict).toBe('Çankaya');
-      expect(draft.formValues.profileGender).toBe('Kadın');
       expect(draft.formValues.certificates).toContain('Adalet Bakanlığı Arabuluculuk Belgesi');
       expect(draft.formValues.certificates).toContain('Bilirkişilik Sertifikası');
     });

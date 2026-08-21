@@ -66,6 +66,12 @@ export interface CareerProfileFormValues {
   fullName?: string;
   profileGender?: string;
   birthDate?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  website?: string;
+  nationality?: string;
+  address?: string;
   residenceCity?: string;
   residenceDistrict?: string;
   preferredDistrict?: string;

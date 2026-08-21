@@ -31,6 +31,12 @@ export interface ParsedUniversalDemographics {
   gender?: 'Kadın' | 'Erkek';
   birthDate?: string;
   birthYear?: number;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  website?: string;
+  nationality?: string;
+  address?: string;
 }
 
 // 1. Text Normalizer
@@ -165,43 +171,29 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
   let gender: 'Kadın' | 'Erkek' | undefined;
   let birthDate: string | undefined;
   let birthYear: number | undefined;
+  let email: string | undefined;
+  let phone: string | undefined;
+  let linkedin: string | undefined;
+  let website: string | undefined;
+  let nationality: string | undefined;
+  let address: string | undefined;
 
-  // 1. Explicit Gender Label
+  // 1. Explicit Gender Label (ZERO HALLUCINATION: Only if explicitly declared in CV text)
   if (
-    /(?:^|\s)cinsiyet\b[\s:]*(?:kadin|bayan)\b/i.test(normText) ||
-    /(?:^|\n)\s*cinsiyet\s*\n\s*(?:kadin|bayan)/i.test(normText) ||
-    /(?:^|\s)cinsiyeti\b[\s:]*(?:kadin|bayan)\b/i.test(normText) ||
-    (/ozel\s*bilgiler/i.test(normText) && /\bkadin\b/i.test(normText) && !/\berkek\b/i.test(normText))
+    /(?:^|\s)(?:cinsiyet|cinsiyeti|gender|sex)[\s:]*(?:kadin|bayan|female|woman)\b/i.test(normText) ||
+    /(?:^|\n)\s*(?:cinsiyet|gender)\s*\n\s*(?:kadin|bayan|female)/i.test(normText) ||
+    /(?:^|\s)cinsiyet\b[\s/:]*kadin/i.test(normText)
   ) {
     gender = 'Kadın';
   } else if (
-    /(?:^|\s)cinsiyet\b[\s:]*(?:erkek|bay)\b/i.test(normText) ||
-    /(?:^|\n)\s*cinsiyet\s*\n\s*(?:erkek|bay)/i.test(normText) ||
-    /(?:^|\s)cinsiyeti\b[\s:]*(?:erkek|bay)\b/i.test(normText) ||
-    (/ozel\s*bilgiler/i.test(normText) && /\berkek\b/i.test(normText) && !/\bkadin\b/i.test(normText))
+    /(?:^|\s)(?:cinsiyet|cinsiyeti|gender|sex)[\s:]*(?:erkek|bay|male|man)\b/i.test(normText) ||
+    /(?:^|\n)\s*(?:cinsiyet|gender)\s*\n\s*(?:erkek|bay|male)/i.test(normText) ||
+    /(?:^|\s)cinsiyet\b[\s/:]*erkek/i.test(normText)
   ) {
     gender = 'Erkek';
   }
 
-  // 1.5. First-Name Lookup from Top Lines (Header / Contact Section)
-  if (!gender) {
-    const lines = text.split(/\r?\n/).slice(0, 15);
-    for (const l of lines) {
-      const words = normalizeTrUniversal(l).split(/[\s,.:/|–—]+/).filter((w) => w.length >= 3);
-      for (const w of words) {
-        if (EXTENSIVE_TURKISH_MALE_NAMES.has(w)) {
-          gender = 'Erkek';
-          break;
-        } else if (EXTENSIVE_TURKISH_FEMALE_NAMES.has(w)) {
-          gender = 'Kadın';
-          break;
-        }
-      }
-      if (gender) break;
-    }
-  }
-
-  // 2. Birth Date Detection across all formats
+  // 2. Explicit Birth Date Detection (ZERO HALLUCINATION: Only with explicit birth keywords)
   // Pattern A: "1993 (32 Yaş)" or "1996 doğumlu"
   const ageMatch = text.match(/\b(19\d{2}|20\d{2})\s*(?:\(\s*\d{1,2}\s*(?:yaş|yas|yaşında|yasinda)?\s*\)|doğumlu|dogumlu)/i);
   if (ageMatch) {
@@ -209,9 +201,11 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
     birthDate = `${birthYear}-01-01`;
   }
 
-  // Pattern B: "Doğum Tarihi: 13-06-1996" or "15.05.1993" or "1996"
+  // Pattern B: "Doğum Tarihi: 13-06-1996" or "15.05.1993" or "1995-06-12" or "1996"
   if (!birthDate) {
-    const dobMatch = text.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob|d\.tarih)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|20\d{2})|(?:19\d{2}|20\d{2}))/i);
+    const dobMatch = text.match(
+      /(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|date\s*of\s*birth|dob|d\.tarih)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|20\d{2})|(?:19\d{2}|20\d{2})[./\-][0-1]?\d[./\-][0-3]?\d|(?:19\d{2}|20\d{2}))/i,
+    );
     if (dobMatch) {
       const rawDate = dobMatch[1];
       if (/^\d{4}$/.test(rawDate)) {
@@ -220,19 +214,32 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
       } else {
         const parts = rawDate.split(/[./\-]/);
         if (parts.length === 3) {
-          const day = parts[0].padStart(2, '0');
-          const month = parts[1].padStart(2, '0');
-          const year = parts[2];
-          birthYear = parseInt(year, 10);
-          birthDate = `${year}-${month}-${day}`;
+          if (parts[0].length === 4) {
+            // ISO format: YYYY-MM-DD
+            const year = parts[0];
+            const month = parts[1].padStart(2, '0');
+            const day = parts[2].padStart(2, '0');
+            birthYear = parseInt(year, 10);
+            birthDate = `${year}-${month}-${day}`;
+          } else {
+            // Turkish format: DD-MM-YYYY
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+            birthYear = parseInt(year, 10);
+            birthDate = `${year}-${month}-${day}`;
+          }
         }
       }
     }
   }
 
-  // Pattern C: Full Turkish Month birth dates (e.g. "26 Şubat 1997", "15 Mart 1995")
+  // Pattern C: Explicit Birth Date with Month Names (e.g. "Doğum Tarihi: 26 Şubat 1997", "15 Mart 1995 doğumlu", or in Kişisel Bilgiler section)
   if (!birthDate) {
-    const monthDobMatch = text.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i);
+    const monthDobMatch =
+      text.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i) ||
+      text.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\s*(?:doğumlu|dogumlu)/i) ||
+      text.match(/(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler)[^]*?\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i);
     if (monthDobMatch) {
       const day = monthDobMatch[1].padStart(2, '0');
       const mName = normalizeTrUniversal(monthDobMatch[2]);
@@ -247,32 +254,105 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
     }
   }
 
-  // 3. Full Name Extraction from Header / Label
+  // 3. Nationality Detection
+  const natMatch = text.match(/(?:uyruk|uyruğu|vatandaşlık|nationality|citizenship)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü. ]+)/i);
+  if (natMatch) {
+    const rawNat = natMatch[1].trim();
+    if (/t\.?c\.?|türk|turkey|turkish/i.test(rawNat)) {
+      nationality = 'T.C.';
+    } else if (rawNat.length >= 2 && rawNat.length <= 30) {
+      nationality = rawNat;
+    }
+  }
+
+  // 4. Address Detection
+  const addrMatch = text.match(/(?:adres|ikametgah|yerleşim\s*yeri|address)[\s:]+([^\n]+)/i);
+  if (addrMatch) {
+    const rawAddr = addrMatch[1].trim();
+    if (rawAddr.length >= 5 && rawAddr.length <= 150) {
+      address = rawAddr;
+    }
+  }
+
+  // 5. Contact Extraction (Emails, Phones, LinkedIn, Websites)
+  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  if (emailMatch) email = emailMatch[0].trim();
+
+  const phoneMatch = text.match(/(?:\+?90[\s.-]?)?(?:\(?0?5\d{2}\)?[\s.-]?)\d{3}[\s.-]?\d{2}[\s.-]?\d{2}|\b05\d{9}\b|\b5\d{9}\b/);
+  if (phoneMatch) phone = phoneMatch[0].trim();
+
+  const linkedInMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:in|pub|profile)\/[a-zA-Z0-9_-]+/i);
+  if (linkedInMatch) linkedin = linkedInMatch[0].trim();
+
+  const webMatch = text.match(/(?:https?:\/\/)?(?:www\.)?(?:github\.com\/[a-zA-Z0-9_-]+|behance\.net\/[a-zA-Z0-9_-]+|medium\.com\/@[a-zA-Z0-9_-]+|[a-zA-Z0-9-]+\.(?:dev|me|io)(?:\/[^\s,)]*)?)/i);
+  if (webMatch && !webMatch[0].includes('linkedin.com')) website = webMatch[0].trim();
+
+  // 6. Full Name Extraction (Multi-Tier Robust Engine)
   let fullName: string | undefined;
-  const nameLabelMatch = text.match(/(?:isim|ad\s*soyad|adı\s*soyadı|ad|adınız|full\s*name|name)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+){1,3})/i);
+
+  // Tier 1: Explicit Name Label (e.g. "İsim: Ahmet Yılmaz", "Ad Soyad: Burak Batıl", "Full Name: Johnathan Doe")
+  const nameLabelMatch = text.match(/(?:^|\n)[ \t]*(?:isim|ad\s*soyad|adı\s*soyadı|adınız|full\s*name|candidate\s*name|candidate|aday)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:[ \t]+[A-ZÇĞİÖŞÜa-zçğıöşü]+){1,3})/i);
   if (nameLabelMatch) {
     const candidate = nameLabelMatch[1].trim();
-    if (!/^(?:bilgiler|bilgileri|ozel|kisisel)$/i.test(candidate)) {
+    const normCandidate = normalizeTrUniversal(candidate);
+    if (!/^(?:bilgiler|bilgileri|ozel|kisisel|adresi|telefonu|posta|tarihi|egitim|deneyim)$/i.test(normCandidate)) {
       fullName = candidate;
     }
   }
 
+  // Tier 2: Top lines (lines 0 to 8)
   if (!fullName) {
-    const topLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, 6);
-    for (const l of topLines) {
-      const words = l.split(/\s+/);
-      const isHeaderOrSection = /^(?:özgeçmiş|ozgecmis|curriculum|resume|cv|eğitim|egitim|iş\s*deneyimi|is\s*deneyimi|kişisel|kisisel|iletişim|iletisim|hakkımda|hakkimda|beceriler|referanslar)$/i.test(l);
-      if (!isHeaderOrSection && words.length >= 2 && words.length <= 4 && l.length <= 40 && !l.includes('@') && !l.includes('/') && !l.includes(':') && !/\d/.test(l)) {
-        const normFirst = normalizeTrUniversal(words[0]);
-        if (EXTENSIVE_TURKISH_MALE_NAMES.has(normFirst) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(normFirst) || /^[A-ZÇĞİÖŞÜ]/.test(l)) {
-          fullName = l;
-          break;
+    const rawLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const topLines = rawLines.slice(0, 8);
+
+    for (const rawLine of topLines) {
+      // Clean leading icons, bullets, and prefixes
+      let clean = rawLine
+        .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
+        .replace(/^(?:özgeçmiş|ozgecmis|curriculum\s*vitae|resume|cv)\s*[-–—|:]\s*/i, '')
+        .replace(/^(?:av\.?|avukat|dr\.?|doktor|prof\.?\s*dr\.?|doç\.?\s*dr\.?|müh\.?|mühendis|uzm\.?\s*dr\.?|şef|öğr\.?\s*gör\.?)\s+/i, '')
+        .trim();
+
+      // If line contains pipe or dash with location / role, take the name portion before separator
+      if (clean.includes('|') || clean.includes('—') || clean.includes(' - ')) {
+        const parts = clean.split(/[|—]|\s+-\s+/);
+        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
+          clean = parts[0].trim();
         }
+      }
+
+      // If line contains "/" for location, check if left part is name
+      if (clean.includes('/') && !clean.includes('@') && !clean.includes('http')) {
+        const parts = clean.split('/');
+        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
+          clean = parts[0].trim();
+        }
+      }
+
+      const normClean = normalizeTrUniversal(clean);
+      const isHeaderOrSection = /^(?:ozgecmis|curriculum\s*vitae|curriculum|resume|cv|egitim|is\s*deneyimi|deneyim|tecrube|kisisel\s*bilgiler|kisisel|iletisim|hakkimda|ozet|beceriler|yetkinlikler|referanslar|projeler|sertifikalar|diller|languages|skills|experience|education|summary)$/i.test(normClean);
+
+      const hasInvalidChars = /[@:0-9<>{}[\]_=+*#]/.test(clean) || clean.includes('www.') || clean.includes('.com') || clean.includes('.net');
+
+      const isKnownEntity = /holding|sirketi|limited|anonim|a\.s|ltd|bankasi|hastanesi|universitesi|fakultesi|bolumu|enstitusu|mudurlugu|bakanligi|belediyesi|teknik/i.test(normClean);
+
+      const words = clean.split(/\s+/);
+      if (
+        !isHeaderOrSection &&
+        !hasInvalidChars &&
+        !isKnownEntity &&
+        words.length >= 2 &&
+        words.length <= 4 &&
+        clean.length >= 4 &&
+        clean.length <= 50
+      ) {
+        fullName = clean;
+        break;
       }
     }
   }
 
-  return { fullName, gender, birthDate, birthYear };
+  return { fullName, gender, birthDate, birthYear, email, phone, linkedin, website, nationality, address };
 }
 
 // 6. Universal Certificate Scanner

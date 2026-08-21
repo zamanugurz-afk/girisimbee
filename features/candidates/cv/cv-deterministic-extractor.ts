@@ -1,4 +1,5 @@
 import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
 import {
   CAREER_LANGUAGE_OPTIONS,
   CERTIFICATE_OPTIONS,
@@ -968,8 +969,9 @@ export function extractDeterministicLocations(text: string): {
   district?: string;
   detectedCities: string[];
 } {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const rawLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const detectedCities: string[] = [];
+  let bestCandidateCity = '';
 
   const HOMONYM_DISTRICT_KEYS = new Set([
     'fatih', 'kartal', 'eyup', 'kemal', 'selcuk', 'ali', 'hasan', 'huseyin',
@@ -979,36 +981,89 @@ export function extractDeterministicLocations(text: string): {
     'ece', 'efe', 'alp', 'can', 'baran', 'kaan', 'serkan', 'burak', 'emre',
   ]);
 
-  // Check top 20 lines (header / contact section) first for district or exact city
-  for (let i = 0; i < Math.min(lines.length, 20); i++) {
-    const rawLine = lines[i];
+  // Phase 1: Look for explicit contact / personal info sections or lines with location cues
+  // (e.g. "İkamet: Maltepe, İstanbul", "İstanbul/Eyüp", "Peker Mah. Karabağlar / İZMİR", "Lokasyon: İzmir / Bornova")
+  for (let i = 0; i < rawLines.length; i++) {
+    const rawLine = rawLines[i];
+    const lineNorm = ` ${normalizeTrForMatch(rawLine)} `;
+    const cleanNorm = normalizeTrForMatch(rawLine);
+
+    // Skip company/university experience lines in Phase 1
+    const isEntityLine = /holding|şirketi|sirketi|limited|anonim|a\.ş|a\.s|ltd|bankası|bankasi|üniversitesi|universitesi|fakültesi|fakultesi|enstitüsü|enstitusu/i.test(rawLine);
+
+    if (!isEntityLine) {
+      // 1. Check if line has a structured location pattern
+      if (rawLine.includes('/') || rawLine.includes(',') || rawLine.includes('-') || rawLine.includes('|') || /[\b:](?:ikamet|adres|lokasyon|sehir|ilce|il)\b/i.test(rawLine)) {
+        // Find explicit city in this line
+        let lineCity = '';
+        for (const [cKey, cName] of Object.entries(TURKISH_CITY_ALIASES)) {
+          const cityRegex = new RegExp(`(?:^|[^a-z0-9])${cKey}(?:$|[^a-z0-9])`, 'i');
+          if (cityRegex.test(lineNorm)) {
+            lineCity = cName;
+            break;
+          }
+        }
+
+        if (lineCity) {
+          const cityDistricts = getDistrictsForCity(lineCity);
+          let matchedDistrict: string | undefined;
+
+          // Check if any district of this city appears on this line
+          for (const d of cityDistricts) {
+            if (d === 'Diğer' || d === 'Merkez') continue;
+            const dNorm = normalizeTrForMatch(d);
+            const distRegex = new RegExp(`(?:^|[^a-z0-9])${dNorm}(?:$|[^a-z0-9])`, 'i');
+            if (distRegex.test(lineNorm)) {
+              matchedDistrict = d;
+              break;
+            }
+          }
+
+          if (!matchedDistrict) {
+            for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
+              if (data.city === lineCity) {
+                const distRegex = new RegExp(`(?:^|[^a-z0-9])${distKey}(?:$|[^a-z0-9])`, 'i');
+                if (distRegex.test(lineNorm)) {
+                  matchedDistrict = data.district;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (!matchedDistrict && lineNorm.includes(' merkez ')) {
+            matchedDistrict = 'Merkez';
+          }
+
+          if (matchedDistrict) {
+            return {
+              city: lineCity,
+              district: matchedDistrict,
+              detectedCities: [lineCity],
+            };
+          }
+
+          if (!bestCandidateCity) {
+            bestCandidateCity = lineCity;
+          }
+        }
+      }
+    }
+  }
+
+  // Phase 2: Standard top 20 lines pass
+  for (let i = 0; i < Math.min(rawLines.length, 20); i++) {
+    const rawLine = rawLines[i];
     const lineNorm = ` ${normalizeTrForMatch(rawLine)} `;
     const cleanNorm = normalizeTrForMatch(rawLine);
     const hasLocationCue = /[\/,\-\|]|\b(sehir|il|ilce|adres|lokasyon|ikamet|cad|sok|mah)\b/i.test(rawLine);
 
-    // If a line in the top 10 is solely a city name (e.g. "Bilecik", "Balıkesir", "İstanbul", "Ankara")
     if (i > 0 && TURKISH_CITY_ALIASES[cleanNorm]) {
       const cName = TURKISH_CITY_ALIASES[cleanNorm];
       return {
         city: cName,
         detectedCities: [cName],
       };
-    }
-
-    // If line has structured delimiter (e.g. "Adana / Seyhan", "Mersin / Tarsus", "Balıkesir / Bandırma")
-    if (rawLine.includes('/') || rawLine.includes(',') || rawLine.includes('-') || rawLine.includes('|')) {
-      const parts = rawLine.split(/[/,\-|]/).map((p) => p.trim()).filter(Boolean);
-      for (const p of parts) {
-        const pNorm = normalizeTrForMatch(p);
-        if (COMMON_TURKISH_DISTRICTS[pNorm]) {
-          const data = COMMON_TURKISH_DISTRICTS[pNorm];
-          return {
-            city: data.city,
-            district: data.district,
-            detectedCities: [data.city],
-          };
-        }
-      }
     }
 
     for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
@@ -1030,11 +1085,11 @@ export function extractDeterministicLocations(text: string): {
     }
   }
 
+  // Phase 3: Global document frequency matching
   const normText = ` ${normalizeTrForMatch(text)} `;
   let detectedCity = '';
   let detectedDistrict = '';
 
-  // Check District Dictionary
   for (const [distKey, data] of Object.entries(COMMON_TURKISH_DISTRICTS)) {
     if (HOMONYM_DISTRICT_KEYS.has(distKey)) {
       const cityNorm = normalizeTrForMatch(data.city);
@@ -1050,19 +1105,18 @@ export function extractDeterministicLocations(text: string): {
   }
 
   const cityAliases = TURKISH_CITY_ALIASES;
-
   for (const [cKey, cName] of Object.entries(cityAliases)) {
     const regex = new RegExp(`(?:^|\\s)${cKey}(?:\\s|$)`, 'i');
     if (regex.test(normText)) {
       if (!detectedCity) detectedCity = cName;
-      detectedCities.push(cName);
+      if (!detectedCities.includes(cName)) detectedCities.push(cName);
     }
   }
 
   return {
-    city: detectedCity || detectedCities[0] || '',
-    district: detectedDistrict,
-    detectedCities: [...new Set(detectedCities)],
+    city: detectedCity || bestCandidateCity || 'İstanbul',
+    district: detectedDistrict || undefined,
+    detectedCities: detectedCities.length > 0 ? [...new Set(detectedCities)] : [bestCandidateCity || 'İstanbul'],
   };
 }
 
@@ -2122,24 +2176,6 @@ export function extractDeterministicDemographics(text: string): {
     gender = 'Erkek';
   }
 
-  // 1.5. Gender Detection (First Name Inference from Top Lines)
-  if (!gender) {
-    const lines = text.split(/\r?\n/).slice(0, 10);
-    for (const l of lines) {
-      const words = normalizeTrForMatch(l).split(/[\s,.:/|–—]+/).filter((w) => w.length >= 3);
-      for (const w of words) {
-        if (TURKISH_MALE_FIRST_NAMES.has(w)) {
-          gender = 'Erkek';
-          break;
-        } else if (TURKISH_FEMALE_FIRST_NAMES.has(w)) {
-          gender = 'Kadın';
-          break;
-        }
-      }
-      if (gender) break;
-    }
-  }
-
   // 2. Birth Date / Year Detection
   // Pattern A: "1993 (32 Yaş)" or "1993 (32 yas)"
   const ageMatch = text.match(/\b(19\d{2}|200\d)\s*\(\s*\d{1,2}\s*(?:yaş|yas|yaşında|yasinda)?\s*\)/i);
@@ -2182,10 +2218,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   const exp = extractDeterministicExperiences(text);
   const skillsAndTools = extractDeterministicSkillsAndTools(text);
   const langAndCerts = extractDeterministicLanguagesAndCerts(text);
-  const demographics = extractDeterministicDemographics(text);
   const universalDemo = extractUniversalDemographics(text);
-  const finalGender = demographics.gender || universalDemo.gender;
-  const finalBirthDate = demographics.birthDate || universalDemo.birthDate;
 
   let totalYears = 0;
   for (const e of exp) {
@@ -2215,8 +2248,14 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
     locations: [loc.city, loc.district].filter(Boolean) as string[],
     summary,
     fullName: universalDemo.fullName,
-    gender: finalGender,
-    birthDate: finalBirthDate,
+    gender: universalDemo.gender,
+    birthDate: universalDemo.birthDate,
+    email: universalDemo.email,
+    phone: universalDemo.phone,
+    linkedin: universalDemo.linkedin,
+    website: universalDemo.website,
+    nationality: universalDemo.nationality,
+    address: universalDemo.address,
     ambiguousItems: [],
   };
 }

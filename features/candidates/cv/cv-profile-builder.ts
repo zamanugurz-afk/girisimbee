@@ -87,6 +87,12 @@ export function buildProfileDraftFromCanonicalResult(
     fullName: canonical.fullName || '',
     profileGender: canonical.gender || '',
     birthDate: canonical.birthDate || '',
+    email: canonical.email || '',
+    phone: canonical.phone || '',
+    linkedin: canonical.linkedin || '',
+    website: canonical.website || '',
+    nationality: canonical.nationality || '',
+    address: canonical.address || '',
 
     // 7. CV File Metadata
     cvFileName,
@@ -120,6 +126,12 @@ export function buildProfileDraftFromCanonicalResult(
   if (formValues.residenceDistrict) cvFilledFieldKeys.push('residenceDistrict');
   if (formValues.profileGender) cvFilledFieldKeys.push('profileGender');
   if (formValues.birthDate) cvFilledFieldKeys.push('birthDate');
+  if (formValues.email) cvFilledFieldKeys.push('email');
+  if (formValues.phone) cvFilledFieldKeys.push('phone');
+  if (formValues.linkedin) cvFilledFieldKeys.push('linkedin');
+  if (formValues.website) cvFilledFieldKeys.push('website');
+  if (formValues.nationality) cvFilledFieldKeys.push('nationality');
+  if (formValues.address) cvFilledFieldKeys.push('address');
   if (formValues.candidateTraits) cvFilledFieldKeys.push('candidateTraits');
 
   // Explicit unconfirmed preference keys

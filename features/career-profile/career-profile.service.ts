@@ -47,8 +47,15 @@ export const ALLOWED_CAREER_KEYS = [
   'availability',
   'requiredResponsibilities',
   'requiredAchievements',
+  'fullName',
   'profileGender',
   'birthDate',
+  'email',
+  'phone',
+  'linkedin',
+  'website',
+  'nationality',
+  'address',
   'residenceCity',
   'residenceDistrict',
   'experiences',
@@ -144,8 +151,15 @@ export function formValuesToCustomFields(
   if (values.tools) fields.tools = (values.tools || '').trim();
   if (values.educationField) fields.educationField = (values.educationField || '').trim();
   if (values.certificates) fields.certificates = (values.certificates || '').trim();
+  if (values.fullName) fields.fullName = (values.fullName || '').trim();
   if (values.profileGender) fields.profileGender = (values.profileGender || '').trim();
   if (values.birthDate) fields.birthDate = (values.birthDate || '').trim();
+  if (values.email) fields.email = (values.email || '').trim();
+  if (values.phone) fields.phone = (values.phone || '').trim();
+  if (values.linkedin) fields.linkedin = (values.linkedin || '').trim();
+  if (values.website) fields.website = (values.website || '').trim();
+  if (values.nationality) fields.nationality = (values.nationality || '').trim();
+  if (values.address) fields.address = (values.address || '').trim();
   if (values.residenceCity) fields.residenceCity = (values.residenceCity || '').trim();
   if (values.residenceDistrict) fields.residenceDistrict = (values.residenceDistrict || '').trim();
   if (values.preferredDistrict) fields.preferredDistrict = (values.preferredDistrict || '').trim();

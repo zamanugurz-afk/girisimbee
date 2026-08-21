@@ -89,7 +89,7 @@ Ekonomik Analiz
     expect(draft.formValues.fullName).toBe('Gizem Şaylan');
     expect(draft.formValues.city).toBe('İstanbul');
     expect(draft.formValues.residenceDistrict).toMatch(/Eyüp|Eyüpsultan/i);
-    expect(draft.formValues.profileGender).toBe('Kadın');
+    expect(draft.formValues.profileGender).toBeFalsy(); // Zero hallucination: no explicit gender keyword in CV
     expect(draft.formValues.birthDate).toBe('1997-02-26');
     expect(draft.formValues.role).toMatch(/Yatırım Danışmanı|Finans Uzmanı|Satış Danışmanı|Satış Temsilcisi|Satış Uzmanı/i);
     expect(draft.formValues.sector).toMatch(/Finans \/ Bankacılık|Satış \/ Pazarlama/i);

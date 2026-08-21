@@ -1215,12 +1215,33 @@ export function CategoryListingForm({
         }));
       }
 
-      // 5. Demographics & Residence (Step 1: Genel Bilgiler)
+      // 5. Demographics, Identity & Residence (Step 1: Genel Bilgiler)
+      if (fv.fullName) {
+        setCustomField('fullName', fv.fullName);
+      }
       if (fv.profileGender) {
         setCustomField('profileGender', fv.profileGender);
       }
       if (fv.birthDate) {
         setCustomField('birthDate', fv.birthDate);
+      }
+      if (fv.email) {
+        setCustomField('email', fv.email);
+      }
+      if (fv.phone) {
+        setCustomField('phone', fv.phone);
+      }
+      if (fv.linkedin) {
+        setCustomField('linkedin', fv.linkedin);
+      }
+      if (fv.website) {
+        setCustomField('website', fv.website);
+      }
+      if (fv.nationality) {
+        setCustomField('nationality', fv.nationality);
+      }
+      if (fv.address) {
+        setCustomField('address', fv.address);
       }
       const cityName = fv.residenceCity || fv.city || '';
       const districtName = fv.residenceDistrict || '';
@@ -1261,8 +1282,15 @@ export function CategoryListingForm({
         'tools',
         'candidateTraits',
         'longDescription',
+        ...(fv.fullName ? ['fullName'] : []),
         ...(fv.profileGender ? ['profileGender'] : []),
         ...(fv.birthDate ? ['birthDate'] : []),
+        ...(fv.email ? ['email'] : []),
+        ...(fv.phone ? ['phone'] : []),
+        ...(fv.linkedin ? ['linkedin'] : []),
+        ...(fv.website ? ['website'] : []),
+        ...(fv.nationality ? ['nationality'] : []),
+        ...(fv.address ? ['address'] : []),
         ...(cityName ? ['residenceCity', 'city', 'preferredCity'] : []),
         ...(districtName ? ['residenceDistrict', 'district', 'preferredDistrict'] : []),
       ];
