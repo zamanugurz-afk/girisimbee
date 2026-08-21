@@ -2951,49 +2951,51 @@ export function CategoryListingForm({
                     ) : null}
 
                     {/* Lokasyon (İl & İlçe) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {fieldByKey.get('residenceCity') ? (
-                        <DynamicField
-                          field={fieldByKey.get('residenceCity')!}
-                          value={mergedCustomFields.residenceCity}
-                          onChange={(val) => {
-                            handleCustomFieldChange('residenceCity', val);
-                            if (cvFilledKeys.has('residenceCity')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('residenceCity');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('residenceCity')}
-                          error={resolveFieldError(fieldErrors, 'residenceCity')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      ) : null}
+                    {(fieldByKey.get('residenceCity') || fieldByKey.get('residenceDistrict')) ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {fieldByKey.get('residenceCity') ? (
+                          <DynamicField
+                            field={fieldByKey.get('residenceCity')!}
+                            value={mergedCustomFields.residenceCity}
+                            onChange={(val) => {
+                              handleCustomFieldChange('residenceCity', val);
+                              if (cvFilledKeys.has('residenceCity')) {
+                                setCvFilledKeys((prev) => {
+                                  const next = new Set(prev);
+                                  next.delete('residenceCity');
+                                  return next;
+                                });
+                              }
+                            }}
+                            isCvFilled={cvFilledKeys.has('residenceCity')}
+                            error={resolveFieldError(fieldErrors, 'residenceCity')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        ) : null}
 
-                      {fieldByKey.get('residenceDistrict') ? (
-                        <DynamicField
-                          field={fieldByKey.get('residenceDistrict')!}
-                          value={mergedCustomFields.residenceDistrict}
-                          onChange={(val) => {
-                            handleCustomFieldChange('residenceDistrict', val);
-                            if (cvFilledKeys.has('residenceDistrict')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('residenceDistrict');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('residenceDistrict')}
-                          error={resolveFieldError(fieldErrors, 'residenceDistrict')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      ) : null}
-                    </div>
+                        {fieldByKey.get('residenceDistrict') ? (
+                          <DynamicField
+                            field={fieldByKey.get('residenceDistrict')!}
+                            value={mergedCustomFields.residenceDistrict}
+                            onChange={(val) => {
+                              handleCustomFieldChange('residenceDistrict', val);
+                              if (cvFilledKeys.has('residenceDistrict')) {
+                                setCvFilledKeys((prev) => {
+                                  const next = new Set(prev);
+                                  next.delete('residenceDistrict');
+                                  return next;
+                                });
+                              }
+                            }}
+                            isCvFilled={cvFilledKeys.has('residenceDistrict')}
+                            error={resolveFieldError(fieldErrors, 'residenceDistrict')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Right Column: Sektör, Seviye, Demografi */}
@@ -3045,49 +3047,51 @@ export function CategoryListingForm({
                     ) : null}
 
                     {/* Demografi (Cinsiyet & Doğum Tarihi) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {fieldByKey.get('profileGender') ? (
-                        <DynamicField
-                          field={fieldByKey.get('profileGender')!}
-                          value={mergedCustomFields.profileGender}
-                          onChange={(val) => {
-                            handleCustomFieldChange('profileGender', val);
-                            if (cvFilledKeys.has('profileGender')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('profileGender');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('profileGender')}
-                          error={resolveFieldError(fieldErrors, 'profileGender')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      ) : null}
+                    {(fieldByKey.get('profileGender') || fieldByKey.get('birthDate')) ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {fieldByKey.get('profileGender') ? (
+                          <DynamicField
+                            field={fieldByKey.get('profileGender')!}
+                            value={mergedCustomFields.profileGender}
+                            onChange={(val) => {
+                              handleCustomFieldChange('profileGender', val);
+                              if (cvFilledKeys.has('profileGender')) {
+                                setCvFilledKeys((prev) => {
+                                  const next = new Set(prev);
+                                  next.delete('profileGender');
+                                  return next;
+                                });
+                              }
+                            }}
+                            isCvFilled={cvFilledKeys.has('profileGender')}
+                            error={resolveFieldError(fieldErrors, 'profileGender')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        ) : null}
 
-                      {fieldByKey.get('birthDate') ? (
-                        <DynamicField
-                          field={fieldByKey.get('birthDate')!}
-                          value={mergedCustomFields.birthDate}
-                          onChange={(val) => {
-                            handleCustomFieldChange('birthDate', val);
-                            if (cvFilledKeys.has('birthDate')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('birthDate');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('birthDate')}
-                          error={resolveFieldError(fieldErrors, 'birthDate')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      ) : null}
-                    </div>
+                        {fieldByKey.get('birthDate') ? (
+                          <DynamicField
+                            field={fieldByKey.get('birthDate')!}
+                            value={mergedCustomFields.birthDate}
+                            onChange={(val) => {
+                              handleCustomFieldChange('birthDate', val);
+                              if (cvFilledKeys.has('birthDate')) {
+                                setCvFilledKeys((prev) => {
+                                  const next = new Set(prev);
+                                  next.delete('birthDate');
+                                  return next;
+                                });
+                              }
+                            }}
+                            isCvFilled={cvFilledKeys.has('birthDate')}
+                            error={resolveFieldError(fieldErrors, 'birthDate')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               ) : (
