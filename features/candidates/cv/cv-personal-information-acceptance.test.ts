@@ -423,4 +423,58 @@ describe('GİRİŞİMBEE — PERSONAL INFORMATION EXTRACTION & ZERO HALLUCINATIO
       });
     }
   });
+
+  // 18. Canan Demirdağ Real CV Test (Separate Adı / Soyadı and Reference Names Isolation)
+  it('18. verifies extraction of Canan Demirdağ CV (separate Adı / Soyadı and REFERANSLAR section containing references)', () => {
+    const cananCvText = `
+KİŞİSEL BİLGİLER
+Adı : Canan
+Soyadı : Demirdağ
+Adresi : Zuhuratbaba Mh.Turanlı.Sk.No:4 D:2 Bakırköy-İstanbul
+Cep Telefonu : 0535 620 23 46
+E-Posta : canandemirdag@gmail.com
+
+GENEL BİLGİLER
+Doğum Tarihi : 16.10.1979 Eğitim Durumu : Üniversite
+Doğum Yeri : İstanbul Sürücü Belgesi : B Sınıfı 2008
+Medeni Durumu : Bekar
+
+EĞİTİM BİLGİLERİ
+Üniversite
+Anadolu Üniversitesi (İşletme Fakültesi) (09.2002 – 06.2004)
+Meslek Yüksek Okulu
+Uludağ Üniversitesi SBMYO (Sigortacılık Bölümü) (09.1999 – 06.2001)
+
+İŞ TECRÜBELERİ
+Ünvanı : Zurich Yaşam Sigorta ve Emeklilik A.Ş. (02.2024 – 09.2025)
+Görevi : Hayat Sigortaları UW Müdür Yardımcısı
+İş Tanımı: Hayat branşına ait başvuru kontrollerinin yapılması.
+
+Ünvanı : Mapfre Yaşam Sigorta A.Ş. (06.2011 – 02.2024)
+Görevi : Hayat Sigortaları Kıdemli UW
+
+REFERANSLAR
+Adı Soyadı : Engin Canıdar
+Görevi : Zurich Yaşam ve Emeklilik A.Ş. Hayat Danışmanı
+Telefon Numarası : 0530 401 10 93
+
+Adı Soyadı : Taşkın Demir
+Görevi : HDI Sigorta-Claims Quality and Anti Fraud Director
+Telefon Numarası : 0549 790 38 45
+`;
+
+    const raw = extractDeterministicCv(cananCvText);
+    const canonical = mapCvToCanonicalTaxonomy(raw);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'canan.pdf');
+
+    expect(raw.fullName).toBe('Canan Demirdağ');
+    expect(raw.fullName).not.toBe('Engin Canıdar');
+    expect(draft.formValues.fullName).toBe('Canan Demirdağ');
+    expect(draft.formValues.email).toBe('canandemirdag@gmail.com');
+    expect(draft.formValues.phone).toBe('0535 620 23 46');
+    expect(draft.formValues.city).toBe('İstanbul');
+    expect(draft.formValues.residenceDistrict).toBe('Bakırköy');
+    expect(draft.formValues.birthDate).toBe('1979-10-16');
+    expect(draft.formValues.sector).toBe('Sigorta');
+  });
 });
