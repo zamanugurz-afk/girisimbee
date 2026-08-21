@@ -8,7 +8,7 @@ export const CREATE_LISTING_CAREER_CATEGORY_IDS = [
 ] as const;
 
 /**
- * Root /ilan/olustur shows hub cards only (Kariyer / Girişim ve Ortaklık).
+ * Root /ilan/olustur shows hub cards only (Kariyer / Ortaklık ve Devir).
  * Leaf types stay in CREATE_LISTING_TYPE_CONFIGS for deep-links and forms.
  */
 export const CREATE_LISTING_PICKER_ORDER: CategoryId[] = [];

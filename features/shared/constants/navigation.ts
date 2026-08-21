@@ -4,7 +4,7 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 /** Primary header navigation — homepage information architecture. */
 export const NAV_LINKS = [
   { label: 'Kariyer ve İş Fırsatları', href: '/is' },
-  { label: 'Girişim ve Ortaklık', href: '/girisim-ortaklik' },
+  { label: 'Ortaklık ve Devir', href: '/girisim-ortaklik' },
   { label: 'Fırsatlar', href: '/market' },
   { label: 'Çözümler', href: '/dijital-ai' },
 ] as const;
@@ -13,14 +13,14 @@ export type FooterLinkItem = { label: string; href: string };
 
 /**
  * Footer columns follow homepage IA:
- * Kariyer · Girişim ve Ortaklık · Fırsatlar · Çözümler · Hesap · İletişim
+ * Kariyer · Ortaklık ve Devir · Fırsatlar · Çözümler · Hesap · İletişim
  */
 const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   'Kariyer ve İş Fırsatları': [
     { label: 'İş Arıyorum', href: '/is?flow=hire' },
     { label: 'İşe Alıyorum', href: '/is?flow=seek' },
   ],
-  'Girişim ve Ortaklık': [
+  'Ortaklık ve Devir': [
     { label: 'Ortak Arıyorum', href: '/partners?intent=seeking' },
     { label: 'Ortak Olmak İstiyorum', href: '/partners?intent=joining' },
     { label: 'Franchise Fırsatları', href: '/franchise/buy' },

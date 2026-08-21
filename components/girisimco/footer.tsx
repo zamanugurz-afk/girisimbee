@@ -16,7 +16,7 @@ export function Footer() {
       title: 'KEŞFET',
       links: [
         { label: 'Kariyer & İş Fırsatları', href: '/is' },
-        { label: 'Girişim & Ortaklık', href: '/girisim-ortaklik' },
+        { label: 'Ortaklık ve Devir', href: '/girisim-ortaklik' },
         { label: 'Franchise & Bayilik', href: '/franchise/buy' },
         { label: 'Girişimbee Market', href: '/market' },
         { label: 'Dijital & AI Çözümler', href: '/dijital-ai' },

@@ -63,7 +63,7 @@ export function FranchiseBrowseView({
               border: `1px solid ${accent}25`,
             }}
           >
-            Girişim ve Ortaklık
+            Ortaklık ve Devir
           </span>
           <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">{title}</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{description}</p>

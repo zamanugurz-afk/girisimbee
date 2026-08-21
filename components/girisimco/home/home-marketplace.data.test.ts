@@ -39,7 +39,7 @@ describe('career hub on homepage catalog', () => {
     expect(VENTURE_PARTNERSHIP_HUB.href).toBe('/girisim-ortaklik');
     expect(VENTURE_PARTNERSHIP_HUB.title).toBe('Ortaklık ve Devir');
     expect(VENTURE_PARTNERSHIP_HUB.description).toBe(
-      'Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.',
+      'Ortaklık ve işletme devri fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.',
     );
     expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.label)).toEqual([
       'Ortak Arıyorum',

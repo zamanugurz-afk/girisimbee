@@ -86,7 +86,7 @@ export function PlatformHome() {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Ortaklık ve Devir</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Ortaklık ve işletme devri fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">

@@ -5,7 +5,7 @@ describe('homepage information architecture navigation', () => {
   it('exposes the four homepage pillars in the header', () => {
     expect(NAV_LINKS.map((link) => [link.label, link.href])).toEqual([
       ['Kariyer ve İş Fırsatları', '/is'],
-      ['Girişim ve Ortaklık', '/girisim-ortaklik'],
+      ['Ortaklık ve Devir', '/girisim-ortaklik'],
       ['Fırsatlar', '/market'],
       ['Çözümler', '/dijital-ai'],
     ]);
@@ -17,7 +17,7 @@ describe('homepage information architecture navigation', () => {
     const footer = getFooterLinks();
     expect(Object.keys(footer)).toEqual([
       'Kariyer ve İş Fırsatları',
-      'Girişim ve Ortaklık',
+      'Ortaklık ve Devir',
       'Fırsatlar',
       'Çözümler',
       'Hesap',
@@ -27,7 +27,7 @@ describe('homepage information architecture navigation', () => {
       ['İş Arıyorum', '/is?flow=hire'],
       ['İşe Alıyorum', '/is?flow=seek'],
     ]);
-    expect(footer['Girişim ve Ortaklık']?.map((link) => [link.label, link.href])).toEqual([
+    expect(footer['Ortaklık ve Devir']?.map((link) => [link.label, link.href])).toEqual([
       ['Ortak Arıyorum', '/partners?intent=seeking'],
       ['Ortak Olmak İstiyorum', '/partners?intent=joining'],
       ['Franchise Fırsatları', '/franchise/buy'],
