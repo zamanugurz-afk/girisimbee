@@ -2043,12 +2043,12 @@ export function CategoryListingForm({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
         {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop - exact franchise ratio) */}
         <div className="hidden lg:block lg:col-span-3 h-full">
-          <div className={cn('rounded-2xl border bg-white p-5 sm:p-6 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200 min-h-[580px]', theme.cardBorder, theme.cardGlow)}>
+          <div className={cn('rounded-2xl border bg-white p-6 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200 min-h-[580px]', theme.cardBorder, theme.cardGlow)}>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
                 İlan Adımları
               </p>
-              <nav className="space-y-2.5">
+              <nav className="space-y-3">
                 {steps.map((step, idx) => {
                   const isCurrent = idx === stepIndex;
                   const isPast = idx < stepIndex;
@@ -2059,7 +2059,7 @@ export function CategoryListingForm({
                       onClick={() => goToStep(idx, 'sidebar-click')}
                       disabled={disabled || isBusy || (idx > stepIndex + 1 && !isPast)}
                       className={cn(
-                        'flex w-full items-start gap-3 rounded-xl p-2.5 sm:p-3 text-left transition-all relative',
+                        'flex w-full items-start gap-3.5 rounded-xl p-3.5 text-left transition-all relative',
                         isCurrent
                           ? `border-l-4 ${theme.stepperActiveBorder} ${theme.stepperActiveBg} ${theme.stepperActiveText}`
                           : isPast
@@ -2069,7 +2069,7 @@ export function CategoryListingForm({
                     >
                       <span
                         className={cn(
-                          'font-display text-xl sm:text-2xl font-bold tracking-tight shrink-0',
+                          'font-display text-2xl font-bold tracking-tight shrink-0',
                           isCurrent
                             ? theme.categoryLabelText
                             : isPast
@@ -2080,11 +2080,11 @@ export function CategoryListingForm({
                         0{idx + 1}
                       </span>
                       <div className="min-w-0 flex-1 pt-0.5">
-                        <p className={cn('text-xs sm:text-[13px] font-bold leading-snug', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
+                        <p className={cn('text-sm font-bold truncate', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
                           {step.title}
                         </p>
                         {step.description && (
-                          <p className="text-[11px] sm:text-xs text-slate-500 line-clamp-2 mt-0.5">
+                          <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
                             {step.description}
                           </p>
                         )}
