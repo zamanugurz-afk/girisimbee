@@ -2041,9 +2041,9 @@ export function CategoryListingForm({
   return (
     <>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
-        {/* LEFT COLUMN: Stepper Navigation (3 cols on desktop) */}
-        <div className="hidden lg:block lg:col-span-3 h-full">
-          <div className={cn('rounded-2xl border bg-white p-6 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200', theme.cardBorder, theme.cardGlow)}>
+        {/* LEFT COLUMN: Stepper Navigation (4 cols on desktop - widened for complete text) */}
+        <div className="hidden lg:block lg:col-span-4 h-full">
+          <div className={cn('rounded-2xl border bg-white p-6 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200 min-h-[580px]', theme.cardBorder, theme.cardGlow)}>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
                 İlan Adımları
@@ -2080,7 +2080,7 @@ export function CategoryListingForm({
                         0{idx + 1}
                       </span>
                       <div className="min-w-0 flex-1 pt-0.5">
-                        <p className={cn('text-sm font-bold truncate', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
+                        <p className={cn('text-sm font-bold leading-snug', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
                           {step.title}
                         </p>
                         {step.description && (
@@ -2109,9 +2109,9 @@ export function CategoryListingForm({
           </div>
         </div>
 
-        {/* MAIN COLUMN: Active Step Form (9 cols on desktop across all categories) */}
-        <div className="col-span-1 lg:col-span-9 h-full">
-          <div className={cn('rounded-2xl border bg-white p-6 sm:p-7 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200', theme.cardBorder, theme.cardGlow)}>
+        {/* MAIN COLUMN: Active Step Form (8 cols on desktop across all categories) */}
+        <div className="col-span-1 lg:col-span-8 h-full">
+          <div className={cn('rounded-2xl border bg-white p-6 sm:p-7 dark:bg-zinc-900 h-full flex flex-col justify-between transition-all duration-200 min-h-[580px]', theme.cardBorder, theme.cardGlow)}>
             <div>
               <div className="border-b border-border/60 pb-4 mb-4 lg:hidden">
                 <FormStepIndicator steps={steps} currentIndex={stepIndex} />
@@ -3091,14 +3091,7 @@ export function CategoryListingForm({
                   </div>
                 </div>
               ) : (
-                <div
-                  className={cn(
-                    'grid gap-4',
-                    (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul)
-                      ? 'grid-cols-1 sm:grid-cols-2'
-                      : 'grid-cols-1',
-                  )}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                   {(isSeekingIdentityStep
                     ? restCustomKeys.filter((key) => key !== 'productName')
                     : restCustomKeys
@@ -3112,7 +3105,13 @@ export function CategoryListingForm({
                       key === 'financialSummary' ||
                       key === 'relevantExperience' ||
                       key === 'capabilities' ||
-                      key === 'requiredResponsibilities';
+                      key === 'requiredResponsibilities' ||
+                      key === 'trainingSupport' ||
+                      key === 'operationalSupport' ||
+                      key === 'marketingSupport' ||
+                      key === 'introductionVideoUrl' ||
+                      key === 'presentationPdfUrl' ||
+                      key === 'sampleContractUrl';
 
                     return (
                       <div key={key} className={cn('space-y-2', isFullWidth && 'sm:col-span-2')}>

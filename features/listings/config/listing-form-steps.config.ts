@@ -592,42 +592,46 @@ export function getListingFormSteps(
     const intent = options?.partnershipIntent ?? 'seeking';
     const keys = getPartnerFormFieldKeys(intent);
     if (intent === 'joining') {
-      const joiningOfferKeys = keys.filter((key) => key !== 'equityOffered');
+      const basicCustomKeys = ['sectors', 'partnershipType', 'projectStage', 'commitment', 'equityOffered'].filter((k) => keys.includes(k));
+      const partnerCustomKeys = ['expertise', 'offeredSkills', 'experience'].filter((k) => keys.includes(k));
       return withConsolidatedPublishFlow(
         {
           id: 'basics',
           title: 'Profiliniz',
           description: 'Kartlarda görünecek başlık ve kısa tanıtım',
           coreFields: ['title', 'shortDescription'],
+          customFieldKeys: basicCustomKeys.length > 0 ? basicCustomKeys : keys,
         },
         {
           id: 'partnership',
           title: 'Sunduğum değer',
           description: 'Uzmanlık, yetkinlik ve ilgilendiğiniz girişimler',
-          customFieldKeys: joiningOfferKeys,
+          customFieldKeys: partnerCustomKeys.length > 0 ? partnerCustomKeys : keys,
         },
         {
           id: 'details',
           title: 'Kendinizi tanıtın',
-          description: 'Kısa profil, lokasyon ve isteğe bağlı hisse beklentisi',
+          description: 'Kısa profil, lokasyon ve detaylı açıklama',
           coreFields: ['longDescription', 'city'],
-          customFieldKeys: keys.includes('equityOffered') ? ['equityOffered'] : [],
           meta: ['images'],
         },
       );
     }
+    const basicCustomKeys = ['sector', 'projectStage', 'partnershipType', 'commitment', 'equityOffered'].filter((k) => keys.includes(k));
+    const partnerCustomKeys = ['expertise'].filter((k) => keys.includes(k));
     return withConsolidatedPublishFlow(
       {
         id: 'basics',
         title: 'Temel Bilgiler',
         description: 'Girişim başlığı, kısa özet ve sektör',
         coreFields: ['title', 'shortDescription'],
+        customFieldKeys: basicCustomKeys.length > 0 ? basicCustomKeys : keys,
       },
       {
         id: 'partnership',
         title: 'Girişim & Ortaklık',
         description: 'Aranan ortak tipi, uzmanlık ve taahhüt beklentileri',
-        customFieldKeys: keys,
+        customFieldKeys: partnerCustomKeys.length > 0 ? partnerCustomKeys : keys,
       },
       {
         id: 'details',

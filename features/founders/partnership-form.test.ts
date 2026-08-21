@@ -66,13 +66,15 @@ describe('partner form variants', () => {
       'longDescription',
       'city',
     ]);
-    expect(seeking.find((step) => step.id === 'partnership')?.customFieldKeys).toEqual([
+    expect(seeking.find((step) => step.id === 'basics')?.customFieldKeys).toEqual([
       'sector',
       'projectStage',
       'partnershipType',
-      'expertise',
       'commitment',
       'equityOffered',
+    ]);
+    expect(seeking.find((step) => step.id === 'partnership')?.customFieldKeys).toEqual([
+      'expertise',
     ]);
     expect(JSON.stringify(joining)).not.toMatch(/Aranan ortak|Aranan uzmanlık/);
   });

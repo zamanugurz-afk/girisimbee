@@ -412,7 +412,7 @@ function CreateListingContent() {
     <main
       className={cn(
         'relative mx-auto bg-[#FAFBFC] px-4 pb-20 pt-[calc(var(--gc-header-height,3.75rem)+2rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2.75rem)] dark:bg-background lg:px-8',
-        categoryId ? 'max-w-[1440px]' : 'max-w-[1280px]',
+        'max-w-[1240px]',
       )}
     >
       {!categoryId ? (
