@@ -68,6 +68,7 @@ export const COMMON_TURKISH_DISTRICTS: Record<string, { city: string; district: 
   kecioren: { city: 'Ankara', district: 'Keçiören' },
   mamak: { city: 'Ankara', district: 'Mamak' },
   etimesgut: { city: 'Ankara', district: 'Etimesgut' },
+  golbasi: { city: 'Ankara', district: 'Gölbaşı' },
   bornova: { city: 'İzmir', district: 'Bornova' },
   karsiyaka: { city: 'İzmir', district: 'Karşıyaka' },
   konak: { city: 'İzmir', district: 'Konak' },
@@ -454,8 +455,16 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   'kolej': 'Eğitim',
   edtech: 'Eğitim',
 
-  gayrimenkul: 'Gayrimenkul',
-  'real estate': 'Gayrimenkul',
+  gayrimenkul: 'İnşaat / Gayrimenkul',
+  'real estate': 'İnşaat / Gayrimenkul',
+  insaat: 'İnşaat / Gayrimenkul',
+  construction: 'İnşaat / Gayrimenkul',
+  statik: 'İnşaat / Gayrimenkul',
+  geoteknik: 'İnşaat / Gayrimenkul',
+  santiye: 'İnşaat / Gayrimenkul',
+  mimarlik: 'İnşaat / Gayrimenkul',
+  architecture: 'İnşaat / Gayrimenkul',
+  peyzaj: 'İnşaat / Gayrimenkul',
 
   danismanlik: 'Danışmanlık',
   consulting: 'Danışmanlık',
@@ -466,6 +475,28 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
 
   enerji: 'Enerji',
   energy: 'Enerji',
+  havacilik: 'Havacılık',
+  aviation: 'Havacılık',
+  denizcilik: 'Denizcilik / Liman',
+  maritime: 'Denizcilik / Liman',
+  madencilik: 'Madencilik',
+  mining: 'Madencilik',
+  gida: 'Gıda / Restoran',
+  food: 'Gıda / Restoran',
+  restoran: 'Gıda / Restoran',
+  gastronomi: 'Gıda / Restoran',
+  psikoloji: 'Sağlık',
+  psikiyatri: 'Sağlık',
+  fizyoterapi: 'Sağlık',
+  veteriner: 'Veteriner / Pet',
+  pet: 'Veteriner / Pet',
+  'kurumsal iletisim': 'Pazarlama / Reklam',
+  'halkla iliskiler': 'Halkla ilişkiler',
+  tesisat: 'İklimlendirme / Tesisat',
+  iklimlendirme: 'İklimlendirme / Tesisat',
+  'idari isler': 'İdari işler / Ofis',
+  gumruk: 'Gümrük',
+  customs: 'Gümrük',
 };
 
 // Direct Skill Alias Mapping (English + Turkish to Canonical Skill)
@@ -716,9 +747,10 @@ export function isRoleTitle(line: string): boolean {
   if (!line) return false;
   const clean = line.trim();
   if (clean.length > 70) return false;
+  if (/^[*•·\->]\s*/.test(clean) || /^[0-9]+[.)]\s*/.test(clean)) return false;
   const norm = normalizeTrForMatch(clean);
   // Block company / institution suffixes (as standalone words or phrases)
-  if (isCorporateEntity(clean) || /\ba\s*s\b/i.test(norm)) {
+  if (isCorporateEntity(clean) || /\ba\s*s\b/i.test(norm) || /\b(?:muhendisligi|muhendislik|mimarligi|mimarlik|danismanligi|danismanlik|avukatligi|avukatlik|musavirligi|musavirlik|ortakligi|ortaklik)\b/i.test(norm)) {
     return false;
   }
 
@@ -821,6 +853,14 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('executive') ||
     norm.includes('officer') ||
     norm.includes('assistant') ||
+    norm.includes('recruiter') ||
+    norm.includes('zabit') ||
+    norm.includes('kaptan') ||
+    norm.includes('teknisyen') ||
+    norm.includes('psikolog') ||
+    norm.includes('fizyoterapist') ||
+    norm.includes('auditor') ||
+    norm.includes('buyer') ||
     norm.includes('intern') ||
     norm.includes('agent') ||
     norm.includes('clerk') ||
@@ -834,6 +874,94 @@ export function isRoleTitle(line: string): boolean {
 // ============================================================================
 // 1. LOCATION DETERMINISTIC PARSER
 // ============================================================================
+
+const TURKISH_CITY_ALIASES: Record<string, string> = {
+  istanbul: 'İstanbul',
+  ankara: 'Ankara',
+  izmir: 'İzmir',
+  bursa: 'Bursa',
+  antalya: 'Antalya',
+  adana: 'Adana',
+  konya: 'Konya',
+  gaziantep: 'Gaziantep',
+  kayseri: 'Kayseri',
+  mersin: 'Mersin',
+  eskisehir: 'Eskişehir',
+  diyarbakir: 'Diyarbakır',
+  samsun: 'Samsun',
+  denizli: 'Denizli',
+  sanliurfa: 'Şanlıurfa',
+  urfa: 'Şanlıurfa',
+  adapazari: 'Sakarya',
+  sakarya: 'Sakarya',
+  kocaeli: 'Kocaeli',
+  izmit: 'Kocaeli',
+  trabzon: 'Trabzon',
+  malatya: 'Malatya',
+  erzurum: 'Erzurum',
+  van: 'Van',
+  batman: 'Batman',
+  elazig: 'Elazığ',
+  tekirdag: 'Tekirdağ',
+  kahramanmaras: 'Kahramanmaraş',
+  maras: 'Kahramanmaraş',
+  mugla: 'Muğla',
+  nevsehir: 'Nevşehir',
+  manisa: 'Manisa',
+  aydin: 'Aydın',
+  balikesir: 'Balıkesir',
+  canakkale: 'Çanakkale',
+  edirne: 'Edirne',
+  kirklareli: 'Kırklareli',
+  afyon: 'Afyonkarahisar',
+  afyonkarahisar: 'Afyonkarahisar',
+  kutahya: 'Kütahya',
+  usak: 'Uşak',
+  isparta: 'Isparta',
+  burdur: 'Burdur',
+  aksaray: 'Aksaray',
+  nigde: 'Niğde',
+  kirsehir: 'Kırşehir',
+  yozgat: 'Yozgat',
+  sivas: 'Sivas',
+  tokat: 'Tokat',
+  amasya: 'Amasya',
+  corum: 'Çorum',
+  sinop: 'Sinop',
+  kastamonu: 'Kastamonu',
+  zonguldak: 'Zonguldak',
+  karabuk: 'Karabük',
+  bartin: 'Bartın',
+  duzce: 'Düzce',
+  bolu: 'Bolu',
+  yalova: 'Yalova',
+  bilecik: 'Bilecik',
+  ordu: 'Ordu',
+  giresun: 'Giresun',
+  rize: 'Rize',
+  artvin: 'Artvin',
+  gumushane: 'Gümüşhane',
+  bayburt: 'Bayburt',
+  kars: 'Kars',
+  ardahan: 'Ardahan',
+  igdir: 'Iğdır',
+  agri: 'Ağrı',
+  mus: 'Muş',
+  bingol: 'Bingöl',
+  bitlis: 'Bitlis',
+  siirt: 'Siirt',
+  sirnak: 'Şırnak',
+  hakkari: 'Hakkari',
+  mardin: 'Mardin',
+  adiyaman: 'Adıyaman',
+  kilis: 'Kilis',
+  osmaniye: 'Osmaniye',
+  hatay: 'Hatay',
+  antakya: 'Hatay',
+  iskenderun: 'Hatay',
+  karaman: 'Karaman',
+  cankiri: 'Çankırı',
+};
 
 export function extractDeterministicLocations(text: string): {
   city: string;
@@ -851,11 +979,21 @@ export function extractDeterministicLocations(text: string): {
     'ece', 'efe', 'alp', 'can', 'baran', 'kaan', 'serkan', 'burak', 'emre',
   ]);
 
-  // Check top 20 lines (header / contact section) first for district
+  // Check top 20 lines (header / contact section) first for district or exact city
   for (let i = 0; i < Math.min(lines.length, 20); i++) {
     const rawLine = lines[i];
     const lineNorm = ` ${normalizeTrForMatch(rawLine)} `;
+    const cleanNorm = normalizeTrForMatch(rawLine);
     const hasLocationCue = /[\/,\-\|]|\b(sehir|il|ilce|adres|lokasyon|ikamet|cad|sok|mah)\b/i.test(rawLine);
+
+    // If a line in the top 10 is solely a city name (e.g. "Bilecik", "Balıkesir", "İstanbul", "Ankara")
+    if (i > 0 && TURKISH_CITY_ALIASES[cleanNorm]) {
+      const cName = TURKISH_CITY_ALIASES[cleanNorm];
+      return {
+        city: cName,
+        detectedCities: [cName],
+      };
+    }
 
     // If line has structured delimiter (e.g. "Adana / Seyhan", "Mersin / Tarsus", "Balıkesir / Bandırma")
     if (rawLine.includes('/') || rawLine.includes(',') || rawLine.includes('-') || rawLine.includes('|')) {
@@ -911,94 +1049,7 @@ export function extractDeterministicLocations(text: string): {
     }
   }
 
-  // Check 81 Turkish Cities + English City Names
-  const cityAliases: Record<string, string> = {
-    istanbul: 'İstanbul',
-    ankara: 'Ankara',
-    izmir: 'İzmir',
-    bursa: 'Bursa',
-    antalya: 'Antalya',
-    adana: 'Adana',
-    konya: 'Konya',
-    gaziantep: 'Gaziantep',
-    kayseri: 'Kayseri',
-    mersin: 'Mersin',
-    eskisehir: 'Eskişehir',
-    diyarbakir: 'Diyarbakır',
-    samsun: 'Samsun',
-    denizli: 'Denizli',
-    sanliurfa: 'Şanlıurfa',
-    urfa: 'Şanlıurfa',
-    adapazari: 'Sakarya',
-    sakarya: 'Sakarya',
-    kocaeli: 'Kocaeli',
-    izmit: 'Kocaeli',
-    trabzon: 'Trabzon',
-    malatya: 'Malatya',
-    erzurum: 'Erzurum',
-    van: 'Van',
-    batman: 'Batman',
-    elazig: 'Elazığ',
-    tekirdag: 'Tekirdağ',
-    kahramanmaras: 'Kahramanmaraş',
-    maras: 'Kahramanmaraş',
-    mugla: 'Muğla',
-    nevsehir: 'Nevşehir',
-    manisa: 'Manisa',
-    aydin: 'Aydın',
-    balikesir: 'Balıkesir',
-    canakkale: 'Çanakkale',
-    edirne: 'Edirne',
-    kirklareli: 'Kırklareli',
-    afyon: 'Afyonkarahisar',
-    afyonkarahisar: 'Afyonkarahisar',
-    kutahya: 'Kütahya',
-    usak: 'Uşak',
-    isparta: 'Isparta',
-    burdur: 'Burdur',
-    aksaray: 'Aksaray',
-    nigde: 'Niğde',
-    kirsehir: 'Kırşehir',
-    yozgat: 'Yozgat',
-    sivas: 'Sivas',
-    tokat: 'Tokat',
-    amasya: 'Amasya',
-    corum: 'Çorum',
-    sinop: 'Sinop',
-    kastamonu: 'Kastamonu',
-    zonguldak: 'Zonguldak',
-    karabuk: 'Karabük',
-    bartin: 'Bartın',
-    duzce: 'Düzce',
-    bolu: 'Bolu',
-    yalova: 'Yalova',
-    bilecik: 'Bilecik',
-    ordu: 'Ordu',
-    giresun: 'Giresun',
-    rize: 'Rize',
-    artvin: 'Artvin',
-    gumushane: 'Gümüşhane',
-    bayburt: 'Bayburt',
-    kars: 'Kars',
-    ardahan: 'Ardahan',
-    igdir: 'Iğdır',
-    agri: 'Ağrı',
-    mus: 'Muş',
-    bingol: 'Bingöl',
-    bitlis: 'Bitlis',
-    siirt: 'Siirt',
-    sirnak: 'Şırnak',
-    hakkari: 'Hakkari',
-    mardin: 'Mardin',
-    adiyaman: 'Adıyaman',
-    kilis: 'Kilis',
-    osmaniye: 'Osmaniye',
-    hatay: 'Hatay',
-    antakya: 'Hatay',
-    iskenderun: 'Hatay',
-    karaman: 'Karaman',
-    cankiri: 'Çankırı',
-  };
+  const cityAliases = TURKISH_CITY_ALIASES;
 
   for (const [cKey, cName] of Object.entries(cityAliases)) {
     const regex = new RegExp(`(?:^|\\s)${cKey}(?:\\s|$)`, 'i');
@@ -1296,12 +1347,12 @@ export function extractDeterministicEducation(text: string): RawExtractedEducati
       field = suggestTitleCaseTr(line);
     }
 
-    if (!field && school && (line.includes(',') || line.includes('-') || line.includes('|') || line.includes('/'))) {
-      const parts = line.split(/[,–—|/]/).map((p) => p.trim());
+    if (!field && school && (line.includes(',') || line.includes('-') || line.includes('–') || line.includes('—') || line.includes('|') || line.includes('/'))) {
+      const parts = line.split(/[,–—|\-\/]/).map((p) => p.trim());
       if (parts.length >= 2) {
-        const nonSchoolPart = parts.find((p) => !normalizeTrForMatch(p).includes(normalizeTrForMatch(school || '')));
+        const nonSchoolPart = parts.find((p) => !normalizeTrForMatch(p).includes(normalizeTrForMatch(school || '')) && !parseDateRangeText(p) && !/lisans|doktora|lise/i.test(p));
         if (nonSchoolPart && nonSchoolPart.length >= 3 && !parseDateRangeText(nonSchoolPart)) {
-          field = nonSchoolPart;
+          field = nonSchoolPart.replace(/\([^)]*\)/g, '').trim();
         }
       }
     }
@@ -1434,6 +1485,11 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       }
       expLines.push(line);
     }
+  }
+
+  const hasExplicitNonExpHeaders = lines.some((l) => isEduSectionHeader(l) || isOtherSectionHeader(l));
+  if (expLines.length === 0 && hasExplicitNonExpHeaders) {
+    return [];
   }
 
   const targetLines = expLines.length > 0 ? expLines : lines;
@@ -1818,14 +1874,54 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
   }
 
-  // 5. Section-based Skills Parsing
+  // 5. Section-based Skills Parsing (Block & Inline headers)
   let inSkillsSection = false;
   for (const line of textLines) {
     const norm = normalizeTrForMatch(line);
-    if (norm === 'yetenekler' || norm === 'beceriler' || norm === 'yetkinlikler' || norm === 'skills' || norm === 'technical skills' || norm === 'mesleki yetkinlikler') {
+    const isHeaderLine =
+      norm.startsWith('yetenek') ||
+      norm.startsWith('beceri') ||
+      norm.startsWith('yetkinlik') ||
+      norm.startsWith('skills') ||
+      norm.startsWith('technical skills') ||
+      norm.startsWith('uzmanlik alan');
+
+    if (isHeaderLine) {
       inSkillsSection = true;
+      const colonIdx = line.indexOf(':');
+      if (colonIdx !== -1) {
+        const inlineContent = line.slice(colonIdx + 1);
+        const items = inlineContent.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
+        for (const item of items) {
+          if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
+            const titleCased = suggestTitleCaseTr(item);
+            const lower = normalizeTrForMatch(item);
+            if (KNOWN_TOOLS_DICTIONARY[lower]) {
+              tools.push(KNOWN_TOOLS_DICTIONARY[lower]);
+            } else if (
+              lower.includes('bilgisayar') ||
+              lower.includes('office') ||
+              lower.includes('yazilim') ||
+              lower.includes('kod') ||
+              lower.includes('program') ||
+              lower.includes('excel') ||
+              lower.includes('word') ||
+              lower.includes('sap') ||
+              lower.includes('sql') ||
+              lower.includes('hplc') ||
+              lower.includes('etabs') ||
+              lower.includes('autocad')
+            ) {
+              technicalSkills.push(titleCased);
+            } else {
+              professionalSkills.push(titleCased);
+            }
+          }
+        }
+      }
       continue;
     }
+
     if (inSkillsSection) {
       if (
         norm.startsWith('hobi') ||
@@ -1833,15 +1929,17 @@ export function extractDeterministicSkillsAndTools(text: string): {
         norm.startsWith('diller') ||
         norm.startsWith('egitim') ||
         norm.startsWith('is deneyim') ||
+        norm.startsWith('deneyim') ||
         norm.startsWith('referans') ||
         norm.startsWith('sertifika') ||
         norm.startsWith('ozel')
       ) {
-        break;
+        inSkillsSection = false;
+        continue;
       }
       const items = line.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
       for (const item of items) {
-        if (item.length >= 3 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
+        if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
           const titleCased = suggestTitleCaseTr(item);
           const lower = normalizeTrForMatch(item);
           if (KNOWN_TOOLS_DICTIONARY[lower]) {
@@ -1853,7 +1951,9 @@ export function extractDeterministicSkillsAndTools(text: string): {
             lower.includes('kod') ||
             lower.includes('program') ||
             lower.includes('excel') ||
-            lower.includes('word')
+            lower.includes('word') ||
+            lower.includes('sap') ||
+            lower.includes('sql')
           ) {
             technicalSkills.push(titleCased);
           } else {
@@ -1931,6 +2031,16 @@ export function extractDeterministicLanguagesAndCerts(text: string): {
 
   const universalCerts = scanUniversalCertificates(text);
   certificates.push(...universalCerts);
+
+  const certSectionMatch = text.match(/(?:sertifikalar|sertifika|certificates|belgeler)[:\s]+([^\n]+)/i);
+  if (certSectionMatch && certSectionMatch[1]) {
+    const rawItems = certSectionMatch[1].split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
+    for (const item of rawItems) {
+      if (item.length >= 3 && item.length <= 80 && !/diller|egitim|yetkinlik/i.test(item)) {
+        certificates.push(suggestTitleCaseTr(item));
+      }
+    }
+  }
 
   return {
     languages: languages.length > 0 ? [...new Set(languages)] : ['Türkçe'],

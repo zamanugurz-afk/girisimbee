@@ -195,9 +195,47 @@ const ROLE_ALIASES: Record<string, string> = {
   'yapay zeka uzmanı': 'Yapay zeka / ML mühendisi',
   'araştırma görevlisi': 'Eğitmen / öğretmen',
   'ağır vasıta şoförü': 'Şoför (Kamyon / TIR)',
-  'tır şoförü': 'Şoför (Kamyon / TIR)',
-  'tır şoförü / ağır vasıta sürücüsü': 'Şoför (Kamyon / TIR)',
   'ağır vasıta sürücüsü': 'Şoför (Kamyon / TIR)',
+  'continuous improvement lead': 'Üretim Mühendisi',
+  'uzak yol vardiya zabiti': 'Gemi Kaptanı',
+  'ikinci kaptan': 'Gemi Kaptanı',
+  'b1 lisanslı teknisyen': 'Uçak Bakım Teknisyeni',
+  'uçak bakım teknisyeni': 'Uçak Bakım Teknisyeni',
+  'ges proje mühendisi': 'Proje Mühendisi',
+  'kategori satın alma müdürü': 'Satın Alma Müdürü',
+  'fmcg buyer': 'Satın Alma Müdürü',
+  'gümrük müşaviri': 'Gümrük Müşaviri',
+  'fizyoterapist': 'Fizyoterapist',
+  'klinik psikolog': 'Psikolog',
+  'veteriner hekim': 'Veteriner Hekim',
+  'diş hekimi': 'Diş Hekimi',
+  'halkla ilişkiler uzmanı': 'Halkla İlişkiler Uzmanı',
+  'kurumsal iletişim müdürü': 'Kurumsal İletişim Müdürü',
+  'e-ticaret kategori müdürü': 'Kategori Müdürü',
+  'pazaryeri entegrasyon uzmanı': 'E-Ticaret Uzmanı',
+  'idari işler müdürü': 'İdari İşler Müdürü',
+  'çevre mühendisi': 'Çevre Mühendisi',
+  'gıda kalite güvence uzmanı': 'Kalite Kontrol Uzmanı',
+  'ziraat mühendisi': 'Ziraat Mühendisi',
+  'ziraat ve sulama mühendisi': 'Ziraat Mühendisi',
+  'maden mühendisi': 'Maden Mühendisi',
+  'maden jeolojisi uzmanı': 'Maden Mühendisi',
+  'elektrik dağıtım saha şefi': 'Elektrik Mühendisi',
+  'mekanik tesisat proje yöneticisi': 'Proje Yöneticisi',
+  'regulatory affairs manager': 'İlaç Ruhsatlandırma Müdürü',
+  'statik proje tasarım mühendisi': 'İnşaat Mühendisi',
+  'statik tasarım mühendisi': 'İnşaat Mühendisi',
+  'peyzaj mimarı': 'Mimar',
+  'body in white tasarım mühendisi': 'Otomotiv Mühendisi',
+  'res saha mühendisi': 'Enerji Mühendisi',
+  'bilgi güvenliği uyum müdürü': 'Bilgi Güvenliği Yöneticisi',
+  'ulusal zincir müşteri yöneticisi': 'Key Account Manager',
+  'müşteri başarı yöneticisi': 'Müşteri Başarı Yöneticisi',
+  'customer success manager': 'Müşteri Başarı Yöneticisi',
+  'visual merchandising manager': 'Görsel Düzenleme Yöneticisi',
+  'visual merchandising lead': 'Görsel Düzenleme Yöneticisi',
+  'görsel düzenleme yöneticisi': 'Görsel Düzenleme Yöneticisi',
+  'görsel düzenleme müdürü': 'Görsel Düzenleme Yöneticisi',
   'şoför': 'Makam Şoförü / Şoför',
   'mağaza müdürü': 'Mağaza Müdürü',
   'ön büro müdürü': 'Ön Büro Müdürü',
@@ -206,7 +244,7 @@ const ROLE_ALIASES: Record<string, string> = {
   'database administrator': 'Sistem yöneticisi',
   'dba': 'Sistem yöneticisi',
   'video editörü': 'Grafik tasarımcı',
-  'video editor': 'Grafik tasarımcı',
+  'asistans hizmetleri': 'Operasyon Uzmanı',
   'tıbbi satış mümessili': 'Saha satış uzmanı',
   'siber güvenlik uzmanı': 'Mühendis (yazılım)',
   'veri mühendisi': 'Data engineer',
@@ -416,6 +454,23 @@ const SECTOR_ALIASES: Record<string, string> = {
   'tourism': 'Turizm / Otelcilik',
   'turizm': 'Turizm / Otelcilik',
   'otelcilik': 'Turizm / Otelcilik',
+  'restoran': 'Gıda / Restoran',
+  'havacılık': 'Havacılık',
+  'aviation': 'Havacılık',
+  'denizcilik': 'Denizcilik / Liman',
+  'maritime': 'Denizcilik / Liman',
+  'gümrük': 'Gümrük',
+  'customs': 'Gümrük',
+  'madencilik': 'Madencilik',
+  'mining': 'Madencilik',
+  'veteriner': 'Veteriner / Pet',
+  'tesisat': 'İklimlendirme / Tesisat',
+  'iklimlendirme': 'İklimlendirme / Tesisat',
+  'idari işler': 'İdari işler / Ofis',
+  'halkla ilişkiler': 'Halkla ilişkiler',
+  'eczane': 'Eczane / İlaç',
+  'ilaç': 'Eczane / İlaç',
+  'pharma': 'Eczane / İlaç',
 };
 
 function normalizeTrMatch(s: string): string {
@@ -470,11 +525,11 @@ export function matchCanonicalPosition(rawRole: string): {
     }
   }
 
-  // 3. Sorted Substring Alias Match (longest first)
+  // 3. Sorted Substring Alias Match (longest first, requiring at least 2 words or exact match)
   const sortedAliases = Object.entries(ROLE_ALIASES).sort((a, b) => b[0].length - a[0].length);
   for (const [aliasKey, canonicalVal] of sortedAliases) {
     const aliasNorm = normalizeTrMatch(aliasKey);
-    if (aliasNorm.length >= 5 && norm.includes(aliasNorm)) {
+    if (aliasNorm.length >= 6 && aliasNorm.includes(' ') && norm.includes(aliasNorm)) {
       return {
         canonical: canonicalVal,
         isAmbiguous: false,
@@ -492,6 +547,12 @@ export function matchCanonicalPosition(rawRole: string): {
     const isHealthcareRole = pNorm.includes('hastane') || pNorm.includes('hemsire') || pNorm.includes('doktor') || pNorm.includes('saglik') || pNorm.includes('klinik');
     const isHealthcareQuery = norm.includes('hastane') || norm.includes('hemsire') || norm.includes('doktor') || norm.includes('saglik') || norm.includes('klinik');
     if (isHealthcareRole && !isHealthcareQuery) {
+      return 0;
+    }
+
+    // Do not collapse specific multi-word titles into single generic words (e.g. 'müdür', 'uzman', 'şef')
+    const isSingleGenericWord = /^(mudur|uzman|sef|yonetici|danisman|gorevli|yetkili|sorumlu)$/.test(pNorm);
+    if (isSingleGenericWord && norm.split(' ').length >= 2) {
       return 0;
     }
 
@@ -514,7 +575,7 @@ export function matchCanonicalPosition(rawRole: string): {
 
   const matches = allPositions
     .map((p) => ({ position: p, score: scoreMatch(p) }))
-    .filter((m) => m.score > 0)
+    .filter((m) => m.score >= 10)
     .sort((a, b) => b.score - a.score)
     .map((m) => m.position);
 
@@ -522,7 +583,7 @@ export function matchCanonicalPosition(rawRole: string): {
     return { canonical: matches[0], isAmbiguous: false, candidates: matches.slice(0, 3) };
   }
 
-  if (matches.length >= 1) {
+  if (matches.length >= 1 && scoreMatch(matches[0]) >= 50) {
     return {
       canonical: matches[0],
       isAmbiguous: true,
@@ -535,7 +596,7 @@ export function matchCanonicalPosition(rawRole: string): {
   return {
     canonical: titleCased,
     isAmbiguous: true,
-    candidates: allPositions.slice(0, 3),
+    candidates: matches.slice(0, 3).length > 0 ? matches.slice(0, 3) : allPositions.slice(0, 3),
   };
 }
 
@@ -572,7 +633,13 @@ export function matchCanonicalSector(rawSector: string): {
 
   // 2. Exact in options
   const exact = JOB_SECTOR_OPTIONS.find((s) => normalizeTrMatch(s) === norm);
-  // 3. Relevance-scored candidate match
+  if (exact) {
+    return {
+      canonical: exact,
+      isAmbiguous: false,
+      candidates: [exact],
+    };
+  }
   const scoreSector = (candidate: string): number => {
     const sNorm = normalizeTrMatch(candidate);
     if (sNorm === norm) return 1000;
@@ -623,26 +690,41 @@ export function matchCanonicalSector(rawSector: string): {
 export function inferSectorFromRole(role: string): string {
   if (!role) return '';
   const r = normalizeTrMatch(role);
-  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql/i.test(r)) return 'Bilişim / Yazılım';
-  if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data/i.test(r)) return 'Yapay zeka / Veri';
-  if (/sigorta|guvence|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
-  if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi/i.test(r)) return 'Finans / Bankacılık';
+  if (/havacilik|ucak|pilot|kabin/i.test(r)) return 'Havacılık';
+  if (/denizcilik|gemi|kaptan|liman/i.test(r)) return 'Denizcilik / Liman';
+  if (/otomotiv|arac|vasita|body\s*in\s*white/i.test(r)) return 'Otomotiv';
+  if (/enerji|ruzgar|gunes|santral|\bres\b|\bges\b|solar|wind/i.test(r)) return 'Enerji';
+  if (/gida|sut|restoran|mutfak|aşçı|chef|barista/i.test(r)) return 'Gıda / Restoran';
+  if (/maden|jeoloji|cevher/i.test(r)) return 'Madencilik';
+  if (/eczane|ilac|farmasotik|ruhsatlandirma|onkoloji|klinik\s*arastirma|cra|clinical/i.test(r)) return 'Eczane / İlaç';
+  if (/veteriner|pet/i.test(r)) return 'Veteriner / Pet';
+  if (/saglik|doktor|hemsire|cerrah|hasta\s*hizmet|medikal|biyomedikal|psikolog|fizyoterapist|dis\s*hekimi|fizik\s*tedavi/i.test(r)) return 'Sağlık';
+  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql|bilgi\s*guvenlig|it\s*guvenlik|security/i.test(r)) return 'Bilişim / Yazılım';
+  if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data|is\s*zekasi|raporlama|bi\s*lead|bi\s*developer/i.test(r)) return 'Yapay zeka / Veri';
+  if (/sigorta|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
+  if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi|hazine/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
-  if (/cagri\s*merkezi|call\s*center/i.test(r)) return 'Çağrı merkezi';
+  if (/key\s*account|account\s*manager|kam|ulusal\s*zincir|musteri\s*yonetici|satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
   if (/musteri\s*(hizmet|iliski|basari|temsil)/i.test(r)) return 'Müşteri hizmetleri';
   if (/insan\s*kaynak|hr|recruiter|yetenek|bordro|is\s*ortag|partner/i.test(r)) return 'İnsan kaynakları';
-  if (/mimar|insaat|santiye|gayrimenkul|emlak/i.test(r)) return 'İnşaat / Gayrimenkul';
+  if (/mimar|peyzaj|insaat|santiye|gayrimenkul|emlak|statik|geoteknik/i.test(r)) return 'İnşaat / Gayrimenkul';
   if (/tedarik|lojistik|depo|sevkiyat|satinalma|procurement/i.test(r)) return 'Lojistik / Depolama';
-  if (/sofor|surucu|kurye|nakliye|kamyon|tir/i.test(r)) return 'Ulaşım / Şoförlük';
-  if (/avukat|hukuk|legal/i.test(r)) return 'Hukuk';
-  if (/ogretmen|egitmen|egitim|akademisyen|arastirma|ogretim|profesor|docent|okutman/i.test(r)) return 'Eğitim';
-  if (/saglik|doktor|hemsire|hasta\s*hizmet|medikal|biyomedikal/i.test(r)) return 'Sağlık';
-  if (/pazarlama|marketing|seo|sosyal\s*medya|icerik|grafik|tasarim|video|kurgu|animasyon|sanat/i.test(r)) return 'Pazarlama / Reklam';
-  if (/satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
-  if (/magaza|kasiyer|perakende/i.test(r)) return 'Perakende / Mağaza';
-  if (/otel|resepsiyon|on\s*buro|turizm|asci|chef|mutfak|gastronomi|barista/i.test(r)) return 'Turizm / Otelcilik';
+  if (/tesisat|iklimlendirme/i.test(r)) return 'İklimlendirme / Tesisat';
+  if (/e-ticaret|eticaret|pazaryeri/i.test(r)) return 'E-ticaret / Pazaryeri';
+  if (/halkla\s*iliskiler|pr\s*danisman/i.test(r)) return 'Halkla ilişkiler';
+  if (/pazarlama|marketing|seo|sosyal\s*medya|icerik|grafik|video|kurgu|animasyon|sanat|metin\s*yaz|kurumsal\s*iletisim|(?:gorsel|web|grafik|ui|ux)\s*tasarim/i.test(r)) return 'Pazarlama / Reklam';
+  if (/tasarim\s*muhend/i.test(r)) return 'Üretim / Sanayi';
+  if (/idari\s*isler|tesis\s*yonet/i.test(r)) return 'İdari işler / Ofis';
+  if (/elektrik|elektronik/i.test(r)) return 'Elektrik-elektronik';
+  if (/kimya|plastik|ziraat/i.test(r)) return 'Kimya / Plastik';
+  if (/uretim|imalat|sanayi|fabrika|makine\s*muhend|cevre\s*muhend|surekli\s*iyilestirme|yalin\s*uretim/i.test(r)) return 'Üretim / Sanayi';
+  if (/magaza|kasiyer|perakende|gorsel\s*duzenleme|visual\s*merchandis/i.test(r)) return 'Perakende / Mağaza';
+  if (/otel|resepsiyon|on\s*buro|turizm/i.test(r)) return 'Turizm / Otelcilik';
   if (/sosyal\s*hizmet|stk|vakif|dernek/i.test(r)) return 'Sosyal hizmet / STK';
-  if (/uretim|imalat|sanayi|fabrika|makine\s*muhend/i.test(r)) return 'Üretim / Sanayi';
+  if (/avukat|hukuk|legal/i.test(r)) return 'Hukuk';
+  if (/ogretmen|egitmen|egitim|akademisyen|arastirma|ogretim|profesor|docent|okutman|zumre/i.test(r)) return 'Eğitim';
+  if (/sofor|surucu|kurye|nakliye|kamyon|tir/i.test(r)) return 'Ulaşım / Şoförlük';
+  if (/gumruk/i.test(r)) return 'Gümrük';
   return '';
 }
 
@@ -690,13 +772,20 @@ export function mapCvToCanonicalTaxonomy(
 
   // Helper to infer appropriate sector for an individual experience
   const inferExpSector = (exp: { sector?: string; role?: string; company?: string }): string => {
-    if (exp.sector) {
-      const match = matchCanonicalSector(exp.sector);
-      if (match.canonical) return match.canonical;
+    const compNorm = (exp.company || '').toLowerCase();
+    if (/bank|banka|hazine|yatirim|portfoy/i.test(compNorm)) {
+      return 'Finans / Bankacılık';
+    }
+    if (/hotel|otel|resort|tatil\s*koyu|rixos|hilton|marriott/i.test(compNorm)) {
+      return 'Turizm / Otelcilik';
     }
     if (exp.role) {
       const fromRole = inferSectorFromRole(exp.role);
       if (fromRole) return fromRole;
+    }
+    if (exp.sector) {
+      const match = matchCanonicalSector(exp.sector);
+      if (match.canonical) return match.canonical;
     }
     const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
     const fromText = inferSectorFromRole(text);
@@ -871,9 +960,10 @@ export function mapCvToCanonicalTaxonomy(
   const resolvedRole = mostRecentRole || candidateHeadlineRole || matchedRoles[0] || (experiences[0]?.role ?? '');
   const roleInferredSector = inferSectorFromRole(resolvedRole);
   const resolvedSector =
+    (roleInferredSector && roleInferredSector !== 'Satış' ? roleInferredSector : '') ||
     mostRecentSector ||
-    (matchedSectors.length > 0 && roleInferredSector === 'Satış' ? matchedSectors[0] : roleInferredSector) ||
-    matchedSectors[0] ||
+    roleInferredSector ||
+    (matchedSectors.length > 0 ? matchedSectors[0] : '') ||
     '';
 
   return {

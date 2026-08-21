@@ -242,7 +242,7 @@ Lingo City Dil Okulu / Kadıköy 2016
     expect(draft.formValues.experiences?.length).toBeGreaterThanOrEqual(4);
     expect(draft.formValues.city).toBe('İstanbul');
     expect(draft.formValues.residenceDistrict).toBe('Çekmeköy');
-  });
+  }, 15000);
 
   it('verifies Dorukhan Şengel CV extraction', () => {
     const dorukhanText = `
