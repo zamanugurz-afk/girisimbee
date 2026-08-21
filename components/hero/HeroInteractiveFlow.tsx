@@ -141,10 +141,6 @@ export function HeroInteractiveFlow() {
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Kariyer ve İş Fırsatları</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
-              <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş İlanları</Link>
-              <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İş Arayanlar</Link>
-            </div>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
@@ -163,10 +159,6 @@ export function HeroInteractiveFlow() {
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Girişim, Ortaklık ve Devir</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
-              <Link href="/partners" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Ortaklık</Link>
-              <Link href="/isletme-devri" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">İşletme Devri</Link>
-            </div>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 10 Aktif İlan</span>
@@ -203,10 +195,6 @@ export function HeroInteractiveFlow() {
             </div>
             <h4 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Dijital ve Startup Çözümler</h4>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed min-h-[32px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
-            <div className="flex flex-wrap gap-1.5 mt-3 relative z-10 pointer-events-auto">
-              <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Yazılım & AI</Link>
-              <Link href="/market" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-foreground transition-colors">Girişim Market</Link>
-            </div>
           </div>
           <div className="relative z-1 pointer-events-none mt-3.5 pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
             <span className="font-medium text-zinc-600 dark:text-zinc-300">● 5 Aktif Çözüm</span>

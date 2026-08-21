@@ -68,10 +68,6 @@ export function PlatformHome() {
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">Kariyer ve İş Fırsatları</h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10 pointer-events-auto">
-                    <Link href="/is?flow=hire" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors">İş İlanları</Link>
-                    <Link href="/is?flow=seek" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors">İş Arayanlar</Link>
-                  </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
                   <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● 10 Aktif İlan</span>
@@ -91,10 +87,6 @@ export function PlatformHome() {
                   <div>
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Girişim, Ortaklık ve Devir</h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Girişim, ortaklık ve işletme fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10 pointer-events-auto">
-                    <Link href="/partners" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">Ortaklık</Link>
-                    <Link href="/isletme-devri" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-amber-500/10 hover:text-amber-600 transition-colors">İşletme Devri</Link>
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
@@ -135,10 +127,6 @@ export function PlatformHome() {
                   <div>
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">Dijital ve Startup Çözümler</h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3.5 relative z-10 pointer-events-auto">
-                    <Link href="/dijital-ai" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-purple-500/10 hover:text-purple-600 transition-colors">Yazılım & AI</Link>
-                    <Link href="/market" className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:bg-purple-500/10 hover:text-purple-600 transition-colors">Girişim Market</Link>
                   </div>
                 </div>
                 <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
