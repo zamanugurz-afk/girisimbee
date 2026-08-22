@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Lock,
   Mail,
+  MapPin,
   Pencil,
   Phone,
   PhoneCall,
@@ -119,6 +120,20 @@ export type CareerCardChrome = {
 
 function asList(value: string[] | string | null | undefined): string[] {
   return parseSelectedList(value);
+}
+
+function dedupeStrings(list: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of list) {
+    const trimmed = (item || '').trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLocaleLowerCase('tr-TR');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(trimmed);
+  }
+  return result;
 }
 
 function splitLines(value: string | null | undefined): string[] {
@@ -271,9 +286,9 @@ export function CareerProfilePreview({
 
   const toolsAll = asList(data.tools);
   const professionalAll = asList(data.professionalSkills);
-  const technicalAll = [...new Set([...asList(data.technicalSkills), ...toolsAll])];
+  const technicalAll = dedupeStrings([...asList(data.technicalSkills), ...toolsAll]);
   const preferredSectors = asList(data.preferredSectors);
-  const allSkills = [...new Set([...preferredSectors, ...professionalAll, ...technicalAll])];
+  const allSkills = dedupeStrings([...preferredSectors, ...professionalAll, ...technicalAll]);
 
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
@@ -304,14 +319,14 @@ export function CareerProfilePreview({
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
 
+  const locationText = useMemo(() => {
+    const parts = [data.residenceCity, data.residenceDistrict].filter(Boolean);
+    if (parts.length > 0) return parts.join(' / ');
+    return data.preferredCity || '';
+  }, [data.residenceCity, data.residenceDistrict, data.preferredCity]);
+
   const workPreferenceFacts = useMemo(() => {
     const facts: Array<{ label: string; value: string; icon: typeof User }> = [];
-    if (data.desiredRole) {
-      facts.push({ label: 'Pozisyon', value: data.desiredRole, icon: User });
-    }
-    if (data.primarySector) {
-      facts.push({ label: 'Uzmanlık Sektörü', value: data.primarySector, icon: Clock });
-    }
     if (levelLabel) {
       facts.push({ label: 'Kariyer Seviyesi', value: levelLabel, icon: Award });
     }
@@ -327,15 +342,18 @@ export function CareerProfilePreview({
     if (salary) {
       facts.push({ label: 'Ücret Beklentisi', value: salary, icon: CreditCard });
     }
+    if (data.preferredCity && data.preferredCity !== data.residenceCity) {
+      facts.push({ label: 'Tercih Edilen Lokasyon', value: data.preferredCity, icon: MapPin });
+    }
     return facts;
   }, [
-    data.desiredRole,
-    data.primarySector,
     levelLabel,
     data.workplacePreference,
     data.workType,
     data.availability,
     salary,
+    data.preferredCity,
+    data.residenceCity,
   ]);
 
   const contactEmail = data.contactEmail || (isContactAccepted ? mine?.ownerContactEmail : null);
@@ -436,6 +454,12 @@ export function CareerProfilePreview({
                 <p className="truncate text-xs text-slate-400 dark:text-muted-foreground">
                   {data.primarySector}
                 </p>
+              ) : null}
+              {locationText ? (
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-muted-foreground mt-1">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="truncate">{locationText}</span>
+                </div>
               ) : null}
             </div>
           </div>
