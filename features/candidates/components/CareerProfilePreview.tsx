@@ -687,10 +687,13 @@ export function CareerProfilePreview({
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
-                                {exp.company || exp.role || 'Pozisyon'}
+                                {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
                               </h4>
                               <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                                {[exp.role !== exp.company ? exp.role : null, exp.sector]
+                                {[
+                                  (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
+                                  exp.sector,
+                                ]
                                   .filter(Boolean)
                                   .join('  |  ')}
                               </p>

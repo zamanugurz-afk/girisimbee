@@ -438,7 +438,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Doğum tarihi',
       type: 'string',
       required: false,
-      max: 10,
+      max: 32,
     },
     {
       key: 'residenceCity',

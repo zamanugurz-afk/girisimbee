@@ -7,6 +7,7 @@ import {
 } from '@/features/candidates/cv/cv.types';
 import type { CareerProfileFormValues } from '@/features/career-profile/types';
 import { repairTurkishEncodingAndMojibake } from '@/features/candidates/cv/cv-turkish-encoding';
+import { compressCareerSummaryMeaningfully } from '@/features/candidates/lib/career-summary';
 
 /**
  * Builds a safe, normalized CareerProfileFormValues draft from canonical CV extraction results.
@@ -94,7 +95,10 @@ export function buildProfileDraftFromCanonicalResult(
     residenceDistrict: repairTurkishEncodingAndMojibake(canonical.residenceDistrict || ''),
 
     // 6. Career Summary (grounded synthesis)
-    candidateTraits: repairTurkishEncodingAndMojibake(canonical.summary || ''),
+    candidateTraits: compressCareerSummaryMeaningfully(
+      repairTurkishEncodingAndMojibake(canonical.summary || ''),
+      1000,
+    ),
 
     // 6.5. Demographics & Identity (from CV)
     fullName: repairTurkishEncodingAndMojibake(canonical.fullName || ''),

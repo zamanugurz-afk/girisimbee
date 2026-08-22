@@ -207,6 +207,76 @@ const LATIN1_MISMATCH_MAP: Array<[RegExp, string]> = [
 ];
 
 /**
+ * Intelligent Turkish root, stem and phrase repair table.
+ * Repairs words where unmapped font glyphs, kern gaps, or dropped Turkish letters occurred.
+ */
+const TURKISH_BROKEN_WORD_PATTERNS: Array<[RegExp, string]> = [
+  // 1. Sales / Satış combinations
+  [/(?<=^|[^\p{L}\p{N}])[sS]aha[\s\uFFFD\?]*[sS]at[ıi]?[\s\uFFFD\?]*[yY]önetimi(?=$|[^\p{L}\p{N}])/giu, 'Saha Satış Yönetimi'],
+  [/(?<=^|[^\p{L}\p{N}])[sS]at[ıi]?[\s\uFFFD\?]+([yY]önetim[i]?|[tT]emsilci[s]?[i]?|[uU]zman[ıi]?|[dD]an[ıi][sş]man[ıi]?|[mM]üdür[ü]?|[oO]perasyon[l]?[a]?[r]?[ıi]?|[sS]üreç[l]?[e]?[r]?[i]?|[eE]kip|[hH]edef|[kK]anal|[bB]ölüm|[aA]ktivite|[aA]sistan)(?=$|[^\p{L}\p{N}])/gu, 'Satış $1'],
+  [/(?<=^|[^\p{L}\p{N}])[sS]at[ıi]?[\s\uFFFD\?]+([yY]onetim|[tT]emsilci|[uU]zman|[dD]anisman|[mM]udur)(?=$|[^\p{L}\p{N}])/gu, 'Satış $1'],
+  [/(?<=^|[^\p{L}\p{N}])([kK]urumsal|[bB]ireysel|[dD]ijital|[tT]ele|[dD]oğrudan|[aA]ktif|[bB]ölge|[yY]urtiçi|[yY]urtdışı|[yY]eni)[\s\uFFFD\?]+[sS]at[ıi\uFFFD\?]+(?=$|[^\p{L}\p{N}])/gu, '$1 Satış'],
+  [/(?<=^|[^\p{L}\p{N}])[sS]at[ıi\uFFFD\?](?=\s+ve\s+|\s+&\s+|\s*[,|/]\s*)/gu, 'Satış'],
+
+  // 2. Call Center / Çağrı Merkezi
+  [/(?<=^|[^\p{L}\p{N}])[çÇ]a[\s\uFFFD\?]*[rR][ıiİI\uFFFD\?]*[\s\uFFFD\?]*merkez[i]?(?=$|[^\p{L}\p{N}])/giu, 'Çağrı Merkezi'],
+  [/(?<=^|[^\p{L}\p{N}])[çÇ]a[\s\uFFFD\?]*[rR][ıiİI\uFFFD\?]+(?=\s+(?:[mM]erkez|[oO]perasyon|[hH]izmet|[tT]rafik|[yY]önetim))/giu, 'Çağrı'],
+  [/(?<=^|[^\p{L}\p{N}])[tT]elemarketing\s*ve\s*[çÇ]a[\s\uFFFD\?]*[rR][ıiİI\uFFFD\?]*(?=$|[^\p{L}\p{N}])/giu, 'Telemarketing ve Çağrı'],
+
+  // 3. Customer / Müşteri
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]eri(?=$|[^\p{L}\p{N}])/gu, 'Müşteri'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]u[\s\uFFFD\?]*[tT]eri(?=$|[^\p{L}\p{N}])/gu, 'Müşteri'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]erileri(?=$|[^\p{L}\p{N}])/gu, 'Müşterileri'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]erinin(?=$|[^\p{L}\p{N}])/gu, 'Müşterinin'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]eriye(?=$|[^\p{L}\p{N}])/gu, 'Müşteriye'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]eriden(?=$|[^\p{L}\p{N}])/gu, 'Müşteriden'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ü[\s\uFFFD\?]*[tT]eriler(?=$|[^\p{L}\p{N}])/gu, 'Müşteriler'],
+  [/(?<=^|[^\p{L}\p{N}])[yY]eni\s+[mM]ü[\s\uFFFD\?]*[tT]eri\s+[kK]azan[ıi]m[ıi](?=$|[^\p{L}\p{N}])/giu, 'Yeni Müşteri Kazanımı'],
+  [/(?<=^|[^\p{L}\p{N}])[kK]urumsal\s+[mM]ü[\s\uFFFD\?]*[tT]eri\s+[yY]önetimi(?=$|[^\p{L}\p{N}])/giu, 'Kurumsal Müşteri Yönetimi'],
+
+  // 4. Development / Geliştirme
+  [/(?<=^|[^\p{L}\p{N}])[gG]eli[\s\uFFFD\?]*[tT]irme(?=$|[^\p{L}\p{N}])/gu, 'Geliştirme'],
+  [/(?<=^|[^\p{L}\p{N}])[gG]eli[\s\uFFFD\?]*[tT]irici(?=$|[^\p{L}\p{N}])/gu, 'Geliştirici'],
+  [/(?<=^|[^\p{L}\p{N}])[gG]eli[\s\uFFFD\?]*[tT]irilmesi(?=$|[^\p{L}\p{N}])/gu, 'Geliştirilmesi'],
+  [/(?<=^|[^\p{L}\p{N}])[gG]eli[\s\uFFFD\?]*[tT]irmek(?=$|[^\p{L}\p{N}])/gu, 'Geliştirmek'],
+  [/(?<=^|[^\p{L}\p{N}])[iİ]ş\s+[gG]eli[\s\uFFFD\?]*[tT]irme(?=$|[^\p{L}\p{N}])/giu, 'İş Geliştirme'],
+  [/(?<=^|[^\p{L}\p{N}])[üÜ]rün\s+[gG]eli[\s\uFFFD\?]*[tT]irme(?=$|[^\p{L}\p{N}])/giu, 'Ürün Geliştirme'],
+
+  // 5. Common professional / career terminology
+  [/(?<=^|[^\p{L}\p{N}])[iİ]leti[\s\uFFFD\?]*[iİıI]m(?=$|[^\p{L}\p{N}])/giu, 'İletişim'],
+  [/(?<=^|[^\p{L}\p{N}])[çÇ]al[ıi][\s\uFFFD\?]*an(?=$|[^\p{L}\p{N}])/giu, 'Çalışan'],
+  [/(?<=^|[^\p{L}\p{N}])[çÇ]al[ıi][\s\uFFFD\?]*ma(?=$|[^\p{L}\p{N}])/giu, 'Çalışma'],
+  [/(?<=^|[^\p{L}\p{N}])[bB]a[\s\uFFFD\?]*ar[ıi](?=$|[^\p{L}\p{N}])/giu, 'Başarı'],
+  [/(?<=^|[^\p{L}\p{N}])[bB]a[\s\uFFFD\?]*ar[ıi]l[ıi](?=$|[^\p{L}\p{N}])/giu, 'Başarılı'],
+  [/(?<=^|[^\p{L}\p{N}])[dD]an[ıi][\s\uFFFD\?]*man(?=$|[^\p{L}\p{N}])/giu, 'Danışman'],
+  [/(?<=^|[^\p{L}\p{N}])[dD]an[ıi][\s\uFFFD\?]*manl[ıi]k(?=$|[^\p{L}\p{N}])/giu, 'Danışmanlık'],
+  [/(?<=^|[^\p{L}\p{N}])[dD]e[\s\uFFFD\?]*erlendirme(?=$|[^\p{L}\p{N}])/giu, 'Değerlendirme'],
+  [/(?<=^|[^\p{L}\p{N}])[sS]a[\s\uFFFD\?]*l[ıi]k(?=$|[^\p{L}\p{N}])/giu, 'Sağlık'],
+  [/(?<=^|[^\p{L}\p{N}])[eE][\s\uFFFD\?]*itim(?=$|[^\p{L}\p{N}])/giu, 'Eğitim'],
+  [/(?<=^|[^\p{L}\p{N}])[öÖ][\s\uFFFD\?]*renci(?=$|[^\p{L}\p{N}])/giu, 'Öğrenci'],
+  [/(?<=^|[^\p{L}\p{N}])[öÖ][\s\uFFFD\?]*renim(?=$|[^\p{L}\p{N}])/giu, 'Öğrenim'],
+  [/(?<=^|[^\p{L}\p{N}])[öÖ][\s\uFFFD\?]*retim(?=$|[^\p{L}\p{N}])/giu, 'Öğretim'],
+  [/(?<=^|[^\p{L}\p{N}])[aA]ra[\s\uFFFD\?]*t[ıi]rma(?=$|[^\p{L}\p{N}])/giu, 'Araştırma'],
+  [/(?<=^|[^\p{L}\p{N}])[dD]önü[\s\uFFFD\?]*üm(?=$|[^\p{L}\p{N}])/giu, 'Dönüşüm'],
+  [/(?<=^|[^\p{L}\p{N}])[mM]ühendi[\s\uFFFD\?]*lik(?=$|[^\p{L}\p{N}])/giu, 'Mühendislik'],
+  [/(?<=^|[^\p{L}\p{N}])[gG]iri[\s\uFFFD\?]*im(?=$|[^\p{L}\p{N}])/giu, 'Girişim'],
+  [/(?<=^|[^\p{L}\p{N}])[gG]iri[\s\uFFFD\?]*imcilik(?=$|[^\p{L}\p{N}])/giu, 'Girişimcilik'],
+  [/(?<=^|[^\p{L}\p{N}])[çÇ]özüm[\s\uFFFD\?]*odakl[ıi](?=$|[^\p{L}\p{N}])/giu, 'Çözüm Odaklı'],
+  [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*letme(?=$|[^\p{L}\p{N}])/giu, 'İşletme'],
+  [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*birli[\s\uFFFD\?]*i(?=$|[^\p{L}\p{N}])/giu, 'İşbirliği'],
+  [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*birl[iı][\s\uFFFD\?]*[iı](?=$|[^\p{L}\p{N}])/giu, 'İşbirliği'],
+];
+
+export function repairBrokenTurkishWordsAndTokens(text: string): string {
+  if (!text) return '';
+  let result = text;
+  for (const [pattern, replacement] of TURKISH_BROKEN_WORD_PATTERNS) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
+/**
  * Standardizes and repairs Turkish text from any CV document.
  */
 export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespace = false): string {
@@ -267,10 +337,16 @@ export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespa
     .replace(/[\u200B-\u200D\uFEFF\u0000]/g, '')
     .replace(/\u00A0/g, ' ');
 
-  // 8. Normalize Unicode to NFC
+  // 8. Repair broken Turkish word stems and tokens
+  text = repairBrokenTurkishWordsAndTokens(text);
+
+  // 9. Clean any leftover unmapped replacement characters (\uFFFD)
+  text = text.replace(/\uFFFD/g, '');
+
+  // 10. Normalize Unicode to NFC
   text = text.normalize('NFC');
 
-  // 9. Clean excessive spaces around pipes and punctuation
+  // 11. Clean excessive spaces around pipes and punctuation
   text = text
     .replace(/[ \t]*\|[ \t]*/g, ' | ')
     .replace(/[ \t]+/g, ' ');

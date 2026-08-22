@@ -104,6 +104,7 @@ import {
 import { findCareerProfileContentViolation } from '@/features/candidates/lib/career-profile-content-policy';
 import {
   buildCareerSummaryDraft,
+  compressCareerSummaryMeaningfully,
   polishCareerSummary,
   stripCareerContactFluff,
 } from '@/features/candidates/lib/career-summary';
@@ -1303,10 +1304,11 @@ export function CategoryListingForm({
 
       // 4. Candidate Summary & Description (Step 2)
       if (fv.candidateTraits) {
+        const compressedSummary = compressCareerSummaryMeaningfully(fv.candidateTraits, 1000);
         setCore((prev) => ({
           ...prev,
-          longDescription: fv.candidateTraits || prev.longDescription,
-          shortDescription: fv.candidateTraits ? fv.candidateTraits.slice(0, 160) : prev.shortDescription,
+          longDescription: compressedSummary || prev.longDescription,
+          shortDescription: compressedSummary ? compressedSummary.slice(0, 160) : prev.shortDescription,
         }));
       }
 

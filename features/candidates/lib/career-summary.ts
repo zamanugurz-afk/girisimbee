@@ -153,6 +153,68 @@ export function polishCareerSummary(text: string | null | undefined): string {
     .trim();
 }
 
+/**
+ * Intelligently compresses a long career summary to fit within max characters (default 1000)
+ * preserving complete sentences, core value propositions, and linguistic integrity without blind substring chopping.
+ */
+export function compressCareerSummaryMeaningfully(
+  text: string | null | undefined,
+  maxLength = 1000,
+): string {
+  if (!text) return '';
+  const polished = polishCareerSummary(text);
+  if (polished.length <= maxLength) {
+    return polished;
+  }
+
+  // Split into sentences preserving punctuation
+  const rawSentences = polished.match(/[^.!?]+[.!?]+/g) || [polished];
+  const sentences = rawSentences.map((s) => s.trim()).filter(Boolean);
+
+  let accumulated = '';
+  for (const s of sentences) {
+    const candidate = accumulated ? `${accumulated} ${s}` : s;
+    if (candidate.length <= maxLength) {
+      accumulated = candidate;
+    } else {
+      break;
+    }
+  }
+
+  if (accumulated.trim().length >= 40) {
+    return accumulated.trim();
+  }
+
+  // If even the first sentence exceeds maxLength, split at safe clause boundaries (commas, semicolons, conjunctions)
+  const first = sentences[0] || polished;
+  const clauses = first.split(/([,;]|(?:\s+(?:ve|ile|ancak|ayrıca|olup)\s+))/);
+  let clauseAccumulated = '';
+  for (const clause of clauses) {
+    if ((clauseAccumulated + clause).length <= maxLength - 1) {
+      clauseAccumulated += clause;
+    } else {
+      break;
+    }
+  }
+
+  const trimmedClause = clauseAccumulated.replace(/[,;]\s*$/, '').trim();
+  if (trimmedClause.length >= 30) {
+    return `${trimmedClause}.`;
+  }
+
+  // Final fallback: safe word boundary
+  const words = polished.split(/\s+/);
+  let wordAccumulated = '';
+  for (const word of words) {
+    if ((wordAccumulated ? `${wordAccumulated} ${word}` : word).length <= maxLength - 1) {
+      wordAccumulated = wordAccumulated ? `${wordAccumulated} ${word}` : word;
+    } else {
+      break;
+    }
+  }
+  return `${wordAccumulated.trim()}.`;
+}
+
 /** Builds an editable Turkish career-summary draft from form fields. No company or contact data. */
 export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
   const role = (input.desiredRole ?? '').trim() || 'hedeflediğim pozisyon';
