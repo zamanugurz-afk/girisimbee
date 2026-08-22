@@ -21,66 +21,52 @@ export function normalizeTrUniversal(s: string): string {
  * MUST NEVER be recognized as a candidate's full name.
  */
 export const FORBIDDEN_NAME_SECTIONS = new Set([
-  'kisisel bilgiler',
-  'kisisel bilgilerim',
-  'kisisel bilgi',
-  'kisisel veriler',
-  'kisisel',
-  'iletisim bilgileri',
-  'iletisim bilgilerim',
-  'iletisim',
-  'iletisim detaylari',
-  'ozgecmis',
-  'ozgecmisim',
-  'curriculum vitae',
-  'curriculum',
-  'resume',
-  'cv',
-  'kariyer ozeti',
-  'kariyer profili',
-  'kariyer hedefi',
-  'kariyer gecmisi',
-  'kariyer basamaklari',
-  'kariyer',
-  'hakkimda',
-  'hakkinda',
-  'profil',
-  'profil ozeti',
-  'kisa profil',
-  'ozet',
   'egitim',
+  'egitim ve gelisim',
   'egitim bilgileri',
   'egitim durumu',
   'egitim gecmisi',
+  'egitim ve sertifikalar',
+  'egitim ve nitelikler',
+  'egitim ve ogrenim',
   'ogrenim durumu',
   'ogrenim bilgileri',
+  'ogrenim',
+  'akademik egitim',
+  'akademik gecmis',
   'deneyim',
   'deneyimler',
+  'deneyimlerim',
   'is deneyimi',
   'is deneyimleri',
   'is deneyimlerim',
   'is tecrubesi',
   'is tecrubeleri',
   'calisma gecmisi',
+  'calisma tercihleri',
+  'calisma tercihi',
   'mesleki deneyim',
   'mesleki tecrube',
   'sertifika',
   'sertifikalar',
   'sertifikalarim',
+  'sertifika / dil',
   'sertifikalar ve diller',
   'kurslar',
   'kurs ve sertifikalar',
-  'egitim ve sertifikalar',
   'yetenekler',
   'yeteneklerim',
   'beceriler',
   'becerilerim',
   'yetkinlikler',
   'yetkinliklerim',
+  'teknik yetkinlikler',
+  'mesleki yetkinlikler',
   'uzmanlik alanlari',
   'uzmanlik alani',
   'uzmanliklar',
   'uzmanliklarim',
+  'uzmanliklarin',
   'uzmanlik',
   'referanslar',
   'referanslarim',
@@ -99,6 +85,34 @@ export const FORBIDDEN_NAME_SECTIONS = new Set([
   'projelerim',
   'yayinlar',
   'sosyal medya',
+  'kisisel bilgiler',
+  'kisisel bilgilerim',
+  'kisisel bilgi',
+  'kisisel veriler',
+  'kisisel',
+  'iletisim bilgileri',
+  'iletisim bilgilerim',
+  'iletisim',
+  'iletisim detaylari',
+  'ozgecmis',
+  'ozgecmisim',
+  'curriculum vitae',
+  'curriculum',
+  'resume',
+  'cv',
+  'cv ozeti',
+  'kariyer ozeti',
+  'kariyer profili',
+  'kariyer hedefi',
+  'kariyer gecmisi',
+  'kariyer basamaklari',
+  'kariyer',
+  'hakkimda',
+  'hakkinda',
+  'profil',
+  'profil ozeti',
+  'kisa profil',
+  'ozet',
   'ad soyad',
   'isim soyisim',
   'adi soyadi',
@@ -125,6 +139,93 @@ export const FORBIDDEN_NAME_SECTIONS = new Set([
   'about me',
   'summary',
   'profile',
+]);
+
+export const FORBIDDEN_SECTION_WORD_ROOTS = new Set([
+  'egitim',
+  'egitimi',
+  'egitimler',
+  'egitimleri',
+  'ogrenim',
+  'ogrenimi',
+  'deneyim',
+  'deneyimler',
+  'deneyimlerim',
+  'deneyimi',
+  'tecrube',
+  'tecrubesi',
+  'tecrubeler',
+  'uzmanlik',
+  'uzmanliklar',
+  'uzmanliklarim',
+  'uzmanliklarin',
+  'kariyer',
+  'hakkimda',
+  'hakkinda',
+  'profil',
+  'ozet',
+  'kisisel',
+  'iletisim',
+  'ozgecmis',
+  'curriculum',
+  'vitae',
+  'resume',
+  'sertifika',
+  'sertifikalar',
+  'sertifikalarim',
+  'kurs',
+  'kurslar',
+  'yetenek',
+  'yetenekler',
+  'yeteneklerim',
+  'beceri',
+  'beceriler',
+  'becerilerim',
+  'yetkinlik',
+  'yetkinlikler',
+  'yetkinliklerim',
+  'referans',
+  'referanslar',
+  'referanslarim',
+  'genel',
+  'bilgi',
+  'bilgiler',
+  'bilgileri',
+  'bilgilerim',
+  'diller',
+  'yabanci',
+  'hobi',
+  'hobiler',
+  'ilgi',
+  'proje',
+  'projeler',
+  'projelerim',
+  'yayin',
+  'yayinlar',
+  'tercih',
+  'tercihler',
+  'tercihleri',
+  'calisma',
+  'sektor',
+  'sektoru',
+  'pozisyon',
+  'pozisyonu',
+  'unvan',
+  'unvani',
+  'universite',
+  'universitesi',
+  'fakulte',
+  'fakultesi',
+  'enstitu',
+  'enstitusu',
+  'okul',
+  'okulu',
+  'lise',
+  'lisesi',
+  'bolum',
+  'bolumu',
+  'mezun',
+  'mezuniyet',
 ]);
 
 /**
@@ -160,7 +261,25 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 2. Starts-with check for common section heading prefixes
+  // 2. Word count constraints: Person full name must have between 2 and 4 words
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 4) {
+    return true;
+  }
+
+  // 3. Check each word against forbidden roots, length, and valid alphabet
+  for (const word of words) {
+    if (word.length < 2) return true;
+    if (!/^[-a-zA-ZÇĞİÖŞÜçğıöşü']+$/.test(word)) {
+      return true;
+    }
+    const normWord = normalizeTrUniversal(word);
+    if (FORBIDDEN_SECTION_WORD_ROOTS.has(normWord)) {
+      return true;
+    }
+  }
+
+  // 4. Starts-with check for common section heading prefixes
   const forbiddenPrefixes = [
     'kisisel bilgi',
     'kisisel',
@@ -203,7 +322,7 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     }
   }
 
-  // 3. Suffix checks
+  // 5. Suffix checks
   if (
     norm.endsWith(' bilgileri') ||
     norm.endsWith(' bilgilerim') ||
@@ -216,7 +335,7 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 4. Contact markers & invalid characters
+  // 6. Contact markers & invalid characters
   if (
     trimmed.includes('@') ||
     /https?:\/\/|www\.|\.com|\.net|\.org|\.edu|\.gov|\.dev|\.io/i.test(trimmed) ||
@@ -226,7 +345,7 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 5. Corporate entities / institutional words & Job titles
+  // 7. Corporate entities / institutional words & Job titles
   if (
     /\b(?:holding|sirketi|limited|anonim|a\.s|ltd|bankasi|hastanesi|universitesi|fakultesi|enstitusu|mudurlugu|bakanligi|belediyesi|sanayi|ticaret|vakfi|dernegi|federasyonu)\b/i.test(
       norm,
@@ -235,7 +354,7 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 5.5 Job titles and occupational nouns must never be treated as names
+  // 7.5 Job titles and occupational nouns must never be treated as names
   if (
     /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli)\b/i.test(
       norm,
@@ -244,27 +363,13 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 6. Word count constraints: Person full name must have between 2 and 4 words
-  const words = trimmed.split(/\s+/).filter(Boolean);
-  if (words.length < 2 || words.length > 4) {
-    return true;
-  }
-
-  // 7. Each word must have length >= 2 and contain only valid Turkish/Latin letters
-  for (const word of words) {
-    if (word.length < 2) return true;
-    if (!/^[-a-zA-ZÇĞİÖŞÜçğıöşü']+$/.test(word)) {
-      return true;
-    }
-  }
-
   return false;
 }
 
 /**
  * Robust candidate full name extraction engine.
  *
- * Guaranteed to NEVER return section headings (e.g. "Kişisel Bilgiler", "İletişim"),
+ * Guaranteed to NEVER return section headings (e.g. "Kişisel Bilgiler", "İletişim", "Eğitim"),
  * contact info, company names, or invalid non-name lines.
  *
  * If no reliable name candidate is found, returns `null` so UI form state remains clean.
@@ -309,7 +414,7 @@ export function extractCandidateName(rawText: string | null | undefined): string
   // Uğur Zaman
   // Telefon: ...
   const kisiselSectionMatch = text.match(
-    /(?:[kK][iİıI][sS][iİıI][sS][eE]l\s*[bB][iİıI]lgiler(?:im)?|[öÖ]zel\s*[bB][iİıI]lgiler|personal\s*information)[\s:]*\n+([\s\S]{1,400})/iu,
+    /(?:[kK][iİıI][sS][iİıI][sS][eE]l\s*[bB][iİıI]lgiler(?:im)?|[öÖ]zel\s*[bB][iİıI]lgiler|personal\s*information)[\s:]*\n+([\s\S]{1,500})/iu,
   );
   if (kisiselSectionMatch) {
     const sectionBody = kisiselSectionMatch[1];
@@ -318,7 +423,7 @@ export function extractCandidateName(rawText: string | null | undefined): string
       .map((l) => l.trim())
       .filter(Boolean);
 
-    for (const rawLine of sectionLines.slice(0, 5)) {
+    for (const rawLine of sectionLines.slice(0, 8)) {
       let cleanLine = rawLine
         .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
         .replace(/^(?:adı|ad|isim|isim\s*soyisim|ad\s*soyad)[\s:]+/i, '')
@@ -344,24 +449,14 @@ export function extractCandidateName(rawText: string | null | undefined): string
     }
   }
 
-  // Tier 3: Scan top lines of the document (first page header lines 0 to 12)
+  // Tier 3: Scan top lines of the document (first page header lines 0 to 20)
   const allLines = text
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
-  const topLines = allLines.slice(0, 12);
+  const topLines = allLines.slice(0, 20);
 
   for (const rawLine of topLines) {
-    const normRaw = normalizeTrUniversal(rawLine);
-    // If we have reached body sections (work experience, education, projects), header is done
-    if (
-      /^(?:is\s*deneyimi|is\s*deneyimleri|is\s*tecrubesi|calisma\s*gecmisi|egitim|ogrenim|projeler|sertifikalar|yetenekler|beceriler|referanslar)$/i.test(
-        normRaw,
-      )
-    ) {
-      break;
-    }
-
     let clean = rawLine
       .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
       .replace(/^(?:özgeçmiş|curriculum\s*vitae|resume|cv)\s*[-–—|:]\s*/i, '')

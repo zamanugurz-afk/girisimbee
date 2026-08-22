@@ -18,6 +18,7 @@ import type {
   CareerPersonaKind,
 } from '@/features/career-profile/types';
 import type { CareerListingKind } from '@/features/matching-engine/types';
+import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 
 export const ALLOWED_CAREER_KEYS = [
@@ -151,7 +152,9 @@ export function formValuesToCustomFields(
   if (values.tools) fields.tools = (values.tools || '').trim();
   if (values.educationField) fields.educationField = (values.educationField || '').trim();
   if (values.certificates) fields.certificates = (values.certificates || '').trim();
-  if (values.fullName) fields.fullName = (values.fullName || '').trim();
+  if (values.fullName && !isForbiddenNameCandidate(values.fullName)) {
+    fields.fullName = (values.fullName || '').trim();
+  }
   if (values.profileGender) fields.profileGender = (values.profileGender || '').trim();
   if (values.birthDate) fields.birthDate = (values.birthDate || '').trim();
   if (values.email) fields.email = (values.email || '').trim();

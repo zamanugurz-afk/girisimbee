@@ -62,6 +62,7 @@ import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLa
 import { CareerPreferenceEditor } from '@/features/candidates/components/CareerPreferenceEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { maskDisplaySurname } from '@/features/candidates/lib/career-public-identity';
+import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
@@ -1313,8 +1314,10 @@ export function CategoryListingForm({
       }
 
       // 5. Demographics, Identity & Residence (Step 1: Genel Bilgiler)
-      if (fv.fullName) {
+      if (fv.fullName && !isForbiddenNameCandidate(fv.fullName)) {
         setCustomField('fullName', fv.fullName);
+      } else {
+        setCustomField('fullName', '');
       }
       if (fv.profileGender) {
         setCustomField('profileGender', fv.profileGender);
@@ -2877,7 +2880,15 @@ export function CategoryListingForm({
                       <div className="space-y-2">
                         <DynamicField
                           field={fieldByKey.get('fullName')!}
-                          value={mergedCustomFields.fullName || (user?.displayName ?? '')}
+                          value={
+                            typeof mergedCustomFields.fullName === 'string'
+                              ? (isForbiddenNameCandidate(mergedCustomFields.fullName)
+                                  ? ''
+                                  : mergedCustomFields.fullName)
+                              : (user?.displayName && !isForbiddenNameCandidate(user.displayName)
+                                  ? user.displayName
+                                  : '')
+                          }
                           onChange={(val) => {
                             handleCustomFieldChange('fullName', val);
                             if (cvFilledKeys.has('fullName')) {

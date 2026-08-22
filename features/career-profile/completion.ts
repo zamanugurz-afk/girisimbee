@@ -1,6 +1,7 @@
 import { extractCareerMatchProfile, normalizeCareerSource } from '@/features/career-profile/normalize';
 import type { CareerFieldSource } from '@/features/career-profile/normalize';
 import type { CareerListingKind } from '@/features/matching-engine/types';
+import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 import type {
   CareerProfileCompletion,
   CareerProfileFieldKey,
@@ -140,7 +141,7 @@ export function valuesFromCareerSource(source: CareerFieldSource): CareerProfile
     certificates: typeof cf.certificates === 'string' ? cf.certificates : '',
     tools: typeof cf.tools === 'string' ? cf.tools : '',
     toolsList: Array.isArray(cf.toolsList) ? (cf.toolsList as string[]) : typeof cf.tools === 'string' && cf.tools ? (cf.tools as string).split(/[·,]/).map((s) => s.trim()).filter(Boolean) : undefined,
-    fullName: typeof cf.fullName === 'string' ? cf.fullName : '',
+    fullName: typeof cf.fullName === 'string' && !isForbiddenNameCandidate(cf.fullName) ? cf.fullName : '',
     profileGender: typeof cf.profileGender === 'string' ? cf.profileGender : '',
     birthDate: typeof cf.birthDate === 'string' ? cf.birthDate : '',
     email: typeof cf.email === 'string' ? cf.email : '',

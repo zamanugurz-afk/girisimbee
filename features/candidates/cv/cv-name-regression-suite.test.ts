@@ -1,0 +1,178 @@
+import { describe, expect, it } from 'vitest';
+import {
+  extractCandidateName,
+  isForbiddenNameCandidate,
+  formatTurkishTitleCase,
+} from './cv-name-extractor';
+import { normalizeCvText } from './cv-turkish-encoding';
+import { extractUniversalDemographics } from './cv-universal-normalizer';
+import { extractDeterministicCv } from './cv-deterministic-extractor';
+import { mapCvToCanonicalTaxonomy } from './cv-taxonomy-mapper';
+import { buildProfileDraftFromCanonicalResult } from './cv-profile-builder';
+import { formValuesToCustomFields } from '@/features/career-profile/career-profile.service';
+import { valuesFromCareerSource } from '@/features/career-profile/completion';
+import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
+
+describe('CV Name Extraction & Form Hydration Comprehensive Regression Suite', () => {
+  // TEST 1: CV: KİŞİSEL BİLGİLER \n Uğur Zaman
+  it('TEST 1: extracts "Uğur Zaman" under KİŞİSEL BİLGİLER', () => {
+    const cvText = `KİŞİSEL BİLGİLER\nUğur Zaman\n0532 000 00 00\nugur@example.com\nİstanbul / Maltepe`;
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+
+    const demo = extractUniversalDemographics(cvText);
+    expect(demo.fullName).toBe('Uğur Zaman');
+  });
+
+  // TEST 2: CV: KİŞİSEL BİLGİLER \n Uğur Zaman \n EĞİTİM
+  it('TEST 2: extracts "Uğur Zaman" even when followed immediately by EĞİTİM', () => {
+    const cvText = `KİŞİSEL BİLGİLER\nUğur Zaman\nEĞİTİM\nAnadolu Üniversitesi İşletme Fakültesi\n\nİŞ DENEYİMLERİ\nABC Holding Çağrı Merkezi Müdürü`;
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+
+    const det = extractDeterministicCv(cvText);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'ugur_cv.pdf');
+
+    expect(draft.formValues.fullName).toBe('Uğur Zaman');
+  });
+
+  // TEST 3: CV without a name candidate -> fullName === "" or null
+  it('TEST 3: returns empty fullName when CV does not contain a person name', () => {
+    const headlessCv = `EĞİTİM\nİstanbul Teknik Üniversitesi\nBilgisayar Mühendisliği 2020\n\nİŞ DENEYİMİ\nTrendyol A.Ş. 2021 - 2024`;
+    const name = extractCandidateName(headlessCv);
+    expect(name).toBeNull();
+
+    const det = extractDeterministicCv(headlessCv);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'headless.pdf');
+
+    expect(draft.formValues.fullName).toBe('');
+  });
+
+  // TEST 4: "Eğitim" and section headings can NEVER be fullName
+  it('TEST 4: strictly rejects "Eğitim" and all section heading variants as name', () => {
+    const invalidCandidates = [
+      'Eğitim',
+      'EĞİTİM',
+      ' eğitim ',
+      'Eğitim\n',
+      'Eğitim ve Gelişim',
+      'EĞİTİM VE GELİŞİM',
+      'Eğitim Bilgileri',
+      'Eğitim Durumu',
+      'Eğitim Geçmişi',
+      'Öğrenim',
+      'Öğrenim Durumu',
+      'Deneyimler',
+      'Deneyimlerim',
+      'İş Deneyimleri',
+      'İş Deneyimi',
+      'Uzmanlık Alanları',
+      'Uzmanlıkların',
+      'Çalışma Tercihleri',
+      'Kariyer Özeti',
+      'Genel Bilgiler',
+      'Kişisel Bilgiler',
+      'Kişisel Bilgilerim',
+      'İletişim Bilgileri',
+      'Özgeçmiş',
+      'Profil',
+      'CV',
+      'CV Özeti',
+      'Sertifika',
+      'Sertifikalar',
+      'Sertifika / Dil',
+      'Yetenekler',
+      'Yetkinlikler',
+      'Teknik Yetkinlikler',
+      'Referanslar',
+    ];
+
+    for (const candidate of invalidCandidates) {
+      expect(isForbiddenNameCandidate(candidate)).toBe(true);
+      expect(extractCandidateName(candidate)).toBeNull();
+    }
+  });
+
+  // TEST 5: "Uğur Zaman" normalizes cleanly
+  it('TEST 5: preserves "Uğur Zaman" correctly with Turkish casing', () => {
+    expect(formatTurkishTitleCase('UĞUR ZAMAN')).toBe('Uğur Zaman');
+    expect(formatTurkishTitleCase('uğur zaman')).toBe('Uğur Zaman');
+    expect(formatTurkishTitleCase('Uğur Zaman')).toBe('Uğur Zaman');
+    expect(normalizeCvText('Uğur Zaman')).toBe('Uğur Zaman');
+  });
+
+  // TEST 6: Mojibake strings continue to be repaired
+  it('TEST 6: repairs Turkish mojibake strings cleanly', () => {
+    expect(normalizeCvText('SatÄ±ÅŸ')).toBe('Satış');
+    expect(normalizeCvText('YÃ¶netim')).toBe('Yönetim');
+    expect(normalizeCvText('Ã‡aÄŸrÄ±')).toBe('Çağrı');
+    expect(normalizeCvText('MÃ¼ÅŸteri')).toBe('Müşteri');
+    expect(normalizeCvText('Ä°letiÅŸim')).toBe('İletişim');
+    expect(normalizeCvText('Ã–zgeÃ§miÅŸ')).toBe('Özgeçmiş');
+  });
+
+  // TEST 7: handleApplyCvDraft form state and customFields mapping
+  it('TEST 7: maps "Uğur Zaman" into customFields without bleeding section headings', () => {
+    const rawCv = `UĞUR ZAMAN\n0532 111 22 33\nugur@example.com\nİstanbul / Maltepe\n\nÖZGEÇMİŞ\n19 yıllık kurumsal çağrı merkezi ve telemarketing operasyonları yönetim deneyimi.\n\nEĞİTİM\nAnadolu Üniversitesi İşletme Lisans 2004\n\nİŞ DENEYİMLERİ\nABC Holding | Çağrı Merkezi Operasyonları Direktörü | 2020 - 2023\nSaha satış yönetimi ve telemarketing operasyonlarının koordinasyonu.`;
+
+    const det = extractDeterministicCv(rawCv);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'ugur_cv.pdf');
+
+    expect(draft.formValues.fullName).toBe('Uğur Zaman');
+    expect(draft.formValues.fullName).not.toBe('Eğitim');
+
+    const customFields = formValuesToCustomFields('seek', draft.formValues);
+    expect(customFields.fullName).toBe('Uğur Zaman');
+    expect(customFields.fullName).not.toBe('Eğitim');
+
+    const hydrated = valuesFromCareerSource({
+      city: 'İstanbul',
+      location: 'İstanbul',
+      customFields,
+    });
+
+    expect(hydrated.fullName).toBe('Uğur Zaman');
+    expect(hydrated.fullName).not.toBe('Eğitim');
+  });
+
+  // TEST 8: UI safe preview input mapping
+  it('TEST 8: feeds "Uğur Zaman" to CareerProfilePreview input and never "Eğitim"', () => {
+    const customFields = formValuesToCustomFields('seek', {
+      fullName: 'Uğur Zaman',
+      role: 'Çağrı Merkezi Operasyonları Direktörü',
+      sector: 'Finans',
+      experienceLevel: 'Direktör',
+    });
+
+    const preview = toSafeCareerPreviewInput({
+      kind: 'seek',
+      source: { city: 'İstanbul', location: 'İstanbul', customFields },
+      displayName: customFields.fullName as string,
+    });
+
+    expect(preview.displayNameMasked).toBe('Uğur *****');
+    expect(preview.displayNameMasked).not.toContain('Eğitim');
+  });
+
+  // TEST 9: Other imported CV fields remain completely intact
+  it('TEST 9: preserves all other CV fields (desiredRole, sector, level, location, experiences, education, skills, certs)', () => {
+    const fullCv = `UĞUR ZAMAN\n0532 111 22 33\nugur@example.com\nİstanbul / Maltepe\n\nKARİYER ÖZETİ\n19 yıllık çağrı merkezi ve telemarketing operasyonları yönetim deneyimi.\n\nUZMANLIK ALANLARI\nSatış Yönetimi, Telemarketing, Ekip Liderliği, CRM, Excel, PowerBI\n\nSERTİFİKALAR\nSEGEM, BES, İleri Satış Teknikleri\n\nEĞİTİM\nMarmara Üniversitesi İşletme Lisans 2004\n\nİŞ DENEYİMLERİ\nABC Holding | Çağrı Merkezi Operasyonları Direktörü | 2020 - Halen\nSaha satış ve operasyon yönetimi.`;
+
+    const det = extractDeterministicCv(fullCv);
+    const canonical = mapCvToCanonicalTaxonomy(det);
+    const draft = buildProfileDraftFromCanonicalResult(canonical, 'full_cv.pdf');
+
+    expect(draft.formValues.fullName).toBe('Uğur Zaman');
+    expect(draft.formValues.desiredRole).toBe('Çağrı Merkezi Operasyonları Direktörü');
+    expect(draft.formValues.primarySector).toBeTruthy();
+    expect(draft.formValues.residenceCity).toBe('İstanbul');
+    expect(draft.formValues.residenceDistrict).toBe('Maltepe');
+    expect(draft.formValues.experiences?.length).toBeGreaterThan(0);
+    expect(draft.formValues.educationHistory?.length).toBeGreaterThan(0);
+    expect(draft.formValues.certificates).toContain('SEGEM');
+    expect(draft.formValues.professionalSkills).toContain('Satış');
+  });
+});
