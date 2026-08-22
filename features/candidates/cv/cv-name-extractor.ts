@@ -345,9 +345,9 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 7. Corporate entities / institutional words & Job titles
+  // 7. Corporate entities / institutional words & suffixes
   if (
-    /\b(?:holding|sirketi|limited|anonim|a\.s|ltd|bankasi|hastanesi|universitesi|fakultesi|enstitusu|mudurlugu|bakanligi|belediyesi|sanayi|ticaret|vakfi|dernegi|federasyonu)\b/i.test(
+    /\b(?:holding|sirketi|sirket|limited|anonim|a\.s|ltd|bankasi|banka|hastanesi|hastane|universitesi|universite|fakultesi|fakulte|enstitusu|enstitu|mudurlugu|mudurluk|bakanligi|bakanlik|belediyesi|belediye|sanayi|ticaret|vakfi|vakif|dernegi|dernek|federasyonu|ortakligi|ortaklik|burosu|buro|ajansi|ajans|ofisi|ofis|merkezi|merkez|klinigi|klinik|laboratuvari|hizmetleri|hizmet|atolyesi|grubu|grup|group|solutions|consulting|associates|law\s*firm|danismanlik|musavirlik|avukatlik)\b/i.test(
       norm,
     )
   ) {

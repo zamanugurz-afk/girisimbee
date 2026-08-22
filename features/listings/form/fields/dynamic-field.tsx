@@ -145,6 +145,21 @@ export function DynamicField({
     );
   }
 
+  const hasValue =
+    value !== null &&
+    value !== undefined &&
+    value !== '' &&
+    !(Array.isArray(value) && value.length === 0);
+  const showCvBadge = Boolean(isCvFilled && hasValue);
+
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    ['fullName', 'primarySector', 'desiredRole', 'experienceLevel', 'residenceCity', 'residenceDistrict'].includes(field.key) &&
+    isCvFilled
+  ) {
+    console.log(`[CV-RUNTIME][10-DYNAMIC-FIELD] key=${field.key}`, { value, isCvFilled, showCvBadge });
+  }
+
   if (field.key === 'capabilities') {
     return (
       <div className="space-y-2">
@@ -153,7 +168,7 @@ export function DynamicField({
             {field.label}
             {field.required && <span className="ml-1 text-destructive">*</span>}
           </Label>
-          {isCvFilled && (
+          {showCvBadge && (
             <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
               ✨ CV&apos;den aktarıldı
             </span>
@@ -183,7 +198,7 @@ export function DynamicField({
             </Badge>
           )}
         </div>
-        {isCvFilled && (
+        {showCvBadge && (
           <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
             ✨ CV&apos;den aktarıldı
           </span>

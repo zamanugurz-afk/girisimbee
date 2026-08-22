@@ -18,19 +18,60 @@ import { evaluateListingContentQuality } from '@/features/listings/lib/listing-c
 
 const STAGE_FIELD_KEY = 'stage';
 
-function normalizeEnumValue(value: string): string {
-  return value.trim().normalize('NFC');
+function normalizeEnumTr(value: string): string {
+  return value
+    .trim()
+    .normalize('NFC')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/i̇/g, 'i')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/\s+/g, ' ');
 }
 
-/** Match a stored enum value to its canonical option (trim + Unicode NFC). */
+/** Match a stored enum value to its canonical option (Exact -> Case-insensitive -> Normalized -> Substring/Alias). */
 export function resolveEnumOption(
   value: unknown,
   options: readonly string[],
 ): string | undefined {
   if (value === null || value === undefined || value === '') return undefined;
 
-  const normalized = normalizeEnumValue(String(value));
-  return options.find((option) => normalizeEnumValue(option) === normalized);
+  const rawStr = String(value).trim();
+  if (!rawStr) return undefined;
+
+  // 1. Direct exact match (fast path)
+  if (options.includes(rawStr)) {
+    return rawStr;
+  }
+
+  // 2. Case-insensitive exact match in Turkish
+  const lowerVal = rawStr.toLocaleLowerCase('tr-TR');
+  const caseMatch = options.find((opt) => opt.toLocaleLowerCase('tr-TR') === lowerVal);
+  if (caseMatch) return caseMatch;
+
+  // 3. Fully normalized match (diacritics & spacing agnostic)
+  const normVal = normalizeEnumTr(rawStr);
+  const normMatch = options.find((opt) => normalizeEnumTr(opt) === normVal);
+  if (normMatch) return normMatch;
+
+  // 4. Prefix / Substring match (e.g. "Finans" matches "Finans / Bankacılık", "Yazılım" matches "Bilişim / Yazılım")
+  const subMatch = options.find((opt) => {
+    const normOpt = normalizeEnumTr(opt);
+    if (normOpt.includes('/') || normOpt.includes('-')) {
+      const parts = normOpt.split(/[/–—-]/).map((p) => p.trim());
+      if (parts.some((part) => part === normVal || (normVal.length >= 4 && part.startsWith(normVal)))) {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (subMatch) return subMatch;
+
+  return undefined;
 }
 
 function logStagePipeline(

@@ -725,17 +725,33 @@ export function getAllTaxonomyPositions(): string[] {
 }
 
 export function getPositionsForSector(sector: string | null | undefined): string[] {
-  const key = sector ?? '';
+  const key = (sector ?? '').trim();
   const cached = POSITIONS_FOR_SECTOR_CACHE.get(key);
   if (cached) return cached;
   let result: string[];
-  if (!sector) {
+  if (!key) {
     result = getAllTaxonomyPositions();
   } else {
-    const list = SECTOR_POSITIONS[sector as SectorKey];
-    result = !list || list.length === 0
-      ? [MANUAL_OPTION]
-      : sortPositionsPopularThenAz([...(list ?? []).map(suggestTitleCaseTr), MANUAL_OPTION], [MANUAL_OPTION]);
+    let list = SECTOR_POSITIONS[key as SectorKey];
+    if (!list) {
+      const lowerKey = key.toLocaleLowerCase('tr-TR');
+      const foundEntry = Object.entries(SECTOR_POSITIONS).find(
+        ([s]) =>
+          s.toLocaleLowerCase('tr-TR') === lowerKey ||
+          s.toLocaleLowerCase('tr-TR').startsWith(lowerKey) ||
+          lowerKey.startsWith(s.toLocaleLowerCase('tr-TR')),
+      );
+      if (foundEntry) {
+        list = foundEntry[1];
+      }
+    }
+    result =
+      !list || list.length === 0
+        ? [MANUAL_OPTION]
+        : sortPositionsPopularThenAz(
+            [...(list ?? []).map(suggestTitleCaseTr), MANUAL_OPTION],
+            [MANUAL_OPTION],
+          );
   }
   POSITIONS_FOR_SECTOR_CACHE.set(key, result);
   return result;
@@ -757,9 +773,18 @@ function getSectorsByPositionIndex(): Map<string, string[]> {
 }
 
 export function getSectorsForPosition(role: string | null | undefined): string[] {
-  const needle = (role ?? '').trim();
+  const needle = (role ?? '').trim().toLocaleLowerCase('tr-TR');
   if (!needle || isManualCareerOption(needle)) return [];
-  return getSectorsByPositionIndex().get(needle.toLocaleLowerCase('tr-TR')) ?? [];
+  const direct = getSectorsByPositionIndex().get(needle);
+  if (direct && direct.length > 0) return direct;
+
+  // Substring or alias match
+  for (const [posKey, sectors] of getSectorsByPositionIndex().entries()) {
+    if (needle.includes(posKey) || posKey.includes(needle)) {
+      return sectors;
+    }
+  }
+  return [];
 }
 
 const PROFESSIONAL_SKILLS_BY_THEME: Record<string, readonly string[]> = {

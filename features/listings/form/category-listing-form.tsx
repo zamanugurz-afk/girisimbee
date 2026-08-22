@@ -63,6 +63,7 @@ import { CareerPreferenceEditor } from '@/features/candidates/components/CareerP
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { maskDisplaySurname } from '@/features/candidates/lib/career-public-identity';
 import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
+import { buildHydratedCustomFieldsFromCvDraft } from '@/features/candidates/cv/cv-form-hydrator';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
@@ -504,10 +505,20 @@ export function CategoryListingForm({
 
   const [sectorsPrunedNotice, setSectorsPrunedNotice] = useState(false);
 
-  const mergedCustomFields = useMemo(
-    () => mergeCustomFieldDefaults(listingType.fieldSchema, customFields),
-    [listingType.fieldSchema, customFields],
-  );
+  const mergedCustomFields = useMemo(() => {
+    const merged = mergeCustomFieldDefaults(listingType.fieldSchema, customFields);
+    if (process.env.NODE_ENV !== 'production' && isCvApplied) {
+      console.log('[CV-RUNTIME][09-MERGED]', {
+        fullName: merged.fullName,
+        primarySector: merged.primarySector,
+        desiredRole: merged.desiredRole,
+        experienceLevel: merged.experienceLevel,
+        residenceCity: merged.residenceCity,
+        residenceDistrict: merged.residenceDistrict,
+      });
+    }
+    return merged;
+  }, [listingType.fieldSchema, customFields, isCvApplied]);
 
   const dynamicFieldContext = useMemo(
     () => ({
@@ -948,18 +959,21 @@ export function CategoryListingForm({
       mergedCustomFields,
     ],
   );
-  const careerPreviewData = useMemo(
-    () =>
-      isCareerCardCategory
-        ? buildCareerCardPreviewData(
-            categoryId,
-            mergedCustomFields,
-            core.longDescription,
-            user?.displayName,
-          )
-        : null,
-    [categoryId, core.longDescription, isCareerCardCategory, mergedCustomFields, user?.displayName],
-  );
+  const careerPreviewData = useMemo(() => {
+    if (!isCareerCardCategory) return null;
+    const nameCandidate =
+      typeof mergedCustomFields.fullName === 'string' &&
+      mergedCustomFields.fullName.trim() &&
+      !isForbiddenNameCandidate(mergedCustomFields.fullName)
+        ? mergedCustomFields.fullName.trim()
+        : user?.displayName;
+    return buildCareerCardPreviewData(
+      categoryId,
+      mergedCustomFields,
+      core.longDescription,
+      nameCandidate,
+    );
+  }, [categoryId, core.longDescription, isCareerCardCategory, mergedCustomFields, user?.displayName]);
 
   const stepCustomKeys = useMemo(
     () => resolveStepCustomFields(currentStep, allFieldKeys),
@@ -1222,184 +1236,45 @@ export function CategoryListingForm({
     (draft?: CvProfileDraftResult | null) => {
       const activeDraft = draft || pendingCvDraft;
       if (!activeDraft) return;
-      const fv = activeDraft.formValues;
 
-      // 0. Position & Sector & Experience Level (Step 1: Genel Bilgiler)
-      const extractedRole = fv.desiredRole || fv.role || (fv.experiences && fv.experiences[0]?.role) || '';
-      const extractedSector = fv.primarySector || fv.sector || (fv.experiences && fv.experiences[0]?.sector) || '';
+      const { nextCustomFields, nextCoreFields, appliedKeys } = buildHydratedCustomFieldsFromCvDraft(
+        activeDraft,
+        customFields,
+        listingType.fieldSchema,
+      );
 
-      if (extractedSector) {
-        setCustomField('primarySector', extractedSector);
-      } else if (extractedRole) {
-        const possibleSectors = getSectorsForPosition(extractedRole);
-        if (possibleSectors && possibleSectors.length > 0) {
-          setCustomField('primarySector', possibleSectors[0]);
-        }
-      }
-
-      if (extractedRole) {
-        const currentSector = extractedSector || (getSectorsForPosition(extractedRole)?.[0] ?? '');
-        const allowedRoles = getPositionsForSector(currentSector);
-        if (allowedRoles.includes(extractedRole)) {
-          setCustomField('desiredRole', extractedRole);
-          setCustomField('desiredRoleOther', '');
-        } else {
-          const matched = allowedRoles.find(
-            (r) => r.toLocaleLowerCase('tr-TR') === extractedRole.toLocaleLowerCase('tr-TR'),
-          );
-          if (matched && matched !== MANUAL_OPTION && matched !== MANUAL_OPTION_SHORT) {
-            setCustomField('desiredRole', matched);
-            setCustomField('desiredRoleOther', '');
-          } else {
-            setCustomField('desiredRole', 'Diğer');
-            setCustomField('desiredRoleOther', extractedRole);
-          }
-        }
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[CV-RUNTIME][08-STATE]', {
+          fullName: nextCustomFields.fullName,
+          primarySector: nextCustomFields.primarySector,
+          desiredRole: nextCustomFields.desiredRole,
+          experienceLevel: nextCustomFields.experienceLevel,
+          residenceCity: nextCustomFields.residenceCity,
+          residenceDistrict: nextCustomFields.residenceDistrict,
+          experiences: (nextCustomFields.experiences as any[])?.length,
+          educationHistory: (nextCustomFields.educationHistory as any[])?.length,
+          appliedKeys,
+        });
       }
 
-      if (fv.experienceLevel) {
-        setCustomField('experienceLevel', fv.experienceLevel);
-      }
-
-      // 1. Work Experiences (Step 2: Kariyer Bilgileriniz)
-      if (fv.experiences && fv.experiences.length > 0) {
-        setCustomField('experiences', fv.experiences);
-      }
-
-      // 2. Skills & Tools (Step 2: Kariyer Bilgileriniz)
-      if (fv.professionalSkillsList && fv.professionalSkillsList.length > 0) {
-        setCustomField('professionalSkills', fv.professionalSkillsList.join(', '));
-        setCustomField('professionalSkillsList', fv.professionalSkillsList);
-      } else if (fv.professionalSkills) {
-        setCustomField('professionalSkills', fv.professionalSkills);
-      }
-      if (fv.technicalSkillsList && fv.technicalSkillsList.length > 0) {
-        setCustomField('technicalSkills', fv.technicalSkillsList.join(', '));
-        setCustomField('technicalSkillsList', fv.technicalSkillsList);
-      } else if (fv.technicalSkills) {
-        setCustomField('technicalSkills', fv.technicalSkills);
-      }
-      if (fv.toolsList && fv.toolsList.length > 0) {
-        setCustomField('tools', fv.toolsList.join(', '));
-        setCustomField('toolsList', fv.toolsList);
-      } else if (fv.tools) {
-        setCustomField('tools', fv.tools);
-      }
-
-      // 3. Education, Languages & Certificates (Step 2: Kariyer Bilgileriniz)
-      if (fv.educationLevel) {
-        setCustomField('educationLevel', fv.educationLevel);
-      }
-      if (fv.educationField) {
-        setCustomField('educationField', fv.educationField);
-      }
-      if (fv.educationHistory && fv.educationHistory.length > 0) {
-        setCustomField('educationHistory', fv.educationHistory);
-      }
-      if (fv.languages) {
-        setCustomField('languages', fv.languages);
-      }
-      if (fv.certificates) {
-        setCustomField('certificates', fv.certificates);
-      }
-
-      // 4. Candidate Summary & Description (Step 2)
-      if (fv.candidateTraits) {
-        const compressedSummary = compressCareerSummaryMeaningfully(fv.candidateTraits, 1000);
+      setCustomFields(nextCustomFields);
+      if (Object.keys(nextCoreFields).length > 0) {
         setCore((prev) => ({
           ...prev,
-          longDescription: compressedSummary || prev.longDescription,
-          shortDescription: compressedSummary ? compressedSummary.slice(0, 160) : prev.shortDescription,
+          ...nextCoreFields,
+          city: nextCoreFields.city || prev.city,
+          location: nextCoreFields.location || prev.location,
+          longDescription: nextCoreFields.longDescription || prev.longDescription,
+          shortDescription: nextCoreFields.shortDescription || prev.shortDescription,
         }));
       }
 
-      // 5. Demographics, Identity & Residence (Step 1: Genel Bilgiler)
-      if (fv.fullName && !isForbiddenNameCandidate(fv.fullName)) {
-        setCustomField('fullName', fv.fullName);
-      } else {
-        setCustomField('fullName', '');
-      }
-      if (fv.profileGender) {
-        setCustomField('profileGender', fv.profileGender);
-      }
-      if (fv.birthDate) {
-        setCustomField('birthDate', fv.birthDate);
-      }
-      if (fv.email) {
-        setCustomField('email', fv.email);
-      }
-      if (fv.phone) {
-        setCustomField('phone', fv.phone);
-      }
-      if (fv.linkedin) {
-        setCustomField('linkedin', fv.linkedin);
-      }
-      if (fv.website) {
-        setCustomField('website', fv.website);
-      }
-      if (fv.nationality) {
-        setCustomField('nationality', fv.nationality);
-      }
-      if (fv.address) {
-        setCustomField('address', fv.address);
-      }
-      const cityName = fv.residenceCity || fv.city || '';
-      const districtName = fv.residenceDistrict || '';
-      if (cityName) {
-        setCustomField('residenceCity', cityName);
-        setCustomField('preferredCity', cityName);
-        setCore((prev) => ({ ...prev, city: cityName || prev.city, location: cityName || prev.location }));
-      }
-      if (districtName) {
-        setCustomField('residenceDistrict', districtName);
-        setCustomField('preferredDistrict', districtName);
-        setCustomField('district', districtName);
-      }
-
-      // 6. CV File Metadata
-      if (fv.cvFileName) {
-        setCustomField('cvFileName', fv.cvFileName);
-      }
-      if (fv.cvDocumentId) {
-        setCustomField('cvDocumentId', fv.cvDocumentId);
-      }
-      if (fv.cvUploadedAt) {
-        setCustomField('cvUploadedAt', fv.cvUploadedAt);
-      }
-
-      const appliedKeys = [
-        'desiredRole',
-        'primarySector',
-        'experienceLevel',
-        'experiences',
-        'educationHistory',
-        'educationLevel',
-        'educationField',
-        'languages',
-        'certificates',
-        'professionalSkills',
-        'technicalSkills',
-        'tools',
-        'candidateTraits',
-        'longDescription',
-        ...(fv.fullName ? ['fullName'] : []),
-        ...(fv.profileGender ? ['profileGender'] : []),
-        ...(fv.birthDate ? ['birthDate'] : []),
-        ...(fv.email ? ['email'] : []),
-        ...(fv.phone ? ['phone'] : []),
-        ...(fv.linkedin ? ['linkedin'] : []),
-        ...(fv.website ? ['website'] : []),
-        ...(fv.nationality ? ['nationality'] : []),
-        ...(fv.address ? ['address'] : []),
-        ...(cityName ? ['residenceCity', 'city', 'preferredCity'] : []),
-        ...(districtName ? ['residenceDistrict', 'district', 'preferredDistrict'] : []),
-      ];
       setCvFilledKeys(new Set(appliedKeys));
       setIsCvApplied(true);
       setIsManualCvMode(false);
       toast.success('✨ CV bilgileri adımlara başarıyla aktarıldı.');
     },
-    [pendingCvDraft, setCustomField],
+    [pendingCvDraft, customFields, listingType.fieldSchema],
   );
 
   const handleCvDraftAnalyzed = useCallback(
@@ -2881,13 +2756,10 @@ export function CategoryListingForm({
                         <DynamicField
                           field={fieldByKey.get('fullName')!}
                           value={
-                            typeof mergedCustomFields.fullName === 'string'
-                              ? (isForbiddenNameCandidate(mergedCustomFields.fullName)
-                                  ? ''
-                                  : mergedCustomFields.fullName)
-                              : (user?.displayName && !isForbiddenNameCandidate(user.displayName)
-                                  ? user.displayName
-                                  : '')
+                            typeof mergedCustomFields.fullName === 'string' &&
+                            !isForbiddenNameCandidate(mergedCustomFields.fullName)
+                              ? mergedCustomFields.fullName
+                              : ''
                           }
                           onChange={(val) => {
                             handleCustomFieldChange('fullName', val);
