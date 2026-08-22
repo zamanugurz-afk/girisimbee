@@ -9,6 +9,7 @@ import type {
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 
 import { UNIVERSAL_ROLE_ALIASES } from './cv-universal-dictionary';
+import { normalizeCvText } from '@/features/candidates/cv/cv-turkish-encoding';
 
 // Canonical Alias Dictionary for Roles (lower-case raw -> canonical Turkish Title Case)
 const ROLE_ALIASES: Record<string, string> = {
@@ -967,21 +968,26 @@ export function mapCvToCanonicalTaxonomy(
     '';
 
   return {
-    primaryRole: resolvedRole,
-    matchedRoles,
-    primarySector: resolvedSector,
-    matchedSectors,
-    professionalSkills: [...new Set(professionalSkills)],
-    technicalSkills: [...new Set(technicalSkills)],
-    tools: [...new Set(tools)],
-    educationLevel,
-    educationField,
-    educationList: mappedEducationList,
-    languages,
-    certificates,
-    residenceCity,
-    residenceDistrict,
-    fullName: payload.fullName,
+    primaryRole: normalizeCvText(resolvedRole),
+    matchedRoles: matchedRoles.map((r) => normalizeCvText(r)),
+    primarySector: normalizeCvText(resolvedSector),
+    matchedSectors: matchedSectors.map((s) => normalizeCvText(s)),
+    professionalSkills: [...new Set(professionalSkills.map((s) => normalizeCvText(s)))],
+    technicalSkills: [...new Set(technicalSkills.map((s) => normalizeCvText(s)))],
+    tools: [...new Set(tools.map((t) => normalizeCvText(t)))],
+    educationLevel: normalizeCvText(educationLevel) || 'Lisans',
+    educationField: normalizeCvText(educationField),
+    educationList: mappedEducationList.map((edu) => ({
+      ...edu,
+      school: normalizeCvText(edu.school || ''),
+      field: normalizeCvText(edu.field || ''),
+      level: normalizeCvText(edu.level || ''),
+    })),
+    languages: normalizeCvText(languages),
+    certificates: normalizeCvText(certificates),
+    residenceCity: normalizeCvText(residenceCity),
+    residenceDistrict: normalizeCvText(residenceDistrict),
+    fullName: payload.fullName ? normalizeCvText(payload.fullName) : undefined,
     gender: payload.gender,
     birthDate: payload.birthDate,
     email: payload.email,
@@ -989,9 +995,16 @@ export function mapCvToCanonicalTaxonomy(
     linkedin: payload.linkedin,
     website: payload.website,
     nationality: payload.nationality,
-    address: payload.address,
-    experiences,
-    summary: payload.summary || '',
+    address: normalizeCvText(payload.address || ''),
+    experiences: experiences.map((exp) => ({
+      ...exp,
+      role: normalizeCvText(exp.role),
+      sector: normalizeCvText(exp.sector),
+      company: normalizeCvText(exp.company),
+      responsibilities: normalizeCvText(exp.responsibilities),
+      achievements: normalizeCvText(exp.achievements),
+    })),
+    summary: normalizeCvText(payload.summary || ''),
     ambiguousItems,
     canonicalConfidence: ambiguousItems.length === 0 ? 1.0 : 0.8,
   };

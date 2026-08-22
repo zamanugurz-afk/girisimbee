@@ -277,17 +277,47 @@ export function repairBrokenTurkishWordsAndTokens(text: string): string {
 }
 
 /**
- * Standardizes and repairs Turkish text from any CV document.
+ * Canonical CV text normalizer utility.
+ *
+ * 1. Safely handles null / undefined / non-string values.
+ * 2. Leaves normal UTF-8 Turkish text untouched.
+ * 3. Detects and repairs UTF-8 / Latin-1 / Windows-1254 / CP1254 mojibake (e.g. "SatÄ±ÅŸ", "YÃ¶netim", "Ã‡aÄŸrÄ±").
+ * 4. Applies Unicode NFC normalization.
+ * 5. Strips control characters, unmapped replacements (\uFFFD), and PDF ligatures.
+ * 6. Normalizes whitespace and dividers.
+ * 7. Applies Turkish root and broken term repairs.
  */
-export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespace = false): string {
-  if (!input) return '';
+export function normalizeCvText(input: string | null | undefined, preserveWhitespace = false): string {
+  if (input === null || input === undefined) return '';
+  if (typeof input !== 'string') input = String(input);
+  if (input.length === 0) return '';
 
   const hasLeadingSpace = preserveWhitespace && /^\s/.test(input);
   const hasTrailingSpace = preserveWhitespace && /\s$/.test(input);
 
   let text = input;
 
-  // 1. Decode numeric XML entities (e.g. &#351; -> ş, &#287; -> ğ, &#x015f; -> ş)
+  // 1. Fast-path & robust Mojibake repair for UTF-8 misread as Latin-1
+  if (
+    /[\u00C0-\u00C5\u00C8-\u00CF\u00D0-\u00D6\u00D8-\u00DE\u00E0-\u00E5][\u0080-\u00BF]/.test(text) ||
+    /Ã|Ä|Å|â€|Â/.test(text)
+  ) {
+    try {
+      const reDecoded = Buffer.from(text, 'latin1').toString('utf8');
+      if (!reDecoded.includes('\uFFFD') && reDecoded !== text) {
+        text = reDecoded;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 2. Secondary mapping for double-mojibake or partial strings
+  for (const [pattern, replacement] of MOJIBAKE_MAP) {
+    text = text.replace(pattern, replacement);
+  }
+
+  // 3. Decode numeric XML entities (e.g. &#351; -> ş, &#287; -> ğ, &#x015f; -> ş)
   text = text
     .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
       const code = parseInt(hex, 16);
@@ -298,7 +328,7 @@ export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespa
       return code > 0 ? String.fromCharCode(code) : '';
     });
 
-  // 2. Decode standard named XML entities
+  // 4. Decode standard named XML entities
   text = text
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
@@ -307,17 +337,12 @@ export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespa
     .replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ');
 
-  // 3. Fix UTF-8 Mojibake
-  for (const [pattern, replacement] of MOJIBAKE_MAP) {
-    text = text.replace(pattern, replacement);
-  }
-
-  // 4. Fix Windows-1254 read as Latin-1 (e.g. þ -> ş, ð -> ğ, ý -> ı)
+  // 5. Fix Windows-1254 read as Latin-1 (e.g. þ -> ş, ð -> ğ, ý -> ı, Ý -> İ, Þ -> Ş, Ð -> Ğ)
   for (const [pattern, replacement] of LATIN1_MISMATCH_MAP) {
     text = text.replace(pattern, replacement);
   }
 
-  // 5. Replace PDF ligatures
+  // 6. Replace PDF ligatures
   text = text
     .replace(/\uFB00/g, 'ff')
     .replace(/\uFB01/g, 'fi')
@@ -325,28 +350,27 @@ export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespa
     .replace(/\uFB03/g, 'ffi')
     .replace(/\uFB04/g, 'ffl');
 
-  // 6. Clean box-drawing characters used as table column dividers (│, ┃, ┆)
-  // Convert them into a clean pipe separator with spaces
+  // 7. Clean box-drawing characters used as table column dividers (│, ┃, ┆)
   text = text
     .replace(/[\u2502\u2503\u2506\u2507\u254e\u254f]/g, ' | ')
     .replace(/[\u2500\u2501\u254c\u254d]/g, '-')
-    .replace(/[\u250c\u250d\u250e\u250f\u2510\u2511\u2512\u2513\u2514\u2515\u2516\u2517\u2518\u2519\u251a\u251b\u251c\u251d\u251e\u251f\u2520\u2521\u2522\u2523\u2524\u2525\u2526\u2527\u2528\u2529\u252a\u252b\u252c\u252d\u252e\u252f\u2530\u2531\u2532\u2533\u2534\u2535\u2536\u2537\u2538\u2539\u253a\u253b\u253c\u253d\u253e\u253f]/g, ' ');
+    .replace(/[\u250c-\u253f]/g, ' ');
 
-  // 7. Strip zero-width spaces and control artifacts
+  // 8. Strip zero-width spaces and control artifacts
   text = text
     .replace(/[\u200B-\u200D\uFEFF\u0000]/g, '')
     .replace(/\u00A0/g, ' ');
 
-  // 8. Repair broken Turkish word stems and tokens
+  // 9. Repair broken Turkish word stems and tokens
   text = repairBrokenTurkishWordsAndTokens(text);
 
-  // 9. Clean any leftover unmapped replacement characters (\uFFFD)
+  // 10. Clean any leftover unmapped replacement characters (\uFFFD)
   text = text.replace(/\uFFFD/g, '');
 
-  // 10. Normalize Unicode to NFC
+  // 11. Normalize Unicode to NFC
   text = text.normalize('NFC');
 
-  // 11. Clean excessive spaces around pipes and punctuation
+  // 12. Clean excessive spaces around pipes and punctuation
   text = text
     .replace(/[ \t]*\|[ \t]*/g, ' | ')
     .replace(/[ \t]+/g, ' ');
@@ -360,3 +384,5 @@ export function repairTurkishEncodingAndMojibake(input: string, preserveWhitespa
 
   return text;
 }
+
+export const repairTurkishEncodingAndMojibake = normalizeCvText;

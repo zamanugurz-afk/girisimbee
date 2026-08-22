@@ -11,6 +11,7 @@ import {
   EXTENSIVE_TURKISH_MALE_NAMES,
   EXTENSIVE_TURKISH_FEMALE_NAMES,
 } from './cv-universal-dictionary';
+import { extractCandidateName } from './cv-name-extractor';
 
 export interface ParsedUniversalDateRange {
   startYear: number | null;
@@ -294,104 +295,9 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
   const webMatch = candidateText.match(/(?:https?:\/\/)?(?:www\.)?(?:github\.com\/[a-zA-Z0-9_-]+|behance\.net\/[a-zA-Z0-9_-]+|medium\.com\/@[a-zA-Z0-9_-]+|[a-zA-Z0-9-]+\.(?:dev|me|io)(?:\/[^\s,)]*)?)/i) || text.match(/(?:https?:\/\/)?(?:www\.)?(?:github\.com\/[a-zA-Z0-9_-]+|behance\.net\/[a-zA-Z0-9_-]+|medium\.com\/@[a-zA-Z0-9_-]+|[a-zA-Z0-9-]+\.(?:dev|me|io)(?:\/[^\s,)]*)?)/i);
   if (webMatch && !webMatch[0].includes('linkedin.com')) website = webMatch[0].trim();
 
-  // 6. Full Name Extraction (Multi-Tier Robust Engine)
-  let fullName: string | undefined;
-
-  // Tier 0: Explicit Separate "Adı: Canan" and "Soyadı: Demirdağ" (or "Ad:" / "Soyad:") in candidateText
-  const firstNameMatch = candidateText.match(/(?:^|\n)[ \t]*(?:adı|ad|first\s*name)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:[ \t]+[A-ZÇĞİÖŞÜa-zçğıöşü]+)?)/i);
-  const lastNameMatch = candidateText.match(/(?:^|\n)[ \t]*(?:soyadı|soyad|last\s*name|surname)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:[ \t]+[A-ZÇĞİÖŞÜa-zçğıöşü]+)?)/i);
-  if (firstNameMatch && lastNameMatch) {
-    const fn = firstNameMatch[1].trim();
-    const ln = lastNameMatch[1].trim();
-    const normFn = normalizeTrUniversal(fn);
-    const normLn = normalizeTrUniversal(ln);
-    if (
-      !/^(?:bilgiler|bilgileri|ozel|kisisel|adresi|telefonu|posta|tarihi|egitim|deneyim)$/i.test(normFn) &&
-      !/^(?:bilgiler|bilgileri|ozel|kisisel|adresi|telefonu|posta|tarihi|egitim|deneyim)$/i.test(normLn)
-    ) {
-      fullName = `${fn} ${ln}`;
-    }
-  }
-
-  // Tier 1: Explicit Combined Name Label (e.g. "İsim: Ahmet Yılmaz", "Ad Soyad: Burak Batıl", "Full Name: John Doe") in candidateText
-  if (!fullName) {
-    const nameLabelMatch = candidateText.match(/(?:^|\n)[ \t]*(?:isim|ad\s*soyad|adı\s*soyadı|adınız|full\s*name|candidate\s*name|candidate|aday)[\s:]+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:[ \t]+[A-ZÇĞİÖŞÜa-zçğıöşü]+){1,3})/i);
-    if (nameLabelMatch) {
-      const candidate = nameLabelMatch[1].trim();
-      const normCandidate = normalizeTrUniversal(candidate);
-      if (!/^(?:bilgiler|bilgileri|ozel|kisisel|adresi|telefonu|posta|tarihi|egitim|deneyim)$/i.test(normCandidate)) {
-        fullName = candidate;
-      }
-    }
-  }
-
-  // Tier 2: Directly under Kişisel Bilgiler / Personal Information header in candidateText
-  if (!fullName) {
-    const kisiselSectionMatch = candidateText.match(/(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler|personal\s*information)[\s:]*\n+([^\n]+)/i);
-    if (kisiselSectionMatch) {
-      let line = kisiselSectionMatch[1].trim();
-      line = line.replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '').replace(/^(?:adı|ad|isim)[\s:]+/i, '').trim();
-      const normLine = normalizeTrUniversal(line);
-      const words = line.split(/\s+/);
-      const isHeader = /^(?:ozgecmis|cv|egitim|deneyim|iletisim|hakkimda|beceriler|referanslar)$/i.test(normLine);
-      const hasInvalid = /[@:0-9<>{}[\]_=+*#]/.test(line) || line.includes('.com');
-      if (!isHeader && !hasInvalid && words.length >= 2 && words.length <= 4 && line.length >= 4 && line.length <= 50) {
-        fullName = line;
-      }
-    }
-  }
-
-  // Tier 3: Top lines (lines 0 to 8 of candidateText)
-  if (!fullName) {
-    const rawLines = candidateText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-    const topLines = rawLines.slice(0, 8);
-
-    for (const rawLine of topLines) {
-      // Clean leading icons, bullets, and prefixes
-      let clean = rawLine
-        .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
-        .replace(/^(?:özgeçmiş|ozgecmis|curriculum\s*vitae|resume|cv)\s*[-–—|:]\s*/i, '')
-        .replace(/^(?:av\.?|avukat|dr\.?|doktor|prof\.?\s*dr\.?|doç\.?\s*dr\.?|müh\.?|mühendis|uzm\.?\s*dr\.?|şef|öğr\.?\s*gör\.?)\s+/i, '')
-        .trim();
-
-      // If line contains pipe or dash with location / role, take the name portion before separator
-      if (clean.includes('|') || clean.includes('—') || clean.includes(' - ')) {
-        const parts = clean.split(/[|—]|\s+-\s+/);
-        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-          clean = parts[0].trim();
-        }
-      }
-
-      // If line contains "/" for location, check if left part is name
-      if (clean.includes('/') && !clean.includes('@') && !clean.includes('http')) {
-        const parts = clean.split('/');
-        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-          clean = parts[0].trim();
-        }
-      }
-
-      const normClean = normalizeTrUniversal(clean);
-      const isHeaderOrSection = /^(?:ozgecmis|curriculum\s*vitae|curriculum|resume|cv|egitim|is\s*deneyimi|deneyim|tecrube|kisisel\s*bilgiler|kisisel|iletisim|hakkimda|ozet|beceriler|yetkinlikler|referanslar|projeler|sertifikalar|diller|languages|skills|experience|education|summary)$/i.test(normClean);
-
-      const hasInvalidChars = /[@:0-9<>{}[\]_=+*#]/.test(clean) || clean.includes('www.') || clean.includes('.com') || clean.includes('.net');
-
-      const isKnownEntity = /holding|sirketi|limited|anonim|a\.s|ltd|bankasi|hastanesi|universitesi|fakultesi|bolumu|enstitusu|mudurlugu|bakanligi|belediyesi|teknik/i.test(normClean);
-
-      const words = clean.split(/\s+/);
-      if (
-        !isHeaderOrSection &&
-        !hasInvalidChars &&
-        !isKnownEntity &&
-        words.length >= 2 &&
-        words.length <= 4 &&
-        clean.length >= 4 &&
-        clean.length <= 50
-      ) {
-        fullName = clean;
-        break;
-      }
-    }
-  }
+  // 6. Full Name Extraction (Dedicated Engine)
+  const extractedName = extractCandidateName(candidateText) || extractCandidateName(text);
+  const fullName = extractedName || undefined;
 
   return { fullName, gender, birthDate, birthYear, email, phone, linkedin, website, nationality, address };
 }
