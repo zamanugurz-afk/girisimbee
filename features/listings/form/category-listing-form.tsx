@@ -472,6 +472,28 @@ export function CategoryListingForm({
     return null;
   });
 
+  useEffect(() => {
+    console.log('[CV DEFAULTS MOUNT]', {
+      timestamp: new Date().toISOString(),
+      fullName: defaults.customFields?.fullName,
+      primarySector: defaults.customFields?.primarySector,
+      desiredRole: defaults.customFields?.desiredRole,
+      experiencesCount: (defaults.customFields?.experiences as any[])?.length,
+      initialValues: initialValues ? 'EXISTS' : 'UNDEFINED',
+    });
+  }, [defaults, initialValues]);
+
+  useEffect(() => {
+    console.log('[CV STATE RENDER]', {
+      timestamp: new Date().toISOString(),
+      fullName: customFields?.fullName,
+      primarySector: customFields?.primarySector,
+      desiredRole: customFields?.desiredRole,
+      experiencesCount: (customFields?.experiences as any[])?.length,
+      isCvApplied,
+    });
+  }, [customFields, isCvApplied]);
+
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
   const isPackageStep = Boolean(currentStep.package);
