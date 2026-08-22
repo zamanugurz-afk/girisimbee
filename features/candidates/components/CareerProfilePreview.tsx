@@ -1,50 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Award,
   Briefcase,
   Calendar,
   Check,
   Clock,
-  Eye,
+  CreditCard,
+  Globe,
   GraduationCap,
-  Hash,
-  Heart,
-  Languages,
-  MapPin,
-  Monitor,
-  Shield,
+  Lock,
+  Mail,
+  Pencil,
+  Phone,
+  PhoneCall,
+  Send,
+  Sliders,
+  Store,
+  Timer,
+  Trash2,
   User,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
 import {
-  estimateTotalExperienceYears,
-  formatCareerPeriod,
-  MONTH_OPTIONS,
+  monthLabel,
   toCareerPeriodInterval,
 } from '@/features/candidates/lib/career-experience-dates';
-import { polishCareerSummary, isRelatedCareerRole } from '@/features/candidates/lib/career-summary';
-import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
-import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
-import { composeAchievementWithMetric } from '@/features/candidates/ai/compose-achievement';
+import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import {
-  ageFromBirthDate,
   maskDisplaySurname,
-  publicGenderLabel,
 } from '@/features/candidates/lib/career-public-identity';
 import {
   getExperienceLevelLabel,
-  isManualCareerOption,
   parseCareerLanguages,
   parseSelectedList,
 } from '@/features/candidates/taxonomy/career-taxonomy';
-import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
-import { ListingContactCta } from '@/features/contact-requests/components/listing-contact-cta';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { loginUrl } from '@/features/authentication/constants/routes';
+import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
+import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
+import { CONTACT_REQUEST_CONFIG } from '@/features/contact-requests/config/contact-request.config';
+import {
+  isContactRequestEligibleCategory,
+} from '@/features/contact-requests/config/contact-cta-copy';
+import type { ContactRequestPublicView } from '@/features/contact-requests/types/contact-request.types';
 import { cn } from '@/lib/utils';
-import type { ListingId } from '@/lib/domain/ids';
 
 export type CareerCardInput = {
   variant?: 'seeker' | 'hire';
@@ -73,6 +89,8 @@ export type CareerCardInput = {
   coverUrl?: string | null;
   displayName?: string | null;
   displayNameMasked?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   age?: number | null;
   gender?: string | null;
   birthDate?: string | null;
@@ -83,6 +101,9 @@ export type CareerCardInput = {
   highlightedAchievements?: string[];
   /** Form preview: explain these fields appear after an accepted request. */
   personalInfoPreview?: boolean;
+  isFormPreview?: boolean;
+  onEditExperience?: (index: number) => void;
+  onDeleteExperience?: (index: number) => void;
 };
 
 export type CareerCardChrome = {
@@ -96,23 +117,8 @@ export type CareerCardChrome = {
   ownerUserId?: string;
 };
 
-function formatCareerBirthDate(value: string | null | undefined): string {
-  const raw = (value ?? '').trim();
-  const ymd = raw.length >= 10 ? raw.slice(0, 10) : raw;
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
-  if (!match) return raw;
-  const month = MONTH_OPTIONS[Number(match[2]) - 1]?.label;
-  if (!month) return raw;
-  return `${Number(match[3])} ${month} ${match[1]}`;
-}
-
 function asList(value: string[] | string | null | undefined): string[] {
   return parseSelectedList(value);
-}
-
-function prioritizeListedSkills(all: string[], highlighted: string[]): string[] {
-  const rank = new Set(highlighted);
-  return [...all.filter((item) => rank.has(item)), ...all.filter((item) => !rank.has(item))];
 }
 
 function splitLines(value: string | null | undefined): string[] {
@@ -122,131 +128,41 @@ function splitLines(value: string | null | undefined): string[] {
     .filter(Boolean);
 }
 
-function roleInitials(role: string | null | undefined): string {
-  const words = (role ?? '')
-    .split(/\s+/)
-    .map((word) => word.trim())
-    .filter((word) => word && !/^(ve|ile|veya|\/|-)$/i.test(word));
-  if (words.length === 0) return 'KK';
-  if (words.length === 1) return words[0]!.slice(0, 2).toLocaleUpperCase('tr-TR');
-  return `${words[0]!.charAt(0)}${words[1]!.charAt(0)}`.toLocaleUpperCase('tr-TR');
+function experienceResponsibilities(exp: CareerExperience): string[] {
+  const selected = (exp.selectedResponsibilities ?? []).filter(Boolean);
+  if (selected.length > 0) return selected;
+  return splitLines(exp.responsibilities);
 }
 
-function ChipRow({
-  values,
-  limit = 5,
-}: {
-  values: string[];
-  limit?: number;
-}) {
+function formatExperienceDurationBadge(exp: {
+  startMonth?: number | null;
+  startYear?: number | null;
+  endMonth?: number | null;
+  endYear?: number | null;
+  isCurrent?: boolean;
+  duration?: string | null;
+}): string {
+  const interval = toCareerPeriodInterval(exp);
+  if (!interval) return (exp.duration ?? '').trim();
+  const totalMonths = interval.end - interval.start + 1;
+  if (totalMonths <= 0) return '';
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  if (years > 0 && months > 0) return `${years} yıl ${months} ay`;
+  if (years > 0) return `${years} yıl`;
+  return `${months} ay`;
+}
+
+function ExpandableSummary({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
-  if (values.length === 0) return <p className="text-sm text-muted-foreground">—</p>;
-  const visible = expanded ? values : values.slice(0, limit);
-  const hidden = values.length - visible.length;
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5">
-        {visible.map((value) => (
-          <span
-            key={value}
-            className="inline-flex max-w-full items-center rounded-full bg-primary/[0.08] px-2.5 py-1 text-[12px] font-medium leading-snug text-primary"
-          >
-            <span className="truncate">{value}</span>
-          </span>
-        ))}
-        {!expanded && hidden > 0 ? (
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
-          >
-            +{hidden}
-          </button>
-        ) : null}
-      </div>
-      {expanded && values.length > limit ? (
-        <button
-          type="button"
-          onClick={() => setExpanded(false)}
-          className="text-[11px] font-medium text-muted-foreground hover:text-foreground"
-        >
-          Daha az göster
-        </button>
-      ) : null}
-    </div>
-  );
-}
+  const needsToggle = text.length > 250;
 
-function SectionLabel({
-  icon: Icon,
-  title,
-}: {
-  icon: typeof Briefcase;
-  title: string;
-}) {
   return (
-    <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary whitespace-normal break-words leading-tight">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-      <span>{title}</span>
-    </p>
-  );
-}
-
-function CompactList({
-  values,
-  limit = 3,
-  icon: Icon,
-}: {
-  values: string[];
-  limit?: number;
-  icon?: typeof Check;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  if (values.length === 0) return null;
-  const visible = expanded ? values : values.slice(0, limit);
-  const hidden = values.length - visible.length;
-  return (
-    <div>
-      <ul className="space-y-1.5">
-        {visible.map((item) => (
-          <li key={item} className="flex gap-2 text-sm leading-snug text-foreground/85">
-            {Icon ? (
-              <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-            ) : (
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            )}
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-      {!expanded && hidden > 0 ? (
-        <button
-          type="button"
-          onClick={() => setExpanded(true)}
-          className="mt-2 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-        >
-          Tümünü gör · +{hidden}
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-function ExpandableText({
-  text,
-  lines = 4,
-}: {
-  text: string;
-  lines?: number;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const needsToggle = text.length > 220;
-  return (
-    <div>
+    <div className="space-y-1.5">
       <p
         className={cn(
-          'text-sm leading-7 text-foreground/90',
-          !expanded && needsToggle && (lines <= 3 ? 'line-clamp-3' : 'line-clamp-5'),
+          'text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-normal',
+          !expanded && needsToggle && 'line-clamp-4',
         )}
       >
         {text}
@@ -254,8 +170,8 @@ function ExpandableText({
       {needsToggle ? (
         <button
           type="button"
-          onClick={() => setExpanded((value) => !value)}
-          className="mt-2 text-[12px] font-medium text-primary hover:text-primary/80"
+          onClick={() => setExpanded((v) => !v)}
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
         >
           {expanded ? 'Daha az göster' : 'Devamını gör'}
         </button>
@@ -264,677 +180,717 @@ function ExpandableText({
   );
 }
 
-function HeroFact({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function SkillChips({ values, limit = 8 }: { values: string[]; limit?: number }) {
+  const [expanded, setExpanded] = useState(false);
+  if (values.length === 0) return null;
+
+  const visible = expanded ? values : values.slice(0, limit);
+  const hidden = values.length - visible.length;
+
   return (
-    <div className="min-w-0">
-      <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground whitespace-normal break-words leading-tight">
-        {label}
-      </dt>
-      <dd className="mt-1 truncate text-sm font-medium text-foreground">{value}</dd>
+    <div className="flex flex-wrap items-center gap-2">
+      {visible.map((val, idx) => (
+        <span
+          key={`${val}-${idx}`}
+          className="inline-flex items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3.5 py-1.5 text-xs font-medium text-blue-700 shadow-none dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
+        >
+          {val}
+        </span>
+      ))}
+      {!expanded && hidden > 0 ? (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="inline-flex items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100 transition-colors dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
+        >
+          +{hidden}
+        </button>
+      ) : null}
+      {expanded && values.length > limit ? (
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 ml-1"
+        >
+          Daha az göster
+        </button>
+      ) : null}
     </div>
   );
 }
 
-function CoverThumb({
-  coverUrl,
-  initials,
-}: {
-  coverUrl?: string | null;
-  initials: string;
-}) {
-  return (
-    <div className="relative aspect-square w-16 sm:w-20 md:w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
-      {coverUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={coverUrl} alt="" className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-muted">
-          <span className="text-xl sm:text-2xl font-semibold tracking-wide text-primary/80">{initials}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function experienceResponsibilities(exp: CareerExperience): string[] {
-  const selected = (exp.selectedResponsibilities ?? []).filter(Boolean);
-  if (selected.length > 0) return selected;
-  return splitLines(exp.responsibilities);
-}
-
-function experienceAchievements(exp: CareerExperience): string[] {
-  const selected = (exp.selectedAchievements ?? []).filter(
-    (item) => item && !isManualCareerOption(item),
-  );
-  const lines = selected.length > 0 ? selected : splitLines(exp.achievements);
-  const metric = (exp.achievementMetric ?? '').trim();
-  if (!metric) return lines;
-  if (lines.length === 0) return [metric];
-  const [first, ...rest] = lines;
-  return [composeAchievementWithMetric(first, metric), ...rest];
-}
-
-/** Public/preview card shared by İş Arıyorum (seeker) and İşe Alıyorum (hire). */
 export function CareerProfilePreview({
   data,
   chrome,
-  headingAs = 'h3',
+  headingAs: Heading = 'h2',
 }: {
   data: CareerCardInput;
   chrome?: CareerCardChrome;
   headingAs?: 'h1' | 'h2' | 'h3';
 }) {
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const isHire = data.variant === 'hire';
-  const preferredSectors = asList(data.preferredSectors);
-  const sectorChips = preferredSectors.length
-    ? preferredSectors
-    : data.primarySector
-      ? [data.primarySector]
-      : [];
+  const isOwner = Boolean(user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId);
+  const listingId = chrome?.listingId;
+  const isEligible = Boolean(listingId && isContactRequestEligibleCategory('is-bul'));
+
+  const [mine, setMine] = useState<ContactRequestPublicView | null | undefined>(undefined);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadMine = useCallback(async () => {
+    if (!user || isOwner || !listingId || !isEligible) {
+      setMine(null);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/listings/${listingId}/contact-requests/mine`);
+      if (!res.ok) {
+        setMine(null);
+        return;
+      }
+      const json = (await res.json()) as { data?: { request?: ContactRequestPublicView | null } };
+      setMine(json.data?.request ?? null);
+    } catch {
+      setMine(null);
+    }
+  }, [user, isOwner, listingId, isEligible]);
+
+  useEffect(() => {
+    if (authLoading || !listingId || !isEligible) return;
+    void loadMine();
+  }, [authLoading, listingId, isEligible, loadMine]);
+
+  const isContactAccepted = mine?.effectiveStatus === 'accepted';
+  const isPending = mine?.effectiveStatus === 'pending';
+
   const toolsAll = asList(data.tools);
   const professionalAll = asList(data.professionalSkills);
   const technicalAll = [...new Set([...asList(data.technicalSkills), ...toolsAll])];
-  const highlightedSkills = isHire
-    ? pickHighlightedSkills({
-        professionalSkills: data.professionalSkills,
-        technicalSkills: data.technicalSkills,
-        desiredRole: data.desiredRole,
-        primarySector: data.primarySector,
-        limit: 7,
-      })
-    : (data.highlightedSkills?.length
-      ? data.highlightedSkills
-      : pickHighlightedSkills({
-          professionalSkills: data.professionalSkills,
-          technicalSkills: data.technicalSkills,
-          desiredRole: data.desiredRole,
-          primarySector: data.primarySector,
-          experiences: data.experiences,
-          limit: 7,
-        }));
-  const professional = prioritizeListedSkills(professionalAll, highlightedSkills);
-  const technical = prioritizeListedSkills(technicalAll, highlightedSkills);
+  const preferredSectors = asList(data.preferredSectors);
+  const allSkills = [...new Set([...preferredSectors, ...professionalAll, ...technicalAll])];
+
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
     (entry) => (entry.languageOther || entry.language) && entry.level,
   );
-  const hireDuties = asList(data.requiredResponsibilities);
-  const hireWins = asList(data.requiredAchievements);
-  const experiences = [...(data.experiences ?? [])].sort((a, b) => {
-    if (!isHire && data.desiredRole) {
-      const aRelated = isRelatedCareerRole(a.role, data.desiredRole) ? 1 : 0;
-      const bRelated = isRelatedCareerRole(b.role, data.desiredRole) ? 1 : 0;
-      if (aRelated !== bRelated) return bRelated - aRelated;
-    }
-    const aInterval = toCareerPeriodInterval(a);
-    const bInterval = toCareerPeriodInterval(b);
-    if (aInterval && bInterval) return bInterval.end - aInterval.end;
-    return 0;
-  });
-  const [experiencesOpen, setExperiencesOpen] = useState(false);
-  const featuredLimit = isHire ? 0 : 2;
-  const visibleExperiences = isHire
-    ? []
-    : experiencesOpen
-      ? experiences
-      : experiences.slice(0, featuredLimit);
-  const compactExperiences = isHire || experiencesOpen
-    ? []
-    : experiences.slice(featuredLimit);
-  const extraExperienceCount = isHire ? 0 : Math.max(0, experiences.length - featuredLimit);
-  const progressions =
-    data.careerProgressions?.length
-      ? data.careerProgressions
-      : isHire
-        ? []
-        : detectCareerProgression(data.experiences ?? []);
-  const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
-  const totalYears = estimateTotalExperienceYears(experiences);
-  const experienceHeadline = isHire
-    ? null
-    : totalYears != null && totalYears > 0
-      ? `${totalYears} yıl deneyim`
-      : experiences.length > 0
-        ? `${experiences.length} deneyim`
-        : null;
-  const initials = roleInitials(data.desiredRole);
-  const summary = polishCareerSummary(data.longDescription || data.requiredResponsibilities);
-  const salary = isHire ? data.salaryRange : data.salaryExpectation;
-  const Heading = headingAs;
-  const ctaLabel = 'İletişim Talebi Gönder';
-  const listingId = chrome?.listingId;
-  const { user } = useAuth();
-  const isOwner = Boolean(user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId);
-  const showPublicCta = Boolean(listingId);
-  const showChromeMeta = Boolean(
-    chrome?.listingNumber
-    || chrome?.publishedAt
-    || chrome?.updatedAt
-    || typeof chrome?.views === 'number',
-  );
-  const publicName =
-    (data.displayName ?? '').trim()
-    || data.displayNameMasked
-    || (!listingId && !isHire ? maskDisplaySurname(user?.displayName) : null);
-  const age = data.age ?? (!isHire ? ageFromBirthDate(data.birthDate) : null);
-  const gender = isHire ? null : publicGenderLabel(data.gender);
-  const showRevealedPersonal =
-    !isHire
-    && !data.personalInfoPreview
-    && Boolean(data.birthDate || data.residenceCity || data.residenceDistrict);
-  const hireConditions = [
-    data.workplacePreference ? { label: 'Çalışma şekli', value: data.workplacePreference } : null,
-    data.workType ? { label: 'Çalışma türü', value: data.workType } : null,
-    data.preferredCity ? { label: 'Çalışma lokasyonu', value: data.preferredCity } : null,
-    data.availability ? { label: 'İşe başlama', value: data.availability } : null,
-    salary ? { label: 'Ücret aralığı', value: salary } : null,
-  ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
-  const heroFacts = isHire
-    ? []
-    : [
-        levelLabel ? { label: 'Kariyer seviyesi', value: levelLabel } : null,
-        experienceHeadline ? { label: 'Toplam deneyim', value: experienceHeadline } : null,
-        data.preferredCity ? { label: 'Tercih edilen il', value: data.preferredCity } : null,
-        data.workplacePreference ? { label: 'Çalışma modeli', value: data.workplacePreference } : null,
-        data.workType ? { label: 'Çalışma tercihi', value: data.workType } : null,
-        data.availability ? { label: 'İşe başlama', value: data.availability } : null,
-        data.salaryExpectation ? { label: 'Ücret beklentisi', value: data.salaryExpectation } : null,
-      ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
-  const hireHasProfile = Boolean(
-    data.educationLevel || data.educationField || certificates.length > 0 || languages.length > 0,
+  const hasCertificatesOrLanguages = certificates.length > 0 || languages.length > 0;
+
+  const hasEducation = Boolean(
+    (data.educationHistory && data.educationHistory.length > 0) ||
+    data.educationLevel ||
+    data.educationField,
   );
 
-  const sectionClass = 'border-t border-border/40 px-5 py-6 sm:px-6 lg:px-8 lg:py-7';
+  const [expandedExperiences, setExpandedExperiences] = useState(false);
+  const experiences = useMemo(() => {
+    return [...(data.experiences ?? [])].sort((a, b) => {
+      const aInterval = toCareerPeriodInterval(a);
+      const bInterval = toCareerPeriodInterval(b);
+      if (aInterval && bInterval) return bInterval.end - aInterval.end;
+      return 0;
+    });
+  }, [data.experiences]);
+
+  const visibleExperiences = expandedExperiences ? experiences : experiences.slice(0, 3);
+  const visibleCount = visibleExperiences.length;
+
+  const summary = polishCareerSummary(data.longDescription || data.requiredResponsibilities);
+  const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
+  const salary = isHire ? data.salaryRange : data.salaryExpectation;
+
+  const workPreferenceFacts = useMemo(() => {
+    const facts: Array<{ label: string; value: string; icon: typeof User }> = [];
+    if (data.desiredRole) {
+      facts.push({ label: 'Pozisyon', value: data.desiredRole, icon: User });
+    }
+    if (data.primarySector) {
+      facts.push({ label: 'Uzmanlık Sektörü', value: data.primarySector, icon: Clock });
+    }
+    if (levelLabel) {
+      facts.push({ label: 'Kariyer Seviyesi', value: levelLabel, icon: Award });
+    }
+    if (data.workplacePreference) {
+      facts.push({ label: 'Çalışma Modeli', value: data.workplacePreference, icon: Store });
+    }
+    if (data.workType) {
+      facts.push({ label: 'Çalışma Tercihi', value: data.workType, icon: Timer });
+    }
+    if (data.availability) {
+      facts.push({ label: 'İşe Başlama', value: data.availability, icon: Calendar });
+    }
+    if (salary) {
+      facts.push({ label: 'Ücret Beklentisi', value: salary, icon: CreditCard });
+    }
+    return facts;
+  }, [
+    data.desiredRole,
+    data.primarySector,
+    levelLabel,
+    data.workplacePreference,
+    data.workType,
+    data.availability,
+    salary,
+  ]);
+
+  const contactEmail = data.contactEmail || (isContactAccepted ? mine?.ownerContactEmail : null);
+  const contactPhone = data.contactPhone || (isContactAccepted ? mine?.ownerContactPhone : null);
+  const hasContactChannels = Boolean(contactEmail || contactPhone);
+
+  const publicName =
+    (data.displayName ?? '').trim() ||
+    (isContactAccepted && mine?.ownerFullName ? mine.ownerFullName : null) ||
+    data.displayNameMasked ||
+    (!listingId && !isHire ? maskDisplaySurname(user?.displayName) : null);
+
+  const showContactBanner = Boolean(listingId && !isOwner && !isHire);
+
+  function requireLogin() {
+    router.push(loginUrl(pathname || `/ilan/${listingId}`));
+  }
+
+  function handleOpenContactModal() {
+    if (!user) {
+      requireLogin();
+      return;
+    }
+    setModalOpen(true);
+  }
+
+  async function handleContactSubmit() {
+    const trimmed = message.trim();
+    if (trimmed.length < CONTACT_REQUEST_CONFIG.messageMinLength) {
+      toast.error(`Mesaj en az ${CONTACT_REQUEST_CONFIG.messageMinLength} karakter olmalıdır.`);
+      return;
+    }
+    if (!acceptTerms) {
+      toast.error('İletişim ve Mesajlaşma Kullanım Koşullarını kabul etmelisiniz.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/listings/${listingId}/contact-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: trimmed,
+          acceptTerms: true,
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        data?: { request?: ContactRequestPublicView };
+      };
+      if (!res.ok) {
+        throw new Error(json.error ?? 'Talep gönderilemedi');
+      }
+      setMine(json.data?.request ?? null);
+      setModalOpen(false);
+      setMessage('');
+      setAcceptTerms(false);
+      toast.success('İletişim talebiniz gönderildi.', {
+        description: 'Karşı taraf talebinizi kabul ettiğinde iletişim bilgileri açılacaktır.',
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Talep gönderilemedi');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function handleDirectContact() {
+    if (mine?.conversationId) {
+      router.push(`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`);
+      return;
+    }
+    if (contactPhone) {
+      window.location.href = `tel:${contactPhone}`;
+      return;
+    }
+    router.push(DASHBOARD_ROUTES.mesajlarim);
+  }
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-primary/15 bg-white shadow-[0_8px_30px_-18px_rgba(15,23,42,0.18)] dark:bg-card">
-      <div className="relative px-5 py-6 sm:px-6 sm:py-7 lg:px-8">
-        <div className="absolute right-5 top-5 sm:right-6 lg:right-8">
-          {listingId ? (
-            <FavoriteButton
-              listingId={listingId as ListingId}
-              title={chrome?.listingTitle ?? data.desiredRole ?? undefined}
-              className="h-10 w-10 rounded-full border-border/60 bg-white shadow-sm"
-            />
-          ) : (
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-white text-muted-foreground shadow-sm">
-              <Heart className="h-4 w-4" aria-hidden />
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-start gap-4 sm:gap-5">
-          <CoverThumb coverUrl={data.coverUrl} initials={initials} />
-          <div className="min-w-0 flex-1 pr-8 sm:pr-10">
-            <p
-              className={cn(
-                'text-[11px] font-semibold uppercase tracking-[0.16em]',
-                isHire
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-sky-600 dark:text-sky-400',
-              )}
-            >
-              {isHire ? 'İş ilanı kartı' : 'Kariyer kartı'}
-            </p>
-            {!isHire && (publicName || age || gender) ? (
-              <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                {publicName ? (
-                  <span className="inline-flex items-center gap-1 font-semibold tracking-tight text-foreground">
-                    <User className="h-3 w-3 text-sky-600 dark:text-sky-400" aria-hidden />
-                    {publicName}
-                  </span>
-                ) : null}
-                {publicName && (age || gender) ? <span aria-hidden>·</span> : null}
-                {age ? <span>{age} yaş</span> : null}
-                {age && gender ? <span aria-hidden>·</span> : null}
-                {gender ? <span>{gender}</span> : null}
-              </p>
-            ) : null}
-            <Heading className="mt-1.5 break-normal font-display text-lg sm:text-xl font-bold leading-snug tracking-tight text-foreground">
-              {data.desiredRole || (isHire ? 'Açık pozisyon belirtilmedi' : 'Pozisyon belirtilmedi')}
-            </Heading>
-            {isHire ? (
-              data.primarySector || levelLabel ? (
-                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                  {data.primarySector ? (
-                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                      {data.primarySector}
-                    </span>
-                  ) : null}
-                  {data.primarySector && levelLabel ? (
-                    <span className="text-muted-foreground" aria-hidden>
-                      ·
-                    </span>
-                  ) : null}
-                  {levelLabel ? (
-                    <span className="text-muted-foreground">{levelLabel}</span>
-                  ) : null}
-                </p>
-              ) : null
-            ) : (
-              <>
-                {data.primarySector ? (
-                  <p className="mt-1.5 text-sm font-medium text-sky-600 dark:text-sky-400">
-                    {data.primarySector}
-                  </p>
-                ) : null}
-                {heroFacts.length > 0 ? (
-                  <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3">
-                    {heroFacts.map((fact) => (
-                      <HeroFact key={fact.label} label={fact.label} value={fact.value} />
-                    ))}
-                  </dl>
-                ) : null}
-              </>
-            )}
-            {!isHire && progressions.length > 0 ? (
-              <p className="mt-4 text-sm text-foreground">
-                <span className="text-muted-foreground">Kariyer gelişimi: </span>
-                {progressions.map((item) => `${item.from} → ${item.to}`).join(' · ')}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {summary ? (
-        <div className={sectionClass}>
-          <SectionLabel icon={User} title={isHire ? 'Pozisyon özeti' : 'Kariyer özeti'} />
-          <ExpandableText text={summary} lines={3} />
-        </div>
-      ) : null}
-
-      {isHire ? (
-        <>
-          {hireHasProfile ? (
-            <div className={sectionClass}>
-              <SectionLabel icon={GraduationCap} title="Aranan profil" />
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="min-w-0">
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                    Eğitim
-                  </p>
-                  {data.educationLevel || data.educationField ? (
-                    <div className="space-y-2">
-                      {data.educationField && data.educationField.includes(' / ') ? (
-                        data.educationField.split(' / ').map((degree, idx) => (
-                          <div key={idx} className="space-y-0.5">
-                            <p className="text-sm font-semibold text-foreground">
-                              {degree}
-                            </p>
-                          </div>
-                        ))
-                      ) : (
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">
-                            {data.educationLevel || 'Eğitim'}
-                          </p>
-                          {data.educationField ? (
-                            <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
-                          ) : null}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Belirtilmedi</p>
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                    Sertifika / Dil
-                  </p>
-                  <div className="space-y-3">
-                    {certificates.length > 0 ? <CompactList values={certificates} icon={Check} /> : null}
-                    {languages.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {languages.map((entry) => {
-                          const name = entry.languageOther?.trim() || entry.language;
-                          return (
-                            <span
-                              key={`${name}-${entry.level}`}
-                              className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs"
-                            >
-                              <Languages className="h-3 w-3 text-primary" aria-hidden />
-                              <span className="font-medium text-foreground">{name}</span>
-                              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                                {entry.level}
-                              </span>
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                    {certificates.length === 0 && languages.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Belirtilmedi</p>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
+    <div className="w-full">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
+              <User className="h-7 w-7" />
             </div>
-          ) : null}
-
-          {hireDuties.length > 0 || hireWins.length > 0 ? (
-            <div className={sectionClass}>
-              <SectionLabel icon={Briefcase} title="Pozisyon sorumlulukları" />
-              {hireDuties.length > 0 ? <CompactList values={hireDuties} limit={4} /> : null}
-              {hireWins.length > 0 ? (
-                <div className={hireDuties.length > 0 ? 'mt-4' : undefined}>
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                    Beklenen sonuçlar
-                  </p>
-                  <CompactList values={hireWins} icon={Check} limit={2} />
-                </div>
+            <div className="min-w-0 flex-1">
+              <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
+                {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
+              </Heading>
+              {data.desiredRole ? (
+                <p className="truncate text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
+                  {data.desiredRole}
+                </p>
+              ) : null}
+              {data.primarySector ? (
+                <p className="truncate text-xs text-slate-400 dark:text-muted-foreground">
+                  {data.primarySector}
+                </p>
               ) : null}
             </div>
-          ) : null}
+          </div>
 
-          {professional.length > 0 || technical.length > 0 ? (
-            <div className={sectionClass}>
-              <SectionLabel icon={Award} title="Aranan yetkinlikler" />
-              <div className="grid gap-6 sm:grid-cols-2">
-                {professional.length > 0 ? (
-                  <div className="min-w-0">
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                      Mesleki
-                    </p>
-                    <ChipRow values={professional} limit={5} />
-                  </div>
-                ) : null}
-                {technical.length > 0 ? (
-                  <div className="min-w-0">
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                      Teknik
-                    </p>
-                    <ChipRow values={technical} limit={5} />
-                  </div>
-                ) : null}
+          {hasEducation ? (
+            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <GraduationCap className="h-4 w-4" />
+                <span>EĞİTİM</span>
               </div>
-            </div>
-          ) : null}
-
-          {hireConditions.length > 0 ? (
-            <div className={sectionClass}>
-              <SectionLabel icon={MapPin} title="Çalışma koşulları" />
-              <dl className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3">
-                {hireConditions.map((fact) => (
-                  <HeroFact key={fact.label} label={fact.label} value={fact.value} />
-                ))}
-              </dl>
-            </div>
-          ) : null}
-        </>
-      ) : (
-        <>
-      <div className={sectionClass}>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="min-w-0">
-            <SectionLabel
-              icon={Briefcase}
-              title="Uzmanlık alanları"
-            />
-            <ChipRow values={sectorChips} />
-          </div>
-          <div className="min-w-0">
-            <SectionLabel
-              icon={Award}
-              title="Mesleki yetkinlikler"
-            />
-            <ChipRow values={professional} />
-          </div>
-          <div className="min-w-0">
-            <SectionLabel
-              icon={Monitor}
-              title="Teknik yetkinlikler"
-            />
-            <ChipRow values={technical} />
-          </div>
-        </div>
-      </div>
-
-        <div className={sectionClass}>
-          <SectionLabel icon={Briefcase} title="Kariyer deneyimi" />
-          {experiences.length > 0 ? (
-            <ol className="space-y-0">
-              {visibleExperiences.map((exp, index) => {
-                const period = formatCareerPeriod(exp) || exp.duration;
-                const duties = experienceResponsibilities(exp);
-                const wins = experienceAchievements(exp);
-                const isLast = index === visibleExperiences.length - 1;
-                return (
-                  <li
-                    key={exp.id}
-                    className="relative grid grid-cols-1 gap-2 border-l border-border pl-4 sm:grid-cols-[8rem_1rem_minmax(0,1fr)] sm:gap-x-4 sm:border-l-0 sm:pl-0"
-                  >
-                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-primary bg-white sm:hidden dark:bg-card" />
-                    <p className="pt-0.5 text-xs font-medium leading-5 text-muted-foreground sm:text-right">
-                      {period || 'Tarih belirtilmedi'}
-                    </p>
-                    <div className="relative hidden sm:block">
-                      <span className="absolute left-1/2 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-primary bg-white dark:bg-card" />
-                      {!isLast ? (
-                        <span className="absolute bottom-[-14px] left-1/2 top-4 w-px -translate-x-1/2 bg-border" />
-                      ) : null}
-                    </div>
-                    <div className={cn('min-w-0 pb-6', isLast && extraExperienceCount === 0 && 'pb-0')}>
-                      <p className="text-sm font-semibold text-foreground">{exp.role}</p>
-                      {exp.sector ? (
-                        <p className="mt-0.5 text-xs text-muted-foreground">{exp.sector}</p>
-                      ) : null}
-                      {duties.length > 0 ? (
-                        <div className="mt-2.5">
-                          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                            Temel sorumluluklar
-                          </p>
-                          <CompactList values={duties} limit={3} />
-                        </div>
-                      ) : null}
-                      {wins.length > 0 ? (
-                        <div className="mt-2.5">
-                          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                            Öne çıkan başarılar
-                          </p>
-                          <CompactList values={wins} icon={Check} limit={2} />
-                        </div>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          ) : (
-            <p className="text-sm text-muted-foreground">Deneyim eklenmedi</p>
-          )}
-          {compactExperiences.length > 0 ? (
-            <ul className="mt-2 space-y-1.5">
-              {compactExperiences.map((exp) => (
-                <li key={exp.id} className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{exp.role}</span>
-                  {exp.sector ? ` · ${exp.sector}` : ''}
-                  {' · '}
-                  {formatCareerPeriod(exp) || exp.duration || 'Tarih belirtilmedi'}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {extraExperienceCount > 0 ? (
-            <button
-              type="button"
-              onClick={() => setExperiencesOpen((value) => !value)}
-              className="mt-1 text-[12px] font-medium text-primary hover:text-primary/80"
-            >
-              {experiencesOpen
-                ? 'Daha az göster'
-                : `+ ${extraExperienceCount} deneyim daha`}
-            </button>
-          ) : null}
-        </div>
-
-      <div className={sectionClass}>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="min-w-0">
-            <SectionLabel
-              icon={GraduationCap}
-              title="Eğitim"
-            />
-            {data.educationHistory && data.educationHistory.length > 0 ? (
-              <div className="space-y-2">
-                {data.educationHistory.map((edu, idx) => (
-                  <div key={idx} className="space-y-0.5">
-                    <p className="text-sm font-semibold text-foreground">
-                      {edu.level ? `${edu.level} — ` : ''}{edu.field || 'Genel'}
-                    </p>
-                    {edu.school ? (
-                      <p className="text-xs text-muted-foreground">{edu.school}{edu.graduationYear ? ` · ${edu.graduationYear}` : ''}</p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            ) : data.educationLevel || data.educationField ? (
-              <div className="space-y-2">
-                {data.educationField && data.educationField.includes(' / ') ? (
-                  data.educationField.split(' / ').map((degree, idx) => (
+              {data.educationHistory && data.educationHistory.length > 0 ? (
+                <div className="space-y-3">
+                  {data.educationHistory.map((edu, idx) => (
                     <div key={idx} className="space-y-0.5">
-                      <p className="text-sm font-semibold text-foreground">
-                        {degree}
+                      <p className="text-sm font-bold text-slate-800 dark:text-foreground">
+                        {edu.level || 'Eğitim'}
                       </p>
+                      {edu.field ? (
+                        <p className="text-xs text-slate-600 dark:text-slate-300">{edu.field}</p>
+                      ) : null}
+                      {edu.school || edu.graduationYear ? (
+                        <p className="text-xs text-slate-400 dark:text-muted-foreground">
+                          {[edu.school, edu.graduationYear].filter(Boolean).join(' · ')}
+                        </p>
+                      ) : null}
                     </div>
-                  ))
-                ) : (
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {data.educationLevel || 'Eğitim'}
-                    </p>
-                    {data.educationField ? (
-                      <p className="mt-0.5 text-sm text-muted-foreground">{data.educationField}</p>
-                    ) : null}
-                  </div>
-                )}
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold text-slate-800 dark:text-foreground">
+                    {data.educationLevel || 'Eğitim'}
+                  </p>
+                  {data.educationField ? (
+                    <p className="text-xs text-slate-600 dark:text-slate-300">{data.educationField}</p>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {hasCertificatesOrLanguages ? (
+            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Award className="h-4 w-4" />
+                <span>SERTİFİKA / DİL</span>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Belirtilmedi</p>
-            )}
-          </div>
-          <div className="min-w-0">
-            <SectionLabel icon={Award} title="Sertifika / Dil" />
-            <div className="space-y-3">
-              {certificates.length > 0 ? <CompactList values={certificates} icon={Check} /> : null}
-              {languages.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {languages.map((entry) => {
-                    const name = entry.languageOther?.trim() || entry.language;
-                    return (
-                      <span
-                        key={`${name}-${entry.level}`}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs"
-                      >
-                        <Languages className="h-3 w-3 text-primary" aria-hidden />
-                        <span className="font-medium text-foreground">{name}</span>
-                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                          {entry.level}
+              <div className="space-y-2.5">
+                {certificates.map((cert, idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+                      <Check className="h-2.5 w-2.5 stroke-[3]" />
+                    </div>
+                    <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
+                      {cert}
+                    </p>
+                  </div>
+                ))}
+                {languages.map((lang, idx) => {
+                  const name = lang.languageOther?.trim() || lang.language;
+                  return (
+                    <div key={idx} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Globe className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
+                        <span className="truncate text-xs font-semibold text-slate-800 dark:text-foreground">
+                          {name}
                         </span>
-                      </span>
+                      </div>
+                      {lang.level ? (
+                        <span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                          {lang.level}
+                        </span>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {workPreferenceFacts.length > 0 ? (
+            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3.5">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Briefcase className="h-4 w-4" />
+                <span>ÇALIŞMA TERCİHLERİ</span>
+              </div>
+              <div className="space-y-3">
+                {workPreferenceFacts.map((fact, idx) => {
+                  const IconComponent = fact.icon;
+                  return (
+                    <div key={idx} className="flex items-start gap-2.5">
+                      <IconComponent className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-muted-foreground" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-muted-foreground">
+                          {fact.label}
+                        </p>
+                        <p className="truncate text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                          {fact.value}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {!isHire ? (
+            isContactAccepted ? (
+              <>
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
+                    <Check className="h-3.5 w-3.5 stroke-[3]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      İletişim talebiniz kabul edildi.
+                    </p>
+                    <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400 mt-0.5">
+                      Artık bu adayla iletişime geçebilirsiniz.
+                    </p>
+                  </div>
+                </div>
+
+                {hasContactChannels ? (
+                  <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                      <Phone className="h-4 w-4" />
+                      <span>İLETİŞİM BİLGİLERİ</span>
+                    </div>
+                    <div className="space-y-2.5">
+                      {contactEmail ? (
+                        <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                          <Mail className="h-4 w-4 shrink-0 text-slate-400" />
+                          <span className="truncate font-medium">{contactEmail}</span>
+                        </div>
+                      ) : null}
+                      {contactPhone ? (
+                        <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                          <Phone className="h-4 w-4 shrink-0 text-slate-400" />
+                          <span className="truncate font-medium">{contactPhone}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
+                <Lock className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+                <p className="text-xs leading-relaxed text-blue-950 dark:text-blue-200">
+                  Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
+                </p>
+              </div>
+            )
+          ) : null}
+        </aside>
+
+        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-6">
+          {summary ? (
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <User className="h-4 w-4" />
+                <span>{isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}</span>
+              </div>
+              <ExpandableSummary text={summary} />
+            </div>
+          ) : null}
+
+          {summary && allSkills.length > 0 ? (
+            <hr className="border-slate-100 dark:border-border/60" />
+          ) : null}
+
+          {allSkills.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Sliders className="h-4 w-4" />
+                <span>UZMANLIK ALANLARI</span>
+              </div>
+              <SkillChips values={allSkills} limit={8} />
+            </div>
+          ) : null}
+
+          {(summary || allSkills.length > 0) && experiences.length > 0 ? (
+            <hr className="border-slate-100 dark:border-border/60" />
+          ) : null}
+
+          {!isHire ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  <Briefcase className="h-4 w-4" />
+                  <span>İŞ DENEYİMLERİ</span>
+                </div>
+                {experiences.length > 0 ? (
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                    {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
+                  </span>
+                ) : null}
+              </div>
+
+              {experiences.length > 0 ? (
+                <div className="relative space-y-6 pl-1 sm:pl-2">
+                  {visibleExperiences.map((exp, idx) => {
+                    const isLast = idx === visibleExperiences.length - 1;
+                    const durationBadge = formatExperienceDurationBadge(exp);
+                    const startText =
+                      exp.startMonth && exp.startYear
+                        ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
+                        : '';
+                    const endText = exp.isCurrent
+                      ? 'Halen'
+                      : exp.endMonth && exp.endYear
+                        ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
+                        : '';
+                    const duties = experienceResponsibilities(exp);
+
+                    return (
+                      <div key={exp.id || idx} className="relative flex items-start gap-3.5 sm:gap-5">
+                        {/* Number node */}
+                        <div className="flex flex-col items-center">
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
+                            {idx + 1}
+                          </div>
+                          {!isLast ? (
+                            <div className="w-0.5 flex-1 bg-slate-200 dark:bg-border my-1.5 min-h-[36px]" />
+                          ) : null}
+                        </div>
+
+                        {/* Date column */}
+                        <div className="w-24 sm:w-28 shrink-0 pt-0.5">
+                          <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
+                            {startText || 'Başlangıç'}
+                          </p>
+                          {endText ? (
+                            <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                              - {endText}
+                            </p>
+                          ) : null}
+                          {durationBadge ? (
+                            <span className="mt-1.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                              {durationBadge}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {/* Role and Details */}
+                        <div className="min-w-0 flex-1 pb-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
+                                {exp.company || exp.role || 'Pozisyon'}
+                              </h4>
+                              <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                                {[exp.role !== exp.company ? exp.role : null, exp.sector]
+                                  .filter(Boolean)
+                                  .join('  |  ')}
+                              </p>
+                            </div>
+                            {data.isFormPreview ? (
+                              <div className="flex items-center gap-1">
+                                {data.onEditExperience ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => data.onEditExperience?.(idx)}
+                                    className="p-1 text-slate-400 hover:text-blue-600"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                ) : null}
+                                {data.onDeleteExperience ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => data.onDeleteExperience?.(idx)}
+                                    className="p-1 text-slate-400 hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+
+                          {duties.length > 0 ? (
+                            <ul className="mt-2.5 space-y-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                              {duties.map((duty, dIdx) => (
+                                <li key={dIdx} className="flex items-start gap-1.5">
+                                  <span className="text-slate-400 font-bold">•</span>
+                                  <span>{duty}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
               ) : null}
-              {certificates.length === 0 && languages.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Belirtilmedi</p>
+
+              {/* Expand all experiences button */}
+              {experiences.length > 3 ? (
+                <div className="pt-1 pl-10 sm:pl-12">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedExperiences((v) => !v)}
+                    className="text-xs font-semibold text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 inline-flex items-center gap-1 transition-colors"
+                  >
+                    <span>{expandedExperiences ? 'Daha az göster' : 'Tüm deneyimleri görmek için'}</span>
+                    <span className="font-bold text-sm leading-none">{expandedExperiences ? '−' : '+'}</span>
+                  </button>
+                </div>
               ) : null}
             </div>
-          </div>
-        </div>
-      </div>
-        </>
-      )}
+          ) : null}
 
-      {showRevealedPersonal ? (
-        <div className="border-t border-border/40 px-5 py-5 sm:px-6 lg:px-8">
-          <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden />
-            Kişisel bilgiler
-          </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {data.birthDate ? (
-              <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">Doğum tarihi: </span>
-                {formatCareerBirthDate(data.birthDate)}
-              </p>
-            ) : null}
-            {data.residenceCity || data.residenceDistrict ? (
-              <p className="text-sm text-foreground">
-                <span className="text-muted-foreground">Yaşadığı yer: </span>
-                {[data.residenceCity, data.residenceDistrict].filter(Boolean).join(', ')}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      {showChromeMeta || showPublicCta ? (
-        <div className="flex flex-col gap-3 border-t border-border/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
-            {chrome?.listingNumber ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Hash className="h-3 w-3" aria-hidden />
-                {chrome.listingNumber}
-              </span>
-            ) : null}
-            {chrome?.publishedAt ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar className="h-3 w-3" aria-hidden />
-                {chrome.publishedAt}
-              </span>
-            ) : null}
-            {chrome?.updatedAt ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="h-3 w-3" aria-hidden />
-                Güncelleme {chrome.updatedAt}
-              </span>
-            ) : null}
-            {typeof chrome?.views === 'number' ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Eye className="h-3 w-3" aria-hidden />
-                {chrome.views.toLocaleString('tr-TR')} görüntülenme
-              </span>
-            ) : null}
-          </div>
-          {showPublicCta ? (
-            <div className="w-full shrink-0 sm:max-w-sm">
-              {listingId && !isOwner ? (
-                <ListingContactCta
-                  listingId={listingId}
-                  listingTitle={chrome?.listingTitle}
-                  isOwner={isOwner}
-                  categoryId={isHire ? 'hire' : 'find-job'}
-                  identityGated={chrome?.identityGated ?? !isHire}
-                  variant="compact"
-                  buttonLabel={ctaLabel}
-                  className="h-11 w-full rounded-2xl px-6 font-semibold sm:w-auto"
-                />
-              ) : (
-                <Button type="button" disabled className="h-11 w-full rounded-2xl px-6 sm:w-auto">
-                  Sizin ilanınız
-                </Button>
+          {/* Section 4: İLETİŞİM TALEBİ Banner */}
+          {showContactBanner ? (
+            <div
+              className={cn(
+                'rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors',
+                isContactAccepted
+                  ? 'border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40'
+                  : 'border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:border-blue-900/40 dark:from-blue-950/40 dark:to-indigo-950/30',
               )}
+            >
+              <div className="flex items-center gap-3.5 min-w-0 w-full sm:w-auto">
+                {isContactAccepted ? (
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
+                    <Check className="h-4 w-4 stroke-[3]" />
+                  </div>
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
+                    <Send className="h-4 w-4" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p
+                    className={cn(
+                      'text-xs font-bold uppercase tracking-wider',
+                      isContactAccepted
+                        ? 'text-emerald-900 dark:text-emerald-200'
+                        : 'text-blue-900 dark:text-blue-200',
+                    )}
+                  >
+                    {isContactAccepted ? 'İletişim talebiniz kabul edildi.' : 'İLETİŞİM TALEBİ GÖNDER'}
+                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    {isContactAccepted
+                      ? 'Artık bu adayla iletişime geçebilirsiniz.'
+                      : 'Bu adayla iletişime geçmek için talebinizi iletin. Uygun gördüğünüz adaylarla görüşebilirsiniz.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="shrink-0 w-full sm:w-auto flex justify-end">
+                {isContactAccepted ? (
+                  <Button
+                    type="button"
+                    onClick={handleDirectContact}
+                    className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                  >
+                    <PhoneCall className="h-3.5 w-3.5" />
+                    <span>Adayla İletişime Geç</span>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleOpenContactModal}
+                    disabled={isPending}
+                    className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>{isPending ? 'Talep Bekliyor' : 'İletişim Talebi Gönder'}</span>
+                  </Button>
+                )}
+              </div>
             </div>
           ) : null}
-        </div>
-      ) : null}
-
-      <div className="flex items-start gap-2.5 border-t border-primary/10 bg-primary/[0.04] px-5 py-3 text-[11px] leading-relaxed text-muted-foreground sm:px-6 lg:px-8">
-        <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-        <p>
-          {isHire
-            ? 'Telefon ve e-posta kartta görünmez. Adaylar “İletişim Talebi Gönder” ile ulaşır; kabul edilince iletişim açılır.'
-            : 'Soyad yıldızla gizlenir. Tam ad, doğum tarihi, adres ve iletişim bilgileri talep kabulünden sonra açılır.'}
-        </p>
+        </main>
       </div>
-    </article>
+
+      {/* Contact Request Modal Dialog */}
+      {showContactBanner ? (
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <DialogContent className="max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                <Send className="h-4 w-4 text-primary" />
+                İletişim Talebi Gönder
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Aday talebinizi onayladığında telefon ve iletişim kanalları açılacaktır.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-message" className="text-xs font-semibold text-foreground">
+                  Mesajınız
+                </Label>
+                <Textarea
+                  id="contact-message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Pozisyon ve şirketiniz hakkında kısa bilgi verin..."
+                  rows={4}
+                  className="rounded-xl text-sm"
+                />
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="terms-accept"
+                  checked={acceptTerms}
+                  onCheckedChange={(checked) => setAcceptTerms(Boolean(checked))}
+                  className="mt-0.5"
+                />
+                <label
+                  htmlFor="terms-accept"
+                  className="text-xs text-muted-foreground leading-snug cursor-pointer select-none"
+                >
+                  <Link
+                    href={LEGAL_ROUTES.iletisimMesajlasma}
+                    target="_blank"
+                    className="font-medium text-primary underline hover:text-primary/80"
+                  >
+                    İletişim ve Mesajlaşma Kullanım Koşullarını
+                  </Link>{' '}
+                  okudum ve kabul ediyorum.
+                </label>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setModalOpen(false)}
+                className="rounded-xl text-xs"
+              >
+                Vazgeç
+              </Button>
+              <Button
+                type="button"
+                onClick={handleContactSubmit}
+                disabled={submitting}
+                className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5"
+              >
+                {submitting ? 'Gönderiliyor...' : 'Talebi Gönder'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+    </div>
   );
 }

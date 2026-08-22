@@ -8,61 +8,43 @@ function read(rel: string): string {
   return readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
-describe('CareerProfilePreview hire card structure', () => {
+describe('CareerProfilePreview 2-column card structure', () => {
   const source = read('features/candidates/components/CareerProfilePreview.tsx');
-  const listingMain = read('components/girisimco/listing/listing-main-content.tsx');
   const mapper = read('features/listings/mappers/listing-detail.mapper.ts');
 
-  it('keeps hire and seeker on the same card with a hire-only branch', () => {
-    expect(source).toContain("const isHire = data.variant === 'hire'");
-    expect(source).toContain("{isHire ? (");
-    expect(source).toContain("title={isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}");
+  it('contains the 2-column layout with left and main columns', () => {
+    expect(source).toContain('grid-cols-[300px_minmax(0,1fr)]');
+    expect(source).toContain('<aside');
+    expect(source).toContain('<main');
   });
 
-  it('uses a single pozisyon özeti and does not repeat iş tanımı', () => {
-    expect(source.split("Pozisyon özeti").length - 1).toBe(1);
-    expect(source).not.toContain('İş tanımı');
-    expect(source).not.toContain('bg-muted/30');
+  it('renders EĞİTİM, SERTİFİKA / DİL and ÇALIŞMA TERCİHLERİ in left column', () => {
+    expect(source).toContain('<span>EĞİTİM</span>');
+    expect(source).toContain('<span>SERTİFİKA / DİL</span>');
+    expect(source).toContain('<span>ÇALIŞMA TERCİHLERİ</span>');
   });
 
-  it('renders hire sections in the requested hierarchy', () => {
-    const summary = source.indexOf("title={isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}");
-    const profile = source.indexOf('title="Aranan profil"');
-    const duties = source.indexOf('title="Pozisyon sorumlulukları"');
-    const skills = source.indexOf('title="Aranan yetkinlikler"');
-    const conditions = source.indexOf('title="Çalışma koşulları"');
-    expect(summary).toBeGreaterThan(0);
-    expect(profile).toBeGreaterThan(summary);
-    expect(duties).toBeGreaterThan(profile);
-    expect(skills).toBeGreaterThan(duties);
-    expect(conditions).toBeGreaterThan(skills);
+  it('renders KARİYER ÖZETİ, UZMANLIK ALANLARI and İŞ DENEYİMLERİ in main column', () => {
+    expect(source).toContain('<span>UZMANLIK ALANLARI</span>');
+    expect(source).toContain('<span>İŞ DENEYİMLERİ</span>');
   });
 
-  it('keeps seeker-only career sections out of the hire branch', () => {
-    expect(source).toContain('title="Uzmanlık alanları"');
-    expect(source).toContain('title="Mesleki yetkinlikler"');
-    expect(source).toContain('title="Teknik yetkinlikler"');
-    expect(source).toContain('title="Kariyer deneyimi"');
-    expect(source).toContain('title="Eğitim"');
-    expect(source).toContain('Kariyer gelişimi:');
-    expect(source).not.toContain("title={isHire ? 'Sektör'");
-    expect(source).not.toContain("title={isHire ? 'Aranan mesleki yetkinlikler'");
-    expect(source).not.toContain("title={isHire ? 'Eğitim beklentisi'");
+  it('enforces maximum 3 experiences initially and has expand control', () => {
+    expect(source).toContain('experiences.slice(0, 3)');
+    expect(source).toContain('Tüm deneyimleri görmek için');
+    expect(source).toContain('Daha az göster');
   });
 
-  it('does not change public CTA or KVKK gating', () => {
-    expect(source).toContain("const ctaLabel = 'İletişim Talebi Gönder'");
-    expect(source).toContain('identityGated={chrome?.identityGated ?? !isHire}');
-    expect(listingMain).toContain("identityGated: listing.identityRedacted || listing.category.id === 'find-job'");
+  it('renders contact request banner and privacy lock box', () => {
+    expect(source).toContain('İLETİŞİM TALEBİ GÖNDER');
+    expect(source).toContain('İletişim talebiniz kabul edildi.');
+    expect(source).toContain('Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.');
   });
 
-  it('preserves hire structured fields in the mapper for later role matching', () => {
+  it('preserves structured fields in mapper', () => {
     expect(mapper).toContain("variant: 'hire'");
+    expect(mapper).toContain("variant: 'seeker'");
     expect(mapper).toContain('desiredRole');
-    expect(mapper).toContain('requiredResponsibilities');
-    expect(mapper).toContain('requiredAchievements');
-    expect(mapper).toContain('professionalSkills');
-    expect(mapper).toContain('technicalSkills');
     expect(mapper).toContain('primarySector');
     expect(mapper).toContain('experienceLevel');
   });

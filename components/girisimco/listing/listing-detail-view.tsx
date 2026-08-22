@@ -58,13 +58,16 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           </div>
         ) : null}
 
-        <div className={isCareerListing
-          ? 'mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_320px]'
-          : 'mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_340px]'}
-        >
-          <ListingMainContent listing={listing} />
-          <ListingSidebar listing={listing} />
-        </div>
+        {isCareerListing ? (
+          <div className="mt-6">
+            <ListingMainContent listing={listing} />
+          </div>
+        ) : (
+          <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <ListingMainContent listing={listing} />
+            <ListingSidebar listing={listing} />
+          </div>
+        )}
 
         {isCareerListing && listing.listingId ? (
           <ListingCareerRecommendations listingId={listing.listingId} />
@@ -85,7 +88,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         <ListingSimilar listing={listing} />
       </div>
 
-      <ListingDetailMobileBar listing={listing} />
+      {isCareerListing ? null : <ListingDetailMobileBar listing={listing} />}
     </main>
   );
 }
