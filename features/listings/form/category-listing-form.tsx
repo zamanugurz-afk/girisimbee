@@ -508,16 +508,14 @@ export function CategoryListingForm({
 
   const mergedCustomFields = useMemo(() => {
     const merged = mergeCustomFieldDefaults(listingType.fieldSchema, customFields);
-    if (process.env.NODE_ENV !== 'production' && isCvApplied) {
-      console.log('[CV-RUNTIME][09-MERGED]', {
-        fullName: merged.fullName,
-        primarySector: merged.primarySector,
-        desiredRole: merged.desiredRole,
-        experienceLevel: merged.experienceLevel,
-        residenceCity: merged.residenceCity,
-        residenceDistrict: merged.residenceDistrict,
-      });
-    }
+    console.log('[CV DEBUG] 6. MERGED CUSTOM FIELDS', {
+      timestamp: new Date().toISOString(),
+      fullName: merged.fullName,
+      primarySector: merged.primarySector,
+      desiredRole: merged.desiredRole,
+      experiencesCount: (merged.experiences as any[])?.length,
+      isCvApplied,
+    });
     return merged;
   }, [listingType.fieldSchema, customFields, isCvApplied]);
 
@@ -1238,25 +1236,36 @@ export function CategoryListingForm({
       const activeDraft = draft || pendingCvDraft;
       if (!activeDraft) return;
 
+      console.log('[CV DEBUG] 4. handleApplyCvDraft START', {
+        timestamp: new Date().toISOString(),
+        draftFormValues: activeDraft?.formValues,
+        currentCustomFields: {
+          fullName: customFields.fullName,
+          primarySector: customFields.primarySector,
+          desiredRole: customFields.desiredRole,
+          experiencesCount: (customFields.experiences as any[])?.length,
+        },
+      });
+
       const { nextCustomFields, nextCoreFields, appliedKeys } = buildHydratedCustomFieldsFromCvDraft(
         activeDraft,
         customFields,
         listingType.fieldSchema,
       );
 
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[CV-RUNTIME][08-STATE]', {
-          fullName: nextCustomFields.fullName,
-          primarySector: nextCustomFields.primarySector,
-          desiredRole: nextCustomFields.desiredRole,
-          experienceLevel: nextCustomFields.experienceLevel,
-          residenceCity: nextCustomFields.residenceCity,
-          residenceDistrict: nextCustomFields.residenceDistrict,
-          experiences: (nextCustomFields.experiences as any[])?.length,
-          educationHistory: (nextCustomFields.educationHistory as any[])?.length,
-          appliedKeys,
-        });
-      }
+      console.log('[CV DEBUG] 5. NEXT CUSTOM FIELDS (BEFORE SET)', {
+        timestamp: new Date().toISOString(),
+        fullName: nextCustomFields.fullName,
+        primarySector: nextCustomFields.primarySector,
+        desiredRole: nextCustomFields.desiredRole,
+        experienceLevel: nextCustomFields.experienceLevel,
+        residenceCity: nextCustomFields.residenceCity,
+        residenceDistrict: nextCustomFields.residenceDistrict,
+        experiences: (nextCustomFields.experiences as any[])?.length,
+        educationHistory: (nextCustomFields.educationHistory as any[])?.length,
+        cvFileName: nextCustomFields.cvFileName,
+        appliedKeys,
+      });
 
       setCustomFields(nextCustomFields);
       if (Object.keys(nextCoreFields).length > 0) {
@@ -1292,6 +1301,16 @@ export function CategoryListingForm({
         ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
         : undefined;
 
+      console.log('[CV DEBUG] 3. handleCvDraftAnalyzed', {
+        timestamp: new Date().toISOString(),
+        fullName: fv.fullName,
+        primarySector: fv.primarySector,
+        desiredRole: fv.desiredRole,
+        experienceCount: expCount,
+        educationCount: eduCount,
+        skillCount,
+      });
+
       setPendingCvDraft(draft);
       setIsCvApplied(true);
       setIsManualCvMode(false);
@@ -1325,6 +1344,12 @@ export function CategoryListingForm({
         return;
       }
 
+      console.log('[CV DEBUG] 1. handleUploadCvFile start', {
+        timestamp: new Date().toISOString(),
+        fileName: file.name,
+        fileSize: file.size,
+      });
+
       setIsUploadingCv(true);
 
       // Clean old CV transient state on new upload start
@@ -1344,6 +1369,13 @@ export function CategoryListingForm({
 
         const data = await response.json();
 
+        console.log('[CV DEBUG] 2. API RESPONSE', {
+          timestamp: new Date().toISOString(),
+          status: response.status,
+          success: data.success,
+          formValues: data.draft?.formValues || data.data?.formValues,
+        });
+
         if (!response.ok || !data.success) {
           throw new Error(data.error || 'CV analizi sırasında bir hata oluştu.');
         }
@@ -1353,6 +1385,7 @@ export function CategoryListingForm({
         toast.success('✨ CV başarıyla analiz edildi!');
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'CV analiz edilemedi.';
+        console.error('[CV DEBUG] API ERROR', err);
         toast.error(msg, {
           description: 'Dilerseniz formu manuel doldurarak devam edebilirsiniz.',
         });

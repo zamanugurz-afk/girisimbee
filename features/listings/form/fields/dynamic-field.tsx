@@ -152,12 +152,13 @@ export function DynamicField({
     !(Array.isArray(value) && value.length === 0);
   const showCvBadge = Boolean(isCvFilled && hasValue);
 
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    ['fullName', 'primarySector', 'desiredRole', 'experienceLevel', 'residenceCity', 'residenceDistrict'].includes(field.key) &&
-    isCvFilled
-  ) {
-    console.log(`[CV-RUNTIME][10-DYNAMIC-FIELD] key=${field.key}`, { value, isCvFilled, showCvBadge });
+  if (['fullName', 'primarySector', 'desiredRole', 'experienceLevel', 'residenceCity', 'residenceDistrict', 'experiences'].includes(field.key)) {
+    console.log(`[CV DEBUG] 7. DOM VALUE for key=${field.key}`, {
+      timestamp: new Date().toISOString(),
+      value,
+      isCvFilled,
+      showCvBadge,
+    });
   }
 
   if (field.key === 'capabilities') {

@@ -22,6 +22,15 @@ function writeDraft(storageKey: string, values: ListingFormValues): number | nul
     savedAt: Date.now(),
   };
   try {
+    console.log('[CV DEBUG] AUTOSAVE WRITE', {
+      timestamp: new Date().toISOString(),
+      storageKey,
+      fullName: values?.customFields?.fullName,
+      primarySector: values?.customFields?.primarySector,
+      desiredRole: values?.customFields?.desiredRole,
+      experiences: (values?.customFields?.experiences as any[])?.length,
+      cvFileName: values?.customFields?.cvFileName,
+    });
     localStorage.setItem(storageKey, JSON.stringify(payload));
     return payload.savedAt;
   } catch {
@@ -94,6 +103,14 @@ export function useListingFormAutosave({
         const raw = localStorage.getItem(storageKey);
         if (!raw) return null;
         const parsed = JSON.parse(raw) as StoredDraft;
+        console.log('[CV DEBUG] DRAFT RESTORE', {
+          timestamp: new Date().toISOString(),
+          storageKey,
+          fullName: parsed?.customFields?.fullName,
+          primarySector: parsed?.customFields?.primarySector,
+          desiredRole: parsed?.customFields?.desiredRole,
+          experiences: (parsed?.customFields?.experiences as any[])?.length,
+        });
         const { savedAt: _savedAt, ...rest } = parsed;
         lastWrittenRef.current = JSON.stringify(rest);
         return rest;
