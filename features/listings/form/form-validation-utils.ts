@@ -395,7 +395,20 @@ const GENERIC_VALIDATION_MESSAGES = new Set([
 
 export function formatPublishFieldMessage(path: string, fallback: string): string {
   const hint = PUBLISH_FIELD_HINTS[path] ?? PUBLISH_FIELD_HINTS[errorFieldKey(path)];
-  const trimmed = fallback.trim();
+  let trimmed = fallback.trim();
+
+  // Translate default Zod max/min string errors to Turkish
+  const maxMatch = trimmed.match(/String must contain at most (\d+) character\(s\)/i);
+  if (maxMatch) {
+    const fieldLabel = CORE_FIELD_LABELS[errorFieldKey(path)] || 'Bu alan';
+    return `${fieldLabel} en fazla ${maxMatch[1]} karakter olabilir.`;
+  }
+  const minMatch = trimmed.match(/String must contain at least (\d+) character\(s\)/i);
+  if (minMatch) {
+    const fieldLabel = CORE_FIELD_LABELS[errorFieldKey(path)] || 'Bu alan';
+    return `${fieldLabel} en az ${minMatch[1]} karakter olmalıdır.`;
+  }
+
   // Prefer specific Zod / quality messages over generic publish hints.
   if (
     trimmed

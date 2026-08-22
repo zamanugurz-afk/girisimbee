@@ -460,7 +460,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       required: true,
       min: 3,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'professionalSkillsOther',
@@ -475,7 +475,7 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Teknik Yetkinlikler',
       type: 'string',
       required: false,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'technicalSkillsOther',
@@ -490,14 +490,14 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Yönetim / Liderlik Deneyimi',
       type: 'string',
       required: false,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'tools',
       label: 'Kullanılan Araçlar / Programlar',
       type: 'string',
       required: false,
-      max: 1500,
+      max: 4000,
     },
     {
       key: 'toolsOther',
@@ -534,14 +534,14 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Yabancı Dil',
       type: 'string',
       required: false,
-      max: 500,
+      max: 2000,
     },
     {
       key: 'certificates',
       label: 'Sertifikalar',
       type: 'string',
       required: false,
-      max: 500,
+      max: 2000,
     },
     {
       key: 'certificatesOther',
@@ -717,7 +717,7 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       required: true,
       min: 3,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'professionalSkillsOther',
@@ -732,7 +732,7 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Aranan Teknik Yetkinlikler',
       type: 'string',
       required: false,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'technicalSkillsOther',
@@ -747,14 +747,14 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Yönetim Beklentisi',
       type: 'string',
       required: false,
-      max: 1000,
+      max: 4000,
     },
     {
       key: 'tools',
       label: 'Aranan Araçlar',
       type: 'string',
       required: false,
-      max: 1500,
+      max: 4000,
     },
     {
       key: 'toolsOther',
@@ -791,14 +791,14 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Aranan Dil',
       type: 'string',
       required: false,
-      max: 500,
+      max: 2000,
     },
     {
       key: 'certificates',
       label: 'Aranan Sertifikalar',
       type: 'string',
       required: false,
-      max: 500,
+      max: 2000,
     },
     {
       key: 'certificatesOther',

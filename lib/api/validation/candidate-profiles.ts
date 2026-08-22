@@ -8,7 +8,7 @@ export const candidateModuleProfileUpsertSchema = z.object({
   sehir: z.string().max(100).nullable().optional(),
   ilce: z.string().max(100).nullable().optional(),
   position: z.string().max(200).nullable().optional(),
-  education: z.string().max(500).nullable().optional(),
+  education: z.string().max(2000).nullable().optional(),
   educationLevel: z.string().max(100).nullable().optional(),
   experienceYears: z.number().int().min(0).nullable().optional(),
   skills: z.array(z.string()).optional(),

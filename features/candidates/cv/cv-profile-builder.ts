@@ -6,6 +6,7 @@ import {
   type CvProfileDraftResult,
 } from '@/features/candidates/cv/cv.types';
 import type { CareerProfileFormValues } from '@/features/career-profile/types';
+import { repairTurkishEncodingAndMojibake } from '@/features/candidates/cv/cv-turkish-encoding';
 
 /**
  * Builds a safe, normalized CareerProfileFormValues draft from canonical CV extraction results.
@@ -58,33 +59,45 @@ export function buildProfileDraftFromCanonicalResult(
 
     // 2. Experience History & Level
     experienceLevel,
-    experiences: canonical.experiences,
+    experiences: canonical.experiences.map((exp) => ({
+      ...exp,
+      role: repairTurkishEncodingAndMojibake(exp.role),
+      sector: repairTurkishEncodingAndMojibake(exp.sector),
+      company: repairTurkishEncodingAndMojibake(exp.company),
+      responsibilities: repairTurkishEncodingAndMojibake(exp.responsibilities),
+      achievements: repairTurkishEncodingAndMojibake(exp.achievements),
+    })),
 
     // 3. Skills & Tools
-    professionalSkills: canonical.professionalSkills.join(', '),
-    professionalSkillsList: canonical.professionalSkills,
-    technicalSkills: canonical.technicalSkills.join(', '),
-    technicalSkillsList: canonical.technicalSkills,
-    tools: canonical.tools.join(', '),
-    toolsList: canonical.tools,
+    professionalSkills: repairTurkishEncodingAndMojibake([...new Set(canonical.professionalSkills.map((s) => s.trim()))].join(', ')),
+    professionalSkillsList: [...new Set(canonical.professionalSkills.map((s) => repairTurkishEncodingAndMojibake(s.trim())))],
+    technicalSkills: repairTurkishEncodingAndMojibake([...new Set(canonical.technicalSkills.map((s) => s.trim()))].join(', ')),
+    technicalSkillsList: [...new Set(canonical.technicalSkills.map((s) => repairTurkishEncodingAndMojibake(s.trim())))],
+    tools: repairTurkishEncodingAndMojibake([...new Set(canonical.tools.map((t) => t.trim()))].join(', ')),
+    toolsList: [...new Set(canonical.tools.map((t) => repairTurkishEncodingAndMojibake(t.trim())))],
 
     // 4. Education, Languages & Certificates
     educationLevel: canonical.educationLevel || 'Lisans',
-    educationField: canonical.educationField || '',
-    educationHistory: canonical.educationList,
-    languages: canonical.languages || '',
-    certificates: canonical.certificates || '',
+    educationField: repairTurkishEncodingAndMojibake(canonical.educationField || ''),
+    educationHistory: canonical.educationList.map((edu) => ({
+      ...edu,
+      school: repairTurkishEncodingAndMojibake(edu.school || ''),
+      field: repairTurkishEncodingAndMojibake(edu.field || ''),
+      level: repairTurkishEncodingAndMojibake(edu.level || ''),
+    })),
+    languages: repairTurkishEncodingAndMojibake(canonical.languages || ''),
+    certificates: repairTurkishEncodingAndMojibake(canonical.certificates || ''),
 
     // 5. Residence Location (from historical location)
-    residenceCity: canonical.residenceCity || '',
-    city: canonical.residenceCity || '',
-    residenceDistrict: canonical.residenceDistrict || '',
+    residenceCity: repairTurkishEncodingAndMojibake(canonical.residenceCity || ''),
+    city: repairTurkishEncodingAndMojibake(canonical.residenceCity || ''),
+    residenceDistrict: repairTurkishEncodingAndMojibake(canonical.residenceDistrict || ''),
 
     // 6. Career Summary (grounded synthesis)
-    candidateTraits: canonical.summary || '',
+    candidateTraits: repairTurkishEncodingAndMojibake(canonical.summary || ''),
 
     // 6.5. Demographics & Identity (from CV)
-    fullName: canonical.fullName || '',
+    fullName: repairTurkishEncodingAndMojibake(canonical.fullName || ''),
     profileGender: canonical.gender || '',
     birthDate: canonical.birthDate || '',
     email: canonical.email || '',

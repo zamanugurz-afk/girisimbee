@@ -61,7 +61,7 @@ export function validateCareerSkillsStep(customFields: Record<string, unknown>):
     const issue = findCareerTextQualityIssue(leadership, {
       fieldLabel: 'Yönetim / liderlik deneyimi',
       minLength: 10,
-      maxLength: 1000,
+      maxLength: 4000,
       required: false,
     });
     if (issue) errors.leadershipExperience = issue;

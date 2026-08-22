@@ -5,6 +5,10 @@ import {
   MAX_CV_FILE_SIZE_BYTES,
 } from './cv-format-detector';
 import {
+  repairTurkishEncodingAndMojibake,
+  decodeCp1254OrUtf8,
+} from './cv-turkish-encoding';
+import {
   reconstructDocumentLayout,
   type RawSpatialToken,
 } from './cv-spatial-layout-engine';
@@ -98,24 +102,19 @@ export function extractTextFromDocx(buffer: Buffer): string {
 
     // Parse XML tags into clean structured text
     const cleanedFullText = combinedXml
-      .replace(/<w:p[^>]*>/g, '\n')
-      .replace(/<w:tr[^>]*>/g, '\n')
-      .replace(/<w:tc[^>]*>/g, ' \t ')
+      .replace(/<w:p[^>]*>/gs, '\n')
+      .replace(/<w:tr[^>]*>/gs, '\n')
+      .replace(/<w:tc[^>]*>/gs, ' \t ')
       .replace(/<w:tab[^>]*\/>/g, ' ')
       .replace(/<w:br[^>]*\/>/g, '\n')
-      .replace(/<w:t[^>]*>(.*?)<\/w:t>/g, '$1')
+      .replace(/<w:t[^>]*>(.*?)<\/w:t>/gs, '$1')
       .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'")
       .replace(/\r/g, '\n')
       .replace(/[ \t]+/g, ' ')
       .replace(/\n\s*\n/g, '\n\n')
       .trim();
 
-    return cleanedFullText;
+    return repairTurkishEncodingAndMojibake(cleanedFullText);
   } catch (err: any) {
     if (err instanceof CvExtractionError) throw err;
     throw new CvExtractionError(`DOCX metni çıkarılırken hata oluştu: ${err.message}`);
@@ -453,9 +452,9 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
             if (parts) {
               for (const part of parts) {
                 if (part.startsWith('(') && part.endsWith(')')) {
-                  pageText += decodePdfString(part.slice(1, -1));
+                  pageText += decodePdfString(part.slice(1, -1), true);
                 } else if (part.startsWith('<') && part.endsWith('>')) {
-                  pageText += decodePdfHexWithCMap(part.slice(1, -1), currentFont);
+                  pageText += decodePdfHexWithCMap(part.slice(1, -1), currentFont, true);
                 } else {
                   const num = Number(part);
                   if (num < -150 && !pageText.endsWith(' ') && !pageText.endsWith('\n')) {
@@ -474,13 +473,15 @@ function parsePdfObjectsAndStreams(buffer: Buffer): string {
     }
   }
 
-  return fullText
+  const cleaned = fullText
     .replace(/([|–—,\/:])([a-zA-ZçğıöşüÇĞİÖŞÜ0-9])/g, '$1 $2')
     .replace(/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9])([|–—,\/:])/g, '$1 $2')
     .replace(/\r\n/g, '\n')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+
+  return repairTurkishEncodingAndMojibake(cleaned);
 }
 
 /**
@@ -503,11 +504,11 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     let decompressed = '';
     try {
       const unzipped = zlib.inflateSync(streamBuffer);
-      decompressed = unzipped.toString('latin1');
+      decompressed = decodeCp1254OrUtf8(unzipped);
     } catch {
       try {
         const unzippedRaw = zlib.inflateRawSync(streamBuffer);
-        decompressed = unzippedRaw.toString('latin1');
+        decompressed = decodeCp1254OrUtf8(unzippedRaw);
       } catch {
         decompressed = streamContent;
       }
@@ -540,11 +541,13 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
     }
   }
 
-  return fullText
+  const cleaned = fullText
     .replace(/\r\n/g, '\n')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+
+  return repairTurkishEncodingAndMojibake(cleaned);
 }
 
 function parseCMapIntoMap(cmapStr: string, map: Map<string, string>): void {
@@ -606,15 +609,15 @@ function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): 
     }
 
     if (rawCmd.startsWith('[') && rawCmd.endsWith('TJ')) {
-      const parts = rawCmd.match(/\(((?:\\\(|\\\)|[^()])*)\)|<([0-9a-fA-F\s]+)>/g);
+      const parts = rawCmd.match(/\(((?:\\.|[^()\\])*)\)|<([0-9a-fA-F\s]+)>/g);
       if (parts) {
         const decodedLine = parts
           .map((part) => {
             if (part.startsWith('(') && part.endsWith(')')) {
-              return decodePdfString(part.slice(1, -1));
+              return decodePdfString(part.slice(1, -1), true);
             }
             if (part.startsWith('<') && part.endsWith('>')) {
-              return decodePdfHexWithCMap(part.slice(1, -1), cmap);
+              return decodePdfHexWithCMap(part.slice(1, -1), cmap, true);
             }
             return '';
           })
@@ -629,8 +632,8 @@ function parsePdfStreamTextWithCMap(stream: string, cmap: Map<string, string>): 
   return result.join(' ');
 }
 
-function decodePdfString(str: string): string {
-  return str
+function decodePdfString(str: string, preserveWhitespace = false): string {
+  const decoded = str
     .replace(/\\([0-7]{1,3})/g, (_, oct) => {
       const code = parseInt(oct, 8);
       if (code === 0o376 || code === 254) return 'ş';
@@ -655,9 +658,11 @@ function decodePdfString(str: string): string {
     .replace(/\\\(/g, '(')
     .replace(/\\\)/g, ')')
     .replace(/\\\\/g, '\\');
+
+  return repairTurkishEncodingAndMojibake(decoded, preserveWhitespace);
 }
 
-function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
+function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>, preserveWhitespace = false): string {
   const cleanHex = hex.replace(/\s+/g, '');
   if (cleanHex.length === 0) return '';
 
@@ -677,7 +682,7 @@ function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
       }
     }
     if (hasValidMatch && text.trim().length > 0) {
-      return text;
+      return repairTurkishEncodingAndMojibake(text, preserveWhitespace);
     }
   }
 
@@ -690,14 +695,15 @@ function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>): string {
         text += String.fromCharCode(code);
       }
     }
-    return text;
+    return repairTurkishEncodingAndMojibake(text, preserveWhitespace);
   }
 
-  return bytes.toString('utf8');
+  // Use CP1254/UTF-8 hybrid decoder to avoid \uFFFD replacement characters
+  return decodeCp1254OrUtf8(bytes);
 }
 
 function extractRawReadableTextFromBuffer(buffer: Buffer): string {
-  const str = buffer.toString('utf8');
+  const str = decodeCp1254OrUtf8(buffer);
   const words = str.match(/[a-zA-ZğüşıöçĞÜŞİÖÇ0-9@.-]{3,}/g);
   if (!words || words.length < 10) return '';
   return words.join(' ');
@@ -719,8 +725,11 @@ export async function extractCvText(
   } else if (detection.format === 'pdf') {
     text = await extractTextFromPdf(fileBuffer);
   } else {
-    text = fileBuffer.toString('utf8').trim();
+    text = decodeCp1254OrUtf8(fileBuffer).trim();
   }
+
+  // Universal Turkish text repair & normalization
+  text = repairTurkishEncodingAndMojibake(text);
 
   if (!text || text.trim().length < 10) {
     throw new CvExtractionError(

@@ -48,11 +48,11 @@ export const candidateListingBrowseQuerySchema = z.object({
 
 export const candidateListingCreateSchema = z
   .object({
-    title: z.string().min(2).max(200),
-    shortDescription: z.string().min(5).max(500),
+    title: z.string().min(2, 'Başlık en az 2 karakter olmalıdır.').max(200, 'Başlık en fazla 200 karakter olabilir.'),
+    shortDescription: z.string().min(5, 'Kısa açıklama en az 5 karakter olmalıdır.').max(500, 'Kısa açıklama en fazla 500 karakter olabilir.'),
     longDescription: z.preprocess(
       (val) => (val === '' || val === null ? undefined : val),
-      z.string().min(40).max(10000).optional(),
+      z.string().min(40, 'Kariyer özeti en az 40 karakter olmalıdır.').max(10000, 'Kariyer özeti en fazla 10000 karakter olabilir.').optional(),
     ),
     city: z.preprocess(
       (val) => (val === '' ? null : val),
@@ -67,14 +67,14 @@ export const candidateListingCreateSchema = z
     experienceLevel: z.string().max(100).nullable().optional(),
     salaryExpectation: z.string().max(100).nullable().optional(),
     workType: z.string().max(100).nullable().optional(),
-    professionalSkills: z.string().max(1000).nullable().optional(),
-    technicalSkills: z.string().max(1000).nullable().optional(),
-    leadershipExperience: z.string().max(1000).nullable().optional(),
-    tools: z.string().max(500).nullable().optional(),
+    professionalSkills: z.string().max(4000, 'Mesleki yetkinlikler en fazla 4000 karakter olabilir.').nullable().optional(),
+    technicalSkills: z.string().max(4000, 'Teknik yetkinlikler en fazla 4000 karakter olabilir.').nullable().optional(),
+    leadershipExperience: z.string().max(4000, 'Yönetim/liderlik deneyimi en fazla 4000 karakter olabilir.').nullable().optional(),
+    tools: z.string().max(4000, 'Kullanılan araçlar en fazla 4000 karakter olabilir.').nullable().optional(),
     educationLevel: z.string().max(100).nullable().optional(),
-    educationField: z.string().max(200).nullable().optional(),
-    languages: z.string().max(500).nullable().optional(),
-    certificates: z.string().max(500).nullable().optional(),
+    educationField: z.string().max(500, 'Eğitim alanı en fazla 500 karakter olabilir.').nullable().optional(),
+    languages: z.string().max(2000, 'Yabancı diller en fazla 2000 karakter olabilir.').nullable().optional(),
+    certificates: z.string().max(2000, 'Sertifikalar en fazla 2000 karakter olabilir.').nullable().optional(),
     preferredSectors: z.array(z.string()).nullable().optional(),
     preferredRoles: z
       .union([
