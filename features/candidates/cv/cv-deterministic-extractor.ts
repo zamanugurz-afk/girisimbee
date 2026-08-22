@@ -1686,12 +1686,26 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       if (!isPureDate && rawRemainder.length >= 2 && !/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s)$/i.test(rawRemainder)) {
         const parts = rawRemainder.split(/[|–—@]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company)[\s:]*/i, '').trim()).filter(Boolean);
         if (parts.length >= 2) {
+          const normP0 = normalizeTrForMatch(parts[0]);
+          const normP1 = normalizeTrForMatch(parts[1]);
+          const p0IsCity = Boolean(TURKISH_CITY_ALIASES[normP0] || COMMON_TURKISH_DISTRICTS[normP0]);
+          const p1IsCity = Boolean(TURKISH_CITY_ALIASES[normP1] || COMMON_TURKISH_DISTRICTS[normP1]);
+
           if (isRoleTitle(parts[0])) {
             currentExp.role = parts[0];
-            currentExp.company = parts[1];
-          } else {
-            currentExp.company = parts[0];
+            currentExp.company = p1IsCity ? '' : parts[1];
+          } else if (isRoleTitle(parts[1])) {
             currentExp.role = parts[1];
+            currentExp.company = p0IsCity ? '' : parts[0];
+          } else {
+            currentExp.company = p0IsCity ? (p1IsCity ? '' : parts[1]) : parts[0];
+            if (prev1 && isRoleTitle(prev1)) {
+              currentExp.role = prev1;
+            } else if (prev2 && isRoleTitle(prev2)) {
+              currentExp.role = prev2;
+            } else if (!p1IsCity) {
+              currentExp.role = parts[1];
+            }
           }
         } else {
           const words = rawRemainder.split(/\s+/);
@@ -2160,7 +2174,11 @@ export function extractDeterministicLanguagesAndCerts(text: string): {
   for (const cert of CERTIFICATE_OPTIONS) {
     if (cert === 'Diğer / Kendim gireceğim') continue;
     const certNorm = normalizeTrForMatch(cert);
-    if (normText.includes(certNorm)) {
+    if (certNorm.length <= 3) {
+      if (new RegExp(`\\b${certNorm}\\b`, 'i').test(normText)) {
+        certificates.push(cert);
+      }
+    } else if (normText.includes(certNorm)) {
       certificates.push(cert);
     }
   }
@@ -2168,12 +2186,16 @@ export function extractDeterministicLanguagesAndCerts(text: string): {
   const universalCerts = scanUniversalCertificates(text);
   certificates.push(...universalCerts);
 
-  const certSectionMatch = text.match(/(?:sertifikalar|sertifika|certificates|belgeler)[:\s]+([^\n]+)/i);
+  const certSectionMatch = text.match(/(?:[sS]ert[iİıI]f[iİıI]kalar|[sS]ert[iİıI]f[iİıI]ka|[bB]elgeler|certificates|certifications)[\s:]*\n+([\s\S]{1,400})/iu);
   if (certSectionMatch && certSectionMatch[1]) {
-    const rawItems = certSectionMatch[1].split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
-    for (const item of rawItems) {
-      if (item.length >= 3 && item.length <= 80 && !/diller|egitim|yetkinlik/i.test(item)) {
-        certificates.push(suggestTitleCaseTr(item));
+    const lines = certSectionMatch[1].split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    for (const line of lines) {
+      if (/^(?:diller|egitim|yetkinlik|referanslar|hobiler|projeler)/i.test(line)) break;
+      const rawItems = line.split(/[,;•·*|]/).map((s) => s.trim()).filter(Boolean);
+      for (const item of rawItems) {
+        if (item.length >= 3 && item.length <= 100) {
+          certificates.push(suggestTitleCaseTr(item));
+        }
       }
     }
   }

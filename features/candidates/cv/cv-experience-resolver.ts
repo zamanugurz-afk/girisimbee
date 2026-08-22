@@ -74,41 +74,43 @@ function extractExperiencesFromLines(lines: string[]): RawExtractedExperience[] 
         if (parts.length >= 2) {
           if (isLikelyRole(parts[0])) {
             detectedRole = parts[0];
-            detectedCompany = parts[1];
-          } else {
-            detectedCompany = parts[0];
+            detectedCompany = isLikelyCity(parts[1]) ? '' : parts[1];
+          } else if (isLikelyRole(parts[1])) {
             detectedRole = parts[1];
+            detectedCompany = isLikelyCity(parts[0]) ? '' : parts[0];
+          } else {
+            detectedCompany = isLikelyCity(parts[0]) ? '' : parts[0];
+            if (!detectedCompany && !isLikelyCity(parts[1])) {
+              detectedCompany = parts[1];
+            }
           }
         }
-      } else if (prevLine1 && !parseUniversalDateRange(prevLine1)?.startYear) {
-        if (prevLine2 && !parseUniversalDateRange(prevLine2)?.startYear && !prevLine2.startsWith('•')) {
-          if (isLikelyRole(prevLine1)) {
-            detectedRole = prevLine1;
-            detectedCompany = prevLine2;
-          } else if (isLikelyRole(prevLine2)) {
-            detectedRole = prevLine2;
-            detectedCompany = prevLine1;
-          } else {
-            detectedCompany = prevLine2;
-            detectedRole = prevLine1;
-          }
-        } else {
-          if (prevLine1.includes('|') || prevLine1.includes(' - ') || prevLine1.includes(' – ')) {
-            const parts = prevLine1.split(/[|–—\-]/).map((p) => p.trim()).filter(Boolean);
-            if (parts.length >= 2) {
-              if (isLikelyRole(parts[0])) {
-                detectedRole = parts[0];
-                detectedCompany = parts[1];
-              } else {
-                detectedCompany = parts[0];
-                detectedRole = parts[1];
-              }
+      }
+
+      if (!detectedRole && prevLine1 && isLikelyRole(prevLine1)) {
+        detectedRole = prevLine1;
+        if (!detectedCompany && prevLine2 && !parseUniversalDateRange(prevLine2)?.startYear && !prevLine2.startsWith('•')) {
+          detectedCompany = prevLine2;
+        }
+      } else if (!detectedRole && prevLine2 && isLikelyRole(prevLine2)) {
+        detectedRole = prevLine2;
+        if (!detectedCompany && prevLine1 && !parseUniversalDateRange(prevLine1)?.startYear && !prevLine1.startsWith('•')) {
+          detectedCompany = prevLine1;
+        }
+      } else if (!detectedRole && prevLine1 && !parseUniversalDateRange(prevLine1)?.startYear && !prevLine1.startsWith('•')) {
+        if (prevLine1.includes('|') || prevLine1.includes(' - ') || prevLine1.includes(' – ')) {
+          const parts = prevLine1.split(/[|–—\-]/).map((p) => p.trim()).filter(Boolean);
+          if (parts.length >= 2) {
+            if (isLikelyRole(parts[0])) {
+              detectedRole = parts[0];
+              if (!detectedCompany) detectedCompany = parts[1];
+            } else if (isLikelyRole(parts[1])) {
+              detectedRole = parts[1];
+              if (!detectedCompany) detectedCompany = parts[0];
             }
-          } else if (isLikelyRole(prevLine1)) {
-            detectedRole = prevLine1;
-          } else {
-            detectedCompany = prevLine1;
           }
+        } else if (!detectedCompany) {
+          detectedCompany = prevLine1;
         }
       }
 
@@ -142,15 +144,23 @@ function extractExperiencesFromLines(lines: string[]): RawExtractedExperience[] 
   return experiences;
 }
 
+function isLikelyCity(text: string): boolean {
+  const norm = normalizeTrUniversal(text);
+  return /^(?:adana|adiyaman|afyonkarahisar|agri|amasya|ankara|antalya|artvin|aydin|balikesir|bilecik|bingol|bitlis|bolu|burdur|bursa|canakkale|cankiri|corum|denizli|diyarbakir|edirne|elazig|erzincan|erzurum|eskisehir|gaziantep|giresun|gumushane|hakkari|hatay|isparta|mersin|istanbul|izmir|kars|kastamonu|kayseri|kirklareli|kirsehir|kocaeli|konya|kutahya|malatya|manisa|kahramanmaras|mardin|mugla|mus|nevsehir|nigde|ordu|rize|sakarya|samsun|siirt|sinop|sivas|tekirdag|tokat|trabzon|tunceli|sanliurfa|usak|van|yozgat|zonguldak|aksaray|bayburt|karaman|kirikkale|batman|sirnak|bartin|ardahan|igdir|yalova|karabuk|kilis|osmaniye|duzce)$/i.test(
+    norm,
+  );
+}
+
 function isLikelyRole(text: string): boolean {
   const norm = normalizeTrUniversal(text);
-  if (norm.length > 60) return false;
+  if (!norm || norm.length > 60) return false;
+  if (isLikelyCity(norm)) return false;
 
   for (const alias of Object.keys(UNIVERSAL_ROLE_ALIASES || {})) {
     if (norm === alias || norm.includes(alias)) return true;
   }
 
-  return /(mühendis|uzman|yönetici|müdür|developer|engineer|lead|specialist|danışman|asistan|temsilci|şef|koordinatör|stajyer)/i.test(
+  return /(mühendis|uzman|yönetici|müdür|developer|engineer|lead|specialist|danışman|asistan|temsilci|şef|koordinatör|stajyer|direktör|tasarımcı|tekniker|teknisyen|öğretmen|avukat|doktor|operatör|sorumlu)/i.test(
     norm,
   );
 }
