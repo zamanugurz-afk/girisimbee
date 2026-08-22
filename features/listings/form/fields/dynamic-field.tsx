@@ -31,6 +31,7 @@ import {
   getPositionsForSector,
   MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -223,10 +224,15 @@ function FieldControl({
   context?: DynamicFieldContext;
 }) {
   const stringValue = String(value ?? '');
-  const stringLength = stringValue.length;
+  const displayValue = field.key === 'fullName' && isForbiddenNameCandidate(stringValue) ? '' : stringValue;
+  const stringLength = displayValue.length;
 
   function applyTitleCaseIfNeeded() {
     if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
+    if (field.key === 'fullName' && isForbiddenNameCandidate(stringValue)) {
+      onChange('');
+      return;
+    }
     const next = normalizeListingTitle(stringValue);
     if (next !== stringValue) onChange(next);
   }
@@ -306,7 +312,7 @@ function FieldControl({
             id={id}
             lang="tr"
             spellCheck
-            value={stringValue}
+            value={displayValue}
             onChange={(e) => onChange(e.target.value)}
             onBlur={applyTitleCaseIfNeeded}
             disabled={disabled}
