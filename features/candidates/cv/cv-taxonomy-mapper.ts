@@ -706,6 +706,7 @@ export function inferSectorFromRole(role: string): string {
   if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi|hazine/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
   if (/key\s*account|account\s*manager|kam|ulusal\s*zincir|musteri\s*yonetici|satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
+  if (/cagri\s*merkezi|call\s*center|telemarketing/i.test(r)) return 'Çağrı merkezi';
   if (/musteri\s*(hizmet|iliski|basari|temsil)/i.test(r)) return 'Müşteri hizmetleri';
   if (/insan\s*kaynak|hr|recruiter|yetenek|bordro|is\s*ortag|partner/i.test(r)) return 'İnsan kaynakları';
   if (/mimar|peyzaj|insaat|santiye|gayrimenkul|emlak|statik|geoteknik/i.test(r)) return 'İnşaat / Gayrimenkul';

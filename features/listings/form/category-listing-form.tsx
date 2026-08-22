@@ -449,6 +449,7 @@ export function CategoryListingForm({
   const [cvFilledKeys, setCvFilledKeys] = useState<Set<string>>(new Set());
   const [pendingCvDraft, setPendingCvDraft] = useState<CvProfileDraftResult | null>(null);
   const [isCvApplied, setIsCvApplied] = useState(false);
+  const [isUploadingCv, setIsUploadingCv] = useState(false);
   const [cvDraftInfo, setCvDraftInfo] = useState<{
     fileName?: string;
     experienceCount: number;
@@ -1293,6 +1294,7 @@ export function CategoryListingForm({
 
       setPendingCvDraft(draft);
       setIsCvApplied(true);
+      setIsManualCvMode(false);
       setCvDraftInfo({
         fileName: fv.cvFileName,
         experienceCount: expCount,
@@ -1308,16 +1310,84 @@ export function CategoryListingForm({
     [handleApplyCvDraft],
   );
 
+  const handleUploadCvFile = useCallback(
+    async (file: File) => {
+      const validExtensions = ['.pdf', '.docx', '.txt'];
+      const hasValidExt = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+
+      if (!hasValidExt) {
+        toast.error('Lütfen geçerli bir PDF veya DOCX dosyası yükleyin.');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Dosya boyutu 5 MB sınırını aşıyor.');
+        return;
+      }
+
+      setIsUploadingCv(true);
+
+      // Clean old CV transient state on new upload start
+      setCvDraftInfo(null);
+      setPendingCvDraft(null);
+      setIsCvApplied(false);
+      setCvFilledKeys(new Set());
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/career/cv/analyze', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'CV analizi sırasında bir hata oluştu.');
+        }
+
+        const draft = (data.draft || data.data) as CvProfileDraftResult;
+        handleCvDraftAnalyzed(draft);
+        toast.success('✨ CV başarıyla analiz edildi!');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'CV analiz edilemedi.';
+        toast.error(msg, {
+          description: 'Dilerseniz formu manuel doldurarak devam edebilirsiniz.',
+        });
+      } finally {
+        setIsUploadingCv(false);
+      }
+    },
+    [handleCvDraftAnalyzed],
+  );
+
   const handleRemoveCv = useCallback(() => {
     setCvDraftInfo(null);
     setPendingCvDraft(null);
     setIsCvApplied(false);
-    setCustomField('cvFileName', '');
-    setCustomField('cvDocumentId', '');
-    setCustomField('cvUploadedAt', '');
+    setCustomFields((prev) => {
+      const next = { ...prev };
+      delete next.cvFileName;
+      delete next.cvDocumentId;
+      delete next.cvUploadedAt;
+      delete next.experiences;
+      delete next.educationHistory;
+      delete next.languages;
+      delete next.professionalSkills;
+      delete next.professionalSkillsList;
+      delete next.technicalSkills;
+      delete next.technicalSkillsList;
+      delete next.tools;
+      delete next.toolsList;
+      delete next.certificates;
+      delete next.candidateTraits;
+      return next;
+    });
     setCvFilledKeys(new Set());
     toast.info('CV kaldırıldı. Formu manuel doldurarak devam edebilirsiniz.');
-  }, [setCustomField]);
+  }, []);
 
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
     setCore(next);
@@ -2070,6 +2140,8 @@ export function CategoryListingForm({
                   location={cvDraftInfo.location}
                   onApply={() => handleApplyCvDraft(pendingCvDraft)}
                   isApplied={isCvApplied}
+                  onFileSelected={handleUploadCvFile}
+                  isUploading={isUploadingCv}
                   onReupload={() => {
                     setCvDraftInfo(null);
                     setPendingCvDraft(null);

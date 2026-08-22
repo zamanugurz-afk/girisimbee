@@ -76,10 +76,12 @@ export function buildHydratedCustomFieldsFromCvDraft(
       applyField('role', globalResolved);
       applyField('desiredRoleOther', '');
 
-      // Inferred sector from canonical position
-      const inferredSectors = getSectorsForPosition(globalResolved);
-      if (inferredSectors && inferredSectors.length > 0) {
-        resolvedSector = resolveEnumOption(inferredSectors[0], JOB_SECTOR_OPTIONS) || inferredSectors[0] || resolvedSector;
+      // Inferred sector from canonical position ONLY if sector was not already resolved
+      if (!resolvedSector) {
+        const inferredSectors = getSectorsForPosition(globalResolved);
+        if (inferredSectors && inferredSectors.length > 0) {
+          resolvedSector = resolveEnumOption(inferredSectors[0], JOB_SECTOR_OPTIONS) || inferredSectors[0] || '';
+        }
       }
     } else {
       // Freeform Custom Role
@@ -194,7 +196,12 @@ export function buildHydratedCustomFieldsFromCvDraft(
     nextCoreFields.shortDescription = compressed ? compressed.slice(0, 160) : undefined;
   }
 
-  // 10. File Metadata
+  // 10. File Metadata & Analysis Identity Version
+  if (fv.cvFileName) applyField('cvFileName', fv.cvFileName);
+  if (fv.cvDocumentId) applyField('cvDocumentId', fv.cvDocumentId);
+  applyField('cvUploadedAt', fv.cvUploadedAt || new Date().toISOString());
+  applyField('cvAnalysisVersion', '3.0.0');
+
   if (process.env.NODE_ENV !== 'production') {
     console.log('[CV-RUNTIME][07-HYDRATOR]', {
       fullName: nextCustomFields.fullName,
@@ -206,6 +213,7 @@ export function buildHydratedCustomFieldsFromCvDraft(
       residenceDistrict: nextCustomFields.residenceDistrict,
       experiences: (nextCustomFields.experiences as any[])?.length,
       educationHistory: (nextCustomFields.educationHistory as any[])?.length,
+      cvFileName: nextCustomFields.cvFileName,
       appliedKeys,
     });
   }
