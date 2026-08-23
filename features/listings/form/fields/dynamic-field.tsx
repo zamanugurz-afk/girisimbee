@@ -152,23 +152,18 @@ export function DynamicField({
     !(Array.isArray(value) && value.length === 0);
   const showCvBadge = Boolean(isCvFilled && hasValue);
 
-  if (field.key === 'fullName') {
-    console.log('[CV FORENSIC 08] DynamicField fullName PROP', {
+  if (field.key === 'fullName' || field.key === 'primarySector' || field.key === 'desiredRole') {
+    console.log('[CV-STATE-TRACE]', {
+      field: field.key,
+      previousValue: undefined,
+      nextValue: value,
+      source: 'DynamicField',
+      function: 'DynamicField:render',
+      reason: 'controlled_prop_render',
       timestamp: new Date().toISOString(),
-      value,
-      isCvFilled,
-    });
-  } else if (field.key === 'primarySector') {
-    console.log('[CV FORENSIC 09] DynamicField primarySector PROP', {
-      timestamp: new Date().toISOString(),
-      value,
-      isCvFilled,
-    });
-  } else if (field.key === 'desiredRole') {
-    console.log('[CV FORENSIC 10] DynamicField desiredRole PROP', {
-      timestamp: new Date().toISOString(),
-      value,
-      isCvFilled,
+      cvImportCompleted: Boolean(isCvFilled),
+      draftRestored: false,
+      currentSector: (context?.values?.primarySector as string) || '',
     });
   }
 

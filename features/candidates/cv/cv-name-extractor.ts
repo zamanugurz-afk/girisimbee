@@ -562,7 +562,8 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
 }
 
 import { segmentCvIntoDocumentZones, type CvZoneType } from './cv-document-zoning';
-import { scoreCandidateName } from './cv-candidate-scorer';
+import { scoreCandidateName, classifyCandidateSemantic } from './cv-candidate-scorer';
+import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES } from './cv-universal-dictionary';
 
 /**
  * Robust candidate full name extraction engine with Document Zoning & Multi-factor Scoring.
@@ -616,6 +617,90 @@ export function extractCandidateName(rawText: string | null | undefined): string
     if (scoreRes.isAccepted) {
       return formatTurkishTitleCase(scoreRes.value);
     }
+  }
+
+  // Tier 1.5: Structural Identity Detection in Contact / Header / Personal Info Zones
+  // Algorithm:
+  // 1. Locate Contact/Header zone or top lines
+  // 2. Extract email / LinkedIn / phone signals
+  // 3. Scan for Turkish given-name tokens + adjacent surname candidates
+  // 4. Validate identity pair & corroborate with email/LinkedIn/context
+  const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const emailUsername = emailMatch ? normalizeTrUniversal(emailMatch[1]) : '';
+  const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
+  const linkedinUsername = linkedinMatch ? normalizeTrUniversal(linkedinMatch[1]) : '';
+
+  const docLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const structuralCandidates: Array<{ value: string; score: number }> = [];
+
+  for (let i = 0; i < Math.min(docLines.length, 35); i++) {
+    const rawLine = docLines[i];
+    if (!rawLine || rawLine.length < 3 || rawLine.length > 50) continue;
+    if (isForbiddenNameCandidate(rawLine)) continue;
+    if (classifyCandidateSemantic(rawLine) !== 'PERSON_NAME') continue;
+
+    // Clean line from prefixes/bullets
+    const clean = rawLine
+      .replace(/[\p{Extended_Pictographic}\uFE00-\uFE0F]/gu, ' ')
+      .replace(/^[\s•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:]+/, '')
+      .replace(/[\s•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:]+$/, '')
+      .trim();
+
+    const words = clean.split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 4) {
+      const normWords = words.map((w) => normalizeTrUniversal(w));
+      const hasGivenName = normWords.some(
+        (w) => EXTENSIVE_TURKISH_MALE_NAMES.has(w) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(w),
+      );
+
+      if (hasGivenName) {
+        let structuralScore = 150;
+
+        // Corroborate with email
+        if (emailUsername) {
+          const matchedEmailTokens = normWords.filter(
+            (w) => w.length >= 3 && emailUsername.includes(w),
+          );
+          if (matchedEmailTokens.length >= 2) structuralScore += 100;
+          else if (matchedEmailTokens.length === 1) structuralScore += 50;
+        }
+
+        // Corroborate with LinkedIn
+        if (linkedinUsername) {
+          const matchedLiTokens = normWords.filter(
+            (w) => w.length >= 3 && linkedinUsername.includes(w),
+          );
+          if (matchedLiTokens.length >= 2) structuralScore += 80;
+          else if (matchedLiTokens.length === 1) structuralScore += 40;
+        }
+
+        // Typography bonus
+        if (clean === clean.toLocaleUpperCase('tr-TR')) structuralScore += 30;
+
+        // Header proximity bonus
+        if (i < 10) structuralScore += 20;
+
+        const scoreRes = scoreCandidateName(clean, {
+          zone: 'HEADER',
+          isTopZone: true,
+          lineIndex: i,
+          fullDocText: text,
+          nextLineText: docLines[i + 1],
+        });
+
+        if (scoreRes.isAccepted && scoreRes.totalScore > 0) {
+          structuralCandidates.push({
+            value: scoreRes.value,
+            score: structuralScore + scoreRes.totalScore,
+          });
+        }
+      }
+    }
+  }
+
+  if (structuralCandidates.length > 0) {
+    structuralCandidates.sort((a, b) => b.score - a.score);
+    return formatTurkishTitleCase(structuralCandidates[0].value);
   }
 
   // Tier 2: Document Zoning - Scan Authorized Zones (HEADER, CONTACT)

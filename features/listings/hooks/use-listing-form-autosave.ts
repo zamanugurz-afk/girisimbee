@@ -22,14 +22,13 @@ function writeDraft(storageKey: string, values: ListingFormValues): number | nul
     savedAt: Date.now(),
   };
   try {
-    console.log('[CV DEBUG] AUTOSAVE WRITE', {
-      timestamp: new Date().toISOString(),
-      storageKey,
+    console.log('[CV-DRAFT-TRACE]', {
+      action: 'write',
+      key: storageKey,
       fullName: values?.customFields?.fullName,
-      primarySector: values?.customFields?.primarySector,
       desiredRole: values?.customFields?.desiredRole,
-      experiences: (values?.customFields?.experiences as any[])?.length,
-      cvFileName: values?.customFields?.cvFileName,
+      primarySector: values?.customFields?.primarySector,
+      timestamp: new Date().toISOString(),
     });
     localStorage.setItem(storageKey, JSON.stringify(payload));
     return payload.savedAt;
@@ -81,6 +80,14 @@ export function useListingFormAutosave({
   return {
     clearDraft: () => {
       try {
+        console.log('[CV-DRAFT-TRACE]', {
+          action: 'clear',
+          key: storageKey,
+          fullName: undefined,
+          desiredRole: undefined,
+          primarySector: undefined,
+          timestamp: new Date().toISOString(),
+        });
         localStorage.removeItem(storageKey);
         lastWrittenRef.current = null;
       } catch {
@@ -93,6 +100,14 @@ export function useListingFormAutosave({
         if (!raw) return null;
         const parsed = JSON.parse(raw) as StoredDraft;
         if (!parsed?.savedAt) return null;
+        console.log('[CV-DRAFT-TRACE]', {
+          action: 'peek',
+          key: storageKey,
+          fullName: parsed?.customFields?.fullName,
+          desiredRole: parsed?.customFields?.desiredRole,
+          primarySector: parsed?.customFields?.primarySector,
+          timestamp: new Date().toISOString(),
+        });
         return { savedAt: parsed.savedAt };
       } catch {
         return null;
@@ -103,13 +118,13 @@ export function useListingFormAutosave({
         const raw = localStorage.getItem(storageKey);
         if (!raw) return null;
         const parsed = JSON.parse(raw) as StoredDraft;
-        console.log('[CV DEBUG] DRAFT RESTORE', {
-          timestamp: new Date().toISOString(),
-          storageKey,
+        console.log('[CV-DRAFT-TRACE]', {
+          action: 'restore',
+          key: storageKey,
           fullName: parsed?.customFields?.fullName,
-          primarySector: parsed?.customFields?.primarySector,
           desiredRole: parsed?.customFields?.desiredRole,
-          experiences: (parsed?.customFields?.experiences as any[])?.length,
+          primarySector: parsed?.customFields?.primarySector,
+          timestamp: new Date().toISOString(),
         });
         const { savedAt: _savedAt, ...rest } = parsed;
         lastWrittenRef.current = JSON.stringify(rest);

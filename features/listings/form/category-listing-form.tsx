@@ -1122,9 +1122,28 @@ export function CategoryListingForm({
           ? stripCareerContactFluff(draft.core?.longDescription)
           : (draft.core?.longDescription ?? defaults.core.longDescription),
     });
-    setCustomFields(
-      mergeCustomFieldDefaults(listingType.fieldSchema, draft.customFields),
-    );
+
+    // CV IMPORT HAS HIGHER PRIORITY THAN SAVED DRAFT
+    if (!isCvApplied) {
+      setCustomFields(
+        mergeCustomFieldDefaults(listingType.fieldSchema, draft.customFields),
+      );
+      for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
+        console.log('[CV-STATE-TRACE]', {
+          field: trackKey,
+          previousValue: customFields[trackKey],
+          nextValue: draft.customFields?.[trackKey],
+          source: 'restoreDraft',
+          function: 'restoreDraft:useEffect',
+          reason: 'local_storage_draft_restoration',
+          timestamp: new Date().toISOString(),
+          cvImportCompleted: isCvApplied,
+          draftRestored: true,
+          currentSector: (draft.customFields?.primarySector as string) || '',
+        });
+      }
+    }
+
     setShowDistinctProductName(
       hasDistinctProductName(draft.core?.title, draft.customFields?.productName),
     );
@@ -1150,11 +1169,32 @@ export function CategoryListingForm({
     restoredDraft,
     defaults.core,
     categoryId,
+    isCvApplied,
+    customFields,
   ]);
 
   useEffect(() => {
-    setCustomFields((prev) => mergeCustomFieldDefaults(listingType.fieldSchema, prev));
-  }, [listingType.fieldSchema]);
+    setCustomFields((prev) => {
+      const merged = mergeCustomFieldDefaults(listingType.fieldSchema, prev);
+      for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
+        if (prev[trackKey] !== merged[trackKey]) {
+          console.log('[CV-STATE-TRACE]', {
+            field: trackKey,
+            previousValue: prev[trackKey],
+            nextValue: merged[trackKey],
+            source: 'schemaEffect',
+            function: 'mergeCustomFieldDefaults:useEffect',
+            reason: 'field_schema_dependency_update',
+            timestamp: new Date().toISOString(),
+            cvImportCompleted: isCvApplied,
+            draftRestored: restoredDraft,
+            currentSector: (merged.primarySector as string) || '',
+          });
+        }
+      }
+      return merged;
+    });
+  }, [listingType.fieldSchema, isCvApplied, restoredDraft]);
 
   useEffect(() => {
     const demo = new URLSearchParams(window.location.search).get('demo') === '1';
@@ -1226,7 +1266,23 @@ export function CategoryListingForm({
       nextValue = Array.isArray(value) ? value : [];
     }
 
-    setCustomFields((prev) => ({ ...prev, [key]: nextValue }));
+    setCustomFields((prev) => {
+      if (key === 'fullName' || key === 'desiredRole' || key === 'primarySector') {
+        console.log('[CV-STATE-TRACE]', {
+          field: key,
+          previousValue: prev[key],
+          nextValue,
+          source: 'setCustomField',
+          function: 'setCustomField',
+          reason: 'field_value_update',
+          timestamp: new Date().toISOString(),
+          cvImportCompleted: isCvApplied,
+          draftRestored: restoredDraft,
+          currentSector: (prev.primarySector as string) || (prev.sector as string) || '',
+        });
+      }
+      return { ...prev, [key]: nextValue };
+    });
     setFieldErrors((prev) => {
       if (!prev[key] && !prev[`customFields.${key}`]) return prev;
       const next = { ...prev };
@@ -1234,10 +1290,24 @@ export function CategoryListingForm({
       delete next[`customFields.${key}`];
       return next;
     });
-  }, [fieldByKey]);
+  }, [fieldByKey, isCvApplied, restoredDraft]);
 
   const handleCustomFieldChange = useCallback(
     (key: string, value: unknown) => {
+      if (key === 'fullName' || key === 'desiredRole' || key === 'primarySector') {
+        console.log('[CV-STATE-TRACE]', {
+          field: key,
+          previousValue: customFields[key],
+          nextValue: value,
+          source: 'handleCustomFieldChange',
+          function: 'handleCustomFieldChange',
+          reason: 'user_or_cv_change_event',
+          timestamp: new Date().toISOString(),
+          cvImportCompleted: isCvApplied,
+          draftRestored: restoredDraft,
+          currentSector: (customFields.primarySector as string) || (customFields.sector as string) || '',
+        });
+      }
       setCustomField(key, value);
       if (key === 'preferredCity') {
         setCustomField('preferredDistrict', '');
@@ -1315,7 +1385,7 @@ export function CategoryListingForm({
         }
       }
     },
-    [categoryId, setCustomField, mergedCustomFields.preferredSectors, mergedCustomFields.primarySector, mergedCustomFields.desiredRole],
+    [categoryId, setCustomField, mergedCustomFields.preferredSectors, mergedCustomFields.primarySector, mergedCustomFields.desiredRole, customFields, isCvApplied, restoredDraft],
   );
 
   const handleApplyCvDraft = useCallback(
@@ -1368,6 +1438,22 @@ export function CategoryListingForm({
         targetRole: nextCustomFields.desiredRole,
       });
 
+      // Log [CV-STATE-TRACE] for each primary hydrated field
+      for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
+        console.log('[CV-STATE-TRACE]', {
+          field: trackKey,
+          previousValue: customFields[trackKey],
+          nextValue: nextCustomFields[trackKey],
+          source: 'handleApplyCvDraft',
+          function: 'buildHydratedCustomFieldsFromCvDraft -> handleApplyCvDraft',
+          reason: 'cv_hydration_apply',
+          timestamp: new Date().toISOString(),
+          cvImportCompleted: true,
+          draftRestored: restoredDraft,
+          currentSector: (nextCustomFields.primarySector as string) || '',
+        });
+      }
+
       setCustomFields(nextCustomFields);
       if (Object.keys(nextCoreFields).length > 0) {
         setCore((prev) => ({
@@ -1385,7 +1471,7 @@ export function CategoryListingForm({
       setIsManualCvMode(false);
       toast.success('✨ CV bilgileri adımlara başarıyla aktarıldı.');
     },
-    [pendingCvDraft, customFields, listingType.fieldSchema],
+    [pendingCvDraft, customFields, listingType.fieldSchema, restoredDraft],
   );
 
   const handleCvDraftAnalyzed = useCallback(
