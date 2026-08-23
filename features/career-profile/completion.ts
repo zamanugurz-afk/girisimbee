@@ -114,8 +114,10 @@ export function valuesFromCareerSource(source: CareerFieldSource): CareerProfile
   const cf = (source.customFields ?? {}) as Record<string, unknown>;
   return {
     role: profile.role ?? '',
+    desiredRole: typeof cf.desiredRole === 'string' && cf.desiredRole ? cf.desiredRole : (profile.role ?? ''),
     roles: profile.roles && profile.roles.length > 0 ? profile.roles : profile.role ? [profile.role] : [],
     sector: profile.sector ?? '',
+    primarySector: typeof cf.primarySector === 'string' && cf.primarySector ? cf.primarySector : (profile.sector ?? ''),
     sectors: profile.sectors && profile.sectors.length > 0 ? profile.sectors : profile.sector ? [profile.sector] : [],
     experienceLevel: profile.experienceLevel ?? '',
     professionalSkills: displayList(profile.professionalSkills) ?? '',

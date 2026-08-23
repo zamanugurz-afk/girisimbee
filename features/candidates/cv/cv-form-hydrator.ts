@@ -1,6 +1,5 @@
 import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
-import type { CoreListingFieldsInput } from '@/features/listings/types/listing.entity.types';
 import { isForbiddenNameCandidate, formatTurkishTitleCase } from '@/features/candidates/cv/cv-name-extractor';
 import { normalizeCvText } from '@/features/candidates/cv/cv-turkish-encoding';
 import { resolveEnumOption } from '@/features/listings/form/build-dynamic-schema';
@@ -23,7 +22,7 @@ import { compressCareerSummaryMeaningfully } from '@/features/candidates/lib/car
 
 export interface HydratedFormResult {
   nextCustomFields: Record<string, unknown>;
-  nextCoreFields: Partial<CoreListingFieldsInput>;
+  nextCoreFields: Record<string, unknown>;
   appliedKeys: string[];
 }
 
@@ -38,7 +37,7 @@ export function buildHydratedCustomFieldsFromCvDraft(
 ): HydratedFormResult {
   const fv = draft.formValues;
   const nextCustomFields: Record<string, unknown> = { ...existingCustomFields };
-  const nextCoreFields: Partial<CoreListingFieldsInput> = {};
+  const nextCoreFields: Record<string, unknown> = {};
   const appliedKeys: string[] = [];
 
   // Helper to mark key applied

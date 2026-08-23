@@ -75,6 +75,36 @@ export interface AiCvExtractionPayload {
   ambiguousItems: RawAmbiguousCvItem[];
 }
 
+export type ContradictionSeverity = 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+
+export interface CvContradiction {
+  id: string;
+  type:
+    | 'HEADER_ROLE_EXPERIENCE_ROLE_MISMATCH'
+    | 'PROFILE_SECTOR_EXPERIENCE_SECTOR_MISMATCH'
+    | 'EDUCATION_PROFESSIONAL_SECTOR_MISMATCH'
+    | 'MULTIPLE_CONCURRENT_ACTIVE_JOBS'
+    | 'OVERLAPPING_EXPERIENCE_PERIODS'
+    | 'IMPOSSIBLE_OR_INVERTED_DATES'
+    | 'DUPLICATE_EXPERIENCE_ENTRIES'
+    | 'DUPLICATE_EDUCATION_ENTRIES'
+    | 'DUPLICATE_SKILLS_OR_TOOLS'
+    | 'LOCATION_HOMONYM_DISCREPANCY';
+  severity: ContradictionSeverity;
+  description: string;
+  fields: string[];
+  candidates?: string[];
+  resolutionSuggestion?: string;
+}
+
+export type FieldResolutionStatus =
+  | 'RESOLVED'
+  | 'UNKNOWN'
+  | 'NOT_FOUND'
+  | 'AMBIGUOUS'
+  | 'CONTRADICTORY'
+  | 'LOW_CONFIDENCE';
+
 export interface CanonicalTaxonomyMappingResult {
   primaryRole: string;
   matchedRoles: string[];
@@ -103,6 +133,10 @@ export interface CanonicalTaxonomyMappingResult {
   summary: string;
   ambiguousItems: RawAmbiguousCvItem[];
   canonicalConfidence: number;
+  contradictions?: CvContradiction[];
+  roleCandidates?: string[];
+  sectorCandidates?: string[];
+  fieldResolutionStatus?: Record<string, FieldResolutionStatus>;
 }
 
 export const CV_EXTRACTION_VERSION = '3.0.0';
@@ -128,6 +162,7 @@ export interface CvExtractionMetrics {
   coverageScore: number;
   confidenceScores: Record<string, number>;
   processingTimeMs?: number;
+  contradictionsCount?: number;
 }
 
 export interface CvProfileDraftResult {
@@ -150,4 +185,7 @@ export interface CvProfileDraftResult {
     summary: boolean;
   };
   metrics: CvExtractionMetrics;
+  contradictions?: CvContradiction[];
+  roleCandidates?: string[];
+  sectorCandidates?: string[];
 }

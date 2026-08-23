@@ -57,10 +57,11 @@ export type ContactRequestPublicView = {
   requesterFullName?: string | null;
   listingTitle?: string | null;
   /**
-   * Owner phone — only populated for the accepted requester of this listing.
+   * Owner contact info — only populated for the accepted requester of this listing.
    * Never returned for pending / rejected / other users.
    */
   ownerContactPhone?: string | null;
+  ownerContactEmail?: string | null;
   /**
    * Owner identity — only for accepted requester (display / first / last name).
    * Never returned for pending / rejected / other users.

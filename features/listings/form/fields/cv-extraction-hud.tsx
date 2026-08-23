@@ -12,6 +12,10 @@ export interface CvExtractionHudProps {
   languageCount: number;
   skillCount: number;
   location?: string;
+  qualityScore?: number;
+  evidenceGraphSummary?: { totalNodes?: number; resolvedFields?: number; groundedRatio?: number };
+  contradictionsCount?: number;
+  provenanceSource?: 'CV' | 'USER' | 'NORMALIZED' | 'TAXONOMY';
   onApply?: () => void;
   isApplied?: boolean;
   onReupload?: () => void;
@@ -27,6 +31,10 @@ export function CvExtractionHud({
   languageCount,
   skillCount,
   location,
+  qualityScore,
+  evidenceGraphSummary,
+  contradictionsCount = 0,
+  provenanceSource = 'CV',
   onApply,
   isApplied = false,
   onReupload,
@@ -166,6 +174,16 @@ export function CvExtractionHud({
 
       {/* Extracted Counts HUD Grid */}
       <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-sky-200/50 pt-3 dark:border-sky-900/40">
+        {qualityScore !== undefined && qualityScore > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>%{Math.round(qualityScore)} Kalite Skoru</span>
+          </span>
+        )}
+        <span className="inline-flex items-center gap-1 rounded-lg bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-800 border border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800">
+          <CheckCircle2 className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+          <span>Kaynak: {provenanceSource === 'USER' ? 'Kullanıcı Onaylı' : 'CV Kanıtı'}</span>
+        </span>
         {experienceCount > 0 && (
           <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-2xs dark:bg-zinc-900 dark:text-slate-200">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />

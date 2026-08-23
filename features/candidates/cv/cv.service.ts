@@ -10,6 +10,8 @@ import { cvAnalysisCache } from '@/features/candidates/cv/cv-cache';
 import { verifyCvPipelineIntegrity } from '@/features/candidates/cv/cv-data-loss-guard';
 import { calculateCvQualityScore } from '@/features/candidates/cv/cv-quality-score';
 import { validateAndReconcileCvPayload } from '@/features/candidates/cv/cv-cross-validator';
+import { buildCvEvidenceGraph, enforceEvidenceGraphFirewall } from '@/features/candidates/cv/cv-evidence-graph';
+import { cvContradictionEngine } from '@/features/candidates/cv/cv-contradiction-engine';
 import {
   CV_EXTRACTION_VERSION,
   CAREER_TAXONOMY_VERSION,
@@ -62,8 +64,26 @@ export class CvService {
     // Step 7: Cross-field consistency validation & deduplication
     aiPayload = validateAndReconcileCvPayload(aiPayload);
 
+    // Step 7.5: Evidence Graph & Cross-Contamination Firewall Construction & Enforcement
+    const evidenceGraph = buildCvEvidenceGraph({
+      rawText: extractedText.text,
+      rawExtraction: aiPayload,
+    });
+    aiPayload = enforceEvidenceGraphFirewall(aiPayload, evidenceGraph);
+    const graphSummary = evidenceGraph.getSummary();
+
     // Step 8: Deterministic Canonical Taxonomy Mapping
     const canonical = mapCvToCanonicalTaxonomy(aiPayload);
+
+    // Step 8.5: Cross-Field Contradiction Detection & Multi-Candidate Ranking
+    const contradictionReport = cvContradictionEngine.detectContradictions({
+      rawPayload: aiPayload,
+      canonical,
+      rawText: extractedText.text,
+    });
+    canonical.contradictions = contradictionReport.contradictions;
+    canonical.roleCandidates = contradictionReport.roleCandidates;
+    canonical.sectorCandidates = contradictionReport.sectorCandidates;
 
     // Step 9: Zero Data Loss Guard
     verifyCvPipelineIntegrity({
@@ -143,6 +163,7 @@ export class CvService {
       coverageScore: qualityReport.overallScore,
       confidenceScores: qualityReport.confidenceScores,
       processingTimeMs: Date.now() - startTime,
+      contradictionsCount: contradictionReport.totalConflicts,
     };
 
     // Step 12: Store in cache

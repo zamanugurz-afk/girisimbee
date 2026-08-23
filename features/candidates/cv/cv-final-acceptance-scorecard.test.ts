@@ -322,10 +322,20 @@ describe('GİRİŞİMBEE — FINAL CV EXTRACTION ACCEPTANCE AUDIT & SCORECARD SU
       if (formValues.educationLevel === tc.eduDegree) eduMatches++;
 
       // 6. Skills & Tools
+      const profSkillsArr = typeof formValues.professionalSkills === 'string'
+        ? formValues.professionalSkills.split(/[,\n]/).map((s) => s.trim())
+        : (formValues.professionalSkillsList || []);
+      const techSkillsArr = typeof formValues.technicalSkills === 'string'
+        ? formValues.technicalSkills.split(/[,\n]/).map((s) => s.trim())
+        : (formValues.technicalSkillsList || []);
+      const toolsArr = typeof formValues.tools === 'string'
+        ? formValues.tools.split(/[,\n]/).map((s) => s.trim())
+        : (formValues.toolsList || []);
+
       const totalExtractedSkills = [
-        ...(canonical.professionalSkills || []),
-        ...(canonical.technicalSkills || []),
-        ...(canonical.tools || []),
+        ...profSkillsArr,
+        ...techSkillsArr,
+        ...toolsArr,
         ...(res.skills || []),
         ...(res.tools || []),
       ].map((s) => s.toLowerCase());

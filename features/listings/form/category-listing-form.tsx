@@ -1370,11 +1370,11 @@ export function CategoryListingForm({
       if (Object.keys(nextCoreFields).length > 0) {
         setCore((prev) => ({
           ...prev,
-          ...nextCoreFields,
-          city: nextCoreFields.city || prev.city,
-          location: nextCoreFields.location || prev.location,
-          longDescription: nextCoreFields.longDescription || prev.longDescription,
-          shortDescription: nextCoreFields.shortDescription || prev.shortDescription,
+          ...(nextCoreFields as Partial<typeof prev>),
+          city: typeof nextCoreFields.city === 'string' ? nextCoreFields.city : prev.city,
+          location: typeof nextCoreFields.location === 'string' ? nextCoreFields.location : prev.location,
+          longDescription: typeof nextCoreFields.longDescription === 'string' ? nextCoreFields.longDescription : prev.longDescription,
+          shortDescription: typeof nextCoreFields.shortDescription === 'string' ? nextCoreFields.shortDescription : prev.shortDescription,
         }));
       }
 
@@ -2305,6 +2305,8 @@ export function CategoryListingForm({
                   languageCount={cvDraftInfo.languageCount}
                   skillCount={cvDraftInfo.skillCount}
                   location={cvDraftInfo.location}
+                  qualityScore={pendingCvDraft?.metrics?.coverageScore}
+                  provenanceSource="CV"
                   onApply={() => handleApplyCvDraft(pendingCvDraft)}
                   isApplied={isCvApplied}
                   onFileSelected={handleUploadCvFile}

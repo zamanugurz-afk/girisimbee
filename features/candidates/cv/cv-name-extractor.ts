@@ -226,6 +226,150 @@ export const FORBIDDEN_SECTION_WORD_ROOTS = new Set([
   'bolumu',
   'mezun',
   'mezuniyet',
+  'yonetim',
+  'yonetimi',
+  'yonetimler',
+  'yonetimleri',
+  'pazarlama',
+  'operasyon',
+  'operasyonlar',
+  'operasyonlari',
+  'operasyonel',
+  'gelistirme',
+  'kazanimi',
+  'performans',
+  'telemarketing',
+  'sutun',
+  'sutunu',
+  'sutunlar',
+  'kolon',
+  'kolonu',
+  'kolonlar',
+  'sidebar',
+  'sol',
+  'sag',
+  'turkiye',
+  'holding',
+  'sirket',
+  'sirketi',
+  'sanayi',
+  'ticaret',
+  'danismanlik',
+  'hizmetleri',
+  'ltd',
+  'sti',
+  'tech',
+  'teknoloji',
+  'insaat',
+  'lojistik',
+  'otel',
+  'otelleri',
+  'bank',
+  'bankasi',
+  'sigorta',
+  'medya',
+  'enerji',
+  'tekstil',
+  'gida',
+  'market',
+  'yazilim',
+  'muhendislik',
+  'muhendisligi',
+  'iktisat',
+  'finans',
+  'urun',
+  'urunu',
+  'urunler',
+  'urunleri',
+  'strateji',
+  'stratejisi',
+  'stratejiler',
+  'stratejileri',
+  'analiz',
+  'analizi',
+  'analizler',
+  'tasarim',
+  'tasarimi',
+  'kodlama',
+  'planlama',
+  'planlamasi',
+  'mali',
+  'muhasebe',
+  'denetim',
+  'cozum',
+  'destek',
+  'arastirma',
+  'uygulama',
+  'agile',
+  'scrum',
+  'testi',
+  'testler',
+  'guvence',
+  'guvencesi',
+  'raporlama',
+  'crm',
+  'erp',
+  'sap',
+  'sql',
+  'lead',
+  'leader',
+  'data',
+  'analytics',
+  'software',
+  'hardware',
+  'network',
+  'cyber',
+  'security',
+  'cloud',
+  'digital',
+  'growth',
+  'brand',
+  'content',
+  'social',
+  'marketing',
+  'sales',
+  'finance',
+  'accounting',
+  'operations',
+  'quality',
+  'assurance',
+  'legal',
+  'compliance',
+  'engineering',
+  'development',
+  'consulting',
+  'management',
+  'academic',
+  'background',
+  'experience',
+  'education',
+  'skills',
+  'competencies',
+  'berufserfahrung',
+  'ausbildung',
+  'kompetenzen',
+  'fachkenntnisse',
+  'referenzen',
+  'lebenslauf',
+  'formation',
+  'competences',
+  'langues',
+  'experiencia',
+  'laboral',
+  'educacion',
+  'habilidades',
+  'idiomas',
+  'referencias',
+  'university',
+  'universitat',
+  'universite',
+  'universidad',
+  'polytechnic',
+  'college',
+  'academy',
+  'institute',
+  'instituto',
+  'institut',
 ]);
 
 /**
@@ -316,38 +460,39 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     'references',
   ];
 
+  const firstWordToken = norm.split(/\s+/)[0];
   for (const prefix of forbiddenPrefixes) {
-    if (norm === prefix || norm.startsWith(prefix + ' ') || norm.startsWith(prefix + ':')) {
+    if (
+      norm === prefix ||
+      norm.startsWith(prefix + ' ') ||
+      norm.startsWith(prefix + ':') ||
+      firstWordToken.startsWith(prefix)
+    ) {
       return true;
     }
   }
 
-  // 5. Suffix checks
-  if (
-    norm.endsWith(' bilgileri') ||
-    norm.endsWith(' bilgilerim') ||
-    norm.endsWith(' deneyimleri') ||
-    norm.endsWith(' deneyimlerim') ||
-    norm.endsWith(' sertifikalari') ||
-    norm.endsWith(' yetenekleri') ||
-    norm.endsWith(' alanlari')
-  ) {
+  // 5.4 Lorem ipsum placeholder text check
+  if (norm.includes('lorem') || norm.includes('ipsum') || norm.includes('dolor sit')) {
     return true;
   }
 
-  // 6. Contact markers & invalid characters
-  if (
-    trimmed.includes('@') ||
-    /https?:\/\/|www\.|\.com|\.net|\.org|\.edu|\.gov|\.dev|\.io/i.test(trimmed) ||
-    /(?:\+90|0)?\s*\(?\d{3}\)?[\s.-]?\d{3}/.test(trimmed) ||
-    /[0-9<>{}[\]_=+*#~^/\\;:]/.test(trimmed)
-  ) {
+  // 5.5 City name as first word check (cities that are never Turkish given names)
+  const firstWord = norm.split(/\s+/)[0];
+  const nonPersonCities = new Set([
+    'istanbul', 'ankara', 'izmir', 'bursa', 'antalya', 'adana', 'konya', 'gaziantep',
+    'sanliurfa', 'kocaeli', 'mersin', 'diyarbakir', 'hatay', 'manisa', 'kayseri',
+    'samsun', 'balikesir', 'kahramanmaras', 'van', 'denizli', 'sakarya',
+    'erzurum', 'mugla', 'eskisehir', 'mardin', 'trabzon', 'malatya', 'tekirdag',
+    'ordu', 'afyonkarahisar', 'sivas', 'edirne', 'canakkale', 'rize', 'yalova',
+  ]);
+  if (nonPersonCities.has(firstWord) && norm.split(/\s+/).length > 1) {
     return true;
   }
 
   // 7. Corporate entities / institutional words & suffixes
   if (
-    /\b(?:holding|sirketi|sirket|limited|anonim|a\.s|ltd|bankasi|banka|hastanesi|hastane|universitesi|universite|fakultesi|fakulte|enstitusu|enstitu|mudurlugu|mudurluk|bakanligi|bakanlik|belediyesi|belediye|sanayi|ticaret|vakfi|vakif|dernegi|dernek|federasyonu|ortakligi|ortaklik|burosu|buro|ajansi|ajans|ofisi|ofis|merkezi|merkez|klinigi|klinik|laboratuvari|hizmetleri|hizmet|atolyesi|grubu|grup|group|solutions|consulting|associates|law\s*firm|danismanlik|musavirlik|avukatlik)\b/i.test(
+    /\b(?:holding|sirketi|sirket|limited|anonim|a\.s|ltd|bankasi|banka|hastanesi|hastane|universitesi|universite|univ|üniv|fakultesi|fakulte|enstitusu|enstitu|mudurlugu|mudurluk|bakanligi|bakanlik|belediyesi|belediye|sanayi|ticaret|vakfi|vakif|dernegi|dernek|federasyonu|ortakligi|ortaklik|burosu|buro|ajansi|ajans|ofisi|ofis|merkezi|merkez|klinigi|klinik|laboratuvari|hizmetleri|hizmet|atolyesi|grubu|grup|group|solutions|consulting|associates|law\s*firm|danismanlik|musavirlik|avukatlik|lise|lisesi|kolej|koleji|akademi|akademisi|okul|okulu|myo|bolum|bolumu|program|programi|lisans|onlisans|doktora|teknik|teknoloji|teknolojileri|sistemleri)\b/i.test(
       norm,
     )
   ) {
@@ -356,7 +501,16 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
 
   // 7.5 Job titles and occupational nouns must never be treated as names
   if (
-    /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli)\b/i.test(
+    /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli|denetci|denetcisi|auditor|muhasebeci|doktor|hemsire|avukat|ogretmen|tasarimci|mimar|psikolog|cerrah)\b/i.test(
+      norm,
+    )
+  ) {
+    return true;
+  }
+
+  // 7.6 Turkish action clauses, responsibility phrases, and verbal noun suffixes
+  if (
+    /\b(?:yapilmasi|yapilmasini|edilmesi|edilmesini|yurutulmesi|yurutulmesini|saglanmasi|saglanmasini|takibi|takibinin|yonetimi|yonetiminin|duzenlenmesi|olusturulmasi|hazirlanmasi|raporlanmasi|surecleri|sureclerinin|faaliyetleri|islemleri|koordinasyonu|gelistirilmesi|artirilmasi|kontrolu|desteklenmesi)\b/i.test(
       norm,
     )
   ) {
@@ -366,8 +520,11 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
   return false;
 }
 
+import { segmentCvIntoDocumentZones, type CvZoneType } from './cv-document-zoning';
+import { scoreCandidateName } from './cv-candidate-scorer';
+
 /**
- * Robust candidate full name extraction engine.
+ * Robust candidate full name extraction engine with Document Zoning & Multi-factor Scoring.
  *
  * Guaranteed to NEVER return section headings (e.g. "Kişisel Bilgiler", "İletişim", "Eğitim"),
  * contact info, company names, or invalid non-name lines.
@@ -380,7 +537,6 @@ export function extractCandidateName(rawText: string | null | undefined): string
   if (!text) return null;
 
   // Tier 0: Explicit separate First Name + Last Name labels
-  // e.g. "Adı: Uğur" and "Soyadı: Zaman"
   const firstNameMatch = text.match(
     /(?:^|\n)[ \t]*(?:[aA]d[ıiİI]?|first\s*name)[\s:]+([^\r\n,;:|0-9@]+)/iu,
   );
@@ -391,99 +547,118 @@ export function extractCandidateName(rawText: string | null | undefined): string
     const fn = firstNameMatch[1].trim();
     const ln = lastNameMatch[1].trim();
     const combined = `${fn} ${ln}`;
-    if (!isForbiddenNameCandidate(combined)) {
-      return formatTurkishTitleCase(combined);
+    const scoreRes = scoreCandidateName(combined, {
+      zone: 'CONTACT',
+      isTopZone: true,
+      lineIndex: 0,
+      fullDocText: text,
+      hasExplicitLabel: true,
+    });
+    if (scoreRes.isAccepted) {
+      return formatTurkishTitleCase(scoreRes.value);
     }
   }
 
   // Tier 1: Explicit combined name label
-  // e.g. "İsim: Uğur Zaman", "Ad Soyad: Uğur Zaman", "Aday: Uğur Zaman"
   const nameLabelMatch = text.match(
     /(?:^|\n)[ \t]*(?:[iİıI]sim\s*[sS]oyisim|[iİıI]sim|[aA]d\s*[sS]oyad|[aA]d[ıiİI]\s*[sS]oyad[ıiİI]|[aA]d[ıiİI]n[ıiİI]z|full\s*name|candidate\s*name|candidate|aday)[\s:]+([^\r\n,;|]+)/iu,
   );
   if (nameLabelMatch) {
     const candidate = nameLabelMatch[1].trim();
-    if (!isForbiddenNameCandidate(candidate)) {
-      return formatTurkishTitleCase(candidate);
+    const scoreRes = scoreCandidateName(candidate, {
+      zone: 'CONTACT',
+      isTopZone: true,
+      lineIndex: 0,
+      fullDocText: text,
+      hasExplicitLabel: true,
+    });
+    if (scoreRes.isAccepted) {
+      return formatTurkishTitleCase(scoreRes.value);
     }
   }
 
-  // Tier 2: Inside "Kişisel Bilgiler" section block
-  // e.g.:
-  // KİŞİSEL BİLGİLER
-  // Uğur Zaman
-  // Telefon: ...
-  const kisiselSectionMatch = text.match(
-    /(?:[kK][iİıI][sS][iİıI][sS][eE]l\s*[bB][iİıI]lgiler(?:im)?|[öÖ]zel\s*[bB][iİıI]lgiler|personal\s*information)[\s:]*\n+([\s\S]{1,500})/iu,
-  );
-  if (kisiselSectionMatch) {
-    const sectionBody = kisiselSectionMatch[1];
-    const sectionLines = sectionBody
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+  // Tier 2: Document Zoning - Scan Authorized Zones (HEADER, CONTACT)
+  const zoning = segmentCvIntoDocumentZones(text);
+  const candidatePool: Array<{ value: string; score: number }> = [];
 
-    for (const rawLine of sectionLines.slice(0, 8)) {
-      let cleanLine = rawLine
-        .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
-        .replace(/^(?:adı|ad|isim|isim\s*soyisim|ad\s*soyad)[\s:]+/i, '')
+  const inspectZoneLines = (rawLines: string[], zoneType: CvZoneType) => {
+    for (let lIdx = 0; lIdx < rawLines.length; lIdx++) {
+      const rawLine = rawLines[lIdx];
+      if (!rawLine || rawLine.length < 2) continue;
+
+      let clean = rawLine
+        .replace(/[\p{Extended_Pictographic}\uFE00-\uFE0F]/gu, ' ')
+        .replace(/^[\s•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:]+/, '')
+        .replace(/[\s•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:]+$/, '')
+        .replace(/^(?:özgeçmiş|curriculum\s*vitae|resume|cv)\s*[-–—|:]\s*/i, '')
+        .replace(/^(?:ad(?:ı)?\s*soyad(?:ı)?|isim\s*soyisim|isim|adınız\s*soyadınız|full\s*name|candidate\s*name|candidate|name|aday)\s*[:\-–—]\s*/i, '')
+        .replace(
+          /^(?:av\.?|avukat|dr\.?|doktor|prof\.?\s*dr\.?|doç\.?\s*dr\.?|müh\.?|mühendis|uzm\.?\s*dr\.?|şef|öğr\.?\s*gör\.?)\s+/i,
+          '',
+        )
         .trim();
 
-      if (cleanLine.includes('|') || cleanLine.includes('—') || cleanLine.includes(' - ')) {
-        const parts = cleanLine.split(/[|—]|\s+-\s+/);
-        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-          cleanLine = parts[0].trim();
+      // Check sub-parts for pipe, dash, or slash separated lines
+      const candidatesToTest = [clean];
+
+      // If line is very long, extract candidate name from first 2-3 words
+      if (clean.length > 50) {
+        const cWords = clean.split(/\s+/).filter(Boolean);
+        if (cWords.length >= 2) {
+          const twoWord = `${cWords[0]} ${cWords[1]}`;
+          if (!isForbiddenNameCandidate(twoWord)) {
+            candidatesToTest.push(twoWord);
+          }
+          if (cWords.length >= 3) {
+            const threeWord = `${cWords[0]} ${cWords[1]} ${cWords[2]}`;
+            if (!isForbiddenNameCandidate(threeWord)) {
+              candidatesToTest.push(threeWord);
+            }
+          }
         }
       }
 
-      if (cleanLine.includes('/') && !cleanLine.includes('@') && !cleanLine.includes('http')) {
-        const parts = cleanLine.split('/');
-        if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-          cleanLine = parts[0].trim();
-        }
+      if (clean.includes('|') || clean.includes('—') || clean.includes(' - ')) {
+        const parts = clean.split(/[|—]|\s+-\s+/).map((p) => p.trim()).filter(Boolean);
+        candidatesToTest.push(...parts);
+      }
+      if (clean.includes('/') && !clean.includes('@') && !clean.includes('http')) {
+        const parts = clean.split('/').map((p) => p.trim()).filter(Boolean);
+        candidatesToTest.push(...parts);
       }
 
-      if (!isForbiddenNameCandidate(cleanLine)) {
-        return formatTurkishTitleCase(cleanLine);
+      for (const cand of candidatesToTest) {
+        if (cand.length < 3 || cand.length > 50) continue;
+        const scoreRes = scoreCandidateName(cand, {
+          zone: zoneType,
+          isTopZone: true,
+          lineIndex: lIdx,
+          fullDocText: text,
+          nextLineText: rawLines[lIdx + 1],
+        });
+
+        if (scoreRes.isAccepted) {
+          candidatePool.push({ value: scoreRes.value, score: scoreRes.totalScore });
+        }
       }
+    }
+  };
+
+  for (const zone of zoning.zones) {
+    if (zone.zoneType !== 'REFERENCES') {
+      inspectZoneLines(zone.rawLines, zone.zoneType);
     }
   }
 
-  // Tier 3: Scan top lines of the document (first page header lines 0 to 20)
-  const allLines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-  const topLines = allLines.slice(0, 20);
+  // Also inspect top 50 lines for multi-column / unrolled headers
+  const allLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  inspectZoneLines(allLines.slice(0, 50), 'HEADER');
 
-  for (const rawLine of topLines) {
-    let clean = rawLine
-      .replace(/^[\s•*·\->–—👤📱📧🔗🏠]+/, '')
-      .replace(/^(?:özgeçmiş|curriculum\s*vitae|resume|cv)\s*[-–—|:]\s*/i, '')
-      .replace(
-        /^(?:av\.?|avukat|dr\.?|doktor|prof\.?\s*dr\.?|doç\.?\s*dr\.?|müh\.?|mühendis|uzm\.?\s*dr\.?|şef|öğr\.?\s*gör\.?)\s+/i,
-        '',
-      )
-      .trim();
-
-    // If line contains pipe or dash with location / role, take the name portion before separator
-    if (clean.includes('|') || clean.includes('—') || clean.includes(' - ')) {
-      const parts = clean.split(/[|—]|\s+-\s+/);
-      if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-        clean = parts[0].trim();
-      }
-    }
-
-    // If line contains "/" for location, check if left part is name
-    if (clean.includes('/') && !clean.includes('@') && !clean.includes('http')) {
-      const parts = clean.split('/');
-      if (parts[0] && parts[0].trim().split(/\s+/).length >= 2) {
-        clean = parts[0].trim();
-      }
-    }
-
-    if (!isForbiddenNameCandidate(clean)) {
-      return formatTurkishTitleCase(clean);
+  // If candidates found, select highest score (must be >= 60)
+  if (candidatePool.length > 0) {
+    candidatePool.sort((a, b) => b.score - a.score);
+    if (candidatePool[0].score >= 60) {
+      return formatTurkishTitleCase(candidatePool[0].value);
     }
   }
 

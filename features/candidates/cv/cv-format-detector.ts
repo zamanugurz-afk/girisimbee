@@ -1,4 +1,4 @@
-export type SupportedCvFormat = 'pdf' | 'docx' | 'txt';
+export type SupportedCvFormat = 'pdf' | 'docx' | 'txt' | 'rtf';
 
 export class CvExtractionError extends Error {
   constructor(message: string) {
@@ -78,7 +78,24 @@ export function detectCvFormatFromBuffer(
     };
   }
 
-  // 3. Fallback based on fileName or textual content
+  // 3. Check RTF Magic Bytes: "{\rtf" (0x7B, 0x5C, 0x72, 0x74, 0x66)
+  if (
+    buffer.length >= 5 &&
+    buffer[0] === 0x7b &&
+    buffer[1] === 0x5c &&
+    buffer[2] === 0x72 &&
+    buffer[3] === 0x74 &&
+    buffer[4] === 0x66
+  ) {
+    return {
+      format: 'rtf',
+      mimeType: 'application/rtf',
+      isValidSignature: true,
+      fileSize,
+    };
+  }
+
+  // 4. Fallback based on fileName or textual content
   const lowerName = (fileName || '').toLowerCase();
   if (lowerName.endsWith('.pdf') || declaredMimeType === 'application/pdf') {
     return {
@@ -98,7 +115,16 @@ export function detectCvFormatFromBuffer(
     };
   }
 
-  // 4. Default to plain text
+  if (lowerName.endsWith('.rtf') || declaredMimeType === 'application/rtf' || declaredMimeType === 'text/rtf') {
+    return {
+      format: 'rtf',
+      mimeType: 'application/rtf',
+      isValidSignature: false,
+      fileSize,
+    };
+  }
+
+  // 5. Default to plain text
   return {
     format: 'txt',
     mimeType: 'text/plain',

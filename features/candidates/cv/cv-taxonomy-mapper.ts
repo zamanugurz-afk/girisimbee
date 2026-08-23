@@ -43,7 +43,12 @@ const ROLE_ALIASES: Record<string, string> = {
   'cloud infrastructure & security architect': 'DevOps Mühendisi',
   'cloud infrastructure and security architect': 'DevOps Mühendisi',
   'software architect': 'Yazılım Geliştirici',
-  'solutions architect': 'Yazılım Geliştirici',
+  'softwareentwickler': 'Yazılım Geliştirici',
+  'ingenieur logiciel': 'Yazılım Geliştirici',
+  'ingénieur logiciel': 'Yazılım Geliştirici',
+  'desarrollador full stack': 'Full Stack Geliştirici',
+  'desarrollador': 'Yazılım Geliştirici',
+  'développeur': 'Yazılım Geliştirici',
   'finansal güvence danışmanı': 'Sigorta Danışmanı',
   'finansal guvence danismani': 'Sigorta Danışmanı',
   'vardiya müdürü': 'Vardiya Amiri / Müdürü',
@@ -390,9 +395,27 @@ const SECTOR_ALIASES: Record<string, string> = {
   'sağlık': 'Sağlık',
   'saglik': 'Sağlık',
   'sağlık sektörü': 'Sağlık',
+  'sağlık / medikal': 'Sağlık',
+  'saglik / medikal': 'Sağlık',
+  'sağlık ve medikal': 'Sağlık',
   'health': 'Sağlık',
   'healthcare': 'Sağlık',
   'hospital': 'Sağlık',
+  'hastane': 'Sağlık',
+  'tıp': 'Sağlık',
+  'tip': 'Sağlık',
+  'kardiyoloji': 'Sağlık',
+  'kardiyolog': 'Sağlık',
+  'doktor': 'Sağlık',
+  'hekim': 'Sağlık',
+  'eczane': 'Sağlık',
+  'eczacılık': 'Sağlık',
+  'klinik': 'Sağlık',
+
+  'müşteri hizmetleri / çağrı merkezi': 'Çağrı merkezi',
+  'musteri hizmetleri / cagri merkezi': 'Çağrı merkezi',
+  'perakende / mağazacılık': 'Perakende / Mağaza',
+  'perakende / magazacilik': 'Perakende / Mağaza',
 
   'gıda': 'Gıda / Restoran',
   'gida': 'Gıda / Restoran',
@@ -469,7 +492,6 @@ const SECTOR_ALIASES: Record<string, string> = {
   'iklimlendirme': 'İklimlendirme / Tesisat',
   'idari işler': 'İdari işler / Ofis',
   'halkla ilişkiler': 'Halkla ilişkiler',
-  'eczane': 'Eczane / İlaç',
   'ilaç': 'Eczane / İlaç',
   'pharma': 'Eczane / İlaç',
 };
@@ -592,12 +614,12 @@ export function matchCanonicalPosition(rawRole: string): {
     };
   }
 
-  // 4. Default: Proper Title Case
+  // 4. Default: Proper Title Case without fallback to random taxonomy nodes
   const titleCased = suggestTitleCaseTr(rawRole);
   return {
     canonical: titleCased,
     isAmbiguous: true,
-    candidates: matches.slice(0, 3).length > 0 ? matches.slice(0, 3) : allPositions.slice(0, 3),
+    candidates: matches.slice(0, 3),
   };
 }
 
@@ -700,8 +722,8 @@ export function inferSectorFromRole(role: string): string {
   if (/eczane|ilac|farmasotik|ruhsatlandirma|onkoloji|klinik\s*arastirma|cra|clinical/i.test(r)) return 'Eczane / İlaç';
   if (/veteriner|pet/i.test(r)) return 'Veteriner / Pet';
   if (/saglik|doktor|hemsire|cerrah|hasta\s*hizmet|medikal|biyomedikal|psikolog|fizyoterapist|dis\s*hekimi|fizik\s*tedavi/i.test(r)) return 'Sağlık';
-  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql|bilgi\s*guvenlig|it\s*guvenlik|security/i.test(r)) return 'Bilişim / Yazılım';
-  if (/yapay\s*zeka|veri\s*(bilim|muhend|analis)|data|is\s*zekasi|raporlama|bi\s*lead|bi\s*developer/i.test(r)) return 'Yapay zeka / Veri';
+  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql|bilgi\s*guvenlig|it\s*guvenlik|security|urun\s*yonetici|product\s*manager|product\s*owner/i.test(r)) return 'Bilişim / Yazılım';
+  if (/yapay\s*zeka|veri\s*(?:bilim|muhend|analis|mimari|yonet|ambari)|data\s*(?:engineer|scientist|analyst|architect)|is\s*zekasi|\bbi\b/i.test(r)) return 'Yapay zeka / Veri';
   if (/sigorta|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
   if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi|hazine/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
@@ -719,7 +741,7 @@ export function inferSectorFromRole(role: string): string {
   if (/idari\s*isler|tesis\s*yonet/i.test(r)) return 'İdari işler / Ofis';
   if (/elektrik|elektronik/i.test(r)) return 'Elektrik-elektronik';
   if (/kimya|plastik|ziraat/i.test(r)) return 'Kimya / Plastik';
-  if (/uretim|imalat|sanayi|fabrika|makine\s*muhend|cevre\s*muhend|surekli\s*iyilestirme|yalin\s*uretim/i.test(r)) return 'Üretim / Sanayi';
+  if (/uretim|imalat|sanayi|fabrika|makine\s*muhend|cevre\s*muhend|surekli\s*iyilestirme|yalin\s*uretim|kalite\s*muhend/i.test(r)) return 'Üretim / Sanayi';
   if (/magaza|kasiyer|perakende|gorsel\s*duzenleme|visual\s*merchandis/i.test(r)) return 'Perakende / Mağaza';
   if (/otel|resepsiyon|on\s*buro|turizm/i.test(r)) return 'Turizm / Otelcilik';
   if (/sosyal\s*hizmet|stk|vakif|dernek/i.test(r)) return 'Sosyal hizmet / STK';
@@ -889,7 +911,7 @@ export function mapCvToCanonicalTaxonomy(
   const tools = (payload.tools || []).map(formatSkillOrTool);
 
   // 5. Education & Languages
-  let educationLevel = 'Lisans';
+  let educationLevel = '';
   const eduFieldParts: string[] = [];
 
   const eduRank: Record<string, number> = {
@@ -1008,6 +1030,15 @@ export function mapCvToCanonicalTaxonomy(
     summary: normalizeCvText(payload.summary || ''),
     ambiguousItems,
     canonicalConfidence: ambiguousItems.length === 0 ? 1.0 : 0.8,
+    fieldResolutionStatus: {
+      fullName: payload.fullName ? 'RESOLVED' : 'NOT_FOUND',
+      primaryRole: resolvedRole ? (ambiguousItems.some((a) => a.kind === 'role') ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
+      primarySector: resolvedSector ? (ambiguousItems.some((a) => a.kind === 'sector') ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
+      residenceCity: residenceCity ? 'RESOLVED' : 'NOT_FOUND',
+      experiences: experiences.length > 0 ? 'RESOLVED' : 'NOT_FOUND',
+      educationList: mappedEducationList.length > 0 ? 'RESOLVED' : 'NOT_FOUND',
+      skills: professionalSkills.length > 0 || technicalSkills.length > 0 ? 'RESOLVED' : 'NOT_FOUND',
+    },
   };
 }
 

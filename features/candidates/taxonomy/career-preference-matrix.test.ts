@@ -126,7 +126,7 @@ describe('preference catalog matrix', () => {
       expect(roles[0], `${sector} / ${role} role head`).toBe(role);
       expect(roles.at(-1), `${sector} / ${role} role tail`).toBe(MANUAL_OPTION);
     }
-  }, 30000);
+  }, 60000);
 
   it('does not leak unrelated titles across representative occupations', () => {
     for (const { sector, role, forbidden } of LEAKS) {

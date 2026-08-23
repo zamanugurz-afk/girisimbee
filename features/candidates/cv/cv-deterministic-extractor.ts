@@ -19,6 +19,8 @@ import {
   isCorporateEntity,
 } from './cv-universal-normalizer';
 import { generateCandidateTokens } from './cv-candidate-generator';
+import { normalizeCvText } from './cv-turkish-encoding';
+import { isForbiddenNameCandidate } from './cv-name-extractor';
 import {
   resolveExperienceRelationships,
   resolveEducationRelationships,
@@ -434,6 +436,13 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   healthcare: 'Sağlık / Medikal',
   health: 'Sağlık / Medikal',
   hastane: 'Sağlık / Medikal',
+  hastanesi: 'Sağlık / Medikal',
+  tip: 'Sağlık / Medikal',
+  kardiyoloji: 'Sağlık / Medikal',
+  doktor: 'Sağlık / Medikal',
+  hekim: 'Sağlık / Medikal',
+  klinik: 'Sağlık / Medikal',
+  eczane: 'Sağlık / Medikal',
 
   otomotiv: 'Otomotiv',
   automotive: 'Otomotiv',
@@ -732,6 +741,7 @@ export function normalizeTrForMatch(str: string): string {
     .replace(/ö/g, 'o')
     .replace(/ç/g, 'c')
     .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[()[\]{}:;,]+/g, ' ')
     .replace(/[^a-z0-9\s/–—-]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -756,7 +766,12 @@ export function isRoleTitle(line: string): boolean {
   if (/^[*•·\->]\s*/.test(clean) || /^[0-9]+[.)]\s*/.test(clean)) return false;
   const norm = normalizeTrForMatch(clean);
   // Block company / institution suffixes (as standalone words or phrases)
-  if (isCorporateEntity(clean) || /\ba\s*s\b/i.test(norm) || /\b(?:muhendisligi|muhendislik|mimarligi|mimarlik|danismanligi|danismanlik|avukatligi|avukatlik|musavirligi|musavirlik|ortakligi|ortaklik)\b/i.test(norm)) {
+  if (
+    isCorporateEntity(clean) ||
+    /\ba\s*s\b/i.test(norm) ||
+    (/\b(?:muhendislik|muhendisligi|danismanlik|danismanligi|avukatlik|avukatligi|musavirlik|musavirligi|ortaklik|ortakligi|aracilik|araciligi|acentelik|acenteligi|sigortacilik|holding)\b/i.test(norm) && !/(?:uzmani|uzman|muduru|mudur|yoneticisi|yonetici|danismani|danisman|temsilcisi|temsilci|gorevlisi|gorevli|lideri|lider)\b/i.test(norm)) ||
+    /\b(?:sanayi|ticaret|hizmetleri)\s*(?:a\.?ş\.?|a\.?s\.?|ltd|şti|sti|holding|ve\s+tic)\b/i.test(clean)
+  ) {
     return false;
   }
 
@@ -848,6 +863,12 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('depocu') ||
     norm.includes('kurye') ||
     norm.includes('guvenlik') ||
+    norm.includes('amir') ||
+    norm.includes('kabin') ||
+    norm.includes('hostes') ||
+    norm.includes('pilot') ||
+    norm.includes('steward') ||
+    norm.includes('kontrol') ||
     norm.includes('manager') ||
     norm.includes('director') ||
     norm.includes('lead') ||
@@ -873,7 +894,22 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('associate') ||
     norm.includes('worker') ||
     norm.includes('helper') ||
-    norm.includes('staff')
+    norm.includes('staff') ||
+    norm.includes('stratejist') ||
+    norm.includes('strategist') ||
+    norm.includes('coach') ||
+    norm.includes('owner') ||
+    norm.includes('planner') ||
+    norm.includes('scrum') ||
+    norm.includes('ingenieur') ||
+    norm.includes('ingeniero') ||
+    norm.includes('desarrollador') ||
+    norm.includes('developpeur') ||
+    norm.includes('entwickler') ||
+    norm.includes('berater') ||
+    norm.includes('gerente') ||
+    norm.includes('bilimci') ||
+    norm.includes('scientist')
   );
 }
 
@@ -1065,6 +1101,13 @@ export function extractDeterministicLocations(text: string): {
     }
   }
 
+  if (bestCandidateCity) {
+    return {
+      city: bestCandidateCity,
+      detectedCities: [bestCandidateCity],
+    };
+  }
+
   // Phase 2: Standard top 20 lines pass
   for (let i = 0; i < Math.min(rawLines.length, 20); i++) {
     const rawLine = rawLines[i];
@@ -1128,9 +1171,9 @@ export function extractDeterministicLocations(text: string): {
   }
 
   return {
-    city: detectedCity || bestCandidateCity || 'İstanbul',
+    city: detectedCity || bestCandidateCity || '',
     district: detectedDistrict || undefined,
-    detectedCities: detectedCities.length > 0 ? [...new Set(detectedCities)] : [bestCandidateCity || 'İstanbul'],
+    detectedCities: detectedCities.length > 0 ? [...new Set(detectedCities)] : (bestCandidateCity ? [bestCandidateCity] : []),
   };
 }
 
@@ -1204,7 +1247,7 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
 
   // Check for standalone active keyword on line (e.g. "IGS ASİSTANS HİZMETLERİ Güncel" or "Güncel")
   const singleActive = norm.match(new RegExp(`\\b(${activePattern})\\b`, 'i'));
-  if (singleActive) {
+  if (singleActive && !/^[*•·\->]\s*/.test(line)) {
     const yr = new Date().getFullYear();
     return {
       startYear: yr,
@@ -1215,15 +1258,19 @@ export function parseDateRangeText(line: string): ParsedDateRange | null {
   }
 
   // Check for 4-digit year (e.g. "SİGORTAMBİR A.Ş 2025" or "2023" or "(2021)")
-  const singleYear = norm.match(/(?:^|\s|\()((?:19[7-9]\d|20[0-4]\d))(?:\s|\)|$)/);
-  if (singleYear) {
-    const yr = parseInt(singleYear[1], 10);
-    return {
-      startYear: yr,
-      endYear: yr,
-      isCurrent: false,
-      raw: singleYear[1],
-    };
+  // Ignore single years in responsibility bullets or descriptive sentences
+  const isBulletOrSentence = /^[*•·\->]\s*/.test(line) || /\b(?:y[ıi]l[ıi](?:nda|ndan)?|hedefleri|odulu|projesi|ciro|buce|tl|usd|eur|\%)\b/i.test(norm);
+  if (!isBulletOrSentence) {
+    const singleYear = norm.match(/(?:^|\s|\()((?:19[7-9]\d|20[0-4]\d))(?:\s|\)|$)/);
+    if (singleYear) {
+      const yr = parseInt(singleYear[1], 10);
+      return {
+        startYear: yr,
+        endYear: yr,
+        isCurrent: false,
+        raw: singleYear[1],
+      };
+    }
   }
 
   return null;
@@ -1247,20 +1294,30 @@ export const EXP_HEADER_NORMS = new Set([
   'meslekigecmis', 'meslekitecrube', 'kariyergecmisi', 'calismahayati', 'istihdamgecmisi',
   'isgecmisi', 'isvemeslekigecmis', 'stajvedeneyim', 'stajvedeneyimler', 'stajdeneyimi',
   'stajdeneyimleri', 'stajlar', 'staj', 'kariyer', 'profesyoneldeneyim',
+  'profesyonelisdeneyimi', 'profesyonelisdeneyimleri', 'profesyonelisgecmisi', 'profesyonelgecmis',
   'workexperience', 'workexperiences', 'experience', 'experiences', 'employmenthistory',
   'careerhistory', 'workhistory', 'workbackground', 'professionalexperience',
   'positionsheld', 'practicalexperience', 'internships', 'internship', 'currentexperience',
-  'previousexperience', 'employment', 'work'
+  'previousexperience', 'employment', 'work',
+  'berufserfahrung', 'beruflicherwerdegang', 'arbeitserfahrung', 'praxiserfahrung',
+  'experienceprofessionnelle', 'experiencesprofessionnelles', 'parcoursprofessionnel',
+  'esperienzalavorativa', 'esperienzelavorative', 'esperienzeprofessionali', 'esperienzaprofessionale',
+  'experiencialaboral', 'experienciaprofesional', 'trayectoriaprofesional',
+  'sirketpozisyontarih', 'sirketunvantarih', 'kurumpozisyontarih', 'companyroledate', 'companypositiondate'
 ]);
 
 export const EDU_HEADER_NORMS = new Set([
   'egitim', 'egitimbilgileri', 'egitimgecmisi', 'egitimdurumu', 'ogrenim',
   'ogrenimbilgileri', 'ogrenimdurumu', 'akademikegitim', 'akademikgecmis',
-  'akademikbilgiler', 'egitimveakademikbilgiler', 'egitimveogrenim',
+  'akademikbilgiler', 'egitimveakademikbilgiler', 'egitimveogrenim', 'egitimveogretim',
   'egitimvenitelikler', 'egitimvenitelik', 'egitimvesertifikalar',
   'education', 'educationalbackground', 'academicbackground', 'academichistory',
   'academic', 'qualifications', 'academicqualifications', 'degrees', 'studies',
-  'academicprofile', 'educationtraining'
+  'academicprofile', 'educationtraining', 'educationandtraining',
+  'ausbildung', 'bildungsweg', 'studium', 'schulbildung', 'berufsausbildung',
+  'formation', 'formations', 'etudes', 'diplomes', 'formationacademique',
+  'istruzione', 'istruzioneeformazione', 'formazione', 'titolidistudio',
+  'educacion', 'formacion', 'formacionacademica', 'estudios'
 ]);
 
 export const OTHER_HEADER_NORMS = new Set([
@@ -1274,6 +1331,8 @@ export const OTHER_HEADER_NORMS = new Set([
   'technicalproficiencies', 'areasofexpertise', 'toolstechnologies', 'tools',
   'technologies', 'abilities', 'proficiencies', 'expertise', 'softskills',
   'hardskills', 'professionalqualifications',
+  'kompetenzen', 'kenntnisse', 'sprachkenntnisse', 'fahigkeiten', 'competences',
+  'competencescles', 'competenze', 'competenzechiave', 'habilidades', 'competencias',
   'sertifikalar', 'sertifika', 'kurslar', 'kurs', 'kurslarvesertifikalar', 'lisanslarvesertifikalar',
   'egitimlervesertifikalar', 'sertifikalarvelisanslar', 'kurslarveegitimler',
   'belgeler', 'sertifikavebelgeler', 'certificates', 'certifications', 'licenses',
@@ -1281,6 +1340,7 @@ export const OTHER_HEADER_NORMS = new Set([
   'diller', 'dil', 'yabancidiller', 'dilbecerileri', 'yabancidil', 'languages',
   'foreignlanguages', 'languageproficiencies', 'language', 'languageskills',
   'projeler', 'proje', 'kisiselprojeler', 'projedeyimi', 'projelerveyayinlar',
+  'yayinlar', 'yayin', 'publications', 'publication', 'articles', 'makaleler',
   'projects', 'selectedprojects', 'keyprojects', 'portfolio', 'personalprojects',
   'ozet', 'profesyonelozet', 'hakkimda', 'kariyerhedefi', 'kisiselprofil',
   'profil', 'ozgecmis', 'kariyeramaci', 'kisaotobiyografi', 'summary',
@@ -1288,24 +1348,34 @@ export const OTHER_HEADER_NORMS = new Set([
   'objective', 'personalprofile', 'personalstatement', 'overview',
   'iletisim', 'iletisimbilgileri', 'iletisimbilgisi', 'kisiselbilgiler',
   'contact', 'contactinfo', 'contactinformation', 'personaldetails', 'personalinfo',
-  'referanslar', 'referans', 'references', 'reference',
+  'referanslar', 'referans', 'references', 'reference', 'referenzen', 'referenze', 'referencias',
   'hobiler', 'hobi', 'ilgialanlari', 'interests', 'hobbies'
 ]);
 
 function isEduSectionHeader(line: string): boolean {
-  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  if (!line || line.length > 60 || line.includes('.')) return false;
   const clean = cleanHeaderLine(line);
-  if (!clean || clean.length > 40) return false;
+  if (!clean || clean.length > 50) return false;
   const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
-  return EDU_HEADER_NORMS.has(norm);
+  if (EDU_HEADER_NORMS.has(norm)) return true;
+  if (line.includes('|')) {
+    const parts = line.split('|').map((p) => normalizeTrForMatch(cleanHeaderLine(p)).replace(/[^a-z0-9]/g, ''));
+    if (parts.some((p) => EDU_HEADER_NORMS.has(p))) return true;
+  }
+  return false;
 }
 
 function isOtherSectionHeader(line: string): boolean {
-  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  if (!line || line.length > 60 || line.includes('.')) return false;
   const clean = cleanHeaderLine(line);
-  if (!clean || clean.length > 40) return false;
+  if (!clean || clean.length > 50) return false;
   const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
-  return OTHER_HEADER_NORMS.has(norm);
+  if (OTHER_HEADER_NORMS.has(norm)) return true;
+  if (line.includes('|')) {
+    const parts = line.split('|').map((p) => normalizeTrForMatch(cleanHeaderLine(p)).replace(/[^a-z0-9]/g, ''));
+    if (parts.some((p) => OTHER_HEADER_NORMS.has(p))) return true;
+  }
+  return false;
 }
 
 export function isNoiseOrFooterLine(line: string): boolean {
@@ -1398,8 +1468,9 @@ export function extractDeterministicEducation(text: string): RawExtractedEducati
       if (uniMatch) school = uniMatch[1].trim();
     }
 
-    const yearMatch = line.match(/\b(19\d{2}|20\d{2})\b/);
-    const gradYear = yearMatch ? parseInt(yearMatch[1], 10) : undefined;
+    const dateRange = parseDateRangeText(line);
+    const yearMatches = line.match(/\b(19\d{2}|20\d{2})\b/g);
+    const gradYear = dateRange?.endYear ?? dateRange?.startYear ?? (yearMatches?.length ? parseInt(yearMatches[yearMatches.length - 1], 10) : undefined);
 
     let field: string | undefined;
     for (const opt of EDUCATION_FIELD_OPTIONS) {
@@ -1426,6 +1497,20 @@ export function extractDeterministicEducation(text: string): RawExtractedEducati
     }
 
     if (school || level || field || gradYear) {
+      const isSubUnitOfCurrentSchool =
+        currentEdu &&
+        currentEdu.school &&
+        /üniversite|universite|university/i.test(currentEdu.school) &&
+        school &&
+        /fakülte|fakulte|enstitü|enstitu|yüksekokul|yuksekokul/i.test(school);
+
+      if (isSubUnitOfCurrentSchool && currentEdu) {
+        currentEdu.field = school;
+        if (gradYear && !currentEdu.graduationYear) currentEdu.graduationYear = gradYear;
+        if (level && !currentEdu.level) currentEdu.level = level;
+        continue;
+      }
+
       if (
         currentEdu &&
         ((school && currentEdu.school && school !== currentEdu.school) ||
@@ -1515,11 +1600,16 @@ function isPureDateLine(line: string): boolean {
 }
 
 function isExperienceSectionHeader(line: string): boolean {
-  if (!line || line.length > 50 || line.includes(',') || line.includes('.')) return false;
+  if (!line || line.length > 60 || line.includes('.')) return false;
   const clean = cleanHeaderLine(line);
-  if (!clean || clean.length > 40) return false;
+  if (!clean || clean.length > 50) return false;
   const norm = normalizeTrForMatch(clean).replace(/[^a-z0-9]/g, '');
-  return EXP_HEADER_NORMS.has(norm);
+  if (EXP_HEADER_NORMS.has(norm)) return true;
+  if (line.includes('|')) {
+    const parts = line.split('|').map((p) => normalizeTrForMatch(cleanHeaderLine(p)).replace(/[^a-z0-9]/g, ''));
+    if (parts.some((p) => EXP_HEADER_NORMS.has(p))) return true;
+  }
+  return false;
 }
 
 function isEduLine(line: string): boolean {
@@ -1568,7 +1658,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
   }
 
-  const hasExplicitNonExpHeaders = lines.some((l) => isEduSectionHeader(l) || isOtherSectionHeader(l));
+  const hasExplicitNonExpHeaders = lines.some((l) => isEduSectionHeader(l) || (isOtherSectionHeader(l) && !isExperienceSectionHeader(l)));
   if (expLines.length === 0 && hasExplicitNonExpHeaders) {
     return [];
   }
@@ -1578,7 +1668,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
   let collectedResponsibilities: string[] = [];
 
   const flushExp = () => {
-    if (currentExp && (currentExp.company || currentExp.role || currentExp.startYear)) {
+    if (currentExp && (currentExp.company || currentExp.role)) {
       currentExp.responsibilities = collectedResponsibilities.join('. ').replace(/\.\s*\./g, '.');
       if (currentExp.role) currentExp.role = suggestTitleCaseTr(currentExp.role);
       if (currentExp.company) currentExp.company = suggestTitleCaseTr(currentExp.company);
@@ -1611,7 +1701,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         j === 0 &&
         l.split(/\s+/).length <= 4 &&
         !isRoleTitle(l) &&
-        !l.includes('@') &&
+        !isEmail &&
         !/^(?:sirket|kurum|company|firma|rol|pozisyon|unvan|role|is deneyim|deneyim)[\s:]*/i.test(l);
 
       if (
@@ -1637,12 +1727,14 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
     }
     const hasDate = Boolean(parseDateRangeText(line));
     const isExplicitDegree = /\b(?:lisans|doktora|phd|master|bachelor|lise|onlisans|myo|mezun(?:u|iyet|lar[ıi])?|not ortalamas[ıi]|gpa)\b/i.test(normalizeTrForMatch(line));
-    const hasRoleInLine = isRoleTitle(line) || /\b(?:arastirma gorevlisi|ogretim gorevlisi|uzman[ıi]?|mudur[uü]?|asistan[ıi]?|doktor|hemsire|ogretmen|egitmen|muhendisi|stajyer|danisman[ıi]?)\b/i.test(normalizeTrForMatch(line));
+    const hasAcademicEmploymentRole = /\b(?:arastirma\s*gorevlisi|ogretim\s*gorevlisi|ogretim\s*uyesi|prof\.?\s*dr|doc\.?\s*dr|rektor|dekan|okul\s*muduru)\b/i.test(normalizeTrForMatch(line));
+    const isEducational = isEduLine(line) || isExplicitDegree;
 
-    if (isEduSectionHeader(line) || isOtherSectionHeader(line) || (isExplicitDegree && !hasRoleInLine) || (isEduLine(line) && !hasRoleInLine && !hasDate)) {
+    if (isEduSectionHeader(line) || isOtherSectionHeader(line) || (targetLines !== expLines && isEducational && !hasAcademicEmploymentRole)) {
       if (currentExp && (currentExp.company || currentExp.role)) {
         flushExp();
       }
+      currentExp = null;
       continue;
     }
 
@@ -1662,15 +1754,28 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       }
 
       if (currentExp && (currentExp.company || currentExp.role)) {
-        flushExp();
+        if (currentExp.startYear || currentExp.endYear) {
+          flushExp();
+          currentExp = {
+            startYear: dateInfo.startYear,
+            endYear: dateInfo.endYear,
+            isCurrent: dateInfo.isCurrent,
+            duration: dateInfo.duration,
+          };
+        } else {
+          currentExp.startYear = dateInfo.startYear;
+          currentExp.endYear = dateInfo.endYear;
+          currentExp.isCurrent = dateInfo.isCurrent;
+          currentExp.duration = dateInfo.duration;
+        }
+      } else {
+        currentExp = {
+          startYear: dateInfo.startYear,
+          endYear: dateInfo.endYear,
+          isCurrent: dateInfo.isCurrent,
+          duration: dateInfo.duration,
+        };
       }
-
-      currentExp = {
-        startYear: dateInfo.startYear,
-        endYear: dateInfo.endYear,
-        isCurrent: dateInfo.isCurrent,
-        duration: dateInfo.duration,
-      };
       const isPureDate = isPureDateLine(line);
       let rawRemainder = isPureDate ? '' : line;
       if (!isPureDate && dateInfo.raw) {
@@ -1678,76 +1783,76 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         rawRemainder = rawRemainder
           .replace(new RegExp(`\\b${escaped}\\b|${escaped}`, 'gi'), '')
           .replace(/\([^)]*\)/g, '')
-          .replace(/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar)[\s:]*/i, '')
+          .replace(/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s[uü]re|sekt[oö]r)[\s:]*/i, '')
           .replace(/^[–—\-:\s]+/, '')
           .trim();
       }
 
-      if (!isPureDate && rawRemainder.length >= 2 && !/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s)$/i.test(rawRemainder)) {
-        const parts = rawRemainder.split(/[|–—@]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company)[\s:]*/i, '').trim()).filter(Boolean);
+      if (!isPureDate && rawRemainder.length >= 2 && !/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s[uü]re|s)$/i.test(rawRemainder)) {
+        const parts = rawRemainder.split(/\s+-\s+|[|–—@]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company|sektor)[\s:]*/i, '').trim()).filter(Boolean);
         if (parts.length >= 2) {
           const normP0 = normalizeTrForMatch(parts[0]);
           const normP1 = normalizeTrForMatch(parts[1]);
           const p0IsCity = Boolean(TURKISH_CITY_ALIASES[normP0] || COMMON_TURKISH_DISTRICTS[normP0]);
           const p1IsCity = Boolean(TURKISH_CITY_ALIASES[normP1] || COMMON_TURKISH_DISTRICTS[normP1]);
 
-          if (isRoleTitle(parts[0])) {
-            currentExp.role = parts[0];
-            currentExp.company = p1IsCity ? '' : parts[1];
-          } else if (isRoleTitle(parts[1])) {
-            currentExp.role = parts[1];
-            currentExp.company = p0IsCity ? '' : parts[0];
+          if (isRoleTitle(parts[1])) {
+            if (!currentExp.role) currentExp.role = parts[1];
+            if (!currentExp.company && !p0IsCity) currentExp.company = parts[0];
+          } else if (isRoleTitle(parts[0])) {
+            if (!currentExp.role) currentExp.role = parts[0];
+            if (!currentExp.company && !p1IsCity) currentExp.company = parts[1];
           } else {
-            currentExp.company = p0IsCity ? (p1IsCity ? '' : parts[1]) : parts[0];
+            if (!currentExp.company) currentExp.company = p0IsCity ? (p1IsCity ? '' : parts[1]) : parts[0];
             if (prev1 && isRoleTitle(prev1)) {
-              currentExp.role = prev1;
+              if (!currentExp.role) currentExp.role = prev1;
             } else if (prev2 && isRoleTitle(prev2)) {
-              currentExp.role = prev2;
-            } else if (!p1IsCity) {
+              if (!currentExp.role) currentExp.role = prev2;
+            } else if (!p1IsCity && !currentExp.role) {
               currentExp.role = parts[1];
             }
           }
         } else {
-          const words = rawRemainder.split(/\s+/);
-          let splitFound = false;
-          if (words.length >= 3 && words.length <= 8) {
-            for (let w = 1; w < words.length; w++) {
-              const prefix = words.slice(0, w).join(' ');
-              const suffix = words.slice(w).join(' ');
-              if (isRoleTitle(suffix) && !isRoleTitle(prefix)) {
-                currentExp.company = prefix;
-                currentExp.role = suffix;
-                splitFound = true;
-                break;
+          if (isRoleTitle(rawRemainder)) {
+            if (!currentExp.role) currentExp.role = rawRemainder;
+            if (!currentExp.company && prev1 && !isRoleTitle(prev1) && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
+              currentExp.company = prev1.replace(/^(?:sirket|kurum|company|isyeri)(?:[\s:]+|$)/i, '').trim();
+            }
+          } else if (!currentExp.company && !/^(?:sekt[oö]r|d[oö]nem|s[uü]re)[\s:]/i.test(rawRemainder)) {
+            const words = rawRemainder.split(/\s+/);
+            let splitFound = false;
+            if (words.length >= 3 && words.length <= 8) {
+              for (let w = 1; w < words.length; w++) {
+                const prefix = words.slice(0, w).join(' ');
+                const suffix = words.slice(w).join(' ');
+                if (isRoleTitle(suffix) && !isRoleTitle(prefix) && prefix.length >= 3) {
+                  currentExp.company = prefix;
+                  currentExp.role = suffix;
+                  splitFound = true;
+                  break;
+                }
               }
             }
-          }
 
-          if (!splitFound) {
-            if (isRoleTitle(rawRemainder)) {
-              currentExp.role = rawRemainder;
-              if (prev1 && !isRoleTitle(prev1) && !parseDateRangeText(prev1) && prev1.length >= 2 && prev1.length <= 80) {
-                currentExp.company = prev1.replace(/^(?:sirket|kurum|company|isyeri)[\s:]*/i, '').trim();
-              }
-            } else {
-              currentExp.company = (parts[0] || rawRemainder).replace(/^(?:sirket|kurum|company|isyeri)[\s:]*/i, '').trim();
-              if (prev1 && isRoleTitle(prev1)) {
+            if (!splitFound && !currentExp.company) {
+              currentExp.company = (parts[0] || rawRemainder).replace(/^(?:sirket|kurum|company|isyeri)(?:[\s:]+|$)/i, '').trim();
+              if (prev1 && isRoleTitle(prev1) && !currentExp.role) {
                 currentExp.role = prev1;
-              } else if (prev2 && isRoleTitle(prev2)) {
+              } else if (prev2 && isRoleTitle(prev2) && !currentExp.role) {
                 currentExp.role = prev2;
               }
             }
           }
         }
       } else {
-        const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role|position)[\s:]*/i, '').trim() : null;
-        const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|sirket|kurum|company|role|position)[\s:]*/i, '').trim() : null;
+        const cleanPrev1 = prev1 ? prev1.replace(/^(?:rol|pozisyon|unvan|unvani|gorev|gorevi|gorevleri|sirket|kurum|company|role|position)(?:[\s:]+|$)/i, '').trim() : null;
+        const cleanPrev2 = prev2 ? prev2.replace(/^(?:rol|pozisyon|unvan|unvani|gorev|gorevi|gorevleri|sirket|kurum|company|role|position)(?:[\s:]+|$)/i, '').trim() : null;
 
         if (cleanPrev2 && isRoleTitle(cleanPrev2) && cleanPrev1 && !isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev2;
           currentExp.company = cleanPrev1;
-        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes('-') || cleanPrev1.includes('|') || cleanPrev1.includes('@') || cleanPrev1.includes('/'))) {
-          const parts = cleanPrev1.split(/[,–—|@\/]/).map((p) => p.trim());
+        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes(' - ') || cleanPrev1.includes('|') || cleanPrev1.includes('@') || cleanPrev1.includes(' / '))) {
+          const parts = cleanPrev1.split(/\s+-\s+|[|–—@]|(?:\s+\/\s+)|,/).map((p) => p.trim()).filter(Boolean);
           if (parts.length >= 2) {
             if (isRoleTitle(parts[0]) && !isRoleTitle(parts[1])) {
               currentExp.role = parts[0];
@@ -1762,8 +1867,16 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
               currentExp.company = parts[0];
               currentExp.role = parts[1];
             }
+          } else if (isRoleTitle(cleanPrev1)) {
+            currentExp.role = cleanPrev1;
+            if (cleanPrev2 && !isRoleTitle(cleanPrev2)) {
+              currentExp.company = cleanPrev2;
+            }
           } else {
             currentExp.company = cleanPrev1;
+            if (cleanPrev2 && isRoleTitle(cleanPrev2)) {
+              currentExp.role = cleanPrev2;
+            }
           }
         } else if (cleanPrev1 && isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev1;
@@ -1876,23 +1989,47 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
   flushExp();
 
   if (experiences.length === 0) {
-    const tokens = generateCandidateTokens(text);
-    const unstructuredExp = resolveExperienceRelationships(tokens);
-    if (unstructuredExp.length > 0) {
-      return unstructuredExp.map((ue) => ({
-        company: ue.company,
-        role: ue.role,
-        startYear: ue.startYear,
-        endYear: ue.endYear,
-        isCurrent: ue.isCurrent,
-        responsibilities: ue.responsibilities.join('. '),
-        durationYears:
-          ue.startYear && ue.endYear ? Math.max(1, ue.endYear - ue.startYear) : undefined,
-      }));
+    for (const l of targetLines) {
+      if (isEduSectionHeader(l) || isOtherSectionHeader(l) || isEduLine(l)) continue;
+      if (l.includes(' - ') || l.includes(' | ')) {
+        const parts = l.split(/\s+-\s+|\s+\|\s+/).map((p) => p.trim()).filter(Boolean);
+        if (parts.length === 2) {
+          if (isRoleTitle(parts[0]) && !isRoleTitle(parts[1]) && !isEduLine(parts[1]) && parts[1].length >= 2 && !parts[1].includes('@')) {
+            experiences.push({
+              company: suggestTitleCaseTr(parts[1]),
+              role: suggestTitleCaseTr(parts[0]),
+            });
+          } else if (isRoleTitle(parts[1]) && !isRoleTitle(parts[0]) && !isEduLine(parts[0]) && parts[0].length >= 2 && !parts[0].includes('@')) {
+            experiences.push({
+              company: suggestTitleCaseTr(parts[0]),
+              role: suggestTitleCaseTr(parts[1]),
+            });
+          }
+        }
+      }
     }
   }
 
-  return experiences;
+  if (experiences.length === 0) {
+    const tokens = generateCandidateTokens(text);
+    const unstructuredExp = resolveExperienceRelationships(tokens);
+    if (unstructuredExp.length > 0) {
+      return unstructuredExp
+        .map((ue) => ({
+          company: ue.company,
+          role: ue.role,
+          startYear: ue.startYear,
+          endYear: ue.endYear,
+          isCurrent: ue.isCurrent,
+          responsibilities: ue.responsibilities.join('. '),
+          durationYears:
+            ue.startYear && ue.endYear ? Math.max(1, ue.endYear - ue.startYear) : undefined,
+        }))
+        .filter((e) => Boolean(e.company || e.role));
+    }
+  }
+
+  return experiences.filter((e) => Boolean(e.company || e.role));
 }
 
 // ============================================================================
@@ -1906,7 +2043,9 @@ export function extractDeterministicSkillsAndTools(text: string): {
   sectors: string[];
   roles: string[];
 } {
-  const normText = ` ${normalizeTrForMatch(text)} `;
+  // Sanitize null bytes and control characters
+  const cleanInputText = (text || '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' ');
+  const normText = ` ${normalizeTrForMatch(cleanInputText)} `;
   const professionalSkills: string[] = [];
   const technicalSkills: string[] = [];
   const tools: string[] = [];
@@ -1951,11 +2090,44 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
   }
 
-  // 3. Scan Sectors
+  // 3. Scan Sectors — STRICT SECTOR ISOLATION (Excludes Education, References, Languages, Skills)
+  // Gather only employment, headline and summary lines for sector evidence
+  const allDocLines = cleanInputText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const employmentAndHeadlineLines: string[] = [];
+  let isExcludedSection = false;
+
+  for (const line of allDocLines) {
+    const normL = normalizeTrForMatch(line);
+    if (
+      isEduSectionHeader(line) ||
+      normL.startsWith('egitim') ||
+      normL.startsWith('ogrenim') ||
+      normL.startsWith('education') ||
+      normL.startsWith('academic') ||
+      normL.startsWith('referans') ||
+      normL.startsWith('reference') ||
+      normL.startsWith('diller') ||
+      normL.startsWith('languages') ||
+      normL.startsWith('sertifika') ||
+      normL.startsWith('hobiler')
+    ) {
+      isExcludedSection = true;
+      continue;
+    }
+    if (isExperienceSectionHeader(line) || normL.startsWith('ozet') || normL.startsWith('summary') || normL.startsWith('hakkimda')) {
+      isExcludedSection = false;
+      continue;
+    }
+    if (!isExcludedSection) {
+      employmentAndHeadlineLines.push(line);
+    }
+  }
+
+  const employmentNormText = ` ${normalizeTrForMatch(employmentAndHeadlineLines.join('\n'))} `;
   for (const [sectorKey, canonicalSector] of Object.entries(KNOWN_SECTOR_KEYWORDS)) {
     const normSector = normalizeTrForMatch(sectorKey);
     const regex = new RegExp(`(?:^|\\s)${normSector}(?:\\s|$)`, 'i');
-    if (regex.test(normText)) {
+    if (regex.test(employmentNormText)) {
       sectors.push(canonicalSector);
     }
   }
@@ -2030,14 +2202,36 @@ export function extractDeterministicSkillsAndTools(text: string): {
   const sectionTechnicalSkills: string[] = [];
   const sectionTools: string[] = [];
 
-  for (const line of textLines) {
+  // Pre-process text lines to merge soft-wrapped proficiency suffixes (e.g. "Çağrı Merkezi Yönetimi -\nUzman")
+  const mergedLines: string[] = [];
+  for (let idx = 0; idx < textLines.length; idx++) {
+    const cur = textLines[idx].trim();
+    if (idx < textLines.length - 1 && /[-–—:]\s*$/.test(cur)) {
+      const nxt = textLines[idx + 1].trim();
+      if (/^(?:Uzman|İleri|İleri Düzey|Orta|Orta Düzey|Başlangıç|Temel|Expert|Advanced|Intermediate|Beginner|Proficient)$/i.test(nxt)) {
+        mergedLines.push(`${cur} ${nxt}`);
+        idx++;
+        continue;
+      }
+    }
+    mergedLines.push(cur);
+  }
+
+  for (const line of mergedLines) {
     const norm = normalizeTrForMatch(line);
     const isHeaderLine =
+      norm === 'beceriler' ||
+      norm === 'yetenekler' ||
+      norm === 'yetkinlikler' ||
+      norm === 'skills' ||
+      norm === 'technical skills' ||
+      norm === 'mesleki yetkinlikler' ||
       norm.startsWith('yetenek') ||
       norm.startsWith('beceri') ||
       norm.startsWith('yetkinlik') ||
-      norm.startsWith('skills') ||
-      norm.startsWith('technical skills') ||
+      norm.startsWith('skill') ||
+      norm.startsWith('araclar') ||
+      norm.startsWith('tools') ||
       norm.startsWith('uzmanlik alan');
 
     if (isHeaderLine) {
@@ -2048,21 +2242,28 @@ export function extractDeterministicSkillsAndTools(text: string): {
         const items = inlineContent.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
         for (const rawItem of items) {
           const item = rawItem.replace(/\s*[-–—:]\s*(?:Uzman|İleri|İleri Düzey|Orta|Orta Düzey|Başlangıç|Temel|Expert|Advanced|Intermediate|Beginner|Proficient)\s*$/i, '').trim();
-          if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
+          if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek') && !/^(?:uzman|ileri|orta|temel)$/i.test(item)) {
             const titleCased = suggestTitleCaseTr(item);
             const lower = normalizeTrForMatch(item);
             if (KNOWN_TOOLS_DICTIONARY[lower]) {
               sectionTools.push(KNOWN_TOOLS_DICTIONARY[lower]);
             } else if (
-              lower.includes('bilgisayar') ||
+              lower.includes('sap') ||
+              lower.includes('excel') ||
               lower.includes('office') ||
+              lower.includes('word') ||
+              lower.includes('sql') ||
+              lower.includes('jira') ||
+              lower.includes('figma') ||
+              lower.includes('crm') ||
+              lower.includes('erp')
+            ) {
+              sectionTools.push(titleCased);
+            } else if (
+              lower.includes('bilgisayar') ||
               lower.includes('yazilim') ||
               lower.includes('kod') ||
               lower.includes('program') ||
-              lower.includes('excel') ||
-              lower.includes('word') ||
-              lower.includes('sap') ||
-              lower.includes('sql') ||
               lower.includes('hplc') ||
               lower.includes('etabs') ||
               lower.includes('autocad')
@@ -2078,7 +2279,13 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
 
     if (inSkillsSection) {
+      // Narrative text, summary sentences, contact info, or next section boundary terminates skills section
       if (
+        line.length > 70 ||
+        /\b(?:yillik|kariyerimde|uzmanlastim|sahibiyim|yonettim|calistim|sorumluyum|tamamladim|profesyonel kariyerimde)\b/i.test(norm) ||
+        /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/.test(line) ||
+        /(?:\+?90|0?5\d{2})\s*\d{3}/.test(line) ||
+        isCorporateEntity(line) ||
         norm.startsWith('hobi') ||
         norm.startsWith('ilgi') ||
         norm.startsWith('diller') ||
@@ -2087,15 +2294,24 @@ export function extractDeterministicSkillsAndTools(text: string): {
         norm.startsWith('deneyim') ||
         norm.startsWith('referans') ||
         norm.startsWith('sertifika') ||
-        norm.startsWith('ozel')
+        norm.startsWith('ozel') ||
+        norm.startsWith('kisisel')
       ) {
         inSkillsSection = false;
         continue;
       }
+
       const items = line.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
       for (const rawItem of items) {
         const item = rawItem.replace(/\s*[-–—:]\s*(?:Uzman|İleri|İleri Düzey|Orta|Orta Düzey|Başlangıç|Temel|Expert|Advanced|Intermediate|Beginner|Proficient)\s*$/i, '').trim();
-        if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek') && !item.toLowerCase().includes('beceri')) {
+        if (
+          item.length >= 2 &&
+          item.length <= 60 &&
+          !item.toLowerCase().includes('yetenek') &&
+          !item.toLowerCase().includes('beceri') &&
+          !/^(?:uzman|ileri|orta|temel|baslangic|expert|advanced|intermediate|proficient)$/i.test(item) &&
+          !/[-–—:]$/.test(item)
+        ) {
           const titleCased = suggestTitleCaseTr(item);
           const lower = normalizeTrForMatch(item);
           if (KNOWN_TOOLS_DICTIONARY[lower]) {
@@ -2120,20 +2336,25 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
   }
 
+  const hasExplicitSkillsSection =
+    sectionProfessionalSkills.length > 0 ||
+    sectionTechnicalSkills.length > 0 ||
+    sectionTools.length > 0;
+
   const finalProfessionalSkills =
-    sectionProfessionalSkills.length >= 3
+    hasExplicitSkillsSection && sectionProfessionalSkills.length > 0
       ? sectionProfessionalSkills
-      : [...new Set([...sectionProfessionalSkills, ...professionalSkills])];
+      : (hasExplicitSkillsSection ? [] : professionalSkills);
 
   const finalTechnicalSkills =
-    sectionTechnicalSkills.length >= 2
+    hasExplicitSkillsSection && sectionTechnicalSkills.length > 0
       ? sectionTechnicalSkills
-      : [...new Set([...sectionTechnicalSkills, ...technicalSkills])];
+      : (hasExplicitSkillsSection ? [] : technicalSkills);
 
   const finalTools =
-    sectionTools.length >= 2
+    hasExplicitSkillsSection && sectionTools.length > 0
       ? sectionTools
-      : [...new Set([...sectionTools, ...tools])];
+      : (hasExplicitSkillsSection ? [] : tools);
 
   return {
     professionalSkills: [...new Set(finalProfessionalSkills)],
@@ -2337,13 +2558,106 @@ export function extractDeterministicDemographics(text: string): {
 // 8. UNIFIED HIGH-ACCURACY DETERMINISTIC EXTRACTOR (CV EXTRACTION 2.0)
 // ============================================================================
 
+/**
+ * Unrolls ASCII / Pipe-delimited tables into clean sequential columns
+ * preserving column semantic integrity and reading order.
+ */
+export function unrollAsciiTableColumns(rawText: string): string {
+  if (!rawText || !rawText.includes('|')) return rawText;
+
+  const lines = rawText.split(/\r?\n/);
+  const processedLines: string[] = [];
+  let tableBuffer: string[] = [];
+
+  const flushTable = () => {
+    if (tableBuffer.length === 0) return;
+
+    // Parse table rows
+    const rows = tableBuffer
+      .map((line) => {
+        let trimmed = line.trim();
+        if (trimmed.startsWith('|')) trimmed = trimmed.slice(1);
+        if (trimmed.endsWith('|')) trimmed = trimmed.slice(0, -1);
+        return trimmed.split('|').map((c) => c.trim());
+      })
+      .filter((cols) => cols.some((c) => c.length > 0 && !/^[-=]+$/.test(c)));
+
+    if (rows.length >= 2) {
+      const entityHeaderIdx = rows.findIndex((row) => {
+        const rowNorm = row.map((c) => normalizeTrForMatch(c));
+        return (
+          rowNorm.some((c) => c === 'sirket' || c === 'kurum' || c === 'firma' || c === 'company') &&
+          rowNorm.some((c) => c === 'pozisyon' || c === 'rol' || c === 'unvan' || c === 'gorev' || c === 'role')
+        );
+      });
+
+      if (entityHeaderIdx !== -1) {
+        for (let r = 0; r < entityHeaderIdx; r++) {
+          for (const cell of rows[r]) {
+            if (cell) processedLines.push(cell);
+          }
+        }
+        processedLines.push('DENEYİM');
+        for (let r = entityHeaderIdx + 1; r < rows.length; r++) {
+          const cells = rows[r].filter(Boolean);
+          if (cells.length > 0) {
+            processedLines.push(cells.join(' - '));
+          }
+        }
+        processedLines.push('');
+        tableBuffer = [];
+        return;
+      }
+
+      const maxCols = Math.max(...rows.map((r) => r.length));
+      if (maxCols >= 2) {
+        for (let colIdx = 0; colIdx < maxCols; colIdx++) {
+          const colCells = rows.map((r) => r[colIdx] || '').filter(Boolean);
+          if (colCells.length > 0) {
+            processedLines.push(...colCells);
+            processedLines.push('');
+          }
+        }
+        tableBuffer = [];
+        return;
+      }
+    }
+
+    processedLines.push(...tableBuffer);
+    tableBuffer = [];
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const isDivider = /^[-=+|]{3,}$/.test(trimmed);
+    const isTableRow =
+      trimmed.includes('|') && !trimmed.startsWith('http') && trimmed.split('|').length >= 2;
+
+    if (isTableRow || (isDivider && tableBuffer.length > 0)) {
+      tableBuffer.push(line);
+    } else {
+      flushTable();
+      processedLines.push(line);
+    }
+  }
+
+  flushTable();
+  return processedLines.join('\n');
+}
+
 export function extractDeterministicCv(text: string): AiCvExtractionPayload {
-  const loc = extractDeterministicLocations(text);
-  const edu = extractDeterministicEducation(text);
-  const exp = extractDeterministicExperiences(text);
-  const skillsAndTools = extractDeterministicSkillsAndTools(text);
-  const langAndCerts = extractDeterministicLanguagesAndCerts(text);
-  const universalDemo = extractUniversalDemographics(text);
+  const normalized = normalizeCvText(text || '');
+  const unrolled = unrollAsciiTableColumns(normalized);
+  const sanitizedText = unrolled
+    .split(/\r?\n/)
+    .map((l) => (l.length > 1000 ? l.slice(0, 1000) : l))
+    .join('\n');
+  const loc = extractDeterministicLocations(sanitizedText);
+  const edu = extractDeterministicEducation(sanitizedText);
+  const exp = extractDeterministicExperiences(sanitizedText);
+  const skillsAndTools = extractDeterministicSkillsAndTools(sanitizedText);
+  const langAndCerts = extractDeterministicLanguagesAndCerts(sanitizedText);
+  const universalDemo = extractUniversalDemographics(sanitizedText);
 
   let totalYears = 0;
   for (const e of exp) {

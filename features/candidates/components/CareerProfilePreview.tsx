@@ -886,7 +886,7 @@ export function CareerProfilePreview({
                   className="text-xs text-muted-foreground leading-snug cursor-pointer select-none"
                 >
                   <Link
-                    href={LEGAL_ROUTES.iletisimMesajlasma}
+                    href={LEGAL_ROUTES.contactCommunication}
                     target="_blank"
                     className="font-medium text-primary underline hover:text-primary/80"
                   >

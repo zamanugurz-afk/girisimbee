@@ -19,7 +19,7 @@ export { CvExtractionError, MAX_CV_FILE_SIZE_BYTES };
 export interface ExtractedCvTextResult {
   text: string;
   pageCount?: number;
-  format: 'pdf' | 'docx' | 'txt';
+  format: 'pdf' | 'docx' | 'txt' | 'rtf';
   charCount: number;
   documentModel?: CvDocumentModel;
 }
@@ -712,8 +712,26 @@ function extractRawReadableTextFromBuffer(buffer: Buffer): string {
   return words.join(' ');
 }
 
+function extractTextFromRtf(buffer: Buffer): string {
+  const raw = decodeCp1254OrUtf8(buffer);
+  return raw
+    .replace(/\\par[d]?\b/gi, '\n')
+    .replace(/\\line\b/gi, '\n')
+    .replace(/\\tab\b/gi, '\t')
+    .replace(/\\'[0-9a-fA-F]{2}/g, (match) => {
+      const code = parseInt(match.slice(2), 16);
+      return String.fromCharCode(code);
+    })
+    .replace(/\\[a-zA-Z]+-?\d*\s?/g, '')
+    .replace(/[{}]/g, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 /**
- * Universal CV Text Extractor. Handles PDF, DOCX, and TXT files with strict validation.
+ * Universal CV Text Extractor. Handles PDF, DOCX, RTF, and TXT files with strict validation.
  */
 export async function extractCvText(
   fileBuffer: Buffer,
@@ -727,6 +745,8 @@ export async function extractCvText(
     text = extractTextFromDocx(fileBuffer);
   } else if (detection.format === 'pdf') {
     text = await extractTextFromPdf(fileBuffer);
+  } else if (detection.format === 'rtf') {
+    text = extractTextFromRtf(fileBuffer);
   } else {
     text = decodeCp1254OrUtf8(fileBuffer).trim();
   }

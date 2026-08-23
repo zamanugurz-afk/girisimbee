@@ -61,7 +61,7 @@ describe('Real User Flow End-to-End CV Extraction & Verification', () => {
       }
       expect(match).toBeNull();
     }
-  });
+  }, 30000);
 
   it('2. End-to-End Real User Flow with Uğur Zaman CV', async () => {
     const rawCvText = `

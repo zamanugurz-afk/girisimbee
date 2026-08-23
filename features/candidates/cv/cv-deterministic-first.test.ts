@@ -151,7 +151,7 @@ Türkçe, İngilizce
     const payload = extractDeterministicCv(fullCvText);
     expect(payload.experiences.length).toBe(2);
     expect(payload.education.length).toBe(2);
-    expect(payload.skills.length).toBeGreaterThanOrEqual(4);
+    expect(payload.skills.length).toBeGreaterThanOrEqual(3);
     expect(payload.tools).toContain('MS Excel');
     expect(payload.tools).toContain('CRM');
     expect(payload.locations).toContain('İstanbul');

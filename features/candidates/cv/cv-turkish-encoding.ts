@@ -276,6 +276,35 @@ export function repairBrokenTurkishWordsAndTokens(text: string): string {
   return result;
 }
 
+export function repairOcrSpacedTokens(text: string): string {
+  if (!text) return '';
+
+  return text
+    .split(/\r?\n/)
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return line;
+
+      // Extract leading prefix (emojis, bullets, labels)
+      const prefixMatch = trimmed.match(/^([\p{Extended_Pictographic}\uFE00-\uFE0F\s•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:]+)/u);
+      const prefix = prefixMatch ? prefixMatch[1] : '';
+      const content = prefix ? trimmed.slice(prefix.length).trim() : trimmed;
+
+      // Replace sequences of single letters separated by single spaces (e.g. "M ü n i r   Ö z k u l" or "D E N E Y İ M")
+      const words = content.split(/\s{2,}/);
+      const repairedWords = words.map((word) => {
+        const parts = word.split(/\s+/);
+        if (parts.length >= 2 && parts.every((p) => p.length === 1 && /^[\p{L}\d.]$/u.test(p))) {
+          return parts.join('');
+        }
+        return word;
+      });
+
+      return (prefix ? prefix.trim() + ' ' : '') + repairedWords.join(' ');
+    })
+    .join('\n');
+}
+
 /**
  * Canonical CV text normalizer utility.
  *
@@ -296,6 +325,9 @@ export function normalizeCvText(input: string | null | undefined, preserveWhites
   const hasTrailingSpace = preserveWhitespace && /\s$/.test(input);
 
   let text = input;
+
+  // 0. OCR space repair
+  text = repairOcrSpacedTokens(text);
 
   // 1. Fast-path & robust Mojibake repair for UTF-8 misread as Latin-1
   if (
@@ -337,6 +369,13 @@ export function normalizeCvText(input: string | null | undefined, preserveWhites
     .replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ');
 
+  // 4.5. Neutralize script tags and dangerous HTML elements
+  text = text
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ');
+
   // 5. Fix Windows-1254 read as Latin-1 (e.g. þ -> ş, ð -> ğ, ý -> ı, Ý -> İ, Þ -> Ş, Ð -> Ğ)
   for (const [pattern, replacement] of LATIN1_MISMATCH_MAP) {
     text = text.replace(pattern, replacement);
@@ -358,7 +397,7 @@ export function normalizeCvText(input: string | null | undefined, preserveWhites
 
   // 8. Strip zero-width spaces and control artifacts
   text = text
-    .replace(/[\u200B-\u200D\uFEFF\u0000]/g, '')
+    .replace(/[\u200B-\u200D\uFEFF\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' ')
     .replace(/\u00A0/g, ' ');
 
   // 9. Repair broken Turkish word stems and tokens

@@ -231,6 +231,9 @@ export function buildProfileDraftFromCanonicalResult(
     summary: canonical.summary,
     extractedCount,
     categoriesFound,
+    contradictions: canonical.contradictions,
+    roleCandidates: canonical.roleCandidates,
+    sectorCandidates: canonical.sectorCandidates,
     metrics: {
       aiCallCount: 0,
       aiCalled: false,
@@ -249,6 +252,7 @@ export function buildProfileDraftFromCanonicalResult(
       parserVersion: CV_PARSER_VERSION,
       coverageScore: 100,
       confidenceScores: {},
+      contradictionsCount: canonical.contradictions?.length ?? 0,
     },
   };
 }
