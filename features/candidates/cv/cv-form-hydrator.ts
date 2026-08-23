@@ -19,6 +19,7 @@ import {
 import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
 import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
 import { compressCareerSummaryMeaningfully } from '@/features/candidates/lib/career-summary';
+import { matchCanonicalPosition } from '@/features/candidates/cv/cv-taxonomy-mapper';
 
 export interface HydratedFormResult {
   nextCustomFields: Record<string, unknown>;
@@ -68,7 +69,14 @@ export function buildHydratedCustomFieldsFromCvDraft(
   // Check role first against all taxonomy positions to ensure coherent sector-role alignment
   if (rawRole) {
     const globalAllPositions = getAllTaxonomyPositions();
-    const globalResolved = resolveEnumOption(rawRole, globalAllPositions);
+    let globalResolved = resolveEnumOption(rawRole, globalAllPositions);
+
+    if (!globalResolved || globalResolved === MANUAL_OPTION || globalResolved === MANUAL_OPTION_SHORT) {
+      const canonicalMatch = matchCanonicalPosition(rawRole).canonical;
+      if (canonicalMatch) {
+        globalResolved = resolveEnumOption(canonicalMatch, globalAllPositions);
+      }
+    }
 
     if (globalResolved && globalResolved !== MANUAL_OPTION && globalResolved !== MANUAL_OPTION_SHORT) {
       applyField('desiredRole', globalResolved);

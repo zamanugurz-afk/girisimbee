@@ -238,6 +238,24 @@ export const FORBIDDEN_SECTION_WORD_ROOTS = new Set([
   'gelistirme',
   'kazanimi',
   'performans',
+  'verimlilik',
+  'ekip',
+  'ekibi',
+  'ekipler',
+  'ekipleri',
+  'takim',
+  'takimi',
+  'takimlar',
+  'takimlari',
+  'kadro',
+  'personel',
+  'personeli',
+  'eleman',
+  'elemani',
+  'sati',
+  'satis',
+  'satislar',
+  'satislari',
   'telemarketing',
   'sutun',
   'sutunu',
@@ -514,6 +532,20 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
       norm,
     )
   ) {
+    return true;
+  }
+
+  // 7.7 Team, staff, sales, metrics, and operational keywords (including glued/compound tokens)
+  if (
+    /(?:ekip|ekibi|ekipleri|takim|takimi|kadro|personel|performans|verimlilik|operasyon|yonetim|surec|rapor|analiz|strateji|hedef|kalite|denetim|portfoy)/i.test(
+      norm,
+    )
+  ) {
+    return true;
+  }
+
+  // 7.8 Words containing non-name sales/commercial stems
+  if (/\b(?:sati|satis|satislar|pazarlama|muhasebe|finans|telemarketing)\b/i.test(norm)) {
     return true;
   }
 
