@@ -265,6 +265,9 @@ const TURKISH_BROKEN_WORD_PATTERNS: Array<[RegExp, string]> = [
   [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*letme(?=$|[^\p{L}\p{N}])/giu, 'İşletme'],
   [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*birli[\s\uFFFD\?]*i(?=$|[^\p{L}\p{N}])/giu, 'İşbirliği'],
   [/(?<=^|[^\p{L}\p{N}])[iİ][\s\uFFFD\?]*birl[iı][\s\uFFFD\?]*[iı](?=$|[^\p{L}\p{N}])/giu, 'İşbirliği'],
+  [/(?<=^|[^\p{L}\p{N}])[kK][ıiİI]?[şsS][\s\uFFFD\?]*[iİıI]?[sS]el[\s\uFFFD\?]*[bB][iİıI]lgi[l]?[e]?[r]?[i]?(?=$|[^\p{L}\p{N}])/giu, 'Kişisel Bilgiler'],
+  [/(?<=^|[^\p{L}\p{N}])[kK][iİıI][şsS][iİıI]?[\s\uFFFD\?]*[sS]el[\s\uFFFD\?]*[bB][iİıI]lgi[l]?[e]?[r]?[i]?(?=$|[^\p{L}\p{N}])/giu, 'Kişisel Bilgiler'],
+  [/(?<=^|[^\p{L}\p{N}])[kK][iİıI][şsS][iİıI]?[\s\uFFFD\?]*[sS]el[\s\uFFFD\?]*[öÖoO]zet[i]?(?=$|[^\p{L}\p{N}])/giu, 'Kişisel Özet'],
 ];
 
 export function repairBrokenTurkishWordsAndTokens(text: string): string {

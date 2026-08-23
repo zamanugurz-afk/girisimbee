@@ -549,6 +549,15 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
+  // 7.9 Section header root stems and fractured/OCR-split section headings (e.g. "Kış İselbilgiler", "iselbilgiler", "kisisel bilgiler")
+  if (
+    /\b(?:kisisel|iletisim|ozgecmis|deneyim|deneyimleri|tecrube|tecrubeleri|egitim|egitimleri|ogrenim|yetenek|yetenekleri|beceri|becerileri|sertifika|sertifikalari|referans|referanslar|referanslari|profesyonel|kariyer|hakkimda|yayinlar|projeler)\b|(?:\b\w*bilgi(?:ler|leri|si|m|lerim)\b)|\b(?:kis\s+isel\w*)\b|\b(?:kisi\s+sel\w*)\b/i.test(
+      norm,
+    )
+  ) {
+    return true;
+  }
+
   return false;
 }
 

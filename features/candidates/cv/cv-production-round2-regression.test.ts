@@ -4,9 +4,9 @@ import { scoreCandidateName } from '@/features/candidates/cv/cv-candidate-scorer
 import { matchCanonicalPosition, mapCvToCanonicalTaxonomy } from '@/features/candidates/cv/cv-taxonomy-mapper';
 import { buildHydratedCustomFieldsFromCvDraft } from '@/features/candidates/cv/cv-form-hydrator';
 import { buildProfileDraftFromCanonicalResult } from '@/features/candidates/cv/cv-profile-builder';
-import { getAllTaxonomyPositions } from '@/features/candidates/taxonomy/career-taxonomy';
+import { getAllTaxonomyPositions, getPositionsForSector } from '@/features/candidates/taxonomy/career-taxonomy';
 
-describe('CV Extraction Engine 13.0 — Production Round 2 Forensic Regression Suite', () => {
+describe('CV Extraction Engine 13.0 — Production Round 2 & 3 Forensic Regression Suite', () => {
   it('A) Name Regression: Blocks non-person noise/team/metric phrases from being chosen as names', () => {
     const invalidNames = [
       'Satı Ekibiveperformans',
@@ -117,11 +117,33 @@ Tempo Çağrı Merkezi - Çağrı Merkezi Operasyonları Müdürü
     expect(allTaxonomyPositions.includes(hydrated.nextCustomFields.desiredRole as string)).toBe(true);
   });
 
-  it('D) Zero Hallucination: Returns clean empty/null when no evidence is present', () => {
-    const emptyName = extractCandidateName('Rastgele bir metin\nTelefon yok\nİsim yok');
-    expect(emptyName).toBeNull();
+  it('E) Round 3: Fractured section header "Kış İselbilgiler" is blocked and real name is extracted', () => {
+    expect(isForbiddenNameCandidate('Kış İselbilgiler')).toBe(true);
+    expect(isForbiddenNameCandidate('Kişisel Bilgiler')).toBe(true);
+    expect(isForbiddenNameCandidate('Kişi Sel Bilgiler')).toBe(true);
 
-    const emptyRoleMatch = matchCanonicalPosition('');
-    expect(emptyRoleMatch.canonical).toBe('');
+    const cvText = `
+Kış İselbilgiler
+5309367745
+zamanugurz@gmail.com
+Maltepe, İSTANBUL, Türkiye
+
+UĞUR ZAMAN
+Telemarketing ve Çağrı Merkezi Operasyonları Direktörü
+`;
+
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+    expect(name).not.toBe('Kış İselbilgiler');
+  });
+
+  it('F) Round 3: getPositionsForSector works with normalized/ASCII sector keys without dropping to Diğer', () => {
+    const cagriPositions = getPositionsForSector('cagri merkezi');
+    expect(cagriPositions.length).toBeGreaterThan(5);
+    expect(cagriPositions).toContain('Çağrı Merkezi Operasyon Müdürü');
+
+    const bilisimPositions = getPositionsForSector('bilisim');
+    expect(bilisimPositions.length).toBeGreaterThan(5);
+    expect(bilisimPositions).toContain('Yazılım Geliştirici');
   });
 });

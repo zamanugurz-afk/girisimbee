@@ -724,6 +724,19 @@ export function getAllTaxonomyPositions(): string[] {
   return allTaxonomyPositionsCache;
 }
 
+function normalizeSectorKey(s: string): string {
+  return s
+    .toLocaleLowerCase('tr-TR')
+    .replace(/i̇/g, 'i')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/[^a-z0-9]/g, '');
+}
+
 export function getPositionsForSector(sector: string | null | undefined): string[] {
   const key = (sector ?? '').trim();
   const cached = POSITIONS_FOR_SECTOR_CACHE.get(key);
@@ -735,11 +748,20 @@ export function getPositionsForSector(sector: string | null | undefined): string
     let list = SECTOR_POSITIONS[key as SectorKey];
     if (!list) {
       const lowerKey = key.toLocaleLowerCase('tr-TR');
+      const normKey = normalizeSectorKey(key);
       const foundEntry = Object.entries(SECTOR_POSITIONS).find(
-        ([s]) =>
-          s.toLocaleLowerCase('tr-TR') === lowerKey ||
-          s.toLocaleLowerCase('tr-TR').startsWith(lowerKey) ||
-          lowerKey.startsWith(s.toLocaleLowerCase('tr-TR')),
+        ([s]) => {
+          const sLower = s.toLocaleLowerCase('tr-TR');
+          const sNorm = normalizeSectorKey(s);
+          return (
+            sLower === lowerKey ||
+            sNorm === normKey ||
+            sLower.startsWith(lowerKey) ||
+            lowerKey.startsWith(sLower) ||
+            sNorm.includes(normKey) ||
+            normKey.includes(sNorm)
+          );
+        },
       );
       if (foundEntry) {
         list = foundEntry[1];
