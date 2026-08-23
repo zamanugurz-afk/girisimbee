@@ -472,6 +472,19 @@ export function CategoryListingForm({
     return null;
   });
 
+  const activeCorrelationIdRef = useRef<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__GIRISIMBEE_BUILD__ = {
+        commit: '5416727',
+        version: '3.0.0',
+        timestamp: new Date().toISOString(),
+      };
+      console.log('[CV FORENSIC BUILD]', (window as any).__GIRISIMBEE_BUILD__);
+    }
+  }, []);
+
   useEffect(() => {
     console.log('[CV DEFAULTS MOUNT]', {
       timestamp: new Date().toISOString(),
@@ -484,12 +497,13 @@ export function CategoryListingForm({
   }, [defaults, initialValues]);
 
   useEffect(() => {
-    console.log('[CV STATE RENDER]', {
+    console.log('[CV FORENSIC 06] customFields AFTER RENDER', {
+      correlationId: activeCorrelationIdRef.current || 'initial_mount',
       timestamp: new Date().toISOString(),
       fullName: customFields?.fullName,
       primarySector: customFields?.primarySector,
       desiredRole: customFields?.desiredRole,
-      experiencesCount: (customFields?.experiences as any[])?.length,
+      experiencesLength: (customFields?.experiences as any[])?.length,
       isCvApplied,
     });
   }, [customFields, isCvApplied]);
@@ -530,12 +544,13 @@ export function CategoryListingForm({
 
   const mergedCustomFields = useMemo(() => {
     const merged = mergeCustomFieldDefaults(listingType.fieldSchema, customFields);
-    console.log('[CV DEBUG] 6. MERGED CUSTOM FIELDS', {
+    console.log('[CV FORENSIC 07] mergedCustomFields AFTER RENDER', {
+      correlationId: activeCorrelationIdRef.current || 'render',
       timestamp: new Date().toISOString(),
       fullName: merged.fullName,
       primarySector: merged.primarySector,
       desiredRole: merged.desiredRole,
-      experiencesCount: (merged.experiences as any[])?.length,
+      experiencesLength: (merged.experiences as any[])?.length,
       isCvApplied,
     });
     return merged;
@@ -1257,15 +1272,20 @@ export function CategoryListingForm({
     (draft?: CvProfileDraftResult | null) => {
       const activeDraft = draft || pendingCvDraft;
       if (!activeDraft) return;
+      const correlationId = activeCorrelationIdRef.current || 'apply_' + Math.random().toString(36).slice(2, 8);
 
-      console.log('[CV DEBUG] 4. handleApplyCvDraft START', {
+      console.log('[CV FORENSIC 03] handleApplyCvDraft INPUT', {
+        correlationId,
         timestamp: new Date().toISOString(),
-        draftFormValues: activeDraft?.formValues,
+        fullName: activeDraft?.formValues?.fullName,
+        primarySector: activeDraft?.formValues?.primarySector,
+        desiredRole: activeDraft?.formValues?.desiredRole,
+        experienceCount: activeDraft?.formValues?.experiences?.length,
         currentCustomFields: {
           fullName: customFields.fullName,
           primarySector: customFields.primarySector,
           desiredRole: customFields.desiredRole,
-          experiencesCount: (customFields.experiences as any[])?.length,
+          experiencesLength: (customFields.experiences as any[])?.length,
         },
       });
 
@@ -1275,7 +1295,8 @@ export function CategoryListingForm({
         listingType.fieldSchema,
       );
 
-      console.log('[CV DEBUG] 5. NEXT CUSTOM FIELDS (BEFORE SET)', {
+      console.log('[CV FORENSIC 04] nextCustomFields BEFORE SET', {
+        correlationId,
         timestamp: new Date().toISOString(),
         fullName: nextCustomFields.fullName,
         primarySector: nextCustomFields.primarySector,
@@ -1283,10 +1304,18 @@ export function CategoryListingForm({
         experienceLevel: nextCustomFields.experienceLevel,
         residenceCity: nextCustomFields.residenceCity,
         residenceDistrict: nextCustomFields.residenceDistrict,
-        experiences: (nextCustomFields.experiences as any[])?.length,
-        educationHistory: (nextCustomFields.educationHistory as any[])?.length,
+        experiencesLength: (nextCustomFields.experiences as any[])?.length,
+        educationHistoryLength: (nextCustomFields.educationHistory as any[])?.length,
         cvFileName: nextCustomFields.cvFileName,
         appliedKeys,
+      });
+
+      console.log('[CV FORENSIC 05] setCustomFields CALLED', {
+        correlationId,
+        timestamp: new Date().toISOString(),
+        targetFullName: nextCustomFields.fullName,
+        targetSector: nextCustomFields.primarySector,
+        targetRole: nextCustomFields.desiredRole,
       });
 
       setCustomFields(nextCustomFields);
@@ -1311,6 +1340,7 @@ export function CategoryListingForm({
 
   const handleCvDraftAnalyzed = useCallback(
     (draft: CvProfileDraftResult) => {
+      const correlationId = activeCorrelationIdRef.current || 'analyzed_' + Math.random().toString(36).slice(2, 8);
       const fv = draft.formValues;
       const expCount = fv.experiences?.length ?? 0;
       const eduCount = (fv.educationHistory?.length ?? 0) || (fv.educationLevel ? 1 : 0);
@@ -1323,7 +1353,8 @@ export function CategoryListingForm({
         ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
         : undefined;
 
-      console.log('[CV DEBUG] 3. handleCvDraftAnalyzed', {
+      console.log('[CV FORENSIC 02] handleCvDraftAnalyzed INPUT', {
+        correlationId,
         timestamp: new Date().toISOString(),
         fullName: fv.fullName,
         primarySector: fv.primarySector,
@@ -1331,6 +1362,7 @@ export function CategoryListingForm({
         experienceCount: expCount,
         educationCount: eduCount,
         skillCount,
+        cvFileName: fv.cvFileName,
       });
 
       setPendingCvDraft(draft);
@@ -1366,7 +1398,21 @@ export function CategoryListingForm({
         return;
       }
 
+      const correlationId = 'req_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
+      activeCorrelationIdRef.current = correlationId;
+
+      try {
+        console.log('[CV FORENSIC STORAGE BEFORE]', {
+          correlationId,
+          timestamp: new Date().toISOString(),
+          storageValue: typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null,
+        });
+      } catch {
+        // ignore
+      }
+
       console.log('[CV DEBUG] 1. handleUploadCvFile start', {
+        correlationId,
         timestamp: new Date().toISOString(),
         fileName: file.name,
         fileSize: file.size,
@@ -1390,12 +1436,19 @@ export function CategoryListingForm({
         });
 
         const data = await response.json();
+        const fv = data.draft?.formValues || data.data?.formValues;
 
-        console.log('[CV DEBUG] 2. API RESPONSE', {
+        console.log('[CV FORENSIC 01] API RESPONSE', {
+          correlationId,
           timestamp: new Date().toISOString(),
           status: response.status,
           success: data.success,
-          formValues: data.draft?.formValues || data.data?.formValues,
+          fullName: fv?.fullName,
+          primarySector: fv?.primarySector,
+          desiredRole: fv?.desiredRole,
+          experienceCount: fv?.experiences?.length,
+          skillCount: (fv?.professionalSkillsList?.length ?? 0) + (fv?.technicalSkillsList?.length ?? 0),
+          cvFileName: fv?.cvFileName,
         });
 
         if (!response.ok || !data.success) {
@@ -1404,6 +1457,17 @@ export function CategoryListingForm({
 
         const draft = (data.draft || data.data) as CvProfileDraftResult;
         handleCvDraftAnalyzed(draft);
+
+        try {
+          console.log('[CV FORENSIC STORAGE AFTER]', {
+            correlationId,
+            timestamp: new Date().toISOString(),
+            storageValue: typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null,
+          });
+        } catch {
+          // ignore
+        }
+
         toast.success('✨ CV başarıyla analiz edildi!');
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'CV analiz edilemedi.';
@@ -1415,7 +1479,7 @@ export function CategoryListingForm({
         setIsUploadingCv(false);
       }
     },
-    [handleCvDraftAnalyzed],
+    [handleCvDraftAnalyzed, storageKey],
   );
 
   const handleRemoveCv = useCallback(() => {
