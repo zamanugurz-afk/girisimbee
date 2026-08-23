@@ -62,7 +62,6 @@ import { CareerLanguagesEditor } from '@/features/candidates/components/CareerLa
 import { CareerPreferenceEditor } from '@/features/candidates/components/CareerPreferenceEditor';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { maskDisplaySurname } from '@/features/candidates/lib/career-public-identity';
-import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 import { buildHydratedCustomFieldsFromCvDraft } from '@/features/candidates/cv/cv-form-hydrator';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { CareerSkillsEditor } from '@/features/candidates/components/CareerSkillsEditor';
@@ -348,6 +347,11 @@ function buildCareerCardPreviewData(
   };
 }
 
+let globalStateTraceSeq = 0;
+export function nextCvTraceSeq(): string {
+  return '#' + String(++globalStateTraceSeq).padStart(3, '0');
+}
+
 export function CategoryListingForm({
   listingType,
   categoryId,
@@ -415,6 +419,50 @@ export function CategoryListingForm({
   const [stepIndex, setStepIndex] = useState(0);
   const [core, setCore] = useState<CoreListingFieldsInput>(defaults.core);
   const [customFields, setCustomFields] = useState<Record<string, unknown>>(defaults.customFields);
+
+  const mutateCustomFields = useCallback(
+    (
+      updater: Record<string, unknown> | ((prev: Record<string, unknown>) => Record<string, unknown>),
+      sourceTag: string,
+    ) => {
+      const traceId = nextCvTraceSeq();
+      setCustomFields((prev) => {
+        const next = typeof updater === 'function' ? updater(prev) : updater;
+        console.log(`[CV-TRACE ${traceId}] [CV-STATE-MUTATION]`, {
+          sequence: traceId,
+          source: sourceTag,
+          timestamp: new Date().toISOString(),
+          keysBefore: Object.keys(prev),
+          keysAfter: Object.keys(next),
+          fullNameBefore: prev.fullName,
+          fullNameAfter: next.fullName,
+          desiredRoleBefore: prev.desiredRole,
+          desiredRoleAfter: next.desiredRole,
+          primarySectorBefore: prev.primarySector,
+          primarySectorAfter: next.primarySector,
+          previous: {
+            fullName: prev.fullName,
+            desiredRole: prev.desiredRole,
+            primarySector: prev.primarySector,
+            experienceLevel: prev.experienceLevel,
+            residenceCity: prev.residenceCity,
+            residenceDistrict: prev.residenceDistrict,
+          },
+          next: {
+            fullName: next.fullName,
+            desiredRole: next.desiredRole,
+            primarySector: next.primarySector,
+            experienceLevel: next.experienceLevel,
+            residenceCity: next.residenceCity,
+            residenceDistrict: next.residenceDistrict,
+          },
+        });
+        console.trace(`[CV-STATE-MUTATION TRACE ${traceId}] Source: ${sourceTag}`);
+        return next;
+      });
+    },
+    [],
+  );
   const [tags, setTags] = useState<string[]>(defaults.tags);
   const [images, setImages] = useState(defaults.images);
   const [cvUrl, setCvUrl] = useState<string | null>(defaults.cvUrl ?? null);
@@ -566,39 +614,64 @@ export function CategoryListingForm({
   const [sectorsPrunedNotice, setSectorsPrunedNotice] = useState(false);
 
   const mergedCustomFields = useMemo(() => {
+    const traceId = nextCvTraceSeq();
+    const defaultsSource = defaults.customFields;
+    const customFieldsSource = customFields;
     const merged = mergeCustomFieldDefaults(listingType.fieldSchema, customFields);
-    console.log('[CV FORENSIC 07] mergedCustomFields AFTER RENDER', {
+    console.log(`[CV-TRACE ${traceId}] [CV-MERGE]`, {
+      traceId,
       correlationId: activeCorrelationIdRef.current || 'render',
       timestamp: new Date().toISOString(),
-      fullName: merged.fullName,
-      primarySector: merged.primarySector,
-      desiredRole: merged.desiredRole,
-      experiencesLength: (merged.experiences as any[])?.length,
+      customFields: customFieldsSource,
+      defaults: defaultsSource,
+      merged,
+      customFieldsKeys: Object.keys(customFieldsSource || {}),
+      defaultsKeys: Object.keys(defaultsSource || {}),
+      mergedKeys: Object.keys(merged || {}),
+      mergedFullName: merged.fullName,
+      mergedDesiredRole: merged.desiredRole,
+      mergedPrimarySector: merged.primarySector,
+      mergedExperienceLevel: merged.experienceLevel,
+      mergedResidenceCity: merged.residenceCity,
+      mergedResidenceDistrict: merged.residenceDistrict,
       isCvApplied,
+      sources: {
+        customFields: {
+          fullName: customFieldsSource?.fullName,
+          primarySector: customFieldsSource?.primarySector,
+          desiredRole: customFieldsSource?.desiredRole,
+          experienceLevel: customFieldsSource?.experienceLevel,
+          residenceCity: customFieldsSource?.residenceCity,
+          residenceDistrict: customFieldsSource?.residenceDistrict,
+        },
+        defaults: {
+          fullName: defaultsSource?.fullName,
+          primarySector: defaultsSource?.primarySector,
+          desiredRole: defaultsSource?.desiredRole,
+          experienceLevel: defaultsSource?.experienceLevel,
+          residenceCity: defaultsSource?.residenceCity,
+          residenceDistrict: defaultsSource?.residenceDistrict,
+        },
+        schemaFieldKeys: listingType.fieldSchema.fields.map((f) => f.key),
+      },
     });
     return merged;
-  }, [listingType.fieldSchema, customFields, isCvApplied]);
+  }, [listingType.fieldSchema, customFields, isCvApplied, defaults.customFields]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
+      const traceId = nextCvTraceSeq();
       const fullNameInput = document.querySelector<HTMLInputElement>('#field-fullName, input[id*="fullName"], [data-field="fullName"] input');
       const primarySectorEl = document.querySelector<HTMLElement>('#field-primarySector button, [id*="primarySector"] button, [data-field="primarySector"] button');
       const desiredRoleEl = document.querySelector<HTMLElement>('#field-desiredRole button, [id*="desiredRole"] button, [data-field="desiredRole"] button');
 
-      console.log('[CV FORENSIC 11] DOM fullName', {
+      console.log(`[CV-STATE-TRACE ${traceId}] [CV-DOM-TRACE]`, {
+        traceId,
         timestamp: new Date().toISOString(),
-        domValue: fullNameInput ? fullNameInput.value : 'not_found',
-        inputFound: Boolean(fullNameInput),
-      });
-
-      console.log('[CV FORENSIC 12] DOM primarySector', {
-        timestamp: new Date().toISOString(),
-        domText: primarySectorEl ? primarySectorEl.textContent : 'not_found',
-      });
-
-      console.log('[CV FORENSIC 13] DOM desiredRole', {
-        timestamp: new Date().toISOString(),
-        domText: desiredRoleEl ? desiredRoleEl.textContent : 'not_found',
+        fullNameDom: fullNameInput ? fullNameInput.value : 'not_found',
+        fullNameInputFound: Boolean(fullNameInput),
+        primarySectorDom: primarySectorEl ? primarySectorEl.textContent : 'not_found',
+        desiredRoleDom: desiredRoleEl ? desiredRoleEl.textContent : 'not_found',
       });
     }, 100);
 
@@ -1048,8 +1121,7 @@ export function CategoryListingForm({
     if (!isCareerCardCategory) return null;
     const nameCandidate =
       typeof mergedCustomFields.fullName === 'string' &&
-      mergedCustomFields.fullName.trim() &&
-      !isForbiddenNameCandidate(mergedCustomFields.fullName)
+      mergedCustomFields.fullName.trim()
         ? mergedCustomFields.fullName.trim()
         : user?.displayName;
     return buildCareerCardPreviewData(
@@ -1125,23 +1197,24 @@ export function CategoryListingForm({
 
     // CV IMPORT HAS HIGHER PRIORITY THAN SAVED DRAFT
     if (!isCvApplied) {
-      setCustomFields(
+      console.log(`[CV-TRACE ${nextCvTraceSeq()}] [CV-SCHEMA-EFFECT]`, {
+        effect: 'restoreDraft',
+        dependencies: ['listingType.fieldSchema', 'isCvApplied', 'restoredDraft'],
+        customFieldsBefore: {
+          fullName: customFields.fullName,
+          desiredRole: customFields.desiredRole,
+          primarySector: customFields.primarySector,
+        },
+        draftCustomFields: {
+          fullName: draft.customFields?.fullName,
+          desiredRole: draft.customFields?.desiredRole,
+          primarySector: draft.customFields?.primarySector,
+        },
+      });
+      mutateCustomFields(
         mergeCustomFieldDefaults(listingType.fieldSchema, draft.customFields),
+        'restoreDraft:useEffect',
       );
-      for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
-        console.log('[CV-STATE-TRACE]', {
-          field: trackKey,
-          previousValue: customFields[trackKey],
-          nextValue: draft.customFields?.[trackKey],
-          source: 'restoreDraft',
-          function: 'restoreDraft:useEffect',
-          reason: 'local_storage_draft_restoration',
-          timestamp: new Date().toISOString(),
-          cvImportCompleted: isCvApplied,
-          draftRestored: true,
-          currentSector: (draft.customFields?.primarySector as string) || '',
-        });
-      }
     }
 
     setShowDistinctProductName(
@@ -1171,30 +1244,26 @@ export function CategoryListingForm({
     categoryId,
     isCvApplied,
     customFields,
+    mutateCustomFields,
   ]);
 
   useEffect(() => {
-    setCustomFields((prev) => {
-      const merged = mergeCustomFieldDefaults(listingType.fieldSchema, prev);
-      for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
-        if (prev[trackKey] !== merged[trackKey]) {
-          console.log('[CV-STATE-TRACE]', {
-            field: trackKey,
-            previousValue: prev[trackKey],
-            nextValue: merged[trackKey],
-            source: 'schemaEffect',
-            function: 'mergeCustomFieldDefaults:useEffect',
-            reason: 'field_schema_dependency_update',
-            timestamp: new Date().toISOString(),
-            cvImportCompleted: isCvApplied,
-            draftRestored: restoredDraft,
-            currentSector: (merged.primarySector as string) || '',
-          });
-        }
-      }
-      return merged;
+    console.log(`[CV-TRACE ${nextCvTraceSeq()}] [CV-SCHEMA-EFFECT]`, {
+      effect: 'schemaEffect',
+      dependencies: ['listingType.fieldSchema', 'isCvApplied', 'restoredDraft'],
+      customFieldsBefore: {
+        fullName: customFields.fullName,
+        desiredRole: customFields.desiredRole,
+        primarySector: customFields.primarySector,
+      },
+      isCvApplied,
+      restoredDraft,
     });
-  }, [listingType.fieldSchema, isCvApplied, restoredDraft]);
+    mutateCustomFields((prev) => {
+      const merged = mergeCustomFieldDefaults(listingType.fieldSchema, prev);
+      return merged;
+    }, 'schemaEffect:useEffect');
+  }, [listingType.fieldSchema, isCvApplied, restoredDraft, mutateCustomFields, customFields]);
 
   useEffect(() => {
     const demo = new URLSearchParams(window.location.search).get('demo') === '1';
@@ -1257,6 +1326,7 @@ export function CategoryListingForm({
   }, [userId, categoryId, listingId]);
 
   const setCustomField = useCallback((key: string, value: unknown) => {
+    const traceId = nextCvTraceSeq();
     const field = fieldByKey.get(key);
     let nextValue = value;
     if (field?.type === 'enum' && field.options?.length && value != null && value !== '') {
@@ -1266,23 +1336,18 @@ export function CategoryListingForm({
       nextValue = Array.isArray(value) ? value : [];
     }
 
-    setCustomFields((prev) => {
-      if (key === 'fullName' || key === 'desiredRole' || key === 'primarySector') {
-        console.log('[CV-STATE-TRACE]', {
-          field: key,
-          previousValue: prev[key],
-          nextValue,
-          source: 'setCustomField',
-          function: 'setCustomField',
-          reason: 'field_value_update',
-          timestamp: new Date().toISOString(),
-          cvImportCompleted: isCvApplied,
-          draftRestored: restoredDraft,
-          currentSector: (prev.primarySector as string) || (prev.sector as string) || '',
-        });
-      }
-      return { ...prev, [key]: nextValue };
+    console.log(`[CV-TRACE ${traceId}] [CV-SET-CUSTOM-FIELD]`, {
+      sequence: traceId,
+      field: key,
+      previous: customFields[key],
+      next: nextValue,
+      source: 'setCustomField',
+      timestamp: new Date().toISOString(),
+      cvImportCompleted: isCvApplied,
+      draftRestored: restoredDraft,
     });
+
+    mutateCustomFields((prev) => ({ ...prev, [key]: nextValue }), `setCustomField:${key}`);
     setFieldErrors((prev) => {
       if (!prev[key] && !prev[`customFields.${key}`]) return prev;
       const next = { ...prev };
@@ -1290,12 +1355,12 @@ export function CategoryListingForm({
       delete next[`customFields.${key}`];
       return next;
     });
-  }, [fieldByKey, isCvApplied, restoredDraft]);
+  }, [fieldByKey, isCvApplied, restoredDraft, customFields, mutateCustomFields]);
 
   const handleCustomFieldChange = useCallback(
     (key: string, value: unknown) => {
       if (key === 'fullName' || key === 'desiredRole' || key === 'primarySector') {
-        console.log('[CV-STATE-TRACE]', {
+        console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}]`, {
           field: key,
           previousValue: customFields[key],
           nextValue: value,
@@ -1394,7 +1459,7 @@ export function CategoryListingForm({
       if (!activeDraft) return;
       const correlationId = activeCorrelationIdRef.current || 'apply_' + Math.random().toString(36).slice(2, 8);
 
-      console.log('[CV FORENSIC 03] handleApplyCvDraft INPUT', {
+      console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}] handleApplyCvDraft INPUT`, {
         correlationId,
         timestamp: new Date().toISOString(),
         fullName: activeDraft?.formValues?.fullName,
@@ -1415,7 +1480,7 @@ export function CategoryListingForm({
         listingType.fieldSchema,
       );
 
-      console.log('[CV FORENSIC 04] nextCustomFields BEFORE SET', {
+      console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}] nextCustomFields BEFORE SET`, {
         correlationId,
         timestamp: new Date().toISOString(),
         fullName: nextCustomFields.fullName,
@@ -1430,17 +1495,9 @@ export function CategoryListingForm({
         appliedKeys,
       });
 
-      console.log('[CV FORENSIC 05] setCustomFields CALLED', {
-        correlationId,
-        timestamp: new Date().toISOString(),
-        targetFullName: nextCustomFields.fullName,
-        targetSector: nextCustomFields.primarySector,
-        targetRole: nextCustomFields.desiredRole,
-      });
-
       // Log [CV-STATE-TRACE] for each primary hydrated field
       for (const trackKey of ['fullName', 'desiredRole', 'primarySector'] as const) {
-        console.log('[CV-STATE-TRACE]', {
+        console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}]`, {
           field: trackKey,
           previousValue: customFields[trackKey],
           nextValue: nextCustomFields[trackKey],
@@ -1454,7 +1511,7 @@ export function CategoryListingForm({
         });
       }
 
-      setCustomFields(nextCustomFields);
+      mutateCustomFields(nextCustomFields, 'handleApplyCvDraft');
       if (Object.keys(nextCoreFields).length > 0) {
         setCore((prev) => ({
           ...prev,
@@ -1471,7 +1528,7 @@ export function CategoryListingForm({
       setIsManualCvMode(false);
       toast.success('✨ CV bilgileri adımlara başarıyla aktarıldı.');
     },
-    [pendingCvDraft, customFields, listingType.fieldSchema, restoredDraft],
+    [pendingCvDraft, customFields, listingType.fieldSchema, restoredDraft, mutateCustomFields],
   );
 
   const handleCvDraftAnalyzed = useCallback(
@@ -1489,12 +1546,15 @@ export function CategoryListingForm({
         ? `${fv.residenceCity}${fv.residenceDistrict ? ` / ${fv.residenceDistrict}` : ''}`
         : undefined;
 
-      console.log('[CV FORENSIC 02] handleCvDraftAnalyzed INPUT', {
+      console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}] handleCvDraftAnalyzed INPUT`, {
         correlationId,
         timestamp: new Date().toISOString(),
         fullName: fv.fullName,
         primarySector: fv.primarySector,
         desiredRole: fv.desiredRole,
+        experienceLevel: fv.experienceLevel,
+        residenceCity: fv.residenceCity,
+        residenceDistrict: fv.residenceDistrict,
         experienceCount: expCount,
         educationCount: eduCount,
         skillCount,
@@ -1574,7 +1634,7 @@ export function CategoryListingForm({
         const data = await response.json();
         const fv = data.draft?.formValues || data.data?.formValues;
 
-        console.log('[CV FORENSIC 01] API RESPONSE', {
+        console.log(`[CV-STATE-TRACE ${nextCvTraceSeq()}] API RESPONSE`, {
           correlationId,
           timestamp: new Date().toISOString(),
           status: response.status,
@@ -1582,6 +1642,9 @@ export function CategoryListingForm({
           fullName: fv?.fullName,
           primarySector: fv?.primarySector,
           desiredRole: fv?.desiredRole,
+          experienceLevel: fv?.experienceLevel,
+          residenceCity: fv?.residenceCity,
+          residenceDistrict: fv?.residenceDistrict,
           experienceCount: fv?.experiences?.length,
           skillCount: (fv?.professionalSkillsList?.length ?? 0) + (fv?.technicalSkillsList?.length ?? 0),
           cvFileName: fv?.cvFileName,
@@ -1622,7 +1685,7 @@ export function CategoryListingForm({
     setCvDraftInfo(null);
     setPendingCvDraft(null);
     setIsCvApplied(false);
-    setCustomFields((prev) => {
+    mutateCustomFields((prev) => {
       const next = { ...prev };
       delete next.cvFileName;
       delete next.cvDocumentId;
@@ -1639,10 +1702,10 @@ export function CategoryListingForm({
       delete next.certificates;
       delete next.candidateTraits;
       return next;
-    });
+    }, 'handleRemoveCv');
     setCvFilledKeys(new Set());
     toast.info('CV kaldırıldı. Formu manuel doldurarak devam edebilirsiniz.');
-  }, []);
+  }, [mutateCustomFields]);
 
   const handleCoreChange = useCallback((next: CoreListingFieldsInput) => {
     setCore(next);
@@ -1813,7 +1876,7 @@ export function CategoryListingForm({
         return false;
       }
       const materialized = materializeHireRoleNeedsFields(mergedCustomFields);
-      setCustomFields((prev) => ({ ...prev, ...materialized }));
+      mutateCustomFields((prev) => ({ ...prev, ...materialized }), 'validateStep:hireRole');
       setFieldErrors({});
       return true;
     }
@@ -1826,7 +1889,7 @@ export function CategoryListingForm({
         return false;
       }
       const materialized = materializeCareerSkillsFields(mergedCustomFields);
-      setCustomFields((prev) => ({ ...prev, ...materialized }));
+      mutateCustomFields((prev) => ({ ...prev, ...materialized }), 'validateStep:careerSkills');
       setFieldErrors({});
       return true;
     }
@@ -1842,7 +1905,7 @@ export function CategoryListingForm({
         return false;
       }
       const materialized = materializeCareerEducationFields(mergedCustomFields);
-      setCustomFields((prev) => ({ ...prev, ...materialized }));
+      mutateCustomFields((prev) => ({ ...prev, ...materialized }), 'validateStep:careerEducation');
       setFieldErrors({});
       return true;
     }
@@ -2354,11 +2417,13 @@ export function CategoryListingForm({
                           setCore((prev) => ({ ...prev, ...sample.core! }));
                         }
                         if (sample.customFields) {
-                          setCustomFields((prev) =>
-                            mergeCustomFieldDefaults(listingType.fieldSchema, {
-                              ...prev,
-                              ...sample.customFields,
-                            }),
+                          mutateCustomFields(
+                            (prev) =>
+                              mergeCustomFieldDefaults(listingType.fieldSchema, {
+                                ...prev,
+                                ...sample.customFields,
+                              }),
+                            'sampleFill',
                           );
                           setShowDistinctProductName(
                             hasDistinctProductName(
@@ -3084,12 +3149,7 @@ export function CategoryListingForm({
                       <div className="space-y-2">
                         <DynamicField
                           field={fieldByKey.get('fullName')!}
-                          value={
-                            typeof mergedCustomFields.fullName === 'string' &&
-                            !isForbiddenNameCandidate(mergedCustomFields.fullName)
-                              ? mergedCustomFields.fullName
-                              : ''
-                          }
+                          value={mergedCustomFields.fullName ?? ''}
                           onChange={(val) => {
                             handleCustomFieldChange('fullName', val);
                             if (cvFilledKeys.has('fullName')) {

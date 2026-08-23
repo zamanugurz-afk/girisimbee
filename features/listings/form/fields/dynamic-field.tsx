@@ -31,7 +31,6 @@ import {
   getPositionsForSector,
   MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
-import { isForbiddenNameCandidate } from '@/features/candidates/cv/cv-name-extractor';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -246,15 +245,21 @@ function FieldControl({
   context?: DynamicFieldContext;
 }) {
   const stringValue = String(value ?? '');
-  const displayValue = field.key === 'fullName' && isForbiddenNameCandidate(stringValue) ? '' : stringValue;
+  const displayValue = stringValue;
   const stringLength = displayValue.length;
+
+  if (field.key === 'fullName') {
+    console.log('[CV-DYNAMIC-FIELD-TRACE]', {
+      field: 'fullName',
+      value,
+      stringValue,
+      displayValue,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   function applyTitleCaseIfNeeded() {
     if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
-    if (field.key === 'fullName' && isForbiddenNameCandidate(stringValue)) {
-      onChange('');
-      return;
-    }
     const next = normalizeListingTitle(stringValue);
     if (next !== stringValue) onChange(next);
   }
@@ -425,6 +430,13 @@ function FieldControl({
       let options = field.options ?? [];
       if (field.key === 'primarySector') {
         options = sortSectorsPopularThenAz(options);
+        console.log('[CV-DYNAMIC-FIELD-TRACE]', {
+          field: 'primarySector',
+          value,
+          optionsCount: options.length,
+          optionsIncludesValue: options.includes(String(value ?? '')),
+          timestamp: new Date().toISOString(),
+        });
       }
       if (field.key === 'desiredRole') {
         const sector = String(context?.values?.primarySector ?? '');
@@ -433,6 +445,17 @@ function FieldControl({
         options = current && !filtered.includes(current)
           ? [...filtered, current]
           : filtered;
+        console.log('[CV-ROLE-TRACE]', {
+          sector,
+          rawValue: value,
+          currentValue: current,
+          allowedRoles: filtered,
+          options,
+          optionsIncludesCurrent: options.includes(current),
+          resolvedValue: value ? String(value) : '',
+          fallbackValue: ui.placeholder ?? `${field.label} seçin`,
+          timestamp: new Date().toISOString(),
+        });
       }
       if (field.key === 'workplacePreference') {
         const rawRole = String(context?.values?.desiredRole ?? '');

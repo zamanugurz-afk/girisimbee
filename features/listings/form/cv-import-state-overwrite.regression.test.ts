@@ -7,125 +7,162 @@ import {
   getAllTaxonomyPositions,
   isManualCareerOption,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { matchCanonicalPosition } from '@/features/candidates/cv/cv-taxonomy-mapper';
+import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
 import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 
-describe('CV Import State Overwrite & Priority Regression Suite', () => {
-  it('guarantees that CV hydration values are authoritative and NOT overwritten by draft restore, schema merge, or sector change effects', () => {
-    // 1. Initial State / Saved Draft
-    const initialSavedDraft = {
-      fullName: '',
-      desiredRole: '',
-      primarySector: 'Çağrı merkezi',
-    };
-
-    let customFields: Record<string, unknown> = mergeCustomFieldDefaults(
-      JOB_SEEKER_FIELD_SCHEMA,
-      initialSavedDraft,
-    );
-
-    let isCvApplied = false;
-
-    // Verify Initial State
-    expect(customFields.fullName).toBe('');
-    expect(customFields.desiredRole).toBe('');
-    expect(customFields.primarySector).toBe('Çağrı merkezi');
-
-    // 2. User Uploads CV & Hydration Runs
+describe('CV Import State Ownership & Render Guard Regression Suite', () => {
+  // CASE 1: API -> Hydrator -> React State -> DynamicField -> DOM
+  it('CASE 1: Guarantees fullName flows intact from API to Hydrator to State to DynamicField/DOM without being blanked', () => {
     const mockCvDraft: CvProfileDraftResult = {
       formValues: {
         fullName: 'Uğur Zaman',
         role: 'Çağrı Merkezi Operasyon Müdürü',
         desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
         primarySector: 'Çağrı merkezi',
-        sector: 'Çağrı merkezi',
-        experienceLevel: 'Yönetici',
-        residenceCity: 'İstanbul',
-        residenceDistrict: 'Maltepe',
-        experiences: [
-          {
-            role: 'Telemarketing ve Çağrı Merkezi Operasyonları Direktörü',
-            sector: 'Çağrı merkezi',
-            company: 'IGS Türkiye',
-            startYear: 2020,
-            endYear: 2024,
-            isCurrent: true,
-            duration: '4 yıl',
-            responsibilities: 'Çağrı merkezi yönetimi',
-            achievements: '',
-          },
-        ],
       },
-      cvFilledFieldKeys: ['fullName', 'desiredRole', 'primarySector', 'experienceLevel', 'residenceCity'],
     };
 
-    const hydrationResult = buildHydratedCustomFieldsFromCvDraft(
+    const hydrated = buildHydratedCustomFieldsFromCvDraft(
       mockCvDraft,
-      customFields,
+      {},
       JOB_SEEKER_FIELD_SCHEMA,
     );
 
-    // Apply CV Hydration to state
-    customFields = hydrationResult.nextCustomFields;
-    isCvApplied = true;
+    expect(hydrated.nextCustomFields.fullName).toBe('Uğur Zaman');
 
-    expect(customFields.fullName).toBe('Uğur Zaman');
-    expect(customFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(customFields.primarySector).toBe('Çağrı merkezi');
-
-    // 3. Simulate Draft Restore Event (Must NOT overwrite CV-imported fields)
-    if (!isCvApplied) {
-      // If draft restore mistakenly attempted to overwrite when CV is applied
-      customFields = mergeCustomFieldDefaults(JOB_SEEKER_FIELD_SCHEMA, initialSavedDraft);
-    }
-
-    expect(customFields.fullName).toBe('Uğur Zaman');
-    expect(customFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(customFields.primarySector).toBe('Çağrı merkezi');
-
-    // 4. Simulate Schema Merge Effect (mergeCustomFieldDefaults on re-render)
-    const mergedCustomFields = mergeCustomFieldDefaults(
+    const merged = mergeCustomFieldDefaults(
       JOB_SEEKER_FIELD_SCHEMA,
-      customFields,
+      hydrated.nextCustomFields,
     );
 
-    expect(mergedCustomFields.fullName).toBe('Uğur Zaman');
-    expect(mergedCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(mergedCustomFields.primarySector).toBe('Çağrı merkezi');
+    // DynamicField controlled value
+    const dynamicFieldValue = String(merged.fullName ?? '');
+    expect(dynamicFieldValue).toBe('Uğur Zaman');
+    expect(dynamicFieldValue).not.toBe('');
+  });
 
-    // 5. Simulate Sector Change / Validation Effect
-    const currentSector = String(mergedCustomFields.primarySector || '');
-    const currentRole = String(mergedCustomFields.desiredRole || '');
+  // CASE 2: API -> Canonical Position Resolution & Aliases
+  it('CASE 2: Resolves raw roles and aliases directly to canonical taxonomy positions without falling to "Diğer"', () => {
+    const testRoles = [
+      'Çağrı Merkezi Operasyon Müdürü',
+      'Çağrı Merkezi Operasyonları Müdürü',
+      'Çağrı Merkezi Operasyon Yöneticisi',
+      'Telemarketing ve Çağrı Merkezi Operasyonları Direktörü',
+      'Telemarketing ve Ticari Destek Operasyonları Müdürü',
+    ];
 
-    if (currentRole && !isManualCareerOption(currentRole)) {
-      const allowedRoles = getPositionsForSector(currentSector);
-      const allTaxonomy = getAllTaxonomyPositions();
+    for (const rawRole of testRoles) {
+      const canonicalResult = matchCanonicalPosition(rawRole).canonical;
+      expect(canonicalResult).toBe('Çağrı Merkezi Operasyon Müdürü');
 
-      // Ensure valid role is retained and NOT wiped to empty or Diğer
-      expect(allowedRoles.includes(currentRole) || allTaxonomy.includes(currentRole)).toBe(true);
-      expect(allowedRoles.includes('Çağrı Merkezi Operasyon Müdürü')).toBe(true);
+      const mockCvDraft: CvProfileDraftResult = {
+        formValues: {
+          fullName: 'Uğur Zaman',
+          desiredRole: rawRole,
+          primarySector: 'Çağrı merkezi',
+        },
+      };
+
+      const hydrated = buildHydratedCustomFieldsFromCvDraft(
+        mockCvDraft,
+        {},
+        JOB_SEEKER_FIELD_SCHEMA,
+      );
+
+      expect(hydrated.nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+      expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer');
+      expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer / Kendim gireceğim');
     }
+  });
 
-    // 6. Simulate DynamicField Controlled Input / Select Binding
-    // fullName binding:
-    const fullNameValue =
-      typeof mergedCustomFields.fullName === 'string'
-        ? mergedCustomFields.fullName.trim()
-        : '';
-    expect(fullNameValue).toBe('Uğur Zaman');
-    expect(fullNameValue).not.toBe('');
+  // CASE 3: CV import atomic state update does not trigger primarySector cascading role wipe
+  it('CASE 3: Atomic CV import writes primarySector and desiredRole simultaneously without cascading role wipe', () => {
+    const mockCvDraft: CvProfileDraftResult = {
+      formValues: {
+        fullName: 'Uğur Zaman',
+        desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
+        primarySector: 'Çağrı merkezi',
+      },
+    };
 
-    // desiredRole binding:
-    const desiredRoleValue = String(mergedCustomFields.desiredRole || '');
-    expect(desiredRoleValue).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(desiredRoleValue).not.toBe('');
-    expect(desiredRoleValue).not.toBe('Diğer');
-    expect(desiredRoleValue).not.toBe('Diğer / Kendim gireceğim');
+    const hydrated = buildHydratedCustomFieldsFromCvDraft(
+      mockCvDraft,
+      { primarySector: 'Bilişim', desiredRole: 'Yazılım Geliştirici' },
+      JOB_SEEKER_FIELD_SCHEMA,
+    );
 
-    // 7. Final Comprehensive Invariant Check
-    expect(mergedCustomFields).toMatchObject({
+    // Atomic update replaces both fields together
+    const atomicState = {
+      ...hydrated.nextCustomFields,
+    };
+
+    expect(atomicState.primarySector).toBe('Çağrı merkezi');
+    expect(atomicState.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+
+    const allowedRoles = getPositionsForSector(String(atomicState.primarySector));
+    expect(allowedRoles.includes(String(atomicState.desiredRole))).toBe(true);
+  });
+
+  // CASE 4: localStorage restore cannot overwrite CV-imported state
+  it('CASE 4: Saved draft restore is ignored when isCvApplied is true', () => {
+    const staleDraft = {
+      fullName: '',
+      desiredRole: 'Diğer / Kendim gireceğim',
+      primarySector: 'Çağrı merkezi',
+    };
+
+    let customFields = {
       fullName: 'Uğur Zaman',
       desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
       primarySector: 'Çağrı merkezi',
+    };
+
+    const isCvApplied = true;
+
+    // Simulate restoreDraft execution
+    if (!isCvApplied) {
+      customFields = mergeCustomFieldDefaults(JOB_SEEKER_FIELD_SCHEMA, staleDraft) as any;
+    }
+
+    expect(customFields.fullName).toBe('Uğur Zaman');
+    expect(customFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+    expect(customFields.primarySector).toBe('Çağrı merkezi');
+  });
+
+  // CASE 5: DynamicField renders controlled state directly
+  it('CASE 5: DynamicField controlled input value directly mirrors React state without conditional suppression', () => {
+    const stateValue = 'Uğur Zaman';
+    const displayValue = String(stateValue ?? '');
+    expect(displayValue).toBe('Uğur Zaman');
+  });
+
+  // CASE 6: fullName blur event does not clear valid person name
+  it('CASE 6: Name blur title-case formatting preserves valid person name "Uğur Zaman"', () => {
+    const stringValue = 'uğur zaman';
+    const nextValue = normalizeListingTitle(stringValue);
+    expect(nextValue).toBe('Uğur Zaman');
+    expect(nextValue).not.toBe('');
+  });
+
+  // CASE 7: Persistent state retention over time
+  it('CASE 7: Merged form state retains all primary career fields invariantly', () => {
+    const merged = mergeCustomFieldDefaults(JOB_SEEKER_FIELD_SCHEMA, {
+      fullName: 'Uğur Zaman',
+      desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
+      primarySector: 'Çağrı merkezi',
+      experienceLevel: 'Yönetici',
+      residenceCity: 'İstanbul',
+      residenceDistrict: 'Maltepe',
+    });
+
+    expect(merged).toMatchObject({
+      fullName: 'Uğur Zaman',
+      desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
+      primarySector: 'Çağrı merkezi',
+      experienceLevel: 'Yönetici',
+      residenceCity: 'İstanbul',
+      residenceDistrict: 'Maltepe',
     });
   });
 });

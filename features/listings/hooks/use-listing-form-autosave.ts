@@ -118,9 +118,9 @@ export function useListingFormAutosave({
         const raw = localStorage.getItem(storageKey);
         if (!raw) return null;
         const parsed = JSON.parse(raw) as StoredDraft;
-        console.log('[CV-DRAFT-TRACE]', {
+        console.log('[CV-DRAFT]', {
           action: 'restore',
-          key: storageKey,
+          draft: parsed,
           fullName: parsed?.customFields?.fullName,
           desiredRole: parsed?.customFields?.desiredRole,
           primarySector: parsed?.customFields?.primarySector,

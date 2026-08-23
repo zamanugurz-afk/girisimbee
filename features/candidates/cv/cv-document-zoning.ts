@@ -20,7 +20,8 @@
 
 import { normalizeCvText } from './cv-turkish-encoding';
 import { normalizeTrUniversal } from './cv-universal-normalizer';
-import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES, TURKISH_CITIES } from './cv-universal-dictionary';
+import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES } from './cv-universal-dictionary';
+import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
 import type { CvDocumentModel } from './cv-document-model';
 
 export type CvZoneType =

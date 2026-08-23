@@ -66,26 +66,31 @@ export function buildHydratedCustomFieldsFromCvDraft(
   // Resolve canonical sector & position
   let resolvedSector = resolveEnumOption(rawSector, JOB_SECTOR_OPTIONS) || '';
 
-  // Check role first against all taxonomy positions to ensure coherent sector-role alignment
+  // Check role: prioritize canonical taxonomy mapping first
   if (rawRole) {
     const globalAllPositions = getAllTaxonomyPositions();
-    let globalResolved = resolveEnumOption(rawRole, globalAllPositions);
-
-    if (!globalResolved || globalResolved === MANUAL_OPTION || globalResolved === MANUAL_OPTION_SHORT) {
-      const canonicalMatch = matchCanonicalPosition(rawRole).canonical;
-      if (canonicalMatch) {
-        globalResolved = resolveEnumOption(canonicalMatch, globalAllPositions);
-      }
+    
+    // 1. First attempt canonical position match (handles aliases like "Çağrı Merkezi Operasyonları Müdürü", "Telemarketing...", etc.)
+    const canonicalMatch = matchCanonicalPosition(rawRole).canonical;
+    let resolvedRole: string | undefined;
+    
+    if (canonicalMatch) {
+      resolvedRole = resolveEnumOption(canonicalMatch, globalAllPositions) || canonicalMatch;
+    }
+    
+    // 2. If no canonical match, attempt direct enum match
+    if (!resolvedRole || resolvedRole === MANUAL_OPTION || resolvedRole === MANUAL_OPTION_SHORT) {
+      resolvedRole = resolveEnumOption(rawRole, globalAllPositions);
     }
 
-    if (globalResolved && globalResolved !== MANUAL_OPTION && globalResolved !== MANUAL_OPTION_SHORT) {
-      applyField('desiredRole', globalResolved);
-      applyField('role', globalResolved);
+    if (resolvedRole && resolvedRole !== MANUAL_OPTION && resolvedRole !== MANUAL_OPTION_SHORT) {
+      applyField('desiredRole', resolvedRole);
+      applyField('role', resolvedRole);
       applyField('desiredRoleOther', '');
 
       // Inferred sector from canonical position ONLY if sector was not already resolved
       if (!resolvedSector) {
-        const inferredSectors = getSectorsForPosition(globalResolved);
+        const inferredSectors = getSectorsForPosition(resolvedRole);
         if (inferredSectors && inferredSectors.length > 0) {
           resolvedSector = resolveEnumOption(inferredSectors[0], JOB_SECTOR_OPTIONS) || inferredSectors[0] || '';
         }

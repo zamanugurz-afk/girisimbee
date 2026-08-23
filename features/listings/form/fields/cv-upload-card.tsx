@@ -91,6 +91,15 @@ export function CvUploadCard({
       }
 
       const draft = ((data.draft || data.data) as CvProfileDraftResult);
+      console.log('[CV-STATE-TRACE] CvUploadCard API RESPONSE RECEIVED', {
+        timestamp: new Date().toISOString(),
+        fullName: draft?.formValues?.fullName,
+        primarySector: draft?.formValues?.primarySector,
+        desiredRole: draft?.formValues?.desiredRole,
+        experienceLevel: draft?.formValues?.experienceLevel,
+        residenceCity: draft?.formValues?.residenceCity,
+        residenceDistrict: draft?.formValues?.residenceDistrict,
+      });
       onDraftReady(draft);
       toast.success('✨ CV başarıyla analiz edildi!');
     } catch (err) {
