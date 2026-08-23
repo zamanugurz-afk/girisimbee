@@ -508,6 +508,54 @@ export function CategoryListingForm({
     });
   }, [customFields, isCvApplied]);
 
+  useEffect(() => {
+    const rawStorage = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+    let parsed: any = null;
+    try {
+      parsed = rawStorage ? JSON.parse(rawStorage) : null;
+    } catch {
+      // ignore
+    }
+    console.log('[CV FORENSIC RELOAD]', {
+      timestamp: new Date().toISOString(),
+      storageKey,
+      storageFullName: parsed?.customFields?.fullName,
+      storageSector: parsed?.customFields?.primarySector,
+      storageRole: parsed?.customFields?.desiredRole,
+      storageExperiencesLength: parsed?.customFields?.experiences?.length,
+      storageSkillsLength: parsed?.customFields?.professionalSkillsList?.length || parsed?.customFields?.professionalSkills?.length,
+      customFieldsFullName: customFields?.fullName,
+      customFieldsSector: customFields?.primarySector,
+      customFieldsRole: customFields?.desiredRole,
+    });
+  }, [storageKey, customFields]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const fullNameInput = document.querySelector<HTMLInputElement>('#field-fullName, input[id*="fullName"], [data-field="fullName"] input');
+      const primarySectorEl = document.querySelector<HTMLElement>('#field-primarySector button, [id*="primarySector"] button, [data-field="primarySector"] button');
+      const desiredRoleEl = document.querySelector<HTMLElement>('#field-desiredRole button, [id*="desiredRole"] button, [data-field="desiredRole"] button');
+
+      console.log('[CV FORENSIC 11] DOM fullName', {
+        timestamp: new Date().toISOString(),
+        domValue: fullNameInput ? fullNameInput.value : 'not_found',
+        inputFound: Boolean(fullNameInput),
+      });
+
+      console.log('[CV FORENSIC 12] DOM primarySector', {
+        timestamp: new Date().toISOString(),
+        domText: primarySectorEl ? primarySectorEl.textContent : 'not_found',
+      });
+
+      console.log('[CV FORENSIC 13] DOM desiredRole', {
+        timestamp: new Date().toISOString(),
+        domText: desiredRoleEl ? desiredRoleEl.textContent : 'not_found',
+      });
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [mergedCustomFields]);
+
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
   const isPackageStep = Boolean(currentStep.package);
