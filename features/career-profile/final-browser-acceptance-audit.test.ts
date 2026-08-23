@@ -12,7 +12,9 @@ import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-fiel
 import type { CareerProfileFormValues } from '@/features/career-profile/types';
 
 describe('GİRİŞİMBEE — SON BROWSER ACCEPTANCE TEST (UĞUR ZAMAN CV)', () => {
-  const cvPath = 'c:/Users/ugurz/Downloads/CV - UĞUR ZAMAN (4).pdf';
+  const desktopPath = 'C:/Users/ugurz/Desktop/CV - UĞUR ZAMAN (4).pdf';
+  const downloadsPath = 'c:/Users/ugurz/Downloads/CV - UĞUR ZAMAN (4).pdf';
+  const cvPath = fs.existsSync(desktopPath) ? desktopPath : downloadsPath;
 
   it('verifies the full browser acceptance test workflow end-to-end', async () => {
     if (!fs.existsSync(cvPath)) {
