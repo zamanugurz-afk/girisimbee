@@ -78,34 +78,32 @@ export class CvService {
       input.documentId,
     );
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[CV-RUNTIME][01-UPLOAD]', { fileName: input.fileName, size: input.buffer?.length });
-      console.log('[CV-RUNTIME][02-RAW]', { textLength: extractedText.text.length, sample: extractedText.text.slice(0, 150) });
-      console.log('[CV-RUNTIME][04-EXTRACTED]', {
-        fullName: aiPayload.fullName,
-        roles: aiPayload.roles,
-        sectors: aiPayload.sectors,
-        experiences: aiPayload.experiences.length,
-        education: aiPayload.education.length,
-      });
-      console.log('[CV-RUNTIME][05-CANONICAL]', {
-        fullName: canonical.fullName,
-        primaryRole: canonical.primaryRole,
-        primarySector: canonical.primarySector,
-        residenceCity: canonical.residenceCity,
-        residenceDistrict: canonical.residenceDistrict,
-      });
-      console.log('[CV-RUNTIME][06-DRAFT]', {
-        fullName: draft.formValues.fullName,
-        desiredRole: draft.formValues.desiredRole,
-        primarySector: draft.formValues.primarySector,
-        experienceLevel: draft.formValues.experienceLevel,
-        residenceCity: draft.formValues.residenceCity,
-        residenceDistrict: draft.formValues.residenceDistrict,
-        experiences: draft.formValues.experiences?.length,
-        educationHistory: draft.formValues.educationHistory?.length,
-      });
-    }
+    console.log('[CV SERVER FORENSIC 01-UPLOAD]', { fileName: input.fileName, size: input.buffer?.length });
+    console.log('[CV SERVER FORENSIC 02-RAW]', { textLength: extractedText.text.length, sample: extractedText.text.slice(0, 150) });
+    console.log('[CV SERVER FORENSIC 04-EXTRACTED]', {
+      fullName: aiPayload.fullName,
+      roles: aiPayload.roles,
+      sectors: aiPayload.sectors,
+      experiences: aiPayload.experiences.length,
+      education: aiPayload.education.length,
+    });
+    console.log('[CV SERVER FORENSIC 05-CANONICAL]', {
+      fullName: canonical.fullName,
+      primaryRole: canonical.primaryRole,
+      primarySector: canonical.primarySector,
+      residenceCity: canonical.residenceCity,
+      residenceDistrict: canonical.residenceDistrict,
+    });
+    console.log('[CV SERVER FORENSIC 06-DRAFT]', {
+      fullName: draft.formValues.fullName,
+      desiredRole: draft.formValues.desiredRole,
+      primarySector: draft.formValues.primarySector,
+      experienceLevel: draft.formValues.experienceLevel,
+      residenceCity: draft.formValues.residenceCity,
+      residenceDistrict: draft.formValues.residenceDistrict,
+      experiences: draft.formValues.experiences?.length,
+      educationHistory: draft.formValues.educationHistory?.length,
+    });
 
     // Step 11: Multi-Factor Quality Scoring & Exact Metrics
     const qualityReport = calculateCvQualityScore({

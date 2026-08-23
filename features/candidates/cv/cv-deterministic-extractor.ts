@@ -2026,6 +2026,10 @@ export function extractDeterministicSkillsAndTools(text: string): {
 
   // 5. Section-based Skills Parsing (Block & Inline headers)
   let inSkillsSection = false;
+  const sectionProfessionalSkills: string[] = [];
+  const sectionTechnicalSkills: string[] = [];
+  const sectionTools: string[] = [];
+
   for (const line of textLines) {
     const norm = normalizeTrForMatch(line);
     const isHeaderLine =
@@ -2042,12 +2046,13 @@ export function extractDeterministicSkillsAndTools(text: string): {
       if (colonIdx !== -1) {
         const inlineContent = line.slice(colonIdx + 1);
         const items = inlineContent.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
-        for (const item of items) {
+        for (const rawItem of items) {
+          const item = rawItem.replace(/\s*[-–—:]\s*(?:Uzman|İleri|İleri Düzey|Orta|Orta Düzey|Başlangıç|Temel|Expert|Advanced|Intermediate|Beginner|Proficient)\s*$/i, '').trim();
           if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
             const titleCased = suggestTitleCaseTr(item);
             const lower = normalizeTrForMatch(item);
             if (KNOWN_TOOLS_DICTIONARY[lower]) {
-              tools.push(KNOWN_TOOLS_DICTIONARY[lower]);
+              sectionTools.push(KNOWN_TOOLS_DICTIONARY[lower]);
             } else if (
               lower.includes('bilgisayar') ||
               lower.includes('office') ||
@@ -2062,9 +2067,9 @@ export function extractDeterministicSkillsAndTools(text: string): {
               lower.includes('etabs') ||
               lower.includes('autocad')
             ) {
-              technicalSkills.push(titleCased);
+              sectionTechnicalSkills.push(titleCased);
             } else {
-              professionalSkills.push(titleCased);
+              sectionProfessionalSkills.push(titleCased);
             }
           }
         }
@@ -2088,12 +2093,13 @@ export function extractDeterministicSkillsAndTools(text: string): {
         continue;
       }
       const items = line.split(/[,;\n•·*|]/).map((s) => s.trim()).filter(Boolean);
-      for (const item of items) {
-        if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek')) {
+      for (const rawItem of items) {
+        const item = rawItem.replace(/\s*[-–—:]\s*(?:Uzman|İleri|İleri Düzey|Orta|Orta Düzey|Başlangıç|Temel|Expert|Advanced|Intermediate|Beginner|Proficient)\s*$/i, '').trim();
+        if (item.length >= 2 && item.length <= 60 && !item.toLowerCase().includes('yetenek') && !item.toLowerCase().includes('beceri')) {
           const titleCased = suggestTitleCaseTr(item);
           const lower = normalizeTrForMatch(item);
           if (KNOWN_TOOLS_DICTIONARY[lower]) {
-            tools.push(KNOWN_TOOLS_DICTIONARY[lower]);
+            sectionTools.push(KNOWN_TOOLS_DICTIONARY[lower]);
           } else if (
             lower.includes('bilgisayar') ||
             lower.includes('office') ||
@@ -2105,19 +2111,34 @@ export function extractDeterministicSkillsAndTools(text: string): {
             lower.includes('sap') ||
             lower.includes('sql')
           ) {
-            technicalSkills.push(titleCased);
+            sectionTechnicalSkills.push(titleCased);
           } else {
-            professionalSkills.push(titleCased);
+            sectionProfessionalSkills.push(titleCased);
           }
         }
       }
     }
   }
 
+  const finalProfessionalSkills =
+    sectionProfessionalSkills.length >= 3
+      ? sectionProfessionalSkills
+      : [...new Set([...sectionProfessionalSkills, ...professionalSkills])];
+
+  const finalTechnicalSkills =
+    sectionTechnicalSkills.length >= 2
+      ? sectionTechnicalSkills
+      : [...new Set([...sectionTechnicalSkills, ...technicalSkills])];
+
+  const finalTools =
+    sectionTools.length >= 2
+      ? sectionTools
+      : [...new Set([...sectionTools, ...tools])];
+
   return {
-    professionalSkills: [...new Set(professionalSkills)],
-    technicalSkills: [...new Set(technicalSkills)],
-    tools: [...new Set(tools)],
+    professionalSkills: [...new Set(finalProfessionalSkills)],
+    technicalSkills: [...new Set(finalTechnicalSkills)],
+    tools: [...new Set(finalTools)],
     sectors: [...new Set(sectors)],
     roles: [...new Set(roles)],
   };

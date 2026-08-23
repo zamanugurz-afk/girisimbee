@@ -704,6 +704,9 @@ function decodePdfHexWithCMap(hex: string, cmap: Map<string, string>, preserveWh
 
 function extractRawReadableTextFromBuffer(buffer: Buffer): string {
   const str = decodeCp1254OrUtf8(buffer);
+  if (str.includes('\n') && str.length >= 80) {
+    return str.trim();
+  }
   const words = str.match(/[a-zA-ZğüşıöçĞÜŞİÖÇ0-9@.-]{3,}/g);
   if (!words || words.length < 10) return '';
   return words.join(' ');
@@ -731,9 +734,9 @@ export async function extractCvText(
   // Universal Turkish text repair & normalization
   text = repairTurkishEncodingAndMojibake(text);
 
-  if (!text || text.trim().length < 10) {
+  if (!text || text.trim().length < 30) {
     throw new CvExtractionError(
-      'Bu PDF görüntü tabanlı olduğu için metin okunamadı. Lütfen metin içeren bir PDF veya DOCX yükleyin veya bilgileri manuel olarak tamamlayın.',
+      "CV'den yeterli bilgi çıkarılamadı. Lütfen bilgileri manuel olarak tamamlayın veya farklı bir format yükleyin.",
     );
   }
 

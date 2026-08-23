@@ -80,7 +80,7 @@ export function detectCvFormatFromBuffer(
 
   // 3. Fallback based on fileName or textual content
   const lowerName = (fileName || '').toLowerCase();
-  if (lowerName.endsWith('.pdf')) {
+  if (lowerName.endsWith('.pdf') || declaredMimeType === 'application/pdf') {
     return {
       format: 'pdf',
       mimeType: 'application/pdf',
@@ -89,7 +89,7 @@ export function detectCvFormatFromBuffer(
     };
   }
 
-  if (lowerName.endsWith('.docx')) {
+  if (lowerName.endsWith('.docx') || declaredMimeType?.includes('word')) {
     return {
       format: 'docx',
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

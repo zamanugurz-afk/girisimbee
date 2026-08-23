@@ -68,17 +68,20 @@ export async function POST(req: NextRequest) {
       mimeType,
     });
 
-    console.log(
-      'API /api/career/cv/analyze POST:',
-      'buffer size =',
-      buffer?.length,
-      'fileName =',
+    console.log('[CV SERVER FORENSIC 07-API-RETURN]', {
+      timestamp: new Date().toISOString(),
       fileName,
-      'experiences =',
-      draft?.formValues?.experiences?.length,
-      'skills =',
-      draft?.formValues?.professionalSkillsList?.length,
-    );
+      bufferSize: buffer?.length,
+      fullName: draft?.formValues?.fullName,
+      primarySector: draft?.formValues?.primarySector,
+      desiredRole: draft?.formValues?.desiredRole,
+      experienceLevel: draft?.formValues?.experienceLevel,
+      residenceCity: draft?.formValues?.residenceCity,
+      residenceDistrict: draft?.formValues?.residenceDistrict,
+      experiencesLength: draft?.formValues?.experiences?.length,
+      educationHistoryLength: draft?.formValues?.educationHistory?.length,
+      professionalSkillsLength: draft?.formValues?.professionalSkillsList?.length,
+    });
 
     return NextResponse.json({
       success: true,
