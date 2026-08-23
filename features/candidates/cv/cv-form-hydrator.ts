@@ -49,10 +49,11 @@ export function buildHydratedCustomFieldsFromCvDraft(
 
   // 1. Full Name (Direct hydration from CV extraction payload)
   const rawFullName = fv.fullName ? normalizeCvText(fv.fullName) : '';
-  const safeFullName = rawFullName ? formatTurkishTitleCase(rawFullName) : '';
-  if (safeFullName) {
-    applyField('fullName', safeFullName);
-  }
+  const safeFullName =
+    rawFullName && !isForbiddenNameCandidate(rawFullName)
+      ? formatTurkishTitleCase(rawFullName)
+      : '';
+  applyField('fullName', safeFullName);
 
   // 2. Sector Taxonomy Matching
   // NOTE: Per requirement, desiredRole is NOT populated from CV (must be chosen manually by user)

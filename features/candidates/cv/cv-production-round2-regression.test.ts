@@ -111,10 +111,8 @@ Tempo Çağrı Merkezi - Çağrı Merkezi Operasyonları Müdürü
     const draft = buildProfileDraftFromCanonicalResult(canonical, 'cv.pdf');
     const hydrated = buildHydratedCustomFieldsFromCvDraft(draft);
 
-    expect(hydrated.nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer');
-    expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer / Kendim gireceğim');
-    expect(allTaxonomyPositions.includes(hydrated.nextCustomFields.desiredRole as string)).toBe(true);
+    expect(hydrated.nextCustomFields.desiredRole).toBe('');
+    expect(hydrated.nextCustomFields.desiredRoleOther).toBe('');
   });
 
   it('E) Round 3: Fractured section header "Kış İselbilgiler" is blocked and real name is extracted', () => {

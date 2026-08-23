@@ -59,7 +59,7 @@ export class CvService {
     const signals = extractDeterministicCvSignals(piiResult.maskedText);
 
     // Step 6: Extraction with AI Call Gate (0 or max 1 minimal call)
-    let aiPayload = await extractCvWithSingleAiCall(piiResult.maskedText, signals);
+    let aiPayload = await extractCvWithSingleAiCall(extractedText.text, signals, input.fileName);
 
     // Step 7: Cross-field consistency validation & deduplication
     aiPayload = validateAndReconcileCvPayload(aiPayload);

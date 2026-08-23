@@ -41,8 +41,7 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
 
     expect(nextCustomFields.fullName).toBe('Uğur Zaman');
     expect(nextCustomFields.fullName).not.toBe('Eğitim');
-    expect(nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(nextCustomFields.desiredRole).not.toBe('Uzman');
+    expect(nextCustomFields.desiredRole).toBe('');
     expect(nextCustomFields.residenceCity).toBe('İstanbul');
     expect(nextCustomFields.residenceDistrict).toBe('Maltepe');
     expect(nextCustomFields.cvFileName).toBe('CV - UĞUR ZAMAN (4).pdf');
@@ -53,7 +52,6 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
     expect(exps).toBeDefined();
     expect(exps.length).toBe(6);
     expect(appliedKeys).toContain('fullName');
-    expect(appliedKeys).toContain('desiredRole');
   });
 
   // TEST B: New CV upload -> autosave serialization -> restored draft preserves new values
@@ -71,7 +69,7 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
 
     const restored = JSON.parse(serialized);
     expect(restored.customFields.fullName).toBe('Uğur Zaman');
-    expect(restored.customFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+    expect(restored.customFields.desiredRole).toBe('');
     expect(restored.customFields.residenceDistrict).toBe('Maltepe');
     expect(restored.customFields.cvAnalysisVersion).toBe('3.0.0');
     expect((restored.customFields.experiences as any[]).length).toBe(6);
@@ -129,7 +127,7 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
     );
 
     expect(secondCandidateFields.fullName).toBe('Gülriz Sururi');
-    expect(secondCandidateFields.desiredRole).toBe('Satış Müdürü');
+    expect(secondCandidateFields.desiredRole).toBe('');
     expect(secondCandidateFields.primarySector).toBe('Turizm / Otelcilik');
     expect(secondCandidateFields.residenceCity).toBe('İzmir');
     expect(secondCandidateFields.residenceDistrict).toBe('Çeşme');
@@ -154,7 +152,7 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
     );
 
     expect(nextCustomFields.fullName).toBe('Uğur Zaman');
-    expect(nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+    expect(nextCustomFields.desiredRole).toBe('');
     expect((nextCustomFields.experiences as any[]).length).toBe(6);
   });
 
@@ -178,7 +176,7 @@ describe('CV Reupload & Form State Lifecycle Regression Tests (Scenarios A throu
 
     // CV fields are hydrated
     expect(nextCustomFields.fullName).toBe('Uğur Zaman');
-    expect(nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
+    expect(nextCustomFields.desiredRole).toBe('');
     expect(nextCustomFields.residenceCity).toBe('İstanbul');
 
     // Non-CV manual preferences remain intact

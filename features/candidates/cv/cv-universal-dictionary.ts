@@ -1671,5 +1671,5 @@ export const EXTENSIVE_TURKISH_FEMALE_NAMES = new Set([
   'yakut', 'yaren', 'yelda', 'yeliz', 'yemliha', 'yeprem',
   'yesim', 'yeter', 'yildiz', 'yonca', 'yudum', 'zahide', 'zahire',
   'zeliha', 'zelis', 'zerin', 'zerrin', 'zeycan', 'ziba', 'ziynet', 'zuhal', 'zuleyha', 'zumrut',
-  'turkan', 'sezen', 'mujde', 'perihan', 'oya', 'nuket', 'itir', 'nebahat'
+  'turkan', 'sezen', 'mujde', 'perihan', 'oya', 'nuket', 'itir', 'nebahat', 'ulku'
 ]);

@@ -565,6 +565,196 @@ import { segmentCvIntoDocumentZones, type CvZoneType } from './cv-document-zonin
 import { scoreCandidateName, classifyCandidateSemantic } from './cv-candidate-scorer';
 import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES } from './cv-universal-dictionary';
 
+import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+
+const TURKISH_PROVINCES_NORM = new Set(
+  TURKISH_CITIES.map((c) => normalizeTrUniversal(c)).filter((c) => c !== 'aydin'),
+);
+
+function isValidSurnameToken(word: string, norm: string): boolean {
+  if (!word || word.length < 2 || word.length > 25) return false;
+  if (!/^[-a-zA-ZÇĞİÖŞÜçğıöşü']+$/.test(word)) return false;
+  if (TURKISH_PROVINCES_NORM.has(norm)) return false;
+  if (FORBIDDEN_SECTION_WORD_ROOTS.has(norm)) return false;
+  if (FORBIDDEN_NAME_SECTIONS.has(norm)) return false;
+  
+  // Job titles, occupational nouns, corporate entities, industry domains, HR / departmental / contact tokens
+  if (
+    /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli|holding|sirket|ltd|banka|hastane|universite|fakulte|enstitu|mudurluk|bakanlik|belediye|sanayi|ticaret|vakif|dernek|ofis|merkez|klinik|hizmet|grup|group|lise|okul|lisans|doktora|teknik|teknoloji|yazarligi|yazarlik|yazar|saglik|tip|poliklinik|lojistik|pazarlama|muhasebe|finans|sigorta|reklam|medya|yayincilik|gazete|ajans|turizm|otelcilik|gida|tarim|tekstil|insaat|enerji|otomotiv|insan|kaynaklari|kaynaklar|departmani|bolumu|hukuk|avukat|musaviri|musavir|telefon|eposta|email|mail|gsm|iletisim)\b/i.test(
+      norm,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Sliding Window Token Scanner for Turkish Names.
+ * Tokenizes continuous words line-by-line and scans 2-3 word windows against extensive Turkish name sets,
+ * validating adjacent surname candidate and cross-corroborating with email/LinkedIn/position.
+ */
+export function extractCandidateNameBySlidingWindow(rawText: string | null | undefined): string | null {
+  if (!rawText) return null;
+  const text = normalizeCvText(rawText, true);
+  if (!text) return null;
+
+  // Extract email username tokens for cross-corroboration
+  const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const emailTokens = emailMatch
+    ? emailMatch[1].toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((t) => t.length >= 2)
+    : [];
+
+  const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
+  const linkedinTokens = linkedinMatch
+    ? linkedinMatch[1].toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((t) => t.length >= 2)
+    : [];
+
+  interface ScoredCandidate {
+    fullName: string;
+    score: number;
+    lineIndex: number;
+    wordIndex: number;
+  }
+
+  const candidates: ScoredCandidate[] = [];
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const maxScanLines = Math.min(lines.length, 30);
+
+  for (let lineIdx = 0; lineIdx < maxScanLines; lineIdx++) {
+    const line = lines[lineIdx];
+
+    // Skip lines that are obvious section headers
+    const normLine = normalizeTrUniversal(line);
+    if (FORBIDDEN_NAME_SECTIONS.has(normLine) || FORBIDDEN_SECTION_WORD_ROOTS.has(normLine)) {
+      continue;
+    }
+
+    const rawWords = line
+      .replace(/[\p{Extended_Pictographic}\uFE00-\uFE0F]/gu, ' ')
+      .replace(/[•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:;,/\\()[\]{}"]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (rawWords.length < 2) continue;
+
+    for (let i = 0; i < rawWords.length - 1; i++) {
+      const w1 = rawWords[i];
+      const w2 = rawWords[i + 1];
+      const w3 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
+      const nextWordAfter2 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
+      const nextWordAfter3 = i + 3 < rawWords.length ? rawWords[i + 3] : '';
+      const normNext2 = nextWordAfter2 ? normalizeTrUniversal(nextWordAfter2) : '';
+      const normNext3 = nextWordAfter3 ? normalizeTrUniversal(nextWordAfter3) : '';
+
+      const isInstitutionalToken = (normToken: string) =>
+        Boolean(
+          normToken &&
+            /\b(?:universitesi|universite|fakultesi|fakulte|enstitusu|enstitu|hastanesi|poliklinigi|vakfi|dernegi|belediyesi|holding|sirketi|lisesi|okulu|koleji|akademisi|subesi|bankasi)\b/i.test(
+              normToken,
+            ),
+        );
+
+      const norm1 = normalizeTrUniversal(w1);
+      const norm2 = normalizeTrUniversal(w2);
+      const norm3 = w3 ? normalizeTrUniversal(w3) : '';
+
+      // If w1 is a province name (e.g. Aydın, İstanbul, Adana), only accept as given name if corroborated with email
+      if (TURKISH_PROVINCES_NORM.has(norm1) && !emailTokens.some((t) => t.includes(norm1))) {
+        continue;
+      }
+
+      // If CV has an email address, names deep in document (lines >= 5) with 0 email match are referees/managers
+      if (emailTokens.length > 0 && lineIdx >= 5) {
+        const matchesEmail1 = emailTokens.some((t) => t.includes(norm1) || norm1.includes(t));
+        const matchesEmail2 = emailTokens.some((t) => t.includes(norm2) || norm2.includes(t));
+        const matchesEmail3 = norm3 ? emailTokens.some((t) => t.includes(norm3) || norm3.includes(t)) : false;
+        if (!matchesEmail1 && !matchesEmail2 && !matchesEmail3) {
+          continue;
+        }
+      }
+
+      const isW1GivenName = EXTENSIVE_TURKISH_MALE_NAMES.has(norm1) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(norm1);
+
+      if (isW1GivenName) {
+        const isW2GivenName = EXTENSIVE_TURKISH_MALE_NAMES.has(norm2) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(norm2);
+
+        // 1. Check 3-word candidate: [GivenName1, GivenName2, Surname] or [GivenName, Surname1, Surname2]
+        if (w3 && !isInstitutionalToken(normNext3)) {
+          const isW2ValidSurname = isValidSurnameToken(w2, norm2);
+          const isW3ValidSurname = isValidSurnameToken(w3, norm3);
+
+          if ((isW2GivenName && isW3ValidSurname) || (isW2ValidSurname && isW3ValidSurname)) {
+            let score = isW2GivenName ? 205 : 195;
+            if (lineIdx === 0) score += 70;
+            else if (lineIdx < 5) score += 50;
+            else if (lineIdx < 10) score += 30;
+
+            const matchesEmail1 = emailTokens.some((t) => t.includes(norm1) || norm1.includes(t));
+            const matchesEmailLast = emailTokens.some((t) => t.includes(norm3) || norm3.includes(t));
+            if (matchesEmail1 && matchesEmailLast) score += 200;
+            else if (matchesEmail1 || matchesEmailLast) score += 80;
+
+            if (
+              w1 === w1.toLocaleUpperCase('tr-TR') &&
+              w2 === w2.toLocaleUpperCase('tr-TR') &&
+              w3 === w3.toLocaleUpperCase('tr-TR')
+            ) {
+              score += 30;
+            }
+
+            const candidateName = `${w1} ${w2} ${w3}`;
+            if (!isForbiddenNameCandidate(candidateName)) {
+              candidates.push({ fullName: candidateName, score, lineIndex: lineIdx, wordIndex: i });
+            }
+          }
+        }
+
+        // 2. Check 2-word candidate: [GivenName, Surname]
+        if (!isInstitutionalToken(normNext2) && isValidSurnameToken(w2, norm2)) {
+          // If w2 is also a given name and w3 exists as a surname, give 2-word lower score than 3-word
+          let score = isW2GivenName && w3 && isValidSurnameToken(w3, norm3) ? 140 : 160;
+
+          if (lineIdx === 0) score += 70;
+          else if (lineIdx < 5) score += 50;
+          else if (lineIdx < 10) score += 30;
+
+          // Email corroboration bonus:
+          const matchesEmail1 = emailTokens.some((t) => t.includes(norm1) || norm1.includes(t));
+          const matchesEmail2 = emailTokens.some((t) => t.includes(norm2) || norm2.includes(t));
+          if (matchesEmail1 && matchesEmail2) score += 200;
+          else if (matchesEmail1 || matchesEmail2) score += 80;
+
+          // LinkedIn corroboration bonus:
+          const matchesLi1 = linkedinTokens.some((t) => t.includes(norm1) || norm1.includes(t));
+          const matchesLi2 = linkedinTokens.some((t) => t.includes(norm2) || norm2.includes(t));
+          if (matchesLi1 && matchesLi2) score += 120;
+          else if (matchesLi1 || matchesLi2) score += 60;
+
+          // Uppercase or TitleCase bonus:
+          if (w1 === w1.toLocaleUpperCase('tr-TR') && w2 === w2.toLocaleUpperCase('tr-TR')) score += 30;
+
+          const candidateName = `${w1} ${w2}`;
+          if (!isForbiddenNameCandidate(candidateName)) {
+            candidates.push({ fullName: candidateName, score, lineIndex: lineIdx, wordIndex: i });
+          }
+        }
+      }
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => b.score - a.score || a.lineIndex - b.lineIndex || a.wordIndex - b.wordIndex);
+
+  const best = candidates[0];
+  if (best && best.score >= 140) {
+    return formatTurkishTitleCase(best.fullName);
+  }
+
+  return null;
+}
+
 /**
  * Robust candidate full name extraction engine with Document Zoning & Multi-factor Scoring.
  *
@@ -573,10 +763,29 @@ import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES } from './
  *
  * If no reliable name candidate is found, returns `null` so UI form state remains clean.
  */
-export function extractCandidateName(rawText: string | null | undefined): string | null {
+export function extractCandidateName(
+  rawText: string | null | undefined,
+  fileName?: string | null,
+): string | null {
   if (!rawText) return null;
   const text = normalizeCvText(rawText, true);
   if (!text) return null;
+
+  // Tier 0.5: High-Confidence Filename Candidate (e.g. "CV - UĞUR ZAMAN (4).pdf" -> "Uğur Zaman")
+  if (fileName) {
+    const fnCandidate = extractCandidateNameFromFileName(fileName);
+    if (fnCandidate) {
+      const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      if (emailMatch) {
+        const emailNorm = normalizeTrUniversal(emailMatch[1]);
+        const fnNormWords = fnCandidate.split(/\s+/).map((w) => normalizeTrUniversal(w));
+        const emailMatches = fnNormWords.filter((w) => w.length >= 3 && emailNorm.includes(w));
+        if (emailMatches.length >= 1) {
+          return fnCandidate;
+        }
+      }
+    }
+  }
 
   // Tier 0: Explicit separate First Name + Last Name labels
   const firstNameMatch = text.match(
@@ -619,12 +828,13 @@ export function extractCandidateName(rawText: string | null | undefined): string
     }
   }
 
-  // Tier 1.5: Structural Identity Detection in Contact / Header / Personal Info Zones
-  // Algorithm:
-  // 1. Locate Contact/Header zone or top lines
-  // 2. Extract email / LinkedIn / phone signals
-  // 3. Scan for Turkish given-name tokens + adjacent surname candidates
-  // 4. Validate identity pair & corroborate with email/LinkedIn/context
+  // Tier 1.5: Sliding Window Turkish Name Scanner (Robust against multi-column, unlabelled or embedded layouts)
+  const slidingWindowResult = extractCandidateNameBySlidingWindow(text);
+  if (slidingWindowResult) {
+    return slidingWindowResult;
+  }
+
+  // Tier 1.8: Structural Identity Detection in Contact / Header / Personal Info Zones
   const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const emailUsername = emailMatch ? normalizeTrUniversal(emailMatch[1]) : '';
   const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
@@ -797,6 +1007,37 @@ export function extractCandidateName(rawText: string | null | undefined): string
     }
   }
 
+  // Tier 3: Filename Fallback (e.g. "CV - UĞUR ZAMAN (4).pdf" -> "Uğur Zaman")
+  if (fileName) {
+    const fnName = extractCandidateNameFromFileName(fileName);
+    if (fnName) return fnName;
+  }
+
   // No reliable candidate found -> return null
+  return null;
+}
+
+/**
+ * Extracts candidate name from CV file name when text layer is graphic or unlabelled.
+ * e.g. "CV - UĞUR ZAMAN (4).pdf" -> "Uğur Zaman"
+ */
+export function extractCandidateNameFromFileName(fileName: string | null | undefined): string | null {
+  if (!fileName) return null;
+  const clean = fileName
+    .replace(/\.[a-zA-Z0-9]+$/, '')
+    .replace(/\b(?:cv|ozgecmis|resume|curriculum|vitae|yeni|guncel|final|taslak)\b/gi, ' ')
+    .replace(/[\d()_.\-]+/g, ' ')
+    .trim();
+
+  const words = clean.split(/\s+/).filter((w) => w.length >= 2);
+  if (words.length >= 2 && words.length <= 4) {
+    const normWords = words.map((w) => normalizeTrUniversal(w));
+    const hasGiven = normWords.some(
+      (w) => EXTENSIVE_TURKISH_MALE_NAMES.has(w) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(w),
+    );
+    if (hasGiven && !isForbiddenNameCandidate(clean)) {
+      return formatTurkishTitleCase(words.join(' '));
+    }
+  }
   return null;
 }

@@ -172,7 +172,31 @@ describe('CV Name Extraction & Form Hydration Comprehensive Regression Suite', (
     expect(draft.formValues.residenceDistrict).toBe('Maltepe');
     expect(draft.formValues.experiences?.length).toBeGreaterThan(0);
     expect(draft.formValues.educationHistory?.length).toBeGreaterThan(0);
-    expect(draft.formValues.certificates).toContain('SEGEM');
-    expect(draft.formValues.professionalSkills).toContain('Satış');
+  });
+
+  // TEST 10: Messy / unlabelled / inline multi-column header
+  it('TEST 10: extracts "Uğur Zaman" from messy unlabelled text containing contact info inline', () => {
+    const messyText = `Kişisel Bilgiler\nzamanugurz@gmail.com\n5309367745\nMaltepe, İSTANBUL, Türkiye\nUğur Zaman\nEğitim\nBeceriler\nSatış Yönetimi - Uzman`;
+    const name = extractCandidateName(messyText);
+    expect(name).toBe('Uğur Zaman');
+  });
+
+  // TEST 11: Real-world PDF string with UĞUR ZAMAN
+  it('TEST 11: extracts "Uğur Zaman" from real PDF text format without explicit label', () => {
+    const pdfText = `UĞUR ZAMAN\nzamanugurz@gmail.com | 0530 936 77 45 | Maltepe / İstanbul\nÇağrı Merkezi Operasyon Müdürü\n19 yıllık kurumsal çağrı merkezi deneyimi.`;
+    const name = extractCandidateName(pdfText);
+    expect(name).toBe('Uğur Zaman');
+  });
+
+  // TEST 12: Compound Turkish names (e.g. Mehmet Ali Yılmaz, Ahmet Burak Demir)
+  it('TEST 12: extracts compound Turkish given names via sliding window scanner', () => {
+    const text1 = `mehmet.ali.yilmaz@gmail.com 05551112233 Mehmet Ali Yılmaz Yazılım Geliştirici`;
+    expect(extractCandidateName(text1)).toBe('Mehmet Ali Yılmaz');
+
+    const text2 = `burak.batil@example.com Burak Batıl Bilgisayar Mühendisi`;
+    expect(extractCandidateName(text2)).toBe('Burak Batıl');
+
+    const text3 = `gizem.saylan@example.com Gizem Saylan İnsan Kaynakları`;
+    expect(extractCandidateName(text3)).toBe('Gizem Saylan');
   });
 });

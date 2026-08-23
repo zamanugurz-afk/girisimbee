@@ -2645,7 +2645,7 @@ export function unrollAsciiTableColumns(rawText: string): string {
   return processedLines.join('\n');
 }
 
-export function extractDeterministicCv(text: string): AiCvExtractionPayload {
+export function extractDeterministicCv(text: string, fileName?: string | null): AiCvExtractionPayload {
   const normalized = normalizeCvText(text || '');
   const unrolled = unrollAsciiTableColumns(normalized);
   const sanitizedText = unrolled
@@ -2657,7 +2657,7 @@ export function extractDeterministicCv(text: string): AiCvExtractionPayload {
   const exp = extractDeterministicExperiences(sanitizedText);
   const skillsAndTools = extractDeterministicSkillsAndTools(sanitizedText);
   const langAndCerts = extractDeterministicLanguagesAndCerts(sanitizedText);
-  const universalDemo = extractUniversalDemographics(sanitizedText);
+  const universalDemo = extractUniversalDemographics(sanitizedText, fileName);
 
   let totalYears = 0;
   for (const e of exp) {

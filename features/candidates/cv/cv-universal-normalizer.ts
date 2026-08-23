@@ -167,7 +167,10 @@ export function isUniversalPureDateLine(line: string): boolean {
 }
 
 // 5. Universal Demographics & Gender Resolver
-export function extractUniversalDemographics(text: string): ParsedUniversalDemographics {
+export function extractUniversalDemographics(
+  text: string,
+  fileName?: string | null,
+): ParsedUniversalDemographics {
   // Strip only the REFERANSLAR section block so referees don't bleed into candidate data
   const candidateText = text.replace(
     /(?:^|\n)[ \t]*(?:referanslar|referanslarımız|referanslarimiz|referans|references)[\s:]*[\r\n]+(?:(?!(?:^|\n)[ \t]*(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler|genel\s*bilgiler|eğitim|egitim|iş\s*deneyimi|is\s*deneyimi|deneyim|tecrübe|tecrube|nitelikler|beceriler|yetkinlikler|hobiler|diller|languages|skills|experience|education|summary)\b)[\s\S])*/gi,
@@ -209,45 +212,49 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
     birthDate = `${birthYear}-01-01`;
   }
 
-  // Pattern B: "Doğum Tarihi: 13-06-1996" or "15.05.1993" or "1995-06-12" or "1996"
+  // 2. Birth Date Detection
+  // Pattern A: Explicit DOB field (e.g. "Doğum Tarihi: 12.04.1990", "D.Tarihi: 1990-04-12", "Birth Date: 12/04/1990")
+  const explicitDobMatch =
+    candidateText.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d)[\.\/\-]([0-1]?\d)[\.\/\-](19\d{2}|20\d{2})\b/i) ||
+    candidateText.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*(19\d{2}|20\d{2})[\.\/\-]([0-1]?\d)[\.\/\-]([0-3]?\d)\b/i);
+
+  if (explicitDobMatch) {
+    if (explicitDobMatch[1].length === 4) {
+      const year = explicitDobMatch[1];
+      const month = explicitDobMatch[2].padStart(2, '0');
+      const day = explicitDobMatch[3].padStart(2, '0');
+      birthYear = parseInt(year, 10);
+      birthDate = `${year}-${month}-${day}`;
+    } else {
+      const day = explicitDobMatch[1].padStart(2, '0');
+      const month = explicitDobMatch[2].padStart(2, '0');
+      const year = explicitDobMatch[3];
+      birthYear = parseInt(year, 10);
+      birthDate = `${year}-${month}-${day}`;
+    }
+  }
+
+  // Pattern B: Slash/Dot DOB in Contact Block (e.g. "Maltepe / İstanbul | 12.04.1990 | ...")
   if (!birthDate) {
-    const dobMatch = candidateText.match(
-      /(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|date\s*of\s*birth|dob|d\.tarih)[\s:]*([0-3]?\d[./\-][0-1]?\d[./\-](?:19\d{2}|20\d{2})|(?:19\d{2}|20\d{2})[./\-][0-1]?\d[./\-][0-3]?\d|(?:19\d{2}|20\d{2}))/i,
-    );
-    if (dobMatch) {
-      const rawDate = dobMatch[1];
-      if (/^\d{4}$/.test(rawDate)) {
-        birthYear = parseInt(rawDate, 10);
-        birthDate = `${birthYear}-01-01`;
-      } else {
-        const parts = rawDate.split(/[./\-]/);
-        if (parts.length === 3) {
-          if (parts[0].length === 4) {
-            // ISO format: YYYY-MM-DD
-            const year = parts[0];
-            const month = parts[1].padStart(2, '0');
-            const day = parts[2].padStart(2, '0');
-            birthYear = parseInt(year, 10);
-            birthDate = `${year}-${month}-${day}`;
-          } else {
-            // Turkish format: DD-MM-YYYY
-            const day = parts[0].padStart(2, '0');
-            const month = parts[1].padStart(2, '0');
-            const year = parts[2];
-            birthYear = parseInt(year, 10);
-            birthDate = `${year}-${month}-${day}`;
-          }
-        }
+    const contactBlockMatch = candidateText.match(/(?:^|\n)[^\n]*?\b([0-3]\d)[\.\/]([0-1]\d)[\.\/](19[5-9]\d|200[0-8])\b/);
+    if (contactBlockMatch) {
+      const day = contactBlockMatch[1];
+      const month = contactBlockMatch[2];
+      const year = contactBlockMatch[3];
+      const dNum = parseInt(day, 10);
+      const mNum = parseInt(month, 10);
+      if (dNum >= 1 && dNum <= 31 && mNum >= 1 && mNum <= 12) {
+        birthYear = parseInt(year, 10);
+        birthDate = `${year}-${month}-${day}`;
       }
     }
   }
 
-  // Pattern C: Explicit Birth Date with Month Names (e.g. "Doğum Tarihi: 26 Şubat 1997", "15 Mart 1995 doğumlu", or in Kişisel Bilgiler section)
+  // Pattern C: Explicit Birth Date with Month Names
   if (!birthDate) {
     const monthDobMatch =
       candidateText.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i) ||
-      candidateText.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\s*(?:doğumlu|dogumlu)/i) ||
-      candidateText.match(/(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler)[^]*?\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i);
+      candidateText.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\s*(?:doğumlu|dogumlu)/i);
     if (monthDobMatch) {
       const day = monthDobMatch[1].padStart(2, '0');
       const mName = normalizeTrUniversal(monthDobMatch[2]);
@@ -296,7 +303,8 @@ export function extractUniversalDemographics(text: string): ParsedUniversalDemog
   if (webMatch && !webMatch[0].includes('linkedin.com')) website = webMatch[0].trim();
 
   // 6. Full Name Extraction (Dedicated Engine)
-  const extractedName = extractCandidateName(candidateText) || extractCandidateName(text);
+  const extractedName =
+    extractCandidateName(candidateText, fileName) || extractCandidateName(text, fileName);
   const fullName = extractedName || undefined;
 
   return { fullName, gender, birthDate, birthYear, email, phone, linkedin, website, nationality, address };

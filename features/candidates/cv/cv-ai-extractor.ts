@@ -19,6 +19,7 @@ KESİN KURALLAR:
 7. Yanıtı SADECE ve YALNIZCA aşağıdaki JSON şemasına uygun olarak döndür:
 
 {
+  "fullName": "string (Adayın Adı Soyadı)",
   "experiences": [
     {
       "sector": "string (sektör)",
@@ -136,9 +137,10 @@ export interface AiExtractionExecutionResult extends AiCvExtractionPayload {
 export async function extractCvWithSingleAiCall(
   maskedCvText: string,
   signals?: DeterministicCvSignals,
+  fileName?: string | null,
 ): Promise<AiExtractionExecutionResult> {
   // 1. High-fidelity deterministic extraction (100% code-driven, 0 AI tokens)
-  const deterministic = extractDeterministicCv(maskedCvText);
+  const deterministic = extractDeterministicCv(maskedCvText, fileName);
 
   // 2. AI Call Gate evaluation
   const gate = evaluateAiCallGate(deterministic, maskedCvText);
@@ -253,7 +255,11 @@ Tespit Edilen Rol Adayları: ${unknownBlocks?.unresolvedRoles?.join(', ') || 'Be
       certificates: mergedCertificates,
       locations: mergedLocations.length > 0 ? mergedLocations : deterministic.locations,
       summary,
-      fullName: deterministic.fullName,
+      fullName:
+        deterministic.fullName ||
+        (typeof json?.fullName === 'string' && json.fullName.trim().length >= 3
+          ? json.fullName.trim()
+          : undefined),
       gender: deterministic.gender,
       birthDate: deterministic.birthDate,
       email: deterministic.email,

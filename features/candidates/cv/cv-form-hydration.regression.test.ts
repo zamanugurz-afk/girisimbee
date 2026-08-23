@@ -36,10 +36,8 @@ describe('CV Import -> Form Hydration Architectural Regression Suite (10 Standar
 
     // Primary Sector & Desired Role
     expect(JOB_SECTOR_OPTIONS).toContain(nextCustomFields.primarySector);
-    expect(nextCustomFields.desiredRole).toBeTruthy();
-    expect(nextCustomFields.desiredRole).not.toBe('Diğer');
-
-    // Experience Level
+    expect(nextCustomFields.desiredRole).toBe('');
+    expect(nextCustomFields.desiredRoleOther).toBe('');
     expect(EXPERIENCE_LEVELS).toContain(nextCustomFields.experienceLevel);
 
     // City & District
@@ -243,15 +241,17 @@ describe('CV Import -> Form Hydration Architectural Regression Suite (10 Standar
     expect(hydrated2.nextCustomFields.residenceDistrict).toBe('Çankaya');
   });
 
-  // TEST 16: Position matching in SelectItem options
-  it('TEST 16: ensures desiredRole matches an exact item in getAllTaxonomyPositions()', () => {
+  // TEST 16: Position matching in SelectItem options (canonical mapped, form field left empty for manual selection)
+  it('TEST 16: ensures desiredRole is empty for manual user selection while canonical resolves valid position', () => {
     const allPositions = getAllTaxonomyPositions();
     const det = extractDeterministicCv(UGUR_ZAMAN_CV_TEXT);
     const canonical = mapCvToCanonicalTaxonomy(det);
+    expect(allPositions).toContain(canonical.primaryRole);
+
     const draft = buildProfileDraftFromCanonicalResult(canonical, 'ugur.pdf');
     const { nextCustomFields } = buildHydratedCustomFieldsFromCvDraft(draft, {}, JOB_SEEKER_FIELD_SCHEMA);
 
-    expect(allPositions).toContain(nextCustomFields.desiredRole);
+    expect(nextCustomFields.desiredRole).toBe('');
   });
 
   // TEST 17: mergeCustomFieldDefaults keeps non-empty user and CV hydrated values

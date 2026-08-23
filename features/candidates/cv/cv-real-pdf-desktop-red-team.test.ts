@@ -26,7 +26,7 @@ describe('Real CV Binary Files Desktop Forensic Red Team Suite', () => {
     expect(extracted.text.length).toBeGreaterThan(500);
 
     // 2. Deterministic Extraction
-    const detRes = extractDeterministicCv(extracted.text);
+    const detRes = extractDeterministicCv(extracted.text, fileName);
     expect(detRes.fullName).toBe('Uğur Zaman');
     expect(detRes.fullName).not.toBe('Eğitim');
 
