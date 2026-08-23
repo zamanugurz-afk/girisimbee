@@ -124,6 +124,7 @@ import {
   getExperienceLevelLabel,
   getPositionsForSector,
   getSectorsForPosition,
+  getAllTaxonomyPositions,
   isManualCareerOption,
   parseCareerLanguages,
   MANUAL_OPTION,
@@ -1268,7 +1269,8 @@ export function CategoryListingForm({
         const currentRole = String(mergedCustomFields.desiredRole || '');
         if (currentRole && !isManualCareerOption(currentRole)) {
           const allowedRoles = getPositionsForSector(newSector);
-          if (!allowedRoles.includes(currentRole)) {
+          const allTaxonomy = getAllTaxonomyPositions();
+          if (!allowedRoles.includes(currentRole) && !allTaxonomy.includes(currentRole)) {
             setCustomField('desiredRole', '');
             setCustomField('desiredRoleOther', '');
           }

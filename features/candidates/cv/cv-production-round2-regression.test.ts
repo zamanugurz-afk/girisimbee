@@ -146,4 +146,30 @@ Telemarketing ve Çağrı Merkezi Operasyonları Direktörü
     expect(bilisimPositions.length).toBeGreaterThan(5);
     expect(bilisimPositions).toContain('Yazılım Geliştirici');
   });
+
+  it('G) Round 4: Business metric "Yenimü Terikazanımı" / "Yeni Müşteri Kazanımı" is blocked and real name is preserved', () => {
+    expect(isForbiddenNameCandidate('Yenimü Terikazanımı')).toBe(true);
+    expect(isForbiddenNameCandidate('Yeni Müşteri Kazanımı')).toBe(true);
+    expect(isForbiddenNameCandidate('Müşteri Kazanımı')).toBe(true);
+    expect(isForbiddenNameCandidate('Kurumsal Müşteri Yönetimi')).toBe(true);
+    expect(isForbiddenNameCandidate('Inbound Operasyon Yönetimi')).toBe(true);
+    expect(isForbiddenNameCandidate('Lead Generation')).toBe(true);
+
+    const cvText = `
+Yenimü Terikazanımı
+Çağrı Merkezi Satış Yönetimi | Yeni Müşteri Kazanımı ve Satış Geliştirme
+
+Kişisel Bilgiler
+zamanugurz@gmail.com
+5309367745
+Maltepe, İSTANBUL, Türkiye
+
+UĞUR ZAMAN
+Telemarketing ve Çağrı Merkezi Operasyonları Direktörü
+`;
+
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+    expect(name).not.toBe('Yenimü Terikazanımı');
+  });
 });

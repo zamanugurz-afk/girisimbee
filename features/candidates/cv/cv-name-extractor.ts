@@ -535,9 +535,9 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 7.7 Team, staff, sales, metrics, and operational keywords (including glued/compound tokens)
+  // 7.7 Team, staff, sales, metrics, customer acquisition, and operational keywords (including glued/compound tokens)
   if (
-    /(?:ekip|ekibi|ekipleri|takim|takimi|kadro|personel|performans|verimlilik|operasyon|yonetim|surec|rapor|analiz|strateji|hedef|kalite|denetim|portfoy)/i.test(
+    /(?:ekip|ekibi|ekipleri|takim|takimi|kadro|personel|performans|verimlilik|operasyon|yonetim|surec|rapor|analiz|strateji|hedef|kalite|denetim|portfoy|kazanim|musteri|segmentasyon|donusum|pazar|faaliyet|gelistirme|ticari|destek|inbound|outbound|dijital|kurumsal|bireysel|saha|telemarketing|kanali|kanallari|lead|generation)/i.test(
       norm,
     )
   ) {
