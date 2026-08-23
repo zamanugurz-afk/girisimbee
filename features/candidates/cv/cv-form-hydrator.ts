@@ -47,65 +47,22 @@ export function buildHydratedCustomFieldsFromCvDraft(
     appliedKeys.push(key);
   };
 
-  // 1. Full Name (Strict validation against forbidden section headings)
+  // 1. Full Name (Direct hydration from CV extraction payload)
   const rawFullName = fv.fullName ? normalizeCvText(fv.fullName) : '';
-  const safeFullName =
-    rawFullName && !isForbiddenNameCandidate(rawFullName)
-      ? formatTurkishTitleCase(rawFullName)
-      : '';
-  applyField('fullName', safeFullName);
+  const safeFullName = rawFullName ? formatTurkishTitleCase(rawFullName) : '';
+  if (safeFullName) {
+    applyField('fullName', safeFullName);
+  }
 
-  // 2. Sector & Role Taxonomy Matching
-  const rawRole = normalizeCvText(
-    fv.desiredRole || fv.role || (fv.experiences && fv.experiences[0]?.role) || '',
-  );
+  // 2. Sector Taxonomy Matching
+  // NOTE: Per requirement, desiredRole is NOT populated from CV (must be chosen manually by user)
+  nextCustomFields.desiredRole = '';
+  nextCustomFields.desiredRoleOther = '';
+
   const rawSector = normalizeCvText(
     fv.primarySector || fv.sector || (fv.experiences && fv.experiences[0]?.sector) || '',
   );
-
-  // Resolve canonical sector & position
   let resolvedSector = resolveEnumOption(rawSector, JOB_SECTOR_OPTIONS) || '';
-
-  // Check role: prioritize canonical taxonomy mapping first
-  if (rawRole) {
-    const globalAllPositions = getAllTaxonomyPositions();
-    
-    // 1. First attempt canonical position match (handles aliases like "Çağrı Merkezi Operasyonları Müdürü", "Telemarketing...", etc.)
-    const canonicalMatch = matchCanonicalPosition(rawRole).canonical;
-    let resolvedRole: string | undefined;
-    
-    if (canonicalMatch) {
-      resolvedRole = resolveEnumOption(canonicalMatch, globalAllPositions) || canonicalMatch;
-    }
-    
-    // 2. If no canonical match, attempt direct enum match
-    if (!resolvedRole || resolvedRole === MANUAL_OPTION || resolvedRole === MANUAL_OPTION_SHORT) {
-      resolvedRole = resolveEnumOption(rawRole, globalAllPositions);
-    }
-
-    if (resolvedRole && resolvedRole !== MANUAL_OPTION && resolvedRole !== MANUAL_OPTION_SHORT) {
-      applyField('desiredRole', resolvedRole);
-      applyField('role', resolvedRole);
-      applyField('desiredRoleOther', '');
-
-      // Inferred sector from canonical position ONLY if sector was not already resolved
-      if (!resolvedSector) {
-        const inferredSectors = getSectorsForPosition(resolvedRole);
-        if (inferredSectors && inferredSectors.length > 0) {
-          resolvedSector = resolveEnumOption(inferredSectors[0], JOB_SECTOR_OPTIONS) || inferredSectors[0] || '';
-        }
-      }
-    } else {
-      // Freeform Custom Role
-      applyField('desiredRole', 'Diğer');
-      applyField('desiredRoleOther', rawRole);
-    }
-  }
-
-  if (!resolvedSector && rawSector) {
-    resolvedSector = resolveEnumOption(rawSector, JOB_SECTOR_OPTIONS) || '';
-  }
-
   if (resolvedSector) {
     applyField('primarySector', resolvedSector);
     applyField('sector', resolvedSector);

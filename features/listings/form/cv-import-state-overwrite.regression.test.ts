@@ -42,66 +42,54 @@ describe('CV Import State Ownership & Render Guard Regression Suite', () => {
     expect(dynamicFieldValue).not.toBe('');
   });
 
-  // CASE 2: API -> Canonical Position Resolution & Aliases
-  it('CASE 2: Resolves raw roles and aliases directly to canonical taxonomy positions without falling to "Diğer"', () => {
-    const testRoles = [
-      'Çağrı Merkezi Operasyon Müdürü',
-      'Çağrı Merkezi Operasyonları Müdürü',
-      'Çağrı Merkezi Operasyon Yöneticisi',
-      'Telemarketing ve Çağrı Merkezi Operasyonları Direktörü',
-      'Telemarketing ve Ticari Destek Operasyonları Müdürü',
-    ];
-
-    for (const rawRole of testRoles) {
-      const canonicalResult = matchCanonicalPosition(rawRole).canonical;
-      expect(canonicalResult).toBe('Çağrı Merkezi Operasyon Müdürü');
-
-      const mockCvDraft: CvProfileDraftResult = {
-        formValues: {
-          fullName: 'Uğur Zaman',
-          desiredRole: rawRole,
-          primarySector: 'Çağrı merkezi',
-        },
-      };
-
-      const hydrated = buildHydratedCustomFieldsFromCvDraft(
-        mockCvDraft,
-        {},
-        JOB_SEEKER_FIELD_SCHEMA,
-      );
-
-      expect(hydrated.nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-      expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer');
-      expect(hydrated.nextCustomFields.desiredRole).not.toBe('Diğer / Kendim gireceğim');
-    }
-  });
-
-  // CASE 3: CV import atomic state update does not trigger primarySector cascading role wipe
-  it('CASE 3: Atomic CV import writes primarySector and desiredRole simultaneously without cascading role wipe', () => {
+  // CASE 2: Desired Role is left empty for manual user selection per policy
+  it('CASE 2: Leaves desiredRole empty so user chooses target position manually', () => {
     const mockCvDraft: CvProfileDraftResult = {
       formValues: {
         fullName: 'Uğur Zaman',
-        desiredRole: 'Çağrı Merkezi Operasyon Müdürü',
+        desiredRole: 'Telemarketing ve Çağrı Merkezi Operasyonları Direktörü',
         primarySector: 'Çağrı merkezi',
+        birthDate: '1985-05-20',
       },
     };
 
     const hydrated = buildHydratedCustomFieldsFromCvDraft(
       mockCvDraft,
-      { primarySector: 'Bilişim', desiredRole: 'Yazılım Geliştirici' },
+      {},
       JOB_SEEKER_FIELD_SCHEMA,
     );
 
-    // Atomic update replaces both fields together
+    expect(hydrated.nextCustomFields.fullName).toBe('Uğur Zaman');
+    expect(hydrated.nextCustomFields.desiredRole).toBe('');
+    expect(hydrated.nextCustomFields.desiredRoleOther).toBe('');
+    expect(hydrated.nextCustomFields.primarySector).toBe('Çağrı merkezi');
+    expect(hydrated.nextCustomFields.birthDate).toBe('1985-05-20');
+  });
+
+  // CASE 3: CV import atomic state update does not trigger primarySector cascading role wipe
+  it('CASE 3: Atomic CV import writes primarySector and preserves form fields simultaneously', () => {
+    const mockCvDraft: CvProfileDraftResult = {
+      formValues: {
+        fullName: 'Uğur Zaman',
+        primarySector: 'Çağrı merkezi',
+        birthDate: '1985-05-20',
+      },
+    };
+
+    const hydrated = buildHydratedCustomFieldsFromCvDraft(
+      mockCvDraft,
+      { primarySector: 'Bilişim' },
+      JOB_SEEKER_FIELD_SCHEMA,
+    );
+
+    // Atomic update replaces sector and sets birthDate
     const atomicState = {
       ...hydrated.nextCustomFields,
     };
 
     expect(atomicState.primarySector).toBe('Çağrı merkezi');
-    expect(atomicState.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-
-    const allowedRoles = getPositionsForSector(String(atomicState.primarySector));
-    expect(allowedRoles.includes(String(atomicState.desiredRole))).toBe(true);
+    expect(atomicState.fullName).toBe('Uğur Zaman');
+    expect(atomicState.birthDate).toBe('1985-05-20');
   });
 
   // CASE 4: localStorage restore cannot overwrite CV-imported state
