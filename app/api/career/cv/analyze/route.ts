@@ -83,10 +83,23 @@ export async function POST(req: NextRequest) {
       professionalSkillsLength: draft?.formValues?.professionalSkillsList?.length,
     });
 
+    const serverBuild = {
+      commit: process.env.VERCEL_GIT_COMMIT_SHA || '3ef6a64',
+      version: '3.0.0',
+      deploymentId: process.env.VERCEL_DEPLOYMENT_ID || 'local',
+      env: process.env.VERCEL_ENV || process.env.NODE_ENV || 'production',
+    };
+
+    const draftWithBuild = {
+      ...draft,
+      serverBuild,
+    };
+
     return NextResponse.json({
       success: true,
-      data: draft,
-      draft,
+      data: draftWithBuild,
+      draft: draftWithBuild,
+      serverBuild,
     });
   } catch (err: any) {
     if (err instanceof CvExtractionError) {
