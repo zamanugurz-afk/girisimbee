@@ -172,4 +172,43 @@ Telemarketing ve Çağrı Merkezi Operasyonları Direktörü
     expect(name).toBe('Uğur Zaman');
     expect(name).not.toBe('Yenimü Terikazanımı');
   });
+
+  it('H) Round 5: Semantic Disqualification blocks fractured education lines like "Marmaraün Vers Tes"', () => {
+    const cvText = `
+Marmaraün Vers Tes
+İktisadi ve İdari Bilimler Fakültesi
+
+Kişisel Bilgiler
+zamanugurz@gmail.com | 0530 936 77 45 | linkedin.com/in/ugur-zaman
+Maltepe / İstanbul
+
+UĞUR ZAMAN
+Çağrı Merkezi Operasyonları Müdürü
+`;
+
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+    expect(name).not.toBe('Marmaraün Vers Tes');
+    expect(name).not.toBe('Marmara Üniversitesi');
+  });
+
+  it('I) Round 5: Identity Corroboration via Email and LinkedIn gives definitive score to real person name', () => {
+    const cvText = `
+Yeni Müşteri Kazanımı ve Satış
+Satış Ekibi ve Performans Yönetimi
+Marmara Üniversitesi İktisat
+
+İletişim
+ugur.zaman@example.com
+linkedin.com/in/ugur-zaman
+0532 111 22 33
+İstanbul, Maltepe
+
+UĞUR ZAMAN
+Çağrı Merkezi Operasyon Müdürü
+`;
+
+    const name = extractCandidateName(cvText);
+    expect(name).toBe('Uğur Zaman');
+  });
 });

@@ -620,7 +620,8 @@ export function extractCandidateName(rawText: string | null | undefined): string
 
   // Tier 2: Document Zoning - Scan Authorized Zones (HEADER, CONTACT)
   const zoning = segmentCvIntoDocumentZones(text);
-  const candidatePool: Array<{ value: string; score: number }> = [];
+  const candidatePool: Array<{ value: string; score: number; positive: string[]; negative: string[] }> = [];
+  const seenCandidates = new Set<string>();
 
   const inspectZoneLines = (rawLines: string[], zoneType: CvZoneType) => {
     for (let lIdx = 0; lIdx < rawLines.length; lIdx++) {
@@ -643,7 +644,7 @@ export function extractCandidateName(rawText: string | null | undefined): string
       const candidatesToTest = [clean];
 
       // If line is very long, extract candidate name from first 2-3 words
-      if (clean.length > 50) {
+      if (clean.length > 40) {
         const cWords = clean.split(/\s+/).filter(Boolean);
         if (cWords.length >= 2) {
           const twoWord = `${cWords[0]} ${cWords[1]}`;
@@ -669,7 +670,10 @@ export function extractCandidateName(rawText: string | null | undefined): string
       }
 
       for (const cand of candidatesToTest) {
-        if (cand.length < 3 || cand.length > 50) continue;
+        const normC = normalizeTrUniversal(cand);
+        if (cand.length < 3 || cand.length > 40 || seenCandidates.has(normC)) continue;
+        seenCandidates.add(normC);
+
         const scoreRes = scoreCandidateName(cand, {
           zone: zoneType,
           isTopZone: true,
@@ -679,21 +683,26 @@ export function extractCandidateName(rawText: string | null | undefined): string
         });
 
         if (scoreRes.isAccepted) {
-          candidatePool.push({ value: scoreRes.value, score: scoreRes.totalScore });
+          candidatePool.push({
+            value: scoreRes.value,
+            score: scoreRes.totalScore,
+            positive: scoreRes.positiveEvidence,
+            negative: scoreRes.negativeEvidence,
+          });
         }
       }
     }
   };
 
   for (const zone of zoning.zones) {
-    if (zone.zoneType !== 'REFERENCES') {
-      inspectZoneLines(zone.rawLines, zone.zoneType);
-    }
+    inspectZoneLines(zone.rawLines, zone.zoneType);
   }
 
-  // Also inspect top 50 lines for multi-column / unrolled headers
-  const allLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  inspectZoneLines(allLines.slice(0, 50), 'HEADER');
+  // If no candidates found from zoning, inspect top 30 lines
+  if (candidatePool.length === 0) {
+    const allLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    inspectZoneLines(allLines.slice(0, 30), 'HEADER');
+  }
 
   // If candidates found, select highest score (must be >= 60)
   if (candidatePool.length > 0) {

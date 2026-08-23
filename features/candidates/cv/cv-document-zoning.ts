@@ -20,6 +20,7 @@
 
 import { normalizeCvText } from './cv-turkish-encoding';
 import { normalizeTrUniversal } from './cv-universal-normalizer';
+import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES, TURKISH_CITIES } from './cv-universal-dictionary';
 import type { CvDocumentModel } from './cv-document-model';
 
 export type CvZoneType =
@@ -256,6 +257,47 @@ export function segmentCvIntoDocumentZones(
       currentHeadingText = line;
       isExplicit = true;
       continue;
+    }
+
+    // Boundary recovery: If inside REFERENCES, check if candidate identity block begins
+    if (currentZoneType === 'REFERENCES' && !line.includes('-') && !line.includes('|') && !line.includes('ref@')) {
+      const words = line.split(/\s+/).filter(Boolean);
+      if (words.length >= 2 && words.length <= 4) {
+        const firstNorm = normalizeTrUniversal(words[0]);
+        const isGiven = EXTENSIVE_TURKISH_MALE_NAMES.has(firstNorm) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(firstNorm);
+        const nextLine = lines[i + 1] || '';
+        const nextNextLine = lines[i + 2] || '';
+        const hasNextSignal =
+          nextLine.includes('@') ||
+          /(?:\+?90|0?5\d{2})\s*\d{3}/.test(nextLine) ||
+          nextLine.includes('/') ||
+          /(?:istanbul|ankara|izmir|bursa|antalya|adana|konya|gaziantep|kocaeli|mersin|diyarbakir|eskisehir|samsun|denizli|sanliurfa|sakarya|malatya|kahramanmaras|erzurum|van|batman|elazig|izmit|manisa|sivas|gebze|kadikoy|besiktas|cankaya|sisli|maltepe|kartal|umraniye|pendik|atasehir|uskudar|bakirkoy|beylikduzu|avcilar|bagcilar|bahcelievler|esenler|fatih|gaziosmanpasa|gungoren|kagithane|kucukcekmece|sariyer|sultangazi|tuzla|zeytinburnu|nilufer|osmangazi|karatas|seyhan|cukurova|muratpasa|kepez|konyaalti|bornova|karsiyaka|konak|buca|bayrakli|cigli|gaziemir)/i.test(
+            nextLine,
+          ) ||
+          /müdür|direktör|uzman|lider|yönetici|mühendis/i.test(nextLine) ||
+          nextNextLine.includes('@') ||
+          /(?:\+?90|0?5\d{2})\s*\d{3}/.test(nextNextLine) ||
+          /müdür|direktör|uzman|lider|yönetici|mühendis/i.test(nextNextLine);
+        if (isGiven && hasNextSignal) {
+          if (currentLines.some((l) => l.trim().length > 0)) {
+            addZone({
+              zoneType: currentZoneType,
+              rawLines: [...currentLines],
+              text: '',
+              startLine: currentStart,
+              endLine: i - 1,
+              headingText: currentHeadingText,
+              confidence: 0.95,
+              isExplicitHeading: isExplicit,
+            });
+          }
+          currentZoneType = 'HEADER';
+          currentLines = [];
+          currentStart = i;
+          currentHeadingText = undefined;
+          isExplicit = false;
+        }
+      }
     }
 
     currentLines.push(line);

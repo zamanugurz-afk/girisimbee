@@ -83,8 +83,102 @@ const COMMON_ORG_WORDS = new Set([
   'pazarlama', 'sanayi', 'ticaret', 'grup', 'grubu',
 ]);
 
+import { EXTENSIVE_TURKISH_MALE_NAMES, EXTENSIVE_TURKISH_FEMALE_NAMES } from './cv-universal-dictionary';
+
+export type SemanticClassification =
+  | 'PERSON_NAME'
+  | 'EDUCATION'
+  | 'JOB_TITLE'
+  | 'BUSINESS_ACTIVITY'
+  | 'SECTION_HEADER'
+  | 'COMPANY'
+  | 'LOCATION'
+  | 'INVALID_SYNTAX'
+  | 'UNKNOWN';
+
+export function classifyCandidateSemantic(candidate: string): SemanticClassification {
+  if (!candidate || candidate.trim().length < 3) return 'INVALID_SYNTAX';
+  const clean = candidate.trim();
+  const norm = normalizeTrUniversal(clean);
+
+  if (/[0-9@_#\$\%\^&\*\<\>\=\+\{\}\[\]\\]/.test(clean) || clean.includes('http') || clean.includes('.com')) {
+    return 'INVALID_SYNTAX';
+  }
+
+  // 1. Education semantics (Universities, faculties, degrees, fractured OCR forms like "marmaraun", "marmaraün vers", "univers")
+  if (
+    /\b(?:universite|universitesi|univers|fakulte|fakultesi|enstitu|enstitusu|yuksekokul|yuksekokulu|lise|lisesi|kolej|koleji|kampus|kampusu|lisans|onlisans|doktora|mezun|ogrenim|bachelor|master|phd|diplom)\b|(?:\b(?:marmara|bogazici|odtu|itu|hacettepe|bilkent|anadolu|cukurova|uludag|akdeniz|karadeniz|selcuk|erciyes|firat|dicle|pamukkale|sakarya|kocaeli|mersin|bahcesehir|yeditepe|sabanci|koc)\s*(?:un\w*|vers\w*|fak\w*|ens\w*|myo|uni|kampus|tes)\b)|(?:\bmarmara\s*un\w*|\bmarmaraün\w*)/i.test(
+      norm,
+    )
+  ) {
+    return 'EDUCATION';
+  }
+
+  // 2. Section header semantics (including fractured OCR headings like "kis iselbilgiler", "kisisel")
+  if (
+    /\b(?:kisisel|iletisim|ozgecmis|deneyim|deneyimleri|tecrube|tecrubeleri|egitim|egitimleri|ogrenim|yetenek|yetenekleri|beceri|becerileri|sertifika|sertifikalari|referans|referanslar|referanslari|profesyonel|kariyer|hakkimda|yayinlar|projeler|hobiler|diller)\b|(?:\b\w*bilgi(?:ler|leri|si|m|lerim)\b)|\b(?:kis\s+isel\w*)\b|\b(?:kisi\s+sel\w*)\b/i.test(
+      norm,
+    )
+  ) {
+    return 'SECTION_HEADER';
+  }
+
+  // 3. Job title semantics
+  if (
+    /\b(?:mudur|muduru|yonetici|yoneticisi|uzman|uzmani|direktor|direktoru|muhendis|muhendisi|gelistirici|gelistiricisi|analist|analisti|danisman|danismani|baskan|baskani|lider|lideri|temsilci|temsilcisi|sorumlu|sorumlusu|asistan|asistani|operator|operatoru|teknisyen|teknisyeni|tekniker|teknikeri|stajyer|stajyeri|eleman|elemani|koordinator|koordinatoru|memur|memuru|denetci|denetcisi|auditor|muhasebeci|doktor|hemsire|avukat|ogretmen|tasarimci|mimar|developer|engineer|manager|director|lead|consultant|analyst|specialist|officer|head|vp|ceo|cto|cfo|coo|sef|kaptan)\b/i.test(
+      norm,
+    )
+  ) {
+    return 'JOB_TITLE';
+  }
+
+  // 4. Business activity, customer metrics, sales, management activities
+  if (
+    /(?:kazanim|musteri|segmentasyon|donusum|portfoy|pazar|strateji|hedef|faaliyet|gelistirme|operasyon|performans|verimlilik|surec|rapor|analiz|proje|yonetim|kalite|denetim|hizmet|ticari|destek|inbound|outbound|dijital|kurumsal|bireysel|saha|telemarketing|kanali|kanallari|lead|generation|kampanya|butce)/i.test(
+      norm,
+    )
+  ) {
+    return 'BUSINESS_ACTIVITY';
+  }
+
+  // 5. Corporate entities / Company suffixes
+  const words = clean.split(/\s+/).filter(Boolean);
+  const normWords = words.map((w) => normalizeTrUniversal(w));
+  if (
+    /\b(?:holding|sirketi|anonim|limited|a\.s\.|as|ltd|sti|bankasi|hastanesi|poliklinigi|kulubu|dernegi|vakfi|ajansi|sanayi|ticaret|grup|grubu|group|company|corp|inc|gmbh)\b/i.test(
+      norm,
+    ) ||
+    normWords.some((w) =>
+      /\b(?:film|yapim|produksiyon|studyo|ajans|reklam|medya|holding|sirketi|sanayi|ticaret|muhendislik|mimarlik|danismanlik|lojistik|sigorta|tekstil|gida|otomotiv|as|ltd|sti|bankasi|hastanesi|poliklinigi|vakfi|dernegi|kulubu)\b/i.test(
+        w,
+      ),
+    )
+  ) {
+    return 'COMPANY';
+  }
+
+  // 6. Location semantics
+  if (words.length <= 3 && words.every(w => {
+    const nw = normalizeTrUniversal(w);
+    return TURKISH_CITIES.some(c => normalizeTrUniversal(c) === nw) || Boolean(COMMON_TURKISH_DISTRICTS[nw]);
+  })) {
+    return 'LOCATION';
+  }
+
+  const firstWordNorm = normalizeTrUniversal(words[0]);
+  if (EXTENSIVE_TURKISH_MALE_NAMES.has(firstWordNorm) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(firstWordNorm)) {
+    return 'PERSON_NAME';
+  }
+
+  if (words.length >= 2 && words.length <= 4 && words.every((w) => /^[a-zA-ZçğıöşüÇĞİÖŞÜ]+$/.test(w))) {
+    return 'PERSON_NAME';
+  }
+
+  return 'UNKNOWN';
+}
+
 /**
- * Multi-factor Scoring for Candidate Full Name.
+ * Multi-factor Scoring for Candidate Full Name with Positive Identity Evidence & Semantic Disqualification.
  */
 export function scoreCandidateName(
   candidate: string,
@@ -122,154 +216,151 @@ export function scoreCandidateName(
   const words = clean.split(/\s+/).filter(Boolean);
   const normWords = words.map((w) => normalizeTrUniversal(w));
 
-  // --------------------------------------------------------------------------
-  // 1. HARD NEGATIVE CHECKS (Disqualifying)
-  // --------------------------------------------------------------------------
-  const isAllAlphaWords = words.length >= 2 && words.length <= 4 && words.every((w) => /^[a-zA-ZçğıöşüÇĞİÖŞÜ]+$/.test(w));
-  const isUpperCase = clean === clean.toLocaleUpperCase('tr-TR');
-  const isTitleCase = words.every((w) => w.charAt(0) === w.charAt(0).toLocaleUpperCase('tr-TR'));
-
-  // Check email username overlap in document (e.g. "zamanugurz@gmail.com" -> "Uğur Zaman")
-  let hasEmailOverlap = false;
-  const emailMatch = context.fullDocText.match(/\b([A-Za-z0-9._%+-]+)@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
-  if (emailMatch && emailMatch[1]) {
-    const userPart = emailMatch[1].toLowerCase().replace(/[^a-z]/g, '');
-    const nameCompact = norm.replace(/[^a-z]/g, '');
-    if (
-      userPart.includes(normWords[0]) ||
-      (normWords[1] && userPart.includes(normWords[1])) ||
-      nameCompact.includes(userPart.slice(0, 5))
-    ) {
-      hasEmailOverlap = true;
+  // Word count / length check
+  if (words.length < 2 || words.length > 4 || clean.length < 3 || clean.length > 40) {
+    if (words.length === 1 && !context.hasExplicitLabel) {
+      negative.push('SINGLE_WORD_WITHOUT_EXPLICIT_NAME_LABEL');
+    } else if (words.length > 4 || clean.length > 40) {
+      negative.push('EXCEEDS_MAX_PERSON_NAME_LENGTH');
     }
   }
 
-  // Next line context confirmation (e.g. followed by title, phone, email, or city)
-  let hasNextContext = false;
-  if (context.nextLineText) {
-    const nextNorm = normalizeTrUniversal(context.nextLineText);
-    hasNextContext =
-      nextNorm.includes('@') ||
-      /(?:\+?90|0?5\d{2})\s*\d{3}/.test(context.nextLineText) ||
-      Array.from(COMMON_JOB_TITLE_WORDS).some((t) => nextNorm.includes(t)) ||
-      TURKISH_CITIES.some((c) => nextNorm.includes(normalizeTrUniversal(c)));
-  }
-
-  const isMultiColumnHeaderCandidate = isAllAlphaWords && (isUpperCase || isTitleCase) && (hasEmailOverlap || hasNextContext);
-
-  if (context.zone === 'REFERENCES') {
-    if (!hasEmailOverlap) {
-      negative.push('ZONE_IS_REFERENCES_SECTION');
-    }
-  } else if (context.zone === 'EDUCATION' || context.zone === 'EXPERIENCE' || context.zone === 'SKILLS' || context.zone === 'CERTIFICATIONS' || context.zone === 'PUBLICATIONS') {
-    if (!isMultiColumnHeaderCandidate) {
-      negative.push(`ZONE_IS_${context.zone}_SECTION`);
-    }
+  // 1. Semantic Disqualification
+  const semantic = classifyCandidateSemantic(clean);
+  if (semantic !== 'PERSON_NAME' && semantic !== 'UNKNOWN') {
+    negative.push(`DISQUALIFIED_BY_SEMANTIC_${semantic}`);
   }
 
   if (isForbiddenNameCandidate(clean)) {
     negative.push('FORBIDDEN_SECTION_OR_ROLE_OR_CITY_HEADING');
   }
 
-  if (/[0-9@_#\$\%\^&\*\<\>\=\+\{\}\[\]\\]/.test(clean)) {
-    negative.push('CONTAINS_INVALID_SYMBOLS_OR_DIGITS');
+  if (context.zone === 'REFERENCES') {
+    // Disqualify if it's an explicit referee line
+    const isRefereeLine =
+      /\s+-\s+/.test(clean) ||
+      clean.includes(' | ') ||
+      (context.nextLineText && /\s+-\s+|yönetim\s*kurulu|genel\s*müdür/i.test(context.nextLineText));
+
+    const emailMatch = context.fullDocText.match(/\b([A-Za-z0-9._%+-]+)@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
+    let hasEmailOverlap = false;
+    if (emailMatch && emailMatch[1]) {
+      const userPart = emailMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
+      const normCompact = norm.replace(/[^a-z0-9]/g, '');
+      if (userPart.includes(normWords[0]) || (normWords[1] && userPart.includes(normWords[1])) || userPart.includes(normCompact.slice(0, 5))) {
+        hasEmailOverlap = true;
+      }
+    }
+
+    if (isRefereeLine || (!hasEmailOverlap && !context.hasExplicitLabel)) {
+      negative.push('ZONE_IS_REFERENCES_SECTION');
+    }
+  } else if (context.zone === 'EDUCATION' || context.zone === 'EXPERIENCE' || context.zone === 'SKILLS' || context.zone === 'CERTIFICATIONS' || context.zone === 'PUBLICATIONS') {
+    // Multi-column layout tolerance: Allow if valid name structure with Turkish given name or contact proximity
+    const firstWordNorm = normWords[0];
+    const isTurkishGivenName = EXTENSIVE_TURKISH_MALE_NAMES.has(firstWordNorm) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(firstWordNorm);
+    const hasContactSignal = context.fullDocText.includes('@') || /(?:\+?90|0?5\d{2})\s*\d{3}/.test(context.fullDocText);
+    const isAllAlpha = words.length >= 2 && words.length <= 4 && words.every((w) => /^[a-zA-ZçğıöşüÇĞİÖŞÜ]+$/.test(w));
+    const isUpperOrTitle = clean === clean.toLocaleUpperCase('tr-TR') || words.every((w) => w.charAt(0) === w.charAt(0).toLocaleUpperCase('tr-TR'));
+
+    const isMultiColumnHeader = isAllAlpha && isUpperOrTitle && (isTurkishGivenName || hasContactSignal || context.hasExplicitLabel);
+
+    if (!isMultiColumnHeader) {
+      negative.push(`ZONE_IS_${context.zone}_SECTION`);
+    }
   }
 
-  // Check if document contains any minimum career or contact signals
-  const normDocText = normalizeTrUniversal(context.fullDocText || '');
-  const CAREER_INDICATORS = [
-    'deneyim', 'egitim', 'profil', 'ozet', 'beceri', 'yetenek', 'tecrube',
-    'universite', 'lise', 'fakulte', 'enstitu', 'myo', 'okul', 'akademi',
-    'lisans', 'onlisans', 'doktora', 'ogretim', 'ogrenim', 'mezun',
-    'sirket', 'holding', 'a.s', 'ltd', 'sti', 'grup', 'group', 'ajans',
-    'uzman', 'mudur', 'muhendis', 'developer', 'gelistirici', 'yonetici',
-    'analist', 'danisman', 'temsilci', 'asistan', 'sorumlu', 'koordinator',
-    'operator', 'teknisyen', 'tekniker', 'stajyer', 'eleman', 'lider',
-    'sef', 'baskan', 'direktor', 'hekim', 'doktor', 'avukat',
-    'mimar', 'ogretmen', 'tasarimci', 'muhasebeci', 'denetci', 'auditor',
-    'cagri', 'operasyon', 'satis', 'pazarlama', 'muhasebe', 'finans',
-    'insan kaynaklari', 'yazilim', 'donanim', 'test', 'lead',
-    'gorev', 'staj', 'pozisyon', 'kariyer', 'calisma', 'sektor',
-    'diller', 'yabanci dil', 'sertifika', 'kurs', 'referans', 'proje',
-    'experience', 'education', 'skills', 'summary', 'engineer', 'manager',
-    'director', 'specialist', 'consultant', 'analyst', 'developer',
-    'university', 'college', 'school', 'bachelor', 'master',
-  ];
-
-  const hasAnyCareerSignals =
-    context.hasExplicitLabel ||
-    context.fullDocText.includes('@') ||
-    /(?:\+?90|0?5\d{2})\s*\d{3}/.test(context.fullDocText) ||
-    /\b(?:it|qa|hr|ui|ux|ai|ml|work)\b/i.test(context.fullDocText) ||
-    TURKISH_CITIES.some((c) => normDocText.includes(normalizeTrUniversal(c))) ||
-    CAREER_INDICATORS.some((ind) => normDocText.includes(ind));
-
-  if (!hasAnyCareerSignals) {
-    negative.push('ZERO_CAREER_OR_CONTACT_SIGNALS_IN_DOCUMENT');
+  // If disqualified, return negative result immediately
+  if (negative.length > 0) {
+    return {
+      value: clean,
+      totalScore: -100,
+      isAccepted: false,
+      positiveEvidence: [],
+      negativeEvidence: negative,
+      rejectionReason: negative.join('; '),
+      confidence: 0,
+    };
   }
 
-  if (words.length > 5 || clean.length > 50) {
-    negative.push('EXCEEDS_MAX_PERSON_NAME_LENGTH');
+  // 2. Positive Evidence Accumulation
+  // A) Email Identity Match (+100)
+  const emailMatch = context.fullDocText.match(/\b([A-Za-z0-9._%+-]+)@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
+  if (emailMatch && emailMatch[1]) {
+    const userPart = emailMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normCompact = norm.replace(/[^a-z0-9]/g, '');
+    const w0 = normWords[0];
+    const w1 = normWords[1] || '';
+    if (
+      (w0 && userPart.includes(w0)) ||
+      (w1 && userPart.includes(w1)) ||
+      (normCompact.length >= 4 && userPart.includes(normCompact.slice(0, 6)))
+    ) {
+      positive.push('EMAIL_IDENTITY_CORROBORATION');
+      score += 100;
+    }
   }
 
-  if (words.length === 1 && !context.hasExplicitLabel) {
-    negative.push('SINGLE_WORD_WITHOUT_EXPLICIT_NAME_LABEL');
+  // B) LinkedIn Identity Match (+100)
+  const linkedinMatch = context.fullDocText.match(/linkedin\.com\/in\/([A-Za-z0-9\-_]+)/i);
+  if (linkedinMatch && linkedinMatch[1]) {
+    const vanity = linkedinMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const w0 = normWords[0];
+    const w1 = normWords[1] || '';
+    if ((w0 && vanity.includes(w0)) || (w1 && vanity.includes(w1))) {
+      positive.push('LINKEDIN_IDENTITY_CORROBORATION');
+      score += 100;
+    }
   }
 
-  // Check if every word in candidate is an organizational/city/role keyword
-  if (normWords.some((w) => COMMON_ORG_WORDS.has(w))) {
-    negative.push('CONTAINS_ORGANIZATION_KEYWORD');
-  }
-
-  if (normWords.every((w) => COMMON_JOB_TITLE_WORDS.has(w))) {
-    negative.push('ALL_WORDS_ARE_JOB_TITLE_KEYWORDS');
-  }
-
-  // --------------------------------------------------------------------------
-  // 2. POSITIVE EVIDENCE CHECKS
-  // --------------------------------------------------------------------------
-  if (context.zone === 'HEADER') {
-    positive.push('LOCATED_IN_HEADER_ZONE');
-    score += 50;
-  } else if (context.zone === 'CONTACT') {
-    positive.push('LOCATED_IN_CONTACT_ZONE');
-    score += 40;
-  }
-
-  if (context.hasExplicitLabel) {
-    positive.push('EXPLICIT_NAME_LABEL_ANCHOR');
+  // C) Authentic Turkish Given Name Match (+60)
+  const firstWordNorm = normWords[0];
+  if (EXTENSIVE_TURKISH_MALE_NAMES.has(firstWordNorm) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(firstWordNorm)) {
+    positive.push('TURKISH_GIVEN_NAME_MATCH');
     score += 60;
   }
 
-  if (context.lineIndex <= 2) {
-    positive.push('TOP_DOCUMENT_LINES_POSITION');
-    score += 40;
+  // D) Explicit Label (+50)
+  if (context.hasExplicitLabel) {
+    positive.push('EXPLICIT_NAME_LABEL_ANCHOR');
+    score += 50;
   }
 
-  if (words.length >= 2 && words.length <= 4 && isAllAlphaWords) {
-    positive.push('STANDARD_2_TO_4_WORD_PERSON_NAME_STRUCTURE');
-    score += 35;
+  // E) Contact Block Proximity (+40)
+  if (
+    context.fullDocText.includes('@') ||
+    /(?:\+?90|0?5\d{2})\s*\d{3}/.test(context.fullDocText)
+  ) {
+    if (context.lineIndex <= 15) {
+      positive.push('CONTACT_BLOCK_PROXIMITY');
+      score += 40;
+    }
   }
 
+  // F) Header Zone (+30)
+  if (context.zone === 'HEADER' || context.zone === 'CONTACT') {
+    positive.push('HEADER_OR_CONTACT_ZONE');
+    score += 30;
+  }
+
+  // G) Typography (+15)
+  const isUpperCase = clean === clean.toLocaleUpperCase('tr-TR');
+  const isTitleCase = words.every((w) => w.charAt(0) === w.charAt(0).toLocaleUpperCase('tr-TR'));
   if (isUpperCase) {
-    positive.push('ALL_UPPERCASE_HEADER_TYPOGRAPHY');
-    score += 20;
+    positive.push('ALL_UPPERCASE_TYPOGRAPHY');
+    score += 15;
   } else if (isTitleCase) {
-    positive.push('TITLECASE_HEADER_TYPOGRAPHY');
-    score += 20;
+    positive.push('TITLECASE_TYPOGRAPHY');
+    score += 15;
   }
 
-  if (hasEmailOverlap) {
-    positive.push('EMAIL_USERNAME_CORROBORATION');
-    score += 35;
+  // H) Standard 2-3 word structure (+15)
+  if (words.length >= 2 && words.length <= 3 && words.every((w) => /^[a-zA-ZçğıöşüÇĞİÖŞÜ]+$/.test(w))) {
+    positive.push('STANDARD_2_OR_3_WORDS');
+    score += 15;
   }
 
-  if (isMultiColumnHeaderCandidate) {
-    positive.push('MULTI_COLUMN_MAIN_BODY_HEADER');
-    score += 40;
-  }
-
-  // Next line context confirmation (e.g. followed by title, phone, email, or city)
+  // I) Next line context confirmation (+20)
   if (context.nextLineText) {
     const nextNorm = normalizeTrUniversal(context.nextLineText);
     const hasNextContext =
@@ -280,24 +371,21 @@ export function scoreCandidateName(
 
     if (hasNextContext) {
       positive.push('FOLLOWED_BY_PROFESSIONAL_OR_CONTACT_CONTEXT');
-      score += 25;
+      score += 20;
     }
   }
 
-  // --------------------------------------------------------------------------
-  // 3. FINAL DECISION
-  // --------------------------------------------------------------------------
-  const isAccepted = negative.length === 0 && score >= 60;
-  const confidence = isAccepted ? Math.min(1.0, score / 150) : 0;
+  const isAccepted = score >= 60;
+  const confidence = isAccepted ? Math.min(1.0, score / 200) : 0;
   const formattedValue = isAccepted ? formatTurkishTitleCase(clean) : '';
 
   return {
     value: formattedValue,
-    totalScore: negative.length > 0 ? -100 : score,
+    totalScore: score,
     isAccepted,
     positiveEvidence: positive,
     negativeEvidence: negative,
-    rejectionReason: negative.length > 0 ? negative.join('; ') : (score < 60 ? 'INSUFFICIENT_POSITIVE_EVIDENCE' : undefined),
+    rejectionReason: isAccepted ? undefined : 'INSUFFICIENT_POSITIVE_EVIDENCE',
     confidence,
   };
 }
