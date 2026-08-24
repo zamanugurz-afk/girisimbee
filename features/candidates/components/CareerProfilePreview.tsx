@@ -797,7 +797,7 @@ export function CareerProfilePreview({
           ) : null}
         </aside>
 
-        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
+        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-4 lg:pb-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
           <div className="space-y-6">
             {summary ? (
               <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 space-y-2.5">
