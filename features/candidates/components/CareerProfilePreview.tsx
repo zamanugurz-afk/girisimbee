@@ -548,6 +548,20 @@ export function CareerProfilePreview({
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
 
+  const displayCity = useMemo(() => {
+    let c = (data.residenceCity || data.preferredCity || '').trim();
+    c = c.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
+    c = c.replace(/(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
+    return c.trim();
+  }, [data.residenceCity, data.preferredCity]);
+
+  const displayDistrict = useMemo(() => {
+    let d = (data.residenceDistrict || '').trim();
+    d = d.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, '');
+    d = d.replace(/(Anadolu|Avrupa)\s+Yakası/gi, '');
+    return d.trim();
+  }, [data.residenceDistrict]);
+
   const locationText = useMemo(() => {
     return formatLocationCityDistrict(data.residenceCity, data.residenceDistrict, data.preferredCity);
   }, [data.residenceCity, data.residenceDistrict, data.preferredCity]);
@@ -671,24 +685,45 @@ export function CareerProfilePreview({
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
               <User className="h-7 w-7" />
             </div>
-            <div className="min-w-0 flex-1">
-              <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
+            <div className="min-w-0 flex-1 space-y-1">
+              <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground leading-snug">
                 {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
               </Heading>
-              {data.desiredRole ? (
-                <p className="truncate text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
-                  {data.desiredRole}
+              {(data.primarySector || data.desiredRole) ? (
+                <p className="truncate text-xs leading-normal">
+                  {data.primarySector ? (
+                    <span className="font-bold text-slate-900 dark:text-foreground">
+                      {data.primarySector}
+                    </span>
+                  ) : null}
+                  {data.primarySector && data.desiredRole ? (
+                    <span className="mx-1.5 text-slate-300 dark:text-slate-600 font-normal">|</span>
+                  ) : null}
+                  {data.desiredRole ? (
+                    <span className="font-normal text-slate-600 dark:text-slate-300">
+                      {data.desiredRole}
+                    </span>
+                  ) : null}
                 </p>
               ) : null}
-              {data.primarySector ? (
-                <p className="truncate text-xs text-slate-400 dark:text-muted-foreground">
-                  {data.primarySector}
-                </p>
-              ) : null}
-              {locationText ? (
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-muted-foreground mt-1">
+              {(displayCity || displayDistrict) ? (
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <span className="truncate">{locationText}</span>
+                  <span className="truncate">
+                    {displayCity ? (
+                      <span className="font-bold text-slate-800 dark:text-foreground">
+                        {displayCity}
+                      </span>
+                    ) : null}
+                    {displayCity && displayDistrict ? (
+                      <span className="mx-1.5 text-slate-300 dark:text-slate-600 font-normal">|</span>
+                    ) : null}
+                    {displayDistrict ? (
+                      <span className="font-normal text-slate-500 dark:text-slate-400">
+                        {displayDistrict}
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
               ) : null}
             </div>
