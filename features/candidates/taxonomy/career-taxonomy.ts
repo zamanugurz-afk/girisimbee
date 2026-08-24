@@ -91,49 +91,128 @@ export const CAREER_LANGUAGE_LEVEL_OPTIONS = [
 ] as const;
 
 export const EDUCATION_FIELD_OPTIONS = [
+  // Mühendislik ve Teknoloji
   'Bilgisayar Mühendisliği',
   'Yazılım Mühendisliği',
   'Elektrik-Elektronik Mühendisliği',
+  'Elektronik ve Haberleşme Mühendisliği',
   'Endüstri Mühendisliği',
   'Makine Mühendisliği',
+  'Mekatronik Mühendisliği',
   'İnşaat Mühendisliği',
+  'Çevre Mühendisliği',
+  'Kimya Mühendisliği',
+  'Biyomedikal Mühendisliği',
+  'Gıda Mühendisliği',
+  'Harita ve Geomatik Mühendisliği',
+  'Havacılık ve Uzay Mühendisliği',
+  'Maden Mühendisliği',
+  'Metalurji ve Malzeme Mühendisliği',
+  'Otomotiv Mühendisliği',
+  'Tekstil Mühendisliği',
+  'Yapay Zeka ve Veri Mühendisliği',
+  'Bilişim Sistemleri ve Teknolojileri',
+  'Yönetim Bilişim Sistemleri (YBS)',
+
+  // İktisadi, İdari ve Sosyal Bilimler
   'İşletme',
   'İktisat',
+  'Siyaset Bilimi ve Kamu Yönetimi',
   'Kamu Yönetimi',
   'Uluslararası İlişkiler',
-  'Hukuk',
-  'Psikoloji',
-  'Sosyoloji',
-  'İletişim',
-  'Halkla İlişkiler',
-  'Pazarlama',
-  'Muhasebe',
-  'Finans',
+  'Maliye',
+  'Çalışma Ekonomisi ve Endüstri İlişkileri (ÇEKO)',
+  'Ekonometri',
+  'İnsan Kaynakları Yönetimi',
+  'Uluslararası Ticaret ve Finansman',
+  'Uluslararası Ticaret',
   'Bankacılık ve Sigortacılık',
   'Sermaye Piyasası ve Borsa',
-  'Sermaye Piyasaları',
-  'İnsan Kaynakları',
-  'Hemşirelik',
+  'Muhasebe ve Finans Yönetimi',
+  'Muhasebe',
+  'Finans',
+  'Lojistik Yönetimi',
+  'Lojistik',
+  'Pazarlama',
+
+  // Hukuk ve Adalet
+  'Hukuk',
+  'Adalet',
+
+  // İletişim ve Tasarım
+  'İletişim Bilimleri',
+  'İletişim',
+  'Halkla İlişkiler ve Tanıtım',
+  'Halkla İlişkiler',
+  'Reklamcılık',
+  'Radyo, Televizyon ve Sinema',
+  'Gazetecilik',
+  'Yeni Medya ve İletişim',
+  'Görsel İletişim Tasarımı',
+  'Grafik Tasarım',
+  'Çizgi Film ve Animasyon',
+
+  // Mimarlık ve Sanat
+  'Mimarlık',
+  'İç Mimarlık ve Çevre Tasarımı',
+  'İç Mimarlık',
+  'Şehir ve Bölge Planlama',
+  'Peyzaj Mimarlığı',
+  'Endüstriyel Tasarım',
+
+  // Sağlık Bilimleri
   'Tıp',
-  'Eczacılık',
   'Diş Hekimliği',
+  'Eczacılık',
+  'Hemşirelik',
+  'Ebelik',
   'Fizyoterapi ve Rehabilitasyon',
-  'Öğretmenlik / Eğitim Bilimleri',
-  'İngilizce Öğretmenliği',
+  'Beslenme ve Diyetetik',
+  'Sağlık Yönetimi',
+  'Odyoloji',
+  'Çocuk Gelişimi',
+  'Veterinerlik',
+
+  // Fen, Edebiyat ve Temel Bilimler
+  'Psikoloji',
+  'Sosyoloji',
+  'Felsefe',
+  'Tarih',
+  'Türk Dili ve Edebiyatı',
+  'İngiliz Dili ve Edebiyatı',
+  'Mütercim ve Tercümanlık',
   'Matematik',
   'İstatistik',
-  'Mimarlık',
-  'İç Mimarlık',
-  'Grafik Tasarım',
-  'Görsel İletişim Tasarımı',
-  'Turizm ve Otelcilik',
-  'Lojistik',
-  'Uluslararası Ticaret',
-  'Gıda Mühendisliği',
+  'Fizik',
   'Kimya',
   'Biyoloji',
-  'Veterinerlik',
+  'Moleküler Biyoloji ve Genetik',
+
+  // Eğitim Bilimleri ve Öğretmenlik
+  'Öğretmenlik / Eğitim Bilimleri',
+  'Sınıf Öğretmenliği',
+  'Okul Öncesi Öğretmenliği',
+  'Özel Eğitim Öğretmenliği',
+  'İngilizce Öğretmenliği',
+  'Rehberlik ve Psikolojik Danışmanlık (PDR)',
+  'Türkçe Öğretmenliği',
+  'İlköğretim Matematik Öğretmenliği',
+  'Fen Bilgisi Öğretmenliği',
+  'Beden Eğitimi ve Spor Öğretmenliği',
+
+  // Turizm ve Gastronomi
+  'Turizm İşletmeciliği',
+  'Gastronomi ve Mutfak Sanatları',
+  'Turizm ve Otelcilik',
+  'Turizm ve Otel İşletmeciliği',
+  'Rekreasyon Yönetimi',
+
+  // Ziraat ve Doğa Bilimleri
+  'Ziraat Mühendisliği',
   'Tarım',
+  'Orman Mühendisliği',
+  'Su Ürünleri Mühendisliği',
+
   MANUAL_OPTION,
 ] as const;
 
@@ -1844,13 +1923,240 @@ function certificatesForFamily(family: RoleFamily | null): string[] {
   return [...(CERTIFICATES_BY_FAMILY[family] ?? [])];
 }
 
+export function certificatesForEducationField(field: string): string[] {
+  const f = field.toLocaleLowerCase('tr-TR');
+  const certs: string[] = [];
+
+  // Elektrik / Elektronik / Haberleşme / Biyomedikal / Mekatronik
+  if (/elektrik|elektronik|haberleşme|biyomedikal|mekatronik/.test(f)) {
+    certs.push(
+      'AutoCAD ve Elektrik Proje Çizimi (EPLAN)',
+      'PLC ve Endüstriyel Otomasyon (Siemens / Schneider)',
+      'Yüksek Gerilim ve Tesisat Yetki Belgesi',
+      'Elektrik İç Tesisleri Denetim Belgesi',
+      'Gömülü Sistemler ve IoT Sertifikası',
+      'İş Sağlığı ve Güvenliği (İSG)',
+      'ISO 9001 Kalite Yönetim Sistemi',
+      'PMP (Proje Yönetimi Profesyoneli)',
+      'Power BI ve Veri Analitiği',
+      'Six Sigma (Altı Sigma Yeşil Kuşak)',
+    );
+  }
+
+  // Bilgisayar / Yazılım / Bilişim / Yapay Zeka / YBS
+  if (/bilgisayar|yazılım|bilişim|yapay zeka|ybs|sistemleri/.test(f)) {
+    certs.push(
+      'AWS Certified Solutions Architect',
+      'Microsoft Certified: Azure Fundamentals',
+      'Google Cloud Associate Cloud Engineer',
+      'Scrum Master (PSM / CSM)',
+      'Product Owner (PSPO)',
+      'Power BI ve Veri Analitiği',
+      'İleri SQL ve Veritabanı Yönetimi',
+      'Siber Güvenlik ve CEH Sertifikası',
+      'DevOps ve Docker / Kubernetes (CKA)',
+      'PMP (Proje Yönetimi)',
+    );
+  }
+
+  // Endüstri / İşletme Mühendisliği
+  if (/endüstri|işletme mühendis/.test(f)) {
+    certs.push(
+      'Six Sigma (Altı Sigma Yeşil / Kara Kuşak)',
+      'Yalın Üretim ve Kaizen Uzmanlığı',
+      'PMP (Proje Yönetimi Profesyoneli)',
+      'Scrum Master / Agile Koçluk',
+      'Power BI ve Veri Analitiği',
+      'İleri Excel ve Dashboard Raporlama',
+      'Tedarik Zinciri ve Lojistik Yönetimi (CSCP)',
+      'SAP / ERP Süreç Yönetimi',
+      'ISO 9001 Kalite Yönetim Sistemi',
+    );
+  }
+
+  // Makine / Otomotiv / İmalat / Metalurji / Malzeme / Havacılık
+  if (/makine|otomotiv|metalurji|malzeme|havacılık|uçak|maden/.test(f)) {
+    certs.push(
+      'SolidWorks / CATIA / AutoCAD Uzmanlığı',
+      'CNC Programlama ve İmalat Yöntemleri',
+      'Tahribatsız Muayene (NDT Seviye 2)',
+      'İş Sağlığı ve Güvenliği (İSG)',
+      'ISO 9001 Kalite Yönetim Sistemi',
+      'Six Sigma (Altı Sigma)',
+      'PMP (Proje Yönetimi)',
+    );
+  }
+
+  // İnşaat / Mimarlık / Harita / Geomatik / Çevre / Peyzaj / Şehir
+  if (/inşaat|mimarlık|harita|geomatik|çevre|peyzaj|şehir/.test(f)) {
+    certs.push(
+      'AutoCAD / Revit / BIM Modelleme Sertifikası',
+      'Şantiye Şefliği ve Hakediş Yönetimi',
+      'Primavera P6 / MS Project ile Planlama',
+      'İş Sağlığı ve Güvenliği (İSG A/B/C Sınıfı)',
+      'Yapı Denetim ve Deprem Güçlendirme Eğitimi',
+      'Statik Proje ve Analiz (SAP2000 / ETABS / Sta4CAD)',
+    );
+  }
+
+  // Kimya / Gıda / Biyoloji / Genetik
+  if (/kimya|gıda|biyoloji|genetik/.test(f)) {
+    certs.push(
+      'ISO 22000 / HACCP Gıda Güvenliği',
+      'GMP (İyi Üretim Uygulamaları) ve GLP',
+      'ISO 9001 Kalite Yönetim Sistemi',
+      'Laboratuvar Analiz ve Akreditasyon (ISO 17025)',
+      'İş Sağlığı ve Güvenliği (İSG)',
+    );
+  }
+
+  // İktisadi ve İdari Bilimler (İşletme, İktisat, Maliye, Kamu, ÇEKO, Ekonometri, Muhasebe, Finans, Bankacılık)
+  if (/işletme|iktisat|ekonomi|maliye|kamu|çeko|ekonometri|muhasebe|finans|banka|sermaye/.test(f)) {
+    certs.push(
+      'SMMM Stajyerlik / Ruhsatı',
+      'SPK Lisansı / SPL Seviye 1-2-3',
+      'SEGEM Ruhsatı',
+      'UFRS / IFRS ve Bağımsız Denetim Eğitimi',
+      'İleri Excel ve Finansal Modelleme',
+      'Power BI ve Veri Analitiği',
+      'Kamu İhale ve Mevzuat Eğitimi',
+      'Bütçe ve Mali Kontrol Uzmanlığı',
+      'PMP (Proje Yönetimi)',
+      'Liderlik ve Yönetici Geliştirme Programı',
+    );
+  }
+
+  // İnsan Kaynakları / Psikoloji / Sosyoloji / PDR / Felsefe
+  if (/insan kaynakları|psikoloji|sosyoloji|pdr|rehberlik|felsefe/.test(f)) {
+    certs.push(
+      'Stratejik İnsan Kaynakları Yönetimi',
+      'İşe Alım ve Mülakat Teknikleri (Yetkinlik Bazlı)',
+      'Bordro ve Özlük İşleri Uzmanlığı (SGK Mevzuatı)',
+      'İş Hukuku ve İş Mahkemesi Uygulamaları',
+      'Performans ve Yetenek Yönetimi',
+      'Koçluk ve Mentorluk Sertifikası (ICF)',
+    );
+  }
+
+  // Hukuk / Adalet
+  if (/hukuk|adalet/.test(f)) {
+    certs.push(
+      'Avukatlık Ruhsatnamesi / Stajı',
+      'KVKK Uzmanlığı ve Uyum Denetimi',
+      'Arabuluculuk ve Uzlaştırmacı Belgesi',
+      'Sözleşmeler Hukuku ve Müzakere Teknikleri',
+      'Bilişim Hukuku Sertifikası',
+      'YDS / Hukuk İngilizcesi (ILEC)',
+    );
+  }
+
+  // İletişim / Reklam / Halkla İlişkiler / Pazarlama / Medya / Gazetecilik
+  if (/iletişim|reklam|halkla|pazarlama|medya|gazete|radyo|sinema/.test(f)) {
+    certs.push(
+      'Google Ads ve Analytics Sertifikası',
+      'Meta Blueprint Dijital Pazarlama',
+      'HubSpot Inbound Marketing & CRM',
+      'SEO ve İçerik Pazarlaması Uzmanlığı',
+      'Sosyal Medya Yönetimi ve Marka Stratejisi',
+      'B2B Satış ve Müzakere Teknikleri',
+    );
+  }
+
+  // Tasarım / Görsel İletişim / Grafik / Animasyon / İç Mimarlık
+  if (/grafik|tasarım|görsel|animasyon|çizgi|iç mimarlık/.test(f)) {
+    certs.push(
+      'Adobe Certified Professional (Photoshop, Illustrator, InDesign)',
+      'UI/UX Tasarım ve Figma / Adobe XD Uzmanlığı',
+      '3ds Max / V-Ray / Maya Modelleme',
+      'After Effects ve Video Kurgu (Premiere Pro)',
+    );
+  }
+
+  // Lojistik / Uluslararası Ticaret
+  if (/lojistik|ticaret|dış ticaret/.test(f)) {
+    certs.push(
+      'Dış Ticaret ve Gümrük Mevzuatı Uzmanlığı',
+      'Tedarik Zinciri ve Lojistik Yönetimi (CSCP / APICS)',
+      'Uluslararası Taşımacılık ve Navlun (FIATA / IATA)',
+      'Depo ve Envanter Yönetimi (WMS / SAP)',
+      'İleri Excel ve Raporlama',
+    );
+  }
+
+  // Sağlık / Tıp / Diş / Eczacılık / Hemşirelik / Fizyoterapi / Diyet / Odyoloji
+  if (/tıp|diş|eczacı|hemşire|ebe|fizyo|beslenme|diyet|sağlık|odyoloji|çocuk/.test(f)) {
+    certs.push(
+      'İlk Yardım ve CPR Eğitici Eğitimi',
+      'Yoğun Bakım Hemşireliği Sertifikası',
+      'Sağlıkta Kalite ve Akreditasyon (JCI)',
+      'İş Sağlığı ve Güvenliği İşyeri Hemşireliği Belgesi',
+      'Hasta Hakları ve Tıbbi İletişim',
+    );
+  }
+
+  // Öğretmenlik / Eğitim Bilimleri
+  if (/öğretmen|eğitim|sınıf|türkçe|matematik|fen bilgisi|beden/.test(f)) {
+    certs.push(
+      'Pedagojik Formasyon',
+      'Eğitimde Teknoloji ve Dijital Öğrenme Araçları',
+      'Ölçme ve Değerlendirme Uzmanlığı',
+      'Öğrenci Koçluğu ve Eğitim Danışmanlığı',
+      'YDS / TOEFL / IELTS',
+    );
+  }
+
+  // Turizm / Gastronomi / Otelcilik
+  if (/turizm|otel|gastronomi|mutfak|rekreasyon/.test(f)) {
+    certs.push(
+      'Gastronomi ve Mutfak Sanatları Ustalık Belgesi',
+      'HACCP ve Gıda Güvenliği Yönetimi',
+      'Otel Otomasyon Sistemleri (Opera / Fidelio / Elektra)',
+      'Hizmet Kalitesi ve Misafir Memnuniyeti',
+      'Barista ve Miksoloji Uzmanlığı',
+    );
+  }
+
+  // Ziraat / Orman / Su Ürünleri
+  if (/ziraat|tarım|orman|su ürünleri/.test(f)) {
+    certs.push(
+      'Zirai İlaç Bayilik ve Uygulama Belgesi',
+      'İyi Tarım Uygulamaları ve Organik Tarım Sertifikası',
+      'Tarımsal Danışmanlık Yetki Belgesi',
+      'İş Sağlığı ve Güvenliği (İSG)',
+    );
+  }
+
+  return certs;
+}
+
 export function suggestCertificates(input: OccupationalProfileInput): string[] {
   const context = buildOccupationalContext(input);
   const existing = parseSelectedList(input.certificates).filter((item) => !isManualCareerOption(item));
-  const values: string[] = [...certificatesForFamily(context.family)];
+  
+  const values: string[] = [];
 
-  // Role / Sector text fallback
+  // 1. Field / Major specific certificates (Highest Priority)
+  if (input.educationField) {
+    values.push(...certificatesForEducationField(input.educationField));
+  }
+
+  // 2. Role / Family specific certificates
   const roleText = `${input.role ?? ''} ${input.roleOther ?? ''} ${input.sector ?? ''}`.toLocaleLowerCase('tr-TR');
+  const familyCerts = certificatesForFamily(context.family);
+
+  // Filter out incompatible hospitality certs if domain is not hospitality/tourism
+  const isHospitality =
+    /otel|turizm|resepsiyon|barista|garson|aşçı|mutfak|restoran/.test(roleText) ||
+    /turizm|otel|gastronomi/.test(String(input.educationField ?? '').toLocaleLowerCase('tr-TR'));
+
+  for (const cert of familyCerts) {
+    if (!isHospitality && (cert.includes('Opera/Fidelio') || cert.includes('Otel Otomasyon') || cert.includes('Servis ve Barista'))) {
+      continue;
+    }
+    values.push(cert);
+  }
+
+  // Role / Sector text fallback additions
   if (/çağrı|musteri|müşteri|operasyon|call center|destek/.test(roleText)) {
     values.push(
       'Müşteri Deneyimi ve Memnuniyeti (CX/CSAT)',
@@ -1858,6 +2164,7 @@ export function suggestCertificates(input: OccupationalProfileInput): string[] {
       'KPI ve Vardiya (WFM) Planlama Sertifikası',
       'İleri Excel ve Dashboard Raporlama',
       'Kalite ve Süreç Denetimi Sertifikası',
+      'Etkili İletişim ve İkna Teknikleri',
     );
   }
   if (/müdür|yönetici|yonetici|lead|direktör|koordinatör|manager/.test(roleText)) {
@@ -1866,6 +2173,14 @@ export function suggestCertificates(input: OccupationalProfileInput): string[] {
       'Liderlik ve Yönetici Geliştirme Programı',
       'KPI ve Süreç Yönetimi Sertifikası',
       'ISO 9001 Kalite Yönetim Sistemi',
+    );
+  }
+  if (/satış|pazarlama|sales|marketing/.test(roleText)) {
+    values.push(
+      'B2B Satış ve Müzakere Teknikleri',
+      'Google Ads Sertifikası',
+      'Meta Blueprint Dijital Pazarlama',
+      'HubSpot Inbound Marketing',
     );
   }
 
@@ -1887,22 +2202,6 @@ export function suggestCertificates(input: OccupationalProfileInput): string[] {
       'Liderlik ve Yönetici Geliştirme Programı',
       'İş Sağlığı ve Güvenliği (İSG)',
     );
-  }
-
-  // Field additions (e.g. Kamu Yönetimi, İşletme, İktisat)
-  const fieldText = String(input.educationField ?? '').toLocaleLowerCase('tr-TR');
-  if (/kamu|işletme|iktisat|maliye|yönetim/.test(fieldText)) {
-    values.push(
-      'Kamu İhale ve Mevzuat Eğitimi',
-      'Stratejik Yönetim ve Planlama',
-      'Liderlik ve Yönetici Geliştirme Programı',
-    );
-  }
-
-  if (context.adjacentStrength >= 2 && context.family !== 'factory') {
-    for (const family of context.adjacentFamilies) {
-      values.push(...certificatesForFamily(family).slice(0, 2));
-    }
   }
 
   const ranked: string[] = [];
