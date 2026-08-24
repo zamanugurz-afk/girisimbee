@@ -35,7 +35,7 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   });
 
   it('4. renders KARİYER ÖZETİ, UZMANLIK ALANLARI and İŞ DENEYİMLERİ in main column', () => {
-    expect(source).toContain('<span>{isHire ? \'Pozisyon özeti\' : \'Kariyer özeti\'}</span>');
+    expect(source).toContain("<span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>");
     expect(source).toContain('<span>UZMANLIK ALANLARI</span>');
     expect(source).toContain('<span>İŞ DENEYİMLERİ</span>');
   });

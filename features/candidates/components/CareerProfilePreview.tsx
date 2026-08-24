@@ -800,12 +800,14 @@ export function CareerProfilePreview({
         <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-3 lg:pb-3.5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
           <div className="space-y-6">
             {summary ? (
-              <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 space-y-2.5">
+              <div className="space-y-2.5">
                 <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                   <User className="h-4 w-4" />
-                  <span>{isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}</span>
+                  <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
                 </div>
-                <ExpandableSummary text={summary} />
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50">
+                  <ExpandableSummary text={summary} />
+                </div>
               </div>
             ) : null}
 
