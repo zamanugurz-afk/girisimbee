@@ -40,11 +40,11 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('<span>İŞ DENEYİMLERİ</span>');
   });
 
-  it('5. enforces maximum 3 experiences initially and has expand/collapse control', () => {
-    expect(source).toContain('experiences.slice(0, 3)');
-    expect(source).toContain('Tüm deneyimleri görmek için');
+  it('5. enforces compact experiences initially and has expand/collapse control', () => {
+    expect(source).toContain('expandedExperiences');
+    expect(source).toContain('diğer deneyimi göster');
     expect(source).toContain('Daha az göster');
-    expect(source).toContain('experiences.length > 3');
+    expect(source).toContain('experiences.length > 1');
   });
 
   it('6. uses blue timeline number nodes and vertical connector lines', () => {

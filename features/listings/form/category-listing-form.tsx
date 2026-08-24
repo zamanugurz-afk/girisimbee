@@ -127,6 +127,7 @@ import {
   getAllTaxonomyPositions,
   isManualCareerOption,
   parseCareerLanguages,
+  serializeCareerLanguages,
   MANUAL_OPTION,
   MANUAL_OPTION_SHORT,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -1138,12 +1139,37 @@ export function CategoryListingForm({
     [currentStep, allFieldKeys],
   );
   const visibleStepCustomKeys = useMemo(() => {
-    if (categoryId !== CATEGORY_IDS.yatirimBul) return stepCustomKeys;
-    return filterVisibleSeekingCustomFields(stepCustomKeys, {
-      customFields: mergedCustomFields,
-      title: core.title,
-      revealProductName: showDistinctProductName,
-      revealUseOfFundsDetail: showUseOfFundsDetail,
+    let keys = stepCustomKeys;
+    if (categoryId === CATEGORY_IDS.yatirimBul) {
+      keys = filterVisibleSeekingCustomFields(stepCustomKeys, {
+        customFields: mergedCustomFields,
+        title: core.title,
+        revealProductName: showDistinctProductName,
+        revealUseOfFundsDetail: showUseOfFundsDetail,
+      });
+    }
+
+    // Filter out inactive conditional 'Other' fields so they don't consume empty grid columns
+    return keys.filter((key) => {
+      if (
+        key === 'preferredDistrictOther' &&
+        !isManualCareerOption(mergedCustomFields.preferredDistrict)
+      ) {
+        return false;
+      }
+      if (
+        key === 'desiredRoleOther' &&
+        !isManualCareerOption(mergedCustomFields.desiredRole)
+      ) {
+        return false;
+      }
+      if (
+        key === 'educationFieldOther' &&
+        !isManualCareerOption(mergedCustomFields.educationField)
+      ) {
+        return false;
+      }
+      return true;
     });
   }, [
     categoryId,
@@ -2657,7 +2683,10 @@ export function CategoryListingForm({
                 value={parseCareerLanguages(
                   mergedCustomFields.languageEntries ?? mergedCustomFields.languages,
                 )}
-                onChange={(next) => setCustomField('languageEntries', next)}
+                onChange={(next) => {
+                  setCustomField('languageEntries', next);
+                  setCustomField('languages', serializeCareerLanguages(next));
+                }}
                 disabled={disabled || isBusy}
                 error={resolveFieldError(fieldErrors, 'languages')}
               />
@@ -2872,20 +2901,7 @@ export function CategoryListingForm({
                     Özeti yeniden oluştur
                   </Button>
                 </div>
-                {categoryId === CATEGORY_IDS.isBul ? (
-                  <CareerAiAnalyzePanel
-                    customFields={mergedCustomFields}
-                    longDescription={core.longDescription ?? ''}
-                    disabled={disabled || isBusy}
-                    stored={acceptedCareerAiAnalysisOrNull(mergedCustomFields.careerAiAnalysis)}
-                    onStore={(value) =>
-                      setCustomField('careerAiAnalysis', acceptedCareerAiAnalysisOrNull(value))
-                    }
-                    onAcceptSummary={(summary) =>
-                      setCore((prev) => ({ ...prev, longDescription: summary }))
-                    }
-                  />
-                ) : null}
+
                 {categoryId === CATEGORY_IDS.yatirimYap ? (
                   <InvestorAiAnalyzePanel
                     title={core.title ?? ''}

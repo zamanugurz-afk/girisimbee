@@ -54,6 +54,7 @@ export type OccupationalProfileInput = {
   professionalSkills?: string | string[] | null;
   technicalSkills?: string | string[] | null;
   tools?: string | string[] | null;
+  educationLevel?: string | null;
   educationField?: string | null;
   certificates?: string | string[] | null;
   requiredResponsibilities?: string | null;

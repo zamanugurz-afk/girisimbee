@@ -23,7 +23,10 @@ export function CareerLanguagesEditor({
   disabled?: boolean;
   error?: string | null;
 }) {
-  const rows = value.length > 0 ? value : [createEmptyLanguageEntry()];
+  const rows =
+    value.length > 0
+      ? value
+      : [{ id: 'default-lang-1', language: '', languageOther: '', level: '' }];
 
   function updateRow(id: string, patch: Partial<CareerLanguageEntry>) {
     onChange(rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));

@@ -312,7 +312,7 @@ export function CareerProfilePreview({
     });
   }, [data.experiences]);
 
-  const visibleExperiences = expandedExperiences ? experiences : experiences.slice(0, 3);
+  const visibleExperiences = expandedExperiences ? experiences : experiences.slice(0, 1);
   const visibleCount = visibleExperiences.length;
 
   const summary = polishCareerSummary(data.longDescription || data.requiredResponsibilities);
@@ -764,15 +764,21 @@ export function CareerProfilePreview({
               ) : null}
 
               {/* Expand all experiences button */}
-              {experiences.length > 3 ? (
+              {experiences.length > 1 ? (
                 <div className="pt-1 pl-10 sm:pl-12">
                   <button
                     type="button"
                     onClick={() => setExpandedExperiences((v) => !v)}
-                    className="text-xs font-semibold text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 inline-flex items-center gap-1 transition-colors"
+                    className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-3 py-1.5 border border-primary/20"
                   >
-                    <span>{expandedExperiences ? 'Daha az göster' : 'Tüm deneyimleri görmek için'}</span>
-                    <span className="font-bold text-sm leading-none">{expandedExperiences ? '−' : '+'}</span>
+                    <span>
+                      {expandedExperiences
+                        ? 'Daha az göster'
+                        : `+ ${experiences.length - 1} diğer deneyimi göster`}
+                    </span>
+                    <span className="font-bold text-sm leading-none">
+                      {expandedExperiences ? '−' : '+'}
+                    </span>
                   </button>
                 </div>
               ) : null}

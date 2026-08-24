@@ -67,9 +67,11 @@ export function CareerEducationExtras({
         role,
         roleOther,
         experienceLevel,
+        educationLevel,
+        educationField: fieldIsManual ? educationFieldOther : educationField,
         certificates,
       }),
-    [isHire, sector, role, roleOther, experienceLevel, certificates],
+    [isHire, sector, role, roleOther, experienceLevel, educationLevel, educationField, educationFieldOther, fieldIsManual, certificates],
   );
 
   return (

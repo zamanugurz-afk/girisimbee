@@ -1754,7 +1754,7 @@ export const CERTIFICATE_OPTIONS = [
   MANUAL_OPTION,
 ] as const;
 
-const CERTIFICATES_BY_FAMILY: Partial<Record<RoleFamily, readonly string[]>> = {
+export const CERTIFICATES_BY_FAMILY: Partial<Record<RoleFamily, readonly string[]>> = {
   factory: ['İSG C Sınıfı', 'İlk yardım sertifikası', 'Forklift operatör belgesi'],
   shiftSupervisor: ['İSG C Sınıfı', 'İSG B Sınıfı', 'İlk yardım sertifikası', 'Forklift operatör belgesi'],
   productionLead: ['İSG B Sınıfı', 'İSG A Sınıfı', 'İlk yardım sertifikası'],
@@ -1769,76 +1769,75 @@ const CERTIFICATES_BY_FAMILY: Partial<Record<RoleFamily, readonly string[]>> = {
   farmLead: ['İlk yardım sertifikası', 'İSG C Sınıfı'],
   security: ['İlk yardım sertifikası'],
   beauty: ['İlk yardım sertifikası'],
-  kitchen: ['İlk yardım sertifikası'],
-  kitchenChef: ['İlk yardım sertifikası'],
-  restaurant: ['İlk yardım sertifikası'],
-  restaurantManager: ['İlk yardım sertifikası'],
-  housekeeping: ['İlk yardım sertifikası'],
-  reception: ['İlk yardım sertifikası'],
-  host: ['İlk yardım sertifikası'],
-  hotelOps: ['İlk yardım sertifikası'],
-  retail: ['İlk yardım sertifikası'],
-  cashier: ['İlk yardım sertifikası'],
-  storeManager: ['İlk yardım sertifikası'],
-  callCenter: ['İlk yardım sertifikası'],
-  customerSuccess: ['HubSpot Academy'],
-  salesIndoor: ['HubSpot Academy', 'Google Ads Sertifikası'],
-  salesField: ['HubSpot Academy', 'Google Ads Sertifikası'],
-  salesManager: ['HubSpot Academy', 'Google Ads Sertifikası', 'Meta Blueprint'],
-  regionalManager: ['HubSpot Academy', 'Google Ads Sertifikası'],
-  insuranceOps: ['SEGEM', 'BES'],
-  bankFront: ['SEGEM', 'BES'],
-  branchManager: ['SEGEM', 'SPL Seviye 1'],
-  portfolioManager: ['SPL Seviye 1', 'SPL Seviye 2', 'SPK Lisansı'],
-  credit: ['SPL Seviye 1', 'SPL Seviye 2', 'SPK Lisansı'],
-  accounting: ['SMMM Stajyerlik', 'e-Defter / e-Fatura eğitimi'],
-  software: ['AWS Certified', 'Azure Fundamentals', 'Google Cloud Associate', 'Scrum Master'],
-  techLead: ['AWS Certified', 'Scrum Master', 'PMP'],
-  devops: ['AWS Certified', 'Azure Fundamentals', 'Google Cloud Associate'],
-  qa: ['Scrum Master', 'Azure Fundamentals'],
-  data: ['AWS Certified', 'Google Cloud Associate'],
-  product: ['Product Owner', 'Scrum Master', 'PMP'],
-  design: ['Google Ads Sertifikası'],
-  teacher: ['YDS', 'YÖKDİL', 'TOEFL', 'IELTS'],
-  schoolPrincipal: ['YDS', 'YÖKDİL'],
-  hr: ['PMP'],
-  hrManager: ['PMP', 'Scrum Master'],
-  marketing: ['Google Ads Sertifikası', 'Meta Blueprint', 'HubSpot Academy'],
-  brandManager: ['Google Ads Sertifikası', 'Meta Blueprint'],
-  legal: ['YDS', 'YÖKDİL'],
-  consulting: ['PMP', 'PRINCE2', 'Scrum Master'],
-  admin: ['Microsoft Office uzmanlığı', 'Excel ileri seviye'],
-  officeManager: ['Microsoft Office uzmanlığı', 'Excel ileri seviye', 'PMP'],
+  kitchen: ['Ustalık / Kalfalık Belgesi', 'Hijyen Eğitimi Belgesi', 'İlk yardım sertifikası'],
+  kitchenChef: ['Aşçılık Ustalık Belgesi', 'HACCP Gıda Güvenliği', 'Mutfak Yönetimi'],
+  restaurant: ['Hijyen Eğitimi Belgesi', 'İlk yardım sertifikası', 'Servis ve Barista Uzmanlığı'],
+  restaurantManager: ['Restoran ve İşletme Yönetimi', 'Gıda Güvenliği ve HACCP', 'İlk yardım sertifikası'],
+  housekeeping: ['Hijyen ve Temizlik Sertifikası', 'İlk yardım sertifikası'],
+  reception: ['Otel Otomasyon Sistemleri (Opera/Fidelio)', 'Müşteri İlişkileri Sertifikası', 'YDS / İngilizce'],
+  host: ['Etkili İletişim ve Karşılama', 'İlk yardım sertifikası'],
+  hotelOps: ['Turizm ve Otel İşletmeciliği Sertifikası', 'Hizmet Kalitesi ve Misafir Memnuniyeti'],
+  retail: ['Perakende Satış ve Müşteri İlişkileri', 'Kasa ve Pos Uzmanlığı', 'İlk yardım sertifikası'],
+  cashier: ['Kasa ve POS Operasyonları', 'Temel Muhasebe'],
+  storeManager: ['Mağaza Yönetimi ve Satış Koçluğu', 'Stok ve Envanter Yönetimi', 'Liderlik ve Ekip Yönetimi'],
+  callCenter: [
+    'Müşteri Deneyimi ve Memnuniyeti (CX/CSAT)',
+    'Çağrı Merkezi Takım Liderliği Eğitimi',
+    'KPI ve Vardiya (WFM) Planlama Sertifikası',
+    'İleri Excel ve Dashboard Raporlama',
+    'Kalite ve Süreç Denetimi Sertifikası',
+    'Etkili İletişim ve İkna Teknikleri',
+  ],
+  callCenterManager: [
+    'Müşteri Deneyimi ve Memnuniyeti (CX/CSAT)',
+    'Çağrı Merkezi Takım Liderliği Eğitimi',
+    'KPI ve Vardiya (WFM) Planlama Sertifikası',
+    'İleri Excel ve Dashboard Raporlama',
+    'Kalite ve Süreç Denetimi Sertifikası',
+    'Liderlik ve Yönetici Geliştirme Programı',
+    'PMP (Proje Yönetimi)',
+  ],
+  customerSuccess: [
+    'Müşteri Deneyimi ve Memnuniyeti (CX/CSAT)',
+    'HubSpot Academy',
+    'CRM ve Müşteri İlişkileri Yönetimi',
+    'İleri Excel ve Dashboard Raporlama',
+  ],
+  salesIndoor: ['B2B / B2C Satış ve Müzakere Teknikleri', 'HubSpot Academy', 'Google Ads Sertifikası'],
+  salesField: ['Saha Satış ve Müşteri Kazanımı', 'Müzakere ve İkna Teknikleri', 'B Sınıfı Ehliyet / İleri Sürüş'],
+  salesManager: [
+    'Stratejik Satış Yönetimi',
+    'Liderlik ve Yönetici Geliştirme Programı',
+    'B2B Müzakere ve Sözleşme Yönetimi',
+    'HubSpot Academy',
+    'Google Ads Sertifikası',
+    'Meta Blueprint',
+  ],
+  regionalManager: ['Bölge ve Saha Yönetimi', 'PMP (Proje Yönetimi)', 'Liderlik ve Yönetici Geliştirme Programı'],
+  insuranceOps: ['SEGEM Ruhsatı', 'BES Lisansı', 'Hasar ve Risk Yönetimi'],
+  bankFront: ['SEGEM', 'BES', 'SPL Seviye 1', 'Temel Bankacılık ve Kredi Eğitimi'],
+  branchManager: ['SPL Seviye 1 / 2', 'SEGEM', 'BES', 'Liderlik ve Yönetici Geliştirme Programı'],
+  portfolioManager: ['SPL Seviye 1', 'SPL Seviye 2', 'SPL Seviye 3', 'SPK Lisansı', 'Türev Araçlar Lisansı'],
+  credit: ['Kredi Tahsis ve Mali Analiz', 'SPL Seviye 1', 'SPL Seviye 2', 'SPK Lisansı'],
+  accounting: ['SMMM Ruhsatı / Stajyerlik', 'e-Defter / e-Fatura Eğitimi', 'UFRS / IFRS Eğitimi', 'İleri Excel ve Mali Analiz', 'Tekdüzen Hesap Planı'],
+  software: ['AWS Certified Solutions Architect', 'Microsoft Certified: Azure Fundamentals', 'Google Cloud Associate', 'Scrum Master (PSM / CSM)'],
+  techLead: ['AWS Certified', 'Scrum Master', 'PMP (Proje Yönetimi)', 'Yazılım Mimari Tasarımı'],
+  devops: ['AWS Certified DevOps Engineer', 'Kubernetes (CKA / CKAD)', 'Microsoft Azure DevOps Engineer', 'Linux Red Hat Sertifikası'],
+  qa: ['ISTQB Certified Tester', 'Scrum Master', 'Otomasyon Test Uzmanlığı'],
+  data: ['Power BI ve Veri Analitiği', 'AWS Certified Data Analytics', 'Google Data Analytics Professional', 'İleri SQL ve Veri Modelleme'],
+  product: ['Product Owner (PSPO / CSPO)', 'Scrum Master (PSM / CSM)', 'PMP (Proje Yönetimi)', 'Agile / Çevik Ürün Yönetimi'],
+  design: ['UI/UX Tasarım ve Kullanılabilirlik Sertifikası', 'Google Ads Sertifikası', 'Adobe Certified Professional'],
+  teacher: ['Pedagojik Formasyon', 'YDS', 'YÖKDİL', 'TOEFL', 'IELTS'],
+  schoolPrincipal: ['Eğitim Yönetimi ve Denetimi', 'Liderlik ve Yönetici Geliştirme Programı', 'YDS'],
+  hr: ['Stratejik İnsan Kaynakları Yönetimi', 'İşe Alım ve Mülakat Teknikleri', 'Bordro ve Özlük İşleri Uzmanlığı', 'İş Hukuku ve Mevzuat'],
+  hrManager: ['Stratejik İK Yönetimi', 'Liderlik ve Yönetici Geliştirme Programı', 'PMP (Proje Yönetimi)', 'Scrum Master'],
+  marketing: ['Google Ads Sertifikası', 'Meta Blueprint Dijital Pazarlama', 'HubSpot Inbound Marketing', 'SEO ve İçerik Pazarlaması'],
+  brandManager: ['Marka Yönetimi ve İletişimi', 'Google Ads Sertifikası', 'Meta Blueprint', 'Pazar Araştırması ve İçgörü'],
+  legal: ['Hukuki Danışmanlık ve Sözleşme Yönetimi', 'KVKK Uzmanlığı Eğitimi', 'YDS', 'YÖKDİL'],
+  consulting: ['PMP (Proje Yönetimi Profesyoneli)', 'PRINCE2 Practitioner', 'Scrum Master', 'Stratejik Yönetim ve İş Geliştirme'],
+  admin: ['İleri Excel ve Dashboard Raporlama', 'Microsoft Office Uzmanlığı (MOS)', 'Yönetici Asistanlığı ve Büro Yönetimi'],
+  officeManager: ['Ofis Yönetimi ve Operasyon Koordinasyonu', 'İleri Excel ve Dashboard Raporlama', 'Liderlik ve Yönetici Geliştirme Programı', 'PMP'],
 };
-
-const FRONTLINE_CERT_BAN = new Set([
-  'TOEFL',
-  'IELTS',
-  'YDS',
-  'YÖKDİL',
-  'SMMM Stajyerlik',
-  'e-Defter / e-Fatura eğitimi',
-  'Microsoft Office uzmanlığı',
-  'Excel ileri seviye',
-  'Google Ads Sertifikası',
-  'Meta Blueprint',
-  'HubSpot Academy',
-  'AWS Certified',
-  'Azure Fundamentals',
-  'Google Cloud Associate',
-  'Cisco CCNA',
-  'PMP',
-  'PRINCE2',
-  'Scrum Master',
-  'Product Owner',
-  'SPL Seviye 1',
-  'SPL Seviye 2',
-  'SPL Seviye 3',
-  'SPK Lisansı',
-  'SEGEM',
-  'BES',
-  'Hasta kabul sertifikası',
-]);
 
 function certificatesForFamily(family: RoleFamily | null): string[] {
   if (!family) return [];
@@ -1849,23 +1848,73 @@ export function suggestCertificates(input: OccupationalProfileInput): string[] {
   const context = buildOccupationalContext(input);
   const existing = parseSelectedList(input.certificates).filter((item) => !isManualCareerOption(item));
   const values: string[] = [...certificatesForFamily(context.family)];
+
+  // Role / Sector text fallback
+  const roleText = `${input.role ?? ''} ${input.roleOther ?? ''} ${input.sector ?? ''}`.toLocaleLowerCase('tr-TR');
+  if (/çağrı|musteri|müşteri|operasyon|call center|destek/.test(roleText)) {
+    values.push(
+      'Müşteri Deneyimi ve Memnuniyeti (CX/CSAT)',
+      'Çağrı Merkezi Takım Liderliği Eğitimi',
+      'KPI ve Vardiya (WFM) Planlama Sertifikası',
+      'İleri Excel ve Dashboard Raporlama',
+      'Kalite ve Süreç Denetimi Sertifikası',
+    );
+  }
+  if (/müdür|yönetici|yonetici|lead|direktör|koordinatör|manager/.test(roleText)) {
+    values.push(
+      'PMP (Proje Yönetimi Profesyoneli)',
+      'Liderlik ve Yönetici Geliştirme Programı',
+      'KPI ve Süreç Yönetimi Sertifikası',
+      'ISO 9001 Kalite Yönetim Sistemi',
+    );
+  }
+
+  // Education Level / Higher Education additions (Lisans, Yüksek Lisans, Doktora)
+  const eduLevel = String(input.educationLevel ?? '').toLocaleLowerCase('tr-TR');
+  const isHigherEd =
+    eduLevel.includes('lisans') ||
+    eduLevel.includes('yüksek') ||
+    eduLevel.includes('doktora') ||
+    eduLevel.includes('üniversite');
+
+  if (isHigherEd) {
+    values.push(
+      'PMP (Proje Yönetimi Profesyoneli)',
+      'Scrum Master / Agile Koçluk',
+      'İleri Excel ve Dashboard Raporlama',
+      'Power BI ve Veri Analitiği',
+      'ISO 9001 Kalite Yönetim Sistemi',
+      'Liderlik ve Yönetici Geliştirme Programı',
+      'İş Sağlığı ve Güvenliği (İSG)',
+    );
+  }
+
+  // Field additions (e.g. Kamu Yönetimi, İşletme, İktisat)
+  const fieldText = String(input.educationField ?? '').toLocaleLowerCase('tr-TR');
+  if (/kamu|işletme|iktisat|maliye|yönetim/.test(fieldText)) {
+    values.push(
+      'Kamu İhale ve Mevzuat Eğitimi',
+      'Stratejik Yönetim ve Planlama',
+      'Liderlik ve Yönetici Geliştirme Programı',
+    );
+  }
+
   if (context.adjacentStrength >= 2 && context.family !== 'factory') {
     for (const family of context.adjacentFamilies) {
       values.push(...certificatesForFamily(family).slice(0, 2));
     }
   }
-  const bannedFrontline = context.family === 'factory' || context.familySeniority === 0;
+
   const ranked: string[] = [];
   const seen = new Set<string>();
-  for (const value of [...values, ...existing]) {
+  for (const value of [...existing, ...values]) {
     const trimmed = value.trim();
     if (!trimmed || seen.has(trimmed)) continue;
-    if (bannedFrontline && FRONTLINE_CERT_BAN.has(trimmed) && !existing.includes(trimmed)) continue;
     seen.add(trimmed);
     ranked.push(trimmed);
   }
-  if (ranked.length === 0 && !context.family) {
-    ranked.push('İlk yardım sertifikası');
+  if (ranked.length === 0) {
+    ranked.push('İlk yardım sertifikası', 'İleri Excel ve Dashboard Raporlama');
   }
   return withManualOption(ranked);
 }

@@ -368,11 +368,24 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     {
       id: 'summary',
       title: 'Kariyer Özeti',
-      description: 'Profil özeti ve yapay zeka ile metin geliştirme',
+      description: 'Profil özeti ve kontrolü',
       coreFields: ['longDescription'],
       customFieldKeys: [],
     },
-    STEP_PREVIEW_AND_PUBLISH,
+    {
+      id: 'preview',
+      title: 'İlan Önizleme',
+      description: 'Canlı kariyer kartı görünümü ve son kontroller',
+      preview: true,
+    },
+    {
+      id: 'package',
+      title: 'Paket ve İzinler',
+      description: 'Yayın paketi seçimi, iletişim ve yasal onaylar',
+      package: true,
+      kvkk: true,
+      publish: true,
+    },
   ],
   [CATEGORY_IDS.iseAl]: withConsolidatedPublishFlow(
     {

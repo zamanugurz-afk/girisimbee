@@ -57,6 +57,14 @@ export function CareerExperienceEditor({
   const [activeEditId, setActiveEditId] = useState<string | null>(() => rows[0]?.id ?? null);
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
+  // Ensure first experience is open initially
+  const currentActiveId =
+    activeEditId !== null
+      ? activeEditId
+      : rows.length > 0
+        ? rows[0].id
+        : null;
+
   function updateRow(id: string, patch: Partial<CareerExperience>) {
     onChange(
       rows.map((row, index) => {
@@ -126,7 +134,7 @@ export function CareerExperienceEditor({
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            CV&apos;den aktarılan veya manuel girdiğiniz iş tecrübeleri. Her deneyimi inceleyip onaylayarak ilerleyin.
+            İş tecrübelerinizi ekleyin. Sektör ve pozisyonunuza uygun sorumlulukları tek tıkla seçebilirsiniz.
           </p>
         </div>
 
@@ -136,7 +144,10 @@ export function CareerExperienceEditor({
           size="sm"
           disabled={disabled}
           onClick={addRow}
-          className="h-8.5 gap-1.5 rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary/5 shadow-2xs self-start sm:self-auto"
+          className={cn(
+            'h-8.5 gap-1.5 rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary/5 shadow-2xs self-start sm:self-auto transition-all',
+            rows.length >= 1 && (rows[0].company || rows[0].role) && 'ring-2 ring-primary/40 bg-primary/5 animate-pulse hover:animate-none'
+          )}
         >
           <Plus className="h-3.5 w-3.5" />
           <span>+ Yeni Deneyim Ekle</span>
@@ -146,7 +157,7 @@ export function CareerExperienceEditor({
       {/* Experience Cards / Accordion List */}
       <div className="space-y-3.5">
         {rows.map((row, index) => {
-          const isExpanded = activeEditId === row.id;
+          const isExpanded = currentActiveId === row.id;
           const isReviewed = reviewedIds.has(row.id);
           const endYears = row.startYear ? years.filter((year) => year >= row.startYear!) : years;
           const positions = getPositionsForSector(row.sector);
