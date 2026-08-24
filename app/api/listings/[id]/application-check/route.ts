@@ -9,7 +9,23 @@ import { ids } from '@/lib/domain/ids';
  */
 export const GET = withAuth(async (ctx, _request, { params }) => {
   const { id } = idParamSchema.parse(params);
-  const listingId = ids.listing(id);
+  let listingId = ids.listing(id);
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  if (!isUuid) {
+    try {
+      const { createServiceRoleClient } = await import('@/lib/supabase/service');
+      const admin = createServiceRoleClient();
+      const { data: bySlug } = await admin
+        .from('marketplace_listings')
+        .select('id')
+        .eq('slug', id)
+        .maybeSingle();
+      if (bySlug?.id) {
+        listingId = ids.listing(bySlug.id);
+      }
+    } catch {}
+  }
 
   const existing = await ctx.container.applicationRepository.findMany({
     moduleKey: 'candidates',

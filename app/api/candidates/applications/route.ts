@@ -27,7 +27,23 @@ export const GET = withAuth(async (ctx, request) => {
 export const POST = withAuth(async (ctx, request) => {
   const body = await parseJsonBody(request);
   const parsed = candidateApplicationSubmitSchema.parse(body);
-  const listingId = ids.listing(parsed.listingId);
+  let listingId = ids.listing(parsed.listingId);
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.listingId);
+  if (!isUuid) {
+    try {
+      const { createServiceRoleClient } = await import('@/lib/supabase/service');
+      const admin = createServiceRoleClient();
+      const { data: bySlug } = await admin
+        .from('marketplace_listings')
+        .select('id')
+        .eq('slug', parsed.listingId)
+        .maybeSingle();
+      if (bySlug?.id) {
+        listingId = ids.listing(bySlug.id);
+      }
+    } catch {}
+  }
 
   // Fetch listing and employer details (using service role for accurate owner_id)
   const listing = await ctx.container.listingRepository.findById(listingId);

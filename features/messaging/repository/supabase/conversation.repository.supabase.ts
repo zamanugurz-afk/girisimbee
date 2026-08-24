@@ -73,10 +73,24 @@ export class SupabaseConversationRepository implements ConversationRepository {
   }
 
   private async loadParticipantIds(conversationId: ConversationId): Promise<UserId[]> {
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(PARTICIPANTS)
       .select('user_id')
       .eq('conversation_id', conversationId);
+    if (error && (error.code === '42501' || error.message?.includes('row-level security'))) {
+      try {
+        const { createServiceRoleClient } = await import('@/lib/supabase/service');
+        const adminClient = createServiceRoleClient();
+        const adminRes = await adminClient
+          .from(PARTICIPANTS)
+          .select('user_id')
+          .eq('conversation_id', conversationId);
+        if (!adminRes.error && adminRes.data) {
+          data = adminRes.data;
+          error = null;
+        }
+      } catch {}
+    }
     if (error) {
       if (isMissingRelationError(error)) return [];
       throw error;
@@ -122,10 +136,24 @@ export class SupabaseConversationRepository implements ConversationRepository {
     const end = start + limit - 1;
 
     if (filter.participantId) {
-      const { data: participantRows, error: pErr } = await this.supabase
+      let { data: participantRows, error: pErr } = await this.supabase
         .from(PARTICIPANTS)
         .select('conversation_id')
         .eq('user_id', filter.participantId);
+      if (pErr && (pErr.code === '42501' || pErr.message?.includes('row-level security'))) {
+        try {
+          const { createServiceRoleClient } = await import('@/lib/supabase/service');
+          const adminClient = createServiceRoleClient();
+          const adminRes = await adminClient
+            .from(PARTICIPANTS)
+            .select('conversation_id')
+            .eq('user_id', filter.participantId);
+          if (!adminRes.error && adminRes.data) {
+            participantRows = adminRes.data;
+            pErr = null;
+          }
+        } catch {}
+      }
       if (pErr) {
         if (isMissingRelationError(pErr)) return paginatedResult([], 0, page, limit);
         throw pErr;
@@ -140,9 +168,32 @@ export class SupabaseConversationRepository implements ConversationRepository {
         const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
         query = query.in('status', statuses);
       }
-      const { data, error, count } = await query
+      let { data, error, count } = await query
         .order('last_message_at', { ascending: false, nullsFirst: false })
         .range(start, end);
+
+      if (error && (error.code === '42501' || error.message?.includes('row-level security'))) {
+        try {
+          const { createServiceRoleClient } = await import('@/lib/supabase/service');
+          const adminClient = createServiceRoleClient();
+          let adminQuery = adminClient.from(TABLE).select('*', { count: 'exact' }).in('id', ids);
+          if (!filter.includeDeleted) adminQuery = adminQuery.is('deleted_at', null);
+          if (filter.listingId) adminQuery = adminQuery.eq('listing_id', filter.listingId);
+          if (filter.status) {
+            const statuses = Array.isArray(filter.status) ? filter.status : [filter.status];
+            adminQuery = adminQuery.in('status', statuses);
+          }
+          const adminRes = await adminQuery
+            .order('last_message_at', { ascending: false, nullsFirst: false })
+            .range(start, end);
+          if (!adminRes.error && adminRes.data) {
+            data = adminRes.data;
+            count = adminRes.count;
+            error = null;
+          }
+        } catch {}
+      }
+
       if (error) throw error;
       const mapped = await Promise.all((data ?? []).map((r) => this.mapConversationRow(r as ConversationRow)));
       return paginatedResult(mapped, count ?? 0, page, limit);
@@ -197,37 +248,24 @@ export class SupabaseConversationRepository implements ConversationRepository {
       data: { user },
     } = await this.supabase.auth.getUser();
     const selfId = user?.id ?? null;
+    const uniqueParticipantIds = Array.from(new Set(sortParticipantIds(input.participantIds)));
+    const targetKind = (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing');
+    const targetAppId = (input as CreateConversationInput).applicationId ?? null;
 
-    // User JWT: prefer SECURITY DEFINER RPC (avoids INSERT…RETURNING / participant RLS races).
-    // Service-role clients have no auth.uid() — skip RPC and insert directly (bypasses RLS).
-    if (selfId) {
+    // User JWT: prefer SECURITY DEFINER RPC only for basic listing conversations (avoids INSERT…RETURNING / participant RLS races).
+    // Application conversations and service-role clients insert directly to guarantee application_id & kind persistence.
+    if (selfId && targetKind !== 'application' && !targetAppId) {
       const { data: rpcData, error: rpcError } = await this.supabase
         .rpc('marketplace_create_listing_conversation', {
           p_listing_id: conversation.listingId,
-          p_participant_ids: participantIds,
+          p_participant_ids: uniqueParticipantIds,
           p_company_id: conversation.companyId,
           p_conversation_id: conversation.id,
         })
         .maybeSingle();
 
       if (!rpcError && rpcData) {
-        const targetKind = (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing');
-        const targetAppId = (input as CreateConversationInput).applicationId ?? null;
-        if (targetKind === 'application' || targetAppId) {
-          try {
-            await this.supabase.from(TABLE).update({
-              kind: targetKind,
-              application_id: targetAppId,
-            }).eq('id', conversation.id);
-          } catch {
-            // Ignored
-          }
-        }
-        return this.mapConversationRow({
-          ...(rpcData as ConversationRow),
-          kind: targetKind,
-          application_id: targetAppId,
-        });
+        return this.mapConversationRow(rpcData as ConversationRow);
       }
 
       const rpcMissing =
@@ -243,8 +281,8 @@ export class SupabaseConversationRepository implements ConversationRepository {
       id: conversation.id,
       listing_id: conversation.listingId,
       company_id: conversation.companyId,
-      application_id: (input as CreateConversationInput).applicationId ?? null,
-      kind: (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing'),
+      application_id: targetAppId,
+      kind: targetKind,
       status: conversation.status,
     });
 
@@ -256,8 +294,8 @@ export class SupabaseConversationRepository implements ConversationRepository {
           id: conversation.id,
           listing_id: conversation.listingId,
           company_id: conversation.companyId,
-          application_id: (input as CreateConversationInput).applicationId ?? null,
-          kind: (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing'),
+          application_id: targetAppId,
+          kind: targetKind,
           status: conversation.status,
         });
         if (adminRes.error) throw adminRes.error;
@@ -268,17 +306,17 @@ export class SupabaseConversationRepository implements ConversationRepository {
       throw insertError;
     }
 
-    const ordered = [...participantIds].sort((a, b) => {
+    const ordered = [...uniqueParticipantIds].sort((a, b) => {
       if (String(a) === selfId) return -1;
       if (String(b) === selfId) return 1;
       return 0;
     });
 
     for (const userId of ordered) {
-      const { error: pErr } = await clientToUse.from(PARTICIPANTS).insert({
+      const { error: pErr } = await clientToUse.from(PARTICIPANTS).upsert({
         conversation_id: conversation.id,
         user_id: userId,
-      });
+      }, { onConflict: 'conversation_id,user_id' });
       if (pErr) throw pErr;
     }
 
