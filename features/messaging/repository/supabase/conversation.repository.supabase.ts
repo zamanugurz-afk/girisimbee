@@ -211,7 +211,23 @@ export class SupabaseConversationRepository implements ConversationRepository {
         .maybeSingle();
 
       if (!rpcError && rpcData) {
-        return this.mapConversationRow(rpcData as ConversationRow);
+        const targetKind = (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing');
+        const targetAppId = (input as CreateConversationInput).applicationId ?? null;
+        if (targetKind === 'application' || targetAppId) {
+          try {
+            await this.supabase.from(TABLE).update({
+              kind: targetKind,
+              application_id: targetAppId,
+            }).eq('id', conversation.id);
+          } catch {
+            // Ignored
+          }
+        }
+        return this.mapConversationRow({
+          ...(rpcData as ConversationRow),
+          kind: targetKind,
+          application_id: targetAppId,
+        });
       }
 
       const rpcMissing =

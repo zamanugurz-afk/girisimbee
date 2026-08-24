@@ -3,22 +3,27 @@ import { timestampsSchema, softDeletableSchema, uuidSchema } from '@/lib/domain/
 
 export const conversationStatusSchema = z.enum(['open', 'archived', 'blocked', 'deleted']);
 
+export const conversationKindSchema = z.enum(['listing', 'support', 'application']);
+
 export const conversationSchema = timestampsSchema.merge(softDeletableSchema).extend({
   id: uuidSchema,
-  kind: z.enum(['listing', 'support']).default('listing'),
+  kind: conversationKindSchema.default('listing'),
   listingId: uuidSchema.nullable(),
   companyId: uuidSchema.nullable(),
+  applicationId: uuidSchema.nullable().optional(),
   supportInquiryId: uuidSchema.nullable().optional(),
   status: conversationStatusSchema,
   lastMessageAt: z.string().datetime({ offset: true }).nullable(),
   lastMessagePreview: z.string().max(200).nullable(),
-  participantIds: z.array(uuidSchema).min(2).max(10),
+  participantIds: z.array(uuidSchema).min(1).max(10),
 });
 
 export const createConversationSchema = z.object({
-  participantIds: z.array(uuidSchema).min(2).max(10),
-  listingId: uuidSchema,
+  participantIds: z.array(uuidSchema).min(1).max(10),
+  listingId: uuidSchema.nullable().optional(),
   companyId: uuidSchema.nullable().optional(),
+  applicationId: uuidSchema.nullable().optional(),
+  kind: conversationKindSchema.optional(),
   initialMessage: z.string().max(5000).optional(),
 });
 
