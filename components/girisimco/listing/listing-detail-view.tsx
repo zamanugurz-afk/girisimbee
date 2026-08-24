@@ -83,10 +83,6 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           </div>
         )}
 
-        {isCareerListing && listing.listingId ? (
-          <ListingCareerRecommendations listingId={listing.listingId} />
-        ) : null}
-
         {isPartnershipListing && listing.listingId ? (
           <ListingPartnershipRecommendations listingId={listing.listingId} />
         ) : null}
@@ -99,7 +95,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           <ListingFranchiseRecommendations listingId={listing.listingId} />
         ) : null}
 
-        <ListingSimilar listing={listing} />
+        {isCareerListing ? null : <ListingSimilar listing={listing} />}
       </div>
 
       {isCareerListing ? null : <ListingDetailMobileBar listing={listing} />}

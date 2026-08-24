@@ -861,9 +861,9 @@ export function CareerProfilePreview({
                 </div>
               </>
             ) : (
-              <div className="flex items-start gap-2.5 rounded-2xl border border-sky-200 bg-sky-50/70 p-3.5 dark:border-sky-900/40 dark:bg-sky-950/30">
+              <div className="rounded-2xl border border-sky-300/80 bg-white p-3.5 sm:p-4 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card flex items-start gap-2.5 animate-pulse">
                 <Lock className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-                <p className="text-xs leading-relaxed text-blue-950 dark:text-blue-200">
+                <p className="text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300">
                   Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
                 </p>
               </div>
