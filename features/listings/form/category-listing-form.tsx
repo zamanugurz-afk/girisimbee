@@ -99,6 +99,7 @@ import { validateInvestorTicketFields } from '@/features/investors/lib/investor-
 import { HireRoleNeedsEditor } from '@/features/employers/components/HireRoleNeedsEditor';
 import { buildHiringSummaryDraft } from '@/features/employers/lib/hire-summary';
 import {
+  createEmptyCareerExperience,
   parseCareerExperiences,
   validateCareerExperiences,
 } from '@/features/candidates/config/career-profile-fields';
@@ -2096,6 +2097,46 @@ export function CategoryListingForm({
 
     if (isFormStep) {
       if (!validateCurrentStep()) return;
+
+      // Smart pre-fill between Step 0 (Basics) and subsequent steps for Job Seekers (isBul)
+      if (stepIndex === 0 && categoryId === CATEGORY_IDS.isBul) {
+        mutateCustomFields((prev) => {
+          const next = { ...prev };
+          const exps = parseCareerExperiences(next.experiences);
+          // If experiences are empty or single empty row, pre-fill sector and role from basics
+          if (
+            exps.length === 0 ||
+            (exps.length === 1 && !exps[0].company && !exps[0].role)
+          ) {
+            const firstExp = exps[0] ?? createEmptyCareerExperience();
+            next.experiences = [
+              {
+                ...firstExp,
+                sector: firstExp.sector || String(next.primarySector ?? ''),
+                role: firstExp.role || String(next.desiredRole ?? ''),
+                roleOther: firstExp.roleOther || String(next.desiredRoleOther ?? ''),
+                isCurrent: true,
+              },
+            ];
+          }
+          // Pre-fill preferredCity & preferredDistrict from residence if empty
+          if (!next.preferredCity && next.residenceCity) {
+            next.preferredCity = next.residenceCity;
+            if (!next.preferredDistrict && next.residenceDistrict) {
+              next.preferredDistrict = next.residenceDistrict;
+            }
+          }
+          // Pre-fill preferredSectors from primarySector if empty
+          if (!next.preferredSectors && next.primarySector) {
+            next.preferredSectors = [next.primarySector];
+          }
+          // Pre-fill preferredRoles from desiredRole if empty
+          if (!next.preferredRoles && next.desiredRole) {
+            next.preferredRoles = [next.desiredRole];
+          }
+          return next;
+        }, 'goNext:smartPreFill');
+      }
     }
 
     setFieldErrors({});
@@ -2266,6 +2307,7 @@ export function CategoryListingForm({
 
     setPublishErrors([]);
     setSubmitting(mode);
+    setPreviewOpen(false);
 
     try {
       await handler(formData);

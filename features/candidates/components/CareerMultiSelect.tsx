@@ -56,7 +56,29 @@ export function CareerMultiSelect({
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <div className="flex items-center justify-between">
+        <Label>{label}</Label>
+        {options.length > 1 && !disabled && (
+          <button
+            type="button"
+            className="text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer transition-colors"
+            onClick={() => {
+              const nonManual = options.filter((o) => !isManualCareerOption(o));
+              const allSelected = nonManual.length > 0 && nonManual.every((o) => selected.includes(o));
+              if (allSelected) {
+                onChange(selected.filter((s) => !nonManual.includes(s)));
+              } else {
+                onChange([...new Set([...selected, ...nonManual])]);
+              }
+            }}
+          >
+            {options.filter((o) => !isManualCareerOption(o)).length > 0 &&
+            options.filter((o) => !isManualCareerOption(o)).every((o) => selected.includes(o))
+              ? 'Seçimi Temizle'
+              : 'Önerilenleri Ekle'}
+          </button>
+        )}
+      </div>
       {options.length > 12 ? (
         <Input
           value={query}

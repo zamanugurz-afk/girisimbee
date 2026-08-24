@@ -29,10 +29,7 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
         if (pathname === '/') {
           event.preventDefault();
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
         }
-        event.preventDefault();
-        router.push('/');
       }}
     >
       {/* Orijinal arı maskotu (Dokunulmadı) */}
