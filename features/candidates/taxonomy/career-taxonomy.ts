@@ -1322,6 +1322,62 @@ const POSITION_BUNDLES: Record<string, PositionBundle> = {
     professionalSkills: ['Satış yönetimi', 'Müşteri kazanımı', 'İhtiyaç analizi', 'Müzakere'],
     technicalSkills: ['CRM', 'Salesforce', 'Excel'],
   },
+  'Müşteri ilişkileri yöneticisi': {
+    responsibilities: [
+      'Müşteri ilişkileri stratejisi ve süreçlerinin yönetimi',
+      'VIP ve kurumsal müşteri portföyü yönetimi',
+      'Müşteri memnuniyet ve sadakat programlarının yürütülmesi',
+      'Şikayet ve kriz yönetimi süreçlerinin koordine edilmesi',
+    ],
+    achievements: [
+      'Müşteri memnuniyet skorunun yükseltilmesi',
+      'Müşteri kaybı (churn) oranının düşürülmesi',
+    ],
+    professionalSkills: ['Müşteri ilişkileri yönetimi', 'Kriz yönetimi', 'İletişim becerileri', 'Liderlik'],
+    technicalSkills: ['CRM', 'Zendesk', 'Salesforce', 'Excel'],
+  },
+  'Müşteri ilişkileri uzmanı': {
+    responsibilities: [
+      'Müşteri talep ve geri bildirimlerinin karşılanması',
+      'Müşteri memnuniyeti ve bağlılığı süreçlerinin takibi',
+      'Müşteri sorunlarının hızlı ve etkin çözümlenmesi',
+      'İlişki geliştirme ve düzenli iletişim faaliyetleri',
+    ],
+    achievements: [
+      'İlk temasta çözüm oranının artırılması',
+      'Müşteri memnuniyet puanının artırılması',
+    ],
+    professionalSkills: ['Müşteri ilişkileri', 'İletişim becerisi', 'Problem çözme', 'Müzakere'],
+    technicalSkills: ['CRM', 'Zendesk', 'Excel', 'Outlook'],
+  },
+  'Otomotiv mühendisi': {
+    responsibilities: [
+      'Araç sistem ve bileşenlerinin mühendislik tasarımı',
+      'Üretim ve montaj süreçlerinin teknik takibi',
+      'Kalite, güvenlik ve homologasyon standartlarına uyum',
+      'Test ve prototip doğrulama çalışmalarının yürütülmesi',
+    ],
+    achievements: [
+      'Üretim hata oranının düşürülmesi',
+      'Prototip geliştirme süresinin kısaltılması',
+    ],
+    professionalSkills: ['Otomotiv sistemleri', 'Mühendislik tasarımı', 'Kalite kontrol', 'Test doğrulama'],
+    technicalSkills: ['CATIA', 'SolidWorks', 'AutoCAD', 'Excel'],
+  },
+  'Otomotiv tasarım mühendisi': {
+    responsibilities: [
+      'Gövde ve sac parça (Body-in-White) tasarımı',
+      '3D modelleme, CAD çizimleri ve montaj optimizasyonu',
+      'Çarpışma testi ve dayanım simülasyonlarının analizi',
+      'Tedarikçi ve üretim ekipleri ile teknik koordinasyon',
+    ],
+    achievements: [
+      'Ağırlık ve maliyet optimizasyon hedeflerine ulaşılması',
+      'Tasarım revizyon sürelerinin kısaltılması',
+    ],
+    professionalSkills: ['Gövde tasarımı', 'CAD modelleme', 'GD&T', 'Sac şekillendirme'],
+    technicalSkills: ['CATIA V5', 'SolidWorks', 'Ansys', 'Excel'],
+  },
 };
 
 const LEADERSHIP_SKILLS = [

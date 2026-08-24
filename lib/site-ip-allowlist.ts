@@ -10,9 +10,14 @@ const BUILTIN_PREVIEW_IPS = [
   '88.239.146.155',
   '159.146.69.219',
   '95.2.61.196',
+  '95.2.45.51',
+  '95.2.0.0/16',
   '127.0.0.1',
   '::1',
   '10.22.75.157',
+  '10.22.51.74',
+  '10.0.0.0/8',
+  '192.168.0.0/16',
   '2a02:ff0:3d10:ddae:adcd:8276:398:8e2e',
   '2a02:ff0:3d10:ddae::/64',
 ] as const;
@@ -37,6 +42,12 @@ export function normalizeIp(ip: string): string {
   return trimmed;
 }
 
+function ipv4ToNumber(ip: string): number | null {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) return null;
+  return (((parts[0] << 24) >>> 0) + ((parts[1] << 16) >>> 0) + ((parts[2] << 8) >>> 0) + (parts[3] >>> 0)) >>> 0;
+}
+
 export function ipMatchesAllowlistEntry(ip: string, allowed: string): boolean {
   const client = normalizeIp(ip);
   const rule = normalizeIp(allowed);
@@ -47,12 +58,25 @@ export function ipMatchesAllowlistEntry(ip: string, allowed: string): boolean {
   if (!cidr) return false;
   const base = cidr[1];
   const bits = Number(cidr[2]);
+
+  // IPv6 CIDR
   if (client.includes(':') && base.includes(':')) {
     if (bits === 64) {
       const prefix = base.replace(/::$/, '').replace(/:$/, '');
       return client === prefix || client.startsWith(`${prefix}:`);
     }
   }
+
+  // IPv4 CIDR
+  if (!client.includes(':') && !base.includes(':') && bits >= 0 && bits <= 32) {
+    const clientNum = ipv4ToNumber(client);
+    const baseNum = ipv4ToNumber(base);
+    if (clientNum !== null && baseNum !== null) {
+      const mask = bits === 0 ? 0 : ((0xffffffff << (32 - bits)) >>> 0);
+      return (clientNum & mask) === (baseNum & mask);
+    }
+  }
+
   return false;
 }
 
