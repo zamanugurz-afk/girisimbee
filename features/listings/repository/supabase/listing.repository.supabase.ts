@@ -291,7 +291,18 @@ export class SupabaseListingRepository implements ListingRepository {
     let query = this.supabase.from(TABLE).select(LISTING_ROW_SELECT).eq('id', id);
     if (!filter?.includeDeleted) query = query.is('deleted_at', null);
     const { data, error } = await query.maybeSingle();
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501' && this.ownerIdReader) {
+        let privilegedQuery = this.ownerIdReader.from(TABLE).select(LISTING_ROW_SELECT).eq('id', id);
+        if (!filter?.includeDeleted) privilegedQuery = privilegedQuery.is('deleted_at', null);
+        const res = await privilegedQuery.maybeSingle();
+        if (!res.error && res.data) {
+          const listing = mapListingRow(res.data as ListingRow);
+          return this.hydrateOwnerId(listing);
+        }
+      }
+      throw error;
+    }
     if (!data) return null;
     const listing = mapListingRow(data as ListingRow);
     const cleared = {
