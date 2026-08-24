@@ -139,6 +139,7 @@ export interface ListingDetail {
   /** İş Arıyorum — structured Kariyer Kartı (identity already redacted in mapper). */
   careerCard?: {
     variant?: 'seeker' | 'hire';
+    companyName?: string | null;
     desiredRole?: string | null;
     experienceLevel?: string | null;
     primarySector?: string | null;

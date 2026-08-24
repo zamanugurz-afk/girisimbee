@@ -27,9 +27,9 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   });
 
   it('3. renders EĞİTİM, SERTİFİKA / DİL and ÇALIŞMA TERCİHLERİ in left column', () => {
-    expect(source).toContain('<span>EĞİTİM</span>');
-    expect(source).toContain('<span>SERTİFİKA / DİL</span>');
-    expect(source).toContain('<span>ÇALIŞMA TERCİHLERİ</span>');
+    expect(source).toContain("<span>{isHire ? 'ARANAN EĞİTİM' : 'EĞİTİM'}</span>");
+    expect(source).toContain("<span>{isHire ? 'ARANAN DİL & SERTİFİKA' : 'SERTİFİKA / DİL'}</span>");
+    expect(source).toContain("<span>{isHire ? 'ÇALIŞMA ŞARTLARI' : 'ÇALIŞMA TERCİHLERİ'}</span>");
   });
 
   it('4. renders KARİYER ÖZETİ, UZMANLIK ALANLARI and İŞ DENEYİMLERİ in main column', () => {
@@ -45,8 +45,8 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('experiences.length > INITIAL_EXPERIENCE_LIMIT');
   });
 
-  it('6. uses framed card boxes with blue number nodes for experiences', () => {
-    expect(source).toContain('bg-blue-600 text-xs font-bold text-white shadow-sm');
+  it('6. uses framed card boxes with theme number nodes for experiences', () => {
+    expect(source).toContain('theme.numNode');
     expect(source).toContain('rounded-xl border border-slate-200/90 bg-slate-50/50');
   });
 

@@ -313,6 +313,7 @@ function buildCareerCardPreviewData(
   const name = isHire ? null : (displayName ?? null);
   return {
     variant: (isHire ? 'hire' : 'seeker') as 'hire' | 'seeker',
+    companyName: isHire ? String(customFields.companyName ?? '') || null : null,
     desiredRole: role,
     experienceLevel: getExperienceLevelLabel(String(customFields.experienceLevel ?? '')),
     primarySector: String(customFields.primarySector ?? ''),

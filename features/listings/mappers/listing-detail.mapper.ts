@@ -683,6 +683,7 @@ function buildCareerCard(
 
   return {
     variant,
+    companyName: toDisplayValue(cf.companyName) || toDisplayValue(cf.company) || null,
     desiredRole,
     experienceLevel: getExperienceLevelLabel(toDisplayValue(cf.experienceLevel)),
     primarySector: toDisplayValue(cf.primarySector),

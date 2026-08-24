@@ -37,7 +37,9 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
     <main
       className={cn(
         'relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background dark:from-background dark:via-background',
-        isCareerListing ? 'pt-6' : 'pt-14',
+        isCareerListing
+          ? 'pt-[calc(var(--gc-header-height,3.75rem)+0.75rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+1rem)]'
+          : 'pt-[calc(var(--gc-header-height,3.75rem)+1.5rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2rem)]',
       )}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
@@ -46,7 +48,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         className={cn(
           'relative mx-auto',
           isCareerListing
-            ? 'max-w-7xl 2xl:max-w-[1360px] px-4 py-4 pb-12 lg:px-6 lg:py-5 lg:pb-16'
+            ? 'max-w-7xl 2xl:max-w-[1360px] px-4 py-1 pb-12 lg:px-6 lg:py-2 lg:pb-16'
             : 'max-w-7xl px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
         )}
       >

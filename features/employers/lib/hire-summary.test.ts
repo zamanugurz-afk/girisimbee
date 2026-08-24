@@ -70,4 +70,14 @@ describe('buildHiringSummaryDraft', () => {
     expect(draft).not.toMatch(/Aranan yetkinlikler|Eğitim beklentisi|Dil beklentisi/);
     expect(findCareerProfileContentViolation(draft)).toBeNull();
   });
+
+  it('includes company name if provided', () => {
+    const draft = buildHiringSummaryDraft({
+      companyName: 'Acıbadem Sağlık Grubu',
+      desiredRole: 'Eczane Teknisyeni',
+      primarySector: 'Sağlık',
+    });
+    expect(draft).toMatch(/Acıbadem Sağlık Grubu bünyesinde/);
+    expect(draft).toMatch(/Eczane Teknisyeni/);
+  });
 });

@@ -7,6 +7,7 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 
 export type HiringSummaryInput = {
+  companyName?: string | null;
   desiredRole?: string | null;
   experienceLevel?: string | null;
   primarySector?: string | null;
@@ -104,9 +105,11 @@ export function buildHiringSummaryDraft(input: HiringSummaryInput): string {
   const salary = (input.salaryRange ?? '').trim();
 
   const sentences: string[] = [];
+  const company = (input.companyName ?? '').trim();
   const where = sector ? `${sector} alanında ` : '';
   const levelBit = level ? `${level} ` : '';
-  sentences.push(sentence(capitalizeTr(`${where}${levelBit}${role} arıyoruz`)));
+  const prefix = company ? `${company} bünyesinde ` : '';
+  sentences.push(sentence(capitalizeTr(`${prefix}${where}${levelBit}${role} arıyoruz`)));
 
   if (duties.length > 0) {
     sentences.push(sentence(`Görev kapsamında ${joinTr(duties)} yer alıyor`));
