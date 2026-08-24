@@ -15,6 +15,7 @@ import { ListingDigitalRecommendations } from '@/features/digital-solution-match
 import { ListingFranchiseRecommendations } from '@/features/franchise-matching/presentation/listing-franchise-recommendations';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
+import { cn } from '@/lib/utils';
 import type { ListingDetail } from '@/features/listings';
 
 interface ListingDetailViewProps {
@@ -33,10 +34,22 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
   const isFranchiseListing = listing.category.id === 'franchise';
 
   return (
-    <main className="relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background pt-14 dark:from-background dark:via-background">
+    <main
+      className={cn(
+        'relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background dark:from-background dark:via-background',
+        isCareerListing ? 'pt-6' : 'pt-14',
+      )}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
 
-      <div className="relative mx-auto max-w-7xl px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12">
+      <div
+        className={cn(
+          'relative mx-auto max-w-7xl',
+          isCareerListing
+            ? 'px-4 py-3 pb-8 lg:px-6 lg:py-3.5 lg:pb-8'
+            : 'px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
+        )}
+      >
         <ListingBreadcrumb listing={listing} />
 
         {isCareerListing ? null : (
@@ -60,7 +73,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         ) : null}
 
         {isCareerListing ? (
-          <div className="mt-6">
+          <div className="mt-3">
             <ListingMainContent listing={listing} />
           </div>
         ) : (

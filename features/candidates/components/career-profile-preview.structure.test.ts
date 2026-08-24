@@ -16,15 +16,13 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   const mapper = read('features/listings/mappers/listing-detail.mapper.ts');
 
   it('1. contains the 2-column layout with left (aside) and main columns', () => {
-    expect(source).toContain('grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)]');
+    expect(source).toContain('lg:grid-cols-[280px_minmax(0,1fr)]');
     expect(source).toContain('<aside');
     expect(source).toContain('<main');
   });
 
-  it('2. uses blue linear user icon for profile identity without photo/avatar images', () => {
-    expect(source).toContain('<User className="h-7 w-7" />');
-    expect(source).toContain('bg-blue-50 text-blue-600');
-    // Ensure avatar is icon-based and does not embed photo img tags in identity card
+  it('2. uses clean typography for profile identity without photo/avatar images', () => {
+    // Ensure identity card does not embed photo img tags
     expect(source).not.toContain('<img src={data.avatarUrl}');
   });
 
