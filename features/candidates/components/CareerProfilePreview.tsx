@@ -374,18 +374,18 @@ function SkillChips({
 
   if (isCol) {
     return (
-      <div className="flex flex-col items-start gap-2.5 w-full">
+      <div className="flex flex-col items-start gap-1.5 w-full">
         {visible.map((val, idx) => {
           const Icon = getSkillIcon(val);
           return (
             <div
               key={`${val}-${idx}`}
-              className="flex items-center gap-2.5 py-0.5 min-w-0 max-w-full group"
+              className="flex items-center gap-2 py-0.5 min-w-0 max-w-full group"
             >
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
-                <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+              <div className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                <Icon className="h-3 w-3 stroke-[2.2]" />
               </div>
-              <span className="text-xs font-semibold text-slate-800 dark:text-foreground truncate leading-tight">
+              <span className="text-[11.5px] font-semibold text-slate-800 dark:text-foreground truncate leading-tight">
                 {val}
               </span>
             </div>
@@ -395,7 +395,7 @@ function SkillChips({
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1 transition-colors cursor-pointer pt-1"
+            className="text-[11px] font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1 transition-colors cursor-pointer pt-0.5"
           >
             +{hidden} diğer uzmanlık
           </button>
@@ -666,21 +666,21 @@ export function CareerProfilePreview({
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="space-y-3">
-          <div className="rounded-2xl border border-sky-300/80 bg-white p-4 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card">
-            <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
+      <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[290px_minmax(0,1fr)]">
+        <aside className="space-y-2.5">
+          <div className="rounded-2xl border border-sky-300/80 bg-white p-3 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card">
+            <Heading className="truncate text-sm sm:text-base font-bold text-slate-900 dark:text-foreground">
               {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
             </Heading>
-            <hr className="border-slate-100 dark:border-border/80 my-2" />
-            <div className="space-y-1">
+            <hr className="border-slate-100 dark:border-border/80 my-1.5" />
+            <div className="space-y-0.5">
               {(data.primarySector || data.desiredRole) ? (
                 <p className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">
                   {[data.primarySector, data.desiredRole].filter(Boolean).join(' - ')}
                 </p>
               ) : null}
               {locationText ? (
-                <p className="truncate text-xs text-slate-500 dark:text-muted-foreground">
+                <p className="truncate text-[11px] text-slate-500 dark:text-muted-foreground">
                   {locationText}
                 </p>
               ) : null}
@@ -688,23 +688,23 @@ export function CareerProfilePreview({
           </div>
 
           {hasEducation ? (
-            <div className="rounded-2xl border border-sky-300/80 bg-white p-3.5 sm:p-4 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-2.5">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                <GraduationCap className="h-4 w-4" />
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-2.5 sm:p-3 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <GraduationCap className="h-3.5 w-3.5" />
                 <span>EĞİTİM</span>
               </div>
               {data.educationHistory && data.educationHistory.length > 0 ? (
-                <div className="space-y-2.5">
+                <div className="space-y-1.5">
                   {data.educationHistory.map((edu, idx) => (
                     <div key={idx} className="space-y-0.5">
-                      <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-foreground">
+                      <p className="text-xs font-bold text-slate-800 dark:text-foreground">
                         {edu.level || 'Eğitim'}
                       </p>
                       {edu.field ? (
-                        <p className="text-xs text-slate-600 dark:text-slate-300">{edu.field}</p>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-300">{edu.field}</p>
                       ) : null}
                       {edu.school || edu.graduationYear ? (
-                        <p className="text-[11px] text-slate-400 dark:text-muted-foreground">
+                        <p className="text-[10px] text-slate-400 dark:text-muted-foreground">
                           {[edu.school, edu.graduationYear].filter(Boolean).join(' · ')}
                         </p>
                       ) : null}
@@ -713,11 +713,11 @@ export function CareerProfilePreview({
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-foreground">
+                  <p className="text-xs font-bold text-slate-800 dark:text-foreground">
                     {data.educationLevel || 'Eğitim'}
                   </p>
                   {data.educationField ? (
-                    <p className="text-xs text-slate-600 dark:text-slate-300">{data.educationField}</p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300">{data.educationField}</p>
                   ) : null}
                 </div>
               )}
@@ -725,18 +725,18 @@ export function CareerProfilePreview({
           ) : null}
 
           {hasCertificatesOrLanguages ? (
-            <div className="rounded-2xl border border-sky-300/80 bg-white p-3.5 sm:p-4 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-2.5">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                <Award className="h-4 w-4" />
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-2.5 sm:p-3 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Award className="h-3.5 w-3.5" />
                 <span>SERTİFİKA / DİL</span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {certificates.map((cert, idx) => (
                   <div key={idx} className="flex items-start gap-1.5">
-                    <div className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+                    <div className="mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
                       <Check className="h-2 w-2 stroke-[3]" />
                     </div>
-                    <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-snug">
+                    <p className="text-[11px] font-semibold text-slate-800 dark:text-foreground leading-tight">
                       {cert}
                     </p>
                   </div>
@@ -745,10 +745,10 @@ export function CareerProfilePreview({
                   const name = lang.languageOther?.trim() || lang.language;
                   const starCount = getLanguageStars(lang.level);
                   return (
-                    <div key={idx} className="flex items-center gap-2">
+                    <div key={idx} className="flex items-center gap-1.5">
                       <div className="flex items-center gap-1 shrink-0">
                         <Globe className="h-3 w-3 shrink-0 text-blue-600 dark:text-blue-400" />
-                        <span className="text-xs font-semibold text-slate-800 dark:text-foreground">
+                        <span className="text-[11px] font-semibold text-slate-800 dark:text-foreground">
                           {name}
                         </span>
                       </div>
@@ -758,7 +758,7 @@ export function CareerProfilePreview({
                             <Star
                               key={star}
                               className={cn(
-                                'h-3 w-3',
+                                'h-2.5 w-2.5',
                                 star <= starCount
                                   ? 'fill-amber-400 text-amber-400'
                                   : 'fill-slate-100 text-slate-200 dark:fill-slate-800 dark:text-slate-700',
@@ -767,7 +767,7 @@ export function CareerProfilePreview({
                           ))}
                         </div>
                       ) : lang.level ? (
-                        <span className="ml-auto shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                        <span className="ml-auto shrink-0 rounded-full border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[9.5px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
                           {lang.level}
                         </span>
                       ) : null}
@@ -779,22 +779,22 @@ export function CareerProfilePreview({
           ) : null}
 
           {workPreferenceFacts.length > 0 ? (
-            <div className="rounded-2xl border border-sky-300/80 bg-white p-3.5 sm:p-4 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-2.5">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                <Briefcase className="h-4 w-4" />
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-2.5 sm:p-3 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Briefcase className="h-3.5 w-3.5" />
                 <span>ÇALIŞMA TERCİHLERİ</span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {workPreferenceFacts.map((fact, idx) => {
                   const IconComponent = fact.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-2">
-                      <IconComponent className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-muted-foreground" />
+                    <div key={idx} className="flex items-start gap-1.5">
+                      <IconComponent className="mt-0.5 h-3 w-3 shrink-0 text-slate-400 dark:text-muted-foreground" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400 dark:text-muted-foreground">
+                        <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400 dark:text-muted-foreground leading-none">
                           {fact.label}
                         </p>
-                        <p className="truncate text-xs font-semibold text-slate-800 dark:text-foreground">
+                        <p className="truncate text-[11px] font-semibold text-slate-800 dark:text-foreground mt-0.5">
                           {fact.value}
                         </p>
                       </div>
@@ -871,37 +871,37 @@ export function CareerProfilePreview({
           ) : null}
         </aside>
 
-        <main className="rounded-2xl border border-sky-300/80 bg-white p-4 sm:p-5 lg:p-5 pb-3 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card flex flex-col justify-between gap-4">
-          <div className="space-y-4">
+        <main className="rounded-2xl border border-sky-300/80 bg-white p-3 sm:p-3.5 lg:p-4 pb-2.5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card flex flex-col justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-2.5 sm:space-y-3">
             {summary ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                   <User className="h-3.5 w-3.5" />
                   <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
                 </div>
-                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-3 sm:p-3.5 shadow-2xs dark:border-border dark:bg-card/50">
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-2.5 sm:p-3 shadow-2xs dark:border-border dark:bg-card/50">
                   <ExpandableSummary text={summary} />
                 </div>
               </div>
             ) : null}
 
             {!isHire ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
-                <div className={cn('space-y-2.5', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-5 items-start">
+                <div className={cn('space-y-2', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                       <Briefcase className="h-3.5 w-3.5" />
                       <span>İŞ DENEYİMLERİ</span>
                     </div>
                     {experiences.length > 0 ? (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
                         {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
                       </span>
                     ) : null}
                   </div>
 
                   {experiences.length > 0 ? (
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {visibleExperiences.map((exp, idx) => {
                         const durationBadge = formatExperienceDurationBadge(exp);
                         const startText =
@@ -918,7 +918,7 @@ export function CareerProfilePreview({
                         return (
                           <div
                             key={exp.id || idx}
-                            className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-3 sm:p-3.5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3 sm:gap-4"
+                            className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-2.5 sm:p-3 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-2.5 sm:gap-3"
                           >
                             <div className="flex flex-col items-center">
                               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
@@ -926,17 +926,17 @@ export function CareerProfilePreview({
                               </div>
                             </div>
 
-                            <div className="w-22 sm:w-26 shrink-0 pt-0.5">
-                              <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
+                            <div className="w-20 sm:w-24 shrink-0 pt-0.5">
+                              <p className="text-[11px] font-semibold text-slate-800 dark:text-foreground leading-tight">
                                 {startText || 'Başlangıç'}
                               </p>
                               {endText ? (
-                                <p className="text-[11px] font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                                <p className="text-[10px] font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
                                   - {endText}
                                 </p>
                               ) : null}
                               {durationBadge ? (
-                                <span className="mt-1 inline-block rounded-full border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                                <span className="mt-0.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-1.5 py-0.2 text-[9.5px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
                                   {durationBadge}
                                 </span>
                               ) : null}
@@ -945,10 +945,10 @@ export function CareerProfilePreview({
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2">
                                 <div>
-                                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
+                                  <h4 className="text-xs font-bold text-slate-900 dark:text-foreground leading-snug">
                                     {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
                                   </h4>
-                                  <p className="text-[11px] font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                                  <p className="text-[10.5px] font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
                                     {[
                                       (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
                                       exp.sector,
@@ -982,7 +982,7 @@ export function CareerProfilePreview({
                               </div>
 
                               {duties.length > 0 ? (
-                                <ul className="mt-1.5 space-y-0.5 text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                                <ul className="mt-1 space-y-0.5 text-[11px] text-slate-600 dark:text-slate-300 leading-tight">
                                   {duties.map((duty, dIdx) => (
                                     <li key={dIdx} className="flex items-start gap-1.5">
                                       <span className="text-slate-400 font-bold">•</span>
@@ -1021,12 +1021,12 @@ export function CareerProfilePreview({
                 </div>
 
                 {allSkills.length > 0 ? (
-                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-5 space-y-2.5 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-4 space-y-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                       <Sliders className="h-3.5 w-3.5" />
                       <span>UZMANLIK ALANLARI</span>
                     </div>
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1">
                       <SkillChips values={allSkills} limit={12} layout="column" />
                     </div>
                   </div>
@@ -1035,8 +1035,8 @@ export function CareerProfilePreview({
             ) : (
               <>
                 {allSkills.length > 0 ? (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                       <Sliders className="h-3.5 w-3.5" />
                       <span>UZMANLIK ALANLARI</span>
                     </div>
@@ -1048,30 +1048,30 @@ export function CareerProfilePreview({
           </div>
 
           {(showContactBanner || (!authLoading && isOwner && listingId)) ? (
-            <div className="mt-auto pt-1.5 space-y-3">
+            <div className="mt-auto pt-1 space-y-2">
               {showContactBanner ? (
                 <div
                   className={cn(
-                    'rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors',
+                    'rounded-xl p-2.5 sm:p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 transition-colors',
                     isContactAccepted
                       ? 'border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40'
                       : 'border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:border-blue-900/40 dark:from-blue-950/40 dark:to-indigo-950/30',
                   )}
                 >
-                  <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                  <div className="flex items-center gap-2.5 min-w-0 w-full sm:w-auto">
                     {isContactAccepted ? (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
-                        <Check className="h-4 w-4 stroke-[3]" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
+                        <Check className="h-3.5 w-3.5 stroke-[3]" />
                       </div>
                     ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
-                        <Send className="h-3.5 w-3.5" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
+                        <Send className="h-3 w-3" />
                       </div>
                     )}
                     <div className="min-w-0">
                       <p
                         className={cn(
-                          'text-xs font-bold uppercase tracking-wider',
+                          'text-[11px] font-bold uppercase tracking-wider',
                           isContactAccepted
                             ? 'text-emerald-900 dark:text-emerald-200'
                             : 'text-blue-900 dark:text-blue-200',
@@ -1079,7 +1079,7 @@ export function CareerProfilePreview({
                       >
                         {isContactAccepted ? 'İletişim talebiniz kabul edildi.' : 'İLETİŞİM TALEBİ GÖNDER'}
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                         {isContactAccepted
                           ? 'Artık bu adayla iletişime geçebilirsiniz.'
                           : 'Bu adayla iletişime geçmek için talebinizi iletin. Uygun gördüğünüz adaylarla görüşebilirsiniz.'}
@@ -1092,7 +1092,7 @@ export function CareerProfilePreview({
                       <Button
                         type="button"
                         onClick={handleDirectContact}
-                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 h-8 shadow-sm shrink-0 flex items-center justify-center gap-1.5"
                       >
                         <PhoneCall className="h-3.5 w-3.5" />
                         <span>Adayla İletişime Geç</span>
@@ -1102,7 +1102,7 @@ export function CareerProfilePreview({
                         type="button"
                         onClick={handleOpenContactModal}
                         disabled={isPending}
-                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 h-8 shadow-sm shrink-0 flex items-center justify-center gap-1.5"
                       >
                         <Send className="h-3.5 w-3.5" />
                         <span>{isPending ? 'Talep Bekliyor' : 'İletişim Talebi Gönder'}</span>

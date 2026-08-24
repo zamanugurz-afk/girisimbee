@@ -205,20 +205,20 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
 
   if (!open) {
     return (
-      <div className={cn('rounded-2xl border border-primary/25 bg-primary/[0.06] p-4', className)}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className={cn('rounded-xl border border-primary/20 bg-primary/[0.04] p-2.5 sm:p-3', className)}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
               İlan sahibi
             </p>
-            <p className="mt-1 text-gc-sm font-medium text-foreground">
+            <p className="mt-0.5 text-xs font-semibold text-foreground">
               İlanınızı ana sayfada öne çıkarın
             </p>
-            <p className="mt-0.5 text-gc-xs text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Vitrin veya Acil Vitrin paketi alın — ödeme şimdilik simüle edilir.
             </p>
           </div>
-          <Button type="button" onClick={() => setOpen(true)} className="shrink-0">
+          <Button type="button" onClick={() => setOpen(true)} size="sm" className="shrink-0 h-8 px-4 text-xs font-semibold rounded-lg">
             Paket Al
           </Button>
         </div>
