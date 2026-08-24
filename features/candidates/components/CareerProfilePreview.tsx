@@ -195,19 +195,71 @@ function ExpandableSummary({ text }: { text: string }) {
   );
 }
 
-function SkillChips({ values, limit = 8 }: { values: string[]; limit?: number }) {
+function rankSkillsByRoleAndSector(
+  skills: string[],
+  role?: string | null,
+  sector?: string | null,
+  professionalSkills: string[] = [],
+  technicalSkills: string[] = [],
+  preferredSectors: string[] = [],
+): string[] {
+  const roleLower = (role ?? '').toLocaleLowerCase('tr-TR');
+  const sectorLower = (sector ?? '').toLocaleLowerCase('tr-TR');
+
+  const scored = skills.map((skill) => {
+    const sLower = skill.toLocaleLowerCase('tr-TR');
+    let score = 0;
+
+    // Professional skills and tools have high inherent value
+    if (professionalSkills.includes(skill)) score += 40;
+    if (technicalSkills.includes(skill)) score += 30;
+    if (preferredSectors.includes(skill)) score += 10;
+
+    // Direct match with primary sector
+    if (sectorLower && (sLower.includes(sectorLower) || sectorLower.includes(sLower))) {
+      score += 50;
+    }
+
+    // Direct match with position / role keywords
+    const roleWords = roleLower.split(/[\s/,-]+/).filter((w) => w.length > 2);
+    for (const word of roleWords) {
+      if (sLower.includes(word)) {
+        score += 60;
+        break;
+      }
+    }
+
+    return { skill, score };
+  });
+
+  // Sort descending by score; keep stable tie-break
+  scored.sort((a, b) => b.score - a.score);
+
+  return dedupeStrings(scored.map((item) => item.skill));
+}
+
+function SkillChips({
+  values,
+  limit = 8,
+  layout = 'row',
+}: {
+  values: string[];
+  limit?: number;
+  layout?: 'row' | 'column';
+}) {
   const [expanded, setExpanded] = useState(false);
   if (values.length === 0) return null;
 
   const visible = expanded ? values : values.slice(0, limit);
   const hidden = values.length - visible.length;
+  const isCol = layout === 'column';
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={cn(isCol ? 'flex flex-col items-start gap-2 w-full' : 'flex flex-wrap items-center gap-2')}>
       {visible.map((val, idx) => (
         <span
           key={`${val}-${idx}`}
-          className="inline-flex items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3.5 py-1.5 text-xs font-medium text-blue-700 shadow-none dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
+          className="inline-flex max-w-full truncate items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3.5 py-1.5 text-xs font-medium text-blue-700 shadow-none dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
         >
           {val}
         </span>
@@ -218,14 +270,14 @@ function SkillChips({ values, limit = 8 }: { values: string[]; limit?: number })
           onClick={() => setExpanded(true)}
           className="inline-flex items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100 transition-colors dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
         >
-          +{hidden}
+          +{hidden} diğer
         </button>
       ) : null}
       {expanded && values.length > limit ? (
         <button
           type="button"
           onClick={() => setExpanded(false)}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 ml-1"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
         >
           Daha az göster
         </button>
@@ -288,7 +340,17 @@ export function CareerProfilePreview({
   const professionalAll = asList(data.professionalSkills);
   const technicalAll = dedupeStrings([...asList(data.technicalSkills), ...toolsAll]);
   const preferredSectors = asList(data.preferredSectors);
-  const allSkills = dedupeStrings([...preferredSectors, ...professionalAll, ...technicalAll]);
+
+  // Sector and position-driven ranking:
+  const rawSkills = dedupeStrings([...professionalAll, ...technicalAll, ...preferredSectors]);
+  const allSkills = rankSkillsByRoleAndSector(
+    rawSkills,
+    data.desiredRole,
+    data.primarySector,
+    professionalAll,
+    technicalAll,
+    preferredSectors,
+  );
 
   const certificates = asList(data.certificates);
   const languages = parseCareerLanguages(data.languages).filter(
@@ -778,7 +840,7 @@ export function CareerProfilePreview({
                     <span>UZMANLIK ALANLARI</span>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <SkillChips values={allSkills} limit={12} />
+                    <SkillChips values={allSkills} limit={12} layout="column" />
                   </div>
                 </div>
               ) : null}
