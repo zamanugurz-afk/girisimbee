@@ -44,10 +44,10 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
 
       <div
         className={cn(
-          'relative mx-auto max-w-7xl',
+          'relative mx-auto',
           isCareerListing
-            ? 'px-4 py-3 pb-8 lg:px-6 lg:py-3.5 lg:pb-8'
-            : 'px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
+            ? 'max-w-7xl 2xl:max-w-[1360px] px-4 py-4 pb-12 lg:px-6 lg:py-5 lg:pb-16'
+            : 'max-w-7xl px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
         )}
       >
         <ListingBreadcrumb listing={listing} />
