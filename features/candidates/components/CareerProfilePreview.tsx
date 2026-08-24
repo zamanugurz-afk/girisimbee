@@ -752,15 +752,15 @@ export function CareerProfilePreview({
                   const name = lang.languageOther?.trim() || lang.language;
                   const starCount = getLanguageStars(lang.level);
                   return (
-                    <div key={idx} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <Globe className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
-                        <span className="truncate text-xs font-semibold text-slate-800 dark:text-foreground">
+                        <span className="text-xs font-semibold text-slate-800 dark:text-foreground">
                           {name}
                         </span>
                       </div>
                       {starCount > 0 ? (
-                        <div className="flex items-center gap-0.5 shrink-0" title={lang.level || ''}>
+                        <div className="flex items-center gap-0.5 ml-1" title={lang.level || ''}>
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                               key={star}
@@ -774,7 +774,7 @@ export function CareerProfilePreview({
                           ))}
                         </div>
                       ) : lang.level ? (
-                        <span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                        <span className="ml-auto shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
                           {lang.level}
                         </span>
                       ) : null}
