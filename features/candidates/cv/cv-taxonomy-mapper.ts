@@ -535,8 +535,16 @@ export function matchCanonicalPosition(rawRole: string): {
   isAmbiguous: boolean;
   candidates: string[];
 } {
+  if (!rawRole) {
+    return { canonical: '', isAmbiguous: false, candidates: [] };
+  }
   const clean = rawRole.trim().toLowerCase();
   const norm = normalizeTrMatch(rawRole);
+
+  if (/^(?:curriculum\s*vitae|cv|resume|ozgecmis(?:\s*formu)?|portfolio|referanslar|egitim|deneyim)$/i.test(norm)) {
+    return { canonical: '', isAmbiguous: false, candidates: [] };
+  }
+
   const allPositions = getAllTaxonomyPositions();
 
   // 1. Direct Canonical Match or Direct Alias Match

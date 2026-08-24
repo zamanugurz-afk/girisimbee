@@ -390,6 +390,27 @@ export const FORBIDDEN_SECTION_WORD_ROOTS = new Set([
   'institut',
 ]);
 
+const KNOWN_TITLE_CASE_OVERRIDES: Record<string, string> = {
+  bilgin: 'Bilgin',
+  engin: 'Engin',
+  metin: 'Metin',
+  cetin: 'Çetin',
+  ismail: 'İsmail',
+  ibrahim: 'İbrahim',
+  ilker: 'İlker',
+  ilhan: 'İlhan',
+  izgi: 'İzgi',
+  irem: 'İrem',
+  ipek: 'İpek',
+  inci: 'İnci',
+  ilknur: 'İlknur',
+  ilayda: 'İlayda',
+  yigit: 'Yiğit',
+  yagiz: 'Yağız',
+  caglar: 'Çağlar',
+  cagri: 'Çağrı',
+};
+
 /**
  * Converts a Turkish name into clean Title Case (e.g. "UĞUR ZAMAN" -> "Uğur Zaman")
  */
@@ -400,6 +421,10 @@ export function formatTurkishTitleCase(str: string): string {
     .split(/\s+/)
     .map((word) => {
       if (!word) return '';
+      const norm = normalizeTrUniversal(word);
+      if (KNOWN_TITLE_CASE_OVERRIDES[norm]) {
+        return KNOWN_TITLE_CASE_OVERRIDES[norm];
+      }
       const first = word.charAt(0).toLocaleUpperCase('tr-TR');
       const rest = word.slice(1).toLocaleLowerCase('tr-TR');
       return first + rest;
@@ -580,7 +605,7 @@ function isValidSurnameToken(word: string, norm: string): boolean {
   
   // Job titles, occupational nouns, corporate entities, industry domains, HR / departmental / contact tokens
   if (
-    /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli|holding|sirket|ltd|banka|hastane|universite|fakulte|enstitu|mudurluk|bakanlik|belediye|sanayi|ticaret|vakif|dernek|ofis|merkez|klinik|hizmet|grup|group|lise|okul|lisans|doktora|teknik|teknoloji|yazarligi|yazarlik|yazar|saglik|tip|poliklinik|lojistik|pazarlama|muhasebe|finans|sigorta|reklam|medya|yayincilik|gazete|ajans|turizm|otelcilik|gida|tarim|tekstil|insaat|enerji|otomotiv|insan|kaynaklari|kaynaklar|departmani|bolumu|hukuk|avukat|musaviri|musavir|telefon|eposta|email|mail|gsm|iletisim)\b/i.test(
+    /\b(?:gelistirici|developer|engineer|muhendisi|muhendis|uzmani|uzman|muduru|mudur|yoneticisi|yonetici|temsilcisi|temsilci|danismani|danisman|direktoru|direktor|operatoru|operator|analisti|analist|teknisyeni|teknisyen|teknikeri|tekniker|stajyeri|stajyer|ogrencisi|ogrenci|sorumlusu|sorumlu|koordinatoru|koordinator|asistani|asistan|baskani|baskan|sef|sefi|lideri|lider|personeli|elemani|gorevlisi|gorevli|holding|sirket|ltd|banka|hastane|universite|fakulte|enstitu|mudurluk|bakanlik|belediye|sanayi|ticaret|vakif|dernek|ofis|merkez|klinik|hizmet|grup|group|lise|okul|lisans|doktora|teknik|teknoloji|yazarligi|yazarlik|yazar|saglik|tip|poliklinik|lojistik|pazarlama|muhasebe|finans|sigorta|reklam|medya|yayincilik|gazete|ajans|turizm|otelcilik|gida|tarim|tekstil|insaat|enerji|otomotiv|insan|kaynaklari|kaynaklar|departmani|bolumu|hukuk|avukat|musaviri|musavir|telefon|eposta|email|mail|gsm|iletisim|bilgisayar|yazilim|donanim|sistem|ag|veri|robotik|yapay|zeka|futbol|futbolcu|santrafor|kaleci|stoper|orta|saha|basketbol|voleybol|antrenor|tasarim|grafik|iktisat|isletme|kidemli|bas|lead|senior|junior|mid|tedarik|zinciri|planlama|frontend|backend|fullstack|mimari|mimar|film|produksiyon|studyo|studio|sinema|tiyatro|muzik|haber|kelime|sozcuk|cumle|satir|paragraf|sayfa|ornek|deneme|yazi|belge|dosya|dokuman|resim|foto|kod|hakkinda)\b/i.test(
       norm,
     )
   ) {
@@ -600,7 +625,9 @@ export function extractCandidateNameBySlidingWindow(rawText: string | null | und
   if (!text) return null;
 
   // Extract email username tokens for cross-corroboration
-  const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const emailMatch =
+    text.match(/([a-zA-Z0-9._%+-]+)@(gmail|hotmail|outlook|yahoo|icloud|yandex|proton)\.[a-zA-Z]{2,}/i) ||
+    text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const emailTokens = emailMatch
     ? emailMatch[1].toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((t) => t.length >= 2)
     : [];
@@ -621,28 +648,77 @@ export function extractCandidateNameBySlidingWindow(rawText: string | null | und
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const maxScanLines = Math.min(lines.length, 30);
 
+  let inRefereeSection = false;
   for (let lineIdx = 0; lineIdx < maxScanLines; lineIdx++) {
     const line = lines[lineIdx];
+    const normLine = normalizeTrUniversal(line);
+
+    if (normLine.startsWith('referans') || normLine === 'references') {
+      inRefereeSection = true;
+      continue;
+    }
+    if (inRefereeSection) {
+      const hasRefereeMarkers =
+        normLine.includes('ref@') ||
+        normLine.includes('referans') ||
+        /\b(?:yonetim\s*kurulu|genel\s*mudur|direktor|baskan|mudur|sef|lider|danisman|prof|docent)\b/i.test(normLine);
+
+      const hasCandidateEmailMatch = emailTokens.length > 0 && emailTokens.some((t) => normLine.includes(t));
+      const nextLine = lines[lineIdx + 1] ? normalizeTrUniversal(lines[lineIdx + 1]) : '';
+      const nextLineHasCandidateDetails =
+        TURKISH_CITIES.some((c) => nextLine.includes(normalizeTrUniversal(c))) ||
+        (emailTokens.length > 0 && emailTokens.some((t) => nextLine.includes(t)));
+
+      if (
+        normLine.startsWith('iletisim') ||
+        normLine.startsWith('kisisel') ||
+        normLine.startsWith('egitim') ||
+        normLine.startsWith('deneyim') ||
+        normLine.startsWith('is deneyim') ||
+        normLine.startsWith('is gecmis') ||
+        normLine.startsWith('hakkimda') ||
+        normLine.startsWith('ozet') ||
+        normLine.startsWith('yetkinlik') ||
+        normLine.startsWith('beceri')
+      ) {
+        inRefereeSection = false;
+        continue;
+      } else if (hasCandidateEmailMatch || (nextLineHasCandidateDetails && !hasRefereeMarkers)) {
+        inRefereeSection = false;
+        // Proceed to tokenize this line as candidate name
+      } else {
+        continue;
+      }
+    }
 
     // Skip lines that are obvious section headers
-    const normLine = normalizeTrUniversal(line);
     if (FORBIDDEN_NAME_SECTIONS.has(normLine) || FORBIDDEN_SECTION_WORD_ROOTS.has(normLine)) {
       continue;
     }
 
-    const rawWords = line
-      .replace(/[\p{Extended_Pictographic}\uFE00-\uFE0F]/gu, ' ')
-      .replace(/[•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:;,/\\()[\]{}"]/g, ' ')
-      .split(/\s+/)
-      .filter(Boolean);
+    // Split line into clause segments delimited by pipes, dashes with spaces, slashes with spaces, or parens
+    const segments = line.split(/[|]|(?:\s+[\/\-–—]\s+)|(?:\s*[\(\)]\s*)/).map((s) => s.trim()).filter(Boolean);
 
-    if (rawWords.length < 2) continue;
+    for (const segment of segments) {
+      const cleanSegment = segment
+        .replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, ' ')
+        .replace(/(?:https?:\/\/|www\.)[^\s]+/gi, ' ')
+        .replace(/(?:\+?90|0?5\d{2})[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g, ' ')
+        .replace(/\b\d{10,11}\b/g, ' ')
+        .replace(/[\p{Extended_Pictographic}\uFE00-\uFE0F]/gu, ' ')
+        .replace(/[•*·\->–—👤📱📧🔗🏠★☆▶◀■□◆◇●○▲▼|:;,/\\()[\]{}"]/g, ' ');
 
-    for (let i = 0; i < rawWords.length - 1; i++) {
-      const w1 = rawWords[i];
-      const w2 = rawWords[i + 1];
-      const w3 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
-      const nextWordAfter2 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
+      const rawWords = cleanSegment
+        .split(/\s+/)
+        .filter(Boolean);
+
+      if (rawWords.length < 2) continue;
+
+      for (let i = 0; i < rawWords.length - 1; i++) {
+        const w1 = rawWords[i];
+        const w2 = rawWords[i + 1];
+        const w3 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
+        const nextWordAfter2 = i + 2 < rawWords.length ? rawWords[i + 2] : '';
       const nextWordAfter3 = i + 3 < rawWords.length ? rawWords[i + 3] : '';
       const normNext2 = nextWordAfter2 ? normalizeTrUniversal(nextWordAfter2) : '';
       const normNext3 = nextWordAfter3 ? normalizeTrUniversal(nextWordAfter3) : '';
@@ -678,6 +754,20 @@ export function extractCandidateNameBySlidingWindow(rawText: string | null | und
 
       if (isW1GivenName) {
         const isW2GivenName = EXTENSIVE_TURKISH_MALE_NAMES.has(norm2) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(norm2);
+        const w4 = i + 3 < rawWords.length ? rawWords[i + 3] : '';
+        const norm4 = w4 ? normalizeTrUniversal(w4) : '';
+        const isW3GivenName = norm3 ? EXTENSIVE_TURKISH_MALE_NAMES.has(norm3) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(norm3) : false;
+
+        // 0. Check 4-word candidate: [GivenName1, GivenName2, GivenName3, Surname]
+        if (w4 && isW2GivenName && isW3GivenName && isValidSurnameToken(w4, norm4)) {
+          let score = 240;
+          if (lineIdx === 0) score += 70;
+          else if (lineIdx < 5) score += 50;
+          const candidateName = `${w1} ${w2} ${w3} ${w4}`;
+          if (!isForbiddenNameCandidate(candidateName)) {
+            candidates.push({ fullName: candidateName, score, lineIndex: lineIdx, wordIndex: i });
+          }
+        }
 
         // 1. Check 3-word candidate: [GivenName1, GivenName2, Surname] or [GivenName, Surname1, Surname2]
         if (w3 && !isInstitutionalToken(normNext3)) {
@@ -691,9 +781,12 @@ export function extractCandidateNameBySlidingWindow(rawText: string | null | und
             else if (lineIdx < 10) score += 30;
 
             const matchesEmail1 = emailTokens.some((t) => t.includes(norm1) || norm1.includes(t));
+            const matchesEmail2 = emailTokens.some((t) => t.includes(norm2) || norm2.includes(t));
             const matchesEmailLast = emailTokens.some((t) => t.includes(norm3) || norm3.includes(t));
-            if (matchesEmail1 && matchesEmailLast) score += 200;
-            else if (matchesEmail1 || matchesEmailLast) score += 80;
+            const emailMatchCount = [matchesEmail1, matchesEmail2, matchesEmailLast].filter(Boolean).length;
+
+            if (emailMatchCount >= 2) score += 200;
+            else if (emailMatchCount === 1) score += 80;
 
             if (
               w1 === w1.toLocaleUpperCase('tr-TR') &&
@@ -734,9 +827,10 @@ export function extractCandidateNameBySlidingWindow(rawText: string | null | und
           // Uppercase or TitleCase bonus:
           if (w1 === w1.toLocaleUpperCase('tr-TR') && w2 === w2.toLocaleUpperCase('tr-TR')) score += 30;
 
-          const candidateName = `${w1} ${w2}`;
-          if (!isForbiddenNameCandidate(candidateName)) {
-            candidates.push({ fullName: candidateName, score, lineIndex: lineIdx, wordIndex: i });
+            const candidateName = `${w1} ${w2}`;
+            if (!isForbiddenNameCandidate(candidateName)) {
+              candidates.push({ fullName: candidateName, score, lineIndex: lineIdx, wordIndex: i });
+            }
           }
         }
       }
@@ -770,22 +864,6 @@ export function extractCandidateName(
   if (!rawText) return null;
   const text = normalizeCvText(rawText, true);
   if (!text) return null;
-
-  // Tier 0.5: High-Confidence Filename Candidate (e.g. "CV - UĞUR ZAMAN (4).pdf" -> "Uğur Zaman")
-  if (fileName) {
-    const fnCandidate = extractCandidateNameFromFileName(fileName);
-    if (fnCandidate) {
-      const emailMatch = text.match(/([a-zA-Z0-9._%+-]+)@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      if (emailMatch) {
-        const emailNorm = normalizeTrUniversal(emailMatch[1]);
-        const fnNormWords = fnCandidate.split(/\s+/).map((w) => normalizeTrUniversal(w));
-        const emailMatches = fnNormWords.filter((w) => w.length >= 3 && emailNorm.includes(w));
-        if (emailMatches.length >= 1) {
-          return fnCandidate;
-        }
-      }
-    }
-  }
 
   // Tier 0: Explicit separate First Name + Last Name labels
   const firstNameMatch = text.match(

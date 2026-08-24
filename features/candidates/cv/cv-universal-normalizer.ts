@@ -173,7 +173,7 @@ export function extractUniversalDemographics(
 ): ParsedUniversalDemographics {
   // Strip only the REFERANSLAR section block so referees don't bleed into candidate data
   const candidateText = text.replace(
-    /(?:^|\n)[ \t]*(?:referanslar|referanslarımız|referanslarimiz|referans|references)[\s:]*[\r\n]+(?:(?!(?:^|\n)[ \t]*(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler|genel\s*bilgiler|eğitim|egitim|iş\s*deneyimi|is\s*deneyimi|deneyim|tecrübe|tecrube|nitelikler|beceriler|yetkinlikler|hobiler|diller|languages|skills|experience|education|summary)\b)[\s\S])*/gi,
+    /(?:^|\n)[ \t]*(?:referanslar|referanslarımız|referanslarimiz|referans|references)[\s:]*[\r\n]+(?:(?!(?:^|\n)[ \t]*(?:kişisel\s*bilgiler|kisisel\s*bilgiler|özel\s*bilgiler|ozel\s*bilgiler|genel\s*bilgiler|eğitim|egitim|iş\s*deneyimi|is\s*deneyimi|is\s*gecmisi|deneyim|tecrübe|tecrube|nitelikler|beceriler|yetkinlikler|hobiler|diller|languages|skills|experience|education|summary|hakkimda|hakkımda|iletisim|iletişim|[a-zA-ZçğıöşüÇĞİÖŞÜ]+\s+[a-zA-ZçğıöşüÇĞİÖŞÜ]+\s*\n\s*(?:[a-zA-ZçğıöşüÇĞİÖŞÜ]+\s*\/\s*[a-zA-ZçğıöşüÇĞİÖŞÜ]+|[a-zA-Z0-9._%+-]+@))\b)[\s\S])*/gi,
     '\n',
   );
   const normText = normalizeTrUniversal(text);
@@ -250,11 +250,12 @@ export function extractUniversalDemographics(
     }
   }
 
-  // Pattern C: Explicit Birth Date with Month Names
+  // Pattern C: Explicit Birth Date with Month Names (or standalone day month year under contact/personal info)
   if (!birthDate) {
     const monthDobMatch =
-      candidateText.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\b/i) ||
-      candidateText.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19\d{2}|20\d{2})\s*(?:doğumlu|dogumlu)/i);
+      candidateText.match(/(?:doğum\s*tarihi|dogum\s*tarihi|d\.tarihi|birth\s*date|dob)[\s:]*([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19[5-9]\d|200[0-8])\b/i) ||
+      candidateText.match(/\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19[5-9]\d|200[0-8])\s*(?:doğumlu|dogumlu)/i) ||
+      candidateText.match(/(?:^|\n)[^\n]*?\b([0-3]?\d)\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)\s+(19[5-9]\d|200[0-8])\b/i);
     if (monthDobMatch) {
       const day = monthDobMatch[1].padStart(2, '0');
       const mName = normalizeTrUniversal(monthDobMatch[2]);
@@ -290,8 +291,11 @@ export function extractUniversalDemographics(
   }
 
   // 5. Contact Extraction (Emails, Phones, LinkedIn, Websites)
-  const emailMatch = candidateText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/) || text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  if (emailMatch) email = emailMatch[0].trim();
+  const allCandidateEmails = candidateText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+  if (allCandidateEmails && allCandidateEmails.length > 0) {
+    const personal = allCandidateEmails.find((e) => /@(gmail|hotmail|outlook|yahoo|icloud|yandex|proton)\./i.test(e));
+    email = (personal || allCandidateEmails[0]).trim();
+  }
 
   const phoneMatch = candidateText.match(/(?:\+?90[\s.-]?)?(?:\(?0?5\d{2}\)?[\s.-]?)\d{3}[\s.-]?\d{2}[\s.-]?\d{2}|\b05\d{9}\b|\b5\d{9}\b/) || text.match(/(?:\+?90[\s.-]?)?(?:\(?0?5\d{2}\)?[\s.-]?)\d{3}[\s.-]?\d{2}[\s.-]?\d{2}|\b05\d{9}\b|\b5\d{9}\b/);
   if (phoneMatch) phone = phoneMatch[0].trim();

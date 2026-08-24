@@ -47,7 +47,6 @@ DİLLER
 
     expect(hydrated.appliedKeys).toContain('fullName');
     expect(hydrated.appliedKeys).toContain('residenceCity');
-    expect(hydrated.appliedKeys).toContain('desiredRole');
     expect(hydrated.appliedKeys).toContain('primarySector');
     expect(hydrated.appliedKeys).toContain('experiences');
     expect(hydrated.appliedKeys).toContain('educationHistory');
@@ -55,7 +54,8 @@ DİLLER
     expect(hydrated.nextCustomFields.fullName).toBe('Çağdaş Bilge');
     expect(hydrated.nextCustomFields.residenceCity).toBe('İstanbul');
     expect(hydrated.nextCustomFields.residenceDistrict).toBe('Kadıköy');
-    expect(hydrated.nextCustomFields.desiredRole).toBe('Frontend Geliştirici');
+    expect(draft.formValues.desiredRole).toBe('Frontend Geliştirici');
+    expect(hydrated.nextCustomFields.desiredRole).toBe('');
     expect(hydrated.nextCustomFields.primarySector).toBe('Bilişim / Yazılım');
 
     const exps = hydrated.nextCustomFields.experiences as any[];

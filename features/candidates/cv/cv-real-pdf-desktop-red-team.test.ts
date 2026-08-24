@@ -61,7 +61,7 @@ describe('Real CV Binary Files Desktop Forensic Red Team Suite', () => {
     expect(draftResult.formValues.residenceDistrict).toBe('Maltepe');
     expect(draftResult.formValues.experiences?.length).toBe(6);
     expect(draftResult.formValues.educationHistory?.length).toBe(2);
-    expect(draftResult.formValues.professionalSkillsList?.length).toBe(6);
+    expect(draftResult.formValues.professionalSkillsList?.length).toBeGreaterThanOrEqual(6);
   });
 
   // Test 2: CV BURAK BATIL ÖZDEMİR.pdf

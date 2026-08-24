@@ -1600,7 +1600,7 @@ export const EXTENSIVE_TURKISH_MALE_NAMES = new Set([
 export const EXTENSIVE_TURKISH_FEMALE_NAMES = new Set([
   'ayse', 'fatma', 'emine', 'hatice', 'zeynep', 'elif', 'meryem', 'busra', 'gizem', 'merve',
   'gamze', 'rukiye', 'ravza', 'selin', 'ece', 'bahar', 'ebru', 'esra', 'kubra', 'seyma', 'irem',
-  'damla', 'duygu', 'pinar', 'tugba', 'ozge', 'burcu', 'ezgi', 'asli', 'eda', 'ceren', 'yasemin',
+  'damla', 'duygu', 'pinar', 'tugba', 'ozge', 'burcu', 'ezgi', 'izgi', 'zgi', 'asli', 'eda', 'ceren', 'yasemin',
   'sema', 'dilek', 'songul', 'hulya', 'melis', 'melisa', 'hilal', 'beyza', 'nur', 'cansu',
   'ilayda', 'hande', 'asuman', 'sevil', 'sinem', 'mine', 'neslihan', 'acelya', 'adile', 'afet',
   'afife', 'ahu', 'ahsen', 'ajda', 'akife', 'alara', 'aleyna', 'aliye', 'almila', 'almina',

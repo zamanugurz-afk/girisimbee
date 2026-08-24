@@ -281,6 +281,15 @@ export const KNOWN_TOOLS_DICTIONARY: Record<string, string> = {
   erp: 'ERP',
   salesforce: 'Salesforce',
   hubspot: 'HubSpot',
+  zendesk: 'Zendesk',
+  freshdesk: 'Freshdesk',
+  genesys: 'Genesys',
+  mi4biz: 'Mi4Biz',
+  alotech: 'AloTech',
+  monitera: 'Monitera',
+  'oracle rightnow': 'Oracle RightNow',
+  rightnow: 'Oracle RightNow',
+  boomsonar: 'BoomSonar',
   sap: 'SAP ERP',
   'sap erp': 'SAP ERP',
   'sap - erp': 'SAP ERP',
@@ -457,6 +466,13 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   imalat: 'Üretim / İmalat',
   sanayi: 'Üretim / İmalat',
   manufacturing: 'Üretim / İmalat',
+  'uretim planlama': 'Üretim / İmalat',
+  'endustri muhendisligi': 'Üretim / İmalat',
+  'endustri muhendisi': 'Üretim / İmalat',
+  'yalin uretim': 'Üretim / İmalat',
+  'surec analizi': 'Üretim / İmalat',
+  kaizen: 'Üretim / İmalat',
+  optimizasyon: 'Üretim / İmalat',
 
   turizm: 'Turizm / Otelcilik',
   otelcilik: 'Turizm / Otelcilik',
@@ -1669,9 +1685,40 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
 
   const flushExp = () => {
     if (currentExp && (currentExp.company || currentExp.role)) {
+      const normCompany = normalizeTrForMatch(currentExp.company || '');
+      const normRole = normalizeTrForMatch(currentExp.role || '');
+
+      const isHospitalOrClinic =
+        /\b(?:hastanesi|hastane|poliklinigi|poliklinik|tip\s*merkezi|saglik\s*merkezi|klinigi|klinik)\b/i.test(normCompany);
+
+      const isTechParkOrBusiness =
+        /\b(?:teknokent|teknopark|ar-ge|arge|merkezi|holding|sirketi|ltd|danismanlik|lojistik)\b/i.test(normCompany);
+
+      const hasAcademicOrMedicalRole =
+        /\b(?:arastirma\s*gorevli(?:si)?|ogretim\s*gorevli(?:si)?|ogretim\s*uye(?:si)?|prof|docent|akademisyen|ogretmen(?:i)?|egitmen(?:i)?|zumre\s*baskan(?:i)?|okul\s*mudur(?:u)?|dekan|rektor|okutman|rehberlik|pedagog|doktor(?:u)?|hemsire(?:si)?|hekim(?:i)?|cerrah|tibbi|saglik|hasta\s*bakici|fizyoterapist|psikolog|diyetisyen)\b/i.test(normRole);
+
+      // Academic and status firewall: Education, universities, and status words must NEVER become experiences unless it's a teaching/medical employment, techpark/business, or a hospital!
+      const isAcademicCompany =
+        !isHospitalOrClinic &&
+        !isTechParkOrBusiness &&
+        !hasAcademicOrMedicalRole &&
+        (isEduLine(currentExp.company || '') ||
+        /\b(?:universite|universitesi|fakulte|fakultesi|lisesi|koleji|enstitu|myo|acikogretim|imam hatip)\b/i.test(normCompany) ||
+        /\b(?:terk|mezun|devam|ogrenci|hazirlik|not ortalamasi)\b/i.test(normCompany));
+
+      const isAcademicRole =
+        /\b(?:terk|mezun|devam|ogrenci|hazirlik|not ortalamasi)\b/i.test(normRole) ||
+        /\b(?:felsefe|eski yunan dili|dili ve edebiyati|turk dili ve edebiyati|ilahiyat|arkeoloji|sanat tarihi)\b/i.test(normRole);
+
+      if (isAcademicCompany || isAcademicRole || (!currentExp.company && !currentExp.role)) {
+        collectedResponsibilities.length = 0;
+        currentExp = null;
+        return;
+      }
+
+      currentExp.company = currentExp.company ? suggestTitleCaseTr(currentExp.company) : '';
+      currentExp.role = currentExp.role ? suggestTitleCaseTr(currentExp.role) : '';
       currentExp.responsibilities = collectedResponsibilities.join('. ').replace(/\.\s*\./g, '.');
-      if (currentExp.role) currentExp.role = suggestTitleCaseTr(currentExp.role);
-      if (currentExp.company) currentExp.company = suggestTitleCaseTr(currentExp.company);
       experiences.push(currentExp as RawExtractedExperience);
       collectedResponsibilities.length = 0;
       currentExp = null;
@@ -1789,7 +1836,7 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
       }
 
       if (!isPureDate && rawRemainder.length >= 2 && !/^(?:d[oö]nem|tarih(?:ler)?|date(?:s)?|period|years?|y[ıi]llar|s[uü]re|s)$/i.test(rawRemainder)) {
-        const parts = rawRemainder.split(/\s+-\s+|[|–—@]/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company|sektor)[\s:]*/i, '').trim()).filter(Boolean);
+        const parts = rawRemainder.split(/\s+[-–—]\s*|\s*[-–—]\s+|[|@]|(?:\s+\/\s+)/).map((p) => p.replace(/^(?:deneyim|pozisyon|unvan|sirket|kurum|role|company|sektor)[\s:]*/i, '').trim()).filter(Boolean);
         if (parts.length >= 2) {
           const normP0 = normalizeTrForMatch(parts[0]);
           const normP1 = normalizeTrForMatch(parts[1]);
@@ -1851,8 +1898,8 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
         if (cleanPrev2 && isRoleTitle(cleanPrev2) && cleanPrev1 && !isRoleTitle(cleanPrev1)) {
           currentExp.role = cleanPrev2;
           currentExp.company = cleanPrev1;
-        } else if (cleanPrev1 && (cleanPrev1.includes(',') || cleanPrev1.includes(' - ') || cleanPrev1.includes('|') || cleanPrev1.includes('@') || cleanPrev1.includes(' / '))) {
-          const parts = cleanPrev1.split(/\s+-\s+|[|–—@]|(?:\s+\/\s+)|,/).map((p) => p.trim()).filter(Boolean);
+        } else if (cleanPrev1 && (cleanPrev1.includes(',') || /\s+[-–—]|[-–—]\s+/.test(cleanPrev1) || cleanPrev1.includes('|') || cleanPrev1.includes('@') || cleanPrev1.includes(' / '))) {
+          const parts = cleanPrev1.split(/\s+[-–—]\s*|\s*[-–—]\s+|[|@]|(?:\s+\/\s+)|,/).map((p) => p.trim()).filter(Boolean);
           if (parts.length >= 2) {
             if (isRoleTitle(parts[0]) && !isRoleTitle(parts[1])) {
               currentExp.role = parts[0];
@@ -2124,13 +2171,31 @@ export function extractDeterministicSkillsAndTools(text: string): {
   }
 
   const employmentNormText = ` ${normalizeTrForMatch(employmentAndHeadlineLines.join('\n'))} `;
+  const sectorScores: Record<string, number> = {};
   for (const [sectorKey, canonicalSector] of Object.entries(KNOWN_SECTOR_KEYWORDS)) {
     const normSector = normalizeTrForMatch(sectorKey);
-    const regex = new RegExp(`(?:^|\\s)${normSector}(?:\\s|$)`, 'i');
-    if (regex.test(employmentNormText)) {
-      sectors.push(canonicalSector);
+    const regex = new RegExp(`(?:^|\\s)${normSector}(?:\\s|$)`, 'gi');
+    const matches = employmentNormText.match(regex);
+    if (matches && matches.length > 0) {
+      sectorScores[canonicalSector] = (sectorScores[canonicalSector] || 0) + matches.length * 2;
     }
   }
+
+  // Corroborate sector with detected tools
+  const callCenterTools = ['Genesys', 'Mi4Biz', 'AloTech', 'Monitera', 'Oracle RightNow', 'BoomSonar', 'Zendesk', 'Freshdesk'];
+  if (tools.some((t) => callCenterTools.includes(t))) {
+    sectorScores['Çağrı merkezi'] = (sectorScores['Çağrı merkezi'] || 0) + 5;
+  }
+  const techTools = ['React', 'Node.js', 'TypeScript', 'JavaScript', 'Docker', 'Kubernetes', 'AWS', 'PostgreSQL', 'MongoDB', 'Git'];
+  if (tools.some((t) => techTools.includes(t))) {
+    sectorScores['Bilişim / Yazılım'] = (sectorScores['Bilişim / Yazılım'] || 0) + 5;
+  }
+
+  const sortedSectors = Object.entries(sectorScores)
+    .sort((a, b) => b[1] - a[1])
+    .map(([sec]) => sec);
+
+  sectors.push(...sortedSectors);
 
   // 3.5. Extract Headline Roles from Top 12 Lines
   const textLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
@@ -2279,7 +2344,6 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
 
     if (inSkillsSection) {
-      // Narrative text, summary sentences, contact info, or next section boundary terminates skills section
       if (
         line.length > 70 ||
         /\b(?:yillik|kariyerimde|uzmanlastim|sahibiyim|yonettim|calistim|sorumluyum|tamamladim|profesyonel kariyerimde)\b/i.test(norm) ||
@@ -2336,30 +2400,22 @@ export function extractDeterministicSkillsAndTools(text: string): {
     }
   }
 
-  const hasExplicitSkillsSection =
-    sectionProfessionalSkills.length > 0 ||
-    sectionTechnicalSkills.length > 0 ||
-    sectionTools.length > 0;
-
   const finalProfessionalSkills =
-    hasExplicitSkillsSection && sectionProfessionalSkills.length > 0
-      ? sectionProfessionalSkills
-      : (hasExplicitSkillsSection ? [] : professionalSkills);
+    sectionProfessionalSkills.length > 0
+      ? [...new Set(sectionProfessionalSkills)]
+      : [...new Set(professionalSkills)];
 
   const finalTechnicalSkills =
-    hasExplicitSkillsSection && sectionTechnicalSkills.length > 0
-      ? sectionTechnicalSkills
-      : (hasExplicitSkillsSection ? [] : technicalSkills);
+    sectionTechnicalSkills.length > 0
+      ? [...new Set(sectionTechnicalSkills)]
+      : [...new Set(technicalSkills)];
 
-  const finalTools =
-    hasExplicitSkillsSection && sectionTools.length > 0
-      ? sectionTools
-      : (hasExplicitSkillsSection ? [] : tools);
+  const finalTools = [...new Set([...sectionTools, ...tools])];
 
   return {
-    professionalSkills: [...new Set(finalProfessionalSkills)],
-    technicalSkills: [...new Set(finalTechnicalSkills)],
-    tools: [...new Set(finalTools)],
+    professionalSkills: finalProfessionalSkills,
+    technicalSkills: finalTechnicalSkills,
+    tools: finalTools,
     sectors: [...new Set(sectors)],
     roles: [...new Set(roles)],
   };

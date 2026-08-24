@@ -111,8 +111,7 @@ describe('CV Extraction Engine 8.0 — DOM Projection & Form Hydration Integrity
     expect(result.nextCustomFields.primarySector).toBe('Çağrı merkezi');
     expect(result.nextCustomFields.primarySector).not.toBe('Kamu / Belediye');
 
-    expect(result.nextCustomFields.desiredRole).toBe('Çağrı Merkezi Operasyon Müdürü');
-    expect(result.nextCustomFields.desiredRole).not.toBe('Uzman');
+    expect(result.nextCustomFields.desiredRole).toBe('');
 
     expect(result.nextCustomFields.experienceLevel).toBe('Yönetici');
     expect(result.nextCustomFields.residenceCity).toBe('İstanbul');

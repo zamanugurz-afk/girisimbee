@@ -79,9 +79,9 @@ describe('CV Import 10-Format Acceptance & Atomic Form Hydration Matrix', () => 
     // 2. Primary Sector (Exact canonical match in JOB_SECTOR_OPTIONS)
     expect(JOB_SECTOR_OPTIONS).toContain(nextCustomFields.primarySector);
 
-    // 3. Desired Role (Exact canonical match in taxonomy)
-    expect(nextCustomFields.desiredRole).toBeTruthy();
-    expect(nextCustomFields.desiredRole).not.toBe('Diğer');
+    // 3. Desired Role (Draft has canonical role, nextCustomFields keeps empty for manual selection)
+    expect(draft.formValues.desiredRole).toBeTruthy();
+    expect(nextCustomFields.desiredRole).toBe('');
 
     // 4. Experience Level
     expect(EXPERIENCE_LEVELS).toContain(nextCustomFields.experienceLevel);
@@ -104,7 +104,6 @@ describe('CV Import 10-Format Acceptance & Atomic Form Hydration Matrix', () => 
     // 8. Applied Keys Metadata
     expect(appliedKeys).toContain('fullName');
     expect(appliedKeys).toContain('primarySector');
-    expect(appliedKeys).toContain('desiredRole');
     expect(appliedKeys).toContain('residenceCity');
     expect(appliedKeys).toContain('residenceDistrict');
   });

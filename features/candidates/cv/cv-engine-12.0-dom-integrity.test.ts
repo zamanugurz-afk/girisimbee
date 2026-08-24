@@ -37,11 +37,8 @@ ROS, ROS 2, Python, C++, SLAM, Gazebo, Linux
     );
 
     expect(hydrated.nextCustomFields.fullName).toBe('Bilgehan Yurt');
-    if (hydrated.nextCustomFields.desiredRole === 'Diğer') {
-      expect(hydrated.nextCustomFields.desiredRoleOther).toBeTruthy();
-    } else {
-      expect(hydrated.nextCustomFields.desiredRole).toBeTruthy();
-    }
+    expect(hydrated.nextCustomFields.desiredRole).toBe('');
+    expect(hydrated.nextCustomFields.desiredRoleOther).toBe('');
     expect(hydrated.nextCustomFields.residenceCity).toBe('İzmir');
     expect(hydrated.nextCustomFields.residenceDistrict).toBe('Konak');
     expect(draft.formValues.experiences?.length).toBeGreaterThanOrEqual(1);
@@ -67,10 +64,7 @@ TÜBİTAK BİLGEM - Kuantum Güvenlik Araştırmacısı (2021 - 2024)
     const hydrated = buildHydratedCustomFieldsFromCvDraft(draft, {});
 
     expect(hydrated.nextCustomFields.fullName).toBe('Sarp Gökmen');
-    if (hydrated.nextCustomFields.desiredRole === 'Diğer') {
-      expect(hydrated.nextCustomFields.desiredRoleOther).toBeTruthy();
-    } else {
-      expect(hydrated.nextCustomFields.desiredRole).toBeTruthy();
-    }
+    expect(hydrated.nextCustomFields.desiredRole).toBe('');
+    expect(hydrated.nextCustomFields.desiredRoleOther).toBe('');
   });
 });

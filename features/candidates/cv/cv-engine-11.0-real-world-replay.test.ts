@@ -103,8 +103,7 @@ describe('CV Extraction Engine 11.0 — Real-World Document Replay & Golden Stan
       // Hydration must preserve state
       const hydrated = buildHydratedCustomFieldsFromCvDraft(draft);
       expect(hydrated.nextCustomFields.fullName).toBe(draft.formValues.fullName);
-      const effectiveRole = hydrated.nextCustomFields.desiredRole === 'Diğer' ? hydrated.nextCustomFields.desiredRoleOther : hydrated.nextCustomFields.desiredRole;
-      expect(effectiveRole).toBe(draft.formValues.desiredRole);
+      expect(hydrated.nextCustomFields.desiredRole).toBe('');
     }
   });
 
