@@ -2743,8 +2743,9 @@ export function CategoryListingForm({
             <div className="rounded-xl border border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground">
               <p className="font-semibold text-foreground">KVKK & Güvenli İletişim Güvencesi</p>
               <p className="mt-1">
-                İş Arayan kariyer kartınızda soyadınız, telefon numaranız, e-posta adresiniz ve doğum tarihiniz asla açık olarak yayınlanmaz.
-                İşverenlerle iletişim yalnızca karşılıklı onaylanan iletişim talepleri üzerinden güvenle sağlanır.
+                {categoryId === CATEGORY_IDS.iseAl
+                  ? 'İşveren ilanınızda iletişim ve kurumsal bilgileriniz KVKK ve platform güvenlik standartlarına uygun şekilde korunur. Adaylarla iletişim güvenli başvuru süreçleri üzerinden yürütülür.'
+                  : 'İş Arayan kariyer kartınızda soyadınız, telefon numaranız, e-posta adresiniz ve doğum tarihiniz asla açık olarak yayınlanmaz. İşverenlerle iletişim yalnızca karşılıklı onaylanan iletişim talepleri üzerinden güvenle sağlanır.'}
               </p>
             </div>
           )}

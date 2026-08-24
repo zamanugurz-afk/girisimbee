@@ -373,12 +373,6 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       customFieldKeys: [],
     },
     {
-      id: 'preview',
-      title: 'İlan Önizleme',
-      description: 'Canlı kariyer kartı görünümü ve son kontroller',
-      preview: true,
-    },
-    {
       id: 'package',
       title: 'Paket ve İzinler',
       description: 'Yayın paketi seçimi, iletişim ve yasal onaylar',
@@ -387,7 +381,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       publish: true,
     },
   ],
-  [CATEGORY_IDS.iseAl]: withConsolidatedPublishFlow(
+  [CATEGORY_IDS.iseAl]: [
     {
       id: 'basics',
       title: 'Temel Bilgiler',
@@ -436,7 +430,15 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       coreFields: ['longDescription'],
       customFieldKeys: [],
     },
-  ),
+    {
+      id: 'package',
+      title: 'Paket ve İzinler',
+      description: 'Yayın paketi seçimi, iletişim ve yasal onaylar',
+      package: true,
+      kvkk: true,
+      publish: true,
+    },
+  ],
   [CATEGORY_IDS.bayilikAl]: withConsolidatedPublishFlow(
     {
       id: 'basics',
