@@ -57,13 +57,6 @@ export function CareerExperienceEditor({
   const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
-  // Check if at least 1 complete experience is filled and reviewed
-  const hasAtLeastOneCompletedExp =
-    reviewedIds.size > 0 ||
-    rows.some(
-      (r) => Boolean(r.company?.trim()) && Boolean(r.role?.trim()) && Boolean(r.startYear),
-    );
-
   // Ensure first experience is open initially when no review has been completed
   const currentActiveId =
     activeEditId !== null
@@ -73,6 +66,9 @@ export function CareerExperienceEditor({
       : reviewedIds.size === 0 && rows.length > 0
         ? rows[0].id
         : null;
+
+  // Pulse "+ Yeni Deneyim Ekle" ONLY when all open cards are closed/saved AND at least 1 has been completed
+  const shouldPulseAddButton = currentActiveId === null && reviewedIds.size > 0;
 
   function updateRow(id: string, patch: Partial<CareerExperience>) {
     onChange(
@@ -155,7 +151,7 @@ export function CareerExperienceEditor({
           onClick={addRow}
           className={cn(
             'h-8.5 gap-1.5 rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary/5 shadow-2xs self-start sm:self-auto transition-all',
-            hasAtLeastOneCompletedExp &&
+            shouldPulseAddButton &&
               'ring-2 ring-primary/50 bg-primary/10 animate-pulse hover:animate-none font-bold',
           )}
         >
