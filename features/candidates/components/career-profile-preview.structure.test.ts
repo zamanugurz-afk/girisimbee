@@ -47,9 +47,9 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('experiences.length > 1');
   });
 
-  it('6. uses blue timeline number nodes and vertical connector lines', () => {
+  it('6. uses framed card boxes with blue number nodes for experiences', () => {
     expect(source).toContain('bg-blue-600 text-xs font-bold text-white shadow-sm');
-    expect(source).toContain('w-0.5 flex-1 bg-slate-200 dark:bg-border');
+    expect(source).toContain('rounded-xl border border-slate-200/90 bg-slate-50/50');
   });
 
   it('7. uses categorized logo icons and clean typography for skills with deduplication', () => {

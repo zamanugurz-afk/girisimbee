@@ -797,7 +797,7 @@ export function CareerProfilePreview({
           ) : null}
         </aside>
 
-        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-4 lg:pb-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
+        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-3 lg:pb-3.5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
           <div className="space-y-6">
             {summary ? (
               <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 space-y-2.5">
@@ -825,9 +825,8 @@ export function CareerProfilePreview({
                   </div>
 
                   {experiences.length > 0 ? (
-                    <div className="relative space-y-6 pl-1 sm:pl-2">
+                    <div className="space-y-3.5">
                       {visibleExperiences.map((exp, idx) => {
-                        const isLast = idx === visibleExperiences.length - 1;
                         const durationBadge = formatExperienceDurationBadge(exp);
                         const startText =
                           exp.startMonth && exp.startYear
@@ -841,14 +840,14 @@ export function CareerProfilePreview({
                         const duties = experienceResponsibilities(exp);
 
                         return (
-                          <div key={exp.id || idx} className="relative flex items-start gap-3.5 sm:gap-5">
+                          <div
+                            key={exp.id || idx}
+                            className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3.5 sm:gap-5"
+                          >
                             <div className="flex flex-col items-center">
                               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
                                 {idx + 1}
                               </div>
-                              {!isLast ? (
-                                <div className="w-0.5 flex-1 bg-slate-200 dark:bg-border my-1.5 min-h-[36px]" />
-                              ) : null}
                             </div>
 
                             <div className="w-24 sm:w-28 shrink-0 pt-0.5">
@@ -867,7 +866,7 @@ export function CareerProfilePreview({
                               ) : null}
                             </div>
 
-                            <div className="min-w-0 flex-1 pb-2">
+                            <div className="min-w-0 flex-1 pb-1">
                               <div className="flex items-start justify-between gap-2">
                                 <div>
                                   <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
@@ -926,7 +925,7 @@ export function CareerProfilePreview({
                   )}
 
                   {experiences.length > 1 ? (
-                    <div className="pt-1 pl-10 sm:pl-12">
+                    <div className="pt-1 pl-1 sm:pl-2">
                       <button
                         type="button"
                         onClick={() => setExpandedExperiences((v) => !v)}
@@ -973,7 +972,7 @@ export function CareerProfilePreview({
           </div>
 
           {(showContactBanner || (!authLoading && isOwner && listingId)) ? (
-            <div className="mt-auto pt-4 space-y-4">
+            <div className="mt-auto pt-2 space-y-4">
               {showContactBanner ? (
                 <div
                   className={cn(
