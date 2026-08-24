@@ -16,7 +16,7 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   const mapper = read('features/listings/mappers/listing-detail.mapper.ts');
 
   it('1. contains the 2-column layout with left (aside) and main columns', () => {
-    expect(source).toContain('lg:grid-cols-[270px_minmax(0,1fr)]');
+    expect(source).toContain('lg:grid-cols-[280px_minmax(0,1fr)]');
     expect(source).toContain('<aside');
     expect(source).toContain('<main');
   });

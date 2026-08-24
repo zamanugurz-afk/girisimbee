@@ -37,7 +37,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
     <main
       className={cn(
         'relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background dark:from-background dark:via-background',
-        isCareerListing ? 'pt-2 lg:pt-3' : 'pt-14',
+        isCareerListing ? 'pt-6' : 'pt-14',
       )}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
@@ -46,7 +46,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         className={cn(
           'relative mx-auto max-w-7xl',
           isCareerListing
-            ? 'px-3 sm:px-4 py-1.5 pb-4 lg:px-6 lg:py-2 lg:pb-4'
+            ? 'px-4 py-3 pb-8 lg:px-6 lg:py-3.5 lg:pb-8'
             : 'px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
         )}
       >
@@ -73,7 +73,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         ) : null}
 
         {isCareerListing ? (
-          <div className="mt-1.5">
+          <div className="mt-3">
             <ListingMainContent listing={listing} />
           </div>
         ) : (
