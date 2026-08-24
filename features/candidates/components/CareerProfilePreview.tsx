@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -177,23 +177,39 @@ function formatExperienceDurationBadge(exp: {
 
 function ExpandableSummary({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
-  const needsToggle = text.length > 250;
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+
+    const checkOverflow = () => {
+      // scrollHeight > clientHeight indicates the text actually exceeds line clamp
+      setIsOverflowing(el.scrollHeight > el.clientHeight + 2);
+    };
+
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [text]);
 
   return (
     <div className="space-y-1.5">
       <p
+        ref={textRef}
         className={cn(
           'text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-normal',
-          !expanded && needsToggle && 'line-clamp-4',
+          !expanded && 'line-clamp-4',
         )}
       >
         {text}
       </p>
-      {needsToggle ? (
+      {(isOverflowing || expanded) ? (
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
         >
           {expanded ? 'Daha az göster' : 'Devamını gör'}
         </button>
