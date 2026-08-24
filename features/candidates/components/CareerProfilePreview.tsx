@@ -63,6 +63,8 @@ import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { loginUrl } from '@/features/authentication/constants/routes';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
+import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
+import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { CONTACT_REQUEST_CONFIG } from '@/features/contact-requests/config/contact-request.config';
 import {
   isContactRequestEligibleCategory,
@@ -1035,6 +1037,15 @@ export function CareerProfilePreview({
                   </Button>
                 )}
               </div>
+            </div>
+          ) : null}
+
+          {/* İLAN SAHİBİ: Paket Al / Öne Çıkar Paneli (Kart çerçevesinin içinde, en altta) */}
+          {!authLoading && isOwner && listingId ? (
+            <div id="owner-package-panel" className="pt-2">
+              <PremiumGate>
+                <ListingOwnerPackagePanel listingId={listingId} />
+              </PremiumGate>
             </div>
           ) : null}
         </main>
