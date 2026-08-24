@@ -2448,38 +2448,7 @@ export function CategoryListingForm({
               </div>
 
               <div className="space-y-4">
-          {(isCvStep || (stepIndex === 0 && categoryId === CATEGORY_IDS.isBul)) && categoryId === CATEGORY_IDS.isBul && (
-            <div className="mb-6">
-              {cvDraftInfo ? (
-                <CvExtractionHud
-                  fileName={cvDraftInfo.fileName}
-                  experienceCount={cvDraftInfo.experienceCount}
-                  educationCount={cvDraftInfo.educationCount}
-                  languageCount={cvDraftInfo.languageCount}
-                  skillCount={cvDraftInfo.skillCount}
-                  location={cvDraftInfo.location}
-                  qualityScore={pendingCvDraft?.metrics?.coverageScore}
-                  provenanceSource="CV"
-                  onApply={() => handleApplyCvDraft(pendingCvDraft)}
-                  isApplied={isCvApplied}
-                  onFileSelected={handleUploadCvFile}
-                  isUploading={isUploadingCv}
-                  onReupload={() => {
-                    setCvDraftInfo(null);
-                    setPendingCvDraft(null);
-                    setIsCvApplied(false);
-                  }}
-                  onRemove={handleRemoveCv}
-                />
-              ) : (
-                <CvUploadCard
-                  onDraftReady={handleCvDraftAnalyzed}
-                  onSkipManual={() => setIsManualCvMode(true)}
-                  isManualMode={isManualCvMode}
-                />
-              )}
-            </div>
-          )}
+
 
           {isPreviewStep && careerPreviewData && (
             <CareerProfilePreview data={careerPreviewData} />

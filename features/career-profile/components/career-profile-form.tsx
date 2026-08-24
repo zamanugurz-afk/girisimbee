@@ -955,55 +955,7 @@ export function CareerProfileForm({
           {/* ========================================================= */}
           {persona === 'seek' && (
             <>
-              {/* CV Upload First Step / Mode */}
-              {showCvUploadStep ? (
-                <CvUploadStep
-                  onDraftReady={handleApplyCvDraft}
-                  onSkipManual={() => setShowCvUploadStep(false)}
-                  currentCvName={cvFileName}
-                  onRemoveCv={handleRemoveCv}
-                />
-              ) : (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200">
-                        {cvFileName ? `Ekli CV: ${cvFileName}` : 'CV ile Otomatik Doldurma'}
-                      </p>
-                      <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                        {cvFileName
-                          ? 'CV’nizdeki bilgiler profile aktarıldı.'
-                          : 'PDF veya DOCX yükleyerek formu otomatik doldurabilirsiniz.'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowCvUploadStep(true)}
-                      className="rounded-xl text-xs font-medium"
-                    >
-                      {cvFileName ? 'CV’yi Değiştir' : 'CV Yükle'}
-                    </Button>
-                    {cvFileName && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleRemoveCv}
-                        className="rounded-xl text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/30"
-                      >
-                        CV'yi Kaldır
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
+
 
               {/* Step 1: Temel Kariyer Bilgileri */}
               <FormSection

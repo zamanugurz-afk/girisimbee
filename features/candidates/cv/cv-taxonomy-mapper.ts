@@ -360,7 +360,6 @@ const ROLE_ALIASES: Record<string, string> = {
   'asistans hizmetleri': 'Operasyon Uzmanı',
   'tıbbi satış mümessili': 'Saha satış uzmanı',
   'siber güvenlik uzmanı': 'Mühendis (yazılım)',
-  'veri mühendisi': 'Data engineer',
   'qa automation engineer': 'QA / Test uzmanı',
   'test otomasyon mühendisi': 'QA / Test uzmanı',
   'yazılım test mühendisi': 'QA / Test uzmanı',
@@ -385,8 +384,6 @@ const ROLE_ALIASES: Record<string, string> = {
   'finans analisti': 'Finansal Analist',
   'yatırım uzmanı': 'Yatırım Danışmanı',
   'yatırım danışmanı': 'Yatırım Danışmanı',
-  'yatırım operasyonları': 'Finans Uzmanı',
-  'yatırım operasyonları & portföy kazanımı': 'Finans Uzmanı',
   'portföy yöneticisi': 'Finans Uzmanı',
   'portföy uzmanı': 'Finans Uzmanı',
   'portföy danışmanı': 'Finans Uzmanı',
@@ -414,8 +411,6 @@ const ROLE_ALIASES: Record<string, string> = {
 
   // Healthcare
   'doctor': 'Doktor',
-  'doktor': 'Doktor',
-  'hekim': 'Doktor',
   'nurse': 'Hemşire',
   'hemşire': 'Hemşire',
   'pharmacist': 'Eczacı',
@@ -431,8 +426,6 @@ const ROLE_ALIASES: Record<string, string> = {
   'öğretim görevlisi': 'Eğitmen / öğretmen',
   'academician': 'Eğitmen / öğretmen',
   'akademisyen': 'Eğitmen / öğretmen',
-  'öğretmen': 'Eğitmen / öğretmen',
-  'eğitmen': 'Eğitmen / öğretmen',
 
   // Retail & Hospitality
   'store manager': 'Mağaza Müdürü',
