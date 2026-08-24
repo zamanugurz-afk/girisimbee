@@ -50,7 +50,8 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           <ListingDetailActions listing={listing} className="mt-6 hidden lg:flex" />
         )}
 
-        {!isLoading && isOwner && listing.listingId ? (
+        {/* Non-career listings: show owner package panel at top */}
+        {!isCareerListing && !isLoading && isOwner && listing.listingId ? (
           <div id="owner-package-panel" className="mt-6">
             <PremiumGate>
               <ListingOwnerPackagePanel listingId={listing.listingId} />
@@ -59,8 +60,17 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
         ) : null}
 
         {isCareerListing ? (
-          <div className="mt-6">
+          <div className="mt-6 space-y-6">
             <ListingMainContent listing={listing} />
+
+            {/* Career listings: show owner package panel UNDER the career card frame */}
+            {!isLoading && isOwner && listing.listingId ? (
+              <div id="owner-package-panel" className="pt-2">
+                <PremiumGate>
+                  <ListingOwnerPackagePanel listingId={listing.listingId} />
+                </PremiumGate>
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_340px]">
