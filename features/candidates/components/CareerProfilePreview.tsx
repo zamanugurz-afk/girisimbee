@@ -548,33 +548,6 @@ export function CareerProfilePreview({
   const levelLabel = getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || '';
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
 
-  const totalExperienceYears = useMemo(() => {
-    if (!experiences.length) return '1+';
-    let totalMonths = 0;
-    for (const exp of experiences) {
-      const interval = toCareerPeriodInterval(exp);
-      if (interval) {
-        totalMonths += Math.max(0, interval.end - interval.start + 1);
-      }
-    }
-    const years = Math.floor(totalMonths / 12);
-    return years > 0 ? `${years}+` : `${Math.max(1, totalMonths)} ay`;
-  }, [experiences]);
-
-  const displayCity = useMemo(() => {
-    let c = (data.residenceCity || data.preferredCity || '').trim();
-    c = c.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
-    c = c.replace(/(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
-    return c.trim();
-  }, [data.residenceCity, data.preferredCity]);
-
-  const displayDistrict = useMemo(() => {
-    let d = (data.residenceDistrict || '').trim();
-    d = d.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, '');
-    d = d.replace(/(Anadolu|Avrupa)\s+Yakası/gi, '');
-    return d.trim();
-  }, [data.residenceDistrict]);
-
   const locationText = useMemo(() => {
     return formatLocationCityDistrict(data.residenceCity, data.residenceDistrict, data.preferredCity);
   }, [data.residenceCity, data.residenceDistrict, data.preferredCity]);
@@ -694,84 +667,30 @@ export function CareerProfilePreview({
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="space-y-4">
-          {/* Identity Box (styled cleanly matching the reference inside sidebar) */}
-          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-4">
-            <div className="flex items-start gap-3.5">
-              {/* Avatar with checkmark */}
-              <div className="relative shrink-0">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/60 dark:text-blue-400 shadow-inner">
-                  <User className="h-7 w-7" />
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-blue-600 text-white ring-2 ring-white dark:ring-card">
-                  <Check className="h-2.5 w-2.5 stroke-[3]" />
-                </div>
-              </div>
-
-              {/* Identity Info */}
-              <div className="min-w-0 flex-1 space-y-1">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
-                    {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
-                  </Heading>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300">
-                    <ShieldCheck className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Doğrulanmış</span>
-                  </span>
-                </div>
-
-                {data.desiredRole ? (
-                  <p className="truncate text-xs font-bold text-blue-600 dark:text-blue-400">
-                    {data.desiredRole}
-                  </p>
-                ) : null}
-
-                {data.primarySector ? (
-                  <div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-950/60 dark:border-blue-900 dark:text-blue-300">
-                      <ShieldCheck className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
-                      <span>{data.primarySector}</span>
-                    </span>
-                  </div>
-                ) : null}
-
-                {locationText ? (
-                  <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 pt-0.5">
-                    <MapPin className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0 fill-blue-600/20" />
-                    <span className="truncate">{locationText}</span>
-                  </div>
-                ) : null}
-              </div>
+          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
+              <User className="h-7 w-7" />
             </div>
-
-            {/* 3 Quick Stats Row (Yıl Deneyim | Seviyesi | Yetenek) */}
-            <div className="grid grid-cols-3 gap-2 border-t border-slate-100 dark:border-border/80 pt-3 text-center">
-              <div className="flex flex-col items-center">
-                <Briefcase className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mb-0.5" />
-                <span className="text-xs font-bold text-slate-900 dark:text-foreground">
-                  {totalExperienceYears}
-                </span>
-                <span className="text-[9px] text-slate-500 dark:text-muted-foreground">
-                  Yıl Deneyim
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Award className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mb-0.5" />
-                <span className="truncate max-w-[60px] text-xs font-bold text-slate-900 dark:text-foreground" title={levelLabel || 'Uzman'}>
-                  {levelLabel || 'Uzman'}
-                </span>
-                <span className="text-[9px] text-slate-500 dark:text-muted-foreground">
-                  Seviyesi
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Star className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mb-0.5" />
-                <span className="text-xs font-bold text-slate-900 dark:text-foreground">
-                  {allSkills.length || 0}
-                </span>
-                <span className="text-[9px] text-slate-500 dark:text-muted-foreground">
-                  Yetenek
-                </span>
-              </div>
+            <div className="min-w-0 flex-1">
+              <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
+                {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
+              </Heading>
+              {data.desiredRole ? (
+                <p className="truncate text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
+                  {data.desiredRole}
+                </p>
+              ) : null}
+              {data.primarySector ? (
+                <p className="truncate text-xs text-slate-400 dark:text-muted-foreground">
+                  {data.primarySector}
+                </p>
+              ) : null}
+              {locationText ? (
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-muted-foreground mt-1">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="truncate">{locationText}</span>
+                </div>
+              ) : null}
             </div>
           </div>
 
