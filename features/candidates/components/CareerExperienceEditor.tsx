@@ -53,15 +53,24 @@ export function CareerExperienceEditor({
   const years = yearOptions();
   const overlapError = rows.length > 1 ? validateExperienceOverlaps(rows) : null;
 
-  // Active expanded item: Defaults to the first experience (most recent job)
-  const [activeEditId, setActiveEditId] = useState<string | null>(() => rows[0]?.id ?? null);
+  // Active expanded item state
+  const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
-  // Ensure first experience is open initially
+  // Check if at least 1 complete experience is filled and reviewed
+  const hasAtLeastOneCompletedExp =
+    reviewedIds.size > 0 ||
+    rows.some(
+      (r) => Boolean(r.company?.trim()) && Boolean(r.role?.trim()) && Boolean(r.startYear),
+    );
+
+  // Ensure first experience is open initially when no review has been completed
   const currentActiveId =
     activeEditId !== null
-      ? activeEditId
-      : rows.length > 0
+      ? rows.some((r) => r.id === activeEditId)
+        ? activeEditId
+        : rows[0]?.id ?? null
+      : reviewedIds.size === 0 && rows.length > 0
         ? rows[0].id
         : null;
 
@@ -146,11 +155,12 @@ export function CareerExperienceEditor({
           onClick={addRow}
           className={cn(
             'h-8.5 gap-1.5 rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary/5 shadow-2xs self-start sm:self-auto transition-all',
-            rows.length >= 1 && (rows[0].company || rows[0].role) && 'ring-2 ring-primary/40 bg-primary/5 animate-pulse hover:animate-none'
+            hasAtLeastOneCompletedExp &&
+              'ring-2 ring-primary/50 bg-primary/10 animate-pulse hover:animate-none font-bold',
           )}
         >
           <Plus className="h-3.5 w-3.5" />
-          <span>+ Yeni Deneyim Ekle</span>
+          <span>Yeni Deneyim Ekle</span>
         </Button>
       </div>
 
