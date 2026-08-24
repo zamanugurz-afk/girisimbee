@@ -2739,17 +2739,6 @@ export function CategoryListingForm({
             />
           )}
 
-          {isKvkkStep && (
-            <div className="rounded-xl border border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground">
-              <p className="font-semibold text-foreground">KVKK & Güvenli İletişim Güvencesi</p>
-              <p className="mt-1">
-                {categoryId === CATEGORY_IDS.iseAl
-                  ? 'İşveren ilanınızda iletişim ve kurumsal bilgileriniz KVKK ve platform güvenlik standartlarına uygun şekilde korunur. Adaylarla iletişim güvenli başvuru süreçleri üzerinden yürütülür.'
-                  : 'İş Arayan kariyer kartınızda soyadınız, telefon numaranız, e-posta adresiniz ve doğum tarihiniz asla açık olarak yayınlanmaz. İşverenlerle iletişim yalnızca karşılıklı onaylanan iletişim talepleri üzerinden güvenle sağlanır.'}
-              </p>
-            </div>
-          )}
-
           {isPublishStep && (
             <div className="space-y-6">
               {/* Yayın Onayları & KVKK / Açık Rıza İzinleri */}
@@ -2776,44 +2765,6 @@ export function CategoryListingForm({
                   }}
                 />
               </div>
-
-              {categoryId !== CATEGORY_IDS.isBul && (
-                <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
-                  <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">
-                    Seçilen paket
-                  </p>
-                  <p className="mt-1 text-gc-sm font-medium text-foreground">
-                    {(() => {
-                      const cfg = publishConfigForCategory(categoryId);
-                      if (cfg) {
-                        const extras = packageSelection.placements
-                          .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
-                          .join(' + ');
-                        return extras ? `${cfg.name} + ${extras}` : cfg.name;
-                      }
-                      return packageSelection.placements.length === 0
-                        ? STANDARD_PUBLISH_CONFIG.name
-                        : packageSelection.placements
-                            .map((slug) => PLACEMENT_PACKAGE_CONFIG[slug].name)
-                            .join(' + ');
-                    })()}
-                  </p>
-                  {(isPaidPublishCategory(categoryId) ||
-                    packageSelection.placements.length > 0) && (
-                    <p className="mt-0.5 text-gc-xs text-muted-foreground">
-                      Toplam:{' '}
-                      {formatPlacementPriceTry(
-                        (publishConfigForCategory(categoryId)?.priceCents ?? 0) +
-                          packageSelection.placements.reduce(
-                            (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
-                            0,
-                          ),
-                      )}
-                      {' · ödeme simülasyonu tamamlandı'}
-                    </p>
-                  )}
-                </div>
-              )}
               {publishErrors.length > 0 && (
                 <div
                   role="alert"

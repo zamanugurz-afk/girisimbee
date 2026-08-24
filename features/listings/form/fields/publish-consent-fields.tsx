@@ -1,8 +1,7 @@
-'use client';
-
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { Phone, ShieldCheck } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -19,9 +18,9 @@ import { syncMarketplaceProfilePhone } from '@/features/listings/lib/resolve-pub
 import { LegalDocLink } from '@/features/authentication/components/legal-doc-link';
 import {
   LEGAL_ROUTES,
-  PUBLISH_LEGAL_LINKS,
 } from '@/features/authentication/constants/legal-routes';
 import type { UserId } from '@/lib/domain/ids';
+import { cn } from '@/lib/utils';
 
 export type { PublishConsentValues };
 export { EMPTY_PUBLISH_CONSENTS };
@@ -43,47 +42,50 @@ function consentDescription(key: PublishConsentKey, variant: 'default' | 'career
     case 'clarificationText':
       return (
         <>
-          <LegalDocLink href={LEGAL_ROUTES.kvkk}>KVKK aydınlatma metnini</LegalDocLink> okudum.
-          Bu bir bilgilendirmedir; açık rıza değildir.
+          <LegalDocLink href={LEGAL_ROUTES.kvkk} className="font-semibold text-primary underline">
+            KVKK aydınlatma metnini
+          </LegalDocLink>{' '}
+          okudum ve anladım.
         </>
       );
     case 'phoneDisplay':
       if (variant === 'career') {
         return (
           <>
-            Doğrulanmış telefon numaramın, iletişim talebi sürecinde ve verdiğim açık rıza
-            kapsamında iletişim amacıyla kullanılmasına açık rıza veriyorum. Kariyer kartında
-            telefonum herkese açık gösterilmez; talep kabul edilmeden kişisel iletişim
-            bilgilerim paylaşılmaz. Ayrıntılar:{' '}
-            <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza metni</LegalDocLink>.
+            Doğrulanmış telefon numaramın iletişim talebi sürecinde kullanılmasına açık rıza veriyorum.
+            Telefon numaram herkese açık gösterilmez, yalnızca onaylanan taleplerde paylaşılır.{' '}
+            <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
+              (Açık Rıza Metni)
+            </LegalDocLink>
           </>
         );
       }
       return (
         <>
-          Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla görüntülenmesine ve
-          aranmasına açık rıza veriyorum. Birincil iletişim telefon üzerindendir; platform içi
-          mesajlaşma ürün yapılandırmasına bağlıdır. Ayrıntılar:{' '}
-          <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza metni</LegalDocLink>.
+          Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla kullanılmasına ve iletişime geçilmesine açık rıza veriyorum.{' '}
+          <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
+            (Açık Rıza Metni)
+          </LegalDocLink>
         </>
       );
     case 'thirdPartyHrSharing':
       return (
         <>
-          Özgeçmişimin, kariyer profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi
-          ve istihdam süreçleri kapsamında 3. taraf işverenler, insan kaynakları profesyonelleri ve
-          yetkili istihdam danışmanları ile paylaşılmasına{' '}
-          <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza</LegalDocLink> veriyorum.
+          Profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi kapsamında yetkili kurumsal işverenler ile paylaşılmasına{' '}
+          <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
+            açık rıza
+          </LegalDocLink>{' '}
+          veriyorum.
         </>
       );
     case 'explicitConsent':
       return (
         <>
-          İlanımın yayınlanması ve iletişim amacıyla belirtilen kişisel verilerimin işlenmesine{' '}
-          <LegalDocLink href={LEGAL_ROUTES.explicitConsent}>açık rıza</LegalDocLink> veriyorum.
-          Ayrıca{' '}
-          <LegalDocLink href={LEGAL_ROUTES.terms}>kullanıcı sözleşmesi</LegalDocLink>ni kabul
-          ediyorum.
+          İlanımın yayınlanmasını onaylıyor, verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyor ve{' '}
+          <LegalDocLink href={LEGAL_ROUTES.terms} className="font-semibold text-primary underline">
+            Kullanıcı Sözleşmesi
+          </LegalDocLink>
+          'ni kabul ediyorum.
         </>
       );
     default:
@@ -133,107 +135,106 @@ export function PublishConsentFields({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-medium text-foreground">Yayın onayları</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {variant === 'career'
-            ? 'Kariyer kartınız yayınlandığında ad, soyad ve iletişim bilgileriniz herkese açık gösterilmez. Google ile kayıt olsanız bile yayın için telefon zorunludur. Onay vermeden önce aşağıdaki metinleri inceleyin.'
-            : 'İlanınız yayınlandığında iletişim yalnızca telefon üzerinden yapılır. Google ile kayıt olsanız bile yayın için telefon zorunludur. Onay vermeden önce aşağıdaki metinleri inceleyin.'}
-        </p>
-
-        {variant === 'career' ? (
-          <div className="mt-2 space-y-1.5 rounded-lg border border-border/80 bg-muted/15 px-3 py-2.5 text-xs text-muted-foreground">
-            <p>
-              İletişim talebiniz karşı tarafa iletilir. Talep kabul edilmeden kişisel iletişim
-              bilgileriniz paylaşılmaz.
-            </p>
-            <p>
-              Talep kabul edildiğinde, verdiğiniz izinler doğrultusunda adınız ve telefon
-              numaranız karşı tarafa gösterilebilir.
-            </p>
-            <p>
-              İletişim bilgileriniz, iletişim talebi ve verdiğiniz açık rıza / izin kapsamında
-              kullanılır. İşaretlemediğiniz bir rıza alınmış sayılmaz.
-            </p>
-          </div>
-        ) : null}
-
-        <ul className="mt-2 space-y-1.5 rounded-lg border border-border/80 bg-muted/15 px-3 py-2.5">
-          {PUBLISH_LEGAL_LINKS.map((item) => (
-            <li key={item.href} className="text-xs text-muted-foreground">
-              <LegalDocLink href={item.href}>{item.label}</LegalDocLink>
-              <span className="text-muted-foreground/90"> — {item.blurb}</span>
-            </li>
-          ))}
-        </ul>
-
-        {phoneHint ? (
-          <p className="mt-2 rounded-lg border border-border/80 bg-muted/20 px-3 py-2 text-xs text-foreground">
-            İlanda görünecek numara: <span className="font-semibold">{phoneHint}</span>
+      {/* KVKK & Güvenlik Güvencesi */}
+      <div className="flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 dark:border-border dark:bg-card/50">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+          <ShieldCheck className="h-5 w-5 stroke-[2.2]" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground">
+            KVKK & Güvenli İletişim Güvencesi
+          </h4>
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+            {variant === 'career'
+              ? 'Kariyer kartınızda soyadınız, telefon numaranız ve doğum tarihiniz herkese açık yayınlanmaz. İletişim yalnızca onaylanan talepler üzerinden güvenle sağlanır.'
+              : 'İşveren ilanınızda iletişim ve kurumsal bilgileriniz KVKK standartlarına uygun şekilde korunur ve doğrulanmış iletişim kanalları üzerinden yürütülür.'}
           </p>
-        ) : (
-          <div className="mt-2 space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
-            <p>
-              Profilinizde telefon yok. Yayınlamak için aşağıya numaranızı ekleyin — eklemeden ilan
-              yayınlanamaz.
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Input
-                type="tel"
-                inputMode="tel"
-                placeholder="05xx xxx xx xx"
-                value={draftPhone}
-                onChange={(e) => setDraftPhone(e.target.value)}
-                disabled={disabled || savingPhone || !userId}
-                className="h-9 bg-white dark:bg-background"
-              />
-              <Button
-                type="button"
-                size="sm"
-                className="shrink-0"
-                disabled={disabled || savingPhone || !userId}
-                onClick={() => void savePhone()}
-              >
-                {savingPhone ? 'Kaydediliyor…' : 'Telefonu kaydet'}
-              </Button>
-            </div>
-            <p className="text-[11px] text-amber-800/90 dark:text-amber-100/80">
-              İsterseniz{' '}
-              <Link href="/dashboard/profil" className="font-semibold underline">
-                profilinizden
-              </Link>{' '}
-              de ekleyebilirsiniz.
-            </p>
-          </div>
-        )}
+        </div>
       </div>
 
-      <div className="space-y-3 rounded-lg border border-border/80 bg-muted/10 p-4">
-        {PUBLISH_CONSENT_POLICY_ITEMS.map((item) => (
-          <div key={item.key} className="flex items-start gap-3">
-            <Checkbox
-              id={`publish-consent-${item.key}`}
-              checked={value[item.key]}
-              onCheckedChange={(checked) => toggle(item.key, checked === true)}
-              disabled={disabled}
-            />
-            <div className="space-y-0.5">
-              <Label
-                htmlFor={`publish-consent-${item.key}`}
-                className="text-sm font-medium leading-none"
-              >
-                {item.label}
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                {consentDescription(item.key, variant)}
-              </p>
+      {/* İletişim Numarası Barı */}
+      {phoneHint ? (
+        <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-3.5 dark:border-border dark:bg-card shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+              <Phone className="h-3.5 w-3.5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[11px] text-slate-500 block">Kayıtlı İletişim Numarası</span>
+              <span className="text-xs font-bold text-slate-900 dark:text-foreground">
+                {phoneHint}
+              </span>
             </div>
           </div>
-        ))}
+          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300">
+            ✓ Doğrulandı
+          </span>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 dark:border-amber-500/30 dark:bg-amber-950/30 space-y-2">
+          <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+            İlanınızda iletişim sağlanabilmesi için telefon numarası gereklidir:
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              type="tel"
+              inputMode="tel"
+              placeholder="05xx xxx xx xx"
+              value={draftPhone}
+              onChange={(e) => setDraftPhone(e.target.value)}
+              disabled={disabled || savingPhone || !userId}
+              className="h-9 bg-white text-xs dark:bg-background rounded-xl"
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="shrink-0 rounded-xl text-xs font-semibold"
+              disabled={disabled || savingPhone || !userId}
+              onClick={() => void savePhone()}
+            >
+              {savingPhone ? 'Kaydediliyor…' : 'Telefonu Kaydet'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Yasal Onay Checkbox Kartları */}
+      <div className="space-y-2.5">
+        {PUBLISH_CONSENT_POLICY_ITEMS.map((item) => {
+          const isChecked = value[item.key];
+          return (
+            <label
+              key={item.key}
+              htmlFor={`publish-consent-${item.key}`}
+              className={cn(
+                'flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 cursor-pointer select-none',
+                isChecked
+                  ? 'border-primary/40 bg-primary/[0.02] shadow-2xs dark:border-primary/30 dark:bg-primary/[0.04]'
+                  : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-border dark:bg-card',
+              )}
+            >
+              <Checkbox
+                id={`publish-consent-${item.key}`}
+                checked={isChecked}
+                onCheckedChange={(checked) => toggle(item.key, checked === true)}
+                disabled={disabled}
+                className="mt-0.5 shrink-0 rounded-md"
+              />
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 dark:text-foreground">
+                  {item.label}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-muted-foreground leading-relaxed">
+                  {consentDescription(item.key, variant)}
+                </p>
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       <FormFieldFooter
-        helperText="Telefon kaydı ve tüm onay kutuları tamamlanmadan devam edemezsiniz."
+        helperText="Tüm onay kutuları tamamlanmadan yayınlama adımına geçilemez."
         error={error}
       />
     </div>
