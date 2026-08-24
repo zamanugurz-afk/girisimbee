@@ -667,33 +667,6 @@ export function CareerProfilePreview({
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
-              <User className="h-7 w-7" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <Heading className="truncate text-base font-bold text-slate-900 dark:text-foreground">
-                {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
-              </Heading>
-              {data.desiredRole ? (
-                <p className="truncate text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
-                  {data.desiredRole}
-                </p>
-              ) : null}
-              {data.primarySector ? (
-                <p className="truncate text-xs text-slate-400 dark:text-muted-foreground">
-                  {data.primarySector}
-                </p>
-              ) : null}
-              {locationText ? (
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-muted-foreground mt-1">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <span className="truncate">{locationText}</span>
-                </div>
-              ) : null}
-            </div>
-          </div>
-
           {hasEducation ? (
             <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
@@ -813,45 +786,27 @@ export function CareerProfilePreview({
           ) : null}
 
           {!isHire ? (
-            isContactAccepted ? (
-              <>
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
-                    <Check className="h-3.5 w-3.5 stroke-[3]" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                      İletişim talebiniz kabul edildi.
-                    </p>
-                    <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400 mt-0.5">
-                      Artık bu adayla iletişime geçebilirsiniz.
-                    </p>
-                  </div>
+            isContactAccepted && hasContactChannels ? (
+              <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  <Phone className="h-4 w-4" />
+                  <span>İLETİŞİM BİLGİLERİ</span>
                 </div>
-
-                {hasContactChannels ? (
-                  <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                      <Phone className="h-4 w-4" />
-                      <span>İLETİŞİM BİLGİLERİ</span>
+                <div className="space-y-2.5">
+                  {contactEmail ? (
+                    <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                      <Mail className="h-4 w-4 shrink-0 text-slate-400" />
+                      <span className="truncate font-medium">{contactEmail}</span>
                     </div>
-                    <div className="space-y-2.5">
-                      {contactEmail ? (
-                        <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                          <Mail className="h-4 w-4 shrink-0 text-slate-400" />
-                          <span className="truncate font-medium">{contactEmail}</span>
-                        </div>
-                      ) : null}
-                      {contactPhone ? (
-                        <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                          <Phone className="h-4 w-4 shrink-0 text-slate-400" />
-                          <span className="truncate font-medium">{contactPhone}</span>
-                        </div>
-                      ) : null}
+                  ) : null}
+                  {contactPhone ? (
+                    <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                      <Phone className="h-4 w-4 shrink-0 text-slate-400" />
+                      <span className="truncate font-medium">{contactPhone}</span>
                     </div>
-                  </div>
-                ) : null}
-              </>
+                  ) : null}
+                </div>
+              </div>
             ) : (
               <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
                 <Lock className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
@@ -861,256 +816,283 @@ export function CareerProfilePreview({
               </div>
             )
           ) : null}
-        </aside>
 
-        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-3 lg:pb-3.5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
-          <div className="space-y-6">
-            {summary ? (
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                  <User className="h-4 w-4" />
-                  <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
-                </div>
-                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50">
-                  <ExpandableSummary text={summary} />
+          {!authLoading && isOwner && listingId ? (
+            <div id="owner-package-panel">
+              <PremiumGate>
+                <ListingOwnerPackagePanel listingId={listingId} />
+              </PremiumGate>
+            </div>
+          ) : null}
+
+          {showContactBanner ? (
+            <div
+              className={cn(
+                'rounded-2xl p-4 flex flex-col gap-3 transition-colors',
+                isContactAccepted
+                  ? 'border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40'
+                  : 'border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:border-blue-900/40 dark:from-blue-950/40 dark:to-indigo-950/30',
+              )}
+            >
+              <div className="flex items-center gap-3">
+                {isContactAccepted ? (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
+                    <Check className="h-4 w-4 stroke-[3]" />
+                  </div>
+                ) : (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
+                    <Send className="h-4 w-4" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p
+                    className={cn(
+                      'text-xs font-bold uppercase tracking-wider',
+                      isContactAccepted
+                        ? 'text-emerald-900 dark:text-emerald-200'
+                        : 'text-blue-900 dark:text-blue-200',
+                    )}
+                  >
+                    {isContactAccepted ? 'İletişim talebiniz kabul edildi.' : 'İLETİŞİM TALEBİ GÖNDER'}
+                  </p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                    {isContactAccepted
+                      ? 'Adayla doğrudan iletişime geçebilirsiniz.'
+                      : 'Adayla görüşmek için talep gönderin.'}
+                  </p>
                 </div>
               </div>
+
+              <div>
+                {isContactAccepted ? (
+                  <Button
+                    type="button"
+                    onClick={handleDirectContact}
+                    className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <PhoneCall className="h-3.5 w-3.5" />
+                    <span>Adayla İletişime Geç</span>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleOpenContactModal}
+                    disabled={isPending}
+                    className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>{isPending ? 'Talep Bekliyor' : 'İletişim Talebi Gönder'}</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </aside>
+
+        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-6">
+          {/* Candidate Identity Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-border/80">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
+                <User className="h-7 w-7" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <Heading className="truncate text-lg sm:text-xl font-bold text-slate-900 dark:text-foreground">
+                  {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
+                </Heading>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  {data.desiredRole ? (
+                    <span className="font-semibold text-slate-800 dark:text-foreground">
+                      {data.desiredRole}
+                    </span>
+                  ) : null}
+                  {data.desiredRole && data.primarySector ? (
+                    <span className="text-slate-300 dark:text-slate-600 font-bold">·</span>
+                  ) : null}
+                  {data.primarySector ? (
+                    <span className="text-slate-500 dark:text-muted-foreground">
+                      {data.primarySector}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            {locationText ? (
+              <div className="inline-flex items-center gap-1.5 self-start sm:self-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-muted dark:text-slate-300 shrink-0">
+                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                <span>{locationText}</span>
+              </div>
             ) : null}
+          </div>
 
-            {!isHire ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-                <div className={cn('space-y-4', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                      <Briefcase className="h-4 w-4" />
-                      <span>İŞ DENEYİMLERİ</span>
-                    </div>
-                    {experiences.length > 0 ? (
-                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
-                        {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
-                      </span>
-                    ) : null}
+          {!isHire ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className={cn('space-y-4', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <Briefcase className="h-4 w-4" />
+                    <span>İŞ DENEYİMLERİ</span>
                   </div>
-
                   {experiences.length > 0 ? (
-                    <div className="space-y-3.5">
-                      {visibleExperiences.map((exp, idx) => {
-                        const durationBadge = formatExperienceDurationBadge(exp);
-                        const startText =
-                          exp.startMonth && exp.startYear
-                            ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
-                            : '';
-                        const endText = exp.isCurrent
-                          ? 'Halen'
-                          : exp.endMonth && exp.endYear
-                            ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
-                            : '';
-                        const duties = experienceResponsibilities(exp);
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                      {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
+                    </span>
+                  ) : null}
+                </div>
 
-                        return (
-                          <div
-                            key={exp.id || idx}
-                            className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3.5 sm:gap-5"
-                          >
-                            <div className="flex flex-col items-center">
-                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
-                                {idx + 1}
-                              </div>
+                {experiences.length > 0 ? (
+                  <div className="space-y-3.5">
+                    {visibleExperiences.map((exp, idx) => {
+                      const durationBadge = formatExperienceDurationBadge(exp);
+                      const startText =
+                        exp.startMonth && exp.startYear
+                          ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
+                          : '';
+                      const endText = exp.isCurrent
+                        ? 'Halen'
+                        : exp.endMonth && exp.endYear
+                          ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
+                          : '';
+                      const duties = experienceResponsibilities(exp);
+
+                      return (
+                        <div
+                          key={exp.id || idx}
+                          className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3.5 sm:gap-5"
+                        >
+                          <div className="flex flex-col items-center">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
+                              {idx + 1}
                             </div>
+                          </div>
 
-                            <div className="w-24 sm:w-28 shrink-0 pt-0.5">
-                              <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                                {startText || 'Başlangıç'}
+                          <div className="w-24 sm:w-28 shrink-0 pt-0.5">
+                            <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
+                              {startText || 'Başlangıç'}
+                            </p>
+                            {endText ? (
+                              <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                                - {endText}
                               </p>
-                              {endText ? (
-                                <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
-                                  - {endText}
+                            ) : null}
+                            {durationBadge ? (
+                              <span className="mt-1.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                                {durationBadge}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="min-w-0 flex-1 pb-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
+                                  {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
+                                </h4>
+                                <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                                  {[
+                                    (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
+                                    exp.sector,
+                                  ]
+                                    .filter(Boolean)
+                                    .join('  |  ')}
                                 </p>
-                              ) : null}
-                              {durationBadge ? (
-                                <span className="mt-1.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
-                                  {durationBadge}
-                                </span>
+                              </div>
+                              {data.isFormPreview ? (
+                                <div className="flex items-center gap-1">
+                                  {data.onEditExperience ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => data.onEditExperience?.(idx)}
+                                      className="p-1 text-slate-400 hover:text-blue-600"
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                  {data.onDeleteExperience ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => data.onDeleteExperience?.(idx)}
+                                      className="p-1 text-slate-400 hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                </div>
                               ) : null}
                             </div>
 
-                            <div className="min-w-0 flex-1 pb-1">
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
-                                    {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
-                                  </h4>
-                                  <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                                    {[
-                                      (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
-                                      exp.sector,
-                                    ]
-                                      .filter(Boolean)
-                                      .join('  |  ')}
-                                  </p>
-                                </div>
-                                {data.isFormPreview ? (
-                                  <div className="flex items-center gap-1">
-                                    {data.onEditExperience ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => data.onEditExperience?.(idx)}
-                                        className="p-1 text-slate-400 hover:text-blue-600"
-                                      >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                      </button>
-                                    ) : null}
-                                    {data.onDeleteExperience ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => data.onDeleteExperience?.(idx)}
-                                        className="p-1 text-slate-400 hover:text-destructive"
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                ) : null}
-                              </div>
-
-                              {duties.length > 0 ? (
-                                <ul className="mt-2.5 space-y-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {duties.length > 0 ? (
+                              <ul className="mt-2.5 space-y-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                                   {duties.map((duty, dIdx) => (
                                     <li key={dIdx} className="flex items-start gap-1.5">
                                       <span className="text-slate-400 font-bold">•</span>
                                       <span>{duty}</span>
                                     </li>
                                   ))}
-                                </ul>
-                              ) : null}
-                            </div>
+                              </ul>
+                            ) : null}
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">Henüz iş deneyimi eklenmedi.</p>
-                  )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 italic">Henüz iş deneyimi eklenmedi.</p>
+                )}
 
-                  {experiences.length > INITIAL_EXPERIENCE_LIMIT ? (
-                    <div className="pt-1 pl-1 sm:pl-2">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedExperiences((v) => !v)}
-                        className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-3 py-1.5 border border-primary/20"
-                      >
-                        <span>
-                          {expandedExperiences
-                            ? 'Daha az göster'
-                            : `+ ${experiences.length - INITIAL_EXPERIENCE_LIMIT} diğer deneyimi göster`}
-                        </span>
-                        <span className="font-bold text-sm leading-none">
-                          {expandedExperiences ? '−' : '+'}
-                        </span>
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
-                {allSkills.length > 0 ? (
-                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                      <Sliders className="h-4 w-4" />
-                      <span>UZMANLIK ALANLARI</span>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <SkillChips values={allSkills} limit={12} layout="column" />
-                    </div>
+                {experiences.length > INITIAL_EXPERIENCE_LIMIT ? (
+                  <div className="pt-1 pl-1 sm:pl-2">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedExperiences((v) => !v)}
+                      className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-3 py-1.5 border border-primary/20"
+                    >
+                      <span>
+                        {expandedExperiences
+                          ? 'Daha az göster'
+                          : `+ ${experiences.length - INITIAL_EXPERIENCE_LIMIT} diğer deneyimi göster`}
+                      </span>
+                      <span className="font-bold text-sm leading-none">
+                        {expandedExperiences ? '−' : '+'}
+                      </span>
+                    </button>
                   </div>
                 ) : null}
               </div>
-            ) : (
-              <>
-                {allSkills.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                      <Sliders className="h-4 w-4" />
-                      <span>UZMANLIK ALANLARI</span>
-                    </div>
-                    <SkillChips values={allSkills} limit={8} />
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
 
-          {(showContactBanner || (!authLoading && isOwner && listingId)) ? (
-            <div className="mt-auto pt-2 space-y-4">
-              {showContactBanner ? (
-                <div
-                  className={cn(
-                    'rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors',
-                    isContactAccepted
-                      ? 'border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40'
-                      : 'border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:border-blue-900/40 dark:from-blue-950/40 dark:to-indigo-950/30',
-                  )}
-                >
-                  <div className="flex items-center gap-3.5 min-w-0 w-full sm:w-auto">
-                    {isContactAccepted ? (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
-                        <Check className="h-4 w-4 stroke-[3]" />
-                      </div>
-                    ) : (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
-                        <Send className="h-4 w-4" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <p
-                        className={cn(
-                          'text-xs font-bold uppercase tracking-wider',
-                          isContactAccepted
-                            ? 'text-emerald-900 dark:text-emerald-200'
-                            : 'text-blue-900 dark:text-blue-200',
-                        )}
-                      >
-                        {isContactAccepted ? 'İletişim talebiniz kabul edildi.' : 'İLETİŞİM TALEBİ GÖNDER'}
-                      </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                        {isContactAccepted
-                          ? 'Artık bu adayla iletişime geçebilirsiniz.'
-                          : 'Bu adayla iletişime geçmek için talebinizi iletin. Uygun gördüğünüz adaylarla görüşebilirsiniz.'}
-                      </p>
-                    </div>
+              {allSkills.length > 0 ? (
+                <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <Sliders className="h-4 w-4" />
+                    <span>UZMANLIK ALANLARI</span>
                   </div>
-
-                  <div className="shrink-0 w-full sm:w-auto flex justify-end">
-                    {isContactAccepted ? (
-                      <Button
-                        type="button"
-                        onClick={handleDirectContact}
-                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                      >
-                        <PhoneCall className="h-3.5 w-3.5" />
-                        <span>Adayla İletişime Geç</span>
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={handleOpenContactModal}
-                        disabled={isPending}
-                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        <span>{isPending ? 'Talep Bekliyor' : 'İletişim Talebi Gönder'}</span>
-                      </Button>
-                    )}
-                  </div>
+                  <SkillChips values={allSkills} limit={8} />
                 </div>
               ) : null}
-
-              {!authLoading && isOwner && listingId ? (
-                <div id="owner-package-panel">
-                  <PremiumGate>
-                    <ListingOwnerPackagePanel listingId={listingId} />
-                  </PremiumGate>
+            </div>
+          ) : (
+            allSkills.length > 0 ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  <Sliders className="h-4 w-4" />
+                  <span>UZMANLIK ALANLARI</span>
                 </div>
-              ) : null}
+                <SkillChips values={allSkills} limit={8} />
+              </div>
+            ) : null
+          )}
+
+          {/* Career Summary placed at the bottom */}
+          {summary ? (
+            <div className="space-y-2.5 pt-2">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <User className="h-4 w-4" />
+                <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
+              </div>
+              <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50">
+                <ExpandableSummary text={summary} />
+              </div>
             </div>
           ) : null}
         </main>
