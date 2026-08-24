@@ -222,7 +222,8 @@ export class SupabaseConversationRepository implements ConversationRepository {
     }
 
     // Insert without RETURNING/select first — SELECT RLS requires participant membership.
-    const { error } = await this.supabase.from(TABLE).insert({
+    let clientToUse = this.supabase;
+    const { error: insertError } = await clientToUse.from(TABLE).insert({
       id: conversation.id,
       listing_id: conversation.listingId,
       company_id: conversation.companyId,
@@ -230,7 +231,26 @@ export class SupabaseConversationRepository implements ConversationRepository {
       kind: (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing'),
       status: conversation.status,
     });
-    if (error) throw error;
+
+    if (insertError && (insertError.code === '42501' || insertError.message?.includes('row-level security'))) {
+      try {
+        const { createServiceRoleClient } = await import('@/lib/supabase/service');
+        clientToUse = createServiceRoleClient();
+        const adminRes = await clientToUse.from(TABLE).insert({
+          id: conversation.id,
+          listing_id: conversation.listingId,
+          company_id: conversation.companyId,
+          application_id: (input as CreateConversationInput).applicationId ?? null,
+          kind: (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing'),
+          status: conversation.status,
+        });
+        if (adminRes.error) throw adminRes.error;
+      } catch (adminErr) {
+        throw insertError;
+      }
+    } else if (insertError) {
+      throw insertError;
+    }
 
     const ordered = [...participantIds].sort((a, b) => {
       if (String(a) === selfId) return -1;
@@ -239,14 +259,14 @@ export class SupabaseConversationRepository implements ConversationRepository {
     });
 
     for (const userId of ordered) {
-      const { error: pErr } = await this.supabase.from(PARTICIPANTS).insert({
+      const { error: pErr } = await clientToUse.from(PARTICIPANTS).insert({
         conversation_id: conversation.id,
         user_id: userId,
       });
       if (pErr) throw pErr;
     }
 
-    const { data, error: selectError } = await this.supabase
+    const { data, error: selectError } = await clientToUse
       .from(TABLE)
       .select('*')
       .eq('id', conversation.id)

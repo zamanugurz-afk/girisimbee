@@ -43,3 +43,37 @@ AS $$
       )
   );
 $$;
+
+GRANT EXECUTE ON FUNCTION public.can_view_application_profile_snapshot(UUID, UUID) TO authenticated;
+
+-- 4) Update RLS policies for marketplace_applications
+DROP POLICY IF EXISTS marketplace_applications_applicant_insert ON public.marketplace_applications;
+CREATE POLICY marketplace_applications_applicant_insert
+  ON public.marketplace_applications FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_profile_owner(applicant_profile_id)
+    OR applicant_profile_id IN (
+      SELECT p.id FROM public.marketplace_profiles p WHERE p.user_id = auth.uid() AND p.deleted_at IS NULL
+    )
+  );
+
+DROP POLICY IF EXISTS marketplace_applications_applicant_read ON public.marketplace_applications;
+CREATE POLICY marketplace_applications_applicant_read
+  ON public.marketplace_applications FOR SELECT TO authenticated
+  USING (
+    public.is_application_applicant(id)
+    OR applicant_profile_id IN (
+      SELECT p.id FROM public.marketplace_profiles p WHERE p.user_id = auth.uid() AND p.deleted_at IS NULL
+    )
+  );
+
+DROP POLICY IF EXISTS marketplace_applications_manager_read ON public.marketplace_applications;
+CREATE POLICY marketplace_applications_manager_read
+  ON public.marketplace_applications FOR SELECT TO authenticated
+  USING (
+    public.can_manage_application(id)
+    OR listing_id IN (
+      SELECT l.id FROM public.marketplace_listings l WHERE l.owner_id = auth.uid() AND l.deleted_at IS NULL
+    )
+  );
+
