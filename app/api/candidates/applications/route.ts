@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/validation/candidate-applications';
 import { ids } from '@/lib/domain/ids';
 import { CareerProfileService } from '@/features/career-profile/career-profile.service';
+import { sendJobApplicationEmployerNotification } from '@/lib/email/job-application-email';
 
 /** GET — list candidate's own job applications */
 /** POST — apply to employer job listing */
@@ -56,6 +57,7 @@ export const POST = withAuth(async (ctx, request) => {
       employerUserId,
       employerEmail,
       applicantName: ctx.profile?.displayName || (profileSnapshot?.displayName ?? undefined),
+      onNotifyEmployer: sendJobApplicationEmployerNotification,
     },
   );
 

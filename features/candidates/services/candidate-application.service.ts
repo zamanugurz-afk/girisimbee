@@ -32,7 +32,6 @@ import {
   hasExternalContact,
 } from '@/features/shared/lib/external-contact';
 import { CANDIDATE_TO_APPLICATION_STATUS } from '@/features/candidates/types/candidate-application.types';
-import { sendJobApplicationEmployerNotification } from '@/lib/email/job-application-email';
 
 export interface SubmitApplicationMessagingDeps {
   messagingService?: IMessagingService;
@@ -41,6 +40,13 @@ export interface SubmitApplicationMessagingDeps {
   employerUserId?: UserId;
   employerEmail?: string;
   applicantName?: string;
+  onNotifyEmployer?: (params: {
+    to: string;
+    applicantName: string;
+    positionTitle: string;
+    conversationId: string;
+    applicationId: string;
+  }) => Promise<void> | void;
 }
 
 export class CandidateApplicationService {
@@ -123,22 +129,24 @@ export class CandidateApplicationService {
               },
             });
 
-            // Send transactional email to employer (Zero PII)
-            if (messagingDeps.employerEmail) {
+            // Send transactional email to employer (Zero PII) if callback provided
+            if (messagingDeps.employerEmail && messagingDeps.onNotifyEmployer) {
               const applicantName =
                 messagingDeps.applicantName ||
                 profileSnapshot?.displayName ||
                 'Girisimbee Adayı';
 
-              sendJobApplicationEmployerNotification({
-                to: messagingDeps.employerEmail,
-                applicantName,
-                positionTitle: listing.title,
-                conversationId: conversation.id,
-                applicationId: application.id,
-              }).catch((err) => {
-                console.warn('[email] failed to send application email notification:', err);
-              });
+              try {
+                void messagingDeps.onNotifyEmployer({
+                  to: messagingDeps.employerEmail,
+                  applicantName,
+                  positionTitle: listing.title,
+                  conversationId: conversation.id,
+                  applicationId: application.id,
+                });
+              } catch (err) {
+                console.warn('[email] failed to trigger employer notification callback:', err);
+              }
             }
           }
         }

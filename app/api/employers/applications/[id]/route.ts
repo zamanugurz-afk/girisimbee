@@ -9,6 +9,8 @@ import {
 import { ids } from '@/lib/domain/ids';
 import { ValidationError } from '@/lib/domain/errors';
 
+import { sendJobApplicationStatusNotification } from '@/lib/email/job-application-email';
+
 export const GET = withAuth(async (ctx, _request, { params }) => {
   const { id } = idParamSchema.parse(params);
   const application = await ctx.container.ecosystem.employerApplicationService.getApplicationDetail(
@@ -32,6 +34,36 @@ export const PATCH = withAuth(async (ctx, request, { params }) => {
       statusUpdate.data.status,
       statusUpdate.data.note,
     );
+
+    // Optional status update email to candidate if conversation/profile exists
+    try {
+      const applicantProfile = await ctx.container.profileRepository.findById(application.applicantProfileId);
+      const listing = await ctx.container.listingRepository.findById(application.listingId);
+      const convId = application.conversationId;
+      if (applicantProfile?.email && listing?.title && convId) {
+        const STATUS_LABELS: Record<string, string> = {
+          pending: 'Yeni Başvuru',
+          reviewing: 'İnceleniyor',
+          contacted: 'Mülakat / İletişim',
+          accepted: 'Olumlu / Kabul Edildi',
+          rejected: 'Olumsuz / Reddedildi',
+          withdrawn: 'Geri Çekildi',
+        };
+        const statusLabel = STATUS_LABELS[statusUpdate.data.status] || statusUpdate.data.status;
+        void sendJobApplicationStatusNotification({
+          to: applicantProfile.email,
+          applicantName: applicantProfile.displayName || 'Değerli Aday',
+          positionTitle: listing.title,
+          statusLabel,
+          conversationId: convId,
+        }).catch((err) => {
+          console.warn('[email] candidate status notification warning:', err);
+        });
+      }
+    } catch {
+      // Non-critical notification failure
+    }
+
     return ok({ application });
   }
 
