@@ -387,7 +387,18 @@ function CreateListingContent() {
       toast.success('İlanınız admin onayına gönderildi');
     }
 
-    router.push(getModuleListingDetailPath(categoryId, listing.slug));
+    const targetSlug = listing?.slug || listing?.id;
+    const redirectPath = targetSlug
+      ? getModuleListingDetailPath(categoryId, targetSlug)
+      : `/kategori/${categoryId === CATEGORY_IDS.isBul ? 'is-ariyorum' : 'ilanlar'}`;
+
+    console.log('[CreateListingPage] Successfully published, navigating to:', redirectPath);
+
+    if (typeof window !== 'undefined') {
+      window.location.assign(redirectPath);
+    } else {
+      router.push(redirectPath);
+    }
   }
 
   const createCopy =
