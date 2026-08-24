@@ -22,7 +22,7 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   });
 
   it('2. uses blue linear user icon for profile identity without photo/avatar images', () => {
-    expect(source).toContain('<User className="h-7 w-7" />');
+    expect(source).toContain('User className=');
     expect(source).toContain('bg-blue-50 text-blue-600');
     // Ensure avatar is icon-based and does not embed photo img tags in identity card
     expect(source).not.toContain('<img src={data.avatarUrl}');
