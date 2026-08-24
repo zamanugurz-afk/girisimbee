@@ -29,17 +29,34 @@ export const POST = withAuth(async (ctx, request) => {
   const parsed = candidateApplicationSubmitSchema.parse(body);
   const listingId = ids.listing(parsed.listingId);
 
-  // Fetch listing and employer details
+  // Fetch listing and employer details (using service role for accurate owner_id)
   const listing = await ctx.container.listingRepository.findById(listingId);
   let employerEmail: string | undefined;
-  let employerUserId: import('@/lib/domain/ids').UserId | undefined;
+  let employerUserId: import('@/lib/domain/ids').UserId | undefined = listing?.ownerId ?? undefined;
 
-  if (listing?.ownerId) {
-    employerUserId = listing.ownerId;
-    const employerProfile = await ctx.container.profileRepository.findByUserId(listing.ownerId);
-    if (employerProfile?.email) {
-      employerEmail = employerProfile.email;
+  try {
+    const { createServiceRoleClient } = await import('@/lib/supabase/service');
+    const admin = createServiceRoleClient();
+    const { data: listingRow } = await admin
+      .from('marketplace_listings')
+      .select('owner_id')
+      .eq('id', listingId)
+      .maybeSingle();
+
+    if (listingRow?.owner_id) {
+      employerUserId = ids.user(listingRow.owner_id);
+      const { data: profileRow } = await admin
+        .from('marketplace_profiles')
+        .select('email')
+        .eq('user_id', listingRow.owner_id)
+        .is('deleted_at', null)
+        .maybeSingle();
+      if (profileRow?.email) {
+        employerEmail = profileRow.email;
+      }
     }
+  } catch (err) {
+    console.warn('[applications] failed to resolve listing owner via service role:', err);
   }
 
   const profileSnapshot = parsed.profileSnapshot as import('@/features/candidates/components/CareerProfilePreview').CareerCardInput | undefined;

@@ -28,10 +28,42 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
     });
   }
 
-  const conversationId =
+  let conversationId =
     activeApp.conversationId ||
     (activeApp.metadata?.conversationId as string | undefined) ||
     null;
+
+  if (!conversationId) {
+    try {
+      const { createServiceRoleClient } = await import('@/lib/supabase/service');
+      const admin = createServiceRoleClient();
+      const { data: listingRow } = await admin
+        .from('marketplace_listings')
+        .select('owner_id')
+        .eq('id', listingId)
+        .maybeSingle();
+
+      if (listingRow?.owner_id) {
+        const employerUserId = ids.user(listingRow.owner_id);
+        const conv = await ctx.container.messagingService.startConversation({
+          participantIds: [ctx.userId, employerUserId],
+          listingId,
+          applicationId: activeApp.id,
+          kind: 'application',
+          initialMessage: activeApp.coverMessage || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
+        });
+
+        if (conv?.id) {
+          conversationId = conv.id;
+          await ctx.container.applicationRepository.update(activeApp.id, {
+            conversationId: conv.id,
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('[application-check] conversation heal warning:', e);
+    }
+  }
 
   return ok({
     hasApplied: true,
