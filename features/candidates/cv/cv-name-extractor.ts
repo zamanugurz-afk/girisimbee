@@ -574,8 +574,22 @@ export function isForbiddenNameCandidate(rawCandidate: string): boolean {
     return true;
   }
 
-  // 7.9 Section header root stems and fractured/OCR-split section headings (e.g. "Kış İselbilgiler", "iselbilgiler", "kisisel bilgiler")
+  // 7.9 Section header root stems and fractured/OCR-split section headings (e.g. "Kış İselbilgiler", "iselbilgiler", "kisisel bilgiler", "eg itim")
+  const noSpaceNorm = norm.replace(/[\s\-_.,/]+/g, '');
   if (
+    noSpaceNorm.startsWith('egitim') ||
+    noSpaceNorm.startsWith('deneyim') ||
+    noSpaceNorm.startsWith('isdeney') ||
+    noSpaceNorm.startsWith('isgecmis') ||
+    noSpaceNorm.startsWith('kisisel') ||
+    noSpaceNorm.startsWith('iletisim') ||
+    noSpaceNorm.startsWith('ozgecmis') ||
+    noSpaceNorm.startsWith('referans') ||
+    noSpaceNorm.startsWith('yetenek') ||
+    noSpaceNorm.startsWith('beceri') ||
+    noSpaceNorm.startsWith('sertifika') ||
+    noSpaceNorm.startsWith('hakkimda') ||
+    noSpaceNorm.startsWith('kariyer') ||
     /\b(?:kisisel|iletisim|ozgecmis|deneyim|deneyimleri|tecrube|tecrubeleri|egitim|egitimleri|ogrenim|yetenek|yetenekleri|beceri|becerileri|sertifika|sertifikalari|referans|referanslar|referanslari|profesyonel|kariyer|hakkimda|yayinlar|projeler)\b|(?:\b\w*bilgi(?:ler|leri|si|m|lerim)\b)|\b(?:kis\s+isel\w*)\b|\b(?:kisi\s+sel\w*)\b/i.test(
       norm,
     )

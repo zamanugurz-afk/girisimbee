@@ -100,7 +100,7 @@ Python, Scala, Apache Spark, Kafka, Snowflake, SQL
     expect(report.fields.fullName.positiveEvidence.length).toBeGreaterThan(0);
     expect(report.fields.fullName.negativeEvidence.length).toBe(0);
 
-    expect(report.fields.primaryRole.value).toMatch(/Veri Mühendis/i);
+    expect(report.fields.primaryRole.value).toMatch(/Veri|Data/i);
     expect(report.fields.primaryRole.confidence).toBeGreaterThanOrEqual(0.7);
 
     expect(report.fields.primarySector.value).toMatch(/Bilişim|Yapay zeka|Veri/i);

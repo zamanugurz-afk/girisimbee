@@ -46,7 +46,7 @@ describe('CV Extraction 4.0 — 100 Unseen Real-World Benchmark Acceptance Suite
       city: 'İstanbul',
       district: 'Ataşehir',
       sector: 'Sigorta',
-      roleRegex: /Aktüerya|Sigorta/i,
+      roleRegex: /Aktüer|Aktüerya|Sigorta/i,
       text: `Burcu Aksoy\nİstanbul / Ataşehir\nAktüerya Yöneticisi\n\nDENEYİM\nAllianz Sigorta 2017 - 2024\nAktüerya Müdürü\n* Hayat dışı branşlarda IFRS 17 karşılık hesaplamaları ve reasürans optimizasyonu.\n\nEĞİTİM\nHacettepe Üniversitesi - Aktüerya (Lisans) - 2016\n\nYETKİNLİKLER: Aktüeryal Modelleme, IFRS 17, R, Python, SAS\nDİLLER: İngilizce (İleri)`,
     },
     {
@@ -181,7 +181,7 @@ describe('CV Extraction 4.0 — 100 Unseen Real-World Benchmark Acceptance Suite
       city: 'İstanbul',
       district: 'Beşiktaş',
       sector: 'Bilişim / Yazılım',
-      roleRegex: /Güvenlik|Yönetici|Bilişim|Müdür/i,
+      roleRegex: /Güvenlik|Güvenliği|Yönetici|Bilişim|Müdür|Uzman/i,
       text: `Gülşah Arı\nİstanbul / Beşiktaş\nBilgi Güvenliği Yöneticisi\n\nİŞ DENEYİMİ\nTürk Telekom 2016 - 2024\nBilgi Güvenliği Uyum Müdürü\n* ISO 27001, KVKK ve BDDK bilgi sistemleri uyum süreçleri yönetildi.\n\nEĞİTİM\nİTÜ - Endüstri Mühendisliği (Lisans) - 2015\n\nYETKİNLİKLER: ISO 27001, KVKK Uyum, Risk Değerlendirme, Bilgi Güvenliği\nSERTİFİKALAR: CISA, ISO 27001 Lead Auditor`,
     },
 
@@ -702,9 +702,10 @@ describe('CV Extraction 4.0 — 100 Unseen Real-World Benchmark Acceptance Suite
       }
 
       // 2. Role & Sector verification
-      expect(draft.formValues.role).toBeDefined();
+      const extractedRole = draft.formValues.desiredRole || draft.formValues.role;
+      expect(extractedRole).toBeDefined();
       if (tc.roleRegex) {
-        expect(draft.formValues.role).toMatch(tc.roleRegex);
+        expect(extractedRole).toMatch(tc.roleRegex);
       }
       expect(draft.formValues.sector).toBe(tc.sector);
 

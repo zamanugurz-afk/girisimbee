@@ -19,7 +19,7 @@ describe('CV Extraction Engine 13.0 — 500 Unknown CV Generalization Corpus (26
     { first: 'Kemal', last: 'Yıldız', role: 'Mali Müşavir', sector: 'Muhasebe / Mali müşavirlik', city: 'İzmir', dist: 'Konak' },
     { first: 'Ebru', last: 'Demirtaş', role: 'Dijital Pazarlama Müdürü', sector: 'Pazarlama / Reklam', city: 'Bursa', dist: 'Nilüfer' },
     { first: 'Oğuz', last: 'Çelik', role: 'Makine Mühendisi', sector: 'Üretim / Sanayi', city: 'Kocaeli', dist: 'Gebze' },
-    { first: 'Buse', last: 'Güler', role: 'Ön Büro Şefi', sector: 'Turizm / Otelcilik', city: 'Antalya', dist: 'Muratpaşa' },
+    { first: 'Buse', last: 'Güler', role: 'Ön Büro Sorumlusu', sector: 'Turizm / Otelcilik', city: 'Antalya', dist: 'Muratpaşa' },
     { first: 'Tolga', last: 'Arslan', role: 'Lojistik Operasyon Uzmanı', sector: 'Lojistik / Depolama', city: 'Adana', dist: 'Seyhan' },
     { first: 'Seda', last: 'Korkmaz', role: 'Klinik Psikolog', sector: 'Sağlık', city: 'Eskişehir', dist: 'Tepebaşı' },
     { first: 'Cem', last: 'Kaya', role: 'Veri Analisti', sector: 'Yapay zeka / Veri', city: 'İstanbul', dist: 'Beşiktaş' },

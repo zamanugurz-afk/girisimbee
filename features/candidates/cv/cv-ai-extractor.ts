@@ -60,25 +60,42 @@ function mergeExperienceSets(
   baseline: AiCvExtractionPayload['experiences'],
   ai: AiCvExtractionPayload['experiences'],
 ): AiCvExtractionPayload['experiences'] {
+  if (!baseline || baseline.length === 0) return ai || [];
   if (!ai || ai.length === 0) return baseline;
-  if (!baseline || baseline.length === 0) return ai;
 
-  if (baseline.length > ai.length) {
-    // Baseline found more experiences than AI (AI under-extracted)
-    const results = baseline.map((b) => ({ ...b }));
-    for (const aiExp of ai) {
-      const normAiComp = normalizeTr(aiExp.company || '');
-      const existing = results.find((r) => normAiComp && normalizeTr(r.company || '').includes(normAiComp));
-      if (existing) {
-        if (aiExp.responsibilities) existing.responsibilities = aiExp.responsibilities;
-        if (aiExp.achievements) existing.achievements = aiExp.achievements;
-      }
+  // Baseline deterministic extraction is ALWAYS the authoritative grounded source of truth!
+  const results = baseline.map((b) => ({ ...b }));
+  for (let i = 0; i < results.length; i++) {
+    const base = results[i];
+    const matchingAi = ai.find((a) => {
+      const aComp = normalizeTr(a.company || '');
+      const bComp = normalizeTr(base.company || '');
+      const aRole = normalizeTr(a.role || '');
+      const bRole = normalizeTr(base.role || '');
+      return (
+        (aComp && bComp && (aComp.includes(bComp) || bComp.includes(aComp))) ||
+        (aRole && bRole && (aRole.includes(bRole) || bRole.includes(aRole)))
+      );
+    }) || ai[i];
+
+    if (matchingAi) {
+      if (!base.company && matchingAi.company) base.company = matchingAi.company;
+      if (!base.role && matchingAi.role) base.role = matchingAi.role;
+      if (!base.responsibilities && matchingAi.responsibilities) base.responsibilities = matchingAi.responsibilities;
+      if (!base.achievements && matchingAi.achievements) base.achievements = matchingAi.achievements;
     }
-    return results;
   }
 
-  // AI has equal or more experiences
-  return ai;
+  // If AI found additional distinct experiences that deterministic missed, append them
+  if (ai.length > baseline.length) {
+    for (let j = baseline.length; j < ai.length; j++) {
+      if (ai[j] && (ai[j].company || ai[j].role)) {
+        results.push(ai[j]);
+      }
+    }
+  }
+
+  return results;
 }
 
 /**

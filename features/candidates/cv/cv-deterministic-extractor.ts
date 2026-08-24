@@ -418,6 +418,11 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   teknoloji: 'Bilişim / Yazılım',
   'bilgi teknolojileri': 'Bilişim / Yazılım',
   'information technology': 'Bilişim / Yazılım',
+  'siber guvenlik': 'Bilişim / Yazılım',
+  'cyber security': 'Bilişim / Yazılım',
+  cyber: 'Bilişim / Yazılım',
+  soc: 'Bilişim / Yazılım',
+  siem: 'Bilişim / Yazılım',
 
   'insan kaynaklari': 'İnsan Kaynakları',
   'human resources': 'İnsan Kaynakları',
@@ -510,6 +515,9 @@ export const KNOWN_SECTOR_KEYWORDS: Record<string, string> = {
   aviation: 'Havacılık',
   denizcilik: 'Denizcilik / Liman',
   maritime: 'Denizcilik / Liman',
+  gemi: 'Denizcilik / Liman',
+  kaptan: 'Denizcilik / Liman',
+  liman: 'Denizcilik / Liman',
   madencilik: 'Madencilik',
   mining: 'Madencilik',
   gida: 'Gıda / Restoran',
@@ -872,6 +880,8 @@ export function isRoleTitle(line: string): boolean {
     norm.includes('okutman') ||
     norm.includes('docent') ||
     norm.includes('profesor') ||
+    norm.includes('operasyon') ||
+    norm.includes('portfoy') ||
     norm.includes('asci') ||
     norm.includes('chef') ||
     norm.includes('garson') ||
@@ -1887,6 +1897,12 @@ export function extractDeterministicExperiences(text: string): RawExtractedExper
                 currentExp.role = prev1;
               } else if (prev2 && isRoleTitle(prev2) && !currentExp.role) {
                 currentExp.role = prev2;
+              }
+              if (!currentExp.role) {
+                const next1 = i + 1 < targetLines.length ? targetLines[i + 1] : null;
+                if (next1 && !parseDateRangeText(next1) && isRoleTitle(next1)) {
+                  currentExp.role = next1;
+                }
               }
             }
           }

@@ -114,8 +114,22 @@ export function classifyCandidateSemantic(candidate: string): SemanticClassifica
     return 'EDUCATION';
   }
 
-  // 2. Section header semantics (including fractured OCR headings like "kis iselbilgiler", "kisisel")
+  // 2. Section header semantics (including fractured OCR headings like "kis iselbilgiler", "kisisel", "eg itim")
+  const noSpaceNorm = norm.replace(/[\s\-_.,/]+/g, '');
   if (
+    noSpaceNorm.startsWith('egitim') ||
+    noSpaceNorm.startsWith('deneyim') ||
+    noSpaceNorm.startsWith('isdeney') ||
+    noSpaceNorm.startsWith('isgecmis') ||
+    noSpaceNorm.startsWith('kisisel') ||
+    noSpaceNorm.startsWith('iletisim') ||
+    noSpaceNorm.startsWith('ozgecmis') ||
+    noSpaceNorm.startsWith('referans') ||
+    noSpaceNorm.startsWith('yetenek') ||
+    noSpaceNorm.startsWith('beceri') ||
+    noSpaceNorm.startsWith('sertifika') ||
+    noSpaceNorm.startsWith('hakkimda') ||
+    noSpaceNorm.startsWith('kariyer') ||
     /\b(?:kisisel|iletisim|ozgecmis|deneyim|deneyimleri|tecrube|tecrubeleri|egitim|egitimleri|ogrenim|yetenek|yetenekleri|beceri|becerileri|sertifika|sertifikalari|referans|referanslar|referanslari|profesyonel|kariyer|hakkimda|yayinlar|projeler|hobiler|diller)\b|(?:\b\w*bilgi(?:ler|leri|si|m|lerim)\b)|\b(?:kis\s+isel\w*)\b|\b(?:kisi\s+sel\w*)\b/i.test(
       norm,
     )
@@ -165,12 +179,10 @@ export function classifyCandidateSemantic(candidate: string): SemanticClassifica
     return 'LOCATION';
   }
 
-  const firstWordNorm = normalizeTrUniversal(words[0]);
-  if (EXTENSIVE_TURKISH_MALE_NAMES.has(firstWordNorm) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(firstWordNorm)) {
-    return 'PERSON_NAME';
-  }
-
-  if (words.length >= 2 && words.length <= 4 && words.every((w) => /^[a-zA-ZçğıöşüÇĞİÖŞÜ]+$/.test(w))) {
+  const hasGivenName = normWords.some(
+    (w) => EXTENSIVE_TURKISH_MALE_NAMES.has(w) || EXTENSIVE_TURKISH_FEMALE_NAMES.has(w),
+  );
+  if (hasGivenName && words.length >= 2 && words.length <= 4) {
     return 'PERSON_NAME';
   }
 

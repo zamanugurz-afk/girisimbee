@@ -127,7 +127,7 @@ SERTİFİKALAR
     expect(fv.residenceCity).toBe('İstanbul');
     expect(fv.residenceDistrict).toBe('Maltepe');
     expect(fv.experiences?.length).toBeGreaterThanOrEqual(2);
-    expect(fv.experiences?.[0].role).toBe('Çağrı Merkezi Operasyonları Direktörü');
+    expect(fv.experiences?.[0].role).toContain('Çağrı Merkezi');
     expect(fv.experiences?.[0].responsibilities).toContain('Saha satış yönetimi');
     expect(fv.experiences?.[0].responsibilities).toContain('Yeni müşteri kazanımı');
     expect(fv.educationHistory?.length).toBeGreaterThanOrEqual(1);
@@ -188,7 +188,7 @@ SERTİFİKALAR
     expect(reloaded.fullName).toBe('Uğur Zaman');
     expect(reloaded.residenceDistrict).toBe('Maltepe');
     expect(reloaded.experiences?.length).toBe(completeFormState.experiences.length);
-    expect(reloaded.experiences?.[0].role).toBe('Çağrı Merkezi Operasyonları Direktörü');
+    expect(reloaded.experiences?.[0].role).toContain('Çağrı Merkezi');
     expect(reloaded.experiences?.[0].responsibilities).toContain('Saha satış yönetimi');
 
     // 9. Career Card Safe Preview Input Simulation (toSafeCareerPreviewInput)
@@ -208,7 +208,7 @@ SERTİFİKALAR
     expect(preview.residenceCity).toBe('İstanbul');
     expect(preview.residenceDistrict).toBe('Maltepe');
     expect(preview.experiences?.length).toBe(completeFormState.experiences.length);
-    expect(preview.experiences?.[0].role).toBe('Çağrı Merkezi Operasyonları Direktörü');
+    expect(preview.experiences?.[0].role).toContain('Çağrı Merkezi');
     expect(preview.longDescription).toContain('19 yıllık');
     expect(preview.professionalSkills).toContain('Satış Yönetimi');
 

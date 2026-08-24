@@ -366,6 +366,8 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
   ],
   'Müşteri hizmetleri': [
     'Müşteri hizmetleri müdürü',
+    'Müşteri ilişkileri yöneticisi',
+    'Müşteri ilişkileri uzmanı',
     'Müşteri deneyimi yöneticisi',
     'Müşteri temsilcisi',
     'Çağrı merkezi temsilcisi',
@@ -412,6 +414,8 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Satış mühendisi',
   ],
   Otomotiv: [
+    'Otomotiv mühendisi',
+    'Otomotiv tasarım mühendisi',
     'Servis müdürü',
     'Otomotiv teknisyeni',
     'Servis danışmanı',

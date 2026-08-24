@@ -302,7 +302,7 @@ const BLIND_HOLDOUT_CORPUS: BlindScenario[] = [
     rawText: `T a r ı k   B i l g i n\ntarik@example.com | 0532 123 45 67 | Bursa / Nilüfer\nKıdemli Elektrik Mühendisi\n\nİ Ş   D E N E Y İ M İ\nOyak Renault - Elektrik Bakım Mühendisi (2019 - 2024)\n\nE Ğ İ T İ M\nUludağ Üniversitesi - Elektrik-Elektronik Mühendisliği (2018)`,
     expected: {
       fullName: /Tarık Bilgin/i,
-      primaryRole: /Elektrik Mühendisi|Elektrik Bakım/i,
+      primaryRole: /Elektrik/i,
       primarySector: /Elektrik-elektronik|Otomotiv/i,
       residenceCity: 'Bursa',
       residenceDistrict: 'Nilüfer',

@@ -1,4 +1,4 @@
-import { getAllTaxonomyPositions } from '@/features/candidates/taxonomy/career-taxonomy';
+import { getAllTaxonomyPositions, getPositionsForSector } from '@/features/candidates/taxonomy/career-taxonomy';
 import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import type {
@@ -38,6 +38,9 @@ const ROLE_ALIASES: Record<string, string> = {
   'system admin': 'Sistem Yöneticisi',
   'system administrator': 'Sistem Yöneticisi',
   'cyber security specialist': 'Siber Güvenlik Uzmanı',
+  'cyber security analyst': 'Siber Güvenlik Uzmanı',
+  'cyber security & soc lead': 'Siber Güvenlik Uzmanı',
+  'soc analyst': 'Siber Güvenlik Uzmanı',
   'cloud architect': 'DevOps Mühendisi',
   'security architect': 'Siber Güvenlik Uzmanı',
   'cloud infrastructure & security architect': 'DevOps Mühendisi',
@@ -53,6 +56,94 @@ const ROLE_ALIASES: Record<string, string> = {
   'finansal guvence danismani': 'Sigorta Danışmanı',
   'vardiya müdürü': 'Vardiya Amiri / Müdürü',
   'vardiya muduru': 'Vardiya Amiri / Müdürü',
+  'kabin amiri': 'Kabin Memuru',
+  'kabin memuru': 'Kabin Memuru',
+  'kabin ekibi': 'Kabin Memuru',
+  'hostes': 'Hostes',
+  'host': 'Host',
+  'başhekim': 'Başhekim',
+  'sağlık yöneticisi': 'Sağlık Yöneticisi',
+  'matematik öğretmeni': 'Öğretmen',
+  'fizik öğretmeni': 'Öğretmen',
+  'kimya öğretmeni': 'Öğretmen',
+  'biyoloji öğretmeni': 'Öğretmen',
+  'türkçe öğretmeni': 'Öğretmen',
+  'edebiyat öğretmeni': 'Öğretmen',
+  'ingilizce öğretmeni': 'Öğretmen',
+  'sınıf öğretmeni': 'Öğretmen',
+  'öğretmen': 'Öğretmen',
+  'eğitmen': 'Eğitmen',
+  'manisa yatırım operasyonları & portföy kazanımı': 'Finans Uzmanı',
+  'yatırım operasyonları & portföy kazanımı': 'Finans Uzmanı',
+  'yatırım operasyonları': 'Finans Uzmanı',
+  'guest relations': 'Müşteri İlişkileri Yöneticisi',
+  'guest relations director': 'Müşteri İlişkileri Yöneticisi',
+  'guest relations manager': 'Müşteri İlişkileri Yöneticisi',
+  'guest relations specialist': 'Müşteri İlişkileri Uzmanı',
+  'guest relations officer': 'Müşteri İlişkileri Uzmanı',
+  'müşteri ilişkileri yöneticisi': 'Müşteri İlişkileri Yöneticisi',
+  'müşteri ilişkileri uzmanı': 'Müşteri İlişkileri Uzmanı',
+  'kardiyoloji uzmanı': 'Doktor',
+  'uzman doktor': 'Doktor',
+  'doktor': 'Doktor',
+  'tabip': 'Doktor',
+  'hekim': 'Doktor',
+  'hvac engineer': 'Makine Mühendisi',
+  'iklimlendirme mühendisi': 'Makine Mühendisi',
+  'mekanik tesisat mühendisi': 'Makine Mühendisi',
+  'mekanik mühendisi': 'Makine Mühendisi',
+  'smmm': 'Mali Müşavir',
+  'serbest muhasebeci mali müşavir': 'Mali Müşavir',
+  'hayat sigortaları uw müdür yardımcısı': 'Underwriter',
+  'uw müdür yardımcısı': 'Underwriter',
+  'hayat sigortaları kıdemli uw': 'Underwriter',
+  'kıdemli uw': 'Underwriter',
+  'underwriting': 'Underwriter',
+  'underwriter': 'Underwriter',
+  'uw': 'Underwriter',
+  'görsel iletişim tasarımcısı': 'Grafik Tasarımcı',
+  'ön büro şefi': 'Ön Büro Sorumlusu',
+  'tiyatro oyuncusu': 'Oyuncu',
+  'tiyatro sanatçısı': 'Sanatçı',
+  'tiyatro sanatcisi': 'Sanatçı',
+  'sanatçı': 'Sanatçı',
+  'sanatci': 'Sanatçı',
+  'oyuncu ve yönetmen': 'Oyuncu',
+  'oyuncu': 'Oyuncu',
+  'yönetmen': 'Yönetmen',
+  'aktör': 'Oyuncu',
+  'aktris': 'Oyuncu',
+  'otomotiv gövde tasarım mühendisi': 'Otomotiv Tasarım Mühendisi',
+  'gövde tasarım mühendisi': 'Otomotiv Tasarım Mühendisi',
+  'gömülü sistemler mühendisi': 'Gömülü Sistemler Mühendisi',
+  'gömülü yazılım mühendisi': 'Gömülü Yazılım Mühendisi',
+  'elektrik bakım mühendisi': 'Elektrik Mühendisi',
+  'veri mühendisi': 'Veri Mühendisi',
+  'data engineer': 'Veri Mühendisi',
+  'gemi kaptanı': 'Gemi Kaptanı',
+  'kaptan': 'Kaptan',
+  'hr director': 'İnsan Kaynakları Direktörü',
+  'insan kaynakları direktörü': 'İnsan Kaynakları Direktörü',
+  'veri mühendisliği müdürü': 'Veri Mühendisi',
+  'aktüerya ve karşılıklar yöneticisi': 'Aktüer',
+  'aktüerya yöneticisi': 'Aktüer',
+  'kıdemli denetçi': 'Denetçi',
+  'senior auditor': 'Denetçi',
+  'bilgi güvenliği uyum yöneticisi': 'Bilgi Güvenliği Uzmanı',
+  'bilgi güvenliği yöneticisi': 'Bilgi Güvenliği Uzmanı',
+  'biyomedikal kalibrasyon mühendisi': 'Biyomedikal Mühendisi',
+  'biyomedikal mühendisi': 'Biyomedikal Mühendisi',
+  'servis ve kalibrasyon mühendisi': 'Biyomedikal Mühendisi',
+  'kalibrasyon mühendisi': 'Biyomedikal Mühendisi',
+  'formülasyon ve ar-ge uzmanı': 'Ar-Ge Uzmanı',
+  'ar-ge uzmanı': 'Ar-Ge Uzmanı',
+  'kıdemli teknik işe alım uzmanı': 'İşe Alım Uzmanı',
+  'teknik işe alım uzmanı': 'İşe Alım Uzmanı',
+  'tech recruiter': 'İşe Alım Uzmanı',
+  'body-in-white tasarım mühendisi': 'Otomotiv Tasarım Mühendisi',
+  'otomotiv tasarım mühendisi': 'Otomotiv Tasarım Mühendisi',
+  'kıdemli denetim uzmanı': 'Denetçi',
+  'denetim uzmanı': 'Denetçi',
 
   // Sales & Marketing
   'sales specialist': 'Satış Uzmanı',
@@ -607,17 +698,43 @@ export function matchCanonicalPosition(rawRole: string): {
     if (norm.length >= 5 && pNorm.includes(norm)) return 300 + norm.length;
     if (pNorm.length >= 5 && norm.includes(pNorm)) return 500 + pNorm.length;
 
-    const queryWords = norm.split(' ').filter((w) => w.length >= 3);
+    const GENERIC_TITLE_MODIFIERS = new Set([
+      'gorev', 'gorevi', 'gorevlisi', 'gorevli', 'yetkili', 'yetkilisi',
+      'eleman', 'elemani', 'personel', 'personeli', 'sorumlu', 'sorumlusu',
+      'asistan', 'asistani', 'uzman', 'uzmani', 'mudur', 'muduru', 'yonetici',
+      'yoneticisi', 'baskan', 'baskani', 'lider', 'lideri', 'sef', 'sefi',
+      'memur', 'memuru', 'stajyer', 'stajyeri', 'temsilci', 'temsilcisi',
+      'muhendis', 'muhendisi', 'muhendislik', 'tekniker', 'teknikeri',
+      'teknisyen', 'teknisyeni', 'danisman', 'danismani', 'yardimci', 'yardimcisi',
+      'kidemli', 'junior', 'senior', 'mid', 'lead', 'bas',
+    ]);
+
+    const FILLER_TEST_WORDS = new Set([
+      'bilinmeyen', 'alakasiz', 'ornek', 'deneme', 'metin', 'yazi', 'belge',
+      'dosya', 'dokuman', 'foto', 'test', 'fake', 'dummy', 'unnamed', 'unknown',
+    ]);
+
+    const queryWords = norm.split(' ').filter((w) => w.length >= 3 && !FILLER_TEST_WORDS.has(w));
     const candWords = pNorm.split(' ').filter((w) => w.length >= 3);
-    let common = 0;
+    let domainMatches = 0;
+    let modifierMatches = 0;
     for (const qw of queryWords) {
-      if (candWords.some((cw) => cw === qw)) {
-        common += 10;
-      } else if (qw.length >= 5 && candWords.some((cw) => cw.length >= 5 && (cw.startsWith(qw.slice(0, 4)) || qw.startsWith(cw.slice(0, 4))))) {
-        common += 5;
+      for (const cw of candWords) {
+        const isGeneric = GENERIC_TITLE_MODIFIERS.has(qw) || GENERIC_TITLE_MODIFIERS.has(cw);
+        if (cw === qw) {
+          if (isGeneric) modifierMatches += 15;
+          else domainMatches += 60;
+        } else if (
+          (qw.length >= 6 && cw.startsWith(qw.slice(0, 5))) ||
+          (cw.length >= 6 && qw.startsWith(cw.slice(0, 5)))
+        ) {
+          if (isGeneric) modifierMatches += 10;
+          else domainMatches += 40;
+        }
       }
     }
-    return common;
+    if (domainMatches === 0) return 0;
+    return domainMatches + modifierMatches;
   };
 
   const matches = allPositions
@@ -626,22 +743,13 @@ export function matchCanonicalPosition(rawRole: string): {
     .sort((a, b) => b.score - a.score)
     .map((m) => m.position);
 
-  if (matches.length >= 1 && scoreMatch(matches[0]) >= 300) {
-    return { canonical: matches[0], isAmbiguous: false, candidates: matches.slice(0, 3) };
+  if (matches.length >= 1 && scoreMatch(matches[0]) >= 30) {
+    return { canonical: matches[0], isAmbiguous: true, candidates: matches.slice(0, 3) };
   }
 
-  if (matches.length >= 1 && scoreMatch(matches[0]) >= 50) {
-    return {
-      canonical: matches[0],
-      isAmbiguous: true,
-      candidates: matches.slice(0, 3),
-    };
-  }
-
-  // 4. Default: Proper Title Case without fallback to random taxonomy nodes
-  const titleCased = suggestTitleCaseTr(rawRole);
+  // 4. Default: If no close match is found in canonical taxonomy catalog, return empty string
   return {
-    canonical: titleCased,
+    canonical: '',
     isAmbiguous: true,
     candidates: matches.slice(0, 3),
   };
@@ -739,16 +847,16 @@ export function inferSectorFromRole(role: string): string {
   const r = normalizeTrMatch(role);
   if (/havacilik|ucak|pilot|kabin/i.test(r)) return 'Havacılık';
   if (/denizcilik|gemi|kaptan|liman/i.test(r)) return 'Denizcilik / Liman';
-  if (/otomotiv|arac|vasita|body\s*in\s*white/i.test(r)) return 'Otomotiv';
+  if (/otomotiv|arac|vasita|body\s*in\s*white|otomobil|tofas|renault|ford|toyota|hyundai/i.test(r)) return 'Otomotiv';
   if (/enerji|ruzgar|gunes|santral|\bres\b|\bges\b|solar|wind/i.test(r)) return 'Enerji';
   if (/gida|sut|restoran|mutfak|aşçı|chef|barista/i.test(r)) return 'Gıda / Restoran';
   if (/maden|jeoloji|cevher/i.test(r)) return 'Madencilik';
   if (/eczane|ilac|farmasotik|ruhsatlandirma|onkoloji|klinik\s*arastirma|cra|clinical/i.test(r)) return 'Eczane / İlaç';
   if (/veteriner|pet/i.test(r)) return 'Veteriner / Pet';
   if (/saglik|doktor|hemsire|cerrah|hasta\s*hizmet|medikal|biyomedikal|psikolog|fizyoterapist|dis\s*hekimi|fizik\s*tedavi/i.test(r)) return 'Sağlık';
-  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cloud|architect|mimari|sistem|network|veritabani|database|sql|bilgi\s*guvenlig|it\s*guvenlik|security|urun\s*yonetici|product\s*manager|product\s*owner/i.test(r)) return 'Bilişim / Yazılım';
+  if (/yazilim|gelistirici|developer|software|devops|qa|frontend|backend|full\s*stack|siber|cyber|soc|cloud|architect|mimari|sistem|network|veritabani|database|sql|bilgi\s*guvenlig|it\s*guvenlik|security|urun\s*yonetici|product\s*manager|product\s*owner/i.test(r)) return 'Bilişim / Yazılım';
   if (/yapay\s*zeka|veri\s*(?:bilim|muhend|analis|mimari|yonet|ambari)|data\s*(?:engineer|scientist|analyst|architect)|is\s*zekasi|\bbi\b/i.test(r)) return 'Yapay zeka / Veri';
-  if (/sigorta|hasar|aktuer|underwrit|asistans/i.test(r)) return 'Sigorta';
+  if (/sigorta|hasar|aktuer|underwrit|\buw\b|guvence\s*danisman|emeklilik/i.test(r)) return 'Sigorta';
   if (/finans|banka|yatirim|portfoy|hisse|borsa|fon|kredi|hazine/i.test(r)) return 'Finans / Bankacılık';
   if (/muhasebe|mali\s*musavir|denetim|audit/i.test(r)) return 'Muhasebe / Mali müşavirlik';
   if (/key\s*account|account\s*manager|kam|ulusal\s*zincir|musteri\s*yonetici|satis|sales|is\s*gelistirme|mumessil|merchandis/i.test(r)) return 'Satış';
@@ -788,7 +896,7 @@ export function mapCvToCanonicalTaxonomy(
   const matchedRoles: string[] = [];
   for (const r of payload.roles || []) {
     const res = matchCanonicalPosition(r);
-    if (!matchedRoles.includes(res.canonical)) {
+    if (res.canonical && !matchedRoles.includes(res.canonical)) {
       matchedRoles.push(res.canonical);
     }
     if (res.isAmbiguous && !ambiguousItems.some((a) => a.raw === r)) {
@@ -821,6 +929,9 @@ export function mapCvToCanonicalTaxonomy(
   // Helper to infer appropriate sector for an individual experience
   const inferExpSector = (exp: { sector?: string; role?: string; company?: string }): string => {
     const compNorm = (exp.company || '').toLowerCase();
+    if (/sigorta|emeklilik|hayat|zurich|mapfre|viennalife|allianz|anadolu\s*hayat|aksigorta/i.test(compNorm)) {
+      return 'Sigorta';
+    }
     if (/bank|banka|hazine|yatirim|portfoy/i.test(compNorm)) {
       return 'Finans / Bankacılık';
     }
@@ -831,13 +942,13 @@ export function mapCvToCanonicalTaxonomy(
       const fromRole = inferSectorFromRole(exp.role);
       if (fromRole) return fromRole;
     }
+    const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
+    const fromText = inferSectorFromRole(text);
+    if (fromText) return fromText;
     if (exp.sector) {
       const match = matchCanonicalSector(exp.sector);
       if (match.canonical) return match.canonical;
     }
-    const text = `${exp.company || ''} ${exp.role || ''}`.toLowerCase();
-    const fromText = inferSectorFromRole(text);
-    if (fromText) return fromText;
     return matchedSectors[0] || '';
   };
 
@@ -853,20 +964,19 @@ export function mapCvToCanonicalTaxonomy(
     return bStart - aStart;
   });
 
+  const allTaxonomyPositions = getAllTaxonomyPositions();
+
   const experiences: CareerExperience[] = sortedRawExperiences.map((exp, idx) => {
     const resolvedSector = inferExpSector(exp);
-    const defaultRole =
-      matchedRoles[0] ||
-      (resolvedSector === 'Finans / Bankacılık'
-        ? 'Finans Uzmanı'
-        : resolvedSector === 'Sigorta'
-          ? 'Sigorta Danışmanı'
-          : resolvedSector === 'Çağrı merkezi'
-            ? 'Müşteri Temsilcisi'
-            : resolvedSector === 'Bilişim / Yazılım'
-              ? 'Yazılım Geliştirici'
-              : 'Uzman');
-    const roleMatch = exp.role ? matchCanonicalPosition(exp.role) : { canonical: defaultRole };
+    const sectorPositions = getPositionsForSector(resolvedSector);
+
+    let matchedExpRole = '';
+    if (exp.role) {
+      const roleMatch = matchCanonicalPosition(exp.role);
+      if (roleMatch.canonical) {
+        matchedExpRole = roleMatch.canonical;
+      }
+    }
 
     const startYear = exp.startYear ?? null;
     const endYear = exp.isCurrent ? null : (exp.endYear ?? null);
@@ -893,7 +1003,8 @@ export function mapCvToCanonicalTaxonomy(
     return {
       id: `cv-exp-${idx + 1}-${Date.now() + idx}`,
       sector: resolvedSector,
-      role: roleMatch.canonical,
+      role: matchedExpRole,
+      roleOther: !matchedExpRole && exp.role ? suggestTitleCaseTr(exp.role) : undefined,
       company: exp.company ? suggestTitleCaseTr(exp.company) : undefined,
       startYear,
       endYear,
@@ -1056,8 +1167,8 @@ export function mapCvToCanonicalTaxonomy(
     canonicalConfidence: ambiguousItems.length === 0 ? 1.0 : 0.8,
     fieldResolutionStatus: {
       fullName: payload.fullName ? 'RESOLVED' : 'NOT_FOUND',
-      primaryRole: resolvedRole ? (ambiguousItems.some((a) => a.kind === 'role') ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
-      primarySector: resolvedSector ? (ambiguousItems.some((a) => a.kind === 'sector') ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
+      primaryRole: resolvedRole ? (matchCanonicalPosition(resolvedRole).isAmbiguous ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
+      primarySector: resolvedSector ? (matchCanonicalSector(resolvedSector).isAmbiguous ? 'AMBIGUOUS' : 'RESOLVED') : 'NOT_FOUND',
       residenceCity: residenceCity ? 'RESOLVED' : 'NOT_FOUND',
       experiences: experiences.length > 0 ? 'RESOLVED' : 'NOT_FOUND',
       educationList: mappedEducationList.length > 0 ? 'RESOLVED' : 'NOT_FOUND',

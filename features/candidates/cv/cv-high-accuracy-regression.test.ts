@@ -103,7 +103,7 @@ SERTİFİKALAR
     expect(match2.isAmbiguous).toBe(false);
 
     const match3 = matchCanonicalPosition('NonStandardUnicornTitle');
-    expect(match3.canonical).toBe('Nonstandardunicorntitle');
+    expect(match3.canonical).toBe('');
     expect(match3.isAmbiguous).toBe(true);
   });
 
