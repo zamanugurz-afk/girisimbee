@@ -44,7 +44,7 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('expandedExperiences');
     expect(source).toContain('diğer deneyimi göster');
     expect(source).toContain('Daha az göster');
-    expect(source).toContain('experiences.length > 1');
+    expect(source).toContain('experiences.length > INITIAL_EXPERIENCE_LIMIT');
   });
 
   it('6. uses framed card boxes with blue number nodes for experiences', () => {

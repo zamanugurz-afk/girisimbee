@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Sliders,
   Sparkles,
+  Star,
   Store,
   Target,
   Timer,
@@ -175,6 +176,54 @@ function formatExperienceDurationBadge(exp: {
   if (years > 0 && months > 0) return `${years} yıl ${months} ay`;
   if (years > 0) return `${years} yıl`;
   return `${months} ay`;
+}
+
+function formatLocationCityDistrict(
+  city?: string | null,
+  district?: string | null,
+  fallback?: string | null,
+): string {
+  let cleanCity = (city || fallback || '').trim();
+  cleanCity = cleanCity.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
+  cleanCity = cleanCity.replace(/(Anadolu|Avrupa)\s+Yakası/gi, 'İstanbul');
+  cleanCity = cleanCity.replace(/\s+/g, ' ').trim();
+
+  let cleanDistrict = (district || '').trim();
+  cleanDistrict = cleanDistrict.replace(/İstanbul\s+(Anadolu|Avrupa)\s+Yakası/gi, '');
+  cleanDistrict = cleanDistrict.replace(/(Anadolu|Avrupa)\s+Yakası/gi, '');
+  cleanDistrict = cleanDistrict.trim();
+
+  if (cleanCity && cleanDistrict) {
+    return `${cleanCity} - ${cleanDistrict}`;
+  }
+  return cleanCity || cleanDistrict || '';
+}
+
+function getLanguageStars(level?: string | null): number {
+  if (!level) return 0;
+  const l = level.trim().toLocaleLowerCase('tr-TR');
+  if (
+    l.includes('ana dil') ||
+    l.includes('native') ||
+    l.includes('c2') ||
+    l.includes('ileri') ||
+    l.includes('c1')
+  ) {
+    return 5;
+  }
+  if (l.includes('iyi') || l.includes('b2')) {
+    return 4;
+  }
+  if (l.includes('orta') || l.includes('b1')) {
+    return 3;
+  }
+  if (l.includes('temel') || l.includes('a2')) {
+    return 2;
+  }
+  if (l.includes('başlangıç') || l.includes('baslangic') || l.includes('a1') || l.includes('az')) {
+    return 1;
+  }
+  return 3;
 }
 
 function ExpandableSummary({ text }: { text: string }) {
@@ -491,7 +540,8 @@ export function CareerProfilePreview({
     });
   }, [data.experiences]);
 
-  const visibleExperiences = expandedExperiences ? experiences : experiences.slice(0, 1);
+  const INITIAL_EXPERIENCE_LIMIT = 3;
+  const visibleExperiences = expandedExperiences ? experiences : experiences.slice(0, INITIAL_EXPERIENCE_LIMIT);
   const visibleCount = visibleExperiences.length;
 
   const summary = polishCareerSummary(data.longDescription || data.requiredResponsibilities);
@@ -499,9 +549,7 @@ export function CareerProfilePreview({
   const salary = isHire ? data.salaryRange : data.salaryExpectation;
 
   const locationText = useMemo(() => {
-    const parts = [data.residenceCity, data.residenceDistrict].filter(Boolean);
-    if (parts.length > 0) return parts.join(' / ');
-    return data.preferredCity || '';
+    return formatLocationCityDistrict(data.residenceCity, data.residenceDistrict, data.preferredCity);
   }, [data.residenceCity, data.residenceDistrict, data.preferredCity]);
 
   const workPreferenceFacts = useMemo(() => {
@@ -522,7 +570,10 @@ export function CareerProfilePreview({
       facts.push({ label: 'Ücret Beklentisi', value: salary, icon: CreditCard });
     }
     if (data.preferredCity && data.preferredCity !== data.residenceCity) {
-      facts.push({ label: 'Tercih Edilen Lokasyon', value: data.preferredCity, icon: MapPin });
+      const cleanPreferred = formatLocationCityDistrict(data.preferredCity, null, null);
+      if (cleanPreferred) {
+        facts.push({ label: 'Tercih Edilen Lokasyon', value: cleanPreferred, icon: MapPin });
+      }
     }
     return facts;
   }, [
@@ -699,6 +750,7 @@ export function CareerProfilePreview({
                 ))}
                 {languages.map((lang, idx) => {
                   const name = lang.languageOther?.trim() || lang.language;
+                  const starCount = getLanguageStars(lang.level);
                   return (
                     <div key={idx} className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
@@ -707,7 +759,21 @@ export function CareerProfilePreview({
                           {name}
                         </span>
                       </div>
-                      {lang.level ? (
+                      {starCount > 0 ? (
+                        <div className="flex items-center gap-0.5 shrink-0" title={lang.level || ''}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={cn(
+                                'h-3 w-3',
+                                star <= starCount
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'fill-slate-100 text-slate-200 dark:fill-slate-800 dark:text-slate-700',
+                              )}
+                            />
+                          ))}
+                        </div>
+                      ) : lang.level ? (
                         <span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
                           {lang.level}
                         </span>
@@ -926,7 +992,7 @@ export function CareerProfilePreview({
                     <p className="text-xs text-slate-400 italic">Henüz iş deneyimi eklenmedi.</p>
                   )}
 
-                  {experiences.length > 1 ? (
+                  {experiences.length > INITIAL_EXPERIENCE_LIMIT ? (
                     <div className="pt-1 pl-1 sm:pl-2">
                       <button
                         type="button"
@@ -936,7 +1002,7 @@ export function CareerProfilePreview({
                         <span>
                           {expandedExperiences
                             ? 'Daha az göster'
-                            : `+ ${experiences.length - 1} diğer deneyimi göster`}
+                            : `+ ${experiences.length - INITIAL_EXPERIENCE_LIMIT} diğer deneyimi göster`}
                         </span>
                         <span className="font-bold text-sm leading-none">
                           {expandedExperiences ? '−' : '+'}
