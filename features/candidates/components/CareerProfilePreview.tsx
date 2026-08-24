@@ -620,7 +620,7 @@ export function CareerProfilePreview({
 
         <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-6">
           {summary ? (
-            <div className="space-y-2.5">
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-5 shadow-2xs dark:border-border dark:bg-card/50 space-y-2.5">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 <User className="h-4 w-4" />
                 <span>{isHire ? 'Pozisyon özeti' : 'Kariyer özeti'}</span>
@@ -629,161 +629,173 @@ export function CareerProfilePreview({
             </div>
           ) : null}
 
-          {summary && allSkills.length > 0 ? (
-            <hr className="border-slate-100 dark:border-border/60" />
-          ) : null}
-
-          {allSkills.length > 0 ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                <Sliders className="h-4 w-4" />
-                <span>UZMANLIK ALANLARI</span>
-              </div>
-              <SkillChips values={allSkills} limit={8} />
-            </div>
-          ) : null}
-
-          {(summary || allSkills.length > 0) && experiences.length > 0 ? (
-            <hr className="border-slate-100 dark:border-border/60" />
-          ) : null}
-
           {!isHire ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                  <Briefcase className="h-4 w-4" />
-                  <span>İŞ DENEYİMLERİ</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+              {/* Sol Kolon: İŞ DENEYİMLERİ */}
+              <div className={cn('space-y-4', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <Briefcase className="h-4 w-4" />
+                    <span>İŞ DENEYİMLERİ</span>
+                  </div>
+                  {experiences.length > 0 ? (
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                      {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
+                    </span>
+                  ) : null}
                 </div>
+
                 {experiences.length > 0 ? (
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
-                    {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
-                  </span>
-                ) : null}
-              </div>
+                  <div className="relative space-y-6 pl-1 sm:pl-2">
+                    {visibleExperiences.map((exp, idx) => {
+                      const isLast = idx === visibleExperiences.length - 1;
+                      const durationBadge = formatExperienceDurationBadge(exp);
+                      const startText =
+                        exp.startMonth && exp.startYear
+                          ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
+                          : '';
+                      const endText = exp.isCurrent
+                        ? 'Halen'
+                        : exp.endMonth && exp.endYear
+                          ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
+                          : '';
+                      const duties = experienceResponsibilities(exp);
 
-              {experiences.length > 0 ? (
-                <div className="relative space-y-6 pl-1 sm:pl-2">
-                  {visibleExperiences.map((exp, idx) => {
-                    const isLast = idx === visibleExperiences.length - 1;
-                    const durationBadge = formatExperienceDurationBadge(exp);
-                    const startText =
-                      exp.startMonth && exp.startYear
-                        ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
-                        : '';
-                    const endText = exp.isCurrent
-                      ? 'Halen'
-                      : exp.endMonth && exp.endYear
-                        ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
-                        : '';
-                    const duties = experienceResponsibilities(exp);
-
-                    return (
-                      <div key={exp.id || idx} className="relative flex items-start gap-3.5 sm:gap-5">
-                        {/* Number node */}
-                        <div className="flex flex-col items-center">
-                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
-                            {idx + 1}
-                          </div>
-                          {!isLast ? (
-                            <div className="w-0.5 flex-1 bg-slate-200 dark:bg-border my-1.5 min-h-[36px]" />
-                          ) : null}
-                        </div>
-
-                        {/* Date column */}
-                        <div className="w-24 sm:w-28 shrink-0 pt-0.5">
-                          <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                            {startText || 'Başlangıç'}
-                          </p>
-                          {endText ? (
-                            <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
-                              - {endText}
-                            </p>
-                          ) : null}
-                          {durationBadge ? (
-                            <span className="mt-1.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
-                              {durationBadge}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        {/* Role and Details */}
-                        <div className="min-w-0 flex-1 pb-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
-                                {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
-                              </h4>
-                              <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                                {[
-                                  (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
-                                  exp.sector,
-                                ]
-                                  .filter(Boolean)
-                                  .join('  |  ')}
-                              </p>
+                      return (
+                        <div key={exp.id || idx} className="relative flex items-start gap-3.5 sm:gap-5">
+                          {/* Number node */}
+                          <div className="flex flex-col items-center">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
+                              {idx + 1}
                             </div>
-                            {data.isFormPreview ? (
-                              <div className="flex items-center gap-1">
-                                {data.onEditExperience ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => data.onEditExperience?.(idx)}
-                                    className="p-1 text-slate-400 hover:text-blue-600"
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                ) : null}
-                                {data.onDeleteExperience ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => data.onDeleteExperience?.(idx)}
-                                    className="p-1 text-slate-400 hover:text-destructive"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                ) : null}
-                              </div>
+                            {!isLast ? (
+                              <div className="w-0.5 flex-1 bg-slate-200 dark:bg-border my-1.5 min-h-[36px]" />
                             ) : null}
                           </div>
 
-                          {duties.length > 0 ? (
-                            <ul className="mt-2.5 space-y-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                              {duties.map((duty, dIdx) => (
-                                <li key={dIdx} className="flex items-start gap-1.5">
-                                  <span className="text-slate-400 font-bold">•</span>
-                                  <span>{duty}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
+                          {/* Date column */}
+                          <div className="w-24 sm:w-28 shrink-0 pt-0.5">
+                            <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
+                              {startText || 'Başlangıç'}
+                            </p>
+                            {endText ? (
+                              <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                                - {endText}
+                              </p>
+                            ) : null}
+                            {durationBadge ? (
+                              <span className="mt-1.5 inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">
+                                {durationBadge}
+                              </span>
+                            ) : null}
+                          </div>
 
-              {/* Expand all experiences button */}
-              {experiences.length > 1 ? (
-                <div className="pt-1 pl-10 sm:pl-12">
-                  <button
-                    type="button"
-                    onClick={() => setExpandedExperiences((v) => !v)}
-                    className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-3 py-1.5 border border-primary/20"
-                  >
-                    <span>
-                      {expandedExperiences
-                        ? 'Daha az göster'
-                        : `+ ${experiences.length - 1} diğer deneyimi göster`}
-                    </span>
-                    <span className="font-bold text-sm leading-none">
-                      {expandedExperiences ? '−' : '+'}
-                    </span>
-                  </button>
+                          {/* Role and Details */}
+                          <div className="min-w-0 flex-1 pb-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-foreground">
+                                  {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
+                                </h4>
+                                <p className="text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                                  {[
+                                    (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
+                                    exp.sector,
+                                  ]
+                                    .filter(Boolean)
+                                    .join('  |  ')}
+                                </p>
+                              </div>
+                              {data.isFormPreview ? (
+                                <div className="flex items-center gap-1">
+                                  {data.onEditExperience ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => data.onEditExperience?.(idx)}
+                                      className="p-1 text-slate-400 hover:text-blue-600"
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                  {data.onDeleteExperience ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => data.onDeleteExperience?.(idx)}
+                                      className="p-1 text-slate-400 hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </div>
+
+                            {duties.length > 0 ? (
+                              <ul className="mt-2.5 space-y-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {duties.map((duty, dIdx) => (
+                                  <li key={dIdx} className="flex items-start gap-1.5">
+                                    <span className="text-slate-400 font-bold">•</span>
+                                    <span>{duty}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 italic">Henüz iş deneyimi eklenmedi.</p>
+                )}
+
+                {/* Expand all experiences button */}
+                {experiences.length > 1 ? (
+                  <div className="pt-1 pl-10 sm:pl-12">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedExperiences((v) => !v)}
+                      className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-3 py-1.5 border border-primary/20"
+                    >
+                      <span>
+                        {expandedExperiences
+                          ? 'Daha az göster'
+                          : `+ ${experiences.length - 1} diğer deneyimi göster`}
+                      </span>
+                      <span className="font-bold text-sm leading-none">
+                        {expandedExperiences ? '−' : '+'}
+                      </span>
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Sağ Kolon: Dikey Ayrım Çizgisi ve UZMANLIK ALANLARI */}
+              {allSkills.length > 0 ? (
+                <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <Sliders className="h-4 w-4" />
+                    <span>UZMANLIK ALANLARI</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <SkillChips values={allSkills} limit={12} />
+                  </div>
                 </div>
               ) : null}
             </div>
-          ) : null}
+          ) : (
+            <>
+              {allSkills.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    <Sliders className="h-4 w-4" />
+                    <span>UZMANLIK ALANLARI</span>
+                  </div>
+                  <SkillChips values={allSkills} limit={8} />
+                </div>
+              ) : null}
+            </>
+          )}
 
           {/* Section 4: İLETİŞİM TALEBİ Banner */}
           {showContactBanner ? (
