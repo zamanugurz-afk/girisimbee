@@ -606,11 +606,12 @@ export function CareerProfilePreview({
     fetch(`/api/listings/${listingId}/application-check`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
-        if (mounted && json?.hasApplied) {
+        const payload = json?.data || json;
+        if (mounted && payload?.hasApplied) {
           setAppliedInfo({
             hasApplied: true,
-            conversationId: json.application?.conversationId,
-            status: json.application?.status,
+            conversationId: payload.application?.conversationId,
+            status: payload.application?.status,
           });
         }
       })

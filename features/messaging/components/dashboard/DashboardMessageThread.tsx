@@ -146,8 +146,9 @@ export function DashboardMessageThread({
     fetch(`/api/conversations/${conversationId}/application`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
-        if (mounted && json?.hasApplication && json.application) {
-          setAppData(json.application);
+        const payload = json?.data || json;
+        if (mounted && payload?.hasApplication && payload.application) {
+          setAppData(payload.application);
         } else if (mounted) {
           setAppData(null);
         }

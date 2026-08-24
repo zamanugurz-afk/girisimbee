@@ -196,15 +196,17 @@ export function JobApplicationModal({
         throw new Error(json.error || json.message || 'Başvuru gönderilemedi.');
       }
 
-      toast.success('İş başvurunuz başarıyla işverene iletildi!');
+      const application = json.data?.application || json.application;
       const convId =
-        json.application?.conversationId ||
-        json.application?.metadata?.conversationId;
+        application?.conversationId ||
+        application?.metadata?.conversationId;
+
+      toast.success('İş başvurunuz başarıyla işverene iletildi!');
 
       onOpenChange(false);
-      if (onSuccess) {
+      if (onSuccess && application?.id) {
         onSuccess({
-          applicationId: json.application.id,
+          applicationId: application.id,
           conversationId: convId,
         });
       }
