@@ -16,19 +16,24 @@ interface LogoProps {
  */
 export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const isMark = variant === 'mark';
 
   return (
     <Link
       href="/"
       prefetch
-      className={cn('group relative z-20 inline-flex shrink-0 items-center gap-0', className)}
-      aria-label="Girişimbee"
+      className={cn(
+        'group relative z-30 inline-flex shrink-0 items-center gap-0 cursor-pointer select-none',
+        className,
+      )}
+      aria-label="Girişimbee Ana Sayfa"
       onClick={(event) => {
         if (pathname === '/') {
           event.preventDefault();
           window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          event.preventDefault();
+          window.location.href = '/';
         }
       }}
     >
