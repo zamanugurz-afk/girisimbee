@@ -5,13 +5,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Award,
+  BarChart3,
   Briefcase,
   Calendar,
   Check,
+  CheckCircle2,
   Clock,
+  Code2,
   CreditCard,
   Globe,
   GraduationCap,
+  Layers,
   Lock,
   Mail,
   MapPin,
@@ -19,8 +23,11 @@ import {
   Phone,
   PhoneCall,
   Send,
+  ShieldCheck,
   Sliders,
+  Sparkles,
   Store,
+  Target,
   Timer,
   Trash2,
   User,
@@ -238,6 +245,49 @@ function rankSkillsByRoleAndSector(
   return dedupeStrings(scored.map((item) => item.skill));
 }
 
+function getSkillIcon(skill: string) {
+  const s = skill.toLocaleLowerCase('tr-TR');
+
+  // Tech / Software / Coding / Database / Cloud
+  if (
+    /yazılım|kod|program|kodlama|api|sql|veri|data|python|java|react|front|back|fullstack|devops|cloud|aws|azure|docker|git/.test(
+      s,
+    )
+  ) {
+    return Code2;
+  }
+  // Data / BI / Analytics / Reports / Excel / CRM / ERP
+  if (/crm|erp|sap|excel|ofis|office|dashboard|power bi|analiz|rapor|istatistik/.test(s)) {
+    return BarChart3;
+  }
+  // Insurance / Law / Audit / Security / Policy / Risk / Compliance
+  if (/sigorta|poliçe|hasar|risk|aktüerya|hukuk|kvkk|mevzuat|denetim|isg|güvenlik/.test(s)) {
+    return ShieldCheck;
+  }
+  // Sales / Marketing / Growth / SEO / Ads
+  if (/satış|pazarlama|marketing|b2b|b2c|müşteri|ikna|müzakere|seo|ads|hedef/.test(s)) {
+    return Target;
+  }
+  // Management / Leadership / Strategy / Organization / Coordination
+  if (
+    /yönetim|liderlik|holding|organizasyon|planlama|strateji|koordinasyon|ekip|proje|şantiye|direktör|müdür/.test(
+      s,
+    )
+  ) {
+    return Briefcase;
+  }
+  // Finance / Banking / Accounting / Budget / Tax
+  if (/muhasebe|finans|banka|kredi|bütçe|mali|vergi|hesap|smmm|spk|borsa/.test(s)) {
+    return Layers;
+  }
+  // Communication / HR / Education / Consulting
+  if (/iletişim|halkla|sunum|eğitim|danışmanlık|koçluk|insan kaynakları|ik|mülakat|psikoloji/.test(s)) {
+    return Sparkles;
+  }
+
+  return CheckCircle2;
+}
+
 function SkillChips({
   values,
   limit = 8,
@@ -254,21 +304,70 @@ function SkillChips({
   const hidden = values.length - visible.length;
   const isCol = layout === 'column';
 
+  if (isCol) {
+    return (
+      <div className="flex flex-col items-start gap-2.5 w-full">
+        {visible.map((val, idx) => {
+          const Icon = getSkillIcon(val);
+          return (
+            <div
+              key={`${val}-${idx}`}
+              className="flex items-center gap-2.5 py-0.5 min-w-0 max-w-full group"
+            >
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+              </div>
+              <span className="text-xs font-semibold text-slate-800 dark:text-foreground truncate leading-tight">
+                {val}
+              </span>
+            </div>
+          );
+        })}
+        {!expanded && hidden > 0 ? (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1 transition-colors cursor-pointer pt-1"
+          >
+            +{hidden} diğer uzmanlık
+          </button>
+        ) : null}
+        {expanded && values.length > limit ? (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 transition-colors pt-1"
+          >
+            Daha az göster
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
-    <div className={cn(isCol ? 'flex flex-col items-start gap-2 w-full' : 'flex flex-wrap items-center gap-2')}>
-      {visible.map((val, idx) => (
-        <span
-          key={`${val}-${idx}`}
-          className="inline-flex max-w-full truncate items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3.5 py-1.5 text-xs font-medium text-blue-700 shadow-none dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
-        >
-          {val}
-        </span>
-      ))}
+    <div className="flex flex-wrap items-center gap-2">
+      {visible.map((val, idx) => {
+        const Icon = getSkillIcon(val);
+        return (
+          <div
+            key={`${val}-${idx}`}
+            className="inline-flex max-w-full items-center gap-2 py-0.5"
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+              <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+            </div>
+            <span className="text-xs font-semibold text-slate-800 dark:text-foreground truncate leading-tight">
+              {val}
+            </span>
+          </div>
+        );
+      })}
       {!expanded && hidden > 0 ? (
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="inline-flex items-center rounded-full border border-blue-100 bg-[#EFF6FF] px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100 transition-colors dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-300"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 pl-1"
         >
           +{hidden} diğer
         </button>
@@ -277,7 +376,7 @@ function SkillChips({
         <button
           type="button"
           onClick={() => setExpanded(false)}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 pl-1"
         >
           Daha az göster
         </button>

@@ -52,9 +52,10 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('w-0.5 flex-1 bg-slate-200 dark:bg-border');
   });
 
-  it('7. uses light blue pill badges for skills with deduplication', () => {
-    expect(source).toContain('bg-[#EFF6FF] px-3.5 py-1.5 text-xs font-medium text-blue-700');
+  it('7. uses categorized logo icons and clean typography for skills with deduplication', () => {
+    expect(source).toContain('getSkillIcon');
     expect(source).toContain('dedupeStrings');
+    expect(source).toContain('rankSkillsByRoleAndSector');
   });
 
   it('8. renders contact request banner and privacy lock box at the bottom of the main card', () => {
