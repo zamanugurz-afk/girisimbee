@@ -667,7 +667,7 @@ export function CareerProfilePreview({
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card flex items-center gap-4">
+          <div className="rounded-2xl border border-sky-300/80 bg-white p-5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card flex items-center gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-900/40 dark:bg-blue-950/50 dark:text-blue-400">
               <User className="h-7 w-7" />
             </div>
@@ -695,7 +695,7 @@ export function CareerProfilePreview({
           </div>
 
           {hasEducation ? (
-            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-3">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 <GraduationCap className="h-4 w-4" />
                 <span>EĞİTİM</span>
@@ -732,7 +732,7 @@ export function CareerProfilePreview({
           ) : null}
 
           {hasCertificatesOrLanguages ? (
-            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-3">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 <Award className="h-4 w-4" />
                 <span>SERTİFİKA / DİL</span>
@@ -786,7 +786,7 @@ export function CareerProfilePreview({
           ) : null}
 
           {workPreferenceFacts.length > 0 ? (
-            <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3.5">
+            <div className="rounded-2xl border border-sky-300/80 bg-white p-5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-3.5">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 <Briefcase className="h-4 w-4" />
                 <span>ÇALIŞMA TERCİHLERİ</span>
@@ -815,7 +815,7 @@ export function CareerProfilePreview({
           {!isHire ? (
             isContactAccepted ? (
               <>
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 dark:border-emerald-800/80 dark:bg-emerald-950/30">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
                     <Check className="h-3.5 w-3.5 stroke-[3]" />
                   </div>
@@ -830,7 +830,7 @@ export function CareerProfilePreview({
                 </div>
 
                 {hasContactChannels ? (
-                  <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-900/40 dark:bg-card space-y-3">
+                  <div className="rounded-2xl border border-sky-300/80 bg-white p-5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card space-y-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                       <Phone className="h-4 w-4" />
                       <span>İLETİŞİM BİLGİLERİ</span>
@@ -853,7 +853,7 @@ export function CareerProfilePreview({
                 ) : null}
               </>
             ) : (
-              <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
+              <div className="flex items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/30">
                 <Lock className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
                 <p className="text-xs leading-relaxed text-blue-950 dark:text-blue-200">
                   Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
@@ -863,7 +863,7 @@ export function CareerProfilePreview({
           ) : null}
         </aside>
 
-        <main className="rounded-2xl border border-blue-100 bg-white p-6 lg:p-8 pb-3 lg:pb-3.5 shadow-sm dark:border-blue-900/40 dark:bg-card flex flex-col justify-between gap-6">
+        <main className="rounded-2xl border border-sky-300/80 bg-white p-6 lg:p-8 pb-3 lg:pb-3.5 shadow-[0_4px_24px_-4px_rgba(14,165,233,0.12)] dark:border-sky-800/80 dark:bg-card flex flex-col justify-between gap-6">
           <div className="space-y-6">
             {summary ? (
               <div className="space-y-2.5">
