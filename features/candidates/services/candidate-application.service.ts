@@ -4,11 +4,14 @@ import {
   ConflictError,
   ValidationError,
 } from '@/lib/domain/errors';
-import type { ApplicationId, ProfileId, ListingId } from '@/lib/domain/ids';
+import type { ApplicationId, ProfileId, ListingId, UserId } from '@/lib/domain/ids';
 import type { ApplicationRepository } from '@/features/matching/repositories/application.repository';
 import type { ListingRepository } from '@/features/listings/repositories/listing.repository';
 import type { ApplicationService } from '@/features/matching/services/application.service';
+import type { ProfileRepository } from '@/features/profiles/repositories/profile.repository';
+import type { IMessagingService } from '@/features/messaging/services/messaging.service.interface';
 import type { MarketplaceApplication } from '@/features/matching/types/application.types';
+import type { CareerCardInput } from '@/features/candidates/components/CareerProfilePreview';
 import type {
   CandidateApplicationDetail,
   CandidateApplicationFilter,
@@ -29,6 +32,16 @@ import {
   hasExternalContact,
 } from '@/features/shared/lib/external-contact';
 import { CANDIDATE_TO_APPLICATION_STATUS } from '@/features/candidates/types/candidate-application.types';
+import { sendJobApplicationEmployerNotification } from '@/lib/email/job-application-email';
+
+export interface SubmitApplicationMessagingDeps {
+  messagingService?: IMessagingService;
+  profileRepo?: ProfileRepository;
+  applicantUserId?: UserId;
+  employerUserId?: UserId;
+  employerEmail?: string;
+  applicantName?: string;
+}
 
 export class CandidateApplicationService {
   constructor(
@@ -42,6 +55,8 @@ export class CandidateApplicationService {
     listingId: ListingId,
     coverMessage?: string | null,
     initialNote?: string,
+    profileSnapshot?: CareerCardInput | null,
+    messagingDeps?: SubmitApplicationMessagingDeps,
   ): Promise<CandidateApplicationSummary> {
     const listing = await this.requireEmployerListing(listingId);
     const existing = await this.applicationRepo.findMany({
@@ -53,7 +68,7 @@ export class CandidateApplicationService {
       throw new ConflictError('Bu ilana zaten başvuru yapılmış.');
     }
 
-    const metadata = {
+    const metadata: Record<string, unknown> = {
       candidate: {
         notes: initialNote
           ? [{ id: crypto.randomUUID(), authorProfileId: applicantProfileId, text: initialNote, createdAt: new Date().toISOString() }]
@@ -62,13 +77,75 @@ export class CandidateApplicationService {
       },
     };
 
-    const application = await this.applicationService.submit({
+    if (profileSnapshot) {
+      metadata.profileSnapshot = profileSnapshot;
+    }
+
+    let application = await this.applicationService.submit({
       moduleKey: 'candidates',
       listingId: listing.id,
       applicantProfileId,
       coverMessage: coverMessage ?? null,
+      profileSnapshot: profileSnapshot ?? null,
       metadata,
     });
+
+    // Start conversation if messaging service & participant IDs are available
+    if (messagingDeps?.messagingService && (messagingDeps.applicantUserId || messagingDeps.profileRepo)) {
+      try {
+        let applicantUserId = messagingDeps.applicantUserId;
+        let employerUserId = messagingDeps.employerUserId ?? (listing.ownerId as UserId);
+
+        if (!applicantUserId && messagingDeps.profileRepo) {
+          const prof = await messagingDeps.profileRepo.findById(applicantProfileId);
+          if (prof) applicantUserId = prof.userId;
+        }
+
+        if (applicantUserId && employerUserId) {
+          const defaultInitialMsg =
+            coverMessage?.trim() ||
+            'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.';
+
+          const conversation = await messagingDeps.messagingService.startConversation({
+            participantIds: [applicantUserId, employerUserId],
+            listingId: listing.id,
+            applicationId: application.id,
+            kind: 'application',
+            initialMessage: defaultInitialMsg,
+          });
+
+          if (conversation?.id) {
+            application = await this.applicationRepo.update(application.id, {
+              conversationId: conversation.id,
+              metadata: {
+                ...application.metadata,
+                conversationId: conversation.id,
+              },
+            });
+
+            // Send transactional email to employer (Zero PII)
+            if (messagingDeps.employerEmail) {
+              const applicantName =
+                messagingDeps.applicantName ||
+                profileSnapshot?.displayName ||
+                'Girisimbee Adayı';
+
+              sendJobApplicationEmployerNotification({
+                to: messagingDeps.employerEmail,
+                applicantName,
+                positionTitle: listing.title,
+                conversationId: conversation.id,
+                applicationId: application.id,
+              }).catch((err) => {
+                console.warn('[email] failed to send application email notification:', err);
+              });
+            }
+          }
+        }
+      } catch (messagingErr) {
+        console.warn('[application] messaging conversation initiation warning:', messagingErr);
+      }
+    }
 
     return this.toSummary(application);
   }
@@ -202,12 +279,23 @@ export class CandidateApplicationService {
   }
 
   private toSummary(application: MarketplaceApplication): CandidateApplicationSummary {
+    const profileSnapshot =
+      application.profileSnapshot ??
+      (application.metadata?.profileSnapshot as CareerCardInput | undefined) ??
+      null;
+    const conversationId =
+      application.conversationId ??
+      (application.metadata?.conversationId as import('@/lib/domain/ids').ConversationId | undefined) ??
+      null;
+
     return {
       id: application.id,
       listingId: application.listingId,
       applicantProfileId: application.applicantProfileId,
       status: toCandidateStatus(application.status),
       coverMessage: application.coverMessage,
+      profileSnapshot,
+      conversationId,
       submittedAt: application.createdAt,
       reviewedAt: application.reviewedAt,
       contactedAt: application.contactedAt,

@@ -22,12 +22,13 @@ export interface ConversationListItem {
 
 export interface ConversationThreadMeta {
   conversationId: ConversationId;
-  kind: 'listing' | 'support';
+  kind: 'listing' | 'support' | 'application';
   listingId: ListingId | null;
   listingTitle: string;
   listingSlug: string | null;
   companyId: CompanyId | null;
   companyName: string | null;
+  applicationId?: import('@/lib/domain/ids').ApplicationId | null;
   otherParticipant: ConversationParticipantView;
 }
 

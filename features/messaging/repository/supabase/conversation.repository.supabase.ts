@@ -28,6 +28,7 @@ interface ConversationRow {
   kind?: string | null;
   listing_id: string | null;
   company_id: string | null;
+  application_id?: string | null;
   support_inquiry_id?: string | null;
   status: string;
   last_message_at: string | null;
@@ -86,14 +87,17 @@ export class SupabaseConversationRepository implements ConversationRepository {
   private async mapConversationRow(row: ConversationRow): Promise<Conversation> {
     const participantIds = await this.loadParticipantIds(row.id as ConversationId);
     const kind =
-      row.kind === 'support' || (!row.listing_id && row.kind !== 'listing')
+      row.kind === 'support' || (!row.listing_id && row.kind !== 'listing' && row.kind !== 'application')
         ? 'support'
-        : 'listing';
+        : row.kind === 'application' || Boolean(row.application_id)
+          ? 'application'
+          : 'listing';
     return {
       id: row.id as ConversationId,
       kind,
       listingId: (row.listing_id as ListingId | null) ?? null,
       companyId: row.company_id as CompanyId | null,
+      applicationId: (row.application_id as import('@/lib/domain/ids').ApplicationId | null) ?? null,
       supportInquiryId: row.support_inquiry_id ?? null,
       status: row.status as Conversation['status'],
       lastMessageAt: row.last_message_at,
@@ -222,6 +226,8 @@ export class SupabaseConversationRepository implements ConversationRepository {
       id: conversation.id,
       listing_id: conversation.listingId,
       company_id: conversation.companyId,
+      application_id: (input as CreateConversationInput).applicationId ?? null,
+      kind: (input as CreateConversationInput).kind ?? ((input as CreateConversationInput).applicationId ? 'application' : 'listing'),
       status: conversation.status,
     });
     if (error) throw error;

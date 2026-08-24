@@ -111,7 +111,7 @@ export const APPLICATION_STATUS_TRANSITIONS: Record<
   ApplicationStatus,
   readonly ApplicationStatus[]
 > = {
-  submitted: ['reviewing', 'withdrawn'],
+  submitted: ['reviewing', 'contacted', 'accepted', 'rejected', 'withdrawn'],
   reviewing: ['unlocked', 'contacted', 'accepted', 'rejected', 'withdrawn'],
   unlocked: ['contacted', 'hired', 'rejected', 'withdrawn'],
   contacted: ['hired', 'accepted', 'rejected', 'withdrawn'],

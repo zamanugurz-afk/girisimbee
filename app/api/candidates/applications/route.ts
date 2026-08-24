@@ -4,8 +4,8 @@ import {
   candidateApplicationSubmitSchema,
   candidateApplicationListQuerySchema,
 } from '@/lib/api/validation/candidate-applications';
-
 import { ids } from '@/lib/domain/ids';
+import { CareerProfileService } from '@/features/career-profile/career-profile.service';
 
 /** GET — list candidate's own job applications */
 /** POST — apply to employer job listing */
@@ -26,11 +26,74 @@ export const GET = withAuth(async (ctx, request) => {
 export const POST = withAuth(async (ctx, request) => {
   const body = await parseJsonBody(request);
   const parsed = candidateApplicationSubmitSchema.parse(body);
+  const listingId = ids.listing(parsed.listingId);
+
+  // Fetch listing and employer details
+  const listing = await ctx.container.listingRepository.findById(listingId);
+  let employerEmail: string | undefined;
+  let employerUserId: import('@/lib/domain/ids').UserId | undefined;
+
+  if (listing?.ownerId) {
+    employerUserId = listing.ownerId;
+    const employerProfile = await ctx.container.profileRepository.findByUserId(listing.ownerId);
+    if (employerProfile?.email) {
+      employerEmail = employerProfile.email;
+    }
+  }
+
+  const profileSnapshot = parsed.profileSnapshot as import('@/features/candidates/components/CareerProfilePreview').CareerCardInput | undefined;
+
   const application = await ctx.container.ecosystem.candidateApplicationService.submitApplication(
     ctx.profileId,
-    ids.listing(parsed.listingId),
+    listingId,
     parsed.coverMessage,
     parsed.initialNote,
+    profileSnapshot ?? null,
+    {
+      messagingService: ctx.container.messagingService,
+      profileRepo: ctx.container.profileRepository,
+      applicantUserId: ctx.userId,
+      employerUserId,
+      employerEmail,
+      applicantName: ctx.profile?.displayName || (profileSnapshot?.displayName ?? undefined),
+    },
   );
+
+  // If user requested to save modified profile to main career profile as well
+  if (parsed.saveToMainProfile && profileSnapshot) {
+    try {
+      const careerService = new CareerProfileService(ctx.container.listingRepository);
+      await careerService.saveProfile(
+        ctx.userId,
+        undefined,
+        {
+          role: profileSnapshot.desiredRole || '',
+          roles: profileSnapshot.desiredRole ? [profileSnapshot.desiredRole] : [],
+          sector: profileSnapshot.primarySector || '',
+          sectors: profileSnapshot.primarySector ? [profileSnapshot.primarySector] : [],
+          experienceLevel: profileSnapshot.experienceLevel || '',
+          city: profileSnapshot.preferredCity || profileSnapshot.residenceCity || '',
+          workType: profileSnapshot.workType || '',
+          workplacePreference: profileSnapshot.workplacePreference || '',
+          educationLevel: profileSnapshot.educationLevel || '',
+          educationField: profileSnapshot.educationField || '',
+          languages: profileSnapshot.languages || '',
+          certificates: profileSnapshot.certificates || '',
+          tools: profileSnapshot.tools || '',
+          availability: profileSnapshot.availability || 'Hemen',
+          professionalSkills: profileSnapshot.professionalSkills || '',
+          technicalSkills: profileSnapshot.technicalSkills || '',
+          fullName: profileSnapshot.displayName || ctx.profile?.displayName || '',
+          experiences: profileSnapshot.experiences || [],
+          educationHistory: profileSnapshot.educationHistory || [],
+          candidateTraits: profileSnapshot.longDescription || '',
+        },
+        'seek',
+      );
+    } catch (saveErr) {
+      console.warn('[career-profile] failed to sync application profile to main profile:', saveErr);
+    }
+  }
+
   return created({ application });
 });

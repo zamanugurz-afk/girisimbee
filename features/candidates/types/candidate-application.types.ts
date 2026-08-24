@@ -4,8 +4,9 @@
  */
 import type { ApplicationStatus } from '@/lib/domain/marketplace-enums';
 import type { ExternalContactInfo } from '@/lib/domain/marketplace-enums';
-import type { ApplicationId, ListingId, ProfileId } from '@/lib/domain/ids';
+import type { ApplicationId, ConversationId, ListingId, ProfileId } from '@/lib/domain/ids';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
+import type { CareerCardInput } from '@/features/candidates/components/CareerProfilePreview';
 
 /** User-facing candidate application statuses */
 export type CandidateApplicationStatus =
@@ -48,6 +49,8 @@ export interface CandidateApplicationSummary {
   applicantProfileId: ProfileId;
   status: CandidateApplicationStatus;
   coverMessage: string | null;
+  profileSnapshot?: CareerCardInput | null;
+  conversationId?: ConversationId | null;
   submittedAt: string;
   reviewedAt: string | null;
   contactedAt: string | null;

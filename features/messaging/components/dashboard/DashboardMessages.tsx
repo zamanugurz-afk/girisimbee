@@ -43,6 +43,10 @@ const SOURCE_EMPTY: Record<
   Exclude<DashboardMessagesSourceFilter, 'all'>,
   { title: string; description: string }
 > = {
+  application: {
+    title: 'İş başvurusu mesajı yok.',
+    description: 'Yaptığınız veya aldığınız iş başvuruları burada listelenir.',
+  },
   support: {
     title: 'Destek mesajı yok.',
     description: 'Girisimbee destek ekibinden gelen yanıtlar burada listelenir.',
@@ -82,10 +86,12 @@ export function DashboardMessages() {
   }, [tabItems, source]);
 
   const sourceCounts = useMemo(() => {
+    const application = tabItems.filter((i) => i.kind === 'application').length;
     const support = tabItems.filter((i) => i.kind === 'support').length;
     const listing = tabItems.filter((i) => i.kind === 'listing').length;
     return {
       all: tabItems.length,
+      application,
       support,
       listing,
     } as const;

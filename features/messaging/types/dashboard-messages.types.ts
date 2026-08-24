@@ -3,15 +3,16 @@ import { Archive, Inbox, Send } from 'lucide-react';
 
 export type DashboardMessagesTab = 'inbox' | 'sent' | 'archive';
 
-export type DashboardMessagesSourceFilter = 'all' | 'support' | 'listing';
+export type DashboardMessagesSourceFilter = 'all' | 'application' | 'listing' | 'support';
 
 export const DASHBOARD_MESSAGES_SOURCE_FILTERS: {
   id: DashboardMessagesSourceFilter;
   label: string;
 }[] = [
   { id: 'all', label: 'Tümü' },
-  { id: 'support', label: 'Destek' },
+  { id: 'application', label: 'İş Başvuruları' },
   { id: 'listing', label: 'İlanlar' },
+  { id: 'support', label: 'Destek' },
 ];
 
 export const DASHBOARD_MESSAGES_TABS: {
@@ -39,6 +40,9 @@ export interface DashboardMessageCardData {
   listingHref: string | null;
   otherUserId: string;
   status: 'open' | 'archived' | 'blocked' | 'deleted';
-  /** support = Girisimbee Destek; listing = ilan sohbeti */
-  kind: 'listing' | 'support';
+  /** support = Girisimbee Destek; listing = ilan sohbeti; application = iş başvurusu */
+  kind: 'listing' | 'support' | 'application';
+  applicationId?: string | null;
+  applicationStatus?: string | null;
+  isApplication?: boolean;
 }

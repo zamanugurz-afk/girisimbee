@@ -112,6 +112,16 @@ export function DashboardMessageCard({
               )}
             </Badge>
 
+            {item.kind === 'application' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-800 dark:text-emerald-300">
+                İş Başvurusu
+              </span>
+            ) : item.kind === 'support' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-300">
+                Destek
+              </span>
+            ) : null}
+
             {item.listingTitle && item.listingHref ? (
               <Link
                 href={item.listingHref}

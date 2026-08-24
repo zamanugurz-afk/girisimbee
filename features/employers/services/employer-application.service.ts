@@ -43,6 +43,8 @@ import type {
   AnonymousApplicationView,
   UnlockedApplicationView,
 } from '@/features/matching/services/anonymization.service';
+import { sendJobApplicationStatusNotification } from '@/lib/email/job-application-email';
+import type { CareerCardInput } from '@/features/candidates/components/CareerProfilePreview';
 
 export class EmployerApplicationService {
   constructor(
@@ -142,6 +144,36 @@ export class EmployerApplicationService {
     }
 
     updated = await this.applicationRepo.update(applicationId, { metadata });
+
+    // Optional status update email to candidate if conversation/profile exists
+    try {
+      const applicantProfile = await this.profileRepo.findById(application.applicantProfileId);
+      const listing = await this.listingRepo.findById(application.listingId);
+      const convId = updated.conversationId || (updated.metadata?.conversationId as string | undefined);
+      if (applicantProfile?.email && listing?.title && convId) {
+        const STATUS_LABELS: Record<string, string> = {
+          pending: 'Yeni Başvuru',
+          reviewing: 'İnceleniyor',
+          contacted: 'Mülakat / İletişim',
+          accepted: 'Olumlu / Kabul Edildi',
+          rejected: 'Olumsuz / Reddedildi',
+          withdrawn: 'Geri Çekildi',
+        };
+        const statusLabel = STATUS_LABELS[employerStatus] || employerStatus;
+        sendJobApplicationStatusNotification({
+          to: applicantProfile.email,
+          applicantName: applicantProfile.displayName || 'Değerli Aday',
+          positionTitle: listing.title,
+          statusLabel,
+          conversationId: convId,
+        }).catch((err) => {
+          console.warn('[email] candidate status notification warning:', err);
+        });
+      }
+    } catch {
+      // Non-critical notification failure
+    }
+
     return this.toSummary(updated);
   }
 
@@ -311,12 +343,23 @@ export class EmployerApplicationService {
   }
 
   private toSummary(application: MarketplaceApplication): EmployerApplicationSummary {
+    const profileSnapshot =
+      application.profileSnapshot ??
+      (application.metadata?.profileSnapshot as CareerCardInput | undefined) ??
+      null;
+    const conversationId =
+      application.conversationId ??
+      (application.metadata?.conversationId as import('@/lib/domain/ids').ConversationId | undefined) ??
+      null;
+
     return {
       id: application.id,
       listingId: application.listingId,
       applicantProfileId: application.applicantProfileId,
       status: toEmployerStatus(application.status),
       coverMessage: application.coverMessage,
+      profileSnapshot,
+      conversationId,
       submittedAt: application.createdAt,
       reviewedAt: application.reviewedAt,
       contactedAt: application.contactedAt,

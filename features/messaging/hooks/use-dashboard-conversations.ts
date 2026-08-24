@@ -21,12 +21,19 @@ function mapItem(
 ): DashboardMessageCardData {
   const { conversation, otherParticipant, listingTitle, unreadCount } = item;
   const isUnread = unreadCount > 0;
+  const kind =
+    conversation.kind === 'support'
+      ? 'support'
+      : conversation.kind === 'application' || Boolean(conversation.applicationId)
+        ? 'application'
+        : 'listing';
+
   return {
     id: conversation.id,
     userName: otherParticipant.displayName,
     username: otherParticipant.username,
     avatarUrl: otherParticipant.avatarUrl,
-    subject: listingTitle ?? 'Sohbet',
+    subject: listingTitle ?? (kind === 'application' ? 'İş Başvurusu' : 'Sohbet'),
     lastMessage: conversation.lastMessagePreview ?? 'Henüz mesaj yok',
     date: conversation.lastMessageAt ?? conversation.createdAt,
     isUnread,
@@ -40,7 +47,9 @@ function mapItem(
     listingHref,
     otherUserId: otherParticipant.userId,
     status: conversation.status,
-    kind: conversation.kind === 'support' || !conversation.listingId ? 'support' : 'listing',
+    kind,
+    applicationId: conversation.applicationId ?? null,
+    isApplication: kind === 'application',
   };
 }
 

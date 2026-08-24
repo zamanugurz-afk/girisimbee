@@ -76,6 +76,7 @@ import {
   isContactRequestEligibleCategory,
 } from '@/features/contact-requests/config/contact-cta-copy';
 import type { ContactRequestPublicView } from '@/features/contact-requests/types/contact-request.types';
+import { JobApplicationModal } from '@/features/candidates/components/JobApplicationModal';
 import { cn } from '@/lib/utils';
 
 export type CareerCardInput = {
@@ -569,10 +570,12 @@ export function CareerProfilePreview({
   data,
   chrome,
   headingAs: Heading = 'h2',
+  readOnlySnapshot = false,
 }: {
   data: CareerCardInput;
   chrome?: CareerCardChrome;
   headingAs?: 'h1' | 'h2' | 'h3';
+  readOnlySnapshot?: boolean;
 }) {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -585,9 +588,38 @@ export function CareerProfilePreview({
 
   const [mine, setMine] = useState<ContactRequestPublicView | null | undefined>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
+  const [jobAppModalOpen, setJobAppModalOpen] = useState(false);
+  const [appliedInfo, setAppliedInfo] = useState<{
+    hasApplied: boolean;
+    conversationId?: string | null;
+    status?: string | null;
+  } | null>(null);
   const [message, setMessage] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Check if current user already submitted a job application to this listing
+  useEffect(() => {
+    if (authLoading || !user || !listingId || !isHire || isOwner || readOnlySnapshot) return;
+    let mounted = true;
+
+    fetch(`/api/listings/${listingId}/application-check`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (mounted && json?.hasApplied) {
+          setAppliedInfo({
+            hasApplied: true,
+            conversationId: json.application?.conversationId,
+            status: json.application?.status,
+          });
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, user, listingId, isHire, isOwner, readOnlySnapshot]);
 
   const loadMine = useCallback(async () => {
     if (!user || isOwner || !listingId || !isEligible) {
@@ -761,10 +793,26 @@ export function CareerProfilePreview({
     return parseJobSections(data);
   }, [isHire, data]);
 
-  const showContactBanner = Boolean(listingId && !isOwner);
+  const showContactBanner = Boolean(listingId && !isOwner && !readOnlySnapshot);
 
   function requireLogin() {
     router.push(loginUrl(pathname || `/ilan/${listingId}`));
+  }
+
+  function handleOpenJobApplicationModal() {
+    if (!user) {
+      requireLogin();
+      return;
+    }
+    if (appliedInfo?.hasApplied) {
+      if (appliedInfo.conversationId) {
+        router.push(`/mesajlarim?c=${appliedInfo.conversationId}`);
+      } else {
+        router.push('/mesajlarim');
+      }
+      return;
+    }
+    setJobAppModalOpen(true);
   }
 
   function handleOpenContactModal() {
@@ -1279,35 +1327,71 @@ export function CareerProfilePreview({
             <div className="mt-auto pt-2 space-y-3.5">
               {showContactBanner ? (
                 isHire ? (
-                  <div
-                    className="rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors border border-emerald-100 bg-gradient-to-r from-emerald-50/80 to-teal-50/50 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-teal-950/30"
-                  >
-                    <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm dark:bg-card dark:text-emerald-400">
-                        <Send className="h-4 w-4" />
+                  appliedInfo?.hasApplied ? (
+                    <div
+                      className="rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
+                          <Check className="h-4 w-4 stroke-[3]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
+                            Bu ilana daha önce başvurdunuz
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                            Başvurunuz ve mesajlarınız Mesajlarım sayfasında kayıtlıdır.
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
-                          POZİSYONA BAŞVUR / İLETİŞİM
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                          Bu pozisyona başvurmak veya şirket yetkilisiyle görüşmek için talebinizi iletin.
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="shrink-0 w-full sm:w-auto flex justify-end">
-                      <Button
-                        type="button"
-                        onClick={handleOpenContactModal}
-                        disabled={isPending}
-                        className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        <span>{isPending ? 'Başvuru Bekliyor' : 'Pozisyona Başvur'}</span>
-                      </Button>
+                      <div className="shrink-0 w-full sm:w-auto flex justify-end">
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (appliedInfo.conversationId) {
+                              router.push(`/mesajlarim?c=${appliedInfo.conversationId}`);
+                            } else {
+                              router.push('/mesajlarim');
+                            }
+                          }}
+                          className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span>Başvuruyu Gör</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div
+                      className="rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors border border-emerald-100 bg-gradient-to-r from-emerald-50/80 to-teal-50/50 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-teal-950/30"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm dark:bg-card dark:text-emerald-400">
+                          <Send className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
+                            POZİSYONA BAŞVUR
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                            Kariyer profilinizle bu pozisyona doğrudan başvurun ve işverenle mesajlaşın.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 w-full sm:w-auto flex justify-end">
+                        <Button
+                          type="button"
+                          onClick={handleOpenJobApplicationModal}
+                          className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          <span>Pozisyona Başvur</span>
+                        </Button>
+                      </div>
+                    </div>
+                  )
                 ) : (
                   <div
                     className={cn(
@@ -1456,6 +1540,22 @@ export function CareerProfilePreview({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      ) : null}
+
+      {isHire && listingId ? (
+        <JobApplicationModal
+          open={jobAppModalOpen}
+          onOpenChange={setJobAppModalOpen}
+          listingId={listingId}
+          listingTitle={data.desiredRole || 'İş İlanı'}
+          companyName={data.companyName}
+          onSuccess={(res) => {
+            setAppliedInfo({
+              hasApplied: true,
+              conversationId: res.conversationId,
+            });
+          }}
+        />
       ) : null}
     </div>
   );

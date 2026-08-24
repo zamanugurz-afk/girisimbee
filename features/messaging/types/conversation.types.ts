@@ -6,11 +6,11 @@
  * Lifecycle: open ↔ archived → deleted
  */
 import type { Timestamps, SoftDeletable, IndexDefinition, ValidationRule } from '@/lib/domain/base';
-import type { ConversationId, ListingId, UserId, MessageId, CompanyId } from '@/lib/domain/ids';
+import type { ConversationId, ListingId, UserId, MessageId, CompanyId, ApplicationId } from '@/lib/domain/ids';
 
 export type ConversationStatus = 'open' | 'archived' | 'blocked' | 'deleted';
 
-export type ConversationKind = 'listing' | 'support';
+export type ConversationKind = 'listing' | 'support' | 'application';
 
 export interface ConversationParticipant {
   conversationId: ConversationId;
@@ -26,6 +26,7 @@ export interface Conversation extends Timestamps, SoftDeletable {
   kind: ConversationKind;
   listingId: ListingId | null;
   companyId: CompanyId | null;
+  applicationId?: ApplicationId | null;
   supportInquiryId: string | null;
   status: ConversationStatus;
   lastMessageAt: string | null;
@@ -37,6 +38,8 @@ export type CreateConversationInput = {
   participantIds: UserId[];
   listingId: ListingId;
   companyId?: CompanyId | null;
+  applicationId?: ApplicationId | null;
+  kind?: ConversationKind;
   initialMessage?: string;
 };
 

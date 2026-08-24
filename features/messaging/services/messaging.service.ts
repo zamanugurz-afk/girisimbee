@@ -167,14 +167,19 @@ export class MessagingService implements IMessagingService {
       conversation.companyId ? this.companyRepo.findById(conversation.companyId) : Promise.resolve(null),
     ]);
     if (!listing) return null;
+    const kind =
+      conversation.kind === 'application' || Boolean(conversation.applicationId)
+        ? 'application'
+        : 'listing';
     return {
       conversationId,
-      kind: 'listing',
+      kind,
       listingId: conversation.listingId,
       listingTitle: listing.title,
       listingSlug: listing.slug,
       companyId: conversation.companyId,
       companyName: company?.name ?? null,
+      applicationId: conversation.applicationId ?? null,
       otherParticipant,
     };
   }

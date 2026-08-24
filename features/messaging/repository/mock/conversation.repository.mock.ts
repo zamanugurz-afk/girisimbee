@@ -82,7 +82,8 @@ export class MockConversationRepository implements ConversationRepository {
     const conversation = createConversation({
       listingId: input.listingId,
       companyId: input.companyId ?? null,
-      kind: 'listing',
+      applicationId: input.applicationId ?? null,
+      kind: input.kind ?? (input.applicationId ? 'application' : 'listing'),
       participantIds,
     });
     this.conversations.set(conversation.id, conversation);

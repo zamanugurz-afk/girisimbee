@@ -11,10 +11,12 @@ import type {
 import type { ModuleKey } from '@/lib/domain/modules';
 import type {
   ApplicationId,
+  ConversationId,
   ListingId,
   ProfileId,
   PaymentId,
 } from '@/lib/domain/ids';
+import type { CareerCardInput } from '@/features/candidates/components/CareerProfilePreview';
 
 export type ApplicationModuleKey = Extract<
   ModuleKey,
@@ -29,6 +31,8 @@ export interface MarketplaceApplication extends Timestamps, SoftDeletable {
   status: ApplicationStatus;
   coverMessage: string | null;
   anonymousSnapshot: AnonymousApplicationSnapshot;
+  profileSnapshot?: CareerCardInput | null;
+  conversationId?: ConversationId | null;
   unlockedAt: string | null;
   paymentId: PaymentId | null;
   contactedAt: string | null;
@@ -42,6 +46,8 @@ export type CreateApplicationInput = Pick<
 > & {
   coverMessage?: string | null;
   anonymousSnapshot?: AnonymousApplicationSnapshot;
+  profileSnapshot?: CareerCardInput | null;
+  conversationId?: ConversationId | null;
   metadata?: Record<string, unknown>;
 };
 
@@ -50,6 +56,8 @@ export type UpdateApplicationInput = Partial<
     MarketplaceApplication,
     | 'status'
     | 'coverMessage'
+    | 'profileSnapshot'
+    | 'conversationId'
     | 'unlockedAt'
     | 'paymentId'
     | 'contactedAt'

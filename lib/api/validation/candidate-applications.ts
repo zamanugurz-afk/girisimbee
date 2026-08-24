@@ -22,6 +22,8 @@ export const candidateApplicationSubmitSchema = z.object({
   listingId: uuidSchema,
   coverMessage: z.string().max(2000).nullable().optional(),
   initialNote: z.string().max(2000).optional(),
+  profileSnapshot: z.record(z.unknown()).nullable().optional(),
+  saveToMainProfile: z.boolean().optional(),
 });
 
 export const candidateApplicationNoteSchema = z.object({

@@ -4,8 +4,9 @@
  */
 import type { ApplicationStatus } from '@/lib/domain/marketplace-enums';
 import type { ExternalContactInfo } from '@/lib/domain/marketplace-enums';
-import type { ApplicationId, ListingId, ProfileId } from '@/lib/domain/ids';
+import type { ApplicationId, ConversationId, ListingId, ProfileId } from '@/lib/domain/ids';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
+import type { CareerCardInput } from '@/features/candidates/components/CareerProfilePreview';
 import type {
   AnonymousApplicationView,
   UnlockedApplicationView,
@@ -52,6 +53,8 @@ export interface EmployerApplicationSummary {
   applicantProfileId: ProfileId;
   status: EmployerApplicationStatus;
   coverMessage: string | null;
+  profileSnapshot?: CareerCardInput | null;
+  conversationId?: ConversationId | null;
   submittedAt: string;
   reviewedAt: string | null;
   contactedAt: string | null;
