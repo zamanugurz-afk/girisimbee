@@ -327,12 +327,12 @@ export function SetMatchingPicker({
     <div className={cn('space-y-2', className)} ref={containerRef}>
       {label && (
         <div className="flex items-center justify-between">
-          <Label htmlFor={id} className="text-xs font-semibold text-foreground">
+          <Label htmlFor={id} className="text-sm font-semibold text-foreground">
             {label}
             {required && <span className="ml-1 text-destructive">*</span>}
           </Label>
           {maxItems && mode === 'multi' && (
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {selectedList.length}/{maxItems} seçildi
             </span>
           )}
@@ -341,13 +341,13 @@ export function SetMatchingPicker({
 
       {/* Selected Chips container (Multi Mode) */}
       {mode === 'multi' && selectedList.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2 rounded-xl border border-slate-200 bg-slate-50/60 dark:border-zinc-800 dark:bg-zinc-900/40">
+        <div className="flex flex-wrap items-center gap-1.5 min-h-[42px] p-2 rounded-xl border border-slate-200 bg-slate-50/60 dark:border-zinc-800 dark:bg-zinc-900/40">
           {selectedList.map((item) => (
             <Badge
               key={item}
               variant="secondary"
               className={cn(
-                'gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all',
+                'gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all',
                 chipStyle,
               )}
             >
@@ -356,10 +356,10 @@ export function SetMatchingPicker({
                 <button
                   type="button"
                   onClick={() => handleRemove(item)}
-                  className="hover:opacity-75 focus:outline-none"
+                  className="hover:opacity-75 focus:outline-none cursor-pointer"
                   aria-label={`${item} kaldır`}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </Badge>
@@ -370,7 +370,7 @@ export function SetMatchingPicker({
       {/* Input / Combobox */}
       <div className="relative">
         <div className="relative flex items-center">
-          <Search className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3.5 h-4 w-4 text-muted-foreground pointer-events-none" />
           <input
             ref={inputRef}
             id={id}
@@ -389,7 +389,7 @@ export function SetMatchingPicker({
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             className={cn(
-              'h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none dark:border-zinc-800 dark:bg-zinc-900',
+              'h-11 min-h-[42px] w-full rounded-xl border border-slate-200 bg-white pl-10 pr-9 text-sm font-medium text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none dark:border-zinc-800 dark:bg-zinc-900',
               themeTokens.focusBorder,
               error && 'border-destructive/60 focus:border-destructive',
               disabled && 'opacity-60 cursor-not-allowed',
@@ -403,18 +403,18 @@ export function SetMatchingPicker({
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="absolute right-2.5 p-1 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 p-1 text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
         {/* Dropdown Suggestions List */}
         {isOpen && !disabled && (
-          <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1 shadow-lg backdrop-blur-md">
+          <div className="absolute z-50 mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-border/80 bg-popover p-1.5 shadow-lg backdrop-blur-md dark:border-border dark:bg-card">
             {suggestions.length === 0 && !customCandidate && (
-              <div className="p-3 text-center text-xs text-muted-foreground">
+              <div className="p-3.5 text-center text-sm text-muted-foreground">
                 Eşleşen sistem değeri bulunamadı.
               </div>
             )}
@@ -430,7 +430,7 @@ export function SetMatchingPicker({
                   onClick={() => handleSelect(suggestion.value)}
                   onMouseEnter={() => setHighlightedIndex(index)}
                   className={cn(
-                    'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors cursor-pointer',
+                    'flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-left text-sm font-medium transition-colors cursor-pointer',
                     isHighlighted
                       ? themeTokens.highlighted
                       : 'text-foreground hover:bg-muted/50',
@@ -439,11 +439,11 @@ export function SetMatchingPicker({
                 >
                   <span className="truncate">{suggestion.value}</span>
                   {suggestion.matchQuality === 'exact' && (
-                    <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                       Tam Eşleşme
                     </span>
                   )}
-                  {isSelected && <Check className={cn('h-3.5 w-3.5 ml-2 shrink-0', themeTokens.checkIcon)} />}
+                  {isSelected && <Check className={cn('h-4 w-4 ml-2 shrink-0', themeTokens.checkIcon)} />}
                 </button>
               );
             })}
@@ -455,7 +455,7 @@ export function SetMatchingPicker({
                 onClick={handleAddCustom}
                 onMouseEnter={() => setHighlightedIndex(suggestions.length)}
                 className={cn(
-                  'flex w-full items-center gap-2 rounded-lg border-t border-border/70 p-2.5 text-left text-xs font-semibold transition-colors cursor-pointer mt-1',
+                  'flex w-full items-center gap-2.5 rounded-lg border-t border-border/70 p-3 text-left text-sm font-semibold transition-colors cursor-pointer mt-1',
                   highlightedIndex === suggestions.length
                     ? themeTokens.customButtonHighlighted
                     : themeTokens.customButton,

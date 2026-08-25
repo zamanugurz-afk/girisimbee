@@ -214,7 +214,7 @@ export function DynamicField({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Label htmlFor={id} className="text-sm font-medium">
+          <Label htmlFor={id} className="text-sm font-semibold text-foreground">
             {field.label}
             {field.required && <span className="ml-1 text-destructive">*</span>}
           </Label>

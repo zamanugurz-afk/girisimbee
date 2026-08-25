@@ -148,7 +148,7 @@ describe('GirişimBee Global Form / Combobox / Location / Set Sorting Forensic T
     expect(pickerSrc).toContain('Backspace');
     expect(pickerSrc).toContain('handleClickOutside');
     expect(pickerSrc).toContain('z-50');
-    expect(pickerSrc).toContain('min-h-[38px]');
+    expect(pickerSrc).toContain('min-h-[42px]');
   });
 
   // Scenario 21: Empty result handling

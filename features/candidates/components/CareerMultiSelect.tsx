@@ -226,11 +226,11 @@ export function CareerMultiSelect({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label>{label}</Label>
+        <Label className="text-sm font-semibold text-foreground">{label}</Label>
         {options.length > 1 && !disabled && (
           <button
             type="button"
-            className={cn('text-[11px] font-medium hover:underline cursor-pointer transition-colors', theme.action)}
+            className={cn('text-xs font-semibold hover:underline cursor-pointer transition-colors', theme.action)}
             onClick={() => {
               const nonManual = options.filter((o) => !isManualCareerOption(o));
               const allSelected = nonManual.length > 0 && nonManual.every((o) => selected.includes(o));
