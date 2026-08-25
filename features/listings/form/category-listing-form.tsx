@@ -682,13 +682,13 @@ export function CategoryListingForm({
   }, [mergedCustomFields]);
 
   const categoryThemeColor = useMemo(() => {
-    if (categoryId === CATEGORY_IDS.iseAl) return 'emerald';
-    if (categoryId === CATEGORY_IDS.isBul) return 'sky';
-    if (categoryId === CATEGORY_IDS.ortakBul) return 'amber';
-    if (categoryId === CATEGORY_IDS.yatirimYap) return 'blue';
-    if (categoryId === CATEGORY_IDS.bayilikAl) return 'purple';
-    if (categoryId === CATEGORY_IDS.isletmeDevri) return 'teal';
-    if (categoryId === CATEGORY_IDS.dijitalAi) return 'rose';
+    if (categoryId === CATEGORY_IDS.iseAl || categoryId === 'ise-al' || categoryId === 'hire') return 'emerald';
+    if (categoryId === CATEGORY_IDS.isBul || categoryId === 'is-ariyorum' || categoryId === 'seek') return 'sky';
+    if (categoryId === CATEGORY_IDS.ortakBul || categoryId === 'ortak-ariyorum' || categoryId === 'venture') return 'amber';
+    if (categoryId === CATEGORY_IDS.yatirimYap || categoryId === 'yatirim-yap' || categoryId === 'invest') return 'blue';
+    if (categoryId === CATEGORY_IDS.bayilikAl || categoryId === 'bayilik-al' || categoryId === 'franchise') return 'purple';
+    if (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === 'isletme-devri') return 'teal';
+    if (categoryId === CATEGORY_IDS.dijitalAi || categoryId === 'dijital-ai') return 'rose';
     return 'emerald';
   }, [categoryId]);
 
