@@ -59,22 +59,28 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
         .eq('id', listingId)
         .maybeSingle();
 
-      if (listingRow?.owner_id) {
-        const employerUserId = ids.user(listingRow.owner_id);
-        const conv = await ctx.container.messagingService.startConversation({
-          participantIds: [ctx.userId, employerUserId],
-          listingId,
-          applicationId: activeApp.id,
-          kind: 'application',
-          initialMessage: activeApp.coverMessage || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
-        });
+      const employerUserId = listingRow?.owner_id ? ids.user(listingRow.owner_id) : ctx.userId;
+      const conv = await ctx.container.messagingService.startConversation({
+        participantIds: [ctx.userId, employerUserId],
+        listingId,
+        applicationId: activeApp.id,
+        kind: 'application',
+        initialMessage: activeApp.coverMessage || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
+      });
 
-        if (conv?.id) {
-          conversationId = conv.id;
+      if (conv?.id) {
+        conversationId = conv.id;
+        try {
+          await admin
+            .from('marketplace_applications')
+            .update({ conversation_id: conv.id })
+            .eq('id', activeApp.id);
+        } catch {}
+        try {
           await ctx.container.applicationRepository.update(activeApp.id, {
             conversationId: conv.id,
           });
-        }
+        } catch {}
       }
     } catch (e) {
       console.warn('[application-check] conversation heal warning:', e);

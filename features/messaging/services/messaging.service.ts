@@ -67,21 +67,32 @@ export class MessagingService implements IMessagingService {
     if (!parsed.success) {
       throw new ValidationError('Invalid conversation', { _: parsed.error.errors.map((e) => e.message) });
     }
-    const listing = await this.listingRepo.findById(input.listingId);
-    if (!listing || listing.status !== 'published' || listing.deletedAt) {
-      throw new NotFoundError('Listing', input.listingId);
+    let companyId = input.companyId ?? null;
+    if (input.listingId) {
+      try {
+        const listing = await this.listingRepo.findById(input.listingId);
+        if (listing?.companyId && !companyId) {
+          companyId = listing.companyId;
+        }
+      } catch {
+        // Graceful fallback
+      }
     }
     const conversation = await this.conversationRepo.create({
       ...input,
-      companyId: input.companyId ?? listing.companyId ?? null,
+      companyId,
     });
     if (input.initialMessage?.trim()) {
       const senderId = input.participantIds[0];
-      await this.sendMessage({
-        conversationId: conversation.id,
-        senderId,
-        body: input.initialMessage.trim(),
-      });
+      try {
+        await this.sendMessage({
+          conversationId: conversation.id,
+          senderId,
+          body: input.initialMessage.trim(),
+        });
+      } catch (msgErr) {
+        console.warn('[messaging] initial message send warning:', msgErr);
+      }
     }
     return (await this.conversationRepo.findById(conversation.id)) ?? conversation;
   }
