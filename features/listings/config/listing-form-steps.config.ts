@@ -158,15 +158,11 @@ function withConsolidatedPublishFlow(...steps: ListingFormStepDef[]): ListingFor
   ];
 }
 
-/** Terminal flow shared by multi-stage categories: kvkk → preview → package → publish */
+/** Terminal flow shared by all categories: paket seçimi + yasal izinler + yayınlama */
 function withPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
-  const hasKvkk = steps.some((step) => step.kvkk);
   return [
     ...steps,
-    ...(hasKvkk ? [] : [STEP_KVKK]),
-    STEP_PREVIEW,
-    STEP_PACKAGE,
-    STEP_PUBLISH,
+    STEP_PACKAGE_AND_PERMISSIONS,
   ];
 }
 

@@ -16,7 +16,7 @@ function stepKeys(categoryId: CategoryId, stepId: string): string[] {
 }
 
 describe('Yatırım Arıyorum form structure', () => {
-  it('has 10 wizard steps including publish flow', () => {
+  it('has wizard steps with consolidated package and publish flow', () => {
     const steps = getListingFormSteps(CATEGORY_IDS.yatirimBul);
     expect(steps.find((step) => step.id === 'traction')?.title).toBe('Bugünkü durum');
     expect(steps.map((step) => step.id)).toEqual([
@@ -26,10 +26,7 @@ describe('Yatırım Arıyorum form structure', () => {
       'funding',
       'summary',
       'images',
-      'kvkk',
-      'preview',
       'package',
-      'publish',
     ]);
   });
 
@@ -84,10 +81,7 @@ describe('Yatırım Arıyorum form structure', () => {
       'ticket',
       'thesis',
       'images',
-      'kvkk',
-      'preview',
       'package',
-      'publish',
     ]);
   });
 

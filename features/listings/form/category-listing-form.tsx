@@ -2191,7 +2191,7 @@ export function CategoryListingForm({
       return;
     }
 
-    if (isPackageStep) {
+    if (isPackageStep && !isPublishStep) {
       if (!validateCurrentStep()) return;
       const publishIndex = stepIndex + 1;
       if (publishIndex >= steps.length || !steps[publishIndex]?.publish) {

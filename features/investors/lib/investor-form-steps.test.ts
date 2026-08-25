@@ -6,7 +6,7 @@ import { buildInvestorCardData } from '@/features/investors/lib/investor-card';
 import { buildInvestorCriteriaContext } from '@/features/investors/lib/investor-criteria';
 
 describe('Yatırım Yapacağım form structure', () => {
-  it('has 9 wizard steps including publish flow', () => {
+  it('has wizard steps with consolidated package and publish flow', () => {
     const steps = getListingFormSteps(CATEGORY_IDS.yatirimYap);
     expect(steps.map((step) => step.id)).toEqual([
       'identity',
@@ -14,10 +14,7 @@ describe('Yatırım Yapacağım form structure', () => {
       'ticket',
       'thesis',
       'images',
-      'kvkk',
-      'preview',
       'package',
-      'publish',
     ]);
   });
 
