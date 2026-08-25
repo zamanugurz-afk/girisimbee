@@ -136,6 +136,11 @@ export function useDashboardConversations() {
     setIsLoading(true);
     setError(null);
     try {
+      // Automatically sync and heal any unlinked job application conversations for this user
+      try {
+        await fetch('/api/messaging/sync-applications', { method: 'POST' });
+      } catch {}
+
       const [openResult, archived] = await Promise.all([
         service.listConversationItems(userId, { page: 1, limit: 50 }),
         loadArchivedItems(userId),
