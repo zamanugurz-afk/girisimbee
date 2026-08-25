@@ -105,7 +105,7 @@ export function CareerMultiSelect({
     onChange(selected.filter((item) => item !== opt));
   }
 
-  const activeThemeKey = (themeColor || 'default').toLowerCase();
+  const activeThemeKey = String(themeColor || 'default').toLowerCase();
   const themeMap: Record<string, any> = {
     emerald: {
       action: 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400',
@@ -149,8 +149,78 @@ export function CareerMultiSelect({
       plusIcon: 'text-amber-600 dark:text-amber-400',
       fallbackText: 'text-amber-800 dark:text-amber-300',
     },
+    blue: {
+      action: 'text-blue-600 hover:text-blue-700 dark:text-blue-400',
+      badge: 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border-blue-500/20',
+      manualBox: 'border-blue-300/80 bg-blue-50/60 dark:border-blue-700/60 dark:bg-blue-950/20',
+      manualHeader: 'text-blue-800 dark:text-blue-300',
+      manualDot: 'bg-blue-500',
+      textarea: 'border-blue-200 dark:border-blue-800/60 focus-visible:ring-blue-500 placeholder:text-blue-900/40 dark:placeholder:text-blue-100/40',
+      matchBorder: 'border-blue-200 dark:border-blue-800/40',
+      matchHeader: 'text-blue-900 dark:text-blue-200',
+      sparkle: 'text-blue-600 dark:text-blue-400',
+      pill: 'border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:border-blue-400',
+      plusIcon: 'text-blue-600 dark:text-blue-400',
+      fallbackText: 'text-blue-800 dark:text-blue-300',
+    },
+    purple: {
+      action: 'text-purple-600 hover:text-purple-700 dark:text-purple-400',
+      badge: 'bg-purple-500/10 text-purple-800 dark:text-purple-300 border-purple-500/20',
+      manualBox: 'border-purple-300/80 bg-purple-50/60 dark:border-purple-700/60 dark:bg-purple-950/20',
+      manualHeader: 'text-purple-800 dark:text-purple-300',
+      manualDot: 'bg-purple-500',
+      textarea: 'border-purple-200 dark:border-purple-800/60 focus-visible:ring-purple-500 placeholder:text-purple-900/40 dark:placeholder:text-purple-100/40',
+      matchBorder: 'border-purple-200 dark:border-purple-800/40',
+      matchHeader: 'text-purple-900 dark:text-purple-200',
+      sparkle: 'text-purple-600 dark:text-purple-400',
+      pill: 'border-purple-300 dark:border-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/50 hover:border-purple-400',
+      plusIcon: 'text-purple-600 dark:text-purple-400',
+      fallbackText: 'text-purple-800 dark:text-purple-300',
+    },
+    teal: {
+      action: 'text-teal-600 hover:text-teal-700 dark:text-teal-400',
+      badge: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/20',
+      manualBox: 'border-teal-300/80 bg-teal-50/60 dark:border-teal-700/60 dark:bg-teal-950/20',
+      manualHeader: 'text-teal-800 dark:text-teal-300',
+      manualDot: 'bg-teal-500',
+      textarea: 'border-teal-200 dark:border-teal-800/60 focus-visible:ring-teal-500 placeholder:text-teal-900/40 dark:placeholder:text-teal-100/40',
+      matchBorder: 'border-teal-200 dark:border-teal-800/40',
+      matchHeader: 'text-teal-900 dark:text-teal-200',
+      sparkle: 'text-teal-600 dark:text-teal-400',
+      pill: 'border-teal-300 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/50 hover:border-teal-400',
+      plusIcon: 'text-teal-600 dark:text-teal-400',
+      fallbackText: 'text-teal-800 dark:text-teal-300',
+    },
+    rose: {
+      action: 'text-rose-600 hover:text-rose-700 dark:text-rose-400',
+      badge: 'bg-rose-500/10 text-rose-800 dark:text-rose-300 border-rose-500/20',
+      manualBox: 'border-rose-300/80 bg-rose-50/60 dark:border-rose-700/60 dark:bg-rose-950/20',
+      manualHeader: 'text-rose-800 dark:text-rose-300',
+      manualDot: 'bg-rose-500',
+      textarea: 'border-rose-200 dark:border-rose-800/60 focus-visible:ring-rose-500 placeholder:text-rose-900/40 dark:placeholder:text-rose-100/40',
+      matchBorder: 'border-rose-200 dark:border-rose-800/40',
+      matchHeader: 'text-rose-900 dark:text-rose-200',
+      sparkle: 'text-rose-600 dark:text-rose-400',
+      pill: 'border-rose-300 dark:border-rose-700 hover:bg-rose-100 dark:hover:bg-rose-900/50 hover:border-rose-400',
+      plusIcon: 'text-rose-600 dark:text-rose-400',
+      fallbackText: 'text-rose-800 dark:text-rose-300',
+    },
+    default: {
+      action: 'text-primary hover:underline',
+      badge: 'bg-primary/10 text-primary border-primary/20',
+      manualBox: 'border-primary/30 bg-primary/[0.04] dark:border-primary/40 dark:bg-primary/[0.08]',
+      manualHeader: 'text-primary',
+      manualDot: 'bg-primary',
+      textarea: 'border-primary/30 focus-visible:ring-primary',
+      matchBorder: 'border-primary/20',
+      matchHeader: 'text-primary',
+      sparkle: 'text-primary',
+      pill: 'border-primary/30 hover:border-primary hover:bg-primary/10 text-primary',
+      plusIcon: 'text-primary',
+      fallbackText: 'text-primary',
+    },
   };
-  const theme = themeMap[activeThemeKey] ?? themeMap.emerald;
+  const theme = themeMap[activeThemeKey] ?? themeMap.default ?? themeMap.emerald;
 
   return (
     <div className="space-y-2">

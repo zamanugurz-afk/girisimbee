@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Users } from 'lucide-react';
 import { toast } from 'sonner';
@@ -455,6 +455,64 @@ function CreateListingContent() {
   );
 }
 
+class CreateListingErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[CreateListingPage Exception caught]', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main className="mx-auto max-w-[1240px] px-4 py-20 text-center">
+          <div className="mx-auto max-w-md rounded-2xl border border-destructive/20 bg-destructive/5 p-8">
+            <h2 className="text-lg font-bold text-foreground">İlan oluşturma sayfası yüklenirken bir sorun oluştu</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sayfa önbelleğini yenileyerek veya kategori seçerek devam edebilirsiniz.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.reload();
+                  }
+                }}
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 cursor-pointer"
+              >
+                Sayfayı Yenile
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '/ilan/olustur?category=ise-al';
+                  }
+                }}
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:bg-muted cursor-pointer"
+              >
+                İşe Alım İlanı Oluştur
+              </button>
+            </div>
+          </div>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function CreateListingPage() {
   return (
     <Suspense
@@ -475,7 +533,9 @@ export default function CreateListingPage() {
         </main>
       }
     >
-      <CreateListingContent />
+      <CreateListingErrorBoundary>
+        <CreateListingContent />
+      </CreateListingErrorBoundary>
     </Suspense>
   );
 }
