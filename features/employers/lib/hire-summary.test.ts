@@ -21,7 +21,7 @@ describe('buildHiringSummaryDraft', () => {
     });
 
     expect(draft).toMatch(/Full-stack geliştirici/);
-    expect(draft).toMatch(/arıyoruz/i);
+    expect(draft).toMatch(/görevlendirilmek üzere|arıyoruz/i);
     expect(draft).toMatch(/TypeScript|React|Yazılım/);
     expect(draft).not.toMatch(/Aranan yetkinlikler/);
     expect(draft).not.toMatch(/Eğitim beklentisi/);
@@ -61,9 +61,9 @@ describe('buildHiringSummaryDraft', () => {
         'Şube müşteri işlemlerinin karşılanması · Hesap, kart ve başvuru süreçlerinin yürütülmesi',
     });
 
-    expect(draft).toMatch(/Finans ve bankacılık alanında/);
-    expect(draft).toMatch(/Görev kapsamında/);
-    expect(draft).toMatch(/öne çıkıyor/);
+    expect(draft).toMatch(/finans ve bankacılık sektöründe/i);
+    expect(draft).toMatch(/Pozisyon kapsamında/);
+    expect(draft).toMatch(/öne çıkmaktadır/);
     expect(draft).toMatch(/Kadıköy/);
     expect(draft).toMatch(/Excel/);
     expect(draft).toMatch(/mezuniyeti/);

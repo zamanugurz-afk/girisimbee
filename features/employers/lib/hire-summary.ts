@@ -106,51 +106,51 @@ export function buildHiringSummaryDraft(input: HiringSummaryInput): string {
 
   const sentences: string[] = [];
   const company = (input.companyName ?? '').trim();
-  const where = sector ? `${sector} alanında ` : '';
+  const where = sector ? `${sector} sektöründe ` : '';
   const levelBit = level ? `${level} ` : '';
-  const prefix = company ? `${company} bünyesinde ` : '';
-  sentences.push(sentence(capitalizeTr(`${prefix}${where}${levelBit}${role} arıyoruz`)));
+  const prefix = company ? `${company} bünyesinde, ` : 'Şirketimiz bünyesinde, ';
+  sentences.push(sentence(capitalizeTr(`${prefix}${where}${levelBit}${role} pozisyonunda görevlendirilmek üzere çalışma arkadaşı arıyoruz`)));
 
   if (duties.length > 0) {
-    sentences.push(sentence(`Görev kapsamında ${joinTr(duties)} yer alıyor`));
+    sentences.push(sentence(`Pozisyon kapsamında ${joinTr(duties)} gibi temel sorumluluklar yürütülecektir`));
   }
   if (professional.length > 0) {
-    sentences.push(sentence(`${capitalizeTr(joinTr(professional))} bu rolde öne çıkıyor`));
+    sentences.push(sentence(`Aranan nitelikler arasında ${joinTr(professional)} konularında yetkinlik ve tecrübe öne çıkmaktadır`));
   }
 
   const stack = take([...tools, ...technical], 5);
   if (stack.length > 0) {
-    sentences.push(sentence(`Günlük işlerde ${joinTr(stack)} kullanılıyor`));
+    sentences.push(sentence(`İş süreçlerinde ${joinTr(stack)} araç ve teknolojileri aktif olarak kullanılmaktadır`));
   }
 
   if (educationLevel && educationField) {
-    sentences.push(sentence(`${educationLevel} mezuniyeti (${educationField}) tercih edilir`));
+    sentences.push(sentence(`Adayların ${educationLevel} mezuniyeti (${educationField}) ve ilgili alanlarda bilgi sahibi olması tercih edilir`));
   } else if (educationLevel) {
-    sentences.push(sentence(`${educationLevel} mezuniyeti tercih edilir`));
+    sentences.push(sentence(`Adayların ${educationLevel} mezuniyeti tercih edilir`));
   } else if (educationField) {
-    sentences.push(sentence(`${educationField} geçmişi tercih edilir`));
+    sentences.push(sentence(`${educationField} alanında eğitim veya deneyim tercih edilir`));
   }
   if (languages.length > 0) {
-    sentences.push(sentence(`${joinTr(languages.map((item) => String(item)))} beklenir`));
+    sentences.push(sentence(`İletişim ve iş takibinde ${joinTr(languages.map((item) => String(item)))} bilgisi beklenmektedir`));
   }
 
   const offer = [workplace, workType].filter(Boolean);
-  if (place || offer.length > 0 || availability || salary) {
-    const model = offer.length > 0 ? `${joinTr(offer)} çalışma` : 'esnek çalışma';
+  if (place || offer.length > 0 || availability || (salary && salary !== 'Belirtmek istemiyorum')) {
+    const model = offer.length > 0 ? `${joinTr(offer)} çalışma modeli` : 'çalışma modeli';
     const cityBit = place ? `${place} lokasyonunda ` : '';
-    sentences.push(sentence(`${cityBit}${model} sunuluyor`));
+    sentences.push(sentence(`${cityBit}${model} sunulmaktadır`));
     if (availability) {
-      sentences.push(sentence(`Başlangıç ${availability.toLocaleLowerCase('tr-TR')}`));
+      sentences.push(sentence(`Adayın ${availability.toLocaleLowerCase('tr-TR')} göreve başlaması hedeflenmektedir`));
     }
-    if (salary) {
-      sentences.push(sentence(`Ücret aralığı ${salary}`));
+    if (salary && salary !== 'Belirtmek istemiyorum') {
+      sentences.push(sentence(`Pozisyon için öngörülen ücret aralığı ${salary} seviyesindedir`));
     }
   }
 
   let draft = polishCareerSummary(sentences.filter(Boolean).join(' '));
   if (draft.length < 100) {
     draft = polishCareerSummary(
-      `${draft} Net hedefleri olan bir ekipte sorumluluk alacak, ölçülebilir katkı üretecek bir aday arıyoruz.`,
+      `${draft} Dinamik bir çalışma ortamında sorumluluk alacak ve kurumsal hedeflerimize değer katacak takım arkadaşımızı aramızda görmekten memnuniyet duyarız.`,
     );
   }
   return draft;
