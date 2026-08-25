@@ -16,7 +16,9 @@ import {
   CAREER_LANGUAGE_OPTIONS,
   CERTIFICATE_OPTIONS,
   EDUCATION_FIELD_OPTIONS,
+  getAllTaxonomyCertificates,
   getAllTaxonomyPositions,
+  getAllTaxonomySkills,
   getPositionsForSector,
   isManualCareerOption,
   MANUAL_OPTION,
@@ -303,34 +305,43 @@ export function getCanonicalCatalog(domain: SetDomain, context?: SetCatalogConte
 
     case 'skills':
     case 'professional-skills': {
-      const skills = suggestProfessionalSkills({
+      const contextual = suggestProfessionalSkills({
         sector: context?.sector ?? undefined,
         role: context?.role ?? undefined,
         experienceLevel: context?.experienceLevel ?? undefined,
-      });
-      return skills.filter((s) => !isManualCareerOption(s));
+      }).filter((s) => !isManualCareerOption(s));
+      const allSkills = getAllTaxonomySkills('professional');
+      const seen = new Set(contextual.map((s) => s.toLocaleLowerCase('tr-TR')));
+      const rest = allSkills.filter((s) => !seen.has(s.toLocaleLowerCase('tr-TR')));
+      return [...contextual, ...rest];
     }
 
     case 'technical-skills': {
-      const skills = suggestTechnicalSkills({
+      const contextual = suggestTechnicalSkills({
         sector: context?.sector ?? undefined,
         role: context?.role ?? undefined,
-      });
-      return skills.filter((s) => !isManualCareerOption(s));
+      }).filter((s) => !isManualCareerOption(s));
+      const allSkills = getAllTaxonomySkills('technical');
+      const seen = new Set(contextual.map((s) => s.toLocaleLowerCase('tr-TR')));
+      const rest = allSkills.filter((s) => !seen.has(s.toLocaleLowerCase('tr-TR')));
+      return [...contextual, ...rest];
     }
 
     case 'tools':
       return Array.from(POPULAR_SYSTEM_TOOLS);
 
     case 'certificates': {
-      const certs = suggestCertificates({
+      const contextual = suggestCertificates({
         sector: context?.sector ?? undefined,
         role: context?.role ?? undefined,
         experienceLevel: context?.experienceLevel ?? undefined,
         educationLevel: context?.educationLevel ?? undefined,
         educationField: context?.educationField ?? undefined,
-      });
-      return certs.length > 0 ? certs.filter((c) => !isManualCareerOption(c)) : Array.from(CERTIFICATE_OPTIONS);
+      }).filter((c) => !isManualCareerOption(c));
+      const allCerts = getAllTaxonomyCertificates();
+      const seen = new Set(contextual.map((c) => c.toLocaleLowerCase('tr-TR')));
+      const rest = allCerts.filter((c) => !seen.has(c.toLocaleLowerCase('tr-TR')));
+      return [...contextual, ...rest];
     }
 
     case 'languages':

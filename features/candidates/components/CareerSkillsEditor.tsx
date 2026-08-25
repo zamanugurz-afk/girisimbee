@@ -121,12 +121,13 @@ export function CareerSkillsEditor({
     <div className="space-y-5">
       <CareerMultiSelect
         label={isHire ? 'Aranan mesleki yetkinlikler' : 'Mesleki yetkinlikler'}
+        domain="professional-skills"
         options={professionalOptions}
         value={parseSelectedList(value.professionalSkills)}
         onChange={(next) => onChange({ professionalSkills: joinSelectedList(next) })}
         manualValue={value.professionalSkillsOther ?? ''}
         onManualChange={(next) => onChange({ professionalSkillsOther: next })}
-        manualPlaceholder="Listede olmayan yetkinliği yazın"
+        manualPlaceholder="Listede olmayan yetkinliği yazın (örn: Risk Yönetimi, Müzakere)..."
         disabled={disabled}
         error={errors?.professionalSkills}
       />
@@ -152,12 +153,13 @@ export function CareerSkillsEditor({
 
       <CareerMultiSelect
         label={isHire ? 'Aranan teknik yetkinlikler' : 'Teknik yetkinlikler'}
+        domain="technical-skills"
         options={technicalOptions}
         value={parseSelectedList(value.technicalSkills)}
         onChange={(next) => onChange({ technicalSkills: joinSelectedList(next) })}
         manualValue={value.technicalSkillsOther ?? ''}
         onManualChange={(next) => onChange({ technicalSkillsOther: next })}
-        manualPlaceholder="Listede olmayan teknik yetkinliği yazın"
+        manualPlaceholder="Listede olmayan teknik yetkinliği yazın (örn: SQL, Docker, React)..."
         disabled={disabled}
         error={errors?.technicalSkills}
       />
@@ -183,12 +185,13 @@ export function CareerSkillsEditor({
 
       <CareerMultiSelect
         label={isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}
+        domain="tools"
         options={toolOptions}
         value={parseSelectedList(value.tools)}
         onChange={(next) => onChange({ tools: joinSelectedList(next) })}
         manualValue={value.toolsOther ?? ''}
         onManualChange={(next) => onChange({ toolsOther: next })}
-        manualPlaceholder="Listede olmayan aracı yazın"
+        manualPlaceholder="Listede olmayan aracı yazın (örn: Jira, Excel, Figma, SAP)..."
         searchPlaceholder="Araç veya program ara..."
         disabled={disabled}
         error={errors?.tools}

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
 import {
   EDUCATION_FIELD_OPTIONS,
+  getAllTaxonomyCertificates,
   joinSelectedList,
   MANUAL_OPTION,
   needsEducationField,
@@ -129,12 +130,14 @@ export function CareerEducationExtras({
 
       <CareerMultiSelect
         label={isHire ? 'Aranan sertifikalar' : 'Sertifikalar'}
+        domain="certificates"
+        catalog={getAllTaxonomyCertificates()}
         options={certificateOptions}
         value={parseSelectedList(certificates)}
         onChange={(next) => onChange({ certificates: joinSelectedList(next) })}
         manualValue={certificatesOther ?? ''}
         onManualChange={(next) => onChange({ certificatesOther: next })}
-        manualPlaceholder="Listede olmayan sertifikayı yazın"
+        manualPlaceholder="Listede olmayan sertifikayı yazın (örn: SEGEM, PMP, AWS)..."
         disabled={disabled}
         error={errors?.certificates}
       />

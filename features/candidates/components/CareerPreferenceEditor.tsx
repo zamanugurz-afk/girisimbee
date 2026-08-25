@@ -67,24 +67,26 @@ export function CareerPreferenceEditor({
       </p>
       <CareerMultiSelect
         label="İlgilenilen sektörler"
+        domain="sectors"
         options={sectorOptions}
         value={selectedSectors}
         onChange={(next) => onChange({ preferredSectors: next })}
         manualValue={value.sectorOther ?? ''}
         onManualChange={(next) => onChange({ sectorOther: next })}
-        manualPlaceholder="Listede olmayan sektörü yazın"
+        manualPlaceholder="Listede olmayan sektörü yazın (örn: Bilişim, Sağlık, Perakende)..."
         searchPlaceholder="Sektör ara..."
         disabled={disabled}
         error={errors?.preferredSectors ?? errors?.sectorOther}
       />
       <CareerMultiSelect
         label="Açık olduğum pozisyonlar"
+        domain="positions"
         options={roleOptions}
         value={selectedRoles}
         onChange={(next) => onChange({ preferredRoles: next })}
         manualValue={value.preferredRolesOther ?? ''}
         onManualChange={(next) => onChange({ preferredRolesOther: next })}
-        manualPlaceholder="Listede olmayan pozisyonu yazın"
+        manualPlaceholder="Listede olmayan pozisyonu yazın (örn: Bölge Satış Müdürü)..."
         searchPlaceholder="Pozisyon ara..."
         disabled={disabled}
         error={errors?.preferredRoles ?? errors?.preferredRolesOther}

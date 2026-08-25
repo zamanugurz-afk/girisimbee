@@ -152,6 +152,38 @@ describe('SetMatchingService — Turkish Normalized Autocomplete & Catalog Match
       const eduFields = getCanonicalCatalog('education-fields');
       expect(eduFields).toContain('Bilgisayar Mühendisliği');
     });
+
+    it('resolves certificates catalog including SEGEM, PMP, AWS, and families', () => {
+      const certs = getCanonicalCatalog('certificates');
+      expect(certs).toContain('SEGEM');
+      expect(certs).toContain('PMP');
+      expect(certs).toContain('AWS Certified');
+      expect(certs).toContain('Scrum Master');
+      expect(certs).toContain('BES');
+      expect(certs).toContain('SPL Seviye 1');
+    });
+
+    it('matches SEGEM with various casing and prefixes (segem, SEGEM, Segem, sege)', () => {
+      const certs = getCanonicalCatalog('certificates');
+      
+      const res1 = searchTaxonomyCatalog('segem', certs);
+      expect(res1[0].value).toBe('SEGEM');
+      expect(res1[0].score).toBe(1000);
+
+      const res2 = searchTaxonomyCatalog('SEGEM', certs);
+      expect(res2[0].value).toBe('SEGEM');
+      expect(res2[0].score).toBe(1000);
+
+      const res3 = searchTaxonomyCatalog('Segem', certs);
+      expect(res3[0].value).toBe('SEGEM');
+      expect(res3[0].score).toBe(1000);
+
+      const res4 = searchTaxonomyCatalog('sege', certs);
+      expect(res4.some((r) => r.value === 'SEGEM')).toBe(true);
+
+      const pmpRes = searchTaxonomyCatalog('pmp', certs);
+      expect(pmpRes[0].value).toBe('PMP');
+    });
   });
 
   describe('7. Custom Fallback Value Formatting', () => {

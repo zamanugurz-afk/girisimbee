@@ -592,12 +592,13 @@ export function CareerExperienceEditor({
               {/* Responsibilities */}
               <CareerMultiSelect
                 label="Temel Sorumluluklar ve Görevler"
+                catalog={[...responsibilities, ...skillCatalog]}
                 options={responsibilities}
                 value={row.selectedResponsibilities ?? []}
                 onChange={(next) => updateRow(row.id, { selectedResponsibilities: next })}
                 manualValue={row.responsibilitiesOther}
                 onManualChange={(next) => updateRow(row.id, { responsibilitiesOther: next })}
-                manualPlaceholder="Kendi sorumluluk açıklamanızı yazın (en az 20 karakter)"
+                manualPlaceholder="Kendi sorumluluk açıklamanızı yazın veya listeden seçin..."
                 disabled={disabled}
               />
               {wantsManualResp ? (

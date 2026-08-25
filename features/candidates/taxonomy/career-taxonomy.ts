@@ -358,6 +358,9 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
   ],
   'Perakende / Mağaza': [
     'Bölge müdürü',
+    'Bölge satış müdürü',
+    'Bölge operasyon müdürü',
+    'Bölge müdür yardımcısı',
     'Mağaza müdürü',
     'Mağaza müdür yardımcısı',
     'Satış danışmanı',
@@ -1765,11 +1768,8 @@ export function suggestResponsibilities(input: OccupationalProfileInput): string
     return withManualOption([...bundle.responsibilities]);
   }
   const theme = templateTheme(context.sector, context.role);
-  const base = [
-    ...(RESPONSIBILITY_TEMPLATES[theme] ?? []),
-    ...RESPONSIBILITY_TEMPLATES.genel,
-  ];
-  return withManualOption(base);
+  const base = RESPONSIBILITY_TEMPLATES[theme] ?? RESPONSIBILITY_TEMPLATES.genel;
+  return withManualOption([...base]);
 }
 
 export function suggestAchievements(input: OccupationalProfileInput): string[] {
@@ -2303,3 +2303,140 @@ export function parseSelectedList(value: unknown): string[] {
 export function joinSelectedList(values: string[]): string {
   return values.map((v) => v.trim()).filter(Boolean).join(' · ');
 }
+
+/**
+ * Returns complete, deduplicated list of all certificates recognized in GirişimBee.
+ * Always includes finance/insurance (SEGEM, SPL, BES), tech (AWS, Azure, Scrum), PM (PMP), and HSE/Quality (İSG, ISO).
+ */
+export function getAllTaxonomyCertificates(): string[] {
+  const set = new Set<string>();
+  for (const c of CERTIFICATE_OPTIONS) {
+    if (c && !isManualCareerOption(c)) set.add(c);
+  }
+  for (const list of Object.values(CERTIFICATES_BY_FAMILY)) {
+    if (list) {
+      for (const c of list) {
+        if (c && !isManualCareerOption(c)) set.add(c);
+      }
+    }
+  }
+  const prominent = [
+    'SEGEM',
+    'SEGEM Ruhsatı',
+    'SEGEM Teknik Personel Belgesi',
+    'SEGEM Acente Yetkilisi Belgesi',
+    'BES',
+    'BES Lisansı',
+    'SPL Seviye 1',
+    'SPL Seviye 2',
+    'SPL Seviye 3',
+    'SPK Lisansı',
+    'PMP (Proje Yönetimi)',
+    'PMP',
+    'Scrum Master',
+    'Product Owner',
+    'AWS Certified',
+    'Azure Fundamentals',
+    'Google Cloud Associate',
+    'Cisco CCNA',
+    'İSG A Sınıfı',
+    'İSG B Sınıfı',
+    'İSG C Sınıfı',
+    'İlk yardım sertifikası',
+    'Forklift operatör belgesi',
+    'SRC belgesi',
+    'ISO 9001 Kalite Yönetim Sistemi',
+    'SMMM Ruhsatı / Stajyerlik',
+    'YDS',
+    'YÖKDİL',
+    'TOEFL',
+    'IELTS',
+  ];
+  for (const p of prominent) {
+    set.add(p);
+  }
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+}
+
+/**
+ * Returns all skills across all occupational profiles in GirişimBee.
+ */
+export function getAllTaxonomySkills(kind?: 'professional' | 'technical'): string[] {
+  const set = new Set<string>();
+  for (const bundle of Object.values(POSITION_BUNDLES)) {
+    if (!kind || kind === 'professional') {
+      for (const s of bundle.professionalSkills ?? []) {
+        if (s && !isManualCareerOption(s)) set.add(s);
+      }
+    }
+    if (!kind || kind === 'technical') {
+      for (const s of bundle.technicalSkills ?? []) {
+        if (s && !isManualCareerOption(s)) set.add(s);
+      }
+    }
+  }
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+}
+
+/**
+ * Returns all common system tools recognized in GirişimBee.
+ */
+export function getAllTaxonomyTools(): string[] {
+  const set = new Set<string>();
+  const popularTools = [
+    'Excel',
+    'Microsoft Office',
+    'Google Workspace (Docs/Sheets)',
+    'Power BI',
+    'Tableau',
+    'SQL',
+    'PostgreSQL',
+    'MySQL',
+    'MongoDB',
+    'Redis',
+    'Git / GitHub',
+    'GitLab',
+    'Docker',
+    'Kubernetes',
+    'Jira',
+    'Trello',
+    'Asana',
+    'Confluence',
+    'Notion',
+    'Slack',
+    'Figma',
+    'Adobe XD',
+    'Adobe Photoshop',
+    'Adobe Illustrator',
+    'Adobe Premiere Pro',
+    'Canva',
+    'Salesforce',
+    'HubSpot',
+    'Zendesk',
+    'SAP',
+    'Logo Yazılım / Tiger',
+    'Mikro Yazılım',
+    'Netsis',
+    'Google Analytics',
+    'Google Ads',
+    'Meta Business Suite',
+    'Postman',
+    'Swagger',
+    'VS Code',
+    'PyCharm',
+    'IntelliJ IDEA',
+    'AutoCAD',
+    'SolidWorks',
+    'Revit',
+    '3ds Max',
+    'Matlab',
+    'RStudio',
+    'Linux / Bash',
+    'AWS CloudWatch',
+    'Datadog',
+  ];
+  for (const t of popularTools) set.add(t);
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+}
+
+
