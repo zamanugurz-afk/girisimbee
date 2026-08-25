@@ -92,4 +92,14 @@ describe('career form step validation', () => {
       }),
     ).toEqual({});
   });
+
+  it('accepts pure manual responsibilities and achievements without matching system options', () => {
+    const errors = validateHireRoleNeedsStep({
+      requiredResponsibilities: '',
+      requiredResponsibilitiesOther: 'Depo lojistik operasyon süreçlerinin yönetimi',
+      requiredAchievements: '',
+      requiredAchievementsOther: 'Stok sapmasının %0.5 altına indirilmesi',
+    });
+    expect(errors).toEqual({});
+  });
 });

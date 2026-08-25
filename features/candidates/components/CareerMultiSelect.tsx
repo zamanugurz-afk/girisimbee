@@ -82,6 +82,9 @@ export function CareerMultiSelect({
     if (checked) {
       const next = selected.includes(option) ? selected : [...selected, option];
       onChange(next);
+      if (!isManualCareerOption(option) && onManualChange && manualValue?.trim()) {
+        onManualChange('');
+      }
       return;
     }
     onChange(selected.filter((item) => item !== option));

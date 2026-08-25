@@ -213,39 +213,34 @@ export function validateCareerExperiences(experiences: CareerExperience[]): stri
     }
 
     const selectedResp = (raw.selectedResponsibilities ?? []).filter(Boolean);
-    const wantsManualResp = selectedResp.includes(MANUAL_OPTION);
-    if (selectedResp.length === 0 && !exp.responsibilities) {
+    const validResp = selectedResp.filter((item) => !isManualCareerOption(item));
+    const wantsManualResp = selectedResp.some((item) => isManualCareerOption(item));
+    const hasOtherResp = Boolean(raw.responsibilitiesOther?.trim());
+
+    if (validResp.length === 0 && !hasOtherResp && !exp.responsibilities?.trim()) {
       return `${prefix} temel sorumluluklar seçilmelidir.`;
     }
-    if (wantsManualResp || (selectedResp.length === 0 && exp.responsibilities)) {
-      const respSource = wantsManualResp
-        ? raw.responsibilitiesOther
-        : exp.responsibilities;
+    if (hasOtherResp || (wantsManualResp && validResp.length === 0 && !exp.responsibilities?.trim())) {
+      const respSource = raw.responsibilitiesOther || exp.responsibilities;
       const respIssue = findCareerTextQualityIssue(respSource, {
         fieldLabel: 'Temel sorumluluklar',
-        minLength: 20,
+        minLength: 5,
         maxLength: 2000,
-        required: true,
+        required: validResp.length === 0 && !exp.responsibilities?.trim(),
       });
       if (respIssue) return `${prefix} ${respIssue}`;
-    } else if (exp.responsibilities.length < 10) {
-      return `${prefix} temel sorumluluklar eksik.`;
     }
 
     const selectedAch = (raw.selectedAchievements ?? []).filter(Boolean);
-    const wantsManualAch = selectedAch.includes(MANUAL_OPTION);
-    if (wantsManualAch) {
-      const achIssue = findCareerTextQualityIssue(raw.achievementsOther, {
+    const validAch = selectedAch.filter((item) => !isManualCareerOption(item));
+    const wantsManualAch = selectedAch.some((item) => isManualCareerOption(item));
+    const hasOtherAch = Boolean(raw.achievementsOther?.trim());
+
+    if (hasOtherAch || (wantsManualAch && validAch.length === 0 && !exp.achievements?.trim())) {
+      const achSource = raw.achievementsOther || exp.achievements;
+      const achIssue = findCareerTextQualityIssue(achSource, {
         fieldLabel: 'Öne çıkan başarılar',
-        minLength: 10,
-        maxLength: 2000,
-        required: true,
-      });
-      if (achIssue) return `${prefix} ${achIssue}`;
-    } else if (exp.achievements) {
-      const achIssue = findCareerTextQualityIssue(exp.achievements, {
-        fieldLabel: 'Öne çıkan başarılar',
-        minLength: 3,
+        minLength: 5,
         maxLength: 2000,
         required: false,
       });

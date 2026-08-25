@@ -256,25 +256,16 @@ export function validateHireRoleNeedsStep(
   const selected = parseSelectedList(customFields.requiredResponsibilities);
   const other = String(customFields.requiredResponsibilitiesOther ?? '').trim();
   const validSelections = selected.filter((item) => !isManualCareerOption(item));
-  const hasManual = selected.some((item) => isManualCareerOption(item));
 
-  if (validSelections.length === 0 && !hasManual) {
+  if (validSelections.length === 0 && !other) {
     errors.requiredResponsibilities = 'En az bir temel sorumluluk seçin veya yazın.';
   }
-  if (hasManual && validSelections.length === 0) {
+  if (other) {
     const issue = findCareerTextQualityIssue(other, {
       fieldLabel: 'Temel sorumluluklar',
-      minLength: 5,
+      minLength: 2,
       maxLength: 400,
-      required: true,
-    });
-    if (issue) errors.requiredResponsibilitiesOther = issue;
-  } else if (hasManual && other) {
-    const issue = findCareerTextQualityIssue(other, {
-      fieldLabel: 'Temel sorumluluklar',
-      minLength: 5,
-      maxLength: 400,
-      required: false,
+      required: validSelections.length === 0,
     });
     if (issue) errors.requiredResponsibilitiesOther = issue;
   }
@@ -282,20 +273,11 @@ export function validateHireRoleNeedsStep(
   const ach = parseSelectedList(customFields.requiredAchievements);
   const achOther = String(customFields.requiredAchievementsOther ?? '').trim();
   const validAchSelections = ach.filter((item) => !isManualCareerOption(item));
-  const hasManualAch = ach.some((item) => isManualCareerOption(item));
 
-  if (hasManualAch && validAchSelections.length === 0) {
+  if (achOther) {
     const issue = findCareerTextQualityIssue(achOther, {
       fieldLabel: 'Başarı beklentisi',
-      minLength: 5,
-      maxLength: 400,
-      required: true,
-    });
-    if (issue) errors.requiredAchievementsOther = issue;
-  } else if (hasManualAch && achOther) {
-    const issue = findCareerTextQualityIssue(achOther, {
-      fieldLabel: 'Başarı beklentisi',
-      minLength: 5,
+      minLength: 2,
       maxLength: 400,
       required: false,
     });
@@ -308,16 +290,20 @@ export function materializeHireRoleNeedsFields(
   customFields: Record<string, unknown>,
 ): Record<string, unknown> {
   const responsibilities = parseSelectedList(customFields.requiredResponsibilities).filter(
-    (item) => item !== MANUAL_OPTION,
+    (item) => !isManualCareerOption(item),
   );
   const responsibilitiesOther = String(customFields.requiredResponsibilitiesOther ?? '').trim();
-  if (responsibilitiesOther) responsibilities.push(responsibilitiesOther);
+  if (responsibilitiesOther && !responsibilities.includes(responsibilitiesOther)) {
+    responsibilities.push(responsibilitiesOther);
+  }
 
   const achievements = parseSelectedList(customFields.requiredAchievements).filter(
-    (item) => item !== MANUAL_OPTION,
+    (item) => !isManualCareerOption(item),
   );
   const achievementsOther = String(customFields.requiredAchievementsOther ?? '').trim();
-  if (achievementsOther) achievements.push(achievementsOther);
+  if (achievementsOther && !achievements.includes(achievementsOther)) {
+    achievements.push(achievementsOther);
+  }
 
   const role = isManualCareerOption(customFields.desiredRole)
     ? String(customFields.desiredRoleOther ?? '').trim()

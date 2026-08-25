@@ -1896,28 +1896,37 @@ export function CategoryListingForm({
       return true;
     }
 
-    if (isHireRoleNeedsStep) {
-      const hireErrors = validateHireRoleNeedsStep(mergedCustomFields);
-      if (Object.keys(hireErrors).length > 0) {
-        setFieldErrors(hireErrors);
-        toast.error(Object.values(hireErrors)[0] ?? 'İş tanımı alanlarını kontrol edin.');
-        return false;
-      }
-      const materialized = materializeHireRoleNeedsFields(mergedCustomFields);
-      mutateCustomFields((prev) => ({ ...prev, ...materialized }), 'validateStep:hireRole');
-      setFieldErrors({});
-      return true;
-    }
+    if (isHireRoleNeedsStep || isCareerSkillsStep) {
+      const combinedErrors: Record<string, string> = {};
+      const materializedPatch: Record<string, unknown> = {};
 
-    if (isCareerSkillsStep) {
-      const skillErrors = validateCareerSkillsStep(mergedCustomFields);
-      if (Object.keys(skillErrors).length > 0) {
-        setFieldErrors(skillErrors);
-        toast.error(Object.values(skillErrors)[0] ?? 'Yetkinlik alanlarını kontrol edin.');
+      if (isHireRoleNeedsStep) {
+        const hireErrors = validateHireRoleNeedsStep(mergedCustomFields);
+        if (Object.keys(hireErrors).length > 0) {
+          Object.assign(combinedErrors, hireErrors);
+        } else {
+          Object.assign(materializedPatch, materializeHireRoleNeedsFields(mergedCustomFields));
+        }
+      }
+
+      if (isCareerSkillsStep) {
+        const skillErrors = validateCareerSkillsStep(mergedCustomFields);
+        if (Object.keys(skillErrors).length > 0) {
+          Object.assign(combinedErrors, skillErrors);
+        } else {
+          Object.assign(materializedPatch, materializeCareerSkillsFields(mergedCustomFields));
+        }
+      }
+
+      if (Object.keys(combinedErrors).length > 0) {
+        setFieldErrors(combinedErrors);
+        toast.error(Object.values(combinedErrors)[0] ?? 'Lütfen ilgili alanları kontrol edin.');
         return false;
       }
-      const materialized = materializeCareerSkillsFields(mergedCustomFields);
-      mutateCustomFields((prev) => ({ ...prev, ...materialized }), 'validateStep:careerSkills');
+
+      if (Object.keys(materializedPatch).length > 0) {
+        mutateCustomFields((prev) => ({ ...prev, ...materializedPatch }), 'validateStep:careerRoleAndSkills');
+      }
       setFieldErrors({});
       return true;
     }
