@@ -61,10 +61,72 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
     return ok({ hasApplication: false, application: null });
   }
 
-  const profileSnapshot =
+  let profileSnapshot =
     application.profileSnapshot ||
     (application.metadata?.profileSnapshot as any) ||
     null;
+
+  if (!profileSnapshot && applicantProfile) {
+    try {
+      const { CareerProfileService } = await import('@/features/career-profile/career-profile.service');
+      const careerService = new CareerProfileService(ctx.container.listingRepository);
+      const pageData = await careerService.getPageData(applicantProfile.userId);
+      const candidateRecord = pageData.seek;
+      if (candidateRecord?.values) {
+        const v = candidateRecord.values;
+        profileSnapshot = {
+          displayName: v.fullName || applicantProfile.displayName || 'Aday',
+          contactEmail: v.email || applicantProfile.email,
+          contactPhone: v.phone || applicantProfile.phone,
+          desiredRole: v.role || v.roles?.[0] || 'Uzman',
+          primarySector: v.sector || v.sectors?.[0] || 'Genel',
+          experienceLevel: v.experienceLevel || 'Deneyimli',
+          residenceCity: v.city || 'İstanbul',
+          residenceDistrict: v.preferredDistrict || '',
+          preferredCity: v.city || 'İstanbul',
+          workType: v.workType || 'Tam Zamanlı',
+          workplacePreference: v.workplacePreference || 'Hibrit',
+          educationLevel: v.educationLevel || 'Lisans',
+          educationHistory: (v.educationHistory || []).map((e) => ({
+            level: e.level || 'Lisans',
+            field: e.field,
+            school: e.school,
+            graduationYear: e.graduationYear,
+          })),
+          experiences: v.experiences || [],
+          languages: v.languages || '',
+          certificates: v.certificates || '',
+          professionalSkills: v.professionalSkillsList?.join(', ') || v.professionalSkills || '',
+          technicalSkills: v.technicalSkillsList?.join(', ') || v.technicalSkills || '',
+          tools: v.toolsList?.join(', ') || v.tools || '',
+          longDescription: v.candidateTraits || '',
+          salaryExpectation: v.salaryMin && v.salaryMax ? `${v.salaryMin} - ${v.salaryMax} TL` : '',
+          availability: v.availability || 'Hemen',
+        };
+      } else {
+        profileSnapshot = {
+          displayName: applicantProfile.displayName || 'Aday',
+          contactEmail: applicantProfile.email,
+          contactPhone: applicantProfile.phone,
+          desiredRole: 'Pozisyon Adayı',
+          primarySector: 'Genel',
+          residenceCity: 'İstanbul',
+          workType: 'Tam Zamanlı',
+          educationLevel: 'Lisans',
+          experiences: [],
+        };
+      }
+    } catch (e) {
+      console.warn('[conversation/application] failed to build snapshot fallback:', e);
+      profileSnapshot = {
+        displayName: applicantProfile.displayName || 'Aday',
+        contactEmail: applicantProfile.email,
+        contactPhone: applicantProfile.phone,
+        desiredRole: 'Pozisyon Adayı',
+        experiences: [],
+      };
+    }
+  }
 
   return ok({
     hasApplication: true,
