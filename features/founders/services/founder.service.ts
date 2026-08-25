@@ -120,10 +120,14 @@ export class FounderService {
     const publishNow = !input.asDraft;
 
     if (publishNow) {
-      await this.moduleProfileRepo.upsertFounderProfile({
-        profileId: input.profileId,
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertFounderProfile({
+          profileId: input.profileId,
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[founders] upsertFounderProfile non-fatal error:', err);
+      }
     }
 
     console.log('[founders] listingRepo.create', {

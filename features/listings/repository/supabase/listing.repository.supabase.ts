@@ -287,49 +287,58 @@ export class SupabaseListingRepository implements ListingRepository {
     };
   }
 
-  async findById(id: ListingId, filter?: RepositoryFilter): Promise<Listing | null> {
-    let query = this.supabase.from(TABLE).select(LISTING_ROW_SELECT).eq('id', id);
-    if (!filter?.includeDeleted) query = query.is('deleted_at', null);
-    const { data, error } = await query.maybeSingle();
-    if (error) {
-      if (error.code === '42501' && this.ownerIdReader) {
-        let privilegedQuery = this.ownerIdReader.from(TABLE).select(LISTING_ROW_SELECT).eq('id', id);
-        if (!filter?.includeDeleted) privilegedQuery = privilegedQuery.is('deleted_at', null);
-        const res = await privilegedQuery.maybeSingle();
-        if (!res.error && res.data) {
-          const listing = mapListingRow(res.data as ListingRow);
-          return this.hydrateOwnerId(listing);
-        }
+  async findById(
+    id: ListingId,
+    options?: { includeDeleted?: boolean },
+  ): Promise<Listing | null> {
+    let q = this.supabase
+      .from(TABLE)
+      .select(LISTING_ROW_SELECT)
+      .eq('id', id);
+    if (!options?.includeDeleted) {
+      q = q.is('deleted_at', null);
+    }
+    let { data, error } = await q.maybeSingle();
+
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      let fallbackQ = this.ownerIdReader
+        .from(TABLE)
+        .select(LISTING_ROW_SELECT)
+        .eq('id', id);
+      if (!options?.includeDeleted) {
+        fallbackQ = fallbackQ.is('deleted_at', null);
       }
-      throw error;
+      const fallback = await fallbackQ.maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
     }
+
+    if (error) throw error;
     if (!data) return null;
-    const listing = mapListingRow(data as ListingRow);
-    const cleared = {
-      ...listing,
-      contactPhone: null,
-      contactWhatsapp: null,
-      contactEmail: null,
-    };
-    try {
-      const { data: auth } = await this.supabase.auth.getUser();
-      if (!auth.user) return this.hydrateOwnerId(cleared);
-    } catch {
-      return this.hydrateOwnerId(cleared);
-    }
     const withChannels = await this.mapRowWithOptionalOwnerChannels(data as ListingRow);
     return this.hydrateOwnerId(withChannels);
   }
 
   async findBySlug(slug: string): Promise<Listing | null> {
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .select(LISTING_ROW_SELECT)
       .eq('slug', slug)
       .is('deleted_at', null)
       .maybeSingle();
+
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .select(LISTING_ROW_SELECT)
+        .eq('slug', slug)
+        .is('deleted_at', null)
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
     if (error) throw error;
-    // Public slug lookup — never call owner contact RPC.
     if (!data) return null;
     const listing = mapListingRow(data as ListingRow);
     return this.hydrateOwnerId({
@@ -479,12 +488,21 @@ export class SupabaseListingRepository implements ListingRepository {
     }
 
     // Single round-trip: browse select already requests count:'exact'.
-    const listResult = await this.applyFilter(this.supabase.from(TABLE), filter, {
+    let listResult = await this.applyFilter(this.supabase.from(TABLE), filter, {
       mode: 'browse',
       ownerScopedIds,
     })
       .order(column, { ascending })
       .range(start, end);
+
+    if (listResult.error && listResult.error.code === '42501' && this.ownerIdReader) {
+      listResult = await this.applyFilter(this.ownerIdReader.from(TABLE), filter, {
+        mode: 'browse',
+        ownerScopedIds,
+      })
+        .order(column, { ascending })
+        .range(start, end);
+    }
 
     const { data, error, count } = listResult;
     if (error) throw error;
@@ -542,20 +560,37 @@ export class SupabaseListingRepository implements ListingRepository {
     if (filter.ownerId && this.enrichOwnerId && ownerScopedIds && ownerScopedIds.length === 0) {
       return 0;
     }
-    const { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter, {
+    let { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter, {
       mode: 'count',
       ownerScopedIds,
     });
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.applyFilter(this.ownerIdReader.from(TABLE), filter, {
+        mode: 'count',
+        ownerScopedIds,
+      });
+      count = fallback.count;
+      error = fallback.error;
+    }
     if (error) throw error;
     return count ?? 0;
   }
 
   async exists(id: ListingId): Promise<boolean> {
-    const { count, error } = await this.supabase
+    let { count, error } = await this.supabase
       .from(TABLE)
       .select('*', { count: 'exact', head: true })
       .eq('id', id)
       .is('deleted_at', null);
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .select('*', { count: 'exact', head: true })
+        .eq('id', id)
+        .is('deleted_at', null);
+      count = fallback.count;
+      error = fallback.error;
+    }
     if (error) throw error;
     return (count ?? 0) > 0;
   }
@@ -716,12 +751,24 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async restore(id: ListingId): Promise<Listing> {
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .update({ deleted_at: null, status: 'draft', updated_at: now() })
       .eq('id', id)
       .select(LISTING_ROW_SELECT)
       .single();
+
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .update({ deleted_at: null, status: 'draft', updated_at: now() })
+        .eq('id', id)
+        .select(LISTING_ROW_SELECT)
+        .single();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
     if (error) throw error;
     if (!data) throw new NotFoundError('Listing', id);
     const mapped = await this.mapRowWithOptionalOwnerChannels(data as ListingRow);
@@ -731,20 +778,34 @@ export class SupabaseListingRepository implements ListingRepository {
   async incrementViewCount(id: ListingId): Promise<void> {
     const listing = await this.findById(id, { includeDeleted: true });
     if (!listing) throw new NotFoundError('Listing', id);
-    const { error } = await this.supabase
+    let { error } = await this.supabase
       .from(TABLE)
       .update({ view_count: listing.viewCount + 1, updated_at: now() })
       .eq('id', id);
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .update({ view_count: listing.viewCount + 1, updated_at: now() })
+        .eq('id', id);
+      error = fallback.error;
+    }
     if (error) throw error;
   }
 
   async incrementApplicationCount(id: ListingId): Promise<void> {
     const listing = await this.findById(id, { includeDeleted: true });
     if (!listing) throw new NotFoundError('Listing', id);
-    const { error } = await this.supabase
+    let { error } = await this.supabase
       .from(TABLE)
       .update({ application_count: listing.applicationCount + 1, updated_at: now() })
       .eq('id', id);
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .update({ application_count: listing.applicationCount + 1, updated_at: now() })
+        .eq('id', id);
+      error = fallback.error;
+    }
     if (error) throw error;
   }
 
@@ -769,12 +830,24 @@ export class SupabaseListingRepository implements ListingRepository {
         : {}),
       ...(to === 'pending_review' ? { rejected_reason: null } : {}),
     });
-    const { data, error } = await this.supabase
+    let { data, error } = await this.supabase
       .from(TABLE)
       .update(update)
       .eq('id', id)
       .select(LISTING_ROW_SELECT)
       .single();
+
+    if (error && error.code === '42501' && this.ownerIdReader) {
+      const fallback = await this.ownerIdReader
+        .from(TABLE)
+        .update(update)
+        .eq('id', id)
+        .select(LISTING_ROW_SELECT)
+        .single();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
     if (error) {
       logSupabaseError(error, `${TABLE} transitionStatus ${id} → ${to}`);
       throw error;
