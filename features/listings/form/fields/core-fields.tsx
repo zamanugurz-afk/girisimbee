@@ -204,10 +204,7 @@ export function CoreListingFields({
             />
             <SuggestionBanner field="title" />
             <FormFieldFooter
-              helperText={
-                ui.helperText ??
-                'Alanı terk edince yazım önerisi gösterilir. Başlıkta emoji kullanmayın.'
-              }
+              helperText={ui.helperText}
               error={errors?.title}
               currentLength={values.title.length}
               maxLength={ui.maxLength}
@@ -243,10 +240,7 @@ export function CoreListingFields({
             />
             <SuggestionBanner field="shortDescription" />
             <FormFieldFooter
-              helperText={
-                ui.helperText ??
-                'Alanı terk edince yazım ve noktalama önerisi gösterilir.'
-              }
+              helperText={ui.helperText}
               error={errors?.shortDescription}
               currentLength={values.shortDescription.length}
               maxLength={ui.maxLength}
@@ -283,10 +277,7 @@ export function CoreListingFields({
             />
             <SuggestionBanner field="longDescription" />
             <FormFieldFooter
-              helperText={
-                ui.helperText ??
-                'Alanı terk edince yazım ve noktalama önerisi gösterilir.'
-              }
+              helperText={ui.helperText}
               error={errors?.longDescription}
               currentLength={length}
               maxLength={ui.maxLength}
@@ -311,9 +302,7 @@ export function CoreListingFields({
                   placeholder={ui.placeholder}
                   extended={extendedCities}
                 />
-                {!errors?.city && ui.helperText && (
-                  <p className="text-xs text-muted-foreground">{ui.helperText}</p>
-                )}
+                <FormFieldFooter helperText={ui.helperText} error={errors?.city} />
               </div>
             );
           })()}
