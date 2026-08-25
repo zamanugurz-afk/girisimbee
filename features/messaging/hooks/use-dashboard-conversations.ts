@@ -136,26 +136,43 @@ export function useDashboardConversations() {
     setIsLoading(true);
     setError(null);
     try {
-      // Automatically sync and heal any unlinked job application conversations for this user
+      let openItems: ConversationListItem[] = [];
+      let archivedItems: ConversationListItem[] = [];
+
       try {
-        await fetch('/api/messaging/sync-applications', { method: 'POST' });
-      } catch {}
+        const apiRes = await fetch('/api/conversations');
+        if (apiRes.ok) {
+          const apiJson = await apiRes.json();
+          const payload = apiJson?.data || apiJson;
+          if (Array.isArray(payload?.items)) {
+            openItems = payload.items;
+          }
+        }
+      } catch (apiErr) {
+        console.warn('[useDashboardConversations] API fetch warning, using service fallback:', apiErr);
+      }
 
-      const [openResult, archived] = await Promise.all([
-        service.listConversationItems(userId, { page: 1, limit: 50 }),
-        loadArchivedItems(userId),
-      ]);
+      if (openItems.length === 0) {
+        const [openResult, archived] = await Promise.all([
+          service.listConversationItems(userId, { page: 1, limit: 50 }),
+          loadArchivedItems(userId),
+        ]);
+        openItems = openResult.data;
+        archivedItems = archived;
+      } else {
+        archivedItems = await loadArchivedItems(userId);
+      }
 
-      const openHrefs = await enrichListingHrefs(openResult.data);
-      const archiveHrefs = await enrichListingHrefs(archived);
+      const openHrefs = await enrichListingHrefs(openItems);
+      const archiveHrefs = await enrichListingHrefs(archivedItems);
 
       setInboxItems(
-        openResult.data.map((item) =>
+        openItems.map((item) =>
           mapItem(item, openHrefs.get(item.conversation.id) ?? null),
         ),
       );
       setArchiveItems(
-        archived.map((item) =>
+        archivedItems.map((item) =>
           mapItem(item, archiveHrefs.get(item.conversation.id) ?? null),
         ),
       );
