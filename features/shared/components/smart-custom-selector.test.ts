@@ -92,4 +92,24 @@ describe('Global Form Standards & SmartCustomSelector Behavioral Suite', () => {
       expect(tools.length).toBeGreaterThan(10);
     });
   });
+
+  describe('5. Insurance (Sigorta) Domain Search Suite', () => {
+    it('returns all insurance positions when typing sigorta', () => {
+      const positions = getCanonicalCatalog('positions');
+      const matches = searchTaxonomyCatalog('sigorta', positions, { limit: 20 });
+      expect(matches.length).toBeGreaterThanOrEqual(5);
+      const matchedNames = matches.map((m) => m.value);
+      expect(matchedNames).toContain('Sigorta Müdürü');
+      expect(matchedNames).toContain('Sigorta Satış Uzmanı');
+      expect(matchedNames).toContain('Sigorta Danışmanı');
+      expect(matchedNames).toContain('Sigorta Eksperi');
+    });
+
+    it('returns insurance positions even when context sector is different (cross-sector matching)', () => {
+      const positions = getCanonicalCatalog('positions', { sector: 'Perakende / Mağaza' });
+      const matches = searchTaxonomyCatalog('sigorta', positions, { limit: 10 });
+      expect(matches.length).toBeGreaterThan(0);
+      expect(matches.some((m) => m.value.includes('Sigorta'))).toBe(true);
+    });
+  });
 });

@@ -3156,26 +3156,47 @@ export function CategoryListingForm({
                   </div>
 
                   {/* Row 1, Col 2: Sektör */}
-                  <div className="w-full min-w-0">
+                  <div className="w-full min-w-0 space-y-2">
                     {fieldByKey.get('primarySector') ? (
-                      <DynamicField
-                        field={fieldByKey.get('primarySector')!}
-                        value={mergedCustomFields.primarySector}
-                        onChange={(val) => {
-                          handleCustomFieldChange('primarySector', val);
-                          if (cvFilledKeys.has('primarySector')) {
-                            setCvFilledKeys((prev) => {
-                              const next = new Set(prev);
-                              next.delete('primarySector');
-                              return next;
-                            });
-                          }
-                        }}
-                        isCvFilled={cvFilledKeys.has('primarySector')}
-                        error={resolveFieldError(fieldErrors, 'primarySector')}
-                        disabled={disabled || isBusy}
-                        context={dynamicFieldContext}
-                      />
+                      <>
+                        <DynamicField
+                          field={fieldByKey.get('primarySector')!}
+                          value={mergedCustomFields.primarySector}
+                          onChange={(val) => {
+                            handleCustomFieldChange('primarySector', val);
+                            if (cvFilledKeys.has('primarySector')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('primarySector');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('primarySector')}
+                          error={resolveFieldError(fieldErrors, 'primarySector')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                        {isManualCareerOption(mergedCustomFields.primarySector) && (
+                          <div className="pt-1">
+                            <DynamicField
+                              field={
+                                fieldByKey.get('sectorOther') ?? {
+                                  key: 'sectorOther',
+                                  label: 'Özel Sektör Belirtin',
+                                  type: 'string',
+                                  required: true,
+                                }
+                              }
+                              value={mergedCustomFields.sectorOther ?? ''}
+                              onChange={(val) => handleCustomFieldChange('sectorOther', val)}
+                              error={resolveFieldError(fieldErrors, 'sectorOther')}
+                              disabled={disabled || isBusy}
+                              context={dynamicFieldContext}
+                            />
+                          </div>
+                        )}
+                      </>
                     ) : null}
                   </div>
 
@@ -3201,24 +3222,25 @@ export function CategoryListingForm({
                           disabled={disabled || isBusy}
                           context={dynamicFieldContext}
                         />
-                        {String(mergedCustomFields.desiredRoleOther ?? '').trim() ? (
-                          <CareerManualAssist
-                            kind="role"
-                            text={String(mergedCustomFields.desiredRoleOther ?? '')}
-                            catalog={getPositionsForSector(
-                              String(mergedCustomFields.primarySector ?? ''),
-                            )}
-                            sector={String(mergedCustomFields.primarySector ?? '')}
-                            experienceLevel={String(mergedCustomFields.experienceLevel ?? '')}
-                            disabled={disabled || isBusy}
-                            onAcceptCatalog={(items) => {
-                              const first = items[0];
-                              if (!first) return;
-                              setCustomField('desiredRole', first);
-                              setCustomField('desiredRoleOther', '');
-                            }}
-                          />
-                        ) : null}
+                        {isManualCareerOption(mergedCustomFields.desiredRole) && (
+                          <div className="pt-1">
+                            <DynamicField
+                              field={
+                                fieldByKey.get('desiredRoleOther') ?? {
+                                  key: 'desiredRoleOther',
+                                  label: 'Özel Pozisyon / Unvan Belirtin',
+                                  type: 'string',
+                                  required: true,
+                                }
+                              }
+                              value={mergedCustomFields.desiredRoleOther ?? ''}
+                              onChange={(val) => handleCustomFieldChange('desiredRoleOther', val)}
+                              error={resolveFieldError(fieldErrors, 'desiredRoleOther')}
+                              disabled={disabled || isBusy}
+                              context={dynamicFieldContext}
+                            />
+                          </div>
+                        )}
                       </>
                     ) : null}
                   </div>
@@ -3272,26 +3294,47 @@ export function CategoryListingForm({
                   </div>
 
                   {/* Row 3, Col 2: İlçe */}
-                  <div className="w-full min-w-0">
+                  <div className="w-full min-w-0 space-y-2">
                     {fieldByKey.get('residenceDistrict') ? (
-                      <DynamicField
-                        field={fieldByKey.get('residenceDistrict')!}
-                        value={mergedCustomFields.residenceDistrict}
-                        onChange={(val) => {
-                          handleCustomFieldChange('residenceDistrict', val);
-                          if (cvFilledKeys.has('residenceDistrict')) {
-                            setCvFilledKeys((prev) => {
-                              const next = new Set(prev);
-                              next.delete('residenceDistrict');
-                              return next;
-                            });
-                          }
-                        }}
-                        isCvFilled={cvFilledKeys.has('residenceDistrict')}
-                        error={resolveFieldError(fieldErrors, 'residenceDistrict')}
-                        disabled={disabled || isBusy}
-                        context={dynamicFieldContext}
-                      />
+                      <>
+                        <DynamicField
+                          field={fieldByKey.get('residenceDistrict')!}
+                          value={mergedCustomFields.residenceDistrict}
+                          onChange={(val) => {
+                            handleCustomFieldChange('residenceDistrict', val);
+                            if (cvFilledKeys.has('residenceDistrict')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('residenceDistrict');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('residenceDistrict')}
+                          error={resolveFieldError(fieldErrors, 'residenceDistrict')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                        {isManualCareerOption(mergedCustomFields.residenceDistrict) && (
+                          <div className="pt-1">
+                            <DynamicField
+                              field={
+                                fieldByKey.get('districtOther') ?? {
+                                  key: 'districtOther',
+                                  label: 'Özel İlçe Belirtin',
+                                  type: 'string',
+                                  required: true,
+                                }
+                              }
+                              value={mergedCustomFields.districtOther ?? ''}
+                              onChange={(val) => handleCustomFieldChange('districtOther', val)}
+                              error={resolveFieldError(fieldErrors, 'districtOther')}
+                              disabled={disabled || isBusy}
+                              context={dynamicFieldContext}
+                            />
+                          </div>
+                        )}
+                      </>
                     ) : null}
                   </div>
 

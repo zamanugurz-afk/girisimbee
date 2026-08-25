@@ -1339,7 +1339,7 @@ function inferFamily(role: string): RoleFamily | null {
   if (/servis danışman|otomotiv|yedek parça|kaporta|oto yıkama/.test(hay)) return 'autoService';
   if (/saha satış/.test(hay)) return 'salesField';
   if (/satış|key account|iş geliştirme/.test(hay)) return 'salesIndoor';
-  if (/sigorta|hasar|poliçe|broker|underwriter|acente/.test(hay)) return 'insuranceOps';
+  if (/sigorta|hasar|poliçe|broker|underwriter|acente|aktüer|reasürans|eksper/.test(hay)) return 'insuranceOps';
   if (/kredi|risk|hazine|uyum|iç kontrol|yatırım|finansal/.test(hay)) return 'credit';
   if (/muhasebe|mali müşavir/.test(hay)) return 'accounting';
   if (/banka/.test(hay)) return 'bankFront';

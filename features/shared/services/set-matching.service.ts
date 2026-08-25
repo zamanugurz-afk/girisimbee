@@ -285,16 +285,16 @@ export function searchTaxonomyCatalog<T = string>(
 export function getCanonicalCatalog(domain: SetDomain, context?: SetCatalogContext): string[] {
   switch (domain) {
     case 'positions': {
-      if (context?.sector) {
-        const sectorPositions = getPositionsForSector(context.sector);
-        if (sectorPositions.length > 0) {
-          return sectorPositions.filter((p) => !isManualCareerOption(p));
-        }
-      }
+      const contextual = context?.sector
+        ? getPositionsForSector(context.sector).filter((p) => !isManualCareerOption(p))
+        : [];
       const all = getAllTaxonomyPositions();
-      return (all.length > 0 ? all : Array.from(JOB_POSITION_OPTIONS)).filter(
+      const allPositions = (all.length > 0 ? all : Array.from(JOB_POSITION_OPTIONS)).filter(
         (p) => !isManualCareerOption(p),
       );
+      const seen = new Set(contextual.map((p) => p.toLocaleLowerCase('tr-TR')));
+      const rest = allPositions.filter((p) => !seen.has(p.toLocaleLowerCase('tr-TR')));
+      return [...contextual, ...rest];
     }
 
     case 'sectors':

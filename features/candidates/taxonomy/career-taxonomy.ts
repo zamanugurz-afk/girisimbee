@@ -294,6 +294,14 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Sigorta müdürü',
     'Sigorta satış uzmanı',
     'Sigorta teknik uzmanı',
+    'Sigorta danışmanı',
+    'Sigorta eksperi',
+    'Sigorta acente yetkilisi',
+    'Sigorta acente müdürü',
+    'Sigorta müşteri temsilcisi',
+    'Sigorta operasyon uzmanı',
+    'Sigorta portföy yöneticisi',
+    'Sigorta brokeri',
     'Hasar uzmanı',
     'Broker',
     'Acente temsilcisi',
@@ -303,6 +311,8 @@ const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {
     'Saha satış uzmanı',
     'Portföy yöneticisi',
     'Risk değerlendirme uzmanı',
+    'Reasürans uzmanı',
+    'Aktüer',
   ],
   'Üretim / Sanayi': [
     'Fabrika müdürü',
@@ -1476,7 +1486,7 @@ function themeKeysFor(sector: string, role: string): string[] {
   if (/satış|key account|ticaret/.test(hay)) keys.push('satış');
   if (/sağlık|hemşire|doktor|klinik|hasta|medikal|eczane/.test(hay)) keys.push('sağlık');
   if (/finans|banka|kredi|muhasebe|mali/.test(hay)) keys.push('finans', 'muhasebe');
-  if (/sigorta|poliçe|hasar|broker|segem/.test(hay)) keys.push('sigorta');
+  if (/sigorta|poliçe|hasar|broker|segem|aktüer|reasürans|underwriter|acente|eksper/.test(hay)) keys.push('sigorta');
   if (/yazılım|bilişim|geliştirici|devops|frontend|backend|full-stack|qa|ürün yöneticisi/.test(hay)) {
     keys.push('yazılım');
   }

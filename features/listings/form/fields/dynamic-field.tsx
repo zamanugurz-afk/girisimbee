@@ -59,7 +59,11 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
   },
   positionTitleOther: {
     parentKey: 'positionTitle',
-    match: (v) => String(v ?? '') === 'Diğer',
+    match: isManualOtherSelection,
+  },
+  roleOther: {
+    parentKey: 'role',
+    match: isManualOtherSelection,
   },
   businessTypeOther: {
     parentKey: 'businessType',
@@ -68,25 +72,37 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
   preferredBusinessTypesOther: {
     parentKey: 'preferredBusinessTypes',
     match: (v) =>
-      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION || item === 'Diğer / Kendim gireceğim'),
+      Array.isArray(v) && v.map(String).some((item) => isManualOtherSelection(item)),
   },
   sectorOther: {
+    parentKey: 'primarySector',
+    match: isManualOtherSelection,
+  },
+  preferredSectorsOther: {
     parentKey: 'preferredSectors',
     match: (v) =>
-      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION),
+      Array.isArray(v) && v.map(String).some((item) => isManualOtherSelection(item)),
   },
   preferredRolesOther: {
     parentKey: 'preferredRoles',
     match: (v) =>
-      Array.isArray(v) && v.map(String).some((item) => item === 'Diğer' || item === MANUAL_OPTION),
+      Array.isArray(v) && v.map(String).some((item) => isManualOtherSelection(item)),
   },
   preferredDistrictOther: {
     parentKey: 'preferredDistrict',
-    match: (v) => String(v ?? '') === 'Diğer',
+    match: isManualOtherSelection,
   },
   districtOther: {
     parentKey: 'district',
-    match: (v) => String(v ?? '') === 'Diğer',
+    match: isManualOtherSelection,
+  },
+  residenceDistrictOther: {
+    parentKey: 'residenceDistrict',
+    match: isManualOtherSelection,
+  },
+  educationFieldOther: {
+    parentKey: 'educationField',
+    match: isManualOtherSelection,
   },
 };
 
