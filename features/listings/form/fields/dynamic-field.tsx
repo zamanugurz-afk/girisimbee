@@ -295,6 +295,7 @@ function FieldControl({
           error={error}
           placeholder={ui.placeholder ?? 'İl seçin'}
           extended
+          themeColor={context?.themeColor}
         />
         <FormFieldFooter helperText={ui.helperText} error={error} />
       </>
@@ -336,6 +337,7 @@ function FieldControl({
           disabled={disabled}
           error={error}
           placeholder={ui.placeholder ?? 'İlçe seçin'}
+          themeColor={context?.themeColor}
         />
         <FormFieldFooter helperText={ui.helperText} error={error} />
       </>
@@ -597,10 +599,10 @@ function FieldControl({
                 className="truncate"
               />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent themeColor={context?.themeColor}>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-          {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
+                  {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
                 </SelectItem>
               ))}
             </SelectContent>

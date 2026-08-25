@@ -24,6 +24,7 @@ interface DistrictSelectProps {
   disabled?: boolean;
   error?: string;
   placeholder?: string;
+  themeColor?: string;
 }
 
 export function DistrictSelect({
@@ -34,6 +35,7 @@ export function DistrictSelect({
   disabled,
   error,
   placeholder = 'İlçe seçin',
+  themeColor,
 }: DistrictSelectProps) {
   const [open, setOpen] = useState(false);
   const districts = useMemo(() => getDistrictsForCity(city), [city]);
@@ -60,7 +62,7 @@ export function DistrictSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-        <Command>
+        <Command themeColor={themeColor}>
           <CommandInput placeholder="İlçe ara…" />
           <CommandList>
             <CommandEmpty>İlçe bulunamadı.</CommandEmpty>

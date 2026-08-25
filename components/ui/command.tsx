@@ -8,19 +8,72 @@ import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
+export const COMMAND_THEME_ITEM_CLASSES: Record<
+  string,
+  { selected: string }
+> = {
+  emerald: {
+    selected:
+      "data-[selected='true']:bg-emerald-500/10 data-[selected=true]:text-emerald-950 dark:data-[selected='true']:bg-emerald-950/40 dark:data-[selected=true]:text-emerald-200",
+  },
+  sky: {
+    selected:
+      "data-[selected='true']:bg-sky-500/10 data-[selected=true]:text-sky-950 dark:data-[selected='true']:bg-sky-950/40 dark:data-[selected=true]:text-sky-200",
+  },
+  amber: {
+    selected:
+      "data-[selected='true']:bg-amber-500/10 data-[selected=true]:text-amber-950 dark:data-[selected='true']:bg-amber-950/40 dark:data-[selected=true]:text-amber-200",
+  },
+  blue: {
+    selected:
+      "data-[selected='true']:bg-blue-500/10 data-[selected=true]:text-blue-950 dark:data-[selected='true']:bg-blue-950/40 dark:data-[selected=true]:text-blue-200",
+  },
+  purple: {
+    selected:
+      "data-[selected='true']:bg-purple-500/10 data-[selected=true]:text-purple-950 dark:data-[selected='true']:bg-purple-950/40 dark:data-[selected=true]:text-purple-200",
+  },
+  teal: {
+    selected:
+      "data-[selected='true']:bg-teal-500/10 data-[selected=true]:text-teal-950 dark:data-[selected='true']:bg-teal-950/40 dark:data-[selected=true]:text-teal-200",
+  },
+  rose: {
+    selected:
+      "data-[selected='true']:bg-rose-500/10 data-[selected=true]:text-rose-950 dark:data-[selected='true']:bg-rose-950/40 dark:data-[selected=true]:text-rose-200",
+  },
+  slate: {
+    selected:
+      "data-[selected='true']:bg-slate-100 data-[selected=true]:text-slate-900 dark:data-[selected='true']:bg-slate-800 dark:data-[selected=true]:text-slate-100",
+  },
+  default: {
+    selected:
+      "data-[selected='true']:bg-primary/10 data-[selected=true]:text-primary dark:data-[selected='true']:bg-primary/20 dark:data-[selected=true]:text-primary",
+  },
+};
+
+const CommandThemeContext = React.createContext<string>('default');
+
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive
-    ref={ref}
-    className={cn(
-      'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
-      className
-    )}
-    {...props}
-  />
-));
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive> & {
+    themeColor?: string;
+  }
+>(({ className, themeColor, children, ...props }, ref) => {
+  const activeTheme = themeColor || 'default';
+  return (
+    <CommandThemeContext.Provider value={activeTheme}>
+      <CommandPrimitive
+        ref={ref}
+        className={cn(
+          'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </CommandPrimitive>
+    </CommandThemeContext.Provider>
+  );
+});
 Command.displayName = CommandPrimitive.displayName;
 
 interface CommandDialogProps extends DialogProps {
@@ -117,17 +170,28 @@ CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
 const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-lg px-2.5 py-2 text-sm font-medium outline-none transition-colors data-[disabled=true]:pointer-events-none data-[selected='true']:bg-emerald-500/10 data-[selected=true]:text-emerald-950 dark:data-[selected='true']:bg-emerald-950/40 dark:data-[selected=true]:text-emerald-200 data-[disabled=true]:opacity-50",
-      className
-    )}
-    {...props}
-  />
-));
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item> & {
+    themeColor?: string;
+  }
+>(({ className, themeColor, ...props }, ref) => {
+  const contextTheme = React.useContext(CommandThemeContext);
+  const activeTheme = themeColor || contextTheme || 'default';
+  const itemStyle =
+    COMMAND_THEME_ITEM_CLASSES[activeTheme] ||
+    COMMAND_THEME_ITEM_CLASSES.default;
+
+  return (
+    <CommandPrimitive.Item
+      ref={ref}
+      className={cn(
+        'relative flex cursor-pointer select-none items-center rounded-lg px-2.5 py-2 text-sm font-medium outline-none transition-colors data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
+        itemStyle.selected,
+        className
+      )}
+      {...props}
+    />
+  );
+});
 
 CommandItem.displayName = CommandPrimitive.Item.displayName;
 

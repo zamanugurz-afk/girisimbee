@@ -26,6 +26,7 @@ interface CitySelectProps {
   placeholder?: string;
   /** Use extended listing cities (81 provinces + Istanbul sub-regions). */
   extended?: boolean;
+  themeColor?: string;
 }
 
 export function CitySelect({
@@ -36,6 +37,7 @@ export function CitySelect({
   error,
   placeholder = 'Şehir seçin',
   extended = false,
+  themeColor,
 }: CitySelectProps) {
   const [open, setOpen] = useState(false);
   const selectedLabel = useMemo(() => value ?? undefined, [value]);
@@ -61,8 +63,8 @@ export function CitySelect({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-          <Command>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <Command themeColor={themeColor}>
             <CommandInput placeholder="Şehir ara…" />
             <CommandList>
               <CommandEmpty>Şehir bulunamadı.</CommandEmpty>
