@@ -6,18 +6,17 @@ import type { ConversationListItem } from '@/features/messaging/types/messaging-
 
 /**
  * GET /api/conversations
- * Returns the complete conversations list for the authenticated user,
- * with full server-authoritative hydration and idempotent auto-healing for job applications.
+ * Returns the complete conversations list for the authenticated user with ultra-fast batch hydration (0 N+1 queries).
  */
 export const GET = withAuth(async (ctx) => {
-  let admin = null;
+  let db: any = null;
   try {
-    admin = createServiceRoleClient();
+    db = createServiceRoleClient();
   } catch (err) {
     console.warn('[conversations/get] service role client unavailable, using container fallback:', err);
   }
 
-  if (!admin) {
+  if (!db) {
     const result = await ctx.container.messagingService.listConversationItems(ctx.userId, {
       page: 1,
       limit: 100,
@@ -30,165 +29,8 @@ export const GET = withAuth(async (ctx) => {
     });
   }
 
-  const db = admin;
-
-  // 1. Auto-sync unlinked applications for this user (both employer & candidate) with service-role authority
   try {
-    const { data: myOwnedListings } = await db
-      .from('marketplace_listings')
-      .select('id, title, slug, owner_id')
-      .eq('owner_id', ctx.userId)
-      .is('deleted_at', null);
-
-    const ownedListings = ((myOwnedListings ?? []) as Array<{ id: string; slug?: string; title?: string; owner_id: string }>);
-    const ownedListingIds = ownedListings.map((l) => l.id);
-    const ownedListingSlugs = ownedListings.map((l) => l.slug).filter(Boolean) as string[];
-    const allListingMatchIds = Array.from(new Set([...ownedListingIds, ...ownedListingSlugs]));
-
-    const { data: myProfiles } = await db
-      .from('marketplace_profiles')
-      .select('id')
-      .eq('user_id', ctx.userId)
-      .is('deleted_at', null);
-
-    const myProfileIds = ((myProfiles ?? []) as Array<{ id: string }>).map((p) => p.id);
-
-    const appMap = new Map<string, any>();
-
-    if (allListingMatchIds.length > 0) {
-      const { data: employerApps } = await db
-        .from('marketplace_applications')
-        .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
-        .in('listing_id', allListingMatchIds)
-        .is('deleted_at', null);
-      for (const app of (employerApps ?? []) as any[]) {
-        appMap.set(app.id, app);
-      }
-    }
-
-    if (myProfileIds.length > 0) {
-      const { data: applicantApps } = await db
-        .from('marketplace_applications')
-        .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
-        .in('applicant_profile_id', myProfileIds)
-        .is('deleted_at', null);
-      for (const app of (applicantApps ?? []) as any[]) {
-        appMap.set(app.id, app);
-      }
-    }
-
-    for (const app of appMap.values()) {
-      try {
-        // Resolve applicant user ID from applicant_profile_id
-        let applicantUserId = ctx.userId;
-        if (app.applicant_profile_id) {
-          const { data: applicantProf } = await db
-            .from('marketplace_profiles')
-            .select('user_id, display_name')
-            .eq('id', app.applicant_profile_id)
-            .maybeSingle();
-          if (applicantProf?.user_id) {
-            applicantUserId = ids.user(applicantProf.user_id);
-          }
-        }
-
-        // Resolve canonical listing ID (UUID) and employer user ID from listing
-        const matchedListing = ownedListings.find(
-          (l) => l.id === app.listing_id || (l.slug && l.slug === app.listing_id),
-        );
-        let canonicalListingId = matchedListing?.id || app.listing_id;
-        let employerUserId = matchedListing?.owner_id ? ids.user(matchedListing.owner_id) : ctx.userId;
-
-        if (!matchedListing) {
-          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(app.listing_id);
-          const listingQuery = db.from('marketplace_listings').select('id, owner_id, title');
-          const { data: listingData } = isUuid
-            ? await listingQuery.eq('id', app.listing_id).maybeSingle()
-            : await listingQuery.eq('slug', app.listing_id).maybeSingle();
-
-          if (listingData?.id) canonicalListingId = listingData.id;
-          if (listingData?.owner_id) employerUserId = ids.user(listingData.owner_id);
-        }
-
-        // Check if a conversation already exists for this application
-        const { data: existingConv } = await db
-          .from('marketplace_conversations')
-          .select('id')
-          .eq('application_id', app.id)
-          .is('deleted_at', null)
-          .maybeSingle();
-
-        let targetConvId = existingConv?.id || app.conversation_id;
-
-        // If conversation does not exist, create it with service-role authority
-        if (!targetConvId) {
-          targetConvId = crypto.randomUUID();
-          const { error: insConvErr } = await db.from('marketplace_conversations').insert({
-            id: targetConvId,
-            listing_id: canonicalListingId,
-            application_id: app.id,
-            kind: 'application',
-            status: 'open',
-            last_message_preview: app.cover_message || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
-            last_message_at: app.created_at || new Date().toISOString(),
-          });
-          if (insConvErr) {
-            console.error('[application.auto_heal.failed]', { applicationId: app.id, error: insConvErr.message });
-            continue;
-          }
-        }
-
-        // Ensure both participants exist in marketplace_conversation_participants
-        const participantsToEnsure = Array.from(new Set([applicantUserId, employerUserId].filter(Boolean)));
-        for (const pUid of participantsToEnsure) {
-          await db.from('marketplace_conversation_participants').upsert(
-            {
-              conversation_id: targetConvId,
-              user_id: pUid,
-            },
-            { onConflict: 'conversation_id,user_id' },
-          );
-        }
-
-        // Ensure initial message exists in marketplace_messages
-        const { data: existingMsg } = await db
-          .from('marketplace_messages')
-          .select('id')
-          .eq('conversation_id', targetConvId)
-          .limit(1);
-
-        if (!existingMsg || existingMsg.length === 0) {
-          await db.from('marketplace_messages').insert({
-            id: crypto.randomUUID(),
-            conversation_id: targetConvId,
-            sender_id: applicantUserId,
-            body: app.cover_message || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
-            status: 'sent',
-          });
-        }
-
-        // Ensure application.conversation_id is updated in marketplace_applications
-        if (app.conversation_id !== targetConvId) {
-          await db
-            .from('marketplace_applications')
-            .update({ conversation_id: targetConvId })
-            .eq('id', app.id);
-        }
-      } catch (appSyncErr) {
-        console.error('[application.auto_heal.failed]', {
-          applicationId: app.id,
-          error: appSyncErr instanceof Error ? appSyncErr.message : String(appSyncErr),
-        });
-      }
-    }
-  } catch (syncErr) {
-    console.error('[application.auto_heal.failed]', {
-      error: syncErr instanceof Error ? syncErr.message : String(syncErr),
-    });
-  }
-
-  // 2. Fetch all conversations where ctx.userId is a participant
-  try {
+    // 1. Fetch all conversations where ctx.userId is a participant (single indexed query)
     const { data: participantRows, error: pErr } = await db
       .from('marketplace_conversation_participants')
       .select('conversation_id')
@@ -204,126 +46,172 @@ export const GET = withAuth(async (ctx) => {
       return ok({ items: [], total: 0, page: 1, limit: 100 });
     }
 
+    // 2. Fetch all conversation rows in a single batch query
     const { data: conversationRows, error: cErr } = await db
       .from('marketplace_conversations')
-      .select('*')
+      .select('id, kind, listing_id, company_id, application_id, support_inquiry_id, status, last_message_at, last_message_preview, created_at, updated_at, deleted_at')
       .in('id', conversationIds)
       .is('deleted_at', null)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (cErr) throw cErr;
 
-    // 3. Hydrate each conversation item
-    const items: ConversationListItem[] = await Promise.all(
-      ((conversationRows ?? []) as Array<Record<string, any>>).map(async (row) => {
-        // Fetch all participants of this conversation
-        const { data: allParticipants } = await db
-          .from('marketplace_conversation_participants')
-          .select('user_id')
-          .eq('conversation_id', row.id);
+    const validConversations = (conversationRows ?? []) as Array<Record<string, any>>;
+    const activeConversationIds = validConversations.map((c) => c.id);
 
-        const participantUserIds = ((allParticipants ?? []) as Array<{ user_id: string }>).map((p) => p.user_id);
-        const otherUserId =
-          participantUserIds.find((id) => id !== ctx.userId) ||
-          participantUserIds[0] ||
-          ctx.userId;
+    // 3. Parallel Batch Fetching (0 N+1 queries)
+    const [
+      allParticipantsRes,
+      unreadMessagesRes,
+    ] = await Promise.all([
+      db
+        .from('marketplace_conversation_participants')
+        .select('conversation_id, user_id')
+        .in('conversation_id', activeConversationIds),
+      db
+        .from('marketplace_messages')
+        .select('conversation_id')
+        .in('conversation_id', activeConversationIds)
+        .neq('sender_id', ctx.userId)
+        .is('read_at', null)
+        .is('deleted_at', null),
+    ]);
 
-        // Fetch other participant profile
-        const { data: otherProf } = await db
-          .from('marketplace_profiles')
-          .select('id, user_id, display_name, username, avatar_url, is_verified, investor_verified')
-          .eq('user_id', otherUserId)
-          .is('deleted_at', null)
-          .maybeSingle();
+    // Map conversation -> participantUserIds
+    const conversationParticipantsMap = new Map<string, string[]>();
+    for (const p of (allParticipantsRes.data ?? []) as Array<{ conversation_id: string; user_id: string }>) {
+      const list = conversationParticipantsMap.get(p.conversation_id) ?? [];
+      list.push(p.user_id);
+      conversationParticipantsMap.set(p.conversation_id, list);
+    }
 
-        // Fetch listing if present
-        let listingTitle: string | null = null;
-        let companyName: string | null = null;
+    // Collect all otherUserIds
+    const otherUserIdsSet = new Set<string>();
+    for (const row of validConversations) {
+      const pList = conversationParticipantsMap.get(row.id) ?? [];
+      const otherId = pList.find((id) => id !== ctx.userId) || pList[0] || ctx.userId;
+      if (otherId) otherUserIdsSet.add(otherId);
+    }
 
-        if (row.listing_id) {
-          const { data: listingData } = await db
+    // Collect listingIds and companyIds
+    const listingIdsSet = new Set<string>();
+    const companyIdsSet = new Set<string>();
+    for (const row of validConversations) {
+      if (row.listing_id) listingIdsSet.add(row.listing_id);
+      if (row.company_id) companyIdsSet.add(row.company_id);
+    }
+
+    // Batch fetch other participant profiles, listings, companies in parallel
+    const [profilesRes, listingsRes, companiesRes] = await Promise.all([
+      otherUserIdsSet.size > 0
+        ? db
+            .from('marketplace_profiles')
+            .select('id, user_id, display_name, username, avatar_url, is_verified, investor_verified')
+            .in('user_id', Array.from(otherUserIdsSet))
+            .is('deleted_at', null)
+        : Promise.resolve({ data: [] }),
+      listingIdsSet.size > 0
+        ? db
             .from('marketplace_listings')
             .select('id, title, slug, company_id')
-            .eq('id', row.listing_id)
+            .in('id', Array.from(listingIdsSet))
             .is('deleted_at', null)
-            .maybeSingle();
+        : Promise.resolve({ data: [] }),
+      companyIdsSet.size > 0
+        ? db
+            .from('marketplace_companies')
+            .select('id, name')
+            .in('id', Array.from(companyIdsSet))
+            .is('deleted_at', null)
+        : Promise.resolve({ data: [] }),
+    ]);
 
-          if (listingData?.title) listingTitle = listingData.title;
+    // Build fast lookup Maps
+    const profilesMap = new Map<string, any>();
+    for (const prof of (profilesRes.data ?? []) as any[]) {
+      profilesMap.set(prof.user_id, prof);
+    }
 
-          if (listingData?.company_id || row.company_id) {
-            const companyIdToUse = listingData?.company_id || row.company_id;
-            const { data: compData } = await db
-              .from('marketplace_companies')
-              .select('id, name')
-              .eq('id', companyIdToUse)
-              .is('deleted_at', null)
-              .maybeSingle();
-            if (compData?.name) companyName = compData.name;
-          }
-        }
+    const listingsMap = new Map<string, any>();
+    for (const l of (listingsRes.data ?? []) as any[]) {
+      listingsMap.set(l.id, l);
+      if (l.company_id) companyIdsSet.add(l.company_id);
+    }
 
-        // Count unread messages for ctx.userId
-        const { count: unreadCount } = await db
-          .from('marketplace_messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('conversation_id', row.id)
-          .neq('sender_id', ctx.userId)
-          .is('read_at', null)
-          .is('deleted_at', null);
+    const companiesMap = new Map<string, any>();
+    for (const comp of (companiesRes.data ?? []) as any[]) {
+      companiesMap.set(comp.id, comp);
+    }
 
-        const kind =
-          row.kind === 'support'
-            ? 'support'
-            : row.kind === 'application' || Boolean(row.application_id)
-              ? 'application'
-              : 'listing';
+    // Count unread per conversation
+    const unreadCountMap = new Map<string, number>();
+    for (const msg of (unreadMessagesRes.data ?? []) as Array<{ conversation_id: string }>) {
+      unreadCountMap.set(msg.conversation_id, (unreadCountMap.get(msg.conversation_id) ?? 0) + 1);
+    }
 
-        const otherParticipant =
-          kind === 'support'
-            ? {
-                userId: ids.user(otherUserId),
-                displayName: 'Girisimbee Destek',
-                username: 'destek',
-                avatarUrl: null,
-                userVerified: true,
-                investorVerified: false,
-                companyVerified: false,
-                companyName: 'Destek ekibi',
-              }
-            : {
-                userId: ids.user(otherUserId),
-                displayName: otherProf?.display_name || 'Kullanıcı',
-                username: otherProf?.username || otherUserId.slice(0, 8),
-                avatarUrl: otherProf?.avatar_url || null,
-                userVerified: Boolean(otherProf?.is_verified),
-                investorVerified: Boolean(otherProf?.investor_verified),
-                companyVerified: Boolean(companyName),
-                companyName,
-              };
+    // 4. In-Memory Composition (instant, 0 ms)
+    const items: ConversationListItem[] = validConversations.map((row) => {
+      const participantUserIds = conversationParticipantsMap.get(row.id) ?? [ctx.userId];
+      const otherUserId = participantUserIds.find((id) => id !== ctx.userId) || participantUserIds[0] || ctx.userId;
+      const otherProf = profilesMap.get(otherUserId);
+      const listingData = row.listing_id ? listingsMap.get(row.listing_id) : null;
+      const companyIdToUse = listingData?.company_id || row.company_id;
+      const compData = companyIdToUse ? companiesMap.get(companyIdToUse) : null;
+      const unreadCount = unreadCountMap.get(row.id) ?? 0;
 
-        return {
-          conversation: {
-            id: ids.conversation(row.id),
-            kind,
-            listingId: row.listing_id ? ids.listing(row.listing_id) : null,
-            companyId: row.company_id ? ids.company(row.company_id) : null,
-            applicationId: row.application_id ? ids.application(row.application_id) : null,
-            supportInquiryId: row.support_inquiry_id ?? null,
-            status: row.status || 'open',
-            lastMessageAt: row.last_message_at,
-            lastMessagePreview: row.last_message_preview,
-            participantIds: participantUserIds.map((id) => ids.user(id)),
-            createdAt: row.created_at,
-            updatedAt: row.updated_at,
-            deletedAt: row.deleted_at,
-          },
-          otherParticipant,
-          listingTitle: kind === 'support' ? 'Girisimbee Destek' : listingTitle,
-          companyName: kind === 'support' ? 'Destek ekibi' : companyName,
-          unreadCount: unreadCount ?? 0,
-        };
-      }),
-    );
+      const kind =
+        row.kind === 'support'
+          ? 'support'
+          : row.kind === 'application' || Boolean(row.application_id)
+            ? 'application'
+            : 'listing';
+
+      const otherParticipant =
+        kind === 'support'
+          ? {
+              userId: ids.user(otherUserId),
+              displayName: 'Girisimbee Destek',
+              username: 'destek',
+              avatarUrl: null,
+              userVerified: true,
+              investorVerified: false,
+              companyVerified: false,
+              companyName: 'Destek ekibi',
+            }
+          : {
+              userId: ids.user(otherUserId),
+              displayName: otherProf?.display_name || 'Kullanıcı',
+              username: otherProf?.username || otherUserId.slice(0, 8),
+              avatarUrl: otherProf?.avatar_url || null,
+              userVerified: Boolean(otherProf?.is_verified),
+              investorVerified: Boolean(otherProf?.investor_verified),
+              companyVerified: Boolean(compData?.name),
+              companyName: compData?.name ?? null,
+            };
+
+      return {
+        conversation: {
+          id: ids.conversation(row.id),
+          kind,
+          listingId: row.listing_id ? ids.listing(row.listing_id) : null,
+          companyId: row.company_id ? ids.company(row.company_id) : null,
+          applicationId: row.application_id ? ids.application(row.application_id) : null,
+          supportInquiryId: row.support_inquiry_id ?? null,
+          status: row.status || 'open',
+          lastMessageAt: row.last_message_at,
+          lastMessagePreview: row.last_message_preview,
+          participantIds: participantUserIds.map((id) => ids.user(id)),
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+          deletedAt: row.deleted_at,
+        },
+        otherParticipant,
+        listingTitle: kind === 'support' ? 'Girisimbee Destek' : (listingData?.title ?? null),
+        listingSlug: listingData?.slug ?? null,
+        companyName: kind === 'support' ? 'Destek ekibi' : (compData?.name ?? null),
+        unreadCount,
+      };
+    });
 
     return ok({
       items,
@@ -347,3 +235,4 @@ export const GET = withAuth(async (ctx) => {
     });
   }
 });
+

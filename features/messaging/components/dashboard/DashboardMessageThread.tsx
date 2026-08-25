@@ -485,8 +485,8 @@ export function DashboardMessageThread({
       {/* Career Profile Immutable Snapshot Modal */}
       {appData?.profileSnapshot ? (
         <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl bg-card border-border">
-            <DialogHeader className="pb-3 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <DialogContent className="max-w-5xl xl:max-w-6xl max-h-[88vh] flex flex-col p-4 sm:p-5 rounded-2xl bg-card border-border overflow-hidden">
+            <DialogHeader className="pb-3 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
                   <ShieldCheck className="h-4 w-4" />
@@ -494,7 +494,7 @@ export function DashboardMessageThread({
                     ? 'Başvuru Anındaki Kariyer Profiliniz'
                     : 'Başvuru Anındaki Kariyer Profili'}
                 </div>
-                <DialogTitle className="text-lg font-bold mt-1">
+                <DialogTitle className="text-base sm:text-lg font-bold mt-1">
                   {appData.profileSnapshot.displayName || (appData.isApplicant ? 'Kariyer Profiliniz' : 'Aday Kariyer Profili')}
                 </DialogTitle>
               </div>
@@ -513,10 +513,11 @@ export function DashboardMessageThread({
               ) : null}
             </DialogHeader>
 
-            <div className="py-3">
+            <div className="flex-1 overflow-y-auto py-2 pr-1">
               <CareerProfilePreview
                 data={appData.profileSnapshot}
                 readOnlySnapshot={true}
+                compact={true}
                 isOwnApplication={appData.isApplicant}
                 canViewFullApplicantProfile={appData.canViewFullApplicantProfile}
               />

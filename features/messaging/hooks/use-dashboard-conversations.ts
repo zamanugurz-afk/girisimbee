@@ -17,7 +17,7 @@ import type { ConversationId, UserId } from '@/lib/domain/ids';
 
 function mapItem(
   item: ConversationListItem,
-  listingHref: string | null,
+  listingHref?: string | null,
 ): DashboardMessageCardData {
   const { conversation, otherParticipant, listingTitle, unreadCount } = item;
   const isUnread = unreadCount > 0;
@@ -27,6 +27,10 @@ function mapItem(
       : conversation.kind === 'application' || Boolean(conversation.applicationId)
         ? 'application'
         : 'listing';
+
+  const resolvedHref = item.listingSlug
+    ? `/ilan/${item.listingSlug}`
+    : (listingHref ?? null);
 
   return {
     id: conversation.id,
@@ -44,7 +48,7 @@ function mapItem(
         ? 'Okundu'
         : 'Yeni sohbet',
     listingTitle,
-    listingHref,
+    listingHref: resolvedHref,
     otherUserId: otherParticipant.userId,
     status: conversation.status,
     kind,
@@ -56,10 +60,18 @@ function mapItem(
 async function enrichListingHrefs(
   items: ConversationListItem[],
 ): Promise<Map<string, string | null>> {
-  const { listingRepository } = getClientContainer();
   const map = new Map<string, string | null>();
+  const neededItems = items.filter((item) => !item.listingSlug && item.conversation.listingId);
+  if (neededItems.length === 0) {
+    for (const item of items) {
+      map.set(item.conversation.id, item.listingSlug ? `/ilan/${item.listingSlug}` : null);
+    }
+    return map;
+  }
+
+  const { listingRepository } = getClientContainer();
   await Promise.all(
-    items.map(async (item) => {
+    neededItems.map(async (item) => {
       const listingId = item.conversation.listingId;
       if (!listingId) {
         map.set(item.conversation.id, null);

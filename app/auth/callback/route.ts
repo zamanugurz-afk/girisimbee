@@ -9,6 +9,8 @@ import { PASSWORD_RECOVERY_COOKIE } from '@/features/authentication/lib/password
 import { canonicalizeSiteOrigin } from '@/lib/site-url';
 import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
+import { getSafeRedirectUrl } from '@/features/authentication/lib/safe-redirect';
+
 /** Must match @supabase/auth-js PKCE_FLOW_ID_PARAM */
 const PKCE_FLOW_ID_PARAM = 'sb_flow_id';
 
@@ -16,7 +18,7 @@ function safeNextPath(value: string | undefined): string {
   if (!value) return AUTH_ROUTES.home;
   try {
     const decoded = decodeURIComponent(value);
-    return decoded.startsWith('/') ? decoded : AUTH_ROUTES.home;
+    return getSafeRedirectUrl(decoded, AUTH_ROUTES.home);
   } catch {
     return AUTH_ROUTES.home;
   }

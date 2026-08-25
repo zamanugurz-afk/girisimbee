@@ -16,6 +16,7 @@ export interface ConversationListItem {
   conversation: Conversation;
   otherParticipant: ConversationParticipantView;
   listingTitle: string | null;
+  listingSlug?: string | null;
   companyName: string | null;
   unreadCount: number;
 }

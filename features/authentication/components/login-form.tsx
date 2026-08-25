@@ -18,6 +18,7 @@ import {
 import { loginSchema, type LoginSchema } from '@/features/authentication/validation/user.schema';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
+import { getSafeRedirectUrl } from '@/features/authentication/lib/safe-redirect';
 import { AuthLink } from '@/features/authentication/components/auth-layout';
 import {
   AuthSocialDivider,
@@ -100,11 +101,9 @@ export function LoginForm() {
       }).catch(() => undefined);
 
       toast.success('Giriş başarılı');
-      const next =
-        searchParams.get('next')
-        || searchParams.get('redirect')
-        || AUTH_ROUTES.home;
-      window.location.assign(next.startsWith('/') ? next : AUTH_ROUTES.home);
+      const rawNext = searchParams.get('next') || searchParams.get('redirect');
+      const targetUrl = getSafeRedirectUrl(rawNext, AUTH_ROUTES.home);
+      window.location.assign(targetUrl);
     } finally {
       setSubmitting(false);
     }

@@ -582,6 +582,7 @@ export function CareerProfilePreview({
   readOnlySnapshot = false,
   isOwnApplication = false,
   canViewFullApplicantProfile = false,
+  compact = false,
 }: {
   data: CareerCardInput;
   chrome?: CareerCardChrome;
@@ -589,7 +590,9 @@ export function CareerProfilePreview({
   readOnlySnapshot?: boolean;
   isOwnApplication?: boolean;
   canViewFullApplicantProfile?: boolean;
+  compact?: boolean;
 }) {
+  const isCompact = Boolean(compact || readOnlySnapshot);
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -927,21 +930,27 @@ export function CareerProfilePreview({
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="space-y-3.5 sm:space-y-4">
-          <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card", theme.cardBorder, theme.cardGlow)}>
-            <Heading className="truncate text-base sm:text-lg font-bold text-slate-900 dark:text-foreground">
+      <div className={cn(
+        "grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)]",
+        isCompact ? "gap-3.5 sm:gap-4" : "gap-5"
+      )}>
+        <aside className={cn(
+          "space-y-3 sm:space-y-3.5",
+          !isCompact && "sm:space-y-4"
+        )}>
+          <div className={cn("rounded-2xl border bg-white dark:bg-card", isCompact ? "p-3.5 sm:p-4" : "p-4 sm:p-5", theme.cardBorder, theme.cardGlow)}>
+            <Heading className={cn("truncate font-bold text-slate-900 dark:text-foreground", isCompact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>
               {publicName || (isHire ? 'Açık Pozisyon' : 'Anonim Profesyonel')}
             </Heading>
-            <hr className="border-slate-100 dark:border-border/80 my-2.5" />
-            <div className="space-y-1">
+            <hr className="border-slate-100 dark:border-border/80 my-2" />
+            <div className="space-y-0.5">
               {(data.primarySector || data.desiredRole) ? (
-                <p className="truncate text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <p className="truncate text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-200">
                   {[data.primarySector, data.desiredRole].filter(Boolean).join(' - ')}
                 </p>
               ) : null}
               {locationText ? (
-                <p className="truncate text-xs text-slate-500 dark:text-muted-foreground">
+                <p className="truncate text-[11px] sm:text-xs text-slate-500 dark:text-muted-foreground">
                   {locationText}
                 </p>
               ) : null}
@@ -949,16 +958,16 @@ export function CareerProfilePreview({
           </div>
 
           {hasEducation ? (
-            <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card space-y-3", theme.cardBorder, theme.cardGlow)}>
+            <div className={cn("rounded-2xl border bg-white dark:bg-card space-y-2.5", isCompact ? "p-3 sm:p-3.5" : "p-4 sm:p-5", theme.cardBorder, theme.cardGlow)}>
               <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                 <GraduationCap className="h-4 w-4" />
                 <span>{isHire ? 'ARANAN EĞİTİM' : 'EĞİTİM'}</span>
               </div>
               {data.educationHistory && data.educationHistory.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {data.educationHistory.map((edu, idx) => (
                     <div key={idx} className="space-y-0.5">
-                      <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-foreground">
+                      <p className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-foreground">
                         {edu.level || 'Eğitim'}
                       </p>
                       {edu.field ? (
@@ -974,7 +983,7 @@ export function CareerProfilePreview({
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-foreground">
+                  <p className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-foreground">
                     {data.educationLevel || 'Eğitim'}
                   </p>
                   {data.educationField ? (
@@ -986,12 +995,12 @@ export function CareerProfilePreview({
           ) : null}
 
           {hasCertificatesOrLanguages ? (
-            <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card space-y-3", theme.cardBorder, theme.cardGlow)}>
+            <div className={cn("rounded-2xl border bg-white dark:bg-card space-y-2.5", isCompact ? "p-3 sm:p-3.5" : "p-4 sm:p-5", theme.cardBorder, theme.cardGlow)}>
               <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                 <Award className="h-4 w-4" />
                 <span>{isHire ? 'ARANAN DİL & SERTİFİKA' : 'SERTİFİKA / DİL'}</span>
               </div>
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {certificates.map((cert, idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <div className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full", theme.iconBg)}>
@@ -1040,12 +1049,12 @@ export function CareerProfilePreview({
           ) : null}
 
           {workPreferenceFacts.length > 0 ? (
-            <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card space-y-3", theme.cardBorder, theme.cardGlow)}>
+            <div className={cn("rounded-2xl border bg-white dark:bg-card space-y-2.5", isCompact ? "p-3 sm:p-3.5" : "p-4 sm:p-5", theme.cardBorder, theme.cardGlow)}>
               <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                 <Briefcase className="h-4 w-4" />
                 <span>{isHire ? 'ÇALIŞMA ŞARTLARI' : 'ÇALIŞMA TERCİHLERİ'}</span>
               </div>
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {workPreferenceFacts.map((fact, idx) => {
                   const IconComponent = fact.icon;
                   return (
@@ -1055,7 +1064,7 @@ export function CareerProfilePreview({
                         <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-muted-foreground">
                           {fact.label}
                         </p>
-                        <p className="truncate text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                        <p className="truncate text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground mt-0.5">
                           {fact.value}
                         </p>
                       </div>
@@ -1186,38 +1195,49 @@ export function CareerProfilePreview({
           )}
         </aside>
 
-        <main className={cn("rounded-2xl border bg-white p-5 sm:p-6 lg:p-6 pb-4 dark:bg-card flex flex-col justify-between gap-5 sm:gap-6", theme.cardBorder, theme.cardGlow)}>
-          <div className="space-y-4 sm:space-y-5">
+        <main className={cn(
+          "rounded-2xl border bg-white dark:bg-card flex flex-col justify-between",
+          isCompact ? "p-3.5 sm:p-4 lg:p-4.5 pb-3 gap-3.5 sm:gap-4" : "p-5 sm:p-6 lg:p-6 pb-4 gap-5 sm:gap-6",
+          theme.cardBorder,
+          theme.cardGlow
+        )}>
+          <div className={cn("space-y-3.5 sm:space-y-4", !isCompact && "sm:space-y-5")}>
             {summary ? (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                   <User className="h-4 w-4" />
                   <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
                 </div>
-                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 sm:p-4.5 shadow-2xs dark:border-border dark:bg-card/50">
+                <div className={cn(
+                  "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50",
+                  isCompact ? "p-3 sm:p-3.5 text-xs sm:text-[13px]" : "p-4 sm:p-4.5"
+                )}>
                   <ExpandableSummary text={summary} />
                 </div>
               </div>
             ) : null}
 
             {isHire ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-start">
-                <div className={cn('space-y-3', displaySkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
+              <div className={cn("grid grid-cols-1 lg:grid-cols-12 items-start", isCompact ? "gap-4 lg:gap-5" : "gap-5 lg:gap-7")}>
+                <div className={cn('space-y-2.5', displaySkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
                   <div className="flex items-center justify-between">
                     <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                       <Briefcase className="h-4 w-4" />
                       <span>ARANAN NİTELİKLER & GÖREVLER</span>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
                       {jobSections.length} Bölüm
                     </span>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {jobSections.map((section, idx) => (
                       <div
                         key={idx}
-                        className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-4.5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3.5 sm:gap-4.5"
+                        className={cn(
+                          "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start",
+                          isCompact ? "p-2.5 sm:p-3.5 gap-3" : "p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5"
+                        )}
                       >
                         <div className="flex flex-col items-center">
                           <div className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full", theme.numNode)}>
@@ -1225,7 +1245,7 @@ export function CareerProfilePreview({
                           </div>
                         </div>
 
-                        <div className="w-22 sm:w-26 shrink-0 pt-0.5">
+                        <div className="w-20 sm:w-24 shrink-0 pt-0.5">
                           <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                             {section.tag}
                           </p>
@@ -1247,7 +1267,7 @@ export function CareerProfilePreview({
                           </div>
 
                           {section.duties && section.duties.length > 0 ? (
-                            <ul className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
                               {section.duties.map((duty, dIdx) => (
                                 <li key={dIdx} className="flex items-start gap-1.5">
                                   <span className="text-slate-400 font-bold">•</span>
@@ -1263,7 +1283,7 @@ export function CareerProfilePreview({
                 </div>
 
                 {displaySkills.length > 0 ? (
-                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
+                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-5 space-y-2.5 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
                     <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                       <Sliders className="h-4 w-4" />
                       <span>ARANAN UZMANLIK ALANLARI</span>
@@ -1275,22 +1295,22 @@ export function CareerProfilePreview({
                 ) : null}
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-start">
-                <div className={cn('space-y-3', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
+              <div className={cn("grid grid-cols-1 lg:grid-cols-12 items-start", isCompact ? "gap-4 lg:gap-5" : "gap-5 lg:gap-7")}>
+                <div className={cn('space-y-2.5', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
                   <div className="flex items-center justify-between">
                     <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
                       <Briefcase className="h-4 w-4" />
                       <span>İŞ DENEYİMLERİ</span>
                     </div>
                     {experiences.length > 0 ? (
-                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
                         {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
                       </span>
                     ) : null}
                   </div>
 
                   {experiences.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {visibleExperiences.map((exp, idx) => {
                         const durationBadge = formatExperienceDurationBadge(exp);
                         const startText =
@@ -1307,7 +1327,10 @@ export function CareerProfilePreview({
                         return (
                           <div
                             key={exp.id || idx}
-                            className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-4.5 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start gap-3.5 sm:gap-4.5"
+                            className={cn(
+                              "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start",
+                              isCompact ? "p-2.5 sm:p-3.5 gap-3" : "p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5"
+                            )}
                           >
                             <div className="flex flex-col items-center">
                               <div className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full", theme.numNode)}>
@@ -1315,7 +1338,7 @@ export function CareerProfilePreview({
                               </div>
                             </div>
 
-                            <div className="w-22 sm:w-26 shrink-0 pt-0.5">
+                            <div className="w-20 sm:w-24 shrink-0 pt-0.5">
                               <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                                 {startText || 'Başlangıç'}
                               </p>

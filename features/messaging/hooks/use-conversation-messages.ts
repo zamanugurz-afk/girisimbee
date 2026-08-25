@@ -113,8 +113,7 @@ export function useConversationMessages(conversationId: ConversationId) {
 
   useEffect(() => {
     if (!userId) return;
-    loadMeta();
-    loadMessages(1);
+    void Promise.all([loadMeta(), loadMessages(1)]);
   }, [userId, loadMeta, loadMessages]);
 
   useEffect(() => {
