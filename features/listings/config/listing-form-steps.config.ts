@@ -608,7 +608,7 @@ export function getListingFormSteps(
     const keys = getPartnerFormFieldKeys(intent);
     if (intent === 'joining') {
       const basicCustomKeys = ['sectors', 'partnershipType', 'projectStage', 'commitment', 'equityOffered'].filter((k) => keys.includes(k));
-      const partnerCustomKeys = ['expertise', 'offeredSkills', 'experience'].filter((k) => keys.includes(k));
+      const partnerCustomKeys = ['expertise', 'expertiseOther', 'offeredSkills', 'offeredSkillsOther', 'experience'].filter((k) => keys.includes(k));
       return withConsolidatedPublishFlow(
         {
           id: 'basics',
@@ -633,7 +633,7 @@ export function getListingFormSteps(
       );
     }
     const basicCustomKeys = ['sector', 'projectStage', 'partnershipType', 'commitment', 'equityOffered'].filter((k) => keys.includes(k));
-    const partnerCustomKeys = ['expertise'].filter((k) => keys.includes(k));
+    const partnerCustomKeys = ['expertise', 'expertiseOther'].filter((k) => keys.includes(k));
     return withConsolidatedPublishFlow(
       {
         id: 'basics',

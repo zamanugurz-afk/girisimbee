@@ -1239,6 +1239,11 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...PARTNER_EXPERTISE_OPTIONS],
     },
     {
+      key: 'expertiseOther',
+      label: 'Özel Uzmanlık Belirtin',
+      type: 'string',
+    },
+    {
       key: 'projectStage',
       label: 'Ortaklık Aşaması',
       type: 'enum',
@@ -1261,6 +1266,11 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Sunduğu yetkinlikler',
       type: 'multi-enum',
       options: [...PARTNER_EXPERTISE_OPTIONS],
+    },
+    {
+      key: 'offeredSkillsOther',
+      label: 'Özel Yetkinlik Belirtin',
+      type: 'string',
     },
     {
       key: 'experience',

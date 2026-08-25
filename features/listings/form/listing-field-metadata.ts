@@ -635,6 +635,16 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Örn: 6 yıl kafe ve restoran işletmeciliği, ekip yönetimi ve mali süreç tecrübesi.',
     maxLength: 500,
   },
+  expertiseOther: {
+    placeholder: 'Örn: Doğal Dil İşleme (NLP), B2B SaaS Büyüme Stratejisi, Donanım Tasarımı…',
+    maxLength: 120,
+    helperText: 'Aramak istediğiniz özel uzmanlığı yazabilir veya listeden önerilenleri seçebilirsiniz.',
+  },
+  offeredSkillsOther: {
+    placeholder: 'Örn: Dağıtık Sistem Mimarisi, Marka Konumlandırma, Seri A Fon Toplama…',
+    maxLength: 120,
+    helperText: 'Sunduğunuz özel yetkinliği yazabilir veya listeden önerilenleri seçebilirsiniz.',
+  },
 };
 
 export const META_FIELD_UI: Record<string, FieldUiMeta> = {

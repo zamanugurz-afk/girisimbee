@@ -74,11 +74,23 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     options: [...PARTNER_EXPERTISE_OPTIONS],
   },
   {
+    key: 'expertiseOther',
+    label: 'Özel Uzmanlık Belirtin',
+    type: 'string',
+    required: false,
+  },
+  {
     key: 'offeredSkills',
     label: 'Sunduğum yetkinlikler',
     type: 'multi-enum',
     required: true,
     options: [...PARTNER_EXPERTISE_OPTIONS],
+  },
+  {
+    key: 'offeredSkillsOther',
+    label: 'Özel Yetkinlik Belirtin',
+    type: 'string',
+    required: false,
   },
   {
     key: 'sectors',
