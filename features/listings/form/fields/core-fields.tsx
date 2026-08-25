@@ -75,7 +75,12 @@ export function CoreListingFields({
   themeColor,
 }: CoreFieldsProps) {
   const fields = include ?? ALL_CORE_FIELDS;
-  const show = (key: keyof CoreListingFieldsInput) => fields.includes(key);
+  const show = (key: keyof CoreListingFieldsInput) => {
+    if (key === 'district') {
+      return fields.includes('district') || fields.includes('city');
+    }
+    return fields.includes(key);
+  };
   const labelFor = (key: keyof CoreListingFieldsInput, fallback: string) =>
     labels?.[key] ?? fallback;
   const uiFor = (key: keyof CoreListingFieldsInput) => {
