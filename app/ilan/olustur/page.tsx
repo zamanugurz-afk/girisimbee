@@ -478,7 +478,14 @@ class CreateListingErrorBoundary extends React.Component<
         <main className="mx-auto max-w-[1240px] px-4 py-20 text-center">
           <div className="mx-auto max-w-md rounded-2xl border border-destructive/20 bg-destructive/5 p-8">
             <h2 className="text-lg font-bold text-foreground">İlan oluşturma sayfası yüklenirken bir sorun oluştu</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            {this.state.error?.message && (
+              <pre className="mt-3 max-h-40 overflow-auto text-xs font-mono text-destructive bg-destructive/10 p-2.5 rounded-lg text-left whitespace-pre-wrap break-words">
+                {this.state.error.message}
+                {'\n'}
+                {this.state.error.stack?.split('\n').slice(0, 3).join('\n')}
+              </pre>
+            )}
+            <p className="mt-3 text-sm text-muted-foreground">
               Sayfa önbelleğini yenileyerek veya kategori seçerek devam edebilirsiniz.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
