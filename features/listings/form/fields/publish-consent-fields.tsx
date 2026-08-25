@@ -37,61 +37,40 @@ export interface PublishConsentFieldsProps {
   variant?: 'default' | 'career';
 }
 
-function consentDescription(key: PublishConsentKey, variant: 'default' | 'career'): ReactNode {
-  switch (key) {
-    case 'clarificationText':
-      return (
-        <>
-          <LegalDocLink href={LEGAL_ROUTES.kvkk} className="font-semibold text-primary underline">
-            KVKK aydınlatma metnini
-          </LegalDocLink>{' '}
-          okudum ve anladım.
-        </>
-      );
-    case 'phoneDisplay':
-      if (variant === 'career') {
-        return (
-          <>
-            Doğrulanmış telefon numaramın iletişim talebi sürecinde kullanılmasına açık rıza veriyorum.
-            Telefon numaram herkese açık gösterilmez, yalnızca onaylanan taleplerde paylaşılır.{' '}
-            <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
-              (Açık Rıza Metni)
-            </LegalDocLink>
-          </>
-        );
-      }
-      return (
-        <>
-          Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla kullanılmasına ve iletişime geçilmesine açık rıza veriyorum.{' '}
-          <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
-            (Açık Rıza Metni)
-          </LegalDocLink>
-        </>
-      );
-    case 'thirdPartyHrSharing':
-      return (
-        <>
-          Profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi kapsamında yetkili kurumsal işverenler ile paylaşılmasına{' '}
-          <LegalDocLink href={LEGAL_ROUTES.explicitConsent} className="font-semibold text-primary underline">
-            açık rıza
-          </LegalDocLink>{' '}
-          veriyorum.
-        </>
-      );
-    case 'explicitConsent':
-      return (
-        <>
-          İlanımın yayınlanmasını onaylıyor, verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyor ve{' '}
-          <LegalDocLink href={LEGAL_ROUTES.terms} className="font-semibold text-primary underline">
-            Kullanıcı Sözleşmesi
-          </LegalDocLink>
-          'ni kabul ediyorum.
-        </>
-      );
-    default:
-      return null;
+const CONSENT_DOC_CONFIG: Record<
+  PublishConsentKey,
+  {
+    docRoute: string;
+    docLabel: string;
+    plainDescription: (variant: 'default' | 'career') => string;
   }
-}
+> = {
+  clarificationText: {
+    docRoute: LEGAL_ROUTES.kvkk,
+    docLabel: '(Aydınlatma Metni)',
+    plainDescription: () => 'KVKK aydınlatma metnini okudum ve anladım.',
+  },
+  phoneDisplay: {
+    docRoute: LEGAL_ROUTES.explicitConsent,
+    docLabel: '(Açık Rıza Metni)',
+    plainDescription: (variant) =>
+      variant === 'career'
+        ? 'Doğrulanmış telefon numaramın iletişim talebi sürecinde kullanılmasına açık rıza veriyorum. Telefon numaram herkese açık gösterilmez, yalnızca onaylanan taleplerde paylaşılır.'
+        : 'Doğrulanmış telefon numaramın bu ilanda iletişim amacıyla kullanılmasına ve iletişime geçilmesine açık rıza veriyorum.',
+  },
+  thirdPartyHrSharing: {
+    docRoute: LEGAL_ROUTES.explicitConsent,
+    docLabel: '(Açık Rıza Metni)',
+    plainDescription: () =>
+      'Profilimin ve iletişim bilgilerimin iş fırsatlarının değerlendirilmesi kapsamında yetkili kurumsal işverenler ile paylaşılmasına açık rıza veriyorum.',
+  },
+  explicitConsent: {
+    docRoute: LEGAL_ROUTES.terms,
+    docLabel: '(Kullanıcı Sözleşmesi)',
+    plainDescription: () =>
+      'İlanımın yayınlanmasını onaylıyor, verilerimin belirtilen amaçlarla işlenmesine açık rıza veriyor ve kullanıcı sözleşmesini kabul ediyorum.',
+  },
+};
 
 export function PublishConsentFields({
   value,
@@ -154,6 +133,7 @@ export function PublishConsentFields({
       <div className="space-y-2.5 pt-1">
         {PUBLISH_CONSENT_POLICY_ITEMS.map((item) => {
           const isChecked = value[item.key];
+          const docConfig = CONSENT_DOC_CONFIG[item.key];
           return (
             <label
               key={item.key}
@@ -161,7 +141,7 @@ export function PublishConsentFields({
               className={cn(
                 'flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 cursor-pointer select-none',
                 isChecked
-                  ? 'border-primary/50 bg-primary/[0.03] shadow-2xs dark:border-primary/40 dark:bg-primary/[0.05]'
+                  ? 'border-emerald-500/50 bg-emerald-500/[0.04] shadow-2xs dark:border-emerald-500/40 dark:bg-emerald-500/[0.06]'
                   : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-border dark:bg-card',
               )}
             >
@@ -170,14 +150,22 @@ export function PublishConsentFields({
                 checked={isChecked}
                 onCheckedChange={(checked) => toggle(item.key, checked === true)}
                 disabled={disabled}
-                className="mt-0.5 shrink-0 rounded-md"
+                className="mt-0.5 shrink-0 rounded-md data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
               />
               <div className="space-y-0.5 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-foreground">
-                  {item.label}
-                </p>
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <LegalDocLink
+                    href={docConfig.docRoute}
+                    className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-foreground no-underline hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 underline underline-offset-2">
+                      {docConfig.docLabel}
+                    </span>
+                  </LegalDocLink>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-muted-foreground leading-relaxed">
-                  {consentDescription(item.key, variant)}
+                  {docConfig.plainDescription(variant)}
                 </p>
               </div>
             </label>
