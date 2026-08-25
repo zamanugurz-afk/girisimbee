@@ -2760,6 +2760,7 @@ export function CategoryListingForm({
               error={resolveFieldError(fieldErrors, 'packageSelection')}
               variant={packageVariantForCategory(categoryId)}
               categoryFreeAvailable={categoryFreeAvailable}
+              themeColor={categoryThemeColor}
             />
           )}
 
