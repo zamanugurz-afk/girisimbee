@@ -248,185 +248,57 @@ export function ListingPackageSelectionStep({
     }
   }
 
-  if (isPaidPublish && publishConfig) {
-    const paid = publishPaid && status === 'ready';
-    const durationLabel =
-      publishConfig.durationDays != null
-        ? `${publishConfig.durationDays} Gün Yayın`
-        : 'İlan Başına';
+  // Derived Info for Main Card
+  const mainName = publishConfig ? publishConfig.name : STANDARD_PUBLISH_CONFIG.name;
+  const mainDurationLabel =
+    publishConfig?.durationDays != null
+      ? `${publishConfig.durationDays} Gün Yayın`
+      : `${STANDARD_PUBLISH_CONFIG.durationDays} Gün Yayın`;
+  const mainPriceLabel = publishConfig
+    ? formatPlacementPriceTry(publishConfig.priceCents)
+    : requiresStandardFee
+      ? formatPlacementPriceTry(STANDARD_REPUBLISH_CONFIG.priceCents)
+      : 'Ücretsiz';
+  const mainBenefits = publishConfig
+    ? publishConfig.benefits
+    : STANDARD_PUBLISH_CONFIG.benefits;
 
-    return (
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-foreground">
-            İlan Yayın ve Öne Çıkarma Paketleri
-          </h3>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-muted-foreground">
-            İlanınız 30 gün boyunca platformda yayında kalır. İsteğe bağlı olarak vitrin veya acil doping ekleyebilirsiniz.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-          {/* Main Package Card */}
-          <div
-            className={cn(
-              'relative flex flex-col justify-between rounded-2xl border-2 p-4.5 text-left lg:col-span-6',
-              'border-primary/60 bg-gradient-to-b from-primary/[0.08] to-primary/[0.02] shadow-sm',
-            )}
-          >
-            <div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Store className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                      {durationLabel}
-                    </span>
-                    <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5">
-                      {publishConfig.name}
-                    </h4>
-                  </div>
-                </div>
-                <span className="rounded-full bg-primary text-white text-[10px] font-bold px-2 py-0.5 shadow-xs">
-                  Dahil
-                </span>
-              </div>
-
-              <div className="my-3 border-t border-primary/10 pt-3">
-                <p className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
-                  {formatPlacementPriceTry(publishConfig.priceCents)}
-                </p>
-                <ul className="mt-2.5 space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                  {publishConfig.benefits.map((benefit) => (
-                    <li key={benefit} className="flex items-center gap-2">
-                      <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Doping Options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-6">
-            {PLACEMENT_PACKAGE_SLUGS.map((slug) => {
-              const pkg = PLACEMENT_PACKAGE_CONFIG[slug];
-              const selected = value.placements.includes(slug);
-              const Icon = slug === 'vitrin' ? Sparkles : Zap;
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => selectPlacement(slug)}
-                  className={cn(
-                    'relative flex flex-col justify-between rounded-2xl border-2 p-4 text-left transition-all duration-150 cursor-pointer',
-                    selected
-                      ? 'border-primary bg-primary/[0.06] shadow-sm'
-                      : 'border-slate-200/90 bg-white hover:border-primary/40 dark:border-border dark:bg-card',
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          'flex h-7 w-7 items-center justify-center rounded-lg',
-                          selected
-                            ? 'bg-primary text-white'
-                            : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
-                        )}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-foreground">
-                        {pkg.name}
-                      </span>
-                    </div>
-                    <div
-                      className={cn(
-                        'flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold',
-                        selected
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-slate-300 dark:border-slate-600',
-                      )}
-                    >
-                      {selected ? '✓' : ''}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-2.5 border-t border-slate-100 dark:border-border/60 flex items-baseline justify-between">
-                    <p className="text-sm font-bold text-slate-900 dark:text-foreground">
-                      +{formatPlacementPriceTry(pkg.priceCents)}
-                    </p>
-                    <span className="text-[10px] font-medium text-slate-500">
-                      {pkg.durationDays} gün doping
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Compact Summary Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/[0.03] p-4 shadow-2xs">
-          <div>
-            <p className="text-xs font-bold text-slate-900 dark:text-foreground">
-              Toplam Yayın Tutarı:{' '}
-              <span className="text-primary text-sm font-extrabold">
-                {formatPlacementPriceTry(totalCents)}
-              </span>
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-muted-foreground mt-0.5">
-              {[
-                publishConfig.name,
-                ...value.placements.map((s) => PLACEMENT_PACKAGE_CONFIG[s].name),
-              ].join(' + ')}
-            </p>
-          </div>
-          {livePayments && status !== 'ready' ? (
-            <Button
-              type="button"
-              onClick={() => void runSimulation()}
-              disabled={disabled || simulating}
-              className="w-full sm:w-auto rounded-xl bg-primary text-white text-xs font-semibold px-4"
-            >
-              {simulating ? 'İşleniyor...' : `${formatPlacementPriceTry(totalCents)} Öde`}
-            </Button>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-lg px-2.5 py-1">
-              <Check className="h-3.5 w-3.5 stroke-[3]" />
-              Paket Seçildi
-            </span>
-          )}
-        </div>
-        {error ? <p className="text-xs text-destructive">{error}</p> : null}
-      </div>
-    );
-  }
+  const vitrinSelected = value.placements.includes('vitrin');
+  const acilSelected = value.placements.includes('acil');
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-foreground">
-          İlan Yayın ve Öne Çıkarma Paketleri
-        </h3>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-muted-foreground">
-          {categoryFreeAvailable
-            ? 'Standart profil yayını bu kategoride ücretsizdir. İsteğe bağlı olarak vitrin veya acil doping ekleyebilirsiniz.'
-            : 'Standart profil yayın hakkı ve isteğe bağlı doping seçenekleri.'}
-        </p>
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs dark:border-border dark:bg-card space-y-5">
+      {/* Frame Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Store className="h-4 w-4 stroke-[2.5]" />
+          </div>
+          <div>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-foreground">
+              İlan Yayın ve Öne Çıkarma Paketleri
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {isPaidPublish
+                ? 'İlanınız 30 gün boyunca platformda yayında kalır. İsteğe bağlı doping ekleyebilirsiniz.'
+                : categoryFreeAvailable
+                  ? 'Standart profil yayını bu kategoride ücretsizdir. İsteğe bağlı doping ekleyebilirsiniz.'
+                  : 'Standart profil yayın hakkı ve isteğe bağlı doping seçenekleri.'}
+            </p>
+          </div>
+        </div>
+        <span className="hidden sm:inline-flex rounded-full bg-primary/10 text-primary text-[11px] font-bold px-3 py-1">
+          Yayın Planı
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-        {/* Main Standard Package Card */}
+      {/* 3 Equal Package Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+        {/* Card 1: Ana İlan Paketi */}
         <div
           className={cn(
-            'relative flex flex-col justify-between rounded-2xl border-2 p-4.5 text-left lg:col-span-6',
-            'border-primary/60 bg-gradient-to-b from-primary/[0.08] to-primary/[0.02] shadow-sm',
+            'relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all',
+            'border-primary/60 bg-gradient-to-b from-primary/[0.08] to-primary/[0.02] shadow-xs',
           )}
         >
           <div>
@@ -437,26 +309,28 @@ export function ListingPackageSelectionStep({
                 </div>
                 <div>
                   <span className="inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {STANDARD_PUBLISH_CONFIG.durationDays} Gün Yayın
+                    {mainDurationLabel}
                   </span>
-                  <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5">
-                    {STANDARD_PUBLISH_CONFIG.name}
+                  <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5 truncate">
+                    {mainName}
                   </h4>
                 </div>
               </div>
-              <span className="rounded-full bg-primary text-white text-[10px] font-bold px-2 py-0.5 shadow-xs">
-                {requiresStandardFee ? 'Standart' : 'Ücretsiz'}
+              <span className="rounded-full bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 shadow-xs shrink-0">
+                {isPaidPublish ? 'Dahil' : requiresStandardFee ? 'Standart' : 'Ücretsiz'}
               </span>
             </div>
 
-            <div className="my-3 border-t border-primary/10 pt-3">
-              <p className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
-                {requiresStandardFee
-                  ? formatPlacementPriceTry(STANDARD_REPUBLISH_CONFIG.priceCents)
-                  : 'Ücretsiz'}
-              </p>
-              <ul className="mt-2.5 space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                {STANDARD_PUBLISH_CONFIG.benefits.map((benefit) => (
+            <div className="my-4 border-t border-primary/10 pt-3">
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
+                  {mainPriceLabel}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">/ 30 gün yayın</span>
+              </div>
+
+              <ul className="mt-3.5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                {mainBenefits.map((benefit) => (
                   <li key={benefit} className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
                     <span>{benefit}</span>
@@ -465,101 +339,226 @@ export function ListingPackageSelectionStep({
               </ul>
             </div>
           </div>
+
+          <div className="pt-3 border-t border-primary/10">
+            <div className="w-full text-center py-2 rounded-xl bg-primary/10 text-primary font-bold text-xs">
+              ✓ Pakete Dahil Edildi
+            </div>
+          </div>
         </div>
 
-        {/* Doping Options */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-6">
-          {PLACEMENT_PACKAGE_SLUGS.map((slug) => {
-            const pkg = PLACEMENT_PACKAGE_CONFIG[slug];
-            const selected = value.placements.includes(slug);
-            const Icon = slug === 'vitrin' ? Sparkles : Zap;
-            return (
-              <button
-                key={slug}
-                type="button"
-                disabled={disabled}
-                onClick={() => selectPlacement(slug)}
+        {/* Card 2: Vitrin Paketi */}
+        <div
+          onClick={() => selectPlacement('vitrin')}
+          className={cn(
+            'relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all duration-200 cursor-pointer select-none',
+            vitrinSelected
+              ? 'border-primary bg-primary/[0.06] shadow-xs ring-1 ring-primary/30'
+              : 'border-slate-200/90 bg-white hover:border-primary/50 hover:shadow-xs dark:border-border dark:bg-card',
+          )}
+        >
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-xl transition-colors',
+                    vitrinSelected
+                      ? 'bg-primary text-white'
+                      : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
+                  )}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="inline-block rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    Öne Çıkan
+                  </span>
+                  <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5 truncate">
+                    {PLACEMENT_PACKAGE_CONFIG.vitrin.name}
+                  </h4>
+                </div>
+              </div>
+              <div
                 className={cn(
-                  'relative flex flex-col justify-between rounded-2xl border-2 p-4 text-left transition-all duration-150 cursor-pointer',
-                  selected
-                    ? 'border-primary bg-primary/[0.06] shadow-sm'
-                    : 'border-slate-200/90 bg-white hover:border-primary/40 dark:border-border dark:bg-card',
+                  'flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold transition-all shrink-0',
+                  vitrinSelected
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-slate-300 dark:border-slate-600',
                 )}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={cn(
-                        'flex h-7 w-7 items-center justify-center rounded-lg',
-                        selected
-                          ? 'bg-primary text-white'
-                          : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 dark:text-foreground">
-                      {pkg.name}
-                    </span>
-                  </div>
-                  <div
-                    className={cn(
-                      'flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold',
-                      selected
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-slate-300 dark:border-slate-600',
-                    )}
-                  >
-                    {selected ? '✓' : ''}
-                  </div>
-                </div>
+                {vitrinSelected ? '✓' : ''}
+              </div>
+            </div>
 
-                <div className="mt-4 pt-2.5 border-t border-slate-100 dark:border-border/60 flex items-baseline justify-between">
-                  <p className="text-sm font-bold text-slate-900 dark:text-foreground">
-                    +{formatPlacementPriceTry(pkg.priceCents)}
-                  </p>
-                  <span className="text-[10px] font-medium text-slate-500">
-                    {pkg.durationDays} gün doping
-                  </span>
+            <div className="my-4 border-t border-slate-100 dark:border-border/60 pt-3">
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
+                  +{formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.vitrin.priceCents)}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">/ 30 gün doping</span>
+              </div>
+
+              <ul className="mt-3.5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>Kategori ve arama vitrininde üst sıra</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>Öne çıkan ilan vitrin rozeti</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>+5 kata kadar daha fazla görüntülenme</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-border/60">
+            <div
+              className={cn(
+                'w-full py-2 rounded-xl text-xs font-bold transition-all text-center',
+                vitrinSelected
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'border border-border bg-muted/40 text-foreground',
+              )}
+            >
+              {vitrinSelected ? '✓ Pakete Eklendi' : '+ Pakete Ekle'}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Acil Vitrin Paketi */}
+        <div
+          onClick={() => selectPlacement('acil')}
+          className={cn(
+            'relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all duration-200 cursor-pointer select-none',
+            acilSelected
+              ? 'border-primary bg-primary/[0.06] shadow-xs ring-1 ring-primary/30'
+              : 'border-slate-200/90 bg-white hover:border-primary/50 hover:shadow-xs dark:border-border dark:bg-card',
+          )}
+        >
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-xl transition-colors',
+                    acilSelected
+                      ? 'bg-primary text-white'
+                      : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
+                  )}
+                >
+                  <Zap className="h-4 w-4" />
                 </div>
-              </button>
-            );
-          })}
+                <div>
+                  <span className="inline-block rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    Hızlı Sonuç
+                  </span>
+                  <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5 truncate">
+                    {PLACEMENT_PACKAGE_CONFIG.acil.name}
+                  </h4>
+                </div>
+              </div>
+              <div
+                className={cn(
+                  'flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold transition-all shrink-0',
+                  acilSelected
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-slate-300 dark:border-slate-600',
+                )}
+              >
+                {acilSelected ? '✓' : ''}
+              </div>
+            </div>
+
+            <div className="my-4 border-t border-slate-100 dark:border-border/60 pt-3">
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
+                  +{formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.acil.priceCents)}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">/ 30 gün doping</span>
+              </div>
+
+              <ul className="mt-3.5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>Acil arayış kırmızı dikkat rozeti</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>Ana sayfa acil vitrin bloğunda yerleşim</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary stroke-[2.5]" />
+                  <span>Aday bildirimlerinde öncelikli eşleşme</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-border/60">
+            <div
+              className={cn(
+                'w-full py-2 rounded-xl text-xs font-bold transition-all text-center',
+                acilSelected
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'border border-border bg-muted/40 text-foreground',
+              )}
+            >
+              {acilSelected ? '✓ Pakete Eklendi' : '+ Pakete Ekle'}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Summary Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/[0.03] p-4 shadow-2xs">
+      {/* Frame Bottom Summary Bar & 'Ödemeye Geç' Action */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-slate-200/90 bg-slate-50/80 p-4.5 dark:border-border/60 dark:bg-muted/30 shadow-2xs">
         <div>
-          <p className="text-xs font-bold text-slate-900 dark:text-foreground">
-            Toplam Yayın Tutarı:{' '}
-            <span className="text-primary text-sm font-extrabold">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Toplam Yayın ve Doping Tutarı
+          </p>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="font-display text-xl sm:text-2xl font-black text-slate-900 dark:text-foreground">
               {totalCents > 0 ? formatPlacementPriceTry(totalCents) : 'Ücretsiz'}
             </span>
-          </p>
-          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-muted-foreground">
-            {[
-              STANDARD_PUBLISH_CONFIG.name,
-              ...value.placements.map((s) => PLACEMENT_PACKAGE_CONFIG[s].name),
-            ].join(' + ')}
-          </p>
+            <span className="text-xs text-muted-foreground">
+              ({[mainName, ...value.placements.map((s) => PLACEMENT_PACKAGE_CONFIG[s].name)].join(' + ')})
+            </span>
+          </div>
         </div>
-        {status !== 'ready' && livePayments && totalCents > 0 ? (
-          <Button
-            type="button"
-            onClick={() => void runSimulation()}
-            disabled={disabled || simulating}
-            className="w-full sm:w-auto rounded-xl bg-primary text-white text-xs font-semibold px-4"
-          >
-            {simulating ? 'İşleniyor…' : `${formatPlacementPriceTry(totalCents)} Öde`}
-          </Button>
-        ) : (
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-lg px-2.5 py-1">
-            <Check className="h-3.5 w-3.5 stroke-[3]" />
-            Paket Seçildi
-          </span>
-        )}
+
+        <div>
+          {totalCents > 0 ? (
+            <Button
+              type="button"
+              onClick={() => void runSimulation()}
+              disabled={disabled || simulating}
+              className="w-full sm:w-auto rounded-xl bg-primary text-primary-foreground text-sm font-bold px-6 py-2.5 shadow-sm hover:opacity-95 cursor-pointer min-h-[42px]"
+            >
+              {simulating ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Ödeme Doğrulanıyor...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <span>Ödemeye Geç ({formatPlacementPriceTry(totalCents)})</span>
+                  <Check className="h-4 w-4 stroke-[3]" />
+                </span>
+              )}
+            </Button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 rounded-xl px-4 py-2.5">
+              <Check className="h-4 w-4 stroke-[3]" />
+              Ücretsiz Yayın Onaylandı
+            </span>
+          )}
+        </div>
       </div>
+
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
     </div>
   );

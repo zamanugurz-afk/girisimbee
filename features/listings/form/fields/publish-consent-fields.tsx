@@ -135,71 +135,23 @@ export function PublishConsentFields({
 
   return (
     <div className="space-y-4">
-      {/* KVKK & Güvenlik Güvencesi */}
-      <div className="flex items-start gap-3 rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 dark:border-border dark:bg-card/50">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
-          <ShieldCheck className="h-5 w-5 stroke-[2.2]" />
+      {/* Header */}
+      <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
         </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground">
-            KVKK & Güvenli İletişim Güvencesi
-          </h4>
-          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-            {variant === 'career'
-              ? 'Kariyer kartınızda soyadınız, telefon numaranız ve doğum tarihiniz herkese açık yayınlanmaz. İletişim yalnızca onaylanan talepler üzerinden güvenle sağlanır.'
-              : 'İşveren ilanınızda iletişim ve kurumsal bilgileriniz KVKK standartlarına uygun şekilde korunur ve doğrulanmış iletişim kanalları üzerinden yürütülür.'}
+        <div>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
+            Yasal İzinler ve Rıza Beyanları
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            İlanınızın yayına alınabilmesi için lütfen aşağıdaki yasal maddeleri onaylayınız.
           </p>
         </div>
       </div>
 
-      {/* İletişim Numarası Barı */}
-      {phoneHint ? (
-        <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-3.5 dark:border-border dark:bg-card shadow-2xs">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-              <Phone className="h-3.5 w-3.5" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[11px] text-slate-500 block">Kayıtlı İletişim Numarası</span>
-              <span className="text-xs font-bold text-slate-900 dark:text-foreground">
-                {phoneHint}
-              </span>
-            </div>
-          </div>
-          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300">
-            ✓ Doğrulandı
-          </span>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 dark:border-amber-500/30 dark:bg-amber-950/30 space-y-2">
-          <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
-            İlanınızda iletişim sağlanabilmesi için telefon numarası gereklidir:
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Input
-              type="tel"
-              inputMode="tel"
-              placeholder="05xx xxx xx xx"
-              value={draftPhone}
-              onChange={(e) => setDraftPhone(e.target.value)}
-              disabled={disabled || savingPhone || !userId}
-              className="h-9 bg-white text-xs dark:bg-background rounded-xl"
-            />
-            <Button
-              type="button"
-              size="sm"
-              className="shrink-0 rounded-xl text-xs font-semibold"
-              disabled={disabled || savingPhone || !userId}
-              onClick={() => void savePhone()}
-            >
-              {savingPhone ? 'Kaydediliyor…' : 'Telefonu Kaydet'}
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Yasal Onay Checkbox Kartları */}
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 pt-1">
         {PUBLISH_CONSENT_POLICY_ITEMS.map((item) => {
           const isChecked = value[item.key];
           return (
@@ -209,7 +161,7 @@ export function PublishConsentFields({
               className={cn(
                 'flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 cursor-pointer select-none',
                 isChecked
-                  ? 'border-primary/40 bg-primary/[0.02] shadow-2xs dark:border-primary/30 dark:bg-primary/[0.04]'
+                  ? 'border-primary/50 bg-primary/[0.03] shadow-2xs dark:border-primary/40 dark:bg-primary/[0.05]'
                   : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-border dark:bg-card',
               )}
             >
@@ -221,7 +173,7 @@ export function PublishConsentFields({
                 className="mt-0.5 shrink-0 rounded-md"
               />
               <div className="space-y-0.5 min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 dark:text-foreground">
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-foreground">
                   {item.label}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-muted-foreground leading-relaxed">

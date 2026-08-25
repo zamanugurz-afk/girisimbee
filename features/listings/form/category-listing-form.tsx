@@ -2766,7 +2766,7 @@ export function CategoryListingForm({
           {isPublishStep && (
             <div className="space-y-6">
               {/* Yayın Onayları & KVKK / Açık Rıza İzinleri */}
-              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs dark:border-border dark:bg-card">
                 <PublishConsentFields
                   value={publishConsents}
                   onChange={setPublishConsents}
@@ -3655,27 +3655,29 @@ export function CategoryListingForm({
               )}
 
               {isKvkkStep && (
-                <PublishConsentFields
-                  value={publishConsents}
-                  onChange={setPublishConsents}
-                  disabled={disabled || isBusy}
-                  variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
-                  error={
-                    resolveFieldError(fieldErrors, 'publishConsents')
-                    || resolveFieldError(fieldErrors, 'contactPhone')
-                  }
-                  phoneHint={contactPhone}
-                  userId={userId}
-                  onPhoneSaved={(phone) => {
-                    setContactPhone(phone);
-                    setFieldErrors((prev) => {
-                      if (!prev.contactPhone && !prev.publishConsents) return prev;
-                      const next = { ...prev };
-                      delete next.contactPhone;
-                      return next;
-                    });
-                  }}
-                />
+                <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs dark:border-border dark:bg-card">
+                  <PublishConsentFields
+                    value={publishConsents}
+                    onChange={setPublishConsents}
+                    disabled={disabled || isBusy}
+                    variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
+                    error={
+                      resolveFieldError(fieldErrors, 'publishConsents')
+                      || resolveFieldError(fieldErrors, 'contactPhone')
+                    }
+                    phoneHint={contactPhone}
+                    userId={userId}
+                    onPhoneSaved={(phone) => {
+                      setContactPhone(phone);
+                      setFieldErrors((prev) => {
+                        if (!prev.contactPhone && !prev.publishConsents) return prev;
+                        const next = { ...prev };
+                        delete next.contactPhone;
+                        return next;
+                      });
+                    }}
+                  />
+                </div>
               )}
             </>
           )}
