@@ -78,6 +78,13 @@ export class MockConversationRepository implements ConversationRepository {
   }
 
   async create(input: CreateConversationInput): Promise<Conversation> {
+    if (input.applicationId) {
+      for (const c of this.conversations.values()) {
+        if (!c.deletedAt && c.applicationId === input.applicationId) {
+          return c;
+        }
+      }
+    }
     const participantIds = sortParticipantIds(input.participantIds);
     const conversation = createConversation({
       listingId: input.listingId,

@@ -11,6 +11,7 @@ import {
   FileText,
   Loader2,
   MapPin,
+  Pencil,
   Send,
   ShieldCheck,
   User,
@@ -454,20 +455,40 @@ export function DashboardMessageThread({
       {appData?.profileSnapshot ? (
         <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl bg-card border-border">
-            <DialogHeader className="pb-3 border-b border-border">
-              <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                <ShieldCheck className="h-4 w-4" />
-                Başvuru Anındaki Kariyer Profili Snapshot'ı
+            <DialogHeader className="pb-3 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                  <ShieldCheck className="h-4 w-4" />
+                  {appData.isApplicant
+                    ? 'Başvuru Anındaki Kariyer Profiliniz'
+                    : "Başvuru Anındaki Kariyer Profili Snapshot'ı"}
+                </div>
+                <DialogTitle className="text-lg font-bold mt-1">
+                  {appData.isApplicant
+                    ? (appData.profileSnapshot.displayName || 'Kariyer Profiliniz')
+                    : (appData.profileSnapshot.displayName || 'Aday Kariyer Profili')}
+                </DialogTitle>
               </div>
-              <DialogTitle className="text-lg font-bold">
-                {appData.profileSnapshot.displayName || 'Aday Kariyer Profili'}
-              </DialogTitle>
+              {appData.isApplicant ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs font-semibold gap-1.5 border-emerald-300 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-xl shrink-0"
+                >
+                  <Link href="/dashboard/kariyer-profilim">
+                    <Pencil className="h-3.5 w-3.5" />
+                    <span>Güncel Profilimi Gör / Düzenle</span>
+                  </Link>
+                </Button>
+              ) : null}
             </DialogHeader>
 
             <div className="py-3">
               <CareerProfilePreview
                 data={appData.profileSnapshot}
                 readOnlySnapshot={true}
+                isOwnApplication={appData.isApplicant}
               />
             </div>
           </DialogContent>

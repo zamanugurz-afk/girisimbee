@@ -36,11 +36,14 @@ export const GET = withAuth(async (ctx) => {
   try {
     const { data: myOwnedListings } = await db
       .from('marketplace_listings')
-      .select('id, title, owner_id')
+      .select('id, title, slug, owner_id')
       .eq('owner_id', ctx.userId)
       .is('deleted_at', null);
 
-    const ownedListingIds = ((myOwnedListings ?? []) as Array<{ id: string }>).map((l) => l.id);
+    const ownedListings = ((myOwnedListings ?? []) as Array<{ id: string; slug?: string; title?: string; owner_id: string }>);
+    const ownedListingIds = ownedListings.map((l) => l.id);
+    const ownedListingSlugs = ownedListings.map((l) => l.slug).filter(Boolean) as string[];
+    const allListingMatchIds = Array.from(new Set([...ownedListingIds, ...ownedListingSlugs]));
 
     const { data: myProfiles } = await db
       .from('marketplace_profiles')
@@ -52,11 +55,11 @@ export const GET = withAuth(async (ctx) => {
 
     const appMap = new Map<string, any>();
 
-    if (ownedListingIds.length > 0) {
+    if (allListingMatchIds.length > 0) {
       const { data: employerApps } = await db
         .from('marketplace_applications')
         .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
-        .in('listing_id', ownedListingIds)
+        .in('listing_id', allListingMatchIds)
         .is('deleted_at', null);
       for (const app of (employerApps ?? []) as any[]) {
         appMap.set(app.id, app);
@@ -89,15 +92,22 @@ export const GET = withAuth(async (ctx) => {
           }
         }
 
-        // Resolve employer user ID from listing owner_id
-        let employerUserId = ctx.userId;
-        const { data: listingData } = await db
-          .from('marketplace_listings')
-          .select('owner_id, title')
-          .eq('id', app.listing_id)
-          .maybeSingle();
-        if (listingData?.owner_id) {
-          employerUserId = ids.user(listingData.owner_id);
+        // Resolve canonical listing ID (UUID) and employer user ID from listing
+        const matchedListing = ownedListings.find(
+          (l) => l.id === app.listing_id || (l.slug && l.slug === app.listing_id),
+        );
+        let canonicalListingId = matchedListing?.id || app.listing_id;
+        let employerUserId = matchedListing?.owner_id ? ids.user(matchedListing.owner_id) : ctx.userId;
+
+        if (!matchedListing) {
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(app.listing_id);
+          const listingQuery = db.from('marketplace_listings').select('id, owner_id, title');
+          const { data: listingData } = isUuid
+            ? await listingQuery.eq('id', app.listing_id).maybeSingle()
+            : await listingQuery.eq('slug', app.listing_id).maybeSingle();
+
+          if (listingData?.id) canonicalListingId = listingData.id;
+          if (listingData?.owner_id) employerUserId = ids.user(listingData.owner_id);
         }
 
         // Check if a conversation already exists for this application
@@ -115,7 +125,7 @@ export const GET = withAuth(async (ctx) => {
           targetConvId = crypto.randomUUID();
           const { error: insConvErr } = await db.from('marketplace_conversations').insert({
             id: targetConvId,
-            listing_id: app.listing_id,
+            listing_id: canonicalListingId,
             application_id: app.id,
             kind: 'application',
             status: 'open',

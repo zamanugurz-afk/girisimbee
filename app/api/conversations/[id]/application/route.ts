@@ -46,8 +46,12 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
     ? await ctx.container.listingRepository.findById(conversation.listingId)
     : null;
 
+  const applicantProfile = await ctx.container.profileRepository.findById(application.applicantProfileId);
   const isManager = Boolean(listing && listing.ownerId === ctx.userId);
-  const isApplicant = Boolean(application.applicantProfileId === ctx.profileId);
+  const isApplicant = Boolean(
+    application.applicantProfileId === ctx.profileId ||
+    (applicantProfile && applicantProfile.userId === ctx.userId),
+  );
 
   // If neither manager nor applicant nor participant, deny
   if (!isManager && !isApplicant) {

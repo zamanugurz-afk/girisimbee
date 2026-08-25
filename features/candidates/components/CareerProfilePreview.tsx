@@ -163,7 +163,11 @@ function splitLines(value: string | null | undefined): string[] {
 function experienceResponsibilities(exp: CareerExperience): string[] {
   const selected = (exp.selectedResponsibilities ?? []).filter(Boolean);
   if (selected.length > 0) return selected;
-  return splitLines(exp.responsibilities);
+  if (exp.responsibilities) return splitLines(exp.responsibilities);
+  if (exp.achievements) return splitLines(exp.achievements);
+  const selectedAch = (exp.selectedAchievements ?? []).filter(Boolean);
+  if (selectedAch.length > 0) return selectedAch;
+  return [];
 }
 
 function formatExperienceDurationBadge(exp: {
@@ -571,18 +575,23 @@ export function CareerProfilePreview({
   chrome,
   headingAs: Heading = 'h2',
   readOnlySnapshot = false,
+  isOwnApplication = false,
 }: {
   data: CareerCardInput;
   chrome?: CareerCardChrome;
   headingAs?: 'h1' | 'h2' | 'h3';
   readOnlySnapshot?: boolean;
+  isOwnApplication?: boolean;
 }) {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   const isHire = data.variant === 'hire';
-  const isOwner = Boolean(user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId);
+  const isOwner = Boolean(
+    isOwnApplication ||
+    (user?.id && chrome?.ownerUserId && user.id === chrome.ownerUserId),
+  );
   const listingId = chrome?.listingId;
   const isEligible = Boolean(listingId && isContactRequestEligibleCategory('is-bul'));
 
@@ -767,13 +776,20 @@ export function CareerProfilePreview({
     if (isHire) {
       return data.companyName?.trim() || 'Kurumsal Şirket';
     }
+    if (isOwner) {
+      return (
+        (data.displayName ?? '').trim() ||
+        (user?.displayName ?? '').trim() ||
+        'Kariyer Profiliniz'
+      );
+    }
     return (
       (data.displayName ?? '').trim() ||
       (isContactAccepted && mine?.ownerFullName ? mine.ownerFullName : null) ||
       data.displayNameMasked ||
-      (!listingId ? maskDisplaySurname(user?.displayName) : null)
+      (!listingId ? maskDisplaySurname(data.displayName || user?.displayName) : null)
     );
-  }, [isHire, data.companyName, data.displayName, data.displayNameMasked, isContactAccepted, mine?.ownerFullName, listingId, user?.displayName]);
+  }, [isHire, isOwner, data.companyName, data.displayName, data.displayNameMasked, isContactAccepted, mine?.ownerFullName, listingId, user?.displayName]);
 
   const theme = useMemo(() => {
     if (isHire) {
@@ -1042,7 +1058,32 @@ export function CareerProfilePreview({
             </div>
           ) : null}
 
-          {isHire ? (
+          {isOwner ? (
+            (contactPhone || contactEmail || user?.email || data.contactPhone || data.contactEmail) ? (
+              <div className={cn("rounded-2xl border bg-white p-3.5 sm:p-4 dark:bg-card space-y-2.5", theme.cardBorder, theme.cardGlow)}>
+                <div className={cn("flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider", theme.headerText)}>
+                  <Phone className="h-4 w-4" />
+                  <span>İLETİŞİM BİLGİLERİNİZ</span>
+                </div>
+                <div className="space-y-2">
+                  {(contactPhone || data.contactPhone) ? (
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-800 dark:text-foreground font-semibold min-w-0">
+                        <Phone className={cn("h-3.5 w-3.5 shrink-0", theme.headerText)} />
+                        <span className="truncate">{contactPhone || data.contactPhone}</span>
+                      </div>
+                    </div>
+                  ) : null}
+                  {(contactEmail || data.contactEmail || user?.email) ? (
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                      <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                      <span className="truncate font-medium">{contactEmail || data.contactEmail || user?.email}</span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null
+          ) : isHire ? (
             <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card flex items-start gap-2.5 animate-pulse", theme.cardBorder, theme.cardGlow)}>
               <ShieldCheck className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
               <p className="text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300">
@@ -1262,11 +1303,11 @@ export function CareerProfilePreview({
                               <div className="flex items-start justify-between gap-2">
                                 <div>
                                   <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                                    {exp.role || (isContactAccepted || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
+                                    {exp.role || (isContactAccepted || isOwner || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
                                   </h4>
                                   <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
                                     {[
-                                      (isContactAccepted || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
+                                      (isContactAccepted || isOwner || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
                                       exp.sector,
                                     ]
                                       .filter(Boolean)

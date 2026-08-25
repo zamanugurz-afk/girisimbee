@@ -689,4 +689,233 @@ describe('Job Application + Career Profile Snapshot + Messaging Integration Suit
     const threadMessages = await messagingService.getMessages(application.conversationId!, candidateUserId);
     expect(threadMessages.data.length).toBe(2); // Initial cover message + employer reply
   });
+
+  it('TEST 1: New application creates application + conversation + participants + initial message + links conversation_id', async () => {
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Özel ön yazı mesajım.',
+      undefined,
+      null,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    expect(application.status).toBe('pending'); // CandidateApplicationStatus maps 'submitted' to 'pending'
+    expect(application.conversationId).toBeDefined();
+
+    const conv = await convRepo.findById(application.conversationId!);
+    expect(conv).toBeDefined();
+    expect(conv?.kind).toBe('application');
+    expect(conv?.applicationId).toBe(application.id);
+    expect(conv?.listingId).toBe(listingId);
+    expect(conv?.participantIds).toContain(candidateUserId);
+    expect(conv?.participantIds).toContain(employerUserId);
+
+    const msgs = await msgRepo.findMany({ conversationId: application.conversationId! });
+    expect(msgs.data.length).toBe(1);
+    expect(msgs.data[0].body).toBe('Özel ön yazı mesajım.');
+    expect(msgs.data[0].senderId).toBe(candidateUserId);
+  });
+
+  it('TEST 2: Idempotency - startConversation with same applicationId reuses existing conversation', async () => {
+    const defaultInitialMsg = 'İlk mesaj.';
+    const validAppId = ids.application('88888888-8888-4888-8888-888888888888');
+    const conv1 = await messagingService.startConversation({
+      participantIds: [candidateUserId, employerUserId],
+      listingId,
+      applicationId: validAppId,
+      kind: 'application',
+      initialMessage: defaultInitialMsg,
+    });
+
+    const conv2 = await messagingService.startConversation({
+      participantIds: [candidateUserId, employerUserId],
+      listingId,
+      applicationId: validAppId,
+      kind: 'application',
+      initialMessage: defaultInitialMsg,
+    });
+
+    expect(conv1.id).toBe(conv2.id);
+  });
+
+  it('TEST 3: Employer application status submitted -> reviewing sets reviewedAt', async () => {
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Ön yazı',
+      undefined,
+      null,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    const updated = await employerAppService.updateApplicationStatus(
+      application.id,
+      employerProfileId,
+      'reviewing',
+    );
+
+    expect(updated.status).toBe('reviewing');
+    expect(updated.reviewedAt).toBeDefined();
+    expect(typeof updated.reviewedAt).toBe('string');
+  });
+
+  it('TEST 4: Status transition reviewing -> contacted sets contactedAt', async () => {
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Ön yazı',
+      undefined,
+      null,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'reviewing');
+    const contacted = await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'contacted');
+
+    expect(contacted.status).toBe('contacted');
+    expect(contacted.reviewedAt).toBeDefined();
+    expect(contacted.contactedAt).toBeDefined();
+  });
+
+  it('TEST 5: Status transition contacted -> accepted preserves existing conversation', async () => {
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Ön yazı',
+      undefined,
+      null,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    const originalConvId = application.conversationId;
+    await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'contacted');
+    const accepted = await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'accepted');
+
+    expect(accepted.status).toBe('accepted');
+    expect(accepted.conversationId).toBe(originalConvId);
+  });
+
+  it('TEST 6: Status transition contacted -> rejected preserves existing conversation', async () => {
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Ön yazı',
+      undefined,
+      null,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    const originalConvId = application.conversationId;
+    await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'contacted');
+    const rejected = await employerAppService.updateApplicationStatus(application.id, employerProfileId, 'rejected');
+
+    expect(rejected.status).toBe('rejected');
+    expect(rejected.conversationId).toBe(originalConvId);
+  });
+
+  it('TEST 7: Own application profile snapshot contains full experiences and unmasked fields', async () => {
+    const fullSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: 'Senior Full Stack Developer',
+      primarySector: 'Yazılım & Teknoloji',
+      contactEmail: 'ugurzaman1907@gmail.com',
+      contactPhone: '+905551112233',
+      experiences: [
+        {
+          id: 'exp-1',
+          role: 'Tech Lead',
+          company: 'Acme Corp',
+          sector: 'Fintech',
+          startMonth: 1,
+          startYear: 2021,
+          isCurrent: true,
+          responsibilities: 'Mimari tasarım\nEkip liderliği',
+        },
+      ],
+      educationHistory: [
+        {
+          level: 'Lisans',
+          field: 'Bilgisayar Mühendisliği',
+          school: 'İTÜ',
+          graduationYear: 2020,
+        },
+      ],
+    };
+
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Full profile app',
+      undefined,
+      fullSnapshot,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    expect(application.profileSnapshot).toBeDefined();
+    expect(application.profileSnapshot?.displayName).toBe('Uğur Zaman');
+    expect(application.profileSnapshot?.contactEmail).toBe('ugurzaman1907@gmail.com');
+    expect(application.profileSnapshot?.experiences).toHaveLength(1);
+    expect(application.profileSnapshot?.experiences?.[0].company).toBe('Acme Corp');
+    expect(application.profileSnapshot?.educationHistory).toHaveLength(1);
+  });
+
+  it('TEST 8: Employer viewing candidate application has access to snapshot without modifying candidate source', async () => {
+    const fullSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: 'Senior Full Stack Developer',
+      primarySector: 'Yazılım & Teknoloji',
+      experiences: [
+        {
+          id: 'exp-1',
+          role: 'Tech Lead',
+          company: 'Acme Corp',
+          isCurrent: true,
+        },
+      ],
+    };
+
+    const application = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Application note',
+      undefined,
+      fullSnapshot,
+    );
+
+    const appFromRepo = await appRepo.findById(application.id);
+    expect(appFromRepo).toBeDefined();
+    expect(appFromRepo?.profileSnapshot?.desiredRole).toBe('Senior Full Stack Developer');
+    expect(appFromRepo?.applicantProfileId).toBe(candidateProfileId);
+  });
 });

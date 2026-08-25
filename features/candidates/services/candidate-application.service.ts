@@ -96,6 +96,12 @@ export class CandidateApplicationService {
       metadata,
     });
 
+    console.info('[APPLICATION_CREATED]', {
+      applicationId: application.id,
+      listingId: listing.id,
+      applicantProfileId,
+    });
+
     // Start conversation if messaging service & participant IDs are available
     if (messagingDeps?.messagingService && (messagingDeps.applicantUserId || messagingDeps.profileRepo)) {
       try {
@@ -108,6 +114,13 @@ export class CandidateApplicationService {
         }
 
         if (applicantUserId && employerUserId) {
+          console.info('[APPLICATION_CONVERSATION_CREATE_STARTED]', {
+            applicationId: application.id,
+            listingId: listing.id,
+            applicantUserId,
+            employerUserId,
+          });
+
           const defaultInitialMsg =
             coverMessage?.trim() ||
             'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.';
@@ -121,12 +134,22 @@ export class CandidateApplicationService {
           });
 
           if (conversation?.id) {
+            console.info('[APPLICATION_CONVERSATION_CREATED]', {
+              applicationId: application.id,
+              conversationId: conversation.id,
+            });
+
             application = await this.applicationRepo.update(application.id, {
               conversationId: conversation.id,
               metadata: {
                 ...application.metadata,
                 conversationId: conversation.id,
               },
+            });
+
+            console.info('[APPLICATION_CONVERSATION_LINKED]', {
+              applicationId: application.id,
+              conversationId: conversation.id,
             });
 
             // Send transactional email to employer (Zero PII) if callback provided
@@ -153,21 +176,22 @@ export class CandidateApplicationService {
               }
             }
           } else {
-            console.error('[conversation.create.failed]', {
+            console.error('[APPLICATION_CONVERSATION_LINK_FAILED]', {
               applicationId: application.id,
               listingId: listing.id,
               reason: 'startConversation returned null/empty conversation',
             });
           }
         } else {
-          console.error('[conversation.participants.missing]', {
+          console.error('[APPLICATION_CONVERSATION_LINK_FAILED]', {
             applicationId: application.id,
+            reason: 'missing_participants',
             applicantUserId,
             employerUserId,
           });
         }
       } catch (messagingErr) {
-        console.error('[conversation.create.failed]', {
+        console.error('[APPLICATION_CONVERSATION_LINK_FAILED]', {
           applicationId: application.id,
           listingId: listing.id,
           error: messagingErr instanceof Error ? messagingErr.message : String(messagingErr),

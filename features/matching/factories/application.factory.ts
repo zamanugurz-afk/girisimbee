@@ -28,6 +28,8 @@ export function createApplication(
       ...defaultSnapshot,
       ...overrides.anonymousSnapshot,
     },
+    profileSnapshot: overrides.profileSnapshot ?? null,
+    conversationId: overrides.conversationId ?? null,
     unlockedAt: overrides.unlockedAt ?? null,
     paymentId: overrides.paymentId ?? null,
     contactedAt: overrides.contactedAt ?? null,

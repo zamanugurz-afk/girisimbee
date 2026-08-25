@@ -142,7 +142,17 @@ export class EmployerApplicationService {
       );
     }
 
-    updated = await this.applicationRepo.update(applicationId, { metadata });
+    const updates: import('@/features/matching/types/application.types').UpdateApplicationInput = { metadata };
+    const nowIso = new Date().toISOString();
+    if (nextStatus === 'reviewing' && !updated.reviewedAt) {
+      updates.reviewedAt = nowIso;
+    } else if (nextStatus === 'contacted' && !updated.contactedAt) {
+      updates.contactedAt = nowIso;
+    } else if (nextStatus === 'unlocked' && !updated.unlockedAt) {
+      updates.unlockedAt = nowIso;
+    }
+
+    updated = await this.applicationRepo.update(applicationId, updates);
     return this.toSummary(updated);
   }
 
@@ -296,7 +306,12 @@ export class EmployerApplicationService {
       const metadata = mergeEmployerMetadata(updated, {
         statusHistory: appendStatusHistory(updated, 'contacted', actorProfileId),
       });
-      updated = await this.applicationRepo.update(application.id, { metadata });
+      const nowIso = new Date().toISOString();
+      const updates: import('@/features/matching/types/application.types').UpdateApplicationInput = { metadata };
+      if (!updated.contactedAt) {
+        updates.contactedAt = nowIso;
+      }
+      updated = await this.applicationRepo.update(application.id, updates);
     }
     return updated;
   }

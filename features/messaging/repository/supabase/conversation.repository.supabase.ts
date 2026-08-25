@@ -289,6 +289,28 @@ export class SupabaseConversationRepository implements ConversationRepository {
       }
     } catch {}
 
+    if (targetAppId) {
+      const { data: existingAppConv } = await clientToUse
+        .from(TABLE)
+        .select('*')
+        .eq('application_id', targetAppId)
+        .is('deleted_at', null)
+        .maybeSingle();
+
+      if (existingAppConv) {
+        for (const userId of uniqueParticipantIds) {
+          await clientToUse.from(PARTICIPANTS).upsert(
+            {
+              conversation_id: existingAppConv.id,
+              user_id: userId,
+            },
+            { onConflict: 'conversation_id,user_id' },
+          );
+        }
+        return this.mapConversationRow(existingAppConv as ConversationRow);
+      }
+    }
+
     const { error: insertError } = await clientToUse.from(TABLE).insert({
       id: conversation.id,
       listing_id: conversation.listingId,
