@@ -296,11 +296,11 @@ export function CoreListingFields({
       })()}
 
       {(show('city') || show('remotePolicy')) && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
           {show('city') && (() => {
             const ui = uiFor('city');
             return (
-              <div className="space-y-2">
+              <div className="space-y-2 w-full min-w-0">
                 <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" required={cityRequired} />
                 <CitySelect
                   id="core-city"
@@ -320,7 +320,7 @@ export function CoreListingFields({
           {show('remotePolicy') && (() => {
             const ui = uiFor('remotePolicy');
             return (
-              <div className="space-y-2">
+              <div className="space-y-2 w-full min-w-0">
                 <FieldLabelWithTooltip htmlFor="core-remote" label="Çalışma Modeli" />
                 <Select
                   value={values.remotePolicy ?? ''}

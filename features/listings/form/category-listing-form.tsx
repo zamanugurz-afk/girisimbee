@@ -3036,15 +3036,15 @@ export function CategoryListingForm({
               ) : null}
 
               {isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul) ? (
-                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   {/* Middle Vertical Divider */}
                   <div
                     aria-hidden="true"
-                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px', theme.dividerColor)}
+                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
                   />
 
                   {/* Left Column: Başlık, Kısa Açıklama, Varsa Tabela/Marka Adı */}
-                  <div className="space-y-4 md:pr-4">
+                  <div className="space-y-4 w-full min-w-0">
                     <CoreListingFields
                       values={core}
                       onChange={(next) => {
@@ -3093,7 +3093,7 @@ export function CategoryListingForm({
                   </div>
 
                   {/* Right Column: İşletme Türleri, Sektörler, Ortaklık Türleri */}
-                  <div className="space-y-4 md:pl-4">
+                  <div className="space-y-4 w-full min-w-0">
                     {restCustomKeys
                       .filter((key) => key !== 'businessName' && key !== 'brandName')
                       .map((key) => {
@@ -3115,56 +3115,74 @@ export function CategoryListingForm({
                   </div>
                 </div>
               ) : isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) ? (
-                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   {/* Middle Vertical Divider */}
                   <div
                     aria-hidden="true"
-                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px', theme.dividerColor)}
+                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
                   />
 
-                  {/* Left Column: İsim Soyisim, Pozisyon, Lokasyon */}
-                  <div className="space-y-4 md:pr-4">
-                    {/* İsim Soyisim */}
+                  {/* Row 1, Col 1: İsim Soyisim (isBul) veya Firma Adı (iseAl) */}
+                  <div className="w-full min-w-0">
                     {fieldByKey.get('fullName') ? (
-                      <div className="space-y-2">
-                        <DynamicField
-                          field={fieldByKey.get('fullName')!}
-                          value={mergedCustomFields.fullName ?? ''}
-                          onChange={(val) => {
-                            handleCustomFieldChange('fullName', val);
-                            if (cvFilledKeys.has('fullName')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('fullName');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('fullName')}
-                          error={resolveFieldError(fieldErrors, 'fullName')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      </div>
+                      <DynamicField
+                        field={fieldByKey.get('fullName')!}
+                        value={mergedCustomFields.fullName ?? ''}
+                        onChange={(val) => {
+                          handleCustomFieldChange('fullName', val);
+                          if (cvFilledKeys.has('fullName')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('fullName');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('fullName')}
+                        error={resolveFieldError(fieldErrors, 'fullName')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : fieldByKey.get('companyName') ? (
+                      <DynamicField
+                        field={fieldByKey.get('companyName')!}
+                        value={mergedCustomFields.companyName}
+                        onChange={(val) => handleCustomFieldChange('companyName', val)}
+                        error={resolveFieldError(fieldErrors, 'companyName')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
                     ) : null}
+                  </div>
 
-                    {/* Firma / Şirket Adı */}
-                    {fieldByKey.get('companyName') ? (
-                      <div className="space-y-2">
-                        <DynamicField
-                          field={fieldByKey.get('companyName')!}
-                          value={mergedCustomFields.companyName}
-                          onChange={(val) => handleCustomFieldChange('companyName', val)}
-                          error={resolveFieldError(fieldErrors, 'companyName')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      </div>
+                  {/* Row 1, Col 2: Sektör */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('primarySector') ? (
+                      <DynamicField
+                        field={fieldByKey.get('primarySector')!}
+                        value={mergedCustomFields.primarySector}
+                        onChange={(val) => {
+                          handleCustomFieldChange('primarySector', val);
+                          if (cvFilledKeys.has('primarySector')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('primarySector');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('primarySector')}
+                        error={resolveFieldError(fieldErrors, 'primarySector')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
                     ) : null}
+                  </div>
 
-                    {/* Pozisyon */}
+                  {/* Row 2, Col 1: Pozisyon / Açık Pozisyon */}
+                  <div className="w-full min-w-0 space-y-2">
                     {fieldByKey.get('desiredRole') ? (
-                      <div className="space-y-2">
+                      <>
                         <DynamicField
                           field={fieldByKey.get('desiredRole')!}
                           value={mergedCustomFields.desiredRole}
@@ -3201,84 +3219,12 @@ export function CategoryListingForm({
                             }}
                           />
                         ) : null}
-                      </div>
-                    ) : null}
-
-                    {/* Lokasyon (İl & İlçe) */}
-                    {(fieldByKey.get('residenceCity') || fieldByKey.get('residenceDistrict')) ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {fieldByKey.get('residenceCity') ? (
-                          <DynamicField
-                            field={fieldByKey.get('residenceCity')!}
-                            value={mergedCustomFields.residenceCity}
-                            onChange={(val) => {
-                              handleCustomFieldChange('residenceCity', val);
-                              if (cvFilledKeys.has('residenceCity')) {
-                                setCvFilledKeys((prev) => {
-                                  const next = new Set(prev);
-                                  next.delete('residenceCity');
-                                  return next;
-                                });
-                              }
-                            }}
-                            isCvFilled={cvFilledKeys.has('residenceCity')}
-                            error={resolveFieldError(fieldErrors, 'residenceCity')}
-                            disabled={disabled || isBusy}
-                            context={dynamicFieldContext}
-                          />
-                        ) : null}
-
-                        {fieldByKey.get('residenceDistrict') ? (
-                          <DynamicField
-                            field={fieldByKey.get('residenceDistrict')!}
-                            value={mergedCustomFields.residenceDistrict}
-                            onChange={(val) => {
-                              handleCustomFieldChange('residenceDistrict', val);
-                              if (cvFilledKeys.has('residenceDistrict')) {
-                                setCvFilledKeys((prev) => {
-                                  const next = new Set(prev);
-                                  next.delete('residenceDistrict');
-                                  return next;
-                                });
-                              }
-                            }}
-                            isCvFilled={cvFilledKeys.has('residenceDistrict')}
-                            error={resolveFieldError(fieldErrors, 'residenceDistrict')}
-                            disabled={disabled || isBusy}
-                            context={dynamicFieldContext}
-                          />
-                        ) : null}
-                      </div>
+                      </>
                     ) : null}
                   </div>
 
-                  {/* Right Column: Sektör, Seviye, Demografi */}
-                  <div className="space-y-4 md:pl-4">
-                    {/* Sektör */}
-                    {fieldByKey.get('primarySector') ? (
-                      <div className="space-y-2">
-                        <DynamicField
-                          field={fieldByKey.get('primarySector')!}
-                          value={mergedCustomFields.primarySector}
-                          onChange={(val) => {
-                            handleCustomFieldChange('primarySector', val);
-                            if (cvFilledKeys.has('primarySector')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('primarySector');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('primarySector')}
-                          error={resolveFieldError(fieldErrors, 'primarySector')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      </div>
-                    ) : null}
-
-                    {/* Deneyim Seviyesi */}
+                  {/* Row 2, Col 2: Deneyim Seviyesi / Aranan Seviye */}
+                  <div className="w-full min-w-0">
                     {fieldByKey.get('experienceLevel') ? (
                       <DynamicField
                         field={fieldByKey.get('experienceLevel')!}
@@ -3299,57 +3245,105 @@ export function CategoryListingForm({
                         context={dynamicFieldContext}
                       />
                     ) : null}
+                  </div>
 
-                    {/* Demografi (Cinsiyet & Doğum Tarihi) */}
-                    {(fieldByKey.get('profileGender') || fieldByKey.get('birthDate')) ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {fieldByKey.get('profileGender') ? (
-                          <DynamicField
-                            field={fieldByKey.get('profileGender')!}
-                            value={mergedCustomFields.profileGender}
-                            onChange={(val) => {
-                              handleCustomFieldChange('profileGender', val);
-                              if (cvFilledKeys.has('profileGender')) {
-                                setCvFilledKeys((prev) => {
-                                  const next = new Set(prev);
-                                  next.delete('profileGender');
-                                  return next;
-                                });
-                              }
-                            }}
-                            isCvFilled={cvFilledKeys.has('profileGender')}
-                            error={resolveFieldError(fieldErrors, 'profileGender')}
-                            disabled={disabled || isBusy}
-                            context={dynamicFieldContext}
-                          />
-                        ) : null}
-
-                        {fieldByKey.get('birthDate') ? (
-                          <DynamicField
-                            field={fieldByKey.get('birthDate')!}
-                            value={mergedCustomFields.birthDate}
-                            onChange={(val) => {
-                              handleCustomFieldChange('birthDate', val);
-                              if (cvFilledKeys.has('birthDate')) {
-                                setCvFilledKeys((prev) => {
-                                  const next = new Set(prev);
-                                  next.delete('birthDate');
-                                  return next;
-                                });
-                              }
-                            }}
-                            isCvFilled={cvFilledKeys.has('birthDate')}
-                            error={resolveFieldError(fieldErrors, 'birthDate')}
-                            disabled={disabled || isBusy}
-                            context={dynamicFieldContext}
-                          />
-                        ) : null}
-                      </div>
+                  {/* Row 3, Col 1: Şehir (İl) */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('residenceCity') ? (
+                      <DynamicField
+                        field={fieldByKey.get('residenceCity')!}
+                        value={mergedCustomFields.residenceCity}
+                        onChange={(val) => {
+                          handleCustomFieldChange('residenceCity', val);
+                          if (cvFilledKeys.has('residenceCity')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('residenceCity');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('residenceCity')}
+                        error={resolveFieldError(fieldErrors, 'residenceCity')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
                     ) : null}
                   </div>
+
+                  {/* Row 3, Col 2: İlçe */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('residenceDistrict') ? (
+                      <DynamicField
+                        field={fieldByKey.get('residenceDistrict')!}
+                        value={mergedCustomFields.residenceDistrict}
+                        onChange={(val) => {
+                          handleCustomFieldChange('residenceDistrict', val);
+                          if (cvFilledKeys.has('residenceDistrict')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('residenceDistrict');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('residenceDistrict')}
+                        error={resolveFieldError(fieldErrors, 'residenceDistrict')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 4 (varsa): Cinsiyet & Doğum Tarihi (isBul) */}
+                  {fieldByKey.get('profileGender') ? (
+                    <div className="w-full min-w-0">
+                      <DynamicField
+                        field={fieldByKey.get('profileGender')!}
+                        value={mergedCustomFields.profileGender}
+                        onChange={(val) => {
+                          handleCustomFieldChange('profileGender', val);
+                          if (cvFilledKeys.has('profileGender')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('profileGender');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('profileGender')}
+                        error={resolveFieldError(fieldErrors, 'profileGender')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    </div>
+                  ) : null}
+
+                  {fieldByKey.get('birthDate') ? (
+                    <div className="w-full min-w-0">
+                      <DynamicField
+                        field={fieldByKey.get('birthDate')!}
+                        value={mergedCustomFields.birthDate}
+                        onChange={(val) => {
+                          handleCustomFieldChange('birthDate', val);
+                          if (cvFilledKeys.has('birthDate')) {
+                            setCvFilledKeys((prev) => {
+                              const next = new Set(prev);
+                              next.delete('birthDate');
+                              return next;
+                            });
+                          }
+                        }}
+                        isCvFilled={cvFilledKeys.has('birthDate')}
+                        error={resolveFieldError(fieldErrors, 'birthDate')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   {(isSeekingIdentityStep
                     ? restCustomKeys.filter((key) => key !== 'productName')
                     : restCustomKeys
@@ -3372,7 +3366,7 @@ export function CategoryListingForm({
                       key === 'sampleContractUrl';
 
                     return (
-                      <div key={key} className={cn('space-y-2', isFullWidth && 'sm:col-span-2')}>
+                      <div key={key} className={cn('space-y-2 w-full min-w-0', isFullWidth && 'md:col-span-2')}>
                         <DynamicField
                           field={field}
                           value={

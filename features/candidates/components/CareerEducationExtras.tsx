@@ -84,7 +84,7 @@ export function CareerEducationExtras({
         </Label>
         <select
           id="educationLevel"
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          className="flex h-11 min-h-[42px] w-full rounded-xl border border-input bg-card px-3.5 text-sm"
           value={educationLevel}
           disabled={disabled}
           onChange={(e) => {

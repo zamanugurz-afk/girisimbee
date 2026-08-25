@@ -40,56 +40,53 @@ export function DistrictSelect({
   const cityMissing = !city;
 
   return (
-    <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={id}
-            type="button"
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            disabled={disabled || cityMissing || districts.length === 0}
-            className={cn(
-              'h-10 w-full min-w-0 justify-between font-normal text-left',
-              !value && 'text-muted-foreground',
-              formControlErrorClass(error),
-            )}
-          >
-            <span className="truncate flex-1">{cityMissing ? 'Önce il seçin' : (value ?? placeholder)}</span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="İlçe ara…" />
-            <CommandList>
-              <CommandEmpty>İlçe bulunamadı.</CommandEmpty>
-              <CommandGroup>
-                {districts.map((district) => (
-                  <CommandItem
-                    key={district}
-                    value={district}
-                    onSelect={() => {
-                      onChange(district === value ? null : district);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        value === district ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    {district}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled || cityMissing || districts.length === 0}
+          className={cn(
+            'h-11 min-h-[42px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-sm',
+            !value && 'text-muted-foreground',
+            formControlErrorClass(error),
+          )}
+        >
+          <span className="truncate flex-1">{cityMissing ? 'Önce il seçin' : (value ?? placeholder)}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="İlçe ara…" />
+          <CommandList>
+            <CommandEmpty>İlçe bulunamadı.</CommandEmpty>
+            <CommandGroup>
+              {districts.map((district) => (
+                <CommandItem
+                  key={district}
+                  value={district}
+                  onSelect={() => {
+                    onChange(district === value ? null : district);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      value === district ? 'opacity-100' : 'opacity-0',
+                    )}
+                  />
+                  {district}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -42,26 +42,25 @@ export function CitySelect({
   const cities = sortCitiesForPicker(extended ? LISTING_CITY_OPTIONS : TURKISH_CITIES);
 
   return (
-    <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={id}
-            type="button"
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            disabled={disabled}
-            className={cn(
-              'h-10 w-full min-w-0 justify-between font-normal text-left',
-              !value && 'text-muted-foreground',
-              formControlErrorClass(error),
-            )}
-          >
-            <span className="truncate flex-1">{selectedLabel ?? placeholder}</span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled}
+          className={cn(
+            'h-11 min-h-[42px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-sm',
+            !value && 'text-muted-foreground',
+            formControlErrorClass(error),
+          )}
+        >
+          <span className="truncate flex-1">{selectedLabel ?? placeholder}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
           <Command>
             <CommandInput placeholder="Şehir ara…" />
@@ -89,9 +88,7 @@ export function CitySelect({
               </CommandGroup>
             </CommandList>
           </Command>
-        </PopoverContent>
-      </Popover>
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }

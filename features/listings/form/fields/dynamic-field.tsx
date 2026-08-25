@@ -31,6 +31,8 @@ import {
   getPositionsForSector,
   MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { SmartCustomSelector } from '@/features/shared/components/smart-custom-selector';
+import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -325,16 +327,59 @@ function FieldControl({
   switch (field.type) {
     case 'string': {
       const isOtherField = field.key.endsWith('Other') || field.key.includes('Other');
-      return (
-        <div className={cn(
-          isOtherField && 'rounded-xl border border-amber-300/90 bg-amber-50/60 p-3.5 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20 space-y-1.5'
-        )}>
-          {isOtherField && (
+      if (isOtherField) {
+        let domain: any = undefined;
+        let catalog: string[] | undefined = undefined;
+
+        if (field.key === 'sectorOther' || field.key === 'preferredSectorsOther') {
+          domain = 'sectors';
+        } else if (
+          field.key === 'desiredRoleOther' ||
+          field.key === 'positionTitleOther' ||
+          field.key === 'preferredRolesOther' ||
+          field.key === 'roleOther'
+        ) {
+          const currentSector = String(context?.values?.primarySector ?? context?.values?.sector ?? '');
+          catalog = currentSector ? getPositionsForSector(currentSector) : undefined;
+          if (!catalog || catalog.length === 0) domain = 'positions';
+        } else if (field.key === 'districtOther' || field.key === 'preferredDistrictOther') {
+          const currentCity = context?.coreCity ?? String(context?.values?.city ?? context?.values?.residenceCity ?? '');
+          catalog = currentCity ? getDistrictsForCity(currentCity) : undefined;
+        } else if (field.key === 'professionalSkillsOther' || field.key === 'skillsOther') {
+          domain = 'professional-skills';
+        } else if (field.key === 'technicalSkillsOther') {
+          domain = 'technical-skills';
+        } else if (field.key === 'toolsOther') {
+          domain = 'tools';
+        } else if (field.key === 'certificatesOther') {
+          domain = 'certificates';
+        }
+
+        return (
+          <div className="rounded-xl border border-amber-300/90 bg-amber-50/60 p-3.5 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
               <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               <span>Özel / Manuel Giriş Alanı:</span>
             </div>
-          )}
+            <SmartCustomSelector
+              id={id}
+              mode="single"
+              domain={domain}
+              catalog={catalog}
+              value={displayValue}
+              onChange={(val) => onChange(val)}
+              disabled={disabled}
+              placeholder={ui.placeholder ?? `${field.label} girin veya sistemden seçin...`}
+              helperText={ui.helperText}
+              error={error}
+              allowCustom
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div>
           <Input
             id={id}
             lang="tr"
@@ -345,10 +390,7 @@ function FieldControl({
             disabled={disabled}
             placeholder={ui.placeholder ?? `${field.label} girin`}
             maxLength={ui.maxLength}
-            className={cn(
-              formControlErrorClass(error),
-              isOtherField && 'bg-white dark:bg-zinc-900 border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40'
-            )}
+            className={formControlErrorClass(error)}
           />
           <FormFieldFooter
             helperText={ui.helperText}

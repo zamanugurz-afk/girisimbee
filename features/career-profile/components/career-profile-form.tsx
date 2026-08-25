@@ -80,9 +80,9 @@ import {
 } from 'lucide-react';
 
 const fieldClass =
-  'h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900';
+  'h-11 min-h-[42px] w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900';
 const selectClass =
-  'h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900';
+  'h-11 min-h-[42px] w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900';
 const areaClass =
   'min-h-[110px] w-full min-w-0 rounded-xl border border-slate-200 bg-white p-3 text-sm text-foreground transition-colors focus:border-amber-500 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 leading-relaxed';
 
@@ -984,7 +984,7 @@ export function CareerProfileForm({
                 icon={User}
                 description="Önce sektörünüzü seçin; ardından o sektöre ait meslekler otomatik listelenir veya kendiniz yazabilirsiniz."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   {/* 1. Ana Sektör (Önce Seçilir) */}
                   <Field
                     label="Ana Sektör"
@@ -1219,7 +1219,7 @@ export function CareerProfileForm({
                 icon={GraduationCap}
                 description="Mezuniyet dereceniz, bitirdiğiniz bölüm, yabancı dilleriniz ve sertifikalarınız."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field
                     label="Eğitim Seviyesi"
                     required
@@ -1337,7 +1337,7 @@ export function CareerProfileForm({
                 </div>
 
                 {/* Work Conditions */}
-                <div className="grid gap-4 sm:grid-cols-2 mt-5 pt-5 border-t border-border/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start mt-5 pt-5 border-t border-border/50">
                   <Field label="Çalışma Modeli" required>
                     <select
                       value={workplacePreference}
@@ -1459,7 +1459,7 @@ export function CareerProfileForm({
                 icon={Building2}
                 description="İlan kartlarında açıkça gösterilecek ve adayların güvenini artıracak şirket bilgileri."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field label="Şirket / Girişim İsmi" hint="İlan kartında açıkça görüntülenir">
                     <div className="relative">
                       <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -1528,7 +1528,7 @@ export function CareerProfileForm({
                 icon={Briefcase}
                 description="Aranan açık pozisyon, deneyim seviyesi ve çalışma şartları."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field
                     label="Açık Pozisyon Unvanı"
                     required
@@ -1678,7 +1678,7 @@ export function CareerProfileForm({
                 icon={DollarSign}
                 description="Pozisyon bütçesi ve adaydan beklenen eğitim/dil kriterleri."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field label="Aranan Eğitim Seviyesi">
                     <select
                       value={educationLevel}
@@ -1749,7 +1749,7 @@ export function CareerProfileForm({
                 icon={Handshake}
                 description="Girişim adı, ortaklık türü ve ana sektör."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field label="Girişim / Proje Adı" required>
                     <input
                       type="text"
@@ -1810,7 +1810,7 @@ export function CareerProfileForm({
                 icon={Rocket}
                 description="Girişimin mevcut gelişim aşaması ve gelir modeli."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field label="Girişim Aşaması" required>
                     <select
                       value={stage}
@@ -1882,7 +1882,7 @@ export function CareerProfileForm({
                 icon={PieChart}
                 description="Sermaye katkısı ve önerilen hisse paylaşımı."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   <Field label="Sermaye Katkısı / İhtiyacı" hint="Örn: 250.000 TL / Efor Odaklı">
                     <input
                       type="text"
