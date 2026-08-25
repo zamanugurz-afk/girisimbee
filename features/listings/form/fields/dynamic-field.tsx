@@ -110,6 +110,8 @@ export interface DynamicFieldContext {
   /** Sibling custom + core values for dependent fields (city → district). */
   values?: Record<string, unknown>;
   coreCity?: string | null;
+  categoryId?: string | null;
+  themeColor?: 'emerald' | 'sky' | 'amber' | 'blue' | 'purple' | 'teal' | 'rose' | 'slate' | 'default' | string;
   onDismissPrunedNotice?: () => void;
 }
 
@@ -371,10 +373,64 @@ function FieldControl({
           domain = 'certificates';
         }
 
+        const activeThemeKey = (
+          context?.themeColor ||
+          (context?.categoryId === '44444444-4444-4000-8000-000000000004' || context?.categoryId === 'ise-al'
+            ? 'emerald'
+            : context?.categoryId === '33333333-3333-4000-8000-000000000003' || context?.categoryId === 'is-ariyorum'
+              ? 'sky'
+              : 'default')
+        ).toLowerCase();
+
+        const themeStyles: Record<string, { box: string; header: string; dot: string }> = {
+          emerald: {
+            box: 'border-emerald-300/90 bg-emerald-50/60 dark:border-emerald-700/60 dark:bg-emerald-950/20',
+            header: 'text-emerald-800 dark:text-emerald-300',
+            dot: 'bg-emerald-500',
+          },
+          sky: {
+            box: 'border-sky-300/90 bg-sky-50/60 dark:border-sky-700/60 dark:bg-sky-950/20',
+            header: 'text-sky-800 dark:text-sky-300',
+            dot: 'bg-sky-500',
+          },
+          amber: {
+            box: 'border-amber-300/90 bg-amber-50/60 dark:border-amber-700/60 dark:bg-amber-950/20',
+            header: 'text-amber-800 dark:text-amber-300',
+            dot: 'bg-amber-500',
+          },
+          blue: {
+            box: 'border-blue-300/90 bg-blue-50/60 dark:border-blue-700/60 dark:bg-blue-950/20',
+            header: 'text-blue-800 dark:text-blue-300',
+            dot: 'bg-blue-500',
+          },
+          purple: {
+            box: 'border-purple-300/90 bg-purple-50/60 dark:border-purple-700/60 dark:bg-purple-950/20',
+            header: 'text-purple-800 dark:text-purple-300',
+            dot: 'bg-purple-500',
+          },
+          teal: {
+            box: 'border-teal-300/90 bg-teal-50/60 dark:border-teal-700/60 dark:bg-teal-950/20',
+            header: 'text-teal-800 dark:text-teal-300',
+            dot: 'bg-teal-500',
+          },
+          rose: {
+            box: 'border-rose-300/90 bg-rose-50/60 dark:border-rose-700/60 dark:bg-rose-950/20',
+            header: 'text-rose-800 dark:text-rose-300',
+            dot: 'bg-rose-500',
+          },
+          default: {
+            box: 'border-primary/40 bg-primary/[0.04] dark:border-primary/40 dark:bg-primary/[0.08]',
+            header: 'text-primary',
+            dot: 'bg-primary',
+          },
+        };
+
+        const activeBoxStyle = themeStyles[activeThemeKey] ?? themeStyles.default;
+
         return (
-          <div className="rounded-xl border border-amber-300/90 bg-amber-50/60 p-3.5 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
-              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+          <div className={cn('rounded-xl border p-3.5 shadow-2xs space-y-2', activeBoxStyle.box)}>
+            <div className={cn('flex items-center gap-1.5 text-xs font-semibold', activeBoxStyle.header)}>
+              <span className={cn('flex h-2 w-2 rounded-full animate-pulse', activeBoxStyle.dot)} />
               <span>Özel / Manuel Giriş Alanı:</span>
             </div>
             <SmartCustomSelector
@@ -385,6 +441,8 @@ function FieldControl({
               value={displayValue}
               onChange={(val) => onChange(val)}
               disabled={disabled}
+              themeColor={activeThemeKey}
+              badgeColor={activeThemeKey}
               placeholder={ui.placeholder ?? `${field.label} girin veya sistemden seçin...`}
               helperText={ui.helperText}
               error={error}

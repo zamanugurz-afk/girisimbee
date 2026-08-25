@@ -117,11 +117,14 @@ export function CareerSkillsEditor({
     .filter(Boolean)
     .join('\n');
 
+  const themeColor = isHire ? 'emerald' : 'sky';
+
   return (
     <div className="space-y-5">
       <CareerMultiSelect
         label={isHire ? 'Aranan mesleki yetkinlikler' : 'Mesleki yetkinlikler'}
         domain="professional-skills"
+        themeColor={themeColor}
         options={professionalOptions}
         value={parseSelectedList(value.professionalSkills)}
         onChange={(next) => onChange({ professionalSkills: joinSelectedList(next) })}
@@ -154,6 +157,7 @@ export function CareerSkillsEditor({
       <CareerMultiSelect
         label={isHire ? 'Aranan teknik yetkinlikler' : 'Teknik yetkinlikler'}
         domain="technical-skills"
+        themeColor={themeColor}
         options={technicalOptions}
         value={parseSelectedList(value.technicalSkills)}
         onChange={(next) => onChange({ technicalSkills: joinSelectedList(next) })}
@@ -186,6 +190,7 @@ export function CareerSkillsEditor({
       <CareerMultiSelect
         label={isHire ? 'Aranan araçlar / programlar' : 'Kullanılan araçlar / programlar'}
         domain="tools"
+        themeColor={themeColor}
         options={toolOptions}
         value={parseSelectedList(value.tools)}
         onChange={(next) => onChange({ tools: joinSelectedList(next) })}

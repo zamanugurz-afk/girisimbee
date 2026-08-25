@@ -115,6 +115,8 @@ export function CareerEducationExtras({
           label={isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
           domain="education-fields"
           mode="single"
+          themeColor={isHire ? 'emerald' : 'sky'}
+          badgeColor={isHire ? 'emerald' : 'sky'}
           value={fieldIsManual ? educationFieldOther : educationField}
           onChange={(val) =>
             onChange({
@@ -131,6 +133,7 @@ export function CareerEducationExtras({
       <CareerMultiSelect
         label={isHire ? 'Aranan sertifikalar' : 'Sertifikalar'}
         domain="certificates"
+        themeColor={isHire ? 'emerald' : 'sky'}
         catalog={getAllTaxonomyCertificates()}
         options={certificateOptions}
         value={parseSelectedList(certificates)}

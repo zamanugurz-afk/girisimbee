@@ -52,6 +52,7 @@ export function HireRoleNeedsEditor({
       <div className="space-y-2">
         <CareerMultiSelect
           label="Aranan Temel Sorumluluklar"
+          themeColor="emerald"
           options={respOptions}
           value={parseSelectedList(value.requiredResponsibilities)}
           onChange={(next) => onChange({ requiredResponsibilities: joinSelectedList(next) })}
@@ -87,6 +88,7 @@ export function HireRoleNeedsEditor({
       <div className="space-y-2">
         <CareerMultiSelect
           label="Öne Çıkan Başarı Beklentisi"
+          themeColor="emerald"
           options={achOptions}
           value={parseSelectedList(value.requiredAchievements)}
           onChange={(next) => onChange({ requiredAchievements: joinSelectedList(next) })}

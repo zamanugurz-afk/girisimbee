@@ -29,6 +29,7 @@ export function CareerMultiSelect({
   error,
   domain,
   catalog,
+  themeColor = 'emerald',
 }: {
   label: string;
   options: string[];
@@ -42,6 +43,7 @@ export function CareerMultiSelect({
   error?: string | null;
   domain?: SetDomain;
   catalog?: string[];
+  themeColor?: 'emerald' | 'sky' | 'amber' | 'blue' | 'purple' | 'teal' | 'rose' | 'slate' | 'default' | string;
 }) {
   const selected = value ?? [];
   const showManual = selected.some((item) => isManualCareerOption(item));
@@ -103,7 +105,52 @@ export function CareerMultiSelect({
     onChange(selected.filter((item) => item !== opt));
   }
 
-  const pureSelected = selected.filter((item) => !isManualCareerOption(item));
+  const activeThemeKey = (themeColor || 'default').toLowerCase();
+  const themeMap: Record<string, any> = {
+    emerald: {
+      action: 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400',
+      badge: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/20',
+      manualBox: 'border-emerald-300/80 bg-emerald-50/60 dark:border-emerald-700/60 dark:bg-emerald-950/20',
+      manualHeader: 'text-emerald-800 dark:text-emerald-300',
+      manualDot: 'bg-emerald-500',
+      textarea: 'border-emerald-200 dark:border-emerald-800/60 focus-visible:ring-emerald-500 placeholder:text-emerald-900/40 dark:placeholder:text-emerald-100/40',
+      matchBorder: 'border-emerald-200 dark:border-emerald-800/40',
+      matchHeader: 'text-emerald-900 dark:text-emerald-200',
+      sparkle: 'text-emerald-600 dark:text-emerald-400',
+      pill: 'border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 hover:border-emerald-400',
+      plusIcon: 'text-emerald-600 dark:text-emerald-400',
+      fallbackText: 'text-emerald-800 dark:text-emerald-300',
+    },
+    sky: {
+      action: 'text-sky-600 hover:text-sky-700 dark:text-sky-400',
+      badge: 'bg-sky-500/10 text-sky-800 dark:text-sky-300 border-sky-500/20',
+      manualBox: 'border-sky-300/80 bg-sky-50/60 dark:border-sky-700/60 dark:bg-sky-950/20',
+      manualHeader: 'text-sky-800 dark:text-sky-300',
+      manualDot: 'bg-sky-500',
+      textarea: 'border-sky-200 dark:border-sky-800/60 focus-visible:ring-sky-500 placeholder:text-sky-900/40 dark:placeholder:text-sky-100/40',
+      matchBorder: 'border-sky-200 dark:border-sky-800/40',
+      matchHeader: 'text-sky-900 dark:text-sky-200',
+      sparkle: 'text-sky-600 dark:text-sky-400',
+      pill: 'border-sky-300 dark:border-sky-700 hover:bg-sky-100 dark:hover:bg-sky-900/50 hover:border-sky-400',
+      plusIcon: 'text-sky-600 dark:text-sky-400',
+      fallbackText: 'text-sky-800 dark:text-sky-300',
+    },
+    amber: {
+      action: 'text-amber-600 hover:text-amber-700 dark:text-amber-400',
+      badge: 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20',
+      manualBox: 'border-amber-300/80 bg-amber-50/60 dark:border-amber-700/60 dark:bg-amber-950/20',
+      manualHeader: 'text-amber-800 dark:text-amber-300',
+      manualDot: 'bg-amber-500',
+      textarea: 'border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40',
+      matchBorder: 'border-amber-200 dark:border-amber-800/40',
+      matchHeader: 'text-amber-900 dark:text-amber-200',
+      sparkle: 'text-amber-600 dark:text-amber-400',
+      pill: 'border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 hover:border-amber-400',
+      plusIcon: 'text-amber-600 dark:text-amber-400',
+      fallbackText: 'text-amber-800 dark:text-amber-300',
+    },
+  };
+  const theme = themeMap[activeThemeKey] ?? themeMap.emerald;
 
   return (
     <div className="space-y-2">
@@ -112,7 +159,7 @@ export function CareerMultiSelect({
         {options.length > 1 && !disabled && (
           <button
             type="button"
-            className="text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer transition-colors"
+            className={cn('text-[11px] font-medium hover:underline cursor-pointer transition-colors', theme.action)}
             onClick={() => {
               const nonManual = options.filter((o) => !isManualCareerOption(o));
               const allSelected = nonManual.length > 0 && nonManual.every((o) => selected.includes(o));
@@ -137,14 +184,17 @@ export function CareerMultiSelect({
           {pureSelected.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary border border-primary/20 shadow-2xs"
+              className={cn(
+                'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border shadow-2xs',
+                theme.badge
+              )}
             >
               <span>{item}</span>
               {!disabled && (
                 <button
                   type="button"
                   onClick={() => removeSelected(item)}
-                  className="hover:bg-primary/20 rounded p-0.5 transition-colors cursor-pointer"
+                  className="hover:opacity-75 rounded p-0.5 transition-colors cursor-pointer"
                   title="Kaldır"
                 >
                   <X className="h-3 w-3" />
@@ -189,16 +239,16 @@ export function CareerMultiSelect({
       </div>
 
       {showManual && onManualChange ? (
-        <div className="space-y-2 rounded-xl border border-amber-300/80 bg-amber-50/60 p-3.5 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
-            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+        <div className={cn('space-y-2 rounded-xl border p-3.5 shadow-2xs', theme.manualBox)}>
+          <div className={cn('flex items-center gap-1.5 text-xs font-semibold', theme.manualHeader)}>
+            <span className={cn('flex h-2 w-2 rounded-full animate-pulse', theme.manualDot)} />
             <span>Özel / Manuel Belirtme & Anlık Sistem Eşleştirme:</span>
           </div>
           <Textarea
             value={manualValue ?? ''}
             disabled={disabled}
             rows={2}
-            className="min-h-[64px] bg-white dark:bg-zinc-900 border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40"
+            className={cn('min-h-[64px] bg-white dark:bg-zinc-900', theme.textarea)}
             placeholder={manualPlaceholder ?? 'Kendi ifadenizi yazın (örn: SEGEM, PMP, AWS)...'}
             onKeyDownCapture={(event) => event.stopPropagation()}
             onKeyDown={(event) => event.stopPropagation()}
@@ -212,9 +262,9 @@ export function CareerMultiSelect({
 
           {/* Real-time System Option Suggestions */}
           {manualMatches.length > 0 && (
-            <div className="space-y-1.5 pt-2 border-t border-amber-200 dark:border-amber-800/40 animate-in fade-in duration-200">
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-amber-900 dark:text-amber-200">
-                <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+            <div className={cn('space-y-1.5 pt-2 border-t animate-in fade-in duration-200', theme.matchBorder)}>
+              <div className={cn('flex items-center gap-1 text-[11px] font-semibold', theme.matchHeader)}>
+                <Sparkles className={cn('h-3.5 w-3.5', theme.sparkle)} />
                 <span>Eşleşen Sistem Seçenekleri (Seçmek için tıklayın):</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -222,10 +272,13 @@ export function CareerMultiSelect({
                   <button
                     key={match.value}
                     type="button"
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white dark:bg-zinc-800 border border-amber-300 dark:border-amber-700 text-slate-800 dark:text-zinc-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer"
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white dark:bg-zinc-800 border text-slate-800 dark:text-zinc-200 transition-colors shadow-2xs cursor-pointer',
+                      theme.pill
+                    )}
                     onClick={() => addMatchedOption(match.value)}
                   >
-                    <Plus className="h-3 w-3 text-emerald-600 dark:text-emerald-400 font-bold" />
+                    <Plus className={cn('h-3 w-3 font-bold', theme.plusIcon)} />
                     <span>{match.value}</span>
                   </button>
                 ))}
@@ -238,7 +291,7 @@ export function CareerMultiSelect({
             <div className="pt-1">
               <button
                 type="button"
-                className="inline-flex items-center gap-1 text-[11px] text-amber-800 dark:text-amber-300 hover:underline cursor-pointer"
+                className={cn('inline-flex items-center gap-1 text-[11px] hover:underline cursor-pointer', theme.fallbackText)}
                 onClick={() => {
                   const formatted = formatCanonicalCustomValue(manualValue);
                   addMatchedOption(formatted);

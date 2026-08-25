@@ -681,6 +681,17 @@ export function CategoryListingForm({
     return () => clearTimeout(timeout);
   }, [mergedCustomFields]);
 
+  const categoryThemeColor = useMemo(() => {
+    if (categoryId === CATEGORY_IDS.iseAl) return 'emerald';
+    if (categoryId === CATEGORY_IDS.isBul) return 'sky';
+    if (categoryId === CATEGORY_IDS.ortakBul) return 'amber';
+    if (categoryId === CATEGORY_IDS.yatirimYap) return 'blue';
+    if (categoryId === CATEGORY_IDS.bayilikAl) return 'purple';
+    if (categoryId === CATEGORY_IDS.isletmeDevri) return 'teal';
+    if (categoryId === CATEGORY_IDS.dijitalAi) return 'rose';
+    return 'emerald';
+  }, [categoryId]);
+
   const dynamicFieldContext = useMemo(
     () => ({
       values: {
@@ -688,9 +699,11 @@ export function CategoryListingForm({
         sectorsPrunedNotice,
       },
       coreCity: core.city ?? null,
+      categoryId,
+      themeColor: categoryThemeColor,
       onDismissPrunedNotice: () => setSectorsPrunedNotice(false),
     }),
-    [mergedCustomFields, sectorsPrunedNotice, core.city],
+    [mergedCustomFields, sectorsPrunedNotice, core.city, categoryId, categoryThemeColor],
   );
 
   const qualityChecklistItems = useMemo(() => {
@@ -2698,6 +2711,8 @@ export function CategoryListingForm({
                   setCustomField('languages', serializeCareerLanguages(next));
                 }}
                 disabled={disabled || isBusy}
+                audience={categoryId === CATEGORY_IDS.iseAl ? 'hire' : 'seeker'}
+                themeColor={categoryThemeColor}
                 error={resolveFieldError(fieldErrors, 'languages')}
               />
             </div>

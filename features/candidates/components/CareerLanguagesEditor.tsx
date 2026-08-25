@@ -18,12 +18,17 @@ export function CareerLanguagesEditor({
   onChange,
   disabled,
   error,
+  themeColor,
+  audience = 'seeker',
 }: {
   value: CareerLanguageEntry[];
   onChange: (next: CareerLanguageEntry[]) => void;
   disabled?: boolean;
   error?: string | null;
+  themeColor?: string;
+  audience?: 'seeker' | 'hire';
 }) {
+  const activeTheme = themeColor ?? (audience === 'hire' ? 'emerald' : 'sky');
   const rows =
     value.length > 0
       ? value
@@ -55,6 +60,8 @@ export function CareerLanguagesEditor({
                 label={`Dil ${index + 1}`}
                 domain="languages"
                 mode="single"
+                themeColor={activeTheme}
+                badgeColor={activeTheme}
                 value={isManual ? row.languageOther : row.language}
                 onChange={(val) =>
                   updateRow(row.id, {
