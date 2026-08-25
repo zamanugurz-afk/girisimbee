@@ -622,6 +622,33 @@ export function CareerProfilePreview({
     };
   }, [authLoading, user, listingId, isHire, isOwner, readOnlySnapshot]);
 
+  const handleViewApplication = useCallback(async () => {
+    if (appliedInfo?.conversationId) {
+      router.push(`/mesajlarim?c=${appliedInfo.conversationId}`);
+      return;
+    }
+    if (!listingId) {
+      router.push('/mesajlarim');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/listings/${listingId}/application-check`);
+      const json = await res.json();
+      const payload = json?.data || json;
+      const convId = payload?.application?.conversationId;
+      if (convId) {
+        setAppliedInfo({
+          hasApplied: true,
+          conversationId: convId,
+          status: payload?.application?.status,
+        });
+        router.push(`/mesajlarim?c=${convId}`);
+        return;
+      }
+    } catch {}
+    router.push('/mesajlarim');
+  }, [appliedInfo, listingId, router]);
+
   const loadMine = useCallback(async () => {
     if (!user || isOwner || !listingId || !isEligible) {
       setMine(null);
@@ -1349,13 +1376,7 @@ export function CareerProfilePreview({
                       <div className="shrink-0 w-full sm:w-auto flex justify-end">
                         <Button
                           type="button"
-                          onClick={() => {
-                            if (appliedInfo.conversationId) {
-                              router.push(`/mesajlarim?c=${appliedInfo.conversationId}`);
-                            } else {
-                              router.push('/mesajlarim');
-                            }
-                          }}
+                          onClick={handleViewApplication}
                           className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
                         >
                           <MessageSquare className="h-3.5 w-3.5" />

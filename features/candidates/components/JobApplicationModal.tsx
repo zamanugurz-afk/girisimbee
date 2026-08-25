@@ -213,6 +213,8 @@ export function JobApplicationModal({
 
       if (convId) {
         router.push(`/mesajlarim?c=${convId}`);
+      } else {
+        router.push('/mesajlarim');
       }
     } catch (err: any) {
       toast.error(err.message || 'Başvuru yapılırken bir hata oluştu.');

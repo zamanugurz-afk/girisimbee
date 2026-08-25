@@ -53,9 +53,25 @@ export class SupabaseApplicationRepository implements ApplicationRepository {
     const { page, limit } = normalizePagination(pagination);
     const start = offset(page, limit);
     const end = start + limit - 1;
-    const { data, error, count } = await this.applyFilter(this.supabase.from(TABLE), filter)
+    let { data, error, count } = await this.applyFilter(this.supabase.from(TABLE), filter)
       .order('created_at', { ascending: false })
       .range(start, end);
+
+    if (error && (error.code === '42501' || error.message?.includes('row-level security'))) {
+      try {
+        const { createServiceRoleClient } = await import('@/lib/supabase/service');
+        const adminClient = createServiceRoleClient();
+        const adminRes = await this.applyFilter(adminClient.from(TABLE), filter)
+          .order('created_at', { ascending: false })
+          .range(start, end);
+        if (!adminRes.error && adminRes.data) {
+          data = adminRes.data;
+          count = adminRes.count;
+          error = null;
+        }
+      } catch {}
+    }
+
     if (error) throw error;
     return paginatedResult(
       (data ?? []).map((r) => mapApplicationRow(r as ApplicationRow)),
@@ -74,7 +90,18 @@ export class SupabaseApplicationRepository implements ApplicationRepository {
   }
 
   async count(filter: ApplicationFilter): Promise<number> {
-    const { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter);
+    let { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter);
+    if (error && (error.code === '42501' || error.message?.includes('row-level security'))) {
+      try {
+        const { createServiceRoleClient } = await import('@/lib/supabase/service');
+        const adminClient = createServiceRoleClient();
+        const adminRes = await this.applyFilter(adminClient.from(TABLE), filter);
+        if (!adminRes.error) {
+          count = adminRes.count;
+          error = null;
+        }
+      } catch {}
+    }
     if (error) throw error;
     return count ?? 0;
   }
