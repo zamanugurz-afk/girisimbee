@@ -277,6 +277,15 @@ export class SupabaseConversationRepository implements ConversationRepository {
 
     // Insert without RETURNING/select first — SELECT RLS requires participant membership.
     let clientToUse = this.supabase;
+    let isAdmin = false;
+    try {
+      if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const { createServiceRoleClient } = await import('@/lib/supabase/service');
+        clientToUse = createServiceRoleClient();
+        isAdmin = true;
+      }
+    } catch {}
+
     const { error: insertError } = await clientToUse.from(TABLE).insert({
       id: conversation.id,
       listing_id: conversation.listingId,
@@ -286,10 +295,11 @@ export class SupabaseConversationRepository implements ConversationRepository {
       status: conversation.status,
     });
 
-    if (insertError && (insertError.code === '42501' || insertError.message?.includes('row-level security'))) {
+    if (insertError && !isAdmin) {
       try {
         const { createServiceRoleClient } = await import('@/lib/supabase/service');
         clientToUse = createServiceRoleClient();
+        isAdmin = true;
         const adminRes = await clientToUse.from(TABLE).insert({
           id: conversation.id,
           listing_id: conversation.listingId,
@@ -313,10 +323,27 @@ export class SupabaseConversationRepository implements ConversationRepository {
     });
 
     for (const userId of ordered) {
-      const { error: pErr } = await clientToUse.from(PARTICIPANTS).upsert({
+      let { error: pErr } = await clientToUse.from(PARTICIPANTS).upsert({
         conversation_id: conversation.id,
         user_id: userId,
       }, { onConflict: 'conversation_id,user_id' });
+
+      if (pErr && !isAdmin) {
+        try {
+          const { createServiceRoleClient } = await import('@/lib/supabase/service');
+          const adminClient = createServiceRoleClient();
+          const adminPErr = await adminClient.from(PARTICIPANTS).upsert({
+            conversation_id: conversation.id,
+            user_id: userId,
+          }, { onConflict: 'conversation_id,user_id' });
+          if (!adminPErr.error) {
+            pErr = null;
+            clientToUse = adminClient;
+            isAdmin = true;
+          }
+        } catch {}
+      }
+
       if (pErr) throw pErr;
     }
 

@@ -38,22 +38,32 @@ export const POST = withAuth(async (ctx) => {
     return ok({ synced: 0 });
   }
 
-  // 3. Find all applications where user is employer OR applicant
-  const filters: string[] = [];
+  const appMap = new Map<string, any>();
+
   if (ownedListingIds.length > 0) {
-    filters.push(`listing_id.in.(${ownedListingIds.join(',')})`);
+    const { data: employerApps } = await admin
+      .from('marketplace_applications')
+      .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
+      .in('listing_id', ownedListingIds)
+      .is('deleted_at', null);
+    for (const app of employerApps ?? []) {
+      appMap.set(app.id, app);
+    }
   }
+
   if (myProfileIds.length > 0) {
-    filters.push(`applicant_profile_id.in.(${myProfileIds.join(',')})`);
+    const { data: applicantApps } = await admin
+      .from('marketplace_applications')
+      .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
+      .in('applicant_profile_id', myProfileIds)
+      .is('deleted_at', null);
+    for (const app of applicantApps ?? []) {
+      appMap.set(app.id, app);
+    }
   }
 
-  const { data: applications, error: appError } = await admin
-    .from('marketplace_applications')
-    .select('id, listing_id, applicant_profile_id, cover_message, conversation_id, status, created_at')
-    .is('deleted_at', null)
-    .or(filters.join(','));
-
-  if (appError || !applications || applications.length === 0) {
+  const applications = Array.from(appMap.values());
+  if (applications.length === 0) {
     return ok({ synced: 0 });
   }
 
@@ -74,22 +84,28 @@ export const POST = withAuth(async (ctx) => {
 
     if (!convId) {
       // Resolve applicant user_id
-      const { data: applicantProf } = await admin
-        .from('marketplace_profiles')
-        .select('user_id, display_name')
-        .eq('id', app.applicant_profile_id)
-        .maybeSingle();
-
-      const applicantUserId = applicantProf?.user_id ? ids.user(applicantProf.user_id) : ctx.userId;
+      let applicantUserId = ctx.userId;
+      if (app.applicant_profile_id) {
+        const { data: applicantProf } = await admin
+          .from('marketplace_profiles')
+          .select('user_id, display_name')
+          .eq('id', app.applicant_profile_id)
+          .maybeSingle();
+        if (applicantProf?.user_id) {
+          applicantUserId = ids.user(applicantProf.user_id);
+        }
+      }
 
       // Resolve listing and employer user_id
+      let employerUserId = ctx.userId;
       const { data: listingData } = await admin
         .from('marketplace_listings')
         .select('owner_id, title')
         .eq('id', app.listing_id)
         .maybeSingle();
-
-      const employerUserId = listingData?.owner_id ? ids.user(listingData.owner_id) : ctx.userId;
+      if (listingData?.owner_id) {
+        employerUserId = ids.user(listingData.owner_id);
+      }
 
       try {
         const conv = await ctx.container.messagingService.startConversation({
