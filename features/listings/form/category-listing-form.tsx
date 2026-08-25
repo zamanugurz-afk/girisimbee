@@ -3394,6 +3394,111 @@ export function CategoryListingForm({
                     </div>
                   ) : null}
                 </div>
+              ) : isFormStep && (currentStep.id === 'offer' || currentStep.id === 'preferences') && (categoryId === CATEGORY_IDS.iseAl || categoryId === CATEGORY_IDS.isBul) ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
+                  {/* Row 1, Col 1: Çalışma Tipi */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('workType') ? (
+                      <DynamicField
+                        field={fieldByKey.get('workType')!}
+                        value={mergedCustomFields.workType}
+                        onChange={(val) => handleCustomFieldChange('workType', val)}
+                        error={resolveFieldError(fieldErrors, 'workType')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 1, Col 2: Çalışma Modeli */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('workplacePreference') ? (
+                      <DynamicField
+                        field={fieldByKey.get('workplacePreference')!}
+                        value={mergedCustomFields.workplacePreference}
+                        onChange={(val) => handleCustomFieldChange('workplacePreference', val)}
+                        error={resolveFieldError(fieldErrors, 'workplacePreference')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 2, Col 1: Çalışma İli */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('preferredCity') ? (
+                      <DynamicField
+                        field={fieldByKey.get('preferredCity')!}
+                        value={mergedCustomFields.preferredCity}
+                        onChange={(val) => handleCustomFieldChange('preferredCity', val)}
+                        error={resolveFieldError(fieldErrors, 'preferredCity')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 2, Col 2: Çalışma İlçesi */}
+                  <div className="w-full min-w-0 space-y-2">
+                    {fieldByKey.get('preferredDistrict') ? (
+                      <DynamicField
+                        field={fieldByKey.get('preferredDistrict')!}
+                        value={mergedCustomFields.preferredDistrict}
+                        onChange={(val) => handleCustomFieldChange('preferredDistrict', val)}
+                        error={resolveFieldError(fieldErrors, 'preferredDistrict')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                    {isManualCareerOption(mergedCustomFields.preferredDistrict) && fieldByKey.get('preferredDistrictOther') ? (
+                      <DynamicField
+                        field={fieldByKey.get('preferredDistrictOther')!}
+                        value={mergedCustomFields.preferredDistrictOther}
+                        onChange={(val) => handleCustomFieldChange('preferredDistrictOther', val)}
+                        error={resolveFieldError(fieldErrors, 'preferredDistrictOther')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 3, Col 1: Maaş Aralığı / Ücret Beklentisi */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('salaryRange') ? (
+                      <DynamicField
+                        field={fieldByKey.get('salaryRange')!}
+                        value={mergedCustomFields.salaryRange}
+                        onChange={(val) => handleCustomFieldChange('salaryRange', val)}
+                        error={resolveFieldError(fieldErrors, 'salaryRange')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : fieldByKey.get('salaryExpectation') ? (
+                      <DynamicField
+                        field={fieldByKey.get('salaryExpectation')!}
+                        value={mergedCustomFields.salaryExpectation}
+                        onChange={(val) => handleCustomFieldChange('salaryExpectation', val)}
+                        error={resolveFieldError(fieldErrors, 'salaryExpectation')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+
+                  {/* Row 3, Col 2: İşe Başlama */}
+                  <div className="w-full min-w-0">
+                    {fieldByKey.get('availability') ? (
+                      <DynamicField
+                        field={fieldByKey.get('availability')!}
+                        value={mergedCustomFields.availability}
+                        onChange={(val) => handleCustomFieldChange('availability', val)}
+                        error={resolveFieldError(fieldErrors, 'availability')}
+                        disabled={disabled || isBusy}
+                        context={dynamicFieldContext}
+                      />
+                    ) : null}
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
                   {(isSeekingIdentityStep
