@@ -47,11 +47,14 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
     : null;
 
   const applicantProfile = await ctx.container.profileRepository.findById(application.applicantProfileId);
+  const isListingOwner = Boolean(listing && listing.ownerId === ctx.userId && application.listingId === listing.id);
   const isManager = Boolean(listing && listing.ownerId === ctx.userId);
   const isApplicant = Boolean(
     application.applicantProfileId === ctx.profileId ||
     (applicantProfile && applicantProfile.userId === ctx.userId),
   );
+
+  const canViewFullApplicantProfile = Boolean(isApplicant || isListingOwner);
 
   // If neither manager nor applicant nor participant, deny
   if (!isManager && !isApplicant) {
@@ -74,7 +77,9 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
       submittedAt: application.createdAt,
       updatedAt: application.updatedAt,
       isManager,
+      isListingOwner,
       isApplicant,
+      canViewFullApplicantProfile,
     },
   });
 });

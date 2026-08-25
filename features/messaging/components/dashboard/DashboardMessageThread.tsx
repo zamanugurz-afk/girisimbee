@@ -58,7 +58,9 @@ export interface ApplicationThreadData {
   profileSnapshot: CareerCardInput | null;
   submittedAt: string;
   isManager: boolean;
+  isListingOwner?: boolean;
   isApplicant: boolean;
+  canViewFullApplicantProfile?: boolean;
 }
 
 const STATUS_LABELS: Record<string, { label: string; bg: string; text: string; border: string }> = {
@@ -461,12 +463,10 @@ export function DashboardMessageThread({
                   <ShieldCheck className="h-4 w-4" />
                   {appData.isApplicant
                     ? 'Başvuru Anındaki Kariyer Profiliniz'
-                    : "Başvuru Anındaki Kariyer Profili Snapshot'ı"}
+                    : 'Başvuru Anındaki Kariyer Profili'}
                 </div>
                 <DialogTitle className="text-lg font-bold mt-1">
-                  {appData.isApplicant
-                    ? (appData.profileSnapshot.displayName || 'Kariyer Profiliniz')
-                    : (appData.profileSnapshot.displayName || 'Aday Kariyer Profili')}
+                  {appData.profileSnapshot.displayName || (appData.isApplicant ? 'Kariyer Profiliniz' : 'Aday Kariyer Profili')}
                 </DialogTitle>
               </div>
               {appData.isApplicant ? (
@@ -489,6 +489,7 @@ export function DashboardMessageThread({
                 data={appData.profileSnapshot}
                 readOnlySnapshot={true}
                 isOwnApplication={appData.isApplicant}
+                canViewFullApplicantProfile={appData.canViewFullApplicantProfile}
               />
             </div>
           </DialogContent>

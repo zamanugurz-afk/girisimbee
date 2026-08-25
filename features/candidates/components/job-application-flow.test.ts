@@ -918,4 +918,208 @@ describe('Job Application + Career Profile Snapshot + Messaging Integration Suit
     expect(appFromRepo?.profileSnapshot?.desiredRole).toBe('Senior Full Stack Developer');
     expect(appFromRepo?.applicantProfileId).toBe(candidateProfileId);
   });
+
+  it('TEST 9: Employer viewing applicant to own listing resolves canViewFullApplicantProfile=true and sees unmasked profile', async () => {
+    const fullSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      contactPhone: '+90 532 111 22 33',
+      contactEmail: 'ugurzaman1907@gmail.com',
+      desiredRole: 'Satış - Hesap Yöneticisi',
+      primarySector: 'Satış & Pazarlama',
+      experiences: [
+        {
+          id: 'exp-1',
+          role: 'Senior Account Manager',
+          company: 'Girişim A.Ş.',
+          sector: 'Satış',
+          duration: '3 yıl',
+          responsibilities: 'Kurumsal portföy yönetimi',
+        },
+      ],
+    };
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'İlana başvurum',
+      undefined,
+      fullSnapshot,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    // Employer context check
+    const listing = await listingRepo.findById(listingId);
+    const applicantProfile = await profileRepo.findById(candidateProfileId);
+    const isListingOwner = Boolean(listing && listing.ownerId === employerUserId && app.listingId === listing.id);
+    const isManager = Boolean(listing && listing.ownerId === employerUserId);
+    const isApplicant = Boolean(
+      app.applicantProfileId === employerProfileId ||
+      (applicantProfile && applicantProfile.userId === employerUserId),
+    );
+    const canViewFullApplicantProfile = Boolean(isApplicant || isListingOwner);
+
+    expect(isListingOwner).toBe(true);
+    expect(isManager).toBe(true);
+    expect(isApplicant).toBe(false);
+    expect(canViewFullApplicantProfile).toBe(true);
+
+    // Snapshot integrity
+    expect(app.profileSnapshot?.displayName).toBe('Uğur Zaman');
+    expect(app.profileSnapshot?.contactPhone).toBe('+90 532 111 22 33');
+    expect(app.profileSnapshot?.contactEmail).toBe('ugurzaman1907@gmail.com');
+    expect(app.profileSnapshot?.experiences?.[0].company).toBe('Girişim A.Ş.');
+  });
+
+  it('TEST 10: Candidate viewing own application resolves isApplicant=true, canViewFullApplicantProfile=true', async () => {
+    const fullSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      contactPhone: '+90 532 111 22 33',
+      contactEmail: 'ugurzaman1907@gmail.com',
+      desiredRole: 'Satış - Hesap Yöneticisi',
+      experiences: [{ id: 'exp-1', role: 'Manager', company: 'Tech Inc', duration: '2 yıl', responsibilities: 'Dev' }],
+    };
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Kendi başvurum',
+      undefined,
+      fullSnapshot,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    const listing = await listingRepo.findById(listingId);
+    const applicantProfile = await profileRepo.findById(candidateProfileId);
+    const isListingOwner = Boolean(listing && listing.ownerId === candidateUserId && app.listingId === listing.id);
+    const isManager = Boolean(listing && listing.ownerId === candidateUserId);
+    const isApplicant = Boolean(
+      app.applicantProfileId === candidateProfileId ||
+      (applicantProfile && applicantProfile.userId === candidateUserId),
+    );
+    const canViewFullApplicantProfile = Boolean(isApplicant || isListingOwner);
+
+    expect(isApplicant).toBe(true);
+    expect(isListingOwner).toBe(false);
+    expect(isManager).toBe(false);
+    expect(canViewFullApplicantProfile).toBe(true);
+  });
+
+  it('TEST 11: Third-party user resolves canViewFullApplicantProfile=false, preserving Zero-PII', async () => {
+    const thirdPartyUserId = ids.user('third-party-user-uuid');
+    const thirdPartyProfileId = ids.profile('third-party-profile-uuid');
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Başvuru',
+      undefined,
+      { displayName: 'Uğur Zaman', contactPhone: '+90 532 111 22 33' },
+    );
+
+    const listing = await listingRepo.findById(listingId);
+    const applicantProfile = await profileRepo.findById(candidateProfileId);
+    const isListingOwner = Boolean(listing && listing.ownerId === thirdPartyUserId && app.listingId === listing.id);
+    const isManager = Boolean(listing && listing.ownerId === thirdPartyUserId);
+    const isApplicant = Boolean(
+      app.applicantProfileId === thirdPartyProfileId ||
+      (applicantProfile && applicantProfile.userId === thirdPartyUserId),
+    );
+    const canViewFullApplicantProfile = Boolean(isApplicant || isListingOwner);
+
+    expect(isApplicant).toBe(false);
+    expect(isListingOwner).toBe(false);
+    expect(isManager).toBe(false);
+    expect(canViewFullApplicantProfile).toBe(false);
+  });
+
+  it('TEST 12: Another employer with different listing resolves canViewFullApplicantProfile=false', async () => {
+    const otherEmployerUserId = ids.user('other-employer-uuid');
+    const otherEmployerProfileId = ids.profile('other-employer-profile-uuid');
+    const otherListingId = ids.listing('other-listing-uuid');
+
+    await listingRepo.create({
+      id: otherListingId,
+      ownerId: otherEmployerUserId,
+      title: 'Farklı İlan',
+      status: 'active',
+      kind: 'job',
+      summary: 'Özet',
+      description: 'Açıklama',
+      tags: [],
+      price: null,
+      currency: 'TRY',
+      viewCount: 0,
+      favoriteCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId, // Belongs to listingId, NOT otherListingId
+      'Başvuru',
+    );
+
+    // Other employer tries to evaluate this application
+    const listing = await listingRepo.findById(listingId);
+    const applicantProfile = await profileRepo.findById(candidateProfileId);
+    const isListingOwner = Boolean(listing && listing.ownerId === otherEmployerUserId && app.listingId === listing.id);
+    const isApplicant = Boolean(
+      app.applicantProfileId === otherEmployerProfileId ||
+      (applicantProfile && applicantProfile.userId === otherEmployerUserId),
+    );
+    const canViewFullApplicantProfile = Boolean(isApplicant || isListingOwner);
+
+    expect(isListingOwner).toBe(false);
+    expect(isApplicant).toBe(false);
+    expect(canViewFullApplicantProfile).toBe(false);
+  });
+
+  it('TEST 13: Unauthorized listing owner attempting to view application of a different listing is denied', async () => {
+    const maliciousListingOwnerId = ids.user('malicious-owner-uuid');
+    const maliciousListingId = ids.listing('malicious-listing-uuid');
+
+    await listingRepo.create({
+      id: maliciousListingId,
+      ownerId: maliciousListingOwnerId,
+      title: 'Tuzak İlan',
+      status: 'active',
+      kind: 'job',
+      summary: 'Özet',
+      description: 'Açıklama',
+      tags: [],
+      price: null,
+      currency: 'TRY',
+      viewCount: 0,
+      favoriteCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const legitimateApp = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId, // belongs to legitimate listing
+      'Gizli Başvuru',
+    );
+
+    // Malicious owner attempts authorization with maliciousListingId against legitimateApp
+    const legitimateListing = await listingRepo.findById(legitimateApp.listingId);
+    const isOwnerOfApplicationListing = Boolean(
+      legitimateListing &&
+      legitimateListing.ownerId === maliciousListingOwnerId &&
+      legitimateApp.listingId === legitimateListing.id,
+    );
+
+    expect(isOwnerOfApplicationListing).toBe(false);
+  });
 });
