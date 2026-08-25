@@ -21,19 +21,22 @@ describe('picker sort', () => {
     expect(sorted).toHaveLength(JOB_SECTOR_OPTIONS.length);
   });
 
-  it('starts listing cities with Istanbul sides then large metros', () => {
+  it('starts listing cities with Istanbul sides then Turkish alphabetical order', () => {
     const sorted = sortCitiesForPicker(LISTING_CITY_OPTIONS);
     expect(sorted.slice(0, 4)).toEqual([
       'İstanbul Anadolu Yakası',
       'İstanbul Avrupa Yakası',
-      'Ankara',
-      'İzmir',
+      'Adana',
+      'Adıyaman',
     ]);
-    expect(sorted.indexOf('Adana')).toBeGreaterThan(sorted.indexOf('Ankara'));
+    expect(sorted.indexOf('Adana')).toBeLessThan(sorted.indexOf('Ankara'));
+    expect(sorted.indexOf('Ankara')).toBeLessThan(sorted.indexOf('İzmir'));
+    expect(sorted.indexOf('İzmir')).toBeLessThan(sorted.indexOf('Zonguldak'));
   });
 
-  it('starts province-only lists with Istanbul then large metros', () => {
+  it('sorts province-only lists in Turkish alphabetical order', () => {
     const sorted = sortCitiesForPicker(TURKISH_CITIES);
-    expect(sorted.slice(0, 3)).toEqual(['İstanbul', 'Ankara', 'İzmir']);
+    expect(sorted.slice(0, 3)).toEqual(['Adana', 'Adıyaman', 'Afyonkarahisar']);
+    expect(sorted.at(-1)).toBe('Zonguldak');
   });
 });

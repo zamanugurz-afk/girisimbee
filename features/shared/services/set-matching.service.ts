@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Central Set Matching & Manual Input Engine for GirişimBee.
  * Provides Turkish-normalized search, ranking (exact, prefix, word-start, substring),
  * catalog registry lookups, duplicate elimination, and canonical formatting.
@@ -168,10 +168,15 @@ export function searchTaxonomyCatalog<T = string>(
 
   const excludedSet = new Set(excludeValues.map((v) => normalizeTurkishSearch(v)));
 
-  // If query is empty, return top catalog items up to limit (excluding already selected)
+  // If query is empty, return top catalog items sorted in Turkish alphabetical order up to limit
   if (!normalizedQuery) {
     const list: ScoredMatch<T>[] = [];
-    for (const item of catalog) {
+    const sortedCatalog = [...catalog].sort((a, b) => {
+      const valA = getValue(a);
+      const valB = getValue(b);
+      return valA.localeCompare(valB, 'tr-TR');
+    });
+    for (const item of sortedCatalog) {
       const val = getValue(item);
       if (isManualCareerOption(val)) continue;
       if (excludedSet.has(normalizeTurkishSearch(val))) continue;

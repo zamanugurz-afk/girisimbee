@@ -83,38 +83,32 @@ export function sortPositionsPopularThenAz(
 }
 
 /**
- * İstanbul Anadolu / Avrupa first, then the other largest metros, then A–Z.
- * Plain "İstanbul" stays in the A–Z remainder when present.
+ * İstanbul Anadolu / Avrupa first, then the remaining provinces in Turkish alphabetical order.
  */
 export const PRIORITY_LISTING_CITIES = [
   'İstanbul Anadolu Yakası',
   'İstanbul Avrupa Yakası',
-  'Ankara',
-  'İzmir',
-  'Bursa',
-  'Antalya',
-  'Konya',
-  'Adana',
-  'Şanlıurfa',
-  'Gaziantep',
 ] as const;
 
 export const PRIORITY_PROVINCE_CITIES = [
   'İstanbul',
-  'Ankara',
-  'İzmir',
-  'Bursa',
-  'Antalya',
-  'Konya',
-  'Adana',
-  'Şanlıurfa',
-  'Gaziantep',
-  'Kocaeli',
 ] as const;
 
 export function sortCitiesForPicker(items: readonly string[]): string[] {
   const hasSides = items.includes('İstanbul Anadolu Yakası')
     || items.includes('İstanbul Avrupa Yakası');
-  const popular = hasSides ? PRIORITY_LISTING_CITIES : PRIORITY_PROVINCE_CITIES;
-  return sortPopularThenAz(items, popular);
+  
+  if (hasSides) {
+    const head: string[] = [];
+    if (items.includes('İstanbul Anadolu Yakası')) head.push('İstanbul Anadolu Yakası');
+    if (items.includes('İstanbul Avrupa Yakası')) head.push('İstanbul Avrupa Yakası');
+    const exclude = new Set(head);
+    const rest = items
+      .filter((c) => !exclude.has(c))
+      .slice()
+      .sort((a, b) => a.localeCompare(b, 'tr-TR'));
+    return [...head, ...rest];
+  }
+
+  return items.slice().sort((a, b) => a.localeCompare(b, 'tr-TR'));
 }

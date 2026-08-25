@@ -76,7 +76,7 @@ export function getDistrictsForCity(city: string | null | undefined): string[] {
   const key = resolveCityKey(city);
   if (!key) return [];
   const districts = DISTRICTS_BY_CITY[key];
-  if (districts?.length) return withDiger(districts);
+  if (districts?.length) return withDiger(districts.slice().sort((a, b) => a.localeCompare(b, 'tr-TR')));
   if ((TURKISH_CITIES as readonly string[]).includes(key)) {
     return [...FALLBACK_DISTRICTS];
   }

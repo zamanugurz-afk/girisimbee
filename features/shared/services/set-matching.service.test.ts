@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   normalizeTurkishSearch,
   searchTaxonomyCatalog,
@@ -84,6 +84,14 @@ describe('SetMatchingService — Turkish Normalized Autocomplete & Catalog Match
       expect(values).toContain('Bölge Müdürü');
       expect(values).toContain('Bölge Satış Müdürü');
     });
+
+    it('matches "cagri" to "Çağrı Merkezi Takım Lideri" and "satış" to "Satış Müdürü"', () => {
+      const cagriMatches = searchTaxonomyCatalog('cagri', samplePositions);
+      expect(cagriMatches.some((m) => m.value === 'Çağrı Merkezi Takım Lideri')).toBe(true);
+
+      const satisMatches = searchTaxonomyCatalog('satış', samplePositions);
+      expect(satisMatches[0].value).toBe('Satış Müdürü');
+    });
   });
 
   describe('4. Duplicate Prevention & Exclude List', () => {
@@ -99,9 +107,13 @@ describe('SetMatchingService — Turkish Normalized Autocomplete & Catalog Match
   });
 
   describe('5. Empty Query & Limit Handling', () => {
-    it('returns top catalog items up to limit when query is empty', () => {
-      const results = searchTaxonomyCatalog('', samplePositions, { limit: 3 });
-      expect(results.length).toBe(3);
+    it('returns top catalog items in Turkish alphabetical order when query is empty', () => {
+      const results = searchTaxonomyCatalog('', samplePositions, { limit: 4 });
+      expect(results.length).toBe(4);
+      expect(results[0].value).toBe('Bölge Müdürü');
+      expect(results[1].value).toBe('Bölge Operasyon Müdürü');
+      expect(results[2].value).toBe('Bölge Satış Müdürü');
+      expect(results[3].value).toBe('Çağrı Merkezi Takım Lideri');
     });
 
     it('returns empty array when query does not match any item in catalog', () => {
