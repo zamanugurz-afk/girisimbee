@@ -44,6 +44,20 @@ describe('listing-content-quality', () => {
     expect(out).toMatch(/Yatırımımızı/i);
   });
 
+  it('TEST 5b fixes MVP, suffix consonant stutters and Turkish word integrity', () => {
+    const out = normalizeListingDescription(
+      'Mvp aşamasındadd olan firmamız için yatırım arıyoruz.',
+    );
+    expect(out).toBe('MVP aşamasında olan firmamız için yatırım arıyoruz.');
+  });
+
+  it('TEST 5c fixes B2B SaaS acronyms and typos in body', () => {
+    const out = normalizeListingDescription(
+      'b2b saas girisimimizze ve cto arıyoruz',
+    );
+    expect(out).toBe('B2B SaaS girişimimize ve CTO arıyoruz.');
+  });
+
   it('TEST 6 strips title trailing bangs', () => {
     expect(normalizeListingTitle('Yatırımcı Arıyoruz!!!')).toBe('Yatırımcı Arıyoruz');
   });

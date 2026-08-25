@@ -12,7 +12,9 @@ import {
 } from '@/features/listings/lib/listing-content-policy';
 import {
   applyCommonTurkishTypos,
+  fixTurkishConsonantStutters,
   isMeaningfulTextCorrection,
+  normalizeAcronymsAndTerms,
   normalizeTurkishTypography,
   toTurkishSentenceCase,
 } from '@/features/listings/lib/turkish-text-autocorrect';
@@ -237,7 +239,9 @@ export function normalizeListingTitle(input: string): string {
   next = next.replace(/!{2,}/g, '!').replace(/\?{2,}/g, '?');
   next = normalizeTurkishTypography(next);
   next = collapseElongatedLetters(next);
+  next = fixTurkishConsonantStutters(next);
   next = applyCommonTurkishTypos(next);
+  next = normalizeAcronymsAndTerms(next);
   next = normalizeListingTitleCase(next);
   next = normalizePunctuation(next);
   next = stripTitleTrailingPunctuation(next);
@@ -266,9 +270,12 @@ export function normalizeListingDescription(input: string): string {
   let next = normalizeTurkishTypography(input);
   next = normalizePunctuation(next);
   next = collapseElongatedLetters(next);
+  next = fixTurkishConsonantStutters(next);
   next = applyCommonTurkishTypos(next);
+  next = normalizeAcronymsAndTerms(next);
   next = insertMissingSentenceBreaks(next);
   next = toTurkishSentenceCase(next);
+  next = normalizeAcronymsAndTerms(next);
   // Ensure ends with sentence punctuation if it has letters
   if (/\p{L}/u.test(next) && !/[.!?…]"?$/.test(next)) {
     next = `${next}.`;

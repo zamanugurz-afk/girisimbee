@@ -89,7 +89,7 @@ describe('franchise presentation', () => {
       'basics',
       'investment',
       'details',
-      'publish',
+      'package',
     ]);
     expect(steps[0]?.coreFields).toEqual(['title', 'shortDescription']);
     expect(steps[0]?.customFieldKeys).toEqual(

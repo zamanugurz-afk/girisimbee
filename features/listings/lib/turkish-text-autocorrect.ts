@@ -33,18 +33,30 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   buyuk: 'büyük',
   kucuk: 'küçük',
   urun: 'ürün',
+  urunu: 'ürünü',
+  urunumuz: 'ürünümüz',
   urunler: 'ürünler',
+  urunlerimiz: 'ürünlerimiz',
   sirket: 'şirket',
   sirketimiz: 'şirketimiz',
+  sirketimizde: 'şirketimizde',
   isletme: 'işletme',
   isbirligi: 'işbirliği',
   isbirliği: 'işbirliği',
   girisim: 'girişim',
+  girisimi: 'girişimi',
+  girisimimiz: 'girişimimiz',
+  girisimimize: 'girişimimize',
   girisimci: 'girişimci',
   yatirim: 'yatırım',
+  yatirimi: 'yatırımı',
+  yatirimimiz: 'yatırımımız',
   yatirimci: 'yatırımcı',
+  yatirimcilar: 'yatırımcılar',
   ortalik: 'ortaklık',
   ortaklik: 'ortaklık',
+  ortakligimiz: 'ortaklığımız',
+  ortagimiz: 'ortağımız',
   basvuru: 'başvuru',
   basvurun: 'başvurun',
   deneyim: 'deneyim',
@@ -52,12 +64,16 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   mucsteri: 'müşteri',
   musteri: 'müşteri',
   musteriler: 'müşteriler',
+  musterilerimiz: 'müşterilerimiz',
+  musterilerimize: 'müşterilerimize',
   kazanc: 'kazanç',
   karlı: 'kârlı',
   karlilik: 'kârlılık',
   guvenilir: 'güvenilir',
   guvenli: 'güvenli',
+  guvenlik: 'güvenlik',
   ozellik: 'özellik',
+  ozellikler: 'özellikler',
   ozellikle: 'özellikle',
   onemli: 'önemli',
   oncelik: 'öncelik',
@@ -71,11 +87,49 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   imkanlar: 'imkânlar',
   sektor: 'sektör',
   sektorde: 'sektörde',
+  sektorunde: 'sektöründe',
+  sektorundeki: 'sektöründeki',
+  teknoloji: 'teknoloji',
   teknolojimiz: 'teknolojimiz',
+  teknolojik: 'teknolojik',
   gelistirme: 'geliştirme',
   gelistiriyoruz: 'geliştiriyoruz',
   olusturma: 'oluşturma',
   olusturuyoruz: 'oluşturuyoruz',
+  buyuyoruz: 'büyüyoruz',
+  hedefliyoruz: 'hedefliyoruz',
+  bekliyoruz: 'bekliyoruz',
+  uretiyoruz: 'üretiyoruz',
+  saglamak: 'sağlamak',
+  saglayacak: 'sağlayacak',
+  degerlendiriyoruz: 'değerlendiriyoruz',
+  asama: 'aşama',
+  asamasi: 'aşaması',
+  asamasinda: 'aşamasında',
+  asamasindayiz: 'aşamasındayız',
+  firmamiz: 'firmamız',
+  firmamizda: 'firmamızda',
+  firmamizdan: 'firmamızdan',
+  projemiz: 'projemiz',
+  projemizde: 'projemizde',
+  projemizi: 'projemizi',
+  ekip: 'ekip',
+  ekibimiz: 'ekibimiz',
+  ekibimize: 'ekibimize',
+  vizyon: 'vizyon',
+  vizyonumuz: 'vizyonumuz',
+  misyon: 'misyon',
+  misyonumuz: 'misyonumuz',
+  hizmet: 'hizmet',
+  hizmetler: 'hizmetler',
+  hizmetlerimiz: 'hizmetlerimiz',
+  cozum: 'çözüm',
+  cozumleri: 'çözümleri',
+  cozumler: 'çözümler',
+  cozumlerimiz: 'çözümlerimiz',
+  platformumuz: 'platformumuz',
+  ariyoruz: 'arıyoruz',
+  ariyor: 'arıyor',
   istanbul: 'İstanbul',
   istanbulda: "İstanbul'da",
   istanbula: "İstanbul'a",
@@ -85,18 +139,127 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   izmirde: "İzmir'de",
   turkiye: 'Türkiye',
   turkiyede: "Türkiye'de",
-  ariyoruz: 'arıyoruz',
-  ariyor: 'arıyor',
-  yatirimcilar: 'yatırımcılar',
-  girisimimize: 'girişimimize',
-  platformumuz: 'platformumuz',
-  cozum: 'çözüm',
-  cozumleri: 'çözümleri',
-  cozumler: 'çözümler',
+  turkiyenin: "Türkiye'nin",
+};
+
+const KNOWN_ACRONYMS_AND_TERMS: Record<string, string> = {
+  mvp: 'MVP',
+  ai: 'AI',
+  saas: 'SaaS',
+  b2b: 'B2B',
+  b2c: 'B2C',
+  d2c: 'D2C',
+  api: 'API',
+  cto: 'CTO',
+  ceo: 'CEO',
+  cfo: 'CFO',
+  coo: 'COO',
+  cmo: 'CMO',
+  cpo: 'CPO',
+  ml: 'ML',
+  llm: 'LLM',
+  aws: 'AWS',
+  gcp: 'GCP',
+  pos: 'POS',
+  ui: 'UI',
+  ux: 'UX',
+  'ui/ux': 'UI/UX',
+  seo: 'SEO',
+  sem: 'SEM',
+  hr: 'HR',
+  ik: 'İK',
+  sql: 'SQL',
+  php: 'PHP',
+  css: 'CSS',
+  html: 'HTML',
+  pmp: 'PMP',
+  qa: 'QA',
+  kosgeb: 'KOSGEB',
+  tübitak: 'TÜBİTAK',
+  tubitak: 'TÜBİTAK',
+  tl: 'TL',
+  usd: 'USD',
+  eur: 'EUR',
+  kobi: 'KOBİ',
+  erp: 'ERP',
+  crm: 'CRM',
+  roi: 'ROI',
+  cac: 'CAC',
+  ltv: 'LTV',
+  arr: 'ARR',
+  mrr: 'MRR',
+  sdk: 'SDK',
+  devops: 'DevOps',
+  nosql: 'NoSQL',
+  fintech: 'FinTech',
+  edtech: 'EdTech',
+  healthtech: 'HealthTech',
+  iot: 'IoT',
+  ios: 'iOS',
+  android: 'Android',
 };
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const VALID_DOUBLE_CONSONANT_STEMS = new Set([
+  'madde', 'cadde', 'ciddi', 'kuvvet', 'şiddet', 'millet', 'cennet', 'lezzet',
+  'hürriyet', 'bakkal', 'tüccar', 'hassas', 'şeffaf', 'ittifak', 'istatistik',
+  'teşekkür', 'dikkat', 'hakkı', 'hissi', 'zammı', 'affı', 'sırrı', 'hattı',
+  'tıbbı', 'reddi', 'hazzı', 'zannı', 'külli', 'elli', 'belli', 'maddi',
+]);
+
+/**
+ * Trim stutter / double consonants at the end of words or inside Turkish suffixes.
+ * E.g. "aşamasındadd" → "aşamasında", "firmamızz" → "firmamız", "girisimimizze" → "girisimimize".
+ */
+export function fixTurkishConsonantStutters(input: string): string {
+  if (!input) return input;
+
+  let text = input;
+
+  // 1. Suffix ending with extra consonant stutters (e.g. aşamasındadd → aşamasında, projemizdedd → projemizde)
+  text = text.replace(
+    /(\p{L}+(?:da|de|ta|te|nda|nde|na|ne|ya|ye|la|le|dan|den|tan|ten|ndan|nden|ca|ce|ça|çe))([bcçdfgğhjklmnprsştvyz])\2+\b/giu,
+    '$1',
+  );
+
+  // 2. Double consonants before single vowel suffix (e.g. girisimimizze → girisimimize, olanlarra → olanlara)
+  text = text.replace(
+    /(\p{L}{2,})([bcçdfgğhjklmnprsştvyz])\2([aeıioöuü])\b/giu,
+    (match, prefix, char, vowel) => {
+      const lower = match.toLocaleLowerCase('tr-TR');
+      if (VALID_DOUBLE_CONSONANT_STEMS.has(lower)) return match;
+      return `${prefix}${char}${vowel}`;
+    },
+  );
+
+  // 3. Trailing double consonant at end of word (e.g. firmamızz → firmamız, yatırımm → yatırım, içinn → için)
+  text = text.replace(
+    /(\p{L}+[aeıioöuü][bcçdfgğhjklmnprsştvyz]*?)([bcçdfgğhjklmnprsştvyz])\2+\b/giu,
+    (full, stem: string, consonant: string) => {
+      if (stem.length < 2) return full;
+      return `${stem}${consonant}`;
+    },
+  );
+
+  return text;
+}
+
+/**
+ * Normalize acronyms and known industry terms into their canonical case.
+ * E.g. "Mvp" → "MVP", "saas" → "SaaS", "b2b'ye" → "B2B'ye".
+ */
+export function normalizeAcronymsAndTerms(input: string): string {
+  let result = input;
+  const entries = Object.entries(KNOWN_ACRONYMS_AND_TERMS).sort((a, b) => b[0].length - a[0].length);
+
+  for (const [key, canonical] of entries) {
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escapeRegExp(key)})(?=['’‘][\\p{L}]+|[^\\p{L}\\p{N}]|$)`, 'giu');
+    result = result.replace(re, (full, prefix: string) => `${prefix}${canonical}`);
+  }
+  return result;
 }
 
 /** Collapse whitespace, normalize quotes/dashes, trim. */
@@ -169,7 +332,9 @@ export function autoCorrectTurkishText(
     .replace(/\?{2,}/g, '?')
     .replace(/\.{4,}/g, '...')
     .replace(/(\p{L})\1{2,}/gu, '$1$1');
+  next = fixTurkishConsonantStutters(next);
   next = applyCommonTurkishTypos(next);
+  next = normalizeAcronymsAndTerms(next);
 
   if (mode === 'title') {
     return toTurkishTitleCase(next).replace(/[.!…,;:]+$/g, '').trim();

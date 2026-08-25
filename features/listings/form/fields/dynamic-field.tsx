@@ -40,6 +40,11 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'companyName',
   'brandName',
   'displayName',
+  'productName',
+  'positionTitle',
+  'desiredRole',
+  'expertiseOther',
+  'offeredSkillsOther',
 ]);
 
 const CITY_FIELD_KEYS = new Set(['preferredCity', 'residenceCity']);
@@ -680,8 +685,16 @@ function FieldControl({
         <>
           <Textarea
             id={id}
+            lang="tr"
+            spellCheck
             value={stringValue}
             onChange={(e) => onChange(e.target.value)}
+            onBlur={() => {
+              if (stringValue.trim()) {
+                const next = normalizeListingDescription(stringValue);
+                if (next !== stringValue) onChange(next);
+              }
+            }}
             disabled={disabled}
             placeholder={ui.placeholder ?? `${field.label} girin`}
             maxLength={ui.maxLength}

@@ -69,7 +69,7 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
     const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri);
 
     expect(steps.length).toBe(4);
-    expect(steps.map((s) => s.id)).toEqual(['basics', 'financials', 'details', 'publish']);
+    expect(steps.map((s) => s.id)).toEqual(['basics', 'financials', 'details', 'package']);
 
     // Step 1: basics
     expect(steps[0].customFieldKeys).toEqual(

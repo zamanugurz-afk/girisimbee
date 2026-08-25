@@ -79,7 +79,7 @@ describe('Business Transfer (İşletme Devri) End-to-End Flow & Config', () => {
 
   it('provides complete, consolidated steps for isletmeDevri form', () => {
     const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri);
-    expect(steps.map((s) => s.id)).toEqual(['basics', 'financials', 'details', 'publish']);
+    expect(steps.map((s) => s.id)).toEqual(['basics', 'financials', 'details', 'package']);
     expect(steps[0].coreFields).toEqual(['title', 'shortDescription']);
     expect(steps[2].coreFields).toEqual(['longDescription', 'city']);
     expect(steps[3].publish).toBe(true);
