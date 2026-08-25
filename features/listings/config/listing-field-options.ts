@@ -108,6 +108,7 @@ export const JOB_SECTOR_OPTIONS = [
 
 /** Predefined salary ranges for job seeker listings. */
 export const SALARY_RANGES = [
+  'Belirtmek istemiyorum',
   '25.000 TL\'ye kadar',
   '25.000 - 50.000 TL',
   '50.000 - 75.000 TL',
