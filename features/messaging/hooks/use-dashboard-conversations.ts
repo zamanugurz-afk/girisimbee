@@ -138,6 +138,7 @@ export function useDashboardConversations() {
     try {
       let openItems: ConversationListItem[] = [];
       let archivedItems: ConversationListItem[] = [];
+      let fetchSucceeded = false;
 
       try {
         const apiRes = await fetch('/api/conversations');
@@ -146,13 +147,14 @@ export function useDashboardConversations() {
           const payload = apiJson?.data || apiJson;
           if (Array.isArray(payload?.items)) {
             openItems = payload.items;
+            fetchSucceeded = true;
           }
         }
       } catch (apiErr) {
         console.warn('[useDashboardConversations] API fetch warning, using service fallback:', apiErr);
       }
 
-      if (openItems.length === 0) {
+      if (!fetchSucceeded) {
         const [openResult, archived] = await Promise.all([
           service.listConversationItems(userId, { page: 1, limit: 50 }),
           loadArchivedItems(userId),

@@ -70,6 +70,15 @@ export const POST = withAuth(async (ctx, request) => {
       if (profileRow?.email) {
         employerEmail = profileRow.email;
       }
+
+      if (!employerEmail) {
+        try {
+          const { data: authUser } = await admin.auth.admin.getUserById(listingRow.owner_id);
+          if (authUser?.user?.email) {
+            employerEmail = authUser.user.email;
+          }
+        } catch {}
+      }
     }
   } catch (err) {
     console.warn('[applications] failed to resolve listing owner via service role:', err);
