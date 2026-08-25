@@ -140,7 +140,7 @@ export function ListingPackageSelectionStep({
 
   const isStandard = !isPaidPublish && value.placements.length === 0;
   const placementCents = value.placements.reduce(
-    (sum, slug) => sum + PLACEMENT_PACKAGE_CONFIG[slug].priceCents,
+    (sum, slug) => sum + (PLACEMENT_PACKAGE_CONFIG[slug]?.priceCents ?? 0),
     0,
   );
   const standardFeeCents = requiresStandardFee ? STANDARD_REPUBLISH_CONFIG.priceCents : 0;
@@ -264,7 +264,7 @@ export function ListingPackageSelectionStep({
     : STANDARD_PUBLISH_CONFIG.benefits;
 
   const vitrinSelected = value.placements.includes('vitrin');
-  const acilSelected = value.placements.includes('acil');
+  const acilSelected = value.placements.includes('hizli_erisim');
 
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs dark:border-border dark:bg-card space-y-5">
@@ -432,7 +432,7 @@ export function ListingPackageSelectionStep({
 
         {/* Card 3: Acil Vitrin Paketi */}
         <div
-          onClick={() => selectPlacement('acil')}
+          onClick={() => selectPlacement('hizli_erisim')}
           className={cn(
             'relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all duration-200 cursor-pointer select-none',
             acilSelected
@@ -458,7 +458,7 @@ export function ListingPackageSelectionStep({
                     Hızlı Sonuç
                   </span>
                   <h4 className="font-bold text-slate-900 dark:text-foreground text-sm mt-0.5 truncate">
-                    {PLACEMENT_PACKAGE_CONFIG.acil.name}
+                    {PLACEMENT_PACKAGE_CONFIG.hizli_erisim.name}
                   </h4>
                 </div>
               </div>
@@ -477,7 +477,7 @@ export function ListingPackageSelectionStep({
             <div className="my-4 border-t border-slate-100 dark:border-border/60 pt-3">
               <div className="flex items-baseline gap-1">
                 <span className="font-display text-2xl font-bold text-slate-900 dark:text-foreground">
-                  +{formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.acil.priceCents)}
+                  +{formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.hizli_erisim.priceCents)}
                 </span>
                 <span className="text-xs text-muted-foreground font-medium">/ 30 gün doping</span>
               </div>
@@ -525,7 +525,7 @@ export function ListingPackageSelectionStep({
               {totalCents > 0 ? formatPlacementPriceTry(totalCents) : 'Ücretsiz'}
             </span>
             <span className="text-xs text-muted-foreground">
-              ({[mainName, ...value.placements.map((s) => PLACEMENT_PACKAGE_CONFIG[s].name)].join(' + ')})
+              ({[mainName, ...value.placements.map((s) => PLACEMENT_PACKAGE_CONFIG[s]?.name ?? s)].join(' + ')})
             </span>
           </div>
         </div>
