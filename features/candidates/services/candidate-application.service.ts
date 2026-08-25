@@ -145,13 +145,34 @@ export class CandidateApplicationService {
                   applicationId: application.id,
                 });
               } catch (err) {
-                console.warn('[email] failed to trigger employer notification callback:', err);
+                console.error('[application.email.failed]', {
+                  applicationId: application.id,
+                  conversationId: conversation.id,
+                  error: err instanceof Error ? err.message : String(err),
+                });
               }
             }
+          } else {
+            console.error('[conversation.create.failed]', {
+              applicationId: application.id,
+              listingId: listing.id,
+              reason: 'startConversation returned null/empty conversation',
+            });
           }
+        } else {
+          console.error('[conversation.participants.missing]', {
+            applicationId: application.id,
+            applicantUserId,
+            employerUserId,
+          });
         }
       } catch (messagingErr) {
-        console.warn('[application] messaging conversation initiation warning:', messagingErr);
+        console.error('[conversation.create.failed]', {
+          applicationId: application.id,
+          listingId: listing.id,
+          error: messagingErr instanceof Error ? messagingErr.message : String(messagingErr),
+          stack: messagingErr instanceof Error ? messagingErr.stack : undefined,
+        });
       }
     }
 

@@ -86,6 +86,19 @@ export const POST = withAuth(async (ctx, request) => {
 
   const profileSnapshot = parsed.profileSnapshot as import('@/features/candidates/components/CareerProfilePreview').CareerCardInput | undefined;
 
+  let messagingServiceToUse = ctx.container.messagingService;
+  try {
+    const { createServiceRoleClient } = await import('@/lib/supabase/service');
+    const admin = createServiceRoleClient();
+    const { getServerContainer } = await import('@/lib/persistence/container');
+    const serverContainer = getServerContainer(admin);
+    if (serverContainer?.messagingService) {
+      messagingServiceToUse = serverContainer.messagingService;
+    }
+  } catch (adminContErr) {
+    console.warn('[applications] using request container messaging service fallback:', adminContErr);
+  }
+
   const application = await ctx.container.ecosystem.candidateApplicationService.submitApplication(
     ctx.profileId,
     listingId,
@@ -93,7 +106,7 @@ export const POST = withAuth(async (ctx, request) => {
     parsed.initialNote,
     profileSnapshot ?? null,
     {
-      messagingService: ctx.container.messagingService,
+      messagingService: messagingServiceToUse,
       profileRepo: ctx.container.profileRepository,
       applicantUserId: ctx.userId,
       employerUserId,

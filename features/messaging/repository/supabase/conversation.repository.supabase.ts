@@ -279,7 +279,10 @@ export class SupabaseConversationRepository implements ConversationRepository {
     let clientToUse = this.supabase;
     let isAdmin = false;
     try {
-      if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      if (
+        typeof window === 'undefined' &&
+        (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)
+      ) {
         const { createServiceRoleClient } = await import('@/lib/supabase/service');
         clientToUse = createServiceRoleClient();
         isAdmin = true;

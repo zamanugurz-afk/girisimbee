@@ -7,13 +7,15 @@ import type { ConversationListItem } from '@/features/messaging/types/messaging-
 /**
  * GET /api/conversations
  * Returns the complete conversations list for the authenticated user,
- * with full server-authoritative hydration and auto-healing for job applications.
+ * with full server-authoritative hydration and idempotent auto-healing for job applications.
  */
 export const GET = withAuth(async (ctx) => {
   let admin = null;
   try {
     admin = createServiceRoleClient();
-  } catch {}
+  } catch (err) {
+    console.warn('[conversations/get] service role client unavailable, using container fallback:', err);
+  }
 
   if (!admin) {
     const result = await ctx.container.messagingService.listConversationItems(ctx.userId, {
@@ -30,7 +32,7 @@ export const GET = withAuth(async (ctx) => {
 
   const db = admin;
 
-  // 1. Auto-sync unlinked applications for this user (both employer & candidate)
+  // 1. Auto-sync unlinked applications for this user (both employer & candidate) with service-role authority
   try {
     const { data: myOwnedListings } = await db
       .from('marketplace_listings')
@@ -73,19 +75,8 @@ export const GET = withAuth(async (ctx) => {
     }
 
     for (const app of appMap.values()) {
-      let convId = app.conversation_id;
-      if (convId) {
-        const { data: convExists } = await db
-          .from('marketplace_conversations')
-          .select('id')
-          .eq('id', convId)
-          .maybeSingle();
-        if (!convExists) {
-          convId = null;
-        }
-      }
-
-      if (!convId) {
+      try {
+        // Resolve applicant user ID from applicant_profile_id
         let applicantUserId = ctx.userId;
         if (app.applicant_profile_id) {
           const { data: applicantProf } = await db
@@ -98,6 +89,7 @@ export const GET = withAuth(async (ctx) => {
           }
         }
 
+        // Resolve employer user ID from listing owner_id
         let employerUserId = ctx.userId;
         const { data: listingData } = await db
           .from('marketplace_listings')
@@ -108,28 +100,81 @@ export const GET = withAuth(async (ctx) => {
           employerUserId = ids.user(listingData.owner_id);
         }
 
-        try {
-          const conv = await ctx.container.messagingService.startConversation({
-            participantIds: [applicantUserId, employerUserId],
-            listingId: ids.listing(app.listing_id),
-            applicationId: ids.application(app.id),
-            kind: 'application',
-            initialMessage: app.cover_message || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
-          });
+        // Check if a conversation already exists for this application
+        const { data: existingConv } = await db
+          .from('marketplace_conversations')
+          .select('id')
+          .eq('application_id', app.id)
+          .is('deleted_at', null)
+          .maybeSingle();
 
-          if (conv?.id) {
-            await db
-              .from('marketplace_applications')
-              .update({ conversation_id: conv.id })
-              .eq('id', app.id);
+        let targetConvId = existingConv?.id || app.conversation_id;
+
+        // If conversation does not exist, create it with service-role authority
+        if (!targetConvId) {
+          targetConvId = crypto.randomUUID();
+          const { error: insConvErr } = await db.from('marketplace_conversations').insert({
+            id: targetConvId,
+            listing_id: app.listing_id,
+            application_id: app.id,
+            kind: 'application',
+            status: 'open',
+            last_message_preview: app.cover_message || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
+            last_message_at: app.created_at || new Date().toISOString(),
+          });
+          if (insConvErr) {
+            console.error('[application.auto_heal.failed]', { applicationId: app.id, error: insConvErr.message });
+            continue;
           }
-        } catch (err) {
-          console.warn('[conversations/get] sync failed for application:', err);
         }
+
+        // Ensure both participants exist in marketplace_conversation_participants
+        const participantsToEnsure = Array.from(new Set([applicantUserId, employerUserId].filter(Boolean)));
+        for (const pUid of participantsToEnsure) {
+          await db.from('marketplace_conversation_participants').upsert(
+            {
+              conversation_id: targetConvId,
+              user_id: pUid,
+            },
+            { onConflict: 'conversation_id,user_id' },
+          );
+        }
+
+        // Ensure initial message exists in marketplace_messages
+        const { data: existingMsg } = await db
+          .from('marketplace_messages')
+          .select('id')
+          .eq('conversation_id', targetConvId)
+          .limit(1);
+
+        if (!existingMsg || existingMsg.length === 0) {
+          await db.from('marketplace_messages').insert({
+            id: crypto.randomUUID(),
+            conversation_id: targetConvId,
+            sender_id: applicantUserId,
+            body: app.cover_message || 'Merhaba, ilanınız için iş başvurumu ve kariyer profilimi ilettim.',
+            status: 'sent',
+          });
+        }
+
+        // Ensure application.conversation_id is updated in marketplace_applications
+        if (app.conversation_id !== targetConvId) {
+          await db
+            .from('marketplace_applications')
+            .update({ conversation_id: targetConvId })
+            .eq('id', app.id);
+        }
+      } catch (appSyncErr) {
+        console.error('[application.auto_heal.failed]', {
+          applicationId: app.id,
+          error: appSyncErr instanceof Error ? appSyncErr.message : String(appSyncErr),
+        });
       }
     }
   } catch (syncErr) {
-    console.warn('[conversations/get] sync process error:', syncErr);
+    console.error('[application.auto_heal.failed]', {
+      error: syncErr instanceof Error ? syncErr.message : String(syncErr),
+    });
   }
 
   // 2. Fetch all conversations where ctx.userId is a participant
@@ -277,7 +322,9 @@ export const GET = withAuth(async (ctx) => {
       limit: 100,
     });
   } catch (err) {
-    console.warn('[conversations/get] direct query error, falling back to service:', err);
+    console.error('[conversations.get.failed]', {
+      error: err instanceof Error ? err.message : String(err),
+    });
     const result = await ctx.container.messagingService.listConversationItems(ctx.userId, {
       page: 1,
       limit: 100,
