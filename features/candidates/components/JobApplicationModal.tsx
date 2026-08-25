@@ -59,6 +59,7 @@ export function JobApplicationModal({
   const { user } = useAuth();
 
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [hasMasterProfile, setHasMasterProfile] = useState<boolean | null>(null);
   const [profileData, setProfileData] = useState<CareerCardInput | null>(null);
   const [coverMessage, setCoverMessage] = useState('');
   const [saveToMainProfile, setSaveToMainProfile] = useState(false);
@@ -73,7 +74,7 @@ export function JobApplicationModal({
   const [draftSkills, setDraftSkills] = useState('');
   const [draftLanguages, setDraftLanguages] = useState('');
 
-  // Load user's career profile when modal opens
+  // Load user's master career profile when modal opens
   useEffect(() => {
     if (!open || !user) return;
 
@@ -88,20 +89,35 @@ export function JobApplicationModal({
         if (!mounted) return;
 
         const candidateRecord = pageData.seek;
-        if (candidateRecord?.values) {
-          const v = candidateRecord.values;
+        const v = candidateRecord?.values;
+        const hasValid = Boolean(
+          v && (
+            v.role ||
+            v.roles?.length ||
+            v.primarySector ||
+            v.sector ||
+            (v.experiences && v.experiences.length > 0) ||
+            v.educationLevel
+          )
+        );
+
+        if (hasValid && v) {
+          setHasMasterProfile(true);
           const card: CareerCardInput = {
             displayName: v.fullName || user!.displayName || 'Aday',
+            contactEmail: v.email || user!.email || '',
+            contactPhone: v.phone || '',
             desiredRole: v.role || v.roles?.[0] || 'Uzman',
             primarySector: v.sector || v.sectors?.[0] || 'Genel',
             experienceLevel: v.experienceLevel || 'Deneyimli',
             residenceCity: v.city || 'İstanbul',
-            residenceDistrict: v.preferredDistrict || '',
-            preferredCity: v.city || 'İstanbul',
+            residenceDistrict: v.preferredDistrict || v.residenceDistrict || '',
+            preferredCity: v.preferredCity || v.city || 'İstanbul',
             workType: v.workType || 'Tam Zamanlı',
             workplacePreference: v.workplacePreference || 'Hibrit',
             educationLevel: v.educationLevel || 'Lisans',
-            educationHistory: (v.educationHistory || []).map((e) => ({
+            educationField: v.educationField || '',
+            educationHistory: (v.educationHistory || []).map((e: any) => ({
               level: e.level || 'Lisans',
               field: e.field,
               school: e.school,
@@ -114,8 +130,10 @@ export function JobApplicationModal({
             technicalSkills: v.technicalSkillsList?.join(', ') || v.technicalSkills || '',
             tools: v.toolsList?.join(', ') || v.tools || '',
             longDescription: v.candidateTraits || '',
-            salaryExpectation: v.salaryMin && v.salaryMax ? `${v.salaryMin} - ${v.salaryMax} TL` : '',
+            salaryExpectation: v.salaryMin && v.salaryMax ? `${v.salaryMin.toLocaleString('tr-TR')} - ${v.salaryMax.toLocaleString('tr-TR')} TL` : (v.salary || ''),
             availability: v.availability || 'Hemen',
+            cvFileName: v.cvFileName,
+            cvDocumentId: v.cvDocumentId,
           };
           setProfileData(card);
           setDraftRole(card.desiredRole || '');
@@ -125,29 +143,13 @@ export function JobApplicationModal({
           setDraftSkills([card.professionalSkills, card.technicalSkills].filter(Boolean).join(', '));
           setDraftLanguages(card.languages || '');
         } else {
-          // Fallback profile from user object
-          const fallback: CareerCardInput = {
-            displayName: user!.displayName || 'Aday',
-            desiredRole: 'Pozisyon Adayı',
-            primarySector: 'Genel',
-            residenceCity: 'İstanbul',
-            workType: 'Tam Zamanlı',
-            educationLevel: 'Lisans',
-            experiences: [],
-          };
-          setProfileData(fallback);
-          setDraftRole(fallback.desiredRole || '');
-          setDraftSector(fallback.primarySector || '');
-          setDraftCity(fallback.residenceCity || '');
+          setHasMasterProfile(false);
+          setProfileData(null);
         }
       } catch (err) {
         console.warn('Failed to load profile for application modal', err);
-        const fallback: CareerCardInput = {
-          displayName: user?.displayName || 'Aday',
-          desiredRole: 'Pozisyon Adayı',
-          residenceCity: 'İstanbul',
-        };
-        setProfileData(fallback);
+        setHasMasterProfile(false);
+        setProfileData(null);
       } finally {
         if (mounted) setIsLoadingProfile(false);
       }
@@ -263,6 +265,34 @@ export function JobApplicationModal({
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
               <p className="text-sm font-medium">Kariyer profiliniz hazırlanıyor…</p>
+            </div>
+          ) : hasMasterProfile === false ? (
+            <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/90 via-orange-50/50 to-amber-50/70 dark:border-amber-900/40 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-amber-950/30 p-6 text-center space-y-4">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 shadow-sm">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  İş başvurusu yapabilmek için önce Kariyer Profilinizi oluşturmalısınız.
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Profilinizi bir kez oluşturduktan sonra diğer iş ilanlarına başvururken bilgilerinizi tekrar girmenize gerek kalmaz. CV'nizi yükleyerek veya 7 adımlı formu doldurarak profilinizi tamamlayabilirsiniz.
+                </p>
+              </div>
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    onOpenChange(false);
+                    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+                    router.push(`/dashboard/kariyer-profilim?returnTo=${encodeURIComponent(currentPath)}&action=apply`);
+                  }}
+                  className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-6 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>Kariyer Profilimi Oluştur</span>
+                </Button>
+              </div>
             </div>
           ) : (
             <>
@@ -492,27 +522,42 @@ export function JobApplicationModal({
               disabled={isSubmitting}
               className="w-full sm:w-auto text-xs"
             >
-              Vazgeç
+              {hasMasterProfile === false ? 'Kapat' : 'Vazgeç'}
             </Button>
 
-            <Button
-              type="button"
-              onClick={handleApply}
-              disabled={isSubmitting || isLoadingProfile}
-              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-6 shadow-sm flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span>Başvuru İletiliyor…</span>
-                </>
-              ) : (
-                <>
-                  <Send className="h-3.5 w-3.5" />
-                  <span>Bu Profille Başvur</span>
-                </>
-              )}
-            </Button>
+            {hasMasterProfile === false ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+                  router.push(`/dashboard/kariyer-profilim?returnTo=${encodeURIComponent(currentPath)}&action=apply`);
+                }}
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-6 shadow-sm flex items-center justify-center gap-2"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Kariyer Profilimi Oluştur</span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleApply}
+                disabled={isSubmitting || isLoadingProfile || !profileData}
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-6 shadow-sm flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Başvuru İletiliyor…</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Bu Profille Başvur</span>
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>

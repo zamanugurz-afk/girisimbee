@@ -117,6 +117,9 @@ export type CareerCardInput = {
   careerProgressions?: Array<{ from: string; to: string }>;
   highlightedSkills?: string[];
   highlightedAchievements?: string[];
+  cvFileName?: string | null;
+  cvDocumentId?: string | null;
+  coverMessage?: string | null;
   /** Form preview: explain these fields appear after an accepted request. */
   personalInfoPreview?: boolean;
   isFormPreview?: boolean;
@@ -1086,11 +1089,35 @@ export function CareerProfilePreview({
                     </div>
                   ) : null}
                   {(contactEmail || data.contactEmail || (isOwnApplication ? user?.email : null)) ? (
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                      <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                      <span className="truncate font-medium">{contactEmail || data.contactEmail || (isOwnApplication ? user?.email : null)}</span>
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 min-w-0">
+                        <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                        <span className="truncate font-medium">{contactEmail || data.contactEmail || (isOwnApplication ? user?.email : null)}</span>
+                      </div>
+                      {!isOwnApplication ? (
+                        <a
+                          href={`mailto:${contactEmail || data.contactEmail}`}
+                          className={cn("shrink-0 text-[11px] font-semibold underline", theme.headerText)}
+                        >
+                          Mail At
+                        </a>
+                      ) : null}
                     </div>
                   ) : null}
+
+                  {isOwnApplication && (
+                    <div className="pt-2 border-t border-slate-100 dark:border-border/60">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push('/dashboard/kariyer-profilim')}
+                        className="w-full text-xs font-semibold h-8 text-emerald-700 border-emerald-200 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-800 rounded-xl"
+                      >
+                        Güncel Profilimi Gör / Düzenle
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : null

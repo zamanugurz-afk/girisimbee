@@ -387,10 +387,11 @@ function CreateListingContent() {
       toast.success('İlanınız admin onayına gönderildi');
     }
 
+    const returnToParam = searchParams.get('returnTo');
     const targetSlug = listing?.slug || listing?.id;
-    const redirectPath = targetSlug
+    const redirectPath = returnToParam || (targetSlug
       ? getModuleListingDetailPath(categoryId, targetSlug)
-      : `/kategori/${categoryId === CATEGORY_IDS.isBul ? 'is-ariyorum' : 'ilanlar'}`;
+      : `/kategori/${categoryId === CATEGORY_IDS.isBul ? 'is-ariyorum' : 'ilanlar'}`);
 
     console.log('[CreateListingPage] Successfully published, navigating to:', redirectPath);
 

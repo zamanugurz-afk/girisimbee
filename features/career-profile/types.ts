@@ -74,6 +74,7 @@ export interface CareerProfileFormValues {
   address?: string;
   residenceCity?: string;
   residenceDistrict?: string;
+  preferredCity?: string;
   preferredDistrict?: string;
 
   // Work experience history

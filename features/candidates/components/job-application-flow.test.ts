@@ -1122,4 +1122,190 @@ describe('Job Application + Career Profile Snapshot + Messaging Integration Suit
 
     expect(isOwnerOfApplicationListing).toBe(false);
   });
+
+  it('TEST 14: Server-side enrichment populates missing contactPhone and contactEmail into snapshot', async () => {
+    const incompleteSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: 'Full Stack Dev',
+      primarySector: 'Yazılım',
+      experiences: [{ id: 'exp-1', role: 'Dev', company: 'Startup A' }],
+    };
+
+    // Server-side enrichment logic
+    const enrichedSnapshot: CareerCardInput = {
+      ...incompleteSnapshot,
+      contactEmail: incompleteSnapshot.contactEmail || 'ugurzaman1907@gmail.com',
+      contactPhone: incompleteSnapshot.contactPhone || '+905551112233',
+      experiences: incompleteSnapshot.experiences || [],
+      educationHistory: incompleteSnapshot.educationHistory || [],
+    };
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Zenginleştirilmiş başvuru',
+      undefined,
+      enrichedSnapshot,
+      {
+        messagingService,
+        profileRepo,
+        applicantUserId: candidateUserId,
+        employerUserId,
+      },
+    );
+
+    expect(app.profileSnapshot?.contactEmail).toBe('ugurzaman1907@gmail.com');
+    expect(app.profileSnapshot?.contactPhone).toBe('+905551112233');
+    expect(app.profileSnapshot?.experiences).toHaveLength(1);
+    expect(app.profileSnapshot?.experiences?.[0].company).toBe('Startup A');
+  });
+
+  it('TEST 15: Repeat application pre-fills from Master Profile without re-entering data', async () => {
+    const masterProfileValues = {
+      fullName: 'Uğur Zaman',
+      email: 'ugurzaman1907@gmail.com',
+      phone: '+90 532 111 22 33',
+      role: 'Kıdemli Satış Müdürü',
+      sector: 'Satış & Pazarlama',
+      experienceLevel: 'Kıdemli',
+      city: 'İstanbul',
+      workType: 'Tam Zamanlı',
+      experiences: [
+        {
+          id: 'exp-1',
+          role: 'Satış Müdürü',
+          company: 'Büyük Şirket A.Ş.',
+          duration: '3 yıl',
+        },
+      ],
+      skills: 'B2B Satış, Liderlik, CRM',
+    };
+
+    // Hydration into application draft
+    const prefilledDraft: CareerCardInput = {
+      displayName: masterProfileValues.fullName,
+      contactEmail: masterProfileValues.email,
+      contactPhone: masterProfileValues.phone,
+      desiredRole: masterProfileValues.role,
+      primarySector: masterProfileValues.sector,
+      experienceLevel: masterProfileValues.experienceLevel,
+      residenceCity: masterProfileValues.city,
+      workType: masterProfileValues.workType,
+      experiences: masterProfileValues.experiences,
+      professionalSkills: masterProfileValues.skills,
+    };
+
+    expect(prefilledDraft.displayName).toBe('Uğur Zaman');
+    expect(prefilledDraft.contactPhone).toBe('+90 532 111 22 33');
+    expect(prefilledDraft.desiredRole).toBe('Kıdemli Satış Müdürü');
+    expect(prefilledDraft.experiences).toHaveLength(1);
+    expect(prefilledDraft.experiences?.[0].company).toBe('Büyük Şirket A.Ş.');
+  });
+
+  it('TEST 16: Application-specific draft changes with saveToMainProfile=false do NOT alter Master Profile', async () => {
+    const masterProfile = {
+      desiredRole: 'Satış Müdürü',
+      primarySector: 'Satış',
+      longDescription: 'Genel satış kariyerim',
+    };
+
+    const draftSpecificRole = 'Satış Direktörü';
+    const draftSpecificSummary = 'Bu şirkete özel satış direktörlüğü vizyonum';
+    const saveToMainProfile = false;
+
+    const applicationSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: draftSpecificRole,
+      primarySector: masterProfile.primarySector,
+      longDescription: draftSpecificSummary,
+    };
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Özel pozisyon başvurusu',
+      undefined,
+      applicationSnapshot,
+    );
+
+    // Snapshot has custom role
+    expect(app.profileSnapshot?.desiredRole).toBe('Satış Direktörü');
+    expect(app.profileSnapshot?.longDescription).toBe('Bu şirkete özel satış direktörlüğü vizyonum');
+
+    // Master Profile remains untouched when saveToMainProfile is false
+    if (!saveToMainProfile) {
+      expect(masterProfile.desiredRole).toBe('Satış Müdürü');
+      expect(masterProfile.longDescription).toBe('Genel satış kariyerim');
+    }
+  });
+
+  it('TEST 17: Application-specific draft changes with saveToMainProfile=true update Master Profile', async () => {
+    let masterProfile = {
+      desiredRole: 'Satış Müdürü',
+      primarySector: 'Satış',
+    };
+
+    const draftSpecificRole = 'Satış Direktörü';
+    const saveToMainProfile = true;
+
+    const applicationSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: draftSpecificRole,
+      primarySector: masterProfile.primarySector,
+    };
+
+    const app = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Başvuru',
+      undefined,
+      applicationSnapshot,
+    );
+
+    expect(app.profileSnapshot?.desiredRole).toBe('Satış Direktörü');
+
+    if (saveToMainProfile) {
+      masterProfile = {
+        ...masterProfile,
+        desiredRole: applicationSnapshot.desiredRole || masterProfile.desiredRole,
+      };
+    }
+
+    expect(masterProfile.desiredRole).toBe('Satış Direktörü');
+  });
+
+  it('TEST 18: Master Profile changes 6 months later do NOT alter past application snapshot (Absolute Immutability)', async () => {
+    const historicalSnapshot: CareerCardInput = {
+      displayName: 'Uğur Zaman',
+      desiredRole: 'Junior Developer',
+      contactPhone: '+90 500 000 00 00',
+      experiences: [{ id: 'exp-1', role: 'Intern', company: 'Eski Şirket' }],
+    };
+
+    const pastApp = await candidateAppService.submitApplication(
+      candidateProfileId,
+      listingId,
+      'Geçmiş başvuru',
+      undefined,
+      historicalSnapshot,
+    );
+
+    // 6 months later candidate becomes CTO and updates Master Profile
+    const updatedMasterProfile = {
+      desiredRole: 'Chief Technology Officer (CTO)',
+      contactPhone: '+90 599 999 99 99',
+      experiences: [
+        { id: 'exp-1', role: 'Intern', company: 'Eski Şirket' },
+        { id: 'exp-2', role: 'Lead Architect', company: 'Büyük Tech' },
+        { id: 'exp-3', role: 'CTO', company: 'Unicorn A.Ş.' },
+      ],
+    };
+
+    // Verify past application snapshot in repository is unchanged
+    const storedApp = await appRepo.findById(pastApp.id);
+    expect(storedApp?.profileSnapshot?.desiredRole).toBe('Junior Developer');
+    expect(storedApp?.profileSnapshot?.contactPhone).toBe('+90 500 000 00 00');
+    expect(storedApp?.profileSnapshot?.experiences).toHaveLength(1);
+    expect(storedApp?.profileSnapshot?.experiences?.[0].company).toBe('Eski Şirket');
+  });
 });

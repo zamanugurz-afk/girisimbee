@@ -84,7 +84,18 @@ export const POST = withAuth(async (ctx, request) => {
     console.warn('[applications] failed to resolve listing owner via service role:', err);
   }
 
-  const profileSnapshot = parsed.profileSnapshot as import('@/features/candidates/components/CareerProfilePreview').CareerCardInput | undefined;
+  let profileSnapshot = parsed.profileSnapshot as import('@/features/candidates/components/CareerProfilePreview').CareerCardInput | undefined;
+
+  if (profileSnapshot) {
+    profileSnapshot = {
+      ...profileSnapshot,
+      displayName: profileSnapshot.displayName || ctx.profile?.displayName || 'Aday',
+      contactEmail: profileSnapshot.contactEmail || ctx.profile?.email || ctx.user?.email || '',
+      contactPhone: profileSnapshot.contactPhone || ctx.profile?.phone || '',
+      experiences: profileSnapshot.experiences || [],
+      educationHistory: profileSnapshot.educationHistory || [],
+    };
+  }
 
   let messagingServiceToUse = ctx.container.messagingService;
   try {

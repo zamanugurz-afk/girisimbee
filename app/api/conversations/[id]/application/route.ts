@@ -128,6 +128,20 @@ export const GET = withAuth(async (ctx, _request, { params }) => {
     }
   }
 
+  if (!canViewFullApplicantProfile && profileSnapshot) {
+    const { maskDisplaySurname } = await import('@/features/candidates/lib/career-public-identity');
+    profileSnapshot = {
+      ...profileSnapshot,
+      displayName: maskDisplaySurname(profileSnapshot.displayName || 'Aday'),
+      contactEmail: null,
+      contactPhone: null,
+      experiences: (profileSnapshot.experiences || []).map((exp: any) => ({
+        ...exp,
+        company: 'Kurumsal Şirket',
+      })),
+    };
+  }
+
   return ok({
     hasApplication: true,
     application: {
