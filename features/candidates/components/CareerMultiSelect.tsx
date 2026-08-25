@@ -91,6 +91,9 @@ export function CareerMultiSelect({
     if (!selected.includes(opt)) {
       onChange([...selected, opt]);
     }
+    if (onManualChange) {
+      onManualChange('');
+    }
   }
 
   function removeSelected(opt: string) {
@@ -236,6 +239,7 @@ export function CareerMultiSelect({
                 onClick={() => {
                   const formatted = formatCanonicalCustomValue(manualValue);
                   addMatchedOption(formatted);
+                  onManualChange('');
                 }}
               >
                 <Plus className="h-3 w-3" />

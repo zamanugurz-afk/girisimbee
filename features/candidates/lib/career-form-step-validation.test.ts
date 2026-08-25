@@ -5,6 +5,7 @@ import {
   validateCareerManualOther,
   validateCareerPreferencesStep,
   validateCareerSkillsStep,
+  validateHireRoleNeedsStep,
 } from './career-form-step-validation';
 
 describe('career form step validation', () => {
@@ -12,6 +13,16 @@ describe('career form step validation', () => {
     const errors = validateCareerSkillsStep({
       professionalSkills: 'Hasta bakımı · İlaç uygulama',
       technicalSkills: 'HIS / Hemşirelik modülü',
+    });
+    expect(errors).toEqual({});
+  });
+
+  it('allows proceeding with valid responsibility choices even if Diğer is opened with empty text', () => {
+    const errors = validateHireRoleNeedsStep({
+      requiredResponsibilities: `Bölge / kanal kârlılığının planlanması · ${MANUAL_OPTION}`,
+      requiredResponsibilitiesOther: '',
+      requiredAchievements: MANUAL_OPTION,
+      requiredAchievementsOther: 'Ciro hedefinin tutturulması',
     });
     expect(errors).toEqual({});
   });

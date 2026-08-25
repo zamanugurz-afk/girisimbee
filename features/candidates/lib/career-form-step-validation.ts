@@ -29,12 +29,13 @@ export function validateCareerSkillsStep(customFields: Record<string, unknown>):
   const errors: Record<string, string> = {};
   const professional = parseSelectedList(customFields.professionalSkills);
   const professionalOther = String(customFields.professionalSkillsOther ?? '').trim();
-  const hasManualPro = professional.includes(MANUAL_OPTION);
+  const validPro = professional.filter((p) => !isManualCareerOption(p));
+  const hasManualPro = professional.some((p) => isManualCareerOption(p));
 
-  if (professional.filter((p) => p !== MANUAL_OPTION).length === 0 && !hasManualPro) {
+  if (validPro.length === 0 && !hasManualPro) {
     errors.professionalSkills = 'En az bir mesleki yetkinlik seçin.';
   }
-  if (hasManualPro) {
+  if (hasManualPro && validPro.length === 0) {
     const issue = findCareerTextQualityIssue(professionalOther, {
       fieldLabel: 'Mesleki yetkinlik (diğer)',
       minLength: 2,
@@ -42,16 +43,35 @@ export function validateCareerSkillsStep(customFields: Record<string, unknown>):
       required: true,
     });
     if (issue) errors.professionalSkillsOther = issue;
+  } else if (hasManualPro && professionalOther) {
+    const issue = findCareerTextQualityIssue(professionalOther, {
+      fieldLabel: 'Mesleki yetkinlik (diğer)',
+      minLength: 2,
+      maxLength: 200,
+      required: false,
+    });
+    if (issue) errors.professionalSkillsOther = issue;
   }
 
   const technical = parseSelectedList(customFields.technicalSkills);
   const technicalOther = String(customFields.technicalSkillsOther ?? '').trim();
-  if (technical.includes(MANUAL_OPTION)) {
+  const validTech = technical.filter((t) => !isManualCareerOption(t));
+  const hasManualTech = technical.some((t) => isManualCareerOption(t));
+
+  if (hasManualTech && validTech.length === 0) {
     const issue = findCareerTextQualityIssue(technicalOther, {
       fieldLabel: 'Teknik yetkinlik (diğer)',
       minLength: 2,
       maxLength: 200,
       required: true,
+    });
+    if (issue) errors.technicalSkillsOther = issue;
+  } else if (hasManualTech && technicalOther) {
+    const issue = findCareerTextQualityIssue(technicalOther, {
+      fieldLabel: 'Teknik yetkinlik (diğer)',
+      minLength: 2,
+      maxLength: 200,
+      required: false,
     });
     if (issue) errors.technicalSkillsOther = issue;
   }
@@ -68,13 +88,24 @@ export function validateCareerSkillsStep(customFields: Record<string, unknown>):
   }
 
   const selectedTools = parseSelectedList(customFields.tools);
-  if (selectedTools.includes(MANUAL_OPTION)) {
-    const toolsOther = String(customFields.toolsOther ?? '').trim();
+  const toolsOther = String(customFields.toolsOther ?? '').trim();
+  const validTools = selectedTools.filter((t) => !isManualCareerOption(t));
+  const hasManualTools = selectedTools.some((t) => isManualCareerOption(t));
+
+  if (hasManualTools && validTools.length === 0) {
     const issue = findCareerTextQualityIssue(toolsOther, {
       fieldLabel: 'Araç (diğer)',
       minLength: 2,
       maxLength: 200,
       required: true,
+    });
+    if (issue) errors.toolsOther = issue;
+  } else if (hasManualTools && toolsOther) {
+    const issue = findCareerTextQualityIssue(toolsOther, {
+      fieldLabel: 'Araç (diğer)',
+      minLength: 2,
+      maxLength: 200,
+      required: false,
     });
     if (issue) errors.toolsOther = issue;
   }
@@ -130,12 +161,23 @@ export function validateCareerEducationStep(
 
   const certs = parseSelectedList(customFields.certificates);
   const certsOther = String(customFields.certificatesOther ?? '').trim();
-  if (certs.includes(MANUAL_OPTION)) {
+  const validCerts = certs.filter((c) => !isManualCareerOption(c));
+  const hasManualCerts = certs.some((c) => isManualCareerOption(c));
+
+  if (hasManualCerts && validCerts.length === 0) {
     const issue = findCareerTextQualityIssue(certsOther, {
       fieldLabel: 'Sertifika',
       minLength: 2,
       maxLength: 200,
       required: true,
+    });
+    if (issue) errors.certificates = issue;
+  } else if (hasManualCerts && certsOther) {
+    const issue = findCareerTextQualityIssue(certsOther, {
+      fieldLabel: 'Sertifika',
+      minLength: 2,
+      maxLength: 200,
+      required: false,
     });
     if (issue) errors.certificates = issue;
   }
@@ -213,27 +255,49 @@ export function validateHireRoleNeedsStep(
   const errors: Record<string, string> = {};
   const selected = parseSelectedList(customFields.requiredResponsibilities);
   const other = String(customFields.requiredResponsibilitiesOther ?? '').trim();
-  const hasManual = selected.includes(MANUAL_OPTION);
-  if (selected.filter((item) => item !== MANUAL_OPTION).length === 0 && !hasManual) {
-    errors.requiredResponsibilities = 'En az bir temel sorumluluk seçin.';
+  const validSelections = selected.filter((item) => !isManualCareerOption(item));
+  const hasManual = selected.some((item) => isManualCareerOption(item));
+
+  if (validSelections.length === 0 && !hasManual) {
+    errors.requiredResponsibilities = 'En az bir temel sorumluluk seçin veya yazın.';
   }
-  if (hasManual) {
+  if (hasManual && validSelections.length === 0) {
     const issue = findCareerTextQualityIssue(other, {
       fieldLabel: 'Temel sorumluluklar',
-      minLength: 10,
+      minLength: 5,
       maxLength: 400,
       required: true,
     });
     if (issue) errors.requiredResponsibilitiesOther = issue;
+  } else if (hasManual && other) {
+    const issue = findCareerTextQualityIssue(other, {
+      fieldLabel: 'Temel sorumluluklar',
+      minLength: 5,
+      maxLength: 400,
+      required: false,
+    });
+    if (issue) errors.requiredResponsibilitiesOther = issue;
   }
+
   const ach = parseSelectedList(customFields.requiredAchievements);
   const achOther = String(customFields.requiredAchievementsOther ?? '').trim();
-  if (ach.includes(MANUAL_OPTION)) {
+  const validAchSelections = ach.filter((item) => !isManualCareerOption(item));
+  const hasManualAch = ach.some((item) => isManualCareerOption(item));
+
+  if (hasManualAch && validAchSelections.length === 0) {
     const issue = findCareerTextQualityIssue(achOther, {
       fieldLabel: 'Başarı beklentisi',
-      minLength: 8,
+      minLength: 5,
       maxLength: 400,
       required: true,
+    });
+    if (issue) errors.requiredAchievementsOther = issue;
+  } else if (hasManualAch && achOther) {
+    const issue = findCareerTextQualityIssue(achOther, {
+      fieldLabel: 'Başarı beklentisi',
+      minLength: 5,
+      maxLength: 400,
+      required: false,
     });
     if (issue) errors.requiredAchievementsOther = issue;
   }
