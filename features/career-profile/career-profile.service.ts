@@ -229,7 +229,7 @@ export class CareerProfileService {
 
   async getPageData(userId: UserId): Promise<CareerProfilePageData> {
     const owned = await this.listings.search(
-      { ownerId: userId, status: ['published', 'draft', 'paused'] },
+      { ownerId: userId, status: ['published', 'draft', 'paused', 'pending_review'] },
       { page: 1, limit: 100 },
     );
 
@@ -265,7 +265,7 @@ export class CareerProfileService {
 
     if (!listing) {
       const owned = await this.listings.search(
-        { ownerId: userId, status: ['published', 'draft', 'paused'] },
+        { ownerId: userId, status: ['published', 'draft', 'paused', 'pending_review'] },
         { page: 1, limit: 100 },
       );
       const matches = owned.data.filter((l) => classifyCareerListingKind(l) === kind);
@@ -329,7 +329,7 @@ export class CareerProfileService {
     }
     if (!listing) {
       const owned = await this.listings.search(
-        { ownerId: userId, status: ['published', 'draft', 'paused'] },
+        { ownerId: userId, status: ['published', 'draft', 'paused', 'pending_review'] },
         { page: 1, limit: 100 },
       );
       const matches = owned.data.filter((l) => classifyCareerListingKind(l) === kind);

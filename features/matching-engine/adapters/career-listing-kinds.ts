@@ -1,10 +1,10 @@
-import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import {
   expandListingTypeIdFilter,
   MARKETPLACE_LISTING_TYPE_IDS,
 } from '@/features/listings/config/marketplace-category-map';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
-import type { ListingTypeId } from '@/lib/domain/ids';
+import type { CategoryId, ListingTypeId } from '@/lib/domain/ids';
 import type { CareerListingKind } from '@/features/matching-engine/types';
 
 function uniqueTypeIds(ids: readonly ListingTypeId[]): ListingTypeId[] {
@@ -26,12 +26,14 @@ export function getCareerHireListingTypeIds(): ListingTypeId[] {
 }
 
 export function classifyCareerListingKind(
-  listing: Pick<Listing, 'listingTypeId' | 'moduleKey'>,
+  listing: Pick<Listing, 'listingTypeId' | 'moduleKey'> & { categoryId?: CategoryId },
 ): CareerListingKind | null {
   if (listing.moduleKey === 'candidates') return 'seek';
   if (listing.moduleKey === 'employers') return 'hire';
+  if (listing.categoryId && listing.categoryId === CATEGORY_IDS.isBul) return 'seek';
+  if (listing.categoryId && listing.categoryId === CATEGORY_IDS.iseAl) return 'hire';
   const typeId = listing.listingTypeId;
-  if (getCareerSeekListingTypeIds().includes(typeId)) return 'seek';
-  if (getCareerHireListingTypeIds().includes(typeId)) return 'hire';
+  if (typeId && getCareerSeekListingTypeIds().includes(typeId)) return 'seek';
+  if (typeId && getCareerHireListingTypeIds().includes(typeId)) return 'hire';
   return null;
 }

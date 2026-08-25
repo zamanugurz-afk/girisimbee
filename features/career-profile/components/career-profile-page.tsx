@@ -41,16 +41,23 @@ function createDraftRecord(kind: CareerPersonaKind): CareerProfileRecord {
 export function CareerProfilePage({
   data,
   displayName,
+  returnTo,
+  action,
 }: {
   data: CareerProfilePageData;
   displayName?: string | null;
+  returnTo?: string;
+  action?: string;
 }) {
-  // Determine initial active persona from existing records or null
-  const initialPersona: CareerPersonaKind | null = data.seek
+  const isJobApplicationContext = Boolean(returnTo || action === 'apply');
+  // Determine initial active persona from existing records or null (default seek in application context)
+  const initialPersona: CareerPersonaKind | null = isJobApplicationContext
     ? 'seek'
-    : data.hire
-      ? 'hire'
-      : null;
+    : data.seek
+      ? 'seek'
+      : data.hire
+        ? 'hire'
+        : null;
 
   const [activePersona, setActivePersona] = useState<CareerPersonaKind | null>(initialPersona);
   const [showPersonaSelector, setShowPersonaSelector] = useState(!initialPersona);
@@ -120,7 +127,7 @@ export function CareerProfilePage({
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Bu profil bilgileri, ilan açtığınızda otomatik olarak ilan kartınıza aktarılacaktır.
+              Bu profil bilgileri, iş başvurularınızda otomatik olarak başvuru kartınıza aktarılacaktır.
             </p>
           </div>
         </div>
@@ -142,6 +149,8 @@ export function CareerProfilePage({
         record={currentRecord}
         persona={activePersona}
         displayName={displayName}
+        returnTo={returnTo}
+        action={action}
       />
     </div>
   );

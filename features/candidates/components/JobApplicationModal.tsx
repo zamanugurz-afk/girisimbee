@@ -83,12 +83,25 @@ export function JobApplicationModal({
 
     async function load() {
       try {
-        const container = getClientContainer();
-        const careerService = new CareerProfileService(container.listingRepository);
-        const pageData = await careerService.getPageData(user!.id as any);
+        let pageData: any = null;
+        try {
+          const res = await fetch('/api/career/profile');
+          if (res.ok) {
+            const json = await res.json();
+            pageData = json.data ?? json;
+          }
+        } catch {
+          // Network / offline fallback to local container
+        }
+
+        if (!pageData?.seek) {
+          const container = getClientContainer();
+          const careerService = new CareerProfileService(container.listingRepository);
+          pageData = await careerService.getPageData(user!.id as any);
+        }
         if (!mounted) return;
 
-        const candidateRecord = pageData.seek;
+        const candidateRecord = pageData?.seek;
         const v = candidateRecord?.values;
         const hasValid = Boolean(
           v && (
@@ -108,11 +121,14 @@ export function JobApplicationModal({
             contactEmail: v.email || user!.email || '',
             contactPhone: v.phone || '',
             desiredRole: v.role || v.roles?.[0] || 'Uzman',
+            preferredRoles: v.roles || (v.role ? [v.role] : []),
             primarySector: v.sector || v.sectors?.[0] || 'Genel',
+            preferredSectors: v.sectors || (v.sector ? [v.sector] : []),
             experienceLevel: v.experienceLevel || 'Deneyimli',
             residenceCity: v.city || 'İstanbul',
             residenceDistrict: v.preferredDistrict || v.residenceDistrict || '',
             preferredCity: v.preferredCity || v.city || 'İstanbul',
+            preferredDistrict: v.preferredDistrict || v.residenceDistrict || '',
             workType: v.workType || 'Tam Zamanlı',
             workplacePreference: v.workplacePreference || 'Hibrit',
             educationLevel: v.educationLevel || 'Lisans',

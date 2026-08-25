@@ -39,8 +39,9 @@ import {
   BUSINESS_MODEL_OPTIONS,
   PARTNER_EXPERTISE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
-import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+import { TURKISH_CITIES, LISTING_CITY_OPTIONS } from '@/features/shared/constants/turkish-cities';
 import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
+import { sortCitiesForPicker } from '@/features/listings/lib/picker-sort';
 import { presentCareerJourney } from '@/features/career-profile/journey';
 import { toSafeCareerPreviewInput } from '@/features/career-profile/preview';
 import type { CareerProfileFormValues, CareerProfileRecord } from '@/features/career-profile/types';
@@ -188,11 +189,17 @@ export function CareerProfileForm({
   record,
   persona = 'seek',
   displayName,
+  returnTo,
+  action,
 }: {
   record: CareerProfileRecord;
   persona?: CareerPersonaKind;
   displayName?: string | null;
+  returnTo?: string;
+  action?: string;
 }) {
+  const sortedCityOptions = useMemo(() => sortCitiesForPicker(LISTING_CITY_OPTIONS), []);
+
   // Initial multi-select values
   const initialRoles = useMemo(() => {
     if (record.values.roles && record.values.roles.length > 0) return record.values.roles;
@@ -855,7 +862,8 @@ export function CareerProfileForm({
         throw new Error(errorData.message || 'Kariyer profili kaydedilemedi.');
       }
 
-      const body = (await res.json()) as { profile: CareerProfileRecord };
+      const raw = await res.json();
+      const body = (raw.data ?? raw) as { profile?: CareerProfileRecord };
       if (body.profile) {
         setCompletion(body.profile.completion);
       }
@@ -876,6 +884,17 @@ export function CareerProfileForm({
       }
 
       toast.success('Kariyer profiliniz başarıyla kaydedildi.');
+
+      if (returnTo) {
+        const redirectUrl = action
+          ? `${returnTo}${returnTo.includes('?') ? '&' : '?'}action=${action}`
+          : returnTo;
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.location.assign(redirectUrl);
+          }
+        }, 500);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Bir hata oluştu');
     } finally {
@@ -1133,7 +1152,7 @@ export function CareerProfileForm({
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
-                      {TURKISH_CITIES.map((c) => (
+                      {sortedCityOptions.map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>
@@ -1796,7 +1815,7 @@ export function CareerProfileForm({
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
-                      {TURKISH_CITIES.map((c) => (
+                      {sortedCityOptions.map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>
@@ -2283,7 +2302,7 @@ export function CareerProfileForm({
                       className={selectClass}
                     >
                       <option value="">Şehir Seçiniz</option>
-                      {TURKISH_CITIES.map((c) => (
+                      {sortedCityOptions.map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>

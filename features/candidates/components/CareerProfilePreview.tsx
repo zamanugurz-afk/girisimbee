@@ -83,6 +83,7 @@ export type CareerCardInput = {
   variant?: 'seeker' | 'hire';
   companyName?: string | null;
   desiredRole?: string | null;
+  preferredRoles?: string[] | string | null;
   experienceLevel?: string | null;
   primarySector?: string | null;
   workType?: string | null;
@@ -96,6 +97,7 @@ export type CareerCardInput = {
   languages?: string | null;
   certificates?: string | null;
   preferredCity?: string | null;
+  preferredDistrict?: string | null;
   workplacePreference?: string | null;
   salaryExpectation?: string | null;
   salaryRange?: string | null;
