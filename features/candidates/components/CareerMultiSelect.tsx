@@ -105,6 +105,7 @@ export function CareerMultiSelect({
     onChange(selected.filter((item) => item !== opt));
   }
 
+  const pureSelected = selected.filter((item) => !isManualCareerOption(item));
   const activeThemeKey = String(themeColor || 'default').toLowerCase();
   const themeMap: Record<string, any> = {
     emerald: {
