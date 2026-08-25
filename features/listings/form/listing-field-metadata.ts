@@ -211,8 +211,8 @@ export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
     longDescription: 'Yatırımcı özeti',
   },
   [CATEGORY_IDS.ortakBul]: {
-    title: 'Ortaklık ilanı başlığı',
-    shortDescription: 'Kısa özet',
+    title: 'Ortaklık Başlığı',
+    shortDescription: 'Kısa Açıklama',
   },
 };
 
@@ -484,7 +484,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Çalışma biçimini seçin',
   },
   projectStage: {
-    placeholder: 'Girişim / proje aşamasını seçin',
+    placeholder: 'Ortaklık aşamasını seçin',
   },
   companyName: {
     placeholder: 'Örn: Novatech Yazılım Teknolojileri A.Ş.',

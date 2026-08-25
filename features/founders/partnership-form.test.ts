@@ -17,6 +17,7 @@ describe('partner form variants', () => {
       'projectStage',
       'partnershipType',
       'expertise',
+      'expertiseOther',
       'commitment',
       'equityOffered',
     ]);
@@ -51,8 +52,8 @@ describe('partner form variants', () => {
     expect(joining.find((field) => field.key === 'equityOffered')?.label).toBe(
       'Hisse beklentisi (%)',
     );
-    expect(partnerCoreFieldLabels('seeking').title).toBe('Girişim / proje başlığı');
-    expect(partnerCoreFieldLabels('joining').title).toBe('Profil başlığı');
+    expect(partnerCoreFieldLabels('seeking').title).toBe('Ortaklık Başlığı');
+    expect(partnerCoreFieldLabels('joining').title).toBe('Profil Başlığı');
   });
 
   it('builds different create steps for joining vs seeking', () => {

@@ -21,7 +21,7 @@ import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digit
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
-import { rankWorkplaceOptions } from '@/features/listings/config/listing-field-options';
+import { rankWorkplaceOptions, PARTNER_EXPERTISE_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
 import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
 import { ConditionalSectorPicker } from '@/features/listings/form/fields/conditional-sector-picker';
@@ -103,6 +103,16 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
   educationFieldOther: {
     parentKey: 'educationField',
     match: isManualOtherSelection,
+  },
+  expertiseOther: {
+    parentKey: 'expertise',
+    match: (v) =>
+      Array.isArray(v) && v.map(String).some((item) => isManualOtherSelection(item)),
+  },
+  offeredSkillsOther: {
+    parentKey: 'offeredSkills',
+    match: (v) =>
+      Array.isArray(v) && v.map(String).some((item) => isManualOtherSelection(item)),
   },
 };
 
@@ -373,6 +383,8 @@ function FieldControl({
           domain = 'tools';
         } else if (field.key === 'certificatesOther') {
           domain = 'certificates';
+        } else if (field.key === 'expertiseOther' || field.key === 'offeredSkillsOther') {
+          catalog = PARTNER_EXPERTISE_OPTIONS.filter((o) => o !== 'Diğer');
         }
 
         const activeThemeKey = (
@@ -615,7 +627,7 @@ function FieldControl({
     case 'multi-enum': {
       const selected = Array.isArray(value) ? value.map(String) : [];
       const options = field.options ?? [];
-      const isCompact = options.length > 6;
+      const isCompact = options.length > 12;
 
       function toggleOption(option: string, checked: boolean) {
         const next = checked
@@ -628,8 +640,8 @@ function FieldControl({
         <>
           <div
             className={cn(
-              'grid gap-1.5 sm:grid-cols-2',
-              isCompact && 'max-h-[220px] overflow-y-auto pr-1 py-0.5 scrollbar-thin',
+              'grid gap-2 sm:grid-cols-2 lg:grid-cols-3',
+              isCompact && 'max-h-[280px] overflow-y-auto pr-1 py-0.5 scrollbar-thin',
             )}
           >
             {options.map((option) => {
@@ -639,7 +651,7 @@ function FieldControl({
                   key={option}
                   htmlFor={`${id}-${option}`}
                   className={cn(
-                    'flex cursor-pointer items-start gap-2 rounded-lg border px-2.5 py-2 text-xs transition-all select-none',
+                    'flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2.5 text-xs transition-all select-none',
                     checked
                       ? 'border-amber-500/60 bg-amber-500/8 font-medium text-foreground dark:border-amber-500/50 dark:bg-amber-500/10'
                       : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',

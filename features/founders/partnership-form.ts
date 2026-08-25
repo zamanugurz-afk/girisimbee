@@ -24,7 +24,7 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
   },
   {
     key: 'projectStage',
-    label: 'Girişim / proje aşaması',
+    label: 'Ortaklık Aşaması',
     type: 'enum',
     required: true,
     options: [...STARTUP_STAGES],
@@ -42,6 +42,12 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
     type: 'multi-enum',
     required: true,
     options: [...PARTNER_EXPERTISE_OPTIONS],
+  },
+  {
+    key: 'expertiseOther',
+    label: 'Özel Uzmanlık Belirtin',
+    type: 'string',
+    required: false,
   },
   {
     key: 'commitment',
@@ -128,16 +134,16 @@ export function getPartnerFormFieldKeys(intent: PartnershipIntent): string[] {
 export function partnerCoreFieldLabels(intent: PartnershipIntent) {
   if (intent === 'joining') {
     return {
-      title: 'Profil başlığı',
-      shortDescription: 'Kısa tanıtım',
-      longDescription: 'Kendinizi tanıtın',
+      title: 'Profil Başlığı',
+      shortDescription: 'Kısa Tanıtım',
+      longDescription: 'Kendinizi Tanıtın',
       city: 'Lokasyon',
     };
   }
   return {
-    title: 'Girişim / proje başlığı',
-    shortDescription: 'Kısa açıklama',
-    longDescription: 'Proje ve ortaklık beklentisi',
+    title: 'Ortaklık Başlığı',
+    shortDescription: 'Kısa Açıklama',
+    longDescription: 'Proje ve Ortaklık Beklentisi',
     city: 'Lokasyon',
   };
 }

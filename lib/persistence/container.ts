@@ -335,11 +335,19 @@ export function createSupabaseContainer(
   supabase: SupabaseClient,
   options?: { enrichListingOwnerId?: boolean },
 ): PersistenceContainer {
+  let ownerIdReader: SupabaseClient | undefined = undefined;
+  if (options?.enrichListingOwnerId) {
+    try {
+      ownerIdReader = requireListingOwnerIdReader();
+    } catch {
+      ownerIdReader = undefined;
+    }
+  }
   const listingRepoOptions: SupabaseListingRepositoryOptions | undefined =
     options?.enrichListingOwnerId
       ? {
           enrichOwnerId: true,
-          ownerIdReader: requireListingOwnerIdReader(),
+          ownerIdReader,
         }
       : undefined;
   const listingRepository = new SupabaseListingRepository(supabase, listingRepoOptions);

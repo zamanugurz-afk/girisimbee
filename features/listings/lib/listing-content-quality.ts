@@ -47,6 +47,34 @@ export const LISTING_TERM_WHITELIST = [
   'KOBİ',
   'e-Ticaret',
   'E-Ticaret',
+  'CTO',
+  'CEO',
+  'CFO',
+  'COO',
+  'CMO',
+  'CPO',
+  'ML',
+  'LLM',
+  'AWS',
+  'GCP',
+  'POS',
+  'UI',
+  'UX',
+  'SEO',
+  'SEM',
+  'HR',
+  'IK',
+  'SQL',
+  'PHP',
+  'CSS',
+  'HTML',
+  'PMP',
+  'QA',
+  'KOSGEB',
+  'TÜBİTAK',
+  'TL',
+  'USD',
+  'EUR',
 ] as const;
 
 const WHITELIST_LOOKUP = new Map(
@@ -171,18 +199,6 @@ function titleCaseWord(word: string, index: number): string {
       if (index > 0 && TITLE_SMALL_WORDS.has(lower)) {
         return lower;
       }
-
-      // Keep all-caps short tokens that look like acronyms (2–5), excluding small words
-      if (
-        /^[A-Z0-9]{2,5}$/.test(part)
-        && part === part.toUpperCase()
-        && !TITLE_SMALL_WORDS.has(lower)
-      ) {
-        return part;
-      }
-
-      // iPhone-style: starts with lowercase latin then uppercase
-      if (/^[a-z][A-Z]/.test(part)) return part;
 
       return lower.charAt(0).toLocaleUpperCase('tr-TR') + lower.slice(1);
     })

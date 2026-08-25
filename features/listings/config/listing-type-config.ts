@@ -1240,7 +1240,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'projectStage',
-      label: 'Girişim / proje aşaması',
+      label: 'Ortaklık Aşaması',
       type: 'enum',
       options: [...STARTUP_STAGES],
     },

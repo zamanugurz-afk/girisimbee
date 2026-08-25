@@ -77,6 +77,7 @@ import {
 } from '@/features/investments/lib/investment-context';
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
 import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
+import { buildFounderSummaryDraft } from '@/features/listings/lib/founder-summary';
 import { polishInvestmentText } from '@/features/investments/lib/investment-text';
 import {
   displaySeekingMetricValue,
@@ -602,6 +603,9 @@ export function CategoryListingForm({
   const isInvestorSummaryStep =
     categoryId === CATEGORY_IDS.yatirimYap
     && Boolean(currentStep.coreFields?.includes('longDescription'));
+  const isFounderSummaryStep =
+    categoryId === CATEGORY_IDS.ortakBul
+    && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -884,6 +888,8 @@ export function CategoryListingForm({
   const lastAutoInvestmentShortRef = useRef('');
   const lastAutoInvestorSummaryRef = useRef('');
   const lastAutoInvestorShortRef = useRef('');
+  const lastAutoFounderSummaryRef = useRef('');
+  const lastAutoFounderShortRef = useRef('');
   const careerSummaryDraft = useMemo(() => {
     if (categoryId === CATEGORY_IDS.iseAl) {
       return buildHiringSummaryDraft({
@@ -1045,6 +1051,73 @@ export function CategoryListingForm({
       shortDescription: investorSummaryDraft.shortDescription,
     }));
   }, [investorSummaryDraft]);
+
+  const founderSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.ortakBul) return null;
+    return buildFounderSummaryDraft({
+      title: core.title,
+      sector: String(mergedCustomFields.sector || mergedCustomFields.primarySector || ''),
+      projectStage: String(mergedCustomFields.projectStage || ''),
+      partnershipType: String(mergedCustomFields.partnershipType || ''),
+      commitment: String(mergedCustomFields.commitment || ''),
+      equityOffered: mergedCustomFields.equityOffered as number | string,
+      expertise: mergedCustomFields.expertise as string[] | string,
+      expertiseOther: String(mergedCustomFields.expertiseOther || ''),
+      city: core.city,
+      district: core.district,
+    });
+  }, [
+    categoryId,
+    core.city,
+    core.district,
+    core.title,
+    mergedCustomFields.commitment,
+    mergedCustomFields.equityOffered,
+    mergedCustomFields.expertise,
+    mergedCustomFields.expertiseOther,
+    mergedCustomFields.partnershipType,
+    mergedCustomFields.primarySector,
+    mergedCustomFields.projectStage,
+    mergedCustomFields.sector,
+  ]);
+
+  useEffect(() => {
+    if (!isFounderSummaryStep || !founderSummaryDraft) return;
+    const currentLong = core.longDescription?.trim();
+    const currentShort = core.shortDescription?.trim();
+    const longUntouched =
+      !currentLong || currentLong === lastAutoFounderSummaryRef.current;
+    const shortUntouched =
+      !currentShort || currentShort === lastAutoFounderShortRef.current;
+    if (!longUntouched && !shortUntouched) return;
+    lastAutoFounderSummaryRef.current = founderSummaryDraft.longDescription;
+    lastAutoFounderShortRef.current = founderSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: longUntouched
+        ? founderSummaryDraft.longDescription
+        : prev.longDescription,
+      shortDescription: shortUntouched
+        ? founderSummaryDraft.shortDescription
+        : prev.shortDescription,
+    }));
+  }, [
+    core.longDescription,
+    core.shortDescription,
+    founderSummaryDraft,
+    isFounderSummaryStep,
+  ]);
+
+  const applyFounderSummaryDraft = useCallback(() => {
+    if (!founderSummaryDraft) return;
+    lastAutoFounderSummaryRef.current = founderSummaryDraft.longDescription;
+    lastAutoFounderShortRef.current = founderSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: founderSummaryDraft.longDescription,
+      shortDescription: founderSummaryDraft.shortDescription,
+    }));
+  }, [founderSummaryDraft]);
 
   const formValues = useMemo(
     (): ListingFormValues => ({
@@ -2854,7 +2927,7 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep || isInvestorSummaryStep ? (
+              {isCareerSummaryStep || isInvestorSummaryStep || isFounderSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
@@ -2862,6 +2935,8 @@ export function CategoryListingForm({
                       ? 'Açık pozisyon, yetkinlik ve teklif bilgilerinize göre bir taslak hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : categoryId === CATEGORY_IDS.yatirimYap
                         ? 'Yapılandırılmış kriterlerden bir yatırımcı profili hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
+                      : categoryId === CATEGORY_IDS.ortakBul
+                        ? 'Girişim ve aradığınız ortak kriterlerinize göre otomatik bir açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.'
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
@@ -2873,7 +2948,9 @@ export function CategoryListingForm({
                     onClick={
                       isInvestorSummaryStep
                         ? applyInvestorSummaryDraft
-                        : applyCareerSummaryDraft
+                        : isFounderSummaryStep
+                          ? applyFounderSummaryDraft
+                          : applyCareerSummaryDraft
                     }
                   >
                     Özeti yeniden oluştur
@@ -2970,6 +3047,7 @@ export function CategoryListingForm({
                     remotePolicy: resolveFieldError(fieldErrors, 'remotePolicy'),
                   }}
                   disabled={disabled || isBusy}
+                  themeColor={categoryThemeColor}
                 />
               )}
 
@@ -3024,6 +3102,7 @@ export function CategoryListingForm({
                     title: resolveFieldError(fieldErrors, 'title'),
                   }}
                   disabled={disabled || isBusy}
+                  themeColor={categoryThemeColor}
                 />
               ) : null}
 
@@ -3088,6 +3167,7 @@ export function CategoryListingForm({
                         shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
                       }}
                       disabled={disabled || isBusy}
+                      themeColor={categoryThemeColor}
                     />
 
                     {fieldByKey.get('businessName') ? (
@@ -3524,6 +3604,17 @@ export function CategoryListingForm({
                     const field = fieldByKey.get(key);
                     if (!field) return null;
                     const isFullWidth =
+                      key === 'expertise' ||
+                      key === 'offeredSkills' ||
+                      key === 'expertiseOther' ||
+                      key === 'offeredSkillsOther' ||
+                      key === 'sectors' ||
+                      key === 'preferredSectors' ||
+                      key === 'preferredRoles' ||
+                      key === 'preferredBusinessTypes' ||
+                      key === 'businessModel' ||
+                      key === 'targetCustomer' ||
+                      key === 'useOfFunds' ||
                       key === 'transferScope' ||
                       key === 'reasonForTransfer' ||
                       key === 'postTransferSupport' ||
@@ -3619,6 +3710,7 @@ export function CategoryListingForm({
                     city: resolveFieldError(fieldErrors, 'city'),
                   }}
                   disabled={disabled || isBusy}
+                  themeColor={categoryThemeColor}
                 />
               ) : null}
 

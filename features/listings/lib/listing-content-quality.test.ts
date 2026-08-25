@@ -16,6 +16,15 @@ describe('listing-content-quality', () => {
     expect(normalizeListingTitle('YATIRIMCI ARIYORUZ')).toBe('Yatırımcı Arıyoruz');
   });
 
+  it('TEST 2b mixed caps with common words and acronyms', () => {
+    expect(normalizeListingTitle('Kağıt fABRİKASINA ORTAK aRIYORUM')).toBe(
+      'Kağıt Fabrikasına Ortak Arıyorum',
+    );
+    expect(normalizeListingTitle('b2b yapay zeka saas cto arıyoruz')).toBe(
+      'B2B Yapay Zeka SaaS CTO Arıyoruz',
+    );
+  });
+
   it('TEST 3 multi-word title', () => {
     expect(normalizeListingTitle('fintech girişimimize yatırımcı arıyoruz')).toBe(
       'FinTech Girişimimize Yatırımcı Arıyoruz',

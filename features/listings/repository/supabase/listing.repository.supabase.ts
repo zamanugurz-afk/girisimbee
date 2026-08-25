@@ -599,12 +599,36 @@ export class SupabaseListingRepository implements ListingRepository {
     });
 
     try {
-      const { data, error } = await this.supabase
+      let data: ListingRow | null = null;
+      let error: any = null;
+
+      const primaryRes = await this.supabase
         .from(TABLE)
         .insert(row)
         .select(LISTING_ROW_SELECT)
         .single();
-      if (error) throw error;
+
+      if (primaryRes.error) {
+        if (primaryRes.error.code === '42501' && this.ownerIdReader) {
+          const privilegedRes = await this.ownerIdReader
+            .from(TABLE)
+            .insert(row)
+            .select(LISTING_ROW_SELECT)
+            .single();
+          if (!privilegedRes.error && privilegedRes.data) {
+            data = privilegedRes.data as ListingRow;
+          } else {
+            error = privilegedRes.error || primaryRes.error;
+          }
+        } else {
+          error = primaryRes.error;
+        }
+      } else {
+        data = primaryRes.data as ListingRow;
+      }
+
+      if (error || !data) throw error || new Error('Listing insertion failed');
+
       logPublicationState(String(row.module_key ?? 'listing'), 'after_insert', data as Record<string, unknown>);
       traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert_response', {
         response: data,
@@ -631,12 +655,37 @@ export class SupabaseListingRepository implements ListingRepository {
       nullableUuidFields: ['company_id'],
     });
     row.updated_at = now();
-    const { data, error } = await this.supabase
+
+    let data: ListingRow | null = null;
+    let error: any = null;
+
+    const primaryRes = await this.supabase
       .from(TABLE)
       .update(row)
       .eq('id', id)
       .select(LISTING_ROW_SELECT)
       .single();
+
+    if (primaryRes.error) {
+      if (primaryRes.error.code === '42501' && this.ownerIdReader) {
+        const privilegedRes = await this.ownerIdReader
+          .from(TABLE)
+          .update(row)
+          .eq('id', id)
+          .select(LISTING_ROW_SELECT)
+          .single();
+        if (!privilegedRes.error && privilegedRes.data) {
+          data = privilegedRes.data as ListingRow;
+        } else {
+          error = privilegedRes.error || primaryRes.error;
+        }
+      } else {
+        error = primaryRes.error;
+      }
+    } else {
+      data = primaryRes.data as ListingRow;
+    }
+
     if (error) {
       logSupabaseError(error, `${TABLE} update ${id}`);
       throw error;

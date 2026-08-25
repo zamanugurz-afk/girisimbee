@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
 import { CitySelect } from '@/features/listings/form/fields/city-select';
+import { DistrictSelect } from '@/features/listings/form/fields/district-select';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { FieldLabelWithTooltip } from '@/features/listings/form/field-label-with-tooltip';
@@ -41,6 +42,8 @@ export interface CoreFieldsProps {
   fieldUi?: Partial<Record<keyof CoreListingFieldsInput, { helperText?: string; placeholder?: string }>>;
   /** Show a required asterisk on city when the category validates it. */
   cityRequired?: boolean;
+  /** Category theme color for select highlights */
+  themeColor?: 'emerald' | 'sky' | 'amber' | 'blue' | 'purple' | 'teal' | 'rose' | 'slate' | 'default' | string;
 }
 
 const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
@@ -48,6 +51,7 @@ const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
   'shortDescription',
   'longDescription',
   'city',
+  'district',
   'remotePolicy',
   'location',
   'country',
@@ -68,6 +72,7 @@ export function CoreListingFields({
   labels,
   fieldUi,
   cityRequired,
+  themeColor,
 }: CoreFieldsProps) {
   const fields = include ?? ALL_CORE_FIELDS;
   const show = (key: keyof CoreListingFieldsInput) => fields.includes(key);
@@ -78,7 +83,8 @@ export function CoreListingFields({
     const override = fieldUi?.[key];
     return {
       ...base,
-      ...override,
+      ...(override?.placeholder !== undefined && { placeholder: override.placeholder }),
+      ...(override?.helperText !== undefined && { helperText: override.helperText }),
     };
   };
 
@@ -108,8 +114,6 @@ export function CoreListingFields({
         ? normalizeListingTitle(current)
         : normalizeListingDescription(current);
 
-    // No real wording/casing change — optionally apply cosmetic fixes silently
-    // (e.g. trailing ".") so the banner never appears for identical-looking text.
     if (!isMeaningfulTextCorrection(current, suggested)) {
       if (suggested !== current) {
         set(field, suggested);
@@ -154,7 +158,6 @@ export function CoreListingFields({
             size="sm"
             className="h-7 text-xs"
             disabled={disabled}
-            // Prevent textarea blur from racing the apply click.
             onMouseDown={(e) => {
               e.preventDefault();
               applySuggestion(field);
@@ -218,12 +221,12 @@ export function CoreListingFields({
         return (
           <div className="space-y-2">
             <FieldLabelWithTooltip
-              htmlFor="core-short"
+              htmlFor="core-short-desc"
               label={labelFor('shortDescription', 'Kısa Açıklama')}
               required
             />
             <Textarea
-              id="core-short"
+              id="core-short-desc"
               lang="tr"
               spellCheck
               value={values.shortDescription}
@@ -233,8 +236,8 @@ export function CoreListingFields({
               }}
               onBlur={() => proposeCorrection('shortDescription')}
               disabled={disabled}
+              placeholder={ui.placeholder ?? 'Örn: İlanınızı özetleyen kısa bir açıklama yazın'}
               rows={3}
-              placeholder={ui.placeholder}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.shortDescription)}
             />
@@ -255,12 +258,12 @@ export function CoreListingFields({
         return (
           <div className="space-y-2">
             <FieldLabelWithTooltip
-              htmlFor="core-long"
+              htmlFor="core-long-desc"
               label={labelFor('longDescription', 'Detaylı Açıklama')}
               required
             />
             <Textarea
-              id="core-long"
+              id="core-long-desc"
               lang="tr"
               spellCheck
               value={values.longDescription ?? ''}
@@ -270,8 +273,8 @@ export function CoreListingFields({
               }}
               onBlur={() => proposeCorrection('longDescription')}
               disabled={disabled}
+              placeholder={ui.placeholder ?? 'Örn: İlanınızla ilgili tüm detayları buraya yazın'}
               rows={6}
-              placeholder={ui.placeholder}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.longDescription)}
             />
@@ -286,23 +289,44 @@ export function CoreListingFields({
         );
       })()}
 
-      {(show('city') || show('remotePolicy')) && (
+      {(show('city') || show('district') || show('remotePolicy')) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
           {show('city') && (() => {
             const ui = uiFor('city');
             return (
               <div className="space-y-2 w-full min-w-0">
-                <FieldLabelWithTooltip htmlFor="core-city" label="Şehir" required={cityRequired} />
+                <FieldLabelWithTooltip htmlFor="core-city" label="İl" required={cityRequired} />
                 <CitySelect
                   id="core-city"
                   value={values.city ?? null}
-                  onChange={(city) => set('city', city)}
+                  onChange={(city) => {
+                    onChange({ ...values, city, district: null });
+                  }}
                   disabled={disabled}
                   error={errors?.city}
-                  placeholder={ui.placeholder}
+                  placeholder={ui.placeholder ?? 'İl seçin'}
                   extended={extendedCities}
+                  themeColor={themeColor}
                 />
                 <FormFieldFooter helperText={ui.helperText} error={errors?.city} />
+              </div>
+            );
+          })()}
+          {show('district') && (() => {
+            return (
+              <div className="space-y-2 w-full min-w-0">
+                <FieldLabelWithTooltip htmlFor="core-district" label="İlçe" />
+                <DistrictSelect
+                  id="core-district"
+                  city={values.city ?? ''}
+                  value={values.district ?? null}
+                  onChange={(district) => set('district', district)}
+                  disabled={disabled || !values.city}
+                  error={errors?.district}
+                  placeholder="İlçe seçin"
+                  themeColor={themeColor}
+                />
+                <FormFieldFooter error={errors?.district} />
               </div>
             );
           })()}
@@ -324,7 +348,7 @@ export function CoreListingFields({
                   >
                     <SelectValue placeholder={ui.placeholder} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent themeColor={themeColor}>
                     {REMOTE_OPTIONS.map((opt) => (
                       <SelectItem key={opt} value={opt}>
                         {opt === 'onsite' ? 'Ofis' : opt === 'hybrid' ? 'Hibrit' : 'Uzaktan'}
