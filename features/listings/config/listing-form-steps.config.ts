@@ -120,20 +120,21 @@ const STEP_PUBLISH: ListingFormStepDef = {
   publish: true,
 };
 
-export const STEP_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
-  id: 'publish',
-  title: 'Önizleme ve Yayınla',
-  description: 'Son kontrol, paket seçimi ve yayınlama',
-  preview: true,
+export const STEP_PACKAGE_AND_PERMISSIONS: ListingFormStepDef = {
+  id: 'package',
+  title: 'Paket ve İzinler',
+  description: 'Yayın paketi seçimi, iletişim ve yasal onaylar',
   package: true,
   kvkk: true,
   publish: true,
 };
 
+export const STEP_PREVIEW_AND_PUBLISH: ListingFormStepDef = STEP_PACKAGE_AND_PERMISSIONS;
+
 export const STEP_CAREER_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
-  id: 'publish',
-  title: 'Kariyer Özeti ve Önizleme',
-  description: 'Çalışma tercihleri, kariyer özeti kontrolü, önizleme ve yayınlama',
+  id: 'package',
+  title: 'Paket ve İzinler',
+  description: 'Yayın paketi seçimi, iletişim ve yasal onaylar',
   careerPreferenceEditor: true,
   customFieldKeys: [
     'workType',
@@ -144,7 +145,6 @@ export const STEP_CAREER_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
     'salaryExpectation',
     'availability',
   ],
-  preview: true,
   package: true,
   kvkk: true,
   publish: true,
@@ -154,7 +154,7 @@ export const STEP_CAREER_PREVIEW_AND_PUBLISH: ListingFormStepDef = {
 function withConsolidatedPublishFlow(...steps: ListingFormStepDef[]): ListingFormStepDef[] {
   return [
     ...steps,
-    STEP_PREVIEW_AND_PUBLISH,
+    STEP_PACKAGE_AND_PERMISSIONS,
   ];
 }
 
