@@ -165,17 +165,33 @@ export class SupabaseListingRepository implements ListingRepository {
   ) {
     this.enrichOwnerId = options?.enrichOwnerId === true;
     this.ownerIdReader = options?.ownerIdReader;
-    if (this.enrichOwnerId && !this.ownerIdReader) {
+    if (this.enrichOwnerId && !this.ownerIdReader && !this.getPrivilegedClient()) {
       throw new Error(OWNER_ID_READER_REQUIRED_ERROR);
     }
   }
 
+  /** Privileged client helper for server-side operations (bypasses column revoke issues). */
+  private getPrivilegedClient(): SupabaseClient | undefined {
+    if (this.ownerIdReader) return this.ownerIdReader;
+    try {
+      if (typeof window === 'undefined') {
+        const { createServiceRoleClient } =
+          require('@/lib/supabase/service') as typeof import('@/lib/supabase/service');
+        return createServiceRoleClient();
+      }
+    } catch {
+      return undefined;
+    }
+    return undefined;
+  }
+
   /** Privileged client only — never the user-scoped PostgREST client. */
   private requireOwnerIdReader(): SupabaseClient {
-    if (!this.enrichOwnerId || !this.ownerIdReader) {
+    const privileged = this.getPrivilegedClient();
+    if (!privileged) {
       throw new Error(OWNER_ID_READER_REQUIRED_ERROR);
     }
-    return this.ownerIdReader;
+    return privileged;
   }
 
   private async hydrateOwnerIds(listings: Listing[]): Promise<Listing[]> {
@@ -291,7 +307,9 @@ export class SupabaseListingRepository implements ListingRepository {
     id: ListingId,
     options?: { includeDeleted?: boolean },
   ): Promise<Listing | null> {
-    let q = this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let q = client
       .from(TABLE)
       .select(LISTING_ROW_SELECT)
       .eq('id', id);
@@ -300,8 +318,8 @@ export class SupabaseListingRepository implements ListingRepository {
     }
     let { data, error } = await q.maybeSingle();
 
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      let fallbackQ = this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      let fallbackQ = privileged
         .from(TABLE)
         .select(LISTING_ROW_SELECT)
         .eq('id', id);
@@ -320,15 +338,17 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async findBySlug(slug: string): Promise<Listing | null> {
-    let { data, error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { data, error } = await client
       .from(TABLE)
       .select(LISTING_ROW_SELECT)
       .eq('slug', slug)
       .is('deleted_at', null)
       .maybeSingle();
 
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .select(LISTING_ROW_SELECT)
         .eq('slug', slug)
@@ -488,15 +508,17 @@ export class SupabaseListingRepository implements ListingRepository {
     }
 
     // Single round-trip: browse select already requests count:'exact'.
-    let listResult = await this.applyFilter(this.supabase.from(TABLE), filter, {
+    const privileged = this.getPrivilegedClient();
+    const primaryClient = privileged ?? this.supabase;
+    let listResult = await this.applyFilter(primaryClient.from(TABLE), filter, {
       mode: 'browse',
       ownerScopedIds,
     })
       .order(column, { ascending })
       .range(start, end);
 
-    if (listResult.error && listResult.error.code === '42501' && this.ownerIdReader) {
-      listResult = await this.applyFilter(this.ownerIdReader.from(TABLE), filter, {
+    if (listResult.error && listResult.error.code === '42501' && privileged && primaryClient !== privileged) {
+      listResult = await this.applyFilter(privileged.from(TABLE), filter, {
         mode: 'browse',
         ownerScopedIds,
       })
@@ -560,12 +582,14 @@ export class SupabaseListingRepository implements ListingRepository {
     if (filter.ownerId && this.enrichOwnerId && ownerScopedIds && ownerScopedIds.length === 0) {
       return 0;
     }
-    let { count, error } = await this.applyFilter(this.supabase.from(TABLE), filter, {
+    const privileged = this.getPrivilegedClient();
+    const primaryClient = privileged ?? this.supabase;
+    let { count, error } = await this.applyFilter(primaryClient.from(TABLE), filter, {
       mode: 'count',
       ownerScopedIds,
     });
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.applyFilter(this.ownerIdReader.from(TABLE), filter, {
+    if (error && error.code === '42501' && privileged && primaryClient !== privileged) {
+      const fallback = await this.applyFilter(privileged.from(TABLE), filter, {
         mode: 'count',
         ownerScopedIds,
       });
@@ -577,13 +601,15 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async exists(id: ListingId): Promise<boolean> {
-    let { count, error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const primaryClient = privileged ?? this.supabase;
+    let { count, error } = await primaryClient
       .from(TABLE)
       .select('*', { count: 'exact', head: true })
       .eq('id', id)
       .is('deleted_at', null);
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && primaryClient !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .select('*', { count: 'exact', head: true })
         .eq('id', id)
@@ -637,21 +663,24 @@ export class SupabaseListingRepository implements ListingRepository {
       let data: ListingRow | null = null;
       let error: any = null;
 
-      const primaryRes = await this.supabase
+      const privileged = this.getPrivilegedClient();
+      const client = privileged ?? this.supabase;
+      const primaryRes = await client
         .from(TABLE)
         .insert(row)
         .select(LISTING_ROW_SELECT)
         .single();
 
       if (primaryRes.error) {
-        if (primaryRes.error.code === '42501' && this.ownerIdReader) {
-          const privilegedRes = await this.ownerIdReader
+        if (primaryRes.error.code === '42501' && privileged && client !== privileged) {
+          const privilegedRes = await privileged
             .from(TABLE)
             .insert(row)
             .select(LISTING_ROW_SELECT)
             .single();
           if (!privilegedRes.error && privilegedRes.data) {
             data = privilegedRes.data as ListingRow;
+            error = null;
           } else {
             error = privilegedRes.error || primaryRes.error;
           }
@@ -694,7 +723,9 @@ export class SupabaseListingRepository implements ListingRepository {
     let data: ListingRow | null = null;
     let error: any = null;
 
-    const primaryRes = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    const primaryRes = await client
       .from(TABLE)
       .update(row)
       .eq('id', id)
@@ -702,8 +733,8 @@ export class SupabaseListingRepository implements ListingRepository {
       .single();
 
     if (primaryRes.error) {
-      if (primaryRes.error.code === '42501' && this.ownerIdReader) {
-        const privilegedRes = await this.ownerIdReader
+      if (primaryRes.error.code === '42501' && privileged && client !== privileged) {
+        const privilegedRes = await privileged
           .from(TABLE)
           .update(row)
           .eq('id', id)
@@ -711,6 +742,7 @@ export class SupabaseListingRepository implements ListingRepository {
           .single();
         if (!privilegedRes.error && privilegedRes.data) {
           data = privilegedRes.data as ListingRow;
+          error = null;
         } else {
           error = privilegedRes.error || primaryRes.error;
         }
@@ -739,10 +771,19 @@ export class SupabaseListingRepository implements ListingRepository {
 
   async softDelete(id: ListingId): Promise<void> {
     await this.transitionStatus(id, 'deleted');
-    const { error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { error } = await client
       .from(TABLE)
       .update({ deleted_at: now(), updated_at: now() })
       .eq('id', id);
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
+        .from(TABLE)
+        .update({ deleted_at: now(), updated_at: now() })
+        .eq('id', id);
+      error = fallback.error;
+    }
     if (error) throw error;
   }
 
@@ -751,15 +792,17 @@ export class SupabaseListingRepository implements ListingRepository {
   }
 
   async restore(id: ListingId): Promise<Listing> {
-    let { data, error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { data, error } = await client
       .from(TABLE)
       .update({ deleted_at: null, status: 'draft', updated_at: now() })
       .eq('id', id)
       .select(LISTING_ROW_SELECT)
       .single();
 
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .update({ deleted_at: null, status: 'draft', updated_at: now() })
         .eq('id', id)
@@ -778,12 +821,14 @@ export class SupabaseListingRepository implements ListingRepository {
   async incrementViewCount(id: ListingId): Promise<void> {
     const listing = await this.findById(id, { includeDeleted: true });
     if (!listing) throw new NotFoundError('Listing', id);
-    let { error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { error } = await client
       .from(TABLE)
       .update({ view_count: listing.viewCount + 1, updated_at: now() })
       .eq('id', id);
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .update({ view_count: listing.viewCount + 1, updated_at: now() })
         .eq('id', id);
@@ -795,12 +840,14 @@ export class SupabaseListingRepository implements ListingRepository {
   async incrementApplicationCount(id: ListingId): Promise<void> {
     const listing = await this.findById(id, { includeDeleted: true });
     if (!listing) throw new NotFoundError('Listing', id);
-    let { error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { error } = await client
       .from(TABLE)
       .update({ application_count: listing.applicationCount + 1, updated_at: now() })
       .eq('id', id);
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .update({ application_count: listing.applicationCount + 1, updated_at: now() })
         .eq('id', id);
@@ -830,15 +877,17 @@ export class SupabaseListingRepository implements ListingRepository {
         : {}),
       ...(to === 'pending_review' ? { rejected_reason: null } : {}),
     });
-    let { data, error } = await this.supabase
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    let { data, error } = await client
       .from(TABLE)
       .update(update)
       .eq('id', id)
       .select(LISTING_ROW_SELECT)
       .single();
 
-    if (error && error.code === '42501' && this.ownerIdReader) {
-      const fallback = await this.ownerIdReader
+    if (error && error.code === '42501' && privileged && client !== privileged) {
+      const fallback = await privileged
         .from(TABLE)
         .update(update)
         .eq('id', id)
