@@ -217,6 +217,22 @@ export function JobApplicationModal({
         router.push('/mesajlarim');
       }
     } catch (err: any) {
+      if (err.message?.includes('zaten başvuru yapılmış')) {
+        toast.info('Bu ilana daha önce başvurdunuz. Mesajlarınıza yönlendiriliyorsunuz...');
+        onOpenChange(false);
+        try {
+          const checkRes = await fetch(`/api/listings/${listingId}/application-check`);
+          const checkJson = await checkRes.json();
+          const checkPayload = checkJson?.data || checkJson;
+          const convId = checkPayload?.application?.conversationId;
+          if (convId) {
+            router.push(`/mesajlarim?c=${convId}`);
+            return;
+          }
+        } catch {}
+        router.push('/mesajlarim');
+        return;
+      }
       toast.error(err.message || 'Başvuru yapılırken bir hata oluştu.');
     } finally {
       setIsSubmitting(false);
