@@ -65,16 +65,16 @@ export interface ApplicationThreadData {
 
 const STATUS_LABELS: Record<string, { label: string; bg: string; text: string; border: string }> = {
   submitted: {
-    label: 'Yeni Başvuru',
-    bg: 'bg-blue-50 dark:bg-blue-950/40',
-    text: 'text-blue-700 dark:text-blue-300',
-    border: 'border-blue-200 dark:border-blue-800',
+    label: 'İnceleniyor',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    text: 'text-amber-700 dark:text-amber-300',
+    border: 'border-amber-200 dark:border-amber-800',
   },
   pending: {
-    label: 'Yeni Başvuru',
-    bg: 'bg-blue-50 dark:bg-blue-950/40',
-    text: 'text-blue-700 dark:text-blue-300',
-    border: 'border-blue-200 dark:border-blue-800',
+    label: 'İnceleniyor',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    text: 'text-amber-700 dark:text-amber-300',
+    border: 'border-amber-200 dark:border-amber-800',
   },
   reviewing: {
     label: 'İnceleniyor',
@@ -83,19 +83,19 @@ const STATUS_LABELS: Record<string, { label: string; bg: string; text: string; b
     border: 'border-amber-200 dark:border-amber-800',
   },
   contacted: {
-    label: 'Mülakat / İletişim',
+    label: 'Mülakat',
     bg: 'bg-purple-50 dark:bg-purple-950/40',
     text: 'text-purple-700 dark:text-purple-300',
     border: 'border-purple-200 dark:border-purple-800',
   },
   accepted: {
-    label: 'Olumlu / Kabul Edildi',
+    label: 'Olumlu',
     bg: 'bg-emerald-50 dark:bg-emerald-950/40',
     text: 'text-emerald-700 dark:text-emerald-300',
     border: 'border-emerald-200 dark:border-emerald-800',
   },
   rejected: {
-    label: 'Olumsuz / Reddedildi',
+    label: 'Olumsuz',
     bg: 'bg-rose-50 dark:bg-rose-950/40',
     text: 'text-rose-700 dark:text-rose-300',
     border: 'border-rose-200 dark:border-rose-800',
@@ -127,6 +127,7 @@ export function DashboardMessageThread({
     error,
     loadOlder,
     sendMessage,
+    refreshMessages,
     userId,
   } = useConversationMessages(conversationId);
 
@@ -140,6 +141,8 @@ export function DashboardMessageThread({
   const [isLoadingApp, setIsLoadingApp] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [rejectionMessageText, setRejectionMessageText] = useState('');
 
   // Fetch application details linked to this conversation
   useEffect(() => {
@@ -199,7 +202,25 @@ export function DashboardMessageThread({
     }
   }
 
-  async function handleStatusChange(newStatus: string) {
+  function onSelectStatus(newStatus: string) {
+    if (!appData?.id || isUpdatingStatus) return;
+
+    if (newStatus === 'rejected') {
+      if (appData.status === 'rejected') {
+        toast.info('Başvuru zaten olumsuz olarak sonuçlandırılmış.');
+        return;
+      }
+      const candidateName = appData.profileSnapshot?.displayName?.split(' ')[0] || 'Değerli Aday';
+      const defaultMsg = `Merhaba ${candidateName},\n\nBaşvurunuz ve pozisyonumuza göstermiş olduğunuz ilgi için teşekkür ederiz.\n\nYapılan değerlendirme sonucunda bu aşamada başvurunuzla olumlu şekilde ilerleyemeyeceğimizi üzülerek bildirmek isteriz.\n\nİlginiz için teşekkür eder, kariyerinizde başarılar dileriz.`;
+      setRejectionMessageText(defaultMsg);
+      setRejectionDialogOpen(true);
+      return;
+    }
+
+    void executeStatusChange(newStatus);
+  }
+
+  async function executeStatusChange(newStatus: string, rejectionMsg?: string) {
     if (!appData?.id || isUpdatingStatus) return;
 
     setIsUpdatingStatus(true);
@@ -207,7 +228,10 @@ export function DashboardMessageThread({
       const res = await fetch(`/api/employers/applications/${appData.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          rejectionMessage: rejectionMsg?.trim() || undefined,
+        }),
       });
 
       if (!res.ok) {
@@ -216,7 +240,13 @@ export function DashboardMessageThread({
       }
 
       setAppData((prev) => (prev ? { ...prev, status: newStatus } : null));
-      toast.success('Başvuru durumu güncellendi.');
+      if (rejectionMsg) {
+        await refreshMessages();
+        setRejectionDialogOpen(false);
+        toast.success('Başvuru olumsuz olarak sonuçlandırıldı ve adaya mesaj iletildi.');
+      } else {
+        toast.success('Başvuru durumu güncellendi.');
+      }
     } catch (err: any) {
       toast.error(err.message || 'Durum güncellenirken hata oluştu.');
     } finally {
@@ -343,15 +373,14 @@ export function DashboardMessageThread({
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Durum:</span>
                   <Select
-                    value={appData.status}
-                    onValueChange={handleStatusChange}
+                    value={appData.status === 'submitted' || appData.status === 'pending' ? 'reviewing' : appData.status}
+                    onValueChange={onSelectStatus}
                     disabled={isUpdatingStatus}
                   >
-                    <SelectTrigger className="h-8 w-36 text-xs bg-white dark:bg-card rounded-lg border-emerald-200 dark:border-emerald-800">
+                    <SelectTrigger className="h-8 w-36 text-xs bg-white dark:bg-card rounded-lg border-emerald-200 dark:border-emerald-800 font-medium">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="submitted">Yeni Başvuru</SelectItem>
                       <SelectItem value="reviewing">İnceleniyor</SelectItem>
                       <SelectItem value="contacted">Mülakat</SelectItem>
                       <SelectItem value="accepted">Olumlu</SelectItem>
@@ -495,6 +524,66 @@ export function DashboardMessageThread({
           </DialogContent>
         </Dialog>
       ) : null}
+
+      {/* Rejection Message Dialog */}
+      <Dialog open={rejectionDialogOpen} onOpenChange={setRejectionDialogOpen}>
+        <DialogContent className="max-w-lg rounded-2xl p-6 bg-white dark:bg-card border-border">
+          <DialogHeader className="space-y-1.5 pb-2">
+            <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 font-bold text-xs">
+                ✕
+              </span>
+              Başvuruyu Olumsuz Sonuçlandır
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Adaya iletilecek sonuçlandırma mesajını inceleyebilir ve dilerseniz düzenleyebilirsiniz. Bu mesaj aday ile aranızdaki başvuru sohbetine otomatik eklenecektir.
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Adaya Gönderilecek Mesaj:
+              </label>
+              <Textarea
+                rows={6}
+                value={rejectionMessageText}
+                onChange={(e) => setRejectionMessageText(e.target.value)}
+                disabled={isUpdatingStatus}
+                className="text-xs leading-relaxed rounded-xl resize-none border-slate-200 dark:border-zinc-800"
+                placeholder="Olumsuz sonuç mesajını yazın..."
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border/60">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isUpdatingStatus}
+                onClick={() => setRejectionDialogOpen(false)}
+                className="text-xs rounded-xl h-9 px-4"
+              >
+                Vazgeç
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={isUpdatingStatus || !rejectionMessageText.trim()}
+                onClick={() => executeStatusChange('rejected', rejectionMessageText)}
+                className="text-xs rounded-xl h-9 px-5 bg-rose-600 hover:bg-rose-700 text-white font-semibold gap-1.5 shadow-sm"
+              >
+                {isUpdatingStatus ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
+                <span>Olumsuz Olarak Sonuçlandır ve Mesajı Gönder</span>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

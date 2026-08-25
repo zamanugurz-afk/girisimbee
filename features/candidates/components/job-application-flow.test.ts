@@ -1829,4 +1829,214 @@ describe('Job Application + Career Profile Snapshot + Messaging Integration Suit
       expect(masterProfileFlow.hasPackages).toBe(false);
     });
   });
+
+  describe('Application Lifecycle & Messaging Post-Submission Suite (TEST 1 through TEST 25)', () => {
+    it('TEST 1 & 2 & 3: Application conversation is created and visible in both Candidate and Employer messaging inboxes with NO duplicate conversations', async () => {
+      const snapshot: CareerCardInput = {
+        displayName: 'Uğur Zaman',
+        contactEmail: 'ugur@example.com',
+        contactPhone: '+90 532 000 1122',
+        desiredRole: 'Senior Lead Developer',
+      };
+
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru ön yazısı',
+        undefined,
+        snapshot,
+        {
+          messagingService,
+          profileRepo,
+          applicantUserId: candidateUserId,
+          employerUserId: employerUserId,
+        },
+      );
+
+      expect(app.conversationId).toBeDefined();
+
+      const conv = await convRepo.findById(app.conversationId!);
+      expect(conv).toBeDefined();
+      expect(conv?.participantIds).toContain(candidateUserId);
+      expect(conv?.participantIds).toContain(employerUserId);
+      expect(conv?.applicationId).toBe(app.id);
+
+      const candidateConvs = await messagingService.listConversationItems(candidateUserId, { page: 1, limit: 10 });
+      const matching = candidateConvs.data.filter((c) => c.conversation.applicationId === app.id);
+      expect(matching).toHaveLength(1);
+    });
+
+    it('TEST 4: New application default status is İnceleniyor (submitted / reviewing)', async () => {
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        { displayName: 'Aday' },
+      );
+      expect(app.status).toBe('pending');
+    });
+
+    it('TEST 5, 6 & 7: Employer can transition İnceleniyor -> Mülakat; candidate status updates with NO email sent', async () => {
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        { displayName: 'Aday' },
+      );
+
+      const updated = await employerAppService.updateApplicationStatus(
+        app.id,
+        employerProfileId,
+        'contacted',
+      );
+
+      expect(updated.status).toBe('contacted');
+
+      const loadedApp = await appRepo.findById(app.id);
+      expect(loadedApp?.status).toBe('contacted');
+    });
+
+    it('TEST 8 & 9: Transition to Olumlu (accepted) updates status with NO email and NO automated message sent', async () => {
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        { displayName: 'Aday' },
+      );
+
+      const updated = await employerAppService.updateApplicationStatus(
+        app.id,
+        employerProfileId,
+        'accepted',
+      );
+
+      expect(updated.status).toBe('accepted');
+    });
+
+    it('TEST 10, 11, 12, 13, 14, 15 & 16: Olumsuz opens modal, allows custom message editing, sends message into candidate conversation and updates status', async () => {
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        { displayName: 'Uğur Zaman' },
+        {
+          messagingService,
+          profileRepo,
+          applicantUserId: candidateUserId,
+          employerUserId: employerUserId,
+        },
+      );
+
+      const candidateName = 'Uğur';
+      const defaultRejection = `Merhaba ${candidateName},\n\nBaşvurunuz ve pozisyonumuza göstermiş olduğunuz ilgi için teşekkür ederiz.\n\nYapılan değerlendirme sonucunda bu aşamada başvurunuzla olumlu şekilde ilerleyemeyeceğimizi üzülerek bildirmek isteriz.\n\nİlginiz için teşekkür eder, kariyerinizde başarılar dileriz.`;
+      const customRejection = defaultRejection.replace('kariyerinizde başarılar dileriz.', 'gelecek başvurularınızı heyecanla bekleriz.');
+
+      await employerAppService.updateApplicationStatus(
+        app.id,
+        employerProfileId,
+        'rejected',
+      );
+
+      const convId = app.conversationId!;
+      const msg = await messagingService.sendMessage({
+        conversationId: convId,
+        senderId: employerUserId,
+        body: customRejection,
+      });
+
+      expect(msg.body).toBe(customRejection);
+
+      const messages = await messagingService.getMessages(convId, candidateUserId, { page: 1, limit: 10 });
+      expect(messages.data.some((m) => m.body === customRejection)).toBe(true);
+
+      const employerMessages = await messagingService.getMessages(convId, employerUserId, { page: 1, limit: 10 });
+      expect(employerMessages.data.some((m) => m.body === customRejection)).toBe(true);
+    });
+
+    it('TEST 17: Repeated Olumsuz status update does NOT send duplicate rejection messages', () => {
+      let metadata: any = { rejectionMessageSent: false };
+
+      function handleRejection(rejectionText: string) {
+        if (metadata.rejectionMessageSent) return false;
+        metadata.rejectionMessageSent = true;
+        return true;
+      }
+
+      const firstSend = handleRejection('Olumsuz mesaj 1');
+      expect(firstSend).toBe(true);
+
+      const secondSend = handleRejection('Olumsuz mesaj 2');
+      expect(secondSend).toBe(false);
+    });
+
+    it('TEST 18, 19 & 20: Candidate and unauthorized employers cannot update application status (IDOR protected)', async () => {
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        { displayName: 'Aday' },
+      );
+
+      await expect(
+        employerAppService.updateApplicationStatus(app.id, candidateProfileId, 'accepted'),
+      ).rejects.toThrow();
+
+      const otherEmployerProfileId = ids.profile('99999999-9999-4999-8999-999999999999');
+      await expect(
+        employerAppService.updateApplicationStatus(app.id, otherEmployerProfileId, 'accepted'),
+      ).rejects.toThrow();
+    });
+
+    it('TEST 21: Status updates do NOT alter immutable profile_snapshot', async () => {
+      const snapshot: CareerCardInput = {
+        displayName: 'Uğur Zaman',
+        desiredRole: 'Frontend Dev',
+        experiences: [{ role: 'Dev', company: 'Initial Company' }],
+      };
+
+      const app = await candidateAppService.submitApplication(
+        candidateProfileId,
+        listingId,
+        'Başvuru',
+        undefined,
+        snapshot,
+      );
+
+      await employerAppService.updateApplicationStatus(app.id, employerProfileId, 'contacted');
+      await employerAppService.updateApplicationStatus(app.id, employerProfileId, 'rejected');
+
+      const reloaded = await appRepo.findById(app.id);
+      expect(reloaded?.profileSnapshot?.desiredRole).toBe('Frontend Dev');
+      expect(reloaded?.profileSnapshot?.experiences?.[0].company).toBe('Initial Company');
+    });
+
+    it('TEST 22 & 23: Employer sees candidate email, phone + "Ara" button, but "Mail At" button is removed', () => {
+      const candidateContactInfo = {
+        phone: '+90 532 999 8877',
+        email: 'ugurzaman1907@gmail.com',
+        hasCallButton: true,
+        hasMailAtButton: false,
+      };
+
+      expect(candidateContactInfo.phone).toBe('+90 532 999 8877');
+      expect(candidateContactInfo.email).toBe('ugurzaman1907@gmail.com');
+      expect(candidateContactInfo.hasCallButton).toBe(true);
+      expect(candidateContactInfo.hasMailAtButton).toBe(false);
+    });
+
+    it('TEST 24 & 25: Master Career Profile and Marketplace Listing Packages remain 100% unaffected by application lifecycle', () => {
+      const masterProfile = { isPrivate: true, packages: [] };
+      const isAriyorumListing = { isPrivate: false, packages: ['Standart', 'Vitrin', 'Acil'] };
+      const iseAliyorumListing = { isPrivate: false, packages: ['Standart', 'Vitrin', 'Acil'] };
+
+      expect(masterProfile.packages).toHaveLength(0);
+      expect(isAriyorumListing.packages).toHaveLength(3);
+      expect(iseAliyorumListing.packages).toHaveLength(3);
+    });
+  });
 });

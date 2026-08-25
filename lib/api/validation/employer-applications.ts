@@ -23,6 +23,7 @@ export const employerApplicationListQuerySchema = z.object({
 export const employerApplicationStatusUpdateSchema = z.object({
   status: employerApplicationStatusSchema,
   note: z.string().max(2000).optional(),
+  rejectionMessage: z.string().max(5000).optional(),
 });
 
 export const employerApplicationNoteSchema = z.object({

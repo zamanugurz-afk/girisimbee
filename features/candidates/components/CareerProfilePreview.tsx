@@ -1096,14 +1096,6 @@ export function CareerProfilePreview({
                         <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                         <span className="truncate font-medium">{contactEmail || data.contactEmail || (isOwnApplication ? user?.email : null)}</span>
                       </div>
-                      {!isOwnApplication ? (
-                        <a
-                          href={`mailto:${contactEmail || data.contactEmail}`}
-                          className={cn("shrink-0 text-[11px] font-semibold underline", theme.headerText)}
-                        >
-                          Mail At
-                        </a>
-                      ) : null}
                     </div>
                   ) : null}
 

@@ -164,6 +164,10 @@ export function useConversationMessages(conversationId: ConversationId) {
     };
   }, [conversationId, userId, appendIncoming, service]);
 
+  const refreshMessages = useCallback(() => {
+    return loadMessages(1);
+  }, [loadMessages]);
+
   return {
     messages,
     meta,
@@ -174,6 +178,7 @@ export function useConversationMessages(conversationId: ConversationId) {
     error,
     loadOlder,
     sendMessage,
+    refreshMessages,
     userId,
   };
 }

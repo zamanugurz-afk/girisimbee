@@ -9,8 +9,6 @@ import {
 import { ids } from '@/lib/domain/ids';
 import { ValidationError } from '@/lib/domain/errors';
 
-import { sendJobApplicationStatusNotification } from '@/lib/email/job-application-email';
-
 export const GET = withAuth(async (ctx, _request, { params }) => {
   const { id } = idParamSchema.parse(params);
   const application = await ctx.container.ecosystem.employerApplicationService.getApplicationDetail(
@@ -35,33 +33,43 @@ export const PATCH = withAuth(async (ctx, request, { params }) => {
       statusUpdate.data.note,
     );
 
-    // Optional status update email to candidate if conversation/profile exists
-    try {
-      const applicantProfile = await ctx.container.profileRepository.findById(application.applicantProfileId);
-      const listing = await ctx.container.listingRepository.findById(application.listingId);
-      const convId = application.conversationId;
-      if (applicantProfile?.email && listing?.title && convId) {
-        const STATUS_LABELS: Record<string, string> = {
-          pending: 'Yeni Başvuru',
-          reviewing: 'İnceleniyor',
-          contacted: 'Mülakat / İletişim',
-          accepted: 'Olumlu / Kabul Edildi',
-          rejected: 'Olumsuz / Reddedildi',
-          withdrawn: 'Geri Çekildi',
-        };
-        const statusLabel = STATUS_LABELS[statusUpdate.data.status] || statusUpdate.data.status;
-        void sendJobApplicationStatusNotification({
-          to: applicantProfile.email,
-          applicantName: applicantProfile.displayName || 'Değerli Aday',
-          positionTitle: listing.title,
-          statusLabel,
-          conversationId: convId,
-        }).catch((err) => {
-          console.warn('[email] candidate status notification warning:', err);
-        });
+    // If status is 'rejected' and a rejection message is provided, post message into conversation
+    if (statusUpdate.data.status === 'rejected' && statusUpdate.data.rejectionMessage?.trim()) {
+      try {
+        const meta = (application as any).metadata?.employer ?? (application as any).metadata ?? {};
+        if (!meta.rejectionMessageSent) {
+          let convId = application.conversationId;
+          if (!convId) {
+            const listResult = await ctx.container.conversationRepository.findMany(
+              { participantId: ctx.userId },
+              { page: 1, limit: 100 },
+            );
+            const found = listResult.data.find(
+              (c: import('@/features/messaging/types/conversation.types').Conversation) =>
+                c.applicationId === applicationId || (c.listingId && c.listingId === application.listingId),
+            );
+            if (found) convId = found.id;
+          }
+
+          if (convId) {
+            await ctx.container.messagingService.sendMessage({
+              conversationId: convId,
+              senderId: ctx.userId,
+              body: statusUpdate.data.rejectionMessage.trim(),
+            });
+
+            // Mark rejection message as sent to prevent duplicate messages
+            await ctx.container.applicationRepository.update(applicationId, {
+              metadata: {
+                ...((application as any).metadata ?? {}),
+                rejectionMessageSent: true,
+              },
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[rejectionMessage] failed to post in-conversation rejection message:', err);
       }
-    } catch {
-      // Non-critical notification failure
     }
 
     return ok({ application });
@@ -95,3 +103,4 @@ export const PATCH = withAuth(async (ctx, request, { params }) => {
     body: ['status, note veya action (review|withdraw) belirtin.'],
   });
 });
+
