@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { isManualCareerOption } from '@/features/candidates/taxonomy/career-taxonomy';
 import { formatTurkishSentence } from '@/features/candidates/lib/career-text-quality';
+import { searchTaxonomyCatalog } from '@/features/shared/services/set-matching.service';
 import { cn } from '@/lib/utils';
 
 export function CareerMultiSelect({
@@ -37,11 +38,13 @@ export function CareerMultiSelect({
   const [query, setQuery] = useState('');
 
   const visible = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase('tr-TR');
+    const q = query.trim();
     if (!q) return options;
+    const scored = searchTaxonomyCatalog(q, options, { limit: options.length });
+    const matchedValues = new Set(scored.map((s) => s.value));
     return options.filter((option) => {
       if (isManualCareerOption(option) || selected.includes(option)) return true;
-      return option.toLocaleLowerCase('tr-TR').includes(q);
+      return matchedValues.has(option);
     });
   }, [options, query, selected]);
 

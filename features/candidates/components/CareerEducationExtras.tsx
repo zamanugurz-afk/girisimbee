@@ -15,6 +15,7 @@ import {
 import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-field-options';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
 import { suggestTitleCaseTr } from '@/features/candidates/lib/career-text-quality';
+import { SetMatchingPicker } from '@/features/shared/components/set-matching-picker';
 
 export function CareerEducationExtras({
   educationLevel,
@@ -108,68 +109,22 @@ export function CareerEducationExtras({
       </div>
 
       {showEducationField ? (
-        <div className="space-y-1.5">
-          <Label htmlFor="educationField">
-            {isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
-          </Label>
-          <select
-            id="educationField"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            value={educationField}
-            disabled={disabled}
-            onChange={(e) =>
-              onChange({
-                educationField: e.target.value,
-                educationFieldOther:
-                  e.target.value === MANUAL_OPTION ? educationFieldOther : '',
-              })
-            }
-          >
-            <option value="">Seçin</option>
-            {EDUCATION_FIELD_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          {fieldIsManual ? (
-            <div className="mt-2 space-y-1.5 rounded-xl border border-amber-300/80 bg-amber-50/60 p-3 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
-                <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>Kendi Bölümünüzü / Alanınızı Yazın:</span>
-              </div>
-              <Input
-                className="bg-white dark:bg-zinc-900 border-amber-200 dark:border-amber-800/60 focus-visible:ring-amber-500 placeholder:text-amber-900/40 dark:placeholder:text-amber-100/40"
-                value={educationFieldOther ?? ''}
-                disabled={disabled}
-                placeholder="Örn: Sermaye Piyasası ve Borsa"
-                onKeyDown={(event) => event.stopPropagation()}
-                onChange={(e) => onChange({ educationFieldOther: e.target.value })}
-                onBlur={() => {
-                  if (educationFieldOther?.trim()) {
-                    onChange({ educationFieldOther: suggestTitleCaseTr(educationFieldOther) });
-                  }
-                }}
-              />
-              {!isHire ? (
-                <CareerManualAssist
-                  kind="education"
-                  text={educationFieldOther ?? ''}
-                  catalog={[...EDUCATION_FIELD_OPTIONS]}
-                  disabled={disabled}
-                  onAcceptCatalog={(items) => {
-                    const first = items[0];
-                    if (!first) return;
-                    onChange({ educationField: first, educationFieldOther: '' });
-                  }}
-                />
-              ) : null}
-            </div>
-          ) : null}
-          {errors?.educationField ? (
-            <p className="text-sm text-destructive">{errors.educationField}</p>
-          ) : null}
-        </div>
+        <SetMatchingPicker
+          id="educationField"
+          label={isHire ? 'Tercih edilen bölüm / alan' : 'Bölüm / alan'}
+          domain="education-fields"
+          mode="single"
+          value={fieldIsManual ? educationFieldOther : educationField}
+          onChange={(val) =>
+            onChange({
+              educationField: val,
+              educationFieldOther: '',
+            })
+          }
+          disabled={disabled}
+          error={errors?.educationField}
+          searchPlaceholder="Bölüm seçin veya kendiniz yazın (örn: Bilgisayar Mühendisliği)..."
+        />
       ) : null}
 
       <CareerMultiSelect

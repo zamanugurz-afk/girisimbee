@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { CareerExperienceEditor } from '@/features/candidates/components/CareerExperienceEditor';
 import { CareerManualAssist } from '@/features/candidates/components/CareerManualAssist';
+import { SetMatchingPicker } from '@/features/shared/components/set-matching-picker';
 import { CvUploadStep } from '@/features/career-profile/components/cv-upload-step';
 import type { CvProfileDraftResult } from '@/features/candidates/cv/cv.types';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
@@ -1009,98 +1010,21 @@ export function CareerProfileForm({
                   <Field
                     label="Ana Pozisyon / Meslek"
                     required
-                    hint={isCustomRoleMode ? 'Özel unvanınızı kendiniz yazıyorsunuz' : 'Sektöre göre otomatik listelenir'}
+                    hint="Sektöre göre unvanlar listelenir veya kendiniz yazabilirsiniz"
                     badge={cvFilledKeys.has('role') ? "CV'den aktarıldı" : undefined}
                   >
-                    {isCustomRoleMode ? (
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={primaryRole}
-                            onChange={(e) => {
-                              setPrimaryRole(e.target.value);
-                              clearCvBadge('role');
-                            }}
-                            onBlur={() => {
-                              if (primaryRole.trim()) setPrimaryRole(suggestTitleCaseTr(primaryRole));
-                            }}
-                            placeholder="Örn: Çağrı Merkezi Satış Müdürü, Full Stack Developer..."
-                            className={fieldClass}
-                            autoFocus
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsCustomRoleMode(false);
-                              setPrimaryRole('');
-                              clearCvBadge('role');
-                            }}
-                            className="shrink-0 rounded-xl text-xs"
-                          >
-                            Listeden Seç
-                          </Button>
-                        </div>
-                        {primaryRole.trim().length >= 2 && (
-                          <CareerManualAssist
-                            kind="role"
-                            text={primaryRole}
-                            catalog={sectorPositions}
-                            sector={primarySector}
-                            experienceLevel={experienceLevel}
-                            onAcceptCatalog={(items) => {
-                              if (items[0]) {
-                                setPrimaryRole(items[0]);
-                                setIsCustomRoleMode(false);
-                                clearCvBadge('role');
-                              }
-                            }}
-                          />
-                        )}
-                        <p className="text-[11px] text-muted-foreground">
-                          Listede olmayan unvanınızı kendiniz girdiniz. Dilerseniz &ldquo;Listeden Seç&rdquo; ile dönebilirsiniz.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5">
-                        <select
-                          value={primaryRole}
-                          onChange={(e) => handleRoleSelectChange(e.target.value)}
-                          disabled={!primarySector}
-                          className={selectClass}
-                        >
-                          <option value="">
-                            {primarySector ? 'Meslek / Pozisyon Seçiniz' : '← Önce Ana Sektör Seçiniz'}
-                          </option>
-                          {primaryRole && !sectorPositions.includes(primaryRole) && !isManualCareerOption(primaryRole) && (
-                            <option key={primaryRole} value={primaryRole}>
-                              {primaryRole}
-                            </option>
-                          )}
-                          {sectorPositions.map((pos) => (
-                            <option key={pos} value={pos}>
-                              {pos === MANUAL_OPTION ? '✍️ Listede yok, kendim yazacağım' : pos}
-                            </option>
-                          ))}
-                          {!sectorPositions.includes(MANUAL_OPTION) && (
-                            <option value="__CUSTOM__">✍️ Listede yok, kendim yazacağım</option>
-                          )}
-                        </select>
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
-                          <span>Aradığınız unvan listede yoksa:</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsCustomRoleMode(true);
-                            }}
-                            className="text-primary hover:underline font-medium cursor-pointer"
-                          >
-                            Kendim Gireceğim
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      id="primaryRole"
+                      mode="single"
+                      catalog={sectorPositions.length > 0 ? sectorPositions : getAllTaxonomyPositions()}
+                      value={primaryRole}
+                      onChange={(val) => {
+                        setPrimaryRole(val);
+                        clearCvBadge('role');
+                      }}
+                      disabled={!primarySector}
+                      searchPlaceholder={primarySector ? 'Meslek / unvan ara veya yaz...' : '← Önce Ana Sektör Seçiniz'}
+                    />
                   </Field>
 
                   <Field
@@ -1230,75 +1154,18 @@ export function CareerProfileForm({
                   hint="Yazılımlar, programlama dilleri, sistemler"
                   badge={cvFilledKeys.has('technicalSkills') ? "CV'den aktarıldı" : undefined}
                 >
-                  <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                    {selectedTechSkills.length === 0 ? (
-                      <span className="text-xs text-muted-foreground px-1">
-                        Teknik beceri eklenmedi. Aşağıdaki önerilerden tek tıkla seçin veya yazarak ekleyin.
-                      </span>
-                    ) : (
-                      selectedTechSkills.map((sk) => (
-                        <Badge
-                          key={sk}
-                          variant="secondary"
-                          className="gap-1.5 bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                        >
-                          <span>{sk}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTechSkill(sk)}
-                            className="text-blue-700 hover:text-rose-600 dark:text-blue-400 dark:hover:text-rose-400"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={techSkillInput}
-                      onChange={(e) => setTechSkillInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddTechSkill(techSkillInput);
-                        }
-                      }}
-                      placeholder="Teknik beceri yaz (örn: React, SQL, Photoshop, Excel, SAP, Python)..."
-                      className={fieldClass}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleAddTechSkill(techSkillInput)}
-                      disabled={!techSkillInput.trim()}
-                      className="shrink-0 rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {smartTechSkillSuggestions.length > 0 && (
-                    <div className="mt-2.5">
-                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                        Önerilen Teknik Beceriler ({primarySector || 'Genel'}):
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {smartTechSkillSuggestions.map((sug) => (
-                          <button
-                            key={sug}
-                            type="button"
-                            onClick={() => handleAddTechSkill(sug)}
-                            className="rounded-xl border border-blue-500/30 bg-blue-500/5 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-500/20 dark:text-blue-300 transition-colors"
-                          >
-                            + {sug}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <SetMatchingPicker
+                    domain="technical-skills"
+                    domainContext={{ sector: primarySector, role: primaryRole }}
+                    value={selectedTechSkills}
+                    onChange={(skills) => {
+                      setSelectedTechSkills(skills);
+                      clearCvBadge('technicalSkills');
+                    }}
+                    suggestedItems={smartTechSkillSuggestions}
+                    badgeColor="blue"
+                    searchPlaceholder="Teknik beceri ara veya yaz (örn: React, SQL, Python, Excel)..."
+                  />
                 </Field>
 
                 {/* Professional Skills */}
@@ -1308,75 +1175,18 @@ export function CareerProfileForm({
                     hint="Liderlik, bütçe yönetimi, müzakere, kriz yönetimi"
                     badge={cvFilledKeys.has('professionalSkills') ? "CV'den aktarıldı" : undefined}
                   >
-                    <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                      {selectedProfSkills.length === 0 ? (
-                        <span className="text-xs text-muted-foreground px-1">
-                          Mesleki yetkinlik eklenmedi. Önerilerden seçin veya yazın.
-                        </span>
-                      ) : (
-                        selectedProfSkills.map((sk) => (
-                          <Badge
-                            key={sk}
-                            variant="secondary"
-                            className="gap-1.5 bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                          >
-                            <span>{sk}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveProfSkill(sk)}
-                              className="text-purple-700 hover:text-rose-600 dark:text-purple-400 dark:hover:text-rose-400"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={profSkillInput}
-                        onChange={(e) => setProfSkillInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddProfSkill(profSkillInput);
-                          }
-                        }}
-                        placeholder="Mesleki beceri yaz (örn: Ekip Yönetimi, Proje Yönetimi, Müzakere)..."
-                        className={fieldClass}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddProfSkill(profSkillInput)}
-                        disabled={!profSkillInput.trim()}
-                        className="shrink-0 rounded-xl"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {smartProfSkillSuggestions.length > 0 && (
-                      <div className="mt-2.5">
-                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                          Önerilen Mesleki Yetkinlikler:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {smartProfSkillSuggestions.map((sug) => (
-                            <button
-                              key={sug}
-                              type="button"
-                              onClick={() => handleAddProfSkill(sug)}
-                              className="rounded-xl border border-purple-500/30 bg-purple-500/5 px-2.5 py-1 text-xs font-medium text-purple-700 hover:bg-purple-500/20 dark:text-purple-300 transition-colors"
-                            >
-                              + {sug}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      domain="professional-skills"
+                      domainContext={{ sector: primarySector, role: primaryRole, experienceLevel }}
+                      value={selectedProfSkills}
+                      onChange={(skills) => {
+                        setSelectedProfSkills(skills);
+                        clearCvBadge('professionalSkills');
+                      }}
+                      suggestedItems={smartProfSkillSuggestions}
+                      badgeColor="purple"
+                      searchPlaceholder="Mesleki beceri ara veya yaz (örn: Ekip Yönetimi, Proje Yönetimi)..."
+                    />
                   </Field>
                 </div>
 
@@ -1387,75 +1197,17 @@ export function CareerProfileForm({
                     hint="Popüler araçlardan tek tıkla seçin veya kendiniz ekleyin"
                     badge={cvFilledKeys.has('tools') ? "CV'den aktarıldı" : undefined}
                   >
-                    <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                      {selectedTools.length === 0 ? (
-                        <span className="text-xs text-muted-foreground px-1">
-                          Araç eklenmedi. Aşağıdaki popüler araçlardan seçebilir veya yazabilirsiniz.
-                        </span>
-                      ) : (
-                        selectedTools.map((t) => (
-                          <Badge
-                            key={t}
-                            variant="secondary"
-                            className="gap-1.5 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                          >
-                            <span>{t}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTool(t)}
-                              className="text-emerald-700 hover:text-rose-600 dark:text-emerald-400 dark:hover:text-rose-400"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={toolInput}
-                        onChange={(e) => setToolInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddTool(toolInput);
-                          }
-                        }}
-                        placeholder="Araç yaz (örn: Jira, Figma, Excel, SAP, Slack, Notion, Docker)..."
-                        className={fieldClass}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddTool(toolInput)}
-                        disabled={!toolInput.trim()}
-                        className="shrink-0 rounded-xl"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {suggestedTools.length > 0 && (
-                      <div className="mt-2.5">
-                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                          Popüler Araçlar & Yazılımlar:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {suggestedTools.map((sug) => (
-                            <button
-                              key={sug}
-                              type="button"
-                              onClick={() => handleAddTool(sug)}
-                              className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300 transition-colors"
-                            >
-                              + {sug}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      domain="tools"
+                      value={selectedTools}
+                      onChange={(tools) => {
+                        setSelectedTools(tools);
+                        clearCvBadge('tools');
+                      }}
+                      suggestedItems={suggestedTools}
+                      badgeColor="emerald"
+                      searchPlaceholder="Araç ara veya yaz (örn: Jira, Figma, Excel, Slack, Notion)..."
+                    />
                   </Field>
                 </div>
               </FormSection>
@@ -1499,15 +1251,15 @@ export function CareerProfileForm({
                     hint="Örn: Bilgisayar Mühendisliği"
                     badge={cvFilledKeys.has('educationField') ? "CV'den aktarıldı" : undefined}
                   >
-                    <input
-                      type="text"
+                    <SetMatchingPicker
+                      domain="education-fields"
+                      mode="single"
                       value={educationField}
-                      onChange={(e) => {
-                        setEducationField(e.target.value);
+                      onChange={(val) => {
+                        setEducationField(val);
                         clearCvBadge('educationField');
                       }}
-                      placeholder="Örn: Endüstri Mühendisliği, İktisat, İletişim..."
-                      className={fieldClass}
+                      searchPlaceholder="Bölüm ara veya kendin yaz..."
                     />
                   </Field>
 
@@ -1516,15 +1268,15 @@ export function CareerProfileForm({
                     hint="Dil ve seviye belirtin"
                     badge={cvFilledKeys.has('languages') ? "CV'den aktarıldı" : undefined}
                   >
-                    <input
-                      type="text"
-                      value={languages}
-                      onChange={(e) => {
-                        setLanguages(e.target.value);
+                    <SetMatchingPicker
+                      domain="languages"
+                      value={languages ? languages.split(',').map((l) => l.trim()).filter(Boolean) : []}
+                      onChange={(val) => {
+                        const joined = Array.isArray(val) ? val.join(', ') : String(val);
+                        setLanguages(joined);
                         clearCvBadge('languages');
                       }}
-                      placeholder="Örn: İngilizce (İleri), Almanca (Orta)..."
-                      className={fieldClass}
+                      searchPlaceholder="Dil ara veya yaz (örn: İngilizce, Almanca)..."
                     />
                   </Field>
 
@@ -1533,15 +1285,16 @@ export function CareerProfileForm({
                     hint="Örn: PMP, AWS Certified, Scrum Master"
                     badge={cvFilledKeys.has('certificates') ? "CV'den aktarıldı" : undefined}
                   >
-                    <input
-                      type="text"
-                      value={certificates}
-                      onChange={(e) => {
-                        setCertificates(e.target.value);
+                    <SetMatchingPicker
+                      domain="certificates"
+                      domainContext={{ sector: primarySector, role: primaryRole, experienceLevel, educationLevel, educationField }}
+                      value={certificates ? certificates.split(',').map((c) => c.trim()).filter(Boolean) : []}
+                      onChange={(val) => {
+                        const joined = Array.isArray(val) ? val.join(', ') : String(val);
+                        setCertificates(joined);
                         clearCvBadge('certificates');
                       }}
-                      placeholder="Örn: AWS Certified Developer, PMP, Six Sigma..."
-                      className={fieldClass}
+                      searchPlaceholder="Sertifika ara veya yaz (örn: PMP, AWS, Six Sigma)..."
                     />
                   </Field>
                 </div>
@@ -1556,103 +1309,30 @@ export function CareerProfileForm({
               >
                 {/* Target Positions Multi-select */}
                 <Field label="Açık Olduğum Hedef Pozisyonlar" hint="Birden fazla pozisyon seçebilirsiniz">
-                  <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                    {selectedRoles.length === 0 ? (
-                      <span className="text-xs text-muted-foreground px-1">
-                        Pozisyon eklenmedi. Aşağıdaki önerilerden seçin veya yazın.
-                      </span>
-                    ) : (
-                      selectedRoles.map((r) => (
-                        <Badge
-                          key={r}
-                          variant="secondary"
-                          className="gap-1.5 bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                        >
-                          <span>{r}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveRole(r)}
-                            className="text-amber-700 hover:text-rose-600 dark:text-amber-400 dark:hover:text-rose-400"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={roleInput}
-                      onChange={(e) => setRoleInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddRole(roleInput);
-                        }
-                      }}
-                      placeholder="Pozisyon ara veya kendin yaz..."
-                      className={fieldClass}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleAddRole(roleInput)}
-                      disabled={!roleInput.trim()}
-                      className="shrink-0 rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {suggestedRoles.length > 0 && (
-                    <div className="mt-2.5">
-                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                        Önerilen Hedef Pozisyonlar (Önce En Uyumlular, ardından A–Z):
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {suggestedRoles.map((sug) => (
-                          <button
-                            key={sug}
-                            type="button"
-                            onClick={() => handleAddRole(sug)}
-                            className="rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-foreground/80 hover:border-amber-500 hover:text-amber-600 dark:border-zinc-800 dark:bg-zinc-900 transition-colors"
-                          >
-                            + {sug}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <SetMatchingPicker
+                    domain="positions"
+                    domainContext={{ sector: primarySector }}
+                    value={selectedRoles}
+                    onChange={(roles) => setSelectedRoles(roles)}
+                    suggestedItems={suggestedRoles}
+                    badgeColor="amber"
+                    searchPlaceholder="Pozisyon ara veya kendin yaz (örn: Satış Müdürü, Full Stack Developer)..."
+                  />
                 </Field>
 
                 {/* Target Sectors Multi-select */}
                 <div className="mt-5 pt-5 border-t border-border/50">
                   <Field
                     label="İlgilenilen Hedef Sektörler"
-                    hint="Kariyer profilinize en uyumlu sektörler başta listelenir (ardından A–Z)"
+                    hint="Kariyer profilinize en uyumlu sektörler başta listelenir"
                   >
-                    <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                      {rankedPreferredSectors.map((sec) => {
-                        const isSelected = selectedSectors.includes(sec);
-                        return (
-                          <button
-                            key={sec}
-                            type="button"
-                            onClick={() => handleToggleSector(sec)}
-                            className={`rounded-xl px-3 py-1 text-xs font-medium transition-all ${
-                              isSelected
-                                ? 'bg-primary text-primary-foreground shadow-xs'
-                                : 'border border-slate-200 bg-white text-muted-foreground hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900'
-                            }`}
-                          >
-                            {isSelected ? '✓ ' : '+ '}
-                            {sec}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <SetMatchingPicker
+                      domain="sectors"
+                      value={selectedSectors}
+                      onChange={(sectors) => setSelectedSectors(sectors)}
+                      suggestedItems={rankedPreferredSectors.slice(0, 8)}
+                      searchPlaceholder="Sektör ara veya seç..."
+                    />
                   </Field>
                 </div>
 
@@ -1852,87 +1532,16 @@ export function CareerProfileForm({
                   <Field
                     label="Açık Pozisyon Unvanı"
                     required
-                    hint={isCustomRoleMode ? 'Özel unvanınızı kendiniz yazıyorsunuz' : 'Sektöre göre otomatik listelenir'}
+                    hint="Sektöre göre unvanlar listelenir veya kendiniz yazabilirsiniz"
                   >
-                    {isCustomRoleMode ? (
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={primaryRole}
-                            onChange={(e) => setPrimaryRole(e.target.value)}
-                            onBlur={() => {
-                              if (primaryRole.trim()) setPrimaryRole(suggestTitleCaseTr(primaryRole));
-                            }}
-                            placeholder="Örn: Senior Frontend Developer, Satış Lideri..."
-                            className={fieldClass}
-                            autoFocus
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsCustomRoleMode(false);
-                              setPrimaryRole('');
-                            }}
-                            className="shrink-0 rounded-xl text-xs"
-                          >
-                            Listeden Seç
-                          </Button>
-                        </div>
-                        {primaryRole.trim().length >= 2 && (
-                          <CareerManualAssist
-                            kind="role"
-                            text={primaryRole}
-                            catalog={sectorPositions}
-                            sector={primarySector}
-                            experienceLevel={experienceLevel}
-                            onAcceptCatalog={(items) => {
-                              if (items[0]) {
-                                setPrimaryRole(items[0]);
-                                setIsCustomRoleMode(false);
-                              }
-                            }}
-                          />
-                        )}
-                        <p className="text-[11px] text-muted-foreground">
-                          Listede olmayan pozisyon unvanını kendiniz girdiniz.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5">
-                        <select
-                          value={primaryRole}
-                          onChange={(e) => handleRoleSelectChange(e.target.value)}
-                          disabled={!primarySector}
-                          className={selectClass}
-                        >
-                          <option value="">
-                            {primarySector ? 'Meslek / Pozisyon Seçiniz' : '← Önce 1. Adımdan Şirket Sektörünü Seçiniz'}
-                          </option>
-                          {sectorPositions.map((pos) => (
-                            <option key={pos} value={pos}>
-                              {pos === MANUAL_OPTION ? '✍️ Listede yok, kendim yazacağım' : pos}
-                            </option>
-                          ))}
-                          {!sectorPositions.includes(MANUAL_OPTION) && (
-                            <option value="__CUSTOM__">✍️ Listede yok, kendim yazacağım</option>
-                          )}
-                        </select>
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
-                          <span>Aradığınız unvan listede yoksa:</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsCustomRoleMode(true);
-                            }}
-                            className="text-primary hover:underline font-medium cursor-pointer"
-                          >
-                            Kendim Gireceğim
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      domain="positions"
+                      domainContext={{ sector: primarySector }}
+                      value={primaryRole}
+                      onChange={(val) => setPrimaryRole(val)}
+                      disabled={!primarySector}
+                      searchPlaceholder={primarySector ? 'Pozisyon ara veya yaz...' : '← Önce 1. Adımdan Şirket Sektörünü Seçiniz'}
+                    />
                   </Field>
 
                   <Field label="Aranan Deneyim Seviyesi" required>
@@ -2036,148 +1645,28 @@ export function CareerProfileForm({
                 description="Adayda aranan teknik araçlar ve profesyonel yetkinlikler."
               >
                 <Field label="Aranan Teknik Yetkinlikler" hint="Yazılımlar, diller, araçlar">
-                  <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                    {selectedTechSkills.length === 0 ? (
-                      <span className="text-xs text-muted-foreground px-1">
-                        Teknik beceri eklenmedi. Önerilerden seçin veya yazın.
-                      </span>
-                    ) : (
-                      selectedTechSkills.map((sk) => (
-                        <Badge
-                          key={sk}
-                          variant="secondary"
-                          className="gap-1.5 bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                        >
-                          <span>{sk}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTechSkill(sk)}
-                            className="text-blue-700 hover:text-rose-600 dark:text-blue-400 dark:hover:text-rose-400"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={techSkillInput}
-                      onChange={(e) => setTechSkillInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddTechSkill(techSkillInput);
-                        }
-                      }}
-                      placeholder="Teknik beceri ekle (örn: Next.js, Node.js, PostgreSQL)..."
-                      className={fieldClass}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleAddTechSkill(techSkillInput)}
-                      disabled={!techSkillInput.trim()}
-                      className="shrink-0 rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {smartTechSkillSuggestions.length > 0 && (
-                    <div className="mt-2.5">
-                      <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                        Önerilen Teknik Yetkinlikler:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {smartTechSkillSuggestions.map((sug) => (
-                          <button
-                            key={sug}
-                            type="button"
-                            onClick={() => handleAddTechSkill(sug)}
-                            className="rounded-xl border border-blue-500/30 bg-blue-500/5 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-500/20 dark:text-blue-300 transition-colors"
-                          >
-                            + {sug}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <SetMatchingPicker
+                    domain="technical-skills"
+                    domainContext={{ sector: primarySector, role: primaryRole }}
+                    value={selectedTechSkills}
+                    onChange={(skills) => setSelectedTechSkills(skills)}
+                    suggestedItems={smartTechSkillSuggestions}
+                    badgeColor="blue"
+                    searchPlaceholder="Teknik beceri ara veya yaz (örn: Next.js, Node.js, Python)..."
+                  />
                 </Field>
 
                 <div className="mt-5 pt-5 border-t border-border/50">
                   <Field label="Aranan Mesleki Yetkinlikler">
-                    <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50 mb-2">
-                      {selectedProfSkills.length === 0 ? (
-                        <span className="text-xs text-muted-foreground px-1">
-                          Mesleki yetkinlik eklenmedi.
-                        </span>
-                      ) : (
-                        selectedProfSkills.map((sk) => (
-                          <Badge
-                            key={sk}
-                            variant="secondary"
-                            className="gap-1.5 bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                          >
-                            <span>{sk}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveProfSkill(sk)}
-                              className="text-purple-700 hover:text-rose-600 dark:text-purple-400 dark:hover:text-rose-400"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={profSkillInput}
-                        onChange={(e) => setProfSkillInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddProfSkill(profSkillInput);
-                          }
-                        }}
-                        placeholder="Mesleki yetkinlik ekle..."
-                        className={fieldClass}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddProfSkill(profSkillInput)}
-                        disabled={!profSkillInput.trim()}
-                        className="shrink-0 rounded-xl"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {smartProfSkillSuggestions.length > 0 && (
-                      <div className="mt-2.5">
-                        <span className="text-[11px] font-medium text-muted-foreground block mb-1.5">
-                          Önerilen Mesleki Yetkinlikler:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {smartProfSkillSuggestions.map((sug) => (
-                            <button
-                              key={sug}
-                              type="button"
-                              onClick={() => handleAddProfSkill(sug)}
-                              className="rounded-xl border border-purple-500/30 bg-purple-500/5 px-2.5 py-1 text-xs font-medium text-purple-700 hover:bg-purple-500/20 dark:text-purple-300 transition-colors"
-                            >
-                              + {sug}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      domain="professional-skills"
+                      domainContext={{ sector: primarySector, role: primaryRole, experienceLevel }}
+                      value={selectedProfSkills}
+                      onChange={(skills) => setSelectedProfSkills(skills)}
+                      suggestedItems={smartProfSkillSuggestions}
+                      badgeColor="purple"
+                      searchPlaceholder="Mesleki yetkinlik ara veya yaz..."
+                    />
                   </Field>
                 </div>
               </FormSection>
@@ -2206,12 +1695,14 @@ export function CareerProfileForm({
                   </Field>
 
                   <Field label="Yabancı Dil Beklentisi">
-                    <input
-                      type="text"
-                      value={languages}
-                      onChange={(e) => setLanguages(e.target.value)}
-                      placeholder="Örn: İngilizce (İleri Düzey)..."
-                      className={fieldClass}
+                    <SetMatchingPicker
+                      domain="languages"
+                      value={languages ? languages.split(',').map((l) => l.trim()).filter(Boolean) : []}
+                      onChange={(val) => {
+                        const joined = Array.isArray(val) ? val.join(', ') : String(val);
+                        setLanguages(joined);
+                      }}
+                      searchPlaceholder="Dil ara veya yaz..."
                     />
                   </Field>
                 </div>
@@ -2360,75 +1851,26 @@ export function CareerProfileForm({
                 description="Ortaktan beklenen veya girişime sunulan uzmanlık ve katkı alanları."
               >
                 <Field label="Katkı Alanları">
-                  <div className="flex flex-wrap gap-1.5 p-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                    {PARTNER_EXPERTISE_OPTIONS.map((exp) => {
-                      const isSelected = selectedProfSkills.includes(exp);
-                      return (
-                        <button
-                          key={exp}
-                          type="button"
-                          onClick={() => handleAddProfSkill(exp)}
-                          className={`rounded-xl px-3 py-1 text-xs font-medium transition-all ${
-                            isSelected
-                              ? 'bg-amber-500 text-white shadow-xs'
-                              : 'border border-slate-200 bg-white text-muted-foreground hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900'
-                          }`}
-                        >
-                          {isSelected ? '✓ ' : '+ '}
-                          {exp}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <SetMatchingPicker
+                    domain="partner-expertise"
+                    value={selectedProfSkills}
+                    onChange={(skills) => setSelectedProfSkills(skills)}
+                    badgeColor="amber"
+                    searchPlaceholder="Katkı alanı seçin veya yazın..."
+                  />
                 </Field>
 
                 <div className="mt-4 pt-4 border-t border-border/50">
                   <Field label="Aranan Teknik & Özel Yetkinlikler">
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={techSkillInput}
-                        onChange={(e) => setTechSkillInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddTechSkill(techSkillInput);
-                          }
-                        }}
-                        placeholder="Örn: Mobil Geliştirme, B2B Satış, Dijital Pazarlama..."
-                        className={fieldClass}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddTechSkill(techSkillInput)}
-                        disabled={!techSkillInput.trim()}
-                        className="shrink-0 rounded-xl"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {selectedTechSkills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedTechSkills.map((sk) => (
-                          <Badge
-                            key={sk}
-                            variant="secondary"
-                            className="gap-1.5 bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 px-2.5 py-1 text-xs font-medium rounded-xl"
-                          >
-                            <span>{sk}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTechSkill(sk)}
-                              className="text-blue-700 hover:text-rose-600 dark:text-blue-400 dark:hover:text-rose-400"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                    <SetMatchingPicker
+                      domain="technical-skills"
+                      domainContext={{ sector: primarySector }}
+                      value={selectedTechSkills}
+                      onChange={(skills) => setSelectedTechSkills(skills)}
+                      suggestedItems={smartTechSkillSuggestions}
+                      badgeColor="blue"
+                      searchPlaceholder="Örn: Mobil Geliştirme, B2B Satış, Dijital Pazarlama..."
+                    />
                   </Field>
                 </div>
               </FormSection>

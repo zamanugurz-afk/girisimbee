@@ -11,6 +11,7 @@ import {
   MANUAL_OPTION_SHORT,
   type CareerLanguageEntry,
 } from '@/features/candidates/taxonomy/career-taxonomy';
+import { SetMatchingPicker } from '@/features/shared/components/set-matching-picker';
 
 export function CareerLanguagesEditor({
   value,
@@ -49,36 +50,21 @@ export function CareerLanguagesEditor({
             className="grid gap-2 rounded-lg border border-border/70 bg-muted/15 p-3 sm:grid-cols-[1fr_1fr_auto]"
           >
             <div className="space-y-1.5">
-              <Label htmlFor={`lang-${row.id}`}>Dil {index + 1}</Label>
-              <select
+              <SetMatchingPicker
                 id={`lang-${row.id}`}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={row.language}
-                disabled={disabled}
-                onChange={(e) =>
+                label={`Dil ${index + 1}`}
+                domain="languages"
+                mode="single"
+                value={isManual ? row.languageOther : row.language}
+                onChange={(val) =>
                   updateRow(row.id, {
-                    language: e.target.value,
-                    languageOther:
-                      e.target.value === MANUAL_OPTION_SHORT ? row.languageOther : '',
+                    language: val,
+                    languageOther: '',
                   })
                 }
-              >
-                <option value="">Seçin</option>
-                {CAREER_LANGUAGE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              {isManual ? (
-                <Input
-                  value={row.languageOther ?? ''}
-                  disabled={disabled}
-                  placeholder="Dil adını yazın"
-                  onKeyDown={(event) => event.stopPropagation()}
-                  onChange={(e) => updateRow(row.id, { languageOther: e.target.value })}
-                />
-              ) : null}
+                disabled={disabled}
+                searchPlaceholder="Dil seçin veya yazın..."
+              />
             </div>
 
             <div className="space-y-1.5">
