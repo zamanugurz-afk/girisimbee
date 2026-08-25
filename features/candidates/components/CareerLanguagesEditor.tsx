@@ -75,21 +75,18 @@ export function CareerLanguagesEditor({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`level-${row.id}`}>Dil seviyesi</Label>
-              <select
+              <SetMatchingPicker
                 id={`level-${row.id}`}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                label="Dil seviyesi"
+                catalog={[...CAREER_LANGUAGE_LEVEL_OPTIONS]}
+                mode="single"
+                themeColor={activeTheme}
+                badgeColor={activeTheme}
                 value={row.level}
+                onChange={(val) => updateRow(row.id, { level: val })}
                 disabled={disabled}
-                onChange={(e) => updateRow(row.id, { level: e.target.value })}
-              >
-                <option value="">Seçin</option>
-                {CAREER_LANGUAGE_LEVEL_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+                searchPlaceholder="Seviye seçin..."
+              />
             </div>
 
             <div className="flex items-end">

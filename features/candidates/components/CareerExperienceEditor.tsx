@@ -34,6 +34,7 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
+import { SetMatchingPicker } from '@/features/shared/components/set-matching-picker';
 import { cn } from '@/lib/utils';
 
 export function CareerExperienceEditor({
@@ -42,12 +43,14 @@ export function CareerExperienceEditor({
   error,
   disabled,
   experienceLevel,
+  themeColor = 'sky',
 }: {
   value: CareerExperience[];
   onChange: (next: CareerExperience[]) => void;
   error?: string | null;
   disabled?: boolean;
   experienceLevel?: string | null;
+  themeColor?: string;
 }) {
   const rows = value.length > 0 ? value : [createEmptyCareerExperience()];
   const years = yearOptions();
@@ -391,66 +394,52 @@ export function CareerExperienceEditor({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor={`sector-${row.id}`} className="text-xs font-semibold">
-                    Sektör *
-                  </Label>
-                  <select
+                  <SetMatchingPicker
                     id={`sector-${row.id}`}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:ring-2 focus:ring-primary focus:outline-hidden"
+                    label="Sektör *"
+                    domain="sectors"
+                    catalog={sortSectorsPopularThenAz(JOB_SECTOR_OPTIONS)}
+                    mode="single"
+                    themeColor={themeColor}
+                    badgeColor={themeColor}
                     value={row.sector}
                     disabled={disabled}
-                    onChange={(e) =>
+                    searchPlaceholder="Sektör seçin veya arayın..."
+                    onChange={(val) =>
                       updateRow(row.id, {
-                        sector: e.target.value,
+                        sector: val,
                         role: '',
                         roleOther: '',
                         selectedResponsibilities: [],
                         selectedAchievements: [],
                       })
                     }
-                  >
-                    <option value="">Sektör Seçin</option>
-                    {sortSectorsPopularThenAz(JOB_SECTOR_OPTIONS).map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
               {/* Position & Type */}
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor={`role-${row.id}`} className="text-xs font-semibold">
-                    Pozisyon / Görev *
-                  </Label>
-                  <select
+                  <SetMatchingPicker
                     id={`role-${row.id}`}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:ring-2 focus:ring-primary focus:outline-hidden"
-                    value={row.role}
+                    label="Pozisyon / Görev *"
+                    mode="single"
+                    catalog={positions.length > 0 ? positions : getAllTaxonomyPositions()}
+                    themeColor={themeColor}
+                    badgeColor={themeColor}
+                    value={roleIsManual ? row.roleOther : row.role}
                     disabled={disabled}
-                    onChange={(e) =>
+                    searchPlaceholder={row.sector ? 'Pozisyon seçin veya yazın...' : 'Tüm Pozisyonlar / Seçin veya yazın...'}
+                    onChange={(val) =>
                       updateRow(row.id, {
-                        role: e.target.value,
-                        roleOther: isManualCareerOption(e.target.value) ? row.roleOther : '',
+                        role: val,
+                        roleOther: '',
                         selectedResponsibilities: [],
                         selectedAchievements: [],
                       })
                     }
-                  >
-                    <option value="">{row.sector ? 'Pozisyon Seçin' : 'Tüm Pozisyonlar / Seçin'}</option>
-                    {row.role && !positions.includes(row.role) && !isManualCareerOption(row.role) && (
-                      <option key={row.role} value={row.role}>
-                        {row.role}
-                      </option>
-                    )}
-                    {(positions.length > 0 ? positions : getAllTaxonomyPositions()).map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  />
                   {roleIsManual ? (
                     <div className="mt-2 space-y-1.5 rounded-xl border border-amber-300/80 bg-amber-50/60 p-3 shadow-2xs dark:border-amber-700/60 dark:bg-amber-950/20">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">

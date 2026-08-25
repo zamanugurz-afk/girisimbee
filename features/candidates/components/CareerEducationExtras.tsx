@@ -78,36 +78,26 @@ export function CareerEducationExtras({
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label htmlFor="educationLevel">
-          {isHire ? 'Aranan eğitim seviyesi' : 'Eğitim seviyesi'}
-        </Label>
-        <select
-          id="educationLevel"
-          className="flex h-11 min-h-[42px] w-full rounded-xl border border-input bg-card px-3.5 text-sm"
-          value={educationLevel}
-          disabled={disabled}
-          onChange={(e) => {
-            const nextLevel = e.target.value;
-            onChange({
-              educationLevel: nextLevel,
-              ...(needsEducationField(nextLevel)
-                ? {}
-                : { educationField: '', educationFieldOther: '' }),
-            });
-          }}
-        >
-          <option value="">Seçin</option>
-          {CAREER_EDUCATION_LEVELS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-        {errors?.educationLevel ? (
-          <p className="text-sm text-destructive">{errors.educationLevel}</p>
-        ) : null}
-      </div>
+      <SetMatchingPicker
+        id="educationLevel"
+        label={isHire ? 'Aranan eğitim seviyesi' : 'Eğitim seviyesi'}
+        catalog={[...CAREER_EDUCATION_LEVELS]}
+        mode="single"
+        themeColor={isHire ? 'emerald' : 'sky'}
+        badgeColor={isHire ? 'emerald' : 'sky'}
+        value={educationLevel}
+        onChange={(nextLevel) => {
+          onChange({
+            educationLevel: nextLevel,
+            ...(needsEducationField(nextLevel)
+              ? {}
+              : { educationField: '', educationFieldOther: '' }),
+          });
+        }}
+        disabled={disabled}
+        error={errors?.educationLevel}
+        searchPlaceholder="Eğitim seviyesi seçin..."
+      />
 
       {showEducationField ? (
         <SetMatchingPicker
