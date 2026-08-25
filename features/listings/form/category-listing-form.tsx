@@ -688,12 +688,13 @@ export function CategoryListingForm({
   const categoryThemeColor = useMemo(() => {
     if (categoryId === CATEGORY_IDS.iseAl || categoryId === 'ise-al' || categoryId === 'hire') return 'emerald';
     if (categoryId === CATEGORY_IDS.isBul || categoryId === 'is-ariyorum' || categoryId === 'seek') return 'sky';
-    if (categoryId === CATEGORY_IDS.ortakBul || categoryId === 'ortak-ariyorum' || categoryId === 'venture') return 'amber';
+    if (categoryId === CATEGORY_IDS.ortakBul || categoryId === 'ortak-bul' || categoryId === 'ortak-ariyorum' || categoryId === 'venture' || categoryId === 'ortaklik') return 'amber';
+    if (categoryId === CATEGORY_IDS.yatirimBul || categoryId === 'yatirim-bul' || categoryId === 'girisim') return 'amber';
     if (categoryId === CATEGORY_IDS.yatirimYap || categoryId === 'yatirim-yap' || categoryId === 'invest') return 'blue';
     if (categoryId === CATEGORY_IDS.bayilikAl || categoryId === 'bayilik-al' || categoryId === 'franchise') return 'purple';
     if (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === 'isletme-devri') return 'teal';
     if (categoryId === CATEGORY_IDS.dijitalAi || categoryId === 'dijital-ai') return 'rose';
-    return 'emerald';
+    return 'amber';
   }, [categoryId]);
 
   const dynamicFieldContext = useMemo(
@@ -2846,6 +2847,7 @@ export function CategoryListingForm({
                   onChange={setPublishConsents}
                   disabled={disabled || isBusy}
                   variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
+                  themeColor={categoryThemeColor}
                   error={
                     resolveFieldError(fieldErrors, 'publishConsents')
                     || resolveFieldError(fieldErrors, 'contactPhone')
@@ -3754,6 +3756,7 @@ export function CategoryListingForm({
                     onChange={setPublishConsents}
                     disabled={disabled || isBusy}
                     variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
+                    themeColor={categoryThemeColor}
                     error={
                       resolveFieldError(fieldErrors, 'publishConsents')
                       || resolveFieldError(fieldErrors, 'contactPhone')

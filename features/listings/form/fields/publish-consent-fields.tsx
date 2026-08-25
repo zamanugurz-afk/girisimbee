@@ -35,7 +35,70 @@ export interface PublishConsentFieldsProps {
   onPhoneSaved?: (phone: string) => void;
   /** Career (İş Arıyorum): explain contact-request gating without widening consent scope. */
   variant?: 'default' | 'career';
+  /** Category dynamic theme color (amber, emerald, sky, blue, purple, teal, rose). */
+  themeColor?: string;
 }
+
+const CONSENT_THEME_CLASSES: Record<
+  string,
+  {
+    headerIcon: string;
+    checkedCard: string;
+    checkbox: string;
+    linkText: string;
+    badgeText: string;
+  }
+> = {
+  emerald: {
+    headerIcon: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    checkedCard: 'border-emerald-500/50 bg-emerald-500/[0.04] shadow-2xs dark:border-emerald-500/40 dark:bg-emerald-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600',
+    linkText: 'hover:text-emerald-600 dark:hover:text-emerald-400',
+    badgeText: 'text-emerald-600 dark:text-emerald-400',
+  },
+  amber: {
+    headerIcon: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    checkedCard: 'border-amber-500/50 bg-amber-500/[0.04] shadow-2xs dark:border-amber-500/40 dark:bg-amber-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600',
+    linkText: 'hover:text-amber-600 dark:hover:text-amber-400',
+    badgeText: 'text-amber-600 dark:text-amber-400',
+  },
+  sky: {
+    headerIcon: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+    checkedCard: 'border-sky-500/50 bg-sky-500/[0.04] shadow-2xs dark:border-sky-500/40 dark:bg-sky-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-sky-600 data-[state=checked]:border-sky-600',
+    linkText: 'hover:text-sky-600 dark:hover:text-sky-400',
+    badgeText: 'text-sky-600 dark:text-sky-400',
+  },
+  blue: {
+    headerIcon: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    checkedCard: 'border-blue-500/50 bg-blue-500/[0.04] shadow-2xs dark:border-blue-500/40 dark:bg-blue-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600',
+    linkText: 'hover:text-blue-600 dark:hover:text-blue-400',
+    badgeText: 'text-blue-600 dark:text-blue-400',
+  },
+  purple: {
+    headerIcon: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+    checkedCard: 'border-purple-500/50 bg-purple-500/[0.04] shadow-2xs dark:border-purple-500/40 dark:bg-purple-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600',
+    linkText: 'hover:text-purple-600 dark:hover:text-purple-400',
+    badgeText: 'text-purple-600 dark:text-purple-400',
+  },
+  teal: {
+    headerIcon: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
+    checkedCard: 'border-teal-500/50 bg-teal-500/[0.04] shadow-2xs dark:border-teal-500/40 dark:bg-teal-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600',
+    linkText: 'hover:text-teal-600 dark:hover:text-teal-400',
+    badgeText: 'text-teal-600 dark:text-teal-400',
+  },
+  rose: {
+    headerIcon: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    checkedCard: 'border-rose-500/50 bg-rose-500/[0.04] shadow-2xs dark:border-rose-500/40 dark:bg-rose-500/[0.06]',
+    checkbox: 'data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600',
+    linkText: 'hover:text-rose-600 dark:hover:text-rose-400',
+    badgeText: 'text-rose-600 dark:text-rose-400',
+  },
+};
 
 const CONSENT_DOC_CONFIG: Record<
   PublishConsentKey,
@@ -81,9 +144,12 @@ export function PublishConsentFields({
   userId,
   onPhoneSaved,
   variant = 'default',
+  themeColor = 'emerald',
 }: PublishConsentFieldsProps) {
   const [draftPhone, setDraftPhone] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
+
+  const currentTheme = CONSENT_THEME_CLASSES[themeColor] || CONSENT_THEME_CLASSES.emerald;
 
   function toggle(key: PublishConsentKey, checked: boolean) {
     onChange({ ...value, [key]: checked });
@@ -116,7 +182,7 @@ export function PublishConsentFields({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className={cn('flex h-8 w-8 items-center justify-center rounded-xl', currentTheme.headerIcon)}>
           <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
         </div>
         <div>
@@ -141,7 +207,7 @@ export function PublishConsentFields({
               className={cn(
                 'flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 cursor-pointer select-none',
                 isChecked
-                  ? 'border-emerald-500/50 bg-emerald-500/[0.04] shadow-2xs dark:border-emerald-500/40 dark:bg-emerald-500/[0.06]'
+                  ? currentTheme.checkedCard
                   : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-border dark:bg-card',
               )}
             >
@@ -150,16 +216,19 @@ export function PublishConsentFields({
                 checked={isChecked}
                 onCheckedChange={(checked) => toggle(item.key, checked === true)}
                 disabled={disabled}
-                className="mt-0.5 shrink-0 rounded-md data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                className={cn('mt-0.5 shrink-0 rounded-md', currentTheme.checkbox)}
               />
               <div className="space-y-0.5 min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-1.5">
                   <LegalDocLink
                     href={docConfig.docRoute}
-                    className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-foreground no-underline hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                    className={cn(
+                      'text-xs sm:text-sm font-semibold text-slate-900 dark:text-foreground no-underline transition-colors inline-flex items-center gap-1.5 cursor-pointer',
+                      currentTheme.linkText,
+                    )}
                   >
                     <span>{item.label}</span>
-                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 underline underline-offset-2">
+                    <span className={cn('text-[11px] font-semibold underline underline-offset-2', currentTheme.badgeText)}>
                       {docConfig.docLabel}
                     </span>
                   </LegalDocLink>

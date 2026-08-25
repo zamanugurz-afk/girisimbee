@@ -288,6 +288,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-emerald-500 bg-emerald-600 text-white',
       selectedCardButton: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs',
       payButton: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm',
+      freeBadge: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-700',
     },
     sky: {
       headerIcon: 'bg-sky-50 text-sky-600 dark:bg-sky-950 dark:text-sky-400',
@@ -305,6 +306,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-sky-500 bg-sky-600 text-white',
       selectedCardButton: 'bg-sky-600 hover:bg-sky-700 text-white shadow-xs',
       payButton: 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm',
+      freeBadge: 'text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 border-sky-300 dark:border-sky-700',
     },
     amber: {
       headerIcon: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
@@ -322,6 +324,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-amber-500 bg-amber-600 text-white',
       selectedCardButton: 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs',
       payButton: 'bg-amber-600 hover:bg-amber-700 text-white shadow-sm',
+      freeBadge: 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700',
     },
     blue: {
       headerIcon: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
@@ -339,6 +342,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-blue-500 bg-blue-600 text-white',
       selectedCardButton: 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs',
       payButton: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
+      freeBadge: 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/80 border-blue-300 dark:border-blue-700',
     },
     purple: {
       headerIcon: 'bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
@@ -356,6 +360,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-purple-500 bg-purple-600 text-white',
       selectedCardButton: 'bg-purple-600 hover:bg-purple-700 text-white shadow-xs',
       payButton: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm',
+      freeBadge: 'text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/80 border-purple-300 dark:border-purple-700',
     },
     teal: {
       headerIcon: 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400',
@@ -373,6 +378,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-teal-500 bg-teal-600 text-white',
       selectedCardButton: 'bg-teal-600 hover:bg-teal-700 text-white shadow-xs',
       payButton: 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm',
+      freeBadge: 'text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/80 border-teal-300 dark:border-teal-700',
     },
     rose: {
       headerIcon: 'bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
@@ -390,6 +396,7 @@ export function ListingPackageSelectionStep({
       selectedCardCheck: 'border-rose-500 bg-rose-600 text-white',
       selectedCardButton: 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs',
       payButton: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm',
+      freeBadge: 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/80 border-rose-300 dark:border-rose-700',
     },
   };
 
@@ -685,7 +692,7 @@ export function ListingPackageSelectionStep({
               )}
             </Button>
           ) : (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 rounded-lg px-3.5 py-1.5">
+            <span className={cn('inline-flex items-center gap-1.5 text-xs font-bold border rounded-lg px-3.5 py-1.5', currentTheme.freeBadge)}>
               <Check className="h-3.5 w-3.5 stroke-[3]" />
               Ücretsiz Yayın Onaylandı
             </span>
