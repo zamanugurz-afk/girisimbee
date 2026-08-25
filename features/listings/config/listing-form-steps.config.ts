@@ -415,10 +415,10 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       description: 'Lokasyon, çalışma modeli ve ücret aralığı',
       customFieldKeys: [
         'workType',
+        'workplacePreference',
         'preferredCity',
         'preferredDistrict',
         'preferredDistrictOther',
-        'workplacePreference',
         'salaryRange',
         'availability',
       ],

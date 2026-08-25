@@ -590,6 +590,13 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       max: 200,
     },
     {
+      key: 'workplacePreference',
+      label: 'Çalışma modeli',
+      type: 'enum',
+      required: true,
+      options: [...CAREER_WORKPLACE_OPTIONS],
+    },
+    {
       key: 'preferredCity',
       label: 'Tercih Edilen İl',
       type: 'string',
@@ -609,13 +616,6 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       required: false,
       max: 120,
-    },
-    {
-      key: 'workplacePreference',
-      label: 'Çalışma modeli',
-      type: 'enum',
-      required: true,
-      options: [...CAREER_WORKPLACE_OPTIONS],
     },
     {
       key: 'salaryExpectation',
@@ -809,6 +809,13 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       max: 200,
     },
     {
+      key: 'workplacePreference',
+      label: 'Çalışma Modeli',
+      type: 'enum',
+      required: true,
+      options: [...CAREER_WORKPLACE_OPTIONS],
+    },
+    {
       key: 'preferredCity',
       label: 'Çalışma İli',
       type: 'string',
@@ -828,13 +835,6 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       required: false,
       max: 120,
-    },
-    {
-      key: 'workplacePreference',
-      label: 'Çalışma Modeli',
-      type: 'enum',
-      required: true,
-      options: [...CAREER_WORKPLACE_OPTIONS],
     },
     {
       key: 'salaryRange',
