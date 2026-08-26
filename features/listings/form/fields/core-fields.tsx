@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -21,9 +19,7 @@ import { getCoreFieldUi } from '@/features/listings/form/listing-field-metadata'
 import {
   normalizeListingDescription,
   normalizeListingTitle,
-  type ListingQualityField,
 } from '@/features/listings/lib/listing-content-quality';
-import { isMeaningfulTextCorrection } from '@/features/listings/lib/turkish-text-autocorrect';
 
 const REMOTE_OPTIONS = ['onsite', 'hybrid', 'remote'] as const;
 
@@ -58,10 +54,6 @@ const ALL_CORE_FIELDS: (keyof CoreListingFieldsInput)[] = [
   'companyId',
 ];
 
-type SuggestionState = Partial<
-  Record<ListingQualityField, { suggested: string; message: string }>
->;
-
 export function CoreListingFields({
   values,
   onChange,
@@ -93,99 +85,8 @@ export function CoreListingFields({
     };
   };
 
-  const [suggestions, setSuggestions] = useState<SuggestionState>({});
-
   function set<K extends keyof CoreListingFieldsInput>(key: K, val: CoreListingFieldsInput[K]) {
     onChange({ ...values, [key]: val });
-  }
-
-  function clearSuggestion(field: ListingQualityField) {
-    setSuggestions((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  }
-
-  function proposeCorrection(field: ListingQualityField) {
-    const current = String(values[field] ?? '');
-    if (!current.trim()) {
-      clearSuggestion(field);
-      return;
-    }
-    const suggested =
-      field === 'title'
-        ? normalizeListingTitle(current)
-        : normalizeListingDescription(current);
-
-    if (!isMeaningfulTextCorrection(current, suggested)) {
-      if (suggested !== current) {
-        set(field, suggested);
-      }
-      clearSuggestion(field);
-      return;
-    }
-
-    setSuggestions((prev) => ({
-      ...prev,
-      [field]: {
-        suggested,
-        message:
-          field === 'title'
-            ? 'İlan başlığınızı daha okunabilir hale getirdik.'
-            : 'Metniniz bazı yazım kurallarına göre düzenlendi.',
-      },
-    }));
-  }
-
-  function applySuggestion(field: ListingQualityField) {
-    const item = suggestions[field];
-    if (!item) return;
-    set(field, item.suggested);
-    clearSuggestion(field);
-  }
-
-  function SuggestionBanner({ field }: { field: ListingQualityField }) {
-    const item = suggestions[field];
-    if (!item) return null;
-    const original = String(values[field] ?? '');
-    return (
-      <div className="rounded-lg border border-primary/25 bg-primary/[0.04] px-3 py-2 text-xs text-foreground">
-        <p className="font-medium text-primary">{item.message}</p>
-        <p className="mt-1 text-muted-foreground">
-          <span className="line-through opacity-70">{original.slice(0, 160)}</span>
-        </p>
-        <p className="mt-0.5 font-medium">{item.suggested.slice(0, 180)}</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Button
-            type="button"
-            size="sm"
-            className="h-7 text-xs"
-            disabled={disabled}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              applySuggestion(field);
-            }}
-          >
-            Düzeltilmiş metni kullan
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            className="h-7 text-xs"
-            disabled={disabled}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              clearSuggestion(field);
-            }}
-          >
-            Yok say
-          </Button>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -202,7 +103,6 @@ export function CoreListingFields({
               value={values.title}
               onChange={(e) => {
                 set('title', e.target.value);
-                clearSuggestion('title');
               }}
               onBlur={() => {
                 if (values.title?.trim()) {
@@ -211,14 +111,12 @@ export function CoreListingFields({
                     set('title', normalized);
                   }
                 }
-                proposeCorrection('title');
               }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlan başlığınızı yazın'}
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.title)}
             />
-            <SuggestionBanner field="title" />
             <FormFieldFooter
               helperText={ui.helperText}
               error={errors?.title}
@@ -245,7 +143,6 @@ export function CoreListingFields({
               value={values.shortDescription}
               onChange={(e) => {
                 set('shortDescription', e.target.value);
-                clearSuggestion('shortDescription');
               }}
               onBlur={() => {
                 if (values.shortDescription?.trim()) {
@@ -254,7 +151,6 @@ export function CoreListingFields({
                     set('shortDescription', normalized);
                   }
                 }
-                proposeCorrection('shortDescription');
               }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlanınızı özetleyen kısa bir açıklama yazın'}
@@ -262,7 +158,6 @@ export function CoreListingFields({
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.shortDescription)}
             />
-            <SuggestionBanner field="shortDescription" />
             <FormFieldFooter
               helperText={ui.helperText}
               error={errors?.shortDescription}
@@ -290,7 +185,6 @@ export function CoreListingFields({
               value={values.longDescription ?? ''}
               onChange={(e) => {
                 set('longDescription', e.target.value);
-                clearSuggestion('longDescription');
               }}
               onBlur={() => {
                 if (values.longDescription?.trim()) {
@@ -299,7 +193,6 @@ export function CoreListingFields({
                     set('longDescription', normalized);
                   }
                 }
-                proposeCorrection('longDescription');
               }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlanınızla ilgili tüm detayları buraya yazın'}
@@ -307,7 +200,6 @@ export function CoreListingFields({
               maxLength={ui.maxLength}
               className={formControlErrorClass(errors?.longDescription)}
             />
-            <SuggestionBanner field="longDescription" />
             <FormFieldFooter
               helperText={ui.helperText}
               error={errors?.longDescription}
