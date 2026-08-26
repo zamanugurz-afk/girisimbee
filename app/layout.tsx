@@ -8,15 +8,15 @@ import { isMaintenanceMode } from '@/lib/site-mode';
 import { BRAND_PAGE_TITLE } from '@/features/shared';
 import type { ReactNode } from 'react';
 
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const sans = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-sans', display: 'swap' });
 const display = Plus_Jakarta_Sans({
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
   variable: '--font-display',
   display: 'swap',
   weight: ['500', '600', '700', '800'],
 });
 const mono = JetBrains_Mono({
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
   variable: '--font-mono',
   display: 'swap',
 });

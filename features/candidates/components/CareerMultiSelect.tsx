@@ -242,7 +242,7 @@ export function CareerMultiSelect({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-semibold text-foreground">{label}</Label>
+        <Label className="text-xs font-semibold text-foreground">{label}</Label>
       </div>
 
       {/* Selected Chips */}

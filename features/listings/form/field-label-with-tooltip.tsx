@@ -27,7 +27,7 @@ export function FieldLabelWithTooltip({
 }: FieldLabelWithTooltipProps) {
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
-      <Label htmlFor={htmlFor} className="text-sm font-medium">
+      <Label htmlFor={htmlFor} className="text-xs font-semibold text-foreground">
         {label}
         {required && <span className="ml-1 text-destructive">*</span>}
       </Label>

@@ -54,8 +54,9 @@ export function CitySelect({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            'h-11 min-h-[42px] w-full min-w-0 justify-between rounded-xl px-3.5 font-medium text-left bg-card text-sm',
+            'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-xs transition-all',
             !value && 'text-muted-foreground',
+            value && 'text-foreground font-medium',
             formControlErrorClass(error),
           )}
         >
