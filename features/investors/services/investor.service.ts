@@ -255,7 +255,7 @@ export class InvestorService {
     if (listing.moduleKey !== 'investors') {
       throw new ValidationError('Geçersiz yatırım ilanı.', { listingId: ['Yatırım ilanı bulunamadı.'] });
     }
-    if (listing.ownerId !== ownerId) {
+    if (listing.ownerId && listing.ownerId !== ownerId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
     return listing;

@@ -179,7 +179,7 @@ export class EmployerService {
     if (listing.moduleKey !== 'employers') {
       throw new ValidationError('Geçersiz iş ilanı.', { listingId: ['İş ilanı bulunamadı.'] });
     }
-    if (listing.ownerId !== ownerId) {
+    if (listing.ownerId && listing.ownerId !== ownerId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
     return listing;

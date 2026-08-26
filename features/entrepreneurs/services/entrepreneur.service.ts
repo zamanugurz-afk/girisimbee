@@ -222,7 +222,7 @@ export class EntrepreneurService {
     if (listing.moduleKey !== 'entrepreneurs') {
       throw new ValidationError('Geçersiz startup ilanı.', { listingId: ['Startup ilanı bulunamadı.'] });
     }
-    if (listing.ownerId !== ownerId) {
+    if (listing.ownerId && listing.ownerId !== ownerId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
     return listing;

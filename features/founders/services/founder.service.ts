@@ -261,7 +261,7 @@ export class FounderService {
     if (listing.moduleKey !== 'founders') {
       throw new ValidationError('Geçersiz ortak arama ilanı.', { listingId: ['Ortak arama ilanı bulunamadı.'] });
     }
-    if (listing.ownerId !== ownerId) {
+    if (listing.ownerId && listing.ownerId !== ownerId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
     return listing;

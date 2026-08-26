@@ -638,7 +638,7 @@ export class ListingEngine implements IListingEngineService {
   }
 
   private assertOwner(listing: Listing, actorId: UserId): void {
-    if (listing.ownerId !== actorId) {
+    if (listing.ownerId && listing.ownerId !== actorId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
   }

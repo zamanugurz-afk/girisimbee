@@ -294,7 +294,7 @@ export class FranchiseService {
     if (listing.moduleKey !== 'franchise') {
       throw new ValidationError('Geçersiz franchise ilanı.', { listingId: ['Franchise ilanı bulunamadı.'] });
     }
-    if (listing.ownerId !== ownerId) {
+    if (listing.ownerId && listing.ownerId !== ownerId) {
       throw new ForbiddenError('Bu ilan üzerinde işlem yapma yetkiniz yok.');
     }
     return listing;
