@@ -23,6 +23,7 @@ import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
 import { rankWorkplaceOptions, PARTNER_EXPERTISE_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
+import { MultiComboboxField } from '@/features/listings/form/fields/multi-combobox-field';
 import { normalizeListingTitle, normalizeListingDescription } from '@/features/listings/lib/listing-content-quality';
 import { ConditionalSectorPicker } from '@/features/listings/form/fields/conditional-sector-picker';
 import { cn } from '@/lib/utils';
@@ -81,7 +82,10 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
   },
   sectorOther: {
     parentKey: 'primarySector',
-    match: isManualOtherSelection,
+    match: (v) =>
+      Array.isArray(v)
+        ? v.map(String).some((item) => isManualOtherSelection(item))
+        : isManualOtherSelection(v),
   },
   preferredSectorsOther: {
     parentKey: 'preferredSectors',
@@ -145,7 +149,7 @@ export function DynamicField({
   value,
   onChange,
   error,
-  disabled,
+  disabled = false,
   context,
   isCvFilled,
 }: DynamicFieldProps) {
@@ -156,7 +160,7 @@ export function DynamicField({
   if (otherGate) {
     let parentValue = context?.values?.[otherGate.parentKey];
     if (field.key === 'sectorOther' && parentValue === undefined) {
-      parentValue = context?.values?.['sector'] ?? context?.values?.['primarySector'];
+      parentValue = context?.values?.['sectors'] ?? context?.values?.['sector'] ?? context?.values?.['primarySector'];
     }
     if (!otherGate.match(parentValue)) return null;
   }
@@ -236,7 +240,7 @@ export function DynamicField({
             {field.label}
             {field.required && <span className="ml-1 text-destructive">*</span>}
           </Label>
-          {field.type === 'multi-enum' && Array.isArray(value) && value.length > 0 && (
+          {field.type === 'multi-enum' && field.key !== 'sectors' && field.key !== 'preferredSectors' && Array.isArray(value) && value.length > 0 && (
             <Badge variant="secondary" className="px-2 py-0.5 text-[11px] font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20">
               {value.length} seçili
             </Badge>
@@ -633,8 +637,29 @@ function FieldControl({
     }
 
     case 'multi-enum': {
+      let options = field.options ?? [];
+      if (field.key === 'sectors' || field.key === 'preferredSectors') {
+        options = sortSectorsPopularThenAz(options);
+        return (
+          <>
+            <MultiComboboxField
+              id={id}
+              label={field.label}
+              value={value}
+              onChange={onChange}
+              options={options}
+              disabled={disabled}
+              error={error}
+              placeholder={ui.placeholder ?? `${field.label} seçin`}
+              searchPlaceholder="Sektör ara…"
+              themeColor={context?.themeColor}
+            />
+            <FormFieldFooter helperText={ui.helperText} error={error} />
+          </>
+        );
+      }
+
       const selected = Array.isArray(value) ? value.map(String) : [];
-      const options = field.options ?? [];
       const isCompact = options.length > 12;
 
       function toggleOption(option: string, checked: boolean) {
