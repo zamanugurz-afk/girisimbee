@@ -9,8 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { LEGAL_ROUTES } from '@/features/authentication/constants/legal-routes';
 import { LegalDocLink } from '@/features/authentication/components/legal-doc-link';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
-import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
 
 /**
  * Post-OAuth legal gate — Google login authenticates identity only.
@@ -68,10 +67,9 @@ function OAuthLegalAcceptanceForm() {
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-4 py-12">
-      <Link href="/" className="mb-6 inline-flex items-center gap-0" aria-label="Girisimbee">
-        <BrandMarkSlot size={40} priority className="-mr-1" />
-        <BrandWordmark className="font-display text-xl font-bold tracking-tight" />
-      </Link>
+      <div className="mb-6">
+        <GirisimbeeLogo />
+      </div>
       <h1 className="font-display text-2xl font-bold tracking-tight">Yasal bilgilendirme</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Google ile giriş kimliğinizi doğrular. Kullanıcı sözleşmesi kabulü ve KVKK aydınlatması

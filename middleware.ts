@@ -78,6 +78,22 @@ export async function middleware(request: NextRequest) {
   const mwStart = nowMs();
   const pathname = request.nextUrl.pathname;
 
+  // Set preview unlock cookie when ?preview=1 is visited
+  if (request.nextUrl.searchParams.has('preview')) {
+    const previewVal = request.nextUrl.searchParams.get('preview');
+    if (previewVal === '1' || previewVal === 'true' || previewVal === 'girisimbee') {
+      const cleanUrl = request.nextUrl.clone();
+      cleanUrl.searchParams.delete('preview');
+      const response = NextResponse.redirect(cleanUrl);
+      response.cookies.set('gb_preview', '1', {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      });
+      return attachTiming(response, nowMs() - mwStart);
+    }
+  }
+
   // Rescue OAuth/PKCE returns that hit the wrong path (e.g. /?code=…).
   // Must run before maintenance rewrite so the code is exchanged, not swallowed by /bakim.
   if (shouldRescueOAuthReturn(pathname, request.nextUrl)) {

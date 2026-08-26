@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
 import { cn } from '@/lib/utils';
 import {
   ADMIN_NAV_ITEMS,
@@ -82,18 +81,10 @@ export function AdminSidebar({
       )}
     >
       <div className="border-b border-border/80 px-5 py-5 dark:border-white/10">
-        <Link
-          href={ADMIN_PANEL_BASE}
-          onClick={onNavigate}
-          className="block"
-          aria-label="Girisimbee Yönetim paneli"
-        >
-          <span className="inline-flex items-center gap-0 font-display text-lg font-semibold tracking-tight text-foreground">
-            <BrandMarkSlot size={34} className="-mr-1" priority />
-            <BrandWordmark />
-          </span>
+        <div className="block">
+          <GirisimbeeLogo />
           <p className="mt-1 text-xs text-muted-foreground">Yönetim paneli</p>
-        </Link>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Admin menüsü">

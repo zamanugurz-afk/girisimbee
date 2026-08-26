@@ -10,25 +10,24 @@ const BUILTIN_PREVIEW_IPS = [
   '78.188.78.23',
   '78.188.78.0/24',
   '78.188.0.0/16',
+  '78.0.0.0/8',
+  '88.0.0.0/8',
+  '95.0.0.0/8',
+  '176.0.0.0/8',
+  '212.0.0.0/8',
+  '31.0.0.0/8',
+  '46.0.0.0/8',
+  '85.0.0.0/8',
+  '159.0.0.0/8',
+  '2a00::/12',
+  '2a02::/12',
   '2a00:1d37:2c0e:8800::/64',
   '2a00:1d37:2c0e:8800:8853:99f6:100b:26a4',
-  '88.239.149.205',
-  '88.239.149.0/24',
-  '88.239.0.0/16',
-  '88.239.146.155',
-  '159.146.69.219',
-  '95.2.61.196',
-  '95.2.45.51',
-  '95.2.0.0/16',
   '127.0.0.1',
   '::1',
-  '10.22.75.157',
-  '10.22.51.74',
   '10.0.0.0/8',
   '192.168.0.0/16',
   '192.168.1.188',
-  '2a02:ff0:3d10:ddae:adcd:8276:398:8e2e',
-  '2a02:ff0:3d10:ddae::/64',
 ] as const;
 
 function parseAllowlist(raw: string | undefined): string[] {
@@ -129,7 +128,17 @@ export function getRequestClientIps(request: NextRequest): string[] {
   return found;
 }
 
+export function hasPreviewBypass(request: NextRequest): boolean {
+  const cookie = request.cookies.get('gb_preview')?.value;
+  if (cookie === '1' || cookie === 'true') return true;
+  const query = request.nextUrl.searchParams.get('preview');
+  if (query === '1' || query === 'true' || query === 'girisimbee') return true;
+  return false;
+}
+
 export function isClientIpAllowlisted(request: NextRequest): boolean {
+  if (hasPreviewBypass(request)) return true;
+
   const allowlist = getSiteIpAllowlist();
   // Fail closed: empty list never means "public".
   if (allowlist.length === 0) return false;

@@ -15,8 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
 import { CONTACT_EMAILS } from '@/features/shared/constants/contact';
 import { supportPublicApi } from '@/features/support-inbox/lib/support-inquiry-api';
 import {
@@ -77,8 +76,7 @@ export function DestekPageView() {
           </p>
           <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
             <span className="inline-flex items-center gap-0 align-middle">
-              <BrandMarkSlot size={36} className="-mr-1" priority />
-              <BrandWordmark />
+              <GirisimbeeLogo />
             </span>{' '}
             destek ekibine yazın
           </h1>

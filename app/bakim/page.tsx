@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
-import { BrandWordmark } from '@/components/girisimco/brand-wordmark';
+import { GirisimbeeLogo } from '@/components/girisimco/logo';
 import { BRAND_NAME } from '@/features/shared/constants/brand';
 
 export const metadata: Metadata = {
@@ -26,9 +25,8 @@ export default function MaintenancePage() {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 py-16 text-center sm:px-8">
-        <div className="mb-10 inline-flex animate-[gc-maint-fade_0.7s_ease-out_both] items-center gap-0">
-          <BrandMarkSlot size={52} priority className="-mr-1" />
-          <BrandWordmark className="font-display text-3xl font-bold tracking-tight sm:text-4xl" />
+        <div className="mb-10 inline-flex animate-[gc-maint-fade_0.7s_ease-out_both] items-center gap-0 scale-125 sm:scale-150">
+          <GirisimbeeLogo />
         </div>
 
         <h1 className="animate-[gc-maint-fade_0.85s_ease-out_0.12s_both] font-display text-4xl font-bold tracking-tight text-[#0F172A] sm:text-5xl">
