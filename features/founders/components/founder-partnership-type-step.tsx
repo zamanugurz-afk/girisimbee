@@ -10,7 +10,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Sparkles } from 'lucide-react';
 
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
+
 export interface FounderPartnershipTypeStepProps {
+  intent?: PartnershipIntent;
   partnershipTypes: string[];
   partnershipTypesOther?: string;
   professionalSkills?: string | string[];
@@ -51,6 +54,7 @@ export interface FounderPartnershipTypeStepProps {
 }
 
 export function FounderPartnershipTypeStep({
+  intent = 'seeking',
   partnershipTypes = [],
   partnershipTypesOther = '',
   professionalSkills = '',
@@ -71,6 +75,8 @@ export function FounderPartnershipTypeStep({
   errors,
   themeColor = 'amber',
 }: FounderPartnershipTypeStepProps) {
+  const isJoining = intent === 'joining';
+
   // Step 1 verilerine göre dinamik önerileri hesapla
   const suggestions = useMemo(() => {
     return resolveFounderSuggestions({
@@ -79,8 +85,9 @@ export function FounderPartnershipTypeStep({
       targetPartnerType,
       title,
       shortDescription,
+      intent,
     });
-  }, [sector, stage, targetPartnerType, title, shortDescription]);
+  }, [sector, stage, targetPartnerType, title, shortDescription, intent]);
 
   // Normalleştirilmiş dizi değerleri
   const selectedPartnershipTypes = useMemo(
@@ -111,9 +118,17 @@ export function FounderPartnershipTypeStep({
           <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>
             {sector ? (
-              <>
-                <strong>{sector}</strong> sektörü ve girişim aşamanıza göre en uygun ortaklık türleri ve yetkinlikler listelenmiştir.
-              </>
+              isJoining ? (
+                <>
+                  <strong>{sector}</strong> ve hedeflediğiniz aşamaya göre katkı sağlayabileceğiniz ortaklık modelleri ve yetkinlikler listelenmiştir.
+                </>
+              ) : (
+                <>
+                  <strong>{sector}</strong> sektörü ve girişim aşamanıza göre en uygun ortaklık türleri ve yetkinlikler listelenmiştir.
+                </>
+              )
+            ) : isJoining ? (
+              <>Katkı sağlamak istediğiniz ortaklık modelleri ve yetkinlikleri seçebilirsiniz.</>
             ) : (
               <>Girişim hedefinize uygun ortaklık modelleri ve yetkinlikleri seçebilirsiniz.</>
             )}
@@ -121,15 +136,19 @@ export function FounderPartnershipTypeStep({
         </div>
         {selectedPartnershipTypes.length > 0 && (
           <Badge className="bg-amber-600 text-white font-semibold text-[11px] px-2 py-0.5 shrink-0">
-            {selectedPartnershipTypes.length} Ortaklık Seçili
+            {selectedPartnershipTypes.length} {isJoining ? 'Rol/Model Seçili' : 'Ortaklık Seçili'}
           </Badge>
         )}
       </div>
 
-      {/* 1. BLOK: ARANAN ORTAKLIK MODELLERİ VE TÜRLERİ */}
+      {/* 1. BLOK: ORTAKLIK MODELLERİ VE TÜRLERİ */}
       <div className="space-y-2">
         <CareerMultiSelect
-          label="Aranan Ortaklık Modelleri ve Türleri *"
+          label={
+            isJoining
+              ? 'Sunduğum / Katkı Sağlayacağım Ortaklık Modelleri ve Rolleri *'
+              : 'Aranan Ortaklık Modelleri ve Türleri *'
+          }
           domain="partnership-types"
           themeColor="amber"
           options={suggestions.partnershipTypes}
@@ -165,17 +184,25 @@ export function FounderPartnershipTypeStep({
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan ortaklık modelini yazın (Örn: Fabrika ve Üretim Tesisi Ortağı, Acentelik Ortağı)..."
-          searchPlaceholder="Ortaklık modeli ara..."
+          manualPlaceholder={
+            isJoining
+              ? 'Listede olmayan katkı/ortaklık modelini yazın (Örn: Fabrika ve Üretim Tesisi Ortağı, Acentelik Ortağı)...'
+              : 'Listede olmayan ortaklık modelini yazın (Örn: Fabrika ve Üretim Tesisi Ortağı, Acentelik Ortağı)...'
+          }
+          searchPlaceholder={isJoining ? 'Ortaklık rolü veya modeli ara...' : 'Ortaklık modeli ara...'}
           disabled={disabled}
           error={errors?.partnershipTypes}
         />
       </div>
 
-      {/* 2. BLOK: ARANAN MESLEKİ VE YÖNETSEL YETKİNLİKLER */}
+      {/* 2. BLOK: MESLEKİ VE YÖNETSEL YETKİNLİKLER */}
       <div className="space-y-2 pt-1">
         <CareerMultiSelect
-          label="Aranan Mesleki ve Yönetsel Yetkinlikler (İsteğe Bağlı)"
+          label={
+            isJoining
+              ? 'Sunduğum Mesleki ve Yönetsel Yetkinlikler (İsteğe Bağlı)'
+              : 'Aranan Mesleki ve Yönetsel Yetkinlikler (İsteğe Bağlı)'
+          }
           domain="professional-skills"
           themeColor="amber"
           options={suggestions.professionalSkills}
@@ -211,17 +238,25 @@ export function FounderPartnershipTypeStep({
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan mesleki yetkinliği yazın (Örn: B2B Satış, İhale Yönetimi, Yatırımcı İlişkileri)..."
+          manualPlaceholder={
+            isJoining
+              ? 'Listede olmayan mesleki yetkinliğinizi yazın (Örn: B2B Satış, Yatırımcı İlişkileri, İhale Yönetimi)...'
+              : 'Listede olmayan mesleki yetkinliği yazın (Örn: B2B Satış, İhale Yönetimi, Yatırımcı İlişkileri)...'
+          }
           searchPlaceholder="Yetkinlik ara..."
           disabled={disabled}
           error={errors?.professionalSkills}
         />
       </div>
 
-      {/* 3. BLOK: ARANAN TEKNİK VE SEKTÖREL UZMANLIKLAR */}
+      {/* 3. BLOK: TEKNİK VE SEKTÖREL UZMANLIKLAR */}
       <div className="space-y-2 pt-1">
         <CareerMultiSelect
-          label="Aranan Teknik ve Sektörel Uzmanlıklar (İsteğe Bağlı)"
+          label={
+            isJoining
+              ? 'Sunduğum Teknik ve Sektörel Uzmanlıklar (İsteğe Bağlı)'
+              : 'Aranan Teknik ve Sektörel Uzmanlıklar (İsteğe Bağlı)'
+          }
           domain="technical-skills"
           themeColor="amber"
           options={suggestions.technicalSkills}
@@ -257,17 +292,25 @@ export function FounderPartnershipTypeStep({
               expertiseOther: next,
             });
           }}
-          manualPlaceholder="Listede olmayan teknik uzmanlığı yazın (Örn: SolidWorks, CAD/CAM, CNC, LLM Finetuning)..."
+          manualPlaceholder={
+            isJoining
+              ? 'Listede olmayan teknik uzmanlığınızı yazın (Örn: SolidWorks, CAD/CAM, CNC, LLM Finetuning)...'
+              : 'Listede olmayan teknik uzmanlığı yazın (Örn: SolidWorks, CAD/CAM, CNC, LLM Finetuning)...'
+          }
           searchPlaceholder="Teknik uzmanlık ara..."
           disabled={disabled}
           error={errors?.technicalSkills}
         />
       </div>
 
-      {/* 4. BLOK: KULLANILAN / ARANAN ARAÇLAR VE TEKNOLOJİLER */}
+      {/* 4. BLOK: KULLANILAN / YETKİN OLUNAN ARAÇLAR VE TEKNOLOJİLER */}
       <div className="space-y-2 pt-1">
         <CareerMultiSelect
-          label="Kullanılan / Aranan Araçlar, Teknolojiler ve Ekipmanlar (İsteğe Bağlı)"
+          label={
+            isJoining
+              ? 'Kullandığım / Yetkin Olduğum Araçlar, Teknolojiler ve Ekipmanlar (İsteğe Bağlı)'
+              : 'Kullanılan / Aranan Araçlar, Teknolojiler ve Ekipmanlar (İsteğe Bağlı)'
+          }
           domain="tools"
           themeColor="amber"
           options={suggestions.tools}
@@ -303,7 +346,11 @@ export function FounderPartnershipTypeStep({
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan araç veya ekipmanı yazın (Örn: SAP, SolidWorks, Adisyo, Salesforce)..."
+          manualPlaceholder={
+            isJoining
+              ? 'Listede olmayan araç veya ekipmanı yazın (Örn: SAP, SolidWorks, Adisyo, Salesforce)...'
+              : 'Listede olmayan araç veya ekipmanı yazın (Örn: SAP, SolidWorks, Adisyo, Salesforce)...'
+          }
           searchPlaceholder="Araç veya ekipman ara..."
           disabled={disabled}
           error={errors?.tools}

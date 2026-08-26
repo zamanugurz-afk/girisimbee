@@ -31,13 +31,13 @@ describe('partner form variants', () => {
       'equityOffered',
     ]);
     expect(joining).toEqual([
-      'expertise',
-      'expertiseOther',
-      'offeredSkills',
-      'offeredSkillsOther',
       'sectors',
       'sectorOther',
       'partnershipType',
+      'projectStage',
+      'commitment',
+      'experience',
+      'equityOffered',
       'partnershipTypes',
       'partnershipTypesOther',
       'professionalSkills',
@@ -46,10 +46,10 @@ describe('partner form variants', () => {
       'technicalSkillsOther',
       'tools',
       'toolsOther',
-      'projectStage',
-      'commitment',
-      'experience',
-      'equityOffered',
+      'expertise',
+      'expertiseOther',
+      'offeredSkills',
+      'offeredSkillsOther',
     ]);
     expect(seeking).not.toContain('offeredSkills');
     expect(seeking).not.toContain('experience');
@@ -81,7 +81,7 @@ describe('partner form variants', () => {
     const joining = getListingFormSteps(CATEGORY_IDS.ortakBul, { partnershipIntent: 'joining' });
 
     expect(seeking.find((step) => step.id === 'partnership')?.title).toBe('Girişim ve Ortaklık Tipi');
-    expect(joining.find((step) => step.id === 'partnership')?.title).toBe('Sunduğum değer');
+    expect(joining.find((step) => step.id === 'partnership')?.title).toBe('Sunduğum Değer ve Yetkinlikler');
     expect(joining.find((step) => step.id === 'basics')?.title).toBe('Profiliniz');
     expect(joining.find((step) => step.id === 'details')?.coreFields).toEqual([
       'longDescription',

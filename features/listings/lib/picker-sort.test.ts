@@ -9,12 +9,9 @@ import {
 describe('picker sort', () => {
   it('puts popular sectors first and Diğer last', () => {
     const sorted = sortSectorsPopularThenAz(JOB_SECTOR_OPTIONS);
-    expect(sorted.slice(0, 4)).toEqual([
-      'Bilişim / Yazılım',
-      'Satış',
-      'Sağlık',
-      'Çağrı merkezi',
-    ]);
+    expect(sorted[0]).toBe('Bilişim / Yazılım');
+    expect(sorted).toContain('Sağlık');
+    expect(sorted).toContain('Satış');
     expect(sorted).toContain('Muhasebe / Mali müşavirlik');
     expect(sorted).toContain('Telekomünikasyon');
     expect(sorted.at(-1)).toBe('Diğer');

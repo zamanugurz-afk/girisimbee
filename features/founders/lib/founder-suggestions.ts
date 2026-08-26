@@ -1,12 +1,15 @@
 import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
 import { normalizeTurkishSearch } from '@/features/shared/services/set-matching.service';
 
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
+
 export interface FounderSuggestionContext {
   sector?: string | null;
   stage?: string | null;
   targetPartnerType?: string | null;
   title?: string | null;
   shortDescription?: string | null;
+  intent?: PartnershipIntent;
 }
 
 export interface FounderSuggestionsResult {

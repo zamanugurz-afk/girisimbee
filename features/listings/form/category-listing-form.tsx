@@ -609,8 +609,7 @@ export function CategoryListingForm({
     && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFounderPartnershipTypeStep =
     categoryId === CATEGORY_IDS.ortakBul
-    && currentStep.id === 'partnership'
-    && (!partnershipIntent || partnershipIntent === 'seeking');
+    && currentStep.id === 'partnership';
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -2853,6 +2852,7 @@ export function CategoryListingForm({
 
           {isFounderPartnershipTypeStep && (
             <FounderPartnershipTypeStep
+              intent={partnershipIntent}
               partnershipTypes={
                 Array.isArray(mergedCustomFields.partnershipTypes)
                   ? mergedCustomFields.partnershipTypes.map(String)
@@ -2875,7 +2875,14 @@ export function CategoryListingForm({
                     : []
               }
               expertiseOther={String(mergedCustomFields.expertiseOther ?? '')}
-              sector={String(mergedCustomFields.sector || mergedCustomFields.primarySector || '')}
+              sector={
+                String(
+                  mergedCustomFields.sector
+                  || (Array.isArray(mergedCustomFields.sectors) ? mergedCustomFields.sectors[0] : mergedCustomFields.sectors)
+                  || mergedCustomFields.primarySector
+                  || ''
+                )
+              }
               stage={String(mergedCustomFields.projectStage || mergedCustomFields.partnershipStage || '')}
               targetPartnerType={String(mergedCustomFields.partnershipType || mergedCustomFields.targetPartnerType || '')}
               title={core.title}

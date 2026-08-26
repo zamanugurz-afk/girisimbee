@@ -603,8 +603,29 @@ export function getListingFormSteps(
     const intent = options?.partnershipIntent ?? 'seeking';
     const keys = getPartnerFormFieldKeys(intent);
     if (intent === 'joining') {
-      const basicCustomKeys = ['sectors', 'partnershipType', 'projectStage', 'commitment', 'equityOffered'].filter((k) => keys.includes(k));
-      const partnerCustomKeys = ['expertise', 'expertiseOther', 'offeredSkills', 'offeredSkillsOther', 'experience'].filter((k) => keys.includes(k));
+      const basicCustomKeys = [
+        'sectors',
+        'sectorOther',
+        'partnershipType',
+        'projectStage',
+        'commitment',
+        'experience',
+        'equityOffered',
+      ].filter((k) => keys.includes(k));
+      const partnerCustomKeys = [
+        'partnershipTypes',
+        'partnershipTypesOther',
+        'professionalSkills',
+        'professionalSkillsOther',
+        'technicalSkills',
+        'technicalSkillsOther',
+        'tools',
+        'toolsOther',
+        'expertise',
+        'expertiseOther',
+        'offeredSkills',
+        'offeredSkillsOther',
+      ].filter((k) => keys.includes(k));
       return withConsolidatedPublishFlow(
         {
           id: 'basics',
@@ -615,14 +636,14 @@ export function getListingFormSteps(
         },
         {
           id: 'partnership',
-          title: 'Sunduğum değer',
-          description: 'Uzmanlık, yetkinlik ve ilgilendiğiniz girişimler',
+          title: 'Sunduğum Değer ve Yetkinlikler',
+          description: 'Ortaklık modeli, uzmanlık, yetkinlik ve kullanabildiğiniz araçları belirleyin.',
           customFieldKeys: partnerCustomKeys.length > 0 ? partnerCustomKeys : keys,
         },
         {
           id: 'details',
-          title: 'Kendinizi tanıtın',
-          description: 'Kısa profil, lokasyon ve detaylı açıklama',
+          title: 'Kendinizi Tanıtın',
+          description: 'Kısa profil, lokasyon, deneyimler ve detaylı açıklama',
           coreFields: ['longDescription', 'city'],
           meta: ['images'],
         },
