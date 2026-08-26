@@ -726,12 +726,26 @@ export class SupabaseListingRepository implements ListingRepository {
 
       if (primaryRes.error && (primaryRes.error.code === '23503' || primaryRes.error.code === '42501')) {
         await this.ensureCategoryAndListingType(row.category_id, row.listing_type_id);
+
+        const fallbackRow = {
+          ...row,
+          category_id: MARKETPLACE_CATEGORY_IDS.ortaklik,
+          listing_type_id: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
+        };
+
         if (privileged && client !== privileged) {
-          const privilegedRes = await privileged
+          let privilegedRes = await privileged
             .from(TABLE)
             .insert(row)
             .select(LISTING_ROW_SELECT)
             .single();
+          if (privilegedRes.error && privilegedRes.error.code === '23503') {
+            privilegedRes = await privileged
+              .from(TABLE)
+              .insert(fallbackRow)
+              .select(LISTING_ROW_SELECT)
+              .single();
+          }
           if (!privilegedRes.error && privilegedRes.data) {
             data = privilegedRes.data as ListingRow;
             error = null;
@@ -739,12 +753,18 @@ export class SupabaseListingRepository implements ListingRepository {
             error = privilegedRes.error || primaryRes.error;
           }
         } else {
-          // Retry insert with primary client after ensure
-          const retryRes = await client
+          let retryRes = await client
             .from(TABLE)
             .insert(row)
             .select(LISTING_ROW_SELECT)
             .single();
+          if (retryRes.error && retryRes.error.code === '23503') {
+            retryRes = await client
+              .from(TABLE)
+              .insert(fallbackRow)
+              .select(LISTING_ROW_SELECT)
+              .single();
+          }
           if (!retryRes.error && retryRes.data) {
             data = retryRes.data as ListingRow;
             error = null;

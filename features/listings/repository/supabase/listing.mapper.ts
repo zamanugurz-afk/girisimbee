@@ -7,6 +7,7 @@ import type { ListingId, UserId, CompanyId, CategoryId, ListingTypeId, Subcatego
 import type { ModuleKey } from '@/lib/domain/modules';
 import type { WorkflowStatus } from '@/lib/domain/marketplace-enums';
 import { coerceUuidValue } from '@/lib/persistence/supabase-payload';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import {
   resolveDbCategoryId,
   resolveDbListingTypeId,
@@ -60,16 +61,25 @@ export interface ListingRow {
 }
 
 export function mapListingRow(row: ListingRow): Listing {
+  const isTransfer =
+    row.module_key === 'transfer' ||
+    row.custom_fields?.businessTransferIntent !== undefined ||
+    row.custom_fields?.businessType !== undefined;
+
   return {
     id: row.id as ListingId,
     slug: row.slug,
     // Placeholder until server enrichOwnerId / known insert owner is applied.
     ownerId: (row.owner_id ?? '') as UserId,
     companyId: row.company_id as CompanyId | null,
-    categoryId: row.category_id as CategoryId,
-    listingTypeId: row.listing_type_id as ListingTypeId,
+    categoryId: isTransfer ? CATEGORY_IDS.isletmeDevri : (row.category_id as CategoryId),
+    listingTypeId: isTransfer
+      ? (row.custom_fields?.businessTransferIntent === 'buy'
+          ? LISTING_TYPE_IDS.businessTransferBuyDefault
+          : LISTING_TYPE_IDS.businessTransferSellDefault)
+      : (row.listing_type_id as ListingTypeId),
     subcategoryId: (row.subcategory_id as SubcategoryId | null) ?? null,
-    moduleKey: (row.module_key as ModuleKey | null) ?? null,
+    moduleKey: isTransfer ? 'transfer' : ((row.module_key as ModuleKey | null) ?? null),
     title: row.title,
     shortDescription: row.short_description,
     longDescription: row.long_description,
@@ -109,6 +119,12 @@ export function mapListingRow(row: ListingRow): Listing {
 export function toListingRow(
   listing: Partial<Listing> & Pick<Listing, 'ownerId' | 'categoryId' | 'listingTypeId' | 'title' | 'shortDescription' | 'slug'>,
 ): Record<string, unknown> {
+  const isTransfer =
+    listing.moduleKey === 'transfer' ||
+    listing.categoryId === CATEGORY_IDS.isletmeDevri ||
+    listing.customFields?.businessTransferIntent !== undefined ||
+    listing.customFields?.businessType !== undefined;
+
   return {
     slug: listing.slug,
     owner_id: listing.ownerId,
@@ -116,7 +132,7 @@ export function toListingRow(
     category_id: resolveDbCategoryId(listing.categoryId),
     listing_type_id: resolveDbListingTypeId(listing.listingTypeId),
     subcategory_id: coerceUuidValue(listing.subcategoryId),
-    module_key: listing.moduleKey ?? null,
+    module_key: isTransfer ? 'transfer' : (listing.moduleKey ?? null),
     title: listing.title,
     short_description: listing.shortDescription,
     long_description: listing.longDescription ?? '',

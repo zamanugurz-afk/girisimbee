@@ -12,6 +12,7 @@ import type {
 } from '@/features/listings/types/listing-engine.types';
 import type { PaginatedResult, PaginationParams } from '@/lib/domain/pagination';
 import { categoryRegistry } from '@/features/listings/config/category-registry';
+import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
 import {
   validateCreateListingForm,
   validateDraftListingForm,
@@ -78,11 +79,16 @@ export class ListingEngine implements IListingEngineService {
       throw e;
     }
 
-    const sanitizedCompanyId = coerceCompanyId(payload.core.companyId);
+    const isTransfer =
+      payload.categoryId === CATEGORY_IDS.isletmeDevri ||
+      payload.customFields?.businessTransferIntent !== undefined ||
+      payload.customFields?.businessType !== undefined;
+
     const createInput = {
       ownerId: payload.ownerId,
       categoryId: payload.categoryId,
       listingTypeId: payload.listingTypeId,
+      moduleKey: isTransfer ? ('transfer' as const) : undefined,
       title: payload.core.title,
       shortDescription: payload.core.shortDescription,
       longDescription: payload.core.longDescription,
