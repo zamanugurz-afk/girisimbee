@@ -10,10 +10,14 @@ export interface FounderSummaryContext {
   sector?: string;
   projectStage?: string;
   partnershipType?: string;
+  partnershipTypes?: string[] | string;
   commitment?: string;
   equityOffered?: number | string;
   expertise?: string[] | string;
   expertiseOther?: string;
+  professionalSkills?: string[] | string;
+  technicalSkills?: string[] | string;
+  tools?: string[] | string;
   city?: string | null;
   district?: string | null;
 }
@@ -22,7 +26,13 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
   const title = ctx.title?.trim() || 'Girişimimiz';
   const sector = ctx.sector?.trim() || '';
   const stage = ctx.projectStage?.trim() || '';
-  const partnerType = ctx.partnershipType?.trim() || 'Kurucu Ortak';
+  
+  const rawPartners = Array.isArray(ctx.partnershipTypes)
+    ? ctx.partnershipTypes
+    : typeof ctx.partnershipType === 'string' && ctx.partnershipType.trim()
+      ? ctx.partnershipType.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+  const partnerType = rawPartners.length > 0 ? rawPartners.join(', ') : (ctx.partnershipType?.trim() || 'Kurucu Ortak');
   const commitment = ctx.commitment?.trim() || 'Tam zamanlı';
   const equityNum =
     typeof ctx.equityOffered === 'number'
@@ -32,17 +42,20 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
         : null;
   const equityStr = equityNum !== null && !isNaN(equityNum) && equityNum > 0 ? '%' + equityNum : '';
 
-  const rawExpertise = Array.isArray(ctx.expertise)
-    ? ctx.expertise
-    : typeof ctx.expertise === 'string' && ctx.expertise.trim()
-      ? ctx.expertise.split(',').map((s) => s.trim()).filter(Boolean)
-      : [];
+  const parseList = (val?: string[] | string) =>
+    Array.isArray(val) ? val : typeof val === 'string' && val.trim() ? val.split(',').map((s) => s.trim()).filter(Boolean) : [];
 
-  const filteredExpertise = rawExpertise
-    .filter((e) => e !== 'Diğer' && e !== 'Diğer / Kendim gireceğim')
-    .concat(ctx.expertiseOther?.trim() ? [ctx.expertiseOther.trim()] : []);
+  const allSkills = Array.from(
+    new Set([
+      ...parseList(ctx.expertise),
+      ...parseList(ctx.professionalSkills),
+      ...parseList(ctx.technicalSkills),
+      ...(ctx.expertiseOther?.trim() ? [ctx.expertiseOther.trim()] : []),
+    ])
+  ).filter((e) => e !== 'Diğer' && e !== 'Diğer / Kendim gireceğim');
 
-  const expertiseStr = filteredExpertise.join(', ');
+  const expertiseStr = allSkills.slice(0, 6).join(', ');
+  const toolsList = parseList(ctx.tools).slice(0, 5).join(', ');
   const location = [ctx.city, ctx.district].filter(Boolean).join(' / ');
 
   const shortParts = [
@@ -76,6 +89,12 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
       ? ', karşılığında ' + equityStr + ' hisse (equity) ortaklığı sunulmaktadır.'
       : '; hisse ve ortaklık detayları ilk görüşmede karşılıklı belirlenecektir.')
   );
+
+  if (toolsList) {
+    longSentences.push(
+      'Girişimimizde aktif olarak kullanılan veya hakimiyeti tercih edilen teknolojiler / araçlar: ' + toolsList + '.'
+    );
+  }
 
   if (location) {
     longSentences.push(

@@ -1063,12 +1063,16 @@ export function CategoryListingForm({
     return buildFounderSummaryDraft({
       title: core.title,
       sector: String(mergedCustomFields.sector || mergedCustomFields.primarySector || ''),
-      projectStage: String(mergedCustomFields.projectStage || ''),
+      projectStage: String(mergedCustomFields.projectStage || mergedCustomFields.partnershipStage || ''),
       partnershipType: String(mergedCustomFields.partnershipType || ''),
+      partnershipTypes: mergedCustomFields.partnershipTypes as string[] | string,
       commitment: String(mergedCustomFields.commitment || ''),
       equityOffered: mergedCustomFields.equityOffered as number | string,
       expertise: mergedCustomFields.expertise as string[] | string,
       expertiseOther: String(mergedCustomFields.expertiseOther || ''),
+      professionalSkills: mergedCustomFields.professionalSkills as string[] | string,
+      technicalSkills: mergedCustomFields.technicalSkills as string[] | string,
+      tools: mergedCustomFields.tools as string[] | string,
       city: core.city,
       district: core.district,
     });
@@ -1082,9 +1086,14 @@ export function CategoryListingForm({
     mergedCustomFields.expertise,
     mergedCustomFields.expertiseOther,
     mergedCustomFields.partnershipType,
+    mergedCustomFields.partnershipTypes,
     mergedCustomFields.primarySector,
     mergedCustomFields.projectStage,
+    mergedCustomFields.partnershipStage,
+    mergedCustomFields.professionalSkills,
     mergedCustomFields.sector,
+    mergedCustomFields.technicalSkills,
+    mergedCustomFields.tools,
   ]);
 
   useEffect(() => {
@@ -2861,6 +2870,12 @@ export function CategoryListingForm({
               partnershipTypesOther={String(
                 mergedCustomFields.partnershipTypesOther ?? mergedCustomFields.partnershipTypeOther ?? '',
               )}
+              professionalSkills={mergedCustomFields.professionalSkills as string | string[]}
+              professionalSkillsOther={String(mergedCustomFields.professionalSkillsOther ?? '')}
+              technicalSkills={mergedCustomFields.technicalSkills as string | string[]}
+              technicalSkillsOther={String(mergedCustomFields.technicalSkillsOther ?? '')}
+              tools={mergedCustomFields.tools as string | string[]}
+              toolsOther={String(mergedCustomFields.toolsOther ?? '')}
               expertise={
                 Array.isArray(mergedCustomFields.expertise)
                   ? mergedCustomFields.expertise.map(String)
@@ -2869,6 +2884,11 @@ export function CategoryListingForm({
                     : []
               }
               expertiseOther={String(mergedCustomFields.expertiseOther ?? '')}
+              sector={String(mergedCustomFields.sector || mergedCustomFields.primarySector || '')}
+              stage={String(mergedCustomFields.projectStage || mergedCustomFields.partnershipStage || '')}
+              targetPartnerType={String(mergedCustomFields.partnershipType || mergedCustomFields.targetPartnerType || '')}
+              title={core.title}
+              shortDescription={core.shortDescription}
               onChange={(patch) => {
                 for (const [key, val] of Object.entries(patch)) {
                   setCustomField(key, val);
@@ -2880,6 +2900,9 @@ export function CategoryListingForm({
                   resolveFieldError(fieldErrors, 'partnershipTypes')
                   || resolveFieldError(fieldErrors, 'partnershipType'),
                 expertise: resolveFieldError(fieldErrors, 'expertise'),
+                professionalSkills: resolveFieldError(fieldErrors, 'professionalSkills'),
+                technicalSkills: resolveFieldError(fieldErrors, 'technicalSkills'),
+                tools: resolveFieldError(fieldErrors, 'tools'),
               }}
               themeColor={categoryThemeColor}
             />
