@@ -747,8 +747,8 @@ export function getListingFormSteps(
           'businessAge',
           'employeeCount',
           'operationalStatus',
-          'transferScope',
           'reasonForTransfer',
+          'transferScope',
         ],
       },
       {

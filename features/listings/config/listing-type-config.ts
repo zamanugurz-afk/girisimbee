@@ -1133,18 +1133,18 @@ export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...BUSINESS_TRANSFER_STATUS_OPTIONS],
     },
     {
-      key: 'transferScope',
-      label: 'Devir Kapsamı',
-      type: 'multi-enum',
-      required: true,
-      options: [...BUSINESS_TRANSFER_SCOPE_OPTIONS],
-    },
-    {
       key: 'reasonForTransfer',
       label: 'Devir Nedeni',
       type: 'enum',
       required: false,
       options: [...BUSINESS_TRANSFER_REASON_OPTIONS],
+    },
+    {
+      key: 'transferScope',
+      label: 'Devir Kapsamı',
+      type: 'multi-enum',
+      required: true,
+      options: [...BUSINESS_TRANSFER_SCOPE_OPTIONS],
     },
   ],
 };
