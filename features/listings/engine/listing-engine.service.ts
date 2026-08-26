@@ -79,6 +79,7 @@ export class ListingEngine implements IListingEngineService {
       throw e;
     }
 
+    const sanitizedCompanyId = coerceCompanyId(payload.core.companyId);
     const isTransfer =
       payload.categoryId === CATEGORY_IDS.isletmeDevri ||
       payload.customFields?.businessTransferIntent !== undefined ||
