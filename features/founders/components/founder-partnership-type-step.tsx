@@ -34,7 +34,6 @@ export interface FounderPartnershipTypeStepProps {
 
 interface StandardMultiSelectFieldProps {
   label: string;
-  description?: string;
   required?: boolean;
   popularOptions?: readonly string[];
   options: readonly string[];
@@ -47,7 +46,6 @@ interface StandardMultiSelectFieldProps {
 
 function StandardMultiSelectField({
   label,
-  description,
   required = false,
   popularOptions,
   options,
@@ -78,25 +76,19 @@ function StandardMultiSelectField({
 
   const normalizedQuery = normalizeTurkishSearch(searchQuery);
 
-  const filteredPopularOptions = useMemo(() => {
-    if (!popularOptions) return [];
-    if (!normalizedQuery) return popularOptions;
-    return popularOptions.filter((opt) =>
-      normalizeTurkishSearch(opt).includes(normalizedQuery)
-    );
-  }, [popularOptions, normalizedQuery]);
-
-  const filteredAllOptions = useMemo(() => {
+  // Combined options list (popular first, then A-Z, without explicit text headers)
+  const sortedAndFilteredOptions = useMemo(() => {
+    let combined: string[] = [];
     if (popularOptions && popularOptions.length > 0) {
       const popularSet = new Set(popularOptions);
-      const nonPopular = options.filter((opt) => !popularSet.has(opt));
-      if (!normalizedQuery) return nonPopular;
-      return nonPopular.filter((opt) =>
-        normalizeTurkishSearch(opt).includes(normalizedQuery)
-      );
+      const remaining = options.filter((opt) => !popularSet.has(opt));
+      combined = [...popularOptions, ...remaining];
+    } else {
+      combined = [...options];
     }
-    if (!normalizedQuery) return options;
-    return options.filter((opt) =>
+
+    if (!normalizedQuery) return combined;
+    return combined.filter((opt) =>
       normalizeTurkishSearch(opt).includes(normalizedQuery)
     );
   }, [options, popularOptions, normalizedQuery]);
@@ -109,42 +101,36 @@ function StandardMultiSelectField({
 
   return (
     <div ref={dropdownRef} className="space-y-1.5">
-      {/* Standard Label */}
+      {/* Label (Clean without description) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Label className="text-sm font-semibold text-foreground">
+          <Label className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
             {label}
             {required && <span className="text-rose-500 font-bold ml-1">*</span>}
           </Label>
           {hasSelections && (
-            <Badge className="bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30 text-[11px] font-semibold px-2 py-0.2">
-              {selectedInField.length} seçili
+            <Badge className="bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30 text-[11px] font-semibold px-1.5 py-0">
+              {selectedInField.length}
             </Badge>
           )}
         </div>
       </div>
 
-      {description && (
-        <p className="text-xs text-muted-foreground leading-normal line-clamp-1">
-          {description}
-        </p>
-      )}
-
-      {/* Standard Select Trigger */}
+      {/* Compact Combobox Trigger */}
       <div className="relative">
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
           className={cn(
-            'flex h-11 min-h-[42px] w-full items-center justify-between rounded-xl border border-input bg-card px-3.5 py-2 text-sm font-medium ring-offset-background transition-all text-left select-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500',
+            'flex h-10 w-full items-center justify-between rounded-xl border border-input bg-card px-3 py-2 text-xs sm:text-sm font-medium ring-offset-background transition-all text-left select-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500',
             isOpen && 'border-amber-500 ring-2 ring-amber-500/20',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
           <span className={cn('truncate', !hasSelections && 'text-muted-foreground font-normal')}>
             {hasSelections
-              ? `${selectedInField.length} seçenek seçildi`
+              ? `${selectedInField.length} ortaklık türü seçildi`
               : placeholder}
           </span>
           <ChevronDown
@@ -157,7 +143,7 @@ function StandardMultiSelectField({
 
         {/* Standard Select Dropdown Content */}
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-80 w-full min-w-[260px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card animate-in fade-in-0 zoom-in-95">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-72 w-full min-w-[240px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card animate-in fade-in-0 zoom-in-95">
             {/* Quick Search Header */}
             <div className="p-2 border-b border-border/60 bg-muted/20 sticky top-0 z-10">
               <div className="relative">
@@ -182,69 +168,30 @@ function StandardMultiSelectField({
               </div>
             </div>
 
-            {/* Select Options List */}
-            <div className="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
-              {/* Popular Options Section */}
-              {filteredPopularOptions.length > 0 && (
-                <div className="space-y-0.5 pb-1">
-                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                    En Popüler Seçenekler
+            {/* Seamless Options List (Popular first + A-Z, no header labels) */}
+            <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+              {sortedAndFilteredOptions.map((option) => {
+                const isChecked = selectedSet.has(option);
+                return (
+                  <div
+                    key={option}
+                    onClick={() => onToggle(option)}
+                    className={cn(
+                      'flex items-center justify-between px-3 py-2 text-xs sm:text-sm font-medium rounded-lg cursor-pointer transition-colors select-none',
+                      isChecked
+                        ? 'bg-amber-500/10 text-amber-950 dark:text-amber-200 font-semibold'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    )}
+                  >
+                    <span className="leading-snug">{option}</span>
+                    {isChecked && (
+                      <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 ml-2" />
+                    )}
                   </div>
-                  {filteredPopularOptions.map((option) => {
-                    const isChecked = selectedSet.has(option);
-                    return (
-                      <div
-                        key={option}
-                        onClick={() => onToggle(option)}
-                        className={cn(
-                          'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors select-none',
-                          isChecked
-                            ? 'bg-amber-500/10 text-amber-950 dark:text-amber-200 font-semibold'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        )}
-                      >
-                        <span className="leading-snug">{option}</span>
-                        {isChecked && (
-                          <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 ml-2" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                );
+              })}
 
-              {/* All / A-Z Options Section */}
-              {filteredAllOptions.length > 0 && (
-                <div className="space-y-0.5 pt-1 border-t border-border/40">
-                  {popularOptions && popularOptions.length > 0 && (
-                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Tüm Seçenekler (A-Z)
-                    </div>
-                  )}
-                  {filteredAllOptions.map((option) => {
-                    const isChecked = selectedSet.has(option);
-                    return (
-                      <div
-                        key={option}
-                        onClick={() => onToggle(option)}
-                        className={cn(
-                          'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors select-none',
-                          isChecked
-                            ? 'bg-amber-500/10 text-amber-950 dark:text-amber-200 font-semibold'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        )}
-                      >
-                        <span className="leading-snug">{option}</span>
-                        {isChecked && (
-                          <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 ml-2" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {filteredPopularOptions.length === 0 && filteredAllOptions.length === 0 && (
+              {sortedAndFilteredOptions.length === 0 && (
                 <div className="py-4 text-center text-xs text-muted-foreground">
                   &ldquo;{searchQuery}&rdquo; bulunamadı.
                 </div>
@@ -260,7 +207,7 @@ function StandardMultiSelectField({
           {selectedInField.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all"
             >
               <span>{item}</span>
               {!disabled && (
@@ -399,19 +346,25 @@ export function FounderPartnershipTypeStep({
     });
   }
 
+  const managementCategory = PARTNERSHIP_TYPE_CATEGORIES[0];
+  const technicalCategory = PARTNERSHIP_TYPE_CATEGORIES[1];
+  const investmentCategory = PARTNERSHIP_TYPE_CATEGORIES[2];
+  const physicalCategory = PARTNERSHIP_TYPE_CATEGORIES[3];
+
   return (
     <div className="space-y-6">
-      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (Standart 2-Kolon Form Grid Yapısı) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
+      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (TEK ÇERÇEVE İÇİNDE & ORTA DİKEY ÇİZGİLİ) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs dark:border-border dark:bg-card/40 space-y-4">
+        {/* Çerçeve Başlığı */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-3 border-b border-border/70">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-foreground">
+              <h3 className="text-base font-bold text-slate-900 dark:text-foreground">
                 Ortaklık Türleri
               </h3>
               <span className="text-rose-500 font-bold">*</span>
               {totalPartnershipSelectedCount > 0 && (
-                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.5">
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.2">
                   {totalPartnershipSelectedCount} seçili
                 </Badge>
               )}
@@ -422,32 +375,65 @@ export function FounderPartnershipTypeStep({
           </div>
         </div>
 
-        {/* Standart 2-Kolonlu Form Alanları */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {PARTNERSHIP_TYPE_CATEGORIES.map((category) => (
+        {/* 4 Ortaklık Türü (Sol ve Sağ Kolon Arasında Dikey Çizgi) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-0">
+          {/* Sol Kolon */}
+          <div className="space-y-4 md:pr-5">
             <StandardMultiSelectField
-              key={category.id}
-              label={category.title}
-              description={category.description}
-              popularOptions={category.popularOptions}
-              options={category.options}
+              label={managementCategory.title}
+              popularOptions={managementCategory.popularOptions}
+              options={managementCategory.options}
               selectedSet={selectedPartnershipSet}
               onToggle={togglePartnershipType}
               onRemove={removePartnershipType}
               placeholder="Ortaklık türü seçin"
               disabled={disabled}
             />
-          ))}
+
+            <StandardMultiSelectField
+              label={investmentCategory.title}
+              popularOptions={investmentCategory.popularOptions}
+              options={investmentCategory.options}
+              selectedSet={selectedPartnershipSet}
+              onToggle={togglePartnershipType}
+              onRemove={removePartnershipType}
+              placeholder="Ortaklık türü seçin"
+              disabled={disabled}
+            />
+          </div>
+
+          {/* Sağ Kolon (Solunda Dikey Çizgi) */}
+          <div className="space-y-4 md:border-l md:border-slate-200/80 md:pl-5 dark:md:border-border/60">
+            <StandardMultiSelectField
+              label={technicalCategory.title}
+              popularOptions={technicalCategory.popularOptions}
+              options={technicalCategory.options}
+              selectedSet={selectedPartnershipSet}
+              onToggle={togglePartnershipType}
+              onRemove={removePartnershipType}
+              placeholder="Ortaklık türü seçin"
+              disabled={disabled}
+            />
+
+            <StandardMultiSelectField
+              label={physicalCategory.title}
+              popularOptions={physicalCategory.popularOptions}
+              options={physicalCategory.options}
+              selectedSet={selectedPartnershipSet}
+              onToggle={togglePartnershipType}
+              onRemove={removePartnershipType}
+              placeholder="Ortaklık türü seçin"
+              disabled={disabled}
+            />
+          </div>
         </div>
 
-        {/* Özel Ortaklık Türü Ekleme (Smart Custom Selector) */}
-        <div className="pt-1">
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3.5 dark:border-border dark:bg-card/50 space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="custom-partnership-type-selector" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
-                Özel / Farklı Ortaklık Türü Ekle (İsteğe Bağlı)
-              </Label>
-            </div>
+        {/* 5. Alan: Özel / Farklı Ortaklık Türü (Çerçeve İçi 5. Combobox/Seçici Alanı) */}
+        <div className="pt-3 border-t border-border/60">
+          <div className="space-y-1.5">
+            <Label htmlFor="custom-partnership-type-selector" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
+              Özel / Farklı Ortaklık Türü Belirtin
+            </Label>
             <SmartCustomSelector
               id="custom-partnership-type-selector"
               domain="partnership-types"
@@ -457,7 +443,7 @@ export function FounderPartnershipTypeStep({
               onChange={handleCustomPartnershipChange}
               placeholder="Örn: E-Ticaret Ortağı, Fabrika Ortağı, Yatırımcı..."
               searchPlaceholder="Ortaklık türü ara veya kendin yaz..."
-              helperText="Kategorilerde bulamadığınız özel ortaklık modelinizi yazıp Enter'a basarak ekleyebilirsiniz."
+              helperText="Listede yer almayan özel ortaklık modelinizi yazıp Enter'a basarak ekleyebilirsiniz."
               disabled={disabled}
             />
           </div>
@@ -470,16 +456,17 @@ export function FounderPartnershipTypeStep({
         )}
       </div>
 
-      {/* 2. BÖLÜM: ARANAN UZMANLIKLAR (Standart 2-Kolon Form Yapısı) */}
-      <div className="space-y-4 pt-2">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
+      {/* 2. BÖLÜM: ARANAN UZMANLIKLAR (TEK ÇERÇEVE İÇİNDE & ORTA DİKEY ÇİZGİLİ) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs dark:border-border dark:bg-card/40 space-y-4">
+        {/* Çerçeve Başlığı */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-3 border-b border-border/70">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-foreground">
+              <h3 className="text-base font-bold text-slate-900 dark:text-foreground">
                 Aranan Uzmanlıklar
               </h3>
               {totalExpertiseSelectedCount > 0 && (
-                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.5">
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.2">
                   {totalExpertiseSelectedCount} seçili
                 </Badge>
               )}
@@ -490,25 +477,26 @@ export function FounderPartnershipTypeStep({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          <StandardMultiSelectField
-            label="Uzmanlık ve Yetkinlik Alanları"
-            description="Teknik, operasyonel, pazarlama veya yönetsel uzmanlıklar"
-            options={CANONICAL_PARTNER_EXPERTISE_OPTIONS}
-            selectedSet={selectedExpertiseSet}
-            onToggle={toggleExpertise}
-            onRemove={removeExpertise}
-            placeholder="Uzmanlık alanı seçin"
-            disabled={disabled}
-          />
+        {/* 2 Alan (Sol ve Sağ Arasında Dikey Çizgi) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-0">
+          {/* Sol Kolon: Uzmanlık ve Yetkinlik Alanları */}
+          <div className="md:pr-5">
+            <StandardMultiSelectField
+              label="Uzmanlık ve Yetkinlik Alanları"
+              options={CANONICAL_PARTNER_EXPERTISE_OPTIONS}
+              selectedSet={selectedExpertiseSet}
+              onToggle={toggleExpertise}
+              onRemove={removeExpertise}
+              placeholder="Uzmanlık alanı seçin"
+              disabled={disabled}
+            />
+          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="custom-expertise-selector" className="text-sm font-semibold text-foreground">
+          {/* Sağ Kolon: Özel Uzmanlık / Yetkinlik Belirtin (Solunda Dikey Çizgi) */}
+          <div className="space-y-1.5 md:border-l md:border-slate-200/80 md:pl-5 dark:md:border-border/60">
+            <Label htmlFor="custom-expertise-selector" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
               Özel Uzmanlık / Yetkinlik Belirtin
             </Label>
-            <p className="text-xs text-muted-foreground leading-normal line-clamp-1">
-              Listede olmayan özel bir uzmanlık alanı yazıp ekleyin
-            </p>
             <SmartCustomSelector
               id="custom-expertise-selector"
               domain="partner-expertise"
