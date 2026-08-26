@@ -233,16 +233,17 @@ export function CareerMultiSelect({
             className={cn('text-xs font-semibold hover:underline cursor-pointer transition-colors', theme.action)}
             onClick={() => {
               const nonManual = options.filter((o) => !isManualCareerOption(o));
-              const allSelected = nonManual.length > 0 && nonManual.every((o) => selected.includes(o));
-              if (allSelected) {
-                onChange(selected.filter((s) => !nonManual.includes(s)));
+              const topSuggestions = nonManual.slice(0, 3);
+              const isTopSelected = topSuggestions.length > 0 && topSuggestions.every((o) => selected.includes(o));
+              if (isTopSelected) {
+                onChange(selected.filter((s) => !topSuggestions.includes(s)));
               } else {
-                onChange([...new Set([...selected, ...nonManual])]);
+                onChange([...new Set([...selected, ...topSuggestions])]);
               }
             }}
           >
-            {options.filter((o) => !isManualCareerOption(o)).length > 0 &&
-            options.filter((o) => !isManualCareerOption(o)).every((o) => selected.includes(o))
+            {options.filter((o) => !isManualCareerOption(o)).slice(0, 3).length > 0 &&
+            options.filter((o) => !isManualCareerOption(o)).slice(0, 3).every((o) => selected.includes(o))
               ? 'Seçimi Temizle'
               : 'Önerilenleri Ekle'}
           </button>

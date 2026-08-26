@@ -1,7 +1,4 @@
-﻿import {
-  ALL_PARTNERSHIP_TYPES,
-  PARTNERSHIP_TYPE_CATEGORIES,
-} from '@/features/listings/config/listing-field-options';
+﻿import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
 import { normalizeTurkishSearch } from '@/features/shared/services/set-matching.service';
 
 export interface FounderSuggestionContext {
@@ -19,17 +16,53 @@ export interface FounderSuggestionsResult {
   tools: string[];
 }
 
-/** Sektör bazlı akıllı kütüphane haritası */
-const SECTOR_FOUNDER_PROFILES: Record<
-  string,
-  {
-    partnershipTypes: string[];
-    professionalSkills: string[];
-    technicalSkills: string[];
-    tools: string[];
-  }
-> = {
-  // 1. Yazılım / SaaS / Teknoloji / Yapay Zeka
+interface SectorProfile {
+  partnershipTypes: string[];
+  professionalSkills: string[];
+  technicalSkills: string[];
+  tools: string[];
+}
+
+const SECTOR_PROFILES: Record<string, SectorProfile> = {
+  // 1. Sağlık / Sağlık Teknolojisi / Medikal / Biyoteknoloji
+  health: {
+    partnershipTypes: [
+      'Yönetim Ortağı',
+      'İşletme Ortağı',
+      'Teknik Ortak (CTO)',
+      'Biyoteknoloji ve Sağlık Teknolojisi Ortağı',
+      'Yazılım ve Sistem Geliştirme Ortağı',
+      'Hukuk, KVKK ve Regülasyon Ortağı',
+      'Melek Yatırımcı (Angel Investor)',
+      'Stratejik Yatırımcı (Sektörel Güç)',
+    ],
+    professionalSkills: [
+      'Sağlık Sektörü ve Klinik Süreç Yönetimi',
+      'Medikal Regülasyon ve CE / FDA / Sağlık Bakanlığı Onayları',
+      'B2B Hastane ve Klinik Satış / İş Geliştirme',
+      'KVKK ve Sağlık Verisi Gizliliği Yönetimi',
+      'Yatırımcı İlişkileri ve Sağlık Fonları',
+      'Ürün Yönetimi (HealthTech CPO)',
+    ],
+    technicalSkills: [
+      'Sağlık Bilişimi ve HL7 / FHIR Entegrasyonu',
+      'Biyomedikal Veri Analizi ve AI Tanı Modelleri',
+      'Medikal Cihaz ve Gömülü Sistem Yazılımı',
+      'Bulut Mimarisi ve HIPAA / KVKK Uyumlu Altyapı',
+      'Teletıp ve Mobil Sağlık Uygulama Geliştirme',
+      'Görüntü İşleme ve Radyoloji AI',
+    ],
+    tools: [
+      'Python / PyTorch (Medikal AI)',
+      'PostgreSQL / HL7 FHIR',
+      'AWS HealthLake / GCP Healthcare',
+      'Docker / Kubernetes',
+      'Figma (Medikal UI/UX)',
+      'Jira / Confluence',
+    ],
+  },
+
+  // 2. Yazılım / SaaS / Yapay Zeka / Derin Teknoloji
   tech: {
     partnershipTypes: [
       'Teknik Ortak (CTO)',
@@ -37,55 +70,38 @@ const SECTOR_FOUNDER_PROFILES: Record<
       'Pazarlama ve Büyüme Ortağı (Growth / CMO)',
       'Ürün Yönetimi Ortağı (CPO)',
       'Kurucu Ortak (Co-Founder)',
-      'Melek Yatırımcı (Angel Investor)',
       'Yapay Zeka ve Makine Öğrenimi Ortağı (AI/ML)',
+      'Melek Yatırımcı (Angel Investor)',
       'DevOps ve Bulut Altyapı Ortağı',
-      'Siber Güvenlik ve Ağ Güvenliği Ortağı',
-      'Tasarım ve UI / UX Ortağı',
-      'Satış ve B2B İş Geliştirme Ortağı',
-      'Finans ve Muhasebe Ortağı (CFO)',
     ],
     professionalSkills: [
       'Ürün Yönetimi (CPO)',
       'Büyüme Pazarlaması (Growth)',
-      'B2B Satış ve İş Geliştirme',
+      'B2B Satış ve Kurumsal Müşteri Kazanımı',
       'UI / UX Tasarımı ve Kullanıcı Deneyimi',
-      'Yatırımcı İlişkileri ve Sunum (Pitching)',
-      'Müşteri Başarısı (Customer Success)',
-      'Dijital Pazarlama ve SEO / SEM',
-      'Agile / Scrum Proje Yönetimi',
-      'Hukuk, KVKK ve Sözleşme Yönetimi',
-      'Finansal Modelleme ve Birim Ekonomi (Unit Economics)',
+      'Yatırımcı Sunumu ve Fonlama (Pitching)',
+      'Birim Ekonomi ve MRR / ARR Optimizasyonu',
     ],
     technicalSkills: [
-      'Full-Stack Web Geliştirme',
-      'Mobil Uygulama Geliştirme (iOS / Android)',
-      'Yapay Zeka ve Makine Öğrenimi (AI / ML / LLM)',
-      'Bulut Mimarisi ve DevOps (AWS / GCP / Docker)',
-      'Sistem ve Veritabanı Mimarisi (PostgreSQL / Redis)',
-      'Mikroservis ve REST / GraphQL API Tasarımı',
+      'Full-Stack Web Geliştirme (Next.js / Node.js)',
+      'Mobil Uygulama Geliştirme (React Native / Flutter)',
+      'Yapay Zeka, LLM ve Model Eğitimi',
+      'DevOps, CI/CD ve Bulut Mimarisi (AWS / Docker)',
+      'Sistem Mimarisi ve Mikroservisler',
       'Siber Güvenlik ve Veri Gizliliği',
-      'Veri Analitiği ve Büyük Veri',
-      'Ödeme Sistemleri Entegrasyonu (Stripe / İyzico)',
-      'CI / CD Süreçleri ve Otomasyon',
     ],
     tools: [
       'Next.js / React',
-      'Node.js / TypeScript',
-      'Python / FastAPI',
-      'PostgreSQL',
+      'Node.js / Python',
+      'PostgreSQL / Supabase',
       'Amazon Web Services (AWS)',
-      'Google Cloud Platform (GCP)',
       'Docker / Kubernetes',
       'Figma',
-      'Jira / Linear',
-      'Git / GitHub',
       'Stripe / İyzico',
-      'Supabase / Firebase',
     ],
   },
 
-  // 2. E-Ticaret / Perakende / Pazar Yeri
+  // 3. E-Ticaret / Perakende / Pazar Yeri / Moda
   ecommerce: {
     partnershipTypes: [
       'E-Ticaret ve Pazar Yeri Operasyon Ortağı',
@@ -95,46 +111,35 @@ const SECTOR_FOUNDER_PROFILES: Record<
       'Sermaye Ortağı (Sessiz / Finansal Ortak)',
       'Depo ve Lojistik Alanı Sağlayıcı Ortak',
       'Satın Alma ve Tedarik Operasyon Ortağı',
-      'İhracat ve Uluslararası Pazarlar Ortağı',
-      'Fotoğraf, Video ve Prodüksiyon Ortağı',
       'İşletme Ortağı',
     ],
     professionalSkills: [
-      'E-Ticaret Operasyon Yönetimi',
+      'E-Ticaret Operasyon ve Sipariş Yönetimi',
       'Performans Pazarlaması (Meta Ads / Google Ads)',
-      'Tedarikçi ve Satın Alma Yönetimi',
-      'Pazar Yeri Yönetimi (Trendyol / Hepsiburada / Amazon)',
+      'Pazar Yeri Yönetimi (Trendyol / Amazon / Hepsiburada)',
       'Dönüşüm Oranı Optimizasyonu (CRO)',
-      'Müşteri Hizmetleri ve İade Yönetimi',
-      'Stok ve Envanter Planlama',
-      'E-İhracat ve Mikro İhracat',
-      'Marka Konumlandırma ve Kreatif Strateji',
-      'Karlılık ve Marj Analizi',
+      'Tedarikçi Pazarlığı ve Envanter Planlama',
+      'Müşteri Deneyimi ve İade Süreçleri',
     ],
     technicalSkills: [
-      'E-Ticaret Altyapı Yönetimi (Shopify / WooCommerce)',
-      'Pazar Yeri ve ERP Entegrasyonları',
-      'Google Analytics 4 ve Tag Manager',
-      'E-Posta Pazarlama Otomasyonu (Klaviyo / Mailchimp)',
+      'Shopify / WooCommerce Altyapı Yönetimi',
+      'Pazar Yeri ve ERP API Entegrasyonları',
+      'Google Analytics 4 ve Dönüşüm Takibi',
+      'Klaviyo / E-Posta Pazarlama Otomasyonu',
       'SEO ve Ürün Sayfası Optimizasyonu',
-      'Katalog ve Feed Yönetimi',
-      'Ödeme ve Kargo API Entegrasyonları',
-      'Veri Analitiği ve Satış Raporlama',
+      'Katalog ve Feed Entegrasyonları',
     ],
     tools: [
       'Shopify',
-      'WooCommerce / WordPress',
-      'Meta Business Suite / Ads Manager',
+      'Meta Ads Manager',
       'Google Ads & GA4',
       'Trendyol / Amazon Satıcı Paneli',
       'Klaviyo',
-      'Canva / Photoshop',
-      'Excel / Google Sheets',
-      'Logo / Nebim / Ticimax',
+      'Logo / Nebim ERP',
     ],
   },
 
-  // 3. Restoran / Cafe / Gıda / Dark Kitchen
+  // 4. Restoran / Cafe / Gıda / Mutfak / Dark Kitchen
   food: {
     partnershipTypes: [
       'Restoran ve Cafe İşletme Ortağı',
@@ -145,87 +150,130 @@ const SECTOR_FOUNDER_PROFILES: Record<
       'Franchise ve Şube İşletme Ortağı',
       'Satın Alma ve Tedarik Operasyon Ortağı',
       'Ruhsat, Lisans ve İzin Sahibi Ortak',
-      'Pazarlama ve Büyüme Ortağı (Growth / CMO)',
-      'Yatırımcı Ortak (Mali Destek)',
     ],
     professionalSkills: [
       'Restoran ve Mutfak Operasyon Yönetimi',
-      'Gıda Hijyen, Kalite ve HACCP Standartları',
+      'Gıda Hijyen, HACCP ve Kalite Standartları',
       'Maliyet Muhasebesi (Food Cost / Cost Control)',
       'Menü Mühendisliği ve Reçete Standardizasyonu',
       'Şube ve Servis Ekibi Yönetimi',
       'Tedarikçi Pazarlığı ve Hammadde Yönetimi',
-      'Online Paket Servis Yönetimi (Yemeksepeti / Getir / Trendyol)',
-      'Franchise Sistemi Kurulumu',
-      'Müşteri Memnuniyeti ve Şikayet Yönetimi',
-      'Ruhsat ve Belediye Mevzuatı Takibi',
     ],
     technicalSkills: [
       'Restoran POS ve Sipariş Otomasyonu',
-      'Paket Servis Entegrasyonları',
-      'Stok ve Reçete Maliyet Takip Yazılımları',
-      'Sosyal Medya ve Yerel Dijital Reklamcılık',
-      'Google Haritalar ve Yorum Optimizasyonu',
-      'Gıda Güvenliği Denetim Protokolleri',
-      'Soğuk Zincir ve Depolama Standartları',
+      'Paket Servis Entegrasyonları (Getir / Yemeksepeti / Trendyol)',
+      'Stok ve Reçete Maliyet Takibi',
+      'Yerel Dijital Pazarlama ve Google Harita SEO',
+      'Gıda Güvenliği ve Soğuk Zincir Yönetimi',
     ],
     tools: [
-      'Restoran POS Sistemleri (Adisyo / SambaPOS / Simpra)',
-      'Yemeksepeti / GetirYemek / Trendyol Yemek Panelleri',
-      'Instagram / Meta Ads',
+      'Restoran POS Sistemleri (Adisyo / Simpra / SambaPOS)',
+      'Yemeksepeti / GetirYemek Panelleri',
+      'Meta / Instagram Reklamları',
       'Google İşletme Profili',
       'Excel / Reçete Maliyet Tabloları',
-      'Stok ve Sayım Programları',
     ],
   },
 
-  // 4. Üretim / Sanayi / Fabrika / Atölye
+  // 5. Üretim / Sanayi / Fabrika / Makine / Otomotiv
   manufacturing: {
     partnershipTypes: [
       'Fabrika ve Üretim Tesisi Sağlayıcı Ortak',
       'Endüstriyel Makine ve Ekipman Sağlayıcı Ortak',
       'Üretim ve Tesis Operasyon Ortağı',
       'Tedarik Zinciri ve Lojistik Yönetim Ortağı',
-      'Atölye ve İmalathane Alanı Sağlayıcı Ortak',
       'İhracat ve Uluslararası Pazarlar Ortağı',
       'Kalite ve Süreç Yönetimi Ortağı',
-      'Arsa, Arazi ve Gayrimenkul Sağlayıcı Ortak',
+      'Atölye ve İmalathane Alanı Sağlayıcı Ortak',
       'Sermaye Ortağı (Sessiz / Finansal Ortak)',
-      'Stratejik Yatırımcı (Sektörel Güç)',
     ],
     professionalSkills: [
       'Üretim Planlama ve Kapasite Yönetimi',
-      'Kalite Güvence ve ISO Standartları',
+      'Kalite Güvence ve ISO 9001 Standartları',
       'Yalın Üretim (Lean) ve 5S Metodolojisi',
       'Hammadde Satın Alma ve Tedarik Zinciri',
-      'İhracat Operasyonları ve Gümrük Mevzuatı',
-      'Tesis ve Fabrika Yönetimi',
+      'İhracat ve Gümrük Operasyonları',
       'İş Sağlığı ve Güvenliği (İSG)',
-      'B2B Endüstriyel Satış ve İhale Süreçleri',
-      'Maliyet Analizi ve Fire Azaltma',
-      'Ar-Ge ve Ürün Geliştirme Süreçleri',
     ],
     technicalSkills: [
       'CAD / CAM ve 3D Modelleme (SolidWorks / AutoCAD)',
-      'CNC ve Otomasyon Programlama',
-      'PLC ve SCADA Sistemleri',
-      'ERP ve Üretim Takip Yazılımları (SAP / Logo / IFS)',
+      'CNC ve Endüstriyel Otomasyon Programlama',
+      'ERP ve Üretim Takip Sistemleri (SAP / Logo)',
       'Teknik Çizim ve Tolerans Analizi',
-      'Kalıp ve Takım Tasarımı',
-      'Endüstriyel Bakım ve Onarım Planlama',
-      'CE ve Sanayi Tip Onay Belgelendirme',
+      'Bakım ve Onarım Planlama',
     ],
     tools: [
       'SolidWorks / AutoCAD',
       'SAP / Logo ERP',
-      'MS Excel (İleri Seviye Üretim Planlama)',
-      'Siemens / Schneider Otomasyon',
-      'CNC Kontrol Üniteleri',
-      'Teknik Dokümantasyon Yazılımları',
+      'MS Excel (İleri Düzey Planlama)',
+      'Siemens PLC / CNC Kontrol Sistemleri',
     ],
   },
 
-  // 5. Hizmet / Danışmanlık / Medya / Eğitim / Finans
+  // 6. Fintech / Finans / Bankacılık / Ödeme Sistemleri
+  fintech: {
+    partnershipTypes: [
+      'Finans ve Muhasebe Ortağı (CFO)',
+      'Hukuk, KVKK ve Regülasyon Ortağı',
+      'Teknik Ortak (CTO)',
+      'Yatırımcı Ortak (Mali Destek)',
+      'Stratejik Yatırımcı (Sektörel Güç)',
+      'Yazılım ve Sistem Geliştirme Ortağı',
+    ],
+    professionalSkills: [
+      'BDDK / TCMB / SPK Regülasyon ve Uyum Yönetimi',
+      'Finansal Modelleme ve Risk Yönetimi',
+      'Bankacılık ve Ödeme Kuruluşu Entegrasyonları',
+      'B2B Finansal Satış ve Kurumsal İş Birlikleri',
+      'Yatırımcı İlişkileri ve Sermaye Artırımı',
+    ],
+    technicalSkills: [
+      'Finansal Güvenlik, PCI-DSS ve Şifreleme',
+      'Ödeme Ağ Geçidi ve POS Entegrasyonları',
+      'Büyük Veri ve Dolandırıcılık (Fraud) Tespiti',
+      'Yüksek Frekanslı ve Güvenli Veritabanı Mimarisi',
+    ],
+    tools: [
+      'Stripe / İyzico / PayTR API',
+      'PostgreSQL / Redis',
+      'AWS KMS / Vault',
+      'Python (Finansal Analiz)',
+      'Figma',
+    ],
+  },
+
+  // 7. Oyun / Gaming / Espor / Simülasyon
+  gaming: {
+    partnershipTypes: [
+      'Oyun ve Simülasyon Geliştirme Ortağı',
+      'Teknik Ortak (CTO)',
+      'Tasarım ve UI / UX Ortağı',
+      'Pazarlama ve Büyüme Ortağı (Growth / CMO)',
+      'Melek Yatırımcı (Angel Investor)',
+      'Yazılım ve Sistem Geliştirme Ortağı',
+    ],
+    professionalSkills: [
+      'Oyun Tasarımı (Game Design) ve Mekanik Kurgusu',
+      'Monetizasyon (In-App Purchase / Ads) Stratejisi',
+      'Kullanıcı Kazanımı (UA) ve ASO',
+      'Yayıncı ve Influencer İlişkileri',
+    ],
+    technicalSkills: [
+      'Unity / Unreal Engine ile 2D / 3D Oyun Geliştirme',
+      '3D Modelleme, Rigging ve Animasyon (Blender / Maya)',
+      'Oyun Sunucu ve Çok Oyunculu (Multiplayer) Altyapı',
+      'Oyun Analitiği ve SDK Entegrasyonları',
+    ],
+    tools: [
+      'Unity / Unreal Engine',
+      'Blender / Maya',
+      'Photoshop / Spine 2D',
+      'AppsFlyer / GameAnalytics',
+      'Git / GitHub',
+    ],
+  },
+
+  // 8. Hizmet / Danışmanlık / Medya / İK / Genel
   service: {
     partnershipTypes: [
       'İşletme Ortağı',
@@ -235,43 +283,73 @@ const SECTOR_FOUNDER_PROFILES: Record<
       'Finans ve Muhasebe Ortağı (CFO)',
       'Hukuk, KVKK ve Regülasyon Ortağı',
       'Ofis ve Çalışma Alanı Sağlayıcı Ortak',
-      'Melek Yatırımcı (Angel Investor)',
-      'İletişim, Medya ve PR Ortağı',
-      'İnsan Kaynakları ve Yetenek Yönetimi Ortağı',
     ],
     professionalSkills: [
       'B2B Kurumsal Satış ve Müşteri Kazanımı',
-      'Stratejik Danışmanlık ve İş Geliştirme',
-      'Proje ve Hizmet Teslimat Yönetimi',
-      'Müşteri İlişkileri (Account Management)',
-      'İçerik Stratejisi ve Kurumsal İletişim',
-      'Eğitim ve Müfredat Geliştirme',
-      'Finansal Raporlama ve Bütçeleme',
-      'Sözleşme ve Hukuki Danışmanlık',
+      'Stratejik Danışmanlık ve Hizmet Teslimat Yönetimi',
+      'İçerik ve Kurumsal İletişim Stratejisi',
       'Ekip Kurma ve Yetenek Yönetimi',
+      'Müşteri İlişkileri (Account Management)',
     ],
     technicalSkills: [
       'CRM ve Satış Hattı Yönetimi (HubSpot / Salesforce)',
       'Dijital Pazarlama ve Lead Generation',
-      'Veri Analitiği ve Dashboard Oluşturma (PowerBI / Looker)',
-      'Sunum ve Teklif Hazırlama',
-      'LMS (Öğrenme Yönetim Sistemleri)',
-      'Video Prodüksiyon ve Canlı Yayın Altyapısı',
+      'Veri Analitiği ve Raporlama (PowerBI / Looker)',
+      'Teklif ve Sunum Hazırlama',
     ],
     tools: [
       'HubSpot / Salesforce',
-      'Notion / ClickUp / Asana',
-      'Zoom / Google Meet / Teams',
-      'PowerBI / Google Looker Studio',
-      'Canva / Keynote / PowerPoint',
-      'Slack / Discord',
+      'Notion / ClickUp',
+      'PowerBI / Looker Studio',
+      'Canva / PowerPoint',
+      'Zoom / Google Meet',
     ],
   },
 };
 
-/** Sektör metninden profil ailesini tespit eder */
-function detectSectorFamily(sectorText: string): 'tech' | 'ecommerce' | 'food' | 'manufacturing' | 'service' {
-  const s = normalizeTurkishSearch(sectorText || '');
+/** Sektör ve bağlam metninden en doğru profili tespit eder */
+function detectProfileKey(text: string): keyof typeof SECTOR_PROFILES {
+  const s = normalizeTurkishSearch(text || '');
+
+  // 1. Sağlık / Medikal / Biyoteknoloji
+  if (
+    s.includes('saglik') ||
+    s.includes('medikal') ||
+    s.includes('biyoteknoloji') ||
+    s.includes('klinik') ||
+    s.includes('hastane') ||
+    s.includes('ilac') ||
+    s.includes('doktor') ||
+    s.includes('hekim') ||
+    s.includes('dis') ||
+    s.includes('veteriner')
+  ) {
+    return 'health';
+  }
+
+  // 2. Fintech / Finans / Ödeme
+  if (
+    s.includes('fintech') ||
+    s.includes('finans') ||
+    s.includes('odeme') ||
+    s.includes('kripto') ||
+    s.includes('banka') ||
+    s.includes('sigorta')
+  ) {
+    return 'fintech';
+  }
+
+  // 3. Oyun / Gaming
+  if (
+    s.includes('oyun') ||
+    s.includes('gaming') ||
+    s.includes('espor') ||
+    s.includes('simulasyon')
+  ) {
+    return 'gaming';
+  }
+
+  // 4. Yazılım / SaaS / Yapay Zeka
   if (
     s.includes('yazilim') ||
     s.includes('saas') ||
@@ -281,12 +359,12 @@ function detectSectorFamily(sectorText: string): 'tech' | 'ecommerce' | 'food' |
     s.includes('bilgisayar') ||
     s.includes('mobil') ||
     s.includes('siber') ||
-    s.includes('oyun') ||
-    s.includes('fintech') ||
-    s.includes('biyoteknoloji')
+    s.includes('bilisim')
   ) {
     return 'tech';
   }
+
+  // 5. E-Ticaret / Perakende / Pazar Yeri
   if (
     s.includes('e-ticaret') ||
     s.includes('eticaret') ||
@@ -295,10 +373,13 @@ function detectSectorFamily(sectorText: string): 'tech' | 'ecommerce' | 'food' |
     s.includes('magaza') ||
     s.includes('ihracat') ||
     s.includes('tekstil') ||
-    s.includes('moda')
+    s.includes('moda') ||
+    s.includes('d2c')
   ) {
     return 'ecommerce';
   }
+
+  // 6. Gıda / Restoran / Cafe / Mutfak
   if (
     s.includes('gida') ||
     s.includes('restoran') ||
@@ -312,6 +393,8 @@ function detectSectorFamily(sectorText: string): 'tech' | 'ecommerce' | 'food' |
   ) {
     return 'food';
   }
+
+  // 7. Üretim / Sanayi / Fabrika / Makine
   if (
     s.includes('uretim') ||
     s.includes('sanayi') ||
@@ -326,47 +409,58 @@ function detectSectorFamily(sectorText: string): 'tech' | 'ecommerce' | 'food' |
   ) {
     return 'manufacturing';
   }
+
   return 'service';
 }
 
-/** 1. Adım bilgilerini analiz edip 2. Adım için dinamik öneriler üretir */
+/** 1. Sayfa seçimlerine göre 2. Sayfayı en yüksek hassasiyetle akıllı eşleştirir */
 export function resolveFounderSuggestions(context: FounderSuggestionContext): FounderSuggestionsResult {
-  const combinedContextText = [
+  const combinedText = [
     context.sector,
-    context.stage,
-    context.targetPartnerType,
     context.title,
     context.shortDescription,
+    context.targetPartnerType,
+    context.stage,
   ]
     .filter(Boolean)
     .join(' ');
 
-  const family = detectSectorFamily(combinedContextText);
-  const profile = SECTOR_FOUNDER_PROFILES[family] || SECTOR_FOUNDER_PROFILES.tech;
+  const profileKey = detectProfileKey(combinedText);
+  const profile = SECTOR_PROFILES[profileKey] || SECTOR_PROFILES.health;
 
-  // Aşamaya göre dinamik eklemeler
-  const stageNormalized = normalizeTurkishSearch(context.stage || '');
-  const stageExtraPartners: string[] = [];
+  // Aranan ortak tipi bazlı önceliklendirme
+  const partnerTypeNorm = normalizeTurkishSearch(context.targetPartnerType || '');
+  const prioritizedPartnershipTypes: string[] = [];
 
-  if (stageNormalized.includes('fikir') || stageNormalized.includes('mvp')) {
-    stageExtraPartners.push('Kurucu Ortak (Co-Founder)', 'Teknik Ortak (CTO)', 'Melek Yatırımcı (Angel Investor)');
-  } else if (stageNormalized.includes('faal') || stageNormalized.includes('buyume') || stageNormalized.includes('gelir')) {
-    stageExtraPartners.push('Stratejik Yatırımcı (Sektörel Güç)', 'Sermaye Ortağı (Sessiz / Finansal Ortak)', 'Satış ve B2B İş Geliştirme Ortağı');
+  if (partnerTypeNorm.includes('yonetim')) {
+    prioritizedPartnershipTypes.push('Yönetim Ortağı', 'İşletme Ortağı', 'Operasyon Ortağı (COO)');
+  } else if (partnerTypeNorm.includes('teknik') || partnerTypeNorm.includes('cto') || partnerTypeNorm.includes('yazilim')) {
+    prioritizedPartnershipTypes.push('Teknik Ortak (CTO)', 'Yazılım ve Sistem Geliştirme Ortağı');
+  } else if (partnerTypeNorm.includes('yatirim')) {
+    prioritizedPartnershipTypes.push('Yatırımcı Ortak (Mali Destek)', 'Melek Yatırımcı (Angel Investor)', 'Sermaye Ortağı (Sessiz / Finansal Ortak)');
+  } else if (partnerTypeNorm.includes('pazarlama') || partnerTypeNorm.includes('satis')) {
+    prioritizedPartnershipTypes.push('Pazarlama ve Büyüme Ortağı (Growth / CMO)', 'Satış ve B2B İş Geliştirme Ortağı');
+  } else if (partnerTypeNorm.includes('kurucu')) {
+    prioritizedPartnershipTypes.push('Kurucu Ortak (Co-Founder)', 'Genel Ortak (General Partner)');
   }
 
-  // Ortaklık türleri listesi (Önerilenler en başta, ardından tüm katalog)
-  const prioritizedPartnershipTypes = Array.from(
+  // Sadece en yakın 6-8 seçeneği birleştir ve sonuna MANUAL_OPTION ekle
+  const topPartnershipTypes = Array.from(
     new Set([
-      ...stageExtraPartners,
+      ...prioritizedPartnershipTypes,
       ...profile.partnershipTypes,
-      ...ALL_PARTNERSHIP_TYPES,
     ])
-  );
+  ).slice(0, 8);
+  topPartnershipTypes.push(MANUAL_OPTION);
+
+  const topProfSkills = [...profile.professionalSkills.slice(0, 6), MANUAL_OPTION];
+  const topTechSkills = [...profile.technicalSkills.slice(0, 6), MANUAL_OPTION];
+  const topTools = [...profile.tools.slice(0, 6), MANUAL_OPTION];
 
   return {
-    partnershipTypes: prioritizedPartnershipTypes,
-    professionalSkills: profile.professionalSkills,
-    technicalSkills: profile.technicalSkills,
-    tools: profile.tools,
+    partnershipTypes: topPartnershipTypes,
+    professionalSkills: topProfSkills,
+    technicalSkills: topTechSkills,
+    tools: topTools,
   };
 }
