@@ -176,7 +176,7 @@ export function normalizePunctuation(input: string): string {
     .replace(/\.{2}(?!\.)/g, '.')
     .replace(/,{2,}/g, ',')
     .replace(/\s+([,.;:!?])/g, '$1')
-    .replace(/([,.;:!?])(?!\s|$)/g, '$1 ')
+    .replace(/(?<!\d)([,.;:!?])(?!\s|$)|([;:!?])(?!\s|$)|([,.]\B)(?!\s|$)|(\.(?!\d|\s|$))|(,(?!\d|\s|$))/gu, (match) => `${match} `)
     .replace(/\s{2,}/g, ' ')
     .trim();
 }

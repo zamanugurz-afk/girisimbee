@@ -20,8 +20,8 @@ import {
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
 import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
-import type { PartnershipIntent } from '@/features/founders/partnership-intent';
-import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { buildBusinessTransferSummaryDraft } from '@/features/listings/lib/business-transfer-summary';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { pruneUnsupportedSectors } from '@/features/listings/config/business-type-sector-map';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
@@ -374,9 +374,19 @@ export function CategoryListingForm({
   partnershipIntent,
 }: CategoryListingFormProps) {
   const { user } = useAuth();
+  const isBusinessTransferBuy =
+    categoryId === CATEGORY_IDS.isletmeDevri &&
+    listingType.id === LISTING_TYPE_IDS.businessTransferBuyDefault;
+  const businessTransferIntent: 'sell' | 'buy' = isBusinessTransferBuy ? 'buy' : 'sell';
+
   const steps = useMemo(
-    () => getListingFormSteps(categoryId, { partnershipIntent }),
-    [categoryId, partnershipIntent],
+    () =>
+      getListingFormSteps(categoryId, {
+        partnershipIntent,
+        listingTypeId: listingType.id,
+        businessTransferIntent,
+      }),
+    [categoryId, partnershipIntent, listingType.id, businessTransferIntent],
   );
   const coreFieldLabels =
     categoryId === CATEGORY_IDS.ortakBul && partnershipIntent
@@ -606,6 +616,9 @@ export function CategoryListingForm({
     && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFounderSummaryStep =
     categoryId === CATEGORY_IDS.ortakBul
+    && Boolean(currentStep.coreFields?.includes('longDescription'));
+  const isBusinessTransferSummaryStep =
+    categoryId === CATEGORY_IDS.isletmeDevri
     && Boolean(currentStep.coreFields?.includes('longDescription'));
   const isFounderPartnershipTypeStep =
     categoryId === CATEGORY_IDS.ortakBul
@@ -858,28 +871,55 @@ export function CategoryListingForm({
       ];
     }
     if (categoryId === CATEGORY_IDS.isletmeDevri) {
+      const isBuy = isBusinessTransferBuy;
       const hasTitle = Boolean(core.title);
       const hasType = Boolean(mergedCustomFields.businessType || mergedCustomFields.preferredBusinessTypes);
       const hasPriceOrBudget = Boolean(mergedCustomFields.transferPrice || mergedCustomFields.budgetMax);
 
+      if (isBuy) {
+        return [
+          {
+            id: 'basics',
+            label: 'Devralma Hedefleri ve Tercihler',
+            isComplete: hasTitle && hasType,
+            isRequired: true,
+            stepIndex: 0,
+          },
+          {
+            id: 'financials',
+            label: 'Bütçe ve Deneyim',
+            isComplete: hasPriceOrBudget,
+            isRequired: true,
+            stepIndex: 1,
+          },
+          {
+            id: 'details',
+            label: 'Hedef Lokasyon ve Profil',
+            isComplete: Boolean(core.city || mergedCustomFields.city),
+            isRequired: true,
+            stepIndex: 2,
+          },
+        ];
+      }
+
       return [
         {
           id: 'basics',
-          label: 'İşletme Türü ve Sektör',
+          label: 'İşletme Bilgileri ve Türü',
           isComplete: hasTitle && hasType,
           isRequired: true,
           stepIndex: 0,
         },
         {
           id: 'financials',
-          label: 'Devir / Bütçe Koşulları',
+          label: 'Devir Koşulları ve Finansallar',
           isComplete: hasPriceOrBudget,
           isRequired: true,
           stepIndex: 1,
         },
         {
           id: 'details',
-          label: 'Lokasyon ve Devir Kapsamı',
+          label: 'Lokasyon ve Tanıtım',
           isComplete: Boolean(core.city || mergedCustomFields.city),
           isRequired: true,
           stepIndex: 2,
@@ -887,7 +927,7 @@ export function CategoryListingForm({
       ];
     }
     return [];
-  }, [categoryId, mergedCustomFields, core.title, core.shortDescription, core.longDescription, core.city]);
+  }, [categoryId, isBusinessTransferBuy, mergedCustomFields, core.title, core.shortDescription, core.longDescription, core.city]);
   const lastAutoCareerSummaryRef = useRef('');
   const lastAutoInvestmentSummaryRef = useRef('');
   const lastAutoInvestmentShortRef = useRef('');
@@ -895,6 +935,8 @@ export function CategoryListingForm({
   const lastAutoInvestorShortRef = useRef('');
   const lastAutoFounderSummaryRef = useRef('');
   const lastAutoFounderShortRef = useRef('');
+  const lastAutoBusinessTransferSummaryRef = useRef('');
+  const lastAutoBusinessTransferShortRef = useRef('');
   const careerSummaryDraft = useMemo(() => {
     if (categoryId === CATEGORY_IDS.iseAl) {
       return buildHiringSummaryDraft({
@@ -1146,6 +1188,95 @@ export function CategoryListingForm({
       shortDescription: founderSummaryDraft.shortDescription,
     }));
   }, [founderSummaryDraft]);
+
+  const businessTransferSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.isletmeDevri) return null;
+    return buildBusinessTransferSummaryDraft({
+      intent: businessTransferIntent,
+      title: core.title,
+      businessName: String(mergedCustomFields.businessName || ''),
+      businessType: String(mergedCustomFields.businessType || ''),
+      businessTypes: mergedCustomFields.preferredBusinessTypes as string[] | string,
+      sector: String(mergedCustomFields.sector || ''),
+      sectors: mergedCustomFields.preferredSectors as string[] | string,
+      operationalStatus: String(mergedCustomFields.operationalStatus || ''),
+      operationalPreference: String(mergedCustomFields.operationalPreference || ''),
+      transferPrice: mergedCustomFields.transferPrice as number | string,
+      budgetMax: mergedCustomFields.budgetMax as number | string,
+      monthlyRent: (mergedCustomFields.monthlyRent || mergedCustomFields.monthlyRentMax) as number | string,
+      businessAge: mergedCustomFields.businessAge as number | string,
+      employeeCount: mergedCustomFields.employeeCount as number | string,
+      transferScope: mergedCustomFields.transferScope as string[] | string,
+      reasonForTransfer: String(mergedCustomFields.reasonForTransfer || ''),
+      postTransferSupport: String(mergedCustomFields.postTransferSupport || ''),
+      financialSummary: String(mergedCustomFields.financialSummary || ''),
+      relevantExperience: String(mergedCustomFields.relevantExperience || ''),
+      city: core.city,
+      district: core.district,
+    });
+  }, [
+    categoryId,
+    businessTransferIntent,
+    core.city,
+    core.district,
+    core.title,
+    mergedCustomFields.budgetMax,
+    mergedCustomFields.businessAge,
+    mergedCustomFields.businessName,
+    mergedCustomFields.businessType,
+    mergedCustomFields.employeeCount,
+    mergedCustomFields.financialSummary,
+    mergedCustomFields.monthlyRent,
+    mergedCustomFields.monthlyRentMax,
+    mergedCustomFields.operationalPreference,
+    mergedCustomFields.operationalStatus,
+    mergedCustomFields.postTransferSupport,
+    mergedCustomFields.preferredBusinessTypes,
+    mergedCustomFields.preferredSectors,
+    mergedCustomFields.reasonForTransfer,
+    mergedCustomFields.relevantExperience,
+    mergedCustomFields.sector,
+    mergedCustomFields.transferPrice,
+    mergedCustomFields.transferScope,
+  ]);
+
+  useEffect(() => {
+    if (!isBusinessTransferSummaryStep || !businessTransferSummaryDraft) return;
+    const currentLong = core.longDescription;
+    const currentShort = core.shortDescription;
+    const longUntouched =
+      !currentLong || currentLong === lastAutoBusinessTransferSummaryRef.current;
+    const shortUntouched =
+      !currentShort || currentShort === lastAutoBusinessTransferShortRef.current;
+    if (!longUntouched && !shortUntouched) return;
+    lastAutoBusinessTransferSummaryRef.current = businessTransferSummaryDraft.longDescription;
+    lastAutoBusinessTransferShortRef.current = businessTransferSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: longUntouched
+        ? businessTransferSummaryDraft.longDescription
+        : prev.longDescription,
+      shortDescription: shortUntouched
+        ? businessTransferSummaryDraft.shortDescription
+        : prev.shortDescription,
+    }));
+  }, [
+    core.longDescription,
+    core.shortDescription,
+    businessTransferSummaryDraft,
+    isBusinessTransferSummaryStep,
+  ]);
+
+  const applyBusinessTransferSummaryDraft = useCallback(() => {
+    if (!businessTransferSummaryDraft) return;
+    lastAutoBusinessTransferSummaryRef.current = businessTransferSummaryDraft.longDescription;
+    lastAutoBusinessTransferShortRef.current = businessTransferSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: businessTransferSummaryDraft.longDescription,
+      shortDescription: businessTransferSummaryDraft.shortDescription,
+    }));
+  }, [businessTransferSummaryDraft]);
 
   const formValues = useMemo(
     (): ListingFormValues => ({
@@ -3048,7 +3179,7 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep || isInvestorSummaryStep || isFounderSummaryStep ? (
+              {isCareerSummaryStep || isInvestorSummaryStep || isFounderSummaryStep || isBusinessTransferSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
@@ -3058,6 +3189,10 @@ export function CategoryListingForm({
                         ? 'Yapılandırılmış kriterlerden bir yatırımcı profili hazırladık. Kullanabilir veya kendiniz yazabilirsiniz.'
                       : categoryId === CATEGORY_IDS.ortakBul
                         ? 'Girişim ve aradığınız ortak kriterlerinize göre otomatik bir açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.'
+                      : categoryId === CATEGORY_IDS.isletmeDevri
+                        ? (businessTransferIntent === 'buy'
+                            ? 'Devralma hedefleriniz ve bütçenize göre otomatik bir alıcı açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.'
+                            : 'İşletme, finansal ve devir kapsamı bilgilerinize göre otomatik bir devreden açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.')
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
@@ -3071,7 +3206,9 @@ export function CategoryListingForm({
                         ? applyInvestorSummaryDraft
                         : isFounderSummaryStep
                           ? applyFounderSummaryDraft
-                          : applyCareerSummaryDraft
+                          : isBusinessTransferSummaryStep
+                            ? applyBusinessTransferSummaryDraft
+                            : applyCareerSummaryDraft
                     }
                   >
                     Özeti yeniden oluştur

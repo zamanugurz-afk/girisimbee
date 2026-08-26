@@ -203,16 +203,9 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const VALID_DOUBLE_CONSONANT_STEMS = new Set([
-  'madde', 'cadde', 'ciddi', 'kuvvet', 'şiddet', 'millet', 'cennet', 'lezzet',
-  'hürriyet', 'bakkal', 'tüccar', 'hassas', 'şeffaf', 'ittifak', 'istatistik',
-  'teşekkür', 'dikkat', 'hakkı', 'hissi', 'zammı', 'affı', 'sırrı', 'hattı',
-  'tıbbı', 'reddi', 'hazzı', 'zannı', 'külli', 'elli', 'belli', 'maddi',
-]);
-
 /**
- * Trim stutter / double consonants at the end of words or inside Turkish suffixes.
- * E.g. "aşamasındadd" → "aşamasında", "firmamızz" → "firmamız", "girisimimizze" → "girisimimize".
+ * Trim stutter / triple+ consonants at the end of words or inside Turkish suffixes.
+ * E.g. "aşamasındadd" → "aşamasında", "firmamızzz" → "firmamız", "girisimimizzeee" → "girisimimize".
  */
 export function fixTurkishConsonantStutters(input: string): string {
   if (!input) return input;
@@ -225,24 +218,18 @@ export function fixTurkishConsonantStutters(input: string): string {
     '$1',
   );
 
-  // 2. Double consonants before single vowel suffix (e.g. girisimimizze → girisimimize, olanlarra → olanlara)
+  // 2. Possessive/plural suffix consonant stutters before vowel (e.g. girisimimizze → girisimimize, olanlarra → olanlara)
   text = text.replace(
-    /(\p{L}{2,})([bcçdfgğhjklmnprsştvyz])\2([aeıioöuü])\b/giu,
-    (match, prefix, char, vowel) => {
-      const lower = match.toLocaleLowerCase('tr-TR');
-      if (VALID_DOUBLE_CONSONANT_STEMS.has(lower)) return match;
-      return `${prefix}${char}${vowel}`;
-    },
+    /(\p{L}+(?:imi|ımı|umu|ümü|ini|ını|unu|ünü))z{2}([aeıioöuü])\b/giu,
+    '$1z$2',
+  );
+  text = text.replace(
+    /(\p{L}+(?:le|la))r{2}([aeıioöuü])\b/giu,
+    '$1r$2',
   );
 
-  // 3. Trailing double consonant at end of word (e.g. firmamızz → firmamız, yatırımm → yatırım, içinn → için)
-  text = text.replace(
-    /(\p{L}+[aeıioöuü][bcçdfgğhjklmnprsştvyz]*?)([bcçdfgğhjklmnprsştvyz])\2+\b/giu,
-    (full, stem: string, consonant: string) => {
-      if (stem.length < 2) return full;
-      return `${stem}${consonant}`;
-    },
-  );
+  // 3. Triple or more repeated consonants anywhere (e.g. firmamızzz → firmamız, içinnn → için)
+  text = text.replace(/([bcçdfgğhjklmnprsştvyz])\1{2,}/giu, '$1');
 
   return text;
 }
@@ -270,7 +257,7 @@ export function normalizeTurkishTypography(input: string): string {
     .replace(/[\u201C\u201D\u201E\u2033]/g, '"')
     .replace(/[\u2013\u2014]/g, '-')
     .replace(/\s+([,.;:!?])/g, '$1')
-    .replace(/([,.;:!?])(?!\s|$)/g, '$1 ')
+    .replace(/(?<!\d)([,.;:!?])(?!\s|$)|([;:!?])(?!\s|$)|([,.]\B)(?!\s|$)|(\.(?!\d|\s|$))|(,(?!\d|\s|$))/gu, (match) => `${match} `)
     .replace(/\s{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();

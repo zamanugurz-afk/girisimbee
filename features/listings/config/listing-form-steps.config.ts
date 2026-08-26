@@ -4,8 +4,8 @@
 import type { CategoryId } from '@/lib/domain/ids';
 import type { CoreListingFieldsInput } from '@/features/listings/form/build-dynamic-schema';
 import { getPartnerFormFieldKeys } from '@/features/founders/partnership-form';
-import type { PartnershipIntent } from '@/features/founders/partnership-intent';
-import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import type { ListingTypeId } from '@/lib/domain/ids';
 
 export type CoreFieldKey = keyof CoreListingFieldsInput;
 export type MetaFieldKey = 'tags' | 'images';
@@ -597,7 +597,11 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
 
 export function getListingFormSteps(
   categoryId: CategoryId,
-  options?: { partnershipIntent?: PartnershipIntent },
+  options?: {
+    partnershipIntent?: PartnershipIntent;
+    listingTypeId?: ListingTypeId | null;
+    businessTransferIntent?: 'sell' | 'buy' | null;
+  },
 ): ListingFormStepDef[] {
   if (categoryId === CATEGORY_IDS.ortakBul) {
     const intent = options?.partnershipIntent ?? 'seeking';
@@ -670,6 +674,91 @@ export function getListingFormSteps(
         title: 'Koşullar ve Detay',
         description: 'Detaylı açıklama, vizyon, ekip, konum ve ortaklık modeli',
         coreFields: ['longDescription', 'city'],
+        meta: ['images'],
+      },
+    );
+  }
+
+  if (categoryId === CATEGORY_IDS.isletmeDevri) {
+    const hasExplicitOption = Boolean(options?.businessTransferIntent || options?.listingTypeId);
+    if (!hasExplicitOption) {
+      return LISTING_FORM_STEPS[CATEGORY_IDS.isletmeDevri];
+    }
+
+    const isBuy =
+      options?.businessTransferIntent === 'buy' ||
+      options?.listingTypeId === LISTING_TYPE_IDS.businessTransferBuyDefault;
+
+    if (isBuy) {
+      return withConsolidatedPublishFlow(
+        {
+          id: 'basics',
+          title: 'Devralma Hedefleri',
+          description: 'Aradığınız işletme türleri, sektörler ve yönetim modeli',
+          coreFields: ['title', 'shortDescription'],
+          customFieldKeys: [
+            'preferredBusinessTypes',
+            'preferredBusinessTypesOther',
+            'preferredSectors',
+            'preferredStatus',
+            'operationalPreference',
+          ],
+        },
+        {
+          id: 'financials',
+          title: 'Bütçe ve Deneyim',
+          description: 'Devralma bütçesi, kira toleransı ve işletmecilik deneyimi',
+          customFieldKeys: [
+            'budgetMax',
+            'monthlyRentMax',
+            'relevantExperience',
+          ],
+        },
+        {
+          id: 'details',
+          title: 'Hedef Lokasyon ve Profil',
+          description: 'Hedef il, ilçe ve kendinizi tanıtan detaylı açıklama',
+          coreFields: ['longDescription', 'city'],
+          customFieldKeys: ['district'],
+        },
+      );
+    }
+
+    return withConsolidatedPublishFlow(
+      {
+        id: 'basics',
+        title: 'İşletme Bilgileri',
+        description: 'İşletme adı, türü ve ana sektör',
+        coreFields: ['title', 'shortDescription'],
+        customFieldKeys: [
+          'businessName',
+          'businessType',
+          'businessTypeOther',
+          'sector',
+        ],
+      },
+      {
+        id: 'financials',
+        title: 'Devir Koşulları ve Finansallar',
+        description: 'Devir bedeli, aylık kira, kapsam ve finansal özet',
+        customFieldKeys: [
+          'transferPrice',
+          'monthlyRent',
+          'businessAge',
+          'employeeCount',
+          'operationalStatus',
+          'financialSummary',
+          'transferScope',
+          'reasonForTransfer',
+          'postTransferSupport',
+        ],
+      },
+      {
+        id: 'details',
+        title: 'Lokasyon ve Tanıtım',
+        description: 'İl, ilçe ve işletmenizi tanıtan detaylı açıklama',
+        coreFields: ['longDescription', 'city'],
+        customFieldKeys: ['district'],
         meta: ['images'],
       },
     );

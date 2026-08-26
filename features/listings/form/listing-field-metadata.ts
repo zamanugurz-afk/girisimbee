@@ -127,6 +127,25 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
       placeholder: 'Şehir seçin',
     },
   },
+  [CATEGORY_IDS.isletmeDevri]: {
+    title: {
+      placeholder: 'Örn: Kadıköy Moda’da Cirolu, Ruhsatlı, Faal Butik Kafe Devri',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Örn: 3 yıllık oturmuş müşteri portföyü, tüm demirbaşları ve aktif ruhsatıyla devredilmektedir. Yüksek yaya trafiğine sahip merkezi lokasyon.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Örn: İşletmemiz faal durumda olup aylık cirosu ve kârlılığı belgelenebilir. Devir kapsamında espresso makinesi, fırın, soğuk hava deposu, masa-sandalye takımları ve sosyal medya hesapları yer almaktadır. Sektör değişikliği nedeniyle devredilmektedir.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Şehir seçin',
+    },
+  },
   [CATEGORY_IDS.bayilikAl]: {
     title: {
       placeholder: 'Örn: Yeni Nesil 3. Dalga Nitelikli Kahve Franchise Fırsatı',
