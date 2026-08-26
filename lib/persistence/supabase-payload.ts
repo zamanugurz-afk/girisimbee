@@ -3,6 +3,7 @@
  */
 import { uuidSchema } from '@/lib/domain/validation';
 import { ids, type CompanyId } from '@/lib/domain/ids';
+import { isModuleKey } from '@/lib/domain/modules';
 
 /** Deterministic listing-type seed IDs stored in Postgres (lt000001-*). */
 const SEED_LISTING_TYPE_UUID = /^lt000001-[0-9a-f]{4}-4000-8000-[0-9a-f]{12}$/i;
@@ -128,6 +129,12 @@ export function sanitizeSupabaseRow(
     if (!isValidUuidValue(value)) {
       console.error('Invalid UUID field:', field, row[field]);
       throw new Error(`Geçersiz UUID alanı: ${field}`);
+    }
+  }
+
+  if (sanitized.module_key !== undefined && sanitized.module_key !== null) {
+    if (!isModuleKey(String(sanitized.module_key))) {
+      sanitized.module_key = null;
     }
   }
 
