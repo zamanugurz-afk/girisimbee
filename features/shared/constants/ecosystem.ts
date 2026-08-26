@@ -24,8 +24,8 @@ export const FRANCHISE_LISTING_TYPE_IDS = {
 } as const satisfies Record<'buy' | 'give', ListingTypeId>;
 
 export const BUSINESS_TRANSFER_LISTING_TYPE_IDS = {
-  sell: ids.listingType('lt000001-0001-4000-8000-000000000009'),
-  buy: ids.listingType('lt000001-0001-4000-8000-000000000010'),
+  sell: ids.listingType('a0000009-0001-4000-8000-000000000009'),
+  buy: ids.listingType('a0000010-0001-4000-8000-000000000010'),
 } as const satisfies Record<'sell' | 'buy', ListingTypeId>;
 
 export const DEFAULT_LISTING_TYPE_IDS = {

@@ -63,7 +63,10 @@ import {
   BUSINESS_TRANSFER_OPERATIONAL_OPTIONS,
   BUSINESS_TRANSFER_PRICE_RANGES,
 } from '@/features/listings/config/listing-field-options';
-import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosystem';
+import {
+  FRANCHISE_LISTING_TYPE_IDS,
+  BUSINESS_TRANSFER_LISTING_TYPE_IDS,
+} from '@/features/shared/constants/ecosystem';
 import {
   getAllTaxonomyPositions,
   MANUAL_OPTION,
@@ -89,9 +92,9 @@ export const LISTING_TYPE_IDS = {
   ortakBulDefault: ids.listingType('lt000001-0001-4000-8000-000000000005'),
   franchiseGiveDefault: FRANCHISE_LISTING_TYPE_IDS.give,
   franchiseBuyDefault: FRANCHISE_LISTING_TYPE_IDS.buy,
-  businessTransferSellDefault: ids.listingType('lt000001-0001-4000-8000-000000000009'),
-  businessTransferBuyDefault: ids.listingType('lt000001-0001-4000-8000-000000000010'),
-  genelIlanDefault: ids.listingType('lt000001-0001-4000-8000-000000000007'),
+  businessTransferSellDefault: BUSINESS_TRANSFER_LISTING_TYPE_IDS.sell,
+  businessTransferBuyDefault: BUSINESS_TRANSFER_LISTING_TYPE_IDS.buy,
+  genelIlanDefault: ids.listingType('a0000008-0001-4000-8000-000000000008'),
   dijitalAiDefault: ids.listingType('d1000001-0001-4000-8000-000000000008'),
 } as const satisfies Record<string, ListingTypeId>;
 

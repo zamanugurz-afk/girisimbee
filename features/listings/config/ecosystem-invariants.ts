@@ -27,8 +27,7 @@ export function classifyListingEcosystem(
     cat === CATEGORY_IDS.iseAl ||
     mod === 'candidates' ||
     mod === 'employers' ||
-    type === LISTING_TYPE_IDS.isBulDefault ||
-    type === LISTING_TYPE_IDS.iseAlDefault
+    (Boolean(type) && (type === LISTING_TYPE_IDS.isBulDefault || type === LISTING_TYPE_IDS.iseAlDefault))
   ) {
     return 'employment';
   }
@@ -36,7 +35,7 @@ export function classifyListingEcosystem(
   if (
     cat === CATEGORY_IDS.ortakBul ||
     mod === 'founders' ||
-    type === LISTING_TYPE_IDS.ortakBulDefault
+    (Boolean(type) && type === LISTING_TYPE_IDS.ortakBulDefault)
   ) {
     return 'venture_partnership';
   }
@@ -44,18 +43,22 @@ export function classifyListingEcosystem(
   if (
     cat === CATEGORY_IDS.bayilikAl ||
     mod === 'franchise' ||
-    type === FRANCHISE_LISTING_TYPE_IDS.give ||
-    type === FRANCHISE_LISTING_TYPE_IDS.buy ||
-    type === LISTING_TYPE_IDS.franchiseGiveDefault ||
-    type === LISTING_TYPE_IDS.franchiseBuyDefault
+    (Boolean(type) && (
+      type === FRANCHISE_LISTING_TYPE_IDS.give ||
+      type === FRANCHISE_LISTING_TYPE_IDS.buy ||
+      type === LISTING_TYPE_IDS.franchiseGiveDefault ||
+      type === LISTING_TYPE_IDS.franchiseBuyDefault
+    ))
   ) {
     return 'venture_franchise';
   }
 
   if (
     cat === CATEGORY_IDS.isletmeDevri ||
-    type === LISTING_TYPE_IDS.businessTransferSellDefault ||
-    type === LISTING_TYPE_IDS.businessTransferBuyDefault
+    (Boolean(type) && (
+      type === LISTING_TYPE_IDS.businessTransferSellDefault ||
+      type === LISTING_TYPE_IDS.businessTransferBuyDefault
+    ))
   ) {
     return 'venture_transfer';
   }

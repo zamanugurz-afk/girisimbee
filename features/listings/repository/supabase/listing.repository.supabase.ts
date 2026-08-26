@@ -273,6 +273,57 @@ export class SupabaseListingRepository implements ListingRepository {
     }
   }
 
+  private async ensureCategoryAndListingType(categoryId?: unknown, listingTypeId?: unknown): Promise<void> {
+    const privileged = this.getPrivilegedClient();
+    const client = privileged ?? this.supabase;
+    const catId = String(categoryId ?? '');
+    if (catId === 'c1000001-0001-4000-8000-000000000009') {
+      try {
+        await client.from('marketplace_categories').upsert(
+          {
+            id: 'c1000001-0001-4000-8000-000000000009',
+            slug: 'isletme-devri',
+            name: 'İşletme Devri',
+            description: 'İşletmenizi devredin veya hazır işletme devralın',
+            accent_color: '#F59E0B',
+            icon: 'Building2',
+            status: 'active',
+            sort_order: 9,
+          },
+          { onConflict: 'id' },
+        );
+
+        await client.from('marketplace_listing_types').upsert(
+          [
+            {
+              id: 'a0000009-0001-4000-8000-000000000009',
+              category_id: 'c1000001-0001-4000-8000-000000000009',
+              slug: 'isletme-devret',
+              name: 'İşletmemi Devrediyorum',
+              description: 'Faaliyetteki veya kurulu işletmenizi devredin',
+              field_schema: {},
+              status: 'active',
+              sort_order: 1,
+            },
+            {
+              id: 'a0000010-0001-4000-8000-000000000010',
+              category_id: 'c1000001-0001-4000-8000-000000000009',
+              slug: 'isletme-devral',
+              name: 'İşletme Devralmak İstiyorum',
+              description: 'Devralmak istediğiniz sektör ve işletme kriterleri',
+              field_schema: {},
+              status: 'active',
+              sort_order: 2,
+            },
+          ],
+          { onConflict: 'id' },
+        );
+      } catch {
+        // Best-effort schema seed
+      }
+    }
+  }
+
   private async mapRowWithOptionalOwnerChannels(
     row: ListingRow,
     known?: Partial<OwnerContactChannels>,
@@ -663,16 +714,19 @@ export class SupabaseListingRepository implements ListingRepository {
       let data: ListingRow | null = null;
       let error: any = null;
 
+      await this.ensureCategoryAndListingType(row.category_id, row.listing_type_id);
+
       const privileged = this.getPrivilegedClient();
       const client = privileged ?? this.supabase;
-      const primaryRes = await client
+      let primaryRes = await client
         .from(TABLE)
         .insert(row)
         .select(LISTING_ROW_SELECT)
         .single();
 
-      if (primaryRes.error) {
-        if (primaryRes.error.code === '42501' && privileged && client !== privileged) {
+      if (primaryRes.error && (primaryRes.error.code === '23503' || primaryRes.error.code === '42501')) {
+        await this.ensureCategoryAndListingType(row.category_id, row.listing_type_id);
+        if (privileged && client !== privileged) {
           const privilegedRes = await privileged
             .from(TABLE)
             .insert(row)
@@ -685,8 +739,21 @@ export class SupabaseListingRepository implements ListingRepository {
             error = privilegedRes.error || primaryRes.error;
           }
         } else {
-          error = primaryRes.error;
+          // Retry insert with primary client after ensure
+          const retryRes = await client
+            .from(TABLE)
+            .insert(row)
+            .select(LISTING_ROW_SELECT)
+            .single();
+          if (!retryRes.error && retryRes.data) {
+            data = retryRes.data as ListingRow;
+            error = null;
+          } else {
+            error = retryRes.error || primaryRes.error;
+          }
         }
+      } else if (primaryRes.error) {
+        error = primaryRes.error;
       } else {
         data = primaryRes.data as ListingRow;
       }

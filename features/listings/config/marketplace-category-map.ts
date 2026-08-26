@@ -13,6 +13,7 @@ export const MARKETPLACE_CATEGORY_IDS = {
   is: ids.category('e1000001-0001-4000-8000-000000000002'),
   ortaklik: ids.category('e1000001-0001-4000-8000-000000000003'),
   franchise: ids.category('c1000001-0001-4000-8000-000000000006'),
+  isletmeDevri: ids.category('c1000001-0001-4000-8000-000000000009'),
 } as const;
 
 /** marketplace_listing_types — live DB */
@@ -24,6 +25,8 @@ export const MARKETPLACE_LISTING_TYPE_IDS = {
   ortakAriyorum: ids.listingType('e1000001-0001-4000-8000-000000000005'),
   bayilikAl: ids.listingType('a0000006-0001-4000-8000-000000000006'),
   bayilikVer: ids.listingType('a0000007-0001-4000-8000-000000000007'),
+  businessTransferSell: ids.listingType('a0000009-0001-4000-8000-000000000009'),
+  businessTransferBuy: ids.listingType('a0000010-0001-4000-8000-000000000010'),
 } as const;
 
 export interface BrowseCategoryEntry {
@@ -177,13 +180,14 @@ const APP_CATEGORY_ID_TO_DB: Record<string, CategoryId> = {
   [CATEGORY_IDS.iseAl]: MARKETPLACE_CATEGORY_IDS.is,
   [CATEGORY_IDS.ortakBul]: MARKETPLACE_CATEGORY_IDS.ortaklik,
   [CATEGORY_IDS.bayilikAl]: MARKETPLACE_CATEGORY_IDS.franchise,
-  [CATEGORY_IDS.isletmeDevri]: CATEGORY_IDS.isletmeDevri,
+  [CATEGORY_IDS.isletmeDevri]: MARKETPLACE_CATEGORY_IDS.isletmeDevri,
   [CATEGORY_IDS.genelIlan]: CATEGORY_IDS.genelIlan,
   [CATEGORY_IDS.dijitalAi]: CATEGORY_IDS.dijitalAi,
   [MARKETPLACE_CATEGORY_IDS.yatirim]: MARKETPLACE_CATEGORY_IDS.yatirim,
   [MARKETPLACE_CATEGORY_IDS.is]: MARKETPLACE_CATEGORY_IDS.is,
   [MARKETPLACE_CATEGORY_IDS.ortaklik]: MARKETPLACE_CATEGORY_IDS.ortaklik,
   [MARKETPLACE_CATEGORY_IDS.franchise]: MARKETPLACE_CATEGORY_IDS.franchise,
+  [MARKETPLACE_CATEGORY_IDS.isletmeDevri]: MARKETPLACE_CATEGORY_IDS.isletmeDevri,
 };
 
 const APP_LISTING_TYPE_ID_TO_DB: Record<string, ListingTypeId> = {
@@ -193,8 +197,11 @@ const APP_LISTING_TYPE_ID_TO_DB: Record<string, ListingTypeId> = {
   [LISTING_TYPE_IDS.iseAlDefault]: MARKETPLACE_LISTING_TYPE_IDS.iseAliyorum,
   [LISTING_TYPE_IDS.ortakBulDefault]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
   [LISTING_TYPE_IDS.franchiseGiveDefault]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
-  [LISTING_TYPE_IDS.businessTransferSellDefault]: LISTING_TYPE_IDS.businessTransferSellDefault,
-  [LISTING_TYPE_IDS.businessTransferBuyDefault]: LISTING_TYPE_IDS.businessTransferBuyDefault,
+  [LISTING_TYPE_IDS.franchiseBuyDefault]: MARKETPLACE_LISTING_TYPE_IDS.bayilikAl,
+  [LISTING_TYPE_IDS.businessTransferSellDefault]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell,
+  [LISTING_TYPE_IDS.businessTransferBuyDefault]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy,
+  ['lt000001-0001-4000-8000-000000000009' as ListingTypeId]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell,
+  ['lt000001-0001-4000-8000-000000000010' as ListingTypeId]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy,
   [LISTING_TYPE_IDS.genelIlanDefault]: LISTING_TYPE_IDS.genelIlanDefault,
   [LISTING_TYPE_IDS.dijitalAiDefault]: LISTING_TYPE_IDS.dijitalAiDefault,
   [FRANCHISE_LISTING_TYPE_IDS.give]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
@@ -206,6 +213,8 @@ const APP_LISTING_TYPE_ID_TO_DB: Record<string, ListingTypeId> = {
   [MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikAl]: MARKETPLACE_LISTING_TYPE_IDS.bayilikAl,
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikVer]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell,
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy,
 };
 
 export function resolveBrowseCategorySlug(slug: string): string {
