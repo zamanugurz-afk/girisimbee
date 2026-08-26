@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Building2, Handshake, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Handshake } from 'lucide-react';
 import { CareerFlowChoiceCards } from '@/components/girisimco/home/career-flow-choice-cards';
 import {
   VENTURE_PARTNERSHIP_HUB,
@@ -14,12 +14,8 @@ const VENTURE_VISUALS = {
     color: VENTURE_PARTNERSHIP_OPTIONS[0].color,
     Icon: Handshake,
   },
-  'ortak-olmak': {
-    color: VENTURE_PARTNERSHIP_OPTIONS[1].color,
-    Icon: Users,
-  },
   'isletme-devri': {
-    color: VENTURE_PARTNERSHIP_OPTIONS[2].color,
+    color: VENTURE_PARTNERSHIP_OPTIONS[1].color,
     Icon: Building2,
   },
 } as const;
@@ -53,7 +49,7 @@ export function VenturePartnershipLanding() {
           <CareerFlowChoiceCards
             options={VENTURE_PARTNERSHIP_OPTIONS}
             visuals={VENTURE_VISUALS}
-            columns={3}
+            columns={2}
           />
         </div>
       </div>

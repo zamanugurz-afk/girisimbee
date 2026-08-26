@@ -149,7 +149,7 @@ function CreateListingContent() {
     }
     setCareerHubOpen(false);
     if (id === CATEGORY_IDS.ortakBul) {
-      router.push(partnershipCreateHref(options?.partnershipIntent ?? urlPartnershipIntent ?? 'seeking'));
+      router.push('/ilan/olustur?category=ortak-bul&intent=seeking');
       return;
     }
     if (id === CATEGORY_IDS.bayilikAl) {
@@ -157,8 +157,7 @@ function CreateListingContent() {
       return;
     }
     if (id === CATEGORY_IDS.isletmeDevri) {
-      const intent = options?.subIntent === 'isletme-devral' ? 'buy' : 'sell';
-      router.push(`/ilan/olustur?category=isletme-devri&intent=${intent}`);
+      router.push('/ilan/olustur?category=isletme-devri&intent=sell');
       return;
     }
     const slug = categoryRegistry.getCategory(id)?.slug;

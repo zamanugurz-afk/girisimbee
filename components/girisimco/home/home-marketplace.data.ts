@@ -180,9 +180,9 @@ export const VENTURE_PARTNERSHIP_HUB = {
 export const VENTURE_PARTNERSHIP_OPTIONS = [
   {
     id: 'ortak-ariyorum',
-    href: '/partners?intent=seeking',
-    label: 'Ortak Arıyorum',
-    description: 'Girişiminiz için doğru ortağı bulun.',
+    href: '/partners',
+    label: 'Ortaklık',
+    description: 'Girişiminiz için aradığınız yetkin kurucu veya iş ortağını bulun.',
     color: GC_CATEGORY_COLORS['ortak-bul'],
     benefits: [
       {
@@ -191,32 +191,11 @@ export const VENTURE_PARTNERSHIP_OPTIONS = [
       },
       {
         title: 'Uygun ortakları inceleyin',
-        text: 'Yetkinlik ve taahhütle birlikte bakın.',
+        text: 'Yetkinlik ve taahhüt profillerini karşılaştırın.',
       },
       {
         title: 'Güvenli iletişim kurun',
-        text: 'İletişim talebi üzerinden bağlantı kurun.',
-      },
-    ],
-  },
-  {
-    id: 'ortak-olmak',
-    href: '/partners?intent=joining',
-    label: 'Ortak Olmak İstiyorum',
-    description: 'Uzmanlığınızı sunun, size uygun girişimlerle buluşun.',
-    color: GC_CATEGORY_COLORS['ortak-bul'],
-    benefits: [
-      {
-        title: 'Profilleri keşfedin',
-        text: 'Girişimlerin ne aradığını tek yerde görün.',
-      },
-      {
-        title: 'Size uygun mu bakın',
-        text: 'Uzmanlığınızı ve hedeflerinizi karşılaştırın.',
-      },
-      {
-        title: 'Güvenli iletişim kurun',
-        text: 'İletişim talebi üzerinden bağlantı kurun.',
+        text: 'İletişim talebi üzerinden doğrudan bağlantı kurun.',
       },
     ],
   },
@@ -224,7 +203,7 @@ export const VENTURE_PARTNERSHIP_OPTIONS = [
     id: 'isletme-devri',
     href: '/isletme-devri',
     label: 'İşletme Devri',
-    description: 'Faal işletme devri ve devralma fırsatlarını keşfedin.',
+    description: 'Faal işletme devri fırsatlarını keşfedin.',
     color: GC_CATEGORY_COLORS['isletme-devri'],
     benefits: [
       {
@@ -242,6 +221,29 @@ export const VENTURE_PARTNERSHIP_OPTIONS = [
     ],
   },
 ] as const;
+
+/** Preserved in codebase for future modular re-activation */
+export const ARCHIVED_VENTURE_PARTNERSHIP_JOINING_OPTION = {
+  id: 'ortak-olmak',
+  href: '/partners?intent=joining',
+  label: 'Ortak Olmak İstiyorum',
+  description: 'Uzmanlığınızı sunun, size uygun girişimlerle buluşun.',
+  color: GC_CATEGORY_COLORS['ortak-bul'],
+  benefits: [
+    {
+      title: 'Profilleri keşfedin',
+      text: 'Girişimlerin ne aradığını tek yerde görün.',
+    },
+    {
+      title: 'Size uygun mu bakın',
+      text: 'Uzmanlığınızı ve hedeflerinizi karşılaştırın.',
+    },
+    {
+      title: 'Güvenli iletişim kurun',
+      text: 'İletişim talebi üzerinden bağlantı kurun.',
+    },
+  ],
+} as const;
 
 export const HOME_TRUST_SIGNALS = [
   { label: 'Ücretsiz kayıt' },

@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 export type VentureFlowTabId = 'seeking' | 'joining' | 'isletme-devri';
 
 const SEEKING_COLOR = GC_CATEGORY_COLORS['ortak-bul']; // #F59E0B
-const JOINING_COLOR = '#DB2777'; // Accent rose / pink
 const ISLETME_DEVRİ_COLOR = GC_CATEGORY_COLORS['isletme-devri']; // #D97706
 
 interface VentureFlowOption {
@@ -21,15 +20,9 @@ interface VentureFlowOption {
 const VENTURE_FLOW_OPTIONS: VentureFlowOption[] = [
   {
     id: 'seeking',
-    label: 'Ortak Arıyorum',
-    href: '/partners?intent=seeking',
+    label: 'Ortaklık',
+    href: '/partners',
     color: SEEKING_COLOR,
-  },
-  {
-    id: 'joining',
-    label: 'Ortak Olmak İstiyorum',
-    href: '/partners?intent=joining',
-    color: JOINING_COLOR,
   },
   {
     id: 'isletme-devri',
@@ -38,6 +31,14 @@ const VENTURE_FLOW_OPTIONS: VentureFlowOption[] = [
     color: ISLETME_DEVRİ_COLOR,
   },
 ];
+
+/** Preserved in codebase for future modular re-activation */
+export const ARCHIVED_JOINING_FLOW_OPTION: VentureFlowOption = {
+  id: 'joining',
+  label: 'Ortak Olmak İstiyorum',
+  href: '/partners?intent=joining',
+  color: '#DB2777',
+};
 
 /**
  * 3-way direction selector for Ortaklık ve Devir browse pages:

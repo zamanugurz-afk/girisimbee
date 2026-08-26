@@ -94,38 +94,38 @@ export const CREATE_LISTING_VENTURE_CATEGORIES_COPY = {
     {
       id: 'partnership',
       label: 'Ortaklık',
-      description: 'Kurucu ortak arayın veya uzmanlığınızla bir girişime ortak olun.',
+      description: 'Girişiminiz için aradığınız kurucu veya iş ortağını bulun.',
       benefits: [
         {
-          title: 'Ortak Arıyorum',
-          text: 'Aradığınız uzmanlığı ve hisse/model beklentisini tanımlayın.',
-        },
-        {
-          title: 'Ortak Olmak İstiyorum',
-          text: 'Deneyiminizi ve sermaye/zaman katkınızı sunun.',
+          title: 'İhtiyacınızı Tanımlayın',
+          text: 'Aradığınız yetkinliği, hisse veya ortaklık modelini netleştirin.',
         },
         {
           title: 'Tamamlayıcı Eşleşme',
           text: 'Teknik, finans, satış ve operasyon profilleriyle eşleşin.',
+        },
+        {
+          title: 'Güvenli İletişim',
+          text: 'İletişim bilgileriniz gizli kalır; talep üzerinden bağlantı kurun.',
         },
       ],
     },
     {
       id: 'business_transfer',
       label: 'İşletme Devri',
-      description: 'Faal işletmenizi devredin veya kurulu bir işletmeyi devralın.',
+      description: 'Faal veya hazır işletmenizi yeni sahibine güvenle devredin.',
       benefits: [
         {
-          title: 'İşletmemi Devretmek İstiyorum',
-          text: 'Demirbaş, ciro, kira ve faaliyet detaylarıyla ilanınızı açın.',
+          title: 'İşletme Detaylarını Paylaşın',
+          text: 'Kira, ciro, çalışan sayısı ve demirbaş kapsamını ekleyin.',
         },
         {
-          title: 'İşletme Devralmak İstiyorum',
-          text: 'Bütçeniz ve hedef sektörünüzle hazır işletmelere ulaşın.',
+          title: 'Devir Bedelini Belirleyin',
+          text: 'Hedef devir tutarınızı ve koşullarınızı netleştirin.',
         },
         {
-          title: 'Hızlı & Güvenli Devir',
-          text: 'Kira, lokasyon ve bütçe kriterlerine göre nokta eşleşin.',
+          title: 'Ciddi Alıcılara Ulaşın',
+          text: 'Yatırım bütçesi hazır girişimcilerle hızla eşleşin.',
         },
       ],
     },
