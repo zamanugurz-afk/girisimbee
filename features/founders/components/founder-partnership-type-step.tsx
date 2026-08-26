@@ -3,8 +3,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   PARTNERSHIP_TYPE_CATEGORIES,
   CANONICAL_PARTNER_EXPERTISE_OPTIONS,
@@ -21,7 +19,6 @@ import {
   Search,
   X,
   Check,
-  Sparkles,
 } from 'lucide-react';
 
 export interface FounderPartnershipTypeStepProps {
@@ -121,9 +118,9 @@ function CategoryMultiSelectCombobox({
       )}
     >
       {/* Category Header */}
-      <div className="space-y-1.5 pb-3">
+      <div className="space-y-1.5 pb-3.5">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 shrink-0">
               {CATEGORY_ICONS[category.id] ?? <Briefcase className="h-4 w-4" />}
             </div>
@@ -142,50 +139,45 @@ function CategoryMultiSelectCombobox({
         </p>
       </div>
 
-      {/* Combobox Trigger */}
-      <div className="relative mt-auto pt-1">
+      {/* Standard Select / Combobox Trigger (Exact Site Architecture) */}
+      <div className="relative mt-auto">
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
           className={cn(
-            'flex h-11 w-full items-center justify-between rounded-xl border border-input bg-background/60 px-3.5 text-xs sm:text-sm transition-all text-left select-none',
-            isOpen
-              ? 'border-amber-500 ring-2 ring-amber-500/20 bg-background'
-              : 'hover:bg-accent/40 hover:border-slate-300 dark:hover:border-slate-700',
+            'flex h-11 min-h-[42px] w-full items-center justify-between rounded-xl border border-input bg-card px-3.5 py-2 text-sm font-medium ring-offset-background transition-all text-left select-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500',
+            isOpen && 'border-amber-500 ring-2 ring-amber-500/20',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
-          <span className="flex items-center gap-2 text-muted-foreground truncate">
-            <Search className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
-            <span className="truncate">
-              {hasSelections
-                ? `${selectedInCategory.length} tür seçildi — Listeyi aç`
-                : 'Ortaklık türü ara veya seçin...'}
-            </span>
+          <span className={cn('truncate', !hasSelections && 'text-muted-foreground font-normal')}>
+            {hasSelections
+              ? `${selectedInCategory.length} ortaklık türü seçildi`
+              : 'Ortaklık türü seçin'}
           </span>
           <ChevronDown
             className={cn(
-              'h-4 w-4 text-muted-foreground/70 shrink-0 transition-transform duration-200',
-              isOpen && 'rotate-180 text-amber-600'
+              'h-4 w-4 opacity-50 shrink-0 transition-transform duration-200',
+              isOpen && 'rotate-180 opacity-100 text-amber-600'
             )}
           />
         </button>
 
-        {/* Combobox Dropdown Panel */}
+        {/* Standard Select Dropdown Content */}
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-72 w-full min-w-[280px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-xl backdrop-blur-md animate-in fade-in-0 zoom-in-95">
-            {/* Search Input */}
-            <div className="p-2 border-b border-border/60 bg-muted/30 sticky top-0 z-10">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-80 w-full min-w-[260px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card animate-in fade-in-0 zoom-in-95">
+            {/* Quick Search Header */}
+            <div className="p-2 border-b border-border/60 bg-muted/20 sticky top-0 z-10">
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
+                <input
                   autoFocus
                   type="text"
-                  placeholder="Hızlı ara..."
+                  placeholder="Seçenek ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-8 pl-8 pr-7 text-xs rounded-lg border-border/70 bg-background"
+                  className="h-8 w-full pl-8 pr-7 text-xs rounded-lg border border-input bg-background px-3 py-1 outline-none focus:ring-1 focus:ring-amber-500"
                 />
                 {searchQuery && (
                   <button
@@ -199,14 +191,13 @@ function CategoryMultiSelectCombobox({
               </div>
             </div>
 
-            {/* Options List */}
-            <div className="max-h-56 overflow-y-auto p-1.5 space-y-1 divide-y divide-border/30">
-              {/* Popular Options Group */}
+            {/* Select Options List (Standard UI Typography & Padding) */}
+            <div className="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+              {/* Popular Options Section */}
               {filteredPopularOptions.length > 0 && (
-                <div className="space-y-0.5 pt-0.5 pb-1">
-                  <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    <Sparkles className="h-2.5 w-2.5" />
-                    <span>En Popüler Seçenekler</span>
+                <div className="space-y-0.5 pb-1">
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    En Popüler Seçenekler
                   </div>
                   {filteredPopularOptions.map((option) => {
                     const isChecked = selectedSet.has(option);
@@ -215,28 +206,26 @@ function CategoryMultiSelectCombobox({
                         key={option}
                         onClick={() => onToggle(option)}
                         className={cn(
-                          'flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors select-none',
+                          'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors select-none',
                           isChecked
-                            ? 'bg-amber-500/15 text-amber-900 dark:text-amber-200 font-semibold'
-                            : 'hover:bg-accent hover:text-accent-foreground text-slate-700 dark:text-slate-300'
+                            ? 'bg-amber-500/10 text-amber-950 dark:text-amber-200 font-semibold'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                         )}
                       >
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={() => onToggle(option)}
-                          className="h-3.5 w-3.5 rounded data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 pointer-events-none"
-                        />
-                        <span className="flex-1 leading-snug">{option}</span>
+                        <span className="leading-snug">{option}</span>
+                        {isChecked && (
+                          <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 ml-2" />
+                        )}
                       </div>
                     );
                   })}
                 </div>
               )}
 
-              {/* All / A-Z Options Group */}
+              {/* All / A-Z Options Section */}
               {filteredAllOptions.length > 0 && (
-                <div className="space-y-0.5 pt-1">
-                  <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-0.5 pt-1 border-t border-border/40">
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     Tüm Seçenekler (A-Z)
                   </div>
                   {filteredAllOptions.map((option) => {
@@ -246,18 +235,16 @@ function CategoryMultiSelectCombobox({
                         key={option}
                         onClick={() => onToggle(option)}
                         className={cn(
-                          'flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors select-none',
+                          'flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors select-none',
                           isChecked
-                            ? 'bg-amber-500/15 text-amber-900 dark:text-amber-200 font-semibold'
-                            : 'hover:bg-accent hover:text-accent-foreground text-slate-700 dark:text-slate-300'
+                            ? 'bg-amber-500/10 text-amber-950 dark:text-amber-200 font-semibold'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                         )}
                       >
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={() => onToggle(option)}
-                          className="h-3.5 w-3.5 rounded data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 pointer-events-none"
-                        />
-                        <span className="flex-1 leading-snug">{option}</span>
+                        <span className="leading-snug">{option}</span>
+                        {isChecked && (
+                          <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 ml-2" />
+                        )}
                       </div>
                     );
                   })}
@@ -266,25 +253,9 @@ function CategoryMultiSelectCombobox({
 
               {filteredPopularOptions.length === 0 && filteredAllOptions.length === 0 && (
                 <div className="py-4 text-center text-xs text-muted-foreground">
-                  &ldquo;{searchQuery}&rdquo; ile eşleşen tür bulunamadı.
+                  &ldquo;{searchQuery}&rdquo; bulunamadı.
                 </div>
               )}
-            </div>
-
-            {/* Dropdown Action Footer */}
-            <div className="p-1.5 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs">
-              <span className="text-[11px] text-muted-foreground pl-1.5">
-                {selectedInCategory.length} seçildi
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsOpen(false)}
-                className="h-7 text-xs px-2.5 text-amber-700 hover:text-amber-800 hover:bg-amber-500/10 font-semibold"
-              >
-                Tamam
-              </Button>
             </div>
           </div>
         )}
@@ -296,7 +267,7 @@ function CategoryMultiSelectCombobox({
           {selectedInCategory.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all animate-in fade-in-0"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all"
             >
               <span>{item}</span>
               {!disabled && (
@@ -433,7 +404,7 @@ export function FounderPartnershipTypeStep({
 
   return (
     <div className="space-y-8">
-      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (2x2 COMBOBOX GRID) */}
+      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (2x2 SELECT/COMBOBOX GRID) */}
       <div className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-2.5 border-b border-border/70">
           <div>
