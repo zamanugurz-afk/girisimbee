@@ -6,6 +6,7 @@ export type FounderSummaryDraft = {
 };
 
 export interface FounderSummaryContext {
+  intent?: 'seeking' | 'joining';
   title?: string;
   sector?: string;
   projectStage?: string;
@@ -26,7 +27,8 @@ export interface FounderSummaryContext {
 }
 
 export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSummaryDraft {
-  const title = ctx.title?.trim() || 'Girişimimiz';
+  const isJoining = ctx.intent === 'joining';
+  const title = ctx.title?.trim() || (isJoining ? 'Girişimci Profilim' : 'Girişimimiz');
   const sector = ctx.sector?.trim() || '';
   const stage = ctx.projectStage?.trim() || '';
   
@@ -35,7 +37,7 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
     : typeof ctx.partnershipType === 'string' && ctx.partnershipType.trim()
       ? ctx.partnershipType.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
-  const partnerType = rawPartners.length > 0 ? rawPartners.join(', ') : (ctx.partnershipType?.trim() || 'Kurucu Ortak');
+  const partnerType = rawPartners.length > 0 ? rawPartners.join(', ') : (ctx.partnershipType?.trim() || (isJoining ? 'Ortak' : 'Kurucu Ortak'));
   const commitment = ctx.commitment?.trim() || 'Tam zamanlı';
   const equityNum =
     typeof ctx.equityOffered === 'number'
@@ -67,6 +69,64 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
     ])
   ).filter((t) => t !== 'Diğer' && t !== 'Diğer / Kendim gireceğim').slice(0, 5).join(', ');
   const location = [ctx.city, ctx.district].filter(Boolean).join(' / ');
+
+  if (isJoining) {
+    const stagePhrase = stage
+      ? stage.toLocaleLowerCase('tr-TR').includes('aşama') || stage.toLocaleLowerCase('tr-TR').includes('asama')
+        ? stage.toLocaleLowerCase('tr-TR') + ' olan girişimlere'
+        : stage.toLocaleLowerCase('tr-TR') + ' aşamasındaki girişimlere'
+      : 'büyüyen girişimlere';
+
+    const shortParts = [
+      sector ? sector + ' sektöründeki' : '',
+      stagePhrase,
+      expertiseStr ? expertiseStr + ' yetkinliklerimle' : '',
+      partnerType.toLocaleLowerCase('tr-TR') + ' olarak katılmak ve değer katmak istiyorum',
+    ].filter(Boolean);
+
+    const shortDescription = normalizeListingDescription(shortParts.join(' ').trim() + '.');
+
+    const longSentences: string[] = [];
+
+    longSentences.push(
+      (sector ? sector + ' sektöründe faaliyet gösteren veya geliştirilen' : 'Yenilikçi projeler yürüten') +
+      (stage ? ', tercihen ' + stage.toLocaleLowerCase('tr-TR') + ' aşamasındaki' : '') +
+      ' girişimlere ' + partnerType.toLocaleLowerCase('tr-TR') + ' olarak katılarak projenin büyümesine ve başarısına aktif katkı sağlamak istiyorum.'
+    );
+
+    if (expertiseStr) {
+      longSentences.push(
+        'Girişime doğrudan sorumluluk alarak değer katabileceğim başlıca yetkinlik ve uzmanlık alanlarım: ' + expertiseStr + '.'
+      );
+    }
+
+    if (toolsList) {
+      longSentences.push(
+        'Aktif olarak kullandığım ve yetkin olduğum teknolojiler, araçlar ve ekipmanlar: ' + toolsList + '.'
+      );
+    }
+
+    longSentences.push(
+      'Çalışma modeli olarak ' + commitment.toLocaleLowerCase('tr-TR') + ' katılım sağlayabilecek durumdayım; hisse, rol dağılımı ve ortaklık şartları ilk görüşmede karşılıklı şeffaflıkla değerlendirilebilir.'
+    );
+
+    if (location) {
+      longSentences.push(
+        'Tercihen ' + location + ' lokasyonundaki veya düzenli uzaktan çalışma modeline sahip ekiplerle bir araya gelmek isterim.'
+      );
+    }
+
+    longSentences.push(
+      'Vizyoner kurucu ekiplerle tanışmaktan ve projenin mevcut durumu, ürün demosu, pazar doğrulaması ve yol haritası üzerine detaylı görüşmekten memnuniyet duyarım.'
+    );
+
+    const longDescription = normalizeListingDescription(longSentences.join(' '));
+
+    return {
+      shortDescription,
+      longDescription,
+    };
+  }
 
   const stagePhrase = stage
     ? stage.toLocaleLowerCase('tr-TR').includes('aşama') || stage.toLocaleLowerCase('tr-TR').includes('asama')

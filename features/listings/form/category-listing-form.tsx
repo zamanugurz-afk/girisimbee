@@ -1060,8 +1060,14 @@ export function CategoryListingForm({
   const founderSummaryDraft = useMemo(() => {
     if (categoryId !== CATEGORY_IDS.ortakBul) return null;
     return buildFounderSummaryDraft({
+      intent: partnershipIntent,
       title: core.title,
-      sector: String(mergedCustomFields.sector || mergedCustomFields.primarySector || ''),
+      sector: String(
+        mergedCustomFields.sector
+        || (Array.isArray(mergedCustomFields.sectors) ? mergedCustomFields.sectors.join(', ') : mergedCustomFields.sectors)
+        || mergedCustomFields.primarySector
+        || ''
+      ),
       projectStage: String(mergedCustomFields.projectStage || mergedCustomFields.partnershipStage || ''),
       partnershipType: String(mergedCustomFields.partnershipType || ''),
       partnershipTypes: mergedCustomFields.partnershipTypes as string[] | string,
@@ -1080,6 +1086,7 @@ export function CategoryListingForm({
     });
   }, [
     categoryId,
+    partnershipIntent,
     core.city,
     core.district,
     core.title,
@@ -1095,6 +1102,7 @@ export function CategoryListingForm({
     mergedCustomFields.professionalSkills,
     mergedCustomFields.professionalSkillsOther,
     mergedCustomFields.sector,
+    mergedCustomFields.sectors,
     mergedCustomFields.technicalSkills,
     mergedCustomFields.technicalSkillsOther,
     mergedCustomFields.tools,
