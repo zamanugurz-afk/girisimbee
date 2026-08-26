@@ -208,31 +208,46 @@ function fieldToZod(field: ListingFieldDefinition): z.ZodTypeAny {
       const options = field.options ?? [];
       const message = `${field.label} için en az bir seçenek işaretleyin.`;
 
-      const multiSchema = z
-        .array(z.string())
-        .superRefine((values, ctx) => {
-          const normalized = values
-            .map((value) => resolveEnumOption(value, options) ?? value.trim())
-            .filter(Boolean);
+      const normalizeInput = (val: unknown): string[] => {
+        if (Array.isArray(val)) return val.map(String).map((s) => s.trim()).filter(Boolean);
+        if (typeof val === 'string') {
+          const trimmed = val.trim();
+          if (!trimmed) return [];
+          return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+        return [];
+      };
 
-          if (field.required && normalized.length === 0) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message });
-            return;
-          }
+      const multiSchema = z.preprocess(
+        normalizeInput,
+        z
+          .array(z.string())
+          .superRefine((values, ctx) => {
+            const normalized = values
+              .map((value) => (options.length ? (resolveEnumOption(value, options) ?? value.trim()) : value.trim()))
+              .filter(Boolean);
 
-          for (const value of normalized) {
-            if (options.length && !resolveEnumOption(value, options)) {
+            if (field.required && normalized.length === 0) {
               ctx.addIssue({ code: z.ZodIssueCode.custom, message });
             }
-          }
-        })
-        .transform((values) =>
-          values
-            .map((value) => resolveEnumOption(value, options) ?? value.trim())
-            .filter(Boolean),
-        );
+          })
+          .transform((values) =>
+            values
+              .map((value) => (options.length ? (resolveEnumOption(value, options) ?? value.trim()) : value.trim()))
+              .filter(Boolean),
+          ),
+      );
 
-      schema = field.required ? multiSchema : multiSchema.optional();
+      schema = field.required
+        ? multiSchema
+        : z.preprocess(
+            (val) => {
+              if (val === undefined || val === null || val === '') return undefined;
+              const arr = normalizeInput(val);
+              return arr.length === 0 ? undefined : arr;
+            },
+            multiSchema.optional(),
+          );
       break;
     }
     default:

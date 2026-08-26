@@ -2064,19 +2064,6 @@ export function CategoryListingForm({
     }
 
     if (isFounderPartnershipTypeStep) {
-      const types = Array.isArray(mergedCustomFields.partnershipTypes)
-        ? mergedCustomFields.partnershipTypes.filter(Boolean)
-        : typeof mergedCustomFields.partnershipType === 'string' && mergedCustomFields.partnershipType.trim()
-          ? mergedCustomFields.partnershipType.split(',').map((s: string) => s.trim()).filter(Boolean)
-          : [];
-      const hasOther = Boolean(
-        String(mergedCustomFields.partnershipTypesOther ?? mergedCustomFields.partnershipTypeOther ?? '').trim(),
-      );
-      if (types.length === 0 && !hasOther) {
-        setFieldErrors({ partnershipTypes: 'Lütfen en az bir ortaklık türü seçin.' });
-        toast.error('Lütfen en az bir ortaklık türü seçin.');
-        return false;
-      }
       setFieldErrors({});
       return true;
     }
@@ -2869,9 +2856,7 @@ export function CategoryListingForm({
               partnershipTypes={
                 Array.isArray(mergedCustomFields.partnershipTypes)
                   ? mergedCustomFields.partnershipTypes.map(String)
-                  : typeof mergedCustomFields.partnershipType === 'string' && mergedCustomFields.partnershipType.trim()
-                    ? mergedCustomFields.partnershipType.split(',').map((s: string) => s.trim()).filter(Boolean)
-                    : []
+                  : []
               }
               partnershipTypesOther={String(
                 mergedCustomFields.partnershipTypesOther ?? mergedCustomFields.partnershipTypeOther ?? '',

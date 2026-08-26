@@ -459,7 +459,12 @@ export const PARTNERSHIP_TYPE_CATEGORIES = [
   },
 ] as const;
 
-export const ALL_PARTNERSHIP_TYPES = PARTNERSHIP_TYPE_CATEGORIES.flatMap((c) => c.options);
+export const ALL_PARTNERSHIP_TYPES = [
+  ...PARTNERSHIP_TYPE_CATEGORIES.map((c) => c.title),
+  ...PARTNERSHIP_TYPE_CATEGORIES.flatMap((c) => c.options),
+  'Diğer',
+  'Diğer / Kendim gireceğim',
+] as const;
 
 /** Canonical 18 partner expertise options — Turkish labels without '&'. */
 export const CANONICAL_PARTNER_EXPERTISE_OPTIONS = [
