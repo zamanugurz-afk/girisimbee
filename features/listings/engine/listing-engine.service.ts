@@ -89,6 +89,8 @@ export class ListingEngine implements IListingEngineService {
       ownerId: payload.ownerId,
       categoryId: payload.categoryId,
       listingTypeId: payload.listingTypeId,
+      status: (payload.asDraft ? 'draft' : 'published') as ListingStatus,
+      workflowStatus: payload.asDraft ? ('draft' as const) : ('published' as const),
       title: payload.core.title,
       shortDescription: payload.core.shortDescription,
       longDescription: payload.core.longDescription,

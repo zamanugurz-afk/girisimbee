@@ -254,10 +254,9 @@ function CreateListingContent() {
           },
           tags: values.tags,
           images: values.images,
-          asDraft: true,
+          asDraft: false,
         });
-        const published = await publishListing(aggregate.listing.id);
-        listing = published.listing;
+        listing = aggregate.listing;
         traceListingPublish(String(moduleKey), 'redirect', {
           response: { slug: listing.slug, status: listing.status, moduleKey: listing.moduleKey },
         });
