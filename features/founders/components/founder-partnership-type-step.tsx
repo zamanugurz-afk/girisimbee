@@ -1,8 +1,8 @@
 ﻿'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import {
   PARTNERSHIP_TYPE_CATEGORIES,
   CANONICAL_PARTNER_EXPERTISE_OPTIONS,
@@ -10,16 +10,7 @@ import {
 import { SmartCustomSelector } from '@/features/shared/components/smart-custom-selector';
 import { normalizeTurkishSearch } from '@/features/shared/services/set-matching.service';
 import { cn } from '@/lib/utils';
-import {
-  Briefcase,
-  Cpu,
-  Landmark,
-  Building2,
-  ChevronDown,
-  Search,
-  X,
-  Check,
-} from 'lucide-react';
+import { ChevronDown, Search, X, Check } from 'lucide-react';
 
 export interface FounderPartnershipTypeStepProps {
   partnershipTypes: string[];
@@ -41,28 +32,31 @@ export interface FounderPartnershipTypeStepProps {
   themeColor?: string;
 }
 
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  management: <Briefcase className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
-  technical: <Cpu className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
-  investment: <Landmark className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
-  physical: <Building2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
-};
-
-interface CategoryComboboxProps {
-  category: (typeof PARTNERSHIP_TYPE_CATEGORIES)[number];
+interface StandardMultiSelectFieldProps {
+  label: string;
+  description?: string;
+  required?: boolean;
+  popularOptions?: readonly string[];
+  options: readonly string[];
   selectedSet: Set<string>;
   onToggle: (item: string) => void;
   onRemove: (item: string) => void;
+  placeholder?: string;
   disabled?: boolean;
 }
 
-function CategoryMultiSelectCombobox({
-  category,
+function StandardMultiSelectField({
+  label,
+  description,
+  required = false,
+  popularOptions,
+  options,
   selectedSet,
   onToggle,
   onRemove,
+  placeholder = 'Ortaklık türü seçin',
   disabled = false,
-}: CategoryComboboxProps) {
+}: StandardMultiSelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -82,65 +76,62 @@ function CategoryMultiSelectCombobox({
     };
   }, [isOpen]);
 
-  // Filter options based on Turkish normalized search
   const normalizedQuery = normalizeTurkishSearch(searchQuery);
 
   const filteredPopularOptions = useMemo(() => {
-    if (!normalizedQuery) return category.popularOptions;
-    return category.popularOptions.filter((opt) =>
+    if (!popularOptions) return [];
+    if (!normalizedQuery) return popularOptions;
+    return popularOptions.filter((opt) =>
       normalizeTurkishSearch(opt).includes(normalizedQuery)
     );
-  }, [category.popularOptions, normalizedQuery]);
+  }, [popularOptions, normalizedQuery]);
 
   const filteredAllOptions = useMemo(() => {
-    const popularSet = new Set(category.popularOptions);
-    const nonPopular = category.options.filter((opt) => !popularSet.has(opt as any));
-    if (!normalizedQuery) return nonPopular;
-    return nonPopular.filter((opt) =>
+    if (popularOptions && popularOptions.length > 0) {
+      const popularSet = new Set(popularOptions);
+      const nonPopular = options.filter((opt) => !popularSet.has(opt));
+      if (!normalizedQuery) return nonPopular;
+      return nonPopular.filter((opt) =>
+        normalizeTurkishSearch(opt).includes(normalizedQuery)
+      );
+    }
+    if (!normalizedQuery) return options;
+    return options.filter((opt) =>
       normalizeTurkishSearch(opt).includes(normalizedQuery)
     );
-  }, [category.options, category.popularOptions, normalizedQuery]);
+  }, [options, popularOptions, normalizedQuery]);
 
-  const selectedInCategory = useMemo(() => {
-    return category.options.filter((opt) => selectedSet.has(opt));
-  }, [category.options, selectedSet]);
+  const selectedInField = useMemo(() => {
+    return options.filter((opt) => selectedSet.has(opt));
+  }, [options, selectedSet]);
 
-  const hasSelections = selectedInCategory.length > 0;
+  const hasSelections = selectedInField.length > 0;
 
   return (
-    <div
-      ref={dropdownRef}
-      className={cn(
-        'relative flex flex-col justify-between rounded-2xl border bg-white p-4 sm:p-5 shadow-xs dark:bg-card transition-all duration-200',
-        hasSelections
-          ? 'border-amber-500/50 bg-amber-500/[0.015] ring-1 ring-amber-500/20 dark:border-amber-500/40 dark:bg-amber-500/[0.03]'
-          : 'border-slate-200/90 hover:border-slate-300 dark:border-border dark:hover:border-slate-700'
-      )}
-    >
-      {/* Category Header */}
-      <div className="space-y-1.5 pb-3.5">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 shrink-0">
-              {CATEGORY_ICONS[category.id] ?? <Briefcase className="h-4 w-4" />}
-            </div>
-            <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-foreground leading-tight">
-              {category.title}
-            </h4>
-          </div>
+    <div ref={dropdownRef} className="space-y-1.5">
+      {/* Standard Label */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Label className="text-sm font-semibold text-foreground">
+            {label}
+            {required && <span className="text-rose-500 font-bold ml-1">*</span>}
+          </Label>
           {hasSelections && (
-            <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.5 shrink-0">
-              {selectedInCategory.length} seçili
+            <Badge className="bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30 text-[11px] font-semibold px-2 py-0.2">
+              {selectedInField.length} seçili
             </Badge>
           )}
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-          {category.description}
-        </p>
       </div>
 
-      {/* Standard Select / Combobox Trigger (Exact Site Architecture) */}
-      <div className="relative mt-auto">
+      {description && (
+        <p className="text-xs text-muted-foreground leading-normal line-clamp-1">
+          {description}
+        </p>
+      )}
+
+      {/* Standard Select Trigger */}
+      <div className="relative">
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -153,8 +144,8 @@ function CategoryMultiSelectCombobox({
         >
           <span className={cn('truncate', !hasSelections && 'text-muted-foreground font-normal')}>
             {hasSelections
-              ? `${selectedInCategory.length} ortaklık türü seçildi`
-              : 'Ortaklık türü seçin'}
+              ? `${selectedInField.length} seçenek seçildi`
+              : placeholder}
           </span>
           <ChevronDown
             className={cn(
@@ -166,7 +157,7 @@ function CategoryMultiSelectCombobox({
 
         {/* Standard Select Dropdown Content */}
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-80 w-full min-w-[260px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card animate-in fade-in-0 zoom-in-95">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-80 w-full min-w-[260px] overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card animate-in fade-in-0 zoom-in-95">
             {/* Quick Search Header */}
             <div className="p-2 border-b border-border/60 bg-muted/20 sticky top-0 z-10">
               <div className="relative">
@@ -191,7 +182,7 @@ function CategoryMultiSelectCombobox({
               </div>
             </div>
 
-            {/* Select Options List (Standard UI Typography & Padding) */}
+            {/* Select Options List */}
             <div className="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
               {/* Popular Options Section */}
               {filteredPopularOptions.length > 0 && (
@@ -225,9 +216,11 @@ function CategoryMultiSelectCombobox({
               {/* All / A-Z Options Section */}
               {filteredAllOptions.length > 0 && (
                 <div className="space-y-0.5 pt-1 border-t border-border/40">
-                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Tüm Seçenekler (A-Z)
-                  </div>
+                  {popularOptions && popularOptions.length > 0 && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Tüm Seçenekler (A-Z)
+                    </div>
+                  )}
                   {filteredAllOptions.map((option) => {
                     const isChecked = selectedSet.has(option);
                     return (
@@ -262,12 +255,12 @@ function CategoryMultiSelectCombobox({
       </div>
 
       {/* Selected Chips */}
-      {selectedInCategory.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-3">
-          {selectedInCategory.map((item) => (
+      {hasSelections && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {selectedInField.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 shadow-2xs transition-all"
             >
               <span>{item}</span>
               {!disabled && (
@@ -298,14 +291,6 @@ export function FounderPartnershipTypeStep({
   errors,
   themeColor = 'amber',
 }: FounderPartnershipTypeStepProps) {
-  const [showCustomPartnershipType, setShowCustomPartnershipType] = useState<boolean>(
-    Boolean(partnershipTypesOther && partnershipTypesOther.trim().length > 0)
-  );
-
-  const [showCustomExpertise, setShowCustomExpertise] = useState<boolean>(
-    Boolean(expertiseOther && expertiseOther.trim().length > 0)
-  );
-
   const selectedPartnershipSet = useMemo(() => new Set(partnershipTypes), [partnershipTypes]);
   const selectedExpertiseSet = useMemo(() => new Set(expertise), [expertise]);
 
@@ -391,6 +376,18 @@ export function FounderPartnershipTypeStep({
     });
   }
 
+  function removeExpertise(item: string) {
+    if (disabled) return;
+    const next = expertise.filter((e) => e !== item);
+    onChange({
+      partnershipTypes,
+      partnershipType: partnershipTypes.join(', '),
+      partnershipTypesOther,
+      expertise: next,
+      expertiseOther,
+    });
+  }
+
   function handleCustomExpertiseChange(val: string[] | string) {
     const serialized = Array.isArray(val) ? val.join(' · ') : String(val ?? '');
     onChange({
@@ -403,92 +400,67 @@ export function FounderPartnershipTypeStep({
   }
 
   return (
-    <div className="space-y-8">
-      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (2x2 SELECT/COMBOBOX GRID) */}
-      <div className="space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-2.5 border-b border-border/70">
+    <div className="space-y-6">
+      {/* 1. BÖLÜM: ORTAKLIK TÜRLERİ (Standart 2-Kolon Form Grid Yapısı) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-border/60">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-foreground">
-                Ortaklık türleri
+              <h3 className="text-base font-bold text-foreground">
+                Ortaklık Türleri
               </h3>
               <span className="text-rose-500 font-bold">*</span>
               {totalPartnershipSelectedCount > 0 && (
-                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2.5 py-0.5">
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.5">
                   {totalPartnershipSelectedCount} seçili
                 </Badge>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Nasıl bir ortak aradığınızı kategorilerden seçin (birden fazla tür seçebilirsiniz).
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Nasıl bir ortak aradığınızı ilgili alanlardan seçin (birden fazla tür seçebilirsiniz).
             </p>
           </div>
         </div>
 
-        {/* 2x2 Grid Yerleşimi: Üstte 2, Altta 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        {/* Standart 2-Kolonlu Form Alanları */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {PARTNERSHIP_TYPE_CATEGORIES.map((category) => (
-            <CategoryMultiSelectCombobox
+            <StandardMultiSelectField
               key={category.id}
-              category={category}
+              label={category.title}
+              description={category.description}
+              popularOptions={category.popularOptions}
+              options={category.options}
               selectedSet={selectedPartnershipSet}
               onToggle={togglePartnershipType}
               onRemove={removePartnershipType}
+              placeholder="Ortaklık türü seçin"
               disabled={disabled}
             />
           ))}
         </div>
 
-        {/* Diğer / Kendim Gireceğim - Ortaklık Tipi */}
-        <div className="pt-2">
-          <label
-            htmlFor="partnership-other-checkbox"
-            className={cn(
-              'flex items-center gap-3 rounded-xl border p-3 sm:p-3.5 transition-all duration-150 cursor-pointer select-none text-left',
-              showCustomPartnershipType || customPartnershipChips.length > 0
-                ? 'border-amber-500/80 bg-amber-500/[0.04] ring-1 ring-amber-500/30 dark:border-amber-500/60 dark:bg-amber-500/[0.08]'
-                : 'border-slate-200/90 bg-white hover:border-slate-300 dark:border-border dark:bg-card'
-            )}
-          >
-            <Checkbox
-              id="partnership-other-checkbox"
-              checked={showCustomPartnershipType || customPartnershipChips.length > 0}
-              onCheckedChange={(checked) => {
-                setShowCustomPartnershipType(checked === true);
-                if (checked !== true) {
-                  handleCustomPartnershipChange([]);
-                }
-              }}
+        {/* Özel Ortaklık Türü Ekleme (Smart Custom Selector) */}
+        <div className="pt-1">
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3.5 dark:border-border dark:bg-card/50 space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="custom-partnership-type-selector" className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
+                Özel / Farklı Ortaklık Türü Ekle (İsteğe Bağlı)
+              </Label>
+            </div>
+            <SmartCustomSelector
+              id="custom-partnership-type-selector"
+              domain="partnership-types"
+              themeColor="amber"
+              mode="multi"
+              value={customPartnershipChips}
+              onChange={handleCustomPartnershipChange}
+              placeholder="Örn: E-Ticaret Ortağı, Fabrika Ortağı, Yatırımcı..."
+              searchPlaceholder="Ortaklık türü ara veya kendin yaz..."
+              helperText="Kategorilerde bulamadığınız özel ortaklık modelinizi yazıp Enter'a basarak ekleyebilirsiniz."
               disabled={disabled}
-              className="shrink-0 rounded-md data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
             />
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
-                Diğer / Kendim Gireceğim
-              </span>
-              <span className="text-[11px] text-muted-foreground font-normal">
-                (Aradığınız ortaklık türü kategorilerde yoksa yazarak ekleyin)
-              </span>
-            </div>
-          </label>
-
-          {(showCustomPartnershipType || customPartnershipChips.length > 0) && (
-            <div className="mt-3 pl-2 sm:pl-4 border-l-2 border-amber-500/40">
-              <SmartCustomSelector
-                id="custom-partnership-type-selector"
-                label="Özel Ortaklık Türü Belirtin"
-                domain="partnership-types"
-                themeColor="amber"
-                mode="multi"
-                value={customPartnershipChips}
-                onChange={handleCustomPartnershipChange}
-                placeholder="Örn: E-Ticaret Ortağı, Yatırımcı, Fabrika..."
-                searchPlaceholder="Seçenek ara veya kendin yaz..."
-                helperText="Listeden eşleşen seçenekleri tıklayarak ekleyebilir veya kendi ifadenizi yazıp Enter'a basabilirsiniz."
-                disabled={disabled}
-              />
-            </div>
-          )}
+          </div>
         </div>
 
         {errors?.partnershipTypes && (
@@ -498,107 +470,57 @@ export function FounderPartnershipTypeStep({
         )}
       </div>
 
-      {/* 2. BÖLÜM: ARANAN UZMANLIKLAR */}
-      <div className="space-y-5 pt-2">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-2.5 border-b border-border/70">
+      {/* 2. BÖLÜM: ARANAN UZMANLIKLAR (Standart 2-Kolon Form Yapısı) */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center justify-between pb-2 border-b border-border/60">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-foreground">
-                Aranan uzmanlıklar
+              <h3 className="text-base font-bold text-foreground">
+                Aranan Uzmanlıklar
               </h3>
               {totalExpertiseSelectedCount > 0 && (
-                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2.5 py-0.5">
+                <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-semibold px-2 py-0.5">
                   {totalExpertiseSelectedCount} seçili
                 </Badge>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Ortakta aradığınız temel yetkinlik ve uzmanlık alanlarını belirleyin (isteğe bağlı).
             </p>
           </div>
         </div>
 
-        {/* 18 Uzmanlık Seçenekleri Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {CANONICAL_PARTNER_EXPERTISE_OPTIONS.map((exp) => {
-            const isChecked = selectedExpertiseSet.has(exp);
-            const expId = `expertise-${exp.replace(/\s+/g, '-').toLowerCase()}`;
-            return (
-              <label
-                key={exp}
-                htmlFor={expId}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl border p-3 sm:p-3.5 transition-all duration-150 cursor-pointer select-none text-left min-h-[48px]',
-                  isChecked
-                    ? 'border-amber-500/80 bg-amber-500/[0.04] ring-1 ring-amber-500/30 dark:border-amber-500/60 dark:bg-amber-500/[0.08] shadow-2xs'
-                    : 'border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/50 dark:border-border dark:bg-card dark:hover:border-slate-700'
-                )}
-              >
-                <Checkbox
-                  id={expId}
-                  checked={isChecked}
-                  onCheckedChange={() => toggleExpertise(exp)}
-                  disabled={disabled}
-                  className="shrink-0 rounded-md data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
-                />
-                <span className="text-xs sm:text-sm font-medium text-slate-800 dark:text-foreground leading-snug">
-                  {exp}
-                </span>
-              </label>
-            );
-          })}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <StandardMultiSelectField
+            label="Uzmanlık ve Yetkinlik Alanları"
+            description="Teknik, operasyonel, pazarlama veya yönetsel uzmanlıklar"
+            options={CANONICAL_PARTNER_EXPERTISE_OPTIONS}
+            selectedSet={selectedExpertiseSet}
+            onToggle={toggleExpertise}
+            onRemove={removeExpertise}
+            placeholder="Uzmanlık alanı seçin"
+            disabled={disabled}
+          />
 
-        {/* Diğer / Kendim Gireceğim - Aranan Uzmanlıklar */}
-        <div className="pt-1">
-          <label
-            htmlFor="expertise-other-checkbox"
-            className={cn(
-              'flex items-center gap-3 rounded-xl border p-3 sm:p-3.5 transition-all duration-150 cursor-pointer select-none text-left',
-              showCustomExpertise || customExpertiseChips.length > 0
-                ? 'border-amber-500/80 bg-amber-500/[0.04] ring-1 ring-amber-500/30 dark:border-amber-500/60 dark:bg-amber-500/[0.08]'
-                : 'border-slate-200/90 bg-white hover:border-slate-300 dark:border-border dark:bg-card'
-            )}
-          >
-            <Checkbox
-              id="expertise-other-checkbox"
-              checked={showCustomExpertise || customExpertiseChips.length > 0}
-              onCheckedChange={(checked) => {
-                setShowCustomExpertise(checked === true);
-                if (checked !== true) {
-                  handleCustomExpertiseChange([]);
-                }
-              }}
+          <div className="space-y-1.5">
+            <Label htmlFor="custom-expertise-selector" className="text-sm font-semibold text-foreground">
+              Özel Uzmanlık / Yetkinlik Belirtin
+            </Label>
+            <p className="text-xs text-muted-foreground leading-normal line-clamp-1">
+              Listede olmayan özel bir uzmanlık alanı yazıp ekleyin
+            </p>
+            <SmartCustomSelector
+              id="custom-expertise-selector"
+              domain="partner-expertise"
+              themeColor="amber"
+              mode="multi"
+              value={customExpertiseChips}
+              onChange={handleCustomExpertiseChange}
+              placeholder="Örn: LLM Mimarisi, Biyoteknoloji..."
+              searchPlaceholder="Uzmanlık ara veya kendin yaz..."
               disabled={disabled}
-              className="shrink-0 rounded-md data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
             />
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-foreground">
-                Diğer / Kendim Gireceğim
-              </span>
-              <span className="text-[11px] text-muted-foreground font-normal">
-                (Özel uzmanlık veya teknik gereksinim belirtin)
-              </span>
-            </div>
-          </label>
-
-          {(showCustomExpertise || customExpertiseChips.length > 0) && (
-            <div className="mt-3 pl-2 sm:pl-4 border-l-2 border-amber-500/40">
-              <SmartCustomSelector
-                id="custom-expertise-selector"
-                label="Özel Uzmanlık / Yetkinlik Belirtin"
-                domain="partner-expertise"
-                themeColor="amber"
-                mode="multi"
-                value={customExpertiseChips}
-                onChange={handleCustomExpertiseChange}
-                placeholder="Örn: LLM Mimarisi, Solidity, Biyoteknoloji..."
-                searchPlaceholder="Uzmanlık ara veya kendin yaz..."
-                helperText="Listeden aradığınız uzmanlığı seçebilir veya yeni bir uzmanlık alanı yazıp ekleyebilirsiniz."
-                disabled={disabled}
-              />
-            </div>
-          )}
+          </div>
         </div>
 
         {errors?.expertise && (
