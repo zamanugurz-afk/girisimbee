@@ -7,6 +7,11 @@ import type { NextRequest } from 'next/server';
  * IPv4 is stable. IPv6 privacy addresses rotate under the same /64.
  */
 const BUILTIN_PREVIEW_IPS = [
+  '78.188.78.23',
+  '78.188.78.0/24',
+  '78.188.0.0/16',
+  '2a00:1d37:2c0e:8800::/64',
+  '2a00:1d37:2c0e:8800:8853:99f6:100b:26a4',
   '88.239.149.205',
   '88.239.149.0/24',
   '88.239.0.0/16',
@@ -21,6 +26,7 @@ const BUILTIN_PREVIEW_IPS = [
   '10.22.51.74',
   '10.0.0.0/8',
   '192.168.0.0/16',
+  '192.168.1.188',
   '2a02:ff0:3d10:ddae:adcd:8276:398:8e2e',
   '2a02:ff0:3d10:ddae::/64',
 ] as const;
