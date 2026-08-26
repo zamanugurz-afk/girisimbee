@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo } from 'react';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
@@ -145,7 +145,7 @@ export function FounderPartnershipTypeStep({
               technicalSkillsOther,
               tools: joinSelectedList(selectedTools),
               toolsOther,
-              expertise: next,
+              expertise: selectedTechnicalSkills,
               expertiseOther,
             });
           }}
@@ -161,12 +161,12 @@ export function FounderPartnershipTypeStep({
               technicalSkillsOther,
               tools: joinSelectedList(selectedTools),
               toolsOther,
-              expertise: selectedPartnershipTypes,
+              expertise: selectedTechnicalSkills,
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan özel ortaklık türünü yazın (Örn: Saha Satış Ortağı, Franchise Ortağı)..."
-          searchPlaceholder="Ortaklık türü ara..."
+          manualPlaceholder="Listede olmayan ortaklık modelini yazın (Örn: Fabrika ve Üretim Tesisi Ortağı, Acentelik Ortağı)..."
+          searchPlaceholder="Ortaklık modeli ara..."
           disabled={disabled}
           error={errors?.partnershipTypes}
         />
@@ -191,7 +191,7 @@ export function FounderPartnershipTypeStep({
               technicalSkillsOther,
               tools: joinSelectedList(selectedTools),
               toolsOther,
-              expertise: selectedPartnershipTypes,
+              expertise: selectedTechnicalSkills,
               expertiseOther,
             });
           }}
@@ -207,11 +207,11 @@ export function FounderPartnershipTypeStep({
               technicalSkillsOther,
               tools: joinSelectedList(selectedTools),
               toolsOther,
-              expertise: selectedPartnershipTypes,
+              expertise: selectedTechnicalSkills,
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan mesleki yetkinliği yazın (Örn: İhale Yönetimi, Yatırımcı İlişkileri)..."
+          manualPlaceholder="Listede olmayan mesleki yetkinliği yazın (Örn: B2B Satış, İhale Yönetimi, Yatırımcı İlişkileri)..."
           searchPlaceholder="Yetkinlik ara..."
           disabled={disabled}
           error={errors?.professionalSkills}
@@ -257,17 +257,17 @@ export function FounderPartnershipTypeStep({
               expertiseOther: next,
             });
           }}
-          manualPlaceholder="Listede olmayan teknik uzmanlığı yazın (Örn: LLM Finetuning, CAD Çizim)..."
+          manualPlaceholder="Listede olmayan teknik uzmanlığı yazın (Örn: SolidWorks, CAD/CAM, CNC, LLM Finetuning)..."
           searchPlaceholder="Teknik uzmanlık ara..."
           disabled={disabled}
           error={errors?.technicalSkills}
         />
       </div>
 
-      {/* 4. BLOK: KULLANILAN / ARANAN ARAÇLAR VE PROGRAMLAR */}
+      {/* 4. BLOK: KULLANILAN / ARANAN ARAÇLAR VE TEKNOLOJİLER */}
       <div className="space-y-2 pt-1">
         <CareerMultiSelect
-          label="Kullanılan / Aranan Araçlar ve Teknolojiler (İsteğe Bağlı)"
+          label="Kullanılan / Aranan Araçlar, Teknolojiler ve Ekipmanlar (İsteğe Bağlı)"
           domain="tools"
           themeColor="amber"
           options={suggestions.tools}
@@ -303,8 +303,8 @@ export function FounderPartnershipTypeStep({
               expertiseOther,
             });
           }}
-          manualPlaceholder="Listede olmayan araç veya programı yazın (Örn: SolidWorks, Canva, Jira)..."
-          searchPlaceholder="Araç veya program ara..."
+          manualPlaceholder="Listede olmayan araç veya ekipmanı yazın (Örn: SAP, SolidWorks, Adisyo, Salesforce)..."
+          searchPlaceholder="Araç veya ekipman ara..."
           disabled={disabled}
           error={errors?.tools}
         />

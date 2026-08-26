@@ -1,4 +1,4 @@
-﻿import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
+import { MANUAL_OPTION } from '@/features/candidates/taxonomy/career-taxonomy';
 import { normalizeTurkishSearch } from '@/features/shared/services/set-matching.service';
 
 export interface FounderSuggestionContext {
@@ -486,17 +486,51 @@ const PARTNER_TYPE_MODIFIERS: Record<string, {
       'Melek Yatırımcı (Angel Investor)',
       'Sermaye Ortağı (Sessiz / Finansal Ortak)',
       'Stratejik Yatırımcı (Sektörel Güç)',
+      'Yatırımcı Ortak (Mali Destek)',
     ],
     professionalSkills: [
       'Yatırımcı İlişkileri ve Sermaye Artırımı (Fundraising)',
       'Finansal Modelleme ve Şirket Değerleme (Valuation)',
+      'Stratejik Büyüme ve Birleşme/Devralma (M&A)',
     ],
     technicalSkills: [
       'Finansal Tablolar ve Nakit Akışı Modellemesi',
+      'Cap Table ve Hisse Yapısı Planlaması',
     ],
     tools: [
       'Excel / Google Sheets (İleri Finansal Modeller)',
       'Pitch Deck / Keynote',
+    ],
+  },
+  physical: {
+    partnershipTypes: [
+      'Fabrika ve Üretim Tesisi Sağlayıcı Ortak',
+      'Dükkan ve Mağaza Alanı Sağlayıcı Ortak',
+      'Ofis ve Çalışma Alanı Sağlayıcı Ortak',
+      'Depo ve Lojistik Alanı Sağlayıcı Ortak',
+      'Endüstriyel Makine ve Ekipman Sağlayıcı Ortak',
+      'Araç ve Ticari Filo Sağlayıcı Ortak',
+      'Arsa, Arazi ve Gayrimenkul Sağlayıcı Ortak',
+      'Mutfak, Restoran ve Dark Kitchen Alanı Ortağı',
+    ],
+    professionalSkills: [
+      'Üretim ve Tesis Operasyon Yönetimi',
+      'Lojistik, Sevkiyat ve Depolama Yönetimi',
+      'Tesis Bakım, Onarım ve İş Güvenliği (İSG)',
+      'Kira, Mülkiyet ve Gayrimenkul Hukuku',
+      'Kapasite ve Verimlilik Planlaması',
+    ],
+    technicalSkills: [
+      'Tesis Yerleşimi ve Hat Optimizasyonu',
+      'Endüstriyel Elektrik ve Mekanik Altyapı',
+      'Depo Yönetim Sistemleri (WMS / ERP)',
+      'CNC ve İmalat Makineleri Operasyonu',
+    ],
+    tools: [
+      'SAP / Logo ERP (Stok ve Üretim)',
+      'WMS Depo ve Barkod Sistemleri',
+      'AutoCAD (Tesis ve Yerleşim Çizimi)',
+      'Excel (Kapasite ve Alan Planlama)',
     ],
   },
 };
@@ -556,7 +590,7 @@ function detectSectorKey(text: string): keyof typeof SECTOR_KNOWLEDGE {
   if (s.includes('fintech') || s.includes('finans') || s.includes('odeme') || s.includes('kripto') || s.includes('banka') || s.includes('sigorta')) {
     return 'fintech';
   }
-  if (s.includes('e-ticaret') || s.includes('eticaret') || s.includes('perakende') || s.includes('pazar yeri') || s.includes('magaza') || s.includes('moda') || s.includes('d2c')) {
+  if (s.includes('e-ticaret') || s.includes('eticaret') || s.includes('marketplace') || s.includes('pazaryeri') || s.includes('perakende') || s.includes('pazar yeri') || s.includes('magaza') || s.includes('moda') || s.includes('d2c')) {
     return 'ecommerce';
   }
   if (s.includes('gida') || s.includes('restoran') || s.includes('cafe') || s.includes('kahve') || s.includes('yemek') || s.includes('mutfak') || s.includes('fast food')) {
@@ -565,10 +599,16 @@ function detectSectorKey(text: string): keyof typeof SECTOR_KNOWLEDGE {
   if (s.includes('proptech') || s.includes('gayrimenkul') || s.includes('insaat') || s.includes('arsa') || s.includes('konut')) {
     return 'proptech';
   }
+  if (s.includes('lojistik') || s.includes('depo') || s.includes('kargo') || s.includes('tasimacilik') || s.includes('filo') || s.includes('kurye') || s.includes('sevkiyat')) {
+    return 'ecommerce';
+  }
   if (s.includes('egitim') || s.includes('edtech') || s.includes('akademi') || s.includes('kurs') || s.includes('ogrenci')) {
     return 'edtech';
   }
-  if (s.includes('uretim') || s.includes('sanayi') || s.includes('fabrika') || s.includes('imalat') || s.includes('makine') || s.includes('otomotiv')) {
+  if (s.includes('oyun') || s.includes('gaming') || s.includes('simulasyon') || s.includes('animasyon') || s.includes('espor')) {
+    return 'tech';
+  }
+  if (s.includes('uretim') || s.includes('sanayi') || s.includes('fabrika') || s.includes('imalat') || s.includes('makine') || s.includes('otomotiv') || s.includes('endustri')) {
     return 'manufacturing';
   }
   if (s.includes('yazilim') || s.includes('saas') || s.includes('teknoloji') || s.includes('yapay zeka') || s.includes('ai') || s.includes('bilgisayar') || s.includes('mobil') || s.includes('siber') || s.includes('bilisim')) {
@@ -579,6 +619,9 @@ function detectSectorKey(text: string): keyof typeof SECTOR_KNOWLEDGE {
 
 function detectPartnerTypeKey(text: string): string {
   const s = normalizeTurkishSearch(text || '');
+  if (s.includes('fabrika') || s.includes('dukkan') || s.includes('magaza') || s.includes('ofis') || s.includes('depo') || s.includes('makine') || s.includes('arac') || s.includes('filo') || s.includes('arsa') || s.includes('varlik') || s.includes('is yeri') || s.includes('mutfak') || s.includes('santral') || s.includes('tesis')) {
+    return 'physical';
+  }
   if (s.includes('acente') || s.includes('temsilci') || s.includes('distributor') || s.includes('bayi')) {
     return 'agency';
   }

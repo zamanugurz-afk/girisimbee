@@ -1,5 +1,5 @@
 import type { ListingAggregate } from '@/features/listings/types/listing-engine.types';
-import type { ListingDetail, ListingPublisher } from '@/features/listings/types/listing.types';
+import type { ListingDetail, ListingPublisher, PartnershipCardData } from '@/features/listings/types/listing.types';
 import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
 import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
@@ -632,8 +632,46 @@ export function aggregateToListingDetail(
               coverUrl: careerCoverUrl,
             })
           : undefined,
+    partnershipCard:
+      categorySlug === 'ortak-bul'
+        ? buildPartnershipCard(cf, listing.city)
+        : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
+  };
+}
+
+function buildPartnershipCard(cf: Record<string, unknown>, city: string | null): PartnershipCardData {
+  const readList = (val: unknown): string[] => {
+    if (Array.isArray(val)) return val.map(String).filter(Boolean);
+    if (typeof val === 'string' && val.trim()) {
+      return val.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
+  const partnershipTypes = readList(cf.partnershipTypes ?? cf.partnershipType);
+  const professionalSkills = readList(cf.professionalSkills);
+  const technicalSkills = readList(cf.technicalSkills ?? cf.expertise ?? cf.requiredSkills);
+  const tools = readList(cf.tools);
+
+  return {
+    intent: (cf.partnershipIntent as 'seeking' | 'joining') ?? 'seeking',
+    sector: (cf.sector ?? cf.primarySector ?? null) as string | null,
+    stage: (cf.projectStage ?? cf.startupStage ?? null) as string | null,
+    partnershipType: (cf.partnershipType ?? null) as string | null,
+    partnershipTypes: partnershipTypes.length > 0 ? partnershipTypes : undefined,
+    partnershipTypesOther: (cf.partnershipTypesOther ?? cf.partnershipTypeOther ?? null) as string | null,
+    professionalSkills: professionalSkills.length > 0 ? professionalSkills : undefined,
+    professionalSkillsOther: (cf.professionalSkillsOther ?? null) as string | null,
+    technicalSkills: technicalSkills.length > 0 ? technicalSkills : undefined,
+    technicalSkillsOther: (cf.technicalSkillsOther ?? cf.expertiseOther ?? null) as string | null,
+    tools: tools.length > 0 ? tools : undefined,
+    toolsOther: (cf.toolsOther ?? null) as string | null,
+    commitment: (cf.commitment ?? null) as string | null,
+    equityOffered: (cf.equityOffered ?? null) as number | string | null,
+    city: city ?? null,
+    district: (cf.district ?? null) as string | null,
   };
 }
 

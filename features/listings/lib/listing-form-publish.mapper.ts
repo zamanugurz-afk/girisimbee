@@ -236,6 +236,16 @@ export function listingFormValuesToModulePayload(
         expertise: readStringArray(customFields.expertise),
         expertiseOther: readString(customFields.expertiseOther),
         offeredSkills: readStringArray(customFields.offeredSkills),
+        professionalSkills:
+          readStringArray(customFields.professionalSkills)
+          ?? readString(customFields.professionalSkills),
+        professionalSkillsOther: readString(customFields.professionalSkillsOther),
+        technicalSkills:
+          readStringArray(customFields.technicalSkills)
+          ?? readString(customFields.technicalSkills),
+        technicalSkillsOther: readString(customFields.technicalSkillsOther),
+        tools: readStringArray(customFields.tools) ?? readString(customFields.tools),
+        toolsOther: readString(customFields.toolsOther),
         sectors,
         experience: readString(customFields.experience),
         equityOffered: customFields.equityOffered,

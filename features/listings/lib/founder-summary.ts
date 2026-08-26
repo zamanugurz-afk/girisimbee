@@ -16,8 +16,11 @@ export interface FounderSummaryContext {
   expertise?: string[] | string;
   expertiseOther?: string;
   professionalSkills?: string[] | string;
+  professionalSkillsOther?: string;
   technicalSkills?: string[] | string;
+  technicalSkillsOther?: string;
   tools?: string[] | string;
+  toolsOther?: string;
   city?: string | null;
   district?: string | null;
 }
@@ -51,16 +54,29 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
       ...parseList(ctx.professionalSkills),
       ...parseList(ctx.technicalSkills),
       ...(ctx.expertiseOther?.trim() ? [ctx.expertiseOther.trim()] : []),
+      ...(ctx.professionalSkillsOther?.trim() ? [ctx.professionalSkillsOther.trim()] : []),
+      ...(ctx.technicalSkillsOther?.trim() ? [ctx.technicalSkillsOther.trim()] : []),
     ])
   ).filter((e) => e !== 'Diğer' && e !== 'Diğer / Kendim gireceğim');
 
   const expertiseStr = allSkills.slice(0, 6).join(', ');
-  const toolsList = parseList(ctx.tools).slice(0, 5).join(', ');
+  const toolsList = Array.from(
+    new Set([
+      ...parseList(ctx.tools),
+      ...(ctx.toolsOther?.trim() ? [ctx.toolsOther.trim()] : []),
+    ])
+  ).filter((t) => t !== 'Diğer' && t !== 'Diğer / Kendim gireceğim').slice(0, 5).join(', ');
   const location = [ctx.city, ctx.district].filter(Boolean).join(' / ');
+
+  const stagePhrase = stage
+    ? stage.toLocaleLowerCase('tr-TR').includes('aşama') || stage.toLocaleLowerCase('tr-TR').includes('asama')
+      ? stage.toLocaleLowerCase('tr-TR') + ' olan projemiz için'
+      : stage.toLocaleLowerCase('tr-TR') + ' aşamasındaki projemiz için'
+    : 'büyüyen projemiz için';
 
   const shortParts = [
     sector ? sector + ' alanında' : '',
-    stage ? stage.toLocaleLowerCase('tr-TR') + ' olan projemiz için' : 'büyüyen projemiz için',
+    stagePhrase,
     expertiseStr ? expertiseStr + ' konularında yetkin' : '',
     commitment.toLocaleLowerCase('tr-TR') + ' ' + partnerType.toLocaleLowerCase('tr-TR') + ' arıyoruz',
     equityStr ? '(' + equityStr + ' hisse payı ile)' : '',
@@ -69,8 +85,13 @@ export function buildFounderSummaryDraft(ctx: FounderSummaryContext): FounderSum
   const shortDescription = normalizeListingDescription(shortParts.join(' ').trim() + '.');
 
   const longSentences: string[] = [];
+  const stageLongPhrase = stage
+    ? stage.toLocaleLowerCase('tr-TR').includes('aşama') || stage.toLocaleLowerCase('tr-TR').includes('asama')
+      ? ' ' + stage.toLocaleLowerCase('tr-TR') + ' olarak'
+      : ' ' + stage.toLocaleLowerCase('tr-TR') + ' aşamasında'
+    : '';
   longSentences.push(
-    title + ' projemiz' + (sector ? ', ' + sector + ' sektöründe' : '') + (stage ? ' ' + stage.toLocaleLowerCase('tr-TR') + ' olarak' : '') + ' faaliyet göstermektedir.'
+    title + ' projemiz' + (sector ? ', ' + sector + ' sektöründe' : '') + stageLongPhrase + ' faaliyet göstermektedir.'
   );
 
   if (expertiseStr) {

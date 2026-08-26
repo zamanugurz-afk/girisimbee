@@ -160,6 +160,32 @@ export function tokenizeTurkish(text: string): string[] {
  *  4. Substring Match (score 400)
  *  5. Multi-Token / Fuzzy Match (score 200)
  */
+export const TAXONOMY_ALIASES: Record<string, string[]> = {
+  'segem': ['SEGEM', 'SEGEM Teknik Personel Yeterlilik Belgesi', 'Sigorta Acenteliği Uygunluk Belgesi'],
+  'sigorta': ['SEGEM', 'Sigorta Acenteliği Uygunluk Belgesi', 'Sigorta ve Reasürans Danışmanı Ortak', 'Hukuk, KVKK ve Regülasyon Ortağı'],
+  'fabrika': ['Fabrika ve Üretim Tesisi Sağlayıcı Ortak', 'Üretim ve Tesis Operasyon Ortağı', 'Endüstriyel Makine ve Ekipman Sağlayıcı Ortak'],
+  'uretim': ['Fabrika ve Üretim Tesisi Sağlayıcı Ortak', 'Üretim ve Tesis Operasyon Ortağı', 'Endüstriyel Makine ve Ekipman Sağlayıcı Ortak', 'Endüstriyel Tasarım ve Ürün Geliştirme Ortağı'],
+  'dukkan': ['Dükkan ve Mağaza Alanı Sağlayıcı Ortak', 'Perakende ve Mağaza İşletme Ortağı', 'Mevcut Faal ve Hazır İşletmeye Ortak'],
+  'magaza': ['Dükkan ve Mağaza Alanı Sağlayıcı Ortak', 'Perakende ve Mağaza İşletme Ortağı'],
+  'depo': ['Depo ve Lojistik Alanı Sağlayıcı Ortak', 'Soğuk Hava Deposu ve Özel Depolama Alanı Ortağı', 'Tedarik Zinciri ve Lojistik Yönetim Ortağı'],
+  'arac': ['Araç ve Ticari Filo Sağlayıcı Ortak', 'Ağır Vasıta ve Lojistik Araç Filosu Ortağı'],
+  'filo': ['Araç ve Ticari Filo Sağlayıcı Ortak', 'Ağır Vasıta ve Lojistik Araç Filosu Ortağı'],
+  'makine': ['Endüstriyel Makine ve Ekipman Sağlayıcı Ortak', 'İnşaat Makinesi ve İş Makinesi Ekipman Ortağı', 'Makine ve Mekatronik Mühendisliği Ortağı'],
+  'arsa': ['Arsa, Arazi ve Gayrimenkul Sağlayıcı Ortak', 'Sera, Tarım ve Hayvancılık Arazisi Sağlayıcı Ortak', 'Gayrimenkul ve Proje Finansmanı Ortağı'],
+  'arazi': ['Arsa, Arazi ve Gayrimenkul Sağlayıcı Ortak', 'Sera, Tarım ve Hayvancılık Arazisi Sağlayıcı Ortak'],
+  'atolye': ['Atölye ve İmalathane Alanı Sağlayıcı Ortak', 'Fabrika ve Üretim Tesisi Sağlayıcı Ortak'],
+  'bolge': ['Bölge Müdürü', 'Bölge Satış Müdürü', 'Bölge Operasyon Müdürü', 'Şube ve Bölge Müdürü Ortak'],
+  'satis': ['Satış ve B2B İş Geliştirme Ortağı', 'Satış ve İşletme Ortağı', 'Saha ve Satış Operasyon Ortağı', 'Acentelik ve Temsilcilik Ortağı'],
+  'pazarlama': ['Pazarlama ve Büyüme Ortağı (Growth / CMO)', 'Dijital Pazarlama ve SEO / SEM Ortağı', 'Performans Pazarlaması ve Reklam Ortağı'],
+  'finans': ['Finans ve Muhasebe Ortağı (CFO)', 'Sermaye Ortağı (Sessiz / Finansal Ortak)', 'Yatırımcı Ortak (Mali Destek)'],
+  'yatirim': ['Melek Yatırımcı (Angel Investor)', 'Sermaye Ortağı (Sessiz / Finansal Ortak)', 'Stratejik Yatırımcı (Sektörel Güç)', 'Yatırımcı Ortak (Mali Destek)', 'Erken Aşama Yatırımcısı (Pre-Seed / Seed)', 'Girişim Sermayesi (VC) Temsilcisi Ortak'],
+  'yazilim': ['Teknik Ortak (CTO)', 'Yazılım ve Sistem Geliştirme Ortağı', 'Mobil Uygulama Geliştirme Ortağı (iOS / Android)', 'DevOps ve Bulut Altyapı Ortağı'],
+  'cto': ['Teknik Ortak (CTO)', 'Yazılım ve Sistem Geliştirme Ortağı', 'Yapay Zeka ve Makine Öğrenimi Ortağı (AI/ML)'],
+  'operasyon': ['Operasyon Ortağı (COO)', 'Üretim ve Tesis Operasyon Ortağı', 'E-Ticaret ve Pazar Yeri Operasyon Ortağı', 'Tedarik Zinciri ve Lojistik Yönetim Ortağı'],
+  'teknoloji': ['Teknik Ortak (CTO)', 'Biyoteknoloji ve Sağlık Teknolojisi Ortağı', 'Donanım, Elektronik ve IoT Ortağı'],
+  'ortak': ['İşletme Ortağı', 'Yönetim Ortağı', 'Kurucu Ortak (Co-Founder)', 'Teknik Ortak (CTO)', 'Melek Yatırımcı (Angel Investor)'],
+};
+
 export function searchTaxonomyCatalog<T = string>(
   query: string,
   catalog: readonly T[] | T[],
@@ -197,6 +223,8 @@ export function searchTaxonomyCatalog<T = string>(
   }
 
   const matches: ScoredMatch<T>[] = [];
+  const directAliases = TAXONOMY_ALIASES[normalizedQuery] ?? [];
+  const aliasMap = new Map(directAliases.map((a, idx) => [normalizeTurkishSearch(a), idx]));
 
   for (const item of catalog) {
     const val = getValue(item);
@@ -218,7 +246,19 @@ export function searchTaxonomyCatalog<T = string>(
       continue;
     }
 
-    // 2. Starts with (Prefix match)
+    // 2. Direct Alias Match (e.g. 'segem' -> 'SEGEM')
+    if (aliasMap.has(normalizedVal)) {
+      const aliasIdx = aliasMap.get(normalizedVal) ?? 0;
+      matches.push({
+        item,
+        value: val,
+        score: 980 - (aliasIdx * 10),
+        matchQuality: 'prefix',
+      });
+      continue;
+    }
+
+    // 3. Starts with (Prefix match)
     if (normalizedVal.startsWith(normalizedQuery)) {
       const lengthPenalty = Math.min(val.length - rawQuery.length, 50);
       matches.push({
@@ -230,7 +270,7 @@ export function searchTaxonomyCatalog<T = string>(
       continue;
     }
 
-    // 3. Word-Boundary Match (e.g., query matches the start of any word inside the item)
+    // 4. Word-Boundary Match (e.g., query matches the start of any word inside the item)
     const valTokens = tokenizeTurkish(val);
     const wordStartMatch = valTokens.some((t) => t.startsWith(normalizedQuery));
     if (wordStartMatch) {
@@ -245,7 +285,7 @@ export function searchTaxonomyCatalog<T = string>(
       continue;
     }
 
-    // 4. Substring Match
+    // 5. Substring Match
     if (normalizedVal.includes(normalizedQuery)) {
       const subIndex = normalizedVal.indexOf(normalizedQuery);
       matches.push({
@@ -257,7 +297,7 @@ export function searchTaxonomyCatalog<T = string>(
       continue;
     }
 
-    // 5. Multi-Token / All Tokens Present Match
+    // 6. Multi-Token / All Tokens Present Match
     if (queryTokens.length > 1) {
       const allTokensPresent = queryTokens.every((qTok) =>
         valTokens.some((vTok) => vTok.includes(qTok)),

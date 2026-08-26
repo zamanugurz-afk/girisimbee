@@ -64,17 +64,23 @@ function withDiger(districts: readonly string[]): string[] {
 
 function resolveCityKey(city: string | null | undefined): string | null {
   if (!city) return null;
-  if (city === 'İstanbul Avrupa Yakası' || city === 'İstanbul Anadolu Yakası') return city;
-  if (city.startsWith('İstanbul')) return 'İstanbul';
-  return city;
+  const trimmed = city.trim();
+  if (trimmed === 'İstanbul Avrupa Yakası' || trimmed === 'İstanbul (Avrupa Yakası)') {
+    return 'İstanbul Avrupa Yakası';
+  }
+  if (trimmed === 'İstanbul Anadolu Yakası' || trimmed === 'İstanbul (Anadolu Yakası)') {
+    return 'İstanbul Anadolu Yakası';
+  }
+  if (trimmed.startsWith('İstanbul')) return 'İstanbul';
+  return trimmed;
 }
 
 export function getDistrictsForCity(city: string | null | undefined): string[] {
-  if (city === 'İstanbul Avrupa Yakası') return withDiger(ISTANBUL_AVRUPA_DISTRICTS);
-  if (city === 'İstanbul Anadolu Yakası') return withDiger(ISTANBUL_ANADOLU_DISTRICTS);
-
   const key = resolveCityKey(city);
   if (!key) return [];
+  if (key === 'İstanbul Avrupa Yakası') return withDiger(ISTANBUL_AVRUPA_DISTRICTS);
+  if (key === 'İstanbul Anadolu Yakası') return withDiger(ISTANBUL_ANADOLU_DISTRICTS);
+
   const districts = DISTRICTS_BY_CITY[key];
   if (districts?.length) return withDiger(districts.slice().sort((a, b) => a.localeCompare(b, 'tr-TR')));
   if ((TURKISH_CITIES as readonly string[]).includes(key)) {
@@ -84,7 +90,9 @@ export function getDistrictsForCity(city: string | null | undefined): string[] {
 }
 
 export function cityHasDetailedDistricts(city: string | null | undefined): boolean {
-  if (city === 'İstanbul Avrupa Yakası' || city === 'İstanbul Anadolu Yakası') return true;
   const key = resolveCityKey(city);
-  return Boolean(key && DISTRICTS_BY_CITY[key]?.length);
+  if (!key) return false;
+  if (key === 'İstanbul Avrupa Yakası' || key === 'İstanbul Anadolu Yakası') return true;
+  return Boolean(DISTRICTS_BY_CITY[key]?.length);
 }
+

@@ -188,11 +188,32 @@ export interface ListingDetail {
   investmentCard?: InvestmentCardData;
   /** Yatırım Yapacağım — structured founder-facing investor card. */
   investorCard?: InvestorCardData;
+  /** Ortak Arıyorum / Ortak Olmak İstiyorum — structured partnership card. */
+  partnershipCard?: PartnershipCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).
    */
   identityRedacted?: boolean;
+}
+
+export interface PartnershipCardData {
+  intent?: 'seeking' | 'joining';
+  sector?: string | null;
+  stage?: string | null;
+  partnershipType?: string | null;
+  partnershipTypes?: string[];
+  partnershipTypesOther?: string | null;
+  professionalSkills?: string[];
+  professionalSkillsOther?: string | null;
+  technicalSkills?: string[];
+  technicalSkillsOther?: string | null;
+  tools?: string[];
+  toolsOther?: string | null;
+  commitment?: string | null;
+  equityOffered?: number | string | null;
+  city?: string | null;
+  district?: string | null;
 }
 
 export interface ListingSummary {

@@ -132,46 +132,136 @@ function equityScore(left: number | null, right: number | null): number | null {
   return 0;
 }
 
-function dimension(
-  key: PartnershipMatchDimensionKey,
-  label: string,
-  score: number | null,
-  extra?: Pick<PartnershipMatchDimensionResult, 'matchedCount' | 'missingCount'>,
-): PartnershipMatchDimensionResult {
-  return {
-    key,
-    label,
-    weight: PARTNERSHIP_MATCH_WEIGHTS[key],
-    comparable: score != null,
-    score,
-    ...extra,
-  };
+export function resolvePartnershipWeights(
+  left: PartnershipMatchProfile,
+  right: PartnershipMatchProfile,
+): Record<PartnershipMatchDimensionKey, number> {
+  const typesHay = [
+    ...(left.partnershipTypes ?? []),
+    ...(right.partnershipTypes ?? []),
+    left.title ?? '',
+    right.title ?? '',
+  ].join(' ').toLocaleLowerCase('tr-TR');
+
+  // 1. Fiziksel İşletme ve Varlık Ortaklığı (Fabrika, Dükkan, Ofis, Depo, Makine, Arsa, Santral, Tesis)
+  if (/fabrika|dükkan|dukkan|mağaza|magaza|ofis|depo|arsa|arazi|makine|ekipman|araç|arac|filo|santral|sera|atölye|atolye|varlık|is yeri|iş yeri|mutfak/.test(typesHay)) {
+    return {
+      location: 30,
+      skills: 15,
+      partnershipType: 20,
+      sector: 15,
+      stage: 10,
+      commitment: 5,
+      experience: 5,
+      equity: 0,
+    };
+  }
+
+  // 2. Uzmanlık ve Teknik Ortaklık (CTO, Yazılım, Yapay Zeka, Tasarım, Ürün, Siber Güvenlik)
+  if (/cto|teknik|yazılım|yazilim|yapay zeka|ai|ml|tasarım|tasarim|devops|siber|ürün|urun|donanım|donanim/.test(typesHay)) {
+    return {
+      skills: 40,
+      partnershipType: 15,
+      sector: 15,
+      commitment: 15,
+      stage: 5,
+      experience: 5,
+      location: 5,
+      equity: 0,
+    };
+  }
+
+  // 3. Yatırımcı ve Finans Ortaklığı (Melek, Sermaye, Fon, VC, Pre-Seed, Yatırım)
+  if (/yatırım|yatirim|melek|sermaye|fon|vc|finans|cfo/.test(typesHay)) {
+    return {
+      sector: 25,
+      stage: 20,
+      equity: 20,
+      partnershipType: 15,
+      skills: 10,
+      commitment: 5,
+      location: 5,
+      experience: 0,
+    };
+  }
+
+  // 4. İşletme ve Yönetim Ortaklığı (Varsayılan Genel Dağılım: Toplam = 100)
+  return PARTNERSHIP_MATCH_WEIGHTS;
 }
 
 export function scorePartnershipDimensions(
   left: PartnershipMatchProfile,
   right: PartnershipMatchProfile,
 ): PartnershipMatchDimensionResult[] {
+  const weights = resolvePartnershipWeights(left, right);
   const skills = symmetricSetScore(left.skills, right.skills);
   const sectors = symmetricSetScore(left.sectors, right.sectors);
   const types = symmetricSetScore(left.partnershipTypes, right.partnershipTypes);
+  const commitment = rankProximity(left.commitment, right.commitment, (value) => COMMITMENT_RANK[value]);
+  const stage = stageScore(left.stage, right.stage);
+  const experience = rankProximity(left.experience, right.experience, (value) => EXPERIENCE_RANK.get(value));
+  const location = locationScore(left.location, right.location);
+  const equity = equityScore(left.equity, right.equity);
 
   return [
-    dimension('skills', 'Uzmanlık', skills?.score ?? null, skills ?? undefined),
-    dimension('sector', 'Sektör', sectors?.score ?? null, sectors ?? undefined),
-    dimension('partnershipType', 'Ortaklık tipi', types?.score ?? null, types ?? undefined),
-    dimension(
-      'commitment',
-      'Taahhüt',
-      rankProximity(left.commitment, right.commitment, (value) => COMMITMENT_RANK[value]),
-    ),
-    dimension('stage', 'Girişim aşaması', stageScore(left.stage, right.stage)),
-    dimension(
-      'experience',
-      'Deneyim',
-      rankProximity(left.experience, right.experience, (value) => EXPERIENCE_RANK.get(value)),
-    ),
-    dimension('location', 'Lokasyon', locationScore(left.location, right.location)),
-    dimension('equity', 'Hisse', equityScore(left.equity, right.equity)),
+    {
+      key: 'skills',
+      label: 'Uzmanlık',
+      weight: weights.skills,
+      comparable: skills != null,
+      score: skills?.score ?? null,
+      ...(skills ?? {}),
+    },
+    {
+      key: 'sector',
+      label: 'Sektör',
+      weight: weights.sector,
+      comparable: sectors != null,
+      score: sectors?.score ?? null,
+      ...(sectors ?? {}),
+    },
+    {
+      key: 'partnershipType',
+      label: 'Ortaklık tipi',
+      weight: weights.partnershipType,
+      comparable: types != null,
+      score: types?.score ?? null,
+      ...(types ?? {}),
+    },
+    {
+      key: 'commitment',
+      label: 'Taahhüt',
+      weight: weights.commitment,
+      comparable: commitment != null,
+      score: commitment,
+    },
+    {
+      key: 'stage',
+      label: 'Girişim aşaması',
+      weight: weights.stage,
+      comparable: stage != null,
+      score: stage,
+    },
+    {
+      key: 'experience',
+      label: 'Deneyim',
+      weight: weights.experience,
+      comparable: experience != null,
+      score: experience,
+    },
+    {
+      key: 'location',
+      label: 'Lokasyon',
+      weight: weights.location,
+      comparable: location != null,
+      score: location,
+    },
+    {
+      key: 'equity',
+      label: 'Hisse',
+      weight: weights.equity,
+      comparable: equity != null,
+      score: equity,
+    },
   ];
 }

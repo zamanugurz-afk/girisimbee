@@ -17,6 +17,12 @@ export interface FounderListingDetails {
   partnershipTypeOther?: string | null;
   expertise?: string[] | null;
   expertiseOther?: string | null;
+  professionalSkills?: string[] | string | null;
+  professionalSkillsOther?: string | null;
+  technicalSkills?: string[] | string | null;
+  technicalSkillsOther?: string | null;
+  tools?: string[] | string | null;
+  toolsOther?: string | null;
   projectStage?: string | null;
   equityOffered?: unknown;
 }
@@ -48,6 +54,12 @@ export interface FounderListingPayload {
   partnershipTypeOther?: string | null;
   expertise?: string[] | null;
   expertiseOther?: string | null;
+  professionalSkills?: string[] | string | null;
+  professionalSkillsOther?: string | null;
+  technicalSkills?: string[] | string | null;
+  technicalSkillsOther?: string | null;
+  tools?: string[] | string | null;
+  toolsOther?: string | null;
   equityOffered?: unknown;
 }
 

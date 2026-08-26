@@ -36,7 +36,7 @@ export function CitySelect({
   disabled,
   error,
   placeholder = 'Şehir seçin',
-  extended = false,
+  extended = true,
   themeColor,
 }: CitySelectProps) {
   const [open, setOpen] = useState(false);

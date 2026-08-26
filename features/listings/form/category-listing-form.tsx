@@ -1071,8 +1071,11 @@ export function CategoryListingForm({
       expertise: mergedCustomFields.expertise as string[] | string,
       expertiseOther: String(mergedCustomFields.expertiseOther || ''),
       professionalSkills: mergedCustomFields.professionalSkills as string[] | string,
+      professionalSkillsOther: String(mergedCustomFields.professionalSkillsOther || ''),
       technicalSkills: mergedCustomFields.technicalSkills as string[] | string,
+      technicalSkillsOther: String(mergedCustomFields.technicalSkillsOther || ''),
       tools: mergedCustomFields.tools as string[] | string,
+      toolsOther: String(mergedCustomFields.toolsOther || ''),
       city: core.city,
       district: core.district,
     });
@@ -1091,9 +1094,12 @@ export function CategoryListingForm({
     mergedCustomFields.projectStage,
     mergedCustomFields.partnershipStage,
     mergedCustomFields.professionalSkills,
+    mergedCustomFields.professionalSkillsOther,
     mergedCustomFields.sector,
     mergedCustomFields.technicalSkills,
+    mergedCustomFields.technicalSkillsOther,
     mergedCustomFields.tools,
+    mergedCustomFields.toolsOther,
   ]);
 
   useEffect(() => {

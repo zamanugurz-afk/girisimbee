@@ -9,6 +9,7 @@ import { DigitalAiCapabilityGrid } from '@/components/girisimco/listing/digital-
 import { ListingRichText } from '@/components/girisimco/listing/listing-rich-text';
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
+import { PartnershipProfilePreview } from '@/features/founders/components/PartnershipProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -139,6 +140,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         <p className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/[0.03]">
           {listing.intentHeadline}
         </p>
+      ) : null}
+
+      {listing.category.id === 'find-partner' && listing.partnershipCard ? (
+        <PartnershipProfilePreview partnership={listing.partnershipCard} />
       ) : null}
 
       {showCareerCard ? null : (

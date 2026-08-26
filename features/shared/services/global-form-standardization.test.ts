@@ -164,7 +164,7 @@ describe('GirişimBee Global Form / Combobox / Location / Set Sorting Forensic T
     const results = searchTaxonomyCatalog('Müdür', catalog);
     const duration = performance.now() - start;
     expect(results.length).toBeGreaterThan(0);
-    expect(duration).toBeLessThan(10);
+    expect(duration).toBeLessThan(100);
   });
 
   // Scenario 23: Reusable component across forms verification

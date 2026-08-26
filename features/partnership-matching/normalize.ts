@@ -80,7 +80,8 @@ export function partnershipToken(value: string | null | undefined): string {
     .toLocaleLowerCase('tr-TR');
 }
 
-export function uniquePartnershipTokens(values: readonly string[]): string[] {
+export function uniquePartnershipTokens(values?: readonly string[] | null): string[] {
+  if (!values || !Array.isArray(values)) return [];
   const seen = new Set<string>();
   const out: string[] = [];
   for (const value of values) {
@@ -180,7 +181,16 @@ export function resolvePartnershipSource(listing: Listing): ResolvedPartnershipS
     intent,
     title: listing.title.trim(),
     description: (listing.shortDescription || listing.longDescription || '').trim(),
-    expertise: uniquePartnershipTokens(asStringList(details.expertise)),
+    expertise: uniquePartnershipTokens([
+      ...asStringList(details.expertise),
+      ...asStringList(details.professionalSkills),
+      ...asStringList(details.technicalSkills),
+      ...asStringList(details.tools),
+      ...asStringList(details.expertiseOther),
+      ...asStringList(details.professionalSkillsOther),
+      ...asStringList(details.technicalSkillsOther),
+      ...asStringList(details.toolsOther),
+    ]),
     requiredSkills: uniquePartnershipTokens(asStringList(details.requiredSkills)),
     offeredSkills: uniquePartnershipTokens(asStringList(details.offeredSkills)),
     sectors: uniquePartnershipTokens([
@@ -190,9 +200,12 @@ export function resolvePartnershipSource(listing: Listing): ResolvedPartnershipS
     ]),
     partnershipTypes: uniquePartnershipTokens(
       [
+        ...asStringList(details.partnershipTypes),
         canonicalPartnershipType(details.partnershipType),
         canonicalPartnershipType(firstText(readCustom(listing, 'preferredPartnershipType'))),
         canonicalPartnershipType(listing.partnerDetails?.partnerType),
+        ...asStringList(details.partnershipTypesOther),
+        ...asStringList(details.partnershipTypeOther),
       ].filter((value): value is string => Boolean(value)),
     ),
     commitment: canonicalCommitment(details.commitment ?? listing.partnerDetails?.commitment),

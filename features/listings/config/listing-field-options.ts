@@ -377,6 +377,7 @@ export const PARTNERSHIP_TYPE_CATEGORIES = [
       'Oyun ve Simülasyon Geliştirme Ortağı',
       'Performans Pazarlaması ve Reklam Ortağı',
       'Siber Güvenlik ve Ağ Güvenliği Ortağı',
+      'Sigorta ve Reasürans Danışmanı Ortak',
       'Tasarım ve UI / UX Ortağı',
       'Yapay Zeka ve Makine Öğrenimi Ortağı (AI/ML)',
     ],
