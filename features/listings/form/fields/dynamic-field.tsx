@@ -42,10 +42,22 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'brandName',
   'displayName',
   'productName',
+  'businessName',
+  'businessTypeOther',
+  'preferredBusinessTypesOther',
   'positionTitle',
+  'positionTitleOther',
   'desiredRole',
+  'desiredRoleOther',
+  'roleOther',
+  'sectorOther',
+  'preferredSectorsOther',
   'expertiseOther',
   'offeredSkillsOther',
+  'technicalSkillsOther',
+  'professionalSkillsOther',
+  'toolsOther',
+  'partnershipTypesOther',
 ]);
 
 const CITY_FIELD_KEYS = new Set(['preferredCity', 'residenceCity']);
