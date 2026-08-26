@@ -1467,7 +1467,14 @@ export function CategoryListingForm({
       nextValue = resolveEnumOption(value, field.options) ?? value;
     }
     if (field?.type === 'multi-enum') {
-      nextValue = Array.isArray(value) ? value : [];
+      if (Array.isArray(value)) {
+        nextValue = value.map(String).filter(Boolean);
+      } else if (typeof value === 'string') {
+        const trimmed = value.trim();
+        nextValue = trimmed ? trimmed.split(',').map((s) => s.trim()).filter(Boolean) : [];
+      } else {
+        nextValue = [];
+      }
     }
 
     console.log(`[CV-TRACE ${traceId}] [CV-SET-CUSTOM-FIELD]`, {
@@ -2888,9 +2895,33 @@ export function CategoryListingForm({
               title={core.title}
               shortDescription={core.shortDescription}
               onChange={(patch) => {
-                for (const [key, val] of Object.entries(patch)) {
-                  setCustomField(key, val);
-                }
+                mutateCustomFields((prev) => {
+                  const next = { ...prev };
+                  for (const [key, val] of Object.entries(patch)) {
+                    const field = fieldByKey.get(key);
+                    if (field?.type === 'multi-enum') {
+                      if (Array.isArray(val)) {
+                        next[key] = val.map(String).filter(Boolean);
+                      } else if (typeof val === 'string') {
+                        const trimmed = val.trim();
+                        next[key] = trimmed ? trimmed.split(',').map((s) => s.trim()).filter(Boolean) : [];
+                      } else {
+                        next[key] = [];
+                      }
+                    } else {
+                      next[key] = val;
+                    }
+                  }
+                  return next;
+                }, 'FounderPartnershipTypeStep:onChange');
+                setFieldErrors((prev) => {
+                  const next = { ...prev };
+                  for (const key of Object.keys(patch)) {
+                    delete next[key];
+                    delete next[`customFields.${key}`];
+                  }
+                  return next;
+                });
               }}
               disabled={disabled || isBusy}
               errors={{
