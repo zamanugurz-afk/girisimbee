@@ -62,7 +62,7 @@ describe('partner form variants', () => {
     const seeking = getListingFormSteps(CATEGORY_IDS.ortakBul, { partnershipIntent: 'seeking' });
     const joining = getListingFormSteps(CATEGORY_IDS.ortakBul, { partnershipIntent: 'joining' });
 
-    expect(seeking.find((step) => step.id === 'partnership')?.title).toBe('Girişim & Ortaklık');
+    expect(seeking.find((step) => step.id === 'partnership')?.title).toBe('Girişim ve Ortaklık Tipi');
     expect(joining.find((step) => step.id === 'partnership')?.title).toBe('Sunduğum değer');
     expect(joining.find((step) => step.id === 'basics')?.title).toBe('Profiliniz');
     expect(joining.find((step) => step.id === 'details')?.coreFields).toEqual([

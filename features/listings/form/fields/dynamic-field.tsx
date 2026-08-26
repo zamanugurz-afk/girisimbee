@@ -23,7 +23,7 @@ import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
 import { rankWorkplaceOptions, PARTNER_EXPERTISE_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
-import { normalizeListingTitle } from '@/features/listings/lib/listing-content-quality';
+import { normalizeListingTitle, normalizeListingDescription } from '@/features/listings/lib/listing-content-quality';
 import { ConditionalSectorPicker } from '@/features/listings/form/fields/conditional-sector-picker';
 import { cn } from '@/lib/utils';
 import {

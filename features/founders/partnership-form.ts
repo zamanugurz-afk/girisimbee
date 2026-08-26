@@ -1,6 +1,8 @@
 import {
   INVESTOR_SECTOR_OPTIONS,
   PARTNER_EXPERTISE_OPTIONS,
+  CANONICAL_PARTNER_EXPERTISE_OPTIONS,
+  ALL_PARTNERSHIP_TYPES,
   STARTUP_STAGES,
 } from '@/features/listings/config/listing-field-options';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
@@ -34,14 +36,14 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
     label: 'Aranan ortak tipi',
     type: 'enum',
     required: true,
-    options: ['Teknik Ortak', 'İş Ortağı', 'Kurucu Ortak', 'Danışman'],
+    options: [...ALL_PARTNERSHIP_TYPES],
   },
   {
     key: 'expertise',
     label: 'Aranan uzmanlıklar',
     type: 'multi-enum',
     required: true,
-    options: [...PARTNER_EXPERTISE_OPTIONS],
+    options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
     key: 'expertiseOther',
@@ -71,7 +73,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     label: 'Uzmanlık alanları',
     type: 'multi-enum',
     required: true,
-    options: [...PARTNER_EXPERTISE_OPTIONS],
+    options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
     key: 'expertiseOther',
@@ -84,7 +86,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     label: 'Sunduğum yetkinlikler',
     type: 'multi-enum',
     required: true,
-    options: [...PARTNER_EXPERTISE_OPTIONS],
+    options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
     key: 'offeredSkillsOther',
@@ -104,7 +106,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     label: 'İlgilendiğim girişim / proje tipi',
     type: 'enum',
     required: true,
-    options: ['Teknik Ortak', 'İş Ortağı', 'Kurucu Ortak', 'Danışman'],
+    options: [...ALL_PARTNERSHIP_TYPES],
   },
   {
     key: 'projectStage',

@@ -72,10 +72,7 @@ describe('GC-CBA9994B Fatura AI seeking form walkthrough', () => {
       'funding',
       'summary',
       'images',
-      'kvkk',
-      'preview',
       'package',
-      'publish',
     ]);
     expect(stepCustomKeys('identity')).not.toContain('stage');
     expect(stepCustomKeys('identity')).not.toContain('productStatus');

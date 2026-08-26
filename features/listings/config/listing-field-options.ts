@@ -293,28 +293,92 @@ export const JOB_POSITION_OPTIONS = [
   'Diğer',
 ] as const;
 
-/** Co-founder expertise options — multi-select. */
-export const PARTNER_EXPERTISE_OPTIONS = [
-  'CTO / Teknik liderlik',
+/** 4 Category Partnership Types with 31 Canonical Options */
+export const PARTNERSHIP_TYPE_CATEGORIES = [
+  {
+    id: 'management',
+    title: 'İşletme ve Yönetim Ortaklığı',
+    options: [
+      'İşletme Ortağı',
+      'Yönetim Ortağı',
+      'Genel Ortak',
+      'Operasyon Ortağı',
+      'Şirket Ortağı',
+      'Şube Ortağı',
+    ],
+  },
+  {
+    id: 'technical',
+    title: 'Uzmanlık ve Teknik Ortaklık',
+    options: [
+      'Teknik Ortak',
+      'Teknoloji Ortağı',
+      'Yazılım Ortağı',
+      'Ürün Ortağı',
+      'Pazarlama Ortağı',
+      'Satış ve İş Geliştirme Ortağı',
+      'Finans Ortağı',
+      'Hukuk ve Mevzuat Ortağı',
+      'Tasarım Ortağı',
+    ],
+  },
+  {
+    id: 'investment',
+    title: 'Yatırım ve Finansal Ortaklık',
+    options: [
+      'Yatırımcı Ortak',
+      'Finansal Ortak',
+      'Sermaye Ortağı',
+      'Melek Yatırımcı',
+      'Stratejik Yatırımcı',
+      'Fon / Kurumsal Yatırımcı',
+    ],
+  },
+  {
+    id: 'physical',
+    title: 'Fiziksel İşletme ve Varlık Ortaklığı',
+    options: [
+      'Dükkan / Mağaza Ortağı',
+      'Fabrika / Üretim Tesisi Ortağı',
+      'Atölye Ortağı',
+      'Depo / Lojistik Alanı Ortağı',
+      'Ofis / İş Yeri Ortağı',
+      'Arsa / Gayrimenkul Ortağı',
+      'Araç / Filo Ortağı',
+      'Ekipman / Makine Ortağı',
+      'Franchise / İşletme Ortağı',
+      'Mevcut İşletmeye Ortak',
+    ],
+  },
+] as const;
+
+export const ALL_PARTNERSHIP_TYPES = PARTNERSHIP_TYPE_CATEGORIES.flatMap((c) => c.options);
+
+/** Canonical 18 partner expertise options — Turkish labels without '&'. */
+export const CANONICAL_PARTNER_EXPERTISE_OPTIONS = [
+  'CTO / Teknik Liderlik',
   'COO / Operasyon',
   'CFO / Finans',
   'CMO / Pazarlama',
-  'Yazılım geliştirme',
-  'Mobil geliştirme',
-  'Yapay zeka / ML',
-  'Büyük veri & Veri analitiği',
-  'DevOps & Bulut mimari',
-  'Siber güvenlik',
-  'Ürün yönetimi (CPO)',
+  'Yazılım Geliştirme',
+  'Mobil Geliştirme',
+  'Yapay Zeka / ML',
+  'Büyük Veri ve Veri Analitiği',
+  'DevOps ve Bulut Mimarisi',
+  'Siber Güvenlik',
+  'Ürün Yönetimi (CPO)',
   'Tasarım / UI/UX',
-  'İş geliştirme & B2B satış',
-  'Satış & Müşteri başarısı',
-  'Büyüme pazarlaması (Growth)',
-  'Dijital pazarlama & SEO',
-  'Hukuk / Regülasyon & Uyum',
-  'İnsan kaynakları & Yetenek',
-  'Tedarik zinciri & Lojistik',
-  'Donanım & IoT',
+  'İş Geliştirme ve B2B Satış',
+  'Satış ve Müşteri Başarısı',
+  'Büyüme Pazarlaması (Growth)',
+  'Dijital Pazarlama ve SEO',
+  'Hukuk / Regülasyon ve Uyum',
+  'İnsan Kaynakları ve Yetenek',
+] as const;
+
+/** Co-founder expertise options — multi-select. */
+export const PARTNER_EXPERTISE_OPTIONS = [
+  ...CANONICAL_PARTNER_EXPERTISE_OPTIONS,
   'Diğer',
 ] as const;
 

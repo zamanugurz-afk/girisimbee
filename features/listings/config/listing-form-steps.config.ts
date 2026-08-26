@@ -224,7 +224,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'summary',
-      title: 'Özet & hikaye',
+      title: 'Özet ve Hikaye',
       description: 'Yatırımcının okuyacağı detaylı açıklama. İsteğe bağlı AI metin asistanı.',
       coreFields: ['longDescription'],
       customFieldKeys: [
@@ -295,13 +295,13 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'partnership',
-      title: 'Girişim & Ortaklık',
-      description: 'Aranan ortak tipi, uzmanlık ve taahhüt beklentileri',
+      title: 'Girişim ve Ortaklık Tipi',
+      description: 'Aradığınız ortaklık tipi, uzmanlık ve iş birliği beklentilerinizi belirleyin.',
       customFieldKeys: getPartnerFormFieldKeys('seeking'),
     },
     {
       id: 'details',
-      title: 'Koşullar & Detay',
+      title: 'Koşullar ve Detay',
       description: 'Detaylı açıklama, vizyon, ekip ve ortaklık modeli',
       coreFields: ['longDescription'],
       meta: ['images'],
@@ -392,7 +392,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'profile',
-      title: 'Pozisyon & Yetkinlikler',
+      title: 'Pozisyon ve Yetkinlikler',
       description: 'İş tanımı, aranan sorumluluklar ve yetkinlikler',
       hireRoleNeedsEditor: true,
       careerSkillsEditor: true,
@@ -438,7 +438,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
   [CATEGORY_IDS.bayilikAl]: withConsolidatedPublishFlow(
     {
       id: 'basics',
-      title: 'Marka & Sektör',
+      title: 'Marka ve Sektör',
       description: 'Marka adı, sektör ve kurumsal bilgiler',
       coreFields: ['title', 'shortDescription'],
       customFieldKeys: [
@@ -455,7 +455,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'investment',
-      title: 'Yatırım & Koşullar',
+      title: 'Yatırım ve Koşullar',
       description: 'Toplam yatırım, isim hakkı, kâr marjı ve aranan şartlar',
       customFieldKeys: [
         'totalInvestment',
@@ -479,7 +479,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'details',
-      title: 'Lokasyon & Detaylar',
+      title: 'Lokasyon ve Detaylar',
       description: 'Hedef lokasyonlar, mağaza tipi ve detaylı açıklama',
       coreFields: ['longDescription', 'city'],
       customFieldKeys: [
@@ -564,7 +564,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'financials',
-      title: 'Devir & Finansal Koşullar',
+      title: 'Devir ve Finansal Koşullar',
       description: 'Devir bedeli, bütçe, kira ve faaliyet durumu',
       customFieldKeys: [
         'transferPrice',
@@ -579,7 +579,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
     },
     {
       id: 'details',
-      title: 'Kapsam & Lokasyon',
+      title: 'Kapsam ve Lokasyon',
       description: 'Lokasyon, devir kapsamı ve detaylı açıklama',
       coreFields: ['longDescription', 'city'],
       customFieldKeys: [
@@ -640,13 +640,13 @@ export function getListingFormSteps(
       },
       {
         id: 'partnership',
-        title: 'Girişim & Ortaklık',
-        description: 'Aranan ortak tipi, uzmanlık ve taahhüt beklentileri',
+        title: 'Girişim ve Ortaklık Tipi',
+        description: 'Aradığınız ortaklık tipi, uzmanlık ve iş birliği beklentilerinizi belirleyin.',
         customFieldKeys: partnerCustomKeys.length > 0 ? partnerCustomKeys : keys,
       },
       {
         id: 'details',
-        title: 'Koşullar & Detay',
+        title: 'Koşullar ve Detay',
         description: 'Detaylı açıklama, vizyon, ekip, konum ve ortaklık modeli',
         coreFields: ['longDescription', 'city'],
         meta: ['images'],

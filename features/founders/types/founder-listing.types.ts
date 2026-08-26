@@ -12,7 +12,11 @@ export interface FounderListingDetails {
   experience?: string | null;
   commitment?: string | null;
   partnershipType?: string | null;
+  partnershipTypes?: string[] | null;
+  partnershipTypesOther?: string | null;
+  partnershipTypeOther?: string | null;
   expertise?: string[] | null;
+  expertiseOther?: string | null;
   projectStage?: string | null;
   equityOffered?: unknown;
 }
@@ -39,7 +43,11 @@ export interface FounderListingPayload {
   experience?: string | null;
   commitment?: string | null;
   partnershipType?: string | null;
+  partnershipTypes?: string[] | null;
+  partnershipTypesOther?: string | null;
+  partnershipTypeOther?: string | null;
   expertise?: string[] | null;
+  expertiseOther?: string | null;
   equityOffered?: unknown;
 }
 

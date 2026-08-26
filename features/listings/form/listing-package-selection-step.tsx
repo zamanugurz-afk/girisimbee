@@ -400,7 +400,7 @@ export function ListingPackageSelectionStep({
     },
   };
 
-  const currentTheme = themeClasses[activeTheme] || themeClasses.emerald;
+  const currentTheme = (themeClasses as any)[activeTheme] || themeClasses.emerald;
 
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs dark:border-border dark:bg-card space-y-4">

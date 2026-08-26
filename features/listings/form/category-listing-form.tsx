@@ -78,6 +78,7 @@ import {
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
 import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
 import { buildFounderSummaryDraft } from '@/features/listings/lib/founder-summary';
+import { FounderPartnershipTypeStep } from '@/features/founders/components/founder-partnership-type-step';
 import { polishInvestmentText } from '@/features/investments/lib/investment-text';
 import {
   displaySeekingMetricValue,
@@ -606,6 +607,10 @@ export function CategoryListingForm({
   const isFounderSummaryStep =
     categoryId === CATEGORY_IDS.ortakBul
     && Boolean(currentStep.coreFields?.includes('longDescription'));
+  const isFounderPartnershipTypeStep =
+    categoryId === CATEGORY_IDS.ortakBul
+    && currentStep.id === 'partnership'
+    && (!partnershipIntent || partnershipIntent === 'seeking');
   const isFormStep = !isPreviewStep && !isPackageStep && !isPublishStep;
   const usesExtendedCities =
     categoryId === CATEGORY_IDS.isBul
@@ -2043,6 +2048,24 @@ export function CategoryListingForm({
       }
     }
 
+    if (isFounderPartnershipTypeStep) {
+      const types = Array.isArray(mergedCustomFields.partnershipTypes)
+        ? mergedCustomFields.partnershipTypes.filter(Boolean)
+        : typeof mergedCustomFields.partnershipType === 'string' && mergedCustomFields.partnershipType.trim()
+          ? mergedCustomFields.partnershipType.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [];
+      const hasOther = Boolean(
+        String(mergedCustomFields.partnershipTypesOther ?? mergedCustomFields.partnershipTypeOther ?? '').trim(),
+      );
+      if (types.length === 0 && !hasOther) {
+        setFieldErrors({ partnershipTypes: 'Lütfen en az bir ortaklık türü seçin.' });
+        toast.error('Lütfen en az bir ortaklık türü seçin.');
+        return false;
+      }
+      setFieldErrors({});
+      return true;
+    }
+
     if (categoryId === CATEGORY_IDS.yatirimBul && currentStep.coreFields?.includes('city')) {
       if (!String(core.city ?? '').trim()) {
         setFieldErrors({ city: 'Girişiminizin şehrini seçin.' });
@@ -2826,6 +2849,42 @@ export function CategoryListingForm({
             />
           )}
 
+          {isFounderPartnershipTypeStep && (
+            <FounderPartnershipTypeStep
+              partnershipTypes={
+                Array.isArray(mergedCustomFields.partnershipTypes)
+                  ? mergedCustomFields.partnershipTypes.map(String)
+                  : typeof mergedCustomFields.partnershipType === 'string' && mergedCustomFields.partnershipType.trim()
+                    ? mergedCustomFields.partnershipType.split(',').map((s: string) => s.trim()).filter(Boolean)
+                    : []
+              }
+              partnershipTypesOther={String(
+                mergedCustomFields.partnershipTypesOther ?? mergedCustomFields.partnershipTypeOther ?? '',
+              )}
+              expertise={
+                Array.isArray(mergedCustomFields.expertise)
+                  ? mergedCustomFields.expertise.map(String)
+                  : typeof mergedCustomFields.expertise === 'string' && mergedCustomFields.expertise.trim()
+                    ? [mergedCustomFields.expertise]
+                    : []
+              }
+              expertiseOther={String(mergedCustomFields.expertiseOther ?? '')}
+              onChange={(patch) => {
+                for (const [key, val] of Object.entries(patch)) {
+                  setCustomField(key, val);
+                }
+              }}
+              disabled={disabled || isBusy}
+              errors={{
+                partnershipTypes:
+                  resolveFieldError(fieldErrors, 'partnershipTypes')
+                  || resolveFieldError(fieldErrors, 'partnershipType'),
+                expertise: resolveFieldError(fieldErrors, 'expertise'),
+              }}
+              themeColor={categoryThemeColor}
+            />
+          )}
+
           {isPackageStep && (
             <ListingPackageSelectionStep
               value={packageSelection}
@@ -2911,7 +2970,7 @@ export function CategoryListingForm({
             </div>
           )}
 
-          {isFormStep && (
+          {isFormStep && !isFounderPartnershipTypeStep && (
             <>
               {leadCustomKeys.map((key) => {
                 const field = fieldByKey.get(key);

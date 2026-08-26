@@ -34,6 +34,8 @@ import {
   JOB_POSITION_OPTIONS,
   JOB_SECTOR_OPTIONS,
   PARTNER_EXPERTISE_OPTIONS,
+  CANONICAL_PARTNER_EXPERTISE_OPTIONS,
+  ALL_PARTNERSHIP_TYPES,
   SALARY_RANGES,
   STARTUP_STAGES,
   STARTUP_STAGES_WITH_ALL,
@@ -1222,7 +1224,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Ortaklık Tipi',
       type: 'enum',
       required: true,
-      options: ['Teknik Ortak', 'İş Ortağı', 'Kurucu Ortak', 'Danışman'],
+      options: [...ALL_PARTNERSHIP_TYPES],
     },
     { key: 'equityOffered', label: 'Sunulan Hisse (%)', type: 'percentage', min: 0, max: 100 },
     {
@@ -1236,7 +1238,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Aranan Uzmanlık',
       type: 'multi-enum',
       required: true,
-      options: [...PARTNER_EXPERTISE_OPTIONS],
+      options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
     },
     {
       key: 'expertiseOther',
@@ -1265,7 +1267,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       key: 'offeredSkills',
       label: 'Sunduğu yetkinlikler',
       type: 'multi-enum',
-      options: [...PARTNER_EXPERTISE_OPTIONS],
+      options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
     },
     {
       key: 'offeredSkillsOther',

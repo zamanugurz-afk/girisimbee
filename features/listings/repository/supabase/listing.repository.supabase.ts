@@ -693,7 +693,7 @@ export class SupabaseListingRepository implements ListingRepository {
 
       if (error || !data) throw error || new Error('Listing insertion failed');
 
-      logPublicationState(String(row.module_key ?? 'listing'), 'after_insert', data as Record<string, unknown>);
+      logPublicationState(String(row.module_key ?? 'listing'), 'after_insert', data as unknown as Record<string, unknown>);
       traceListingPublish(String(row.module_key ?? 'listing'), 'supabase_insert_response', {
         response: data,
       });

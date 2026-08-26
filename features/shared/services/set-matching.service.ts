@@ -11,6 +11,8 @@ import {
   USE_OF_FUNDS_OPTIONS,
   BUSINESS_MODEL_OPTIONS,
   PARTNER_EXPERTISE_OPTIONS,
+  ALL_PARTNERSHIP_TYPES,
+  CANONICAL_PARTNER_EXPERTISE_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
 import {
   CAREER_LANGUAGE_OPTIONS,
@@ -41,6 +43,7 @@ export type SetDomain =
   | 'languages'
   | 'education-fields'
   | 'partner-expertise'
+  | 'partnership-types'
   | 'use-of-funds'
   | 'business-models';
 
@@ -351,7 +354,10 @@ export function getCanonicalCatalog(domain: SetDomain, context?: SetCatalogConte
       return Array.from(EDUCATION_FIELD_OPTIONS).filter((e) => !isManualCareerOption(e));
 
     case 'partner-expertise':
-      return Array.from(PARTNER_EXPERTISE_OPTIONS).filter((p) => !isManualCareerOption(p));
+      return Array.from(CANONICAL_PARTNER_EXPERTISE_OPTIONS).filter((p) => !isManualCareerOption(p));
+
+    case 'partnership-types':
+      return Array.from(ALL_PARTNERSHIP_TYPES).filter((p) => !isManualCareerOption(p));
 
     case 'use-of-funds':
       return Array.from(USE_OF_FUNDS_OPTIONS).filter((u) => !isManualCareerOption(u));

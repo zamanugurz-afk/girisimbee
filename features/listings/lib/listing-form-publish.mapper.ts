@@ -213,16 +213,28 @@ export function listingFormValuesToModulePayload(
     case 'founders': {
       const sectors = readStringArray(customFields.sectors);
       const sector = readString(customFields.sector) ?? sectors?.[0] ?? null;
+      const partnershipTypes = readStringArray(customFields.partnershipTypes);
+      const partnershipType =
+        readString(customFields.partnershipType)
+        ?? (partnershipTypes && partnershipTypes.length > 0 ? partnershipTypes.join(', ') : null);
       return {
         ...base,
         sector,
-        founderType: readString(customFields.partnershipType),
-        partnershipType: readString(customFields.partnershipType),
+        founderType: partnershipType,
+        partnershipType,
+        partnershipTypes,
+        partnershipTypesOther:
+          readString(customFields.partnershipTypesOther)
+          || readString(customFields.partnershipTypeOther),
+        partnershipTypeOther:
+          readString(customFields.partnershipTypeOther)
+          || readString(customFields.partnershipTypesOther),
         partnershipIntent: resolvePartnershipIntent({ customFields }),
         startupStage: readString(customFields.projectStage),
         projectStage: readString(customFields.projectStage),
         requiredSkills: readStringArray(customFields.expertise),
         expertise: readStringArray(customFields.expertise),
+        expertiseOther: readString(customFields.expertiseOther),
         offeredSkills: readStringArray(customFields.offeredSkills),
         sectors,
         experience: readString(customFields.experience),
