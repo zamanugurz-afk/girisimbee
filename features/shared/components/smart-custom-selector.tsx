@@ -274,7 +274,7 @@ export function SmartCustomSelector({
           disabled={disabled}
           placeholder={selectedList.length > 0 && mode === 'single' ? selectedList[0] : (placeholder || searchPlaceholder)}
           className={cn(
-            'h-11 min-h-[42px] w-full min-w-0 rounded-xl px-3.5 text-sm',
+            'h-11 min-h-[44px] w-full min-w-0 rounded-xl px-3.5 text-xs',
             theme.focusRing,
             error && 'border-rose-500 focus-visible:ring-rose-500'
           )}

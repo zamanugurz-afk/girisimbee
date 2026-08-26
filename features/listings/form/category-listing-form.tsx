@@ -2541,7 +2541,7 @@ export function CategoryListingForm({
                     >
                       <span
                         className={cn(
-                          'font-display text-2xl font-bold tracking-tight shrink-0',
+                          'font-display text-xl font-bold tracking-tight shrink-0',
                           isCurrent
                             ? theme.categoryLabelText
                             : isPast
@@ -2552,11 +2552,11 @@ export function CategoryListingForm({
                         0{idx + 1}
                       </span>
                       <div className="min-w-0 flex-1 pt-0.5">
-                        <p className={cn('text-sm font-bold truncate', isCurrent ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-zinc-200')}>
+                        <p className={cn('text-xs font-semibold truncate', isCurrent ? 'text-blue-700 dark:text-blue-400 font-bold' : 'text-slate-800 dark:text-zinc-200')}>
                           {step.title}
                         </p>
                         {step.description && (
-                          <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                          <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
                             {step.description}
                           </p>
                         )}
@@ -2595,7 +2595,7 @@ export function CategoryListingForm({
                     <User className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                    <h2 className="font-display text-base font-bold text-slate-900 dark:text-white">
                       {currentStep.title}
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
