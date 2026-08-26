@@ -63,10 +63,10 @@ export function CitySelect({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] p-0 rounded-xl shadow-lg border-border/80" align="start">
         <Command themeColor={themeColor}>
             <CommandInput placeholder="Şehir ara…" />
-            <CommandList>
+            <CommandList className="max-h-[300px] overflow-y-auto p-1 scrollbar-thin">
               <CommandEmpty>Şehir bulunamadı.</CommandEmpty>
               <CommandGroup>
                 {cities.map((city) => (
@@ -80,11 +80,11 @@ export function CitySelect({
                   >
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
+                        'mr-2 h-3.5 w-3.5 shrink-0',
                         value === city ? 'opacity-100' : 'opacity-0',
                       )}
                     />
-                    {city}
+                    <span className="leading-snug">{city}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

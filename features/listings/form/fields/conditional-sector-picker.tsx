@@ -217,11 +217,20 @@ export function ConditionalSectorPicker({
             const checkboxId = `${id}-${normalizeSearchText(sector)}`;
 
             return (
-              <label
+              <div
                 key={sector}
-                htmlFor={checkboxId}
+                role="checkbox"
+                aria-checked={isChecked}
+                tabIndex={0}
+                onClick={() => toggleSector(sector, !isChecked)}
+                onKeyDown={(e) => {
+                  if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    toggleSector(sector, !isChecked);
+                  }
+                }}
                 className={cn(
-                  'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all duration-150 select-none',
+                  'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-xs transition-all duration-150 select-none',
                   isChecked
                     ? 'border-amber-500/60 bg-amber-500/8 text-foreground shadow-2xs font-medium dark:border-amber-500/50 dark:bg-amber-500/10'
                     : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',
@@ -232,13 +241,14 @@ export function ConditionalSectorPicker({
                   id={checkboxId}
                   checked={isChecked}
                   onCheckedChange={(next) => toggleSector(sector, next === true)}
+                  onClick={(e) => e.stopPropagation()}
                   disabled={disabled}
                   className={cn(
                     'mt-0.5 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500',
                   )}
                 />
-                <span className="leading-snug text-xs sm:text-sm">{sector}</span>
-              </label>
+                <span className="leading-snug text-xs">{sector}</span>
+              </div>
             );
           })}
         </div>
