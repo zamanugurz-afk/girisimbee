@@ -20,7 +20,6 @@ export interface BusinessTransferSummaryContext {
   employeeCount?: number | string;
   transferScope?: string[] | string;
   reasonForTransfer?: string;
-  financialSummary?: string;
   relevantExperience?: string;
   city?: string | null;
   district?: string | null;
@@ -178,10 +177,6 @@ export function buildBusinessTransferSummaryDraft(
 
   if (ctx.reasonForTransfer?.trim()) {
     longSentences.push('Devir gerekçesi: ' + ctx.reasonForTransfer.trim() + '.');
-  }
-
-  if (ctx.financialSummary?.trim()) {
-    longSentences.push('Finansal notlar: ' + ctx.financialSummary.trim() + '.');
   }
 
   longSentences.push(

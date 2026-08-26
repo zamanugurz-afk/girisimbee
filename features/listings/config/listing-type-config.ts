@@ -1146,13 +1146,6 @@ export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
       required: false,
       options: [...BUSINESS_TRANSFER_REASON_OPTIONS],
     },
-    {
-      key: 'financialSummary',
-      label: 'Ek Finansal Notlar (Opsiyonel)',
-      type: 'string',
-      required: false,
-      max: 500,
-    },
   ],
 };
 

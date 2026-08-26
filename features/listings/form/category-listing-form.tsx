@@ -1210,7 +1210,6 @@ export function CategoryListingForm({
       employeeCount: mergedCustomFields.employeeCount as number | string,
       transferScope: mergedCustomFields.transferScope as string[] | string,
       reasonForTransfer: String(mergedCustomFields.reasonForTransfer || ''),
-      financialSummary: String(mergedCustomFields.financialSummary || ''),
       relevantExperience: String(mergedCustomFields.relevantExperience || ''),
       city: core.city,
       district: core.district,
@@ -1226,7 +1225,6 @@ export function CategoryListingForm({
     mergedCustomFields.businessName,
     mergedCustomFields.businessType,
     mergedCustomFields.employeeCount,
-    mergedCustomFields.financialSummary,
     mergedCustomFields.monthlyRent,
     mergedCustomFields.monthlyRentMax,
     mergedCustomFields.monthlyRevenue,
@@ -3877,8 +3875,6 @@ export function CategoryListingForm({
                       key === 'useOfFunds' ||
                       key === 'transferScope' ||
                       key === 'reasonForTransfer' ||
-                      key === 'postTransferSupport' ||
-                      key === 'financialSummary' ||
                       key === 'relevantExperience' ||
                       key === 'capabilities' ||
                       key === 'requiredResponsibilities' ||

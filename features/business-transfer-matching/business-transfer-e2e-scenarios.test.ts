@@ -111,7 +111,6 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
         operationalStatus: 'Aktif Faaliyette (Cirolu & Müşterili)',
         transferScope: ['Demirbaşlar & Ekipmanlar', 'İşletme Ruhsatı & İzinler'],
         reasonForTransfer: 'Şehir / Yurt Dışı Değişikliği',
-        financialSummary: 'Aylık ortalama 250.000 TL ciro',
       },
       tags: ['Kafe', 'Devir'],
       images: [],

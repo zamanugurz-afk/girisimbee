@@ -588,7 +588,6 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'transferScope',
         'reasonForTransfer',
         'relevantExperience',
-        'financialSummary',
       ],
       meta: ['images'],
     },
@@ -750,7 +749,6 @@ export function getListingFormSteps(
           'operationalStatus',
           'transferScope',
           'reasonForTransfer',
-          'financialSummary',
         ],
       },
       {
