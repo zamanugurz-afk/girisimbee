@@ -39,6 +39,8 @@ import {
   expandListingTypeIdFilter,
 } from '@/lib/domain/legacy-category-ids';
 import {
+  MARKETPLACE_CATEGORY_IDS,
+  MARKETPLACE_LISTING_TYPE_IDS,
   resolveDbCategoryId,
   resolveDbListingTypeId,
 } from '@/features/listings/config/marketplace-category-map';

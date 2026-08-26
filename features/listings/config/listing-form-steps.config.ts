@@ -6,6 +6,7 @@ import type { CoreListingFieldsInput } from '@/features/listings/form/build-dyna
 import { getPartnerFormFieldKeys } from '@/features/founders/partnership-form';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import type { ListingTypeId } from '@/lib/domain/ids';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 
 export type CoreFieldKey = keyof CoreListingFieldsInput;
 export type MetaFieldKey = 'tags' | 'images';

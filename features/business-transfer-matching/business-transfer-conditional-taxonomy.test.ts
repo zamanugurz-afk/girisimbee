@@ -24,6 +24,9 @@ import {
   extractBusinessTransferSeeker,
 } from '@/features/business-transfer-matching/normalize';
 import { areEcosystemsCompatible, classifyListingEcosystem } from '@/features/listings/config/ecosystem-invariants';
+import { MARKETPLACE_CATEGORY_IDS, MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
+import { toListingRow, mapListingRow } from '@/features/listings/repository/supabase/listing.mapper';
+import { prepareSupabaseWrite } from '@/lib/persistence/supabase-payload';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
 import { ids } from '@/lib/domain/ids';
 
@@ -301,5 +304,76 @@ describe('GİRİŞİMBEE — Business Transfer Step 1 Conditional Taxonomy & Mat
     expect(getPrimarySectorForBusinessType('Tarım / Hayvancılık')).toBe('Tarım');
     expect(getPrimarySectorForBusinessType('Spor / Fitness Salonu')).toBe('Spor / Fitness');
     expect(getPrimarySectorForBusinessType('İnşaat / Gayrimenkul')).toBe('İnşaat / Gayrimenkul');
+  });
+
+  // TEST 15: DB Mapping & Foreign Key Persistence Safety
+  it('TEST 15: Business transfer listing maps to valid DB categories and null module_key without foreign key or enum errors', () => {
+    const transferListing = {
+      id: 'a0000001-0001-4000-8000-000000000001',
+      ownerId: 'b0000001-0001-4000-8000-000000000001',
+      categoryId: CATEGORY_IDS.isletmeDevri,
+      listingTypeId: LISTING_TYPE_IDS.businessTransferSellDefault,
+      slug: 'devren-satilik-kafe-test',
+      title: 'Devren Satılık Kafe',
+      shortDescription: 'Faal ve müşteri portföyü hazır devren kafe.',
+      longDescription: 'Detaylı açıklama metni burada yer almaktadır.',
+      city: 'İstanbul',
+      district: 'Kadıköy',
+      status: 'published',
+      workflowStatus: 'published',
+      customFields: {
+        businessType: 'Kafe / Restoran / Yeme-İçme',
+        sector: 'Gıda / Restoran',
+        monthlyRevenue: '100.000 TL - 250.000 TL',
+        profitMargin: '%15 - %25',
+        transferPrice: 750000,
+        monthlyRent: 35000,
+        transferScope: ['Tüm Ekipmanlar', 'Mevcut Personel Kadrosu'],
+        reasonForTransfer: 'Emeklilik / Farklı Sektöre Geçiş',
+      },
+    };
+
+    const row = toListingRow(transferListing);
+
+    expect(row.category_id).toBe(MARKETPLACE_CATEGORY_IDS.ortaklik);
+    expect(row.listing_type_id).toBe(MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum);
+    expect(row.module_key).toBeNull();
+
+    const preparedRow = prepareSupabaseWrite('insert', 'marketplace_listings', {
+      id: transferListing.id,
+      ...row,
+    }, {
+      requiredUuidFields: ['id', 'owner_id', 'category_id', 'listing_type_id'],
+      nullableUuidFields: ['company_id'],
+    });
+
+    expect(preparedRow.module_key).toBeNull();
+    expect(preparedRow.category_id).toBe(MARKETPLACE_CATEGORY_IDS.ortaklik);
+    expect(preparedRow.listing_type_id).toBe(MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum);
+    expect(preparedRow.custom_fields).toEqual(transferListing.customFields);
+
+    const rehydrated = mapListingRow({
+      ...row,
+      id: transferListing.id,
+      owner_id: transferListing.ownerId,
+      custom_fields: transferListing.customFields,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+      view_count: 0,
+      interested_count: 0,
+      application_count: 0,
+      is_verified: false,
+      is_featured: false,
+      is_urgent: false,
+      featured_until: null,
+      urgent_until: null,
+      published_at: null,
+      expires_at: null,
+      rejected_reason: null,
+    });
+
+    expect(rehydrated.categoryId).toBe(CATEGORY_IDS.isletmeDevri);
+    expect(rehydrated.listingTypeId).toBe(LISTING_TYPE_IDS.businessTransferSellDefault);
   });
 });

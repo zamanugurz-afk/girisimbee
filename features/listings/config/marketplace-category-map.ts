@@ -213,8 +213,8 @@ const APP_LISTING_TYPE_ID_TO_DB: Record<string, ListingTypeId> = {
   [MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikAl]: MARKETPLACE_LISTING_TYPE_IDS.bayilikAl,
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikVer]: MARKETPLACE_LISTING_TYPE_IDS.bayilikVer,
-  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell,
-  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy]: MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy,
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy]: MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum,
 };
 
 export function resolveBrowseCategorySlug(slug: string): string {

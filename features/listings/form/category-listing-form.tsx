@@ -20,6 +20,7 @@ import {
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import type { PartnershipIntent } from '@/features/founders/partnership-intent';
 import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
 import { buildBusinessTransferSummaryDraft } from '@/features/listings/lib/business-transfer-summary';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
