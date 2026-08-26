@@ -105,6 +105,7 @@ const config: Config = {
         },
       },
       boxShadow: {
+        '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
         soft: 'var(--shadow-soft)',
         card: 'var(--shadow-card)',
         pop: 'var(--shadow-pop)',
