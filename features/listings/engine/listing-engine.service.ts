@@ -89,7 +89,6 @@ export class ListingEngine implements IListingEngineService {
       ownerId: payload.ownerId,
       categoryId: payload.categoryId,
       listingTypeId: payload.listingTypeId,
-      moduleKey: isTransfer ? ('transfer' as const) : undefined,
       title: payload.core.title,
       shortDescription: payload.core.shortDescription,
       longDescription: payload.core.longDescription,

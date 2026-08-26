@@ -5,6 +5,7 @@ import { fromSoftDeletable, fromTimestamps } from '@/lib/persistence/mappers';
 import type { Listing, ListingStatus, RemotePolicy } from '@/features/listings/types/listing.entity.types';
 import type { ListingId, UserId, CompanyId, CategoryId, ListingTypeId, SubcategoryId } from '@/lib/domain/ids';
 import type { ModuleKey } from '@/lib/domain/modules';
+import { isModuleKey } from '@/lib/domain/modules';
 import type { WorkflowStatus } from '@/lib/domain/marketplace-enums';
 import { coerceUuidValue } from '@/lib/persistence/supabase-payload';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
@@ -62,9 +63,10 @@ export interface ListingRow {
 
 export function mapListingRow(row: ListingRow): Listing {
   const isTransfer =
-    row.module_key === 'transfer' ||
     row.custom_fields?.businessTransferIntent !== undefined ||
-    row.custom_fields?.businessType !== undefined;
+    row.custom_fields?.businessType !== undefined ||
+    row.custom_fields?.preferredBusinessTypes !== undefined ||
+    row.custom_fields?.transferPrice !== undefined;
 
   return {
     id: row.id as ListingId,
@@ -79,7 +81,7 @@ export function mapListingRow(row: ListingRow): Listing {
           : LISTING_TYPE_IDS.businessTransferSellDefault)
       : (row.listing_type_id as ListingTypeId),
     subcategoryId: (row.subcategory_id as SubcategoryId | null) ?? null,
-    moduleKey: isTransfer ? 'transfer' : ((row.module_key as ModuleKey | null) ?? null),
+    moduleKey: (row.module_key as ModuleKey | null) ?? null,
     title: row.title,
     shortDescription: row.short_description,
     longDescription: row.long_description,
@@ -119,12 +121,6 @@ export function mapListingRow(row: ListingRow): Listing {
 export function toListingRow(
   listing: Partial<Listing> & Pick<Listing, 'ownerId' | 'categoryId' | 'listingTypeId' | 'title' | 'shortDescription' | 'slug'>,
 ): Record<string, unknown> {
-  const isTransfer =
-    listing.moduleKey === 'transfer' ||
-    listing.categoryId === CATEGORY_IDS.isletmeDevri ||
-    listing.customFields?.businessTransferIntent !== undefined ||
-    listing.customFields?.businessType !== undefined;
-
   return {
     slug: listing.slug,
     owner_id: listing.ownerId,
@@ -132,7 +128,7 @@ export function toListingRow(
     category_id: resolveDbCategoryId(listing.categoryId),
     listing_type_id: resolveDbListingTypeId(listing.listingTypeId),
     subcategory_id: coerceUuidValue(listing.subcategoryId),
-    module_key: isTransfer ? 'transfer' : (listing.moduleKey ?? null),
+    module_key: listing.moduleKey && isModuleKey(listing.moduleKey) ? listing.moduleKey : null,
     title: listing.title,
     short_description: listing.shortDescription,
     long_description: listing.longDescription ?? '',
@@ -179,7 +175,7 @@ export function toListingUpdateRow(input: Partial<Listing>): Record<string, unkn
   if (input.district !== undefined) row.district = input.district;
   if (input.industry !== undefined) row.industry = input.industry;
   if (input.subcategoryId !== undefined) row.subcategory_id = coerceUuidValue(input.subcategoryId);
-  if (input.moduleKey !== undefined) row.module_key = input.moduleKey;
+  if (input.moduleKey !== undefined) row.module_key = input.moduleKey && isModuleKey(input.moduleKey) ? input.moduleKey : null;
   if (input.anonymousMode !== undefined) row.anonymous_mode = input.anonymousMode;
   if (input.workflowStatus !== undefined) row.workflow_status = input.workflowStatus;
   if (input.contactPhone !== undefined) row.contact_phone = input.contactPhone;
