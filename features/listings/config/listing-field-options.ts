@@ -848,6 +848,30 @@ export const BUSINESS_TRANSFER_TYPE_OPTIONS = [
   'Diğer',
 ] as const;
 
+/** İşletme türü seçildiğinde en yakın ana sektör öneri eşleştirmesi */
+export const BUSINESS_TYPE_TO_DEFAULT_SECTOR_MAP: Record<string, string> = {
+  'Kafe / Restoran / Yeme-İçme': 'Gıda / Restoran',
+  'Market / Bakkal / Şarküteri': 'Perakende / Mağaza',
+  'Mağaza / Butik / Perakende': 'Perakende / Mağaza',
+  'E-Ticaret / Dijital İşletme': 'E-ticaret / Pazaryeri',
+  'Güzellik Merkezi / Kuaför / Spa': 'Güzellik / Kişisel bakım',
+  'Oto Servis / Yıkama / Ekspertiz': 'Oto servis / Yetkili servis',
+  'Üretim / Atölye / İmalathane': 'Üretim / Sanayi',
+  'Eğitim / Kurs / Kreş': 'Eğitim',
+  'Sağlık / Klinik / Eczane': 'Sağlık',
+  'Otel / Pansiyon / Konaklama': 'Turizm / Otelcilik',
+  'Lojistik / Depolama / Kargo': 'Lojistik / Depolama',
+  'Hizmet / Danışmanlık / Ofis': 'Danışmanlık',
+  'Tarım / Hayvancılık': 'Tarım',
+  'Spor / Fitness Salonu': 'Spor / Fitness',
+  'İnşaat / Gayrimenkul': 'İnşaat / Gayrimenkul',
+};
+
+export function getSuggestedSectorForBusinessType(businessType: string): string | null {
+  if (!businessType) return null;
+  return BUSINESS_TYPE_TO_DEFAULT_SECTOR_MAP[businessType.trim()] ?? null;
+}
+
 /** İşletme Devri — Faaliyet Durumu */
 export const BUSINESS_TRANSFER_STATUS_OPTIONS = [
   'Aktif Faaliyette (Cirolu & Müşterili)',

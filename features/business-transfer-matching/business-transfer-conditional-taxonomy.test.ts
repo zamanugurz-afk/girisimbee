@@ -15,6 +15,7 @@ import {
   pruneUnsupportedSectors,
   resolveCanonicalBusinessType,
   areBusinessTypesRelated,
+  getPrimarySectorForBusinessType,
 } from '@/features/listings/config/business-type-sector-map';
 import { buildListingDraftStorageKey } from '@/features/listings/hooks/use-listing-form-autosave';
 import { calculateBusinessTransferMatch } from '@/features/business-transfer-matching/engine';
@@ -283,5 +284,22 @@ describe('GİRİŞİMBEE — Business Transfer Step 1 Conditional Taxonomy & Mat
     expect(areEcosystemsCompatible(transferListing, partnerListing)).toBe(false);
     expect(areEcosystemsCompatible(transferListing, franchiseListing)).toBe(false);
     expect(areEcosystemsCompatible(transferListing, transferListing)).toBe(true);
+  });
+
+  // TEST 14: İşletme türü seçildiğinde en yakın ana sektör öneri eşleştirmesi
+  it('TEST 14: Business type selection maps to the closest canonical sector', () => {
+    expect(getPrimarySectorForBusinessType('Kafe / Restoran / Yeme-İçme')).toBe('Gıda / Restoran');
+    expect(getPrimarySectorForBusinessType('Market / Bakkal / Şarküteri')).toBe('Perakende / Mağaza');
+    expect(getPrimarySectorForBusinessType('E-Ticaret / Dijital İşletme')).toBe('E-ticaret / Pazaryeri');
+    expect(getPrimarySectorForBusinessType('Oto Servis / Yıkama / Ekspertiz')).toBe('Oto servis / Yetkili servis');
+    expect(getPrimarySectorForBusinessType('Güzellik Merkezi / Kuaför / Spa')).toBe('Güzellik / Kişisel bakım');
+    expect(getPrimarySectorForBusinessType('Üretim / Atölye / İmalathane')).toBe('Üretim / Sanayi');
+    expect(getPrimarySectorForBusinessType('Sağlık / Klinik / Eczane')).toBe('Sağlık');
+    expect(getPrimarySectorForBusinessType('Eğitim / Kurs / Kreş')).toBe('Eğitim');
+    expect(getPrimarySectorForBusinessType('Otel / Pansiyon / Konaklama')).toBe('Turizm / Otelcilik');
+    expect(getPrimarySectorForBusinessType('Lojistik / Depolama / Kargo')).toBe('Lojistik / Depolama');
+    expect(getPrimarySectorForBusinessType('Tarım / Hayvancılık')).toBe('Tarım');
+    expect(getPrimarySectorForBusinessType('Spor / Fitness Salonu')).toBe('Spor / Fitness');
+    expect(getPrimarySectorForBusinessType('İnşaat / Gayrimenkul')).toBe('İnşaat / Gayrimenkul');
   });
 });

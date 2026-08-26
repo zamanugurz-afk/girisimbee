@@ -306,3 +306,14 @@ export function areBusinessTypesRelated(typeA: string, typeB: string): boolean {
 
   return sectorsB.some((s) => sectorsA.has(s));
 }
+
+/**
+ * Returns the most relevant / closest primary sector for a given business type.
+ */
+export function getPrimarySectorForBusinessType(businessType: string): string | null {
+  if (!businessType) return null;
+  const canonical = resolveCanonicalBusinessType(businessType);
+  if (!canonical || canonical === 'Diğer') return null;
+  const sectors = BUSINESS_TYPE_TO_SECTOR_MAP[canonical];
+  return sectors && sectors.length > 0 ? sectors[0] : null;
+}

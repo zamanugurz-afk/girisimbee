@@ -19,11 +19,14 @@ import {
   resolveStepCustomFields,
   type ListingFormStepDef,
 } from '@/features/listings/config/listing-form-steps.config';
-import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { partnerCoreFieldLabels, partnerCoreFieldUi } from '@/features/founders/partnership-form';
 import { buildBusinessTransferSummaryDraft } from '@/features/listings/lib/business-transfer-summary';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
-import { pruneUnsupportedSectors } from '@/features/listings/config/business-type-sector-map';
+import {
+  pruneUnsupportedSectors,
+  getPrimarySectorForBusinessType,
+} from '@/features/listings/config/business-type-sector-map';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
@@ -1721,6 +1724,10 @@ export function CategoryListingForm({
       if (key === 'businessType') {
         if (value !== 'Diğer') {
           setCustomField('businessTypeOther', '');
+        }
+        const suggestedSector = getPrimarySectorForBusinessType(String(value || ''));
+        if (suggestedSector) {
+          setCustomField('sector', suggestedSector);
         }
       }
       if (categoryId === CATEGORY_IDS.yatirimBul) {
