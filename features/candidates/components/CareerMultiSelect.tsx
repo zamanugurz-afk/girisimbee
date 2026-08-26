@@ -267,24 +267,44 @@ export function CareerMultiSelect({
 
       <div
         className={cn(
-          'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2',
+          'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2 select-none',
           error && 'border-destructive/40',
         )}
       >
         {visible.map((option) => {
           const checked = selected.includes(option);
           return (
-            <label
+            <div
               key={option}
-              className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/40"
+              role="checkbox"
+              aria-checked={checked}
+              tabIndex={0}
+              onClick={() => {
+                if (!disabled) toggle(option, !checked);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  if (!disabled) toggle(option, !checked);
+                }
+              }}
+              className={cn(
+                'flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm transition-colors select-none',
+                checked
+                  ? 'bg-amber-500/10 text-amber-900 dark:text-amber-200 font-medium'
+                  : 'hover:bg-muted/50 text-foreground',
+                disabled && 'cursor-not-allowed opacity-50',
+              )}
             >
               <Checkbox
                 checked={checked}
                 disabled={disabled}
                 onCheckedChange={(next) => toggle(option, next === true)}
+                onClick={(e) => e.stopPropagation()}
+                className="mt-0.5 shrink-0 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500"
               />
               <span className="leading-snug">{option}</span>
-            </label>
+            </div>
           );
         })}
       </div>
