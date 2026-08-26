@@ -11,6 +11,8 @@ describe('buildBusinessTransferSummaryDraft', () => {
       operationalStatus: 'Aktif Faaliyette (Cirolu & Müşterili)',
       transferPrice: 750000,
       monthlyRent: 25000,
+      monthlyRevenue: '500.000 - 1.000.000 TL',
+      profitMargin: '%20 - %30',
       businessAge: 3,
       employeeCount: 4,
       transferScope: ['Demirbaşlar & Ekipmanlar', 'İşletme Ruhsatı & İzinler', 'Marka & Tabela Hakkı'],
@@ -27,6 +29,8 @@ describe('buildBusinessTransferSummaryDraft', () => {
     expect(draft.longDescription).toContain('Gıda ve İçecek sektöründe');
     expect(draft.longDescription).toContain('750.000 TL');
     expect(draft.longDescription).toContain('25.000 TL');
+    expect(draft.longDescription).toContain('500.000 - 1.000.000 TL');
+    expect(draft.longDescription).toContain('%20 - %30');
     expect(draft.longDescription).toContain('3 yıllık işletme geçmişine');
     expect(draft.longDescription).toContain('4 aktif çalışana');
     expect(draft.longDescription).toContain('Demirbaşlar & Ekipmanlar');

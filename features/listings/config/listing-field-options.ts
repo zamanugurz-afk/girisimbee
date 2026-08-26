@@ -863,8 +863,37 @@ export const BUSINESS_TRANSFER_SCOPE_OPTIONS = [
   'Marka & Tabela Hakkı',
   'Mevcut Ürün Stoku',
   'Web Sitesi & Sosyal Medya Hesapları',
-  'Müşteri & Tedarikçi Portföyü',
+  'Tedarikçi & Distribütör Anlaşmaları',
+  'Ticari Sözleşmeler & Lisanslar',
   'POS & Ödeme Altyapısı',
+] as const;
+
+/** İşletme Devri — Aylık Ortalama Ciro Seçenekleri */
+export const BUSINESS_TRANSFER_MONTHLY_REVENUE_OPTIONS = [
+  '0 - 50.000 TL',
+  '50.000 - 100.000 TL',
+  '100.000 - 250.000 TL',
+  '250.000 - 500.000 TL',
+  '500.000 - 1.000.000 TL',
+  '1.000.000 - 2.500.000 TL',
+  '2.500.000 - 5.000.000 TL',
+  '5.000.000 - 10.000.000 TL',
+  '10.000.000 - 25.000.000 TL',
+  '25.000.000 - 50.000.000 TL',
+  '50.000.000 - 100.000.000 TL',
+  '100.000.000 TL ve üzeri',
+  'Görüşmede Paylaşılacak',
+] as const;
+
+/** İşletme Devri — Net Kâr Marjı Seçenekleri */
+export const BUSINESS_TRANSFER_PROFIT_MARGIN_OPTIONS = [
+  '%0 - %10',
+  '%10 - %20',
+  '%20 - %30',
+  '%30 - %40',
+  '%40 - %50',
+  '%50 ve üzeri',
+  'Görüşmede Paylaşılacak',
 ] as const;
 
 /** İşletme Devri — Devir Nedeni */

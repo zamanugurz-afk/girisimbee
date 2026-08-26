@@ -66,7 +66,9 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
   it('TEST 3: Business Transfer Sell → Step 1 to Step 4 → Preview pipeline validity', () => {
     const sellType = categoryRegistry.getListingType(LISTING_TYPE_IDS.businessTransferSellDefault)!;
     const schema = buildCreateListingFormSchema(sellType.fieldSchema);
-    const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri);
+    const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri, {
+      listingTypeId: LISTING_TYPE_IDS.businessTransferSellDefault,
+    });
 
     expect(steps.length).toBe(4);
     expect(steps.map((s) => s.id)).toEqual(['basics', 'financials', 'details', 'package']);
@@ -77,12 +79,11 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
     );
     // Step 2: financials
     expect(steps[1].customFieldKeys).toEqual(
-      expect.arrayContaining(['transferPrice', 'monthlyRent', 'businessAge', 'employeeCount', 'operationalStatus']),
+      expect.arrayContaining(['transferPrice', 'monthlyRent', 'monthlyRevenue', 'profitMargin', 'businessAge', 'employeeCount', 'operationalStatus', 'transferScope', 'reasonForTransfer']),
     );
     // Step 3: details
-    expect(steps[2].customFieldKeys).toEqual(
-      expect.arrayContaining(['district', 'transferScope', 'reasonForTransfer', 'postTransferSupport', 'financialSummary']),
-    );
+    expect(steps[2].coreFields).toContain('longDescription');
+    expect(steps[2].coreFields).toContain('city');
     // Step 4: preview / publish
     expect(steps[3].publish).toBe(true);
 
@@ -95,6 +96,7 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
         shortDescription: 'Yüksek cirolu, hazır müşteri portföyü olan faal kafe devredilecektir.',
         longDescription: 'Lokasyon avantajı yüksek, tüm ekipman, ruhsat ve demirbaşlarıyla birlikte eksiksiz devredilmektedir. Hazır müşteri portföyü vardır.',
         city: 'İstanbul',
+        district: 'Kadıköy',
       },
       customFields: {
         businessName: 'Moda Coffee',
@@ -102,13 +104,13 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
         sector: 'Gıda / Restoran',
         transferPrice: 850000,
         monthlyRent: 35000,
+        monthlyRevenue: '250.000 - 500.000 TL',
+        profitMargin: '%20 - %30',
         businessAge: 3,
         employeeCount: 4,
         operationalStatus: 'Aktif Faaliyette (Cirolu & Müşterili)',
-        district: 'Kadıköy',
         transferScope: ['Demirbaşlar & Ekipmanlar', 'İşletme Ruhsatı & İzinler'],
         reasonForTransfer: 'Şehir / Yurt Dışı Değişikliği',
-        postTransferSupport: '1 Ay Oryantasyon & Tedarikçi Desteği',
         financialSummary: 'Aylık ortalama 250.000 TL ciro',
       },
       tags: ['Kafe', 'Devir'],
@@ -123,7 +125,9 @@ describe('GİRİŞİMBEE — Business Transfer E2E Route & Form Wizard Scenarios
   it('TEST 4: Business Transfer Buy → Step 1 to Step 4 → Preview pipeline validity', () => {
     const buyType = categoryRegistry.getListingType(LISTING_TYPE_IDS.businessTransferBuyDefault)!;
     const schema = buildCreateListingFormSchema(buyType.fieldSchema);
-    const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri);
+    const steps = getListingFormSteps(CATEGORY_IDS.isletmeDevri, {
+      listingTypeId: LISTING_TYPE_IDS.businessTransferBuyDefault,
+    });
 
     expect(steps.length).toBe(4);
 

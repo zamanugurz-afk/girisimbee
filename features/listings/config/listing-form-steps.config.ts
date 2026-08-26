@@ -570,6 +570,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'transferPrice',
         'budgetMax',
         'monthlyRent',
+        'monthlyRevenue',
+        'profitMargin',
         'businessAge',
         'employeeCount',
         'operationalStatus',
@@ -583,10 +585,8 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       description: 'Lokasyon, devir kapsamı ve detaylı açıklama',
       coreFields: ['longDescription', 'city'],
       customFieldKeys: [
-        'district',
         'transferScope',
         'reasonForTransfer',
-        'postTransferSupport',
         'relevantExperience',
         'financialSummary',
       ],
@@ -719,7 +719,6 @@ export function getListingFormSteps(
           title: 'Hedef Lokasyon ve Profil',
           description: 'Hedef il, ilçe ve kendinizi tanıtan detaylı açıklama',
           coreFields: ['longDescription', 'city'],
-          customFieldKeys: ['district'],
         },
       );
     }
@@ -740,17 +739,18 @@ export function getListingFormSteps(
       {
         id: 'financials',
         title: 'Devir Koşulları ve Finansallar',
-        description: 'Devir bedeli, aylık kira, kapsam ve finansal özet',
+        description: 'Devir bedeli, aylık kira, ciro, kâr marjı ve devir kapsamı',
         customFieldKeys: [
           'transferPrice',
           'monthlyRent',
+          'monthlyRevenue',
+          'profitMargin',
           'businessAge',
           'employeeCount',
           'operationalStatus',
-          'financialSummary',
           'transferScope',
           'reasonForTransfer',
-          'postTransferSupport',
+          'financialSummary',
         ],
       },
       {
@@ -758,7 +758,6 @@ export function getListingFormSteps(
         title: 'Lokasyon ve Tanıtım',
         description: 'İl, ilçe ve işletmenizi tanıtan detaylı açıklama',
         coreFields: ['longDescription', 'city'],
-        customFieldKeys: ['district'],
         meta: ['images'],
       },
     );

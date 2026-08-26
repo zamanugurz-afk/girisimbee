@@ -14,11 +14,12 @@ export interface BusinessTransferSummaryContext {
   transferPrice?: number | string;
   budgetMax?: number | string;
   monthlyRent?: number | string;
+  monthlyRevenue?: string;
+  profitMargin?: string;
   businessAge?: number | string;
   employeeCount?: number | string;
   transferScope?: string[] | string;
   reasonForTransfer?: string;
-  postTransferSupport?: string;
   financialSummary?: string;
   relevantExperience?: string;
   city?: string | null;
@@ -63,7 +64,7 @@ export function buildBusinessTransferSummaryDraft(
     || '';
 
   const scopes = parseList(ctx.transferScope).filter((s) => s !== 'Diğer');
-  const scopeStr = scopes.slice(0, 5).join(', ');
+  const scopeStr = scopes.slice(0, 6).join(', ');
 
   const priceNum = parseNumber(ctx.transferPrice);
   const budgetNum = parseNumber(ctx.budgetMax);
@@ -151,6 +152,19 @@ export function buildBusinessTransferSummaryDraft(
     longSentences.push(finParts.join(', ') + ' olarak belirlenmiştir.');
   }
 
+  if (ctx.monthlyRevenue || ctx.profitMargin) {
+    const revParts = [];
+    if (ctx.monthlyRevenue && ctx.monthlyRevenue !== 'Görüşmede Paylaşılacak') {
+      revParts.push('aylık ortalama ' + ctx.monthlyRevenue + ' ciro');
+    }
+    if (ctx.profitMargin && ctx.profitMargin !== 'Görüşmede Paylaşılacak') {
+      revParts.push(ctx.profitMargin + ' net kâr marjı');
+    }
+    if (revParts.length > 0) {
+      longSentences.push('İşletmemiz ' + revParts.join(' ve ') + ' ile faaliyetini sürdürmektedir.');
+    }
+  }
+
   if (ctx.businessAge || ctx.employeeCount) {
     const detailParts = [];
     if (ctx.businessAge) detailParts.push(ctx.businessAge + ' yıllık işletme geçmişine');
@@ -166,12 +180,8 @@ export function buildBusinessTransferSummaryDraft(
     longSentences.push('Devir gerekçesi: ' + ctx.reasonForTransfer.trim() + '.');
   }
 
-  if (ctx.postTransferSupport?.trim()) {
-    longSentences.push('Devir sonrası destek: ' + ctx.postTransferSupport.trim() + '.');
-  }
-
   if (ctx.financialSummary?.trim()) {
-    longSentences.push('Finansal özet ve ciro bilgisi: ' + ctx.financialSummary.trim() + '.');
+    longSentences.push('Finansal notlar: ' + ctx.financialSummary.trim() + '.');
   }
 
   longSentences.push(
