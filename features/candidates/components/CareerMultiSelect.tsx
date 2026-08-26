@@ -111,6 +111,8 @@ export function CareerMultiSelect({
     emerald: {
       action: 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400',
       badge: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/20',
+      cardChecked: 'border-emerald-500/60 bg-emerald-500/8 font-medium text-foreground dark:border-emerald-500/50 dark:bg-emerald-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 dark:data-[state=checked]:bg-emerald-500',
       manualBox: 'border-emerald-300/80 bg-emerald-50/60 dark:border-emerald-700/60 dark:bg-emerald-950/20',
       manualHeader: 'text-emerald-800 dark:text-emerald-300',
       manualDot: 'bg-emerald-500',
@@ -125,6 +127,8 @@ export function CareerMultiSelect({
     sky: {
       action: 'text-sky-600 hover:text-sky-700 dark:text-sky-400',
       badge: 'bg-sky-500/10 text-sky-800 dark:text-sky-300 border-sky-500/20',
+      cardChecked: 'border-sky-500/60 bg-sky-500/8 font-medium text-foreground dark:border-sky-500/50 dark:bg-sky-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-sky-600 data-[state=checked]:border-sky-600 dark:data-[state=checked]:bg-sky-500',
       manualBox: 'border-sky-300/80 bg-sky-50/60 dark:border-sky-700/60 dark:bg-sky-950/20',
       manualHeader: 'text-sky-800 dark:text-sky-300',
       manualDot: 'bg-sky-500',
@@ -139,6 +143,8 @@ export function CareerMultiSelect({
     amber: {
       action: 'text-amber-600 hover:text-amber-700 dark:text-amber-400',
       badge: 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20',
+      cardChecked: 'border-amber-500/60 bg-amber-500/8 font-medium text-foreground dark:border-amber-500/50 dark:bg-amber-500/10',
+      checkboxChecked: 'data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500',
       manualBox: 'border-amber-300/80 bg-amber-50/60 dark:border-amber-700/60 dark:bg-amber-950/20',
       manualHeader: 'text-amber-800 dark:text-amber-300',
       manualDot: 'bg-amber-500',
@@ -153,6 +159,8 @@ export function CareerMultiSelect({
     blue: {
       action: 'text-blue-600 hover:text-blue-700 dark:text-blue-400',
       badge: 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border-blue-500/20',
+      cardChecked: 'border-blue-500/60 bg-blue-500/8 font-medium text-foreground dark:border-blue-500/50 dark:bg-blue-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 dark:data-[state=checked]:bg-blue-500',
       manualBox: 'border-blue-300/80 bg-blue-50/60 dark:border-blue-700/60 dark:bg-blue-950/20',
       manualHeader: 'text-blue-800 dark:text-blue-300',
       manualDot: 'bg-blue-500',
@@ -167,6 +175,8 @@ export function CareerMultiSelect({
     purple: {
       action: 'text-purple-600 hover:text-purple-700 dark:text-purple-400',
       badge: 'bg-purple-500/10 text-purple-800 dark:text-purple-300 border-purple-500/20',
+      cardChecked: 'border-purple-500/60 bg-purple-500/8 font-medium text-foreground dark:border-purple-500/50 dark:bg-purple-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 dark:data-[state=checked]:bg-purple-500',
       manualBox: 'border-purple-300/80 bg-purple-50/60 dark:border-purple-700/60 dark:bg-purple-950/20',
       manualHeader: 'text-purple-800 dark:text-purple-300',
       manualDot: 'bg-purple-500',
@@ -181,6 +191,8 @@ export function CareerMultiSelect({
     teal: {
       action: 'text-teal-600 hover:text-teal-700 dark:text-teal-400',
       badge: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/20',
+      cardChecked: 'border-teal-500/60 bg-teal-500/8 font-medium text-foreground dark:border-teal-500/50 dark:bg-teal-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600 dark:data-[state=checked]:bg-teal-500',
       manualBox: 'border-teal-300/80 bg-teal-50/60 dark:border-teal-700/60 dark:bg-teal-950/20',
       manualHeader: 'text-teal-800 dark:text-teal-300',
       manualDot: 'bg-teal-500',
@@ -195,6 +207,8 @@ export function CareerMultiSelect({
     rose: {
       action: 'text-rose-600 hover:text-rose-700 dark:text-rose-400',
       badge: 'bg-rose-500/10 text-rose-800 dark:text-rose-300 border-rose-500/20',
+      cardChecked: 'border-rose-500/60 bg-rose-500/8 font-medium text-foreground dark:border-rose-500/50 dark:bg-rose-950/30',
+      checkboxChecked: 'data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600 dark:data-[state=checked]:bg-rose-500',
       manualBox: 'border-rose-300/80 bg-rose-50/60 dark:border-rose-700/60 dark:bg-rose-950/20',
       manualHeader: 'text-rose-800 dark:text-rose-300',
       manualDot: 'bg-rose-500',
@@ -209,6 +223,8 @@ export function CareerMultiSelect({
     default: {
       action: 'text-primary hover:underline',
       badge: 'bg-primary/10 text-primary border-primary/20',
+      cardChecked: 'border-primary/60 bg-primary/8 font-medium text-foreground dark:border-primary/50 dark:bg-primary/10',
+      checkboxChecked: 'data-[state=checked]:bg-primary data-[state=checked]:border-primary',
       manualBox: 'border-primary/30 bg-primary/[0.04] dark:border-primary/40 dark:bg-primary/[0.08]',
       manualHeader: 'text-primary',
       manualDot: 'bg-primary',
@@ -231,7 +247,7 @@ export function CareerMultiSelect({
 
       {/* Selected Chips */}
       {pureSelected.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-muted/30 border border-border/50">
+        <div className="flex flex-wrap gap-1.5 p-2 rounded-xl bg-muted/20 border border-border/40">
           {pureSelected.map((item) => (
             <span
               key={item}
@@ -240,7 +256,7 @@ export function CareerMultiSelect({
                 theme.badge
               )}
             >
-              <span>{item}</span>
+              <span className="text-xs">{item}</span>
               {!disabled && (
                 <button
                   type="button"
@@ -262,13 +278,14 @@ export function CareerMultiSelect({
           disabled={disabled}
           placeholder={searchPlaceholder ?? 'Listede ara...'}
           onChange={(e) => setQuery(e.target.value)}
+          className="h-9 text-xs rounded-xl bg-card border-border/80"
         />
       ) : null}
 
       <div
         className={cn(
-          'grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border/70 bg-background p-2 sm:grid-cols-2 select-none',
-          error && 'border-destructive/40',
+          'grid gap-2 sm:grid-cols-2 max-h-[280px] overflow-y-auto pr-1 py-0.5 scrollbar-thin select-none',
+          error && 'p-1 rounded-xl border border-destructive/40',
         )}
       >
         {visible.map((option) => {
@@ -289,11 +306,11 @@ export function CareerMultiSelect({
                 }
               }}
               className={cn(
-                'flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm transition-colors select-none',
+                'flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2.5 text-xs transition-all select-none',
                 checked
-                  ? 'bg-amber-500/10 text-amber-900 dark:text-amber-200 font-medium'
-                  : 'hover:bg-muted/50 text-foreground',
-                disabled && 'cursor-not-allowed opacity-50',
+                  ? theme.cardChecked
+                  : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',
+                disabled && 'cursor-not-allowed opacity-60',
               )}
             >
               <Checkbox
@@ -301,9 +318,12 @@ export function CareerMultiSelect({
                 disabled={disabled}
                 onCheckedChange={(next) => toggle(option, next === true)}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-0.5 shrink-0 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500"
+                className={cn(
+                  'mt-0.5 shrink-0',
+                  theme.checkboxChecked,
+                )}
               />
-              <span className="leading-snug">{option}</span>
+              <span className="leading-snug text-xs">{option}</span>
             </div>
           );
         })}
