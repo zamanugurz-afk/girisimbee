@@ -26,27 +26,38 @@ export function sortPopularThenAz(
   return [...head, ...rest, ...tail];
 }
 
-/** High-demand sectors first, then A–Z. "Diğer" always last. */
 export const POPULAR_JOB_SECTORS = [
   'Bilişim / Yazılım',
-  'Satış',
-  'Sağlık',
-  'Çağrı merkezi',
+  'SaaS / Yazılım',
+  'Yapay zeka',
+  'E-ticaret / Pazaryeri',
+  'Fintech',
   'Finans / Bankacılık',
-  'Eğitim',
+  'Sağlık',
+  'Sağlık teknolojisi',
   'Üretim / Sanayi',
-  'Müşteri hizmetleri',
+  'Üretim ve Sanayi',
+  'Gıda / Restoran',
+  'Gıda teknolojisi',
+  'Perakende',
   'Perakende / Mağaza',
+  'Lojistik',
+  'Lojistik / Depolama',
+  'Satış',
+  'Çağrı merkezi',
+  'Eğitim',
+  'Eğitim teknolojisi',
+  'Mobil uygulama',
+  'Oyun',
+  'Siber güvenlik',
+  'Müşteri hizmetleri',
   'Turizm / Otelcilik',
   'İnsan kaynakları',
-  'Lojistik / Depolama',
-  'E-ticaret / Pazaryeri',
-  'Gıda / Restoran',
   'İnşaat / Gayrimenkul',
 ] as const;
 
 export function sortSectorsPopularThenAz(items: readonly string[]): string[] {
-  return sortPopularThenAz(items, POPULAR_JOB_SECTORS, { last: ['Diğer'] });
+  return sortPopularThenAz(items, POPULAR_JOB_SECTORS, { last: ['Diğer', 'Diğer / Kendim gireceğim'] });
 }
 
 /** High-demand roles first inside a sector list, then A–Z. */

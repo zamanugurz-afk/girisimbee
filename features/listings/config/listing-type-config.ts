@@ -1237,7 +1237,7 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       key: 'expertise',
       label: 'Aranan Uzmanlık',
       type: 'multi-enum',
-      required: true,
+      required: false,
       options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
     },
     {
@@ -1256,6 +1256,11 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Sektör',
       type: 'enum',
       options: [...INVESTOR_SECTOR_OPTIONS],
+    },
+    {
+      key: 'sectorOther',
+      label: 'Özel Sektör Belirtin',
+      type: 'string',
     },
     {
       key: 'sectors',

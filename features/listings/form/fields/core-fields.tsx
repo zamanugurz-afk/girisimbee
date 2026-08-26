@@ -204,7 +204,15 @@ export function CoreListingFields({
                 set('title', e.target.value);
                 clearSuggestion('title');
               }}
-              onBlur={() => proposeCorrection('title')}
+              onBlur={() => {
+                if (values.title?.trim()) {
+                  const normalized = normalizeListingTitle(values.title);
+                  if (normalized && normalized !== values.title) {
+                    set('title', normalized);
+                  }
+                }
+                proposeCorrection('title');
+              }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlan başlığınızı yazın'}
               maxLength={ui.maxLength}
@@ -239,7 +247,15 @@ export function CoreListingFields({
                 set('shortDescription', e.target.value);
                 clearSuggestion('shortDescription');
               }}
-              onBlur={() => proposeCorrection('shortDescription')}
+              onBlur={() => {
+                if (values.shortDescription?.trim()) {
+                  const normalized = normalizeListingDescription(values.shortDescription);
+                  if (normalized && normalized !== values.shortDescription) {
+                    set('shortDescription', normalized);
+                  }
+                }
+                proposeCorrection('shortDescription');
+              }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlanınızı özetleyen kısa bir açıklama yazın'}
               rows={3}
@@ -276,7 +292,15 @@ export function CoreListingFields({
                 set('longDescription', e.target.value);
                 clearSuggestion('longDescription');
               }}
-              onBlur={() => proposeCorrection('longDescription')}
+              onBlur={() => {
+                if (values.longDescription?.trim()) {
+                  const normalized = normalizeListingDescription(values.longDescription);
+                  if (normalized && normalized !== values.longDescription) {
+                    set('longDescription', normalized);
+                  }
+                }
+                proposeCorrection('longDescription');
+              }}
               disabled={disabled}
               placeholder={ui.placeholder ?? 'Örn: İlanınızla ilgili tüm detayları buraya yazın'}
               rows={6}

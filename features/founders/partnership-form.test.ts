@@ -14,6 +14,7 @@ describe('partner form variants', () => {
 
     expect(seeking).toEqual([
       'sector',
+      'sectorOther',
       'projectStage',
       'partnershipType',
       'expertise',
@@ -27,6 +28,7 @@ describe('partner form variants', () => {
       'offeredSkills',
       'offeredSkillsOther',
       'sectors',
+      'sectorOther',
       'partnershipType',
       'projectStage',
       'commitment',

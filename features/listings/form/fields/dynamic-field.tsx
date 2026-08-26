@@ -154,7 +154,10 @@ export function DynamicField({
 
   const otherGate = OTHER_DETAIL_GATES[field.key];
   if (otherGate) {
-    const parentValue = context?.values?.[otherGate.parentKey];
+    let parentValue = context?.values?.[otherGate.parentKey];
+    if (field.key === 'sectorOther' && parentValue === undefined) {
+      parentValue = context?.values?.['sector'] ?? context?.values?.['primarySector'];
+    }
     if (!otherGate.match(parentValue)) return null;
   }
 

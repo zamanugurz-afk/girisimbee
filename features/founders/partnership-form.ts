@@ -25,6 +25,12 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
     options: [...INVESTOR_SECTOR_OPTIONS],
   },
   {
+    key: 'sectorOther',
+    label: 'Özel Sektör Belirtin',
+    type: 'string',
+    required: false,
+  },
+  {
     key: 'projectStage',
     label: 'Ortaklık Aşaması',
     type: 'enum',
@@ -42,7 +48,7 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
     key: 'expertise',
     label: 'Aranan uzmanlıklar',
     type: 'multi-enum',
-    required: true,
+    required: false,
     options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
@@ -72,7 +78,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     key: 'expertise',
     label: 'Uzmanlık alanları',
     type: 'multi-enum',
-    required: true,
+    required: false,
     options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
@@ -85,7 +91,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     key: 'offeredSkills',
     label: 'Sunduğum yetkinlikler',
     type: 'multi-enum',
-    required: true,
+    required: false,
     options: [...CANONICAL_PARTNER_EXPERTISE_OPTIONS],
   },
   {
@@ -100,6 +106,12 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     type: 'multi-enum',
     required: true,
     options: [...INVESTOR_SECTOR_OPTIONS],
+  },
+  {
+    key: 'sectorOther',
+    label: 'Özel Sektör Belirtin',
+    type: 'string',
+    required: false,
   },
   {
     key: 'partnershipType',

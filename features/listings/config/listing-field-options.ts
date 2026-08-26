@@ -19,26 +19,27 @@ export const SEEKING_INVESTMENT_AMOUNT_RANGES = [
 
 /** Investor interest sectors — multi-select for "Yatırım Yapacağım". */
 export const INVESTOR_SECTOR_OPTIONS = [
-  'Fintech',
+  'Bilişim / Yazılım',
   'SaaS / Yazılım',
-  'E-ticaret',
   'Yapay zeka',
+  'E-ticaret / Pazaryeri',
+  'Fintech',
   'Sağlık teknolojisi',
-  'Eğitim teknolojisi',
-  'Mobil uygulama',
-  'Marketplace',
-  'Lojistik',
-  'Temiz enerji',
-  'Siber güvenlik',
+  'Üretim ve Sanayi',
   'Gıda teknolojisi',
   'Perakende',
+  'Lojistik',
+  'Mobil uygulama',
+  'Eğitim teknolojisi',
   'Oyun',
-  'Medya & içerik',
-  'İnsan kaynakları teknolojisi',
+  'Siber güvenlik',
+  'Temiz enerji',
   'Proptech',
   'İklim teknolojisi',
   'Tarım teknolojisi',
-  'Diğer',
+  'İnsan kaynakları teknolojisi',
+  'Medya & içerik',
+  'Diğer / Kendim gireceğim',
 ] as const;
 
 /** Career / hiring sectors — TR job market (ISKUR / Kariyer.net coverage). */
