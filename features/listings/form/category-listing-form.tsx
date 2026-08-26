@@ -3882,7 +3882,6 @@ export function CategoryListingForm({
                       key === 'targetCustomer' ||
                       key === 'useOfFunds' ||
                       key === 'transferScope' ||
-                      key === 'reasonForTransfer' ||
                       key === 'relevantExperience' ||
                       key === 'capabilities' ||
                       key === 'requiredResponsibilities' ||

@@ -576,6 +576,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'businessAge',
         'employeeCount',
         'operationalStatus',
+        'reasonForTransfer',
         'preferredStatus',
         'operationalPreference',
       ],
@@ -587,7 +588,6 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       coreFields: ['longDescription', 'city'],
       customFieldKeys: [
         'transferScope',
-        'reasonForTransfer',
         'relevantExperience',
       ],
       meta: ['images'],
