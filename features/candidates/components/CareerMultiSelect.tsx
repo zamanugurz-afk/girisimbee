@@ -227,27 +227,6 @@ export function CareerMultiSelect({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label className="text-sm font-semibold text-foreground">{label}</Label>
-        {options.length > 1 && !disabled && (
-          <button
-            type="button"
-            className={cn('text-xs font-semibold hover:underline cursor-pointer transition-colors', theme.action)}
-            onClick={() => {
-              const nonManual = options.filter((o) => !isManualCareerOption(o));
-              const topSuggestions = nonManual.slice(0, 3);
-              const isTopSelected = topSuggestions.length > 0 && topSuggestions.every((o) => selected.includes(o));
-              if (isTopSelected) {
-                onChange(selected.filter((s) => !topSuggestions.includes(s)));
-              } else {
-                onChange([...new Set([...selected, ...topSuggestions])]);
-              }
-            }}
-          >
-            {options.filter((o) => !isManualCareerOption(o)).slice(0, 3).length > 0 &&
-            options.filter((o) => !isManualCareerOption(o)).slice(0, 3).every((o) => selected.includes(o))
-              ? 'Seçimi Temizle'
-              : 'Önerilenleri Ekle'}
-          </button>
-        )}
       </div>
 
       {/* Selected Chips */}
