@@ -982,12 +982,6 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...FRANCHISE_CONTRACT_OPTIONS],
     },
     {
-      key: 'operatingManualProvided',
-      label: 'Standart İşletme El Kitabı & Know-How',
-      type: 'enum',
-      options: [...FRANCHISE_MANUAL_OPTIONS],
-    },
-    {
       key: 'minSquareMeters',
       label: 'Minimum Alan (m²)',
       type: 'number',

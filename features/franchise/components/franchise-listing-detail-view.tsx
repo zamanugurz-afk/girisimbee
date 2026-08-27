@@ -147,7 +147,6 @@ export function FranchiseListingDetailView({
                     <FactGrid>
                       <FactRow label="Marka Tescil Durumu" value={toDisplayValue(details.trademarkStatus)} />
                       <FactRow label="Sözleşme & Ön Bilgilendirme" value={toDisplayValue(details.contractProvided)} />
-                      <FactRow label="İşletme El Kitabı & Know-How" value={toDisplayValue(details.operatingManualProvided)} />
                       <FactRow
                         label="Bölge Koruması"
                         value={

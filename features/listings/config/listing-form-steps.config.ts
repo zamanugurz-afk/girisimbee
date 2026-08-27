@@ -480,7 +480,6 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       customFieldKeys: [
         'trademarkStatus',
         'contractProvided',
-        'operatingManualProvided',
         'minSquareMeters',
         'storeLocationType',
         'availableCities',

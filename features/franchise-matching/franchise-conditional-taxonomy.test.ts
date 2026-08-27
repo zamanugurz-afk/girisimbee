@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { CATEGORY_IDS, LISTING_TYPE_IDS, FRANCHISE_GIVE_FIELD_SCHEMA } from '@/features/listings/config/listing-type-config';
 import { getListingFormSteps } from '@/features/listings/config/listing-form-steps.config';
 import {
@@ -106,7 +106,6 @@ describe('GİRİŞİMBEE — Franchise Architecture, Conditional Taxonomy & Lega
     const step3Keys = steps[2]?.customFieldKeys as string[];
     expect(step3Keys).toContain('trademarkStatus');
     expect(step3Keys).toContain('contractProvided');
-    expect(step3Keys).toContain('operatingManualProvided');
     expect(step3Keys).toContain('minSquareMeters');
   });
 
