@@ -30,9 +30,7 @@ describe('partner form variants', () => {
       'commitment',
       'equityOffered',
       'contactPhone',
-      'contactWhatsapp',
       'contactName',
-      'contactEmail',
     ]);
     expect(joining).toEqual([
       'sectors',
@@ -55,9 +53,7 @@ describe('partner form variants', () => {
       'offeredSkills',
       'offeredSkillsOther',
       'contactPhone',
-      'contactWhatsapp',
       'contactName',
-      'contactEmail',
     ]);
     expect(seeking).not.toContain('offeredSkills');
     expect(seeking).not.toContain('experience');

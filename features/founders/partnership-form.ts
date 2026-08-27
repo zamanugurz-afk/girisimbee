@@ -121,9 +121,7 @@ const SEEKING_FIELDS: ListingFieldSchema['fields'] = [
     max: 100,
   },
   { key: 'contactPhone', label: 'İletişim Telefonu', type: 'string', required: false, max: 30 },
-  { key: 'contactWhatsapp', label: 'WhatsApp Numarası', type: 'string', required: false, max: 30 },
   { key: 'contactName', label: 'İletişim Kişisi / Ad Soyad', type: 'string', required: false, max: 100 },
-  { key: 'contactEmail', label: 'İletişim E-postası', type: 'string', required: false, max: 120 },
 ];
 
 const JOINING_FIELDS: ListingFieldSchema['fields'] = [
@@ -250,9 +248,7 @@ const JOINING_FIELDS: ListingFieldSchema['fields'] = [
     required: false,
   },
   { key: 'contactPhone', label: 'İletişim Telefonu', type: 'string', required: false, max: 30 },
-  { key: 'contactWhatsapp', label: 'WhatsApp Numarası', type: 'string', required: false, max: 30 },
   { key: 'contactName', label: 'İletişim Kişisi / Ad Soyad', type: 'string', required: false, max: 100 },
-  { key: 'contactEmail', label: 'İletişim E-postası', type: 'string', required: false, max: 120 },
 ];
 
 export function getPartnerFormSchema(intent: PartnershipIntent): ListingFieldSchema {

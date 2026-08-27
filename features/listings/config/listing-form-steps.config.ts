@@ -486,9 +486,7 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'storeLocationType',
         'availableCities',
         'contactPhone',
-        'contactWhatsapp',
         'contactName',
-        'contactEmail',
       ],
       meta: ['images'],
     },
@@ -641,7 +639,7 @@ export function getListingFormSteps(
           title: 'Kendinizi Tanıtın',
           description: 'Kısa profil, lokasyon, deneyimler, iletişim ve detaylı açıklama',
           coreFields: ['longDescription', 'city'],
-          customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
+          customFieldKeys: ['contactPhone', 'contactName'],
           meta: ['images'],
         },
       );
@@ -667,7 +665,7 @@ export function getListingFormSteps(
         title: 'Koşullar ve Detay',
         description: 'Detaylı açıklama, vizyon, ekip, konum, iletişim ve ortaklık modeli',
         coreFields: ['longDescription', 'city'],
-        customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
+        customFieldKeys: ['contactPhone', 'contactName'],
         meta: ['images'],
       },
     );
@@ -713,7 +711,7 @@ export function getListingFormSteps(
           title: 'Hedef Lokasyon ve Profil',
           description: 'Hedef il, ilçe ve kendinizi tanıtan detaylı açıklama',
           coreFields: ['longDescription', 'city'],
-          customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
+          customFieldKeys: ['contactPhone', 'contactName'],
         },
       );
     }
@@ -752,7 +750,7 @@ export function getListingFormSteps(
         title: 'Lokasyon ve Tanıtım',
         description: 'İl, ilçe, iletişim bilgileri ve işletmenizi tanıtan detaylı açıklama',
         coreFields: ['longDescription', 'city'],
-        customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
+        customFieldKeys: ['contactPhone', 'contactName'],
         meta: ['images'],
       },
     );
