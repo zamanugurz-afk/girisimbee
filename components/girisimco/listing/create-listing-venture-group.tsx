@@ -16,7 +16,7 @@ type VentureCategoryKey = 'partnership' | 'business_transfer';
 
 const MAIN_CATEGORY_VISUALS = {
   partnership: {
-    color: GC_CATEGORY_COLORS['ortak-bul'],
+    color: '#6366F1',
     Icon: Handshake,
   },
   franchise: {

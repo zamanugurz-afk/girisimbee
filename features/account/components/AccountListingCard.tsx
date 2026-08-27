@@ -74,7 +74,7 @@ function getListingPrimaryBadge(listing: AccountListingCardData): {
   } else if (typeUpper.includes('ORTAK') || catUpper.includes('ORTAK')) {
     label = typeUpper.includes('OLMAK') ? 'Ortak Olmak İstiyorum' : 'Ortak Arıyorum';
     iconKey = 'partner';
-    color = '#6366F1';
+    color = '#F59E0B';
   } else if (typeUpper.includes('DEVİR') || catUpper.includes('DEVİR') || typeUpper.includes('İŞLETME') || catUpper.includes('İŞLETME')) {
     label = 'İşletme Devri';
     iconKey = 'transfer';

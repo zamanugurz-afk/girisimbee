@@ -30,7 +30,7 @@ export type ListingTypeIconKey =
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
   yatirim: '#3B82F6',
   is: '#10B981',
-  ortaklik: '#6366F1',
+  ortaklik: '#F59E0B',
   franchise: '#EC4899',
   genel: '#0EA5E9',
   dijital: '#8B5CF6',
