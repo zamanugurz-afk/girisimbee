@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
@@ -99,6 +100,49 @@ export function MarketplaceBrowseView({
       : '#10B981'
     : (headerAccent ?? '#3B82F6');
 
+  const displayedItems = useMemo(() => {
+    return items.filter((item) => {
+      // 1. Sektör filtresi
+      if (filters.sector) {
+        const itemSector = item.sector?.toLowerCase() ?? '';
+        const targetSector = filters.sector.toLowerCase();
+        if (!itemSector.includes(targetSector) && !targetSector.includes(itemSector)) {
+          return false;
+        }
+      }
+      // 2. Pozisyon filtresi
+      if (filters.position) {
+        const pos = (item.position || item.title || '').toLowerCase();
+        const targetPos = filters.position.toLowerCase();
+        if (!pos.includes(targetPos) && !targetPos.includes(pos)) {
+          return false;
+        }
+      }
+      // 3. Deneyim seviyesi / çalışma şekli filtresi
+      if (filters.careerLevel) {
+        const lvl = (item.experienceLevel || '').toLowerCase();
+        const targetLvl = filters.careerLevel.toLowerCase();
+        if (!lvl.includes(targetLvl) && !targetLvl.includes(lvl)) {
+          return false;
+        }
+      }
+      // 4. Şehir filtresi
+      if (filters.city) {
+        const loc = (item.city || item.location || '').toLowerCase();
+        const targetCity = filters.city.toLowerCase();
+        if (!loc.includes(targetCity)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [items, filters.sector, filters.position, filters.careerLevel, filters.city]);
+
+  const hasLocalCareerFilters = Boolean(
+    filters.sector || filters.position || filters.careerLevel || (filters.city && !categorySlug),
+  );
+  const countToDisplay = hasLocalCareerFilters ? displayedItems.length : total;
+
   return (
     <div className="gc-header-offset bg-background">
       <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
@@ -160,7 +204,7 @@ export function MarketplaceBrowseView({
 
         {!isLoading && !error && (
           <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
-            {total.toLocaleString('tr-TR')} {resultNoun}
+            {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
           </p>
         )}
 
@@ -174,7 +218,7 @@ export function MarketplaceBrowseView({
         )}
 
         <ListingFeedInfinite
-          items={items}
+          items={displayedItems}
           accent={feedAccent}
           hasMore={hasMore}
           isLoading={isLoading}

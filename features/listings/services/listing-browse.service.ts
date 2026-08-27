@@ -297,18 +297,8 @@ export class ListingBrowseService {
   }
 
   private buildFilter(params: MarketplaceBrowseParams): ListingFilter {
-    const combinedQuery = [
-      params.query,
-      params.position,
-      params.sector,
-      params.careerLevel,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .trim();
-
     const filter: ListingFilter = {
-      query: combinedQuery || undefined,
+      query: params.query,
       city: params.city,
       isFeatured: params.isFeatured,
       isUrgent: params.isUrgent,
