@@ -62,6 +62,7 @@ const CAREER_HIRE_WORK_MODES = [
 ].sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
 interface ListingFiltersProps {
+  items?: ContentItem[];
   filters: MarketplaceFilterState;
   onChange: (patch: Partial<MarketplaceFilterState>) => void;
   /** Hide category picker when on a category page */
@@ -74,6 +75,7 @@ interface ListingFiltersProps {
 }
 
 export function ListingFilters({
+  items = [],
   filters,
   onChange,
   hideCategory = false,
@@ -90,9 +92,70 @@ export function ListingFilters({
   const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
   const themeColor = isCareer ? (isSeek ? 'sky' : 'emerald') : 'blue';
 
+  // 1. Sektörler: Var olan ilanlardaki sektörler (A-Z)
+  const availableSectors = useMemo(() => {
+    const fromItems = items
+      .map((item) => item.sector)
+      .filter((s): s is string => Boolean(s && !s.includes('Diğer')));
+    const set = new Set(fromItems.length > 0 ? fromItems : CAREER_SECTORS);
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+  }, [items]);
+
+  // 2. Pozisyonlar: Seçilen sektöre göre var olan ilanlardaki pozisyonlar (A-Z)
   const availablePositions = useMemo(() => {
+    const filteredItems = filters.sector
+      ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
+      : items;
+
+    const fromItems = filteredItems
+      .map((item) => item.position || (isSeek ? item.title : undefined))
+      .filter((p): p is string => Boolean(p && !p.includes('Diğer') && !p.includes('Kendim')));
+
+    if (fromItems.length > 0) {
+      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+    }
+
     return getAvailablePositions(filters.sector);
-  }, [filters.sector]);
+  }, [items, filters.sector, isSeek]);
+
+  // 3. Deneyim Seviyeleri: Seçilen sektör ve pozisyona göre var olan ilanlardaki deneyimler (A-Z)
+  const availableLevels = useMemo(() => {
+    const filteredItems = items.filter((item) => {
+      if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
+      if (filters.position && (item.position || item.title)?.toLowerCase() !== filters.position.toLowerCase()) return false;
+      return true;
+    });
+
+    const fromItems = filteredItems
+      .map((item) => item.experienceLevel)
+      .filter((l): l is string => Boolean(l));
+
+    if (fromItems.length > 0) {
+      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+    }
+
+    return isSeek ? CAREER_SEEK_LEVELS : CAREER_HIRE_WORK_MODES;
+  }, [items, filters.sector, filters.position, isSeek]);
+
+  // 4. Şehirler: Var olan ilanlardaki şehirler (A-Z)
+  const availableCities = useMemo(() => {
+    const filteredItems = items.filter((item) => {
+      if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
+      if (filters.position && (item.position || item.title)?.toLowerCase() !== filters.position.toLowerCase()) return false;
+      if (filters.careerLevel && item.experienceLevel?.toLowerCase() !== filters.careerLevel.toLowerCase()) return false;
+      return true;
+    });
+
+    const fromItems = filteredItems
+      .map((item) => item.city || item.location?.split(',')[0]?.trim())
+      .filter((c): c is string => Boolean(c && c !== 'Türkiye'));
+
+    if (fromItems.length > 0) {
+      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+    }
+
+    return MARKETPLACE_CITY_OPTIONS;
+  }, [items, filters.sector, filters.position, filters.careerLevel]);
 
   return (
     <div className={cn('flex flex-wrap items-center gap-2.5', className)}>
@@ -136,7 +199,7 @@ export function ListingFilters({
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
                 <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {CAREER_SECTORS.map((sec) => (
+                {availableSectors.map((sec) => (
                   <SelectItem key={sec} value={sec}>
                     {sec}
                   </SelectItem>
@@ -178,7 +241,7 @@ export function ListingFilters({
                 <SelectItem value={ALL_VALUE}>
                   {isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'}
                 </SelectItem>
-                {(isSeek ? CAREER_SEEK_LEVELS : CAREER_HIRE_WORK_MODES).map((item) => (
+                {availableLevels.map((item) => (
                   <SelectItem key={item} value={item}>
                     {item}
                   </SelectItem>
@@ -224,7 +287,7 @@ export function ListingFilters({
           </SelectTrigger>
           <SelectContent themeColor={themeColor}>
             <SelectItem value={ALL_VALUE}>Şehir seçin</SelectItem>
-            {MARKETPLACE_CITY_OPTIONS.map((city) => (
+            {availableCities.map((city) => (
               <SelectItem key={city} value={city}>
                 {city}
               </SelectItem>

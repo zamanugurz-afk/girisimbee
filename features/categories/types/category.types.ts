@@ -57,6 +57,11 @@ export interface ContentItem {
   coverUrl?: string;
   /** Listing card — open company name for employers. */
   companyName?: string;
+  /** Listing metadata for cascading marketplace search filters */
+  sector?: string;
+  position?: string;
+  experienceLevel?: string;
+  city?: string;
 }
 
 export interface CategorySection {

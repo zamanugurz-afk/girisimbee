@@ -150,6 +150,29 @@ export function listingToContentItem(
     companyName: typeof listing.customFields?.companyName === 'string' && listing.customFields.companyName.trim()
       ? listing.customFields.companyName.trim()
       : undefined,
+    sector:
+      typeof listing.customFields?.primarySector === 'string' && listing.customFields.primarySector.trim()
+        ? listing.customFields.primarySector.trim()
+        : typeof listing.customFields?.sector === 'string' && listing.customFields.sector.trim()
+          ? listing.customFields.sector.trim()
+          : listing.industry || undefined,
+    position:
+      typeof listing.customFields?.desiredRole === 'string' && listing.customFields.desiredRole.trim()
+        ? listing.customFields.desiredRole.trim()
+        : typeof listing.customFields?.positionTitle === 'string' && listing.customFields.positionTitle.trim()
+          ? listing.customFields.positionTitle.trim()
+          : listing.title || undefined,
+    experienceLevel:
+      typeof listing.customFields?.experienceLevel === 'string' && listing.customFields.experienceLevel.trim()
+        ? listing.customFields.experienceLevel.trim()
+        : typeof listing.customFields?.employmentType === 'string' && listing.customFields.employmentType.trim()
+          ? listing.customFields.employmentType.trim()
+          : undefined,
+    city:
+      listing.city ||
+      (typeof listing.customFields?.residenceCity === 'string' && listing.customFields.residenceCity.trim()
+        ? listing.customFields.residenceCity.trim()
+        : undefined),
   };
 }
 

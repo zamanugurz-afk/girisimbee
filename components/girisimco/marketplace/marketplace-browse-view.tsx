@@ -146,6 +146,7 @@ export function MarketplaceBrowseView({
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
         <ListingFilters
+          items={items}
           filters={filters}
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
