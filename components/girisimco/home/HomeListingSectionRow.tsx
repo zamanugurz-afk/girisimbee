@@ -136,7 +136,7 @@ function HomeSectionCard({
     >
       <ContentCard item={item} />
       {item.listingId && (
-        <div className="absolute right-3 top-3 z-10">
+        <div className="absolute right-3 bottom-3 z-10">
           <FavoriteButton listingId={item.listingId as ListingId} />
         </div>
       )}

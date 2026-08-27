@@ -105,8 +105,8 @@ function TextListingCardLayout({
       )}
     >
       <div>
-        {/* Top Meta Row: Type Pill + Price Badge (Side-by-side, no wrapping, right-padding for favorite heart) */}
-        <div className="flex items-center gap-2 pr-9">
+        {/* Top Meta Row: Type Pill + Price Badge (Side-by-side) */}
+        <div className="flex flex-wrap items-center gap-2">
           <span
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
             style={{ backgroundColor: `${accent}12`, color: accent }}
@@ -145,25 +145,27 @@ function TextListingCardLayout({
 
       {/* Footer Meta Strip */}
       <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 max-w-[calc(100%-85px)] truncate">
           {item.location && (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 shrink-0">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate max-w-[120px]">{item.location}</span>
+              <span className="truncate max-w-[105px]">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 shrink-0">
               <Clock className="h-3.5 w-3.5 shrink-0" />
               <span>{item.timeAgo}</span>
             </span>
           )}
         </div>
 
-        <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary">
-          İncele
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-        </span>
+        <div className="flex items-center gap-2 pr-8 shrink-0">
+          <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary">
+            İncele
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </div>
       </div>
     </article>
   );
