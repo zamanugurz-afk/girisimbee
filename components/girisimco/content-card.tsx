@@ -121,9 +121,9 @@ function TextListingCardLayout({
             <span
               className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 font-display text-xs font-semibold tabular-nums border"
               style={{
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                color: '#2563EB',
-                borderColor: 'rgba(37, 99, 235, 0.25)',
+                backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                color: '#4F46E5',
+                borderColor: 'rgba(79, 70, 229, 0.22)',
               }}
             >
               {compactPrice}
