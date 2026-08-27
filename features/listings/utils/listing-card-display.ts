@@ -354,6 +354,29 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
     }
   }
 
+  if (group === 'isletme-devri') {
+    const fee = toDisplayValue(cf.transferFee) || toDisplayValue(cf.askingPrice) || toDisplayValue(cf.transferPrice) || toDisplayValue(cf.devirUcreti);
+    if (fee) return fee.includes('TL') ? fee : `${fee} TL`;
+    const turnover = toDisplayValue(cf.monthlyTurnover) || toDisplayValue(cf.aylikCiro);
+    if (turnover) return `${turnover.includes('TL') ? turnover : `${turnover} TL`} Ciro`;
+  }
+
+  if (group === 'ortaklik') {
+    const capital = toDisplayValue(cf.capitalContribution) || toDisplayValue(cf.budget) || toDisplayValue(cf.capitalNeeded);
+    if (capital) return capital.includes('TL') ? capital : `${capital} TL`;
+  }
+
+  if (group === 'franchise') {
+    const details = extractFranchiseListingDetails(listing);
+    const investment =
+      formatMoney(details.totalInvestment)
+      || formatMoney(details.franchiseFee)
+      || formatMoney(details.entryFee)
+      || formatMoney(details.minCapitalRequirement)
+      || formatMoney(details.minimumYatirim);
+    if (investment) return investment;
+  }
+
   if (group === 'genel') {
     const price = toDisplayValue(cf.priceRange);
     if (price) return price;

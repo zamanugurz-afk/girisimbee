@@ -155,11 +155,19 @@ export function listingToContentItem(
         ? listing.customFields.primarySector.trim()
         : typeof listing.customFields?.sector === 'string' && listing.customFields.sector.trim()
           ? listing.customFields.sector.trim()
-          : typeof listing.customFields?.businessCategory === 'string' && listing.customFields.businessCategory.trim()
-            ? listing.customFields.businessCategory.trim()
-            : typeof listing.customFields?.solutionType === 'string' && listing.customFields.solutionType.trim()
-              ? listing.customFields.solutionType.trim()
-              : listing.industry || undefined,
+          : Array.isArray(listing.customFields?.sectors) && listing.customFields.sectors.length > 0 && typeof listing.customFields.sectors[0] === 'string'
+            ? (listing.customFields.sectors[0] as string).trim()
+            : typeof listing.customFields?.projectSector === 'string' && listing.customFields.projectSector.trim()
+              ? listing.customFields.projectSector.trim()
+              : typeof listing.customFields?.businessCategory === 'string' && listing.customFields.businessCategory.trim()
+                ? listing.customFields.businessCategory.trim()
+                : typeof listing.customFields?.businessType === 'string' && listing.customFields.businessType.trim()
+                  ? listing.customFields.businessType.trim()
+                  : typeof listing.customFields?.solutionType === 'string' && listing.customFields.solutionType.trim()
+                    ? listing.customFields.solutionType.trim()
+                    : typeof listing.customFields?.industry === 'string' && listing.customFields.industry.trim()
+                      ? listing.customFields.industry.trim()
+                      : listing.industry || undefined,
     position:
       typeof listing.customFields?.desiredRole === 'string' && listing.customFields.desiredRole.trim()
         ? listing.customFields.desiredRole.trim()
