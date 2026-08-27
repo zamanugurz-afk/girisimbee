@@ -74,7 +74,11 @@ function getListingPrimaryBadge(listing: AccountListingCardData): {
   } else if (typeUpper.includes('ORTAK') || catUpper.includes('ORTAK')) {
     label = typeUpper.includes('OLMAK') ? 'Ortak Olmak İstiyorum' : 'Ortak Arıyorum';
     iconKey = 'partner';
-    color = '#F59E0B';
+    color = '#6366F1';
+  } else if (typeUpper.includes('DEVİR') || catUpper.includes('DEVİR') || typeUpper.includes('İŞLETME') || catUpper.includes('İŞLETME')) {
+    label = 'İşletme Devri';
+    iconKey = 'transfer';
+    color = '#D97706';
   } else if (typeUpper.includes('FRANCHISE') || catUpper.includes('FRANCHISE') || typeUpper.includes('BAYİ')) {
     label = 'Franchise';
     iconKey = 'franchise';
