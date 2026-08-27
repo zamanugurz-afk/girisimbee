@@ -117,23 +117,27 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* Dijital ve Startup Çözümler */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-purple-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
-                <Link href="/dijital-ai" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40" aria-label="Dijital ve Startup Çözümler" />
+              {/* 4. Slot (Yeni Kategori Alanı - Çok Yakında / Rezerve Alan) */}
+              {/* Not: Eski 'Dijital ve Startup Çözümler' kartı components/archive/DigitalStartupCardArchive.tsx içinde saklanmaktadır. */}
+              <div className="group relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-dashed border-slate-200/90 dark:border-zinc-800 rounded-2xl p-5 shadow-2xs transition-all duration-300 ease-out flex flex-col justify-between select-none opacity-85 hover:opacity-100">
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform duration-300"><Sparkles className="w-4 h-4" /></span>
-                    <span aria-hidden className="inline-flex">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-purple-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                    <span className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500">
+                      <Sparkles className="w-4 h-4" />
+                    </span>
+                    <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200/60 dark:border-zinc-700/60">
+                      Yakında
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">Dijital ve Startup Çözümler</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Büyümeyi hızlandıran SaaS araçları ve uzman destekleri.</p>
+                    <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Yeni Fırsat Alanı</h4>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 leading-relaxed min-h-[34px]">
+                      Girişim ekosistemine eklenecek yeni kategori çok yakında burada olacak.
+                    </p>
                   </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">● {isLoading ? '—' : counts.solutions} Aktif Çözüm</span>
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100/80 dark:border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span className="font-medium text-zinc-500 dark:text-zinc-400">● Hazırlanıyor</span>
                 </div>
               </div>
             </div>
