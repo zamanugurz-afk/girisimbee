@@ -124,6 +124,9 @@ function buildInitialFilters(options: UseMarketplaceBrowseOptions): MarketplaceF
     sortBy: options.initialFilters?.sortBy ?? DEFAULT_SORT,
     city: options.initialFilters?.city,
     jobFlow: options.initialFilters?.jobFlow,
+    position: options.initialFilters?.position,
+    sector: options.initialFilters?.sector,
+    careerLevel: options.initialFilters?.careerLevel,
     partnershipIntent: options.initialFilters?.partnershipIntent,
     isFeatured: options.initialFilters?.isFeatured,
     activeFeaturedOnly: options.initialFilters?.activeFeaturedOnly,
@@ -375,7 +378,10 @@ export function useMarketplaceBrowse(options: UseMarketplaceBrowseOptions = {}) 
   const updateFilters = useCallback((patch: Partial<MarketplaceFilterState>) => {
     setFilters((prev) => {
       const next = { ...prev, ...patch };
-      if (browseCacheKey(buildParamsFromFilters(prev, 1)) === browseCacheKey(buildParamsFromFilters(next, 1))) {
+      const hasChanged = Object.keys(next).some(
+        (key) => next[key as keyof MarketplaceFilterState] !== prev[key as keyof MarketplaceFilterState],
+      );
+      if (!hasChanged) {
         return prev;
       }
       return next;
