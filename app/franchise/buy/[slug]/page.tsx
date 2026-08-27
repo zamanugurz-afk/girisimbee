@@ -6,6 +6,9 @@ import { FranchiseListingDetailView } from '@/features/franchise/components/fran
 import { toPublicFranchiseListing } from '@/features/franchise/lib/franchise-listing.mapper';
 import { FRANCHISE_BROWSE_TITLE, FRANCHISE_DETAIL_BACK_LABEL } from '@/features/franchise/presentation/franchise-copy';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface PageProps {
   params: { slug: string };
 }
