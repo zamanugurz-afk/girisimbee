@@ -1249,9 +1249,6 @@ export function CareerProfilePreview({
                           <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                             {section.tag}
                           </p>
-                          <span className={cn("mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold", theme.badgeBg)}>
-                            {section.badge}
-                          </span>
                         </div>
 
                         <div className="min-w-0 flex-1">
@@ -1346,11 +1343,6 @@ export function CareerProfilePreview({
                                 <p className="text-[11px] font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
                                   - {endText}
                                 </p>
-                              ) : null}
-                              {durationBadge ? (
-                                <span className={cn("mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold", theme.badgeBg)}>
-                                  {durationBadge}
-                                </span>
                               ) : null}
                             </div>
 
