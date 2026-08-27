@@ -92,51 +92,38 @@ function TextListingCardLayout({
   const accent = item.listingGroupColor ?? GC_ACCENT;
   const typeLabel = item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan';
   const Icon = LISTING_TYPE_ICON_MAP[item.listingIconKey ?? 'general'];
-  const isContactEligible = item.listingIconKey === 'job-seeker' || item.listingIconKey === 'partner';
   const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
   const description = item.description || item.detail;
 
   return (
     <article
       className={cn(
-        'group relative flex h-full min-h-[12.5rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
-        'bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md',
-        'border border-slate-200/80 dark:border-zinc-800 rounded-2xl',
-        'shadow-sm transition-all duration-300 ease-out',
-        'hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-md dark:hover:border-zinc-700',
+        'group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
+        'bg-card border border-border/70 hover:border-primary/40',
+        'shadow-sm hover:shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5',
         listingLink && 'cursor-pointer',
       )}
     >
       <div>
-        {/* Top Meta Row: Icon + Type Pill + PII Badge + Price */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span
-              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-0.5 text-xs font-semibold"
-              style={{ backgroundColor: `${accent}12`, color: accent }}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{typeLabel}</span>
-            </span>
-            {isContactEligible ? (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-                <span>İletişim Talebi 🔒</span>
-              </span>
-            ) : null}
-          </div>
+        {/* Top Meta Row: Type Pill + Price Badge (Side-by-side, no wrapping, right-padding for favorite heart) */}
+        <div className="flex items-center gap-2 pr-9">
+          <span
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
+            style={{ backgroundColor: `${accent}12`, color: accent }}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            <span>{typeLabel}</span>
+          </span>
 
-          {compactPrice ? (
-            <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2.5 py-0.5 font-display text-xs font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+          {compactPrice && (
+            <span className="inline-flex shrink-0 items-center rounded-lg bg-emerald-500/10 px-2.5 py-1 font-display text-xs font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
               {compactPrice}
             </span>
-          ) : (
-            <ArrowUpRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           )}
         </div>
 
         {/* Title */}
-        <h3 className="mt-3 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
+        <h3 className="mt-3.5 line-clamp-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
           {item.title}
         </h3>
 
@@ -148,7 +135,7 @@ function TextListingCardLayout({
           </div>
         ) : null}
 
-        {/* Description */}
+        {/* Description / Subtitle */}
         {description ? (
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
             {description}
@@ -161,19 +148,19 @@ function TextListingCardLayout({
         <div className="flex items-center gap-3">
           {item.location && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" />
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate max-w-[120px]">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3.5 w-3.5 shrink-0" />
               <span>{item.timeAgo}</span>
             </span>
           )}
         </div>
 
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-foreground transition-colors group-hover:text-primary">
+        <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary">
           İncele
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
