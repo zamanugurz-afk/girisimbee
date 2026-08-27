@@ -21,8 +21,14 @@ import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digit
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
-import { rankWorkplaceOptions, PARTNER_EXPERTISE_OPTIONS } from '@/features/listings/config/listing-field-options';
-import { sortSectorsPopularThenAz } from '@/features/listings/lib/picker-sort';
+import {
+  rankWorkplaceOptions,
+  PARTNER_EXPERTISE_OPTIONS,
+  CAREER_WORK_TYPE_OPTIONS,
+  CAREER_WORKPLACE_OPTIONS,
+} from '@/features/listings/config/listing-field-options';
+import { sortSectorsPopularThenAz, sortCitiesForPicker } from '@/features/listings/lib/picker-sort';
+import { LISTING_CITY_OPTIONS } from '@/features/shared/constants/turkish-cities';
 import { MultiComboboxField } from '@/features/listings/form/fields/multi-combobox-field';
 import { normalizeListingTitle, normalizeListingDescription } from '@/features/listings/lib/listing-content-quality';
 import { ConditionalSectorPicker } from '@/features/listings/form/fields/conditional-sector-picker';
@@ -33,7 +39,7 @@ import {
   MANUAL_OPTION,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { SmartCustomSelector } from '@/features/shared/components/smart-custom-selector';
-import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
+import { getDistrictsForCity, getDistrictsForCities } from '@/features/shared/constants/turkish-districts';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -60,8 +66,8 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'partnershipTypesOther',
 ]);
 
-const CITY_FIELD_KEYS = new Set(['preferredCity', 'residenceCity']);
-const DISTRICT_FIELD_KEYS = new Set(['preferredDistrict', 'district', 'residenceDistrict']);
+const CITY_FIELD_KEYS = new Set(['residenceCity']);
+const DISTRICT_FIELD_KEYS = new Set(['district', 'residenceDistrict']);
 const DATE_FIELD_KEYS = new Set(['birthDate']);
 
 function isManualOtherSelection(value: unknown): boolean {
@@ -318,6 +324,96 @@ function FieldControl({
     if (next !== stringValue) onChange(next);
   }
 
+  if (field.key === 'preferredCity') {
+    const cityOptions = sortCitiesForPicker(LISTING_CITY_OPTIONS);
+    return (
+      <>
+        <MultiComboboxField
+          id={id}
+          label={field.label}
+          value={value}
+          onChange={(next) => onChange(Array.isArray(next) ? next.join(', ') : next)}
+          options={cityOptions}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'Tercih edilen şehir(ler)i seçin'}
+          searchPlaceholder="Şehir ara…"
+          themeColor={context?.themeColor}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (field.key === 'preferredDistrict') {
+    const preferredCities = String(context?.values?.preferredCity ?? '');
+    const districtOptions = getDistrictsForCities(preferredCities);
+    return (
+      <>
+        <MultiComboboxField
+          id={id}
+          label={field.label}
+          value={value}
+          onChange={(next) => onChange(Array.isArray(next) ? next.join(', ') : next)}
+          options={districtOptions}
+          disabled={disabled || !preferredCities || districtOptions.length === 0}
+          error={error}
+          placeholder={!preferredCities ? 'Önce tercih edilen il(ler)i seçin' : (ui.placeholder ?? 'Tercih edilen ilçe(ler)i seçin')}
+          searchPlaceholder="İlçe ara…"
+          themeColor={context?.themeColor}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (field.key === 'workType') {
+    const options = field.options && field.options.length > 0 ? field.options : CAREER_WORK_TYPE_OPTIONS;
+    return (
+      <>
+        <MultiComboboxField
+          id={id}
+          label={field.label}
+          value={value}
+          onChange={(next) => onChange(Array.isArray(next) ? next.join(', ') : next)}
+          options={options}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'Çalışma tercihi seçin'}
+          searchPlaceholder="Çalışma tercihi ara…"
+          themeColor={context?.themeColor}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (field.key === 'workplacePreference') {
+    const rawRole = String(context?.values?.desiredRole ?? '');
+    const role = isManualOtherSelection(rawRole)
+      ? String(context?.values?.desiredRoleOther ?? '')
+      : rawRole;
+    const rankedOptions = rankWorkplaceOptions(String(context?.values?.primarySector ?? ''), role);
+    const options = rankedOptions.length > 0 ? rankedOptions : CAREER_WORKPLACE_OPTIONS;
+    return (
+      <>
+        <MultiComboboxField
+          id={id}
+          label={field.label}
+          value={value}
+          onChange={(next) => onChange(Array.isArray(next) ? next.join(', ') : next)}
+          options={options}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'Çalışma modeli seçin'}
+          searchPlaceholder="Çalışma modeli ara…"
+          themeColor={context?.themeColor}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
   if (CITY_FIELD_KEYS.has(field.key)) {
     return (
       <>
@@ -356,10 +452,8 @@ function FieldControl({
 
   if (DISTRICT_FIELD_KEYS.has(field.key)) {
     const city =
-      field.key === 'preferredDistrict'
-        ? String(context?.values?.preferredCity ?? '')
-        : field.key === 'residenceDistrict'
-          ? String(context?.values?.residenceCity ?? '')
+      field.key === 'residenceDistrict'
+        ? String(context?.values?.residenceCity ?? '')
         : (context?.coreCity ?? String(context?.values?.city ?? ''));
     return (
       <>

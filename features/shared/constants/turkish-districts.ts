@@ -89,6 +89,27 @@ export function getDistrictsForCity(city: string | null | undefined): string[] {
   return [...FALLBACK_DISTRICTS];
 }
 
+export function getDistrictsForCities(cities: string | string[] | null | undefined): string[] {
+  if (!cities) return [];
+  const list = Array.isArray(cities)
+    ? cities.map(String).map((c) => c.trim()).filter(Boolean)
+    : String(cities)
+        .split(',')
+        .map((c) => c.trim())
+        .filter(Boolean);
+  if (list.length === 0) return [];
+  if (list.length === 1) return getDistrictsForCity(list[0]);
+
+  const all = new Set<string>();
+  for (const c of list) {
+    const districts = getDistrictsForCity(c);
+    for (const d of districts) {
+      if (d !== 'Diğer') all.add(d);
+    }
+  }
+  return withDiger(Array.from(all).sort((a, b) => a.localeCompare(b, 'tr-TR')));
+}
+
 export function cityHasDetailedDistricts(city: string | null | undefined): boolean {
   const key = resolveCityKey(city);
   if (!key) return false;

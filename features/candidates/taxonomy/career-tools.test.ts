@@ -11,6 +11,13 @@ describe('career tools catalog', () => {
 
   it('adds call-center tools when the sector is Çağrı merkezi', () => {
     const tools = suggestTools({ sector: 'Çağrı merkezi', role: 'Çağrı merkezi temsilcisi' });
-    expect(tools).toEqual(expect.arrayContaining(['Genesys', 'Zendesk', 'Excel', MANUAL_OPTION]));
+    expect(tools).toEqual(expect.arrayContaining(['Genesys Cloud', 'Zendesk', 'Excel', MANUAL_OPTION]));
+  });
+
+  it('suggests modern finance tools for Finance sector and roles', () => {
+    const tools = suggestTools({ sector: 'Finans', role: 'Finansal analist' });
+    expect(tools).toEqual(
+      expect.arrayContaining(['Bloomberg Terminal', 'Matriks Finansal Terminal', 'Power BI', 'Excel', MANUAL_OPTION]),
+    );
   });
 });

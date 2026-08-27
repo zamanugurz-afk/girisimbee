@@ -215,7 +215,74 @@ export function compressCareerSummaryMeaningfully(
   return `${wordAccumulated.trim()}.`;
 }
 
-/** Builds an editable Turkish career-summary draft from form fields. No company or contact data. */
+/**
+ * Natural Turkish phrasing for multiple cities/regions:
+ * - "İstanbul Anadolu Yakası" and "İstanbul Avrupa Yakası" -> "İstanbul Anadolu ve Avrupa yakasında"
+ * - "İstanbul" and "İzmir" -> "İstanbul ve İzmir'de"
+ * - "İstanbul Anadolu Yakası" and "İzmir" -> "İstanbul Anadolu Yakası ve İzmir'de"
+ * - "Ankara", "İstanbul", "İzmir" -> "Ankara, İstanbul ve İzmir'de"
+ */
+export function formatPreferredLocationPhrase(rawCities: string[] | string | null | undefined): string {
+  if (!rawCities) return '';
+  const list = (Array.isArray(rawCities) ? rawCities.map(String) : String(rawCities).split(','))
+    .map((c) => c.trim())
+    .filter(Boolean);
+
+  if (list.length === 0) return '';
+
+  const hasAnadolu = list.some((c) => /istanbul anadolu|anadolu yakas/.test(norm(c)));
+  const hasAvrupa = list.some((c) => /istanbul avrupa|avrupa yakas/.test(norm(c)));
+  const otherCities = list.filter((c) => !/istanbul (?:anadolu|avrupa)|anadolu yakas|avrupa yakas/.test(norm(c)));
+
+  if (hasAnadolu && hasAvrupa) {
+    if (otherCities.length === 0) {
+      return 'İstanbul Anadolu ve Avrupa yakasında';
+    }
+    const otherFormatted = otherCities.map(placeLocative).join(' ve ');
+    return `İstanbul Anadolu ve Avrupa yakasında ile ${otherFormatted}`;
+  }
+
+  if (list.length === 1) {
+    return placeLocative(list[0]!);
+  }
+
+  const allExceptLast = list.slice(0, -1);
+  const lastCity = list[list.length - 1]!;
+  return `${allExceptLast.join(', ')} ve ${placeLocative(lastCity)}`;
+}
+
+export function formatWorkplaceAndTypePhrase(
+  workplace?: string[] | string | null,
+  workType?: string[] | string | null,
+): string {
+  const wpList = (Array.isArray(workplace) ? workplace.map(String) : String(workplace ?? '').split(','))
+    .map((w) => w.trim().toLocaleLowerCase('tr-TR'))
+    .filter(Boolean);
+  const wtList = (Array.isArray(workType) ? workType.map(String) : String(workType ?? '').split(','))
+    .map((w) => w.trim().toLocaleLowerCase('tr-TR'))
+    .filter(Boolean);
+
+  const parts: string[] = [];
+  if (wtList.length > 0) {
+    if (wtList.length === 1) {
+      parts.push(wtList[0]!);
+    } else {
+      parts.push(`${wtList.slice(0, -1).join(', ')} veya ${wtList[wtList.length - 1]}`);
+    }
+  }
+
+  if (wpList.length > 0) {
+    if (wpList.length === 1) {
+      parts.push(`${wpList[0]} modelinde`);
+    } else {
+      parts.push(`${wpList.slice(0, -1).join(', ')} veya ${wpList[wpList.length - 1]} modelinde`);
+    }
+  }
+
+  return parts.join(', ');
+}
+
+/** Builds a default Turkish cover letter / summary draft from structured form state. */
 export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
   const role = (input.desiredRole ?? '').trim() || 'hedeflediğim pozisyon';
   const level = getExperienceLevelLabel(input.experienceLevel) || (input.experienceLevel ?? '').trim();
@@ -261,9 +328,6 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
   const technical = take(parseSelectedList(input.technicalSkills), 3);
   const educationLevel = (input.educationLevel ?? '').trim();
   const educationField = (input.educationField ?? '').trim();
-  const place = (input.preferredCity ?? '').trim();
-  const workplace = (input.workplacePreference ?? '').trim();
-  const workType = (input.workType ?? '').trim();
   const availability = (input.availability ?? '').trim();
 
   const sentences: string[] = [];
@@ -330,15 +394,15 @@ export function buildCareerSummaryDraft(input: CareerSummaryInput): string {
     sentences.push(sentence(`${joinAsClause(openSectors)} sektörlerinde de çalışabilirim`));
   }
 
-  const prefBits = [workplace, workType].filter(Boolean);
-  if (place && prefBits.length > 0) {
-    sentences.push(
-      sentence(`${placeLocative(place)} ${joinTr(prefBits.map(lcFirst))} çalışabilirim`),
-    );
-  } else if (place) {
-    sentences.push(sentence(`${placeLocative(place)} çalışabilirim`));
-  } else if (prefBits.length > 0) {
-    sentences.push(sentence(`${joinAsClause(prefBits)} çalışabilirim`));
+  const locationPhrase = formatPreferredLocationPhrase(input.preferredCity);
+  const preferencePhrase = formatWorkplaceAndTypePhrase(input.workplacePreference, input.workType);
+
+  if (locationPhrase && preferencePhrase) {
+    sentences.push(sentence(`${locationPhrase}, ${preferencePhrase} çalışabilirim`));
+  } else if (locationPhrase) {
+    sentences.push(sentence(`${locationPhrase} çalışabilirim`));
+  } else if (preferencePhrase) {
+    sentences.push(sentence(`${preferencePhrase} çalışabilirim`));
   }
   if (availability) {
     const availLc = availability.toLocaleLowerCase('tr-TR');

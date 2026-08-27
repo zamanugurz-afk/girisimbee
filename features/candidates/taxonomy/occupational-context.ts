@@ -97,14 +97,14 @@ export const OCCUPATIONAL_AI_CONFIDENCE_THRESHOLD = 0.45;
 
 const MIN_SCORE: Record<OccupationalCatalogKind, number> = {
   professional: 3,
-  technical: 5,
-  tools: 6,
+  technical: 4,
+  tools: 4,
 };
 
 const CATALOG_LIMIT: Record<OccupationalCatalogKind, number> = {
-  professional: 16,
-  technical: 10,
-  tools: 14,
+  professional: 18,
+  technical: 16,
+  tools: 24,
 };
 
 /** Tight occupation-family proximity — not the broader preference clusters. */
@@ -495,7 +495,7 @@ function scoreOption(
     if (context.familySeniority >= 2 || context.levelSeniority >= 2) score += 5;
   }
   if (kind === 'tools' && (value === 'SAP' || value === 'SAP PP' || value === 'MS Project' || value === 'AutoCAD' || value === 'SolidWorks' || value === 'Power BI')) {
-    score += context.adjacentStrength >= 2 || context.levelSeniority >= 2 ? 2 : -4;
+    if (context.adjacentStrength >= 2 || context.levelSeniority >= 2) score += 2;
   }
   if (kind === 'tools' && value === 'Excel' && context.family !== 'factory') score += 3;
   return score;
@@ -592,27 +592,27 @@ export function adjacentFamilyBundles(context: OccupationalContext) {
 export function familyCoreTools(family: RoleFamily | null): string[] {
   if (!family) return [];
   const core: Partial<Record<RoleFamily, readonly string[]>> = {
-    software: ['Git', 'GitHub', 'Jira', 'VS Code', 'Excel'],
-    techLead: ['Git', 'Jira', 'Confluence', 'Excel'],
-    devops: ['Git', 'Docker', 'Jira', 'Excel'],
-    qa: ['Jira', 'Git', 'Excel'],
-    data: ['SQL', 'Excel', 'Power BI', 'Python'],
-    product: ['Jira', 'Figma', 'Excel'],
-    design: ['Figma', 'Photoshop', 'Excel'],
-    callCenter: ['Genesys', 'Zendesk', 'CRM', 'Excel'],
-    customerSuccess: ['CRM', 'Excel'],
-    salesIndoor: ['CRM', 'Excel'],
-    salesField: ['CRM', 'Excel'],
-    salesManager: ['CRM', 'Excel', 'Power BI'],
-    regionalManager: ['CRM', 'Excel', 'Power BI'],
-    factory: ['MES / üretim kaydı'],
-    shiftSupervisor: ['MES / üretim kaydı'],
-    productionLead: ['MES / ERP'],
-    hr: ['Excel', 'Outlook'],
-    hrManager: ['Excel', 'Outlook'],
-    credit: ['Excel', 'Power BI'],
-    accounting: ['Excel', 'Logo Tiger'],
-    insuranceOps: ['CRM', 'Excel'],
+    software: ['VS Code', 'Git', 'GitHub', 'Postman', 'Docker', 'Jira', 'Excel'],
+    techLead: ['Git', 'Jira', 'Confluence', 'AWS', 'Docker', 'Postman', 'Excel'],
+    devops: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'Git', 'Linux / Bash', 'Jira'],
+    qa: ['Selenium', 'Postman', 'Jira', 'Git', 'Swagger', 'Excel'],
+    data: ['SQL', 'Python (Pandas / PyTorch)', 'Power BI', 'Tableau', 'Jupyter Notebook', 'Excel'],
+    product: ['Jira', 'Confluence', 'Figma', 'Postman', 'Notion', 'Excel'],
+    design: ['Figma', 'Adobe Photoshop', 'Adobe Illustrator', 'Adobe XD', 'Miro'],
+    callCenter: ['Genesys Cloud', 'AloTech', 'Zendesk', 'Avaya', 'Freshdesk', 'Excel'],
+    customerSuccess: ['HubSpot CRM', 'Zendesk', 'Salesforce CRM', 'Intercom', 'Excel'],
+    salesIndoor: ['Salesforce CRM', 'HubSpot CRM', 'Zoho CRM', 'WhatsApp Business API', 'Excel'],
+    salesField: ['Salesforce CRM', 'Logo CRM', 'Saha Satış Otomasyonu', 'Excel'],
+    salesManager: ['Salesforce CRM', 'HubSpot CRM', 'Power BI', 'Excel (Satış Analitiği)'],
+    regionalManager: ['Salesforce CRM', 'Power BI', 'ERP / Bütçe Yönetimi', 'Excel'],
+    factory: ['MES (Üretim Takip Sistemi)', 'Barkod & Seri No Takip', 'İş Emri Otomasyonu'],
+    shiftSupervisor: ['MES (Üretim Takip Sistemi)', 'SAP PP', 'Excel', 'İş Emri Takip'],
+    productionLead: ['SAP PP', 'MES (Üretim Yürütme)', 'AutoCAD', 'Excel', 'MS Project'],
+    hr: ['Kariyer.net İşveren', 'LinkedIn Recruiter', 'Kolay İK', 'Logo J-HR / Bordro', 'Excel', 'Outlook'],
+    hrManager: ['SAP SuccessFactors', 'Workday', 'Kolay İK', 'LinkedIn Recruiter', 'Power BI', 'Excel'],
+    credit: ['Bloomberg Terminal', 'Matriks Finansal Terminal', 'Foreks Trader', 'KKB / Findeks', 'Power BI', 'İleri Excel (VBA)'],
+    accounting: ['Logo Tiger / GO 3', 'Luca MMP', 'Mikro Yazılım', 'Zirve Yazılım', 'GİB E-Fatura / E-Defter', 'İleri Excel (VBA)'],
+    insuranceOps: ['Sigorta Poliçe Otomasyonları', 'SBM Portalı', 'Excel', 'CRM'],
   };
   return [...(core[family] ?? [])];
 }

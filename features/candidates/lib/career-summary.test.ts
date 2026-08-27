@@ -113,4 +113,28 @@ describe('buildCareerSummaryDraft', () => {
     expect(draft).toMatch(/Host \/ hostes/);
     expect(draft).toMatch(/Sigorta|Finans/);
   });
+
+  it('formats multiple cities intelligently without dumping individual districts', () => {
+    const draftAnadoluAvrupa = buildCareerSummaryDraft({
+      desiredRole: 'Yazılım Geliştirici',
+      primarySector: 'Bilişim / Yazılım',
+      preferredCity: 'İstanbul Anadolu Yakası, İstanbul Avrupa Yakası',
+      workplacePreference: 'Hibrit, Uzaktan',
+      workType: 'Tam zamanlı',
+    });
+
+    expect(draftAnadoluAvrupa).toMatch(/İstanbul Anadolu ve Avrupa yakasında/);
+    expect(draftAnadoluAvrupa).toMatch(/tam zamanlı/);
+    expect(draftAnadoluAvrupa).toMatch(/hibrit veya uzaktan modelinde/);
+
+    const draftIstanbulIzmir = buildCareerSummaryDraft({
+      desiredRole: 'Mali Müşavir',
+      primarySector: 'Muhasebe / Finans',
+      preferredCity: 'İstanbul, İzmir',
+      workplacePreference: 'Ofis',
+      workType: 'Tam zamanlı',
+    });
+
+    expect(draftIstanbulIzmir).toMatch(/İstanbul ve İzmir'de/);
+  });
 });
