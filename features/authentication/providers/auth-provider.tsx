@@ -466,8 +466,25 @@ export function AuthProvider({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+const fallbackAuthContext: AuthContextValue = {
+  user: null,
+  isLoading: false,
+  isAuthenticated: false,
+  login: async () => ({ error: 'Auth not initialized' }),
+  logout: async () => {},
+  forgotPassword: async () => ({ error: 'Auth not initialized' }),
+  resetPassword: async () => ({ error: 'Auth not initialized' }),
+  refreshSession: async () => ({ error: 'Auth not initialized' }),
+  signUp: async () => ({ error: 'Auth not initialized', needsVerification: false }),
+  resendVerification: async () => ({ error: 'Auth not initialized' }),
+  signIn: async () => ({ error: 'Auth not initialized' }),
+  signOut: async () => {},
+  requestPasswordReset: async () => ({ error: 'Auth not initialized' }),
+  setNewPassword: async () => ({ error: 'Auth not initialized' }),
+  refresh: async () => {},
+};
+
 export function useAuthContext(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuthContext must be used within AuthProvider');
-  return ctx;
+  return ctx ?? fallbackAuthContext;
 }
