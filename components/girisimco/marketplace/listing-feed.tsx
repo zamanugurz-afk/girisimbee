@@ -2,12 +2,10 @@
 
 import type { ContentItem } from '@/features/categories/types/category.types';
 import { ContentCard } from '@/components/girisimco/content-card';
-import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import {
   MarketplaceEmptyState,
   type MarketplaceEmptyVariant,
 } from '@/components/girisimco/marketplace/marketplace-empty-state';
-import type { ListingId } from '@/lib/domain/ids';
 import { cn } from '@/lib/utils';
 
 interface ListingFeedProps {
@@ -53,11 +51,6 @@ export function ListingFeed({
           )}
         >
           <ContentCard item={item} accent={accent} />
-          {item.listingId && (
-            <div className="absolute right-3 bottom-3 z-10">
-              <FavoriteButton listingId={item.listingId as ListingId} />
-            </div>
-          )}
         </div>
       ))}
     </div>

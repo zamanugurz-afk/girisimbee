@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   User,
 } from 'lucide-react';
+import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
+import type { ListingId } from '@/lib/domain/ids';
 import { ContactAction } from '@/features/shared/premium';
 import { listingHref } from '@/features/listings/services/listing.service';
 import type { ContentItem } from '@/features/categories';
@@ -145,26 +147,33 @@ function TextListingCardLayout({
 
       {/* Footer Meta Strip */}
       <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2.5 max-w-[calc(100%-85px)] truncate">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           {item.location && (
             <span className="inline-flex items-center gap-1 shrink-0">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate max-w-[105px]">{item.location}</span>
+              <span className="truncate max-w-[95px]">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
             <span className="inline-flex items-center gap-1 shrink-0">
               <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span>{item.timeAgo}</span>
+              <span className="whitespace-nowrap">{item.timeAgo}</span>
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 pr-8 shrink-0">
-          <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary">
+        <div className="flex items-center gap-2.5 shrink-0 pl-2">
+          <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary whitespace-nowrap">
             İncele
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
+
+          {item.listingId && (
+            <>
+              <span className="h-3.5 w-px bg-border/80 shrink-0" aria-hidden />
+              <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
+            </>
+          )}
         </div>
       </div>
     </article>
@@ -356,12 +365,28 @@ function CardFooter({
         />
       )}
       {listingLink ? (
-        <span className="ml-auto inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-primary">
-          Detay
-          <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px" />
-        </span>
+        <div className="ml-auto flex items-center gap-2.5">
+          <span className="inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-primary">
+            Detay
+            <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px" />
+          </span>
+          {item.listingId && (
+            <>
+              <span className="h-3.5 w-px bg-border/80 shrink-0" aria-hidden />
+              <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
+            </>
+          )}
+        </div>
       ) : (
-        <ContactAction variant={contactVariant} className="ml-auto" />
+        <div className="ml-auto flex items-center gap-2.5">
+          <ContactAction variant={contactVariant} />
+          {item.listingId && (
+            <>
+              <span className="h-3.5 w-px bg-border/80 shrink-0" aria-hidden />
+              <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
+            </>
+          )}
+        </div>
       )}
     </div>
   );

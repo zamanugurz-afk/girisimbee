@@ -4,11 +4,9 @@ import { Sparkles, Flame, Calendar, TrendingUp, type LucideIcon } from 'lucide-r
 import type { ContentItem } from '@/features/categories/types/category.types';
 import { ContentCard } from '@/components/girisimco/content-card';
 import { HomeSectionHeader } from '@/components/girisimco/home/home-section-header';
-import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import { ListingCardSkeleton } from '@/components/girisimco/ui/listing-card-skeleton';
 import type { HomeListingSectionConfig } from '@/features/home/config/home-sections.config';
 import type { HomeListingSectionState } from '@/features/home/types/home-section.types';
-import type { ListingId } from '@/lib/domain/ids';
 import { cn } from '@/lib/utils';
 
 interface HomeListingSectionRowProps {
@@ -135,11 +133,6 @@ function HomeSectionCard({
       )}
     >
       <ContentCard item={item} />
-      {item.listingId && (
-        <div className="absolute right-3 bottom-3 z-10">
-          <FavoriteButton listingId={item.listingId as ListingId} />
-        </div>
-      )}
     </div>
   );
 }
