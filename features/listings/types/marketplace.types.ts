@@ -36,6 +36,7 @@ export interface MarketplaceFilterState {
   budgetRange?: string;
   solutionType?: string;
   targetAudience?: string;
+  conceptType?: string;
   isFeatured?: boolean;
   activeFeaturedOnly?: boolean;
   isUrgent?: boolean;

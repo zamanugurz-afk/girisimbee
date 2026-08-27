@@ -225,6 +225,16 @@ export function listingToContentItem(
       typeof listing.customFields?.targetAudience === 'string' && listing.customFields.targetAudience.trim()
         ? listing.customFields.targetAudience.trim()
         : undefined,
+    conceptType:
+      typeof listing.customFields?.franchiseModel === 'string' && listing.customFields.franchiseModel.trim()
+        ? listing.customFields.franchiseModel.trim()
+        : typeof listing.customFields?.conceptType === 'string' && listing.customFields.conceptType.trim()
+          ? listing.customFields.conceptType.trim()
+          : typeof listing.customFields?.concept === 'string' && listing.customFields.concept.trim()
+            ? listing.customFields.concept.trim()
+            : typeof listing.customFields?.businessCategory === 'string' && listing.customFields.businessCategory.trim()
+              ? listing.customFields.businessCategory.trim()
+              : undefined,
   };
 }
 

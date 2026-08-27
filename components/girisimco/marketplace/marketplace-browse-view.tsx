@@ -150,11 +150,11 @@ export function MarketplaceBrowseView({
           return false;
         }
       }
-      // 7. Yatırım Bütçesi (Franchise)
-      if (filters.budgetRange) {
-        const br = (item.budgetRange || item.price || '').toLowerCase();
-        const targetBr = filters.budgetRange.toLowerCase();
-        if (!br.includes(targetBr) && !targetBr.includes(br)) {
+      // 7. Franchise / Konsept Türü (Franchise)
+      if (filters.conceptType) {
+        const ct = (item.conceptType || '').toLowerCase();
+        const targetCt = filters.conceptType.toLowerCase();
+        if (!ct.includes(targetCt) && !targetCt.includes(ct)) {
           return false;
         }
       }
@@ -192,7 +192,7 @@ export function MarketplaceBrowseView({
     filters.stage,
     filters.partnerType,
     filters.businessType,
-    filters.budgetRange,
+    filters.conceptType,
     filters.solutionType,
     filters.targetAudience,
     filters.city,
@@ -205,7 +205,7 @@ export function MarketplaceBrowseView({
       filters.stage ||
       filters.partnerType ||
       filters.businessType ||
-      filters.budgetRange ||
+      filters.conceptType ||
       filters.solutionType ||
       filters.targetAudience ||
       filters.city,

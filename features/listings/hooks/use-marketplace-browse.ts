@@ -134,6 +134,7 @@ function buildInitialFilters(options: UseMarketplaceBrowseOptions): MarketplaceF
     budgetRange: options.initialFilters?.budgetRange,
     solutionType: options.initialFilters?.solutionType,
     targetAudience: options.initialFilters?.targetAudience,
+    conceptType: options.initialFilters?.conceptType,
     isFeatured: options.initialFilters?.isFeatured,
     activeFeaturedOnly: options.initialFilters?.activeFeaturedOnly,
     isUrgent: options.initialFilters?.isUrgent,

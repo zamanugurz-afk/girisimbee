@@ -185,14 +185,14 @@ export function ListingFilters({
     return getOptionsByCount(filteredItems, (item) => item.businessType);
   }, [items, filters.sector, isBusinessTransfer]);
 
-  // Franchise: Yatırım Bütçesi (budgetRange)
-  const availableBudgetRanges = useMemo(() => {
+  // Franchise: Konsept Türü (conceptType)
+  const availableConceptTypes = useMemo(() => {
     if (!isFranchise) return [];
     const filteredItems = filters.sector
       ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
       : items;
 
-    return getOptionsByCount(filteredItems, (item) => item.budgetRange || item.price);
+    return getOptionsByCount(filteredItems, (item) => item.conceptType);
   }, [items, filters.sector, isFranchise]);
 
   // Dijital & AI: Çözüm Türü & Hedef Kitle
@@ -219,7 +219,7 @@ export function ListingFilters({
       if (filters.stage && item.stage?.toLowerCase() !== filters.stage.toLowerCase()) return false;
       if (filters.partnerType && item.partnerType?.toLowerCase() !== filters.partnerType.toLowerCase()) return false;
       if (filters.businessType && item.businessType?.toLowerCase() !== filters.businessType.toLowerCase()) return false;
-      if (filters.budgetRange && (item.budgetRange || item.price)?.toLowerCase() !== filters.budgetRange.toLowerCase()) return false;
+      if (filters.conceptType && item.conceptType?.toLowerCase() !== filters.conceptType.toLowerCase()) return false;
       return true;
     });
 
@@ -232,7 +232,7 @@ export function ListingFilters({
     filters.stage,
     filters.partnerType,
     filters.businessType,
-    filters.budgetRange,
+    filters.conceptType,
   ]);
 
   return (
@@ -487,7 +487,7 @@ export function ListingFilters({
         </>
       ) : null}
 
-      {/* 4. Franchise ve Bayilik Sayfası Filtreleri (Sektör + Yatırım Bütçesi) */}
+      {/* 4. Franchise ve Bayilik Sayfası Filtreleri (Sektör + Konsept Türü) */}
       {isFranchise ? (
         <>
           {/* Sektör */}
@@ -498,7 +498,7 @@ export function ListingFilters({
                 const newSector = val === ALL_VALUE ? undefined : val;
                 onChange({
                   sector: newSector,
-                  budgetRange: undefined,
+                  conceptType: undefined,
                   city: undefined,
                 });
               }}
@@ -517,26 +517,26 @@ export function ListingFilters({
             </Select>
           </div>
 
-          {/* Yatırım Bütçesi */}
-          {availableBudgetRanges.length > 0 ? (
+          {/* Konsept Türü */}
+          {availableConceptTypes.length > 0 ? (
             <div className="w-[180px] sm:w-[210px]">
               <Select
-                value={filters.budgetRange ?? ALL_VALUE}
+                value={filters.conceptType ?? ALL_VALUE}
                 onValueChange={(val) => {
                   onChange({
-                    budgetRange: val === ALL_VALUE ? undefined : val,
+                    conceptType: val === ALL_VALUE ? undefined : val,
                     city: undefined,
                   });
                 }}
               >
                 <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                  <SelectValue placeholder="Bütçe seçin" />
+                  <SelectValue placeholder="Konsept türü seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
-                  <SelectItem value={ALL_VALUE}>Bütçe seçin</SelectItem>
-                  {availableBudgetRanges.map((br) => (
-                    <SelectItem key={br.value} value={br.value}>
-                      {br.value}
+                  <SelectItem value={ALL_VALUE}>Konsept türü seçin</SelectItem>
+                  {availableConceptTypes.map((ct) => (
+                    <SelectItem key={ct.value} value={ct.value}>
+                      {ct.value}
                     </SelectItem>
                   ))}
                 </SelectContent>

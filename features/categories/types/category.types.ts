@@ -68,6 +68,7 @@ export interface ContentItem {
   budgetRange?: string;
   solutionType?: string;
   targetAudience?: string;
+  conceptType?: string;
 }
 
 export interface CategorySection {

@@ -1,39 +1,36 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
-import { getServerContainer } from '@/lib/persistence/container';
-import { FranchiseBrowseView } from '@/features/franchise/components/franchise-browse-view';
-import { franchiseListingBrowseQuerySchema } from '@/lib/api/validation/franchise-listings';
+import {
+  buildCategoryMetadata,
+  CategoryMarketplacePage,
+} from '@/features/listings/components/category-marketplace-page';
 import {
   FRANCHISE_BROWSE_DESCRIPTION,
   FRANCHISE_BROWSE_TITLE,
+  FRANCHISE_EMPTY_DESCRIPTION,
+  FRANCHISE_EMPTY_TITLE,
 } from '@/features/franchise/presentation/franchise-copy';
 
+const CATEGORY_SLUG = 'bayilik-al';
+
 export const metadata: Metadata = {
+  ...buildCategoryMetadata(CATEGORY_SLUG),
   title: 'Franchise Fırsatları | Girisimbee',
   description: FRANCHISE_BROWSE_DESCRIPTION,
 };
 
-interface PageProps {
-  searchParams: Record<string, string | string[] | undefined>;
-}
-
-export default async function FranchiseBuyPage({ searchParams }: PageProps) {
-  const filters = franchiseListingBrowseQuerySchema.parse({
-    city: typeof searchParams.city === 'string' ? searchParams.city : undefined,
-    district: typeof searchParams.district === 'string' ? searchParams.district : undefined,
-    sector: typeof searchParams.sector === 'string' ? searchParams.sector : undefined,
-  });
-
-  const container = getServerContainer(createClient());
-  const result = await container.ecosystem.franchiseService.browseBuyOpportunities(filters);
-
+export default function FranchiseBuyPage() {
   return (
-    <FranchiseBrowseView
-      flow="buy"
-      listings={result.data}
-      title={FRANCHISE_BROWSE_TITLE}
-      description={FRANCHISE_BROWSE_DESCRIPTION}
-      filters={filters}
-    />
+    <div className="min-w-0 overflow-x-hidden">
+      <CategoryMarketplacePage
+        categorySlug={CATEGORY_SLUG}
+        title={FRANCHISE_BROWSE_TITLE}
+        description={FRANCHISE_BROWSE_DESCRIPTION}
+        emptyTitle={FRANCHISE_EMPTY_TITLE}
+        emptyDescription={FRANCHISE_EMPTY_DESCRIPTION}
+        emptyCta={{ label: 'Tüm İlanları Keşfet', href: '/kesfet' }}
+        relatedCategorySlugs={['isletme-devri', 'ortak-bul']}
+        resultNoun="fırsat"
+      />
+    </div>
   );
 }
