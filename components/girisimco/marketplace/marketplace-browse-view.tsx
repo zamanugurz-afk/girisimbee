@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
@@ -12,6 +13,30 @@ import { ListingFilters } from '@/components/girisimco/marketplace/listing-filte
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+const CAREER_SEEK_QUICK_TABS = [
+  { key: 'all', label: 'Tümü', query: '' },
+  { key: 'remote', label: 'Uzaktan', query: 'Uzaktan' },
+  { key: 'hybrid', label: 'Hibrit', query: 'Hibrit' },
+  { key: 'fulltime', label: 'Tam Zamanlı', query: 'Tam Zamanlı' },
+  { key: 'tech', label: 'Bilişim & Yazılım', query: 'Bilişim' },
+  { key: 'sales', label: 'Satış & Pazarlama', query: 'Satış' },
+  { key: 'finance', label: 'Finans & Muhasebe', query: 'Finans' },
+  { key: 'management', label: 'Yönetici & Lider', query: 'Yönetici' },
+] as const;
+
+const CAREER_HIRE_QUICK_TABS = [
+  { key: 'all', label: 'Tümü', query: '' },
+  { key: 'remote', label: 'Uzaktan', query: 'Uzaktan' },
+  { key: 'hybrid', label: 'Hibrit', query: 'Hibrit' },
+  { key: 'fulltime', label: 'Tam Zamanlı', query: 'Tam Zamanlı' },
+  { key: 'parttime', label: 'Yarı Zamanlı', query: 'Yarı Zamanlı' },
+  { key: 'tech', label: 'Bilişim & Yazılım', query: 'Bilişim' },
+  { key: 'sales', label: 'Satış & Pazarlama', query: 'Satış' },
+  { key: 'food', label: 'Gıda & Restoran', query: 'Gıda' },
+  { key: 'intern', label: 'Staj & Yeni Mezun', query: 'Staj' },
+] as const;
 
 interface MarketplaceBrowsePageProps {
   categorySlug?: string;
@@ -21,6 +46,8 @@ interface MarketplaceBrowsePageProps {
   description?: string;
   eyebrow?: string;
   accent?: string;
+  backHref?: string;
+  backLabel?: string;
   hideCategoryFilter?: boolean;
   showJobFlowFilters?: boolean;
   showVentureFlowFilters?: boolean;
@@ -39,6 +66,8 @@ export function MarketplaceBrowseView({
   description,
   eyebrow,
   accent,
+  backHref,
+  backLabel,
   hideCategoryFilter,
   showJobFlowFilters = false,
   showVentureFlowFilters,
@@ -93,6 +122,10 @@ export function MarketplaceBrowseView({
       : '#10B981'
     : (headerAccent ?? '#3B82F6');
 
+  const quickTabs = (isCareerCategory || filters.jobFlow)
+    ? (filters.jobFlow === 'seek' ? CAREER_SEEK_QUICK_TABS : CAREER_HIRE_QUICK_TABS)
+    : null;
+
   return (
     <div className="gc-header-offset bg-background">
       <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
@@ -101,6 +134,17 @@ export function MarketplaceBrowseView({
           style={{ backgroundColor: resolvedAuraColor }}
         />
         <div className="relative mx-auto max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
+          {backHref && (
+            <div className="mb-3">
+              <Link
+                href={backHref}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                <span>{backLabel ?? 'Kariyer Menüsüne Dön'}</span>
+              </Link>
+            </div>
+          )}
           {(eyebrow ?? categoryMeta) && (
             <span
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
@@ -128,11 +172,53 @@ export function MarketplaceBrowseView({
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
+        {quickTabs && (
+          <div className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none">
+            {quickTabs.map((tab) => {
+              const isAll = tab.key === 'all';
+              const isActive = isAll
+                ? !filters.query
+                : filters.query?.toLowerCase() === tab.query.toLowerCase();
+
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => {
+                    if (isAll) {
+                      updateFilters({ query: undefined });
+                    } else {
+                      updateFilters({ query: isActive ? undefined : tab.query });
+                    }
+                  }}
+                  className={cn(
+                    'inline-flex shrink-0 items-center rounded-full px-3.5 py-1 text-xs transition-all select-none',
+                    isActive
+                      ? 'font-semibold shadow-sm'
+                      : 'border border-border/80 bg-card text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground'
+                  )}
+                  style={
+                    isActive
+                      ? {
+                          backgroundColor: `${resolvedAuraColor}18`,
+                          borderColor: `${resolvedAuraColor}70`,
+                          color: resolvedAuraColor,
+                        }
+                      : undefined
+                  }
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <ListingFilters
           filters={filters}
           onChange={updateFilters}
           hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
-          showJobFlowFilters={showJobFlowFilters || categorySlug === 'ise-al'}
+          showJobFlowFilters={showJobFlowFilters}
           showVentureFlowFilters={
             showVentureFlowFilters
             ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')

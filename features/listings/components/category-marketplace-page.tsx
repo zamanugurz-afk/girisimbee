@@ -31,6 +31,9 @@ export function CategoryMarketplacePage({
   title,
   description,
   eyebrow,
+  accent,
+  backHref,
+  backLabel,
   emptyTitle,
   emptyDescription,
   emptyCta,
@@ -47,6 +50,9 @@ export function CategoryMarketplacePage({
   title?: string;
   description?: string;
   eyebrow?: string;
+  accent?: string;
+  backHref?: string;
+  backLabel?: string;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyCta?: { label: string; href: string };
@@ -65,6 +71,9 @@ export function CategoryMarketplacePage({
       title={title}
       description={description}
       eyebrow={eyebrow}
+      accent={accent}
+      backHref={backHref}
+      backLabel={backLabel}
       emptyTitle={emptyTitle}
       emptyDescription={emptyDescription}
       emptyCta={emptyCta}

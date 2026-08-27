@@ -77,8 +77,8 @@ describe('career hub on homepage catalog', () => {
     expect(CAREER_FLOW_OPTIONS[1]?.benefits[2]?.text).toBe(
       'Adayla iletişim talebi üzerinden bağlantı kurun.',
     );
-    expect(CAREER_FLOW_OPTIONS[0]?.href).toBe('/is?flow=hire');
-    expect(CAREER_FLOW_OPTIONS[1]?.href).toBe('/is?flow=seek');
+    expect(CAREER_FLOW_OPTIONS[0]?.href).toBe('/is?flow=seek');
+    expect(CAREER_FLOW_OPTIONS[1]?.href).toBe('/is?flow=hire');
     expect(CAREER_FLOW_OPTIONS[0]?.benefits).toHaveLength(3);
     expect(CAREER_FLOW_OPTIONS[1]?.benefits).toHaveLength(3);
   });

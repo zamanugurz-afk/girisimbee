@@ -116,7 +116,7 @@ export type CareerFlowCardCopy = {
 export const CAREER_FLOW_OPTIONS = [
   {
     id: 'seek',
-    href: '/is?flow=hire',
+    href: '/is?flow=seek',
     label: 'İş Arıyorum',
     description:
       'Yayındaki iş ilanlarını inceleyin, deneyiminize uygun olanı seçin ve iletişim talebiyle ilerleyin.',
@@ -137,7 +137,7 @@ export const CAREER_FLOW_OPTIONS = [
   },
   {
     id: 'hire',
-    href: '/is?flow=seek',
+    href: '/is?flow=hire',
     label: 'İşe Alıyorum',
     description:
       'Aday profillerini inceleyin, aradığınız rolle eşleştirin ve iletişim talebi üzerinden bağlanın.',
