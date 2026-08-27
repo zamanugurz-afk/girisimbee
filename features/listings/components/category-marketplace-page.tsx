@@ -62,6 +62,14 @@ export function CategoryMarketplacePage({
   const meta = resolveCategorySlug(categorySlug);
   if (!meta) notFound();
 
+  const isCareer =
+    categorySlug === 'ise-al' ||
+    categorySlug === 'is-ariyorum' ||
+    categorySlug === 'is-bul';
+
+  const resolvedBackHref = backHref ?? (isCareer ? '/is' : undefined);
+  const resolvedBackLabel = backLabel ?? (isCareer ? 'Kariyer Menüsüne Dön' : undefined);
+
   return (
     <MarketplaceBrowseView
       categorySlug={resolveCanonicalCategorySlug(categorySlug)}
@@ -72,8 +80,8 @@ export function CategoryMarketplacePage({
       description={description}
       eyebrow={eyebrow}
       accent={accent}
-      backHref={backHref}
-      backLabel={backLabel}
+      backHref={resolvedBackHref}
+      backLabel={resolvedBackLabel}
       emptyTitle={emptyTitle}
       emptyDescription={emptyDescription}
       emptyCta={emptyCta}

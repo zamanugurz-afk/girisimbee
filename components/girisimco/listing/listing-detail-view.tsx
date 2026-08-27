@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { ListingBreadcrumb } from '@/components/girisimco/listing/listing-breadcrumb';
 import { ListingDetailActions } from '@/components/girisimco/listing/listing-detail-actions';
 import { ListingDetailGallery } from '@/components/girisimco/listing/listing-detail-gallery';
@@ -52,7 +54,20 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
             : 'max-w-7xl px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
         )}
       >
-        <ListingBreadcrumb listing={listing} />
+        {isCareerListing ? (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <Link
+              href="/is"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors group"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <span>Kariyer Menüsüne Dön</span>
+            </Link>
+            <ListingBreadcrumb listing={listing} />
+          </div>
+        ) : (
+          <ListingBreadcrumb listing={listing} />
+        )}
 
         {isCareerListing ? null : (
           <section className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-8 xl:gap-10">
