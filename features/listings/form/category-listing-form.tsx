@@ -134,6 +134,7 @@ import {
   getPositionsForSector,
   getSectorsForPosition,
   getAllTaxonomyPositions,
+  inferEducationLevel,
   isManualCareerOption,
   parseCareerLanguages,
   serializeCareerLanguages,
@@ -1686,6 +1687,16 @@ export function CategoryListingForm({
           }
         }
       }
+      if (key === 'desiredRole' || key === 'primarySector') {
+        const nextSector = key === 'primarySector' ? String(value || '') : String(mergedCustomFields.primarySector || '');
+        const nextRole = key === 'desiredRole' ? String(value || '') : String(mergedCustomFields.desiredRole || '');
+        if (nextSector || nextRole) {
+          const autoEdu = inferEducationLevel(nextSector, nextRole);
+          if (autoEdu) {
+            setCustomField('educationLevel', autoEdu);
+          }
+        }
+      }
       if (key === 'primarySector') {
         const newSector = String(value || '');
         const currentRole = String(mergedCustomFields.desiredRole || '');
@@ -2443,6 +2454,13 @@ export function CategoryListingForm({
           // Pre-fill preferredRoles from desiredRole if empty
           if (!next.preferredRoles && next.desiredRole) {
             next.preferredRoles = [next.desiredRole];
+          }
+          // Pre-fill educationLevel from sector & role if empty
+          if (!next.educationLevel) {
+            next.educationLevel = inferEducationLevel(
+              String(next.primarySector ?? next.sector ?? ''),
+              String(next.desiredRole ?? next.desiredRoleOther ?? ''),
+            );
           }
           return next;
         }, 'goNext:smartPreFill');

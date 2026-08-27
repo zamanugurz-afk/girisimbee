@@ -224,6 +224,120 @@ export function needsEducationField(educationLevel?: string | null): boolean {
   return true;
 }
 
+/**
+ * Intelligently infer and match the most suitable education level based on sector, role, and position title.
+ * E.g., Doktor, Bankacı, Yazılımcı, Mühendis, Avukat -> 'Lisans'
+ * Akademisyen, Profesör -> 'Doktora' / 'Yüksek lisans'
+ * Tekniker, Teknisyen, MYO -> 'Ön lisans'
+ * Kurye, Şoför, Güvenlik, Garson, vb. -> 'Lise'
+ */
+export function inferEducationLevel(
+  sector?: string | null,
+  role?: string | null,
+  positionTitle?: string | null,
+): string {
+  const text = [sector, role, positionTitle].filter(Boolean).join(' ').toLocaleLowerCase('tr-TR');
+  if (!text.trim()) return 'Lisans';
+
+  // 1. Doctorate / Academic Level
+  if (
+    text.includes('profesör') ||
+    text.includes('doçent') ||
+    text.includes('doktora') ||
+    text.includes('akademisyen') ||
+    text.includes('öğretim üyesi') ||
+    text.includes('post-doc')
+  ) {
+    return 'Doktora';
+  }
+
+  // 2. Master's / Specialist Level
+  if (
+    text.includes('uzman tabip') ||
+    text.includes('uzman hekim') ||
+    text.includes('uzman doktor') ||
+    text.includes('başhekim') ||
+    text.includes('klinik psikolog') ||
+    text.includes('yüksek mimar') ||
+    text.includes('yüksek mühendis') ||
+    text.includes('yüksek lisans') ||
+    text.includes('master')
+  ) {
+    return 'Yüksek lisans';
+  }
+
+  // 3. Associate Degree / MYO / Vocational Technician Level
+  if (
+    text.includes('tekniker') ||
+    text.includes('teknisyen') ||
+    text.includes('ön muhasebe') ||
+    text.includes('laborant') ||
+    text.includes('tıbbi sekreter') ||
+    text.includes('anestezi teknikeri') ||
+    text.includes('radyoloji teknikeri') ||
+    text.includes('optisyen') ||
+    text.includes('paramedik') ||
+    text.includes('diyaliz teknikeri') ||
+    text.includes('aşçılık ön lisans') ||
+    text.includes('meslek yüksek') ||
+    text.includes('myo') ||
+    text.includes('ön lisans')
+  ) {
+    return 'Ön lisans';
+  }
+
+  // 4. Secondary / High School / Operational / Service Roles
+  if (
+    text.includes('kurye') ||
+    text.includes('şoför') ||
+    text.includes('sürücü') ||
+    text.includes('güvenlik görevlisi') ||
+    text.includes('özel güvenlik') ||
+    text.includes('temizlik') ||
+    text.includes('garson') ||
+    text.includes('komi') ||
+    text.includes('bulaşıkçı') ||
+    text.includes('kasiyer') ||
+    text.includes('reyon') ||
+    text.includes('depo elemanı') ||
+    text.includes('depo görevlisi') ||
+    text.includes('kaynakçı') ||
+    text.includes('torna') ||
+    text.includes('montaj elemanı') ||
+    text.includes('üretim işçisi') ||
+    text.includes('fabrika işçisi') ||
+    text.includes('inşaat işçisi') ||
+    text.includes('vale') ||
+    text.includes('bellboy') ||
+    text.includes('çırak') ||
+    text.includes('kalfa')
+  ) {
+    return 'Lise';
+  }
+
+  // 5. Professional / Bachelor's Level (Default for Doctor, Banker, Engineer, Manager, Lawyer, IT, Finance, Marketing, Healthcare, etc.)
+  return 'Lisans';
+}
+
+export function sortEducationLevelsByRelevance(
+  sector?: string | null,
+  role?: string | null,
+  positionTitle?: string | null,
+): string[] {
+  const preferred = inferEducationLevel(sector, role, positionTitle);
+  const others = [
+    'Lisans',
+    'Yüksek lisans',
+    'Doktora',
+    'Ön lisans',
+    'Meslek yüksekokulu',
+    'Lise',
+    'İlköğretim',
+  ].filter((lvl) => lvl !== preferred);
+
+  return [preferred, ...others, 'Diğer'];
+}
+
 type SectorKey = (typeof JOB_SECTOR_OPTIONS)[number];
 
 const SECTOR_POSITIONS: Partial<Record<SectorKey, readonly string[]>> = {

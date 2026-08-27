@@ -1,16 +1,18 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CareerMultiSelect } from '@/features/candidates/components/CareerMultiSelect';
 import {
   EDUCATION_FIELD_OPTIONS,
   getAllTaxonomyCertificates,
+  inferEducationLevel,
   joinSelectedList,
   MANUAL_OPTION,
   needsEducationField,
   parseSelectedList,
+  sortEducationLevelsByRelevance,
   suggestCertificates,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { CAREER_EDUCATION_LEVELS } from '@/features/listings/config/listing-field-options';
@@ -61,6 +63,24 @@ export function CareerEducationExtras({
   const showEducationField = needsEducationField(educationLevel);
   const fieldIsManual =
     educationField === MANUAL_OPTION || educationField === 'Diğer / Kendim gireceğim';
+
+  const suggestedEducationLevel = useMemo(
+    () => inferEducationLevel(sector, role || roleOther),
+    [sector, role, roleOther],
+  );
+
+  const sortedEducationCatalog = useMemo(
+    () => sortEducationLevelsByRelevance(sector, role || roleOther),
+    [sector, role, roleOther],
+  );
+
+  // Auto-match education level from sector & role if currently empty
+  useEffect(() => {
+    if (!educationLevel && suggestedEducationLevel) {
+      onChange({ educationLevel: suggestedEducationLevel });
+    }
+  }, [educationLevel, suggestedEducationLevel, onChange]);
+
   const certificateOptions = useMemo(
     () =>
       suggestCertificates({
@@ -69,11 +89,11 @@ export function CareerEducationExtras({
         role,
         roleOther,
         experienceLevel,
-        educationLevel,
+        educationLevel: educationLevel || suggestedEducationLevel,
         educationField: fieldIsManual ? educationFieldOther : educationField,
         certificates,
       }),
-    [isHire, sector, role, roleOther, experienceLevel, educationLevel, educationField, educationFieldOther, fieldIsManual, certificates],
+    [isHire, sector, role, roleOther, experienceLevel, educationLevel, suggestedEducationLevel, educationField, educationFieldOther, fieldIsManual, certificates],
   );
 
   return (
@@ -81,11 +101,12 @@ export function CareerEducationExtras({
       <SetMatchingPicker
         id="educationLevel"
         label={isHire ? 'Aranan eğitim seviyesi' : 'Eğitim seviyesi'}
-        catalog={[...CAREER_EDUCATION_LEVELS]}
+        catalog={sortedEducationCatalog}
+        suggestedItems={[suggestedEducationLevel]}
         mode="single"
         themeColor={isHire ? 'emerald' : 'sky'}
         badgeColor={isHire ? 'emerald' : 'sky'}
-        value={educationLevel}
+        value={educationLevel || suggestedEducationLevel}
         onChange={(nextLevel) => {
           onChange({
             educationLevel: nextLevel,

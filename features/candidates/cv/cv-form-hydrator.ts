@@ -13,6 +13,7 @@ import {
   getPositionsForSector,
   getSectorsForPosition,
   getAllTaxonomyPositions,
+  inferEducationLevel,
   MANUAL_OPTION,
   MANUAL_OPTION_SHORT,
 } from '@/features/candidates/taxonomy/career-taxonomy';
@@ -131,6 +132,8 @@ export function buildHydratedCustomFieldsFromCvDraft(
   if (fv.educationLevel) {
     const resolvedEdu = resolveEnumOption(fv.educationLevel, CAREER_EDUCATION_LEVELS);
     applyField('educationLevel', resolvedEdu || fv.educationLevel);
+  } else if (resolvedSector) {
+    applyField('educationLevel', inferEducationLevel(resolvedSector));
   }
   if (fv.educationField) {
     applyField('educationField', fv.educationField);
