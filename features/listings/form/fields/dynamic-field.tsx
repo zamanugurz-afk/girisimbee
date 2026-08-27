@@ -26,6 +26,7 @@ import {
   PARTNER_EXPERTISE_OPTIONS,
   CAREER_WORK_TYPE_OPTIONS,
   CAREER_WORKPLACE_OPTIONS,
+  CAREER_AVAILABILITY_OPTIONS,
 } from '@/features/listings/config/listing-field-options';
 import { sortSectorsPopularThenAz, sortCitiesForPicker } from '@/features/listings/lib/picker-sort';
 import { LISTING_CITY_OPTIONS } from '@/features/shared/constants/turkish-cities';
@@ -346,7 +347,13 @@ function FieldControl({
   }
 
   if (field.key === 'preferredDistrict') {
-    const preferredCities = String(context?.values?.preferredCity ?? '');
+    const preferredCities = String(
+      context?.values?.preferredCity ??
+      context?.values?.residenceCity ??
+      context?.coreCity ??
+      context?.values?.city ??
+      '',
+    );
     const districtOptions = getDistrictsForCities(preferredCities);
     return (
       <>
@@ -407,6 +414,27 @@ function FieldControl({
           error={error}
           placeholder={ui.placeholder ?? 'Çalışma modeli seçin'}
           searchPlaceholder="Çalışma modeli ara…"
+          themeColor={context?.themeColor}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (field.key === 'availability') {
+    const options = field.options && field.options.length > 0 ? field.options : CAREER_AVAILABILITY_OPTIONS;
+    return (
+      <>
+        <MultiComboboxField
+          id={id}
+          label={field.label}
+          value={value}
+          onChange={(next) => onChange(Array.isArray(next) ? next.join(', ') : next)}
+          options={options}
+          disabled={disabled}
+          error={error}
+          placeholder={ui.placeholder ?? 'İşe başlama uygunluğu seçin'}
+          searchPlaceholder="İşe başlama ara…"
           themeColor={context?.themeColor}
         />
         <FormFieldFooter helperText={ui.helperText} error={error} />
