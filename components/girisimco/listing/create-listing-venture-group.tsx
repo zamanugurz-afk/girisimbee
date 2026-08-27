@@ -29,7 +29,8 @@ const MAIN_CATEGORY_VISUALS = {
   },
 } as const;
 
-const SUB_OPTION_VISUALS: Record<string, { color: string; Icon: any }> = {
+/** Preserved in repository for future modular re-activation */
+export const SUB_OPTION_VISUALS: Record<string, { color: string; Icon: any }> = {
   'ortak-ariyorum': {
     color: GC_CATEGORY_COLORS['ortak-bul'],
     Icon: Handshake,

@@ -1,6 +1,7 @@
 import {
   BrainCircuit,
   Briefcase,
+  Building2,
   CircleDollarSign,
   Handshake,
   Megaphone,
@@ -26,6 +27,7 @@ export const LISTING_TYPE_ICON_MAP: Record<ListingTypeIconKey, LucideIcon> = {
   partner: Handshake,
   franchise: Store,
   digital: BrainCircuit,
+  transfer: Building2,
   general: Megaphone,
 };
 

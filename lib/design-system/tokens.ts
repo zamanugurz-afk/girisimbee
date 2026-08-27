@@ -30,7 +30,7 @@ export const gcCategoryColors = {
   'yatirim-yap': '#6C63FF',
   'is-bul': '#5B5CF6',
   'ise-al': '#22C55E',
-  'ortak-bul': '#F59E0B',
+  'ortak-bul': '#6366F1',
   franchise: '#EC4899',
   'isletme-devri': '#D97706',
   ilan: '#0EA5E9',

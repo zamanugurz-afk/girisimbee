@@ -25,6 +25,7 @@ const COVER_BY_GROUP: Record<ListingCardGroup, string> = {
   franchise: '/covers/franchise.jpg',
   genel: '/covers/default.jpg',
   dijital: '/covers/default.jpg',
+  'isletme-devri': '/covers/default.jpg',
 };
 
 export const DEFAULT_LISTING_COVER = '/covers/default.jpg';

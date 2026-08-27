@@ -12,7 +12,7 @@ import {
   formatMoney,
 } from '@/features/franchise/lib/franchise-listing.mapper';
 
-export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise' | 'genel' | 'dijital';
+export type ListingCardGroup = 'yatirim' | 'is' | 'ortaklik' | 'franchise' | 'genel' | 'dijital' | 'isletme-devri';
 
 /** Lucide semantic key — rendered in UI via listing-type-icon. */
 export type ListingTypeIconKey =
@@ -23,16 +23,18 @@ export type ListingTypeIconKey =
   | 'partner'
   | 'franchise'
   | 'digital'
+  | 'transfer'
   | 'general';
 
 /** Group accent colors — sourced from existing Girisimbee palette. */
 export const LISTING_CARD_GROUP_COLORS: Record<ListingCardGroup, string> = {
   yatirim: '#3B82F6',
   is: '#10B981',
-  ortaklik: '#F59E0B',
+  ortaklik: '#6366F1',
   franchise: '#EC4899',
   genel: '#0EA5E9',
   dijital: '#8B5CF6',
+  'isletme-devri': '#D97706',
 };
 
 /** İş Arıyorum cards use seeker blue (not the shared “iş” green). */
@@ -46,6 +48,7 @@ export const LISTING_CARD_GROUP_LABELS: Record<ListingCardGroup, string> = {
   franchise: 'Franchise İlanları',
   genel: 'İlan',
   dijital: 'Dijital & AI Çözümleri',
+  'isletme-devri': 'İşletme Devri',
 };
 
 interface ListingTypeDisplay {
@@ -127,6 +130,18 @@ const LISTING_TYPE_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
     group: 'dijital',
     iconKey: 'digital',
   },
+  'isletme-devret': {
+    emoji: '🏢',
+    label: 'İŞLETME DEVRİ',
+    group: 'isletme-devri',
+    iconKey: 'transfer',
+  },
+  'isletme-devri': {
+    emoji: '🏢',
+    label: 'İŞLETME DEVRİ',
+    group: 'isletme-devri',
+    iconKey: 'transfer',
+  },
 };
 
 /** Intent category IDs (c-prefix) → display. Parent marketplace categories are ambiguous. */
@@ -137,6 +152,7 @@ const CATEGORY_ID_DISPLAY: Record<string, ListingTypeDisplay> = {
   [CATEGORY_IDS.iseAl]: LISTING_TYPE_SLUG_DISPLAY['ise-aliyorum'],
   [CATEGORY_IDS.ortakBul]: LISTING_TYPE_SLUG_DISPLAY['ortak-ariyorum'],
   [CATEGORY_IDS.bayilikAl]: LISTING_TYPE_SLUG_DISPLAY['franchise-ilan-ver'],
+  [CATEGORY_IDS.isletmeDevri]: LISTING_TYPE_SLUG_DISPLAY['isletme-devret'],
   [CATEGORY_IDS.genelIlan]: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
   [CATEGORY_IDS.dijitalAi]: LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
 };
@@ -149,6 +165,8 @@ const LISTING_TYPE_ID_DISPLAY: Record<string, ListingTypeDisplay> = {
   [LISTING_TYPE_IDS.iseAlDefault]: LISTING_TYPE_SLUG_DISPLAY['ise-aliyorum'],
   [LISTING_TYPE_IDS.ortakBulDefault]: LISTING_TYPE_SLUG_DISPLAY['ortak-ariyorum'],
   [LISTING_TYPE_IDS.franchiseGiveDefault]: LISTING_TYPE_SLUG_DISPLAY['bayilik-ver'],
+  [LISTING_TYPE_IDS.businessTransferSellDefault]: LISTING_TYPE_SLUG_DISPLAY['isletme-devret'],
+  [LISTING_TYPE_IDS.businessTransferBuyDefault]: LISTING_TYPE_SLUG_DISPLAY['isletme-devret'],
   [LISTING_TYPE_IDS.genelIlanDefault]: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
   [LISTING_TYPE_IDS.dijitalAiDefault]: LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: LISTING_TYPE_SLUG_DISPLAY['yatirim-ariyorum'],
@@ -169,6 +187,7 @@ const CATEGORY_SLUG_DISPLAY: Record<string, ListingTypeDisplay> = {
   franchise: LISTING_TYPE_SLUG_DISPLAY['franchise-ilan-ver'],
   'bayilik-al': LISTING_TYPE_SLUG_DISPLAY['bayilik-al'],
   'bayilik-ver': LISTING_TYPE_SLUG_DISPLAY['bayilik-ver'],
+  'isletme-devri': LISTING_TYPE_SLUG_DISPLAY['isletme-devret'],
   ilan: LISTING_TYPE_SLUG_DISPLAY['genel-ilan'],
   'dijital-ai': LISTING_TYPE_SLUG_DISPLAY['dijital-ai-cozum'],
 };

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 export type VentureFlowTabId = 'seeking' | 'joining' | 'isletme-devri';
 
-const SEEKING_COLOR = GC_CATEGORY_COLORS['ortak-bul']; // #F59E0B
+const SEEKING_COLOR = GC_CATEGORY_COLORS['ortak-bul']; // #6366F1
 const ISLETME_DEVRİ_COLOR = GC_CATEGORY_COLORS['isletme-devri']; // #D97706
 
 interface VentureFlowOption {

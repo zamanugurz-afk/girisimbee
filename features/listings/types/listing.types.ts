@@ -58,6 +58,7 @@ export interface ListingSimilar {
     | 'partner'
     | 'franchise'
     | 'digital'
+    | 'transfer'
     | 'general';
   title: string;
   location: string;
@@ -99,6 +100,7 @@ export interface ListingDetail {
     | 'partner'
     | 'franchise'
     | 'digital'
+    | 'transfer'
     | 'general';
   tags: string[];
   investment: {

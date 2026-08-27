@@ -47,6 +47,7 @@ export interface ContentItem {
     | 'partner'
     | 'franchise'
     | 'digital'
+    | 'transfer'
     | 'general';
   /** Listing card — short description body. */
   description?: string;
