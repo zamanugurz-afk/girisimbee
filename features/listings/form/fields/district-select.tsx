@@ -44,52 +44,55 @@ export function DistrictSelect({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          id={id}
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled || cityMissing || districts.length === 0}
-          className={cn(
-            'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-sm text-foreground transition-all',
-            !value && 'text-muted-foreground',
-            value && 'text-foreground font-normal',
-            formControlErrorClass(error),
-          )}
-        >
-          <span className="truncate flex-1">{cityMissing ? 'Önce il seçin' : (value ?? placeholder)}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] p-0 rounded-xl shadow-lg border-border/80" align="start">
-        <Command themeColor={themeColor}>
-          <CommandInput placeholder="İlçe ara…" />
-          <CommandList className="max-h-[300px] overflow-y-auto p-1.5 scrollbar-thin">
-            <CommandEmpty>İlçe bulunamadı.</CommandEmpty>
-            <CommandGroup>
-              {districts.map((district) => (
-                <CommandItem
-                  key={district}
-                  value={district}
-                  onSelect={() => {
-                    onChange(district === value ? null : district);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
+          <Button
+            id={id}
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled || cityMissing || districts.length === 0}
+            className={cn(
+              'flex h-11 min-h-[44px] w-full min-w-0 items-center justify-between rounded-xl border border-input bg-card px-3.5 py-2 text-sm font-normal text-left text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all',
+              !value && 'text-muted-foreground font-normal',
+              value && 'text-foreground font-normal',
+              formControlErrorClass(error),
+            )}
+          >
+            <span className="truncate flex-1 text-sm">{cityMissing ? 'Önce il seçin' : (value ?? placeholder)}</span>
+            <ChevronDown className="ml-2 h-4 w-4 opacity-50 shrink-0 transition-transform duration-200" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] p-0 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-lg backdrop-blur-md dark:border-border dark:bg-card" align="start">
+          <Command themeColor={themeColor}>
+            <CommandInput placeholder="İlçe ara…" className="text-sm font-normal" />
+            <CommandList className="max-h-[300px] overflow-y-auto p-1.5 scrollbar-thin">
+              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">İlçe bulunamadı.</CommandEmpty>
+              <CommandGroup>
+                {districts.map((district) => (
+                  <CommandItem
+                    key={district}
+                    value={district}
+                    onSelect={() => {
+                      onChange(district === value ? null : district);
+                      setOpen(false);
+                    }}
                     className={cn(
-                      'mr-2 h-3.5 w-3.5 shrink-0',
-                      value === district ? 'opacity-100' : 'opacity-0',
+                      'relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 px-3 text-sm font-normal outline-none transition-colors leading-snug gap-2 my-0.5',
+                      value === district
+                        ? 'bg-blue-50/90 text-blue-950 dark:bg-blue-950/50 dark:text-blue-200 font-medium'
+                        : 'hover:bg-slate-100/80 dark:hover:bg-muted/60 text-slate-800 dark:text-slate-200 font-normal',
                     )}
-                  />
-                  <span className="leading-snug">{district}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
+                  >
+                    <span className="flex-1 text-sm font-normal leading-snug">{district}</span>
+                    {value === district && (
+                      <Check className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 ml-auto" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
     </Popover>
   );
 }
