@@ -62,17 +62,16 @@ function JobFlowChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'relative inline-flex h-10 shrink-0 items-center overflow-hidden rounded-lg border bg-white',
+        'relative inline-flex h-11 min-h-[44px] shrink-0 items-center overflow-hidden rounded-xl border bg-card',
         'px-3.5 pl-3.5 text-left transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-        'dark:bg-card',
-        active ? 'shadow-sm' : 'border-[#E6E8EE] hover:border-[#C7CBD6] dark:border-border',
+        active ? 'shadow-sm' : 'border-input hover:border-ring/40 dark:border-border',
       )}
       style={
         active
           ? {
               borderColor: `${color}66`,
-              backgroundImage: `linear-gradient(90deg, ${color}18 0%, #ffffff 68%)`,
+              backgroundImage: `linear-gradient(90deg, ${color}18 0%, transparent 68%)`,
             }
           : {
               backgroundImage: `linear-gradient(90deg, ${color}0F 0%, transparent 60%)`,
@@ -80,12 +79,12 @@ function JobFlowChip({
       }
     >
       <span
-        className="absolute inset-y-1.5 left-0 w-[3px] rounded-full"
+        className="absolute inset-y-2 left-0 w-[3px] rounded-full"
         style={{ backgroundColor: color }}
         aria-hidden
       />
       <span
-        className="truncate text-[15px] font-bold tracking-tight sm:text-base"
+        className="truncate text-sm font-semibold tracking-tight"
         style={{ color }}
       >
         {label}

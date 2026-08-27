@@ -92,17 +92,16 @@ export function PartnershipFlowFilters({
               }
             }}
             className={cn(
-              'relative inline-flex h-10 shrink-0 items-center overflow-hidden rounded-lg border bg-white',
+              'relative inline-flex h-11 min-h-[44px] shrink-0 items-center overflow-hidden rounded-xl border bg-card',
               'px-3.5 pl-3.5 text-left transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-              'dark:bg-card',
-              isActive ? 'shadow-sm' : 'border-[#E6E8EE] hover:border-[#C7CBD6] dark:border-border',
+              isActive ? 'shadow-sm' : 'border-input hover:border-ring/40 dark:border-border',
             )}
             style={
               isActive
                 ? {
                     borderColor: `${option.color}66`,
-                    backgroundImage: `linear-gradient(90deg, ${option.color}18 0%, #ffffff 68%)`,
+                    backgroundImage: `linear-gradient(90deg, ${option.color}18 0%, transparent 68%)`,
                   }
                 : {
                     backgroundImage: `linear-gradient(90deg, ${option.color}0F 0%, transparent 60%)`,
@@ -110,12 +109,12 @@ export function PartnershipFlowFilters({
             }
           >
             <span
-              className="absolute inset-y-1.5 left-0 w-[3px] rounded-full"
+              className="absolute inset-y-2 left-0 w-[3px] rounded-full"
               style={{ backgroundColor: option.color }}
               aria-hidden
             />
             <span
-              className="truncate text-[15px] font-bold tracking-tight sm:text-base"
+              className="truncate text-sm font-semibold tracking-tight"
               style={{ color: option.color }}
             >
               {option.label}

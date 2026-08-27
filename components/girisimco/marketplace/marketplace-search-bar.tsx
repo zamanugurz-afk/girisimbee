@@ -29,14 +29,14 @@ export function MarketplaceSearchBar({
 
   return (
     <form onSubmit={submit} className={cn('relative', className)}>
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="h-10 w-full rounded-xl border border-border/80 bg-card pl-10 pr-4 text-sm text-foreground shadow-soft placeholder:text-muted-foreground transition-all duration-200 focus:border-primary/25 focus:outline-none focus:ring-2 focus:ring-primary/10"
+        className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground transition-all duration-200 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
       />
     </form>
   );

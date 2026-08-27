@@ -11,7 +11,16 @@ import { getAllTaxonomyPositions } from '@/features/candidates/taxonomy/career-t
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
 import { PartnershipFlowFilters } from '@/components/girisimco/marketplace/partnership-flow-filters';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+
+const ALL_VALUE = '__all__';
 
 const CAREER_POSITIONS = getAllTaxonomyPositions()
   .filter((p) => !p.includes('Diğer'))
@@ -72,6 +81,7 @@ export function ListingFilters({
       filters.categorySlug === 'is-bul',
   );
   const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
+  const themeColor = isCareer ? (isSeek ? 'sky' : 'emerald') : 'blue';
 
   return (
     <div className={cn('flex flex-wrap items-center gap-2.5', className)}>
@@ -93,106 +103,131 @@ export function ListingFilters({
       {isCareer ? (
         <>
           {/* 1. Aranan Pozisyon / Açık Pozisyon (A-Z) */}
-          <select
-            value={filters.query ?? ''}
-            onChange={(e) => onChange({ query: e.target.value || undefined })}
-            className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground max-w-[200px]"
-            aria-label={isSeek ? 'Aranan Pozisyon' : 'Açık Pozisyon'}
-          >
-            <option value="">{isSeek ? 'Tüm Pozisyonlar' : 'Tüm Açık Pozisyonlar'}</option>
-            {CAREER_POSITIONS.map((pos) => (
-              <option key={pos} value={pos}>
-                {pos}
-              </option>
-            ))}
-          </select>
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.query ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Pozisyon seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Pozisyon seçin</SelectItem>
+                {CAREER_POSITIONS.map((pos) => (
+                  <SelectItem key={pos} value={pos}>
+                    {pos}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* 2. Uzmanlık Sektörü / Sektör (A-Z) */}
-          <select
-            value={filters.query ?? ''}
-            onChange={(e) => onChange({ query: e.target.value || undefined })}
-            className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground max-w-[200px]"
-            aria-label={isSeek ? 'Uzmanlık Sektörü' : 'Sektör'}
-          >
-            <option value="">{isSeek ? 'Tüm Uzmanlık Sektörleri' : 'Tüm Sektörler'}</option>
-            {CAREER_SECTORS.map((sec) => (
-              <option key={sec} value={sec}>
-                {sec}
-              </option>
-            ))}
-          </select>
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.query ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                {CAREER_SECTORS.map((sec) => (
+                  <SelectItem key={sec} value={sec}>
+                    {sec}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* 3. Kariyer Seviyesi / Çalışma Şekli (A-Z) */}
-          <select
-            value={filters.query ?? ''}
-            onChange={(e) => onChange({ query: e.target.value || undefined })}
-            className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground max-w-[200px]"
-            aria-label={isSeek ? 'Kariyer Seviyesi' : 'Çalışma Şekli'}
-          >
-            <option value="">{isSeek ? 'Tüm Kariyer Seviyeleri' : 'Tüm Çalışma Şekilleri'}</option>
-            {(isSeek ? CAREER_SEEK_LEVELS : CAREER_HIRE_WORK_MODES).map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.query ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder={isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'} />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>
+                  {isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'}
+                </SelectItem>
+                {(isSeek ? CAREER_SEEK_LEVELS : CAREER_HIRE_WORK_MODES).map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </>
       ) : null}
 
       {!hideCategory && !isCareer && (
-        <select
-          value={filters.categorySlug ?? ''}
-          onChange={(e) => onChange({ categorySlug: e.target.value || undefined })}
-          className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
-          aria-label="Kategori"
-        >
-          <option value="">Tüm Kategoriler</option>
-          {getUserDiscoverableCategorySlugs().map((slug) => {
-            const meta = resolveCategorySlug(slug);
-            return (
-              <option key={slug} value={slug}>
-                {meta?.label}
-              </option>
-            );
-          })}
-        </select>
+        <div className="w-[180px] sm:w-[210px]">
+          <Select
+            value={filters.categorySlug ?? ALL_VALUE}
+            onValueChange={(val) => onChange({ categorySlug: val === ALL_VALUE ? undefined : val })}
+          >
+            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectValue placeholder="Kategori seçin" />
+            </SelectTrigger>
+            <SelectContent themeColor={themeColor}>
+              <SelectItem value={ALL_VALUE}>Kategori seçin</SelectItem>
+              {getUserDiscoverableCategorySlugs().map((slug) => {
+                const meta = resolveCategorySlug(slug);
+                return (
+                  <SelectItem key={slug} value={slug}>
+                    {meta?.label}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
       )}
 
       {/* 4. Şehir */}
-      <select
-        value={filters.city ?? ''}
-        onChange={(e) =>
-          onChange({
-            city: e.target.value || undefined,
-          })
-        }
-        className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
-        aria-label="Şehir"
-      >
-        <option value="">Tüm Şehirler</option>
-        {MARKETPLACE_CITY_OPTIONS.map((city) => (
-          <option key={city} value={city}>
-            {city}
-          </option>
-        ))}
-      </select>
+      <div className="w-[150px] sm:w-[170px]">
+        <Select
+          value={filters.city ?? ALL_VALUE}
+          onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
+        >
+          <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+            <SelectValue placeholder="Şehir seçin" />
+          </SelectTrigger>
+          <SelectContent themeColor={themeColor}>
+            <SelectItem value={ALL_VALUE}>Şehir seçin</SelectItem>
+            {MARKETPLACE_CITY_OPTIONS.map((city) => (
+              <SelectItem key={city} value={city}>
+                {city}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* 5. Sıralama */}
-      <select
-        value={filters.sortBy}
-        onChange={(e) => {
-          const selectedSort = e.target.value as MarketplaceFilterState['sortBy'];
-          onChange({ sortBy: selectedSort });
-        }}
-        className="h-10 rounded-lg border border-[#E6E8EE] bg-white px-3 text-sm text-[#0B1220] dark:border-border dark:bg-card dark:text-foreground"
-        aria-label="Sıralama"
-      >
-        {LISTING_SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="w-[150px] sm:w-[170px]">
+        <Select
+          value={filters.sortBy ?? 'newest'}
+          onValueChange={(val) => onChange({ sortBy: val as MarketplaceFilterState['sortBy'] })}
+        >
+          <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+            <SelectValue placeholder="Sıralama seçin" />
+          </SelectTrigger>
+          <SelectContent themeColor={themeColor}>
+            {LISTING_SORT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
