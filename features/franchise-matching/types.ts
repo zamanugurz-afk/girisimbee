@@ -16,6 +16,7 @@ export interface FranchiseOpportunityProfile {
   title: string;
   companyName: string | null;
   sector: string | null;
+  franchiseModel: string | null;
   businessCategory: string | null;
   totalInvestment: number | null;
   minCapitalRequirement: number | null;
@@ -24,8 +25,13 @@ export interface FranchiseOpportunityProfile {
   districts: string | null;
   minSquareMeters: number | null;
   storeSize: string | null;
+  storeLocationType: string | null;
   mallAvailable: boolean | null;
   streetStoreAvailable: boolean | null;
+  exclusiveTerritory: boolean | null;
+  trademarkStatus: string | null;
+  contractProvided: string | null;
+  operatingManualProvided: string | null;
   experienceRequirement: string | null;
   returnPeriod: string | null;
   branchCount: number | null;

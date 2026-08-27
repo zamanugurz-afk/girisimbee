@@ -28,6 +28,9 @@ import {
   pruneUnsupportedSectors,
   getPrimarySectorForBusinessType,
 } from '@/features/listings/config/business-type-sector-map';
+import {
+  getPrimarySectorForFranchiseModel,
+} from '@/features/listings/config/franchise-model-sector-map';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
@@ -1727,6 +1730,15 @@ export function CategoryListingForm({
           setCustomField('businessTypeOther', '');
         }
         const suggestedSector = getPrimarySectorForBusinessType(String(value || ''));
+        if (suggestedSector) {
+          setCustomField('sector', suggestedSector);
+        }
+      }
+      if (key === 'franchiseModel') {
+        if (value !== 'Diğer') {
+          setCustomField('franchiseModelOther', '');
+        }
+        const suggestedSector = getPrimarySectorForFranchiseModel(String(value || ''));
         if (suggestedSector) {
           setCustomField('sector', suggestedSector);
         }
@@ -3888,6 +3900,10 @@ export function CategoryListingForm({
                       key === 'trainingSupport' ||
                       key === 'operationalSupport' ||
                       key === 'marketingSupport' ||
+                      key === 'locationSupport' ||
+                      key === 'logisticsSupport' ||
+                      key === 'exclusiveTerritory' ||
+                      key === 'availableCities' ||
                       key === 'introductionVideoUrl' ||
                       key === 'presentationPdfUrl' ||
                       key === 'sampleContractUrl';

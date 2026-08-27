@@ -15,7 +15,10 @@ export interface FranchiseBuyListingDetails {
 export interface FranchiseGiveListingDetails {
   companyName?: string | null;
   establishmentYear?: number | null;
+  franchiseModel?: string | null;
+  franchiseModelOther?: string | null;
   branchCount?: number | null;
+  originCountry?: string | null;
   website?: string | null;
   entryFee?: number | null;
   franchiseFee?: number | null;
@@ -26,6 +29,7 @@ export interface FranchiseGiveListingDetails {
   returnPeriod?: string | null;
   averageSetupDuration?: string | null;
   minSquareMeters?: number | null;
+  storeLocationType?: string | null;
   availableCities?: string[] | null;
   districts?: string | null;
   minPopulation?: number | null;
@@ -39,6 +43,12 @@ export interface FranchiseGiveListingDetails {
   trainingSupport?: boolean | null;
   operationalSupport?: boolean | null;
   marketingSupport?: boolean | null;
+  locationSupport?: boolean | null;
+  logisticsSupport?: boolean | null;
+  exclusiveTerritory?: boolean | null;
+  trademarkStatus?: string | null;
+  contractProvided?: string | null;
+  operatingManualProvided?: string | null;
   minCapitalRequirement?: number | null;
   experienceRequirement?: string | null;
   educationRequirement?: string | null;
@@ -85,7 +95,10 @@ export interface FranchiseListingPayload {
   preferredBrand?: string | null;
   companyName?: string | null;
   establishmentYear?: number | null;
+  franchiseModel?: string | null;
+  franchiseModelOther?: string | null;
   branchCount?: number | null;
+  originCountry?: string | null;
   website?: string | null;
   entryFee?: number | null;
   franchiseFee?: number | null;
@@ -96,6 +109,7 @@ export interface FranchiseListingPayload {
   returnPeriod?: string | null;
   averageSetupDuration?: string | null;
   minSquareMeters?: number | null;
+  storeLocationType?: string | null;
   availableCities?: string[] | null;
   districts?: string | null;
   minPopulation?: number | null;
@@ -109,6 +123,12 @@ export interface FranchiseListingPayload {
   trainingSupport?: boolean | null;
   operationalSupport?: boolean | null;
   marketingSupport?: boolean | null;
+  locationSupport?: boolean | null;
+  logisticsSupport?: boolean | null;
+  exclusiveTerritory?: boolean | null;
+  trademarkStatus?: string | null;
+  contractProvided?: string | null;
+  operatingManualProvided?: string | null;
   minCapitalRequirement?: number | null;
   experienceRequirement?: string | null;
   educationRequirement?: string | null;

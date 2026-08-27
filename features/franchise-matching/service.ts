@@ -12,6 +12,7 @@ import { FRANCHISE_LISTING_TYPE_IDS } from '@/features/shared/constants/ecosyste
 import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 import {
   buildFranchiseSeekerProfile,
+  extractFranchiseOpportunityProfile,
   isFranchiseListing,
 } from '@/features/franchise-matching/normalize';
 import { calculateFranchiseMatch } from '@/features/franchise-matching/engine';
@@ -87,29 +88,8 @@ export class FranchiseMatchService {
 
     const matches: FranchiseMatchCard[] = [];
     for (const listing of candidates) {
-      const match = calculateFranchiseMatch(seeker, {
-        listingId: String(listing.id),
-        slug: listing.slug,
-        title: listing.title,
-        companyName: String(listing.customFields?.companyName || listing.title || ''),
-        sector: String(listing.customFields?.sector || listing.industry || ''),
-        businessCategory: String(listing.customFields?.businessCategory || ''),
-        totalInvestment: Number(listing.customFields?.totalInvestment) || null,
-        minCapitalRequirement: Number(listing.customFields?.minCapitalRequirement) || null,
-        franchiseFee: Number(listing.customFields?.franchiseFee) || null,
-        availableCities: Array.isArray(listing.customFields?.availableCities)
-          ? (listing.customFields.availableCities as string[])
-          : listing.city ? [listing.city] : [],
-        districts: String(listing.customFields?.districts || listing.district || ''),
-        minSquareMeters: Number(listing.customFields?.minSquareMeters) || null,
-        storeSize: String(listing.customFields?.storeSize || ''),
-        mallAvailable: typeof listing.customFields?.mallAvailable === 'boolean' ? listing.customFields.mallAvailable : null,
-        streetStoreAvailable: typeof listing.customFields?.streetStoreAvailable === 'boolean' ? listing.customFields.streetStoreAvailable : null,
-        experienceRequirement: String(listing.customFields?.experienceRequirement || ''),
-        returnPeriod: String(listing.customFields?.returnPeriod || ''),
-        branchCount: Number(listing.customFields?.branchCount) || null,
-        publishedAt: listing.publishedAt,
-      });
+      const oppProfile = extractFranchiseOpportunityProfile(listing);
+      const match = calculateFranchiseMatch(seeker, oppProfile);
 
       const card = toPublicFranchiseMatchCard(listing, match);
       if (card) {
@@ -165,29 +145,8 @@ export class FranchiseMatchService {
 
     const matches: FranchiseMatchCard[] = [];
     for (const listing of candidates) {
-      const match = calculateFranchiseMatch(seeker, {
-        listingId: String(listing.id),
-        slug: listing.slug,
-        title: listing.title,
-        companyName: String(listing.customFields?.companyName || listing.title || ''),
-        sector: String(listing.customFields?.sector || listing.industry || ''),
-        businessCategory: String(listing.customFields?.businessCategory || ''),
-        totalInvestment: Number(listing.customFields?.totalInvestment) || null,
-        minCapitalRequirement: Number(listing.customFields?.minCapitalRequirement) || null,
-        franchiseFee: Number(listing.customFields?.franchiseFee) || null,
-        availableCities: Array.isArray(listing.customFields?.availableCities)
-          ? (listing.customFields.availableCities as string[])
-          : listing.city ? [listing.city] : [],
-        districts: String(listing.customFields?.districts || listing.district || ''),
-        minSquareMeters: Number(listing.customFields?.minSquareMeters) || null,
-        storeSize: String(listing.customFields?.storeSize || ''),
-        mallAvailable: typeof listing.customFields?.mallAvailable === 'boolean' ? listing.customFields.mallAvailable : null,
-        streetStoreAvailable: typeof listing.customFields?.streetStoreAvailable === 'boolean' ? listing.customFields.streetStoreAvailable : null,
-        experienceRequirement: String(listing.customFields?.experienceRequirement || ''),
-        returnPeriod: String(listing.customFields?.returnPeriod || ''),
-        branchCount: Number(listing.customFields?.branchCount) || null,
-        publishedAt: listing.publishedAt,
-      });
+      const oppProfile = extractFranchiseOpportunityProfile(listing);
+      const match = calculateFranchiseMatch(seeker, oppProfile);
 
       const card = toPublicFranchiseMatchCard(listing, match);
       if (card) {

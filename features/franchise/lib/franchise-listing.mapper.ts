@@ -18,7 +18,10 @@ const BUY_DETAIL_KEYS = [
 const GIVE_DETAIL_KEYS = [
   'companyName',
   'establishmentYear',
+  'franchiseModel',
+  'franchiseModelOther',
   'branchCount',
+  'originCountry',
   'website',
   'entryFee',
   'franchiseFee',
@@ -29,6 +32,7 @@ const GIVE_DETAIL_KEYS = [
   'returnPeriod',
   'averageSetupDuration',
   'minSquareMeters',
+  'storeLocationType',
   'availableCities',
   'districts',
   'minPopulation',
@@ -42,6 +46,12 @@ const GIVE_DETAIL_KEYS = [
   'trainingSupport',
   'operationalSupport',
   'marketingSupport',
+  'locationSupport',
+  'logisticsSupport',
+  'exclusiveTerritory',
+  'trademarkStatus',
+  'contractProvided',
+  'operatingManualProvided',
   'minCapitalRequirement',
   'experienceRequirement',
   'educationRequirement',
@@ -107,7 +117,10 @@ export function extractFranchiseListingDetails(listing: Listing): FranchiseListi
     preferredBrand: readCustomField<string>(cf, 'preferredBrand'),
     companyName: readCustomField<string>(cf, 'companyName'),
     establishmentYear: readCustomField<number>(cf, 'establishmentYear'),
+    franchiseModel: readCustomField<string>(cf, 'franchiseModel'),
+    franchiseModelOther: readCustomField<string>(cf, 'franchiseModelOther'),
     branchCount: readCustomField<number>(cf, 'branchCount'),
+    originCountry: readCustomField<string>(cf, 'originCountry'),
     website: readCustomField<string>(cf, 'website'),
     entryFee: readCustomField<number>(cf, 'entryFee'),
     franchiseFee: readCustomField<number>(cf, 'franchiseFee') ?? readCustomField<number>(cf, 'franchiseBedeli'),
@@ -118,6 +131,7 @@ export function extractFranchiseListingDetails(listing: Listing): FranchiseListi
     returnPeriod: readCustomField<string>(cf, 'returnPeriod'),
     averageSetupDuration: readCustomField<string>(cf, 'averageSetupDuration'),
     minSquareMeters: readCustomField<number>(cf, 'minSquareMeters'),
+    storeLocationType: readCustomField<string>(cf, 'storeLocationType'),
     availableCities: readCustomField<string[]>(cf, 'availableCities'),
     districts: readCustomField<string>(cf, 'districts'),
     minPopulation: readCustomField<number>(cf, 'minPopulation'),
@@ -131,6 +145,12 @@ export function extractFranchiseListingDetails(listing: Listing): FranchiseListi
     trainingSupport: readCustomField<boolean>(cf, 'trainingSupport') ?? readCustomField<boolean>(cf, 'egitimDestegi'),
     operationalSupport: readCustomField<boolean>(cf, 'operationalSupport') ?? readCustomField<boolean>(cf, 'operasyonDestegi'),
     marketingSupport: readCustomField<boolean>(cf, 'marketingSupport') ?? readCustomField<boolean>(cf, 'pazarlamaDestegi'),
+    locationSupport: readCustomField<boolean>(cf, 'locationSupport'),
+    logisticsSupport: readCustomField<boolean>(cf, 'logisticsSupport'),
+    exclusiveTerritory: readCustomField<boolean>(cf, 'exclusiveTerritory'),
+    trademarkStatus: readCustomField<string>(cf, 'trademarkStatus'),
+    contractProvided: readCustomField<string>(cf, 'contractProvided'),
+    operatingManualProvided: readCustomField<string>(cf, 'operatingManualProvided'),
     minCapitalRequirement: readCustomField<number>(cf, 'minCapitalRequirement') ?? readCustomField<number>(cf, 'minimumSermaye'),
     experienceRequirement: readCustomField<string>(cf, 'experienceRequirement'),
     educationRequirement: readCustomField<string>(cf, 'educationRequirement'),
@@ -244,7 +264,9 @@ export function formatSupportFlags(details: FranchiseListingDetails): string {
   if (details.trainingSupport ?? details.egitimDestegi) flags.push('Eğitim');
   if (details.operationalSupport ?? details.operasyonDestegi) flags.push('Operasyon');
   if (details.marketingSupport ?? details.pazarlamaDestegi) flags.push('Pazarlama');
-  return flags.join(', ');
+  if (details.locationSupport) flags.push('Yer Seçimi & Mimari');
+  if (details.logisticsSupport) flags.push('Tedarik & Lojistik');
+  return flags.length > 0 ? flags.join(', ') : '—';
 }
 
 export function formatBoolean(value: boolean | null | undefined, trueLabel = 'Evet', falseLabel = 'Hayır'): string {

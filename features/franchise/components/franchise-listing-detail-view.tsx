@@ -131,12 +131,31 @@ export function FranchiseListingDetailView({
                     <FactGrid>
                       <FactRow label="Kuruluş Yılı" value={toDisplayValue(details.establishmentYear)} />
                       <FactRow label="Şube Sayısı" value={toDisplayValue(details.branchCount)} />
-                      <FactRow label="Franchise Modeli" value={toDisplayValue(details.businessCategory)} />
-                      <FactRow label="Ortalama Kurulum" value={toDisplayValue(details.averageSetupDuration)} />
-                      <FactRow label="Çalışma Saatleri" value={toDisplayValue(details.workingHours)} />
+                      <FactRow label="Franchise Modeli" value={toDisplayValue(details.franchiseModel || details.businessCategory)} />
+                      {details.originCountry && <FactRow label="Menşei Ülke" value={toDisplayValue(details.originCountry)} />}
+                      {details.averageSetupDuration && <FactRow label="Ortalama Kurulum" value={toDisplayValue(details.averageSetupDuration)} />}
+                      {details.workingHours && <FactRow label="Çalışma Saatleri" value={toDisplayValue(details.workingHours)} />}
                       <FactRow
-                        label="Destekler"
+                        label="Sunulan Destekler"
                         value={formatSupportFlags(details)}
+                      />
+                    </FactGrid>
+                  </DetailSection>
+                </DetailCard>
+
+                <DetailCard>
+                  <DetailSection title="Hukuki & Kurumsal Güvence">
+                    <FactGrid>
+                      <FactRow label="Marka Tescil Durumu" value={toDisplayValue(details.trademarkStatus)} />
+                      <FactRow label="Sözleşme & Ön Bilgilendirme" value={toDisplayValue(details.contractProvided)} />
+                      <FactRow label="İşletme El Kitabı & Know-How" value={toDisplayValue(details.operatingManualProvided)} />
+                      <FactRow
+                        label="Bölge Koruması"
+                        value={
+                          details.exclusiveTerritory != null
+                            ? formatBoolean(details.exclusiveTerritory, 'Var (Münhasır Bölge)', 'Yok / Lokasyona Göre')
+                            : '—'
+                        }
                       />
                     </FactGrid>
                   </DetailSection>
@@ -146,16 +165,14 @@ export function FranchiseListingDetailView({
                   <DetailSection title="Lokasyon ve Mağaza Şartları">
                     <FactGrid>
                       <FactRow label="Uygun Şehirler" value={availableCities || 'Tüm Türkiye'} />
-                      <FactRow label="İlçeler" value={toDisplayValue(details.districts)} />
-                      <FactRow label="Mağaza Büyüklüğü" value={toDisplayValue(details.storeSize)} />
+                      {details.districts && <FactRow label="İlçeler" value={toDisplayValue(details.districts)} />}
+                      <FactRow
+                        label="Uygun Mağaza Tipi"
+                        value={toDisplayValue(details.storeLocationType || details.storeSize)}
+                      />
                       <FactRow
                         label="Min. Alan"
                         value={details.minSquareMeters ? `${details.minSquareMeters} m²` : '—'}
-                      />
-                      <FactRow label="AVM Mağazası" value={formatBoolean(details.mallAvailable, 'Uygun', 'Uygun Değil')} />
-                      <FactRow
-                        label="Cadde Mağazası"
-                        value={formatBoolean(details.streetStoreAvailable, 'Uygun', 'Uygun Değil')}
                       />
                     </FactGrid>
                   </DetailSection>

@@ -87,7 +87,7 @@ describe('franchise presentation', () => {
     const steps = getListingFormSteps(CATEGORY_IDS.bayilikAl);
     expect(steps.map((step) => step.id)).toEqual([
       'basics',
-      'investment',
+      'financials',
       'details',
       'package',
     ]);
