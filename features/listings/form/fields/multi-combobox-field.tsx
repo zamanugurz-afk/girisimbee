@@ -94,23 +94,12 @@ export function MultiComboboxField({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-xs transition-all',
+              'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-sm text-foreground transition-all',
               selectedValues.length === 0 && 'text-muted-foreground',
-              selectedValues.length > 0 && 'text-foreground font-medium',
               formControlErrorClass(error),
             )}
           >
-            <div className="flex flex-1 items-center gap-2 overflow-hidden">
-              <span className="truncate">{summaryText}</span>
-              {selectedValues.length > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="px-1.5 py-0.2 text-[11px] font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20 shrink-0"
-                >
-                  {selectedValues.length}
-                </Badge>
-              )}
-            </div>
+            <span className="truncate flex-1">{summaryText}</span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

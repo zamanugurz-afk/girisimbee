@@ -696,7 +696,7 @@ function FieldControl({
                   key={option}
                   htmlFor={`${id}-${option}`}
                   className={cn(
-                    'flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2.5 text-xs transition-all select-none',
+                    'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all select-none',
                     checked
                       ? 'border-amber-500/60 bg-amber-500/8 font-medium text-foreground dark:border-amber-500/50 dark:bg-amber-500/10'
                       : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',

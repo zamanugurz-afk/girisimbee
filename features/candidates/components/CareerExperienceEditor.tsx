@@ -484,7 +484,7 @@ export function CareerExperienceEditor({
                       <span className="text-[11px] text-muted-foreground">Başlangıç</span>
                       <div className="grid grid-cols-2 gap-1">
                         <select
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                          className="flex h-10 w-full rounded-xl border border-input bg-card px-2.5 text-sm font-normal text-foreground transition-colors"
                           value={row.startMonth ?? ''}
                           disabled={disabled}
                           onChange={(e) =>
@@ -501,7 +501,7 @@ export function CareerExperienceEditor({
                           ))}
                         </select>
                         <select
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                          className="flex h-10 w-full rounded-xl border border-input bg-card px-2.5 text-sm font-normal text-foreground transition-colors"
                           value={row.startYear ?? ''}
                           disabled={disabled}
                           onChange={(e) =>
@@ -524,7 +524,7 @@ export function CareerExperienceEditor({
                       <span className="text-[11px] text-muted-foreground">Bitiş</span>
                       <div className="grid grid-cols-2 gap-1">
                         <select
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                          className="flex h-10 w-full rounded-xl border border-input bg-card px-2.5 text-sm font-normal text-foreground transition-colors disabled:opacity-50"
                           value={row.endMonth ?? ''}
                           disabled={disabled || row.isCurrent}
                           onChange={(e) =>
@@ -541,7 +541,7 @@ export function CareerExperienceEditor({
                           ))}
                         </select>
                         <select
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                          className="flex h-10 w-full rounded-xl border border-input bg-card px-2.5 text-sm font-normal text-foreground transition-colors disabled:opacity-50"
                           value={row.endYear ?? ''}
                           disabled={disabled || row.isCurrent}
                           onChange={(e) =>

@@ -370,7 +370,7 @@
 
   /* ── Inputs (extends shadcn Input) ── */
   .gc-input {
-    @apply flex h-11 min-h-[44px] w-full rounded-xl border border-border/80 bg-card px-3.5 text-xs text-foreground shadow-sm placeholder:text-muted-foreground;
+    @apply flex h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal text-foreground shadow-2xs placeholder:text-muted-foreground transition-all;
     transition: border-color var(--gc-duration-normal) var(--gc-ease-smooth),
                 box-shadow var(--gc-duration-normal) var(--gc-ease-smooth);
   }

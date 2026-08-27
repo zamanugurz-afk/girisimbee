@@ -52,9 +52,9 @@ export function DistrictSelect({
           aria-expanded={open}
           disabled={disabled || cityMissing || districts.length === 0}
           className={cn(
-            'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-xs transition-all',
+            'h-11 min-h-[44px] w-full min-w-0 justify-between rounded-xl px-3.5 font-normal text-left bg-card text-sm text-foreground transition-all',
             !value && 'text-muted-foreground',
-            value && 'text-foreground font-medium',
+            value && 'text-foreground font-normal',
             formControlErrorClass(error),
           )}
         >
@@ -65,7 +65,7 @@ export function DistrictSelect({
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[280px] p-0 rounded-xl shadow-lg border-border/80" align="start">
         <Command themeColor={themeColor}>
           <CommandInput placeholder="İlçe ara…" />
-          <CommandList className="max-h-[300px] overflow-y-auto p-1 scrollbar-thin">
+          <CommandList className="max-h-[300px] overflow-y-auto p-1.5 scrollbar-thin">
             <CommandEmpty>İlçe bulunamadı.</CommandEmpty>
             <CommandGroup>
               {districts.map((district) => (

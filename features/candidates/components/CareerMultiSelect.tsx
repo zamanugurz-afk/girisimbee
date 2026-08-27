@@ -278,7 +278,7 @@ export function CareerMultiSelect({
           disabled={disabled}
           placeholder={searchPlaceholder ?? 'Listede ara...'}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-9 text-xs rounded-xl bg-card border-border/80"
+          className="h-10 text-sm rounded-xl bg-card border-border/80"
         />
       ) : null}
 
@@ -306,7 +306,7 @@ export function CareerMultiSelect({
                 }
               }}
               className={cn(
-                'flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2.5 text-xs transition-all select-none',
+                'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all select-none',
                 checked
                   ? theme.cardChecked
                   : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',
@@ -323,7 +323,7 @@ export function CareerMultiSelect({
                   theme.checkboxChecked,
                 )}
               />
-              <span className="leading-snug text-xs">{option}</span>
+              <span className="leading-snug text-sm">{option}</span>
             </div>
           );
         })}

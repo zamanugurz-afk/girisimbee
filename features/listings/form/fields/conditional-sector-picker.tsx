@@ -187,7 +187,7 @@ export function ConditionalSectorPicker({
       {/* Search Input when there are many options */}
       {availableSectors.length >= 8 && (
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             id={`${id}-search`}
             type="text"
@@ -195,7 +195,7 @@ export function ConditionalSectorPicker({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             disabled={disabled}
-            className="h-8.5 pl-8.5 pr-8 text-xs bg-muted/20 focus-visible:bg-background border-border/80"
+            className="h-10 pl-9 pr-8 text-sm bg-muted/20 focus-visible:bg-background border-border/80 rounded-xl"
           />
           {searchQuery && (
             <button
@@ -230,7 +230,7 @@ export function ConditionalSectorPicker({
                   }
                 }}
                 className={cn(
-                  'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-xs transition-all duration-150 select-none',
+                  'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all duration-150 select-none',
                   isChecked
                     ? 'border-amber-500/60 bg-amber-500/8 text-foreground shadow-2xs font-medium dark:border-amber-500/50 dark:bg-amber-500/10'
                     : 'border-border/80 text-muted-foreground hover:border-border hover:bg-muted/30 hover:text-foreground',
@@ -247,7 +247,7 @@ export function ConditionalSectorPicker({
                     'mt-0.5 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 dark:data-[state=checked]:bg-amber-500',
                   )}
                 />
-                <span className="leading-snug text-xs">{sector}</span>
+                <span className="leading-snug text-sm">{sector}</span>
               </div>
             );
           })}
