@@ -3,9 +3,6 @@ import type { Metadata } from 'next';
 import { ListingDetailPage } from '@/features/listings';
 import { loadListingPagePayload } from '@/features/listings/lib/listing-page.loader';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 interface PageProps {
   params: { id: string };
 }
