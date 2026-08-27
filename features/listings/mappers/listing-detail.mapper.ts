@@ -368,7 +368,7 @@ export function aggregateToListingDetail(
   const cf: Record<string, unknown> = { ...sourceCf };
   const partnershipIntent =
     categorySlug === 'ortak-bul' ? resolvePartnershipIntent(listing) : undefined;
-  if (categorySlug === 'ortak-bul' || categorySlug === 'dijital-ai') {
+  if (categorySlug === 'dijital-ai') {
     delete cf.partnershipIntent;
     delete cf.phone;
     delete cf.email;
@@ -673,8 +673,9 @@ export function aggregateToListingDetail(
       categorySlug === 'isletme-devret' ||
       categorySlug === 'isletme-devral' ||
       categorySlug === 'business-transfer' ||
+      categorySlug === 'ortak-bul' ||
       resolvedIntent === 'find-partner'
-        ? buildPartnershipCard(cf, listing, listing.city, careerCoverUrl)
+        ? buildPartnershipCard(sourceCf, listing, listing.city, careerCoverUrl)
         : undefined,
     franchiseCard:
       categorySlug === 'franchise' ||
@@ -683,7 +684,7 @@ export function aggregateToListingDetail(
       categorySlug === 'franchise-ver' ||
       categorySlug === 'bayilik' ||
       resolvedIntent === 'franchise'
-        ? buildFranchiseCard(cf, listing, listing.city, careerCoverUrl)
+        ? buildFranchiseCard(sourceCf, listing, listing.city, careerCoverUrl)
         : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
@@ -742,10 +743,10 @@ function buildPartnershipCard(
     solution: (cf.solution ?? null) as string | null,
     businessModel: (cf.businessModel ?? null) as string | string[] | null,
     targetCustomer: (cf.targetCustomer ?? null) as string | string[] | null,
-    contactPhone: (cf.contactPhone ?? cf.phone ?? null) as string | null,
-    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? null) as string | null,
+    contactPhone: (cf.contactPhone ?? cf.phone ?? cf.phoneNumber ?? (listing as any).contactPhone ?? null) as string | null,
+    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? cf.phone ?? (listing as any).contactPhone ?? null) as string | null,
     contactEmail: (cf.contactEmail ?? cf.email ?? null) as string | null,
-    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? null) as string | null,
+    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? (listing as any).contactName ?? null) as string | null,
   };
 }
 
@@ -793,10 +794,10 @@ function buildFranchiseCard(
     district: (cf.district ?? cf.districts ?? null) as string | null,
     coverUrl: coverUrl ?? (cf.coverUrl as string | null) ?? null,
     longDescription: listing.longDescription || listing.shortDescription || null,
-    contactPhone: (cf.contactPhone ?? cf.phone ?? null) as string | null,
-    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? null) as string | null,
+    contactPhone: (cf.contactPhone ?? cf.phone ?? cf.phoneNumber ?? (listing as any).contactPhone ?? null) as string | null,
+    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? cf.phone ?? (listing as any).contactPhone ?? null) as string | null,
     contactEmail: (cf.contactEmail ?? cf.email ?? null) as string | null,
-    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? null) as string | null,
+    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? (listing as any).contactName ?? null) as string | null,
   };
 }
 

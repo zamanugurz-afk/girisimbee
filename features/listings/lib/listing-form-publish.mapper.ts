@@ -29,13 +29,27 @@ function readStringArray(value: unknown): string[] | undefined {
 }
 
 function basePayload(values: ListingFormValues) {
-  const { core } = values;
+  const { core, customFields = {} } = values;
+  const resolvedPhone =
+    readString(customFields.contactPhone)
+    || values.contactPhone?.trim()
+    || readString(customFields.phone)
+    || readString(customFields.phoneNumber)
+    || null;
+
+  const resolvedName =
+    readString(customFields.contactName)
+    || readString(customFields.fullName)
+    || readString(customFields.authorizedPerson)
+    || null;
+
   return {
     title: core.title,
     shortDescription: core.shortDescription,
     longDescription: core.longDescription || undefined,
     city: core.city ?? null,
-    contactPhone: values.contactPhone?.trim() || null,
+    contactPhone: resolvedPhone,
+    contactName: resolvedName,
     publishConsents: values.publishConsents ?? null,
   };
 }

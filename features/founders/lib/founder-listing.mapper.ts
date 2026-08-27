@@ -28,6 +28,11 @@ const DETAIL_KEYS = [
   'projectStage',
   'partnershipIntent',
   'experience',
+  'contactPhone',
+  'contactName',
+  'contactWhatsapp',
+  'contactEmail',
+  'contactWebsite',
 ] as const;
 
 export function extractFounderListingDetails(listing: Listing): FounderListingDetails {

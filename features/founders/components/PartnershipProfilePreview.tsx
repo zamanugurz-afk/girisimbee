@@ -137,8 +137,9 @@ export function PartnershipProfilePreview({
   const cleanPhoneForWhatsapp = (phoneStr?: string | null) => {
     if (!phoneStr) return '';
     let cleaned = phoneStr.replace(/\D/g, '');
+    if (!cleaned || cleaned.length < 7) return '';
     if (cleaned.startsWith('0')) cleaned = '90' + cleaned.slice(1);
-    if (!cleaned.startsWith('90')) cleaned = '90' + cleaned;
+    else if (!cleaned.startsWith('90') && cleaned.length === 10) cleaned = '90' + cleaned;
     return cleaned;
   };
 
