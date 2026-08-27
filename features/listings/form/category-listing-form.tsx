@@ -1735,9 +1735,6 @@ export function CategoryListingForm({
         }
       }
       if (key === 'franchiseModel') {
-        if (value !== 'Diğer') {
-          setCustomField('franchiseModelOther', '');
-        }
         const suggestedSector = getPrimarySectorForFranchiseModel(String(value || ''));
         if (suggestedSector) {
           setCustomField('sector', suggestedSector);
@@ -3897,12 +3894,6 @@ export function CategoryListingForm({
                       key === 'relevantExperience' ||
                       key === 'capabilities' ||
                       key === 'requiredResponsibilities' ||
-                      key === 'trainingSupport' ||
-                      key === 'operationalSupport' ||
-                      key === 'marketingSupport' ||
-                      key === 'locationSupport' ||
-                      key === 'logisticsSupport' ||
-                      key === 'exclusiveTerritory' ||
                       key === 'availableCities' ||
                       key === 'introductionVideoUrl' ||
                       key === 'presentationPdfUrl' ||

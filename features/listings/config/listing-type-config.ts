@@ -909,7 +909,6 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: [...CANONICAL_FRANCHISE_MODELS],
     },
-    { key: 'franchiseModelOther', label: 'Diğer Konsept Türü', type: 'string', max: 100 },
     {
       key: 'sector',
       label: 'Ana Sektör',
@@ -918,7 +917,6 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...JOB_SECTOR_OPTIONS],
     },
     { key: 'branchCount', label: 'Mevcut Şube Sayısı', type: 'number', required: true, min: 1 },
-    { key: 'originCountry', label: 'Menşei Ülke', type: 'string', max: 100 },
     { key: 'website', label: 'Web Sitesi', type: 'string', max: 500 },
 
     // Step 2: Yatırım ve Finansal Koşullar

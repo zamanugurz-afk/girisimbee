@@ -132,7 +132,6 @@ export function FranchiseListingDetailView({
                       <FactRow label="Kuruluş Yılı" value={toDisplayValue(details.establishmentYear)} />
                       <FactRow label="Şube Sayısı" value={toDisplayValue(details.branchCount)} />
                       <FactRow label="Franchise Modeli" value={toDisplayValue(details.franchiseModel || details.businessCategory)} />
-                      {details.originCountry && <FactRow label="Menşei Ülke" value={toDisplayValue(details.originCountry)} />}
                       {details.averageSetupDuration && <FactRow label="Ortalama Kurulum" value={toDisplayValue(details.averageSetupDuration)} />}
                       {details.workingHours && <FactRow label="Çalışma Saatleri" value={toDisplayValue(details.workingHours)} />}
                       <FactRow
