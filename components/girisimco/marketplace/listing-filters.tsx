@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
 import {
   LISTING_SORT_OPTIONS,
@@ -7,7 +8,10 @@ import {
   getUserDiscoverableCategorySlugs,
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
-import { getAllTaxonomyPositions } from '@/features/candidates/taxonomy/career-taxonomy';
+import {
+  getAllTaxonomyPositions,
+  getPositionsForSector,
+} from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
 import { PartnershipFlowFilters } from '@/components/girisimco/marketplace/partnership-flow-filters';
@@ -22,9 +26,12 @@ import { cn } from '@/lib/utils';
 
 const ALL_VALUE = '__all__';
 
-const CAREER_POSITIONS = getAllTaxonomyPositions()
-  .filter((p) => !p.includes('Diğer'))
-  .sort((a, b) => a.localeCompare(b, 'tr-TR'));
+function getAvailablePositions(sector?: string): string[] {
+  const raw = sector ? getPositionsForSector(sector) : getAllTaxonomyPositions();
+  return raw
+    .filter((p) => !p.includes('Diğer') && !p.includes('Kendim'))
+    .sort((a, b) => a.localeCompare(b, 'tr-TR'));
+}
 
 const CAREER_SECTORS = [...JOB_SECTOR_OPTIONS]
   .filter((s) => !s.includes('Diğer'))
@@ -83,6 +90,10 @@ export function ListingFilters({
   const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
   const themeColor = isCareer ? (isSeek ? 'sky' : 'emerald') : 'blue';
 
+  const availablePositions = useMemo(() => {
+    return getAvailablePositions(filters.sector);
+  }, [filters.sector]);
+
   return (
     <div className={cn('flex flex-wrap items-center gap-2.5', className)}>
       {showJobFlowFilters ? (
@@ -102,7 +113,39 @@ export function ListingFilters({
 
       {isCareer ? (
         <>
-          {/* 1. Aranan Pozisyon / Açık Pozisyon (A-Z) */}
+          {/* 1. Uzmanlık Sektörü / Sektör (A-Z) - BAŞTA! */}
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                const validPositions = getAvailablePositions(newSector);
+                const nextPosition =
+                  filters.position && validPositions.includes(filters.position)
+                    ? filters.position
+                    : undefined;
+
+                onChange({
+                  sector: newSector,
+                  position: nextPosition,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                {CAREER_SECTORS.map((sec) => (
+                  <SelectItem key={sec} value={sec}>
+                    {sec}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 2. Aranan Pozisyon / Açık Pozisyon (Sektöre göre dinamik A-Z) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.position ?? ALL_VALUE}
@@ -113,29 +156,9 @@ export function ListingFilters({
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
                 <SelectItem value={ALL_VALUE}>Pozisyon seçin</SelectItem>
-                {CAREER_POSITIONS.map((pos) => (
+                {availablePositions.map((pos) => (
                   <SelectItem key={pos} value={pos}>
                     {pos}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 2. Uzmanlık Sektörü / Sektör (A-Z) */}
-          <div className="w-[180px] sm:w-[210px]">
-            <Select
-              value={filters.sector ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ sector: val === ALL_VALUE ? undefined : val })}
-            >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Sektör seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {CAREER_SECTORS.map((sec) => (
-                  <SelectItem key={sec} value={sec}>
-                    {sec}
                   </SelectItem>
                 ))}
               </SelectContent>
