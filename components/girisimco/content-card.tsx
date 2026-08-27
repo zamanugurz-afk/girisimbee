@@ -118,7 +118,7 @@ function TextListingCardLayout({
           </span>
 
           {compactPrice && (
-            <span className="inline-flex shrink-0 items-center rounded-lg bg-emerald-500/10 px-2.5 py-1 font-display text-xs font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
+            <span className="inline-flex shrink-0 items-center rounded-lg bg-sky-500/10 px-2.5 py-1 font-display text-xs font-semibold tabular-nums text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
               {compactPrice}
             </span>
           )}
