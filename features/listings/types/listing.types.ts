@@ -192,6 +192,8 @@ export interface ListingDetail {
   investorCard?: InvestorCardData;
   /** Ortak Arıyorum / Ortak Olmak İstiyorum — structured partnership card. */
   partnershipCard?: PartnershipCardData;
+  /** Franchise Veren / Bayilik Arayan — structured franchise card. */
+  franchiseCard?: FranchiseCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).
@@ -200,7 +202,12 @@ export interface ListingDetail {
 }
 
 export interface PartnershipCardData {
-  intent?: 'seeking' | 'joining';
+  intent?: 'seeking' | 'joining' | 'transfer';
+  title?: string | null;
+  companyName?: string | null;
+  businessName?: string | null;
+  businessType?: string | null;
+  businessTypeOther?: string | null;
   sector?: string | null;
   stage?: string | null;
   partnershipType?: string | null;
@@ -214,8 +221,50 @@ export interface PartnershipCardData {
   toolsOther?: string | null;
   commitment?: string | null;
   equityOffered?: number | string | null;
+  monthlyRevenue?: string | null;
+  investmentAmount?: string | null;
+  transferPrice?: string | null;
+  transferScope?: string | null;
   city?: string | null;
   district?: string | null;
+  coverUrl?: string | null;
+  longDescription?: string | null;
+  problem?: string | null;
+  solution?: string | null;
+  businessModel?: string | string[] | null;
+  targetCustomer?: string | string[] | null;
+}
+
+export interface FranchiseCardData {
+  companyName?: string | null;
+  establishmentYear?: number | string | null;
+  franchiseModel?: string | null;
+  sector?: string | null;
+  branchCount?: number | string | null;
+  website?: string | null;
+  totalInvestment?: number | string | null;
+  franchiseFee?: number | string | null;
+  profitMargin?: number | string | null;
+  advertisingFee?: number | string | null;
+  averageSetupDuration?: string | null;
+  returnPeriod?: string | null;
+  minCapitalRequirement?: number | string | null;
+  royaltyFee?: string | null;
+  trainingSupport?: boolean;
+  operationalSupport?: boolean;
+  marketingSupport?: boolean;
+  locationSupport?: boolean;
+  logisticsSupport?: boolean;
+  exclusiveTerritory?: boolean;
+  trademarkStatus?: string | null;
+  contractProvided?: string | null;
+  minSquareMeters?: number | string | null;
+  storeLocationType?: string | null;
+  availableCities?: string[];
+  city?: string | null;
+  district?: string | null;
+  coverUrl?: string | null;
+  longDescription?: string | null;
 }
 
 export interface ListingSummary {

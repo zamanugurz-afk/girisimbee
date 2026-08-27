@@ -633,15 +633,24 @@ export function aggregateToListingDetail(
             })
           : undefined,
     partnershipCard:
-      categorySlug === 'ortak-bul'
-        ? buildPartnershipCard(cf, listing.city)
+      categorySlug === 'ortak-bul' || categorySlug === 'devir' || categorySlug === 'isletme-devret'
+        ? buildPartnershipCard(cf, listing, listing.city, careerCoverUrl)
+        : undefined,
+    franchiseCard:
+      categorySlug === 'franchise' || categorySlug === 'bayilik-al' || categorySlug === 'franchise-ver'
+        ? buildFranchiseCard(cf, listing, listing.city, careerCoverUrl)
         : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
   };
 }
 
-function buildPartnershipCard(cf: Record<string, unknown>, city: string | null): PartnershipCardData {
+function buildPartnershipCard(
+  cf: Record<string, unknown>,
+  listing: Listing,
+  city: string | null,
+  coverUrl: string | null,
+): PartnershipCardData {
   const readList = (val: unknown): string[] => {
     if (Array.isArray(val)) return val.map(String).filter(Boolean);
     if (typeof val === 'string' && val.trim()) {
@@ -654,11 +663,17 @@ function buildPartnershipCard(cf: Record<string, unknown>, city: string | null):
   const professionalSkills = readList(cf.professionalSkills);
   const technicalSkills = readList(cf.technicalSkills ?? cf.expertise ?? cf.requiredSkills);
   const tools = readList(cf.tools);
+  const isTransfer = Boolean(cf.businessType || cf.transferScope || cf.monthlyRevenue);
 
   return {
-    intent: (cf.partnershipIntent as 'seeking' | 'joining') ?? 'seeking',
+    intent: isTransfer ? 'transfer' : ((cf.partnershipIntent as 'seeking' | 'joining') ?? 'seeking'),
+    title: listing.title,
+    companyName: (cf.companyName ?? cf.businessName ?? null) as string | null,
+    businessName: (cf.businessName ?? null) as string | null,
+    businessType: (cf.businessType ?? null) as string | null,
+    businessTypeOther: (cf.businessTypeOther ?? null) as string | null,
     sector: (cf.sector ?? cf.primarySector ?? null) as string | null,
-    stage: (cf.projectStage ?? cf.startupStage ?? null) as string | null,
+    stage: (cf.projectStage ?? cf.startupStage ?? cf.stage ?? null) as string | null,
     partnershipType: (cf.partnershipType ?? null) as string | null,
     partnershipTypes: partnershipTypes.length > 0 ? partnershipTypes : undefined,
     partnershipTypesOther: (cf.partnershipTypesOther ?? cf.partnershipTypeOther ?? null) as string | null,
@@ -670,8 +685,65 @@ function buildPartnershipCard(cf: Record<string, unknown>, city: string | null):
     toolsOther: (cf.toolsOther ?? null) as string | null,
     commitment: (cf.commitment ?? null) as string | null,
     equityOffered: (cf.equityOffered ?? null) as number | string | null,
+    monthlyRevenue: (cf.monthlyRevenue ?? null) as string | null,
+    investmentAmount: (cf.investmentAmount ?? cf.investmentAmountCustom ?? null) as string | null,
+    transferPrice: (cf.transferPrice ?? cf.investmentAmount ?? null) as string | null,
+    transferScope: (cf.transferScope ?? null) as string | null,
     city: city ?? null,
-    district: (cf.district ?? null) as string | null,
+    district: (cf.district ?? cf.residenceDistrict ?? null) as string | null,
+    coverUrl: coverUrl ?? (cf.coverUrl as string | null) ?? null,
+    longDescription: listing.longDescription || listing.shortDescription || null,
+    problem: (cf.problem ?? null) as string | null,
+    solution: (cf.solution ?? null) as string | null,
+    businessModel: (cf.businessModel ?? null) as string | string[] | null,
+    targetCustomer: (cf.targetCustomer ?? null) as string | string[] | null,
+  };
+}
+
+function buildFranchiseCard(
+  cf: Record<string, unknown>,
+  listing: Listing,
+  city: string | null,
+  coverUrl: string | null,
+): FranchiseCardData {
+  const readList = (val: unknown): string[] => {
+    if (Array.isArray(val)) return val.map(String).filter(Boolean);
+    if (typeof val === 'string' && val.trim()) {
+      return val.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
+  return {
+    companyName: (cf.companyName ?? listing.title ?? null) as string | null,
+    establishmentYear: (cf.establishmentYear ?? null) as number | string | null,
+    franchiseModel: (cf.franchiseModel ?? cf.businessCategory ?? null) as string | null,
+    sector: (cf.sector ?? null) as string | null,
+    branchCount: (cf.branchCount ?? null) as number | string | null,
+    website: (cf.website ?? null) as string | null,
+    totalInvestment: (cf.totalInvestment ?? cf.budget ?? null) as number | string | null,
+    franchiseFee: (cf.franchiseFee ?? cf.entryFee ?? null) as number | string | null,
+    profitMargin: (cf.profitMargin ?? null) as number | string | null,
+    advertisingFee: (cf.advertisingFee ?? null) as number | string | null,
+    averageSetupDuration: (cf.averageSetupDuration ?? null) as string | null,
+    returnPeriod: (cf.returnPeriod ?? null) as string | null,
+    minCapitalRequirement: (cf.minCapitalRequirement ?? null) as number | string | null,
+    royaltyFee: (cf.royaltyFee ?? null) as string | null,
+    trainingSupport: Boolean(cf.trainingSupport),
+    operationalSupport: Boolean(cf.operationalSupport),
+    marketingSupport: Boolean(cf.marketingSupport),
+    locationSupport: Boolean(cf.locationSupport),
+    logisticsSupport: Boolean(cf.logisticsSupport),
+    exclusiveTerritory: Boolean(cf.exclusiveTerritory),
+    trademarkStatus: (cf.trademarkStatus ?? null) as string | null,
+    contractProvided: (cf.contractProvided ?? null) as string | null,
+    minSquareMeters: (cf.minSquareMeters ?? null) as number | string | null,
+    storeLocationType: (cf.storeLocationType ?? null) as string | null,
+    availableCities: readList(cf.availableCities),
+    city: city ?? null,
+    district: (cf.district ?? cf.districts ?? null) as string | null,
+    coverUrl: coverUrl ?? (cf.coverUrl as string | null) ?? null,
+    longDescription: listing.longDescription || listing.shortDescription || null,
   };
 }
 

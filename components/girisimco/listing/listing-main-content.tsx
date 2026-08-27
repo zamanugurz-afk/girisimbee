@@ -10,6 +10,7 @@ import { ListingRichText } from '@/components/girisimco/listing/listing-rich-tex
 import { CareerProfilePreview } from '@/features/candidates/components/CareerProfilePreview';
 import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
 import { PartnershipProfilePreview } from '@/features/founders/components/PartnershipProfilePreview';
+import { FranchiseProfilePreview } from '@/features/franchise/components/FranchiseProfilePreview';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -82,6 +83,12 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showCareerCard =
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
+  const showPartnershipCard =
+    Boolean(listing.partnershipCard)
+    && (listing.category.id === 'find-partner' || listing.category.id === 'business-transfer');
+  const showFranchiseCard =
+    Boolean(listing.franchiseCard)
+    && listing.category.id === 'franchise';
   const showInvestorCard =
     Boolean(listing.investorCard)
     && listing.category.id === 'invest';
@@ -91,11 +98,15 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     && hasInvestmentFacts(listing);
   const showCustomFacts =
     !showCareerCard
+    && !showPartnershipCard
+    && !showFranchiseCard
     && !showInvestorCard
     && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
   const showCompany =
     !showCareerCard
+    && !showPartnershipCard
+    && !showFranchiseCard
     && !showInvestorCard
     && hasCompanyFacts(listing)
     && listing.category.id !== 'find-investment';
@@ -104,20 +115,23 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     : 'Şirket bilgileri';
   const showAttachments = listing.attachments.length > 0;
   const showTimeline = listing.timeline.length > 0;
+  const isUnifiedCard = showCareerCard || showPartnershipCard || showFranchiseCard;
   const showAbout =
-    !showCareerCard
+    !isUnifiedCard
     && !showInvestorCard
     && !isEmptyDisplayValue(listing.longDescription);
   const customFactsTitle = customFactsSectionTitle(listing);
 
+  const coverUrl = listing.gallery[0]?.imageUrl ?? null;
+
   return (
-    <div className={showCareerCard ? '' : 'space-y-8'}>
+    <div className={isUnifiedCard ? '' : 'space-y-8'}>
       {showCareerCard && listing.careerCard ? (
         <CareerProfilePreview
           headingAs="h1"
           data={{
             ...listing.careerCard,
-            coverUrl: listing.gallery[0]?.imageUrl ?? listing.careerCard.coverUrl,
+            coverUrl: coverUrl ?? listing.careerCard.coverUrl,
           }}
           chrome={{
             listingId: listing.listingId,
@@ -132,18 +146,30 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         />
       ) : null}
 
+      {showPartnershipCard && listing.partnershipCard ? (
+        <PartnershipProfilePreview
+          partnership={{
+            ...listing.partnershipCard,
+            coverUrl: coverUrl ?? listing.partnershipCard.coverUrl,
+          }}
+          listingId={listing.listingId}
+          ownerUserId={listing.ownerUserId}
+        />
+      ) : null}
+
+      {showFranchiseCard && listing.franchiseCard ? (
+        <FranchiseProfilePreview
+          franchise={{
+            ...listing.franchiseCard,
+            coverUrl: coverUrl ?? listing.franchiseCard.coverUrl,
+          }}
+          listingId={listing.listingId}
+          ownerUserId={listing.ownerUserId}
+        />
+      ) : null}
+
       {showInvestorCard && listing.investorCard ? (
         <InvestorProfilePreview data={listing.investorCard} showTitle={false} />
-      ) : null}
-
-      {listing.category.id === 'find-partner' && listing.intentHeadline ? (
-        <p className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/[0.03]">
-          {listing.intentHeadline}
-        </p>
-      ) : null}
-
-      {listing.category.id === 'find-partner' && listing.partnershipCard ? (
-        <PartnershipProfilePreview partnership={listing.partnershipCard} />
       ) : null}
 
       {showCareerCard ? null : (

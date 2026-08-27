@@ -31,15 +31,25 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
   const isCareerListing =
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
-  const isPartnershipListing = listing.category.id === 'find-partner';
+  const isPartnershipListing =
+    listing.category.id === 'find-partner' || listing.category.id === 'business-transfer';
   const isDigitalSolutionListing = listing.category.id === 'digital-ai';
   const isFranchiseListing = listing.category.id === 'franchise';
+  const isUnifiedCardListing = isCareerListing || isPartnershipListing || isFranchiseListing;
+
+  const backLink = isCareerListing
+    ? { href: '/is', label: 'Kariyer Menüsüne Dön' }
+    : isPartnershipListing
+      ? { href: '/ortaklik', label: 'Ortaklık & Devir Menüsüne Dön' }
+      : isFranchiseListing
+        ? { href: '/franchise', label: 'Franchise & Bayilik Menüsüne Dön' }
+        : null;
 
   return (
     <main
       className={cn(
         'relative min-h-screen bg-gradient-to-b from-muted/30 via-background to-background dark:from-background dark:via-background',
-        isCareerListing
+        isUnifiedCardListing
           ? 'pt-[calc(var(--gc-header-height,3.75rem)+0.75rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+1rem)]'
           : 'pt-[calc(var(--gc-header-height,3.75rem)+1.5rem)] sm:pt-[calc(var(--gc-header-height,3.75rem)+2rem)]',
       )}
@@ -49,19 +59,19 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
       <div
         className={cn(
           'relative mx-auto',
-          isCareerListing
+          isUnifiedCardListing
             ? 'max-w-7xl 2xl:max-w-[1360px] px-4 py-1 pb-12 lg:px-6 lg:py-2 lg:pb-16'
             : 'max-w-7xl px-5 py-6 pb-28 lg:px-8 lg:py-8 lg:pb-12',
         )}
       >
-        {isCareerListing ? (
+        {backLink ? (
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <Link
-              href="/is"
+              href={backLink.href}
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors group"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              <span>Kariyer Menüsüne Dön</span>
+              <span>{backLink.label}</span>
             </Link>
             <ListingBreadcrumb listing={listing} />
           </div>
@@ -69,19 +79,19 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           <ListingBreadcrumb listing={listing} />
         )}
 
-        {isCareerListing ? null : (
+        {isUnifiedCardListing ? null : (
           <section className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-8 xl:gap-10">
             <ListingDetailGallery listing={listing} />
             <ListingDetailMeta listing={listing} />
           </section>
         )}
 
-        {isCareerListing ? null : (
+        {isUnifiedCardListing ? null : (
           <ListingDetailActions listing={listing} className="mt-6 hidden lg:flex" />
         )}
 
-        {/* Non-career listings: show owner package panel at top */}
-        {!isCareerListing && !isLoading && isOwner && listing.listingId ? (
+        {/* Non-unified listings: show owner package panel at top */}
+        {!isUnifiedCardListing && !isLoading && isOwner && listing.listingId ? (
           <div id="owner-package-panel" className="mt-6">
             <PremiumGate>
               <ListingOwnerPackagePanel listingId={listing.listingId} />
@@ -89,7 +99,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           </div>
         ) : null}
 
-        {isCareerListing ? (
+        {isUnifiedCardListing ? (
           <div className="mt-3">
             <ListingMainContent listing={listing} />
           </div>
@@ -112,10 +122,10 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           <ListingFranchiseRecommendations listingId={listing.listingId} />
         ) : null}
 
-        {isCareerListing ? null : <ListingSimilar listing={listing} />}
+        {isUnifiedCardListing ? null : <ListingSimilar listing={listing} />}
       </div>
 
-      {isCareerListing ? null : <ListingDetailMobileBar listing={listing} />}
+      {isUnifiedCardListing ? null : <ListingDetailMobileBar listing={listing} />}
     </main>
   );
 }

@@ -107,6 +107,62 @@ describe('ListingDetailView render', () => {
       activityHistory: [],
     });
 
-    expect(detail.category.id).toBe('isletme-devri');
+  it('renders a franchise listing without crashing', () => {
+    const listing = createListing({
+      id: ids.listing('l1000001-0001-4000-8000-000000000005'),
+      categoryId: CATEGORY_IDS.franchise,
+      listingTypeId: LISTING_TYPE_IDS.franchiseGiveDefault,
+      moduleKey: 'franchise',
+      title: 'Brew & Go Coffee Franchise',
+      slug: 'brew-and-go-coffee-franchise',
+      status: 'published',
+      customFields: {
+        companyName: 'Brew & Go Coffee',
+        sector: 'Gıda / Kafe',
+        branchCount: 45,
+        totalInvestment: '850.000 TL',
+      },
+    });
+
+    const detail = aggregateToListingDetail({
+      listing,
+      tags: [],
+      images: [],
+      attachments: [],
+      activityHistory: [],
+    });
+
+    expect(detail.category.id).toBe('franchise');
+    expect(detail.franchiseCard).toBeDefined();
+    expect(detail.franchiseCard?.companyName).toBe('Brew & Go Coffee');
+  });
+
+  it('verifies partnershipCard is mapped properly for partners and transfers', () => {
+    const listing = createListing({
+      id: ids.listing('l1000001-0001-4000-8000-000000000006'),
+      categoryId: CATEGORY_IDS.ortakBul,
+      listingTypeId: LISTING_TYPE_IDS.ortakBulDefault,
+      moduleKey: 'founders',
+      title: 'Fintech SaaS Girişimine Teknik Ortak',
+      slug: 'fintech-saas-teknik-ortak',
+      status: 'published',
+      customFields: {
+        sector: 'Finans',
+        equityOffered: 25,
+        commitment: 'Tam Zamanlı',
+      },
+    });
+
+    const detail = aggregateToListingDetail({
+      listing,
+      tags: [],
+      images: [],
+      attachments: [],
+      activityHistory: [],
+    });
+
+    expect(detail.partnershipCard).toBeDefined();
+    expect(detail.partnershipCard?.equityOffered).toBe(25);
+    expect(detail.partnershipCard?.commitment).toBe('Tam Zamanlı');
   });
 });

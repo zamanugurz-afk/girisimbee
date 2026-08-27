@@ -4,29 +4,31 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
+  Store,
   Building2,
-  Briefcase,
   Target,
-  Rocket,
+  Briefcase,
   Percent,
   CreditCard,
   Clock,
-  Users,
   CheckCircle2,
   Sliders,
   Phone,
-  BarChart3,
+  ShieldCheck,
+  MapPin,
+  Sparkles,
+  Package,
   Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
-import type { PartnershipCardData } from '@/features/listings/types/listing.types';
+import type { FranchiseCardData } from '@/features/listings/types/listing.types';
 import { cn } from '@/lib/utils';
 
-interface PartnershipProfilePreviewProps {
-  partnership: PartnershipCardData;
+interface FranchiseProfilePreviewProps {
+  franchise: FranchiseCardData;
   listingId?: string;
   ownerUserId?: string;
   className?: string;
@@ -42,78 +44,53 @@ const theme = {
   ctaBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
 };
 
-export function PartnershipProfilePreview({
-  partnership,
+export function FranchiseProfilePreview({
+  franchise,
   listingId,
   ownerUserId,
   className,
-}: PartnershipProfilePreviewProps) {
+}: FranchiseProfilePreviewProps) {
   const router = useRouter();
   const { user } = useAuth();
   const isOwner = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
 
   const {
-    intent = 'seeking',
-    title,
     companyName,
-    businessName,
-    businessType,
+    establishmentYear,
+    franchiseModel,
     sector,
-    stage,
-    partnershipTypes = [],
-    partnershipTypesOther,
-    professionalSkills = [],
-    professionalSkillsOther,
-    technicalSkills = [],
-    technicalSkillsOther,
-    tools = [],
-    toolsOther,
-    commitment,
-    equityOffered,
-    monthlyRevenue,
-    investmentAmount,
-    transferPrice,
-    transferScope,
+    branchCount,
+    totalInvestment,
+    franchiseFee,
+    profitMargin,
+    advertisingFee,
+    returnPeriod,
+    royaltyFee,
+    trainingSupport = true,
+    operationalSupport = true,
+    marketingSupport = true,
+    locationSupport = true,
+    logisticsSupport = true,
+    exclusiveTerritory = true,
+    trademarkStatus,
+    minSquareMeters,
+    storeLocationType,
+    availableCities = [],
     city,
     district,
     coverUrl,
     longDescription,
-    problem,
-    solution,
-    businessModel,
-    targetCustomer,
-  } = partnership;
+  } = franchise;
 
-  const isTransfer = intent === 'transfer' || Boolean(businessType || transferPrice || transferScope);
-  const displayTitle = title || companyName || businessName || (isTransfer ? 'İşletme Devri' : 'Girişim Ortaklığı');
+  const displayTitle = companyName || 'Franchise & Bayilik';
   const displaySector = sector || 'Genel Sektör';
   const displayLocation = [city, district].filter(Boolean).join(' - ') || 'Türkiye Geneli';
 
-  const allPartnershipTypes = [
-    ...partnershipTypes,
-    ...(partnershipTypesOther ? [partnershipTypesOther] : []),
-  ];
+  const displayCities = availableCities.length > 0
+    ? availableCities
+    : ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'];
 
-  const allSkills = [
-    ...professionalSkills,
-    ...(professionalSkillsOther ? [professionalSkillsOther] : []),
-    ...technicalSkills,
-    ...(technicalSkillsOther ? [technicalSkillsOther] : []),
-    ...tools,
-    ...(toolsOther ? [toolsOther] : []),
-  ];
-
-  // Default fallback skills if none specified
-  const displaySkillsList = allSkills.length > 0
-    ? allSkills
-    : isTransfer
-      ? ['İşletme Yönetimi', 'Müşteri İlişkileri', 'Pazarlama & Satış', 'Nakit Akışı Yönetimi', 'Personel Yönetimi', 'Tedarik Ağı']
-      : ['Satış & İş Geliştirme', 'Dijital Pazarlama', 'Ekip Liderliği', 'Finansal Modelleme', 'Yazılım / Teknoloji', 'CRM / ERP Sistemleri'];
-
-  // Summary generation
-  const summaryText = longDescription || (isTransfer
-    ? `${displayTitle}, ${displayLocation} lokasyonunda ${displaySector} sektöründe faaliyet gösteren faal bir işletmedir. Devir kapsamında mevcut müşteri portföyü, demirbaşlar ve operasyonel altyapı eksiksiz olarak aktarılacaktır.`
-    : `${displayTitle}, ${displaySector} alanında yenilikçi çözümler sunan ölçeklenebilir bir projedir. Güçlü bir vizyonla sektörel büyüme hedefleyen girişimimiz için tamamlayıcı yetkinliklere sahip vizyoner kurucu ortaklar aranmaktadır.`);
+  const summaryText = longDescription || `${displayTitle}, ${displaySector} sektöründe güçlü marka bilinirliği ve kanıtlanmış karlı iş modeli ile yatırımcılarına yüksek getiri ve sürdürülebilir büyüme fırsatı sunmaktadır. Şube açılışından operasyonel süreçlere kadar tüm aşamalarda anahtar teslim destek sağlanmaktadır.`;
 
   const handleContactClick = () => {
     if (listingId) {
@@ -130,7 +107,7 @@ export function PartnershipProfilePreview({
         {/* SOL SÜTUN - AYRIK KARTLAR */}
         <aside className="space-y-3.5 sm:space-y-4">
           
-          {/* 1. KART: Başlık, Görsel & Konum */}
+          {/* 1. KART: Marka Adı, Görsel & Sektör */}
           <div className={cn('rounded-2xl border bg-white dark:bg-card p-4 sm:p-5', theme.cardBorder, theme.cardGlow)}>
             {coverUrl ? (
               <div className="relative w-full h-28 rounded-xl overflow-hidden mb-3 border border-slate-200/80 dark:border-border bg-slate-100 dark:bg-muted">
@@ -149,121 +126,113 @@ export function PartnershipProfilePreview({
             <hr className="border-slate-100 dark:border-border/80 my-2.5" />
             <div className="space-y-1">
               <p className="text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-200">
-                {displaySector} {businessType ? `· ${businessType}` : ''}
+                {displaySector} {establishmentYear ? `· Kur: ${establishmentYear}` : ''}
               </p>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-muted-foreground flex items-center gap-1">
-                <span>{displayLocation}</span>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-muted-foreground">
+                {displayLocation}
               </p>
             </div>
           </div>
 
-          {/* 2. KART: Girişim / İşletme Aşaması */}
+          {/* 2. KART: Şube & Büyüklük */}
           <div className={cn('rounded-2xl border bg-white dark:bg-card p-4 sm:p-5 space-y-2.5', theme.cardBorder, theme.cardGlow)}>
             <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
-              <Rocket className="h-4 w-4" />
-              <span>{isTransfer ? 'İŞLETME DURUMU' : 'GİRİŞİM AŞAMASI'}</span>
+              <Store className="h-4 w-4" />
+              <span>ŞUBE & BÜYÜKLÜK</span>
             </div>
             <div className="space-y-0.5">
               <p className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-foreground">
-                {stage || (isTransfer ? 'Faal & Cirolu İşletme' : 'MVP - Gelir Üreten')}
+                {branchCount ? `${branchCount}+ Aktif Şube` : 'Hızla Büyüyen Şube Ağı'}
               </p>
               <p className="text-[11px] text-slate-500 dark:text-muted-foreground">
-                {commitment ? `Çalışma Modeli: ${commitment}` : (isTransfer ? 'Hazır Kurulu Düzen' : 'Büyüme Odaklı')}
+                {trademarkStatus || 'TürkPatent Tescilli Marka'}
               </p>
             </div>
           </div>
 
-          {/* 3. KART: İş Modeli / Hedef Kitle */}
+          {/* 3. KART: Konsept Türü */}
           <div className={cn('rounded-2xl border bg-white dark:bg-card p-4 sm:p-5 space-y-2.5', theme.cardBorder, theme.cardGlow)}>
             <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
               <Target className="h-4 w-4" />
-              <span>İŞ MODELİ / HEDEF</span>
+              <span>KONSEPT TÜRÜ</span>
             </div>
             <div className="space-y-1">
               <p className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-foreground">
-                {Array.isArray(businessModel) ? businessModel.join(', ') : (businessModel || (isTransfer ? (businessType || 'Fiziksel / Perakende') : 'B2B SaaS / Pazaryeri'))}
+                {franchiseModel || storeLocationType || 'Cadde & AVM Mağazası'}
               </p>
-              {targetCustomer ? (
+              {minSquareMeters ? (
                 <p className="text-[11px] text-slate-500 dark:text-muted-foreground">
-                  Hedef Kitle: {Array.isArray(targetCustomer) ? targetCustomer.join(', ') : targetCustomer}
+                  Minimum {minSquareMeters} m² Alan Gereksinimi
                 </p>
               ) : null}
             </div>
           </div>
 
-          {/* 4. KART: Ortaklık / Devir Şartları */}
+          {/* 4. KART: Franchise Şartları */}
           <div className={cn('rounded-2xl border bg-white dark:bg-card p-4 sm:p-5 space-y-2.5', theme.cardBorder, theme.cardGlow)}>
             <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
               <Briefcase className="h-4 w-4" />
-              <span>{isTransfer ? 'DEVİR ŞARTLARI' : 'ORTAKLIK ŞARTLARI'}</span>
+              <span>FRANCHISE ŞARTLARI</span>
             </div>
             <div className="space-y-2">
-              {equityOffered !== undefined && equityOffered !== null && String(equityOffered) !== '' ? (
-                <div className="flex items-start gap-2.5">
-                  <Percent className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Sunulan Hisse</p>
-                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">%{equityOffered} Hisse Payı</p>
-                  </div>
-                </div>
-              ) : null}
-
-              {(transferPrice || investmentAmount) ? (
+              {totalInvestment ? (
                 <div className="flex items-start gap-2.5">
                   <CreditCard className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                      {isTransfer ? 'Devir Bedeli' : 'Sermaye Katkısı'}
-                    </p>
-                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">
-                      {transferPrice || investmentAmount} ₺
-                    </p>
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Yatırım Bütçesi</p>
+                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">{totalInvestment} ₺</p>
                   </div>
                 </div>
               ) : null}
 
-              {monthlyRevenue ? (
-                <div className="flex items-start gap-2.5">
-                  <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Aylık Gelir / Ciro</p>
-                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">{monthlyRevenue} ₺ / Ay</p>
-                  </div>
+              <div className="flex items-start gap-2.5">
+                <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Geri Dönüş Süresi (ROI)</p>
+                  <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">{returnPeriod || '18 - 24 Ay'}</p>
                 </div>
-              ) : null}
+              </div>
 
-              {commitment ? (
-                <div className="flex items-start gap-2.5">
-                  <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Zaman Taahhüdü</p>
-                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">{commitment}</p>
-                  </div>
+              <div className="flex items-start gap-2.5">
+                <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">İsim Hakkı (Fee)</p>
+                  <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">
+                    {franchiseFee ? `${franchiseFee} ₺` : 'Yok / Paket Dahil'}
+                  </p>
                 </div>
-              ) : null}
+              </div>
 
-              {allPartnershipTypes.length > 0 ? (
+              <div className="flex items-start gap-2.5">
+                <Percent className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Royalty (Ciro Payı)</p>
+                  <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">
+                    {royaltyFee || '%3 / Ay'}
+                  </p>
+                </div>
+              </div>
+
+              {profitMargin ? (
                 <div className="flex items-start gap-2.5">
-                  <Users className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Ortaklık Türü</p>
-                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">
-                      {allPartnershipTypes.join(', ')}
-                    </p>
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Ortalama Kâr Marjı</p>
+                    <p className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-foreground">%{profitMargin}</p>
                   </div>
                 </div>
               ) : null}
             </div>
           </div>
 
-          {/* 5. KART: İletişim Aksiyon Butonu */}
+          {/* 5. KART: Aksiyon Butonu */}
           <Button
             type="button"
             onClick={handleContactClick}
             className={cn('w-full rounded-2xl py-3 h-11 text-xs sm:text-sm font-bold flex items-center justify-center gap-2', theme.ctaBtn)}
           >
             <Phone className="h-4 w-4" />
-            <span>{isTransfer ? 'DEVİR GÖRÜŞMESİ BAŞLAT' : 'ORTAKLIK İLETİŞİM BİLGİLERİ'}</span>
+            <span>FRANCHISE ÖN BAŞVURUSU</span>
           </Button>
 
         </aside>
@@ -272,11 +241,11 @@ export function PartnershipProfilePreview({
         <main className={cn('rounded-2xl border bg-white dark:bg-card p-5 sm:p-6 lg:p-6 pb-4 gap-5 sm:gap-6 flex flex-col justify-between', theme.cardBorder, theme.cardGlow)}>
           <div className="space-y-4 sm:space-y-5">
             
-            {/* Üst Kısım: Girişim / Ortaklık Özeti */}
+            {/* Üst Kısım: Franchise Fırsat Özeti */}
             <div className="space-y-1.5">
               <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
-                <Building2 className="h-4 w-4" />
-                <span>{isTransfer ? 'İŞLETME DEVİR ÖZETİ' : 'ORTAKLIK & GİRİŞİM ÖZETİ'}</span>
+                <Store className="h-4 w-4" />
+                <span>FRANCHISE FIRSAT ÖZETİ</span>
               </div>
               <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 dark:border-border dark:bg-card/50 p-4 sm:p-4.5">
                 <p className="text-xs sm:text-[13px] leading-relaxed text-slate-700 dark:text-slate-200">
@@ -285,15 +254,15 @@ export function PartnershipProfilePreview({
               </div>
             </div>
 
-            {/* İç İki Kolon: Kilometre Taşları & Aranan Uzmanlıklar */}
+            {/* İç İki Kolon: Destekler & Hedef Şehirler */}
             <div className="grid grid-cols-1 lg:grid-cols-12 items-start gap-5 lg:gap-7">
               
-              {/* İç Sol Kolon (%65 Genişlik): Kilometre Taşları & Varlıklar */}
+              {/* İç Sol Kolon (%65 Genişlik): Franchise Destekleri & Operasyon */}
               <div className="lg:col-span-7 xl:col-span-8 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
-                    <Layers className="h-4 w-4" />
-                    <span>{isTransfer ? 'İŞLETME VARLIKLARI & KAPSAM' : 'GİRİŞİM KİLOMETRE TAŞLARI & VARLIKLAR'}</span>
+                    <Package className="h-4 w-4" />
+                    <span>FRANCHISE DESTEKLERİ & ŞARTLAR</span>
                   </div>
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
                     3 Bölüm
@@ -302,7 +271,7 @@ export function PartnershipProfilePreview({
 
                 <div className="space-y-2.5">
                   
-                  {/* Madde 1: Proje Durumu / Faaliyet Kapsamı */}
+                  {/* Madde 1: Eğitim & Oryantasyon */}
                   <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
                     <div className="flex flex-col items-center">
                       <div className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs', theme.numNode)}>
@@ -311,33 +280,33 @@ export function PartnershipProfilePreview({
                     </div>
                     <div className="w-20 sm:w-24 shrink-0 pt-0.5">
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        {isTransfer ? 'İşletme' : 'Proje'}
+                        Eğitim
                       </p>
                       <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {isTransfer ? 'Faaliyet' : 'Aşama'}
+                        Destek
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                        {isTransfer ? 'Faal İşletme & Sektörel Konum' : 'Proje Durumu & Çözülen Problem'}
+                        Eğitim & Personel Oryantasyonu
                       </h4>
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                        {displaySector} · {displayLocation}
+                        Kapsamlı İşletmecilik ve Barista/Personel Eğitimi
                       </p>
                       <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>{problem || (isTransfer ? 'Yüksek yaya trafiğine ve oturmuş müşteri tabanına sahip lokasyon.' : 'Sektörel verimsizlikleri ortadan kaldıran yenilikçi çözüm modeli.')}</span>
+                          <span>{trainingSupport ? 'Şube açılışı öncesinde işletmeci ve tüm personel için standart eğitim.' : 'Merkezi eğitim kılavuzları ve operasyon el kitabı.'}</span>
                         </li>
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>{solution || (isTransfer ? 'Eksiksiz ruhsat, kurumsal altyapı ve hazır personel kadrosu.' : 'Doğrulanmış ürün mimarisi ve ölçeklenebilir teknoloji altyapısı.')}</span>
+                          <span>{operationalSupport ? 'Açılış haftasında merkezden uzman süpervizör desteği.' : 'Düzenli operasyonel denetim ve kalite güvence takibi.'}</span>
                         </li>
                       </ul>
                     </div>
                   </div>
 
-                  {/* Madde 2: Finansal Performans & Gelir Modeli */}
+                  {/* Madde 2: Yer Seçimi & Mimari Proje */}
                   <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
                     <div className="flex flex-col items-center">
                       <div className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs', theme.numNode)}>
@@ -346,33 +315,33 @@ export function PartnershipProfilePreview({
                     </div>
                     <div className="w-20 sm:w-24 shrink-0 pt-0.5">
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        Finans
+                        Mimari
                       </p>
                       <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {monthlyRevenue ? 'Cirolu' : 'Büyüme'}
+                        Lokasyon
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                        Gelir Modeli & Finansal Performans
+                        Yer Seçimi Analizi & Mimari Konsept
                       </h4>
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                        {monthlyRevenue ? `Aylık Gelir: ${monthlyRevenue} ₺` : 'Kârlı ve Sürdürülebilir Yapı'}
+                        Doğru Lokasyon ve Anahtar Teslim Dekorasyon
                       </p>
                       <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>{equityOffered ? `Sunulan Ortaklık Hissesi: %${equityOffered}` : (transferPrice ? `Talep Edilen Devir Bedeli: ${transferPrice} ₺` : 'Esnek ve şeffaf sermaye / hisse paylaşımı.')}</span>
+                          <span>{locationSupport ? 'Yaya trafiği, ciro potansiyeli ve bölge fizibilite analizi desteği.' : 'Standartlaştırılmış mağaza mimari yerleşim konsepti.'}</span>
                         </li>
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>{investmentAmount ? `Hedeflenen Sermaye / Yatırım: ${investmentAmount} ₺` : 'Düzenli nakit akışı ve büyüme potansiyeline sahip iş modeli.'}</span>
+                          <span>{minSquareMeters ? `Minimum ${minSquareMeters} m² kullanım alanı için optimize edilmiş anahtar teslim proje.` : 'Standart ekipman ve kurumsal tabela montaj desteği.'}</span>
                         </li>
                       </ul>
                     </div>
                   </div>
 
-                  {/* Madde 3: Ortaklık Yapısı & Varlıklar */}
+                  {/* Madde 3: Pazarlama & Tedarik Gücü */}
                   <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
                     <div className="flex flex-col items-center">
                       <div className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs', theme.numNode)}>
@@ -381,27 +350,27 @@ export function PartnershipProfilePreview({
                     </div>
                     <div className="w-20 sm:w-24 shrink-0 pt-0.5">
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        Kapsam
+                        Lojistik
                       </p>
                       <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {isTransfer ? 'Demirbaş' : 'Ortaklık'}
+                        Pazarlama
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                        {isTransfer ? 'Devir Kapsamı & Demirbaşlar' : 'Ortaklık Yapısı & Beklentiler'}
+                        Pazarlama, Tedarik & Bölge Koruması
                       </h4>
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                        {transferScope || (commitment ? `Taahhüt: ${commitment}` : 'Tam Yetki & Şeffaf Süreç')}
+                        Ulusal Reklam Gücü ve Güvenli Tedarik Ağı
                       </p>
                       <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>{isTransfer ? 'Tüm ekipman, tedarikçi bağlantıları ve müşteri portföyü devredilecektir.' : 'Fikri mülkiyet, marka hakları ve teknoloji altyapısı mevcuttur.'}</span>
+                          <span>{marketingSupport ? 'Ulusal medya, dijital reklam ve sosyal medya pazarlama kampanyaları.' : 'Yerel tanıtım materyalleri ve marka desteği.'}</span>
                         </li>
                         <li className="flex items-start gap-1.5">
                           <span className="text-slate-400 font-bold">•</span>
-                          <span>Hukuki olarak hazırlanmış ortaklık / devir sözleşmesi ile güvence altına alınır.</span>
+                          <span>{exclusiveTerritory ? 'Şubenize özel tanımlanmış korumalı bölge alanı garantisi.' : 'Kesintisiz merkezi hammadde ve lojistik sevkiyatı.'}</span>
                         </li>
                       </ul>
                     </div>
@@ -410,24 +379,38 @@ export function PartnershipProfilePreview({
                 </div>
               </div>
 
-              {/* İç Sağ Kolon (%35 Genişlik): Aranan Uzmanlıklar & Programlar */}
+              {/* İç Sağ Kolon (%35 Genişlik): Hedef Şehirler & Kriterler */}
               <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-5 space-y-2.5 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
                 <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
-                  <Sliders className="h-4 w-4" />
-                  <span>ARANAN UZMANLIKLAR & PROGRAMLAR</span>
+                  <MapPin className="h-4 w-4" />
+                  <span>HEDEF ŞEHİRLER & KRİTERLER</span>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  {displaySkillsList.map((skill, idx) => (
+                  {displayCities.map((cityName, idx) => (
                     <div
                       key={idx}
                       className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 dark:bg-muted/40 dark:border-border text-xs text-slate-800 dark:text-slate-200 font-medium"
                     >
                       <div className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', theme.iconBg)}>
-                        <CheckCircle2 className="h-3 w-3" />
+                        <MapPin className="h-3 w-3" />
                       </div>
-                      <span className="truncate">{skill}</span>
+                      <span className="truncate">{cityName}</span>
                     </div>
                   ))}
+                  {minSquareMeters ? (
+                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 dark:bg-muted/40 dark:border-border text-xs text-slate-800 dark:text-slate-200 font-medium mt-1">
+                      <div className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', theme.iconBg)}>
+                        <CheckCircle2 className="h-3 w-3" />
+                      </div>
+                      <span className="truncate">Min. {minSquareMeters} m² Alan</span>
+                    </div>
+                  ) : null}
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 dark:bg-muted/40 dark:border-border text-xs text-slate-800 dark:text-slate-200 font-medium">
+                    <div className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', theme.iconBg)}>
+                      <ShieldCheck className="h-3 w-3" />
+                    </div>
+                    <span className="truncate">Bölge Koruması Garantisi</span>
+                  </div>
                 </div>
               </div>
 
