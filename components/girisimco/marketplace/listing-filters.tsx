@@ -105,8 +105,8 @@ export function ListingFilters({
           {/* 1. Aranan Pozisyon / Açık Pozisyon (A-Z) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
-              value={filters.query ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+              value={filters.position ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ position: val === ALL_VALUE ? undefined : val })}
             >
               <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Pozisyon seçin" />
@@ -125,8 +125,8 @@ export function ListingFilters({
           {/* 2. Uzmanlık Sektörü / Sektör (A-Z) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
-              value={filters.query ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ sector: val === ALL_VALUE ? undefined : val })}
             >
               <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Sektör seçin" />
@@ -145,8 +145,8 @@ export function ListingFilters({
           {/* 3. Kariyer Seviyesi / Çalışma Şekli (A-Z) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
-              value={filters.query ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ query: val === ALL_VALUE ? undefined : val })}
+              value={filters.careerLevel ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ careerLevel: val === ALL_VALUE ? undefined : val })}
             >
               <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder={isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'} />

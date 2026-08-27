@@ -112,70 +112,70 @@ function TextListingCardLayout({
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-semibold"
+              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-0.5 text-xs font-semibold"
               style={{ backgroundColor: `${accent}12`, color: accent }}
             >
-              <Icon className="h-3 w-3" />
+              <Icon className="h-3.5 w-3.5" />
               <span>{typeLabel}</span>
             </span>
             {isContactEligible ? (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-                <ShieldCheck className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                 <span>İletişim Talebi 🔒</span>
               </span>
             ) : null}
           </div>
 
           {compactPrice ? (
-            <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2 py-0.5 font-display text-[11px] font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+            <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2.5 py-0.5 font-display text-xs font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
               {compactPrice}
             </span>
           ) : (
-            <ArrowUpRight className="h-3.5 w-3.5 text-zinc-400 transition-transform group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           )}
         </div>
 
         {/* Title */}
-        <h3 className="mt-3 line-clamp-2 font-display text-[14px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-[15px]">
+        <h3 className="mt-3 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
           {item.title}
         </h3>
 
         {/* Open Company Name (for employer hiring listings) */}
         {item.companyName ? (
-          <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-            <Building2 className="h-3 w-3 shrink-0" />
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <Building2 className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{item.companyName}</span>
           </div>
         ) : null}
 
         {/* Description */}
         {description ? (
-          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}
       </div>
 
       {/* Footer Meta Strip */}
-      <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3 text-[11px] text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
+      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-3">
           {item.location && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              <span className="truncate max-w-[110px]">{item.location}</span>
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="truncate max-w-[120px]">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3.5 w-3.5" />
               <span>{item.timeAgo}</span>
             </span>
           )}
         </div>
 
-        <span className="inline-flex items-center gap-0.5 font-semibold text-zinc-600 dark:text-zinc-300 transition-colors group-hover:text-primary">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-foreground transition-colors group-hover:text-primary">
           İncele
-          <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>
     </article>

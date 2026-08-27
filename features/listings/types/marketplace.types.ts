@@ -12,6 +12,9 @@ export interface MarketplaceBrowseParams extends ListingFilter, PaginationParams
   sortBy?: ListingSortBy;
   categorySlug?: string;
   jobFlow?: JobFlowFilter;
+  position?: string;
+  sector?: string;
+  careerLevel?: string;
   partnershipIntent?: PartnershipIntent;
 }
 
@@ -22,6 +25,9 @@ export interface MarketplaceFilterState {
   sortBy: ListingSortBy;
   /** When set on İş İlanları browse, filters to hire or seek listing types. */
   jobFlow?: JobFlowFilter;
+  position?: string;
+  sector?: string;
+  careerLevel?: string;
   /** Ortak-bul browse — seeking vs joining. Missing listings count as seeking. */
   partnershipIntent?: PartnershipIntent;
   isFeatured?: boolean;

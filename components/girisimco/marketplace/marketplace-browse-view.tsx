@@ -158,7 +158,7 @@ export function MarketplaceBrowseView({
         />
 
         {!isLoading && !error && (
-          <p className="mb-4 text-[12px] tabular-nums text-[#64748B]">
+          <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
             {total.toLocaleString('tr-TR')} {resultNoun}
           </p>
         )}
