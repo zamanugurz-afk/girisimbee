@@ -50,7 +50,6 @@ const theme = {
   headerText: 'text-amber-700 dark:text-amber-400',
   iconBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
   numNode: 'bg-amber-500/10 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 font-bold',
-  badgeBg: 'bg-amber-500/10 text-amber-700 border-amber-300/40 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/40',
   ctaBtn: 'bg-amber-600 hover:bg-amber-700 text-white shadow-sm font-bold',
 };
 

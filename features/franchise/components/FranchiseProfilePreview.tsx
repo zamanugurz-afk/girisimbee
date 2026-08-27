@@ -51,7 +51,6 @@ const theme = {
   headerText: 'text-rose-700 dark:text-rose-400',
   iconBg: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
   numNode: 'bg-rose-500/10 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 font-bold',
-  badgeBg: 'bg-rose-500/10 text-rose-700 border-rose-300/40 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-700/40',
   ctaBtn: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm font-bold',
 };
 
