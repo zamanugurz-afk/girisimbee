@@ -58,8 +58,7 @@ export default async function IsListingsPage({
       categorySlug={CATEGORY_SLUG}
       showJobFlowFilters={false}
       initialJobFlow={jobFlow}
-      title={isSeek ? 'İş Arıyorum — Aday İlanları' : 'İşe Alıyorum — Açık İş Pozisyonları'}
-      eyebrow={isSeek ? 'İş Arıyorum' : 'İşe Alıyorum'}
+      title={isSeek ? 'İş Arıyorum — Aday İlanları' : 'İşe Alıyorum — İş İlanları'}
       description={
         isSeek
           ? 'Yetenek ve aday profillerini inceleyin, uygun pozisyonlar için doğrudan bağlantı kurun.'

@@ -145,7 +145,7 @@ export function MarketplaceBrowseView({
               </Link>
             </div>
           )}
-          {(eyebrow ?? categoryMeta) && (
+          {eyebrow && (
             <span
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
               style={{
@@ -154,7 +154,7 @@ export function MarketplaceBrowseView({
                 border: `1px solid ${resolvedAuraColor}25`,
               }}
             >
-              {eyebrow ?? categoryMeta?.label}
+              {eyebrow}
             </span>
           )}
           <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
