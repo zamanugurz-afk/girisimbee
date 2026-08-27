@@ -9,6 +9,7 @@ import { ListingDetailMeta } from '@/components/girisimco/listing/listing-detail
 import { ListingDetailMobileBar } from '@/components/girisimco/listing/listing-detail-mobile-bar';
 import { ListingMainContent } from '@/components/girisimco/listing/listing-main-content';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
+import { ListingOwnerActionsBar } from '@/components/girisimco/listing/listing-owner-actions-bar';
 import { ListingSidebar } from '@/components/girisimco/listing/listing-sidebar';
 import { ListingSimilar } from '@/components/girisimco/listing/listing-similar';
 import { ListingCareerRecommendations } from '@/features/matching-engine/components/listing-career-recommendations';
@@ -93,12 +94,17 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           <ListingDetailActions listing={listing} className="mt-6 hidden lg:flex" />
         )}
 
-        {/* Non-unified listings: show owner package panel at top */}
+        {/* Non-unified listings: show owner actions panel at top */}
         {!isUnifiedCardListing && !isLoading && isOwner && listing.listingId ? (
-          <div id="owner-package-panel" className="mt-6">
-            <PremiumGate>
-              <ListingOwnerPackagePanel listingId={listing.listingId} />
-            </PremiumGate>
+          <div id="owner-actions-panel" className="mt-6 mb-4">
+            <ListingOwnerActionsBar
+              listingId={listing.listingId}
+              slug={listing.slug}
+              title={listing.title}
+              views={listing.stats?.views}
+              favorites={listing.stats?.favorites}
+              applications={listing.stats?.inquiries}
+            />
           </div>
         ) : null}
 
