@@ -350,6 +350,99 @@ export function resolveDefaultListingCover(opts: {
   return DEFAULT_LISTING_COVER;
 }
 
+/** Prefer uploaded cover; otherwise category/type/profession/keyword smart cover. */
+export function resolveSmartListingCover(opts: {
+  uploadedUrl?: string | null;
+  listingTypeSlug?: string | null;
+  group?: ListingCardGroup | null;
+  title?: string | null;
+  sector?: string | null;
+  industry?: string | null;
+  businessType?: string | null;
+  businessName?: string | null;
+  companyName?: string | null;
+  franchiseModel?: string | null;
+  role?: string | null;
+  gender?: string | null;
+  description?: string | null;
+}): string {
+  const uploaded = opts.uploadedUrl?.trim();
+  if (uploaded) return uploaded;
+
+  // Career seeker & hiring listings use precise gender/role/sector mapping
+  if (
+    opts.listingTypeSlug === 'is-ariyorum' ||
+    opts.listingTypeSlug === 'is-bul' ||
+    opts.listingTypeSlug === 'ise-aliyorum' ||
+    opts.listingTypeSlug === 'ise-al' ||
+    opts.gender
+  ) {
+    return resolveDefaultListingCover(opts);
+  }
+
+  const hay = [
+    opts.title,
+    opts.sector,
+    opts.industry,
+    opts.businessType,
+    opts.businessName,
+    opts.companyName,
+    opts.franchiseModel,
+    opts.role,
+    opts.description,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase('tr-TR');
+
+  // Food / Cafe / Restaurant / Tourism / Hospitality
+  if (/kafe|cafe|kahve|restoran|restaurant|lokanta|fırın|firin|pastane|bar|pub|bistro|kokteyl|döner|doner|pizza|burger|tatlı|tatli|otel|hotel|pansiyon|turizm|catering|meyhane|nargile|ocakbaşı/.test(hay)) {
+    return '/covers/career-turizm.jpg';
+  }
+
+  // Software / Tech / SaaS / AI / Digital / E-Commerce IT
+  if (/yazılım|yazilim|saas|yapay zeka|\bai\b|mobil uygulama|fintech|siber|cyber|bulut|cloud|web|kodlama|yazılımcı|developer|b2b saas|platform|yazılım şirketi/.test(hay)) {
+    return '/covers/career-yazilim.jpg';
+  }
+
+  // Retail / Store / Shop / E-Commerce / Boutique / Sales / Fashion
+  if (/mağaza|magaza|butik|e-ticaret|eticaret|pazaryeri|marketplace|perakende|tekstil|giyim|ayakkabı|kozmetik|kırtasiye|optik|parfümeri|züccaciye|mobilya|aksesuar|avm/.test(hay)) {
+    return '/covers/career-satis.jpg';
+  }
+
+  // Production / Manufacturing / Industry / Logistics / Auto / Construction / Agriculture
+  if (/üretim|uretim|imalat|sanayi|fabrika|atölye|atolye|depo|lojistik|nakliye|kargo|taşımacılık|tasimacilik|oto|oto yıkama|servis|tamir|inşaat|insaat|şantiye|tarım|tarim|çiftlik|ciftlik|hayvancılık|enerji|güneş enerji/.test(hay)) {
+    return '/covers/career-uretim.jpg';
+  }
+
+  // Health / Medical / Beauty / Clinic / Pharmacy / Fitness / Sports
+  if (/klinik|eczane|medikal|sağlık|saglik|güzellik|guzellik|kuaför|kuafor|berber|spa|masaj|estetik|diş|dis|veteriner|spor|fitness|pilates|gym|diyetisyen/.test(hay)) {
+    return '/covers/career-saglik.jpg';
+  }
+
+  // Education / Academy / School / Kindergarten / Coaching
+  if (/kurs|akademi|okul|kreş|kres|anaokulu|eğitim|egitim|etüt|etut|öğrenci|ogrenci|dershane|dil kursu|sürücü kursu|surucu kursu|koçluk/.test(hay)) {
+    return '/covers/career-egitim.jpg';
+  }
+
+  // Finance / Accounting / Consulting / Insurance / Real Estate
+  if (/muhasebe|mali müşavir|mali musavir|danışmanlık|danismanlik|sigorta|finans|yatırım|yatirim|gayrimenkul|emlak|ofis|ajans|hukuk|avukat/.test(hay)) {
+    return '/covers/career-finans.jpg';
+  }
+
+  // Franchise & Bayilik specific fallback
+  if (opts.group === 'franchise' || opts.listingTypeSlug?.includes('franchise') || opts.listingTypeSlug?.includes('bayilik')) {
+    return '/covers/franchise.jpg';
+  }
+
+  // Partnership specific fallback
+  if (opts.group === 'ortaklik' || opts.listingTypeSlug?.includes('ortak')) {
+    return '/covers/ortak-ariyorum.jpg';
+  }
+
+  return resolveDefaultListingCover(opts);
+}
+
 /** Prefer uploaded cover; otherwise category/type/profession standard cover. */
 export function resolveListingCoverUrl(opts: {
   uploadedUrl?: string | null;

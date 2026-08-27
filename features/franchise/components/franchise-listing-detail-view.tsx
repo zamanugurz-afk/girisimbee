@@ -75,8 +75,6 @@ export function FranchiseListingDetailView({
             ownerUserId={listing.ownerId ? String(listing.ownerId) : undefined}
           />
         </div>
-
-        <ListingFranchiseRecommendations listingId={String(listing.id)} />
       </div>
     </main>
   );

@@ -19,7 +19,18 @@ import {
   Sparkles,
   Package,
   Layers,
+  MessageSquare,
+  Mail,
+  ExternalLink,
+  UserCheck,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
@@ -41,7 +52,7 @@ const theme = {
   iconBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-300',
   numNode: 'bg-sky-500/10 text-sky-700 dark:bg-sky-950/50 dark:text-sky-400 font-bold',
   badgeBg: 'bg-sky-500/10 text-sky-700 border-sky-300/40 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-700/40',
-  ctaBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
+  ctaBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm font-bold',
 };
 
 export function FranchiseProfilePreview({
@@ -52,6 +63,7 @@ export function FranchiseProfilePreview({
 }: FranchiseProfilePreviewProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const [contactDialogOpen, setContactDialogOpen] = React.useState(false);
   const isOwner = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
 
   const {
@@ -80,6 +92,10 @@ export function FranchiseProfilePreview({
     district,
     coverUrl,
     longDescription,
+    contactPhone,
+    contactWhatsapp,
+    contactEmail,
+    contactName,
   } = franchise;
 
   const displayTitle = companyName || 'Franchise & Bayilik';
@@ -93,12 +109,18 @@ export function FranchiseProfilePreview({
   const summaryText = longDescription || `${displayTitle}, ${displaySector} sektöründe güçlü marka bilinirliği ve kanıtlanmış karlı iş modeli ile yatırımcılarına yüksek getiri ve sürdürülebilir büyüme fırsatı sunmaktadır. Şube açılışından operasyonel süreçlere kadar tüm aşamalarda anahtar teslim destek sağlanmaktadır.`;
 
   const handleContactClick = () => {
-    if (listingId) {
-      router.push(`/mesajlarim?listing=${listingId}`);
-    } else {
-      router.push('/mesajlarim');
-    }
+    setContactDialogOpen(true);
   };
+
+  const cleanPhoneForWhatsapp = (phoneStr?: string | null) => {
+    if (!phoneStr) return '';
+    let cleaned = phoneStr.replace(/\D/g, '');
+    if (cleaned.startsWith('0')) cleaned = '90' + cleaned.slice(1);
+    if (!cleaned.startsWith('90')) cleaned = '90' + cleaned;
+    return cleaned;
+  };
+
+  const whatsappNumber = cleanPhoneForWhatsapp(contactWhatsapp || contactPhone);
 
   return (
     <div className={cn('w-full', className)}>
@@ -232,10 +254,94 @@ export function FranchiseProfilePreview({
             className={cn('w-full rounded-2xl py-3 h-11 text-xs sm:text-sm font-bold flex items-center justify-center gap-2', theme.ctaBtn)}
           >
             <Phone className="h-4 w-4" />
-            <span>FRANCHISE ÖN BAŞVURUSU</span>
+            <span>İLAN SAHİBİYLE İLETİŞİME GEÇ</span>
           </Button>
 
         </aside>
+
+        {/* Doğrudan İletişim Modalı */}
+        <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
+          <DialogContent className="max-w-md rounded-2xl p-6">
+            <DialogHeader className="space-y-1.5 text-left">
+              <DialogTitle className="text-base sm:text-lg font-bold text-slate-900 dark:text-foreground flex items-center gap-2">
+                <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <span>Franchise Yetkilisiyle İletişime Geç</span>
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-500 dark:text-muted-foreground">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{displayTitle}</span> franchise fırsatı için doğrudan iletişim kanalları:
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 pt-2">
+              {contactName && (
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 dark:bg-muted dark:border-border text-xs text-slate-700 dark:text-slate-300 font-medium">
+                  <UserCheck className="h-4 w-4 text-blue-600" />
+                  <span>Franchise Yetkilisi: <strong className="text-slate-900 dark:text-foreground">{contactName}</strong></span>
+                </div>
+              )}
+
+              {contactPhone && (
+                <a
+                  href={`tel:${contactPhone}`}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-bold text-xs sm:text-sm transition-all group dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="h-4 w-4 text-blue-600" />
+                    <span>Telefonla Ara: {contactPhone}</span>
+                  </div>
+                  <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
+                </a>
+              )}
+
+              {whatsappNumber && (
+                <a
+                  href={`https://wa.me/${whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-bold text-xs sm:text-sm transition-all group dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <MessageSquare className="h-4 w-4 text-emerald-600" />
+                    <span>WhatsApp Başvuru Hattı ({contactWhatsapp || contactPhone})</span>
+                  </div>
+                  <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
+                </a>
+              )}
+
+              <Button
+                type="button"
+                onClick={() => {
+                  setContactDialogOpen(false);
+                  if (listingId) router.push(`/mesajlarim?listing=${listingId}`);
+                  else router.push('/mesajlarim');
+                }}
+                variant="outline"
+                className="w-full h-11 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold"
+              >
+                <MessageSquare className="h-4 w-4 text-slate-600" />
+                <span>Platform Üzerinden Mesaj Gönder</span>
+              </Button>
+
+              {contactEmail && (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs transition-all dark:bg-muted dark:border-border dark:text-slate-300"
+                >
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-slate-500" />
+                    <span>Başvuru E-postası: {contactEmail}</span>
+                  </div>
+                  <ExternalLink className="h-3 w-3 opacity-60" />
+                </a>
+              )}
+
+              <div className="flex items-center gap-1.5 pt-1 text-[11px] text-slate-400">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <span>Girişimbee doğrudan iletişim güvencesiyle iletişim bilgileri anında açıktır.</span>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* SAĞ GENİŞ KOLON - ANA İÇERİK KARTI */}
         <main className={cn('rounded-2xl border bg-white dark:bg-card p-5 sm:p-6 lg:p-6 pb-4 gap-5 sm:gap-6 flex flex-col justify-between', theme.cardBorder, theme.cardGlow)}>

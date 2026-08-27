@@ -1000,6 +1000,12 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...FRANCHISE_CITY_OPTIONS],
     },
 
+    // Direct Contact Info (Franchise & Bayilik)
+    { key: 'contactPhone', label: 'Yetkili İletişim Telefonu', type: 'string', required: false, max: 30 },
+    { key: 'contactWhatsapp', label: 'WhatsApp Başvuru Hattı', type: 'string', required: false, max: 30 },
+    { key: 'contactName', label: 'Yetkili Kişi / Franchise Departmanı', type: 'string', required: false, max: 100 },
+    { key: 'contactEmail', label: 'Franchise Başvuru E-postası', type: 'string', required: false, max: 120 },
+
     // Legacy / optional fallbacks
     { key: 'entryFee', label: 'Giriş Bedeli (₺)', type: 'currency', min: 0 },
     { key: 'districts', label: 'İlçeler', type: 'string', max: 500 },
@@ -1164,6 +1170,11 @@ export const BUSINESS_TRANSFER_SELL_FIELD_SCHEMA: ListingFieldSchema = {
       required: true,
       options: [...BUSINESS_TRANSFER_SCOPE_OPTIONS],
     },
+    // Direct Contact Info (İşletme Devri)
+    { key: 'contactPhone', label: 'İletişim Telefonu', type: 'string', required: false, max: 30 },
+    { key: 'contactWhatsapp', label: 'WhatsApp Numarası', type: 'string', required: false, max: 30 },
+    { key: 'contactName', label: 'İletişim Kişisi / Yetkili', type: 'string', required: false, max: 100 },
+    { key: 'contactEmail', label: 'İletişim E-postası', type: 'string', required: false, max: 120 },
   ],
 };
 
@@ -1342,6 +1353,11 @@ export const PARTNER_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'string',
       max: 80,
     },
+    // Direct Contact Info (Ortaklık)
+    { key: 'contactPhone', label: 'İletişim Telefonu', type: 'string', required: false, max: 30 },
+    { key: 'contactWhatsapp', label: 'WhatsApp Numarası', type: 'string', required: false, max: 30 },
+    { key: 'contactName', label: 'İletişim Kişisi / Ad Soyad', type: 'string', required: false, max: 100 },
+    { key: 'contactEmail', label: 'İletişim E-postası', type: 'string', required: false, max: 120 },
   ],
 };
 

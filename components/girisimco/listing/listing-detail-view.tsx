@@ -113,18 +113,6 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
           </div>
         )}
 
-        {isPartnershipListing && listing.listingId ? (
-          <ListingPartnershipRecommendations listingId={listing.listingId} />
-        ) : null}
-
-        {isDigitalSolutionListing && listing.listingId ? (
-          <ListingDigitalRecommendations listingId={listing.listingId} />
-        ) : null}
-
-        {isFranchiseListing && listing.listingId ? (
-          <ListingFranchiseRecommendations listingId={listing.listingId} />
-        ) : null}
-
         {isUnifiedCardListing ? null : <ListingSimilar listing={listing} />}
       </div>
 

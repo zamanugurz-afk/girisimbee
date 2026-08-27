@@ -35,6 +35,7 @@ import {
   resolveCareerCoverRole,
   resolveCoverSectorHint,
   resolveListingCoverUrl,
+  resolveSmartListingCover,
 } from '@/features/listings/config/listing-cover.config';
 import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import {
@@ -436,30 +437,39 @@ export function aggregateToListingDetail(
       : categorySlug === 'ise-al'
         ? 'ise-aliyorum'
         : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
-  const careerCoverUrl = resolveListingCoverUrl({
+  const smartCoverUrl = resolveSmartListingCover({
+    uploadedUrl: uploadedGallery[0]?.imageUrl ?? null,
     listingTypeSlug,
     group: cardDisplay.group,
+    title: listing.title,
     sector: resolveCoverSectorHint({
       customFields: sourceCf,
       industry: listing.industry,
     }),
+    industry: listing.industry,
+    businessType: (cf.businessType ?? cf.businessTypeOther ?? null) as string | null,
+    businessName: (cf.businessName ?? cf.companyName ?? null) as string | null,
+    companyName: (cf.companyName ?? null) as string | null,
+    franchiseModel: (cf.franchiseModel ?? cf.businessCategory ?? null) as string | null,
     role: resolveCareerCoverRole(
       toDisplayValue(sourceCf.desiredRole)
         || toDisplayValue(sourceCf.positionTitle),
       toDisplayValue(sourceCf.desiredRoleOther)
         || toDisplayValue(sourceCf.positionTitleOther),
     ),
-    gender: categorySlug === 'is-bul' ? toDisplayValue(sourceCf.profileGender) : null,
+    gender: (categorySlug === 'is-bul' || categorySlug === 'is-ariyorum' || listing.moduleKey === 'candidates') ? toDisplayValue(sourceCf.profileGender) : null,
+    description: listing.longDescription || listing.shortDescription,
   });
+  const careerCoverUrl = smartCoverUrl;
   const galleryItems =
-    categorySlug !== 'is-bul' && uploadedGallery.length > 0
+    categorySlug !== 'is-bul' && categorySlug !== 'is-ariyorum' && listing.moduleKey !== 'candidates' && uploadedGallery.length > 0
       ? uploadedGallery
       : [
           {
             id: 'cover-fallback',
             label: listing.title,
             emoji: cardDisplay.typeEmoji,
-            imageUrl: careerCoverUrl,
+            imageUrl: smartCoverUrl,
           },
         ];
 
@@ -732,6 +742,10 @@ function buildPartnershipCard(
     solution: (cf.solution ?? null) as string | null,
     businessModel: (cf.businessModel ?? null) as string | string[] | null,
     targetCustomer: (cf.targetCustomer ?? null) as string | string[] | null,
+    contactPhone: (cf.contactPhone ?? cf.phone ?? null) as string | null,
+    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? null) as string | null,
+    contactEmail: (cf.contactEmail ?? cf.email ?? null) as string | null,
+    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? null) as string | null,
   };
 }
 
@@ -779,6 +793,10 @@ function buildFranchiseCard(
     district: (cf.district ?? cf.districts ?? null) as string | null,
     coverUrl: coverUrl ?? (cf.coverUrl as string | null) ?? null,
     longDescription: listing.longDescription || listing.shortDescription || null,
+    contactPhone: (cf.contactPhone ?? cf.phone ?? null) as string | null,
+    contactWhatsapp: (cf.contactWhatsapp ?? cf.whatsapp ?? cf.contactPhone ?? null) as string | null,
+    contactEmail: (cf.contactEmail ?? cf.email ?? null) as string | null,
+    contactName: (cf.contactName ?? cf.fullName ?? cf.authorizedPerson ?? null) as string | null,
   };
 }
 

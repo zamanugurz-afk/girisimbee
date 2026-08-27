@@ -485,6 +485,10 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
         'minSquareMeters',
         'storeLocationType',
         'availableCities',
+        'contactPhone',
+        'contactWhatsapp',
+        'contactName',
+        'contactEmail',
       ],
       meta: ['images'],
     },
@@ -635,8 +639,9 @@ export function getListingFormSteps(
         {
           id: 'details',
           title: 'Kendinizi Tanıtın',
-          description: 'Kısa profil, lokasyon, deneyimler ve detaylı açıklama',
+          description: 'Kısa profil, lokasyon, deneyimler, iletişim ve detaylı açıklama',
           coreFields: ['longDescription', 'city'],
+          customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
           meta: ['images'],
         },
       );
@@ -660,8 +665,9 @@ export function getListingFormSteps(
       {
         id: 'details',
         title: 'Koşullar ve Detay',
-        description: 'Detaylı açıklama, vizyon, ekip, konum ve ortaklık modeli',
+        description: 'Detaylı açıklama, vizyon, ekip, konum, iletişim ve ortaklık modeli',
         coreFields: ['longDescription', 'city'],
+        customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
         meta: ['images'],
       },
     );
@@ -707,6 +713,7 @@ export function getListingFormSteps(
           title: 'Hedef Lokasyon ve Profil',
           description: 'Hedef il, ilçe ve kendinizi tanıtan detaylı açıklama',
           coreFields: ['longDescription', 'city'],
+          customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
         },
       );
     }
@@ -743,8 +750,9 @@ export function getListingFormSteps(
       {
         id: 'details',
         title: 'Lokasyon ve Tanıtım',
-        description: 'İl, ilçe ve işletmenizi tanıtan detaylı açıklama',
+        description: 'İl, ilçe, iletişim bilgileri ve işletmenizi tanıtan detaylı açıklama',
         coreFields: ['longDescription', 'city'],
+        customFieldKeys: ['contactPhone', 'contactWhatsapp', 'contactName', 'contactEmail'],
         meta: ['images'],
       },
     );

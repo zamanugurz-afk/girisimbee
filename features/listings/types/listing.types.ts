@@ -233,6 +233,10 @@ export interface PartnershipCardData {
   solution?: string | null;
   businessModel?: string | string[] | null;
   targetCustomer?: string | string[] | null;
+  contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  contactEmail?: string | null;
+  contactName?: string | null;
 }
 
 export interface FranchiseCardData {
@@ -265,6 +269,10 @@ export interface FranchiseCardData {
   district?: string | null;
   coverUrl?: string | null;
   longDescription?: string | null;
+  contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  contactEmail?: string | null;
+  contactName?: string | null;
 }
 
 export interface ListingSummary {
