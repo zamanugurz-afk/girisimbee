@@ -138,10 +138,10 @@ export function MarketplaceBrowseView({
     });
   }, [items, filters.sector, filters.position, filters.careerLevel, filters.city]);
 
-  const hasLocalCareerFilters = Boolean(
-    filters.sector || filters.position || filters.careerLevel || (filters.city && !categorySlug),
+  const hasLocalFilters = Boolean(
+    filters.sector || filters.position || filters.careerLevel || filters.city,
   );
-  const countToDisplay = hasLocalCareerFilters ? displayedItems.length : total;
+  const countToDisplay = hasLocalFilters ? displayedItems.length : total;
 
   return (
     <div className="gc-header-offset bg-background">

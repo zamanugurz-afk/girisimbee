@@ -155,7 +155,11 @@ export function listingToContentItem(
         ? listing.customFields.primarySector.trim()
         : typeof listing.customFields?.sector === 'string' && listing.customFields.sector.trim()
           ? listing.customFields.sector.trim()
-          : listing.industry || undefined,
+          : typeof listing.customFields?.businessCategory === 'string' && listing.customFields.businessCategory.trim()
+            ? listing.customFields.businessCategory.trim()
+            : typeof listing.customFields?.solutionType === 'string' && listing.customFields.solutionType.trim()
+              ? listing.customFields.solutionType.trim()
+              : listing.industry || undefined,
     position:
       typeof listing.customFields?.desiredRole === 'string' && listing.customFields.desiredRole.trim()
         ? listing.customFields.desiredRole.trim()

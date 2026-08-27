@@ -287,25 +287,55 @@ export function ListingFilters({
         </div>
       )}
 
-      {/* 4. Şehir */}
-      <div className="w-[150px] sm:w-[170px]">
-        <Select
-          value={filters.city ?? ALL_VALUE}
-          onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
-        >
-          <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-            <SelectValue placeholder="Şehir seçin" />
-          </SelectTrigger>
-          <SelectContent themeColor={themeColor}>
-            <SelectItem value={ALL_VALUE}>Şehir seçin</SelectItem>
-            {availableCities.map((city) => (
-              <SelectItem key={city.value} value={city.value}>
-                {city.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Sektör (Tüm kategoriler için var olan ilanlardaki sektörler, sayıya göre azalan) */}
+      {!isCareer && availableSectors.length > 0 ? (
+        <div className="w-[180px] sm:w-[210px]">
+          <Select
+            value={filters.sector ?? ALL_VALUE}
+            onValueChange={(val) => {
+              const newSector = val === ALL_VALUE ? undefined : val;
+              onChange({
+                sector: newSector,
+                city: undefined,
+              });
+            }}
+          >
+            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectValue placeholder="Sektör seçin" />
+            </SelectTrigger>
+            <SelectContent themeColor={themeColor}>
+              <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+              {availableSectors.map((sec) => (
+                <SelectItem key={sec.value} value={sec.value}>
+                  {sec.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
+
+      {/* Şehir (Sadece ilanı olan şehirler) */}
+      {availableCities.length > 0 ? (
+        <div className="w-[150px] sm:w-[170px]">
+          <Select
+            value={filters.city ?? ALL_VALUE}
+            onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
+          >
+            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectValue placeholder="Şehir seçin" />
+            </SelectTrigger>
+            <SelectContent themeColor={themeColor}>
+              <SelectItem value={ALL_VALUE}>Şehir seçin</SelectItem>
+              {availableCities.map((city) => (
+                <SelectItem key={city.value} value={city.value}>
+                  {city.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
 
       {/* 5. Sıralama */}
       <div className="w-[150px] sm:w-[170px]">
