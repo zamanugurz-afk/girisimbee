@@ -540,8 +540,8 @@ export function PartnershipProfilePreview({
                 </div>
               </div>
 
-              {/* İç Sağ Kolon (%35 Genişlik): Aranan Uzmanlıklar & Programlar */}
-              <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-5 space-y-2.5 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
+              {/* İç Sağ Kolon (%35 Genişlik): Aranan Uzmanlıklar & Programlar (Soldaki Alana Göre Ortalanmış) */}
+              <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60 lg:self-center lg:my-auto">
                 <div className={cn('flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider', theme.headerText)}>
                   <Sliders className="h-4 w-4" />
                   <span>ARANAN UZMANLIKLAR & PROGRAMLAR</span>
