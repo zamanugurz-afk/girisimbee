@@ -78,13 +78,6 @@ export const loadListingPagePayload = cache(
         if (!listing) return null;
         if (!isUserDiscoverableListing(listing)) return null;
 
-        if (listing.moduleKey === 'franchise' && listing.slug) {
-          return {
-            kind: 'franchise-redirect',
-            href: `/franchise/buy/${listing.slug}`,
-          };
-        }
-
         const {
           data: { user: authUser },
         } = await supabase.auth.getUser();
