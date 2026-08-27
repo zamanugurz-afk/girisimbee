@@ -532,7 +532,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Örn: 35',
   },
   royaltyFee: {
-    placeholder: 'Örn: 4',
+    placeholder: 'Gelirden pay seçin',
   },
   advertisingFee: {
     placeholder: 'Örn: 2',

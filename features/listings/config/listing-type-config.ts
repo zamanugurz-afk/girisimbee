@@ -77,6 +77,7 @@ import {
   FRANCHISE_MANUAL_OPTIONS,
   STORE_LOCATION_TYPE_OPTIONS,
   FRANCHISE_RETURN_PERIOD_OPTIONS,
+  FRANCHISE_ROYALTY_OPTIONS,
 } from '@/features/listings/config/franchise-model-sector-map';
 
 export const CATEGORY_IDS = {
@@ -934,19 +935,18 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       min: 0,
     },
     {
-      key: 'royaltyFee',
-      label: 'Cirodan Alınan Pay / Royalty (%)',
+      key: 'profitMargin',
+      label: 'Ortalama Kâr Marjı (%)',
       type: 'percentage',
       min: 0,
       max: 100,
     },
     { key: 'advertisingFee', label: 'Reklam Katkı Payı (%)', type: 'percentage', min: 0, max: 100 },
     {
-      key: 'profitMargin',
-      label: 'Ortalama Kâr Marjı (%)',
-      type: 'percentage',
-      min: 0,
-      max: 100,
+      key: 'averageSetupDuration',
+      label: 'Ortalama Kurulum Süresi',
+      type: 'enum',
+      options: [...FRANCHISE_SETUP_DURATION_OPTIONS],
     },
     {
       key: 'returnPeriod',
@@ -955,6 +955,12 @@ export const FRANCHISE_GIVE_FIELD_SCHEMA: ListingFieldSchema = {
       options: [...FRANCHISE_RETURN_PERIOD_OPTIONS],
     },
     { key: 'minCapitalRequirement', label: 'Minimum Özkaynak Gereksinimi (₺)', type: 'currency', min: 0 },
+    {
+      key: 'royaltyFee',
+      label: 'Gelirden Alınan Pay (Royalty)',
+      type: 'enum',
+      options: [...FRANCHISE_ROYALTY_OPTIONS],
+    },
     { key: 'trainingSupport', label: 'Eğitim Desteği', type: 'boolean' },
     { key: 'operationalSupport', label: 'Operasyon Desteği', type: 'boolean' },
     { key: 'marketingSupport', label: 'Pazarlama Desteği', type: 'boolean' },

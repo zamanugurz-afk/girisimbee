@@ -1,4 +1,4 @@
-﻿import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
 
 /** Canonical franchise and concept types for franchise givers / franchisors */
 export const CANONICAL_FRANCHISE_MODELS = [
@@ -70,6 +70,25 @@ export const FRANCHISE_RETURN_PERIOD_OPTIONS = [
   '24 - 36 Ay',
   '36+ Ay',
 ] as const;
+
+export type FranchiseReturnPeriodOption = (typeof FRANCHISE_RETURN_PERIOD_OPTIONS)[number];
+
+/** Royalty / revenue share options */
+export const FRANCHISE_ROYALTY_OPTIONS = [
+  'Gelirden Pay Alınmıyor',
+  '%5',
+  '%10',
+  '%15',
+  '%20',
+  '%25',
+  '%30',
+  '%35',
+  '%40',
+  '%45',
+  '%50',
+] as const;
+
+export type FranchiseRoyaltyOption = (typeof FRANCHISE_ROYALTY_OPTIONS)[number];
 
 /**
  * Mapping from each franchise model to strictly canonical sectors in JOB_SECTOR_OPTIONS.

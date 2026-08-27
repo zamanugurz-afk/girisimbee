@@ -126,7 +126,7 @@ export function extractFranchiseListingDetails(listing: Listing): FranchiseListi
     franchiseFee: readCustomField<number>(cf, 'franchiseFee') ?? readCustomField<number>(cf, 'franchiseBedeli'),
     totalInvestment: readCustomField<number>(cf, 'totalInvestment'),
     profitMargin: readCustomField<number>(cf, 'profitMargin'),
-    royaltyFee: readCustomField<number>(cf, 'royaltyFee'),
+    royaltyFee: readCustomField<string | number>(cf, 'royaltyFee'),
     advertisingFee: readCustomField<number>(cf, 'advertisingFee'),
     returnPeriod: readCustomField<string>(cf, 'returnPeriod'),
     averageSetupDuration: readCustomField<string>(cf, 'averageSetupDuration'),
@@ -254,8 +254,11 @@ export function formatMoney(value: number | null | undefined): string {
   return `${value.toLocaleString('tr-TR')} ₺`;
 }
 
-export function formatPercentage(value: number | null | undefined): string {
-  if (value == null) return '';
+export function formatPercentage(value: string | number | null | undefined): string {
+  if (value == null || value === '') return '';
+  if (typeof value === 'string') {
+    return value.startsWith('%') || value.includes('Alınmıyor') ? value : `%${value}`;
+  }
   return `%${value}`;
 }
 

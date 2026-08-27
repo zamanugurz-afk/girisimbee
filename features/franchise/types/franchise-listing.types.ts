@@ -24,7 +24,7 @@ export interface FranchiseGiveListingDetails {
   franchiseFee?: number | null;
   totalInvestment?: number | null;
   profitMargin?: number | null;
-  royaltyFee?: number | null;
+  royaltyFee?: string | number | null;
   advertisingFee?: number | null;
   returnPeriod?: string | null;
   averageSetupDuration?: string | null;
@@ -104,7 +104,7 @@ export interface FranchiseListingPayload {
   franchiseFee?: number | null;
   totalInvestment?: number | null;
   profitMargin?: number | null;
-  royaltyFee?: number | null;
+  royaltyFee?: string | number | null;
   advertisingFee?: number | null;
   returnPeriod?: string | null;
   averageSetupDuration?: string | null;
