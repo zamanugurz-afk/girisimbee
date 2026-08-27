@@ -64,8 +64,15 @@ export function FranchiseProfilePreview({
   const router = useRouter();
   const { user } = useAuth();
   const [contactDialogOpen, setContactDialogOpen] = React.useState(false);
-  const [hasClickedContact, setHasClickedContact] = React.useState(false);
+  const [isPulsing, setIsPulsing] = React.useState(true);
   const isOwner = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const {
     companyName,
@@ -110,7 +117,7 @@ export function FranchiseProfilePreview({
   const summaryText = longDescription || `${displayTitle}, ${displaySector} sektöründe güçlü marka bilinirliği ve kanıtlanmış karlı iş modeli ile yatırımcılarına yüksek getiri ve sürdürülebilir büyüme fırsatı sunmaktadır. Şube açılışından operasyonel süreçlere kadar tüm aşamalarda anahtar teslim destek sağlanmaktadır.`;
 
   const handleContactClick = () => {
-    setHasClickedContact(true);
+    setIsPulsing(false);
     setContactDialogOpen(true);
   };
 
@@ -255,8 +262,8 @@ export function FranchiseProfilePreview({
             type="button"
             onClick={handleContactClick}
             className={cn(
-              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-300 bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20',
-              !hasClickedContact && 'animate-pulse ring-2 ring-offset-1 ring-amber-500/60',
+              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20',
+              isPulsing && 'animate-pulse-gentle ring-2 ring-offset-1 ring-amber-500/50 shadow-md',
             )}
           >
             <Phone className="h-3.5 w-3.5 shrink-0" />

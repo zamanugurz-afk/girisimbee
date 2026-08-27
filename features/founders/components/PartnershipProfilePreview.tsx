@@ -63,8 +63,15 @@ export function PartnershipProfilePreview({
   const router = useRouter();
   const { user } = useAuth();
   const [contactDialogOpen, setContactDialogOpen] = React.useState(false);
-  const [hasClickedContact, setHasClickedContact] = React.useState(false);
+  const [isPulsing, setIsPulsing] = React.useState(true);
   const isOwner = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const {
     intent = 'seeking',
@@ -132,7 +139,7 @@ export function PartnershipProfilePreview({
     : `${displayTitle}, ${displaySector} alanında yenilikçi çözümler sunan ölçeklenebilir bir projedir. Güçlü bir vizyonla sektörel büyüme hedefleyen girişimimiz için tamamlayıcı yetkinliklere sahip vizyoner kurucu ortaklar aranmaktadır.`);
 
   const handleContactClick = () => {
-    setHasClickedContact(true);
+    setIsPulsing(false);
     setContactDialogOpen(true);
   };
 
@@ -307,14 +314,14 @@ export function PartnershipProfilePreview({
             type="button"
             onClick={handleContactClick}
             className={cn(
-              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-300',
+              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500',
               isTransfer
                 ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
                 : 'bg-sky-600 hover:bg-sky-700 text-white shadow-sky-500/20',
-              !hasClickedContact && (
+              isPulsing && (
                 isTransfer
-                  ? 'animate-pulse ring-2 ring-offset-1 ring-amber-500/60'
-                  : 'animate-pulse ring-2 ring-offset-1 ring-sky-500/60'
+                  ? 'animate-pulse-gentle ring-2 ring-offset-1 ring-amber-500/50 shadow-md'
+                  : 'animate-pulse-gentle ring-2 ring-offset-1 ring-sky-500/50 shadow-md'
               ),
             )}
           >

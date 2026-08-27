@@ -173,6 +173,10 @@ const config: Config = {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%': { opacity: '0.35', transform: 'scale(1.08)' },
         },
+        'pulse-gentle': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.85', transform: 'scale(1.015)' },
+        },
         dash: {
           to: { strokeDashoffset: '-120' },
         },
@@ -186,6 +190,7 @@ const config: Config = {
         'scale-in': 'scale-in 0.25s cubic-bezier(0.34,1.56,0.64,1) both',
         shimmer: 'shimmer 1.6s infinite',
         'pulse-soft': 'pulse-soft 2s ease-in-out infinite',
+        'pulse-gentle': 'pulse-gentle 3.5s ease-in-out infinite',
         'alert-blink': 'alert-blink 1s ease-in-out infinite',
         'slide-in-right': 'slide-in-right 0.25s cubic-bezier(0.22,1,0.36,1) both',
         'reveal-up': 'reveal-up 0.3s cubic-bezier(0.22,1,0.36,1) both',
