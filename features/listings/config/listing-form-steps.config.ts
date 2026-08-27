@@ -316,9 +316,10 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       cv: true,
       customFieldKeys: [
         'fullName',
-        'primarySector',
         'desiredRole',
         'desiredRoleOther',
+        'primarySector',
+        'sectorOther',
         'experienceLevel',
         'profileGender',
         'birthDate',
@@ -385,9 +386,10 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       description: 'Şirket, pozisyon, sektör ve seviye',
       customFieldKeys: [
         'companyName',
-        'primarySector',
         'desiredRole',
         'desiredRoleOther',
+        'primarySector',
+        'sectorOther',
         'experienceLevel',
       ],
     },

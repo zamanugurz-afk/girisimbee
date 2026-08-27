@@ -3535,52 +3535,7 @@ export function CategoryListingForm({
                     ) : null}
                   </div>
 
-                  {/* Row 1, Col 2: Sektör */}
-                  <div className="w-full min-w-0 space-y-2">
-                    {fieldByKey.get('primarySector') ? (
-                      <>
-                        <DynamicField
-                          field={fieldByKey.get('primarySector')!}
-                          value={mergedCustomFields.primarySector}
-                          onChange={(val) => {
-                            handleCustomFieldChange('primarySector', val);
-                            if (cvFilledKeys.has('primarySector')) {
-                              setCvFilledKeys((prev) => {
-                                const next = new Set(prev);
-                                next.delete('primarySector');
-                                return next;
-                              });
-                            }
-                          }}
-                          isCvFilled={cvFilledKeys.has('primarySector')}
-                          error={resolveFieldError(fieldErrors, 'primarySector')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                        {isManualCareerOption(mergedCustomFields.primarySector) && (
-                          <div className="pt-1">
-                            <DynamicField
-                              field={
-                                fieldByKey.get('sectorOther') ?? {
-                                  key: 'sectorOther',
-                                  label: 'Özel Sektör Belirtin',
-                                  type: 'string',
-                                  required: true,
-                                }
-                              }
-                              value={mergedCustomFields.sectorOther ?? ''}
-                              onChange={(val) => handleCustomFieldChange('sectorOther', val)}
-                              error={resolveFieldError(fieldErrors, 'sectorOther')}
-                              disabled={disabled || isBusy}
-                              context={dynamicFieldContext}
-                            />
-                          </div>
-                        )}
-                      </>
-                    ) : null}
-                  </div>
-
-                  {/* Row 2, Col 1: Pozisyon / Açık Pozisyon */}
+                  {/* Row 1, Col 2: Pozisyon / Açık Pozisyon */}
                   <div className="w-full min-w-0 space-y-2">
                     {fieldByKey.get('desiredRole') ? (
                       <>
@@ -3616,6 +3571,51 @@ export function CategoryListingForm({
                               value={mergedCustomFields.desiredRoleOther ?? ''}
                               onChange={(val) => handleCustomFieldChange('desiredRoleOther', val)}
                               error={resolveFieldError(fieldErrors, 'desiredRoleOther')}
+                              disabled={disabled || isBusy}
+                              context={dynamicFieldContext}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : null}
+                  </div>
+
+                  {/* Row 2, Col 1: Sektör */}
+                  <div className="w-full min-w-0 space-y-2">
+                    {fieldByKey.get('primarySector') ? (
+                      <>
+                        <DynamicField
+                          field={fieldByKey.get('primarySector')!}
+                          value={mergedCustomFields.primarySector}
+                          onChange={(val) => {
+                            handleCustomFieldChange('primarySector', val);
+                            if (cvFilledKeys.has('primarySector')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('primarySector');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('primarySector')}
+                          error={resolveFieldError(fieldErrors, 'primarySector')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                        {isManualCareerOption(mergedCustomFields.primarySector) && (
+                          <div className="pt-1">
+                            <DynamicField
+                              field={
+                                fieldByKey.get('sectorOther') ?? {
+                                  key: 'sectorOther',
+                                  label: 'Özel Sektör Belirtin',
+                                  type: 'string',
+                                  required: true,
+                                }
+                              }
+                              value={mergedCustomFields.sectorOther ?? ''}
+                              onChange={(val) => handleCustomFieldChange('sectorOther', val)}
+                              error={resolveFieldError(fieldErrors, 'sectorOther')}
                               disabled={disabled || isBusy}
                               context={dynamicFieldContext}
                             />

@@ -414,18 +414,18 @@ export const JOB_SEEKER_FIELD_SCHEMA: ListingFieldSchema = {
       max: 100,
     },
     {
-      key: 'primarySector',
-      label: 'Uzmanlık Sektörü',
-      type: 'enum',
-      required: true,
-      options: [...JOB_SECTOR_OPTIONS],
-    },
-    {
       key: 'desiredRole',
       label: 'Aranan Pozisyon',
       type: 'enum',
       required: true,
       options: getAllTaxonomyPositions(),
+    },
+    {
+      key: 'primarySector',
+      label: 'Uzmanlık Sektörü',
+      type: 'enum',
+      required: true,
+      options: [...JOB_SECTOR_OPTIONS],
     },
     {
       key: 'experienceLevel',
@@ -660,18 +660,18 @@ export const HIRING_FIELD_SCHEMA: ListingFieldSchema = {
       max: 120,
     },
     {
-      key: 'primarySector',
-      label: 'Sektör',
-      type: 'enum',
-      required: true,
-      options: [...JOB_SECTOR_OPTIONS],
-    },
-    {
       key: 'desiredRole',
       label: 'Açık Pozisyon',
       type: 'enum',
       required: true,
       options: getAllTaxonomyPositions(),
+    },
+    {
+      key: 'primarySector',
+      label: 'Sektör',
+      type: 'enum',
+      required: true,
+      options: [...JOB_SECTOR_OPTIONS],
     },
     {
       key: 'desiredRoleOther',
