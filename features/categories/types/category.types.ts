@@ -62,6 +62,12 @@ export interface ContentItem {
   position?: string;
   experienceLevel?: string;
   city?: string;
+  stage?: string;
+  partnerType?: string;
+  businessType?: string;
+  budgetRange?: string;
+  solutionType?: string;
+  targetAudience?: string;
 }
 
 export interface CategorySection {

@@ -40,7 +40,6 @@ export default async function PartnersPage({
     <CategoryMarketplacePage
       categorySlug={CATEGORY_SLUG}
       partnershipIntent={intent}
-      eyebrow="Ortaklık ve Devir"
       title={copy.title}
       description={copy.description}
       emptyTitle={copy.emptyTitle}

@@ -110,7 +110,7 @@ export function MarketplaceBrowseView({
           return false;
         }
       }
-      // 2. Pozisyon filtresi
+      // 2. Pozisyon filtresi (Kariyer)
       if (filters.position) {
         const pos = (item.position || item.title || '').toLowerCase();
         const targetPos = filters.position.toLowerCase();
@@ -118,7 +118,7 @@ export function MarketplaceBrowseView({
           return false;
         }
       }
-      // 3. Deneyim seviyesi / çalışma şekli filtresi
+      // 3. Deneyim seviyesi / çalışma şekli filtresi (Kariyer)
       if (filters.careerLevel) {
         const lvl = (item.experienceLevel || '').toLowerCase();
         const targetLvl = filters.careerLevel.toLowerCase();
@@ -126,7 +126,55 @@ export function MarketplaceBrowseView({
           return false;
         }
       }
-      // 4. Şehir filtresi
+      // 4. Ortaklık Aşaması (Ortaklık)
+      if (filters.stage) {
+        const st = (item.stage || '').toLowerCase();
+        const targetSt = filters.stage.toLowerCase();
+        if (!st.includes(targetSt) && !targetSt.includes(st)) {
+          return false;
+        }
+      }
+      // 5. Aranan Ortak Tipi (Ortaklık)
+      if (filters.partnerType) {
+        const pt = (item.partnerType || '').toLowerCase();
+        const targetPt = filters.partnerType.toLowerCase();
+        if (!pt.includes(targetPt) && !targetPt.includes(pt)) {
+          return false;
+        }
+      }
+      // 6. İşletme Türü (İşletme Devri)
+      if (filters.businessType) {
+        const bt = (item.businessType || '').toLowerCase();
+        const targetBt = filters.businessType.toLowerCase();
+        if (!bt.includes(targetBt) && !targetBt.includes(bt)) {
+          return false;
+        }
+      }
+      // 7. Yatırım Bütçesi (Franchise)
+      if (filters.budgetRange) {
+        const br = (item.budgetRange || item.price || '').toLowerCase();
+        const targetBr = filters.budgetRange.toLowerCase();
+        if (!br.includes(targetBr) && !targetBr.includes(br)) {
+          return false;
+        }
+      }
+      // 8. Çözüm Türü (Dijital AI)
+      if (filters.solutionType) {
+        const st = (item.solutionType || item.sector || '').toLowerCase();
+        const targetSt = filters.solutionType.toLowerCase();
+        if (!st.includes(targetSt) && !targetSt.includes(st)) {
+          return false;
+        }
+      }
+      // 9. Hedef Kitle (Dijital AI)
+      if (filters.targetAudience) {
+        const ta = (item.targetAudience || '').toLowerCase();
+        const targetTa = filters.targetAudience.toLowerCase();
+        if (!ta.includes(targetTa) && !targetTa.includes(ta)) {
+          return false;
+        }
+      }
+      // 10. Şehir filtresi
       if (filters.city) {
         const loc = (item.city || item.location || '').toLowerCase();
         const targetCity = filters.city.toLowerCase();
@@ -136,10 +184,31 @@ export function MarketplaceBrowseView({
       }
       return true;
     });
-  }, [items, filters.sector, filters.position, filters.careerLevel, filters.city]);
+  }, [
+    items,
+    filters.sector,
+    filters.position,
+    filters.careerLevel,
+    filters.stage,
+    filters.partnerType,
+    filters.businessType,
+    filters.budgetRange,
+    filters.solutionType,
+    filters.targetAudience,
+    filters.city,
+  ]);
 
   const hasLocalFilters = Boolean(
-    filters.sector || filters.position || filters.careerLevel || filters.city,
+    filters.sector ||
+      filters.position ||
+      filters.careerLevel ||
+      filters.stage ||
+      filters.partnerType ||
+      filters.businessType ||
+      filters.budgetRange ||
+      filters.solutionType ||
+      filters.targetAudience ||
+      filters.city,
   );
   const countToDisplay = hasLocalFilters ? displayedItems.length : total;
 

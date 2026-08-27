@@ -185,6 +185,46 @@ export function listingToContentItem(
       (typeof listing.customFields?.residenceCity === 'string' && listing.customFields.residenceCity.trim()
         ? listing.customFields.residenceCity.trim()
         : undefined),
+    stage:
+      typeof listing.customFields?.projectStage === 'string' && listing.customFields.projectStage.trim()
+        ? listing.customFields.projectStage.trim()
+        : typeof listing.customFields?.startupStage === 'string' && listing.customFields.startupStage.trim()
+          ? listing.customFields.startupStage.trim()
+          : typeof listing.customFields?.stage === 'string' && listing.customFields.stage.trim()
+            ? listing.customFields.stage.trim()
+            : undefined,
+    partnerType:
+      typeof listing.customFields?.partnershipType === 'string' && listing.customFields.partnershipType.trim()
+        ? listing.customFields.partnershipType.trim()
+        : typeof listing.partnerDetails?.partnerType === 'string' && listing.partnerDetails.partnerType.trim()
+          ? listing.partnerDetails.partnerType.trim()
+          : typeof listing.customFields?.partnerType === 'string' && listing.customFields.partnerType.trim()
+            ? listing.customFields.partnerType.trim()
+            : typeof listing.customFields?.expertise === 'string' && listing.customFields.expertise.trim()
+              ? listing.customFields.expertise.trim()
+              : undefined,
+    businessType:
+      typeof listing.customFields?.businessType === 'string' && listing.customFields.businessType.trim()
+        ? listing.customFields.businessType.trim()
+        : typeof listing.customFields?.businessCategory === 'string' && listing.customFields.businessCategory.trim()
+          ? listing.customFields.businessCategory.trim()
+          : typeof listing.customFields?.category === 'string' && listing.customFields.category.trim()
+            ? listing.customFields.category.trim()
+            : undefined,
+    budgetRange:
+      typeof listing.customFields?.budgetRange === 'string' && listing.customFields.budgetRange.trim()
+        ? listing.customFields.budgetRange.trim()
+        : typeof listing.customFields?.investmentAmount === 'string' && listing.customFields.investmentAmount.trim()
+          ? listing.customFields.investmentAmount.trim()
+          : undefined,
+    solutionType:
+      typeof listing.customFields?.solutionType === 'string' && listing.customFields.solutionType.trim()
+        ? listing.customFields.solutionType.trim()
+        : undefined,
+    targetAudience:
+      typeof listing.customFields?.targetAudience === 'string' && listing.customFields.targetAudience.trim()
+        ? listing.customFields.targetAudience.trim()
+        : undefined,
   };
 }
 

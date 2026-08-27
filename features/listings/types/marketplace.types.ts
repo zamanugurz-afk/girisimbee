@@ -30,6 +30,12 @@ export interface MarketplaceFilterState {
   careerLevel?: string;
   /** Ortak-bul browse — seeking vs joining. Missing listings count as seeking. */
   partnershipIntent?: PartnershipIntent;
+  stage?: string;
+  partnerType?: string;
+  businessType?: string;
+  budgetRange?: string;
+  solutionType?: string;
+  targetAudience?: string;
   isFeatured?: boolean;
   activeFeaturedOnly?: boolean;
   isUrgent?: boolean;

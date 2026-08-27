@@ -102,7 +102,6 @@ export function ListingFilters({
   onChange,
   hideCategory = false,
   showJobFlowFilters = false,
-  showVentureFlowFilters = false,
   className,
 }: ListingFiltersProps) {
   const isCareer = Boolean(
@@ -111,25 +110,41 @@ export function ListingFilters({
       filters.categorySlug === 'is-ariyorum' ||
       filters.categorySlug === 'is-bul',
   );
-  const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
-  const themeColor = isCareer ? (isSeek ? 'sky' : 'emerald') : 'blue';
+  const isPartnership = filters.categorySlug === 'ortak-bul' || filters.categorySlug === 'ortaklik';
+  const isBusinessTransfer = filters.categorySlug === 'isletme-devri';
+  const isFranchise = filters.categorySlug === 'bayilik-al' || filters.categorySlug === 'franchise';
+  const isDigital = filters.categorySlug === 'dijital-ai';
 
-  // 1. Sektörler: YALNIZCA var olan ilanlardaki sektörler, ilan sayısına göre azalan sırada
+  const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
+  const themeColor = isCareer
+    ? isSeek
+      ? 'sky'
+      : 'emerald'
+    : isPartnership || isBusinessTransfer
+      ? 'amber'
+      : isFranchise
+        ? 'pink'
+        : isDigital
+          ? 'purple'
+          : 'blue';
+
+  // 1. Sektörler: Var olan ilanlardaki sektörler, ilan sayısına göre azalan sırada
   const availableSectors = useMemo(() => {
     return getOptionsByCount(items, (item) => item.sector);
   }, [items]);
 
-  // 2. Pozisyonlar: Seçilen sektöre göre var olan ilanlardaki pozisyonlar, ilan sayısına göre azalan sırada
+  // Kariyer: Pozisyonlar & Deneyim Seviyeleri
   const availablePositions = useMemo(() => {
+    if (!isCareer) return [];
     const filteredItems = filters.sector
       ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
       : items;
 
     return getOptionsByCount(filteredItems, (item) => item.position || (isSeek ? item.title : undefined));
-  }, [items, filters.sector, isSeek]);
+  }, [items, filters.sector, isCareer, isSeek]);
 
-  // 3. Deneyim Seviyeleri: Seçilen sektör ve pozisyona göre var olan ilanlardaki deneyimler
   const availableLevels = useMemo(() => {
+    if (!isCareer) return [];
     const filteredItems = items.filter((item) => {
       if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
       if (filters.position && (item.position || item.title)?.toLowerCase() !== filters.position.toLowerCase()) return false;
@@ -137,19 +152,88 @@ export function ListingFilters({
     });
 
     return getOptionsByCount(filteredItems, (item) => item.experienceLevel);
-  }, [items, filters.sector, filters.position]);
+  }, [items, filters.sector, filters.position, isCareer]);
 
-  // 4. Şehirler: Seçilen kriterlere göre var olan ilanlardaki şehirler
+  // Ortaklık: Ortaklık Aşaması (stage) & Aranan Ortak Tipi (partnerType)
+  const availableStages = useMemo(() => {
+    if (!isPartnership) return [];
+    const filteredItems = filters.sector
+      ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
+      : items;
+
+    return getOptionsByCount(filteredItems, (item) => item.stage);
+  }, [items, filters.sector, isPartnership]);
+
+  const availablePartnerTypes = useMemo(() => {
+    if (!isPartnership) return [];
+    const filteredItems = items.filter((item) => {
+      if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
+      if (filters.stage && item.stage?.toLowerCase() !== filters.stage.toLowerCase()) return false;
+      return true;
+    });
+
+    return getOptionsByCount(filteredItems, (item) => item.partnerType);
+  }, [items, filters.sector, filters.stage, isPartnership]);
+
+  // İşletme Devri: İşletme Türü (businessType)
+  const availableBusinessTypes = useMemo(() => {
+    if (!isBusinessTransfer) return [];
+    const filteredItems = filters.sector
+      ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
+      : items;
+
+    return getOptionsByCount(filteredItems, (item) => item.businessType);
+  }, [items, filters.sector, isBusinessTransfer]);
+
+  // Franchise: Yatırım Bütçesi (budgetRange)
+  const availableBudgetRanges = useMemo(() => {
+    if (!isFranchise) return [];
+    const filteredItems = filters.sector
+      ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
+      : items;
+
+    return getOptionsByCount(filteredItems, (item) => item.budgetRange || item.price);
+  }, [items, filters.sector, isFranchise]);
+
+  // Dijital & AI: Çözüm Türü & Hedef Kitle
+  const availableSolutionTypes = useMemo(() => {
+    if (!isDigital) return [];
+    return getOptionsByCount(items, (item) => item.solutionType || item.sector);
+  }, [items, isDigital]);
+
+  const availableTargetAudiences = useMemo(() => {
+    if (!isDigital) return [];
+    const filteredItems = filters.solutionType
+      ? items.filter((item) => (item.solutionType || item.sector)?.toLowerCase() === filters.solutionType?.toLowerCase())
+      : items;
+
+    return getOptionsByCount(filteredItems, (item) => item.targetAudience);
+  }, [items, filters.solutionType, isDigital]);
+
+  // Şehirler (Tüm kategoriler için seçili filtrelere göre dinamik)
   const availableCities = useMemo(() => {
     const filteredItems = items.filter((item) => {
       if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
       if (filters.position && (item.position || item.title)?.toLowerCase() !== filters.position.toLowerCase()) return false;
       if (filters.careerLevel && item.experienceLevel?.toLowerCase() !== filters.careerLevel.toLowerCase()) return false;
+      if (filters.stage && item.stage?.toLowerCase() !== filters.stage.toLowerCase()) return false;
+      if (filters.partnerType && item.partnerType?.toLowerCase() !== filters.partnerType.toLowerCase()) return false;
+      if (filters.businessType && item.businessType?.toLowerCase() !== filters.businessType.toLowerCase()) return false;
+      if (filters.budgetRange && (item.budgetRange || item.price)?.toLowerCase() !== filters.budgetRange.toLowerCase()) return false;
       return true;
     });
 
     return getOptionsByCount(filteredItems, (item) => item.city || item.location?.split(',')[0]?.trim());
-  }, [items, filters.sector, filters.position, filters.careerLevel]);
+  }, [
+    items,
+    filters.sector,
+    filters.position,
+    filters.careerLevel,
+    filters.stage,
+    filters.partnerType,
+    filters.businessType,
+    filters.budgetRange,
+  ]);
 
   return (
     <div className={cn('flex flex-wrap items-center gap-2.5', className)}>
@@ -160,17 +244,10 @@ export function ListingFilters({
         />
       ) : null}
 
-      {showVentureFlowFilters ? (
-        <PartnershipFlowFilters
-          categorySlug={filters.categorySlug}
-          partnershipIntent={filters.partnershipIntent}
-          onChange={(patch) => onChange(patch)}
-        />
-      ) : null}
-
+      {/* 1. Kariyer Sayfası Filtreleri */}
       {isCareer ? (
         <>
-          {/* 1. Uzmanlık Sektörü / Sektör (İlan sayısına göre azalan) - BAŞTA! */}
+          {/* Sektör */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
@@ -208,7 +285,7 @@ export function ListingFilters({
             </Select>
           </div>
 
-          {/* 2. Aranan Pozisyon / Açık Pozisyon (Sektöre göre dinamik, ilan sayısına göre azalan) */}
+          {/* Pozisyon */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.position ?? ALL_VALUE}
@@ -234,7 +311,7 @@ export function ListingFilters({
             </Select>
           </div>
 
-          {/* 3. Kariyer Seviyesi / Çalışma Şekli (Dinamik, ilan sayısına göre azalan) */}
+          {/* Deneyim Seviyesi */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.careerLevel ?? ALL_VALUE}
@@ -263,60 +340,328 @@ export function ListingFilters({
         </>
       ) : null}
 
-      {!hideCategory && !isCareer && (
-        <div className="w-[180px] sm:w-[210px]">
-          <Select
-            value={filters.categorySlug ?? ALL_VALUE}
-            onValueChange={(val) => onChange({ categorySlug: val === ALL_VALUE ? undefined : val })}
-          >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-              <SelectValue placeholder="Kategori seçin" />
-            </SelectTrigger>
-            <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Kategori seçin</SelectItem>
-              {getUserDiscoverableCategorySlugs().map((slug) => {
-                const meta = resolveCategorySlug(slug);
-                return (
-                  <SelectItem key={slug} value={slug}>
-                    {meta?.label}
+      {/* 2. Ortaklık Sayfası Filtreleri (Sektör + Ortaklık Aşaması + Aranan Ortak Tipi) */}
+      {isPartnership ? (
+        <>
+          {/* Sektör */}
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  stage: undefined,
+                  partnerType: undefined,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                {availableSectors.map((sec) => (
+                  <SelectItem key={sec.value} value={sec.value}>
+                    {sec.value}
                   </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Sektör (Tüm kategoriler için var olan ilanlardaki sektörler, sayıya göre azalan) */}
-      {!isCareer && availableSectors.length > 0 ? (
-        <div className="w-[180px] sm:w-[210px]">
-          <Select
-            value={filters.sector ?? ALL_VALUE}
-            onValueChange={(val) => {
-              const newSector = val === ALL_VALUE ? undefined : val;
-              onChange({
-                sector: newSector,
-                city: undefined,
-              });
-            }}
-          >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-              <SelectValue placeholder="Sektör seçin" />
-            </SelectTrigger>
-            <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-              {availableSectors.map((sec) => (
-                <SelectItem key={sec.value} value={sec.value}>
-                  {sec.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Ortaklık Aşaması */}
+          {availableStages.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.stage ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    stage: val === ALL_VALUE ? undefined : val,
+                    partnerType: undefined,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Ortaklık aşaması seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Ortaklık aşaması seçin</SelectItem>
+                  {availableStages.map((st) => (
+                    <SelectItem key={st.value} value={st.value}>
+                      {st.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
+          {/* Aranan Ortak Tipi */}
+          {availablePartnerTypes.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.partnerType ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    partnerType: val === ALL_VALUE ? undefined : val,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Aranan ortak tipi seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Aranan ortak tipi seçin</SelectItem>
+                  {availablePartnerTypes.map((pt) => (
+                    <SelectItem key={pt.value} value={pt.value}>
+                      {pt.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </>
       ) : null}
 
-      {/* Şehir (Sadece ilanı olan şehirler) */}
-      {availableCities.length > 0 ? (
+      {/* 3. İşletme Devri Sayfası Filtreleri (Sektör + İşletme Türü) */}
+      {isBusinessTransfer ? (
+        <>
+          {/* Sektör */}
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  businessType: undefined,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                {availableSectors.map((sec) => (
+                  <SelectItem key={sec.value} value={sec.value}>
+                    {sec.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* İşletme Türü */}
+          {availableBusinessTypes.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.businessType ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    businessType: val === ALL_VALUE ? undefined : val,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="İşletme türü seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>İşletme türü seçin</SelectItem>
+                  {availableBusinessTypes.map((bt) => (
+                    <SelectItem key={bt.value} value={bt.value}>
+                      {bt.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
+      {/* 4. Franchise ve Bayilik Sayfası Filtreleri (Sektör + Yatırım Bütçesi) */}
+      {isFranchise ? (
+        <>
+          {/* Sektör */}
+          <div className="w-[180px] sm:w-[210px]">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  budgetRange: undefined,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                {availableSectors.map((sec) => (
+                  <SelectItem key={sec.value} value={sec.value}>
+                    {sec.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Yatırım Bütçesi */}
+          {availableBudgetRanges.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.budgetRange ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    budgetRange: val === ALL_VALUE ? undefined : val,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Bütçe seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Bütçe seçin</SelectItem>
+                  {availableBudgetRanges.map((br) => (
+                    <SelectItem key={br.value} value={br.value}>
+                      {br.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
+      {/* 5. Dijital ve Startup Çözümler Sayfası Filtreleri (Çözüm Türü + Hedef Kitle) */}
+      {isDigital ? (
+        <>
+          {/* Çözüm Türü */}
+          {availableSolutionTypes.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.solutionType ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    solutionType: val === ALL_VALUE ? undefined : val,
+                    targetAudience: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Çözüm türü seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Çözüm türü seçin</SelectItem>
+                  {availableSolutionTypes.map((st) => (
+                    <SelectItem key={st.value} value={st.value}>
+                      {st.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
+          {/* Hedef Kitle */}
+          {availableTargetAudiences.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.targetAudience ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  onChange({
+                    targetAudience: val === ALL_VALUE ? undefined : val,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Hedef kitle seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Hedef kitle seçin</SelectItem>
+                  {availableTargetAudiences.map((ta) => (
+                    <SelectItem key={ta.value} value={ta.value}>
+                      {ta.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
+      {/* 6. Diğer Genel / Keşfet Sayfaları */}
+      {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isDigital ? (
+        <>
+          {!hideCategory && (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.categorySlug ?? ALL_VALUE}
+                onValueChange={(val) => onChange({ categorySlug: val === ALL_VALUE ? undefined : val })}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Kategori seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Kategori seçin</SelectItem>
+                  {getUserDiscoverableCategorySlugs().map((slug) => {
+                    const meta = resolveCategorySlug(slug);
+                    return (
+                      <SelectItem key={slug} value={slug}>
+                        {meta?.label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {availableSectors.length > 0 ? (
+            <div className="w-[180px] sm:w-[210px]">
+              <Select
+                value={filters.sector ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  const newSector = val === ALL_VALUE ? undefined : val;
+                  onChange({
+                    sector: newSector,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Sektör seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                  {availableSectors.map((sec) => (
+                    <SelectItem key={sec.value} value={sec.value}>
+                      {sec.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
+      {/* Şehir (Dijital hariç, sadece ilanı olan şehirler) */}
+      {!isDigital && availableCities.length > 0 ? (
         <div className="w-[150px] sm:w-[170px]">
           <Select
             value={filters.city ?? ALL_VALUE}
@@ -337,7 +682,7 @@ export function ListingFilters({
         </div>
       ) : null}
 
-      {/* 5. Sıralama */}
+      {/* Sıralama */}
       <div className="w-[150px] sm:w-[170px]">
         <Select
           value={filters.sortBy ?? 'newest'}
