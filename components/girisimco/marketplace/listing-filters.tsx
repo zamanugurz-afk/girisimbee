@@ -61,6 +61,27 @@ const CAREER_HIRE_WORK_MODES = [
   'Yarı Zamanlı',
 ].sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
+interface CountOption {
+  value: string;
+  count: number;
+}
+
+function getOptionsByCount(
+  items: ContentItem[],
+  extractor: (item: ContentItem) => string | undefined,
+): CountOption[] {
+  const map = new Map<string, number>();
+  for (const item of items) {
+    const val = extractor(item)?.trim();
+    if (val && !val.includes('Diğer') && !val.includes('Kendim') && val !== 'Türkiye') {
+      map.set(val, (map.get(val) ?? 0) + 1);
+    }
+  }
+  return Array.from(map.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'tr-TR'));
+}
+
 interface ListingFiltersProps {
   items?: ContentItem[];
   filters: MarketplaceFilterState;
@@ -92,33 +113,21 @@ export function ListingFilters({
   const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
   const themeColor = isCareer ? (isSeek ? 'sky' : 'emerald') : 'blue';
 
-  // 1. Sektörler: Var olan ilanlardaki sektörler (A-Z)
+  // 1. Sektörler: YALNIZCA var olan ilanlardaki sektörler, ilan sayısına göre azalan sırada
   const availableSectors = useMemo(() => {
-    const fromItems = items
-      .map((item) => item.sector)
-      .filter((s): s is string => Boolean(s && !s.includes('Diğer')));
-    const set = new Set(fromItems.length > 0 ? fromItems : CAREER_SECTORS);
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+    return getOptionsByCount(items, (item) => item.sector);
   }, [items]);
 
-  // 2. Pozisyonlar: Seçilen sektöre göre var olan ilanlardaki pozisyonlar (A-Z)
+  // 2. Pozisyonlar: Seçilen sektöre göre var olan ilanlardaki pozisyonlar, ilan sayısına göre azalan sırada
   const availablePositions = useMemo(() => {
     const filteredItems = filters.sector
       ? items.filter((item) => item.sector?.toLowerCase() === filters.sector?.toLowerCase())
       : items;
 
-    const fromItems = filteredItems
-      .map((item) => item.position || (isSeek ? item.title : undefined))
-      .filter((p): p is string => Boolean(p && !p.includes('Diğer') && !p.includes('Kendim')));
-
-    if (fromItems.length > 0) {
-      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
-    }
-
-    return getAvailablePositions(filters.sector);
+    return getOptionsByCount(filteredItems, (item) => item.position || (isSeek ? item.title : undefined));
   }, [items, filters.sector, isSeek]);
 
-  // 3. Deneyim Seviyeleri: Seçilen sektör ve pozisyona göre var olan ilanlardaki deneyimler (A-Z)
+  // 3. Deneyim Seviyeleri: Seçilen sektör ve pozisyona göre var olan ilanlardaki deneyimler
   const availableLevels = useMemo(() => {
     const filteredItems = items.filter((item) => {
       if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
@@ -126,18 +135,10 @@ export function ListingFilters({
       return true;
     });
 
-    const fromItems = filteredItems
-      .map((item) => item.experienceLevel)
-      .filter((l): l is string => Boolean(l));
+    return getOptionsByCount(filteredItems, (item) => item.experienceLevel);
+  }, [items, filters.sector, filters.position]);
 
-    if (fromItems.length > 0) {
-      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
-    }
-
-    return isSeek ? CAREER_SEEK_LEVELS : CAREER_HIRE_WORK_MODES;
-  }, [items, filters.sector, filters.position, isSeek]);
-
-  // 4. Şehirler: Var olan ilanlardaki şehirler (A-Z)
+  // 4. Şehirler: Seçilen kriterlere göre var olan ilanlardaki şehirler
   const availableCities = useMemo(() => {
     const filteredItems = items.filter((item) => {
       if (filters.sector && item.sector?.toLowerCase() !== filters.sector.toLowerCase()) return false;
@@ -146,15 +147,7 @@ export function ListingFilters({
       return true;
     });
 
-    const fromItems = filteredItems
-      .map((item) => item.city || item.location?.split(',')[0]?.trim())
-      .filter((c): c is string => Boolean(c && c !== 'Türkiye'));
-
-    if (fromItems.length > 0) {
-      return Array.from(new Set(fromItems)).sort((a, b) => a.localeCompare(b, 'tr-TR'));
-    }
-
-    return MARKETPLACE_CITY_OPTIONS;
+    return getOptionsByCount(filteredItems, (item) => item.city || item.location?.split(',')[0]?.trim());
   }, [items, filters.sector, filters.position, filters.careerLevel]);
 
   return (
@@ -176,21 +169,27 @@ export function ListingFilters({
 
       {isCareer ? (
         <>
-          {/* 1. Uzmanlık Sektörü / Sektör (A-Z) - BAŞTA! */}
+          {/* 1. Uzmanlık Sektörü / Sektör (İlan sayısına göre azalan) - BAŞTA! */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
                 const newSector = val === ALL_VALUE ? undefined : val;
-                const validPositions = getAvailablePositions(newSector);
-                const nextPosition =
-                  filters.position && validPositions.includes(filters.position)
-                    ? filters.position
-                    : undefined;
+                const filteredForNewSector = newSector
+                  ? items.filter((item) => item.sector?.toLowerCase() === newSector.toLowerCase())
+                  : items;
+                const validPositions = getOptionsByCount(
+                  filteredForNewSector,
+                  (item) => item.position || (isSeek ? item.title : undefined),
+                );
+                const isPosValid =
+                  filters.position && validPositions.some((p) => p.value === filters.position);
 
                 onChange({
                   sector: newSector,
-                  position: nextPosition,
+                  position: isPosValid ? filters.position : undefined,
+                  careerLevel: undefined,
+                  city: undefined,
                 });
               }}
             >
@@ -200,19 +199,25 @@ export function ListingFilters({
               <SelectContent themeColor={themeColor}>
                 <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
                 {availableSectors.map((sec) => (
-                  <SelectItem key={sec} value={sec}>
-                    {sec}
+                  <SelectItem key={sec.value} value={sec.value}>
+                    {sec.value}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* 2. Aranan Pozisyon / Açık Pozisyon (Sektöre göre dinamik A-Z) */}
+          {/* 2. Aranan Pozisyon / Açık Pozisyon (Sektöre göre dinamik, ilan sayısına göre azalan) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.position ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ position: val === ALL_VALUE ? undefined : val })}
+              onValueChange={(val) =>
+                onChange({
+                  position: val === ALL_VALUE ? undefined : val,
+                  careerLevel: undefined,
+                  city: undefined,
+                })
+              }
             >
               <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Pozisyon seçin" />
@@ -220,19 +225,24 @@ export function ListingFilters({
               <SelectContent themeColor={themeColor}>
                 <SelectItem value={ALL_VALUE}>Pozisyon seçin</SelectItem>
                 {availablePositions.map((pos) => (
-                  <SelectItem key={pos} value={pos}>
-                    {pos}
+                  <SelectItem key={pos.value} value={pos.value}>
+                    {pos.value}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* 3. Kariyer Seviyesi / Çalışma Şekli (A-Z) */}
+          {/* 3. Kariyer Seviyesi / Çalışma Şekli (Dinamik, ilan sayısına göre azalan) */}
           <div className="w-[180px] sm:w-[210px]">
             <Select
               value={filters.careerLevel ?? ALL_VALUE}
-              onValueChange={(val) => onChange({ careerLevel: val === ALL_VALUE ? undefined : val })}
+              onValueChange={(val) =>
+                onChange({
+                  careerLevel: val === ALL_VALUE ? undefined : val,
+                  city: undefined,
+                })
+              }
             >
               <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder={isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'} />
@@ -242,8 +252,8 @@ export function ListingFilters({
                   {isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'}
                 </SelectItem>
                 {availableLevels.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -288,8 +298,8 @@ export function ListingFilters({
           <SelectContent themeColor={themeColor}>
             <SelectItem value={ALL_VALUE}>Şehir seçin</SelectItem>
             {availableCities.map((city) => (
-              <SelectItem key={city} value={city}>
-                {city}
+              <SelectItem key={city.value} value={city.value}>
+                {city.value}
               </SelectItem>
             ))}
           </SelectContent>
