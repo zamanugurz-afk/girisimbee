@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import type { ContentItem } from '@/features/categories/types/category.types';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
 import {
   LISTING_SORT_OPTIONS,
