@@ -170,24 +170,6 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
         <InvestorProfilePreview data={listing.investorCard} showTitle={false} />
       ) : null}
 
-      {showCareerCard ? null : (
-        <div className="rounded-2xl border border-blue-500/25 bg-blue-500/[0.04] p-4 sm:p-5">
-          <div className="flex items-start gap-3.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <div>
-              <h4 className="font-display text-sm font-semibold text-foreground">
-                Girişimbee Güvenli İletişim & Gizlilik Koruması
-              </h4>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Bu ilanda telefon numarası ve e-posta gibi doğrudan iletişim bilgileri korunmaktadır. İlan sahibiyle güvenli iletişim talebi oluşturarak bağlantı kurabilirsiniz.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showAbout ? (
         <DetailSectionIf title="İlan içeriği" visible={showAbout}>
           <DetailCard>
