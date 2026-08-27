@@ -15,29 +15,6 @@ import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketp
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const CAREER_SEEK_QUICK_TABS = [
-  { key: 'all', label: 'Tümü', query: '' },
-  { key: 'remote', label: 'Uzaktan', query: 'Uzaktan' },
-  { key: 'hybrid', label: 'Hibrit', query: 'Hibrit' },
-  { key: 'fulltime', label: 'Tam Zamanlı', query: 'Tam Zamanlı' },
-  { key: 'tech', label: 'Bilişim & Yazılım', query: 'Bilişim' },
-  { key: 'sales', label: 'Satış & Pazarlama', query: 'Satış' },
-  { key: 'finance', label: 'Finans & Muhasebe', query: 'Finans' },
-  { key: 'management', label: 'Yönetici & Lider', query: 'Yönetici' },
-] as const;
-
-const CAREER_HIRE_QUICK_TABS = [
-  { key: 'all', label: 'Tümü', query: '' },
-  { key: 'remote', label: 'Uzaktan', query: 'Uzaktan' },
-  { key: 'hybrid', label: 'Hibrit', query: 'Hibrit' },
-  { key: 'fulltime', label: 'Tam Zamanlı', query: 'Tam Zamanlı' },
-  { key: 'parttime', label: 'Yarı Zamanlı', query: 'Yarı Zamanlı' },
-  { key: 'tech', label: 'Bilişim & Yazılım', query: 'Bilişim' },
-  { key: 'sales', label: 'Satış & Pazarlama', query: 'Satış' },
-  { key: 'food', label: 'Gıda & Restoran', query: 'Gıda' },
-  { key: 'intern', label: 'Staj & Yeni Mezun', query: 'Staj' },
-] as const;
-
 interface MarketplaceBrowsePageProps {
   categorySlug?: string;
   initialQuery?: string;
@@ -122,10 +99,6 @@ export function MarketplaceBrowseView({
       : '#10B981'
     : (headerAccent ?? '#3B82F6');
 
-  const quickTabs = (isCareerCategory || filters.jobFlow)
-    ? (filters.jobFlow === 'seek' ? CAREER_SEEK_QUICK_TABS : CAREER_HIRE_QUICK_TABS)
-    : null;
-
   return (
     <div className="gc-header-offset bg-background">
       <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
@@ -172,48 +145,6 @@ export function MarketplaceBrowseView({
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        {quickTabs && (
-          <div className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none">
-            {quickTabs.map((tab) => {
-              const isAll = tab.key === 'all';
-              const isActive = isAll
-                ? !filters.query
-                : filters.query?.toLowerCase() === tab.query.toLowerCase();
-
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => {
-                    if (isAll) {
-                      updateFilters({ query: undefined });
-                    } else {
-                      updateFilters({ query: isActive ? undefined : tab.query });
-                    }
-                  }}
-                  className={cn(
-                    'inline-flex shrink-0 items-center rounded-full px-3.5 py-1 text-xs transition-all select-none',
-                    isActive
-                      ? 'font-semibold shadow-sm'
-                      : 'border border-border/80 bg-card text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground'
-                  )}
-                  style={
-                    isActive
-                      ? {
-                          backgroundColor: `${resolvedAuraColor}18`,
-                          borderColor: `${resolvedAuraColor}70`,
-                          color: resolvedAuraColor,
-                        }
-                      : undefined
-                  }
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
         <ListingFilters
           filters={filters}
           onChange={updateFilters}
