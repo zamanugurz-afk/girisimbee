@@ -453,9 +453,6 @@ export function PartnershipProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         {isTransfer ? 'İşletme' : 'Proje'}
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {isTransfer ? 'Faaliyet' : 'Aşama'}
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
@@ -488,9 +485,6 @@ export function PartnershipProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         Finans
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {monthlyRevenue ? 'Cirolu' : 'Büyüme'}
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
@@ -523,9 +517,6 @@ export function PartnershipProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         Kapsam
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        {isTransfer ? 'Demirbaş' : 'Ortaklık'}
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">

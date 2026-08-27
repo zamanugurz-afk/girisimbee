@@ -401,9 +401,6 @@ export function FranchiseProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         Eğitim
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        Destek
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
@@ -436,9 +433,6 @@ export function FranchiseProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         Mimari
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        Lokasyon
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
@@ -471,9 +465,6 @@ export function FranchiseProfilePreview({
                       <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
                         Lojistik
                       </p>
-                      <span className={cn('mt-1 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', theme.badgeBg)}>
-                        Pazarlama
-                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
