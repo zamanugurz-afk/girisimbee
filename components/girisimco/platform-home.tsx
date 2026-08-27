@@ -54,8 +54,8 @@ export function PlatformHome() {
             <PlatformHero className="min-h-0" />
           </div>
 
-          {/* 2. ALT ALAN: 4'LÜ BENTO KARTLARI (TAM STANDART 1280PX GRID ÇİZGİSİNE HİZALI) */}
-          <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-6 mb-2">
+          {/* 2. ALT ALAN: 4'LÜ BENTO KARTLARI (TAM STANDART 1280PX GRID ÇİZGİSİNE HİZALI & SOLA GÖRE ORTALANMIŞ) */}
+          <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-8 sm:mt-10 lg:mt-12 mb-3 sm:mb-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Kariyer */}
               <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">

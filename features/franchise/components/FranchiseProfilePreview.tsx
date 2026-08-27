@@ -46,13 +46,13 @@ interface FranchiseProfilePreviewProps {
 }
 
 const theme = {
-  cardBorder: 'border-sky-200/90 dark:border-sky-800/40',
-  cardGlow: 'shadow-[0_2px_12px_-4px_rgba(56,189,248,0.12)]',
-  headerText: 'text-sky-700 dark:text-sky-400',
-  iconBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-300',
-  numNode: 'bg-sky-500/10 text-sky-700 dark:bg-sky-950/50 dark:text-sky-400 font-bold',
-  badgeBg: 'bg-sky-500/10 text-sky-700 border-sky-300/40 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-700/40',
-  ctaBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm font-bold',
+  cardBorder: 'border-rose-200/90 dark:border-rose-800/40',
+  cardGlow: 'shadow-[0_2px_12px_-4px_rgba(244,63,94,0.12)]',
+  headerText: 'text-rose-700 dark:text-rose-400',
+  iconBg: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  numNode: 'bg-rose-500/10 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 font-bold',
+  badgeBg: 'bg-rose-500/10 text-rose-700 border-rose-300/40 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-700/40',
+  ctaBtn: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm font-bold',
 };
 
 export function FranchiseProfilePreview({
@@ -262,8 +262,8 @@ export function FranchiseProfilePreview({
             type="button"
             onClick={handleContactClick}
             className={cn(
-              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20',
-              isPulsing && 'animate-pulse-gentle ring-2 ring-offset-1 ring-amber-500/50 shadow-md',
+              'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-rose-600 hover:bg-rose-700 text-white shadow-rose-500/20',
+              isPulsing && 'animate-pulse-gentle ring-2 ring-offset-1 ring-rose-500/50 shadow-md',
             )}
           >
             <Phone className="h-3.5 w-3.5 shrink-0" />
@@ -277,7 +277,7 @@ export function FranchiseProfilePreview({
           <DialogContent className="max-w-md rounded-2xl p-6">
             <DialogHeader className="space-y-1.5 text-left">
               <DialogTitle className="text-base sm:text-lg font-bold text-slate-900 dark:text-foreground flex items-center gap-2">
-                <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <Phone className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                 <span>Franchise Yetkilisiyle İletişime Geç</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500 dark:text-muted-foreground">
@@ -288,7 +288,7 @@ export function FranchiseProfilePreview({
             <div className="space-y-3 pt-2">
               {contactName && (
                 <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 dark:bg-muted dark:border-border text-xs text-slate-700 dark:text-slate-300 font-medium">
-                  <UserCheck className="h-4 w-4 text-blue-600" />
+                  <UserCheck className="h-4 w-4 text-rose-600" />
                   <span>Franchise Yetkilisi: <strong className="text-slate-900 dark:text-foreground">{contactName}</strong></span>
                 </div>
               )}
@@ -296,10 +296,10 @@ export function FranchiseProfilePreview({
               {contactPhone && (
                 <a
                   href={`tel:${contactPhone}`}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-bold text-xs sm:text-sm transition-all group dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 font-bold text-xs sm:text-sm transition-all group dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Phone className="h-4 w-4 text-blue-600" />
+                    <Phone className="h-4 w-4 text-rose-600" />
                     <span>Telefonla Ara: {contactPhone}</span>
                   </div>
                   <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
