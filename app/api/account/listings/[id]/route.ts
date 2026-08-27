@@ -1,6 +1,6 @@
 import { withAuth } from '@/lib/api/with-auth';
 import { ok, apiError } from '@/lib/api/response';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service';
 import type { ListingId } from '@/lib/domain/ids';
 
 /**
@@ -12,7 +12,7 @@ export const DELETE = withAuth(async (ctx, _request, routeContext) => {
     return apiError('İlan ID belirtilmedi.', 400, { code: 'BAD_REQUEST' });
   }
 
-  const supabase = createClient();
+  const supabase = createServiceRoleClient();
 
   const { data: existing, error: findError } = await supabase
     .from('marketplace_listings')
@@ -54,7 +54,7 @@ export const PATCH = withAuth(async (ctx, request, routeContext) => {
     return apiError('İlan ID belirtilmedi.', 400, { code: 'BAD_REQUEST' });
   }
 
-  const supabase = createClient();
+  const supabase = createServiceRoleClient();
   const body = (await request.json().catch(() => ({}))) as {
     action?: 'pause' | 'publish' | 'showcase' | 'urgent';
   };

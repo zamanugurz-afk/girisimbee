@@ -168,32 +168,34 @@ export function ReklamPageView() {
   }
 
   return (
-    <div className="border-b border-border/60">
-      <div className="relative overflow-hidden border-b border-border/60 bg-muted/20">
+    <div className="gc-header-offset bg-background border-b border-border/60">
+      <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-muted/30"
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full blur-[120px] opacity-[0.04] dark:opacity-[0.06] bg-amber-500"
           aria-hidden
         />
-        <div className="relative mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-14">
+        <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
           <ScrollReveal>
-            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
-              <Megaphone className="h-3.5 w-3.5" aria-hidden />
-              Reklam & işbirliği
-            </p>
-            <h1 className="gc-page-heading mt-2 max-w-2xl text-gc-xl sm:text-gc-2xl">
-              Markanızı <BrandWordmark />’da öne çıkarın
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                <Megaphone className="h-3.5 w-3.5" aria-hidden />
+                Reklam & İşbirliği
+              </span>
+            </div>
+            <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+              Markanızı <BrandWordmark />’da Öne Çıkarın
             </h1>
-            <p className="mt-3 max-w-xl text-gc-sm leading-relaxed text-muted-foreground sm:text-gc-base">
-              MARKET reklamını {MARKET_AD_PRICE_LABEL} ödeyerek hemen yayınlayın veya özel işbirliği
+            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              MARKET reklamını {MARKET_AD_PRICE_LABEL} ödeyerek hemen yayınlayın veya markanıza özel işbirliği
               için talep oluşturun.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1">
-                <Store className="h-3.5 w-3.5 text-primary" aria-hidden />
+            <div className="mt-5 flex flex-wrap gap-2.5 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50/50 px-3 py-1 font-semibold text-amber-900 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300">
+                <Store className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden />
                 MARKET reklamı · {MARKET_AD_PRICE_LABEL} · anında yayın
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1">
-                <Handshake className="h-3.5 w-3.5 text-primary" aria-hidden />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50/60 px-3 py-1 font-semibold text-slate-700 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-slate-300">
+                <Handshake className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" aria-hidden />
                 Özel işbirliği talebi
               </span>
             </div>

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ListingOwnerPackagePanel } from '@/components/girisimco/listing/listing-owner-package-panel';
+import { ListingOwnerActionsBar } from '@/components/girisimco/listing/listing-owner-actions-bar';
 import { PremiumGate } from '@/components/girisimco/premium/premium-gate';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import type { PartnershipCardData } from '@/features/listings/types/listing.types';
@@ -154,7 +155,14 @@ export function PartnershipProfilePreview({
   const whatsappNumber = cleanPhoneForWhatsapp(contactWhatsapp || contactPhone);
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full space-y-5', className)}>
+      {listingId && isOwner ? (
+        <ListingOwnerActionsBar
+          listingId={listingId}
+          title={displayTitle}
+        />
+      ) : null}
+
       <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)] gap-5">
         
         {/* SOL SÜTUN - AYRIK KARTLAR */}
