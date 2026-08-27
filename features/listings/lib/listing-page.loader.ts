@@ -36,9 +36,7 @@ async function loadCareerOwnerDisplayName(ownerId: string | null | undefined): P
   }
 }
 
-export type ListingPagePayload =
-  | { kind: 'detail'; listing: ListingDetail }
-  | { kind: 'franchise-redirect'; href: string };
+export type ListingPagePayload = { kind: 'detail'; listing: ListingDetail };
 
 async function resolveListingRow(
   idOrSlug: string,

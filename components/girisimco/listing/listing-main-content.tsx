@@ -84,11 +84,9 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
   const showPartnershipCard =
-    Boolean(listing.partnershipCard)
-    && (listing.category.id === 'find-partner' || listing.category.id === 'business-transfer');
+    Boolean(listing.partnershipCard);
   const showFranchiseCard =
-    Boolean(listing.franchiseCard)
-    && listing.category.id === 'franchise';
+    Boolean(listing.franchiseCard);
   const showInvestorCard =
     Boolean(listing.investorCard)
     && listing.category.id === 'invest';

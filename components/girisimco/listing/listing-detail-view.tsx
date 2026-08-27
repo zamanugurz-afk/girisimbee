@@ -32,9 +32,12 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
     Boolean(listing.careerCard)
     && (listing.category.id === 'find-job' || listing.category.id === 'hire');
   const isPartnershipListing =
-    listing.category.id === 'find-partner' || listing.category.id === 'business-transfer';
+    Boolean(listing.partnershipCard)
+    || listing.category.id === 'find-partner';
   const isDigitalSolutionListing = listing.category.id === 'digital-ai';
-  const isFranchiseListing = listing.category.id === 'franchise';
+  const isFranchiseListing =
+    Boolean(listing.franchiseCard)
+    || listing.category.id === 'franchise';
   const isUnifiedCardListing = isCareerListing || isPartnershipListing || isFranchiseListing;
 
   const backLink = isCareerListing

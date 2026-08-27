@@ -1,5 +1,5 @@
 import type { ListingAggregate } from '@/features/listings/types/listing-engine.types';
-import type { ListingDetail, ListingPublisher, PartnershipCardData } from '@/features/listings/types/listing.types';
+import type { ListingDetail, ListingPublisher, PartnershipCardData, FranchiseCardData } from '@/features/listings/types/listing.types';
 import type { DigitalAiCapability } from '@/features/listings/config/digital-ai-capabilities';
 import { resolveDigitalAiCapabilities } from '@/features/listings/config/digital-ai-capabilities';
 import type { CategoryIntentId } from '@/features/categories/types/category.types';
@@ -65,9 +65,31 @@ import { isCustomInvestmentAmount } from '@/features/investments/taxonomy/invest
 import { detectCareerProgression } from '@/features/candidates/ai/career-progression';
 import { pickHighlightedSkills } from '@/features/candidates/ai/skill-relevance';
 
-const SLUG_TO_INTENT = Object.fromEntries(
-  Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
-) as Record<string, CategoryIntentId>;
+const SLUG_TO_INTENT: Record<string, CategoryIntentId> = {
+  ...Object.fromEntries(
+    Object.entries(INTENT_TO_CATEGORY_SLUG).map(([intent, slug]) => [slug, intent]),
+  ),
+  'is-bul': 'find-job',
+  'is-ariyorum': 'find-job',
+  'ise-al': 'hire',
+  'ise-aliyorum': 'hire',
+  'ortak-bul': 'find-partner',
+  'ortak-ariyorum': 'find-partner',
+  'ortaklik': 'find-partner',
+  'devir': 'find-partner',
+  'isletme-devri': 'find-partner',
+  'isletme-devret': 'find-partner',
+  'isletme-devral': 'find-partner',
+  'business-transfer': 'find-partner',
+  'franchise': 'franchise',
+  'bayilik-al': 'franchise',
+  'bayilik-ver': 'franchise',
+  'franchise-ver': 'franchise',
+  'bayilik': 'franchise',
+  'dijital-ai': 'digital-ai',
+  'yatirim-bul': 'find-investment',
+  'yatirim-yap': 'invest',
+};
 
 /** Fields shown in the company/brand block — omit from flat customFacts to avoid duplicates. */
 const COMPANY_BLOCK_CUSTOM_KEYS = new Set([
@@ -633,11 +655,24 @@ export function aggregateToListingDetail(
             })
           : undefined,
     partnershipCard:
-      categorySlug === 'ortak-bul' || categorySlug === 'devir' || categorySlug === 'isletme-devret'
+      categorySlug === 'ortak-bul' ||
+      categorySlug === 'ortak-ariyorum' ||
+      categorySlug === 'ortaklik' ||
+      categorySlug === 'devir' ||
+      categorySlug === 'isletme-devri' ||
+      categorySlug === 'isletme-devret' ||
+      categorySlug === 'isletme-devral' ||
+      categorySlug === 'business-transfer' ||
+      resolvedIntent === 'find-partner'
         ? buildPartnershipCard(cf, listing, listing.city, careerCoverUrl)
         : undefined,
     franchiseCard:
-      categorySlug === 'franchise' || categorySlug === 'bayilik-al' || categorySlug === 'franchise-ver'
+      categorySlug === 'franchise' ||
+      categorySlug === 'bayilik-al' ||
+      categorySlug === 'bayilik-ver' ||
+      categorySlug === 'franchise-ver' ||
+      categorySlug === 'bayilik' ||
+      resolvedIntent === 'franchise'
         ? buildFranchiseCard(cf, listing, listing.city, careerCoverUrl)
         : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
