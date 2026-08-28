@@ -34,17 +34,19 @@ function parseExploreFilters(
     filters.sortBy = DEFAULT_SORT;
   }
 
-  if (get('featured') === '1' || get('featured') === 'true') {
-    filters.isFeatured = true;
-    filters.activeFeaturedOnly = true;
-  }
+  const isExplicitAll = get('all') === '1' || get('all') === 'true';
+  const isExplicitUrgentFalse = get('urgent') === '0' || get('urgent') === 'false';
+  const isExplicitUrgentTrue = get('urgent') === '1' || get('urgent') === 'true';
+  const hasCategory = Boolean(get('category'));
+  const hasQuery = Boolean(get('q'));
+  const hasToday = get('today') === '1' || get('today') === 'true';
 
-  if (get('urgent') === '1' || get('urgent') === 'true') {
+  // İlk açılışta veya urgent=1 durumunda SADECE Süper İlanlar gösterilir
+  if (isExplicitUrgentTrue || (!isExplicitAll && !isExplicitUrgentFalse && !hasCategory && !hasQuery && !hasToday)) {
     filters.isUrgent = true;
-    filters.activeUrgentOnly = true;
   }
 
-  if (get('today') === '1' || get('today') === 'true') {
+  if (hasToday) {
     filters.publishedAfter = startOfTodayIstanbulIso();
     filters.publishedBefore = endOfTodayIstanbulIso();
   }
@@ -56,8 +58,17 @@ function parseExploreFilters(
 }
 
 function exploreTitle(searchParams: Record<string, string | string[] | undefined>): string {
-  if (searchParams.urgent === '1' || searchParams.urgent === 'true') return 'Süper İlanlar';
-  if (searchParams.today === '1' || searchParams.today === 'true') return 'Bugünün İlanları';
+  const isExplicitAll = searchParams.all === '1' || searchParams.all === 'true';
+  const isExplicitUrgentFalse = searchParams.urgent === '0' || searchParams.urgent === 'false';
+  const isExplicitUrgentTrue = searchParams.urgent === '1' || searchParams.urgent === 'true';
+  const hasCategory = Boolean(searchParams.category);
+  const hasQuery = Boolean(searchParams.q);
+  const hasToday = searchParams.today === '1' || searchParams.today === 'true';
+
+  if (isExplicitUrgentTrue || (!isExplicitAll && !isExplicitUrgentFalse && !hasCategory && !hasQuery && !hasToday)) {
+    return 'Süper İlanlar';
+  }
+  if (hasToday) return 'Bugünün İlanları';
   if (searchParams.sort === 'most_viewed') return 'En Çok Görüntülenenler';
   const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
   if (category) {
