@@ -64,15 +64,15 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     };
   }
 
-  // 2. Soft-delete ALL existing listings so they never show in search/feed
+  // 2. Soft-delete / Archive ALL existing test listings so they NEVER appear in active feed
   let archivedCount = 0;
   let archiveError = null;
   try {
     const { data: updated, error: updErr } = await supabase
       .from('marketplace_listings')
       .update({
-        status: 'deleted',
-        workflow_status: 'deleted',
+        status: 'archived',
+        workflow_status: 'archived',
         deleted_at: now,
         is_featured: false,
         is_urgent: false,
@@ -133,6 +133,13 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
 
+    // Valid Postgres enum values for marketplace_module_key: 'founders' | 'employers' | 'candidates' | 'franchise' | null
+    let moduleKey: string | null = null;
+    if (template.categorySlug === 'is-bul') moduleKey = 'candidates';
+    else if (template.categorySlug === 'ise-al') moduleKey = 'employers';
+    else if (template.categorySlug === 'ortak-bul') moduleKey = 'founders';
+    else if (template.categorySlug === 'franchise') moduleKey = 'franchise';
+
     rows.push({
       id: randomUUID(),
       slug: slugify(template.title, index),
@@ -141,7 +148,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       category_id: catId,
       listing_type_id: typeId,
       subcategory_id: null,
-      module_key: template.categorySlug === 'is-bul' ? 'candidates' : template.categorySlug === 'ise-al' ? 'employers' : template.categorySlug === 'ortak-bul' ? 'founders' : template.categorySlug === 'franchise' ? 'franchise' : 'general',
+      module_key: moduleKey,
       title: template.title.slice(0, 200),
       short_description: template.shortDescription.slice(0, 500),
       long_description: template.longDescription,
@@ -159,7 +166,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       contact_email: `ilan${index}@girisimbee.example`,
       contact_website: null,
       custom_fields: customFields,
-      view_count: 110 + index * 17,
+      view_count: 120 + index * 17,
       interested_count: 5 + (index % 11),
       application_count: 2 + (index % 7),
       is_verified: true,
@@ -191,7 +198,6 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
 
   return {
     success: true,
-    resolvedOwnerId: ownerId,
     archivedCount,
     insertedCount,
     archiveError,
