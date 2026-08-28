@@ -89,7 +89,42 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     archiveError = err instanceof Error ? err.message : String(err);
   }
 
-  // 3. Clear favorites
+  // 3. Purge all test messages, conversations, participants, contact requests, and applications
+  try {
+    await supabase
+      .from('marketplace_messages')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    await supabase
+      .from('marketplace_conversation_participants')
+      .delete()
+      .neq('conversation_id', '00000000-0000-0000-0000-000000000000');
+
+    await supabase
+      .from('marketplace_conversations')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    await supabase
+      .from('marketplace_contact_requests')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    await supabase
+      .from('marketplace_job_applications')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    await supabase
+      .from('marketplace_applications')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+  } catch (err) {
+    console.warn('Error clearing messaging records:', err);
+  }
+
+  // 4. Clear favorites
   try {
     await supabase.from('marketplace_favorites').delete().neq('id', '00000000-0000-0000-0000-000000000000');
   } catch {

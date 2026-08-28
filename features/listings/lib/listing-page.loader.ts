@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { getServerContainer } from '@/lib/persistence/container';
 import { aggregateToListingDetail } from '@/features/listings/mappers/listing-detail.mapper';
@@ -76,10 +77,21 @@ export const loadListingPagePayload = cache(
         if (!listing) return null;
         if (!isUserDiscoverableListing(listing)) return null;
 
-        const {
-          data: { user: authUser },
-        } = await supabase.auth.getUser();
-        const viewerUserId = authUser?.id ?? null;
+        let viewerUserId: string | null = null;
+        try {
+          const cookieStore = cookies();
+          const hasAuthCookie = cookieStore
+            .getAll()
+            .some((c) => c.name.includes('auth-token') || c.name.startsWith('sb-'));
+          if (hasAuthCookie) {
+            const {
+              data: { user: authUser },
+            } = await supabase.auth.getUser();
+            viewerUserId = authUser?.id ?? null;
+          }
+        } catch {
+          viewerUserId = null;
+        }
 
         let viewerIsAdmin = false;
         let hasAcceptedContactRequest = false;
