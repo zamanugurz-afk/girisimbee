@@ -226,7 +226,7 @@ export function RadarAnalysisPanel({ data, isLoading }: RadarAnalysisPanelProps)
             <TrendingUp className="h-3.5 w-3.5" />
           </span>
           <h3 className="font-display text-sm font-bold text-foreground">
-            Bölgesel İstihbarat & Pazar Açığı
+            Bölgesel İstihbarat ve Pazar Açığı
           </h3>
         </div>
 

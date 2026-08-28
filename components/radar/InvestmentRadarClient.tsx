@@ -160,7 +160,7 @@ export function InvestmentRadarClient() {
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-400">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-              Canlı İstihbarat & Çember Analizi
+              Canlı İstihbarat ve Çember Analizi
             </span>
             <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
             <span className="text-xs text-muted-foreground hidden sm:inline font-medium">

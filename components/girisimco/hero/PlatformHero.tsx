@@ -78,7 +78,7 @@ const HERO_SIDEBAR_STATS: {
   },
   {
     key: 'opportunities',
-    label: 'Fırsatlar & Market',
+    label: 'Market ve Fırsatlar',
     href: '/market',
     Icon: Megaphone,
     iconClass: 'text-[#0EA5E9]',
