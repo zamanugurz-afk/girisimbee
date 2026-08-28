@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -522,16 +522,10 @@ export function PartnershipProfilePreview({
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
                         {displaySector} · {displayLocation}
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>{problemText}</span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>{solutionText}</span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>{problemText}</p>
+                        <p>{solutionText}</p>
+                      </div>
                     </div>
                   </div>
 
@@ -561,26 +555,20 @@ export function PartnershipProfilePreview({
                           ? `Aylık Gelir: ${toDisplay(p.monthlyRevenue)} ₺`
                           : 'Kârlı ve Sürdürülebilir Yapı'}
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>
-                            {p.equityOffered
-                              ? `Sunulan Ortaklık Hissesi: %${toDisplay(p.equityOffered)}`
-                              : p.transferPrice
-                                ? `Talep Edilen Devir Bedeli: ${toDisplay(p.transferPrice)} ₺`
-                                : 'Esnek ve şeffaf sermaye / hisse paylaşımı.'}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>
-                            {p.investmentAmount
-                              ? `Hedeflenen Sermaye / Yatırım: ${toDisplay(p.investmentAmount)} ₺`
-                              : 'Düzenli nakit akışı ve büyüme potansiyeline sahip iş modeli.'}
-                          </span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>
+                          {p.equityOffered
+                            ? `Sunulan Ortaklık Hissesi: %${toDisplay(p.equityOffered)}`
+                            : p.transferPrice
+                              ? `Talep Edilen Devir Bedeli: ${toDisplay(p.transferPrice)} ₺`
+                              : 'Esnek ve şeffaf sermaye / hisse paylaşımı.'}
+                        </p>
+                        <p>
+                          {p.investmentAmount
+                            ? `Hedeflenen Sermaye / Yatırım: ${toDisplay(p.investmentAmount)} ₺`
+                            : 'Düzenli nakit akışı ve büyüme potansiyeline sahip iş modeli.'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -614,23 +602,17 @@ export function PartnershipProfilePreview({
                             ? `Taahhüt: ${toDisplay(p.commitment)}`
                             : 'Tam Yetki & Şeffaf Süreç'}
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>
-                            {isTransfer
-                              ? 'Tüm ekipman, tedarikçi bağlantıları ve müşteri portföyü devredilecektir.'
-                              : 'Fikri mülkiyet, marka hakları ve teknoloji altyapısı mevcuttur.'}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>
-                            Hukuki olarak hazırlanmış ortaklık / devir sözleşmesi ile güvence altına
-                            alınır.
-                          </span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>
+                          {isTransfer
+                            ? 'Tüm ekipman, tedarikçi bağlantıları ve müşteri portföyü devredilecektir.'
+                            : 'Fikri mülkiyet, marka hakları ve teknoloji altyapısı mevcuttur.'}
+                        </p>
+                        <p>
+                          Hukuki olarak hazırlanmış ortaklık / devir sözleşmesi ile güvence altına
+                          alınır.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

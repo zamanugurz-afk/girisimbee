@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -376,16 +376,10 @@ export function FranchiseProfilePreview({
                         {f.minSquareMeters ? `Min. ${toDisplay(f.minSquareMeters)} m²` : 'Esnek Metrekare'} ·{' '}
                         {toDisplay(f.storeLocationType, 'Cadde & AVM Uygun')}
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>Merkezi lokasyon seçimi, fizibilite raporu ve mimari projelendirme desteği.</span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>Anahtar teslim mağaza dekorasyonu ve kurumsal kimlik standartları.</span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>Merkezi lokasyon seçimi, fizibilite raporu ve mimari projelendirme desteği.</p>
+                        <p>Anahtar teslim mağaza dekorasyonu ve kurumsal kimlik standartları.</p>
+                      </div>
                     </div>
                   </div>
 
@@ -413,16 +407,10 @@ export function FranchiseProfilePreview({
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
                         Operasyonel Standartlar · Sürekli Denetim
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>İşe alım, barista/satış personeli ve şube müdürü için kapsamlı sertifikasyon.</span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>Açılış haftasında merkez operasyon ekibinden birebir yerinde refakat.</span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>İşe alım, barista/satış personeli ve şube müdürü için kapsamlı sertifikasyon.</p>
+                        <p>Açılış haftasında merkez operasyon ekibinden birebir yerinde refakat.</p>
+                      </div>
                     </div>
                   </div>
 
@@ -450,16 +438,10 @@ export function FranchiseProfilePreview({
                       <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
                         {toDisplay(f.royaltyFee, 'Merkezi Lojistik & Reklam')}
                       </p>
-                      <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>Merkezi depodan düzenli ve uygun maliyetli hammadde/ürün sevkiyatı.</span>
-                        </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="text-slate-400 font-bold">•</span>
-                          <span>Ulusal ve yerel dijital pazarlama, sosyal medya ve marka bilinirliği kampanyaları.</span>
-                        </li>
-                      </ul>
+                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p>Merkezi depodan düzenli ve uygun maliyetli hammadde/ürün sevkiyatı.</p>
+                        <p>Ulusal ve yerel dijital pazarlama, sosyal medya ve marka bilinirliği kampanyaları.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
