@@ -588,14 +588,12 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       id: 'basics',
       title: 'Usta ve Hizmet Bilgileri',
       description: 'Hizmet alanı, unvan, deneyim ve fiyatlandırma bilgileri',
-      coreFields: ['title', 'city'],
+      coreFields: ['title'],
       customFieldKeys: [
         'serviceCategory',
         'craftsmanTitle',
         'experienceYears',
         'pricingType',
-        'warrantyDuration',
-        'workshopAddress',
       ],
     },
     {

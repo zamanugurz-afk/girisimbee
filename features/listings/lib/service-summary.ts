@@ -9,13 +9,11 @@ export interface ServiceSummaryContext {
   serviceCategory?: string;
   craftsmanTitle?: string;
   experienceYears?: string;
-  warrantyDuration?: string;
   pricingType?: string;
   workingHours?: string;
   emergency247?: boolean;
   servicesList?: string[] | string;
   serviceDistricts?: string[] | string;
-  workshopAddress?: string;
   city?: string | null;
   district?: string | null;
 }
@@ -32,7 +30,6 @@ export function buildServiceSummaryDraft(ctx: ServiceSummaryContext): ServiceSum
   const category = ctx.serviceCategory?.trim() || 'Hizmet ve Ustalık';
   const title = ctx.craftsmanTitle?.trim() || `${category} Hizmetleri`;
   const exp = ctx.experienceYears?.trim() || '';
-  const warranty = ctx.warrantyDuration?.trim() || '';
   const pricing = ctx.pricingType?.trim() || '';
   const hours = ctx.workingHours?.trim() || '';
   const emergency = Boolean(ctx.emergency247);
@@ -40,7 +37,6 @@ export function buildServiceSummaryDraft(ctx: ServiceSummaryContext): ServiceSum
   const district = ctx.district?.trim() || '';
   const services = parseList(ctx.servicesList);
   const districts = parseList(ctx.serviceDistricts);
-  const address = ctx.workshopAddress?.trim() || '';
 
   // 1. Kısa Açıklama (Arka planda DB ve kartlar için otomatik sentezlenir)
   const locPart = districts.length > 0
@@ -48,9 +44,8 @@ export function buildServiceSummaryDraft(ctx: ServiceSummaryContext): ServiceSum
     : (district ? `${district}, ${city}` : (city || 'tüm bölge'));
   const servPart = services.length > 0 ? services.slice(0, 3).join(', ') : category;
   const expPart = exp ? `${exp} deneyimle ` : '';
-  const warrantyPart = warranty ? ` ${warranty}.` : '';
 
-  const shortDescription = `${expPart}${locPart} genelinde ${servPart} alanında profesyonel ve güvenilir hizmet.${warrantyPart}`;
+  const shortDescription = `${expPart}${locPart} genelinde ${servPart} alanında profesyonel ve güvenilir hizmet.`;
 
   // 2. Detaylı Açıklama (Akıllı Taslak / Profesyonel Müşteri Metni)
   const paragraphs: string[] = [];
@@ -80,7 +75,7 @@ export function buildServiceSummaryDraft(ctx: ServiceSummaryContext): ServiceSum
     );
   }
 
-  // Paragraf 4: Çalışma Saatleri, Garanti & Fiyatlandırma
+  // Paragraf 4: Çalışma Saatleri & Fiyatlandırma
   const conditions: string[] = [];
   if (hours) {
     conditions.push(`Çalışma saatlerimiz: ${hours}.`);
@@ -88,14 +83,8 @@ export function buildServiceSummaryDraft(ctx: ServiceSummaryContext): ServiceSum
   if (emergency) {
     conditions.push(`Acil arıza ve çağrılar için 7/24 kesintisiz nöbetçi servisimiz mevcuttur.`);
   }
-  if (warranty) {
-    conditions.push(`Yaptığımız tüm işler ve montajlar ${warranty.toLowerCase()} kapsamındadır.`);
-  }
   if (pricing) {
     conditions.push(`Fiyatlandırma modelimiz: ${pricing}.`);
-  }
-  if (address) {
-    conditions.push(`Atölye / Dükkan Adresimiz: ${address}.`);
   }
 
   if (conditions.length > 0) {

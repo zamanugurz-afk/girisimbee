@@ -733,6 +733,8 @@ export function CategoryListingForm({
       categoryId,
       themeColor: categoryThemeColor,
       onDismissPrunedNotice: () => setSectorsPrunedNotice(false),
+      onCoreChange: (key: string, val: any) =>
+        setCore((prev) => ({ ...prev, [key]: val })),
     }),
     [mergedCustomFields, sectorsPrunedNotice, core.city, categoryId, categoryThemeColor],
   );
@@ -1299,13 +1301,11 @@ export function CategoryListingForm({
       serviceCategory: String(mergedCustomFields.serviceCategory || ''),
       craftsmanTitle: String(mergedCustomFields.craftsmanTitle || ''),
       experienceYears: String(mergedCustomFields.experienceYears || ''),
-      warrantyDuration: String(mergedCustomFields.warrantyDuration || ''),
       pricingType: String(mergedCustomFields.pricingType || ''),
       workingHours: String(mergedCustomFields.workingHours || ''),
       emergency247: Boolean(mergedCustomFields.emergency247),
       servicesList: mergedCustomFields.servicesList as string[] | string,
       serviceDistricts: mergedCustomFields.serviceDistricts as string[] | string,
-      workshopAddress: String(mergedCustomFields.workshopAddress || ''),
       city: core.city,
       district: core.district,
     });
@@ -1320,9 +1320,7 @@ export function CategoryListingForm({
     mergedCustomFields.serviceCategory,
     mergedCustomFields.serviceDistricts,
     mergedCustomFields.servicesList,
-    mergedCustomFields.warrantyDuration,
     mergedCustomFields.workingHours,
-    mergedCustomFields.workshopAddress,
   ]);
 
   useEffect(() => {

@@ -1,12 +1,26 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plus, X, Check, MapPin, Wrench, Sparkles } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Plus, X, MapPin, Sparkles, Check, CheckSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getDistrictsForCity } from '@/features/shared/constants/turkish-districts';
+import { TURKISH_CITIES } from '@/features/shared/constants/turkish-cities';
+import {
+  ISTANBUL_ANADOLU_DISTRICTS,
+  ISTANBUL_AVRUPA_DISTRICTS,
+  getDistrictsForCity,
+} from '@/features/shared/constants/turkish-districts';
 
 export const HIZMET_PRESET_SERVICES: Record<string, string[]> = {
   'Elektrik ve Tesisat': [
@@ -124,7 +138,7 @@ export const HIZMET_PRESET_SERVICES: Record<string, string[]> = {
 };
 
 /**
- * 1. Verilen Hizmet Kalemleri ve Uzmanlıklar Akıllı Seçici
+ * 1. Verilen Hizmet Kalemleri ve Uzmanlıklar — Kutucuklu Model (Image 4)
  */
 export function ServiceItemsSmartPicker({
   serviceCategory,
@@ -138,6 +152,7 @@ export function ServiceItemsSmartPicker({
   disabled?: boolean;
 }) {
   const [customInput, setCustomInput] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const selectedItems = useMemo(() => {
     if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -153,6 +168,10 @@ export function ServiceItemsSmartPicker({
     }
     return HIZMET_PRESET_SERVICES[serviceCategory] || HIZMET_PRESET_SERVICES['Elektrik ve Tesisat'] || [];
   }, [serviceCategory]);
+
+  const customItems = useMemo(() => {
+    return selectedItems.filter((item) => !presetOptions.includes(item));
+  }, [selectedItems, presetOptions]);
 
   const toggleItem = (item: string) => {
     if (disabled) return;
@@ -173,118 +192,187 @@ export function ServiceItemsSmartPicker({
     setCustomInput('');
   };
 
+  const removeCustomItem = (item: string) => {
+    if (disabled) return;
+    onChange(selectedItems.filter((i) => i !== item));
+  };
+
   return (
     <div className="space-y-3">
-      {/* Akıllı Öneri Hapları */}
-      <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3.5 dark:border-indigo-950 dark:bg-indigo-950/20">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span>{serviceCategory ? `"${serviceCategory}" için Önerilen Hizmetler` : 'Önerilen Hizmet Kalemleri'}</span>
-          </span>
-          <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
-            (Tıklayarak ekleyin)
-          </span>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {presetOptions.map((opt) => {
-            const isSelected = selectedItems.includes(opt);
-            return (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => toggleItem(opt)}
+      {/* Kutucuklu Seçenekler Grid (Image 4 Yapısı) */}
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {presetOptions.map((opt) => {
+          const isChecked = selectedItems.includes(opt);
+          return (
+            <label
+              key={opt}
+              htmlFor={`service-opt-${opt}`}
+              className={cn(
+                'flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 text-xs sm:text-sm transition-all select-none',
+                isChecked
+                  ? 'border-indigo-600 bg-indigo-50/70 font-semibold text-indigo-950 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-200 shadow-2xs'
+                  : 'border-slate-200/90 bg-card text-slate-700 hover:border-indigo-300 hover:bg-slate-50/50 dark:border-zinc-800 dark:text-slate-300 dark:hover:border-zinc-700',
+                disabled && 'cursor-not-allowed opacity-60',
+              )}
+            >
+              <Checkbox
+                id={`service-opt-${opt}`}
+                checked={isChecked}
+                onCheckedChange={() => toggleItem(opt)}
                 disabled={disabled}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-all duration-150',
-                  isSelected
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-white text-slate-700 hover:bg-indigo-100/80 border border-indigo-200/80 dark:bg-zinc-900 dark:text-slate-200 dark:border-indigo-900',
-                )}
-              >
-                {isSelected ? <Check className="h-3 w-3 shrink-0" /> : <Plus className="h-3 w-3 shrink-0 opacity-60" />}
-                <span>{opt}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                className="mt-0.5 shrink-0 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+              />
+              <span className="leading-snug">{opt}</span>
+            </label>
+          );
+        })}
 
-      {/* Özel Hizmet Ekleme Girişi */}
-      <div className="flex items-center gap-2">
-        <Input
-          value={customInput}
-          onChange={(e) => setCustomInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddCustom();
-            }
-          }}
-          placeholder="Listede olmayan başka bir uzmanlık / hizmet ekleyin..."
-          className="h-10 text-xs sm:text-sm"
-          disabled={disabled}
-        />
-        <Button
-          type="button"
-          onClick={() => handleAddCustom()}
-          disabled={disabled || !customInput.trim()}
-          variant="outline"
-          size="sm"
-          className="h-10 shrink-0 font-medium text-xs border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 dark:border-indigo-900"
+        {/* Diğer / Kendim Gireceğim Kutucuğu */}
+        <label
+          htmlFor="service-opt-other"
+          className={cn(
+            'flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 text-xs sm:text-sm transition-all select-none',
+            showCustomInput || customItems.length > 0
+              ? 'border-indigo-600 bg-indigo-50/70 font-semibold text-indigo-950 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-200'
+              : 'border-slate-200/90 bg-card text-slate-700 hover:border-indigo-300 hover:bg-slate-50/50 dark:border-zinc-800 dark:text-slate-300',
+            disabled && 'cursor-not-allowed opacity-60',
+          )}
         >
-          <Plus className="h-4 w-4 mr-1" />
-          <span>Ekle</span>
-        </Button>
+          <Checkbox
+            id="service-opt-other"
+            checked={showCustomInput || customItems.length > 0}
+            onCheckedChange={(checked) => setShowCustomInput(checked === true)}
+            disabled={disabled}
+            className="mt-0.5 shrink-0 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+          />
+          <span className="leading-snug">Diğer / Kendim gireceğim</span>
+        </label>
       </div>
 
-      {/* Seçilen Kalemler Rozetleri */}
-      {selectedItems.length > 0 && (
-        <div className="space-y-1.5 pt-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-            Seçilen Hizmet Kalemleri ({selectedItems.length}):
+      {/* Kendim Gireceğim Alanı Açıldığında */}
+      {(showCustomInput || customItems.length > 0) && (
+        <div className="rounded-xl border border-indigo-200/80 bg-indigo-50/40 p-3.5 space-y-3 dark:border-indigo-900/60 dark:bg-indigo-950/20">
+          <div className="flex items-center gap-2">
+            <Input
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddCustom();
+                }
+              }}
+              placeholder="Eklemek istediğiniz özel hizmet kalemini yazın..."
+              className="h-10 text-xs sm:text-sm bg-white dark:bg-zinc-900"
+              disabled={disabled}
+            />
+            <Button
+              type="button"
+              onClick={() => handleAddCustom()}
+              disabled={disabled || !customInput.trim()}
+              size="sm"
+              className="h-10 bg-indigo-600 text-white hover:bg-indigo-700 shrink-0 font-medium px-4"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              <span>Ekle</span>
+            </Button>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {selectedItems.map((item) => (
-              <Badge
-                key={item}
-                variant="secondary"
-                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-900 border border-indigo-200/60 dark:bg-indigo-950/60 dark:text-indigo-200 dark:border-indigo-800"
-              >
-                <span>{item}</span>
-                <button
-                  type="button"
-                  onClick={() => toggleItem(item)}
-                  disabled={disabled}
-                  className="rounded-full hover:bg-indigo-200/60 p-0.5 transition-colors"
+
+          {/* Eklenen Özel Kalemler */}
+          {customItems.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {customItems.map((item) => (
+                <Badge
+                  key={item}
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-indigo-950 border border-indigo-300 dark:bg-zinc-900 dark:text-indigo-200 dark:border-indigo-800 shadow-2xs"
                 >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
+                  <Check className="h-3.5 w-3.5 text-indigo-600" />
+                  <span>{item}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCustomItem(item)}
+                    disabled={disabled}
+                    className="ml-1 rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-zinc-800 text-slate-500 hover:text-slate-800"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Seçim Durumu Sayacı */}
+      <div className="text-[12px] font-medium text-slate-500 flex items-center justify-between">
+        <span>Seçilen Hizmet Kalemi: <strong className="text-indigo-600 dark:text-indigo-400">{selectedItems.length}</strong></span>
+        {selectedItems.length === 0 && (
+          <span className="text-amber-600 dark:text-amber-400 text-xs font-medium">Lütfen en az bir hizmet seçin</span>
+        )}
+      </div>
     </div>
   );
 }
 
 /**
- * 2. Hizmet Verilen İlçeler Akıllı Seçici
+ * Sıralı İl Listesi:
+ * 1. İstanbul (Anadolu)
+ * 2. İstanbul (Avrupa)
+ * 3. Ankara, İzmir, Bursa, Antalya, Adana (En önemli 5 büyük şehir)
+ * 4. Ardından A-Z diğer tüm iller
+ */
+const TOP_PRIORITY_CITIES = [
+  'İstanbul (Anadolu)',
+  'İstanbul (Avrupa)',
+  'Ankara',
+  'İzmir',
+  'Bursa',
+  'Antalya',
+  'Adana',
+] as const;
+
+const REMAINING_TURKISH_CITIES = TURKISH_CITIES
+  .filter((c) => !['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'].includes(c))
+  .sort((a, b) => a.localeCompare(b, 'tr-TR'));
+
+export const ORDERED_SERVICE_CITIES = [
+  ...TOP_PRIORITY_CITIES,
+  ...REMAINING_TURKISH_CITIES,
+] as const;
+
+/**
+ * 2. Hizmet Verilen İl ve İlçeler — Kutucuklu Model (Image 4)
+ * İl: Tek seçim (Single Select)
+ * İlçe: Seçilen ile göre çoklu seçim (Multi Select Checkbox Cards)
  */
 export function ServiceDistrictsSmartPicker({
   city,
   value,
   onChange,
+  onCityChange,
   disabled,
 }: {
   city?: string | null;
   value: string[] | string;
   onChange: (districts: string[]) => void;
+  onCityChange?: (city: string) => void;
   disabled?: boolean;
 }) {
   const [customDistrict, setCustomDistrict] = useState('');
+  const [showCustomDistrict, setShowCustomDistrict] = useState(false);
+
+  // İl varsayılanı İstanbul (Anadolu)
+  const currentCity = useMemo(() => {
+    if (!city) return 'İstanbul (Anadolu)';
+    if (city === 'İstanbul' || city === 'İstanbul Anadolu Yakası' || city === 'İstanbul (Anadolu Yakası)') {
+      return 'İstanbul (Anadolu)';
+    }
+    if (city === 'İstanbul Avrupa Yakası' || city === 'İstanbul (Avrupa Yakası)') {
+      return 'İstanbul (Avrupa)';
+    }
+    return city;
+  }, [city]);
 
   const selectedDistricts = useMemo(() => {
     if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -294,10 +382,30 @@ export function ServiceDistrictsSmartPicker({
     return [];
   }, [value]);
 
+  // Seçilen ile ait resmi ilçe listesi
   const availableDistricts = useMemo(() => {
-    const cityName = city || 'İstanbul';
-    return getDistrictsForCity(cityName);
-  }, [city]);
+    if (currentCity === 'İstanbul (Anadolu)') {
+      return [...ISTANBUL_ANADOLU_DISTRICTS];
+    }
+    if (currentCity === 'İstanbul (Avrupa)') {
+      return [...ISTANBUL_AVRUPA_DISTRICTS];
+    }
+    const raw = getDistrictsForCity(currentCity);
+    return raw.filter((d) => d !== 'Diğer');
+  }, [currentCity]);
+
+  const customDistricts = useMemo(() => {
+    return selectedDistricts.filter((d) => !availableDistricts.includes(d));
+  }, [selectedDistricts, availableDistricts]);
+
+  const handleCitySelect = (newCity: string) => {
+    if (disabled) return;
+    if (onCityChange) {
+      onCityChange(newCity);
+    }
+    // İl değiştiğinde önceki ilin ilçelerini temizleyip yeni ilin ilçelerine hazırla
+    onChange([]);
+  };
 
   const toggleDistrict = (district: string) => {
     if (disabled) return;
@@ -317,7 +425,8 @@ export function ServiceDistrictsSmartPicker({
     }
   };
 
-  const handleAddCustom = () => {
+  const handleAddCustomDistrict = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const trimmed = customDistrict.trim();
     if (!trimmed || disabled) return;
     if (!selectedDistricts.includes(trimmed)) {
@@ -326,80 +435,190 @@ export function ServiceDistrictsSmartPicker({
     setCustomDistrict('');
   };
 
+  const removeCustomDistrict = (district: string) => {
+    if (disabled) return;
+    onChange(selectedDistricts.filter((d) => d !== district));
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
-          <MapPin className="h-3.5 w-3.5 text-indigo-600" />
-          <span>{city || 'İstanbul'} İlçeleri ({availableDistricts.length} İlçe):</span>
-        </span>
-        <button
-          type="button"
-          onClick={handleSelectAll}
-          disabled={disabled}
-          className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline"
-        >
-          {selectedDistricts.length === availableDistricts.length ? 'Seçimi Temizle' : 'Tüm İlçeleri Seç'}
-        </button>
-      </div>
-
-      {/* İlçe Çipleri Grid */}
-      <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 scrollbar-thin dark:border-zinc-800 dark:bg-zinc-900/50">
-        <div className="flex flex-wrap gap-1.5">
-          {availableDistricts.map((district) => {
-            const isSelected = selectedDistricts.includes(district);
-            return (
-              <button
-                key={district}
-                type="button"
-                onClick={() => toggleDistrict(district)}
-                disabled={disabled}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors',
-                  isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-2xs'
-                    : 'bg-white text-slate-700 border border-slate-200/80 hover:border-indigo-300 dark:bg-zinc-800 dark:text-slate-300 dark:border-zinc-700',
-                )}
-              >
-                {isSelected && <Check className="h-3 w-3 shrink-0" />}
-                <span>{district}</span>
-              </button>
-            );
-          })}
+    <div className="space-y-4">
+      {/* 1. İl Seçimi (Tek Seçim Dropdown) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+            Hizmet Verilen İl / Bölge <span className="text-destructive">*</span>
+          </Label>
+          <span className="text-[11px] text-muted-foreground">Tek seçim</span>
         </div>
-      </div>
 
-      {/* Ekstra İlçe / Bölge Ekleme */}
-      <div className="flex items-center gap-2">
-        <Input
-          value={customDistrict}
-          onChange={(e) => setCustomDistrict(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddCustom();
-            }
-          }}
-          placeholder="Listede olmayan ilçe, semt veya çevre il ekleyin..."
-          className="h-10 text-xs sm:text-sm"
+        <Select
+          value={currentCity}
+          onValueChange={handleCitySelect}
           disabled={disabled}
-        />
-        <Button
-          type="button"
-          onClick={handleAddCustom}
-          disabled={disabled || !customDistrict.trim()}
-          variant="outline"
-          size="sm"
-          className="h-10 shrink-0 font-medium text-xs border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 dark:border-indigo-900"
         >
-          <Plus className="h-4 w-4 mr-1" />
-          <span>Ekle</span>
-        </Button>
+          <SelectTrigger className="h-11 rounded-xl border border-input bg-card px-3.5 text-sm font-medium">
+            <SelectValue placeholder="İl seçin" />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            {/* Öncelikli İller Grubu */}
+            <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              Büyük Şehirler & Yakalar
+            </div>
+            {TOP_PRIORITY_CITIES.map((c) => (
+              <SelectItem key={c} value={c} className="font-semibold text-slate-900 dark:text-slate-100">
+                {c}
+              </SelectItem>
+            ))}
+
+            <div className="my-1 border-t border-border/60" />
+
+            {/* A-Z Diğer İller */}
+            <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Diğer İller (A-Z)
+            </div>
+            {REMAINING_TURKISH_CITIES.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Seçim Sayısı */}
-      <div className="text-[11px] font-medium text-slate-500">
-        Seçilen bölge sayısı: <strong className="text-indigo-600 dark:text-indigo-400">{selectedDistricts.length}</strong>
+      {/* 2. İlçe Seçimi (Seçilen İle Göre Kutucuklu Çoklu Seçim) */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-4 w-4 text-indigo-600" />
+            <Label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              {currentCity} İlçeleri ({availableDistricts.length} İlçe):
+            </Label>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSelectAll}
+            disabled={disabled}
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline"
+          >
+            {selectedDistricts.length === availableDistricts.length ? 'Seçimi Temizle' : 'Tüm İlçeleri Seç'}
+          </button>
+        </div>
+
+        {/* Kutucuklu İlçe Kartları Grid (Image 4 Modeli) */}
+        <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-200/80 bg-slate-50/30 p-2.5 scrollbar-thin dark:border-zinc-800 dark:bg-zinc-900/30">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {availableDistricts.map((district) => {
+              const isChecked = selectedDistricts.includes(district);
+              return (
+                <label
+                  key={district}
+                  htmlFor={`dist-${district}`}
+                  className={cn(
+                    'flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 text-xs sm:text-sm transition-all select-none',
+                    isChecked
+                      ? 'border-indigo-600 bg-indigo-50/70 font-semibold text-indigo-950 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-200 shadow-2xs'
+                      : 'border-slate-200/90 bg-card text-slate-700 hover:border-indigo-300 hover:bg-slate-50/50 dark:border-zinc-800 dark:text-slate-300',
+                    disabled && 'cursor-not-allowed opacity-60',
+                  )}
+                >
+                  <Checkbox
+                    id={`dist-${district}`}
+                    checked={isChecked}
+                    onCheckedChange={() => toggleDistrict(district)}
+                    disabled={disabled}
+                    className="mt-0.5 shrink-0 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                  />
+                  <span className="leading-snug">{district}</span>
+                </label>
+              );
+            })}
+
+            {/* Diğer / Özel Bölge Kutucuğu */}
+            <label
+              htmlFor="dist-other"
+              className={cn(
+                'flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 text-xs sm:text-sm transition-all select-none',
+                showCustomDistrict || customDistricts.length > 0
+                  ? 'border-indigo-600 bg-indigo-50/70 font-semibold text-indigo-950 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-200'
+                  : 'border-slate-200/90 bg-card text-slate-700 hover:border-indigo-300 hover:bg-slate-50/50 dark:border-zinc-800 dark:text-slate-300',
+                disabled && 'cursor-not-allowed opacity-60',
+              )}
+            >
+              <Checkbox
+                id="dist-other"
+                checked={showCustomDistrict || customDistricts.length > 0}
+                onCheckedChange={(checked) => setShowCustomDistrict(checked === true)}
+                disabled={disabled}
+                className="mt-0.5 shrink-0 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+              />
+              <span className="leading-snug">Diğer / İlave Bölge</span>
+            </label>
+          </div>
+        </div>
+
+        {/* İlave Bölge Ekleme Girişi */}
+        {(showCustomDistrict || customDistricts.length > 0) && (
+          <div className="rounded-xl border border-indigo-200/80 bg-indigo-50/40 p-3 space-y-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/20">
+            <div className="flex items-center gap-2">
+              <Input
+                value={customDistrict}
+                onChange={(e) => setCustomDistrict(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomDistrict();
+                  }
+                }}
+                placeholder="Listede olmayan ilçe, semt veya çevre bölge yazın..."
+                className="h-10 text-xs sm:text-sm bg-white dark:bg-zinc-900"
+                disabled={disabled}
+              />
+              <Button
+                type="button"
+                onClick={() => handleAddCustomDistrict()}
+                disabled={disabled || !customDistrict.trim()}
+                size="sm"
+                className="h-10 bg-indigo-600 text-white hover:bg-indigo-700 shrink-0 font-medium px-4"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                <span>Ekle</span>
+              </Button>
+            </div>
+
+            {/* Eklenen İlave Bölgeler */}
+            {customDistricts.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {customDistricts.map((district) => (
+                  <Badge
+                    key={district}
+                    variant="secondary"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-indigo-950 border border-indigo-300 dark:bg-zinc-900 dark:text-indigo-200 dark:border-indigo-800 shadow-2xs"
+                  >
+                    <Check className="h-3.5 w-3.5 text-indigo-600" />
+                    <span>{district}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeCustomDistrict(district)}
+                      disabled={disabled}
+                      className="ml-1 rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-zinc-800 text-slate-500 hover:text-slate-800"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Seçilen İlçe Sayısı */}
+        <div className="flex items-center justify-between text-[12px] font-medium text-slate-500">
+          <span>Seçilen İlçe Sayısı: <strong className="text-indigo-600 dark:text-indigo-400">{selectedDistricts.length}</strong></span>
+          {selectedDistricts.length === 0 && (
+            <span className="text-amber-600 dark:text-amber-400 text-xs font-medium">Lütfen en az bir ilçe seçin</span>
+          )}
+        </div>
       </div>
     </div>
   );

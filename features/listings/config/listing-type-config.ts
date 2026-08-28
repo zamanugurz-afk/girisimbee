@@ -1473,14 +1473,6 @@ export const HIZMET_WORKING_HOURS_OPTIONS = [
   'Randevulu Özel Hizmet',
 ] as const;
 
-export const HIZMET_WARRANTY_OPTIONS = [
-  'İşçilik Garantili (1 Yıl)',
-  'İşçilik Garantili (6 Ay)',
-  'İşçilik Garantili (3 Ay)',
-  'Malzeme ve Parça Garantili',
-  'Memnuniyet Garantisi',
-] as const;
-
 export const HIZMET_PRICING_OPTIONS = [
   'İş Detayına Göre Görüşülür (Görüştükten Sonra Belirlenir)',
   'Ücretsiz Keşif ve Yerinde Fiyatlandırma',
@@ -1520,14 +1512,14 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Verilen Hizmet Kalemleri ve Uzmanlıklar',
       type: 'tags',
       required: true,
-      placeholder: 'Örn: Kaçak Su Tespiti, Sigorta Değişimi, Petek Temizliği, Batarya Montajı',
+      placeholder: 'Verilen hizmet kalemlerini seçin',
     },
     {
       key: 'serviceDistricts',
-      label: 'Hizmet Verilen İlçeler ve Bölgeler',
+      label: 'Hizmet Verilen İl ve İlçeler',
       type: 'tags',
       required: true,
-      placeholder: 'Örn: Kadıköy, Üsküdar, Ataşehir, Ümraniye, Maltepe',
+      placeholder: 'Hizmet verilen bölgeleri seçin',
     },
     {
       key: 'workingHours',
@@ -1551,25 +1543,11 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
       placeholder: 'Deneyim süresi seçin',
     },
     {
-      key: 'warrantyDuration',
-      label: 'Garanti Durumu',
-      type: 'enum',
-      required: false,
-      options: [...HIZMET_WARRANTY_OPTIONS],
-    },
-    {
       key: 'pricingType',
       label: 'Fiyatlandırma Modeli',
       type: 'enum',
       required: false,
       options: [...HIZMET_PRICING_OPTIONS],
-    },
-    {
-      key: 'workshopAddress',
-      label: 'İşyeri veya Atölye Adresi (Varsa)',
-      type: 'string',
-      required: false,
-      placeholder: 'Örn: Moda Cad. No:12 Kadıköy / İstanbul',
     },
   ],
 };

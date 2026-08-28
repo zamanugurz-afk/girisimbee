@@ -54,6 +54,8 @@ const TITLE_CASE_FIELD_KEYS = new Set([
   'displayName',
   'productName',
   'businessName',
+  'craftsmanTitle',
+  'ownerName',
   'businessTypeOther',
   'preferredBusinessTypesOther',
   'positionTitle',
@@ -155,6 +157,7 @@ export interface DynamicFieldContext {
   categoryId?: string | null;
   themeColor?: 'emerald' | 'sky' | 'amber' | 'blue' | 'purple' | 'teal' | 'rose' | 'slate' | 'default' | string;
   onDismissPrunedNotice?: () => void;
+  onCoreChange?: (key: string, value: any) => void;
 }
 
 export interface DynamicFieldProps {
@@ -347,9 +350,10 @@ function FieldControl({
     return (
       <>
         <ServiceDistrictsSmartPicker
-          city={String(context?.values?.city ?? 'İstanbul')}
+          city={String(context?.values?.city || context?.coreCity || 'İstanbul (Anadolu)')}
           value={value as string[] | string}
           onChange={(districts) => onChange(districts)}
+          onCityChange={(newCity) => context?.onCoreChange?.('city', newCity)}
           disabled={disabled}
         />
         <FormFieldFooter helperText={ui.helperText} error={error} />
