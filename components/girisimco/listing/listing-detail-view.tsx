@@ -49,7 +49,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
       : isFranchiseListing
         ? { href: '/franchise', label: 'Franchise ve Bayilik Menüsüne Dön' }
         : isServiceListing
-          ? { href: '/kategori/hizmetler', label: 'Esnaf ve Hizmetler Menüsüne Dön' }
+          ? { href: '/kategori/hizmetler', label: 'Ustalar ve Hizmetler Menüsüne Dön' }
           : null;
 
   return (

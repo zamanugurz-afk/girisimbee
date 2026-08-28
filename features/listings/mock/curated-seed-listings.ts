@@ -1086,7 +1086,7 @@ export const CURATED_LISTING_TEMPLATES = [
       contactPhone: '+905325557799',
     },
   },
-  // --- 6. ESNAF VE HİZMETLER (5 İLAN) ---
+  // --- 6. USTALAR VE HİZMETLER (5 İLAN) ---
   {
     categorySlug: 'hizmetler',
     title: 'Kadıköy ve Ataşehir Uzman Sıhhi Tesisat ve Kaçak Su Tespiti (Usta Mehmet)',

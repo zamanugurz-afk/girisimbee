@@ -78,9 +78,9 @@ export const CREATE_LISTING_FRANCHISE_HUB = {
 } as const;
 
 export const CREATE_LISTING_SERVICE_HUB = {
-  title: 'Esnaf ve Hizmetler',
+  title: 'Ustalar ve Hizmetler',
   description: 'Usta ve yerel hizmet profilinizi yayınlayın, doğrudan müşteri talepleri alın.',
-  audience: 'Esnaf / usta / hizmet verenler',
+  audience: 'Ustalar ve hizmet verenler',
   benefits: [
     {
       title: 'Hizmet Vitrini',

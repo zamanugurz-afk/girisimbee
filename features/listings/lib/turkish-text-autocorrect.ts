@@ -17,6 +17,7 @@ const COMMON_TYPO_MAP: Record<string, string> = {
   suanki: 'şuanki',
   'su an': 'şu an',
   herkez: 'herkes',
+  herkezin: 'herkesin',
   herkeş: 'herkes',
   yalniz: 'yalnız',
   yalnizca: 'yalnızca',
@@ -252,6 +253,7 @@ export function normalizeAcronymsAndTerms(input: string): string {
 /** Collapse whitespace, normalize quotes/dashes, trim. */
 export function normalizeTurkishTypography(input: string): string {
   return input
+    .replace(/&/g, ' ve ')
     .replace(/\u00a0/g, ' ')
     .replace(/[\u2018\u2019\u201A\u2032]/g, "'")
     .replace(/[\u201C\u201D\u201E\u2033]/g, '"')

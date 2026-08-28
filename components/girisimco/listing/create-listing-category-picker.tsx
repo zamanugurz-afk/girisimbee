@@ -62,7 +62,7 @@ const CATEGORY_VISUAL: Record<
     color: GC_CATEGORY_COLORS.franchise,
   },
   [CATEGORY_IDS.hizmetler]: {
-    audience: 'Usta ve yerel hizmetler',
+    audience: 'Ustalar ve yerel hizmetler',
     Icon: Wrench,
     color: '#6366F1',
   },
@@ -122,7 +122,7 @@ export function CreateListingCategoryPicker({
           Hangi tür ilan vereceksiniz?
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-          Kariyer profili veya iş ilanı yayınlayın; ortaklık, franchise ya da esnaf ve usta hizmet ilanı oluşturun.
+          Kariyer profili veya iş ilanı yayınlayın; ortaklık, franchise ya da usta ve hizmet ilanı oluşturun.
         </p>
       </header>
 

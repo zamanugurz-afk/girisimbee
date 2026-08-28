@@ -140,7 +140,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     { id: 'c1000001-0001-4000-8000-000000000006', slug: 'franchise', name: 'Franchise ve Bayilik' },
     { id: 'c1000001-0001-4000-8000-000000000008', slug: 'dijital-ai', name: 'Dijital ve AI Çözümleri' },
     { id: 'c1000001-0001-4000-8000-000000000009', slug: 'isletme-devri', name: 'İşletme Devri' },
-    { id: 'c1000001-0001-4000-8000-000000000010', slug: 'hizmetler', name: 'Esnaf ve Hizmetler' },
+    { id: 'c1000001-0001-4000-8000-000000000010', slug: 'hizmetler', name: 'Ustalar ve Hizmetler' },
     { id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-legacy', name: 'Yatırım Legacy' },
     { id: 'e1000001-0001-4000-8000-000000000002', slug: 'is-legacy', name: 'İş Legacy' },
     { id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortaklik-legacy', name: 'Ortaklık Legacy' },

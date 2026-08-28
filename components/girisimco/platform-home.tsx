@@ -118,9 +118,9 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* Esnaf ve Hizmetler */}
+              {/* Ustalar ve Hizmetler */}
               <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
-                <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Esnaf ve Hizmetler" />
+                <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Ustalar ve Hizmetler" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3">
                     <span className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-300">
@@ -132,7 +132,7 @@ export function PlatformHome() {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">
-                      Esnaf ve Hizmetler
+                      Ustalar ve Hizmetler
                     </h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">
                       Temizlikten tesisata, nakliyeden tadilata aradığınız tüm yerel usta ve hizmetleri keşfedin.

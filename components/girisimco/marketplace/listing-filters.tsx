@@ -608,7 +608,7 @@ export function ListingFilters({
         </>
       ) : null}
 
-      {/* 6. Esnaf ve Hizmetler Sayfası Filtreleri */}
+      {/* 6. Ustalar ve Hizmetler Sayfası Filtreleri */}
       {isServices ? (
         <>
           {/* Hizmet Alanı / Branş */}

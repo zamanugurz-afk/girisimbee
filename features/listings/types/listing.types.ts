@@ -194,7 +194,7 @@ export interface ListingDetail {
   partnershipCard?: PartnershipCardData;
   /** Franchise Veren / Bayilik Arayan — structured franchise card. */
   franchiseCard?: FranchiseCardData;
-  /** Esnaf ve Hizmetler — structured craftsman/service card. */
+  /** Ustalar ve Hizmetler — structured craftsman/service card. */
   serviceCard?: ServiceCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer

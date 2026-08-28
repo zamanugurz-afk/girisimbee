@@ -16,11 +16,11 @@ export const CORE_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 200,
   },
   shortDescription: {
-    placeholder: 'İlanınızı 2-3 cümlede özetleyin…',
+    placeholder: 'İlanınızı 2-3 cümleyle sade ve anlaşılır şekilde özetleyin…',
     maxLength: 500,
   },
   longDescription: {
-    placeholder: 'Detaylı açıklama, kapsam ve ek bilgiler…',
+    placeholder: 'Detaylı açıklama, kapsam ve ek bilgileri yazın…',
     maxLength: 10000,
   },
   city: {
@@ -35,54 +35,19 @@ type CoreFieldUiMap = Partial<Record<keyof CoreListingFieldsInput, FieldUiMeta>>
 
 /** Category-specific placeholders & limits for core listing fields (cards + form). */
 export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMap>> = {
-  [CATEGORY_IDS.yatirimBul]: {
-    title: {
-      placeholder: 'Örn: PulseAI — Otonom Müşteri Destek Platformu',
-      maxLength: 80,
-    },
-    shortDescription: {
-      placeholder:
-        'Örn: E-ticaret markaları için 7/24 otonom destek sağlayan LLM tabanlı AI platformu. 140.000 TL MRR ile tohum öncesi yatırım arıyoruz.',
-      maxLength: 500,
-    },
-    longDescription: {
-      placeholder:
-        'Örn: MVP tamamlandı, 15+ kurumsal müşteri aktif kullanıyor. Hedefimiz 12 ay içinde MENA ve Avrupa pazarına açılmak. Alınacak yatırım büyüme ve mühendislik ekibine ayrılacaktır.',
-      maxLength: 2000,
-    },
-    city: {
-      placeholder: 'Şehir seçin',
-    },
-  },
-  [CATEGORY_IDS.yatirimYap]: {
-    title: {
-      placeholder: 'Örn: Erken Aşama B2B SaaS ve Yapay Zeka Yatırımcısı',
-      maxLength: 80,
-    },
-    shortDescription: {
-      placeholder:
-        'Örn: Tohum öncesi ve tohum aşamasındaki AI, Fintech ve B2B SaaS girişimlerine 500K - 3M TL aralığında yatırım ve büyüme mentörlüğü sağlıyorum.',
-      maxLength: 500,
-    },
-    longDescription: {
-      placeholder:
-        'Örn: 10+ yıllık girişimcilik ve melek yatırımcılık tecrübemle; doğrulanmış ürün-pazar uyumu (PMF) yakalayan, ölçeklenebilir ve global vizyona sahip kurucu ekipleri destekliyorum.',
-      maxLength: 2000,
-    },
-  },
   [CATEGORY_IDS.iseAl]: {
     title: {
-      placeholder: 'Örn: Kıdemli Full-Stack Geliştirici (React & Node.js) — Hibrit İstanbul',
+      placeholder: 'Örn: Kadıköy Mağazamız İçin Deneyimli Satış Elemanı Aranıyor',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: Hızlı büyüyen fintech ekibimize mikroservis mimarisi ve modern web teknolojilerinde deneyimli Kıdemli Yazılım Geliştirici arıyoruz.',
+        'Örn: Hafta içi vardiyalı çalışacak, güler yüzlü ve müşteri iletişimi güçlü satış personeli arıyoruz.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: Yüksek trafikli finansal ürünlerimizin geliştirilmesinde mimari kararlara yön verecek, temiz kod ve test odaklı çalışan takım arkadaşı arıyoruz. Hibrit çalışma modeli ve rekabetçi yan haklar sunulmaktadır.',
+        'Örn: Mağazamızda reyon düzeni, ürün tanıtımı ve müşteri memnuniyeti sağlayacak takım arkadaşları arıyoruz. Yemek ve yol ücreti karşılanmaktadır.',
       maxLength: 10000,
     },
     city: {
@@ -94,33 +59,36 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.isBul]: {
     title: {
-      placeholder: 'Örn: Kıdemli Frontend & Mobil Geliştirici — Uzaktan / Hibrit',
+      placeholder: 'Örn: Deneyimli Satış Danışmanı ve Mağaza Görevlisi — Kadıköy / İstanbul',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: 6+ yıl React, Next.js ve React Native deneyimimle ölçeklenebilir dijital ürünler geliştirdim. Uzaktan veya İstanbul içi hibrit fırsatlara açığım.',
+        'Örn: 5 yıllık mağazacılık ve perakende satış deneyimimle yeni bir iş arıyorum. Müşteri ilişkileri ve stok takibinde tecrübeliyim.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: SaaS ve e-ticaret alanında uçtan uca kullanıcı deneyimi ve performans optimizasyonu projeleri yönettim. Modern JavaScript ekosistemine, TypeScript ve tasarım sistemlerine hakimim. Ürün odaklı ekiplerde liderlik veya kıdemli geliştirici rollerini hedefliyorum.',
+        'Örn: Daha önce zincir mağazalarda satış danışmanlığı ve kasiyerlik yaptım. Güler yüzlü, sorumluluk sahibi ve vardiyalı çalışmaya uygunum. Anadolu yakasındaki iş fırsatlarını değerlendirmek istiyorum.',
       maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Yaşadığınız ili seçin',
     },
   },
   [CATEGORY_IDS.ortakBul]: {
     title: {
-      placeholder: 'Örn: B2B Yapay Zeka SaaS Girişimimize Teknik Kurucu Ortak (CTO)',
+      placeholder: 'Örn: Açılacak Restoran Projemiz İçin İşletmeci ve Sermaye Ortağı Arıyoruz',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: MVP aşamasını tamamladığımız yapay zeka tabanlı B2B SaaS ürünümüz için teknik mimariyi yönetecek, hisse ortaklı CTO arıyoruz.',
+        'Örn: Kadıköy merkezde kiraladığımız dükkan için mutfak ve salon işletmesini birlikte yürüteceğimiz ortak arıyoruz.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: Halihazırda 500+ aktif beta kullanıcımız ve doğrulanmış pazar talebimiz bulunmaktadır. İş geliştirme ve satış tarafı hazır olup, backend/AI altyapısını ölçekleyecek tam zamanlı teknik kurucu ortak arıyoruz. Equity payı ve yol haritası ilk görüşmede şeffafça paylaşılacaktır.',
+        'Örn: Mekan tutuldu ve tadilat aşamasına gelindi. Mutfak ve menü hazırlıklarını ben yürütüyorum. Finans, tedarik ve işletme yönetiminde sorumluluk alacak güvenilir bir ortakla büyümek istiyoruz.',
       maxLength: 10000,
     },
     city: {
@@ -129,17 +97,17 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.isletmeDevri]: {
     title: {
-      placeholder: 'Örn: Kadıköy Moda’da Cirolu, Ruhsatlı, Faal Butik Kafe Devri',
+      placeholder: 'Örn: Kadıköy Çarşıda Yüksek Cirolu, Ruhsatlı ve Hazır Müşterili Kafe Devri',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: 3 yıllık oturmuş müşteri portföyü, tüm demirbaşları ve aktif ruhsatıyla devredilmektedir. Yüksek yaya trafiğine sahip merkezi lokasyon.',
+        'Örn: 4 yıllık oturmuş müşterisi olan, tüm ekipmanları ve aktif ruhsatıyla hemen işletmeye hazır kafe devredilmektedir.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: İşletmemiz faal durumda olup aylık cirosu ve kârlılığı belgelenebilir. Devir kapsamında espresso makinesi, fırın, soğuk hava deposu, masa-sandalye takımları ve sosyal medya hesapları yer almaktadır. Sektör değişikliği nedeniyle devredilmektedir.',
+        'Örn: İşletmemiz faal durumda olup aylık cirosu ve kârı düzenlidir. İçeride espresso makinesi, fırın, soğutucu dolaplar ve masa sandalye takımları eksiksizdir. Şehir değişikliği nedeniyle devredilmektedir.',
       maxLength: 10000,
     },
     city: {
@@ -148,36 +116,55 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.bayilikAl]: {
     title: {
-      placeholder: 'Örn: Yeni Nesil 3. Dalga Nitelikli Kahve Franchise Fırsatı',
+      placeholder: 'Örn: Türkiye Genelinde Dürüm ve Çiğ Köfte Bayilik Fırsatı',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: 8 ilde 25+ şubesiyle hızla büyüyen zincirimizde anahtar teslim kurulum, barista eğitimi ve yüksek kâr marjıyla yeni franchise ortakları arıyoruz.',
+        'Örn: Düşük sermaye ve yüksek kâr marjıyla kendi işinizin sahibi olun. Anahtar teslim dükkan kurulumu ve personel eğitimi sağlıyoruz.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: Markamız premium kahve ve taze atıştırmalık segmentinde hizmet vermektedir. Franchise paketine lokasyon analizi, mimari projelendirme, merkezi tedarik, dijital POS ve sürekli operasyonel eğitim dahildir. Ortalama geri dönüş süresi 12-18 aydır.',
+        'Örn: Markamız 30 şubesiyle hizmet vermektedir. Bayilerimize dükkan seçiminden açılış gününe kadar birebir destek veriyoruz. Günlük taze sevkiyat ve kurumsal reklam desteğiyle hemen kazanmaya başlayın.',
       maxLength: 10000,
     },
     city: {
       placeholder: 'Şehir seçin',
     },
   },
-  [CATEGORY_IDS.dijitalAi]: {
+  [CATEGORY_IDS.hizmetler]: {
     title: {
-      placeholder: 'Örn: E-Ticaret Ekipleri İçin Yapay Zeka Görsel & Metin Üretim Aracı',
+      placeholder: 'Örn: Uzman Su Tesisatı ve Elektrik Tamir Hizmetleri / Mehmet Usta',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: Ürün fotoğraflarını saniyeler içinde stüdyo kalitesinde görsellere dönüştüren ve SEO uyumlu açıklamalar yazan AI platformu; aylık SaaS modeli.',
+        'Örn: 15 yıllık tecrübemizle ev ve iş yerlerinde su kaçağı tespiti, tıkanıklık açma ve elektrik tamiratı yapıyoruz.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: Shopify, Ticimax ve WooCommerce ile tam entegre çalışır. Otomatik arka plan temizleme, manken giydirme ve 10+ dilde ürün açıklaması oluşturma özelliklerine sahiptir. 14 gün ücretsiz deneme ve kurumsal API desteği sunulmaktadır.',
+        'Örn: 15 yıllık tecrübemizle ev ve iş yerlerinizde su kaçağı tespiti, tıkanıklık açma, petek temizliği ve elektrik arıza tamiri yapıyoruz. Temiz işçilik, uygun fiyat ve garantili hizmet sunuyoruz.',
+      maxLength: 10000,
+    },
+    city: {
+      placeholder: 'Hizmet verilen ili seçin',
+    },
+  },
+  [CATEGORY_IDS.dijitalAi]: {
+    title: {
+      placeholder: 'Örn: E-Ticaret Siteleri İçin Otomatik Ürün Açıklaması ve Görsel Aracı',
+      maxLength: 200,
+    },
+    shortDescription: {
+      placeholder:
+        'Örn: Ürün fotoğraflarını netleştiren ve saniyeler içinde satış odaklı ürün açıklamaları yazan yazılım çözümü.',
+      maxLength: 500,
+    },
+    longDescription: {
+      placeholder:
+        'Örn: E-ticaret platformlarıyla tam uyumlu çalışır. Toplu ürün yükleme, arka plan temizleme ve 10 dilde içerik üretme desteği sunar. 14 gün ücretsiz deneme imkanı bulunmaktadır.',
       maxLength: 10000,
     },
     city: {
@@ -186,17 +173,17 @@ export const CORE_FIELD_UI_BY_CATEGORY: Partial<Record<CategoryId, CoreFieldUiMa
   },
   [CATEGORY_IDS.genelIlan]: {
     title: {
-      placeholder: 'Örn: Tam Donanımlı Ofis Mobilyaları & Çalışma İstasyonları Seti',
+      placeholder: 'Örn: Çok Az Kullanılmış Ofis Masaları ve Çalışma Koltukları Takımı',
       maxLength: 200,
     },
     shortDescription: {
       placeholder:
-        'Örn: Çok az kullanılmış, ergonomik çalışma masaları ve yönetici koltukları seti; faturalı ve toplu alıma uygundur.',
+        'Örn: Taşınma sebebiyle temiz durumda, sağlam ve kullanıma hazır ofis mobilyaları toplu devredilecektir.',
       maxLength: 500,
     },
     longDescription: {
       placeholder:
-        'Örn: Ürünler birinci sınıf malzemeden üretilmiş olup taşınma nedeniyle devredilmektedir. Toplu alımda özel indirim sağlanır. İstanbul içi nakliye ve montaj konusunda yardımcı olunur.',
+        'Örn: 1 yıl önce alınmış olup hiçbir kırığı veya çiziği yoktur. 4 adet çalışma masası ve 4 adet ergonomik koltuk dahildir. İstanbul içi teslimatta yardımcı olunur.',
       maxLength: 10000,
     },
   },
@@ -206,204 +193,72 @@ export const CORE_FIELD_LABELS_BY_CATEGORY: Partial<
   Record<CategoryId, Partial<Record<keyof CoreListingFieldsInput, string>>>
 > = {
   [CATEGORY_IDS.isBul]: {
-    longDescription: 'Kariyer özeti önerisi',
+    longDescription: 'Kendinizi Tanıtın',
   },
   [CATEGORY_IDS.bayilikAl]: {
-    shortDescription: 'Firma Hakkında',
+    shortDescription: 'Firma ve Fırsat Özeti',
   },
   [CATEGORY_IDS.dijitalAi]: {
-    title: 'Ürün / çözüm adı',
-    shortDescription: 'Kısa tanıtım',
-    longDescription: 'Detaylı kapsam',
+    title: 'Ürün ve Çözüm Adı',
+    shortDescription: 'Kısa Tanıtım',
+    longDescription: 'Detaylı Kapsam',
   },
   [CATEGORY_IDS.iseAl]: {
-    longDescription: 'Pozisyon özeti',
-  },
-  [CATEGORY_IDS.yatirimBul]: {
-    title: 'Girişim adı',
-    shortDescription: 'Kısa yatırımcı özeti',
-    longDescription: 'Yatırımcı özeti',
-  },
-  [CATEGORY_IDS.yatirimYap]: {
-    title: 'Yatırımcı kimliği',
-    shortDescription: 'Kısa yatırımcı özeti',
-    longDescription: 'Yatırımcı özeti',
+    longDescription: 'Pozisyon Detayları ve Şartlar',
   },
   [CATEGORY_IDS.ortakBul]: {
     title: 'Ortaklık Başlığı',
     shortDescription: 'Kısa Açıklama',
   },
+  [CATEGORY_IDS.hizmetler]: {
+    title: 'İlan Başlığı',
+    longDescription: 'Detaylı Hizmet Tanıtımı',
+  },
 };
 
 export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
-  investmentAmount: {
-    placeholder: 'Yatırım tutarı aralığı seçin',
+  // Esnaf & Usta
+  craftsmanTitle: {
+    placeholder: 'Örn: Mehmet Usta Tesisat ve Elektrik Hizmetleri',
+    maxLength: 150,
   },
-  investmentAmountCustom: {
-    placeholder: 'Örn: 2.500.000 TL',
-    maxLength: 60,
+  serviceCategory: {
+    placeholder: 'Hizmet alanı seçin',
   },
-  equityOffered: {
-    placeholder: 'Örn: 15',
+  servicesList: {
+    placeholder: 'Verdiğiniz hizmet kalemlerini seçin veya ekleyin',
   },
-  valuation: {
-    placeholder: 'Örn: 25.000.000 TL',
-    maxLength: 60,
+  serviceDistricts: {
+    placeholder: 'Hizmet verdiğiniz il ve ilçeleri seçin',
   },
-  stage: {
-    placeholder: 'Gelişim aşamasını seçin',
+  experienceYears: {
+    placeholder: 'Mesleki deneyim süresi seçin',
   },
-  sector: {
-    placeholder: 'Sektör seçin',
+  pricingType: {
+    placeholder: 'Fiyatlandırma modeli seçin',
   },
-  productStatus: {
-    placeholder: 'Ürün durumunu seçin',
-  },
-  productName: {
-    placeholder: 'Örn: PulseAI',
-    maxLength: 80,
-  },
-  foundedYear: {
-    placeholder: 'Örn: 2024',
-    maxLength: 4,
-  },
-  businessModel: {},
-  targetCustomer: {},
-  problem: {
-    placeholder: 'Örn: KOBİ ve e-ticaret markaları müşteri destek maliyetlerini ve gece taleplerini yönetemiyor.',
-    maxLength: 280,
-  },
-  solution: {
-    placeholder: 'Örn: Çok dilli, CRM entegre LLM tabanlı otonom destek asistanı ile taleplerin %70\'ini anında çözüyoruz.',
-    maxLength: 280,
-  },
-  differentiation: {
-    placeholder: 'Örn: 5 dakikada tek tıkla e-ticaret altyapılarına kurulur, geçmiş konuşmalardan kendi kendine öğrenir.',
-    maxLength: 280,
-  },
-  revenueStatus: {
-    placeholder: 'Gelir durumunu seçin',
-  },
-  tractionStatus: {
-    placeholder: 'Mevcut pazar durumunu seçin',
-  },
-  monthlyRevenue: {
-    placeholder: 'Örn: 150.000 TL',
-    maxLength: 40,
-  },
-  mrr: {
-    placeholder: 'Örn: 150.000 TL',
-    maxLength: 40,
-  },
-  arr: {
-    placeholder: 'Örn: 1.800.000 TL',
-    maxLength: 40,
-  },
-  activeCustomers: {
-    placeholder: 'Örn: 35',
-    maxLength: 40,
-  },
-  totalCustomers: {
-    placeholder: 'Örn: 75',
-    maxLength: 40,
-  },
-  users: {
-    placeholder: 'Örn: 5.000',
-    maxLength: 40,
-  },
-  growthRate: {
-    placeholder: 'Örn: 20',
-    maxLength: 40,
-  },
-  gmv: {
-    placeholder: 'Örn: 1.200.000 TL',
-    maxLength: 40,
-  },
-  founderCount: {
-    placeholder: 'Kurucu sayısı',
-  },
-  teamSize: {
-    placeholder: 'Ekip büyüklüğü',
-  },
-  founderExpertise: {},
-  useOfFundsDetail: {
-    placeholder: 'Örn: %50 Yazılım ve AI mühendisliği, %30 Büyüme ve pazarlama, %20 Operasyon.',
-    maxLength: 280,
-  },
-  minInvestment: {
-    placeholder: 'Minimum yatırım aralığı seçin',
-  },
-  maxInvestment: {
-    placeholder: 'Maksimum yatırım aralığı seçin',
-  },
-  useOfFunds: {},
-  currency: {
-    placeholder: 'Para birimi seçin',
-  },
-  ticketSizeMin: {
-    placeholder: 'Minimum bilet aralığı seçin',
-  },
-  ticketSizeMax: {
-    placeholder: 'Maksimum bilet aralığı seçin',
-  },
-  preferredStages: {
-    placeholder: 'Aşama seçin',
-  },
-  sectors: {},
-  investorType: {
-    placeholder: 'Yatırımcı tipi seçin',
-  },
-  preferredProductStatuses: {},
-  preferredBusinessModels: {},
-  preferredTargetCustomers: {},
-  revenueExpectation: {
-    placeholder: 'Gelir beklentisi',
-  },
-  tractionExpectation: {
-    placeholder: 'Traction beklentisi',
-  },
-  preferredGeographies: {},
-  equityPreference: {
-    placeholder: 'Hisse yaklaşımı',
-  },
-  valuationApproach: {
-    placeholder: 'Değerleme yaklaşımı',
-  },
-  preferredUseOfFunds: {},
-  investmentThesis: {
-    placeholder: 'Örn: Yüksek büyüme potansiyeline sahip tohum öncesi B2B SaaS ve yapay zeka girişimlerine odaklanıyoruz.',
-    maxLength: 280,
-  },
-  mustHaveSignals: {},
-  dealBreakers: {},
-  ticketMin: {
-    placeholder: 'Örn: 500.000 TL',
-  },
-  ticketMax: {
-    placeholder: 'Örn: 3.000.000 TL',
-  },
-  investmentFocus: {
-    placeholder: 'Örn: Erken aşama B2B SaaS, yapay zeka ve fintech odaklı tohum yatırımları.',
-    maxLength: 500,
+
+  // Kariyer & Aday
+  fullName: {
+    placeholder: 'Örn: Ahmet Yılmaz',
+    maxLength: 100,
   },
   desiredRole: {
-    placeholder: 'Pozisyon seçin',
+    placeholder: 'Hedeflenen pozisyonu seçin',
   },
   primarySector: {
     placeholder: 'Sektör seçin',
   },
   desiredRoleOther: {
-    placeholder: 'Örn: Yapay Zeka Mühendisi / Prompt Engineer',
+    placeholder: 'Örn: Satış ve Pazarlama Danışmanı',
     maxLength: 200,
   },
   experienceLevel: {
-    placeholder: 'Deneyim seviyesi seçin',
+    placeholder: 'Deneyim seviyenizi seçin',
   },
   salaryRange: {
     placeholder: 'Maaş aralığı seçin',
   },
-  expertise: {},
-  offeredSkills: {},
   experience: {
     placeholder: 'Deneyim süresini seçin',
   },
@@ -411,25 +266,22 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Maaş beklentisi aralığı seçin',
   },
   workType: {
-    placeholder: 'Çalışma tipi seçin',
+    placeholder: 'Çalışma şekli seçin',
   },
   profileGender: {
     placeholder: 'Cinsiyet seçin',
   },
   birthDate: {
-    placeholder: 'Doğum tarihi',
+    placeholder: 'Doğum tarihi seçin',
   },
   residenceCity: {
     placeholder: 'Yaşadığınız ili seçin',
-  },
-  fullName: {
-    placeholder: 'Örn: Caner Yılmaz',
   },
   residenceDistrict: {
     placeholder: 'Yaşadığınız ilçeyi seçin',
   },
   remotePreference: {
-    placeholder: 'Uzaktan çalışma tercihi seçin',
+    placeholder: 'Çalışma yeri tercihi seçin',
   },
   workplacePreference: {
     placeholder: 'Çalışma modeli seçin',
@@ -438,7 +290,7 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'Pozisyon seçin',
   },
   positionTitleOther: {
-    placeholder: 'Örn: Büyüme ve Performans Pazarlama Lideri',
+    placeholder: 'Örn: Mağaza Satış Sorumlusu',
     maxLength: 200,
   },
   preferredCity: {
@@ -448,124 +300,150 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     placeholder: 'İlçe seçin',
   },
   preferredDistrictOther: {
-    placeholder: 'Örn: Mahalle / Semt adı',
+    placeholder: 'Örn: Moda, Bostancı, Kızılay',
     maxLength: 120,
   },
   district: {
     placeholder: 'İlçe seçin',
   },
   districtOther: {
-    placeholder: 'Örn: Mahalle / Semt adı',
+    placeholder: 'Örn: Mahalle veya semt adı',
     maxLength: 120,
   },
   professionalSkills: {
-    placeholder: 'Listeden seçin',
+    placeholder: 'Uzmanlık ve yetkinlikleri seçin',
     maxLength: 1000,
   },
   technicalSkills: {
-    placeholder: 'Örn: React, Next.js, TypeScript, TailwindCSS, Node.js, PostgreSQL, Docker',
+    placeholder: 'Örn: Bilgisayar Kullanımı, MS Office, Kasa ve Barkod Sistemleri',
     maxLength: 1000,
   },
   leadershipExperience: {
-    placeholder: 'Örn: 6 kişilik frontend ve mobil mühendislik ekibine teknik liderlik ve sprint yönetimi yaptım.',
+    placeholder: 'Örn: 5 kişilik mağaza ve satış ekibini yönettim, vardiya düzenini sağladım.',
     maxLength: 1000,
   },
   tools: {
-    placeholder: 'Listeden seçin',
+    placeholder: 'Kullandığınız program ve araçları seçin',
     maxLength: 1500,
   },
   educationField: {
-    placeholder: 'Örn: Bilgisayar Mühendisliği / Yazılım Mühendisliği',
+    placeholder: 'Örn: İşletme, İktisat, Makine veya Lise',
     maxLength: 200,
   },
   languages: {
-    placeholder: 'Örn: İngilizce (İleri Düzey), Almanca (Orta Seviye)',
+    placeholder: 'Örn: İngilizce (İyi), Almanca (Başlangıç)',
     maxLength: 500,
   },
   certificates: {
-    placeholder: 'Örn: AWS Certified Solutions Architect, Google Cloud Professional, PMP',
+    placeholder: 'Örn: Hijyen Belgesi, SRC Belgesi, Ustalık Belgesi, Ehliyet',
     maxLength: 500,
   },
-  preferredSectors: {},
-  preferredRoles: {},
   preferredRolesOther: {
-    placeholder: 'Örn: Teknik Ürün Yöneticisi (Technical Product Manager)',
+    placeholder: 'Örn: Mağaza Müdürü / Satış Danışmanı',
     maxLength: 200,
   },
   sectorOther: {
-    placeholder: 'Örn: Yapay Zeka ve Otonom Araç Sistemleri',
+    placeholder: 'Örn: Gıda ve Unlu Mamuller',
     maxLength: 200,
   },
+
+  // Ortaklık
   partnershipType: {
-    placeholder: 'Ortaklık tipi seçin',
+    placeholder: 'Ortaklık türü seçin',
   },
   commitment: {
     placeholder: 'Çalışma biçimini seçin',
   },
   projectStage: {
-    placeholder: 'Ortaklık aşamasını seçin',
+    placeholder: 'Girişimin mevcut aşamasını seçin',
   },
+  equityOffered: {
+    placeholder: 'Örn: 25',
+  },
+  investmentAmountCustom: {
+    placeholder: 'Örn: 500.000 TL',
+    maxLength: 60,
+  },
+  contactName: {
+    placeholder: 'Örn: Mustafa Bey',
+    maxLength: 100,
+  },
+  contactPhone: {
+    placeholder: 'Örn: 0532 123 45 67',
+    maxLength: 30,
+  },
+  expertiseOther: {
+    placeholder: 'Örn: Müşteri İlişkileri, Satış ve Pazarlama, Kasa Yönetimi',
+    maxLength: 120,
+    helperText: 'Aramak istediğiniz özel uzmanlığı yazabilir veya listeden önerilenleri seçebilirsiniz.',
+  },
+  offeredSkillsOther: {
+    placeholder: 'Örn: İşletme Yönetimi, Finans ve Muhasebe, Personel Yönetimi',
+    maxLength: 120,
+    helperText: 'Sunduğunuz özel yetkinliği yazabilir veya listeden önerilenleri seçebilirsiniz.',
+  },
+
+  // Franchise
   companyName: {
-    placeholder: 'Örn: Novatech Yazılım Teknolojileri A.Ş.',
+    placeholder: 'Örn: Çıtır Dürüm ve Çiğ Köfte Ltd. Şti.',
     maxLength: 120,
   },
   establishmentYear: {
     placeholder: 'Örn: 2018',
   },
   branchCount: {
-    placeholder: 'Örn: 28',
+    placeholder: 'Örn: 35',
   },
   website: {
-    placeholder: 'https://ornek.com',
+    placeholder: 'https://ornekfirma.com',
     maxLength: 500,
   },
   entryFee: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 100.000 TL',
   },
   franchiseFee: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 150.000 TL',
   },
   totalInvestment: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 450.000 TL',
   },
   profitMargin: {
     placeholder: 'Örn: 35',
   },
   royaltyFee: {
-    placeholder: 'Gelirden pay seçin',
+    placeholder: 'Aylık pay oranını seçin',
   },
   advertisingFee: {
     placeholder: 'Örn: 2',
   },
   returnPeriod: {
-    placeholder: 'Geri dönüş süresi seçin',
+    placeholder: 'Yatırım geri dönüş süresi seçin',
   },
   averageSetupDuration: {
-    placeholder: 'Kurulum süresi seçin',
+    placeholder: 'Anahtar teslim kurulum süresi seçin',
   },
   minSquareMeters: {
-    placeholder: 'Örn: 90',
+    placeholder: 'Örn: 60',
   },
-  availableCities: {},
   districts: {
-    placeholder: 'Örn: Kadıköy, Beşiktaş, Çankaya, Nilüfer',
+    placeholder: 'Örn: Kadıköy, Üsküdar, Çankaya, Nilüfer, Muratpaşa',
     maxLength: 500,
   },
   minPopulation: {
-    placeholder: 'Örn: 150.000',
+    placeholder: 'Örn: 100.000',
   },
   storeSize: {
-    placeholder: 'Mağaza büyüklüğü seçin',
+    placeholder: 'Mağaza metrekare aralığı seçin',
   },
   businessCategory: {
-    placeholder: 'İş kategorisi seçin',
+    placeholder: 'Sektör ve kategori seçin',
   },
   workingHours: {
-    placeholder: 'Örn: 08:30 – 22:30',
+    placeholder: 'Örn: 08:30 – 22:00',
     maxLength: 200,
   },
   guaranteeRequirement: {
-    placeholder: 'Örn: 150.000 TL teminat mektubu veya eşdeğer kefalet.',
+    placeholder: 'Örn: 100.000 TL teminat veya kefalet mektubu.',
     maxLength: 500,
   },
   introductionVideoUrl: {
@@ -573,96 +451,90 @@ export const CUSTOM_FIELD_UI: Record<string, FieldUiMeta> = {
     maxLength: 500,
   },
   presentationPdfUrl: {
-    placeholder: 'https://...',
+    placeholder: 'https://ornek.com/sunum.pdf',
     maxLength: 500,
   },
   sampleContractUrl: {
-    placeholder: 'https://...',
+    placeholder: 'https://ornek.com/sozlesme.pdf',
     maxLength: 500,
   },
-  solutionType: {
-    placeholder: 'Çözüm türünü seçin',
-  },
-  deliveryModel: {
-    placeholder: 'Teslim modelini seçin',
-  },
-  targetAudience: {
-    placeholder: 'Hedef kitleyi seçin',
-  },
-  priceRange: {
-    placeholder: 'Fiyat / bütçe aralığı seçin',
-  },
-  demoUrl: {
-    placeholder: 'https://app.ornek.com/demo',
-    maxLength: 500,
-  },
-  capabilities: {},
-  supportedLanguages: {},
+
+  // İşletme Devri
   businessName: {
-    placeholder: 'Örn: Moda Coffee & Artisan Bakery',
+    placeholder: 'Örn: Moda Kafe ve Fırın',
     maxLength: 150,
   },
   businessType: {
-    placeholder: 'İşletme türü seçin',
+    placeholder: 'İşletme türünü seçin',
   },
   businessTypeOther: {
-    placeholder: 'Örn: Butik Kahve Evi & Çalışma Alanı',
+    placeholder: 'Örn: Fırın ve Pastane',
     maxLength: 150,
   },
-  preferredBusinessTypes: {},
   preferredBusinessTypesOther: {
-    placeholder: 'Örn: Gurme Şarküteri & Doğal Ürün Mağazası',
+    placeholder: 'Örn: Şarküteri ve Doğal Ürünler',
     maxLength: 150,
   },
   transferPrice: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 850.000 TL',
   },
   budgetMax: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 1.000.000 TL',
   },
   monthlyRent: {
-    placeholder: '0 TL',
+    placeholder: 'Örn: 30.000 TL',
+  },
+  monthlyRevenue: {
+    placeholder: 'Örn: 180.000 TL',
+    maxLength: 40,
   },
   businessAge: {
     placeholder: 'Örn: 4',
   },
   employeeCount: {
-    placeholder: 'Örn: 5',
+    placeholder: 'Örn: 4',
   },
   operationalStatus: {
-    placeholder: 'Faaliyet durumu seçin',
+    placeholder: 'İşletmenin çalışma durumunu seçin',
   },
   preferredStatus: {
-    placeholder: 'Tercih edilen faaliyet durumu seçin',
+    placeholder: 'Tercih edilen devir durumunu seçin',
   },
   operationalPreference: {
-    placeholder: 'Yönetim biçimi seçin',
+    placeholder: 'İşletme yönetim biçimini seçin',
   },
-  transferScope: {},
   reasonForTransfer: {
-    placeholder: 'Devir nedeni seçin',
+    placeholder: 'Devretme nedenini seçin',
   },
   postTransferSupport: {
-    placeholder: 'Örn: 1 ay boyunca tedarikçi zinciri, personel eğitimi ve geçiş süreci desteği sağlanacaktır.',
+    placeholder: 'Örn: 1 ay boyunca tedarikçiler, personel eğitimi ve geçiş sürecinde dükkanda birebir destek verilecektir.',
     maxLength: 300,
   },
   financialSummary: {
-    placeholder: 'Örn: Aylık ortalama 380.000 TL ciro, %35 net kâr marjı, hazır müşteri kitlesi.',
+    placeholder: 'Örn: Aylık ortalama 200.000 TL ciro, %35 net kâr, hazır ve oturmuş müşteri kitlesi.',
     maxLength: 500,
   },
   relevantExperience: {
-    placeholder: 'Örn: 6 yıl kafe ve restoran işletmeciliği, ekip yönetimi ve mali süreç tecrübesi.',
+    placeholder: 'Örn: 8 yıl kafe ve restoran işletmeciliği, kasa ve personel yönetimi tecrübesi.',
     maxLength: 500,
   },
-  expertiseOther: {
-    placeholder: 'Örn: Doğal Dil İşleme (NLP), B2B SaaS Büyüme Stratejisi, Donanım Tasarımı…',
-    maxLength: 120,
-    helperText: 'Aramak istediğiniz özel uzmanlığı yazabilir veya listeden önerilenleri seçebilirsiniz.',
+
+  // Dijital & AI
+  solutionType: {
+    placeholder: 'Çözüm türünü seçin',
   },
-  offeredSkillsOther: {
-    placeholder: 'Örn: Dağıtık Sistem Mimarisi, Marka Konumlandırma, Seri A Fon Toplama…',
-    maxLength: 120,
-    helperText: 'Sunduğunuz özel yetkinliği yazabilir veya listeden önerilenleri seçebilirsiniz.',
+  deliveryModel: {
+    placeholder: 'Kullanım modelini seçin',
+  },
+  targetAudience: {
+    placeholder: 'Hedef kitleyi seçin',
+  },
+  priceRange: {
+    placeholder: 'Fiyat ve paket aralığı seçin',
+  },
+  demoUrl: {
+    placeholder: 'https://demo.ornek.com',
+    maxLength: 500,
   },
 };
 

@@ -147,7 +147,7 @@ export const BROWSE_CATEGORY_MAP: Record<string, BrowseCategoryEntry> = {
   },
   hizmetler: {
     slug: 'hizmetler',
-    label: 'Esnaf ve Hizmetler',
+    label: 'Ustalar ve Hizmetler',
     listingTypeSlug: 'hizmet-ver',
     appCategoryId: CATEGORY_IDS.hizmetler,
     appListingTypeId: LISTING_TYPE_IDS.hizmetVeriyorumDefault,

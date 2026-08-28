@@ -1490,7 +1490,7 @@ export const HIZMET_EXPERIENCE_OPTIONS = [
   '20+ Yıl Mesleki Deneyim',
 ] as const;
 
-/** Esnaf ve Hizmetler — Usta ve Hizmet Profili */
+/** Ustalar ve Hizmetler — Usta ve Hizmet Profili */
 export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
   fields: [
     {
@@ -1505,7 +1505,7 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Usta veya İşletme Unvanı',
       type: 'string',
       required: true,
-      placeholder: 'Örn: Uzman Tesisat ve Elektrik Hizmetleri / Mehmet Usta',
+      placeholder: 'Örn: Mehmet Usta Tesisat ve Elektrik Hizmetleri',
     },
     {
       key: 'servicesList',
@@ -1648,7 +1648,7 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     listingTypeId: LISTING_TYPE_IDS.hizmetVeriyorumDefault,
     categoryId: CATEGORY_IDS.hizmetler,
     slug: 'hizmet-ver',
-    name: 'Esnaf ve Hizmet İlanı',
+    name: 'Ustalar ve Hizmetler İlanı',
     description: 'Uzmanlık alanlarınız, hizmet bölgeleriniz ve çalışma saatlerinizle hizmet ilanı verin',
     fieldSchema: HIZMET_FIELD_SCHEMA,
     sortOrder: 1,

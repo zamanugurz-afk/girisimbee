@@ -96,7 +96,7 @@ export function ServiceListingDetailView({ listing }: ServiceListingDetailViewPr
             <div className="space-y-2">
               <div className="flex items-center gap-2 rounded-xl bg-emerald-50/80 px-3 py-2 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                <span>Doğrulanmış Esnaf ve Usta</span>
+                <span>Doğrulanmış Usta ve Hizmet</span>
               </div>
 
               {card.emergency247 !== false && (
@@ -194,7 +194,7 @@ export function ServiceListingDetailView({ listing }: ServiceListingDetailViewPr
           <div className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-card">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Badge className="bg-indigo-600 hover:bg-indigo-700 text-white border-none px-3 py-1 text-xs font-bold">
-                {card.serviceCategory || 'Esnaf ve Hizmetler'}
+                {card.serviceCategory || 'Ustalar ve Hizmetler'}
               </Badge>
               <div className="flex items-center gap-2">
                 <Button

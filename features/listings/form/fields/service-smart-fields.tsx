@@ -262,7 +262,7 @@ export function ServiceItemsSmartPicker({
                   handleAddCustom();
                 }
               }}
-              placeholder="Eklemek istediğiniz özel hizmet kalemini yazın..."
+              placeholder="Örn: Su Sayaç Değişimi veya Korniş Montajı..."
               className="h-10 text-xs sm:text-sm bg-white dark:bg-zinc-900"
               disabled={disabled}
             />
@@ -570,7 +570,7 @@ export function ServiceDistrictsSmartPicker({
                     handleAddCustomDistrict();
                   }
                 }}
-                placeholder="Listede olmayan ilçe, semt veya çevre bölge yazın..."
+                placeholder="Örn: Moda, Bostancı, Kızılay veya çevre semt adı..."
                 className="h-10 text-xs sm:text-sm bg-white dark:bg-zinc-900"
                 disabled={disabled}
               />

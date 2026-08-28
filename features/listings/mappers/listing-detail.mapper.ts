@@ -757,7 +757,7 @@ function buildServiceCard(
   return {
     craftsmanTitle: toDisplayValue(cf.craftsmanTitle) || listing.title,
     ownerName: toDisplayValue(cf.ownerName) || null,
-    serviceCategory: toDisplayValue(cf.serviceCategory) || 'Esnaf ve Hizmetler',
+    serviceCategory: toDisplayValue(cf.serviceCategory) || 'Ustalar ve Hizmetler',
     servicesList: readList(cf.servicesList),
     serviceDistricts: readList(cf.serviceDistricts),
     workingHours: toDisplayValue(cf.workingHours) || '7/24 Acil Servis ve Gece Açık (Haftanın 7 Günü)',

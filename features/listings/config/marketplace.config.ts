@@ -90,7 +90,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
   },
   hizmetler: {
     description: 'Temizlikten çilingire, nakliyeden elektrik ve tadilata tüm günlük hizmetleri doğrudan yerel ustalardan bulun.',
-    seoTitle: 'Esnaf ve Hizmet İlanları | Girisimbee',
+    seoTitle: 'Ustalar ve Hizmetler İlanları | Girisimbee',
     seoDescription: 'Elektrik, tesisat, temizlik, nakliye, çilingir ve tadilat ustalarını doğrudan arayın.',
   },
   'genel-ilan': {

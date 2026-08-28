@@ -10,7 +10,7 @@ export const SEED_CATEGORIES: CreateCategoryInput[] = [
   { slug: 'franchise', name: 'Franchise İlanları', accentColor: '#EC4899', icon: 'Store', sortOrder: 4 },
   { slug: 'ise-al', name: 'İşe Alıyorum', accentColor: '#10B981', icon: 'Briefcase', sortOrder: 5 },
   { slug: 'is-bul', name: 'İş Arıyorum', accentColor: '#0EA5E9', icon: 'UserSearch', sortOrder: 6 },
-  { slug: 'hizmetler', name: 'Esnaf ve Hizmetler', accentColor: '#6366F1', icon: 'Wrench', sortOrder: 7 },
+  { slug: 'hizmetler', name: 'Ustalar ve Hizmetler', accentColor: '#6366F1', icon: 'Wrench', sortOrder: 7 },
   { slug: 'dijital-ai', name: 'Dijital ve AI Çözümleri', accentColor: '#8B5CF6', icon: 'Sparkles', sortOrder: 8 },
   { slug: 'isletme-devri', name: 'İşletme Devri', accentColor: '#D97706', icon: 'Building2', sortOrder: 9 },
   { slug: 'genel-ilan', name: 'Genel İlan', accentColor: '#0EA5E9', icon: 'Megaphone', sortOrder: 10 },

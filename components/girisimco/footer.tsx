@@ -18,7 +18,7 @@ export function Footer() {
         { label: 'Kariyer ve İş Fırsatları', href: '/is' },
         { label: 'Ortaklık ve Devir', href: '/girisim-ortaklik' },
         { label: 'Franchise ve Bayilik', href: '/franchise/buy' },
-        { label: 'Esnaf ve Hizmetler', href: '/kategori/hizmetler' },
+        { label: 'Ustalar ve Hizmetler', href: '/kategori/hizmetler' },
         { label: 'Girişimbee Market', href: '/market' },
         { label: 'Dijital ve AI Çözümler', href: '/dijital-ai' },
       ],
