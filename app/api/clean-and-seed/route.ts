@@ -97,39 +97,66 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   }
 
   // 4. Load taxonomy (categories & listing types)
+  // 3. Ensure core taxonomy exists
+  const coreCategories = [
+    { id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim', name: 'Yatırım' },
+    { id: 'e1000001-0001-4000-8000-000000000002', slug: 'is', name: 'İş ve Kariyer' },
+    { id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortaklik', name: 'Ortaklık & Girişim' },
+    { id: 'c1000001-0001-4000-8000-000000000006', slug: 'franchise', name: 'Franchise & Bayilik' },
+    { id: 'c1000001-0001-4000-8000-000000000009', slug: 'isletme-devri', name: 'İşletme Devri' },
+  ];
+
+  const coreListingTypes = [
+    { id: 'e1000001-0001-4000-8000-000000000001', category_id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-ariyorum', name: 'Yatırım Arıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000002', category_id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-yapiyorum', name: 'Yatırım Yapıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000003', category_id: 'e1000001-0001-4000-8000-000000000002', slug: 'is-ariyorum', name: 'İş Arıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000004', category_id: 'e1000001-0001-4000-8000-000000000002', slug: 'ise-aliyorum', name: 'İşe Alıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000005', category_id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortak-ariyorum', name: 'Ortak Arıyorum' },
+    { id: 'a0000006-0001-4000-8000-000000000006', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-al', name: 'Bayilik Al' },
+    { id: 'a0000007-0001-4000-8000-000000000007', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-ver', name: 'Bayilik Ver' },
+    { id: 'a0000009-0001-4000-8000-000000000009', category_id: 'c1000001-0001-4000-8000-000000000009', slug: 'business-transfer-sell', name: 'İşletme Devret' },
+    { id: 'a0000010-0001-4000-8000-000000000010', category_id: 'c1000001-0001-4000-8000-000000000009', slug: 'business-transfer-buy', name: 'İşletme Devral' },
+  ];
+
+  try {
+    await supabase.from('marketplace_categories').upsert(coreCategories, { onConflict: 'id' });
+    await supabase.from('marketplace_listing_types').upsert(coreListingTypes, { onConflict: 'id' });
+  } catch (taxErr) {
+    console.warn('Taxonomy upsert notice:', taxErr);
+  }
+
+  // 4. Load taxonomy
   const [{ data: categories }, { data: listingTypes }] = await Promise.all([
     supabase.from('marketplace_categories').select('id, slug, name'),
     supabase.from('marketplace_listing_types').select('id, slug, name, category_id'),
   ]);
 
-  const cats = categories || [];
-  const types = listingTypes || [];
+  const cats = categories || coreCategories;
+  const types = listingTypes || coreListingTypes;
 
   // 5. Build rich rows from CURATED_LISTING_TEMPLATES
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let type = null;
+    let typeId = 'e1000001-0001-4000-8000-000000000003';
+    let catId = 'e1000001-0001-4000-8000-000000000002';
+
     if (template.categorySlug === 'is-bul') {
-      type = types.find((t) => t.slug === 'is-ariyorum') || types.find((t) => t.slug.includes('ariyorum') || t.slug.includes('bul'));
+      catId = 'e1000001-0001-4000-8000-000000000002';
+      typeId = 'e1000001-0001-4000-8000-000000000003';
     } else if (template.categorySlug === 'ise-al') {
-      type = types.find((t) => t.slug === 'ise-aliyorum') || types.find((t) => t.slug.includes('aliyorum') || t.slug.includes('al'));
-    } else if (template.categorySlug === 'ortak-bul') {
-      type = types.find((t) => t.slug === 'ortak-ariyorum') || types.find((t) => t.slug.includes('ortak'));
+      catId = 'e1000001-0001-4000-8000-000000000002';
+      typeId = 'e1000001-0001-4000-8000-000000000004';
+    } else if (template.categorySlug === 'ortak-bul' || template.categorySlug === 'dijital-ai') {
+      catId = 'e1000001-0001-4000-8000-000000000003';
+      typeId = 'e1000001-0001-4000-8000-000000000005';
     } else if (template.categorySlug === 'isletme-devri') {
-      type = types.find((t) => t.slug.includes('devir') || t.slug.includes('sat'));
+      catId = 'c1000001-0001-4000-8000-000000000009';
+      typeId = 'a0000009-0001-4000-8000-000000000009';
     } else if (template.categorySlug === 'franchise') {
-      type = types.find((t) => t.slug.includes('ver') || t.slug.includes('franchise') || t.slug.includes('bayilik'));
-    } else if (template.categorySlug === 'dijital-ai') {
-      type = types.find((t) => t.slug === 'ortak-ariyorum') || types.find((t) => t.slug.includes('ortak'));
+      catId = 'c1000001-0001-4000-8000-000000000006';
+      typeId = 'a0000007-0001-4000-8000-000000000007';
     }
-
-    if (!type) {
-      type = types[0];
-    }
-
-    const typeId = type.id;
-    const catId = type.category_id || cats[0]?.id || 'e1000001-0001-4000-8000-000000000002';
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
