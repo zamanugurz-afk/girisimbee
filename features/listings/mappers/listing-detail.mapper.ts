@@ -230,6 +230,8 @@ const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
   [MARKETPLACE_LISTING_TYPE_IDS.ortakAriyorum]: 'ortak-bul',
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikAl]: 'bayilik-al',
   [MARKETPLACE_LISTING_TYPE_IDS.bayilikVer]: 'bayilik-al',
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferSell]: 'isletme-devri',
+  [MARKETPLACE_LISTING_TYPE_IDS.businessTransferBuy]: 'isletme-devri',
 };
 
 const MODULE_KEY_TO_BROWSE_SLUG: Record<ModuleKey, string> = {
@@ -246,6 +248,8 @@ const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
   'yatirim-yapiyorum': 'yatirim-yap',
   'is-ariyorum': 'is-bul',
   'ise-aliyorum': 'ise-al',
+  'ise-al': 'ise-al',
+  'is-bul': 'is-bul',
   'ortak-ariyorum': 'ortak-bul',
   'franchise-ilan-ver': 'bayilik-al',
   'bayilik-al': 'bayilik-al',
@@ -279,7 +283,25 @@ function resolveDetailCategorySlug(listing: Listing): string {
     return LISTING_TYPE_SLUG_TO_BROWSE_SLUG[category.slug];
   }
 
-  return 'yatirim-bul';
+  // Fallbacks based on fields
+  const cf = (listing.customFields ?? {}) as Record<string, unknown>;
+  if (cf.companyName && (cf.salaryRange || cf.workplacePreference || cf.desiredRole)) {
+    return 'ise-al';
+  }
+  if (cf.desiredRole || cf.experienceLevel || cf.salaryExpectation) {
+    return 'is-bul';
+  }
+  if (cf.franchiseFee || cf.totalInvestment || cf.branchCount) {
+    return 'bayilik-al';
+  }
+  if (cf.transferPrice || cf.monthlyRevenue || cf.transferScope) {
+    return 'isletme-devri';
+  }
+  if (cf.equityOffered || cf.commitment || cf.seekingRole) {
+    return 'ortak-bul';
+  }
+
+  return 'ise-al';
 }
 
 function formatDate(iso: string | null): string {
