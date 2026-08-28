@@ -78,17 +78,31 @@ export async function middleware(request: NextRequest) {
   const mwStart = nowMs();
   const pathname = request.nextUrl.pathname;
 
-  // Set preview unlock cookie when ?preview=1 is visited
-  if (request.nextUrl.searchParams.has('preview')) {
-    const previewVal = request.nextUrl.searchParams.get('preview');
-    if (previewVal === '1' || previewVal === 'true' || previewVal === 'girisimbee') {
+  // Set preview unlock cookie when ?preview=1 or ?unlock=girisimbee or ?key=girisimbee is visited
+  if (
+    request.nextUrl.searchParams.has('preview') ||
+    request.nextUrl.searchParams.has('unlock') ||
+    request.nextUrl.searchParams.has('key')
+  ) {
+    const previewVal = (
+      request.nextUrl.searchParams.get('preview') ||
+      request.nextUrl.searchParams.get('unlock') ||
+      request.nextUrl.searchParams.get('key') ||
+      ''
+    ).trim().toLowerCase();
+
+    const VALID_CODES = ['1', 'true', 'girisimbee', '1907', 'admin', 'preview', 'bee'];
+    if (VALID_CODES.includes(previewVal)) {
       const cleanUrl = request.nextUrl.clone();
       cleanUrl.searchParams.delete('preview');
+      cleanUrl.searchParams.delete('unlock');
+      cleanUrl.searchParams.delete('key');
       const response = NextResponse.redirect(cleanUrl);
       response.cookies.set('gb_preview', '1', {
         path: '/',
         maxAge: 60 * 60 * 24 * 365,
         sameSite: 'lax',
+        httpOnly: false,
       });
       return attachTiming(response, nowMs() - mwStart);
     }

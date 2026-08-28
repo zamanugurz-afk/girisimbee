@@ -130,8 +130,15 @@ export function getRequestClientIps(request: NextRequest): string[] {
 export function hasPreviewBypass(request: NextRequest): boolean {
   const cookie = request.cookies.get('gb_preview')?.value;
   if (cookie === '1' || cookie === 'true') return true;
-  const query = request.nextUrl.searchParams.get('preview');
-  if (query === '1' || query === 'true' || query === 'girisimbee') return true;
+
+  const validCodes = ['1', 'true', 'girisimbee', '1907', 'admin', 'preview', 'bee'];
+  const p = (request.nextUrl.searchParams.get('preview') || '').toLowerCase();
+  const u = (request.nextUrl.searchParams.get('unlock') || '').toLowerCase();
+  const k = (request.nextUrl.searchParams.get('key') || '').toLowerCase();
+
+  if (validCodes.includes(p) || validCodes.includes(u) || validCodes.includes(k)) {
+    return true;
+  }
   return false;
 }
 
@@ -150,6 +157,8 @@ export function isClientIpAllowlisted(request: NextRequest): boolean {
 /** Static + maintenance assets that anonymous visitors may load. */
 export function isIpGatePublicPath(pathname: string): boolean {
   if (pathname === '/bakim') return true;
+  if (pathname.startsWith('/api/ip')) return true;
+  if (pathname.startsWith('/api/preview/unlock')) return true;
   if (pathname.startsWith('/_next/')) return true;
   if (pathname.startsWith('/brand/')) return true;
   if (pathname.startsWith('/images/')) return true;

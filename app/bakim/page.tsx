@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { GirisimbeeLogo } from '@/components/girisimco/logo';
 import { BRAND_NAME } from '@/features/shared/constants/brand';
+import { MaintenanceUnlockForm } from '@/components/girisimco/maintenance-unlock-form';
 
 export const metadata: Metadata = {
   title: `Çok Yakında — ${BRAND_NAME}`,
@@ -34,6 +35,8 @@ export default function MaintenancePage() {
         </h1>
 
         <div className="mt-8 h-px w-24 animate-[gc-maint-fade_1s_ease-out_0.25s_both] bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
+
+        <MaintenanceUnlockForm />
       </div>
 
       <footer className="relative z-10 pb-8 text-center text-xs text-[#94A3B8]">
