@@ -97,21 +97,24 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   }
 
   // 4. Load taxonomy (categories & listing types)
-  // 3. Ensure core taxonomy exists
+  // 3. Ensure core taxonomy exists in Supabase
   const coreCategories = [
-    { id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim', name: 'Yatırım' },
-    { id: 'e1000001-0001-4000-8000-000000000002', slug: 'is', name: 'İş ve Kariyer' },
-    { id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortaklik', name: 'Ortaklık & Girişim' },
+    { id: 'c1000001-0001-4000-8000-000000000001', slug: 'yatirim', name: 'Yatırım' },
+    { id: 'c1000001-0001-4000-8000-000000000002', slug: 'is', name: 'İş ve Kariyer' },
+    { id: 'c1000001-0001-4000-8000-000000000003', slug: 'ortaklik', name: 'Ortaklık & Girişim' },
     { id: 'c1000001-0001-4000-8000-000000000006', slug: 'franchise', name: 'Franchise & Bayilik' },
     { id: 'c1000001-0001-4000-8000-000000000009', slug: 'isletme-devri', name: 'İşletme Devri' },
+    { id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-legacy', name: 'Yatırım Legacy' },
+    { id: 'e1000001-0001-4000-8000-000000000002', slug: 'is-legacy', name: 'İş Legacy' },
+    { id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortaklik-legacy', name: 'Ortaklık Legacy' },
   ];
 
   const coreListingTypes = [
-    { id: 'e1000001-0001-4000-8000-000000000001', category_id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-ariyorum', name: 'Yatırım Arıyorum' },
-    { id: 'e1000001-0001-4000-8000-000000000002', category_id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-yapiyorum', name: 'Yatırım Yapıyorum' },
-    { id: 'e1000001-0001-4000-8000-000000000003', category_id: 'e1000001-0001-4000-8000-000000000002', slug: 'is-ariyorum', name: 'İş Arıyorum' },
-    { id: 'e1000001-0001-4000-8000-000000000004', category_id: 'e1000001-0001-4000-8000-000000000002', slug: 'ise-aliyorum', name: 'İşe Alıyorum' },
-    { id: 'e1000001-0001-4000-8000-000000000005', category_id: 'e1000001-0001-4000-8000-000000000003', slug: 'ortak-ariyorum', name: 'Ortak Arıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000001', category_id: 'c1000001-0001-4000-8000-000000000001', slug: 'yatirim-ariyorum', name: 'Yatırım Arıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000002', category_id: 'c1000001-0001-4000-8000-000000000001', slug: 'yatirim-yapiyorum', name: 'Yatırım Yapıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000003', category_id: 'c1000001-0001-4000-8000-000000000002', slug: 'is-ariyorum', name: 'İş Arıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000004', category_id: 'c1000001-0001-4000-8000-000000000002', slug: 'ise-aliyorum', name: 'İşe Alıyorum' },
+    { id: 'e1000001-0001-4000-8000-000000000005', category_id: 'c1000001-0001-4000-8000-000000000003', slug: 'ortak-ariyorum', name: 'Ortak Arıyorum' },
     { id: 'a0000006-0001-4000-8000-000000000006', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-al', name: 'Bayilik Al' },
     { id: 'a0000007-0001-4000-8000-000000000007', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-ver', name: 'Bayilik Ver' },
     { id: 'a0000009-0001-4000-8000-000000000009', category_id: 'c1000001-0001-4000-8000-000000000009', slug: 'business-transfer-sell', name: 'İşletme Devret' },
@@ -131,30 +134,43 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     supabase.from('marketplace_listing_types').select('id, slug, name, category_id'),
   ]);
 
-  const cats = categories || coreCategories;
-  const types = listingTypes || coreListingTypes;
+  const cats = categories?.length ? categories : coreCategories;
+  const types = listingTypes?.length ? listingTypes : coreListingTypes;
 
   // 5. Build rich rows from CURATED_LISTING_TEMPLATES
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let resolvedType = null;
-    if (template.categorySlug === 'is-bul') {
-      resolvedType = types.find((t) => t.slug === 'is-ariyorum' || t.slug.includes('ariyorum') || t.slug.includes('bul')) || types[0];
-    } else if (template.categorySlug === 'ise-al') {
-      resolvedType = types.find((t) => t.slug === 'ise-aliyorum' || t.slug.includes('aliyorum') || t.slug.includes('al')) || types[0];
-    } else if (template.categorySlug === 'ortak-bul' || template.categorySlug === 'dijital-ai') {
-      resolvedType = types.find((t) => t.slug === 'ortak-ariyorum' || t.slug.includes('ortak')) || types[0];
-    } else if (template.categorySlug === 'isletme-devri') {
-      resolvedType = types.find((t) => t.slug.includes('devir') || t.slug.includes('sat')) || types[0];
-    } else if (template.categorySlug === 'franchise') {
-      resolvedType = types.find((t) => t.slug.includes('ver') || t.slug.includes('franchise') || t.slug.includes('bayilik')) || types[0];
-    } else {
-      resolvedType = types[0];
+    let cat = cats.find((c) => c.slug === template.categorySlug);
+    if (!cat) {
+      if (template.categorySlug === 'is-bul' || template.categorySlug === 'ise-al') {
+        cat = cats.find((c) => c.slug === 'is' || c.slug.includes('is') || c.name.toLowerCase().includes('iş') || c.name.toLowerCase().includes('kariyer')) || cats[0];
+      } else if (template.categorySlug === 'ortak-bul' || template.categorySlug === 'dijital-ai') {
+        cat = cats.find((c) => c.slug === 'ortaklik' || c.slug.includes('ortak') || c.name.toLowerCase().includes('ortak')) || cats[0];
+      } else if (template.categorySlug === 'isletme-devri') {
+        cat = cats.find((c) => c.slug.includes('devir') || c.name.toLowerCase().includes('devir')) || cats[0];
+      } else if (template.categorySlug === 'franchise') {
+        cat = cats.find((c) => c.slug.includes('franchise') || c.slug.includes('bayilik') || c.name.toLowerCase().includes('bayilik')) || cats[0];
+      } else {
+        cat = cats[0];
+      }
     }
+    const catId = cat.id;
 
-    const typeId = resolvedType.id;
-    const catId = resolvedType.category_id;
+    let type = types.find((t) => t.category_id === catId);
+    if (template.categorySlug === 'is-bul') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('ariyorum') || t.slug.includes('bul'))) || type;
+    } else if (template.categorySlug === 'ise-al') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('aliyorum') || t.slug.includes('al'))) || type;
+    } else if (template.categorySlug === 'isletme-devri') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('devret') || t.slug.includes('devir') || t.slug.includes('sell'))) || type;
+    } else if (template.categorySlug === 'franchise') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('ver') || t.slug.includes('franchise') || t.slug.includes('bayilik'))) || type;
+    }
+    if (!type) {
+      type = types[0];
+    }
+    const typeId = type.id;
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
