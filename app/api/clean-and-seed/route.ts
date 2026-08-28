@@ -183,15 +183,20 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     index += 1;
   }
 
-  // 6. Insert new curated rows in chunks
+  // 6. Insert new curated rows one by one
   let insertedCount = 0;
-  let insertError: string | null = null;
-  for (let i = 0; i < rows.length; i += 10) {
-    const chunk = rows.slice(i, i + 10);
-    const { data: inserted, error: insertErr } = await supabase.from('marketplace_listings').insert(chunk).select('id');
+  const insertErrors: Array<{ index: number; title: string; catId: string; typeId: string; error: string }> = [];
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const { data: inserted, error: insertErr } = await supabase.from('marketplace_listings').insert(row).select('id');
     if (insertErr) {
-      insertError = insertErr.message;
-      console.error('Insert error in chunk:', insertErr);
+      insertErrors.push({
+        index: i + 1,
+        title: row.title,
+        catId: row.category_id,
+        typeId: row.listing_type_id,
+        error: insertErr.message,
+      });
     } else {
       insertedCount += inserted?.length || 0;
     }
@@ -202,7 +207,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     archivedCount,
     insertedCount,
     archiveError,
-    insertError,
+    insertErrors,
     preservedEmails: PRESERVED_EMAILS,
     insertedSlugs: rows.map((r) => r.slug),
   };
