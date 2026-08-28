@@ -17,7 +17,7 @@ export const ADMIN_PLACEMENT_STATUSES: readonly AdminPlacementStatus[] = [
 
 export const ADMIN_PLACEMENT_TYPE_LABELS: Record<AdminPlacementType, string> = {
   vitrin: 'Vitrin',
-  acil_vitrin: 'Acil Vitrin',
+  acil_vitrin: 'Süper İlan',
 };
 
 export const ADMIN_PLACEMENT_STATUS_LABELS: Record<AdminPlacementStatus, string> = {

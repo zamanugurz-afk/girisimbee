@@ -74,7 +74,7 @@ export const PACKAGE_LABELS: Record<ListingPackageSlug, string> = {
   monthly_unlimited: 'Aylık Sınırsız',
   company_package: 'Şirket Paketi',
   vitrin: 'Vitrin Paketi',
-  hizli_erisim: 'Acil Vitrin Paketi',
+  hizli_erisim: 'Süper İlan Paketi',
 };
 
 export const PUBLISH_PACKAGE_SLUGS: readonly PublishPackageSlug[] = [

@@ -37,7 +37,7 @@ export const HOME_CATEGORY_TABS: {
   {
     id: 'all',
     label: 'Tümü',
-    viewAllHref: '/kesfet?featured=1',
+    viewAllHref: '/kesfet?urgent=1',
     match: isUserDiscoverableContentItem,
   },
   {

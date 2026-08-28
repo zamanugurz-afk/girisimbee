@@ -13,7 +13,6 @@ import {
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { useHeroStats } from '@/features/home';
 import {
-  HomeFeaturedSection,
   HomeListingsProvider,
   HomeRestSections,
 } from '@/components/girisimco/home/HomeListingsModule';
@@ -175,10 +174,9 @@ export function PlatformHome() {
             />
           </div>
 
-          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET, ÖNE ÇIKAN İLANLAR, DİĞER KATEGORİLER) */}
+          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET, SÜPER İLANLAR & DİĞER KATEGORİLER) */}
           <div className="relative z-10 space-y-4">
             <HomeMarketSection />
-            <HomeFeaturedSection />
             <HomeRestSections />
           </div>
         </div>

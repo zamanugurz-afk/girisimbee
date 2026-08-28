@@ -74,7 +74,7 @@ const CATALOG: EmployerPackageCatalogItem[] = [
   {
     id: ids.employerPackage('e0000001-0001-4000-8000-000000000004'),
     slug: 'urgent',
-    packageName: 'Acil Paket',
+    packageName: 'Süper İlan Paketi',
     packageType: 'urgent',
     packagePrice: 54900,
     packageDuration: 14,

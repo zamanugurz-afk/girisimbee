@@ -54,50 +54,27 @@ const BENEFIT_PACKAGES = [
     ctaLabel: 'Yeni İlan Ver',
   },
   {
-    id: 'showcase',
-    label: 'Vitrin İlanı (Öne Çıkan)',
-    description: 'Ana sayfa ve kategori vitrininde en üstte yer alın.',
-    Icon: Sparkles,
-    color: '#D97706',
-    benefits: [
-      {
-        title: 'En Üst Sıra Listelenme',
-        text: 'Ana sayfa ve kategori en üstünde yer alır.',
-      },
-      {
-        title: '5 Kata Kadar Fazla Görüntülenme',
-        text: 'Vitrin rozetiyle 5 kat daha fazla etkileşim alın.',
-      },
-      {
-        title: 'Altın Vitrin Rozeti',
-        text: 'Özel çerçeve ve vitrin etiketiyle öne çıkar.',
-      },
-    ],
-    href: '/dashboard/ilanlarim',
-    ctaLabel: 'İlanı Vitrine Taşı',
-  },
-  {
     id: 'urgent',
-    label: 'Acil Vitrin Dopingi',
-    description: 'Hızlı sonuç almak için kırmızı flaş acil dopingi.',
+    label: 'Süper İlan Paketi',
+    description: 'Aramalarda ve Keşfet sayfasında en üstte yer alın.',
     Icon: Zap,
     color: '#E11D48',
     benefits: [
       {
-        title: 'Kırmızı Flaş "Acil" Rozeti',
-        text: 'Aramalarda ilk sırada kırmızı acil etiketiyle parlar.',
+        title: 'En Üst Sıra Listelenme',
+        text: 'Tüm aramalarda ve Keşfet sayfasında en üst sırada listelenir.',
       },
       {
-        title: 'Öncelikli Eşleşme Bildirimi',
-        text: 'İlgili yatırımcı ve adaylara anında iletilir.',
+        title: 'Özel "Süper İlan" Rozeti',
+        text: 'Kırmızı flaş rozetiyle tüm dikkatleri anında üzerinize çekin.',
       },
       {
-        title: 'Maksimum Dönüşüm Oranı',
-        text: 'Acil arayan kitleye doğrudan ulaşır.',
+        title: 'Maksimum Dönüşüm & Hızlı Sonuç',
+        text: 'İlanınıza anında daha fazla başvuru ve iletişim talebi alın.',
       },
     ],
     href: '/dashboard/ilanlarim',
-    ctaLabel: 'Acil Doping Uygula',
+    ctaLabel: 'Süper İlan Yap',
   },
 ] as const;
 

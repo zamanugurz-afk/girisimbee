@@ -92,7 +92,7 @@ export const CANDIDATE_PACKAGE_LABELS: Record<CandidatePackageSlug, string> = {
   standard: 'Standart Paket',
   professional: 'Profesyonel Paket',
   featured: 'Öne Çıkan Paket',
-  urgent: 'Acil Paket',
+  urgent: 'Süper İlan Paketi',
 };
 
 export const CANDIDATE_PACKAGE_TIER: Record<CandidatePackageSlug, number> = {

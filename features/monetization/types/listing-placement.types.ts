@@ -40,7 +40,6 @@ export interface CreateListingPlacementInput {
 }
 
 export const PLACEMENT_PACKAGE_SLUGS: readonly PlacementPackageSlug[] = [
-  'vitrin',
   'hizli_erisim',
 ] as const;
 
@@ -129,7 +128,7 @@ export const PLACEMENT_PACKAGE_CONFIG: Record<
 > = {
   vitrin: {
     slug: 'vitrin',
-    name: 'Vitrin Paketi',
+    name: 'Öne Çıkan Vitrin',
     priceCents: 9900,
     durationDays: 30,
     featuredListing: true,
@@ -142,22 +141,22 @@ export const PLACEMENT_PACKAGE_CONFIG: Record<
   },
   hizli_erisim: {
     slug: 'hizli_erisim',
-    name: 'Acil Vitrin Paketi',
+    name: 'Süper İlan Paketi',
     priceCents: 9900,
     durationDays: 30,
     featuredListing: false,
     urgentListing: true,
     benefits: [
-      'Ana sayfadaki Acil İlanlar alanında görünme',
-      'Daha üst sıralarda gösterilme',
-      '30 gün süre — süre sonunda yeniden ödeme gerekir',
+      'Keşfet sayfasında ve tüm aramalarda en üstte listelenme',
+      'Özel kırmızı parlayan Süper İlan rozeti',
+      '30 gün süre — süre sonunda yeniden yenilenebilir',
     ],
   },
 };
 
 export const PLACEMENT_PACKAGE_LABELS: Record<PlacementPackageSlug, string> = {
   vitrin: 'Vitrin Paketi',
-  hizli_erisim: 'Acil Vitrin Paketi',
+  hizli_erisim: 'Süper İlan Paketi',
 };
 
 export function isPlacementPackageSlug(value: string): value is PlacementPackageSlug {

@@ -28,32 +28,15 @@ export function HomeListingsProvider({ children }: { children: ReactNode }) {
 }
 
 export function HomeFeaturedSection() {
-  const { sections } = useHomeListingsCtx();
-  const featured = HOME_LISTING_SECTIONS.find((s) => s.id === 'featured');
-  if (!featured) return null;
-  const state = sections.find((section) => section.id === featured.id);
-  if (!state) return null;
-
-  return (
-    <div className="bg-transparent dark:bg-transparent">
-      {/* Market sonrası ve Öne Çıkan İlanlar öncesi net ayrım çizgisi */}
-      <div className="mx-auto w-full max-w-[1280px] px-5 lg:px-8 pt-4 pb-2">
-        <div className="h-[1px] w-full bg-slate-200 dark:bg-zinc-800" />
-      </div>
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        <HomeListingSectionRow config={featured} state={state} />
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function HomeRestSections() {
   const { sections } = useHomeListingsCtx();
-  const rest = HOME_LISTING_SECTIONS.filter((s) => s.id !== 'featured');
 
   return (
     <div className="bg-transparent dark:bg-transparent">
-      {rest.map((config) => {
+      {HOME_LISTING_SECTIONS.map((config, index) => {
         const state = sections.find((section) => section.id === config.id);
         if (!state) return null;
         return (
@@ -72,12 +55,7 @@ export function HomeRestSections() {
   );
 }
 
-/** @deprecated Prefer HomeFeaturedSection + HomeRestSections */
+/** @deprecated Prefer HomeRestSections */
 export function HomeListingsModule() {
-  return (
-    <>
-      <HomeFeaturedSection />
-      <HomeRestSections />
-    </>
-  );
+  return <HomeRestSections />;
 }

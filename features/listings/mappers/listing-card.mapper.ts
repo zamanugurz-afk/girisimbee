@@ -139,10 +139,10 @@ export function listingToContentItem(
         : listing.isVerified
           ? 'Doğrulanmış'
           : listing.isUrgent
-            ? 'Acil'
-            : listing.isFeatured
-              ? 'Öne Çıkan'
-              : undefined,
+            ? 'Süper İlan'
+            : undefined,
+    isUrgent: listing.isUrgent ?? false,
+    isShowcase: listing.isFeatured ?? false,
     trust,
     timeAgo: formatTimeAgo(listing.publishedAt ?? listing.createdAt),
     emoji: cardDisplay.typeEmoji,

@@ -90,7 +90,7 @@ export function HomeFeaturedBento() {
               <div className="flex items-center gap-2">
                 <Badge className="border-rose-500/30 bg-rose-500/10 text-rose-600 hover:bg-rose-500/15 dark:text-rose-400">
                   <Flame className="mr-1 h-3 w-3 animate-pulse" />
-                  Acil Ortak Arayışı
+                  Süper İlan · Ortak Arayışı
                 </Badge>
               </div>
 

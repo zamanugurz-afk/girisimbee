@@ -122,5 +122,5 @@ export function remainingDays(expiresAt: string, nowMs = Date.now()): number {
 }
 
 export function placementTypeLabel(type: PlacementType): string {
-  return type === 'urgent' ? 'Acil Vitrin' : 'Vitrin';
+  return type === 'urgent' ? 'Süper İlan' : 'Vitrin';
 }

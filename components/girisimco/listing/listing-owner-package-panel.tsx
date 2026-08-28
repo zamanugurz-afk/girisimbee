@@ -97,7 +97,7 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
 
   function goToCard() {
     if (placements.length === 0) {
-      toast.error('En az bir paket seçin (Vitrin ve/veya Acil Vitrin).');
+      toast.error('Lütfen Süper İlan paketini seçin.');
       return;
     }
     setPhase('card');
@@ -212,14 +212,14 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
               İlan sahibi
             </p>
             <p className="mt-1 text-gc-sm font-medium text-foreground">
-              İlanınızı ana sayfada öne çıkarın
+              İlanınızı Süper İlan yapın
             </p>
             <p className="mt-0.5 text-gc-xs text-muted-foreground">
-              Vitrin veya Acil Vitrin paketi alın — ödeme şimdilik simüle edilir.
+              Süper İlan paketi ile aramalarda ve Keşfet'te en üst sırada görünün.
             </p>
           </div>
           <Button type="button" onClick={() => setOpen(true)} className="shrink-0">
-            Paket Al
+            Süper İlan Yap
           </Button>
         </div>
       </div>
@@ -232,7 +232,7 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
         <div>
           <p className="text-gc-xs font-semibold uppercase tracking-wide text-primary">Paket satın al</p>
           <h3 className="mt-1 font-display text-gc-lg font-semibold text-foreground">
-            Vitrine çıkarma
+            Süper İlan Paketi
           </h3>
         </div>
         <Button
@@ -277,7 +277,7 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
       {phase === 'select' && (
         <div className="space-y-4">
           <p className="text-gc-sm text-muted-foreground">
-            Vitrin ve Acil Vitrin paketlerini birlikte seçebilirsiniz. Standart yayın zaten aktif.
+            Süper İlan paketi ile ilanınızı en üst sıraya taşıyın. Standart yayın zaten aktif.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             {PLACEMENT_PACKAGE_SLUGS.map((slug) => {

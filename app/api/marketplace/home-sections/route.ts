@@ -51,7 +51,7 @@ async function fetchSection(
 ): Promise<{ id: HomeListingSectionId; items: ContentItem[]; total: number }> {
   let { listings, total } = await fetchPublished(listingRepository, params);
 
-  if (listings.length === 0 && (sectionId === 'featured' || sectionId === 'today')) {
+  if (listings.length === 0 && (sectionId === 'urgent' || sectionId === 'today')) {
     const fallback = await fetchPublished(listingRepository, {
       page: 1,
       limit: params.limit ?? 8,

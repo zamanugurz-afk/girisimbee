@@ -40,7 +40,7 @@ export const ADMIN_PAYMENT_SECTIONS: readonly {
 export const ADMIN_PAYMENT_PACKAGE_LABELS: Record<AdminPaymentPackageType, string> = {
   standart: 'Standart',
   vitrin: 'Vitrin',
-  acil_vitrin: 'Acil Vitrin',
+  acil_vitrin: 'Süper İlan',
 };
 
 export const ADMIN_PAYMENT_METHOD_LABELS: Record<AdminPaymentMethod, string> = {

@@ -65,16 +65,10 @@ export function AccountFavoriteCard({
             <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-400">
               {item.categoryLabel}
             </span>
-            {item.isShowcase && (
-              <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                <Sparkles className="h-3 w-3" />
-                Vitrin
-              </span>
-            )}
             {item.isUrgentShowcase && (
-              <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
-                <Zap className="h-3 w-3" />
-                Acil
+              <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-600 dark:text-rose-400">
+                <Zap className="h-3 w-3 fill-rose-500 text-rose-500" />
+                Süper İlan
               </span>
             )}
           </div>

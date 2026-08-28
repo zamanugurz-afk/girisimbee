@@ -8,8 +8,7 @@ export const ACCOUNT_SHOWCASE_TABS: {
   label: string;
 }[] = [
   { id: 'all', label: 'Tümü' },
-  { id: 'vitrin', label: 'Vitrin' },
-  { id: 'acil_vitrin', label: 'Acil Vitrin' },
+  { id: 'acil_vitrin', label: 'Süper İlan' },
 ];
 
 export const ACCOUNT_SHOWCASE_PACKAGE_LABELS: Record<
@@ -17,7 +16,7 @@ export const ACCOUNT_SHOWCASE_PACKAGE_LABELS: Record<
   string
 > = {
   vitrin: 'Vitrin',
-  acil_vitrin: 'Acil Vitrin',
+  acil_vitrin: 'Süper İlan',
 };
 
 export const ACCOUNT_SHOWCASE_STATUS_LABELS: Record<

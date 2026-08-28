@@ -71,6 +71,8 @@ export interface ContentItem {
   solutionType?: string;
   targetAudience?: string;
   conceptType?: string;
+  isUrgent?: boolean;
+  isShowcase?: boolean;
 }
 
 export interface CategorySection {

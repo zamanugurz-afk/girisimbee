@@ -56,9 +56,8 @@ function parseExploreFilters(
 }
 
 function exploreTitle(searchParams: Record<string, string | string[] | undefined>): string {
-  if (searchParams.featured === '1' || searchParams.featured === 'true') return 'Öne Çıkan İlanlar';
+  if (searchParams.urgent === '1' || searchParams.urgent === 'true') return 'Süper İlanlar';
   if (searchParams.today === '1' || searchParams.today === 'true') return 'Bugünün İlanları';
-  if (searchParams.urgent === '1' || searchParams.urgent === 'true') return 'Acil İlanlar';
   if (searchParams.sort === 'most_viewed') return 'En Çok Görüntülenenler';
   const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
   if (category) {

@@ -92,7 +92,7 @@ export const ENTREPRENEUR_PACKAGE_LABELS: Record<EntrepreneurPackageSlug, string
   standard: 'Standart Paket',
   professional: 'Profesyonel Paket',
   featured: 'Öne Çıkan Paket',
-  urgent: 'Acil Paket',
+  urgent: 'Süper İlan Paketi',
 };
 
 /** Tier order for upgrade/downgrade comparisons */

@@ -103,12 +103,12 @@ export function HeroInteractiveFlow() {
           </div>
         </div>
 
-        {/* 2. MİKRO KART: "Girişim Teknoloji Ortağı" + "Acil" Rozeti */}
+        {/* 2. MİKRO KART: "Girişim Teknoloji Ortağı" + "Süper İlan" Rozeti */}
         <div className="absolute top-[50px] left-[345px] z-10 w-[215px] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border border-zinc-200/90 dark:border-zinc-800 rounded-2xl p-3 shadow-lg shadow-zinc-900/5 animate-float-2">
           <h5 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 leading-tight">Girişim Teknoloji Ortağı</h5>
           <p className="text-[10.5px] text-zinc-500 mt-0.5">Fintech · Seri A</p>
           <div className="mt-2">
-            <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 text-[10px] font-bold">Acil</span>
+            <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 text-[10px] font-bold">Süper İlan</span>
           </div>
         </div>
 

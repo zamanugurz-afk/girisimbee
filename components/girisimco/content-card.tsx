@@ -9,6 +9,7 @@ import {
   MapPin,
   ShieldCheck,
   User,
+  Zap,
 } from 'lucide-react';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
 import type { ListingId } from '@/lib/domain/ids';
@@ -107,26 +108,36 @@ function TextListingCardLayout({
       )}
     >
       <div>
-        {/* Top Meta Row: Type Pill + Price Badge (Side-by-side) */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
-            style={{ backgroundColor: `${accent}12`, color: accent }}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            <span>{typeLabel}</span>
-          </span>
-
-          {compactPrice && (
+        {/* Top Meta Row: Type Pill + Price Badge + Süper İlan Badge */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             <span
-              className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 font-display text-xs font-semibold tabular-nums border"
-              style={{
-                backgroundColor: 'rgba(159, 18, 57, 0.07)',
-                color: '#9F1239',
-                borderColor: 'rgba(159, 18, 57, 0.20)',
-              }}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
+              style={{ backgroundColor: `${accent}12`, color: accent }}
             >
-              {compactPrice}
+              <Icon className="h-3.5 w-3.5" />
+              <span>{typeLabel}</span>
+            </span>
+
+            {compactPrice && (
+              <span
+                className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 font-display text-xs font-semibold tabular-nums border"
+                style={{
+                  backgroundColor: 'rgba(159, 18, 57, 0.07)',
+                  color: '#9F1239',
+                  borderColor: 'rgba(159, 18, 57, 0.20)',
+                }}
+              >
+                {compactPrice}
+              </span>
+            )}
+          </div>
+
+          {/* Süper İlan Rozeti */}
+          {(item.isUrgent || item.tag === 'Süper İlan' || item.tag === 'Acil') && (
+            <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10.5px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
+              <Zap className="h-3 w-3 fill-rose-500 text-rose-500" />
+              Süper İlan
             </span>
           )}
         </div>

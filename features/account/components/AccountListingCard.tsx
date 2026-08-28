@@ -221,17 +221,11 @@ export function AccountListingCard({
 
               {/* Right Side: Status Badge + Showcase + Quick Management Menu */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Showcase / Urgent Badges */}
-                {listing.isShowcase && (
-                  <span className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3" />
-                    Vitrin
-                  </span>
-                )}
+                {/* Süper İlan Badge */}
                 {listing.isUrgentShowcase && (
-                  <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                    <Zap className="h-3 w-3" />
-                    Acil
+                  <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                    <Zap className="h-3 w-3 fill-rose-500 text-rose-500" />
+                    Süper İlan
                   </span>
                 )}
 
@@ -307,10 +301,10 @@ export function AccountListingCard({
                         e.stopPropagation();
                         setPromoteOpen(true);
                       }}
-                      className="flex items-center gap-2 cursor-pointer text-amber-600 dark:text-amber-400 font-medium"
+                      className="flex items-center gap-2 cursor-pointer text-rose-600 dark:text-rose-400 font-medium"
                     >
-                      <Sparkles className="h-4 w-4 text-amber-500" />
-                      <span>Vitrine Taşı</span>
+                      <Zap className="h-4 w-4 text-rose-500 fill-rose-500" />
+                      <span>Süper İlan Yap</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem

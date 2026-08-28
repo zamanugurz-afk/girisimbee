@@ -33,15 +33,15 @@ export function AccountListingPromoteModal({
       const res = await fetch(`/api/account/listings/${listing.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'showcase' }),
+        body: JSON.stringify({ action: 'urgent' }),
       });
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Vitrine taşıma işlemi başarısız oldu.');
+        throw new Error(errorData.message || 'Süper İlan işlemi başarısız oldu.');
       }
 
-      toast.success('İlanınız başarıyla vitrine taşındı ve öne çıkarıldı!');
+      toast.success('İlanınız başarıyla Süper İlan yapıldı!');
       onPromoted?.(listing.id);
       onOpenChange(false);
     } catch (err) {
@@ -56,88 +56,46 @@ export function AccountListingPromoteModal({
       <DialogContent className="max-w-xl overflow-hidden rounded-2xl p-0 border border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl">
         {/* Header */}
         <div className="border-b border-border/80 p-6 pb-5">
-          <div className="flex items-center gap-2 text-amber-500 font-semibold text-xs uppercase tracking-wider">
-            <Sparkles className="h-4 w-4" />
-            <span>Öne Çıkarma & Vitrin</span>
+          <div className="flex items-center gap-2 text-rose-500 font-semibold text-xs uppercase tracking-wider">
+            <Zap className="h-4 w-4" />
+            <span>Öncelikli Listeleme</span>
           </div>
           <DialogTitle className="mt-2 font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            İlanınızı Vitrine Taşıyın
+            İlanınızı Süper İlan Yapın
           </DialogTitle>
           <DialogDescription className="mt-1 text-sm text-muted-foreground">
-            <strong className="text-foreground font-medium">{listing.title}</strong> ilanınızın görünürlüğünü katlayın.
+            <strong className="text-foreground font-medium">{listing.title}</strong> ilanınızı Keşfet ve aramalarda en üst sıraya taşıyın.
           </DialogDescription>
         </div>
 
         <div className="max-h-[70vh] overflow-y-auto p-6 space-y-4">
           {/* Packages List */}
           <div className="space-y-3">
-            {/* Package 1 */}
-            <div className="relative rounded-xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 transition-all hover:border-amber-500">
+            {/* Süper İlan Paketi */}
+            <div className="relative rounded-xl border border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent p-4 transition-all hover:border-rose-500">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-amber-500 p-2 text-white shadow-sm shrink-0">
-                    <Sparkles className="h-5 w-5" />
+                  <div className="rounded-lg bg-rose-500 p-2 text-white shadow-sm shrink-0">
+                    <Zap className="h-5 w-5 fill-white" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="font-display text-sm font-bold text-foreground">
-                        Ana Sayfa Vitrin Paketi
+                        Süper İlan Paketi
                       </h4>
-                      {listing.isShowcase && (
-                        <span className="rounded-full bg-emerald-500/15 text-emerald-600 px-2 py-0.5 text-[10px] font-semibold">
+                      {listing.isUrgentShowcase && (
+                        <span className="rounded-full bg-rose-500/15 text-rose-600 px-2 py-0.5 text-[10px] font-semibold">
                           Şu an Aktif
                         </span>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      Girişimbee ana sayfasındaki premium vitrinde en üst sırada listelenin.
-                    </p>
-                    <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-amber-600 dark:text-amber-400">
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      5x Daha Fazla Görüntülenme Garantisi
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Package 2 */}
-            <div className="relative rounded-xl border border-rose-500/30 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent p-4 transition-all hover:border-rose-500/60">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-rose-500 p-2 text-white shadow-sm shrink-0">
-                    <Flame className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-display text-sm font-bold text-foreground">
-                      Acil İlan Rozeti
-                    </h4>
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      İlan kartınızda parlayan kırmızı "Acil" rozeti ile aramalarda doğrudan dikkat çekin.
+                      Keşfet sayfasında ve tüm aramalarda en üst sırada kırmızı parlayan Süper İlan rozetiyle listelenin.
                     </p>
                     <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-rose-600 dark:text-rose-400">
-                      <Zap className="h-3.5 w-3.5" />
-                      Hızlı Başvuru & İletişim Akışı
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Maksimum Dönüşüm ve Anında Öncelikli Başvuru
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Package 3 */}
-            <div className="relative rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent p-4 transition-all hover:border-indigo-500/60">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-indigo-500 p-2 text-white shadow-sm shrink-0">
-                    <Zap className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-display text-sm font-bold text-foreground">
-                      Kategori Sabitleme
-                    </h4>
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      İlgili kategorinin listeleme sayfasında ilk sırada kalın.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -158,20 +116,20 @@ export function AccountListingPromoteModal({
           </Button>
 
           <div className="flex items-center gap-2">
-            {!listing.isShowcase && (
+            {!listing.isUrgentShowcase && (
               <Button
                 type="button"
                 size="sm"
                 disabled={isActivating}
                 onClick={handleInstantBoost}
-                className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white gap-1.5 shadow-sm font-medium"
+                className="rounded-lg bg-rose-500 hover:bg-rose-600 text-white gap-1.5 shadow-sm font-medium"
               >
                 {isActivating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Zap className="h-3.5 w-3.5 fill-white" />
                 )}
-                <span>Hemen Vitrine Taşı</span>
+                <span>Hemen Süper İlan Yap</span>
               </Button>
             )}
 

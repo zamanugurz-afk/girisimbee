@@ -567,6 +567,7 @@ export class SupabaseListingRepository implements ListingRepository {
       mode: 'browse',
       ownerScopedIds,
     })
+      .order('is_urgent', { ascending: false })
       .order(column, { ascending })
       .range(start, end);
 
@@ -575,6 +576,7 @@ export class SupabaseListingRepository implements ListingRepository {
         mode: 'browse',
         ownerScopedIds,
       })
+        .order('is_urgent', { ascending: false })
         .order(column, { ascending })
         .range(start, end);
     }

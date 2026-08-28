@@ -428,8 +428,8 @@ export function ListingPackageSelectionStep({
         </span>
       </div>
 
-      {/* 3 Equal Package Cards Grid (Compact Scaling) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-3.5 items-stretch">
+      {/* 2 Equal Package Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-stretch">
         {/* Card 1: Ana İlan Paketi */}
         <div
           className={cn(
@@ -485,90 +485,7 @@ export function ListingPackageSelectionStep({
           </div>
         </div>
 
-        {/* Card 2: Vitrin Paketi */}
-        <div
-          onClick={() => selectPlacement('vitrin')}
-          className={cn(
-            'relative flex flex-col justify-between rounded-xl border-2 p-3.5 sm:p-4 text-left transition-all duration-200 cursor-pointer select-none',
-            vitrinSelected
-              ? cn(currentTheme.selectedCardBorder, currentTheme.selectedCardBg, 'shadow-xs')
-              : 'border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs dark:border-border dark:bg-card',
-          )}
-        >
-          <div>
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    'flex h-6 w-6 items-center justify-center rounded-lg transition-colors shrink-0',
-                    vitrinSelected
-                      ? currentTheme.selectedCardIcon
-                      : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
-                  )}
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="inline-block rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                    Öne Çıkan
-                  </span>
-                  <h4 className="font-bold text-slate-900 dark:text-foreground text-xs sm:text-[13px] mt-0.5 truncate">
-                    {PLACEMENT_PACKAGE_CONFIG.vitrin.name}
-                  </h4>
-                </div>
-              </div>
-              <div
-                className={cn(
-                  'flex h-4.5 w-4.5 items-center justify-center rounded-full border text-[10px] font-bold transition-all shrink-0',
-                  vitrinSelected
-                    ? currentTheme.selectedCardCheck
-                    : 'border-slate-300 dark:border-slate-600',
-                )}
-              >
-                {vitrinSelected ? '✓' : ''}
-              </div>
-            </div>
-
-            <div className="my-2.5 border-t border-slate-100 dark:border-border/60 pt-2">
-              <div className="flex items-baseline gap-1">
-                <span className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-foreground">
-                  +{formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.vitrin.priceCents)}
-                </span>
-                <span className="text-[11px] text-muted-foreground font-medium">/ 30 gün</span>
-              </div>
-
-              <ul className="mt-2.5 space-y-1.5 text-[11px] text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-1.5">
-                  <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">Kategori ve arama vitrininde üst sıra</span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">Öne çıkan ilan vitrin rozeti</span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">+5 kata kadar daha fazla görüntülenme</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-2.5 border-t border-slate-100 dark:border-border/60">
-            <div
-              className={cn(
-                'w-full py-1.5 rounded-lg text-[11px] font-bold transition-all text-center',
-                vitrinSelected
-                  ? currentTheme.selectedCardButton
-                  : 'border border-border bg-muted/40 text-foreground',
-              )}
-            >
-              {vitrinSelected ? '✓ Pakete Eklendi' : '+ Pakete Ekle'}
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Acil Vitrin Paketi */}
+        {/* Card 2: Süper İlan Paketi */}
         <div
           onClick={() => selectPlacement('hizli_erisim')}
           className={cn(
@@ -589,11 +506,11 @@ export function ListingPackageSelectionStep({
                       : 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
                   )}
                 >
-                  <Zap className="h-3.5 w-3.5" />
+                  <Zap className="h-3.5 w-3.5 fill-current" />
                 </div>
                 <div className="min-w-0">
                   <span className="inline-block rounded-md bg-rose-500/15 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                    Hızlı Sonuç
+                    Öncelikli Sıra
                   </span>
                   <h4 className="font-bold text-slate-900 dark:text-foreground text-xs sm:text-[13px] mt-0.5 truncate">
                     {PLACEMENT_PACKAGE_CONFIG.hizli_erisim.name}
@@ -623,15 +540,15 @@ export function ListingPackageSelectionStep({
               <ul className="mt-2.5 space-y-1.5 text-[11px] text-slate-600 dark:text-slate-300">
                 <li className="flex items-center gap-1.5">
                   <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">Acil arayış kırmızı dikkat rozeti</span>
+                  <span className="leading-snug">Keşfet ve aramalarda en üstte listelenme</span>
                 </li>
                 <li className="flex items-center gap-1.5">
                   <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">Ana sayfa acil vitrin bloğunda yerleşim</span>
+                  <span className="leading-snug">Özel parlayan kırmızı Süper İlan rozeti</span>
                 </li>
                 <li className="flex items-center gap-1.5">
                   <Check className={cn('h-3 w-3 shrink-0', currentTheme.mainCardCheck)} />
-                  <span className="leading-snug">Aday bildirimlerinde öncelikli eşleşme</span>
+                  <span className="leading-snug">Maksimum dönüşüm ve anında öncelikli başvuru</span>
                 </li>
               </ul>
             </div>

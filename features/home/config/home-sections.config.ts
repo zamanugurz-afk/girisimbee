@@ -2,10 +2,9 @@ import type { MarketplaceBrowseParams } from '@/features/listings/types/marketpl
 import { startOfTodayIstanbulIso, endOfTodayIstanbulIso } from '@/features/home/lib/date-bounds';
 
 export type HomeListingSectionId =
-  | 'featured'
+  | 'urgent'
   | 'today'
-  | 'most_viewed'
-  | 'urgent';
+  | 'most_viewed';
 
 export interface HomeListingSectionConfig {
   id: HomeListingSectionId;
@@ -29,35 +28,16 @@ const SECTION_LIMIT = 8;
 
 export const HOME_LISTING_SECTIONS: HomeListingSectionConfig[] = [
   {
-    id: 'featured',
-    title: 'Öne Çıkan İlanlar',
-    description: 'En yeni ve dikkat çeken fırsatlar',
-    badge: 'Öne Çıkan',
-    badgeClassName: 'bg-[#6366f1]/10 text-[#6366f1] border-[#6366f1]/20',
-    titleClassName: 'text-[#4F46E5]',
-    eyebrowClassName: 'text-[#818CF8]',
-    accent: '#4F46E5',
-    viewAllHref: '/kesfet?featured=1',
-    emptyMessage: 'Henüz vitrine alınmış bir ilan bulunmuyor.',
-    resolveBrowseParams: () => ({
-      page: 1,
-      limit: SECTION_LIMIT,
-      isFeatured: true,
-      activeFeaturedOnly: true,
-      sortBy: 'newest',
-    }),
-  },
-  {
     id: 'urgent',
-    title: 'Acil İlanlar',
-    description: 'Acil Vitrin paketi ile hızlandırılmış ilanlar.',
-    badge: 'Acil',
+    title: 'Süper İlanlar',
+    description: 'Süper İlan paketi ile hızlandırılmış ve öncelikli fırsatlar.',
+    badge: 'Süper İlan',
     badgeClassName: 'bg-rose-500/10 text-rose-700 border-rose-500/20',
     titleClassName: 'text-[#E11D48]',
     eyebrowClassName: 'text-[#FB7185]',
     accent: '#E11D48',
     viewAllHref: '/kesfet?urgent=1',
-    emptyMessage: 'Henüz acil vitrine eklenmiş bir ilan bulunmuyor.',
+    emptyMessage: 'Henüz süper ilan kategorisine eklenmiş bir ilan bulunmuyor.',
     resolveBrowseParams: () => ({
       page: 1,
       limit: SECTION_LIMIT,

@@ -31,14 +31,9 @@ const PRICING_ROWS = [
     note: 'Aynı kategoride ek ilan veya süre dolunca · 30 gün',
   },
   {
-    name: 'Vitrin dopingi',
-    price: formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.vitrin.priceCents),
-    note: '30 gün — tüm kategoriler',
-  },
-  {
-    name: 'Acil Vitrin dopingi',
+    name: 'Süper İlan dopingi',
     price: formatPlacementPriceTry(PLACEMENT_PACKAGE_CONFIG.hizli_erisim.priceCents),
-    note: '30 gün — tüm kategoriler',
+    note: '30 gün — tüm kategorilerde en üst sıra',
   },
   {
     name: FRANCHISE_PUBLISH_CONFIG.name,

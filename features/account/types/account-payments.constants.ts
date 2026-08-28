@@ -27,7 +27,7 @@ export const ACCOUNT_PAYMENT_PACKAGE_TYPE_LABELS: Record<
   string
 > = {
   vitrin: 'Vitrin',
-  acil_vitrin: 'Acil Vitrin',
+  acil_vitrin: 'Süper İlan',
   standart: 'Standart',
 };
 
@@ -55,7 +55,7 @@ export const MOCK_ACCOUNT_PAYMENTS: AccountPaymentCardData[] = [
   {
     id: 'pay-002',
     transactionNumber: 'GC-TX-20260720-014',
-    packageName: 'Acil Vitrin Paketi — 30 gün',
+    packageName: 'Süper İlan Paketi — 30 gün',
     packageType: 'acil_vitrin',
     paidAt: '2026-07-20T09:05:00.000Z',
     amountTry: 39,
@@ -75,7 +75,7 @@ export const MOCK_ACCOUNT_PAYMENTS: AccountPaymentCardData[] = [
   {
     id: 'pay-004',
     transactionNumber: 'GC-TX-20260801-003',
-    packageName: 'Acil Vitrin Paketi — 30 gün',
+    packageName: 'Süper İlan Paketi — 30 gün',
     packageType: 'acil_vitrin',
     paidAt: null,
     amountTry: 39,
