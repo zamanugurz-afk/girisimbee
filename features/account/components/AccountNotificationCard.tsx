@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CheckCheck, ExternalLink, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ArrowRight, CheckCheck, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { AccountNotificationCardData } from '@/features/account/types/account-notifications.types';
@@ -18,10 +17,27 @@ function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
     month: 'short',
-    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   }).format(date);
+}
+
+function getNotificationTheme(type: string): { color: string; label: string } {
+  switch (type) {
+    case 'favorites':
+      return { color: '#E11D48', label: 'Favoriler' };
+    case 'follows':
+      return { color: '#0EA5E9', label: 'Takipler' };
+    case 'listings':
+      return { color: '#10B981', label: 'İlanlar' };
+    case 'payments':
+      return { color: '#8B5CF6', label: 'Ödemeler' };
+    case 'verifications':
+      return { color: '#3B82F6', label: 'Doğrulamalar' };
+    case 'system':
+    default:
+      return { color: '#F59E0B', label: 'Sistem' };
+  }
 }
 
 export function AccountNotificationCard({
@@ -37,105 +53,111 @@ export function AccountNotificationCard({
 }) {
   const unread = item.status === 'unread';
   const Icon = ACCOUNT_NOTIFICATION_ICON_MAP[item.iconKey] ?? ACCOUNT_NOTIFICATION_ICON_MAP.bell;
+  const theme = getNotificationTheme(item.type);
 
-  return (
+  const cardContent = (
     <article
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-4 shadow-xs transition-all duration-300',
-        'hover:-translate-y-1 hover:shadow-md',
-        unread
-          ? 'border-amber-500/30 bg-amber-500/[0.03] dark:border-amber-500/20 dark:bg-amber-500/10'
-          : 'border-slate-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900/90',
+        'group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
+        'bg-card border border-border/70 hover:border-primary/40',
+        'shadow-xs hover:shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5',
+        item.actionHref && 'cursor-pointer',
       )}
     >
-      <div className="space-y-3">
-        {/* Top Header: Icon + Badges */}
+      <div>
+        {/* Top Header: Type Pill + Status Badge & Action buttons */}
         <div className="flex items-start justify-between gap-2">
-          <div
-            className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105',
-              unread
-                ? 'bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
-                : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400',
-            )}
+          {/* Type Pill */}
+          <span
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
+            style={{ backgroundColor: `${theme.color}15`, color: theme.color }}
           >
-            <Icon className="h-5 w-5" aria-hidden />
-          </div>
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{ACCOUNT_NOTIFICATION_TYPE_LABELS[item.type] ?? theme.label}</span>
+          </span>
 
-          <div className="flex flex-wrap items-center justify-end gap-1.5">
-            <span className="inline-flex items-center rounded-md bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-zinc-300">
-              {ACCOUNT_NOTIFICATION_TYPE_LABELS[item.type]}
-            </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Status Badge */}
             <span
               className={cn(
-                'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold',
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
                 unread
-                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                  ? 'border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
                   : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400',
               )}
             >
+              {unread && <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />}
               {ACCOUNT_NOTIFICATION_STATUS_LABELS[item.status]}
             </span>
+
+            {/* Mark as read button */}
+            {unread && (
+              <button
+                type="button"
+                aria-label="Okundu olarak işaretle"
+                title="Okundu olarak işaretle"
+                disabled={busy}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onMarkRead();
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+              </button>
+            )}
+
+            {/* Delete button */}
+            <button
+              type="button"
+              aria-label="Bildirimi sil"
+              title="Bildirimi sil"
+              disabled={busy}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
 
         {/* Title & Description */}
-        <div>
-          <h3 className="font-display text-sm font-bold tracking-tight text-slate-950 dark:text-white line-clamp-1">
-            {item.title}
-          </h3>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-zinc-400 line-clamp-2">
-            {item.description}
-          </p>
-          <p className="mt-2 text-[11px] font-medium text-slate-400 dark:text-zinc-500">
-            {formatDateTime(item.createdAt)}
-          </p>
-        </div>
+        <h3 className="mt-3 line-clamp-1 font-display text-sm sm:text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+          {item.title}
+        </h3>
+        <p className="mt-1.5 line-clamp-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+          {item.description}
+        </p>
       </div>
 
-      {/* Action Buttons Toolbar */}
-      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-1.5">
-        {unread ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-8 flex-1 rounded-xl text-xs font-semibold hover:border-slate-300 dark:hover:border-zinc-700"
-            disabled={busy}
-            onClick={onMarkRead}
-            title="Okundu olarak işaretle"
-          >
-            <CheckCheck className="mr-1 h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="truncate">Okundu</span>
-          </Button>
-        ) : null}
+      {/* Footer Meta Strip */}
+      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+        <span className="whitespace-nowrap text-[11px] text-muted-foreground">
+          {formatDateTime(item.createdAt)}
+        </span>
 
         {item.actionHref ? (
-          <Button
-            asChild
-            type="button"
-            size="sm"
-            className="h-8 flex-1 rounded-xl text-xs font-semibold shadow-2xs gap-1"
-          >
-            <Link href={item.actionHref}>
-              <ExternalLink className="h-3 w-3" />
-              <span className="truncate">{item.actionLabel ?? 'İlana Git'}</span>
-            </Link>
-          </Button>
+          <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary whitespace-nowrap pl-2 shrink-0">
+            <span>{item.actionLabel ?? 'İncele'}</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
         ) : null}
-
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          className="h-8 px-2 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0"
-          disabled={busy}
-          onClick={onDelete}
-          title="Bildirimi Sil"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
       </div>
     </article>
   );
+
+  if (item.actionHref) {
+    return (
+      <Link href={item.actionHref} className="block h-full outline-none">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }
