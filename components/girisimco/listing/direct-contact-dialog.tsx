@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,9 +15,8 @@ import {
   Mail,
   User,
   ShieldCheck,
-  ArrowUpRight,
   Send,
-  Sparkles,
+  ArrowUpRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DASHBOARD_ROUTES } from '@/features/dashboard/panel/dashboard-nav.constants';
@@ -42,7 +41,7 @@ export function DirectContactDialog({
   title = 'İlan Sahibiyle İletişime Geç',
   subtitle = 'Doğrudan iletişim ve mesajlaşma seçenekleri:',
   contactName,
-  contactRoleLabel = 'İletişim Yetkilisi',
+  contactRoleLabel = 'İlan Sahibi',
   phone,
   whatsapp,
   email,
@@ -84,24 +83,22 @@ export function DirectContactDialog({
         </DialogHeader>
 
         <div className="space-y-2.5 pt-2">
-          {/* Yetkili Kişi Kartı */}
+          {/* Yetkili / İlan Sahibi Kartı (ORTALANMIŞ) */}
           {contactName && (
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800 text-xs">
-              <div className="w-7 h-7 rounded-lg bg-slate-200/70 dark:bg-zinc-800 flex items-center justify-center shrink-0 text-slate-600 dark:text-zinc-300">
-                <User className="h-3.5 w-3.5" />
+            <div className="flex flex-col items-center justify-center text-center px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800">
+              <div className="w-8 h-8 rounded-full bg-slate-200/80 dark:bg-zinc-800 flex items-center justify-center text-slate-600 dark:text-zinc-300 mb-1.5 shadow-2xs">
+                <User className="h-4 w-4" />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium leading-none mb-0.5">
-                  {contactRoleLabel}
-                </p>
-                <p className="font-semibold text-slate-800 dark:text-zinc-200 truncate">
-                  {contactName}
-                </p>
-              </div>
+              <p className="text-[11px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
+                {contactRoleLabel}
+              </p>
+              <p className="text-sm font-bold text-slate-900 dark:text-zinc-100 mt-0.5">
+                {contactName}
+              </p>
             </div>
           )}
 
-          {/* 1. Telefon Görüşmesi */}
+          {/* 1. Telefon Görüşmesi (Ara yazısı kaldırıldı) */}
           {cleanPhone && (
             <a
               href={`tel:${cleanPhone}`}
@@ -120,14 +117,11 @@ export function DirectContactDialog({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                <span>Ara</span>
-                <ArrowUpRight className="h-3 w-3" />
-              </div>
+              <ArrowUpRight className="h-4 w-4 text-slate-400 dark:text-zinc-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shrink-0 mr-1" />
             </a>
           )}
 
-          {/* 2. WhatsApp Hattı */}
+          {/* 2. WhatsApp Hattı (Yaz yazısı kaldırıldı) */}
           {cleanWp && (
             <a
               href={`https://wa.me/${cleanWp}`}
@@ -148,14 +142,11 @@ export function DirectContactDialog({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                <span>Yaz</span>
-                <ArrowUpRight className="h-3 w-3" />
-              </div>
+              <ArrowUpRight className="h-4 w-4 text-slate-400 dark:text-zinc-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shrink-0 mr-1" />
             </a>
           )}
 
-          {/* 3. Platform İçi Mesajlaşma (AYNI HİZALAMA VE YAPI) */}
+          {/* 3. Platform İçi Mesajlaşma (Mesaj Aç yazısı kaldırıldı) */}
           <button
             type="button"
             onClick={handleOpenInternalChat}
@@ -174,13 +165,10 @@ export function DirectContactDialog({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-indigo-700 dark:text-indigo-400 bg-indigo-100/70 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-              <span>Mesaj Aç</span>
-              <ArrowUpRight className="h-3 w-3" />
-            </div>
+            <ArrowUpRight className="h-4 w-4 text-slate-400 dark:text-zinc-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors shrink-0 mr-1" />
           </button>
 
-          {/* 4. E-posta İletişimi (varsa) */}
+          {/* 4. E-posta İletişimi (Gönder yazısı kaldırıldı) */}
           {email && (
             <a
               href={`mailto:${email}`}
@@ -199,10 +187,7 @@ export function DirectContactDialog({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-sky-700 dark:text-sky-400 bg-sky-100/70 dark:bg-sky-950/60 px-2.5 py-1 rounded-lg shrink-0 group-hover:bg-sky-600 group-hover:text-white transition-colors">
-                <span>Gönder</span>
-                <ArrowUpRight className="h-3 w-3" />
-              </div>
+              <ArrowUpRight className="h-4 w-4 text-slate-400 dark:text-zinc-500 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors shrink-0 mr-1" />
             </a>
           )}
         </div>
