@@ -27,11 +27,13 @@ function slugify(title: string, index: number): string {
 }
 
 async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRoleClient>) {
-  // 1. Soft-delete and archive all old existing listings
   const now = new Date().toISOString();
-  let updatedOldCount = 0;
+  let archivedCount = 0;
+  let updateErrorMsg = null;
+
+  // 1. Soft-delete / Archive ALL existing test listings
   try {
-    const { data: oldListings } = await supabase
+    const { data: updated, error: updErr } = await supabase
       .from('marketplace_listings')
       .update({
         status: 'deleted',
@@ -40,14 +42,26 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
         is_featured: false,
         is_urgent: false,
       })
-      .is('deleted_at', null)
+      .neq('id', '00000000-0000-0000-0000-000000000000')
       .select('id');
-    updatedOldCount = oldListings?.length || 0;
+
+    if (updErr) {
+      updateErrorMsg = updErr.message;
+    } else {
+      archivedCount = updated?.length || 0;
+    }
   } catch (err) {
-    console.warn('Soft-delete error:', err);
+    updateErrorMsg = err instanceof Error ? err.message : String(err);
   }
 
-  // 2. Resolve admin owner ID (preserve ugurzaman1907 and zamanugurz)
+  // 2. Clear favorites and ad inquiries
+  try {
+    await supabase.from('marketplace_favorites').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  } catch {
+    // ignore
+  }
+
+  // 3. Resolve admin owner ID (preserve ugurzaman1907 and zamanugurz)
   let ownerId: string | null = null;
   try {
     const { data: usersData } = await supabase.auth.admin.listUsers({ page: 1, perPage: 100 });
@@ -66,7 +80,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     ownerId = 'e1000001-0001-4000-8000-000000000001';
   }
 
-  // 3. Load taxonomy (categories & listing types)
+  // 4. Load taxonomy (categories & listing types)
   const [{ data: categories }, { data: listingTypes }] = await Promise.all([
     supabase.from('marketplace_categories').select('id, slug, name'),
     supabase.from('marketplace_listing_types').select('id, slug, name, category_id'),
@@ -75,7 +89,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   const cats = categories || [];
   const types = listingTypes || [];
 
-  // 4. Build rich rows from CURATED_LISTING_TEMPLATES
+  // 5. Build rich rows from CURATED_LISTING_TEMPLATES
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
@@ -129,8 +143,8 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       contact_email: `ilan${index}@girisimbee.example`,
       contact_website: null,
       custom_fields: customFields,
-      view_count: 95 + index * 17,
-      interested_count: 4 + (index % 11),
+      view_count: 110 + index * 17,
+      interested_count: 5 + (index % 11),
       application_count: 2 + (index % 7),
       is_verified: true,
       is_featured: true,
@@ -145,12 +159,14 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     index += 1;
   }
 
-  // 5. Insert rows in chunks
+  // 6. Insert new curated rows in chunks
   let insertedCount = 0;
+  let insertErrorMsg = null;
   for (let i = 0; i < rows.length; i += 10) {
     const chunk = rows.slice(i, i + 10);
     const { data: inserted, error: insertErr } = await supabase.from('marketplace_listings').insert(chunk).select('id');
     if (insertErr) {
+      insertErrorMsg = insertErr.message;
       console.error('Insert error in chunk:', insertErr);
     } else {
       insertedCount += inserted?.length || 0;
@@ -159,8 +175,10 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
 
   return {
     success: true,
-    totalArchivedOldListings: updatedOldCount,
-    totalInsertedNewListings: insertedCount,
+    archivedCount,
+    insertedCount,
+    updateErrorMsg,
+    insertErrorMsg,
     preservedEmails: PRESERVED_EMAILS,
   };
 }
