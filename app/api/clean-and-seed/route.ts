@@ -109,28 +109,38 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let catId = 'e1000001-0001-4000-8000-000000000002';
-    let typeId = 'e1000001-0001-4000-8000-000000000003';
-
-    if (template.categorySlug === 'is-bul') {
-      catId = 'e1000001-0001-4000-8000-000000000002';
-      typeId = 'e1000001-0001-4000-8000-000000000003'; // isAriyorum
-    } else if (template.categorySlug === 'ise-al') {
-      catId = 'e1000001-0001-4000-8000-000000000002';
-      typeId = 'e1000001-0001-4000-8000-000000000004'; // iseAliyorum
-    } else if (template.categorySlug === 'ortak-bul') {
-      catId = 'e1000001-0001-4000-8000-000000000003';
-      typeId = 'e1000001-0001-4000-8000-000000000005'; // ortakAriyorum
-    } else if (template.categorySlug === 'isletme-devri') {
-      catId = 'c1000001-0001-4000-8000-000000000009';
-      typeId = 'a0000009-0001-4000-8000-000000000009'; // businessTransferSell
-    } else if (template.categorySlug === 'franchise') {
-      catId = 'c1000001-0001-4000-8000-000000000006';
-      typeId = 'a0000007-0001-4000-8000-000000000007'; // bayilikVer
-    } else {
-      catId = 'e1000001-0001-4000-8000-000000000003';
-      typeId = 'e1000001-0001-4000-8000-000000000005';
+    let cat = cats.find((c) => c.slug === template.categorySlug);
+    if (!cat) {
+      if (template.categorySlug === 'is-bul' || template.categorySlug === 'ise-al') {
+        cat = cats.find((c) => c.slug === 'is' || c.slug === 'is-bul' || c.slug === 'ise-al' || c.name.toLowerCase().includes('iş') || c.name.toLowerCase().includes('kariyer')) || cats[0];
+      } else if (template.categorySlug === 'ortak-bul') {
+        cat = cats.find((c) => c.slug === 'ortaklik' || c.slug === 'ortak-bul' || c.name.toLowerCase().includes('ortak')) || cats[0];
+      } else if (template.categorySlug === 'isletme-devri') {
+        cat = cats.find((c) => c.slug.includes('devir') || c.name.toLowerCase().includes('devir')) || cats[0];
+      } else if (template.categorySlug === 'franchise') {
+        cat = cats.find((c) => c.slug.includes('franchise') || c.slug.includes('bayilik') || c.name.toLowerCase().includes('bayilik')) || cats[0];
+      } else {
+        cat = cats[0];
+      }
     }
+    const catId = cat.id;
+
+    let type = null;
+    if (template.categorySlug === 'is-bul') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('ariyorum') || t.slug.includes('bul') || t.name.toLowerCase().includes('arıyorum')));
+    } else if (template.categorySlug === 'ise-al') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('aliyorum') || t.slug.includes('al') || t.name.toLowerCase().includes('alıyorum')));
+    } else if (template.categorySlug === 'ortak-bul') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('ortak') || t.name.toLowerCase().includes('ortak')));
+    } else if (template.categorySlug === 'isletme-devri') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('devir') || t.slug.includes('sat') || t.name.toLowerCase().includes('devir')));
+    } else if (template.categorySlug === 'franchise') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('ver') || t.slug.includes('franchise') || t.name.toLowerCase().includes('bayilik')));
+    }
+    if (!type) {
+      type = types.find((t) => t.category_id === catId) || types[0];
+    }
+    const typeId = type.id;
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
