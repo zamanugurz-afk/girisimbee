@@ -216,8 +216,19 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized. Use ?secret=girisimbee-clean-2026' }, { status: 401 });
   }
 
+  const action = url.searchParams.get('action');
+
   try {
     const supabase = createServiceRoleClient();
+    if (action === 'list') {
+      const { data, error } = await supabase
+        .from('marketplace_listings')
+        .select('id, slug, title, status, category_id, listing_type_id, module_key')
+        .eq('status', 'published')
+        .order('created_at', { ascending: true });
+      return NextResponse.json({ count: data?.length ?? 0, error: error?.message ?? null, listings: data });
+    }
+
     const result = await performCleanAndSeed(supabase);
     return NextResponse.json(result);
   } catch (err) {
