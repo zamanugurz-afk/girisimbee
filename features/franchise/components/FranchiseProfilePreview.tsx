@@ -106,12 +106,26 @@ export function FranchiseProfilePreview({
     contactName,
   } = franchise;
 
+  const safeList = (val: unknown): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.filter(Boolean).map(String);
+    if (typeof val === 'string' && val.trim()) {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String);
+      } catch {}
+      return val.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const displayTitle = companyName || 'Franchise & Bayilik';
   const displaySector = sector || 'Genel Sektör';
   const displayLocation = [city, district].filter(Boolean).join(' - ') || 'Türkiye Geneli';
 
-  const displayCities = availableCities.length > 0
-    ? availableCities
+  const citiesList = safeList(availableCities);
+  const displayCities = citiesList.length > 0
+    ? citiesList
     : ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana'];
 
   const summaryText = longDescription || `${displayTitle}, ${displaySector} sektöründe güçlü marka bilinirliği ve kanıtlanmış karlı iş modeli ile yatırımcılarına yüksek getiri ve sürdürülebilir büyüme fırsatı sunmaktadır. Şube açılışından operasyonel süreçlere kadar tüm aşamalarda anahtar teslim destek sağlanmaktadır.`;

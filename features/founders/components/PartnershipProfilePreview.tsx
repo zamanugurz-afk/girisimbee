@@ -109,23 +109,36 @@ export function PartnershipProfilePreview({
     contactName,
   } = partnership;
 
+  const safeList = (val: unknown): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.filter(Boolean).map(String);
+    if (typeof val === 'string' && val.trim()) {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String);
+      } catch {}
+      return val.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const isTransfer = intent === 'transfer' || Boolean(businessType || transferPrice || transferScope);
   const displayTitle = title || companyName || businessName || (isTransfer ? 'İşletme Devri' : 'Girişim Ortaklığı');
   const displaySector = sector || 'Genel Sektör';
   const displayLocation = [city, district].filter(Boolean).join(' - ') || 'Türkiye Geneli';
 
   const allPartnershipTypes = [
-    ...partnershipTypes,
-    ...(partnershipTypesOther ? [partnershipTypesOther] : []),
+    ...safeList(partnershipTypes),
+    ...(partnershipTypesOther ? [String(partnershipTypesOther)] : []),
   ];
 
   const allSkills = [
-    ...professionalSkills,
-    ...(professionalSkillsOther ? [professionalSkillsOther] : []),
-    ...technicalSkills,
-    ...(technicalSkillsOther ? [technicalSkillsOther] : []),
-    ...tools,
-    ...(toolsOther ? [toolsOther] : []),
+    ...safeList(professionalSkills),
+    ...(professionalSkillsOther ? [String(professionalSkillsOther)] : []),
+    ...safeList(technicalSkills),
+    ...(technicalSkillsOther ? [String(technicalSkillsOther)] : []),
+    ...safeList(tools),
+    ...(toolsOther ? [String(toolsOther)] : []),
   ];
 
   const displaySkillsList = allSkills.length > 0
