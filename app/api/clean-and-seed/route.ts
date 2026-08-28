@@ -186,7 +186,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
 
   // 6. Insert new curated rows in chunks
   let insertedCount = 0;
-  let insertError = null;
+  let insertError: string | null = null;
   for (let i = 0; i < rows.length; i += 10) {
     const chunk = rows.slice(i, i + 10);
     const { data: inserted, error: insertErr } = await supabase.from('marketplace_listings').insert(chunk).select('id');
@@ -205,6 +205,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     archiveError,
     insertError,
     preservedEmails: PRESERVED_EMAILS,
+    insertedSlugs: rows.map((r) => r.slug),
   };
 }
 
