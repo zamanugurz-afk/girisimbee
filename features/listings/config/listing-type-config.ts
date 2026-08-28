@@ -1482,11 +1482,20 @@ export const HIZMET_WARRANTY_OPTIONS = [
 ] as const;
 
 export const HIZMET_PRICING_OPTIONS = [
+  'İş Detayına Göre Görüşülür (Görüştükten Sonra Belirlenir)',
   'Ücretsiz Keşif ve Yerinde Fiyatlandırma',
   'Sabit İşçilik Tarifesi',
-  'Malzeme Dahil Paket Fiyat',
-  'Saatlik Ücretlendirme',
-  'Teklife Göre',
+  'Malzeme Dahil Anahtar Teslim Paket',
+  'Saatlik / Günlük Ücret',
+] as const;
+
+export const HIZMET_EXPERIENCE_OPTIONS = [
+  '1 - 3 Yıl',
+  '3 - 5 Yıl',
+  '5 - 10 Yıl',
+  '10 - 15 Yıl',
+  '15 - 20 Yıl',
+  '20+ Yıl Mesleki Deneyim',
 ] as const;
 
 /** Esnaf ve Hizmetler — Usta ve Hizmet Profili */
@@ -1535,10 +1544,11 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
     },
     {
       key: 'experienceYears',
-      label: 'Mesleki Deneyim Süresi',
-      type: 'string',
+      label: 'Mesleki Deneyim Süresi (Yıl)',
+      type: 'enum',
       required: false,
-      placeholder: 'Örn: 15 Yıl',
+      options: [...HIZMET_EXPERIENCE_OPTIONS],
+      placeholder: 'Deneyim süresi seçin',
     },
     {
       key: 'warrantyDuration',

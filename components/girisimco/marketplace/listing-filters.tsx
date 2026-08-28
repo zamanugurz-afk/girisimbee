@@ -14,6 +14,7 @@ import {
   getPositionsForSector,
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { JOB_SECTOR_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { HIZMET_CATEGORY_OPTIONS } from '@/features/listings/config/listing-type-config';
 import { JobFlowFilters } from '@/components/girisimco/marketplace/job-flow-filters';
 import { PartnershipFlowFilters } from '@/components/girisimco/marketplace/partnership-flow-filters';
 import {
@@ -607,8 +608,45 @@ export function ListingFilters({
         </>
       ) : null}
 
-      {/* 6. Diğer Genel / Keşfet Sayfaları */}
-      {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isDigital ? (
+      {/* 6. Esnaf ve Hizmetler Sayfası Filtreleri */}
+      {isServices ? (
+        <>
+          {/* Hizmet Alanı / Branş */}
+          <div className="w-[180px] sm:w-[220px]">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Tüm Hizmet Alanları" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Tüm Hizmet Alanları</SelectItem>
+                {availableSectors.length > 0
+                  ? availableSectors.map((sec) => (
+                      <SelectItem key={sec.value} value={sec.value}>
+                        {sec.value}
+                      </SelectItem>
+                    ))
+                  : HIZMET_CATEGORY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      ) : null}
+
+      {/* 7. Diğer Genel / Keşfet Sayfaları */}
+      {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isDigital && !isServices ? (
         <>
           {!hideCategory && (
             <div className="w-[180px] sm:w-[210px]">

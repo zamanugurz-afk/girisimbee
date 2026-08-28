@@ -83,16 +83,16 @@ export const CREATE_LISTING_SERVICE_HUB = {
   audience: 'Esnaf / usta / hizmet verenler',
   benefits: [
     {
-      title: '1 Ay Ücretsiz Yayın',
-      text: 'İlk ay hiçbir ücret ödemeden hizmetinizi ekosisteme açın.',
+      title: 'Hizmet Vitrini',
+      text: 'Usta unvanınız, uzmanlık alanlarınız ve tecrübenizle öne çıkın.',
     },
     {
-      title: 'Doğrudan Arama ve WhatsApp',
-      text: 'Müşteriler telefonla arasın veya konum ve fotoğraf göndersin.',
+      title: 'Bölge ve Branş Odaklı',
+      text: 'Hizmet verdiğiniz ilçelere ve çalışma saatlerinize göre listelenin.',
     },
     {
-      title: 'Bölge ve Uzmanlık Odaklı',
-      text: 'Hizmet verdiğiniz ilçelere ve servis saatlerinize göre listelenin.',
+      title: 'Doğrudan İletişim',
+      text: 'Müşteriler doğrudan arasın veya WhatsApp ile hızlıca ulaşsın.',
     },
   ],
 } as const;

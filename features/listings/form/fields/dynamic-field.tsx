@@ -18,6 +18,10 @@ import { CurrencyInput } from '@/features/listings/form/fields/currency-input';
 import { CitySelect } from '@/features/listings/form/fields/city-select';
 import { DistrictSelect } from '@/features/listings/form/fields/district-select';
 import { DigitalAiCapabilityPicker } from '@/features/listings/form/fields/digital-ai-capability-picker';
+import {
+  ServiceItemsSmartPicker,
+  ServiceDistrictsSmartPicker,
+} from '@/features/listings/form/fields/service-smart-fields';
 import { formControlErrorClass } from '@/features/listings/form/field-error-styles';
 import { FormFieldFooter } from '@/features/listings/form/form-field-footer';
 import { getCustomFieldUi } from '@/features/listings/form/listing-field-metadata';
@@ -323,6 +327,34 @@ function FieldControl({
     if (!TITLE_CASE_FIELD_KEYS.has(field.key) || !stringValue.trim()) return;
     const next = normalizeListingTitle(stringValue);
     if (next !== stringValue) onChange(next);
+  }
+
+  if (field.key === 'servicesList') {
+    return (
+      <>
+        <ServiceItemsSmartPicker
+          serviceCategory={String(context?.values?.serviceCategory ?? '')}
+          value={value as string[] | string}
+          onChange={(items) => onChange(items)}
+          disabled={disabled}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
+  }
+
+  if (field.key === 'serviceDistricts') {
+    return (
+      <>
+        <ServiceDistrictsSmartPicker
+          city={String(context?.values?.city ?? 'İstanbul')}
+          value={value as string[] | string}
+          onChange={(districts) => onChange(districts)}
+          disabled={disabled}
+        />
+        <FormFieldFooter helperText={ui.helperText} error={error} />
+      </>
+    );
   }
 
   if (field.key === 'preferredCity') {

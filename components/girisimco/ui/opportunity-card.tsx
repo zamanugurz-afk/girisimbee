@@ -55,11 +55,11 @@ export function OpportunityCardBody({
         <span
           className={cn(
             'flex items-center justify-center rounded-2xl text-white shadow-sm',
-            compact ? 'h-11 w-11' : 'h-14 w-14',
+            compact ? 'h-10 w-10' : 'h-12 w-12',
           )}
           style={{ backgroundColor: color }}
         >
-          <Icon className={compact ? 'h-5 w-5' : 'h-7 w-7'} strokeWidth={2} />
+          <Icon className={compact ? 'h-5 w-5' : 'h-6 w-6'} strokeWidth={2} />
         </span>
       </div>
 
@@ -67,7 +67,7 @@ export function OpportunityCardBody({
       <h2
         className={cn(
           'self-end font-display font-bold tracking-tight text-[#0B1220] dark:text-foreground',
-          compact ? 'text-lg sm:text-xl' : 'text-xl sm:text-[22px]',
+          compact ? 'text-base sm:text-lg' : 'text-lg sm:text-[19px]',
         )}
       >
         {label}
@@ -77,18 +77,18 @@ export function OpportunityCardBody({
       <p
         className={cn(
           'leading-relaxed text-[#64748B]',
-          compact ? 'text-[13px] sm:text-sm' : 'text-sm sm:text-[15px]',
+          compact ? 'text-xs sm:text-[13px]' : 'text-xs sm:text-[13.5px]',
         )}
       >
         {description}
       </p>
 
       {/* 4. Benefits / Features List */}
-      <ul className={cn('grid grid-rows-3', compact ? 'gap-2.5' : 'gap-4')}>
+      <ul className={cn('grid grid-rows-3', compact ? 'gap-2' : 'gap-3')}>
         {benefits.map((benefit, i) => (
-          <li key={benefit.title || i} className={cn('flex', compact ? 'gap-2' : 'gap-3')}>
+          <li key={benefit.title || i} className={cn('flex', compact ? 'gap-2' : 'gap-2.5')}>
             <CheckCircle2
-              className={cn('mt-0.5 shrink-0', compact ? 'h-4 w-4' : 'h-5 w-5')}
+              className={cn('mt-0.5 shrink-0', compact ? 'h-3.5 w-3.5' : 'h-4 w-4')}
               style={{ color }}
               aria-hidden
             />
@@ -96,7 +96,7 @@ export function OpportunityCardBody({
               <p
                 className={cn(
                   'font-semibold leading-snug text-[#0B1220] dark:text-foreground',
-                  compact ? 'text-[13px]' : 'text-sm',
+                  compact ? 'text-xs' : 'text-[13px]',
                 )}
               >
                 {benefit.title}
@@ -105,7 +105,7 @@ export function OpportunityCardBody({
                 <p
                   className={cn(
                     'leading-relaxed text-[#64748B]',
-                    compact ? 'mt-0 text-xs' : 'mt-0.5 text-[13px]',
+                    compact ? 'mt-0 text-[11px]' : 'mt-0.5 text-xs',
                   )}
                 >
                   {benefit.text}
@@ -117,11 +117,11 @@ export function OpportunityCardBody({
       </ul>
 
       {/* 5. CTA Button */}
-      <div className="self-end">
+      <div className="self-end pt-1">
         <span
           className={cn(
-            buttonVariants({ size: compact ? 'default' : 'lg' }),
-            'w-full hover:scale-100 font-semibold shadow-xs',
+            buttonVariants({ size: compact ? 'sm' : 'default' }),
+            'w-full hover:scale-100 font-semibold shadow-xs h-10 sm:h-11 rounded-xl text-xs sm:text-sm',
           )}
           style={{ backgroundColor: color }}
         >
@@ -147,8 +147,8 @@ export function OpportunityCard({
       className={cn(
         'group relative grid h-full w-full self-stretch text-left overflow-hidden cursor-pointer',
         compact
-          ? 'min-h-0 grid-rows-[4.25rem_auto_auto_minmax(8.5rem,1fr)_auto] gap-y-3 rounded-2xl p-4 sm:p-5'
-          : 'min-h-[36rem] grid-rows-[6rem_auto_3.25rem_minmax(13.5rem,1fr)_auto] gap-y-5 rounded-2xl p-5 sm:p-7',
+          ? 'min-h-0 grid-rows-[3.5rem_auto_auto_1fr_auto] gap-y-3 rounded-2xl p-4 sm:p-5'
+          : 'min-h-[29rem] grid-rows-[4.5rem_auto_auto_1fr_auto] gap-y-3.5 rounded-2xl p-4 sm:p-5',
         'border border-border/70 bg-gradient-to-b from-card to-card/70 backdrop-blur-sm',
         'transition-all duration-300',
         'hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_20px_35px_rgba(0,0,0,0.5)]',

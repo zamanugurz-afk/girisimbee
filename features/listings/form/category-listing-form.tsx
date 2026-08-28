@@ -85,6 +85,7 @@ import {
 import { buildInvestmentCardData } from '@/features/investments/lib/investment-card';
 import { buildInvestmentSummaryDraft } from '@/features/investments/lib/investment-summary';
 import { buildFounderSummaryDraft } from '@/features/listings/lib/founder-summary';
+import { buildServiceSummaryDraft } from '@/features/listings/lib/service-summary';
 import { FounderPartnershipTypeStep } from '@/features/founders/components/founder-partnership-type-step';
 import { polishInvestmentText } from '@/features/investments/lib/investment-text';
 import {
@@ -1285,6 +1286,82 @@ export function CategoryListingForm({
       shortDescription: businessTransferSummaryDraft.shortDescription,
     }));
   }, [businessTransferSummaryDraft]);
+
+  const isServiceSummaryStep =
+    categoryId === CATEGORY_IDS.hizmetler &&
+    (currentStep?.id === 'details' || Boolean(currentStep?.coreFields?.includes('longDescription')));
+  const lastAutoServiceSummaryRef = useRef<string | null>(null);
+  const lastAutoServiceShortRef = useRef<string | null>(null);
+
+  const serviceSummaryDraft = useMemo(() => {
+    if (categoryId !== CATEGORY_IDS.hizmetler) return null;
+    return buildServiceSummaryDraft({
+      serviceCategory: String(mergedCustomFields.serviceCategory || ''),
+      craftsmanTitle: String(mergedCustomFields.craftsmanTitle || ''),
+      experienceYears: String(mergedCustomFields.experienceYears || ''),
+      warrantyDuration: String(mergedCustomFields.warrantyDuration || ''),
+      pricingType: String(mergedCustomFields.pricingType || ''),
+      workingHours: String(mergedCustomFields.workingHours || ''),
+      emergency247: Boolean(mergedCustomFields.emergency247),
+      servicesList: mergedCustomFields.servicesList as string[] | string,
+      serviceDistricts: mergedCustomFields.serviceDistricts as string[] | string,
+      workshopAddress: String(mergedCustomFields.workshopAddress || ''),
+      city: core.city,
+      district: core.district,
+    });
+  }, [
+    categoryId,
+    core.city,
+    core.district,
+    mergedCustomFields.craftsmanTitle,
+    mergedCustomFields.emergency247,
+    mergedCustomFields.experienceYears,
+    mergedCustomFields.pricingType,
+    mergedCustomFields.serviceCategory,
+    mergedCustomFields.serviceDistricts,
+    mergedCustomFields.servicesList,
+    mergedCustomFields.warrantyDuration,
+    mergedCustomFields.workingHours,
+    mergedCustomFields.workshopAddress,
+  ]);
+
+  useEffect(() => {
+    if (categoryId !== CATEGORY_IDS.hizmetler || !serviceSummaryDraft) return;
+    const currentLong = core.longDescription;
+    const currentShort = core.shortDescription;
+    const longUntouched =
+      !currentLong || currentLong === lastAutoServiceSummaryRef.current;
+    const shortUntouched =
+      !currentShort || currentShort === lastAutoServiceShortRef.current;
+    if (!longUntouched && !shortUntouched) return;
+    lastAutoServiceSummaryRef.current = serviceSummaryDraft.longDescription;
+    lastAutoServiceShortRef.current = serviceSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: longUntouched
+        ? serviceSummaryDraft.longDescription
+        : prev.longDescription,
+      shortDescription: shortUntouched
+        ? serviceSummaryDraft.shortDescription
+        : prev.shortDescription,
+    }));
+  }, [
+    categoryId,
+    core.longDescription,
+    core.shortDescription,
+    serviceSummaryDraft,
+  ]);
+
+  const applyServiceSummaryDraft = useCallback(() => {
+    if (!serviceSummaryDraft) return;
+    lastAutoServiceSummaryRef.current = serviceSummaryDraft.longDescription;
+    lastAutoServiceShortRef.current = serviceSummaryDraft.shortDescription;
+    setCore((prev) => ({
+      ...prev,
+      longDescription: serviceSummaryDraft.longDescription,
+      shortDescription: serviceSummaryDraft.shortDescription,
+    }));
+  }, [serviceSummaryDraft]);
 
   const formValues = useMemo(
     (): ListingFormValues => ({
@@ -3214,7 +3291,7 @@ export function CategoryListingForm({
                 );
               })}
 
-              {isCareerSummaryStep || isInvestorSummaryStep || isFounderSummaryStep || isBusinessTransferSummaryStep ? (
+              {isCareerSummaryStep || isInvestorSummaryStep || isFounderSummaryStep || isBusinessTransferSummaryStep || isServiceSummaryStep ? (
                 <div className="space-y-3">
                 <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.04] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs text-muted-foreground">
@@ -3228,6 +3305,8 @@ export function CategoryListingForm({
                         ? (businessTransferIntent === 'buy'
                             ? 'Devralma hedefleriniz ve bütçenize göre otomatik bir alıcı açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.'
                             : 'İşletme, finansal ve devir kapsamı bilgilerinize göre otomatik bir devreden açıklama taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.')
+                      : categoryId === CATEGORY_IDS.hizmetler
+                        ? 'Usta unvanı, verilen hizmetler ve çalışma şartlarınıza göre otomatik bir müşteri tanıtım taslağı hazırladık. Kullanabilir veya kendiniz düzenleyebilirsiniz.'
                       : 'Girdiğiniz deneyim, yetkinlik ve tercihlere göre bir taslak hazırladık. Kullanabilir veya tamamen kendiniz yazabilirsiniz.'}
                   </p>
                   <Button
@@ -3243,7 +3322,9 @@ export function CategoryListingForm({
                           ? applyFounderSummaryDraft
                           : isBusinessTransferSummaryStep
                             ? applyBusinessTransferSummaryDraft
-                            : applyCareerSummaryDraft
+                            : isServiceSummaryStep
+                              ? applyServiceSummaryDraft
+                              : applyCareerSummaryDraft
                     }
                   >
                     Özeti yeniden oluştur

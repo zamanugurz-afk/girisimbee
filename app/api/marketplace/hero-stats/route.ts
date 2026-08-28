@@ -44,6 +44,7 @@ export async function GET() {
       partnersRes,
       isletmeDevriRes,
       franchiseRes,
+      servicesRes,
       opportunitiesCount,
       solutionsRes,
     ] = await Promise.all([
@@ -52,6 +53,7 @@ export async function GET() {
       published().eq('category_id', CATEGORY_IDS.ortakBul),
       published().eq('category_id', CATEGORY_IDS.isletmeDevri),
       published().eq('category_id', CATEGORY_IDS.bayilikAl),
+      published().eq('category_id', CATEGORY_IDS.hizmetler),
       getOpportunitiesCount(),
       published().eq('category_id', CATEGORY_IDS.dijitalAi),
     ]);
@@ -62,6 +64,7 @@ export async function GET() {
       partnersRes,
       isletmeDevriRes,
       franchiseRes,
+      servicesRes,
       solutionsRes,
     ].find((r) => r.error)?.error;
 
@@ -70,13 +73,15 @@ export async function GET() {
       const jobs = 10;
       const partners = 10;
       const franchise = 5;
+      const services = 5;
       const solutions = 5;
       const opportunities = opportunitiesCount || getMockPublishedMarketItems().length;
       return ok({
-        total: jobs + partners + franchise + solutions,
+        total: jobs + partners + franchise + services + solutions,
         jobs,
         partners,
         franchise,
+        services,
         opportunities,
         solutions,
       });
@@ -85,14 +90,16 @@ export async function GET() {
     const jobsCount = (employersRes.count ?? 0) + (candidatesRes.count ?? 0);
     const partnersCount = (partnersRes.count ?? 0) + (isletmeDevriRes.count ?? 0);
     const franchiseCount = franchiseRes.count ?? 0;
+    const servicesCount = servicesRes.count ?? 0;
     const solutionsCount = solutionsRes.count ?? 0;
-    const totalCount = jobsCount + partnersCount + franchiseCount + solutionsCount;
+    const totalCount = jobsCount + partnersCount + franchiseCount + servicesCount + solutionsCount;
 
     const stats: HeroStatsCounts = {
       total: totalCount,
       jobs: jobsCount,
       partners: partnersCount,
       franchise: franchiseCount,
+      services: servicesCount,
       opportunities: opportunitiesCount,
       solutions: solutionsCount,
     };
@@ -104,13 +111,15 @@ export async function GET() {
     const jobs = 10;
     const partners = 10;
     const franchise = 5;
+    const services = 5;
     const solutions = 5;
     const opportunities = getMockPublishedMarketItems().length;
     return ok({
-      total: jobs + partners + franchise + solutions,
+      total: jobs + partners + franchise + services + solutions,
       jobs,
       partners,
       franchise,
+      services,
       opportunities,
       solutions,
     });
