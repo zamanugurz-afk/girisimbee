@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Force trigger deployment v0.3.1
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['pdf-parse'],
