@@ -56,6 +56,7 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { Button } from '@/components/ui/button';
 import { ListingOwnerActionsBar } from '@/components/girisimco/listing/listing-owner-actions-bar';
+import { DirectContactDialog } from '@/components/girisimco/listing/direct-contact-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -1656,79 +1657,17 @@ export function CareerProfilePreview({
       ) : null}
 
       {/* Doğrudan İletişim Kanalları Modalı */}
-      <Dialog open={directContactDialogOpen} onOpenChange={setDirectContactDialogOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-6">
-          <DialogHeader className="space-y-1.5 text-left">
-            <DialogTitle className="text-base sm:text-lg font-bold text-slate-900 dark:text-foreground flex items-center gap-2">
-              <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <span>İletişim Kanalları</span>
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500 dark:text-muted-foreground">
-              <span className="font-semibold text-slate-800 dark:text-slate-200">{publicName || 'İlan'}</span> için doğrudan iletişim seçenekleri:
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3 pt-2">
-            {(contactPhone || mine?.ownerContactPhone) && (
-              <a
-                href={`tel:${contactPhone || mine?.ownerContactPhone}`}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-bold text-xs sm:text-sm transition-all group dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Phone className="h-4 w-4 text-blue-600" />
-                  <span>Telefonla Ara: {contactPhone || mine?.ownerContactPhone}</span>
-                </div>
-                <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-              </a>
-            )}
-
-            {(contactPhone || mine?.ownerContactPhone) && (
-              <a
-                href={`https://wa.me/${(contactPhone || mine?.ownerContactPhone || '').replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-bold text-xs sm:text-sm transition-all group dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200"
-              >
-                <div className="flex items-center gap-2.5">
-                  <MessageSquare className="h-4 w-4 text-emerald-600" />
-                  <span>WhatsApp&apos;tan Yaz ({contactPhone || mine?.ownerContactPhone})</span>
-                </div>
-                <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-              </a>
-            )}
-
-            {(contactEmail || mine?.ownerContactEmail) && (
-              <a
-                href={`mailto:${contactEmail || mine?.ownerContactEmail}`}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium text-xs sm:text-sm transition-all group dark:bg-muted dark:border-border dark:text-foreground"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Mail className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                  <span>E-posta Gönder: {contactEmail || mine?.ownerContactEmail}</span>
-                </div>
-                <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-              </a>
-            )}
-
-            {mine?.conversationId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDirectContactDialogOpen(false);
-                  router.push(`${DASHBOARD_ROUTES.mesajlarim}?c=${mine.conversationId}`);
-                }}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 font-bold text-xs sm:text-sm transition-all group dark:bg-sky-950/40 dark:border-sky-800 dark:text-sky-200"
-              >
-                <div className="flex items-center gap-2.5">
-                  <MessageSquare className="h-4 w-4 text-sky-600" />
-                  <span>Site İçi Mesajlaşmaya Git</span>
-                </div>
-                <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-              </button>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DirectContactDialog
+        open={directContactDialogOpen}
+        onOpenChange={setDirectContactDialogOpen}
+        title={isHire ? 'İşveren Yetkilisiyle İletişime Geç' : 'Adayla İletişime Geç'}
+        subtitle={`${publicName || 'İlan'} için doğrudan iletişim seçenekleri:`}
+        phone={contactPhone || mine?.ownerContactPhone}
+        whatsapp={contactPhone || mine?.ownerContactPhone}
+        email={contactEmail || mine?.ownerContactEmail}
+        listingId={listingId}
+        conversationId={mine?.conversationId}
+      />
 
       {isHire && listingId ? (
         <JobApplicationModal
