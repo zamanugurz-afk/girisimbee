@@ -103,6 +103,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     { id: 'c1000001-0001-4000-8000-000000000002', slug: 'is', name: 'İş ve Kariyer' },
     { id: 'c1000001-0001-4000-8000-000000000003', slug: 'ortaklik', name: 'Ortaklık & Girişim' },
     { id: 'c1000001-0001-4000-8000-000000000006', slug: 'franchise', name: 'Franchise & Bayilik' },
+    { id: 'c1000001-0001-4000-8000-000000000008', slug: 'dijital-ai', name: 'Dijital ve AI Çözümleri' },
     { id: 'c1000001-0001-4000-8000-000000000009', slug: 'isletme-devri', name: 'İşletme Devri' },
     { id: 'e1000001-0001-4000-8000-000000000001', slug: 'yatirim-legacy', name: 'Yatırım Legacy' },
     { id: 'e1000001-0001-4000-8000-000000000002', slug: 'is-legacy', name: 'İş Legacy' },
@@ -117,6 +118,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     { id: 'e1000001-0001-4000-8000-000000000005', category_id: 'c1000001-0001-4000-8000-000000000003', slug: 'ortak-ariyorum', name: 'Ortak Arıyorum' },
     { id: 'a0000006-0001-4000-8000-000000000006', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-al', name: 'Bayilik Al' },
     { id: 'a0000007-0001-4000-8000-000000000007', category_id: 'c1000001-0001-4000-8000-000000000006', slug: 'bayilik-ver', name: 'Bayilik Ver' },
+    { id: 'd1000001-0001-4000-8000-000000000008', category_id: 'c1000001-0001-4000-8000-000000000008', slug: 'dijital-ai-cozum', name: 'Dijital & AI Çözüm' },
     { id: 'a0000009-0001-4000-8000-000000000009', category_id: 'c1000001-0001-4000-8000-000000000009', slug: 'business-transfer-sell', name: 'İşletme Devret' },
     { id: 'a0000010-0001-4000-8000-000000000010', category_id: 'c1000001-0001-4000-8000-000000000009', slug: 'business-transfer-buy', name: 'İşletme Devral' },
   ];
@@ -145,8 +147,10 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     if (!cat) {
       if (template.categorySlug === 'is-bul' || template.categorySlug === 'ise-al') {
         cat = cats.find((c) => c.slug === 'is' || c.slug.includes('is') || c.name.toLowerCase().includes('iş') || c.name.toLowerCase().includes('kariyer')) || cats[0];
-      } else if (template.categorySlug === 'ortak-bul' || template.categorySlug === 'dijital-ai') {
+      } else if (template.categorySlug === 'ortak-bul') {
         cat = cats.find((c) => c.slug === 'ortaklik' || c.slug.includes('ortak') || c.name.toLowerCase().includes('ortak')) || cats[0];
+      } else if (template.categorySlug === 'dijital-ai') {
+        cat = cats.find((c) => c.slug === 'dijital-ai' || c.id === 'c1000001-0001-4000-8000-000000000008') || cats[0];
       } else if (template.categorySlug === 'isletme-devri') {
         cat = cats.find((c) => c.slug.includes('devir') || c.name.toLowerCase().includes('devir')) || cats[0];
       } else if (template.categorySlug === 'franchise') {
@@ -162,6 +166,8 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       type = types.find((t) => t.category_id === catId && (t.slug.includes('ariyorum') || t.slug.includes('bul'))) || type;
     } else if (template.categorySlug === 'ise-al') {
       type = types.find((t) => t.category_id === catId && (t.slug.includes('aliyorum') || t.slug.includes('al'))) || type;
+    } else if (template.categorySlug === 'dijital-ai') {
+      type = types.find((t) => t.category_id === catId && (t.slug.includes('dijital') || t.slug.includes('ai'))) || type;
     } else if (template.categorySlug === 'isletme-devri') {
       type = types.find((t) => t.category_id === catId && (t.slug.includes('devret') || t.slug.includes('devir') || t.slug.includes('sell'))) || type;
     } else if (template.categorySlug === 'franchise') {
