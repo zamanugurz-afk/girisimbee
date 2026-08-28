@@ -107,6 +107,10 @@ class CategoryRegistry {
       'digital-ai': CATEGORY_IDS.dijitalAi,
       'dijital-ai': CATEGORY_IDS.dijitalAi,
       'is-ariyorum': CATEGORY_IDS.isBul,
+      hizmetler: CATEGORY_IDS.hizmetler,
+      'hizmet-ver': CATEGORY_IDS.hizmetler,
+      esnaf: CATEGORY_IDS.hizmetler,
+      services: CATEGORY_IDS.hizmetler,
     };
     return intentMap[slugOrId] ?? CATEGORY_SLUG_TO_ID[slugOrId] ?? null;
   }

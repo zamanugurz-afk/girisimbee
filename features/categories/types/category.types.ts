@@ -5,12 +5,13 @@ export type CategoryIntentId =
   | 'hire'
   | 'find-partner'
   | 'franchise'
-  | 'digital-ai';
+  | 'digital-ai'
+  | 'services';
 
 /** @deprecated Use CategoryIntentId */
 export type IntentId = CategoryIntentId;
 
-export type ContentType = 'person' | 'startup' | 'job' | 'company' | 'article' | 'story';
+export type ContentType = 'person' | 'startup' | 'job' | 'company' | 'article' | 'story' | 'service';
 
 export type { TrustBadges } from '@/features/authentication/types/trust.types';
 import type { TrustBadges } from '@/features/authentication/types/trust.types';
@@ -48,6 +49,7 @@ export interface ContentItem {
     | 'franchise'
     | 'digital'
     | 'transfer'
+    | 'service'
     | 'general';
   /** Listing card — short description body. */
   description?: string;

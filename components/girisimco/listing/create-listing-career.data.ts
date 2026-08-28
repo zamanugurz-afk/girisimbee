@@ -77,6 +77,26 @@ export const CREATE_LISTING_FRANCHISE_HUB = {
   ],
 } as const;
 
+export const CREATE_LISTING_SERVICE_HUB = {
+  title: 'Esnaf ve Hizmetler',
+  description: 'Usta ve yerel hizmet profilinizi yayınlayın, doğrudan müşteri talepleri alın.',
+  audience: 'Esnaf / usta / hizmet verenler',
+  benefits: [
+    {
+      title: '1 Ay Ücretsiz Yayın',
+      text: 'İlk ay hiçbir ücret ödemeden hizmetinizi ekosisteme açın.',
+    },
+    {
+      title: 'Doğrudan Arama ve WhatsApp',
+      text: 'Müşteriler telefonla arasın veya konum ve fotoğraf göndersin.',
+    },
+    {
+      title: 'Bölge ve Uzmanlık Odaklı',
+      text: 'Hizmet verdiğiniz ilçelere ve servis saatlerinize göre listelenin.',
+    },
+  ],
+} as const;
+
 export const CREATE_LISTING_VENTURE_CATEGORY_IDS = [
   CATEGORY_IDS.ortakBul,
 ] as const;

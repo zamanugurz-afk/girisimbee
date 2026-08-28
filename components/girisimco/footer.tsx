@@ -15,11 +15,12 @@ export function Footer() {
     {
       title: 'KEŞFET',
       links: [
-        { label: 'Kariyer & İş Fırsatları', href: '/is' },
+        { label: 'Kariyer ve İş Fırsatları', href: '/is' },
         { label: 'Ortaklık ve Devir', href: '/girisim-ortaklik' },
-        { label: 'Franchise & Bayilik', href: '/franchise/buy' },
+        { label: 'Franchise ve Bayilik', href: '/franchise/buy' },
+        { label: 'Esnaf ve Hizmetler', href: '/kategori/hizmetler' },
         { label: 'Girişimbee Market', href: '/market' },
-        { label: 'Dijital & AI Çözümler', href: '/dijital-ai' },
+        { label: 'Dijital ve AI Çözümler', href: '/dijital-ai' },
       ],
     },
     {
@@ -33,7 +34,7 @@ export function Footer() {
       ],
     },
     {
-      title: 'YASAL & GÜVENLİK',
+      title: 'YASAL VE GÜVENLİK',
       links: [
         { label: 'Kullanıcı Sözleşmesi', href: '/yasal/kullanici-sozlesmesi' },
         { label: 'Gizlilik Politikası', href: '/yasal/gizlilik' },
@@ -51,7 +52,7 @@ export function Footer() {
         {/* Üst Ana Izgara */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           
-          {/* Sol Kolon: Marka & İletişim */}
+          {/* Sol Kolon: Marka ve İletişim */}
           <div className="lg:col-span-5 flex flex-col justify-between pr-0 lg:pr-8">
             <div>
               <SiteLogo />
@@ -61,7 +62,7 @@ export function Footer() {
 
               <div className="mt-6 space-y-2.5">
                 <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                  Destek & İletişim
+                  Destek ve İletişim
                 </div>
                 <div className="flex flex-col gap-2">
                   <a
@@ -95,7 +96,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Sağ Kolonlar: Keşfet, Platform, Yasal & Güvenlik (Hafif Dikey Ayrım Çizgili) */}
+          {/* Sağ Kolonlar: Keşfet, Platform, Yasal ve Güvenlik */}
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/60 dark:divide-zinc-800/60">
             {navigationSections.map((section, idx) => (
               <div
@@ -134,7 +135,7 @@ export function Footer() {
           <div className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
             <span className="inline-flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Güvenli & Doğrulanmış Ağ</span>
+              <span>Güvenli ve Doğrulanmış Ağ</span>
             </span>
             <span>·</span>
             <span className="text-zinc-400 dark:text-zinc-500">TR</span>

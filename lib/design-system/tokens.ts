@@ -33,6 +33,8 @@ export const gcCategoryColors = {
   'ortak-bul': '#F59E0B',
   franchise: '#EC4899',
   'isletme-devri': '#D97706',
+  hizmetler: '#6366F1',
+  'hizmet-ver': '#6366F1',
   ilan: '#0EA5E9',
   'dijital-ai': '#8B5CF6',
 } as const;

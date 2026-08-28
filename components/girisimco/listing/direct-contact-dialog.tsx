@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -135,7 +135,7 @@ export function DirectContactDialog({
                 </div>
                 <div className="text-left min-w-0">
                   <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                    WhatsApp Başvuru & Sohbet
+                    WhatsApp Başvuru ve Sohbet
                   </p>
                   <p className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 truncate mt-0.5">
                     {whatsapp || phone}

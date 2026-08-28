@@ -21,6 +21,7 @@ export const INTENT_TO_CATEGORY_SLUG: Record<CategoryIntentId, string> = {
   'find-partner': 'ortak-bul',
   franchise: 'bayilik-al',
   'digital-ai': 'dijital-ai',
+  services: 'hizmetler',
 };
 
 /** Legacy/alternate URL slugs → canonical category slug. */
@@ -37,6 +38,7 @@ export const CATEGORY_ROUTE_PATHS: Record<string, string> = {
   'bayilik-al': '/franchise/buy',
   'dijital-ai': '/dijital-ai',
   'isletme-devri': '/isletme-devri',
+  hizmetler: '/kategori/hizmetler',
 };
 
 /** English route path → canonical category slug. */
@@ -78,13 +80,18 @@ const CATEGORY_DESCRIPTIONS: Record<string, { description: string; seoTitle: str
   },
   'dijital-ai': {
     description: 'İşletmeniz için ihtiyaç duyduğunuz dijital ürünleri, yazılım çözümlerini ve yapay zeka uygulamalarını keşfedin.',
-    seoTitle: 'Dijital & AI Çözümleri | Girisimbee',
+    seoTitle: 'Dijital ve AI Çözümleri | Girisimbee',
     seoDescription: 'İşletmeniz için dijital ürün, yazılım ve yapay zeka çözümlerini keşfedin.',
   },
   'isletme-devri': {
     description: 'Faal işletme devri ve hazır işletme devralma fırsatlarını keşfedin.',
     seoTitle: 'İşletme Devri İlanları | Girisimbee',
     seoDescription: 'Kafe, restoran, mağaza, e-ticaret ve faal şirket devir fırsatlarını keşfedin.',
+  },
+  hizmetler: {
+    description: 'Temizlikten çilingire, nakliyeden elektrik ve tadilata tüm günlük hizmetleri doğrudan yerel ustalardan bulun.',
+    seoTitle: 'Esnaf ve Hizmet İlanları | Girisimbee',
+    seoDescription: 'Elektrik, tesisat, temizlik, nakliye, çilingir ve tadilat ustalarını doğrudan arayın.',
   },
   'genel-ilan': {
     description: 'Ürün, hizmet ve duyuru ilanları',
@@ -102,6 +109,7 @@ const CATEGORY_ACCENT_KEYS: Record<string, keyof typeof GC_CATEGORY_COLORS> = {
   'bayilik-al': 'franchise',
   'dijital-ai': 'dijital-ai',
   'isletme-devri': 'isletme-devri',
+  hizmetler: 'hizmetler',
   'genel-ilan': 'ilan',
 };
 

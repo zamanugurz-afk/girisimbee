@@ -583,6 +583,40 @@ export const LISTING_FORM_STEPS: Record<string, ListingFormStepDef[]> = {
       meta: ['images'],
     },
   ),
+  [CATEGORY_IDS.hizmetler]: withConsolidatedPublishFlow(
+    {
+      id: 'basics',
+      title: 'Usta ve Hizmet Bilgileri',
+      description: 'Hizmet alanı, unvan, deneyim ve garanti bilgileri',
+      coreFields: ['title', 'shortDescription', 'city'],
+      customFieldKeys: [
+        'serviceCategory',
+        'craftsmanTitle',
+        'experienceYears',
+        'warrantyDuration',
+        'pricingType',
+        'workshopAddress',
+      ],
+    },
+    {
+      id: 'scope',
+      title: 'Hizmet Kapsamı ve Çalışma Saatleri',
+      description: 'Verilen hizmet kalemleri, gidilen ilçeler ve acil servis durumu',
+      customFieldKeys: [
+        'servicesList',
+        'serviceDistricts',
+        'workingHours',
+        'emergency247',
+      ],
+    },
+    {
+      id: 'details',
+      title: 'Detaylı Açıklama ve Referanslar',
+      description: 'Hizmet detayları ve referans fotoğraf yüklemeleri',
+      coreFields: ['longDescription'],
+      meta: ['images'],
+    },
+  ),
 };
 
 export function getListingFormSteps(

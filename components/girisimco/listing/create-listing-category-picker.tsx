@@ -8,6 +8,7 @@ import {
   Megaphone,
   Store,
   UserRoundSearch,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 import type { PartnershipIntent } from '@/features/founders/partnership-intent';
@@ -21,6 +22,7 @@ import {
   CREATE_LISTING_CAREER_HUB,
   CREATE_LISTING_FRANCHISE_HUB,
   CREATE_LISTING_VENTURE_HUB,
+  CREATE_LISTING_SERVICE_HUB,
 } from '@/components/girisimco/listing/create-listing-career.data';
 import { Badge } from '@/components/ui/badge';
 
@@ -59,8 +61,13 @@ const CATEGORY_VISUAL: Record<
     Icon: Store,
     color: GC_CATEGORY_COLORS.franchise,
   },
+  [CATEGORY_IDS.hizmetler]: {
+    audience: 'Usta ve yerel hizmetler',
+    Icon: Wrench,
+    color: '#6366F1',
+  },
   [CATEGORY_IDS.dijitalAi]: {
-    audience: 'Yazılım & AI çözümleri',
+    audience: 'Yazılım ve AI çözümleri',
     Icon: BrainCircuit,
     color: GC_CATEGORY_COLORS['dijital-ai'],
   },
@@ -115,13 +122,13 @@ export function CreateListingCategoryPicker({
           Hangi tür ilan vereceksiniz?
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-[#64748B] sm:text-[15px]">
-          Kariyer profili veya iş ilanı yayınlayın; ortaklık ya da franchise fırsatı oluşturun.
+          Kariyer profili veya iş ilanı yayınlayın; ortaklık, franchise ya da esnaf ve usta hizmet ilanı oluşturun.
         </p>
       </header>
 
       <div className="mt-8 lg:mt-10">
         <CareerFlowChoiceCards
-          columns={3}
+          columns={4}
           options={[
             {
               id: 'career',
@@ -141,6 +148,12 @@ export function CreateListingCategoryPicker({
               description: CREATE_LISTING_FRANCHISE_HUB.description,
               benefits: CREATE_LISTING_FRANCHISE_HUB.benefits,
             },
+            {
+              id: 'services',
+              label: CREATE_LISTING_SERVICE_HUB.title,
+              description: CREATE_LISTING_SERVICE_HUB.description,
+              benefits: CREATE_LISTING_SERVICE_HUB.benefits,
+            },
           ]}
           visuals={{
             career: {
@@ -155,11 +168,16 @@ export function CreateListingCategoryPicker({
               color: GC_CATEGORY_COLORS.franchise,
               Icon: Store,
             },
+            services: {
+              color: '#6366F1',
+              Icon: Wrench,
+            },
           }}
           onSelect={(id) => {
             if (id === 'career') onHubStepChange('career');
             if (id === 'venture') onHubStepChange('venture');
             if (id === 'franchise') onSelect(CATEGORY_IDS.bayilikAl);
+            if (id === 'services') onSelect(CATEGORY_IDS.hizmetler);
           }}
         />
       </div>

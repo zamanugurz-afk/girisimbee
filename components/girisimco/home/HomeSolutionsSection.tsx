@@ -33,10 +33,10 @@ export function HomeSolutionsSection() {
             </div>
             <div>
               <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                <span>Dijital & AI Ekosistemi</span>
+                <span>Dijital ve AI Ekosistemi</span>
               </div>
               <h3 className="font-display text-lg font-bold tracking-tight text-foreground sm:text-xl">
-                Dijital & AI Çözümleri
+                Dijital ve AI Çözümleri
               </h3>
               <p className="mt-1 max-w-2xl text-xs leading-relaxed text-zinc-500 dark:text-zinc-400 sm:text-sm">
                 {DIGITAL_AI_BROWSE_DESCRIPTION}

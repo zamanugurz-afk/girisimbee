@@ -41,7 +41,7 @@ export function CareerFlowChoiceCards({
   onSelect?: (id: string) => void;
   options?: readonly ChoiceCardOption[];
   visuals?: Record<string, ChoiceCardVisual>;
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
   compact?: boolean;
   splitEnds?: boolean;
 }) {

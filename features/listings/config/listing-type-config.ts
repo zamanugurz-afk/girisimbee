@@ -90,6 +90,7 @@ export const CATEGORY_IDS = {
   genelIlan: ids.category('c1000001-0001-4000-8000-000000000007'),
   dijitalAi: ids.category('c1000001-0001-4000-8000-000000000008'),
   isletmeDevri: ids.category('c1000001-0001-4000-8000-000000000009'),
+  hizmetler: ids.category('c1000001-0001-4000-8000-000000000010'),
 } as const satisfies Record<string, CategoryId>;
 
 export const LISTING_TYPE_IDS = {
@@ -104,6 +105,7 @@ export const LISTING_TYPE_IDS = {
   businessTransferBuyDefault: BUSINESS_TRANSFER_LISTING_TYPE_IDS.buy,
   genelIlanDefault: ids.listingType('a0000008-0001-4000-8000-000000000008'),
   dijitalAiDefault: ids.listingType('d1000001-0001-4000-8000-000000000008'),
+  hizmetVeriyorumDefault: ids.listingType('a0000011-0001-4000-8000-000000000011'),
 } as const satisfies Record<string, ListingTypeId>;
 
 /** Yatırım Arıyorum — yapılandırılmış girişim yatırım profili */
@@ -1447,6 +1449,121 @@ export const DIGITAL_AI_FIELD_SCHEMA: ListingFieldSchema = {
   ],
 };
 
+export const HIZMET_CATEGORY_OPTIONS = [
+  'Elektrik ve Tesisat',
+  'Ev ve Ofis Temizliği',
+  'Çilingir ve Kilit',
+  'Nakliye ve Taşımacılık',
+  'Boya, Badana ve Tadilat',
+  'Halı ve Koltuk Yıkama',
+  'Oto Yıkama ve Detailing',
+  'Beyaz Eşya ve Kombi Servisi',
+  'Marangoz ve Mobilya Montajı',
+  'Cam Balkon ve PVC Doğrama',
+  'Demir Doğrama ve Kepenk',
+  'Bahçe Bakımı ve Peyzaj',
+  'İlaçlama ve Dezenfeksiyon',
+] as const;
+
+export const HIZMET_WORKING_HOURS_OPTIONS = [
+  '7/24 Acil Servis ve Gece Açık',
+  'Hafta İçi ve Hafta Sonu (08:00 - 22:00)',
+  'Hafta İçi (08:30 - 19:00)',
+  'Sadece Hafta Sonu',
+  'Randevulu Özel Hizmet',
+] as const;
+
+export const HIZMET_WARRANTY_OPTIONS = [
+  'İşçilik Garantili (1 Yıl)',
+  'İşçilik Garantili (6 Ay)',
+  'İşçilik Garantili (3 Ay)',
+  'Malzeme ve Parça Garantili',
+  'Memnuniyet Garantisi',
+] as const;
+
+export const HIZMET_PRICING_OPTIONS = [
+  'Ücretsiz Keşif ve Yerinde Fiyatlandırma',
+  'Sabit İşçilik Tarifesi',
+  'Malzeme Dahil Paket Fiyat',
+  'Saatlik Ücretlendirme',
+  'Teklife Göre',
+] as const;
+
+/** Esnaf ve Hizmetler — Usta ve Hizmet Profili */
+export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
+  fields: [
+    {
+      key: 'serviceCategory',
+      label: 'Hizmet Alanı ve Ana Branş',
+      type: 'enum',
+      required: true,
+      options: [...HIZMET_CATEGORY_OPTIONS],
+    },
+    {
+      key: 'craftsmanTitle',
+      label: 'Usta veya İşletme Unvanı',
+      type: 'string',
+      required: true,
+      placeholder: 'Örn: Uzman Tesisat ve Elektrik Hizmetleri / Mehmet Usta',
+    },
+    {
+      key: 'servicesList',
+      label: 'Verilen Hizmet Kalemleri ve Uzmanlıklar',
+      type: 'tags',
+      required: true,
+      placeholder: 'Örn: Kaçak Su Tespiti, Sigorta Değişimi, Petek Temizliği, Batarya Montajı',
+    },
+    {
+      key: 'serviceDistricts',
+      label: 'Hizmet Verilen İlçeler ve Bölgeler',
+      type: 'tags',
+      required: true,
+      placeholder: 'Örn: Kadıköy, Üsküdar, Ataşehir, Ümraniye, Maltepe',
+    },
+    {
+      key: 'workingHours',
+      label: 'Çalışma Saatleri ve Acil Durum',
+      type: 'enum',
+      required: true,
+      options: [...HIZMET_WORKING_HOURS_OPTIONS],
+    },
+    {
+      key: 'emergency247',
+      label: '7/24 Acil Çağrı Servisi Var mı?',
+      type: 'boolean',
+      required: false,
+    },
+    {
+      key: 'experienceYears',
+      label: 'Mesleki Deneyim Süresi',
+      type: 'string',
+      required: false,
+      placeholder: 'Örn: 15 Yıl',
+    },
+    {
+      key: 'warrantyDuration',
+      label: 'Garanti Durumu',
+      type: 'enum',
+      required: false,
+      options: [...HIZMET_WARRANTY_OPTIONS],
+    },
+    {
+      key: 'pricingType',
+      label: 'Fiyatlandırma Modeli',
+      type: 'enum',
+      required: false,
+      options: [...HIZMET_PRICING_OPTIONS],
+    },
+    {
+      key: 'workshopAddress',
+      label: 'İşyeri veya Atölye Adresi (Varsa)',
+      type: 'string',
+      required: false,
+      placeholder: 'Örn: Moda Cad. No:12 Kadıköy / İstanbul',
+    },
+  ],
+};
+
 export interface CategoryListingTypeConfig {
   listingTypeId: ListingTypeId;
   categoryId: CategoryId;
@@ -1540,10 +1657,19 @@ export const LISTING_TYPE_CONFIGS: CategoryListingTypeConfig[] = [
     sortOrder: 2,
   },
   {
+    listingTypeId: LISTING_TYPE_IDS.hizmetVeriyorumDefault,
+    categoryId: CATEGORY_IDS.hizmetler,
+    slug: 'hizmet-ver',
+    name: 'Esnaf ve Hizmet İlanı',
+    description: 'Uzmanlık alanlarınız, hizmet bölgeleriniz ve çalışma saatlerinizle hizmet ilanı verin',
+    fieldSchema: HIZMET_FIELD_SCHEMA,
+    sortOrder: 1,
+  },
+  {
     listingTypeId: LISTING_TYPE_IDS.dijitalAiDefault,
     categoryId: CATEGORY_IDS.dijitalAi,
     slug: 'dijital-ai-cozum',
-    name: 'Dijital & AI Çözümleri',
+    name: 'Dijital ve AI Çözümleri',
     description: 'Ürün adını, kısa tanıtımı ve yetenek kartlarını ekleyerek çözümünüzü yayınlayın',
     fieldSchema: DIGITAL_AI_FIELD_SCHEMA,
     sortOrder: 1,
@@ -1589,6 +1715,8 @@ export const CATEGORY_SLUG_TO_ID: Record<string, CategoryId> = {
   'isletme-devral': CATEGORY_IDS.isletmeDevri,
   devret: CATEGORY_IDS.isletmeDevri,
   devral: CATEGORY_IDS.isletmeDevri,
+  hizmetler: CATEGORY_IDS.hizmetler,
+  'hizmet-ver': CATEGORY_IDS.hizmetler,
   'dijital-ai': CATEGORY_IDS.dijitalAi,
   'genel-ilan': CATEGORY_IDS.genelIlan,
   ilan: CATEGORY_IDS.genelIlan,

@@ -25,9 +25,11 @@ import {
   DIGITAL_AI_FIELD_SCHEMA,
   BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
   BUSINESS_TRANSFER_BUY_FIELD_SCHEMA,
+  HIZMET_FIELD_SCHEMA,
 } from '@/features/listings/config/listing-type-config';
 import type { ListingFieldSchema } from '@/features/listings/types/listing-type.types';
 import type { Listing } from '@/features/listings/types/listing.entity.types';
+import type { ServiceCardData } from '@/features/listings/types/listing.types';
 import { LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
 import { MARKETPLACE_LISTING_TYPE_IDS } from '@/features/listings/config/marketplace-category-map';
 import type { ModuleKey } from '@/lib/domain/modules';
@@ -205,6 +207,8 @@ const CATEGORY_FIELD_SCHEMAS: Record<string, ListingFieldSchema> = {
   'bayilik-al': FRANCHISE_GIVE_FIELD_SCHEMA,
   franchise: FRANCHISE_GIVE_FIELD_SCHEMA,
   ilan: GENERAL_LISTING_FIELD_SCHEMA,
+  hizmetler: HIZMET_FIELD_SCHEMA,
+  'hizmet-ver': HIZMET_FIELD_SCHEMA,
   'dijital-ai': DIGITAL_AI_FIELD_SCHEMA,
   'isletme-devri': BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
   'isletme-devret': BUSINESS_TRANSFER_SELL_FIELD_SCHEMA,
@@ -221,6 +225,7 @@ const LISTING_TYPE_ID_TO_BROWSE_SLUG: Record<string, string> = {
   [LISTING_TYPE_IDS.franchiseBuyDefault]: 'bayilik-al',
   [LISTING_TYPE_IDS.businessTransferSellDefault]: 'isletme-devri',
   [LISTING_TYPE_IDS.businessTransferBuyDefault]: 'isletme-devri',
+  [LISTING_TYPE_IDS.hizmetVeriyorumDefault]: 'hizmetler',
   [LISTING_TYPE_IDS.genelIlanDefault]: 'ilan',
   [LISTING_TYPE_IDS.dijitalAiDefault]: 'dijital-ai',
   [MARKETPLACE_LISTING_TYPE_IDS.yatirimAriyorum]: 'yatirim-bul',
@@ -254,6 +259,9 @@ const LISTING_TYPE_SLUG_TO_BROWSE_SLUG: Record<string, string> = {
   'franchise-ilan-ver': 'bayilik-al',
   'bayilik-al': 'bayilik-al',
   'bayilik-ver': 'bayilik-al',
+  'hizmet-ver': 'hizmetler',
+  hizmetler: 'hizmetler',
+  esnaf: 'hizmetler',
   'genel-ilan': 'ilan',
   'dijital-ai-cozum': 'dijital-ai',
   'isletme-devri': 'isletme-devri',
@@ -285,6 +293,9 @@ function resolveDetailCategorySlug(listing: Listing): string {
 
   // Fallbacks based on fields
   const cf = (listing.customFields ?? {}) as Record<string, unknown>;
+  if (cf.craftsmanTitle || cf.serviceCategory || cf.servicesList || cf.serviceDistricts || cf.emergency247 !== undefined) {
+    return 'hizmetler';
+  }
   if (cf.companyName && (cf.salaryRange || cf.workplacePreference || cf.desiredRole)) {
     return 'ise-al';
   }
@@ -716,8 +727,52 @@ export function aggregateToListingDetail(
       resolvedIntent === 'franchise'
         ? buildFranchiseCard(sourceCf, listing, listing.city, careerCoverUrl)
         : undefined,
+    serviceCard:
+      categorySlug === 'hizmetler' ||
+      categorySlug === 'hizmet-ver' ||
+      categorySlug === 'esnaf' ||
+      categorySlug === 'usta' ||
+      resolvedIntent === 'services'
+        ? buildServiceCard(sourceCf, listing, listing.city, careerCoverUrl)
+        : undefined,
     capabilityModules: capabilityModules.length > 0 ? capabilityModules : undefined,
     identityRedacted: redactIdentity,
+  };
+}
+
+function buildServiceCard(
+  cf: Record<string, unknown>,
+  listing: Listing,
+  city: string | null,
+  coverUrl: string | null,
+): ServiceCardData {
+  const readList = (val: unknown): string[] => {
+    if (Array.isArray(val)) return val.map(String).filter(Boolean);
+    if (typeof val === 'string' && val.trim()) {
+      return val.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
+  return {
+    craftsmanTitle: toDisplayValue(cf.craftsmanTitle) || listing.title,
+    ownerName: toDisplayValue(cf.ownerName) || null,
+    serviceCategory: toDisplayValue(cf.serviceCategory) || 'Esnaf ve Hizmetler',
+    servicesList: readList(cf.servicesList),
+    serviceDistricts: readList(cf.serviceDistricts),
+    workingHours: toDisplayValue(cf.workingHours) || '7/24 Acil Servis ve Gece Açık (Haftanın 7 Günü)',
+    emergency247: cf.emergency247 !== false && cf.emergency247 !== 'false',
+    isVerifiedPro: true,
+    experienceYears: toDisplayValue(cf.experienceYears) || '15 Yıl',
+    warrantyDuration: toDisplayValue(cf.warrantyDuration) || '1 Yıl İşçilik Garantili',
+    pricingType: toDisplayValue(cf.pricingType) || 'Ücretsiz Keşif',
+    workshopAddress: toDisplayValue(cf.workshopAddress) || null,
+    city: city || listing.city || 'İstanbul',
+    district: toDisplayValue(cf.district) || null,
+    coverUrl: coverUrl || null,
+    longDescription: listing.longDescription || listing.shortDescription,
+    contactPhone: toDisplayValue(cf.contactPhone) || toDisplayValue(cf.phone) || null,
+    contactWhatsapp: toDisplayValue(cf.contactWhatsapp) || toDisplayValue(cf.whatsapp) || null,
   };
 }
 

@@ -11,6 +11,7 @@ import { CareerProfilePreview } from '@/features/candidates/components/CareerPro
 import { InvestorProfilePreview } from '@/features/investors/components/InvestorProfilePreview';
 import { PartnershipProfilePreview } from '@/features/founders/components/PartnershipProfilePreview';
 import { FranchiseProfilePreview } from '@/features/franchise/components/FranchiseProfilePreview';
+import { ServiceListingDetailView } from '@/features/listings/components/detail/ServiceListingDetailView';
 import type { ListingDetail } from '@/features/listings';
 import { isEmptyDisplayValue } from '@/features/listings/utils/display-value';
 import { cn } from '@/lib/utils';
@@ -86,6 +87,8 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     Boolean(listing.partnershipCard);
   const showFranchiseCard =
     Boolean(listing.franchiseCard);
+  const showServiceCard =
+    Boolean(listing.serviceCard) || listing.category.id === 'services';
   const showInvestorCard =
     Boolean(listing.investorCard)
     && listing.category.id === 'invest';
@@ -97,6 +100,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     !showCareerCard
     && !showPartnershipCard
     && !showFranchiseCard
+    && !showServiceCard
     && !showInvestorCard
     && (listing.customFacts?.length ?? 0) > 0;
   const showCapabilities = (listing.capabilityModules?.length ?? 0) > 0;
@@ -104,6 +108,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     !showCareerCard
     && !showPartnershipCard
     && !showFranchiseCard
+    && !showServiceCard
     && !showInvestorCard
     && hasCompanyFacts(listing)
     && listing.category.id !== 'find-investment';
@@ -112,7 +117,7 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
     : 'Şirket bilgileri';
   const showAttachments = listing.attachments.length > 0;
   const showTimeline = listing.timeline.length > 0;
-  const isUnifiedCard = showCareerCard || showPartnershipCard || showFranchiseCard;
+  const isUnifiedCard = showCareerCard || showPartnershipCard || showFranchiseCard || showServiceCard;
   const showAbout =
     !isUnifiedCard
     && !showInvestorCard
@@ -163,6 +168,10 @@ export function ListingMainContent({ listing }: ListingMainContentProps) {
           listingId={listing.listingId}
           ownerUserId={listing.ownerUserId}
         />
+      ) : null}
+
+      {showServiceCard ? (
+        <ServiceListingDetailView listing={listing} />
       ) : null}
 
       {showInvestorCard && listing.investorCard ? (

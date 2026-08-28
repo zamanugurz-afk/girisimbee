@@ -114,6 +114,7 @@ export function ListingFilters({
   const isBusinessTransfer = filters.categorySlug === 'isletme-devri';
   const isFranchise = filters.categorySlug === 'bayilik-al' || filters.categorySlug === 'franchise';
   const isDigital = filters.categorySlug === 'dijital-ai';
+  const isServices = filters.categorySlug === 'hizmetler' || filters.categorySlug === 'hizmet-ver' || filters.categorySlug === 'esnaf';
 
   const isSeek = filters.jobFlow === 'seek' || filters.categorySlug === 'is-ariyorum' || filters.categorySlug === 'is-bul';
   const themeColor = isCareer
@@ -126,7 +127,9 @@ export function ListingFilters({
         ? 'pink'
         : isDigital
           ? 'purple'
-          : 'blue';
+          : isServices
+            ? 'indigo'
+            : 'blue';
 
   // 1. Sektörler: Var olan ilanlardaki sektörler, ilan sayısına göre azalan sırada
   const availableSectors = useMemo(() => {

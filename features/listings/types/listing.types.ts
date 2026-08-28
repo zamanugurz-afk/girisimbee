@@ -194,6 +194,8 @@ export interface ListingDetail {
   partnershipCard?: PartnershipCardData;
   /** Franchise Veren / Bayilik Arayan — structured franchise card. */
   franchiseCard?: FranchiseCardData;
+  /** Esnaf ve Hizmetler — structured craftsman/service card. */
+  serviceCard?: ServiceCardData;
   /**
    * Server-side: owner/publisher identity was redacted for this viewer
    * (accept-gated career / anonymous listings).
@@ -273,6 +275,28 @@ export interface FranchiseCardData {
   contactWhatsapp?: string | null;
   contactEmail?: string | null;
   contactName?: string | null;
+}
+
+export interface ServiceCardData {
+  craftsmanTitle?: string | null;
+  ownerName?: string | null;
+  serviceCategory?: string | null;
+  servicesList?: string[] | null;
+  serviceDistricts?: string[] | null;
+  workingHours?: string | null;
+  emergency247?: boolean;
+  isVerifiedPro?: boolean;
+  experienceYears?: string | null;
+  warrantyDuration?: string | null;
+  pricingType?: string | null;
+  workshopAddress?: string | null;
+  city?: string | null;
+  district?: string | null;
+  coverUrl?: string | null;
+  longDescription?: string | null;
+  contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  galleryUrls?: string[] | null;
 }
 
 export interface ListingSummary {

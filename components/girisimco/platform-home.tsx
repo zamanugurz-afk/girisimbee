@@ -6,6 +6,7 @@ import {
   Briefcase, 
   Users2, 
   Store, 
+  Wrench,
   Sparkles, 
   ArrowUpRight 
 } from 'lucide-react';
@@ -117,27 +118,42 @@ export function PlatformHome() {
                 </div>
               </div>
 
-              {/* 4. Slot (Yeni Kategori Alanı - Çok Yakında / Rezerve Alan) */}
-              {/* Not: Eski 'Dijital ve Startup Çözümler' kartı components/archive/DigitalStartupCardArchive.tsx içinde saklanmaktadır. */}
-              <div className="group relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-dashed border-slate-200/90 dark:border-zinc-800 rounded-2xl p-5 shadow-2xs transition-all duration-300 ease-out flex flex-col justify-between select-none opacity-85 hover:opacity-100">
+              {/* 4. Slot: Esnaf ve Hizmetler */}
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+                <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Esnaf ve Hizmetler" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500">
-                      <Sparkles className="w-4 h-4" />
+                    <span className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-300">
+                      <Wrench className="w-4 h-4" />
                     </span>
-                    <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200/60 dark:border-zinc-700/60">
-                      Yakında
+                    <span className="text-[10px] font-bold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80">
+                      1 Ay Ücretsiz
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Yeni Fırsat Alanı</h4>
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 leading-relaxed min-h-[34px]">
-                      Girişim ekosistemine eklenecek yeni kategori çok yakında burada olacak.
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">
+                      Esnaf ve Hizmetler
+                    </h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">
+                      Temizlikten çilingire, nakliyeden elektrik ve tadilata tüm günlük hizmetleri doğrudan yerel ustalardan bulun.
                     </p>
                   </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
+                      Temizlik ve Tesisat
+                    </span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
+                      Nakliye ve Çilingir
+                    </span>
+                  </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100/80 dark:border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-500 dark:text-zinc-400">● Hazırlanıyor</span>
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span className="font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+                    ● İlk Ay Ücretsiz Listeleme
+                  </span>
+                  <span aria-hidden className="inline-flex">
+                    <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-indigo-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                  </span>
                 </div>
               </div>
             </div>

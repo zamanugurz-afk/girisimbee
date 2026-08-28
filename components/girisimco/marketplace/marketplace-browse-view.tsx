@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wrench } from 'lucide-react';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
@@ -254,6 +254,31 @@ export function MarketplaceBrowseView({
           <div className="mt-6 max-w-xl">
             <MarketplaceSearchBar defaultQuery={initialQuery ?? filters.query} />
           </div>
+
+          {categorySlug === 'hizmetler' && (
+            <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-indigo-200/80 bg-indigo-50/80 p-4 sm:p-5 dark:border-indigo-900/60 dark:bg-indigo-950/40">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+                  <Wrench className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                    Usta mısın? Hizmetini Girişimbee&apos;de 1 Ay Ücretsiz Yayınla
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                    Müşteriler doğrudan arasın veya WhatsApp ile konum atsın. Komisyonsuz, ilk ay ücretsiz.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/ilan/olustur?category=hizmetler"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 transition-colors"
+              >
+                <span>Hemen İlan Ver</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

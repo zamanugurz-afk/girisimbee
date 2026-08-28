@@ -45,9 +45,9 @@ export const HOME_CATEGORIES_CATALOG = [
   {
     slug: 'dijital-ai',
     href: '/dijital-ai',
-    label: 'Dijital & AI Çözümleri',
+    label: 'Dijital ve AI Çözümleri',
     color: GC_CATEGORY_COLORS['dijital-ai'],
-    audience: 'Ürün & yetenekler',
+    audience: 'Ürün ve yetenekler',
     shortCue: 'Ürün ve çözümler',
     hint: 'Ürün adı, kısa tanıtım ve yetenek kartlarıyla AI / yazılım çözümlerini inceleyin.',
   },

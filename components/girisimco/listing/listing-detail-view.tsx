@@ -38,15 +38,19 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
   const isFranchiseListing =
     Boolean(listing.franchiseCard)
     || listing.category.id === 'franchise';
-  const isUnifiedCardListing = isCareerListing || isPartnershipListing || isFranchiseListing;
+  const isServiceListing =
+    Boolean(listing.serviceCard) || listing.category.id === 'services';
+  const isUnifiedCardListing = isCareerListing || isPartnershipListing || isFranchiseListing || isServiceListing;
 
   const backLink = isCareerListing
     ? { href: '/is', label: 'Kariyer Menüsüne Dön' }
     : isPartnershipListing
-      ? { href: '/ortaklik', label: 'Ortaklık & Devir Menüsüne Dön' }
+      ? { href: '/ortaklik', label: 'Ortaklık ve Devir Menüsüne Dön' }
       : isFranchiseListing
-        ? { href: '/franchise', label: 'Franchise & Bayilik Menüsüne Dön' }
-        : null;
+        ? { href: '/franchise', label: 'Franchise ve Bayilik Menüsüne Dön' }
+        : isServiceListing
+          ? { href: '/kategori/hizmetler', label: 'Esnaf ve Hizmetler Menüsüne Dön' }
+          : null;
 
   return (
     <main
