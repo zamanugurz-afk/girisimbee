@@ -17,7 +17,8 @@ const EMPTY_COUNTS: HeroStatsCounts = {
 
 const REFRESH_INTERVAL_MS = 120_000;
 
-export function formatHeroStatCount(value: number): string {
+export function formatHeroStatCount(value?: number | null): string {
+  if (typeof value !== 'number' || isNaN(value)) return '0';
   return value.toLocaleString('tr-TR');
 }
 
@@ -33,14 +34,22 @@ export function useHeroStats() {
     try {
       const res = await fetch('/api/marketplace/hero-stats', {
         method: 'GET',
-        // Allow short browser cache — endpoint is already head-only counts.
         next: undefined,
       });
-      const body = (await res.json()) as { data?: HeroStatsCounts; error?: string };
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(body.error ?? 'İstatistikler yüklenemedi');
+        throw new Error(body?.error ?? 'İstatistikler yüklenemedi');
       }
-      setCounts(body.data ?? EMPTY_COUNTS);
+      const rawData = body?.data ?? body ?? {};
+      setCounts({
+        total: typeof rawData.total === 'number' ? rawData.total : 0,
+        jobs: typeof rawData.jobs === 'number' ? rawData.jobs : 0,
+        partners: typeof rawData.partners === 'number' ? rawData.partners : 0,
+        franchise: typeof rawData.franchise === 'number' ? rawData.franchise : 0,
+        services: typeof rawData.services === 'number' ? rawData.services : 0,
+        opportunities: typeof rawData.opportunities === 'number' ? rawData.opportunities : 0,
+        solutions: typeof rawData.solutions === 'number' ? rawData.solutions : 0,
+      });
     } catch (e) {
       if (!silent) setCounts(EMPTY_COUNTS);
       setError(e instanceof Error ? e.message : 'İstatistikler yüklenemedi');
