@@ -3,8 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,16 +28,13 @@ import {
   Pause,
   Play,
   Trash2,
-  ExternalLink,
-  Eye,
-  Heart,
-  MessageSquare,
   MapPin,
-  Calendar,
   Clock,
   Tag,
   Loader2,
   Zap,
+  MoreVertical,
+  ArrowRight,
 } from 'lucide-react';
 import { LISTING_TYPE_ICON_MAP } from '@/components/girisimco/listing/listing-type-icon';
 import type { ListingTypeIconKey } from '@/features/listings/utils/listing-card-display';
@@ -39,6 +42,7 @@ import { AccountListingStatsModal } from '@/features/account/components/AccountL
 import { AccountListingPromoteModal } from '@/features/account/components/AccountListingPromoteModal';
 import type { AccountListingCardData, AccountListingStatus } from '@/features/account/types/account-listings.types';
 import { ACCOUNT_LISTING_STATUS_LABELS } from '@/features/account/types/account-listings.constants';
+import { cn } from '@/lib/utils';
 
 function formatDate(value?: string | null): string {
   if (!value) return '';
@@ -84,9 +88,13 @@ function getListingPrimaryBadge(listing: AccountListingCardData): {
     iconKey = 'franchise';
     color = '#EC4899';
   } else if (typeUpper.includes('DİJİTAL') || typeUpper.includes('AI') || catUpper.includes('DİJİTAL')) {
-    label = 'Dijital & AI Çözümü';
+    label = 'Dijital ve AI Çözümü';
     iconKey = 'digital';
     color = '#8B5CF6';
+  } else if (typeUpper.includes('HİZMET') || catUpper.includes('HİZMET') || typeUpper.includes('USTA') || catUpper.includes('USTA')) {
+    label = 'Ustalar ve Hizmetler';
+    iconKey = 'services';
+    color = '#6366F1';
   } else if (typeUpper.includes('YATIRIM') || catUpper.includes('YATIRIM')) {
     label = typeUpper.includes('YAPIYORUM') ? 'Yatırım Yapıyorum' : 'Yatırım Arıyorum';
     iconKey = typeUpper.includes('YAPIYORUM') ? 'investor' : 'investment';
@@ -174,215 +182,215 @@ export function AccountListingCard({
 
   return (
     <>
-      <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90">
-        <div>
-          {/* Top Category Icon & Badges */}
-          <div className="flex items-start justify-between gap-3">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-2xs transition-transform duration-300 group-hover:scale-105"
-              style={{ backgroundColor: `${primaryBadge.color}15` }}
-            >
-              <IconComponent className="h-6 w-6" style={{ color: primaryBadge.color }} />
-            </div>
-
-            <div className="flex flex-col items-end gap-1.5">
-              {/* Status Badge */}
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                  listing.status === 'active'
-                    ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
-                    : listing.status === 'expired'
-                      ? 'border border-zinc-500/30 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400'
-                      : 'border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
-                }`}
-              >
+      <Link href={publicHref} className="block h-full outline-none">
+        <article
+          className={cn(
+            'group relative flex h-full min-h-[13.5rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
+            'bg-card border border-border/70 hover:border-primary/40',
+            'shadow-xs hover:shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5',
+            'cursor-pointer',
+          )}
+        >
+          <div>
+            {/* Top Meta Row: Type Pill + Price Badge + Status Badge & Actions */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                {/* Category / Type Pill */}
                 <span
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    listing.status === 'active'
-                      ? 'bg-emerald-500 animate-pulse'
-                      : listing.status === 'expired'
-                        ? 'bg-zinc-500'
-                        : 'bg-amber-500'
-                  }`}
-                />
-                {ACCOUNT_LISTING_STATUS_LABELS[listing.status]}
-              </span>
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                  style={{ backgroundColor: `${primaryBadge.color}15`, color: primaryBadge.color }}
+                >
+                  <IconComponent className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate max-w-[130px] sm:max-w-none">{primaryBadge.label}</span>
+                </span>
 
-              {/* Showcase & Urgent Badges */}
-              <div className="flex items-center gap-1">
+                {/* Compact Price Badge */}
+                {listing.price ? (
+                  <span
+                    className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 font-display text-xs font-semibold tabular-nums border"
+                    style={{
+                      backgroundColor: 'rgba(159, 18, 57, 0.07)',
+                      color: '#9F1239',
+                      borderColor: 'rgba(159, 18, 57, 0.20)',
+                    }}
+                  >
+                    {listing.price}
+                  </span>
+                ) : null}
+              </div>
+
+              {/* Right Side: Status Badge + Showcase + Quick Management Menu */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* Showcase / Urgent Badges */}
                 {listing.isShowcase && (
-                  <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                  <span className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
                     <Sparkles className="h-3 w-3" />
                     Vitrin
                   </span>
                 )}
                 {listing.isUrgentShowcase && (
-                  <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                  <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 dark:text-rose-400">
                     <Zap className="h-3 w-3" />
                     Acil
                   </span>
                 )}
+
+                {/* Status Badge */}
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                    listing.status === 'active'
+                      ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                      : listing.status === 'expired'
+                        ? 'border border-zinc-500/30 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400'
+                        : 'border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'h-1.5 w-1.5 rounded-full',
+                      listing.status === 'active'
+                        ? 'bg-emerald-500 animate-pulse'
+                        : listing.status === 'expired'
+                          ? 'bg-zinc-500'
+                          : 'bg-amber-500',
+                    )}
+                  />
+                  {ACCOUNT_LISTING_STATUS_LABELS[listing.status]}
+                </span>
+
+                {/* Management Dropdown Menu (•••) */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="İlan İşlemleri"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-zinc-500 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-48 rounded-xl border border-border/80 bg-popover/95 shadow-lg backdrop-blur-md"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <DropdownMenuItem asChild>
+                      <Link href={editHref} className="flex items-center gap-2 cursor-pointer font-medium">
+                        <Pencil className="h-4 w-4 text-slate-500" />
+                        <span>Düzenle</span>
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setStatsOpen(true);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <BarChart2 className="h-4 w-4 text-blue-500" />
+                      <span>İstatistikler ({listing.viewCount} Gör.)</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setPromoteOpen(true);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer text-amber-600 dark:text-amber-400 font-medium"
+                    >
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <span>Vitrine Taşı</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      disabled={isActionBusy}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        void handleToggleStatus();
+                      }}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      {isPublished ? (
+                        <>
+                          <Pause className="h-4 w-4 text-amber-500" />
+                          <span>Yayından Kaldır</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 text-emerald-500" />
+                          <span>Tekrar Yayınla</span>
+                        </>
+                      )}
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteDialogOpen(true);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive font-medium"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>İlanı Sil</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-          </div>
 
-          {/* Category Chip */}
-          <div className="mt-3.5 flex items-center justify-between gap-2">
-            <span
-              className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold"
-              style={{
-                backgroundColor: `${primaryBadge.color}15`,
-                color: primaryBadge.color,
-              }}
-            >
-              {primaryBadge.label}
-            </span>
+            {/* Title */}
+            <h3 className="mt-3 line-clamp-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+              {listing.title}
+            </h3>
 
-            {listing.price ? (
-              <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 font-display text-xs font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
-                {listing.price}
-              </span>
+            {/* Description */}
+            {listing.shortDescription ? (
+              <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                {listing.shortDescription}
+              </p>
             ) : null}
           </div>
 
-          {/* Title */}
-          <h3 className="mt-2.5">
-            <Link
-              href={publicHref}
-              className="group/link inline-flex items-center gap-1 font-display text-base font-bold tracking-tight text-slate-950 hover:text-amber-600 dark:text-white dark:hover:text-amber-400 transition-colors line-clamp-2"
-            >
-              <span>{listing.title}</span>
-              <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover/link:opacity-100 text-slate-400 transition-opacity shrink-0" />
-            </Link>
-          </h3>
-
-          {/* Description */}
-          {listing.shortDescription ? (
-            <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-zinc-400 line-clamp-2">
-              {listing.shortDescription}
-            </p>
-          ) : null}
-
-          {/* Meta Details */}
-          <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-zinc-400 border-t border-slate-100 dark:border-zinc-800 pt-2.5">
-            {listing.location ? (
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
-                <span className="truncate">{listing.location}</span>
-              </div>
-            ) : null}
-
-            <div className="flex items-center justify-between gap-2 text-[11px]">
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-500" />
-                <span>Yayın: {formatDate(listing.publishedAt)}</span>
-              </span>
-              {listing.endsAt && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-500" />
-                  <span>Bitiş: {formatDate(listing.endsAt)}</span>
+          {/* Footer Meta Strip */}
+          <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+            <div className="flex min-w-0 items-center gap-2.5 overflow-hidden">
+              {listing.location && (
+                <span className="inline-flex items-center gap-1 shrink-0">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="truncate max-w-[110px] sm:max-w-[140px]">{listing.location}</span>
+                </span>
+              )}
+              {listing.publishedAt && (
+                <span className="inline-flex items-center gap-1 shrink-0">
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="whitespace-nowrap">{formatDate(listing.publishedAt)}</span>
                 </span>
               )}
             </div>
+
+            {/* İncele ➔ Button */}
+            <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary whitespace-nowrap pl-2 shrink-0">
+              <span>İncele</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </span>
           </div>
-        </div>
-
-        {/* Bottom Section: Metrics & Action Buttons */}
-        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 space-y-3">
-          {/* Metrics Capsule */}
-          <div className="flex items-center justify-between rounded-xl bg-sky-50/40 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/40 px-3 py-1.5 text-xs">
-            <div className="flex items-center gap-1.5">
-              <Eye className="h-3.5 w-3.5 text-blue-500" />
-              <strong className="text-slate-900 dark:text-white font-bold tabular-nums">{listing.viewCount}</strong>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400">Görüntüleme</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Heart className="h-3.5 w-3.5 text-rose-500" />
-              <strong className="text-slate-900 dark:text-white font-bold tabular-nums">{listing.favoriteCount}</strong>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400">Favori</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <MessageSquare className="h-3.5 w-3.5 text-emerald-500" />
-              <strong className="text-slate-900 dark:text-white font-bold tabular-nums">{listing.applicationCount || 0}</strong>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400">Talep</span>
-            </div>
-          </div>
-
-          {/* Action Toolbar */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="h-8 rounded-xl gap-1.5 text-xs font-semibold hover:border-slate-300 dark:hover:border-zinc-700"
-            >
-              <Link href={editHref}>
-                <Pencil className="h-3.5 w-3.5 text-slate-500" />
-                <span>Düzenle</span>
-              </Link>
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setStatsOpen(true)}
-              className="h-8 rounded-xl gap-1.5 text-xs font-semibold hover:border-slate-300 dark:hover:border-zinc-700"
-            >
-              <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
-              <span>İstatistik</span>
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setPromoteOpen(true)}
-              className="h-8 rounded-xl gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:border-amber-400/50 dark:text-amber-400"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span>Vitrine Taşı</span>
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled={isActionBusy}
-              onClick={handleToggleStatus}
-              className="h-8 rounded-xl gap-1.5 text-xs font-semibold hover:border-slate-300 dark:hover:border-zinc-700"
-            >
-              {isActionBusy ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : isPublished ? (
-                <>
-                  <Pause className="h-3.5 w-3.5 text-amber-500" />
-                  <span>Kaldır</span>
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5 text-emerald-500" />
-                  <span>Yayınla</span>
-                </>
-              )}
-            </Button>
-          </div>
-
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            disabled={isActionBusy}
-            onClick={() => setDeleteDialogOpen(true)}
-            className="h-7 w-full rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
-          >
-            <Trash2 className="mr-1 h-3.5 w-3.5" />
-            İlanı Sil
-          </Button>
-        </div>
-      </article>
+        </article>
+      </Link>
 
       {/* Statistics Modal */}
       <AccountListingStatsModal
@@ -408,7 +416,7 @@ export function AccountListingCard({
               İlanı Silmek İstediğinize Emin Misiniz?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground font-medium">"{listing.title}"</strong> başlıklı ilanınız kalıcı olarak silinecek, vitrinden ve eşleşme havuzundan kaldırılacaktır. Bu işlem geri alınamaz.
+              <strong className="text-foreground font-medium">"{listing.title}"</strong> başlıklı ilanınız kalıcı olarak silinecek, vitrinden ve arama havuzundan kaldırılacaktır. Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 gap-2">
