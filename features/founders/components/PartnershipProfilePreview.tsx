@@ -17,6 +17,12 @@ import {
   Phone,
   BarChart3,
   Layers,
+  Sparkles,
+  ShieldCheck,
+  Package,
+  TrendingUp,
+  ChevronRight,
+  MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DirectContactDialog } from '@/components/girisimco/listing/direct-contact-dialog';
@@ -445,213 +451,241 @@ export function PartnershipProfilePreview({
           listingId={listingId}
         />
 
-        {/* SAĞ GENİŞ KOLON - ANA İÇERİK KARTI */}
-        <main
-          className={cn(
-            'rounded-2xl border bg-white dark:bg-card p-5 sm:p-6 lg:p-6 pb-4 gap-5 sm:gap-6 flex flex-col justify-between',
-            theme.cardBorder,
-            theme.cardGlow,
-          )}
-        >
-          <div className="space-y-4 sm:space-y-5">
-            {/* Üst Kısım: Girişim / Ortaklık Özeti */}
-            <div className="space-y-1.5">
-              <div
-                className={cn(
-                  'flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider',
-                  theme.headerText,
-                )}
-              >
-                <Building2 className="h-4 w-4" />
-                <span>{isTransfer ? 'İŞLETME DEVİR ÖZETİ' : 'ORTAKLIK & GİRİŞİM ÖZETİ'}</span>
+        {/* SAĞ GENİŞ KOLON - YENİ NESİL PREMIUM GÖVDE */}
+        <main className="space-y-4">
+          {/* 1. ÜST ÖZET & VURGU KARTI */}
+          <div className="rounded-2xl border border-amber-200/90 dark:border-amber-950/60 bg-white dark:bg-card p-4 sm:p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-2xs">
+              {isTransfer ? <Building2 className="h-6 w-6" /> : <Rocket className="h-6 w-6" />}
+            </div>
+            <p className="text-xs sm:text-[13.5px] font-medium leading-relaxed text-slate-800 dark:text-slate-200">
+              {summaryText}
+            </p>
+          </div>
+
+          {/* 2. ORTA BÖLÜM: 3 BÖLÜM SÜRECİ & ARANAN YETKİNLİKLER */}
+          <div className="rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5">
+            {/* Başlık Çubuğu */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs sm:text-[13px] font-extrabold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                <Layers className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span>{isTransfer ? 'İŞLETME VARLIKLARI & KAPSAM' : 'GİRİŞİM KİLOMETRE TAŞLARI & VARLIKLAR'}</span>
               </div>
-              <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 dark:border-border dark:bg-card/50 p-4 sm:p-4.5">
-                <p className="text-xs sm:text-[13px] leading-relaxed text-slate-700 dark:text-slate-200">
-                  {summaryText}
-                </p>
-              </div>
+              <span className="rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200/60 dark:border-amber-800/40 px-3 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                3 BÖLÜM
+              </span>
             </div>
 
-            {/* İç İki Kolon: Kilometre Taşları & Aranan Uzmanlıklar */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 items-start gap-5 lg:gap-7">
-              {/* İç Sol Kolon (%65 Genişlik): Kilometre Taşları & Varlıklar */}
-              <div className="lg:col-span-7 xl:col-span-8 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div
-                    className={cn(
-                      'flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider',
-                      theme.headerText,
-                    )}
-                  >
-                    <Layers className="h-4 w-4" />
-                    <span>
-                      {isTransfer
-                        ? 'İŞLETME VARLIKLARI & KAPSAM'
-                        : 'GİRİŞİM KİLOMETRE TAŞLARI & VARLIKLAR'}
-                    </span>
+            {/* İki Kolonlu Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+              {/* Sol Kolon (3 Bölümlü Renkli Kartlar) - %65 */}
+              <div className="lg:col-span-7 xl:col-span-8 space-y-3">
+                {/* 01. BÖLÜM - Konum / Proje */}
+                <div className="rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-amber-300 transition-colors">
+                  {/* Sol Renkli Sütun */}
+                  <div className="w-16 sm:w-20 bg-[#d97706] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                    <span className="text-xl sm:text-2xl font-extrabold tracking-tight">01</span>
+                    {isTransfer ? <Building2 className="h-6 w-6 stroke-[1.75]" /> : <Rocket className="h-6 w-6 stroke-[1.75]" />}
                   </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
-                    3 Bölüm
-                  </span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {/* Madde 1: Proje Durumu / Faaliyet Kapsamı */}
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={cn(
-                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs',
-                          theme.numNode,
-                        )}
-                      >
-                        1
-                      </div>
-                    </div>
-                    <div className="w-20 sm:w-24 shrink-0 pt-0.5">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        {isTransfer ? 'İşletme' : 'Proje'}
-                      </p>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                        {isTransfer
-                          ? 'Faal İşletme & Sektörel Konum'
-                          : 'Proje Durumu & Çözülen Problem'}
+                  {/* Sağ İçerik */}
+                  <div className="p-4 sm:p-4.5 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                    <div>
+                      <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                        {isTransfer ? 'Faal İşletme & Sektörel Konum' : 'Proje Durumu & Çözülen Problem'}
                       </h4>
-                      <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mt-0.5">
                         {displaySector} · {displayLocation}
                       </p>
-                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <p>{problemText}</p>
-                        <p>{solutionText}</p>
+                    </div>
+                    <div className="space-y-1.5 pt-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>{problemText}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>{solutionText}</span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Madde 2: Finansal Performans & Gelir Modeli */}
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={cn(
-                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs',
-                          theme.numNode,
-                        )}
-                      >
-                        2
-                      </div>
-                    </div>
-                    <div className="w-20 sm:w-24 shrink-0 pt-0.5">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        Finans
-                      </p>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
+                {/* 02. BÖLÜM - Finansal Performans */}
+                <div className="rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-amber-300 transition-colors">
+                  {/* Sol Renkli Sütun */}
+                  <div className="w-16 sm:w-20 bg-[#b45309] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                    <span className="text-xl sm:text-2xl font-extrabold tracking-tight">02</span>
+                    <BarChart3 className="h-6 w-6 stroke-[1.75]" />
+                  </div>
+                  {/* Sağ İçerik */}
+                  <div className="p-4 sm:p-4.5 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                    <div>
+                      <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
                         Gelir Modeli & Finansal Performans
                       </h4>
-                      <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                        {p.monthlyRevenue
-                          ? `Aylık Gelir: ${toDisplay(p.monthlyRevenue)} ₺`
-                          : 'Kârlı ve Sürdürülebilir Yapı'}
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mt-0.5">
+                        {p.monthlyRevenue ? `Aylık Ciro / Gelir: ${toDisplay(p.monthlyRevenue)} ₺` : 'Kârlı ve Sürdürülebilir Yapı'}
                       </p>
-                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <p>
+                    </div>
+                    <div className="space-y-1.5 pt-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>
                           {p.equityOffered
                             ? `Sunulan Ortaklık Hissesi: %${toDisplay(p.equityOffered)}`
                             : p.transferPrice
                               ? `Talep Edilen Devir Bedeli: ${toDisplay(p.transferPrice)} ₺`
                               : 'Esnek ve şeffaf sermaye / hisse paylaşımı.'}
-                        </p>
-                        <p>
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>
                           {p.investmentAmount
-                            ? `Hedeflenen Sermaye / Yatırım: ${toDisplay(p.investmentAmount)} ₺`
+                            ? `Hedeflenen Yatırım / Sermaye: ${toDisplay(p.investmentAmount)} ₺`
                             : 'Düzenli nakit akışı ve büyüme potansiyeline sahip iş modeli.'}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Madde 3: Ortaklık Yapısı & Varlıklar */}
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5 relative flex items-start">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={cn(
-                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs',
-                          theme.numNode,
-                        )}
-                      >
-                        3
-                      </div>
-                    </div>
-                    <div className="w-20 sm:w-24 shrink-0 pt-0.5">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                        Kapsam
-                      </p>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                        {isTransfer
-                          ? 'Devir Kapsamı & Demirbaşlar'
-                          : 'Ortaklık Yapısı & Beklentiler'}
+                {/* 03. BÖLÜM - Kapsam & Varlıklar */}
+                <div className="rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-amber-300 transition-colors">
+                  {/* Sol Renkli Sütun */}
+                  <div className="w-16 sm:w-20 bg-[#78350f] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                    <span className="text-xl sm:text-2xl font-extrabold tracking-tight">03</span>
+                    <ShieldCheck className="h-6 w-6 stroke-[1.75]" />
+                  </div>
+                  {/* Sağ İçerik */}
+                  <div className="p-4 sm:p-4.5 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                    <div>
+                      <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                        {isTransfer ? 'Devir Kapsamı & Demirbaşlar' : 'Ortaklık Yapısı & Beklentiler'}
                       </h4>
-                      <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mt-0.5">
                         {p.transferScope
                           ? toDisplay(p.transferScope)
                           : p.commitment
                             ? `Taahhüt: ${toDisplay(p.commitment)}`
                             : 'Tam Yetki & Şeffaf Süreç'}
                       </p>
-                      <div className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        <p>
+                    </div>
+                    <div className="space-y-1.5 pt-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>
                           {isTransfer
                             ? 'Tüm ekipman, tedarikçi bağlantıları ve müşteri portföyü devredilecektir.'
                             : 'Fikri mülkiyet, marka hakları ve teknoloji altyapısı mevcuttur.'}
-                        </p>
-                        <p>
-                          Hukuki olarak hazırlanmış ortaklık / devir sözleşmesi ile güvence altına
-                          alınır.
-                        </p>
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 stroke-[2]" />
+                        <span>Hukuki olarak hazırlanmış sözleşme ile güvence altına alınır.</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* İç Sağ Kolon (%35 Genişlik): Aranan Uzmanlıklar & Programlar */}
-              <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60 lg:self-center lg:my-auto">
-                <div
-                  className={cn(
-                    'flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider',
-                    theme.headerText,
-                  )}
-                >
-                  <Sliders className="h-4 w-4" />
-                  <span>ARANAN UZMANLIKLAR & PROGRAMLAR</span>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {displaySkillsList.map((skill, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/80 dark:bg-muted/40 dark:border-border text-xs text-slate-800 dark:text-slate-200 font-medium"
-                    >
+              {/* Sağ Kolon (Aranan Uzmanlıklar Kartı) - %35 */}
+              <div className="lg:col-span-5 xl:col-span-4 rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card/50 p-4 sm:p-5 flex flex-col justify-between shadow-2xs">
+                <div>
+                  <div className="flex items-center gap-2 pb-3 border-b border-amber-200/80 dark:border-border">
+                    <Sliders className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                      ARANAN UZMANLIKLAR
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 pt-3">
+                    {displaySkillsList.map((skill, idx) => (
                       <div
-                        className={cn(
-                          'flex h-4 w-4 shrink-0 items-center justify-center rounded-full',
-                          theme.iconBg,
-                        )}
+                        key={idx}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-50/40 dark:bg-muted/30 border border-amber-200/70 dark:border-border hover:bg-amber-50/80 dark:hover:bg-muted/60 transition-colors group cursor-default"
                       >
-                        <CheckCircle2 className="h-3 w-3" />
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 truncate">
+                            {skill}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all shrink-0" />
                       </div>
-                      <span className="truncate">{skill}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Alt Kısım: İlan Sahibi Paket & Vitrin Paneli */}
+          {/* 3. ALT 4'LÜ AVANTAJ / DESTEK ŞERİDİ */}
+          <div className="rounded-2xl border border-amber-200/90 dark:border-border bg-white dark:bg-card p-4 sm:p-5 shadow-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-border/60">
+              {/* 1. Sütun */}
+              <div className="flex items-center gap-3 pt-2 sm:pt-0 sm:px-2 first:pl-0">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-900/40">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h5 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-foreground truncate">
+                    Doğrulanmış Model
+                  </h5>
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                    Kanıtlanmış büyüme ve pazar potansiyeli
+                  </p>
+                </div>
+              </div>
+
+              {/* 2. Sütun */}
+              <div className="flex items-center gap-3 pt-3 sm:pt-0 sm:px-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-900/40">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h5 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-foreground truncate">
+                    Hukuki Güvence
+                  </h5>
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                    Resmi ortaklık ve devir protokolü
+                  </p>
+                </div>
+              </div>
+
+              {/* 3. Sütun */}
+              <div className="flex items-center gap-3 pt-3 sm:pt-0 sm:px-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-900/40">
+                  <Package className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h5 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-foreground truncate">
+                    Eksiksiz Devir
+                  </h5>
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                    Müşteri portföyü ve altyapı teslimi
+                  </p>
+                </div>
+              </div>
+
+              {/* 4. Sütun */}
+              <div className="flex items-center gap-3 pt-3 sm:pt-0 sm:px-3 last:pr-0">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-900/40">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h5 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-foreground truncate">
+                    Sürekli Destek
+                  </h5>
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
+                    Geçiş sürecinde aktif mentörlük ve operasyon
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* İlan Sahibi Paket & Vitrin Paneli */}
           {listingId && isOwner ? (
             <div className="pt-3 border-t border-slate-100 dark:border-border/60">
               <PremiumGate>
