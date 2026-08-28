@@ -230,6 +230,14 @@ export async function GET(req: Request) {
 
   try {
     const supabase = createServiceRoleClient();
+    if (action === 'categories') {
+      const [{ data: categories }, { data: listingTypes }] = await Promise.all([
+        supabase.from('marketplace_categories').select('id, slug, name'),
+        supabase.from('marketplace_listing_types').select('id, slug, name, category_id'),
+      ]);
+      return NextResponse.json({ categories, listingTypes });
+    }
+
     if (action === 'list') {
       const { data, error } = await supabase
         .from('marketplace_listings')
