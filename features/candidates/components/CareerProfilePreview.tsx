@@ -7,9 +7,11 @@ import {
   Award,
   BarChart3,
   Briefcase,
+  Building2,
   Calendar,
   Check,
   CheckCircle2,
+  ChevronRight,
   Clock,
   Code2,
   CreditCard,
@@ -33,7 +35,9 @@ import {
   Target,
   Timer,
   Trash2,
+  TrendingUp,
   User,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CareerExperience } from '@/features/candidates/config/career-profile-fields';
@@ -401,21 +405,30 @@ export function SkillChips({
     : 'text-blue-600 hover:text-blue-700 dark:text-blue-400';
 
   if (isCol) {
+    const borderColor = isHire ? 'border-emerald-100/90 hover:border-emerald-200 dark:border-emerald-900/40' : 'border-blue-100/90 hover:border-blue-200 dark:border-blue-900/40';
+    const chevronColor = isHire ? 'group-hover:text-emerald-500' : 'group-hover:text-blue-500';
+
     return (
-      <div className="flex flex-col items-start gap-2.5 w-full">
+      <div className="flex flex-col items-start gap-2 w-full">
         {visible.map((val, idx) => {
           const Icon = getSkillIcon(val);
           return (
             <div
               key={`${val}-${idx}`}
-              className="flex items-center gap-2.5 py-0.5 min-w-0 max-w-full group"
+              className={cn(
+                "flex items-center justify-between w-full p-2.5 rounded-xl border bg-white dark:bg-card/50 shadow-2xs transition-colors group",
+                borderColor
+              )}
             >
-              <div className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-md', iconBg)}>
-                <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={cn('h-6 w-6 rounded-lg flex items-center justify-center shrink-0 shadow-2xs', iconBg)}>
+                  <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+                </div>
+                <span className="text-xs font-bold text-slate-800 dark:text-foreground truncate leading-tight">
+                  {val}
+                </span>
               </div>
-              <span className="text-xs font-semibold text-slate-800 dark:text-foreground truncate leading-tight">
-                {val}
-              </span>
+              <ChevronRight className={cn("h-3.5 w-3.5 text-slate-300 transition-colors shrink-0", chevronColor)} />
             </div>
           );
         })}
@@ -423,7 +436,7 @@ export function SkillChips({
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className={cn('text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer pt-1', buttonText)}
+            className={cn('text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer pt-1 px-1', buttonText)}
           >
             +{hidden} diğer uzmanlık
           </button>
@@ -432,7 +445,7 @@ export function SkillChips({
           <button
             type="button"
             onClick={() => setExpanded(false)}
-            className={cn('text-xs font-semibold transition-colors pt-1', buttonText)}
+            className={cn('text-xs font-semibold transition-colors pt-1 px-1', buttonText)}
           >
             Daha az göster
           </button>
@@ -1199,248 +1212,317 @@ export function CareerProfilePreview({
           )}
         </aside>
 
-        <main className={cn(
-          "rounded-2xl border bg-white dark:bg-card flex flex-col justify-between",
-          isCompact ? "p-3.5 sm:p-4 lg:p-4.5 pb-3 gap-3.5 sm:gap-4" : "p-5 sm:p-6 lg:p-6 pb-4 gap-5 sm:gap-6",
-          theme.cardBorder,
-          theme.cardGlow
-        )}>
-          <div className={cn("space-y-3.5 sm:space-y-4", !isCompact && "sm:space-y-5")}>
-            {summary ? (
-              <div className="space-y-1">
-                <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
-                  <User className="h-4 w-4" />
-                  <span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>
-                </div>
-                <div className={cn(
-                  "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50",
-                  isCompact ? "p-3 sm:p-3.5 text-xs sm:text-[13px]" : "p-4 sm:p-4.5"
-                )}>
-                  <ExpandableSummary text={summary} />
-                </div>
+        <main className="space-y-4">
+          {/* 1. ÜST ÖZET & VURGU KARTI */}
+          {summary ? (
+            <div
+              className={cn(
+                'rounded-2xl border bg-white dark:bg-card p-4 sm:p-5 shadow-xs flex items-center gap-4',
+                isHire
+                  ? 'border-emerald-100 dark:border-emerald-950/60'
+                  : 'border-blue-100 dark:border-blue-950/60',
+              )}
+            >
+              <div
+                className={cn(
+                  'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs border',
+                  isHire
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400',
+                )}
+              >
+                {isHire ? <Building2 className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
               </div>
-            ) : null}
+              <div className="flex-1 min-w-0">
+                <ExpandableSummary text={summary} />
+              </div>
+            </div>
+          ) : null}
 
-            {isHire ? (
-              <div className={cn("grid grid-cols-1 lg:grid-cols-12 items-start", isCompact ? "gap-4 lg:gap-5" : "gap-5 lg:gap-7")}>
-                <div className={cn('space-y-2.5', displaySkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
-                  <div className="flex items-center justify-between">
-                    <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
-                      <Briefcase className="h-4 w-4" />
-                      <span>ARANAN NİTELİKLER & GÖREVLER</span>
-                    </div>
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
-                      {jobSections.length} Bölüm
-                    </span>
-                  </div>
+          {/* 2. ORTA BÖLÜM: DENEYİMLER / NİTELİKLER & UZMANLIK ALANLARI */}
+          <div
+            className={cn(
+              'rounded-2xl border bg-white dark:bg-card p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5',
+              isHire
+                ? 'border-emerald-100/90 dark:border-border'
+                : 'border-blue-100/90 dark:border-border',
+            )}
+          >
+            {/* Başlık Çubuğu */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs sm:text-[13px] font-extrabold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                {isHire ? (
+                  <>
+                    <Briefcase className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>ARANAN NİTELİKLER & GÖREV DAĞILIMI</span>
+                  </>
+                ) : (
+                  <>
+                    <Briefcase className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span>İŞ DENEYİMLERİ VE KARİYER GEÇMİŞİ</span>
+                  </>
+                )}
+              </div>
+              <span
+                className={cn(
+                  'rounded-full px-3 py-0.5 text-[11px] font-bold border',
+                  isHire
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-blue-50 dark:bg-blue-950/60 border-blue-200/60 dark:border-blue-800/40 text-blue-600 dark:text-blue-400',
+                )}
+              >
+                {isHire
+                  ? `${jobSections.length} BÖLÜM`
+                  : experiences.length > 0
+                    ? `${Math.min(visibleExperiences.length, experiences.length)} / ${experiences.length} DENEYİM`
+                    : 'GENEL GEÇMİŞ'}
+              </span>
+            </div>
 
-                  <div className="space-y-2.5">
-                    {jobSections.map((section, idx) => (
+            {/* İki Kolonlu Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+              {/* Sol Kolon (Numaralandırılmış Deneyim/Görev Kartları) - %65 */}
+              <div
+                className={cn(
+                  'space-y-3',
+                  (isHire ? displaySkills.length > 0 : allSkills.length > 0)
+                    ? 'lg:col-span-7 xl:col-span-8'
+                    : 'lg:col-span-12',
+                )}
+              >
+                {isHire ? (
+                  jobSections.map((section, idx) => {
+                    const numStr = String(idx + 1).padStart(2, '0');
+                    return (
                       <div
                         key={idx}
-                        className={cn(
-                          "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start",
-                          isCompact ? "p-2.5 sm:p-3.5 gap-3" : "p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5"
-                        )}
+                        className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-emerald-200 transition-colors"
                       >
-                        <div className="flex flex-col items-center">
-                          <div className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full", theme.numNode)}>
-                            {idx + 1}
-                          </div>
+                        {/* Sol Renkli Numara Bloğu */}
+                        <div className="w-14 sm:w-16 bg-[#059669] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                          <span className="text-xl sm:text-2xl font-extrabold tracking-tight">{numStr}</span>
+                          <Target className="h-5 w-5 stroke-[2]" />
                         </div>
-
-                        <div className="w-20 sm:w-24 shrink-0 pt-0.5">
-                          <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                            {section.tag}
-                          </p>
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <div>
-                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                              {section.title}
-                            </h4>
-                            {section.subtitle ? (
-                              <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                                {section.subtitle}
-                              </p>
-                            ) : null}
-                          </div>
-
-                          {section.duties && section.duties.length > 0 ? (
-                            <ul className="mt-1.5 space-y-0.5 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                              {section.duties.map((duty, dIdx) => (
-                                <li key={dIdx} className="flex items-start gap-1.5">
-                                  <span className="text-slate-400 font-bold">•</span>
-                                  <span>{duty}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {displaySkills.length > 0 ? (
-                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-5 space-y-2.5 pt-3.5 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
-                    <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
-                      <Sliders className="h-4 w-4" />
-                      <span>ARANAN UZMANLIK ALANLARI</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <SkillChips values={displaySkills} limit={12} layout="column" variant="hire" />
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className={cn("grid grid-cols-1 lg:grid-cols-12 items-start", isCompact ? "gap-4 lg:gap-5" : "gap-5 lg:gap-7")}>
-                <div className={cn('space-y-2.5', allSkills.length > 0 ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12')}>
-                  <div className="flex items-center justify-between">
-                    <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
-                      <Briefcase className="h-4 w-4" />
-                      <span>İŞ DENEYİMLERİ</span>
-                    </div>
-                    {experiences.length > 0 ? (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-muted dark:text-muted-foreground">
-                        {Math.min(visibleExperiences.length, experiences.length)} / {experiences.length}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {experiences.length > 0 ? (
-                    <div className="space-y-2.5">
-                      {visibleExperiences.map((exp, idx) => {
-                        const durationBadge = formatExperienceDurationBadge(exp);
-                        const startText =
-                          exp.startMonth && exp.startYear
-                            ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
-                            : '';
-                        const endText = exp.isCurrent
-                          ? 'Halen'
-                          : exp.endMonth && exp.endYear
-                            ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
-                            : '';
-                        const duties = experienceResponsibilities(exp);
-
-                        return (
-                          <div
-                            key={exp.id || idx}
-                            className={cn(
-                              "rounded-xl border border-slate-200/90 bg-slate-50/50 shadow-2xs dark:border-border dark:bg-card/50 relative flex items-start",
-                              isCompact ? "p-2.5 sm:p-3.5 gap-3" : "p-3.5 sm:p-4.5 gap-3.5 sm:gap-4.5"
-                            )}
-                          >
-                            <div className="flex flex-col items-center">
-                              <div className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full", theme.numNode)}>
-                                {idx + 1}
-                              </div>
-                            </div>
-
-                            <div className="w-20 sm:w-24 shrink-0 pt-0.5">
-                              <p className="text-xs font-semibold text-slate-800 dark:text-foreground leading-tight">
-                                {startText || 'Başlangıç'}
-                              </p>
-                              {endText ? (
-                                <p className="text-[11px] font-medium text-slate-500 dark:text-muted-foreground leading-tight mt-0.5">
-                                  - {endText}
+                        {/* Sağ İçerik */}
+                        <div className="p-4 sm:p-4.5 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                                {section.title}
+                              </h4>
+                              {section.subtitle ? (
+                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                                  {section.subtitle}
                                 </p>
                               ) : null}
                             </div>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-foreground leading-snug">
-                                    {exp.role || (isContactAccepted || canViewFullProfile || data.personalInfoPreview ? exp.company : '') || 'Pozisyon'}
-                                  </h4>
-                                  <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-muted-foreground mt-0.5">
-                                    {[
-                                      (isContactAccepted || canViewFullProfile || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
-                                      exp.sector,
-                                    ]
-                                      .filter(Boolean)
-                                      .join('  |  ')}
-                                  </p>
-                                </div>
-                                {data.isFormPreview ? (
-                                  <div className="flex items-center gap-1">
-                                    {data.onEditExperience ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => data.onEditExperience?.(idx)}
-                                        className="p-1 text-slate-400 hover:text-blue-600"
-                                      >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                      </button>
-                                    ) : null}
-                                    {data.onDeleteExperience ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => data.onDeleteExperience?.(idx)}
-                                        className="p-1 text-slate-400 hover:text-destructive"
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                ) : null}
-                              </div>
-
-                              {duties.length > 0 ? (
-                                <ul className="mt-2 space-y-1 text-xs sm:text-[12.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                                  {duties.map((duty, dIdx) => (
-                                    <li key={dIdx} className="flex items-start gap-1.5">
-                                      <span className="text-slate-400 font-bold">•</span>
-                                      <span>{duty}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : null}
-                            </div>
+                            <span className="rounded-full bg-slate-100 dark:bg-muted px-2.5 py-0.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                              {section.tag}
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
+
+                          {section.duties && section.duties.length > 0 ? (
+                            <div className="space-y-1.5 pt-1.5 border-t border-slate-100 dark:border-border/60">
+                              {section.duties.map((duty, dIdx) => (
+                                <div key={dIdx} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                                  <span className="leading-snug">{duty}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  experiences.length > 0 ? (
+                    visibleExperiences.map((exp, idx) => {
+                      const numStr = String(idx + 1).padStart(2, '0');
+                      const startText =
+                        exp.startMonth && exp.startYear
+                          ? `${monthLabel(exp.startMonth)} ${exp.startYear}`
+                          : '';
+                      const endText = exp.isCurrent
+                        ? 'Halen'
+                        : exp.endMonth && exp.endYear
+                          ? `${monthLabel(exp.endMonth)} ${exp.endYear}`
+                          : '';
+                      const dateRange = [startText, endText].filter(Boolean).join(' - ') || 'Deneyim Süresi';
+                      const duties = experienceResponsibilities(exp);
+                      const roleTitle = exp.role || (isContactAccepted || canViewFullProfile || data.personalInfoPreview ? exp.company : '') || 'Pozisyon';
+                      const companyOrSector = [
+                        (isContactAccepted || canViewFullProfile || data.personalInfoPreview) && exp.company && exp.company !== exp.role ? exp.company : null,
+                        exp.sector,
+                      ].filter(Boolean).join(' · ') || 'Sektör Bilgisi';
+
+                      return (
+                        <div
+                          key={exp.id || idx}
+                          className="rounded-2xl border border-blue-100/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-blue-200 transition-colors"
+                        >
+                          {/* Sol Renkli Numara Bloğu */}
+                          <div className="w-14 sm:w-16 bg-[#2563eb] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                            <span className="text-xl sm:text-2xl font-extrabold tracking-tight">{numStr}</span>
+                            <Briefcase className="h-5 w-5 stroke-[2]" />
+                          </div>
+                          {/* Sağ İçerik */}
+                          <div className="p-4 sm:p-4.5 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                                  {roleTitle}
+                                </h4>
+                                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-0.5">
+                                  {companyOrSector}
+                                </p>
+                              </div>
+                              <span className="rounded-full bg-slate-100 dark:bg-muted px-2.5 py-1 text-[11px] font-bold text-slate-700 dark:text-slate-200 shrink-0">
+                                {dateRange}
+                              </span>
+                            </div>
+
+                            {duties.length > 0 ? (
+                              <div className="space-y-1.5 pt-1.5 border-t border-slate-100 dark:border-border/60">
+                                {duties.map((duty, dIdx) => (
+                                  <div key={dIdx} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                                    <span className="leading-snug">{duty}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })
                   ) : (
-                    <p className="text-xs text-slate-400 italic">Henüz iş deneyimi eklenmedi.</p>
-                  )}
+                    <div className="rounded-2xl border border-dashed border-slate-200 dark:border-border p-6 text-center text-xs text-slate-400">
+                      Kayıtlı iş deneyimi bulunmuyor.
+                    </div>
+                  )
+                )}
 
-                  {experiences.length > INITIAL_EXPERIENCE_LIMIT ? (
-                    <div className="pt-0.5 pl-1 sm:pl-2">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedExperiences((v) => !v)}
-                        className="text-xs font-semibold text-primary hover:text-primary/80 dark:text-primary dark:hover:text-primary/90 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-primary/5 hover:bg-primary/10 rounded-lg px-2.5 py-1 border border-primary/20"
-                      >
-                        <span>
-                          {expandedExperiences
-                            ? 'Daha az göster'
-                            : `+ ${experiences.length - INITIAL_EXPERIENCE_LIMIT} diğer deneyimi göster`}
-                        </span>
-                        <span className="font-bold text-sm leading-none">
-                          {expandedExperiences ? '−' : '+'}
-                        </span>
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
-                {allSkills.length > 0 ? (
-                  <div className="lg:col-span-5 xl:col-span-4 lg:border-l lg:border-slate-200/90 dark:lg:border-border/80 lg:pl-6 space-y-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-border/60">
-                    <div className={cn("flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider", theme.headerText)}>
-                      <Sliders className="h-4 w-4" />
-                      <span>UZMANLIK ALANLARI</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <SkillChips values={allSkills} limit={12} layout="column" variant="seeker" />
-                    </div>
+                {!isHire && experiences.length > INITIAL_EXPERIENCE_LIMIT ? (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedExperiences((v) => !v)}
+                      className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 inline-flex items-center gap-1.5 transition-colors cursor-pointer bg-blue-50/60 hover:bg-blue-100/60 dark:bg-blue-950/40 rounded-xl px-3 py-1.5 border border-blue-200/50"
+                    >
+                      <span>
+                        {expandedExperiences
+                          ? 'Daha az deneyim göster'
+                          : `+ ${experiences.length - INITIAL_EXPERIENCE_LIMIT} diğer iş deneyimini göster`}
+                      </span>
+                      <span className="font-bold text-sm leading-none">
+                        {expandedExperiences ? '−' : '+'}
+                      </span>
+                    </button>
                   </div>
                 ) : null}
               </div>
-            )}
+
+              {/* Sağ Kolon (Uzmanlık Alanları - Chevron Pill Kartlar) - %35 */}
+              {(isHire ? displaySkills.length > 0 : allSkills.length > 0) ? (
+                <div
+                  className={cn(
+                    'lg:col-span-5 xl:col-span-4 rounded-2xl border p-4 sm:p-4.5 space-y-3 bg-slate-50/50 dark:bg-card/40 flex flex-col justify-start',
+                    isHire
+                      ? 'border-emerald-100/90 dark:border-border'
+                      : 'border-blue-100/90 dark:border-border',
+                  )}
+                >
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-200/80 dark:border-border/60">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                      <Sliders className={cn('h-4 w-4', isHire ? 'text-emerald-600' : 'text-blue-600')} />
+                      <span>{isHire ? 'ARANAN YETKİNLİKLER' : 'UZMANLIK ALANLARI'}</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {(isHire ? displaySkills : allSkills).length} Yetkinlik
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <SkillChips
+                      values={isHire ? displaySkills : allSkills}
+                      limit={8}
+                      layout="column"
+                      variant={isHire ? 'hire' : 'seeker'}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {/* 3. ALT BÖLÜM: 4'LÜ ÖNE ÇIKAN ÖZELLİK ŞERİDİ */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Kart 1: Seviye */}
+            <div
+              className={cn(
+                'rounded-xl border bg-white dark:bg-card p-3 shadow-2xs space-y-1',
+                isHire ? 'border-emerald-100 dark:border-border' : 'border-blue-100 dark:border-border',
+              )}
+            >
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <Briefcase className={cn('h-3.5 w-3.5', isHire ? 'text-emerald-600' : 'text-blue-600')} />
+                <span>{isHire ? 'Pozisyon Seviyesi' : 'Kariyer Seviyesi'}</span>
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-foreground truncate">
+                {getExperienceLevelLabel(data.experienceLevel) || data.experienceLevel || 'Uzman / Yönetici'}
+              </p>
+            </div>
+
+            {/* Kart 2: Model */}
+            <div
+              className={cn(
+                'rounded-xl border bg-white dark:bg-card p-3 shadow-2xs space-y-1',
+                isHire ? 'border-emerald-100 dark:border-border' : 'border-blue-100 dark:border-border',
+              )}
+            >
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <Building2 className={cn('h-3.5 w-3.5', isHire ? 'text-emerald-600' : 'text-blue-600')} />
+                <span>Çalışma Modeli</span>
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-foreground truncate">
+                {data.workplacePreference || data.workType || 'Tam Zamanlı / Ofis'}
+              </p>
+            </div>
+
+            {/* Kart 3: Lokasyon */}
+            <div
+              className={cn(
+                'rounded-xl border bg-white dark:bg-card p-3 shadow-2xs space-y-1',
+                isHire ? 'border-emerald-100 dark:border-border' : 'border-blue-100 dark:border-border',
+              )}
+            >
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <MapPin className={cn('h-3.5 w-3.5', isHire ? 'text-emerald-600' : 'text-blue-600')} />
+                <span>Lokasyon</span>
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-foreground truncate">
+                {formatLocationCityDistrict(data.preferredCity, data.preferredDistrict) || 'İstanbul'}
+              </p>
+            </div>
+
+            {/* Kart 4: Müsaitlik / Sektör */}
+            <div
+              className={cn(
+                'rounded-xl border bg-white dark:bg-card p-3 shadow-2xs space-y-1',
+                isHire ? 'border-emerald-100 dark:border-border' : 'border-blue-100 dark:border-border',
+              )}
+            >
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <Clock className={cn('h-3.5 w-3.5', isHire ? 'text-emerald-600' : 'text-blue-600')} />
+                <span>{isHire ? 'Sektör & Alan' : 'Başlama Durumu'}</span>
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-foreground truncate">
+                {isHire
+                  ? (data.primarySector || 'Bilişim & Teknoloji')
+                  : (data.availability || 'Hemen Başlayabilir')}
+              </p>
+            </div>
           </div>
 
           {(showContactBanner || (!authLoading && isOwner && listingId)) ? (
