@@ -138,25 +138,23 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let typeId = 'e1000001-0001-4000-8000-000000000003';
-    let catId = 'e1000001-0001-4000-8000-000000000002';
-
+    let resolvedType = null;
     if (template.categorySlug === 'is-bul') {
-      catId = 'e1000001-0001-4000-8000-000000000002';
-      typeId = 'e1000001-0001-4000-8000-000000000003';
+      resolvedType = types.find((t) => t.slug === 'is-ariyorum' || t.slug.includes('ariyorum') || t.slug.includes('bul')) || types[0];
     } else if (template.categorySlug === 'ise-al') {
-      catId = 'e1000001-0001-4000-8000-000000000002';
-      typeId = 'e1000001-0001-4000-8000-000000000004';
+      resolvedType = types.find((t) => t.slug === 'ise-aliyorum' || t.slug.includes('aliyorum') || t.slug.includes('al')) || types[0];
     } else if (template.categorySlug === 'ortak-bul' || template.categorySlug === 'dijital-ai') {
-      catId = 'e1000001-0001-4000-8000-000000000003';
-      typeId = 'e1000001-0001-4000-8000-000000000005';
+      resolvedType = types.find((t) => t.slug === 'ortak-ariyorum' || t.slug.includes('ortak')) || types[0];
     } else if (template.categorySlug === 'isletme-devri') {
-      catId = 'c1000001-0001-4000-8000-000000000009';
-      typeId = 'a0000009-0001-4000-8000-000000000009';
+      resolvedType = types.find((t) => t.slug.includes('devir') || t.slug.includes('sat')) || types[0];
     } else if (template.categorySlug === 'franchise') {
-      catId = 'c1000001-0001-4000-8000-000000000006';
-      typeId = 'a0000007-0001-4000-8000-000000000007';
+      resolvedType = types.find((t) => t.slug.includes('ver') || t.slug.includes('franchise') || t.slug.includes('bayilik')) || types[0];
+    } else {
+      resolvedType = types[0];
     }
+
+    const typeId = resolvedType.id;
+    const catId = resolvedType.category_id;
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
