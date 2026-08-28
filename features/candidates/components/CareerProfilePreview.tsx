@@ -634,6 +634,14 @@ export function CareerProfilePreview({
   const [message, setMessage] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check if current user already submitted a job application to this listing
   useEffect(() => {
@@ -1142,11 +1150,35 @@ export function CareerProfilePreview({
               </div>
             ) : null
           ) : isHire ? (
-            <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card flex items-start gap-2.5 animate-pulse", theme.cardBorder, theme.cardGlow)}>
-              <ShieldCheck className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
-              <p className="text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300">
-                Başvurunuz şirket yetkilileri tarafından incelendikten sonra doğrudan sizinle iletişime geçilecektir.
-              </p>
+            <div className="space-y-3">
+              {appliedInfo?.hasApplied ? (
+                <Button
+                  type="button"
+                  onClick={handleViewApplication}
+                  className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 shadow-sm flex items-center justify-center gap-2"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span>BAŞVURUYU GÖR</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handleOpenJobApplicationModal}
+                  className={cn(
+                    'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20',
+                    isPulsing && 'animate-pulse-gentle ring-2 ring-offset-1 ring-emerald-500/50 shadow-md',
+                  )}
+                >
+                  <Send className="h-3.5 w-3.5 shrink-0" />
+                  <span>POZİSYONA BAŞVUR</span>
+                </Button>
+              )}
+              <div className={cn("rounded-2xl border bg-white p-3.5 sm:p-4 dark:bg-card flex items-start gap-2.5", theme.cardBorder, theme.cardGlow)}>
+                <ShieldCheck className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
+                <p className="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+                  Başvurunuz şirket yetkilileri tarafından incelendikten sonra doğrudan sizinle iletişime geçilecektir.
+                </p>
+              </div>
             </div>
           ) : isContactAccepted ? (
             <>
@@ -1203,11 +1235,26 @@ export function CareerProfilePreview({
               </div>
             </>
           ) : (
-            <div className={cn("rounded-2xl border bg-white p-4 sm:p-5 dark:bg-card flex items-start gap-2.5 animate-pulse", theme.cardBorder, theme.cardGlow)}>
-              <Lock className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
-              <p className="text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300">
-                Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
-              </p>
+            <div className="space-y-3">
+              <Button
+                type="button"
+                onClick={handleOpenContactModal}
+                disabled={isPending}
+                className={cn(
+                  'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20',
+                  isPulsing && !isPending && 'animate-pulse-gentle ring-2 ring-offset-1 ring-blue-500/50 shadow-md',
+                )}
+              >
+                <Send className="h-3.5 w-3.5 shrink-0" />
+                <span>{isPending ? 'TALEP BEKLİYOR' : 'İLETİŞİM TALEBİ GÖNDER'}</span>
+              </Button>
+
+              <div className={cn("rounded-2xl border bg-white p-3.5 sm:p-4 dark:bg-card flex items-start gap-2.5", theme.cardBorder, theme.cardGlow)}>
+                <Lock className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
+                <p className="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+                  Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
+                </p>
+              </div>
             </div>
           )}
         </aside>
@@ -1525,140 +1572,11 @@ export function CareerProfilePreview({
             </div>
           </div>
 
-          {(showContactBanner || (!authLoading && isOwner && listingId)) ? (
-            <div className="mt-auto pt-2 space-y-3.5">
-              {showContactBanner ? (
-                isHire ? (
-                  appliedInfo?.hasApplied ? (
-                    <div
-                      className="rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40"
-                    >
-                      <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
-                          <Check className="h-4 w-4 stroke-[3]" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
-                            Bu ilana daha önce başvurdunuz
-                          </p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                            Başvurunuz ve mesajlarınız Mesajlarım sayfasında kayıtlıdır.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="shrink-0 w-full sm:w-auto flex justify-end">
-                        <Button
-                          type="button"
-                          onClick={handleViewApplication}
-                          className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                        >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                          <span>Başvuruyu Gör</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className="rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors border border-emerald-100 bg-gradient-to-r from-emerald-50/80 to-teal-50/50 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-teal-950/30"
-                    >
-                      <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm dark:bg-card dark:text-emerald-400">
-                          <Send className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
-                            POZİSYONA BAŞVUR
-                          </p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                            Kariyer profilinizle bu pozisyona doğrudan başvurun ve işverenle mesajlaşın.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="shrink-0 w-full sm:w-auto flex justify-end">
-                        <Button
-                          type="button"
-                          onClick={handleOpenJobApplicationModal}
-                          className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                        >
-                          <Send className="h-3.5 w-3.5" />
-                          <span>Pozisyona Başvur</span>
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                ) : (
-                  <div
-                    className={cn(
-                      'rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3.5 transition-colors',
-                      isContactAccepted
-                        ? 'border border-emerald-100 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-950/40'
-                        : 'border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:border-blue-900/40 dark:from-blue-950/40 dark:to-indigo-950/30',
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                      {isContactAccepted ? (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300">
-                          <Check className="h-4 w-4 stroke-[3]" />
-                        </div>
-                      ) : (
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm dark:bg-card dark:text-blue-400">
-                          <Send className="h-4 w-4" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <p
-                          className={cn(
-                            'text-xs font-bold uppercase tracking-wider',
-                            isContactAccepted
-                              ? 'text-emerald-900 dark:text-emerald-200'
-                              : 'text-blue-900 dark:text-blue-200',
-                          )}
-                        >
-                          {isContactAccepted ? 'İletişim talebiniz kabul edildi.' : 'İLETİŞİM TALEBİ GÖNDER'}
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                          {isContactAccepted
-                            ? 'Artık bu adayla iletişime geçebilirsiniz.'
-                            : 'Bu adayla iletişime geçmek için talebinizi iletin. Uygun gördüğünüz adaylarla görüşebilirsiniz.'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0 w-full sm:w-auto flex justify-end">
-                      {isContactAccepted ? (
-                        <Button
-                          type="button"
-                          onClick={handleDirectContact}
-                          className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                        >
-                          <PhoneCall className="h-3.5 w-3.5" />
-                          <span>Adayla İletişime Geç</span>
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          onClick={handleOpenContactModal}
-                          disabled={isPending}
-                          className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 shadow-sm shrink-0 flex items-center justify-center gap-2"
-                        >
-                          <Send className="h-3.5 w-3.5" />
-                          <span>{isPending ? 'Talep Bekliyor' : 'İletişim Talebi Gönder'}</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )
-              ) : null}
-
-              {!authLoading && isOwner && listingId ? (
-                <div id="owner-package-panel">
-                  <PremiumGate>
-                    <ListingOwnerPackagePanel listingId={listingId} />
-                  </PremiumGate>
-                </div>
-              ) : null}
+          {!authLoading && isOwner && listingId ? (
+            <div className="mt-auto pt-2 space-y-3.5" id="owner-package-panel">
+              <PremiumGate>
+                <ListingOwnerPackagePanel listingId={listingId} />
+              </PremiumGate>
             </div>
           ) : null}
         </main>
