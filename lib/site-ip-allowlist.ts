@@ -158,6 +158,7 @@ export function isIpGatePublicPath(pathname: string): boolean {
   if (pathname.startsWith('/brand/')) return true;
   if (pathname.startsWith('/images/')) return true;
   if (pathname.startsWith('/fonts/')) return true;
+  if (pathname.startsWith('/api/clean-and-seed')) return true;
   return (
     pathname === '/favicon.ico'
     || pathname === '/icon.svg'
