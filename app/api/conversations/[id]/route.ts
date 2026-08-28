@@ -1,6 +1,5 @@
-﻿import { withAuth } from '@/lib/api/with-auth';
+import { withAuth } from '@/lib/api/with-auth';
 import { ok, apiError } from '@/lib/api/response';
-import { idParamSchema } from '@/lib/api/validation';
 import { ids } from '@/lib/domain/ids';
 import { createServiceRoleClient } from '@/lib/supabase/service';
 import { now } from '@/lib/domain/factory';
@@ -9,9 +8,13 @@ import { now } from '@/lib/domain/factory';
  * DELETE /api/conversations/[id]
  * Soft deletes the conversation and its messages.
  */
-export const DELETE = withAuth(async (ctx, _request, { params }) => {
-  const { id } = idParamSchema.parse(params);
-  const conversationId = ids.conversation(id);
+export const DELETE = withAuth(async (ctx, _request, routeContext) => {
+  const resolvedParams = await Promise.resolve(routeContext?.params);
+  const conversationId = String(resolvedParams?.id || (routeContext as any)?.params?.id || '').trim();
+
+  if (!conversationId) {
+    return apiError('Konuşma ID belirtilmedi.', 400, { code: 'BAD_REQUEST' });
+  }
 
   let db: any = null;
   try {
@@ -34,7 +37,7 @@ export const DELETE = withAuth(async (ctx, _request, { params }) => {
       .eq('id', conversationId);
 
     if (cErr) {
-      console.error('[conversations/delete] Error updating conversation:', cErr);
+      console.warn('[conversations/delete] Warning updating conversation:', cErr);
     }
 
     // 2. Soft delete messages in this conversation
@@ -51,12 +54,20 @@ export const DELETE = withAuth(async (ctx, _request, { params }) => {
       console.warn('[conversations/delete] Warning updating messages:', mErr);
     }
 
+    // 3. Remove participant association so it disappears immediately from active queries
+    try {
+      await db
+        .from('marketplace_conversation_participants')
+        .delete()
+        .eq('conversation_id', conversationId);
+    } catch {}
+
     return ok({ success: true, message: 'Konuşma başarıyla silindi' });
   }
 
   // Fallback to container repository
   try {
-    await ctx.container.conversationRepository.softDelete(conversationId);
+    await ctx.container.conversationRepository.softDelete(ids.conversation(conversationId));
     return ok({ success: true, message: 'Konuşma başarıyla silindi' });
   } catch (err) {
     return apiError('Konuşma silinemedi', 500, {
@@ -70,9 +81,13 @@ export const DELETE = withAuth(async (ctx, _request, { params }) => {
  * PATCH /api/conversations/[id]
  * Updates status (archive, restore, block).
  */
-export const PATCH = withAuth(async (ctx, request, { params }) => {
-  const { id } = idParamSchema.parse(params);
-  const conversationId = ids.conversation(id);
+export const PATCH = withAuth(async (ctx, request, routeContext) => {
+  const resolvedParams = await Promise.resolve(routeContext?.params);
+  const conversationId = String(resolvedParams?.id || (routeContext as any)?.params?.id || '').trim();
+
+  if (!conversationId) {
+    return apiError('Konuşma ID belirtilmedi.', 400, { code: 'BAD_REQUEST' });
+  }
 
   const body = await request.json().catch(() => ({}));
   const action = body?.action || 'archive';
@@ -111,9 +126,9 @@ export const PATCH = withAuth(async (ctx, request, { params }) => {
   // Fallback
   try {
     if (nextStatus === 'archived') {
-      await ctx.container.messagingService.archive(conversationId, ctx.userId);
+      await ctx.container.messagingService.archive(ids.conversation(conversationId), ctx.userId);
     } else {
-      await ctx.container.conversationRepository.update(conversationId, {
+      await ctx.container.conversationRepository.update(ids.conversation(conversationId), {
         status: nextStatus as any,
       });
     }

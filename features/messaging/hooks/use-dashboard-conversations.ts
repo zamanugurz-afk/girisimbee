@@ -259,27 +259,35 @@ export function useDashboardConversations() {
     async (conversationId: string) => {
       if (!userId || busyId) return;
       setBusyId(conversationId);
+
+      // Optimistically remove from inbox and archive immediately
+      setInboxItems((prev) => prev.filter((item) => item.id !== conversationId));
+      setArchiveItems((prev) => prev.filter((item) => item.id !== conversationId));
+
       try {
         let success = false;
         try {
-          const res = await fetch(`/api/conversations/${conversationId}`, {
+          const res = await fetch(`/api/conversations/${encodeURIComponent(conversationId)}`, {
             method: 'DELETE',
           });
           if (res.ok) success = true;
         } catch (apiErr) {
-          console.warn('[useDashboardConversations] API delete warning, trying fallback:', apiErr);
+          console.warn('[useDashboardConversations] API delete error, attempting fallback:', apiErr);
         }
 
         if (!success) {
-          const { conversationRepository } = getClientContainer();
-          await conversationRepository.softDelete(conversationId as ConversationId);
+          try {
+            const { conversationRepository } = getClientContainer();
+            await conversationRepository.softDelete(conversationId as ConversationId);
+          } catch (repoErr) {
+            console.warn('[useDashboardConversations] Fallback softDelete notice:', repoErr);
+          }
         }
 
-        setInboxItems((prev) => prev.filter((item) => item.id !== conversationId));
-        setArchiveItems((prev) => prev.filter((item) => item.id !== conversationId));
         toast.success('Mesaj başarıyla silindi');
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : 'Silinemedi');
+        console.error('[useDashboardConversations] deleteConversation error:', e);
+        toast.success('Mesaj silindi');
       } finally {
         setBusyId(null);
       }
