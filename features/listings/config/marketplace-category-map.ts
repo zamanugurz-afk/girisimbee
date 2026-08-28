@@ -311,6 +311,7 @@ export const RETIRED_INVESTMENT_SEEKING_SLUGS = ['yatirim-bul'] as const;
 export const USER_DISCOVERY_HIDDEN_CATEGORY_SLUGS = [
   'yatirim-bul',
   'yatirim-yap',
+  'dijital-ai',
 ] as const;
 
 const INVESTMENT_SEEKING_TYPE_IDS = new Set<ListingTypeId>([

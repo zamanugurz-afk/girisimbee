@@ -115,11 +115,12 @@ describe('home user-facing investment discovery', () => {
     ]);
   });
 
-  it('hides yatırım categories from mixed search / keşfet category pickers', () => {
+  it('hides yatırım and dijital-ai categories from mixed search / keşfet category pickers', () => {
     const slugs = getUserDiscoverableCategorySlugs();
     expect(slugs).not.toContain('yatirim-bul');
     expect(slugs).not.toContain('yatirim-yap');
-    expect(slugs).toEqual(expect.arrayContaining(['ise-al', 'ortak-bul', 'bayilik-al', 'dijital-ai']));
+    expect(slugs).not.toContain('dijital-ai');
+    expect(slugs).toEqual(expect.arrayContaining(['ise-al', 'ortak-bul', 'bayilik-al']));
   });
 
   it('does not expose a live /invest route or featured investment tab', () => {

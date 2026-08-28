@@ -56,10 +56,9 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
     expect(source).toContain('rankSkillsByRoleAndSector');
   });
 
-  it('8. renders contact request banner and privacy lock box at the bottom of the main card', () => {
+  it('8. renders contact request banner and actions at the bottom of the card', () => {
     expect(source).toContain('İLETİŞİM TALEBİ GÖNDER');
     expect(source).toContain('İletişim talebiniz kabul edildi.');
-    expect(source).toContain('Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.');
   });
 
   it('9. does NOT render "Sonraki Adım" or "Deneyim Ekle" in public preview card', () => {

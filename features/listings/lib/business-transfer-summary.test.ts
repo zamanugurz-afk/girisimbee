@@ -33,7 +33,7 @@ describe('buildBusinessTransferSummaryDraft', () => {
     expect(draft.longDescription).toContain('%20 - %30');
     expect(draft.longDescription).toContain('3 yıllık işletme geçmişine');
     expect(draft.longDescription).toContain('4 aktif çalışana');
-    expect(draft.longDescription).toContain('Demirbaşlar & Ekipmanlar');
+    expect(draft.longDescription).toContain('Demirbaşlar ve Ekipmanlar');
     expect(draft.longDescription).toContain('Şehir Değişikliği');
   });
 

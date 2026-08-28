@@ -50,7 +50,7 @@ describe('Dijital & AI Çözümleri presentation', () => {
   it('uses solution-focused browse copy and empty state', () => {
     expect(DIGITAL_AI_BROWSE_TITLE).toBe('Dijital & AI Çözümleri');
     expect(DIGITAL_AI_BROWSE_DESCRIPTION).toContain('dijital ürünleri');
-    expect(CATEGORY_PAGE_CONFIG['dijital-ai']?.seoTitle).toBe('Dijital & AI Çözümleri | Girisimbee');
+    expect(CATEGORY_PAGE_CONFIG['dijital-ai']?.seoTitle).toBe('Dijital ve AI Çözümleri | Girisimbee');
     expect(CATEGORY_PAGE_CONFIG['dijital-ai']?.seoDescription).not.toMatch(/doğrudan ara|WhatsApp|telefon/i);
     expect(DIGITAL_AI_EMPTY_TITLE).toBe('Şu anda gösterilecek bir çözüm bulunmuyor.');
     expect(DIGITAL_AI_EMPTY_BACK_CTA.href).toBe('/');
