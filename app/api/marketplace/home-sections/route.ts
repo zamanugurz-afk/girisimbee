@@ -105,8 +105,8 @@ async function fetchSectionCategoryTabItems(
     return matched.slice(0, SECTION_TAB_LIMIT);
   }
 
-  // Featured only: newest published in this category (still category-bound + match-guarded).
-  if (sectionId === 'featured') {
+  // Urgent section fallback: newest published in this category (still category-bound + match-guarded).
+  if (sectionId === 'urgent') {
     const newest = await browseService.browse({
       page: 1,
       limit: SECTION_TAB_LIMIT,

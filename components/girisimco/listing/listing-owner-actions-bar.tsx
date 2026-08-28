@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -67,12 +67,10 @@ export function ListingOwnerActionsBar({
     id: listingId,
     title,
     slug: slug || listingId,
-    typeId: 'listing',
-    typeName: 'İlan',
-    categoryId: 'general',
-    categoryName: 'İlan',
+    category: 'İlan',
     status: (isPublished ? 'active' : 'unpublished') as AccountListingStatus,
     publishedAt: new Date().toISOString(),
+    endsAt: new Date(Date.now() + 30 * 86400000).toISOString(),
     viewCount: views,
     favoriteCount: favorites,
     applicationCount: applications,
@@ -267,9 +265,9 @@ export function ListingOwnerActionsBar({
         open={promoteOpen}
         onOpenChange={setPromoteOpen}
         listing={modalListingData}
-        onSuccess={() => {
+        onPromoted={() => {
           setPromoteOpen(false);
-          toast.success('Vitrin talebiniz alındı');
+          toast.success('Süper İlan dopingi başarıyla uygulandı');
         }}
       />
 

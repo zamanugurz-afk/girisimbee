@@ -4,7 +4,7 @@
  * prioritizes and auto-matches "Çilingir ve Kilit" in the category/branch picker).
  */
 
-import { HIZMET_CATEGORY_OPTIONS } from '@/features/listings/config/listing-field-options';
+import { HIZMET_CATEGORY_OPTIONS } from '@/features/listings/config/listing-type-config';
 
 /** Keyword & synonym mappings for known field types */
 const HIZMET_CATEGORY_KEYWORDS: Record<string, string[]> = {

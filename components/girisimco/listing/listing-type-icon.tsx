@@ -28,6 +28,8 @@ export const LISTING_TYPE_ICON_MAP: Record<ListingTypeIconKey, LucideIcon> = {
   franchise: Store,
   digital: BrainCircuit,
   transfer: Building2,
+  service: Briefcase,
+  services: Briefcase,
   general: Megaphone,
 };
 

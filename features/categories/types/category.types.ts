@@ -50,6 +50,7 @@ export interface ContentItem {
     | 'digital'
     | 'transfer'
     | 'service'
+    | 'services'
     | 'general';
   /** Listing card — short description body. */
   description?: string;

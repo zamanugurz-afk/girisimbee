@@ -1505,21 +1505,18 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
       label: 'Usta veya İşletme Unvanı',
       type: 'string',
       required: true,
-      placeholder: 'Örn: Mehmet Usta Tesisat ve Elektrik Hizmetleri',
     },
     {
       key: 'servicesList',
       label: 'Verilen Hizmet Kalemleri ve Uzmanlıklar',
-      type: 'tags',
+      type: 'multi-enum',
       required: true,
-      placeholder: 'Verilen hizmet kalemlerini seçin',
     },
     {
       key: 'serviceDistricts',
       label: 'Hizmet Verilen İl ve İlçeler',
-      type: 'tags',
+      type: 'multi-enum',
       required: true,
-      placeholder: 'Hizmet verilen bölgeleri seçin',
     },
     {
       key: 'workingHours',
@@ -1540,7 +1537,6 @@ export const HIZMET_FIELD_SCHEMA: ListingFieldSchema = {
       type: 'enum',
       required: false,
       options: [...HIZMET_EXPERIENCE_OPTIONS],
-      placeholder: 'Deneyim süresi seçin',
     },
     {
       key: 'pricingType',

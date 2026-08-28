@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {
   Briefcase,
   Handshake,
-  Store,
+  Radar,
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
@@ -19,15 +19,17 @@ const NODES: {
   className: string;
   color: string;
   lineStroke: string;
+  isRadar?: boolean;
 }[] = [
   {
-    id: 'franchise',
-    label: 'Fırsatlar',
-    href: '/market',
-    Icon: Store,
+    id: 'radar',
+    label: 'Yatırım Radarı',
+    href: '/radar',
+    Icon: Radar,
     className: 'left-1/2 top-[1%] -translate-x-1/2',
     color: gcCategoryColors.franchise,
     lineStroke: gcCategoryColors.franchise,
+    isRadar: true,
   },
   {
     id: 'investor',
@@ -139,13 +141,41 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
           )}
           aria-label={node.label}
         >
+          <div className="relative">
+            {node.isRadar && (
+              <>
+                {/* Dışa doğru genişleyen radar nabız dalgası */}
+                <span className="pointer-events-none absolute -inset-1.5 rounded-full bg-rose-500/25 animate-ping" />
+                {/* 360° dönen radar tarama çizgisi */}
+                <span
+                  className="pointer-events-none absolute -inset-1 rounded-full animate-spin"
+                  style={{
+                    animationDuration: '3s',
+                    background:
+                      'conic-gradient(from 0deg, rgba(236,72,153,0.45) 0deg, rgba(236,72,153,0.08) 50deg, transparent 80deg, transparent 360deg)',
+                  }}
+                />
+              </>
+            )}
+            <span
+              className={cn(
+                'relative flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11',
+                node.isRadar && 'ring-2 ring-rose-500/30 ring-offset-1',
+              )}
+              style={{ backgroundColor: `${node.color}1A`, color: node.color }}
+            >
+              <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
+            </span>
+          </div>
           <span
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11"
-            style={{ backgroundColor: `${node.color}1A`, color: node.color }}
+            className={cn(
+              'whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary flex items-center gap-1',
+              node.isRadar && 'border-rose-200/80 text-rose-950 shadow-rose-500/5',
+            )}
           >
-            <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
-          </span>
-          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary">
+            {node.isRadar && (
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+            )}
             {node.label}
           </span>
         </Link>

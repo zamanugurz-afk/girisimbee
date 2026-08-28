@@ -77,6 +77,13 @@ export interface ListingDetail {
   /** Public contact phone — always null on public detail (contact-request flow). */
   contactPhone?: string | null;
   contactWhatsapp?: string | null;
+  slug?: string;
+  stats?: {
+    views?: number;
+    favorites?: number;
+    inquiries?: number;
+    applications?: number;
+  };
   contactEmail?: string | null;
   companyId?: string | null;
   category: { id: CategoryIntentId; label: string; accent: string };
@@ -101,6 +108,8 @@ export interface ListingDetail {
     | 'franchise'
     | 'digital'
     | 'transfer'
+    | 'service'
+    | 'services'
     | 'general';
   tags: string[];
   investment: {

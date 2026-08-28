@@ -85,6 +85,7 @@ export interface FranchiseListingPayload {
   district?: string | null;
   sector?: string | null;
   contactPhone?: string | null;
+  contactName?: string | null;
   contactWhatsapp?: string | null;
   contactEmail?: string | null;
   contactWebsite?: string | null;

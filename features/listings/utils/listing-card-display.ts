@@ -24,6 +24,8 @@ export type ListingTypeIconKey =
   | 'franchise'
   | 'digital'
   | 'transfer'
+  | 'service'
+  | 'services'
   | 'general';
 
 /** Group accent colors — sourced from existing Girisimbee palette. */
