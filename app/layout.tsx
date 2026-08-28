@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
@@ -8,12 +8,11 @@ import { isMaintenanceMode } from '@/lib/site-mode';
 import { BRAND_PAGE_TITLE } from '@/features/shared';
 import type { ReactNode } from 'react';
 
-const sans = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-sans', display: 'swap' });
-const display = Plus_Jakarta_Sans({
+const sans = Inter({
   subsets: ['latin', 'latin-ext'],
-  variable: '--font-display',
+  variable: '--font-sans',
   display: 'swap',
-  weight: ['500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 const mono = JetBrains_Mono({
   subsets: ['latin', 'latin-ext'],
@@ -79,7 +78,7 @@ export default function RootLayout({
 
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className={`${sans.variable} ${display.variable} ${mono.variable} font-sans antialiased`}>
+      <body className={`${sans.variable} ${mono.variable} font-sans antialiased`}>
         {process.env.NAV_PROFILE === '1' ? (
           <NavProfileRoot>{body}</NavProfileRoot>
         ) : (
