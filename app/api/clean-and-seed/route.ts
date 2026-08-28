@@ -109,38 +109,27 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let cat = cats.find((c) => c.slug === template.categorySlug);
-    if (!cat) {
-      if (template.categorySlug === 'is-bul' || template.categorySlug === 'ise-al') {
-        cat = cats.find((c) => c.slug === 'is' || c.slug === 'is-bul' || c.slug === 'ise-al' || c.name.toLowerCase().includes('iş') || c.name.toLowerCase().includes('kariyer')) || cats[0];
-      } else if (template.categorySlug === 'ortak-bul') {
-        cat = cats.find((c) => c.slug === 'ortaklik' || c.slug === 'ortak-bul' || c.name.toLowerCase().includes('ortak')) || cats[0];
-      } else if (template.categorySlug === 'isletme-devri') {
-        cat = cats.find((c) => c.slug.includes('devir') || c.name.toLowerCase().includes('devir')) || cats[0];
-      } else if (template.categorySlug === 'franchise') {
-        cat = cats.find((c) => c.slug.includes('franchise') || c.slug.includes('bayilik') || c.name.toLowerCase().includes('bayilik')) || cats[0];
-      } else {
-        cat = cats[0];
-      }
-    }
-    const catId = cat.id;
-
     let type = null;
     if (template.categorySlug === 'is-bul') {
-      type = types.find((t) => t.category_id === catId && (t.slug.includes('ariyorum') || t.slug.includes('bul') || t.name.toLowerCase().includes('arıyorum')));
+      type = types.find((t) => t.slug === 'is-ariyorum') || types.find((t) => t.slug.includes('ariyorum') || t.slug.includes('bul'));
     } else if (template.categorySlug === 'ise-al') {
-      type = types.find((t) => t.category_id === catId && (t.slug.includes('aliyorum') || t.slug.includes('al') || t.name.toLowerCase().includes('alıyorum')));
+      type = types.find((t) => t.slug === 'ise-aliyorum') || types.find((t) => t.slug.includes('aliyorum') || t.slug.includes('al'));
     } else if (template.categorySlug === 'ortak-bul') {
-      type = types.find((t) => t.category_id === catId && (t.slug.includes('ortak') || t.name.toLowerCase().includes('ortak')));
+      type = types.find((t) => t.slug === 'ortak-ariyorum') || types.find((t) => t.slug.includes('ortak'));
     } else if (template.categorySlug === 'isletme-devri') {
-      type = types.find((t) => t.category_id === catId && (t.slug.includes('devir') || t.slug.includes('sat') || t.name.toLowerCase().includes('devir')));
+      type = types.find((t) => t.slug.includes('devir') || t.slug.includes('sat'));
     } else if (template.categorySlug === 'franchise') {
-      type = types.find((t) => t.category_id === catId && (t.slug.includes('ver') || t.slug.includes('franchise') || t.name.toLowerCase().includes('bayilik')));
+      type = types.find((t) => t.slug.includes('ver') || t.slug.includes('franchise') || t.slug.includes('bayilik'));
+    } else if (template.categorySlug === 'dijital-ai') {
+      type = types.find((t) => t.slug === 'ortak-ariyorum') || types.find((t) => t.slug.includes('ortak'));
     }
+
     if (!type) {
-      type = types.find((t) => t.category_id === catId) || types[0];
+      type = types[0];
     }
+
     const typeId = type.id;
+    const catId = type.category_id || cats[0]?.id || 'e1000001-0001-4000-8000-000000000002';
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
