@@ -219,10 +219,22 @@ export function useDashboardConversations() {
       if (!userId || busyId) return;
       setBusyId(conversationId);
       try {
-        await service.archive(
-          conversationId as ConversationId,
-          userId,
-        );
+        let success = false;
+        try {
+          const res = await fetch(`/api/conversations/${conversationId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'archive' }),
+          });
+          if (res.ok) success = true;
+        } catch (apiErr) {
+          console.warn('[useDashboardConversations] API archive warning, trying fallback:', apiErr);
+        }
+
+        if (!success) {
+          await service.archive(conversationId as ConversationId, userId);
+        }
+
         setInboxItems((prev) => {
           const moved = prev.find((item) => item.id === conversationId);
           if (moved) {
@@ -248,11 +260,24 @@ export function useDashboardConversations() {
       if (!userId || busyId) return;
       setBusyId(conversationId);
       try {
-        const { conversationRepository } = getClientContainer();
-        await conversationRepository.softDelete(conversationId as ConversationId);
+        let success = false;
+        try {
+          const res = await fetch(`/api/conversations/${conversationId}`, {
+            method: 'DELETE',
+          });
+          if (res.ok) success = true;
+        } catch (apiErr) {
+          console.warn('[useDashboardConversations] API delete warning, trying fallback:', apiErr);
+        }
+
+        if (!success) {
+          const { conversationRepository } = getClientContainer();
+          await conversationRepository.softDelete(conversationId as ConversationId);
+        }
+
         setInboxItems((prev) => prev.filter((item) => item.id !== conversationId));
         setArchiveItems((prev) => prev.filter((item) => item.id !== conversationId));
-        toast.success('Konuşma silindi');
+        toast.success('Mesaj başarıyla silindi');
       } catch (e) {
         toast.error(e instanceof Error ? e.message : 'Silinemedi');
       } finally {
@@ -267,10 +292,25 @@ export function useDashboardConversations() {
       if (!userId || busyId) return;
       setBusyId(conversationId);
       try {
-        const { conversationRepository } = getClientContainer();
-        await conversationRepository.update(conversationId as ConversationId, {
-          status: 'blocked',
-        });
+        let success = false;
+        try {
+          const res = await fetch(`/api/conversations/${conversationId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'block' }),
+          });
+          if (res.ok) success = true;
+        } catch (apiErr) {
+          console.warn('[useDashboardConversations] API block warning, trying fallback:', apiErr);
+        }
+
+        if (!success) {
+          const { conversationRepository } = getClientContainer();
+          await conversationRepository.update(conversationId as ConversationId, {
+            status: 'blocked',
+          });
+        }
+
         setInboxItems((prev) => prev.filter((item) => item.id !== conversationId));
         setArchiveItems((prev) => prev.filter((item) => item.id !== conversationId));
         toast.success('Kullanıcı engellendi');
