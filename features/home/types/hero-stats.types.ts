@@ -3,7 +3,7 @@ export type HeroStatsCounts = {
   jobs: number;
   partners: number;
   franchise: number;
-  services?: number;
+  services: number;
   opportunities: number;
   solutions: number;
 };

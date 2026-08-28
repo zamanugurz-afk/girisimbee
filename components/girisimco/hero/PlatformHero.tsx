@@ -9,6 +9,7 @@ import {
   Rocket,
   Search,
   Store,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -50,7 +51,7 @@ const HERO_SIDEBAR_STATS: {
   },
   {
     key: 'partners',
-    label: 'Ortaklık',
+    label: 'Ortaklık ve Devir',
     href: '/girisim-ortaklik',
     Icon: Handshake,
     iconClass: 'text-[#DB2777]',
@@ -67,22 +68,22 @@ const HERO_SIDEBAR_STATS: {
     hoverBorderClass: 'hover:border-[#C026D3]/50',
   },
   {
+    key: 'services',
+    label: 'Ustalar ve Hizmetler',
+    href: '/kategori/hizmetler',
+    Icon: Wrench,
+    iconClass: 'text-[#6366F1]',
+    boxClass: 'bg-[#EEF2FF]',
+    hoverBorderClass: 'hover:border-[#6366F1]/50',
+  },
+  {
     key: 'opportunities',
-    label: 'Fırsatlar',
+    label: 'Fırsatlar & Market',
     href: '/market',
     Icon: Megaphone,
     iconClass: 'text-[#0EA5E9]',
     boxClass: 'bg-[#F0F9FF]',
     hoverBorderClass: 'hover:border-[#0EA5E9]/50',
-  },
-  {
-    key: 'solutions',
-    label: 'Çözümler',
-    href: '/dijital-ai',
-    Icon: BrainCircuit,
-    iconClass: 'text-[#7C3AED]',
-    boxClass: 'bg-[#F5F3FF]',
-    hoverBorderClass: 'hover:border-[#7C3AED]/50',
   },
 ];
 

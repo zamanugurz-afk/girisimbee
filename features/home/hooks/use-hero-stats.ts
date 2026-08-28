@@ -10,6 +10,7 @@ const EMPTY_COUNTS: HeroStatsCounts = {
   jobs: 0,
   partners: 0,
   franchise: 0,
+  services: 0,
   opportunities: 0,
   solutions: 0,
 };
