@@ -1150,14 +1150,14 @@ export function CareerProfilePreview({
               </div>
             ) : null
           ) : isHire ? (
-            <div className="space-y-3">
+            <div className="pt-2 sm:pt-4">
               {appliedInfo?.hasApplied ? (
                 <Button
                   type="button"
                   onClick={handleViewApplication}
-                  className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 shadow-sm flex items-center justify-center gap-2"
+                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-[13px] font-bold px-4 shadow-sm flex items-center justify-center gap-2"
                 >
-                  <MessageSquare className="h-3.5 w-3.5" />
+                  <MessageSquare className="h-4 w-4" />
                   <span>BAŞVURUYU GÖR</span>
                 </Button>
               ) : (
@@ -1165,20 +1165,14 @@ export function CareerProfilePreview({
                   type="button"
                   onClick={handleOpenJobApplicationModal}
                   className={cn(
-                    'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20',
+                    'w-full h-11 rounded-xl px-4 text-xs sm:text-[13px] font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20',
                     isPulsing && 'animate-pulse-gentle ring-2 ring-offset-1 ring-emerald-500/50 shadow-md',
                   )}
                 >
-                  <Send className="h-3.5 w-3.5 shrink-0" />
+                  <Send className="h-4 w-4 shrink-0" />
                   <span>POZİSYONA BAŞVUR</span>
                 </Button>
               )}
-              <div className={cn("rounded-2xl border bg-white p-3.5 sm:p-4 dark:bg-card flex items-start gap-2.5", theme.cardBorder, theme.cardGlow)}>
-                <ShieldCheck className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
-                <p className="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-                  Başvurunuz şirket yetkilileri tarafından incelendikten sonra doğrudan sizinle iletişime geçilecektir.
-                </p>
-              </div>
             </div>
           ) : isContactAccepted ? (
             <>
@@ -1235,26 +1229,19 @@ export function CareerProfilePreview({
               </div>
             </>
           ) : (
-            <div className="space-y-3">
+            <div className="pt-2 sm:pt-4">
               <Button
                 type="button"
                 onClick={handleOpenContactModal}
                 disabled={isPending}
                 className={cn(
-                  'w-full h-10 rounded-xl px-4 text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20',
+                  'w-full h-11 rounded-xl px-4 text-xs sm:text-[13px] font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-500 bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20',
                   isPulsing && !isPending && 'animate-pulse-gentle ring-2 ring-offset-1 ring-blue-500/50 shadow-md',
                 )}
               >
-                <Send className="h-3.5 w-3.5 shrink-0" />
+                <Send className="h-4 w-4 shrink-0" />
                 <span>{isPending ? 'TALEP BEKLİYOR' : 'İLETİŞİM TALEBİ GÖNDER'}</span>
               </Button>
-
-              <div className={cn("rounded-2xl border bg-white p-3.5 sm:p-4 dark:bg-card flex items-start gap-2.5", theme.cardBorder, theme.cardGlow)}>
-                <Lock className={cn("mt-0.5 h-4 w-4 shrink-0", theme.headerText)} />
-                <p className="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-                  Kişisel bilgiler ve iletişim bilgileri iletişim talebiniz kabul edildiğinde paylaşılacaktır.
-                </p>
-              </div>
             </div>
           )}
         </aside>
