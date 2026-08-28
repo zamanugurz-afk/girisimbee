@@ -81,8 +81,7 @@ function customFactsSectionTitle(listing: ListingDetail): string {
 
 export function ListingMainContent({ listing }: ListingMainContentProps) {
   const showCareerCard =
-    Boolean(listing.careerCard)
-    && (listing.category.id === 'find-job' || listing.category.id === 'hire');
+    Boolean(listing.careerCard);
   const showPartnershipCard =
     Boolean(listing.partnershipCard);
   const showFranchiseCard =

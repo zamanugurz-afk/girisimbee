@@ -30,8 +30,7 @@ export function ListingDetailView({ listing }: ListingDetailViewProps) {
   const isOwner =
     Boolean(user?.id && listing.ownerUserId && user.id === listing.ownerUserId);
   const isCareerListing =
-    Boolean(listing.careerCard)
-    && (listing.category.id === 'find-job' || listing.category.id === 'hire');
+    Boolean(listing.careerCard);
   const isPartnershipListing =
     Boolean(listing.partnershipCard)
     || listing.category.id === 'find-partner';

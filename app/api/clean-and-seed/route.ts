@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/service';
 import { CURATED_LISTING_TEMPLATES } from '@/features/listings/mock/curated-seed-listings';
 import { randomUUID } from 'node:crypto';
@@ -109,26 +109,28 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   const rows = [];
   let index = 1;
   for (const template of CURATED_LISTING_TEMPLATES) {
-    let cat = cats.find((c) => c.slug === template.categorySlug);
-    if (!cat) {
-      if (template.categorySlug === 'isletme-devri') {
-        cat = cats.find((c) => c.slug.includes('devir') || c.name.toLowerCase().includes('devir')) || cats[0];
-      } else if (template.categorySlug === 'franchise') {
-        cat = cats.find((c) => c.slug.includes('franchise') || c.slug.includes('bayilik')) || cats[0];
-      } else if (template.categorySlug === 'ortak-bul') {
-        cat = cats.find((c) => c.slug.includes('ortak')) || cats[0];
-      } else if (template.categorySlug === 'is-bul') {
-        cat = cats.find((c) => c.slug === 'is-bul' || c.slug === 'is-ariyorum' || c.slug === 'is') || cats[0];
-      } else if (template.categorySlug === 'ise-al') {
-        cat = cats.find((c) => c.slug === 'ise-al' || c.slug === 'ise-aliyorum') || cats[0];
-      } else {
-        cat = cats[0];
-      }
-    }
+    let catId = 'e1000001-0001-4000-8000-000000000002';
+    let typeId = 'e1000001-0001-4000-8000-000000000003';
 
-    const catId = cat?.id || 'e1000001-0001-4000-8000-000000000002';
-    const type = types.find((t) => t.category_id === catId) || types[0];
-    const typeId = type?.id || 'e1000001-0001-4000-8000-000000000003';
+    if (template.categorySlug === 'is-bul') {
+      catId = 'e1000001-0001-4000-8000-000000000002';
+      typeId = 'e1000001-0001-4000-8000-000000000003'; // isAriyorum
+    } else if (template.categorySlug === 'ise-al') {
+      catId = 'e1000001-0001-4000-8000-000000000002';
+      typeId = 'e1000001-0001-4000-8000-000000000004'; // iseAliyorum
+    } else if (template.categorySlug === 'ortak-bul') {
+      catId = 'e1000001-0001-4000-8000-000000000003';
+      typeId = 'e1000001-0001-4000-8000-000000000005'; // ortakAriyorum
+    } else if (template.categorySlug === 'isletme-devri') {
+      catId = 'c1000001-0001-4000-8000-000000000009';
+      typeId = 'a0000009-0001-4000-8000-000000000009'; // businessTransferSell
+    } else if (template.categorySlug === 'franchise') {
+      catId = 'c1000001-0001-4000-8000-000000000006';
+      typeId = 'a0000007-0001-4000-8000-000000000007'; // bayilikVer
+    } else {
+      catId = 'e1000001-0001-4000-8000-000000000003';
+      typeId = 'e1000001-0001-4000-8000-000000000005';
+    }
 
     const customFields = template.customFields || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;

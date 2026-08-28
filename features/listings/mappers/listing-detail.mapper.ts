@@ -641,7 +641,11 @@ export function aggregateToListingDetail(
           })
         : undefined,
     careerCard:
-      categorySlug === 'is-bul'
+      categorySlug === 'is-bul' ||
+      categorySlug === 'is-ariyorum' ||
+      (categorySlug === 'is' && Boolean(sourceCf.desiredRole || sourceCf.experienceLevel || sourceCf.salaryExpectation)) ||
+      resolvedIntent === 'candidate' ||
+      resolvedIntent === 'find-job'
         ? buildCareerCard(cf, listing.longDescription, {
             variant: 'seeker',
             revealPersonal: revealCareerPersonal,
@@ -657,7 +661,11 @@ export function aggregateToListingDetail(
             coverUrl: careerCoverUrl,
             sourceExperiences: sourceCf.experiences,
           })
-        : categorySlug === 'ise-al'
+        : categorySlug === 'ise-al' ||
+          categorySlug === 'ise-aliyorum' ||
+          categorySlug === 'is' ||
+          resolvedIntent === 'hire' ||
+          resolvedIntent === 'employers'
           ? buildCareerCard(cf, listing.longDescription, {
               variant: 'hire',
               city: listing.city,
