@@ -27,28 +27,24 @@ function slugify(title: string, index: number): string {
 }
 
 async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRoleClient>) {
-  // 1. Clear all old listings and test data from Supabase
-  const tablesToClear = [
-    'contact_request_messages',
-    'contact_requests',
-    'chat_messages',
-    'chat_conversations',
-    'notifications',
-    'ad_inquiries',
-    'marketplace_listing_activities',
-    'marketplace_listing_reviews',
-    'marketplace_favorites',
-    'marketplace_listings',
-  ];
-
-  const clearResults: Record<string, string> = {};
-  for (const table of tablesToClear) {
-    try {
-      const { error } = await supabase.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      clearResults[table] = error ? error.message : 'cleared';
-    } catch (e) {
-      clearResults[table] = e instanceof Error ? e.message : 'error';
-    }
+  // 1. Soft-delete and archive all old existing listings
+  const now = new Date().toISOString();
+  let updatedOldCount = 0;
+  try {
+    const { data: oldListings } = await supabase
+      .from('marketplace_listings')
+      .update({
+        status: 'deleted',
+        workflow_status: 'deleted',
+        deleted_at: now,
+        is_featured: false,
+        is_urgent: false,
+      })
+      .is('deleted_at', null)
+      .select('id');
+    updatedOldCount = oldListings?.length || 0;
+  } catch (err) {
+    console.warn('Soft-delete error:', err);
   }
 
   // 2. Resolve admin owner ID (preserve ugurzaman1907 and zamanugurz)
@@ -133,16 +129,16 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       contact_email: `ilan${index}@girisimbee.example`,
       contact_website: null,
       custom_fields: customFields,
-      view_count: 85 + index * 17,
-      interested_count: 3 + (index % 11),
-      application_count: 1 + (index % 7),
-      is_verified: index % 2 === 0,
+      view_count: 95 + index * 17,
+      interested_count: 4 + (index % 11),
+      application_count: 2 + (index % 7),
+      is_verified: true,
       is_featured: true,
       is_urgent: index % 6 === 0,
-      featured_until: new Date(Date.now() + 30 * 86400000).toISOString(),
-      urgent_until: index % 6 === 0 ? new Date(Date.now() + 7 * 86400000).toISOString() : null,
-      published_at: new Date(Date.now() - (index % 12) * 86400000).toISOString(),
-      expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
+      featured_until: new Date(Date.now() + 60 * 86400000).toISOString(),
+      urgent_until: index % 6 === 0 ? new Date(Date.now() + 14 * 86400000).toISOString() : null,
+      published_at: new Date(Date.now() - (index % 10) * 86400000).toISOString(),
+      expires_at: new Date(Date.now() + 90 * 86400000).toISOString(),
       rejected_reason: null,
       deleted_at: null,
     });
@@ -150,41 +146,21 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
   }
 
   // 5. Insert rows in chunks
+  let insertedCount = 0;
   for (let i = 0; i < rows.length; i += 10) {
     const chunk = rows.slice(i, i + 10);
-    const { error: insertErr } = await supabase.from('marketplace_listings').insert(chunk);
+    const { data: inserted, error: insertErr } = await supabase.from('marketplace_listings').insert(chunk).select('id');
     if (insertErr) {
       console.error('Insert error in chunk:', insertErr);
+    } else {
+      insertedCount += inserted?.length || 0;
     }
-  }
-
-  // 6. Seed sample market ads
-  try {
-    await supabase.from('ad_inquiries').insert([
-      {
-        id: randomUUID(),
-        owner_id: ownerId,
-        full_name: 'Uğur Zaman',
-        email: 'ugurzaman1907@gmail.com',
-        phone: '+905321234567',
-        company: 'BeeTech AI & Cloud Çözümleri',
-        title: 'B2B SaaS ve Yapay Zekâ Otomasyon Platformu',
-        description: 'İşletmenizin müşteri hizmetlerini ve satış süreçlerini yapay zekâ asistanlarımızla 7/24 otomatikleştirin.',
-        image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-        link_url: 'https://girisimbee.com',
-        cta_label: 'Hemen İncele',
-        status: 'approved',
-        created_at: new Date().toISOString(),
-      },
-    ]);
-  } catch {
-    // ignore
   }
 
   return {
     success: true,
-    totalSeeded: rows.length,
-    clearResults,
+    totalArchivedOldListings: updatedOldCount,
+    totalInsertedNewListings: insertedCount,
     preservedEmails: PRESERVED_EMAILS,
   };
 }
