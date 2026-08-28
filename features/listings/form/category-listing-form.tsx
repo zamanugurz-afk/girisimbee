@@ -31,6 +31,7 @@ import {
 import {
   getPrimarySectorForFranchiseModel,
 } from '@/features/listings/config/franchise-model-sector-map';
+import { detectBestServiceCategory } from '@/features/listings/lib/smart-field-matcher';
 import { resolveListingCoverUrl } from '@/features/listings/config/listing-cover.config';
 import {
   getCoreFieldLabelsForCategory,
@@ -727,16 +728,19 @@ export function CategoryListingForm({
     () => ({
       values: {
         ...mergedCustomFields,
+        title: core.title ?? '',
         sectorsPrunedNotice,
       },
+      coreTitle: core.title ?? null,
       coreCity: core.city ?? null,
+      coreValues: core,
       categoryId,
       themeColor: categoryThemeColor,
       onDismissPrunedNotice: () => setSectorsPrunedNotice(false),
       onCoreChange: (key: string, val: any) =>
         setCore((prev) => ({ ...prev, [key]: val })),
     }),
-    [mergedCustomFields, sectorsPrunedNotice, core.city, categoryId, categoryThemeColor],
+    [mergedCustomFields, sectorsPrunedNotice, core.title, core.city, core, categoryId, categoryThemeColor],
   );
 
   const qualityChecklistItems = useMemo(() => {
@@ -2104,7 +2108,18 @@ export function CategoryListingForm({
       }
       return nextErrors;
     });
-  }, []);
+
+    // Smart Intent Auto-matching from Title:
+    const newTitle = next.title?.trim() || '';
+    if (newTitle.length >= 3) {
+      if (categoryId === CATEGORY_IDS.hizmetler) {
+        const matchedCategory = detectBestServiceCategory(newTitle);
+        if (matchedCategory && (!customFields.serviceCategory || customFields.serviceCategory === '')) {
+          setCustomField('serviceCategory', matchedCategory);
+        }
+      }
+    }
+  }, [categoryId, customFields.serviceCategory, setCustomField]);
 
   function goToStep(index: number, reason: string) {
     const currentStepIndex = stepIndex;

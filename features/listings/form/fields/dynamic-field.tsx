@@ -45,6 +45,7 @@ import {
 } from '@/features/candidates/taxonomy/career-taxonomy';
 import { SmartCustomSelector } from '@/features/shared/components/smart-custom-selector';
 import { getDistrictsForCity, getDistrictsForCities } from '@/features/shared/constants/turkish-districts';
+import { rankOptionsBySmartIntent } from '@/features/listings/lib/smart-field-matcher';
 
 /** Free-text name fields — Title Case on blur (İlk Harf Büyük). */
 const TITLE_CASE_FIELD_KEYS = new Set([
@@ -153,7 +154,9 @@ const OTHER_DETAIL_GATES: Record<string, { parentKey: string; match: (v: unknown
 export interface DynamicFieldContext {
   /** Sibling custom + core values for dependent fields (city → district). */
   values?: Record<string, unknown>;
+  coreTitle?: string | null;
   coreCity?: string | null;
+  coreValues?: any;
   categoryId?: string | null;
   themeColor?: 'emerald' | 'sky' | 'amber' | 'blue' | 'purple' | 'teal' | 'rose' | 'slate' | 'default' | string;
   onDismissPrunedNotice?: () => void;
@@ -672,34 +675,23 @@ function FieldControl({
 
     case 'enum': {
       let options = field.options ?? [];
-      if (field.key === 'primarySector') {
+      const titleContext = String(context?.coreTitle ?? context?.values?.title ?? '');
+      const smartRank = rankOptionsBySmartIntent(options, titleContext, field.key);
+      if (smartRank.bestMatch) {
+        options = smartRank.rankedOptions;
+      }
+      if (field.key === 'primarySector' && !smartRank.bestMatch) {
         options = sortSectorsPopularThenAz(options);
-        console.log('[CV-DYNAMIC-FIELD-TRACE]', {
-          field: 'primarySector',
-          value,
-          optionsCount: options.length,
-          optionsIncludesValue: options.includes(String(value ?? '')),
-          timestamp: new Date().toISOString(),
-        });
       }
       if (field.key === 'desiredRole') {
         const sector = String(context?.values?.primarySector ?? '');
         const filtered = getPositionsForSector(sector || undefined);
         const current = value ? String(value) : '';
-        options = current && !filtered.includes(current)
+        const baseOptions = current && !filtered.includes(current)
           ? [...filtered, current]
           : filtered;
-        console.log('[CV-ROLE-TRACE]', {
-          sector,
-          rawValue: value,
-          currentValue: current,
-          allowedRoles: filtered,
-          options,
-          optionsIncludesCurrent: options.includes(current),
-          resolvedValue: value ? String(value) : '',
-          fallbackValue: ui.placeholder ?? `${field.label} seçin`,
-          timestamp: new Date().toISOString(),
-        });
+        const roleRank = rankOptionsBySmartIntent(baseOptions, titleContext, field.key);
+        options = roleRank.bestMatch ? roleRank.rankedOptions : baseOptions;
       }
       if (field.key === 'workplacePreference') {
         const rawRole = String(context?.values?.desiredRole ?? '');
@@ -726,11 +718,21 @@ function FieldControl({
               />
             </SelectTrigger>
             <SelectContent themeColor={context?.themeColor}>
-              {options.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}
-                </SelectItem>
-              ))}
+              {options.map((opt) => {
+                const isRecommended = smartRank.isMatch(opt);
+                return (
+                  <SelectItem key={opt} value={opt}>
+                    <span className="flex items-center gap-1.5">
+                      <span>{field.key === 'experienceLevel' ? getExperienceLevelLabel(opt) : opt}</span>
+                      {isRecommended && (
+                        <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+                          ✨ Önerilen
+                        </span>
+                      )}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <FormFieldFooter helperText={ui.helperText} error={error} />
