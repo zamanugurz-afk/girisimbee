@@ -15,14 +15,9 @@ import { isSiteIpAllowlistEnabled } from '@/lib/site-ip-allowlist';
 export type SiteMode = 'live' | 'maintenance';
 
 export function resolveSiteMode(): SiteMode {
-  if (isSiteIpAllowlistEnabled()) {
-    return 'live';
-  }
-
   const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
-  if (raw === 'live') return 'live';
   if (raw === 'maintenance') return 'maintenance';
-  return process.env.NODE_ENV === 'production' ? 'maintenance' : 'live';
+  return 'live';
 }
 
 export function isMaintenanceMode(): boolean {
