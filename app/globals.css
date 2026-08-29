@@ -508,3 +508,20 @@
     opacity: 0.72;
   }
 }
+
+@keyframes gc-super-vitrin-border-pulse {
+  0%,
+  100% {
+    border-color: rgba(245, 158, 11, 0.95);
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.40), 0 0 35px rgba(245, 158, 11, 0.35);
+  }
+  50% {
+    border-color: rgba(245, 158, 11, 0.20);
+    box-shadow: 0 0 0 0px rgba(245, 158, 11, 0), 0 0 0px rgba(245, 158, 11, 0);
+  }
+}
+
+.gc-super-vitrin-border-pulse {
+  animation: gc-super-vitrin-border-pulse 1.3s ease-in-out infinite;
+}
+
