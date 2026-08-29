@@ -91,32 +91,6 @@ export function Header() {
       <div className="relative mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <SiteLogo className="mr-1 shrink-0 relative z-20" />
 
-        {/* Center: Perfectly Centered Segmented Intent Switcher (Option 3) */}
-        <nav
-          className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center z-10"
-          aria-label="Ana Gezinme"
-        >
-          <div className="inline-flex items-center rounded-full p-1 bg-slate-100/90 border border-slate-200/80 shadow-2xs dark:bg-zinc-800/80 dark:border-zinc-700/80">
-            {INTENT_TABS.map((tab) => {
-              const active = tab.isActive(pathname);
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  className={cn(
-                    'relative whitespace-nowrap px-4 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-full',
-                    active
-                      ? 'bg-white text-slate-900 shadow-xs font-bold dark:bg-zinc-900 dark:text-white'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-700/40',
-                  )}
-                >
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-
         {/* Notifications, Auth, CTA cluster */}
         <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 pl-1 sm:gap-2">
           <MarketplaceNotificationsBell />
@@ -174,26 +148,6 @@ export function Header() {
               aria-label="İlan veya girişim ara"
             />
           </form>
-          <nav className="flex flex-col gap-1.5">
-            {INTENT_TABS.map((tab) => {
-              const active = tab.isActive(pathname);
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    'rounded-xl border px-3.5 py-2.5 text-left text-xs font-semibold transition-all duration-200 shadow-2xs',
-                    active
-                      ? 'border-primary/50 bg-primary/10 text-primary font-bold dark:border-primary/50 dark:bg-primary/20 dark:text-primary'
-                      : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200',
-                  )}
-                >
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </nav>
           <div className="mt-4 flex flex-col gap-2">
             <MobileAuthLinks onNavigate={() => setMobileOpen(false)} />
             <div className="flex items-center justify-between rounded-xl border border-border/60 px-3 py-2">
