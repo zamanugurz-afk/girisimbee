@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, ChevronLeft, ChevronRight, MapPin, Sparkles, Zap } from 'lucide-react';
@@ -9,6 +9,7 @@ import type { ListingId } from '@/lib/domain/ids';
 import { resolveContextualListingImage } from '@/features/listings/services/contextual-listing-image-resolver';
 import { listingHref } from '@/features/listings/services/listing.service';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
+import { getClientContainer } from '@/lib/persistence/container';
 import { cn } from '@/lib/utils';
 
 interface ExploreSuperVitrinProps {
@@ -25,12 +26,50 @@ export function ExploreSuperVitrin({
   onViewAllSuper,
   className,
 }: ExploreSuperVitrinProps) {
-  // Yalnızca süper / acil veya öne çıkan ilanlar
+  const [globalSuperListings, setGlobalSuperListings] = useState<ContentItem[]>(() => {
+    return items.filter((item) => item.isUrgent || item.isShowcase);
+  });
+
+  // Global tüm süper ilanları bağımsız olarak çekip vitrini her zaman dolu ve sabit tut
+  useEffect(() => {
+    let cancelled = false;
+    async function loadGlobalUrgents() {
+      try {
+        const { listingBrowseService } = getClientContainer();
+        const res = await listingBrowseService.browse({ isUrgent: true, limit: 30 });
+        if (!cancelled && res.data && res.data.length > 0) {
+          setGlobalSuperListings(res.data);
+        }
+      } catch {
+        // fall back to props
+      }
+    }
+    void loadGlobalUrgents();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Items prop'undan gelen acil ilanları da ekle
+  useEffect(() => {
+    const urgents = items.filter((item) => item.isUrgent || item.isShowcase);
+    if (urgents.length > 0) {
+      setGlobalSuperListings((prev) => {
+        if (prev.length === 0) return urgents;
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newItems = urgents.filter((u) => !existingIds.has(u.id));
+        return newItems.length > 0 ? [...prev, ...newItems] : prev;
+      });
+    }
+  }, [items]);
+
+  // Süper ilanlar havuzu (Kategori ne seçilirse seçilsin tüm süper ilanlar sabit kalır)
   const superItems = useMemo(() => {
+    if (globalSuperListings.length > 0) return globalSuperListings;
     const urgents = items.filter((item) => item.isUrgent || item.isShowcase);
     if (urgents.length > 0) return urgents;
     return items.slice(0, 8);
-  }, [items]);
+  }, [globalSuperListings, items]);
 
   const [pageIndex, setPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);

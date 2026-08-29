@@ -275,8 +275,8 @@ export function MarketplaceBrowseView({
           />
         </div>
 
-        {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Görsel 1 ile Birebir) */}
-        {!categorySlug && !initialQuery && !filters.categorySlug && (
+        {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Kategori ne seçilirse seçilsin SABİT kalır) */}
+        {!categorySlug && (
           <ExploreSuperVitrin
             items={items}
             onViewAllSuper={() => {
