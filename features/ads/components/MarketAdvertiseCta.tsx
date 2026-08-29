@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Megaphone, Sparkles } from 'lucide-react';
 import { ADS_ROUTES, MARKET_AD_PRICE_LABEL } from '@/features/ads/constants/ad-inquiry.constants';
@@ -30,7 +31,7 @@ export function MarketAdvertiseBanner({ className }: { className?: string }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-                Fırsat & İşbirliği
+                Fırsat ve İşbirliği
               </span>
             </div>
             <h2 className="font-display text-base font-bold tracking-tight text-slate-900 dark:text-foreground sm:text-lg mt-1">
@@ -55,7 +56,7 @@ export function MarketAdvertiseBanner({ className }: { className?: string }) {
   );
 }
 
-/** Grid CTA — matches MarketAdCard proportions. */
+/** Grid CTA — matches MarketAdCard proportions with 1-minute attention pulse. */
 export function MarketAdvertiseCta({
   className,
   fold = false,
@@ -63,6 +64,16 @@ export function MarketAdvertiseCta({
   className?: string;
   fold?: boolean;
 }) {
+  const [isBlinking, setIsBlinking] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsBlinking(false);
+    }, 60000); // 1 dakika boyunca yanıp söner
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (fold) {
     return (
       <Link
@@ -72,6 +83,7 @@ export function MarketAdvertiseCta({
           'bg-amber-50/40 px-3.5 transition duration-200',
           'hover:border-amber-500 hover:bg-amber-50',
           'dark:border-amber-800/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/30',
+          isBlinking && 'animate-pulse ring-2 ring-amber-400/80',
           className,
         )}
       >
@@ -102,17 +114,18 @@ export function MarketAdvertiseCta({
       href={ADS_ROUTES.public}
       className={cn(
         'group relative flex h-full min-h-[15rem] flex-col overflow-hidden rounded-2xl',
-        'border border-dashed border-amber-300/80 bg-white',
-        'transition-all duration-200 hover:border-amber-500 hover:shadow-sm hover:bg-amber-50/20',
-        'dark:border-amber-800/40 dark:bg-card dark:hover:border-amber-700',
+        'border border-dashed border-amber-400 bg-white transition-all duration-300',
+        'hover:border-amber-500 hover:shadow-md hover:bg-amber-50/20',
+        'dark:border-amber-700/60 dark:bg-card dark:hover:border-amber-500',
+        isBlinking && 'animate-pulse ring-2 ring-amber-400/80 shadow-lg shadow-amber-500/25 border-amber-500',
         className,
       )}
     >
-      <div className="relative flex aspect-[16/10] w-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-amber-500/10 to-transparent">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-600 text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
-          <Sparkles className="h-5 w-5" aria-hidden />
+      <div className="relative flex aspect-[16/10] w-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500 text-slate-950 shadow-sm transition-transform duration-300 group-hover:scale-110">
+          <Sparkles className="h-5 w-5 fill-slate-950" aria-hidden />
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+        <span className="text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
           {MARKET_ADVERTISE_AVAILABLE_LABEL}
         </span>
       </div>

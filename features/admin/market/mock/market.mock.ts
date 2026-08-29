@@ -41,12 +41,12 @@ export const MOCK_MARKET_ITEMS: MarketItem[] = [
   },
   {
     id: 'mock-ad-3',
-    title: 'Ulusal franchise genişleme paketi',
+    title: 'Kurumsal dijital çözüm ve reklam paketi',
     description:
-      'Kanıtlanmış operasyon modeliyle yeni şehirlerde bayilik vermek isteyen marka.',
-    imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=500&fit=crop&q=80',
-    linkUrl: '/franchise/buy',
-    ctaLabel: 'Bayiliği incele',
+      'Girişimler ve markalar için büyüme odaklı pazarlama, kurumsal dijital altyapı ve stratejik reklam çözümleri.',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop&q=80',
+    linkUrl: '/kategori/hizmetler',
+    ctaLabel: 'Çözümleri incele',
     sortOrder: 3,
     status: 'published',
     publishedAt: '2026-08-01T12:00:00.000Z',

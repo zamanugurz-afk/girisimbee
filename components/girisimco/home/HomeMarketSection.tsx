@@ -124,16 +124,8 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                 </p>
               </div>
 
-              {/* 4 Seçili Fırsat Butonları (Interaktif Seçici & Zaman Göstergesi) */}
-              <div className="mt-6 flex flex-col gap-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-                    Öne Çıkan Fırsatlar ({items.length})
-                  </span>
-                  <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 animate-pulse">
-                    ⚡ 5 sn'de bir değişir
-                  </span>
-                </div>
+              {/* 4 Seçili Fırsat Butonları (Interaktif Seçici) */}
+              <div className="mt-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {items.map((item, idx) => {
                     const isSelected = idx === activeIndex;
@@ -289,6 +281,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
 
 export function MarketAdCard({
   item,
+  fold = false,
 }: {
   item: MarketItem;
   fold?: boolean;
@@ -299,38 +292,44 @@ export function MarketAdCard({
     <Link
       href={detailHref}
       className={cn(
-        'group flex h-[5.5rem] gap-3 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/85 p-2.5',
-        'backdrop-blur-md transition duration-200 shadow-sm',
-        'hover:-translate-y-0.5 hover:border-amber-500/40 hover:shadow-md',
-        'dark:border-zinc-800 dark:bg-zinc-900/85',
+        'group relative flex h-full min-h-[15rem] flex-col overflow-hidden rounded-2xl',
+        'border border-slate-200/90 bg-white/90 shadow-sm transition-all duration-300',
+        'hover:border-amber-500/50 hover:shadow-md hover:-translate-y-0.5',
+        'dark:border-zinc-800 dark:bg-zinc-900/90 dark:hover:border-amber-500/40',
       )}
     >
-      <div className="relative h-full w-[4.5rem] shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
-            alt=""
+            alt={item.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            sizes="72px"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 350px"
             unoptimized
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-zinc-400">
-            <Store className="h-4 w-4" aria-hidden />
+          <div className="flex h-full w-full items-center justify-center text-zinc-400">
+            <Store className="h-8 w-8" aria-hidden />
           </div>
         )}
+        <div className="absolute top-2.5 left-2.5">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold tracking-wider uppercase">
+            Market
+          </span>
+        </div>
       </div>
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 pr-0.5">
-        <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-amber-600 dark:text-amber-400">
-          Market
-        </span>
-        <h3 className="line-clamp-1 font-sans text-[13px] font-semibold leading-snug text-foreground">
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="font-display text-[15px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400 line-clamp-1">
           {item.title}
         </h3>
-        <p className="line-clamp-1 text-[11px] text-muted-foreground">
+        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400">
           {item.description}
         </p>
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-3.5 text-xs font-bold text-slate-900 dark:text-amber-400 transition-colors group-hover:text-amber-600">
+          <span>{item.ctaLabel || 'İncele'}</span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
+        </span>
       </div>
     </Link>
   );
