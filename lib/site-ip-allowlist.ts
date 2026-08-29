@@ -97,7 +97,7 @@ export function getSiteIpAllowlist(): string[] {
 }
 
 export function isSiteIpAllowlistEnabled(): boolean {
-  return getSiteIpAllowlist().length > 0;
+  return process.env.ENABLE_SITE_IP_ALLOWLIST === 'true';
 }
 
 /** Collect possible client IPs (Vercel may present IPv6 while we allowlisted IPv4). */
