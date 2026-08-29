@@ -12,7 +12,9 @@ let browserClient: SupabaseClient | undefined;
 export function createClient(): SupabaseClient {
   if (browserClient) return browserClient;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    'https://tszvmnaejsxsyuawwclr.supabase.co';
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder';

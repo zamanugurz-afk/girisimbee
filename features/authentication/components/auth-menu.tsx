@@ -75,23 +75,23 @@ export function AuthMenu() {
 
   if (!user) {
     return (
-      <>
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="hidden rounded-lg border-border/80 bg-white text-sm font-medium text-[#334155] hover:bg-muted/60 sm:inline-flex dark:bg-card dark:text-foreground"
+          className="hidden rounded-xl border-border/80 bg-white text-xs font-semibold text-[#334155] hover:bg-muted/60 sm:inline-flex dark:bg-card dark:text-foreground h-9 px-3.5"
           asChild
         >
-          <a href={AUTH_ROUTES.login}>Giriş Yap</a>
+          <Link href={AUTH_ROUTES.login}>Giriş Yap</Link>
         </Button>
         <Button
           size="sm"
-          className="hidden rounded-lg shadow-sm sm:inline-flex"
+          className="hidden rounded-xl shadow-xs text-xs font-semibold sm:inline-flex h-9 px-3.5"
           asChild
         >
-          <a href={AUTH_ROUTES.register}>Kayıt Ol</a>
+          <Link href={AUTH_ROUTES.register}>Kayıt Ol</Link>
         </Button>
-      </>
+      </div>
     );
   }
 

@@ -142,43 +142,45 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
                 animationTimingFunction: 'linear',
               }}
             >
-              {/* Conic Radar Beam Sweep (1. resimdeki tarama efekti) */}
-              <foreignObject x="32" y="32" width="236" height="236" clipPath="url(#radar-sweep-clip)">
+              {/* Conic Radar Beam Sweep — Yumuşak ve doğal geçişli (kenar çerçevesi olmayan) ışık taraması */}
+              <foreignObject x="32" y="32" width="236" height="236">
                 <div
                   style={{
                     width: '100%',
                     height: '100%',
                     borderRadius: '50%',
                     background:
-                      'conic-gradient(from 0deg, rgba(245, 158, 11, 0.36) 0deg, rgba(245, 158, 11, 0.09) 45deg, transparent 75deg, transparent 360deg)',
+                      'conic-gradient(from 0deg, rgba(245, 158, 11, 0.24) 0deg, rgba(245, 158, 11, 0.08) 25deg, rgba(245, 158, 11, 0.01) 45deg, transparent 55deg, transparent 360deg)',
+                    maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.75) 80%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.75) 80%, transparent 100%)',
                   }}
                 />
               </foreignObject>
 
-              {/* Tek Radar Çubuğu (Merkezden dış çembere tam 118px) */}
+              {/* Tek Radar Çubuğu (Zarif ve net) */}
               <line
                 x1="150"
                 y1="150"
                 x2="150"
                 y2="32"
                 stroke="#F59E0B"
-                strokeWidth="2.2"
+                strokeWidth="1.75"
                 strokeLinecap="round"
                 style={{
-                  filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.85))',
+                  filter: 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.75))',
                 }}
               />
 
-              {/* Radar ucu hedef tarama noktası (Blip dot) */}
+              {/* Radar ucu hedef tarama noktası (Zarif blip dot) */}
               <circle
                 cx="150"
                 cy="32"
-                r="4"
+                r="3"
                 fill="#F59E0B"
                 stroke="#FEF3C7"
-                strokeWidth="1.5"
+                strokeWidth="1.2"
                 style={{
-                  filter: 'drop-shadow(0 0 8px #F59E0B)',
+                  filter: 'drop-shadow(0 0 6px #F59E0B)',
                 }}
               />
             </g>

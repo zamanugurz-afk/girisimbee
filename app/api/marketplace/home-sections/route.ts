@@ -33,6 +33,9 @@ function isDynamicServerUsageError(err: unknown): boolean {
   );
 }
 
+import { ensureMockListingsSeeded } from '@/features/listings/repository/mock/listing-seed';
+import { mockListingRepository } from '@/features/listings/repository/mock/listing.repository.mock';
+
 async function fetchPublished(
   listingRepository: ReturnType<typeof getServerContainer>['listingRepository'],
   params: MarketplaceBrowseParams,
@@ -40,7 +43,17 @@ async function fetchPublished(
   const page = params.page ?? 1;
   const limit = params.limit ?? 8;
   const { page: _page, limit: _limit, categorySlug: _categorySlug, ...filter } = params;
-  const result = await listingRepository.findPublished(filter, { page, limit });
+  let result = await listingRepository.findPublished(filter, { page, limit });
+
+  // If primary repository has 0 rows (e.g. empty DB or pending migration), fallback to curated seed
+  if (result.data.length === 0) {
+    await ensureMockListingsSeeded(mockListingRepository);
+    result = await mockListingRepository.findPublished(filter, { page, limit });
+    if (result.data.length === 0) {
+      result = await mockListingRepository.findPublished({}, { page: 1, limit });
+    }
+  }
+
   return { listings: result.data, total: result.total };
 }
 
@@ -51,14 +64,14 @@ async function fetchSection(
 ): Promise<{ id: HomeListingSectionId; items: ContentItem[]; total: number }> {
   let { listings, total } = await fetchPublished(listingRepository, params);
 
-  if (listings.length === 0 && (sectionId === 'urgent' || sectionId === 'today')) {
-    const fallback = await fetchPublished(listingRepository, {
-      page: 1,
-      limit: params.limit ?? 8,
-      sortBy: 'newest',
-    });
-    listings = fallback.listings;
-    total = fallback.total;
+  if (listings.length === 0) {
+    await ensureMockListingsSeeded(mockListingRepository);
+    const fallback = await mockListingRepository.findPublished(
+      sectionId === 'urgent' ? { isUrgent: true } : {},
+      { page: 1, limit: params.limit ?? 8 },
+    );
+    listings = fallback.data.length > 0 ? fallback.data : (await mockListingRepository.findPublished({}, { page: 1, limit: 8 })).data;
+    total = listings.length;
   }
 
   const visible = listings.filter(isUserDiscoverableListing);

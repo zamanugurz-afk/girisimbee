@@ -230,8 +230,11 @@ export interface PersistenceContainer {
   ecosystem: EcosystemServices;
 }
 
+import { ensureMockListingsSeeded } from '@/features/listings/repository/mock/listing-seed';
+
 export function createMemoryContainer(): PersistenceContainer {
   const listingRepository = new MockListingRepository();
+  void ensureMockListingsSeeded(listingRepository);
   const tagRepository = new MockTagRepository();
   const listingImageRepository = new MockListingImageRepository();
   const activityRepository = new MockActivityRepository();
