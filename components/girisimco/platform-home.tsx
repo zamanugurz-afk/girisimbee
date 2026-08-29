@@ -58,88 +58,88 @@ export function PlatformHome() {
           <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-8 sm:mt-10 lg:mt-12 mb-3 sm:mb-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Kariyer */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/is" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40" aria-label="Kariyer ve İş Fırsatları" />
                 <div className="relative z-1 pointer-events-none">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300"><Briefcase className="w-4 h-4" /></span>
+                  <div className="flex items-center justify-between mb-3.5">
+                    <span className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300"><Briefcase className="w-5 h-5" /></span>
                     <span aria-hidden className="inline-flex">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                      <ArrowUpRight className="w-4.5 h-4.5 text-zinc-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">Kariyer ve İş Fırsatları</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
+                    <h4 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">Kariyer ve İş Fırsatları</h4>
+                    <p className="text-[13.5px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed min-h-[38px]">Yeteneklerinizi sergileyin, doğru iş fırsatlarıyla buluşun.</p>
                   </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● {isLoading ? '—' : counts.jobs} Aktif İlan</span>
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[12.5px] text-zinc-400">
+                  <span className="font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">● {isLoading ? '—' : counts.jobs} Aktif İlan</span>
                 </div>
               </div>
 
               {/* Ortaklık ve Devir */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/girisim-ortaklik" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40" aria-label="Ortaklık ve Devir" />
                 <div className="relative z-1 pointer-events-none">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform duration-300"><Users2 className="w-4 h-4" /></span>
+                  <div className="flex items-center justify-between mb-3.5">
+                    <span className="p-3 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform duration-300"><Users2 className="w-5 h-5" /></span>
                     <span aria-hidden className="inline-flex">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-amber-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                      <ArrowUpRight className="w-4.5 h-4.5 text-zinc-400 group-hover:text-amber-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Ortaklık ve Devir</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Ortaklık ve işletme devri fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
+                    <h4 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200">Ortaklık ve Devir</h4>
+                    <p className="text-[13.5px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed min-h-[38px]">Ortaklık ve işletme devri fırsatlarını keşfedin veya kendi fırsatınızı yayınlayın.</p>
                   </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">● {isLoading ? '—' : counts.partners} Aktif İlan</span>
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[12.5px] text-zinc-400">
+                  <span className="font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">● {isLoading ? '—' : counts.partners} Aktif İlan</span>
                 </div>
               </div>
 
               {/* Franchise ve Bayilik */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/franchise/buy" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40" aria-label="Franchise ve Bayilik" />
                 <div className="relative z-1 pointer-events-none">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform duration-300"><Store className="w-4 h-4" /></span>
+                  <div className="flex items-center justify-between mb-3.5">
+                    <span className="p-3 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform duration-300"><Store className="w-5 h-5" /></span>
                     <span aria-hidden className="inline-flex">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-rose-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                      <ArrowUpRight className="w-4.5 h-4.5 text-zinc-400 group-hover:text-rose-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200">Franchise ve Bayilik</h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
+                    <h4 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200">Franchise ve Bayilik</h4>
+                    <p className="text-[13.5px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed min-h-[38px]">Kanıtlanmış iş modelleriyle kendi işletmenizi kurun veya markanızı büyütün.</p>
                   </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● {isLoading ? '—' : counts.franchise} Aktif Fırsat</span>
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[12.5px] text-zinc-400">
+                  <span className="font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">● {isLoading ? '—' : counts.franchise} Aktif Fırsat</span>
                 </div>
               </div>
 
               {/* Ustalar ve Hizmetler */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Ustalar ve Hizmetler" />
                 <div className="relative z-1 pointer-events-none">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-300">
-                      <Wrench className="w-4 h-4" />
+                  <div className="flex items-center justify-between mb-3.5">
+                    <span className="p-3 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-300">
+                      <Wrench className="w-5 h-5" />
                     </span>
                     <span aria-hidden className="inline-flex">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-indigo-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
+                      <ArrowUpRight className="w-4.5 h-4.5 text-zinc-400 group-hover:text-indigo-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" />
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">
+                    <h4 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">
                       Ustalar ve Hizmetler
                     </h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed min-h-[34px]">
+                    <p className="text-[13.5px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed min-h-[38px]">
                       Temizlikten tesisata, nakliyeden tadilata aradığınız tüm yerel usta ve hizmetleri keşfedin.
                     </p>
                   </div>
                 </div>
-                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400">
-                  <span className="font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                <div className="relative z-1 pointer-events-none mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[12.5px] text-zinc-400">
+                  <span className="font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     ● {isLoading ? '—' : (counts.services ?? 5)} Aktif Hizmet
                   </span>
                 </div>

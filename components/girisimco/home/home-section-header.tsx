@@ -72,12 +72,12 @@ export function HomeSectionHeader({
         <div className="min-w-0">
           <h2
             id={headingId}
-            className="font-display text-base sm:text-lg lg:text-[1.25rem] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-snug"
+            className="font-display text-lg sm:text-xl lg:text-[1.35rem] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-snug"
           >
             {title}
           </h2>
           {description && (
-            <p className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed font-normal">
+            <p className="text-sm sm:text-[14.5px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed font-normal">
               {description}
             </p>
           )}
@@ -88,7 +88,7 @@ export function HomeSectionHeader({
         href={href}
         className={cn(
           'group inline-flex items-center gap-1.5 self-start sm:self-center shrink-0',
-          'px-4 py-1.5 rounded-full text-xs font-semibold',
+          'px-4.5 py-2 rounded-full text-[13px] font-bold',
           'bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md',
           'border border-slate-200/80 dark:border-zinc-700/80',
           'text-zinc-700 dark:text-zinc-300 shadow-xs',
@@ -98,7 +98,7 @@ export function HomeSectionHeader({
       >
         <span>{ctaLabel}</span>
         <ArrowRight
-          className="h-3.5 w-3.5 text-zinc-400 group-hover:text-current transition-transform group-hover:translate-x-0.5"
+          className="h-4 w-4 text-zinc-400 group-hover:text-current transition-transform group-hover:translate-x-0.5"
           aria-hidden
         />
       </Link>

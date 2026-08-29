@@ -231,7 +231,7 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
               <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.85} />
             </span>
           </div>
-          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary flex items-center gap-1">
+          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-3 py-1.5 text-[12.5px] font-bold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary flex items-center gap-1">
             {node.label}
           </span>
         </Link>

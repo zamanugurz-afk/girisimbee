@@ -111,16 +111,16 @@ function TextListingCardLayout({
         {/* Top Meta Row: Type Pill + Price Badge (Side-by-side) */}
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
-            style={{ backgroundColor: `${accent}12`, color: accent }}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1 text-[13px] font-bold"
+            style={{ backgroundColor: `${accent}14`, color: accent }}
           >
-            {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
+            {Icon ? <Icon className="h-4 w-4" /> : null}
             <span>{typeLabel}</span>
           </span>
 
           {compactPrice && (
             <span
-              className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 font-display text-xs font-semibold tabular-nums border"
+              className="inline-flex shrink-0 items-center rounded-lg px-3 py-1 font-display text-[13px] font-bold tabular-nums border"
               style={{
                 backgroundColor: 'rgba(159, 18, 57, 0.07)',
                 color: '#9F1239',
@@ -133,23 +133,23 @@ function TextListingCardLayout({
         </div>
 
         {/* Title */}
-        <h3 className="mt-3.5 line-clamp-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+        <h3 className="mt-3.5 line-clamp-2 font-display text-[1.125rem] font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
           {item.title}
         </h3>
 
         {/* Open Company Name (for employer hiring listings) */}
         {item.companyName ? (
-          <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             <Building2 className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{item.companyName}</span>
           </div>
         ) : null}
 
         {/* Description + Favorite Button (Yatay çizginin hemen üstünde, sağda) */}
-        <div className="mt-2 flex items-end justify-between gap-3">
+        <div className="mt-2.5 flex items-end justify-between gap-3">
           <div className="min-w-0 flex-1">
             {description ? (
-              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="line-clamp-2 text-[14.5px] leading-relaxed text-muted-foreground">
                 {description}
               </p>
             ) : null}
@@ -163,12 +163,12 @@ function TextListingCardLayout({
       </div>
 
       {/* Footer Meta Strip (Yatay çizginin altı) */}
-      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[13px] text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2.5 overflow-hidden">
           {item.location && (
             <span className="inline-flex items-center gap-1 shrink-0">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate max-w-[100px]">{item.location}</span>
+              <span className="truncate max-w-[110px]">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
@@ -179,7 +179,7 @@ function TextListingCardLayout({
           )}
         </div>
 
-        <span className="inline-flex items-center gap-1 font-semibold text-foreground transition-colors group-hover:text-primary whitespace-nowrap pl-2 shrink-0">
+        <span className="inline-flex items-center gap-1 font-bold text-[13.5px] text-foreground transition-colors group-hover:text-primary whitespace-nowrap pl-2 shrink-0">
           İncele
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>

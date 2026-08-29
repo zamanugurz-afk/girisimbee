@@ -8,6 +8,10 @@
  */
 
 @layer base {
+  html {
+    font-size: 17px;
+  }
+
   :root {
     /* Layout */
     --gc-header-height: 3.75rem;

@@ -122,13 +122,13 @@ function StatPill({
       <span className="min-w-0">
         <span
           className={cn(
-            'block font-display text-[12.5px] font-bold tabular-nums leading-none text-[#0B1220] transition-colors dark:text-foreground',
+            'block font-display text-[13.5px] font-bold tabular-nums leading-none text-[#0B1220] transition-colors dark:text-foreground',
             isLoading && 'animate-pulse text-muted-foreground',
           )}
         >
           {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
         </span>
-        <span className="mt-0.5 block truncate text-[10px] text-[#64748B] transition-colors group-hover:text-foreground">
+        <span className="mt-0.5 block truncate text-[11.5px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
           {stat.label}
         </span>
       </span>
@@ -139,12 +139,12 @@ function StatPill({
 /** Editorial how-it-works copy — expands the hero explanation without step chips. */
 function HeroHowItWorks() {
   return (
-    <div className="mt-3.5 max-w-[32rem] border-l-2 border-[#F59E0B]/70 pl-3.5 sm:pl-4">
-      <p className="text-[13px] leading-[1.55] text-[#475569] sm:text-[13.5px]">
+    <div className="mt-4 max-w-[34rem] border-l-2 border-[#F59E0B]/70 pl-4 sm:pl-4.5">
+      <p className="text-[14.5px] leading-[1.6] text-[#475569] sm:text-[15.5px]">
         Kariyer, ortaklık, fırsatlar ve çözümler tek yerde.
         Yolunuzu seçin, ilanları inceleyin veya kendi ilanınızı yayınlayın.
       </p>
-      <p className="mt-1.5 text-[13px] leading-[1.55] text-[#475569] sm:text-[13.5px]">
+      <p className="mt-2 text-[14.5px] leading-[1.6] text-[#475569] sm:text-[15.5px]">
         Bağlantı iletişim talebiyle kurulur. İletişim bilgileriniz gizli kalır.
         Sadece fırsatlar, insanlar ve doğru eşleşmeler.
       </p>
