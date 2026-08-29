@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono, Josefin_Sans } from 'next/font/google';
+import { Dancing_Script, Inter, JetBrains_Mono, Josefin_Sans } from 'next/font/google';
 import { AppProviders } from '@/components/providers/app-providers';
 import { NavProfileRoot } from '@/lib/perf/nav-profile-root';
 import { resolveSiteUrl } from '@/lib/site-url';
@@ -19,6 +19,11 @@ const josefin = Josefin_Sans({
   variable: '--font-josefin',
   display: 'swap',
   weight: ['300', '400', '600', '700'],
+});
+const dancingScript = Dancing_Script({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-script',
+  display: 'swap',
 });
 const mono = JetBrains_Mono({
   subsets: ['latin', 'latin-ext'],
@@ -85,7 +90,7 @@ export default function RootLayout({
 
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className={`${sans.variable} ${josefin.variable} ${mono.variable} font-sans antialiased`}>
+      <body className={`${sans.variable} ${josefin.variable} ${dancingScript.variable} ${mono.variable} font-sans antialiased`}>
         {process.env.NAV_PROFILE === '1' ? (
           <NavProfileRoot>{body}</NavProfileRoot>
         ) : (

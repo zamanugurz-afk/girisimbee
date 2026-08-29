@@ -16,6 +16,7 @@ const config: Config = {
         sans: ['var(--font-josefin)', 'var(--font-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         display: ['var(--font-josefin)', 'var(--font-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         josefin: ['var(--font-josefin)', 'sans-serif'],
+        script: ['var(--font-script)', 'cursive'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       fontSize: {
