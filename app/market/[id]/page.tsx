@@ -7,6 +7,9 @@ import { toPublicMarketItem } from '@/features/admin/market/lib/public-market-it
 import { MOCK_MARKET_ITEMS } from '@/features/admin/market/mock/market.mock';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface PageProps {
   params: { id: string };
 }
