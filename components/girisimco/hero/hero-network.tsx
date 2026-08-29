@@ -3,14 +3,14 @@ import {
   Briefcase,
   Handshake,
   Store,
-  Wrench,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { gcCategoryColors } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
-/** Orbit 4 core category nodes: Kariyer, Ortaklık, Franchise, Ustalar */
+/** Orbit 4 core category nodes: Kariyer, Ortaklık, Franchise, Çözümler */
 const NODES: {
   id: string;
   label: string;
@@ -48,13 +48,13 @@ const NODES: {
     lineStroke: gcCategoryColors.franchise,
   },
   {
-    id: 'services',
-    label: 'Ustalar',
-    href: '/kategori/hizmetler',
-    Icon: Wrench,
+    id: 'solutions',
+    label: 'Çözümler',
+    href: '/dijital-ai',
+    Icon: Sparkles,
     className: 'left-[1%] top-1/2 -translate-y-1/2',
-    color: gcCategoryColors.hizmetler,
-    lineStroke: gcCategoryColors.hizmetler,
+    color: gcCategoryColors['dijital-ai'],
+    lineStroke: gcCategoryColors['dijital-ai'],
   },
 ];
 
