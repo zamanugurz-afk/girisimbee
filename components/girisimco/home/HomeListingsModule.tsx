@@ -35,19 +35,13 @@ export function HomeRestSections() {
   const { sections } = useHomeListingsCtx();
 
   return (
-    <div className="bg-transparent dark:bg-transparent">
-      {HOME_LISTING_SECTIONS.map((config, index) => {
+    <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+      {HOME_LISTING_SECTIONS.map((config) => {
         const state = sections.find((section) => section.id === config.id);
         if (!state) return null;
         return (
-          <div key={config.id}>
-            {/* İlan bölümleri arasındaki net ayrım çizgisi */}
-            <div className="mx-auto w-full max-w-[1280px] px-5 lg:px-8 pt-4 pb-2">
-              <div className="h-[1px] w-full bg-slate-200 dark:bg-zinc-800" />
-            </div>
-            <div className="mx-auto w-full max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-              <HomeListingSectionRow config={config} state={state} />
-            </div>
+          <div key={config.id} className="mx-auto w-full max-w-[1280px] px-5 lg:px-8">
+            <HomeListingSectionRow config={config} state={state} />
           </div>
         );
       })}
