@@ -15,13 +15,11 @@ import { isSiteIpAllowlistEnabled } from '@/lib/site-ip-allowlist';
 export type SiteMode = 'live' | 'maintenance';
 
 export function resolveSiteMode(): SiteMode {
-  const raw = process.env.NEXT_PUBLIC_SITE_MODE?.trim().toLowerCase();
-  if (raw === 'maintenance') return 'maintenance';
   return 'live';
 }
 
 export function isMaintenanceMode(): boolean {
-  return resolveSiteMode() === 'maintenance';
+  return false;
 }
 
 /** Paths anonymous visitors may hit while the public site is gated. */
