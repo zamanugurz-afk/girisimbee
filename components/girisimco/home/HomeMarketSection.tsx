@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
   const [items, setItems] = useState<MarketItem[]>(() => getMockHomeMarketAds());
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +55,17 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
       window.clearTimeout(timeout);
     };
   }, []);
+
+  // 5 Saniyelik Otomatik Döngü (Hover esnasında duraklar)
+  useEffect(() => {
+    if (isPaused || items.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % items.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [items.length, isPaused]);
 
   const activeItem = items[activeIndex] || items[0];
   const activeHref = activeItem?.linkUrl || `/market/${activeItem?.id || ''}`;
@@ -112,11 +124,16 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                 </p>
               </div>
 
-              {/* 4 Seçili Fırsat Butonları (Interaktif Seçici) */}
+              {/* 4 Seçili Fırsat Butonları (Interaktif Seçici & Zaman Göstergesi) */}
               <div className="mt-6 flex flex-col gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-                  Öne Çıkan Fırsatlar ({items.length})
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                    Öne Çıkan Fırsatlar ({items.length})
+                  </span>
+                  <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 animate-pulse">
+                    ⚡ 5 sn'de bir değişir
+                  </span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {items.map((item, idx) => {
                     const isSelected = idx === activeIndex;
@@ -124,18 +141,22 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => setActiveIndex(idx)}
+                        onClick={() => {
+                          setActiveIndex(idx);
+                          setIsPaused(true);
+                          setTimeout(() => setIsPaused(false), 8000);
+                        }}
                         className={cn(
-                          'group text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200 flex items-center justify-between border',
+                          'group text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-300 flex items-center justify-between border relative overflow-hidden',
                           isSelected
                             ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 border-slate-900 dark:border-white shadow-sm scale-[1.01]'
                             : 'bg-slate-50/80 text-slate-700 hover:bg-slate-100 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:bg-zinc-800 border-slate-200/80 dark:border-zinc-700/80',
                         )}
                       >
-                        <span className="truncate pr-2">{item.title}</span>
+                        <span className="truncate pr-2 relative z-10">{item.title}</span>
                         <span
                           className={cn(
-                            'text-[10px] shrink-0 font-bold px-1.5 py-0.5 rounded-md',
+                            'text-[10px] shrink-0 font-bold px-1.5 py-0.5 rounded-md relative z-10',
                             isSelected
                               ? 'bg-amber-400 text-slate-950'
                               : 'bg-slate-200/80 text-slate-600 dark:bg-zinc-700 dark:text-zinc-300 group-hover:bg-amber-100 group-hover:text-amber-800',
@@ -170,33 +191,60 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
             </div>
 
             {/* ========================================================================= */}
-            {/* SAĞ ALAN: BÜYÜK GÖRSEL KART & ÖNE ÇIKAN VİTRİN ŞOVU (REFERANS DİZAYN)      */}
+            {/* SAĞ ALAN: 5 SN'DE BİR DÖNEN BÜYÜK GÖRSEL KART & VİTRİN ŞOVU               */}
             {/* ========================================================================= */}
-            <div className="lg:col-span-6 flex flex-col justify-center">
+            <div
+              className="lg:col-span-6 flex flex-col justify-center"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
               <div className="group relative overflow-hidden rounded-[2rem] bg-slate-100 dark:bg-zinc-800 border border-slate-200/90 dark:border-zinc-700 shadow-xl aspect-[16/11] w-full">
                 
-                {/* Büyük Görsel */}
-                {activeItem?.imageUrl ? (
-                  <Image
-                    src={activeItem.imageUrl}
-                    alt={activeItem.title}
-                    fill
-                    priority
-                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 1024px) 100vw, 600px"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-zinc-800 text-slate-400">
-                    <Store className="h-12 w-12" aria-hidden />
-                  </div>
-                )}
+                {/* Büyük Görsel (Fade geçişli) */}
+                <div key={activeItem?.id} className="absolute inset-0 transition-opacity duration-700 animate-fade-in">
+                  {activeItem?.imageUrl ? (
+                    <Image
+                      src={activeItem.imageUrl}
+                      alt={activeItem.title}
+                      fill
+                      priority
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 1024px) 100vw, 600px"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-zinc-800 text-slate-400">
+                      <Store className="h-12 w-12" aria-hidden />
+                    </div>
+                  )}
+                </div>
 
                 {/* Görsel Üzeri Hafif Karartma Gradyanı */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                {/* 5 Saniyelik Segmentli İlerleme Çizgileri */}
+                <div className="absolute top-3 left-4 right-4 z-20 flex gap-1.5 pointer-events-none">
+                  {items.map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden backdrop-blur-xs"
+                    >
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all',
+                          i === activeIndex
+                            ? 'w-full bg-amber-400 duration-500'
+                            : i < activeIndex
+                            ? 'w-full bg-white/80'
+                            : 'w-0',
+                        )}
+                      />
+                    </div>
+                  ))}
+                </div>
 
                 {/* Üst Rozet: FIRSAT & DOĞRULANMIŞ */}
-                <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                <div className="absolute top-6 left-4 right-4 z-10 flex items-center justify-between pointer-events-none">
                   <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-slate-950 text-[11px] font-black tracking-wide shadow-md">
                     <Sparkles className="w-3 h-3 fill-slate-950" />
                     SEÇİLİ FIRSAT
@@ -208,7 +256,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                 </div>
 
                 {/* Alt Detay Kartı (Glassmorphism Katmanı) */}
-                <div className="absolute bottom-4 left-4 right-4 p-4 sm:p-5 rounded-2xl bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border border-white/20 dark:border-zinc-800 shadow-lg transition-all duration-300">
+                <div className="absolute bottom-4 left-4 right-4 z-10 p-4 sm:p-5 rounded-2xl bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border border-white/20 dark:border-zinc-800 shadow-lg transition-all duration-300">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <h4 className="font-sans text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug line-clamp-1">
