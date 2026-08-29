@@ -29,7 +29,7 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'Girişimbee MARKET', href: '/market' },
   ],
   Çözümler: [
-    { label: 'Dijital & AI Çözümleri', href: '/dijital-ai' },
+    { label: 'Dijital ve AI Çözümleri', href: '/dijital-ai' },
   ],
   Hesap: [
     { label: 'Giriş yap', href: AUTH_ROUTES.login },

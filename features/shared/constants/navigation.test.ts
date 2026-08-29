@@ -36,7 +36,7 @@ describe('homepage information architecture navigation', () => {
       ['Girişimbee MARKET', '/market'],
     ]);
     expect(footer.Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital & AI Çözümleri', '/dijital-ai'],
+      ['Dijital ve AI Çözümleri', '/dijital-ai'],
     ]);
     const allLabels = Object.values(footer).flat().map((link) => link.label);
     expect(allLabels).not.toContain('Yatırım Arıyorum');

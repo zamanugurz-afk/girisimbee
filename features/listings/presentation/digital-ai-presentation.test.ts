@@ -32,7 +32,7 @@ describe('Dijital & AI Çözümleri presentation', () => {
     expect(NAV_LINKS.find((link) => link.label === 'Çözümler')?.href).toBe('/dijital-ai');
     expect(NAV_LINKS.find((link) => link.label === 'Fırsatlar')?.href).toBe('/market');
     expect(getFooterLinks().Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital & AI Çözümleri', '/dijital-ai'],
+      ['Dijital ve AI Çözümleri', '/dijital-ai'],
     ]);
     expect(getFooterLinks().Fırsatlar?.map((link) => [link.label, link.href])).toEqual([
       ['Girişimbee MARKET', '/market'],

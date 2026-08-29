@@ -31,7 +31,7 @@ describe('Girişimbee MARKET presentation', () => {
       ['Girişimbee MARKET', '/market'],
     ]);
     expect(getFooterLinks().Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital & AI Çözümleri', '/dijital-ai'],
+      ['Dijital ve AI Çözümleri', '/dijital-ai'],
     ]);
     expect(MARKET_HOME_CTA_HREF).toBe('/market');
     expect(MARKET_HOME_CTA_LABEL).toBe('Tüm fırsatlar');
