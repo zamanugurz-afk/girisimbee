@@ -2,15 +2,15 @@ import Link from 'next/link';
 import {
   Briefcase,
   Handshake,
-  Radar,
-  UserRound,
+  Store,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { gcCategoryColors } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
-/** Orbit node colors aligned with homepage category tag icons. */
+/** Orbit 4 core category nodes: Kariyer, Ortaklık, Franchise, Ustalar */
 const NODES: {
   id: string;
   label: string;
@@ -19,44 +19,42 @@ const NODES: {
   className: string;
   color: string;
   lineStroke: string;
-  isRadar?: boolean;
 }[] = [
   {
-    id: 'radar',
-    label: 'Yatırım Radarı',
-    href: '/radar',
-    Icon: Radar,
+    id: 'job',
+    label: 'Kariyer',
+    href: '/is',
+    Icon: Briefcase,
     className: 'left-1/2 top-[1%] -translate-x-1/2',
-    color: gcCategoryColors.franchise,
-    lineStroke: gcCategoryColors.franchise,
-    isRadar: true,
-  },
-  {
-    id: 'investor',
-    label: 'Çözümler',
-    href: '/dijital-ai',
-    Icon: UserRound,
-    className: 'right-[1%] top-1/2 -translate-y-1/2',
-    color: gcCategoryColors['dijital-ai'],
-    lineStroke: gcCategoryColors['dijital-ai'],
+    color: gcCategoryColors['ise-al'],
+    lineStroke: gcCategoryColors['ise-al'],
   },
   {
     id: 'partner',
     label: 'Ortaklık',
     href: '/girisim-ortaklik',
     Icon: Handshake,
-    className: 'bottom-[1%] left-1/2 -translate-x-1/2',
+    className: 'right-[1%] top-1/2 -translate-y-1/2',
     color: gcCategoryColors['ortak-bul'],
     lineStroke: gcCategoryColors['ortak-bul'],
   },
   {
-    id: 'job',
-    label: 'Kariyer',
-    href: '/is',
-    Icon: Briefcase,
+    id: 'franchise',
+    label: 'Franchise',
+    href: '/franchise/buy',
+    Icon: Store,
+    className: 'bottom-[1%] left-1/2 -translate-x-1/2',
+    color: gcCategoryColors.franchise,
+    lineStroke: gcCategoryColors.franchise,
+  },
+  {
+    id: 'services',
+    label: 'Ustalar',
+    href: '/kategori/hizmetler',
+    Icon: Wrench,
     className: 'left-[1%] top-1/2 -translate-y-1/2',
-    color: gcCategoryColors['ise-al'],
-    lineStroke: gcCategoryColors['ise-al'],
+    color: gcCategoryColors.hizmetler,
+    lineStroke: gcCategoryColors.hizmetler,
   },
 ];
 
@@ -226,26 +224,14 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
           aria-label={node.label}
         >
           <div className="relative">
-            {/* Yatırım Radarı logosu: Animasyon kaldırıldı, temiz ve net statik ikon */}
             <span
-              className={cn(
-                'relative flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11',
-                node.isRadar && 'ring-2 ring-rose-500/30 ring-offset-1',
-              )}
-              style={{ backgroundColor: `${node.color}1A`, color: node.color }}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11"
+              style={{ backgroundColor: `${node.color}18`, color: node.color }}
             >
-              <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
+              <node.Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.85} />
             </span>
           </div>
-          <span
-            className={cn(
-              'whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary flex items-center gap-1',
-              node.isRadar && 'border-rose-200/80 text-rose-950 shadow-rose-500/5',
-            )}
-          >
-            {node.isRadar && (
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-            )}
+          <span className="whitespace-nowrap rounded-full border border-[#E8EAF0] bg-white px-2.5 py-1 text-[11px] font-semibold tracking-tight text-[#0B1220] shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-primary flex items-center gap-1">
             {node.label}
           </span>
         </Link>

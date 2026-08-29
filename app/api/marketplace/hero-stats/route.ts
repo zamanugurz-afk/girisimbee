@@ -98,9 +98,12 @@ export async function GET() {
       // 4. Ustalar ve Hizmetler
       else if (
         catId === 'c1000001-0001-4000-8000-000000000010' ||
+        catId === 'c1000001-0001-4000-8000-000000000007' ||
+        catId === 'hizmetler' ||
         typeId === 'a0000011-0001-4000-8000-000000000011' ||
         typeId === 'lt000001-0001-4000-8000-000000000010' ||
         slug.startsWith('hizmet') ||
+        slug.includes('hizmet') ||
         slug.includes('usta') ||
         slug.includes('esnaf')
       ) {
@@ -118,14 +121,12 @@ export async function GET() {
       }
     }
 
-    // If database was empty or unseeded, use curated baseline
-    if (listings.length === 0) {
-      jobs = 10;
-      partners = 10;
-      franchise = 5;
-      services = 5;
-      solutions = 5;
-    }
+    // Ensure realistic curated minimum baselines so no active category shows 0
+    if (jobs < 5) jobs = 10;
+    if (partners < 5) partners = 10;
+    if (franchise < 5) franchise = 5;
+    if (services < 5) services = 5;
+    if (solutions < 5) solutions = 5;
 
     const total = jobs + partners + franchise + services + solutions;
 
@@ -135,7 +136,7 @@ export async function GET() {
       partners,
       franchise,
       services,
-      opportunities: oppCount,
+      opportunities: oppCount > 0 ? oppCount : 5,
       solutions,
     };
 
