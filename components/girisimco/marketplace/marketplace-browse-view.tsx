@@ -13,6 +13,7 @@ import {
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
+import { ExploreSuperShowcase } from '@/components/girisimco/marketplace/explore-super-showcase';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -258,24 +259,30 @@ export function MarketplaceBrowseView({
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        <ListingFilters
-          items={items}
-          filters={filters}
-          onChange={updateFilters}
-          hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
-          showJobFlowFilters={showJobFlowFilters}
-          showVentureFlowFilters={
-            showVentureFlowFilters
-            ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')
-          }
-          className="mb-5"
-        />
-
-        {!isLoading && !error && (
-          <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
-            {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
-          </p>
+        {!categorySlug && !initialQuery && (
+          <ExploreSuperShowcase items={items} className="mb-10" />
         )}
+
+        <div id="tum-ilanlar-alani">
+          <ListingFilters
+            items={items}
+            filters={filters}
+            onChange={updateFilters}
+            hideCategory={hideCategoryFilter ?? Boolean(categorySlug)}
+            showJobFlowFilters={showJobFlowFilters}
+            showVentureFlowFilters={
+              showVentureFlowFilters
+              ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')
+            }
+            className="mb-5"
+          />
+
+          {!isLoading && !error && (
+            <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
+              {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
+            </p>
+          )}
+        </div>
 
         {error && (
           <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-center">
