@@ -73,15 +73,6 @@ export function ExploreSuperVitrin({
 
   const [pageIndex, setPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isPulsing, setIsPulsing] = useState(true);
-
-  // Sayfa açıldığında tam 30 saniye boyunca yanıp sönsün / dikkat çeksin
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsPulsing(false);
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const totalPages = Math.ceil(superItems.length / ITEMS_PER_PAGE);
 
@@ -114,10 +105,7 @@ export function ExploreSuperVitrin({
   return (
     <section
       className={cn(
-        'relative mb-10 min-w-0 rounded-[2rem] p-4 sm:p-6 transition-all duration-500 border-2 bg-gradient-to-b from-amber-500/[0.04] via-amber-500/[0.015] to-transparent dark:from-amber-500/[0.08] dark:to-zinc-950/50',
-        isPulsing
-          ? 'gc-super-vitrin-border-pulse'
-          : 'border-amber-400/80 dark:border-amber-500/60 shadow-[0_4px_24px_rgba(245,158,11,0.08)]',
+        'relative mb-10 min-w-0 rounded-[2rem] p-4 sm:p-6 transition-all duration-500 border-2 bg-gradient-to-b from-amber-500/[0.04] via-amber-500/[0.015] to-transparent dark:from-amber-500/[0.08] dark:to-zinc-950/50 gc-super-vitrin-border-pulse',
         className,
       )}
       onMouseEnter={() => setIsPaused(true)}
