@@ -306,6 +306,9 @@ function mapSignInAuthErrorMessage(message: string): string {
   if (/email not confirmed|not confirmed/i.test(message)) {
     return 'E-posta adresiniz henüz doğrulanmamış. Gelen kutunuzdaki doğrulama bağlantısını kullanın.';
   }
+  if (/invalid api key/i.test(message)) {
+    return 'Sistem bağlantı anahtarı (Supabase API Key) geçersiz veya süresi dolmuş. Lütfen Vercel/Supabase ayarlarını kontrol edin.';
+  }
   return message;
 }
 
