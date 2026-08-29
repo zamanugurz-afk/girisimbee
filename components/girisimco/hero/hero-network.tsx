@@ -60,6 +60,13 @@ const NODES: {
   },
 ];
 
+/**
+ * Visual mode toggle:
+ * 'radar-sweep'    -> Single rotating radar bar with 360° conic scan sweep around the center bee.
+ * 'classic-4spokes' -> Legacy 4 fixed colored spoke lines.
+ */
+const HERO_NETWORK_MODE: 'radar-sweep' | 'classic-4spokes' = 'radar-sweep';
+
 function BeeWingFlutter() {
   return (
     <svg
@@ -71,6 +78,41 @@ function BeeWingFlutter() {
       <ellipse className="gc-bee-wing gc-bee-wing-a" cx="27" cy="33" rx="17" ry="11.5" fill="#FBBF24" />
       <ellipse className="gc-bee-wing gc-bee-wing-b" cx="25" cy="46" rx="14" ry="9.5" fill="#F59E0B" />
     </svg>
+  );
+}
+
+/** Single rotating radar bar + 360° conic radar scan around the bee mark */
+function CenterRadarScanner() {
+  return (
+    <div
+      className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square w-[78.6%] rounded-full overflow-hidden z-[5] animate-spin"
+      style={{
+        animationDuration: '3.5s',
+        animationTimingFunction: 'linear',
+      }}
+      aria-hidden
+    >
+      {/* Conic Radar Beam Sweep (1. resimdeki tarama efekti) */}
+      <div
+        className="h-full w-full rounded-full"
+        style={{
+          background:
+            'conic-gradient(from 0deg, rgba(245, 158, 11, 0.32) 0deg, rgba(245, 158, 11, 0.08) 45deg, transparent 75deg, transparent 360deg)',
+        }}
+      />
+
+      {/* Tek Radar Çubuğu (Tek çizgi, çubuk uzunluğu arıdaki çubuklar kadar: merkezden dış çembere) */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-[50%]"
+        style={{
+          background: 'linear-gradient(to top, rgba(245, 158, 11, 0.25), #F59E0B 80%, #D97706)',
+          boxShadow: '0 0 10px rgba(245, 158, 11, 0.75)',
+        }}
+      >
+        {/* Radar ucu hedef tarama noktası (Blip dot) */}
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-amber-200 dark:ring-amber-900 shadow-[0_0_10px_#F59E0B]" />
+      </div>
+    </div>
   );
 }
 
@@ -100,7 +142,8 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
         <rect width="280" height="280" fill="url(#hero-hex-light)" />
       </svg>
 
-      <div className="gc-hero-orbit pointer-events-none absolute inset-[4%]" aria-hidden>
+      {/* Orbit Rings & Structural Guidelines */}
+      <div className="pointer-events-none absolute inset-[4%]" aria-hidden>
         <svg className="h-full w-full" viewBox="0 0 300 300" fill="none">
           <circle cx="150" cy="150" r="86" stroke="#E8EAF0" strokeWidth="1.35" />
           <circle
@@ -112,17 +155,33 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
             strokeDasharray="3 9"
             opacity="0.9"
           />
-          <line x1="150" y1="150" x2="150" y2="32" stroke={NODES[0].lineStroke} strokeWidth="1.2" opacity="0.55" />
-          <line x1="150" y1="150" x2="268" y2="150" stroke={NODES[1].lineStroke} strokeWidth="1.2" opacity="0.55" />
-          <line x1="150" y1="150" x2="150" y2="268" stroke={NODES[2].lineStroke} strokeWidth="1.2" opacity="0.55" />
-          <line x1="150" y1="150" x2="32" y2="150" stroke={NODES[3].lineStroke} strokeWidth="1.2" opacity="0.55" />
-          <circle cx="150" cy="78" r="3.5" fill={NODES[0].color} />
-          <circle cx="222" cy="150" r="3.5" fill={NODES[1].color} />
-          <circle cx="150" cy="222" r="3.5" fill={NODES[2].color} />
-          <circle cx="78" cy="150" r="3.5" fill={NODES[3].color} />
+
+          {/* =========================================================================
+              [ESKİ VERSİYON SAKLANDI - GERİ DÖNÜLEBİLİR]
+              Eski 4 renkli sabit çubuk yapısı (HERO_NETWORK_MODE = 'classic-4spokes' olduğunda kullanılır)
+             ========================================================================= */}
+          {HERO_NETWORK_MODE === 'classic-4spokes' && (
+            <>
+              <line x1="150" y1="150" x2="150" y2="32" stroke={NODES[0].lineStroke} strokeWidth="1.2" opacity="0.55" />
+              <line x1="150" y1="150" x2="268" y2="150" stroke={NODES[1].lineStroke} strokeWidth="1.2" opacity="0.55" />
+              <line x1="150" y1="150" x2="150" y2="268" stroke={NODES[2].lineStroke} strokeWidth="1.2" opacity="0.55" />
+              <line x1="150" y1="150" x2="32" y2="150" stroke={NODES[3].lineStroke} strokeWidth="1.2" opacity="0.55" />
+              <circle cx="150" cy="78" r="3.5" fill={NODES[0].color} />
+              <circle cx="222" cy="150" r="3.5" fill={NODES[1].color} />
+              <circle cx="150" cy="222" r="3.5" fill={NODES[2].color} />
+              <circle cx="78" cy="150" r="3.5" fill={NODES[3].color} />
+            </>
+          )}
         </svg>
       </div>
 
+      {/* =========================================================================
+          [YENİ VERSİYON]
+          Arı logosunun dışındaki çemberde dönen tek radar çubuğu ve radar tarama animasyonu
+         ========================================================================= */}
+      {HERO_NETWORK_MODE === 'radar-sweep' && <CenterRadarScanner />}
+
+      {/* Center Bee Avatar (Z-Index 10: radar sweep flows cleanly behind it) */}
       <div className="absolute left-1/2 top-1/2 z-10 flex h-[6.5rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_12px_32px_-12px_rgba(15,23,42,0.28)] ring-[3px] ring-[#FBBF24]/75 sm:h-[7rem] sm:w-[7rem]">
         <div className="relative h-[72px] w-[72px] sm:h-[80px] sm:w-[80px]">
           <BrandMarkSlot size={80} className="relative z-[1] hidden sm:block" />
@@ -131,6 +190,7 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
         </div>
       </div>
 
+      {/* Outer 4 Navigation Nodes */}
       {NODES.map((node) => (
         <Link
           key={node.id}
@@ -142,21 +202,7 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
           aria-label={node.label}
         >
           <div className="relative">
-            {node.isRadar && (
-              <>
-                {/* Dışa doğru genişleyen radar nabız dalgası */}
-                <span className="pointer-events-none absolute -inset-1.5 rounded-full bg-rose-500/25 animate-ping" />
-                {/* 360° dönen radar tarama çizgisi */}
-                <span
-                  className="pointer-events-none absolute -inset-1 rounded-full animate-spin"
-                  style={{
-                    animationDuration: '3s',
-                    background:
-                      'conic-gradient(from 0deg, rgba(236,72,153,0.45) 0deg, rgba(236,72,153,0.08) 50deg, transparent 80deg, transparent 360deg)',
-                  }}
-                />
-              </>
-            )}
+            {/* Yatırım Radarı logosu: Animasyon kaldırıldı, temiz ve net statik ikon */}
             <span
               className={cn(
                 'relative flex h-10 w-10 items-center justify-center rounded-full border border-white shadow-sm transition-shadow duration-200 group-hover:shadow-md sm:h-11 sm:w-11',
@@ -174,7 +220,7 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
             )}
           >
             {node.isRadar && (
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
             )}
             {node.label}
           </span>
