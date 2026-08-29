@@ -171,40 +171,40 @@ function TextListingCardLayout({
       </div>
 
       {/* 2. Kart Gövdesi */}
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="flex flex-1 flex-col p-4">
         
         {/* Görsel Altı Rozet Satırı (Kategori & Doğrulanmış Rozeti) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <span
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide"
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold tracking-wide"
             style={{ backgroundColor: `${accent}18`, color: accent }}
           >
             {Icon ? <Icon className="h-3 w-3" /> : null}
             <span>{typeLabel}</span>
           </span>
 
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-zinc-800 text-white text-[11px] font-bold shadow-2xs">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-900 dark:bg-zinc-800 text-white text-[11px] font-bold shadow-2xs">
             <ShieldCheck className="h-3 w-3 text-emerald-400" />
             Doğrulanmış
           </span>
         </div>
 
         {/* İlan Başlığı */}
-        <h3 className="mt-3 line-clamp-1 font-display text-[16px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
+        <h3 className="mt-2.5 line-clamp-1 font-display text-[15px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
           {item.title}
         </h3>
 
         {/* 2 Satır Kısa Açıklama */}
         {description ? (
-          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
             {description}
           </p>
         ) : null}
 
         {/* Şirket / Yayıncı Satırı */}
-        <div className="mt-3.5 flex items-center gap-2">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-            <Building2 className="h-3.5 w-3.5 text-slate-500" />
+        <div className="mt-2.5 flex items-center gap-1.5 min-w-0">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+            <Building2 className="h-3 w-3 text-slate-500" />
           </div>
           <span className="truncate text-xs font-bold text-slate-800 dark:text-zinc-200">
             {item.companyName || (item.trust?.company ? 'Kurumsal Girişim' : 'Doğrulanmış Üye')}
@@ -212,32 +212,32 @@ function TextListingCardLayout({
         </div>
 
         {/* 3. Alt Metadata Yığını & Siyah İncele Butonu */}
-        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-end justify-between gap-3">
+        <div className="mt-auto pt-3 border-t border-slate-100 dark:border-zinc-800/80 flex items-end justify-between gap-2">
           
           {/* Sol: Değerleme/Fiyat, Lokasyon ve Zaman */}
-          <div className="flex flex-col gap-1 text-[11.5px] text-slate-500 dark:text-zinc-400 font-medium">
+          <div className="min-w-0 flex-1 flex flex-col gap-0.5 text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
             {compactPrice && (
-              <span className="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-zinc-100">
+              <span className="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-zinc-100 truncate">
                 <Coins className="h-3 w-3 text-amber-500 shrink-0" />
-                <span className="truncate">Değerleme / Fiyat: {compactPrice}</span>
+                <span className="truncate">{compactPrice}</span>
               </span>
             )}
             {item.location && (
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 truncate">
                 <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
-                <span className="truncate max-w-[130px]">{item.location}</span>
+                <span className="truncate">{item.location}</span>
               </span>
             )}
             {item.timeAgo && (
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 truncate">
                 <Clock className="h-3 w-3 text-slate-400 shrink-0" />
-                <span>{item.timeAgo}</span>
+                <span className="truncate">{item.timeAgo}</span>
               </span>
             )}
           </div>
 
           {/* Sağ: Şık Siyah İncele Butonu */}
-          <span className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs shadow-md transition-all group-hover:scale-105">
+          <span className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs shadow-xs transition-all group-hover:scale-105">
             <span>İncele</span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>

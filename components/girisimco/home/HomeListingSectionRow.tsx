@@ -69,15 +69,9 @@ export function HomeListingSectionRow({
               </div>
             ))}
           </div>
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-y-5 lg:gap-y-0 sm:divide-x divide-slate-200 dark:divide-zinc-800">
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
             {Array.from({ length: DESKTOP_LIMIT }).map((_, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  'relative h-full',
-                  idx === 0 ? 'sm:pr-4 lg:pr-3 sm:pl-0' : idx === 3 ? 'sm:pl-4 lg:pl-3 sm:pr-0' : 'sm:px-4 lg:px-3'
-                )}
-              >
+              <div key={idx} className="relative h-full">
                 <ListingCardSkeleton />
               </div>
             ))}
@@ -98,15 +92,9 @@ export function HomeListingSectionRow({
               <HomeSectionCard key={item.id} item={item} layout="scroll" />
             ))}
           </div>
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-y-5 lg:gap-y-0 sm:divide-x divide-slate-200 dark:divide-zinc-800">
-            {visibleItems.map((item, idx) => (
-              <div
-                key={item.id}
-                className={cn(
-                  'relative h-full',
-                  idx === 0 ? 'sm:pr-4 lg:pr-3 sm:pl-0' : idx === 3 ? 'sm:pl-4 lg:pl-3 sm:pr-0' : 'sm:px-4 lg:px-3'
-                )}
-              >
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+            {visibleItems.map((item) => (
+              <div key={item.id} className="relative h-full min-w-0">
                 <HomeSectionCard item={item} layout="grid" />
               </div>
             ))}
