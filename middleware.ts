@@ -131,36 +131,12 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
-  // Live mode: never leave testers stuck on the maintenance URL/cache.
-  if (!isMaintenanceMode() && pathname === '/bakim') {
-    // IP preview: non-allowlisted clients must stay on /bakim.
-    if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
-      return attachTiming(NextResponse.next(), nowMs() - mwStart);
-    }
+  // Redirect any legacy /bakim request to home
+  if (pathname === '/bakim') {
     const home = request.nextUrl.clone();
     home.pathname = '/';
     home.search = '';
     return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
-  }
-
-  // IP allowlist preview — full live site only for this machine. Everyone else → /bakim.
-  if (isSiteIpAllowlistEnabled() && !isClientIpAllowlisted(request)) {
-    if (!isIpGatePublicPath(pathname)) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/bakim';
-      const rewritten = NextResponse.rewrite(url);
-      rewritten.headers.set('x-gb-gate', 'ip-block');
-      rewritten.headers.set('x-gb-ip', getRequestClientIps(request).join('|') || 'none');
-      return attachTiming(rewritten, nowMs() - mwStart);
-    }
-  }
-
-  // Public gate — rewrite to maintenance page without destroying routes.
-  if (isMaintenanceMode() && !isMaintenanceBypassPath(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/bakim';
-    const rewritten = NextResponse.rewrite(url);
-    return attachTiming(rewritten, nowMs() - mwStart);
   }
 
   const publishBlocked = await validatePublishRequest(request);

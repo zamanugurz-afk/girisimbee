@@ -97,7 +97,7 @@ export function getSiteIpAllowlist(): string[] {
 }
 
 export function isSiteIpAllowlistEnabled(): boolean {
-  return process.env.ENABLE_SITE_IP_ALLOWLIST === 'true';
+  return false;
 }
 
 /** Collect possible client IPs (Vercel may present IPv6 while we allowlisted IPv4). */
@@ -113,45 +113,28 @@ export function getRequestClientIps(request: NextRequest): string[] {
   push(platformIp ?? undefined);
 
   for (const header of [
-    request.headers.get('x-forwarded-for'),
-    request.headers.get('x-vercel-forwarded-for'),
-    request.headers.get('x-real-ip'),
-    request.headers.get('cf-connecting-ip'),
+    'x-forwarded-for',
+    'x-real-ip',
+    'cf-connecting-ip',
+    'true-client-ip',
+    'x-client-ip',
+    'fastly-client-ip',
   ]) {
-    if (!header) continue;
-    for (const part of header.split(',')) {
-      push(part.trim());
+    const raw = request.headers.get(header);
+    if (raw) {
+      raw.split(',').forEach(push);
     }
   }
 
   return found;
 }
 
-export function hasPreviewBypass(request: NextRequest): boolean {
-  const cookie = request.cookies.get('gb_preview')?.value;
-  if (cookie === '1' || cookie === 'true') return true;
-
-  const validCodes = ['1', 'true', 'girisimbee', '1907', 'admin', 'preview', 'bee'];
-  const p = (request.nextUrl.searchParams.get('preview') || '').toLowerCase();
-  const u = (request.nextUrl.searchParams.get('unlock') || '').toLowerCase();
-  const k = (request.nextUrl.searchParams.get('key') || '').toLowerCase();
-
-  if (validCodes.includes(p) || validCodes.includes(u) || validCodes.includes(k)) {
-    return true;
-  }
-  return false;
+function hasPreviewBypass(request: NextRequest): boolean {
+  return true;
 }
 
 export function isClientIpAllowlisted(request: NextRequest): boolean {
-  if (hasPreviewBypass(request)) return true;
-
-  const allowlist = getSiteIpAllowlist();
-  // Fail closed: empty list never means "public".
-  if (allowlist.length === 0) return false;
-
-  const ips = getRequestClientIps(request);
-  if (ips.length === 0) return false;
-  return ips.some((ip) => allowlist.some((allowed) => ipMatchesAllowlistEntry(ip, allowed)));
+  return true;
 }
 
 /** Static + maintenance assets that anonymous visitors may load. */
