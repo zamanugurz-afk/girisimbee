@@ -217,7 +217,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
     }
     const typeId = type ? type.id : null;
 
-    const customFields = template.customFields || {};
+    const customFields = (template.customFields as Record<string, any>) || {};
     const phone = customFields.contactPhone || `+90532100${String(index).padStart(4, '0')}`;
 
     // Valid Postgres enum values for marketplace_module_key: 'founders' | 'employers' | 'candidates' | 'franchise' | null
@@ -253,6 +253,7 @@ async function performCleanAndSeed(supabase: ReturnType<typeof createServiceRole
       contact_email: `ilan${index}@girisimbee.example`,
       contact_website: null,
       custom_fields: customFields,
+      cover_url: (template as any).imageUrl || null,
       view_count: 120 + index * 17,
       interested_count: 5 + (index % 11),
       application_count: 2 + (index % 7),

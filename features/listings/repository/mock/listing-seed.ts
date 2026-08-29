@@ -1,4 +1,4 @@
-﻿import { CURATED_LISTING_TEMPLATES } from '@/features/listings/mock/curated-seed-listings';
+import { CURATED_LISTING_TEMPLATES } from '@/features/listings/mock/curated-seed-listings';
 import { mockListingRepository, MockListingRepository } from '@/features/listings/repository/mock/listing.repository.mock';
 import { createSeedCategories } from '@/features/categories/factories/category.factory';
 import { LISTING_TYPE_CONFIGS } from '@/features/listings/config/listing-type-config';
@@ -61,6 +61,7 @@ export async function ensureMockListingsSeeded(
     });
 
     (listing as any).customFields = item.customFields;
+    (listing as any).coverUrl = (item as any).imageUrl || null;
     repo.save(listing);
   }
 

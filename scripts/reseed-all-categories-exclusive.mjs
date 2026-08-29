@@ -1,8 +1,53 @@
-import { ids } from '@/lib/domain/ids';
-import { createListing } from '@/features/listings/factories/listing.factory';
-import type { Listing } from '@/features/listings/types/listing.entity.types';
+/**
+ * Complete Database & Seed Wipe + 45 Realistic Exclusive Listings + Corporate Ads/Solutions.
+ * 
+ * Runs with SUPABASE_SERVICE_ROLE_KEY.
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'node:crypto';
 
-export const CURATED_LISTING_TEMPLATES = [
+const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function loadEnv() {
+  for (const rel of ['.env.local', '.env']) {
+    const full = path.join(projectRoot, rel);
+    if (!fs.existsSync(full)) continue;
+    for (const line of fs.readFileSync(full, 'utf8').split(/\n/)) {
+      const t = line.trim();
+      if (!t || t.startsWith('#')) continue;
+      const i = t.indexOf('=');
+      if (i < 0) continue;
+      const key = t.slice(0, i).trim();
+      let val = t.slice(i + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+}
+
+loadEnv();
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tszvmnaejsxsyuawwclr.supabase.co';
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+if (!serviceKey) {
+  console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, serviceKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+export const EXCLUSIVE_LISTINGS_DATA = [
   // =========================================================================
   // 1. GİRİŞİM & YATIRIM ARAYAN (yatirim-bul) - 5 İlan
   // =========================================================================
@@ -15,7 +60,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Maslak',
     industry: 'Yapay Zeka & SaaS',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'RoutePulse AI Logistics',
       sector: 'Yapay Zeka & SaaS',
@@ -24,9 +68,11 @@ export const CURATED_LISTING_TEMPLATES = [
       shareOffered: '%10',
       currentMRR: '145.000 TL',
       customerCount: '18 Kurumsal Müşteri',
-      stage: 'Gelir elde ediliyor',
+      stage: 'Gelir elde ediliyor (Büyüme Aşaması)',
+      useOfFunds: 'Avrupa satış operasyonu, veri bilimi ekibi istihdamı, GPU bulut altyapısı',
       contactName: 'RoutePulse Kurucu Ekip',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-bul',
@@ -37,7 +83,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Çankaya',
     industry: 'Fintech & Siber Güvenlik',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'VeriTrust BioAuth Labs',
       sector: 'Fintech & Siber Güvenlik',
@@ -45,8 +90,10 @@ export const CURATED_LISTING_TEMPLATES = [
       valuation: '28.000.000 TL',
       shareOffered: '%10',
       stage: 'MVP Aşaması & İlk Müşteriler',
+      useOfFunds: 'Uluslararası güvenlik sertifikasyonları, satış ekibi',
       contactName: 'VeriTrust Labs',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-bul',
@@ -57,7 +104,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bornova',
     industry: 'Temiz Enerji & IoT',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'SolarScan Otonom Sistemler',
       sector: 'Temiz Enerji & IoT',
@@ -65,8 +111,10 @@ export const CURATED_LISTING_TEMPLATES = [
       valuation: '45.000.000 TL',
       shareOffered: '%10',
       stage: 'Ölçeklenme Aşaması',
+      useOfFunds: 'Dron filosu üretimi, uluslararası enerji fuarları',
       contactName: 'SolarScan Mühendislik',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-bul',
@@ -77,16 +125,18 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'Fintech & Muhasebe',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'HesapMatik Finansal Teknolojiler',
       sector: 'Fintech & Muhasebe',
       investmentAmount: '3.000.000 TL',
       valuation: '30.000.000 TL',
       shareOffered: '%10',
+      currentMRR: '210.000 TL',
+      customerCount: '1.200+ Aktif KOBİ',
       stage: 'Büyüme Aşaması',
       contactName: 'HesapMatik Ekibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-bul',
@@ -97,16 +147,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Şişli',
     industry: 'Sağlık Teknolojileri',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'RadiaAI HealthTech',
       sector: 'Sağlık Teknolojileri',
       investmentAmount: '5.000.000 TL',
       valuation: '50.000.000 TL',
       shareOffered: '%10',
-      stage: 'Klinik Doğrulama',
+      stage: 'Klinik Doğrulama & Sertifikasyon',
       contactName: 'RadiaAI Medikal Ekip',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -121,14 +171,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Levent',
     industry: 'Girişim Sermayesi & Melek Yatırım',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Apex Angel Syndicate',
+      sector: 'Girişim Sermayesi',
       investmentRange: '500.000 - 2.500.000 TL',
       preferredStages: 'Tohum Öncesi, Tohum, Erken Aşama',
-      targetSectors: 'B2B SaaS, AI, DeepTech',
+      targetSectors: 'B2B SaaS, AI, DeepTech, Siber Güvenlik',
+      portfolioCount: '14 Aktif Şirket',
       contactName: 'Apex Yatırım Komitesi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-yap',
@@ -139,13 +191,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Ataşehir',
     industry: 'E-Ticaret & Lojistik',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Nexus Venture Capital',
+      sector: 'Lojistik & Perakende',
       investmentRange: '2.000.000 - 5.000.000 TL',
       preferredStages: 'Büyüme ve Ölçeklenme Aşaması',
-      contactName: 'Nexus Yatırım Masası',
+      contactName: 'Nexus Yatırım Direktörlüğü',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-yap',
@@ -156,13 +209,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bilkent',
     industry: 'İklim & Temiz Teknoloji',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'GreenHorizon Etki Fonu',
+      sector: 'Temiz Enerji & Sürdürülebilirlik',
       investmentRange: '1.000.000 - 3.500.000 TL',
       preferredStages: 'MVP, İlk Müşteriler',
-      contactName: 'GreenHorizon Fon Yöneticisi',
+      contactName: 'GreenHorizon Danışma Kurulu',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-yap',
@@ -173,13 +227,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bebek',
     industry: 'Finansal Teknolojiler',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Vanguard Fintech Partners',
+      sector: 'Fintech',
       investmentRange: '1.500.000 - 4.000.000 TL',
       preferredStages: 'Gelir Elde Ediliyor',
       contactName: 'Vanguard Partners',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'yatirim-yap',
@@ -190,13 +245,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Urla',
     industry: 'Oyun & Eğlence',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'PixelPlay Gaming Ventures',
+      sector: 'Mobil Oyun',
       investmentRange: '750.000 - 2.000.000 TL',
       preferredStages: 'Prototip & Test Aşaması',
       contactName: 'PixelPlay Yatırım Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -211,14 +267,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'LegalTech & AI',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'LexiAI Hukuk Teknolojileri',
+      sector: 'LegalTech & Yazılım',
       partnershipType: 'Teknik Kurucu Ortak (CTO)',
       equityShare: '%25 Hisse',
-      requiredSkills: 'Python, FastAPI, LLM Fine-Tuning, PostgreSQL',
+      requiredSkills: 'Python, FastAPI, LLM Fine-Tuning, PostgreSQL, Docker',
+      currentStage: 'Prototip Hazır, 4 Hukuk Bürosu Pilot Testte',
       contactName: 'LexiAI Kurucu Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ortak-bul',
@@ -229,13 +287,15 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Alsancak',
     industry: 'E-Ticaret & Kozmetik',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Botanica Pure Skin',
+      sector: 'E-Ticaret & D2C',
       partnershipType: 'Pazarlama ve Büyüme Ortağı (CMO)',
       equityShare: '%20 Hisse',
+      requiredSkills: 'Meta Ads, Google Ads, TikTok Shop, E-Ticaret Yönetimi',
       contactName: 'Botanica Kurucuları',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ortak-bul',
@@ -246,13 +306,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Gebze',
     industry: 'İmalat & 3D Teknolojileri',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'ProtoTech İleri İmalat',
+      sector: 'İmalat Sanayi',
       partnershipType: 'B2B Satış & İş Geliştirme Ortağı',
       equityShare: '%30 Hisse',
       contactName: 'ProtoTech Yönetim',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ortak-bul',
@@ -263,13 +324,15 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Beşiktaş',
     industry: 'Mobil Uygulama & Sağlık',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'FitPulse Mobile',
+      sector: 'Mobil Uygulama',
       partnershipType: 'Tasarım Kurucu Ortağı (Head of Product)',
       equityShare: '%15 Hisse',
+      requiredSkills: 'Figma, Design Systems, Mobile UX, Gamification',
       contactName: 'FitPulse Labs',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ortak-bul',
@@ -280,13 +343,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Nilüfer',
     industry: 'E-İhracat & Tekstil',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'LoomLiving Home Collection',
+      sector: 'E-İhracat',
       partnershipType: 'Operasyon ve Lojistik Ortağı',
       equityShare: '%20 Hisse',
       contactName: 'LoomLiving Ekip',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -301,14 +365,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'Yeme & İçme',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Roast & Roast Artisan Coffee',
       franchiseFee: '450.000 TL',
       totalInvestment: '2.200.000 - 3.000.000 TL',
+      royaltyFee: '%4 Ciro Payı',
       roiDuration: '14 - 18 Ay',
-      contactName: 'Roast & Roast Franchise Masası',
+      storeSize: '60 - 120 m²',
+      contactName: 'Roast & Roast Franchise Direktörlüğü',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'franchise',
@@ -319,7 +385,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Yenimahalle',
     industry: 'Otomotiv & Ekspertiz',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'MasterEksper Otomotiv Sistemleri',
       franchiseFee: '350.000 TL',
@@ -327,6 +392,7 @@ export const CURATED_LISTING_TEMPLATES = [
       roiDuration: '10 - 12 Ay',
       contactName: 'MasterEksper Bayi Geliştirme',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'franchise',
@@ -337,7 +403,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Karşıyaka',
     industry: 'Spor & Sağlık',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'FitPulse EMS Studio',
       franchiseFee: '280.000 TL',
@@ -345,6 +410,7 @@ export const CURATED_LISTING_TEMPLATES = [
       roiDuration: '8 - 11 Ay',
       contactName: 'FitPulse Franchise Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'franchise',
@@ -355,7 +421,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Nilüfer',
     industry: 'Eğitim & Teknoloji',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'RoboKids Akıl & Bilim Atölyeleri',
       franchiseFee: '300.000 TL',
@@ -363,6 +428,7 @@ export const CURATED_LISTING_TEMPLATES = [
       roiDuration: '12 - 15 Ay',
       contactName: 'RoboKids Genel Merkez',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'franchise',
@@ -373,7 +439,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Muratpaşa',
     industry: 'Yeme & İçme',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'SmashCraft Gurme Burger',
       franchiseFee: '400.000 TL',
@@ -381,6 +446,7 @@ export const CURATED_LISTING_TEMPLATES = [
       roiDuration: '12 - 16 Ay',
       contactName: 'SmashCraft Franchise Ekibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -395,15 +461,17 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'Yeme & İçme',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Moda Artisan Cafe',
       transferPrice: '3.250.000 TL',
       monthlyRent: '45.000 TL',
       monthlyRevenue: '320.000 TL',
       profitMargin: '%28',
-      contactName: 'İşletme Temsilcisi',
+      businessAge: '4 Yıl',
+      employeeCount: '5 Çalışan',
+      contactName: 'İşletme Sahibi Temsilcisi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'isletme-devri',
@@ -414,14 +482,15 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Şişli',
     industry: 'E-Ticaret & Kozmetik',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'GlowSkin E-Ticaret A.Ş.',
       transferPrice: '2.850.000 TL',
       monthlyRevenue: '380.000 TL',
       profitMargin: '%32',
+      businessAge: '3 Yıl',
       contactName: 'GlowSkin Devir Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'isletme-devri',
@@ -432,15 +501,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Beşiktaş',
     industry: 'Sağlık & Güzellik',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Levent Estetik & Wellness',
       transferPrice: '4.750.000 TL',
       monthlyRent: '70.000 TL',
       monthlyRevenue: '580.000 TL',
       profitMargin: '%35',
+      businessAge: '8 Yıl',
       contactName: 'Klinik Yönetimi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'isletme-devri',
@@ -451,15 +521,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Ataşehir',
     industry: 'Eğitim',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Arı Dünyası Anaokulu',
       transferPrice: '5.500.000 TL',
       monthlyRent: '90.000 TL',
       monthlyRevenue: '780.000 TL',
       profitMargin: '%30',
+      businessAge: '5 Yıl',
       contactName: 'Kurucu Temsilcisi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'isletme-devri',
@@ -470,15 +541,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Beşiktaş',
     industry: 'Lojistik & Kargo',
     remotePolicy: 'onsite',
-    imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Beşiktaş Lojistik Acentesi',
       transferPrice: '2.100.000 TL',
       monthlyRent: '38.000 TL',
       monthlyRevenue: '460.000 TL',
       profitMargin: '%22',
+      businessAge: '3 Yıl',
       contactName: 'Acente Sahibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -493,15 +565,16 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Maslak',
     industry: 'Yazılım Teknolojileri',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=700&q=80',
     customFields: {
       companyName: 'ScaleTech Global SaaS',
       position: 'Senior Full-Stack Developer',
       salaryRange: '95.000 - 130.000 TL',
       employmentType: 'Tam Zamanlı',
       experienceLevel: '4+ Yıl',
+      techStack: 'TypeScript, Next.js, Node.js, PostgreSQL, Docker, AWS',
       contactName: 'ScaleTech İK Direktörlüğü',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ise-al',
@@ -512,14 +585,15 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'ODTÜ Teknokent',
     industry: 'Yapay Zeka & Veri Bilimi',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=700&q=80',
     customFields: {
       companyName: 'CognitiveLabs AI',
       position: 'Machine Learning Engineer',
       salaryRange: '110.000 - 150.000 TL',
       employmentType: 'Tam Zamanlı',
+      experienceLevel: '3+ Yıl',
       contactName: 'CognitiveLabs Talent Team',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ise-al',
@@ -530,7 +604,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Levent',
     industry: 'Dijital Pazarlama & E-Ticaret',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
     customFields: {
       companyName: 'HyperGrowth Media Group',
       position: 'Head of Growth',
@@ -538,6 +611,7 @@ export const CURATED_LISTING_TEMPLATES = [
       employmentType: 'Tam Zamanlı',
       contactName: 'HyperGrowth İnsan Kaynakları',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ise-al',
@@ -548,7 +622,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bayraklı',
     industry: 'Tasarım & UI/UX',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=700&q=80',
     customFields: {
       companyName: 'PixelStudio Digital',
       position: 'Senior Product Designer',
@@ -556,6 +629,7 @@ export const CURATED_LISTING_TEMPLATES = [
       employmentType: 'Tam Zamanlı',
       contactName: 'PixelStudio Tasarım Ekibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'ise-al',
@@ -566,7 +640,6 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Ataşehir',
     industry: 'Kurumsal Satış',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80',
     customFields: {
       companyName: 'CloudCorp Enterprise Solutions',
       position: 'B2B Account Executive',
@@ -574,6 +647,7 @@ export const CURATED_LISTING_TEMPLATES = [
       employmentType: 'Tam Zamanlı',
       contactName: 'CloudCorp Satış Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -588,13 +662,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'DevOps & Bulut Bilişim',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=700&q=80',
     customFields: {
       candidateTitle: 'Kıdemli DevOps & Bulut Mimarı',
       expectedSalary: '115.000 TL / Ay',
-      skills: 'AWS, Kubernetes, Docker, Terraform, GitHub Actions',
+      skills: 'AWS, Kubernetes, Docker, Terraform, GitHub Actions, Prometheus, Grafana',
+      experienceYears: '6+ Yıl',
       contactName: 'Kıdemli DevOps Mühendisi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'is-bul',
@@ -605,13 +680,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Çankaya',
     industry: 'Mobil Yazılım',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=700&q=80',
     customFields: {
       candidateTitle: 'Senior Mobile Engineer',
       expectedSalary: '90.000 TL / Ay',
-      skills: 'Flutter, Dart, Swift, REST API, Firebase',
+      skills: 'Flutter, Dart, Swift, REST API, Firebase, In-App Purchase',
+      experienceYears: '5 Yıl',
       contactName: 'Kıdemli Mobil Geliştirici',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'is-bul',
@@ -622,13 +698,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bornova',
     industry: 'Veri Analitiği & İş Zekası',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=80',
     customFields: {
       candidateTitle: 'Data Analyst & BI Specialist',
       expectedSalary: '70.000 TL / Ay',
-      skills: 'SQL, Python, Power BI, Tableau, Google Analytics 4',
+      skills: 'SQL, Python, Power BI, Tableau, Google Analytics 4, ETL',
+      experienceYears: '4 Yıl',
       contactName: 'Veri Analisti',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'is-bul',
@@ -639,13 +716,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Beşiktaş',
     industry: 'Sosyal Medya & İçerik',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=700&q=80',
     customFields: {
       candidateTitle: 'Content & Social Media Strategist',
       expectedSalary: '55.000 TL / Ay',
-      skills: 'CapCut, Premiere Pro, SEO Copywriting, LinkedIn B2B',
+      skills: 'CapCut, Premiere Pro, SEO Copywriting, LinkedIn B2B, Community Building',
+      experienceYears: '3 Yıl',
       contactName: 'İçerik Stratejisti',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'is-bul',
@@ -656,13 +734,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Nilüfer',
     industry: 'Frontend Yazılım',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=700&q=80',
     customFields: {
       candidateTitle: 'Senior Frontend Developer',
       expectedSalary: '85.000 TL / Ay',
-      skills: 'React, Next.js, TypeScript, Tailwind CSS, Zustand',
+      skills: 'React, Next.js, TypeScript, Tailwind CSS, Zustand, GraphQL',
+      experienceYears: '5 Yıl',
       contactName: 'Kıdemli Frontend Mühendisi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -677,13 +756,14 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Maslak',
     industry: 'Yazılım ve Teknoloji',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'CodeCraft Software Studio',
       servicePricing: '120.000 TL’den Başlayan Paketler',
-      serviceScope: 'MVP Geliştirme, SaaS Mimarisi, Mobil Uygulama',
+      serviceScope: 'MVP Geliştirme, SaaS Mimarisi, Mobil Uygulama, API',
+      deliveryTime: '4 - 8 Hafta',
       contactName: 'CodeCraft Proje Yönetimi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'hizmetler',
@@ -694,12 +774,13 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Levent',
     industry: 'Hukuk & Danışmanlık',
     remotePolicy: 'hybrid',
-    imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Vekil & Ortakları Hukuk Bürosu',
       servicePricing: 'Aylık Danışmanlık veya Proje Bazlı',
+      serviceScope: 'Şirket Kuruluşu, Yatırım Sözleşmeleri, KVKK, Marka Tescil',
       contactName: 'Kurumsal Hukuk Departmanı',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'hizmetler',
@@ -710,12 +791,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Bilkent Cyberpark',
     industry: 'Mali Müşavirlik & Finans',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'Vizyon Mali Müşavirlik & Denetim',
       servicePricing: 'Aylık Düzenli Hizmet Paketi',
       contactName: 'Mali Müşavirlik Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'hizmetler',
@@ -726,12 +807,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Alsancak',
     industry: 'Tasarım & Kreatif',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'BrandLab Creative Agency',
       servicePricing: '45.000 TL Sabit Paket',
       contactName: 'BrandLab Kreatif Direktör',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'hizmetler',
@@ -742,12 +823,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Ümraniye',
     industry: 'Siber Güvenlik',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'CyberShield Güvenlik Çözümleri',
       servicePricing: 'Proje Bazlı Fiyatlandırma',
       contactName: 'CyberShield Operasyon Merkezi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=700&q=80',
   },
 
   // =========================================================================
@@ -762,12 +843,13 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Maslak',
     industry: 'Yapay Zeka & Müşteri Hizmetleri',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'BotAssist AI SaaS',
       productTier: '14 Gün Ücretsiz Deneme · Sonra 890 TL/Ay',
+      features: 'WhatsApp Entegrasyonu, Çoklu Dil Desteği, CRM Bağlantısı',
       contactName: 'BotAssist Satış Ekibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'dijital-ai',
@@ -778,12 +860,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Çankaya',
     industry: 'E-Ticaret & Yapay Zeka',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'ContentGenie AI',
       productTier: 'Aylık 1.250 TL',
       contactName: 'ContentGenie Ekibi',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'dijital-ai',
@@ -794,12 +876,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Kadıköy',
     industry: 'Video & Medya Teknolojileri',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'ClipMagic AI Studio',
       productTier: 'Aylık 650 TL',
       contactName: 'ClipMagic Ürün Masası',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'dijital-ai',
@@ -810,12 +892,12 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Konak',
     industry: 'Verimlilik & Kurumsal AI',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'MeetSummary AI',
       productTier: 'Kullanıcı Başına 350 TL/Ay',
       contactName: 'MeetSummary Kurumsal',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80',
   },
   {
     categorySlug: 'dijital-ai',
@@ -826,11 +908,185 @@ export const CURATED_LISTING_TEMPLATES = [
     district: 'Tepebaşı',
     industry: 'Yazılım & Developer Tools',
     remotePolicy: 'remote',
-    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=700&q=80',
     customFields: {
       businessName: 'CodeReviewer Pro AI',
       productTier: 'Açık Kaynak Projelere Ücretsiz · Takımlar İçin 1.800 TL/Ay',
       contactName: 'CodeReviewer Labs',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=700&q=80',
   },
 ];
+
+export const EXCLUSIVE_MARKET_ADS = [
+  {
+    id: 'market-ad-1',
+    title: 'iyzico ile Girişiminiz İçin Güvenli ve Hızlı Ödeme Altyapısı',
+    description: 'Tüm kredi kartlarından tek tıkla ödeme alın, ertesi gün hesabınıza geçsin. Girişimbee üyelerine özel komisyon avantajı.',
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=500&fit=crop&q=80',
+    linkUrl: '/reklam',
+    ctaLabel: 'Çözümü İncele',
+    sortOrder: 1,
+    status: 'published',
+  },
+  {
+    id: 'market-ad-2',
+    title: 'AWS Cloud & Yapay Zeka Girişimlerine 5.000$ Bulut Kredisi',
+    description: 'Ölçeklenebilir sunucu, GPU altyapısı ve teknik mimari mentorluğu ile girişiminizi AWS üzerinde hızla büyütün.',
+    imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop&q=80',
+    linkUrl: '/reklam',
+    ctaLabel: 'Fırsatı Keşfet',
+    sortOrder: 2,
+    status: 'published',
+  },
+  {
+    id: 'market-ad-3',
+    title: 'GrowthBee ile B2B ve E-Ticaret Büyüme & Reklam Çözümleri',
+    description: 'Yüksek bütçeli Meta ve Google Ads kampanyalarınızı ROAS odaklı yönetin. Kurumsal performans pazarlama iş birliği.',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop&q=80',
+    linkUrl: '/reklam',
+    ctaLabel: 'Detaylara Bak',
+    sortOrder: 3,
+    status: 'published',
+  },
+  {
+    id: 'market-ad-4',
+    title: 'LegalTech ile Otomatik Hissedar ve Yatırım Sözleşmeleri Paketi',
+    description: 'Girişimler için standart SAFE, Gizlilik (NDA) ve Ortaklık sözleşmelerini avukat onaylı şablonlarla dakikalar içinde hazırlayın.',
+    imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&h=500&fit=crop&q=80',
+    linkUrl: '/reklam',
+    ctaLabel: 'Paketi İncele',
+    sortOrder: 4,
+    status: 'published',
+  },
+];
+
+function slugify(title, index) {
+  const base = title
+    .toLowerCase()
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ı/g, 'i')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50);
+  return `${base || 'ilan'}-${index}`;
+}
+
+async function main() {
+  console.log('🚀 Starting Full Database Purge and Reseed with 45 Exclusive Realistic Listings...');
+
+  // 1. Resolve owner_id
+  let ownerId = null;
+  const { data: usersData } = await supabase.auth.admin.listUsers({ page: 1, perPage: 20 });
+  const users = usersData?.users || [];
+  if (users.length > 0) {
+    ownerId = users[0].id;
+  }
+
+  if (!ownerId) {
+    console.error('❌ No user found in Supabase auth to assign owner_id');
+    process.exit(1);
+  }
+  console.log('✅ Resolved owner_id:', ownerId);
+
+  // 2. Fetch all category IDs
+  const { data: categories, error: catErr } = await supabase
+    .from('marketplace_categories')
+    .select('id, slug, name');
+
+  if (catErr || !categories || categories.length === 0) {
+    console.warn('⚠️ No marketplace_categories table data found, continuing...');
+  }
+  const categoryMap = new Map((categories || []).map((c) => [c.slug, c.id]));
+
+  // 3. Purge all dependent tables
+  console.log('🧹 Purging messages, conversations, contact requests, applications, and old listings...');
+  await supabase.from('marketplace_messages').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_conversation_participants').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_conversations').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_contact_requests').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_applications').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_saved_listings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('marketplace_listings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase.from('market_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  console.log('✅ Purge complete.');
+
+  // 4. Insert 45 Exclusive Realistic Listings
+  console.log(`📦 Inserting ${EXCLUSIVE_LISTINGS_DATA.length} realistic listings across 9 categories...`);
+  const now = Date.now();
+  const listingRows = EXCLUSIVE_LISTINGS_DATA.map((item, index) => {
+    const categoryId = categoryMap.get(item.categorySlug) || null;
+    const publishedAt = new Date(now - index * 3600000 * 6).toISOString();
+
+    return {
+      id: randomUUID(),
+      slug: slugify(item.title, index + 1),
+      owner_id: ownerId,
+      category_id: categoryId,
+      title: item.title,
+      short_description: item.shortDescription,
+      long_description: item.longDescription,
+      city: item.city,
+      district: item.district,
+      industry: item.industry,
+      country: 'TR',
+      remote_policy: item.remotePolicy || 'onsite',
+      status: 'published',
+      workflow_status: 'published',
+      is_featured: index % 3 === 0,
+      is_urgent: index % 5 === 0,
+      is_verified: true,
+      view_count: 180 + index * 24,
+      application_count: 2 + (index % 7),
+      custom_fields: item.customFields,
+      cover_url: item.imageUrl,
+      published_at: publishedAt,
+      created_at: publishedAt,
+      updated_at: publishedAt,
+    };
+  });
+
+  const { data: insertedListings, error: insErr } = await supabase
+    .from('marketplace_listings')
+    .insert(listingRows)
+    .select('id, title, slug');
+
+  if (insErr) {
+    console.error('❌ Error inserting listings:', insErr);
+  } else {
+    console.log(`✅ Successfully seeded ${insertedListings?.length || 0} listings in Supabase!`);
+  }
+
+  // 5. Insert Market Ads
+  console.log('📢 Inserting 4 Corporate Market Ads & Solutions...');
+  const adRows = EXCLUSIVE_MARKET_ADS.map((ad, i) => ({
+    id: randomUUID(),
+    title: ad.title,
+    description: ad.description,
+    image_url: ad.imageUrl,
+    link_url: ad.linkUrl,
+    cta_label: ad.ctaLabel,
+    sort_order: ad.sortOrder,
+    status: ad.status,
+    published_at: new Date(now - i * 3600000).toISOString(),
+    created_at: new Date(now - i * 3600000).toISOString(),
+    updated_at: new Date(now - i * 3600000).toISOString(),
+  }));
+
+  const { error: adErr } = await supabase.from('market_items').insert(adRows);
+  if (adErr) {
+    console.warn('⚠️ Market items table insert note:', adErr.message);
+  } else {
+    console.log('✅ Successfully seeded Market Ads in Supabase!');
+  }
+
+  console.log('🎉 RESEED PROCESS COMPLETE!');
+}
+
+main().catch((err) => {
+  console.error('Fatal error:', err);
+  process.exit(1);
+});
