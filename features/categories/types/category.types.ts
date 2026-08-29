@@ -58,6 +58,8 @@ export interface ContentItem {
   price?: string;
   /** Listing card — uploaded cover or category fallback. */
   coverUrl?: string;
+  /** Optional image URL alias */
+  imageUrl?: string;
   /** Listing card — open company name for employers. */
   companyName?: string;
   /** Listing metadata for cascading marketplace search filters */

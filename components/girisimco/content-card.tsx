@@ -1,14 +1,20 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import {
-  ArrowRight,
   ArrowUpRight,
   BookOpen,
   Briefcase,
   Building2,
   Clock,
+  Coins,
+  Handshake,
   MapPin,
+  Rocket,
   ShieldCheck,
+  Sparkles,
+  Store,
   User,
+  Wrench,
   Zap,
 } from 'lucide-react';
 import { FavoriteButton } from '@/components/girisimco/marketplace/favorite-button';
@@ -28,10 +34,33 @@ interface ContentCardProps {
   accent?: string;
 }
 
+function getCategoryFallbackImage(typeLabel: string, typeKey?: string): string {
+  const normalized = (typeLabel + ' ' + (typeKey || '')).toLowerCase();
+  if (normalized.includes('yazılım') || normalized.includes('saas') || normalized.includes('tech') || normalized.includes('dijital')) {
+    return 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80';
+  }
+  if (normalized.includes('ortak') || normalized.includes('devir') || normalized.includes('b2b')) {
+    return 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=80';
+  }
+  if (normalized.includes('yatırım') || normalized.includes('seed') || normalized.includes('girişim') || normalized.includes('erken')) {
+    return 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80';
+  }
+  if (normalized.includes('kariyer') || normalized.includes('iş') || normalized.includes('mühendis') || normalized.includes('cto')) {
+    return 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80';
+  }
+  if (normalized.includes('franchise') || normalized.includes('bayi')) {
+    return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80';
+  }
+  if (normalized.includes('hizmet') || normalized.includes('usta') || normalized.includes('danışman')) {
+    return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80';
+  }
+  return 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80';
+}
+
 function Avatar({ initials, accent }: { initials: string; accent?: string }) {
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white shadow-soft"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-xs"
       style={{ backgroundColor: accent ?? GC_ACCENT }}
     >
       {initials}
@@ -84,7 +113,7 @@ export function ContentCard({ item, accent }: ContentCardProps) {
   return card;
 }
 
-/** Exclusive modern marketplace listing card. */
+/** Exclusive 2. Resim tasarımı: Görsel, Rozetler, Şirket Satırı, Metadata Yığını & Siyah İncele Butonu. */
 function TextListingCardLayout({
   item,
   listingLink,
@@ -97,97 +126,123 @@ function TextListingCardLayout({
   const Icon = (item.listingIconKey && LISTING_TYPE_ICON_MAP[item.listingIconKey as keyof typeof LISTING_TYPE_ICON_MAP]) || LISTING_TYPE_ICON_MAP.general;
   const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
   const description = item.description || item.detail;
+  const displayImage = item.imageUrl || item.coverUrl || getCategoryFallbackImage(typeLabel, item.listingIconKey);
 
   return (
     <article
       className={cn(
-        'group relative flex h-full min-h-[14rem] flex-col justify-between overflow-hidden rounded-2xl p-5',
-        'bg-white/95 dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800/90',
-        'shadow-xs hover:border-amber-500/50 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50',
-        'transition-all duration-300 ease-out hover:-translate-y-1',
+        'group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.75rem]',
+        'bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800',
+        'shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out',
+        'hover:border-amber-500/50 hover:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.12)] hover:-translate-y-1.5',
         listingLink && 'cursor-pointer',
       )}
     >
-      <div>
-        {/* Top Meta Row: Type Pill + Badges + Price */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold tracking-wide"
-              style={{ backgroundColor: `${accent}14`, color: accent }}
-            >
-              {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
-              <span>{typeLabel}</span>
-            </span>
+      {/* 1. Üst Görsel Alanı (16:10 Oran, Köşeli Rozet & Favori Butonu) */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+        <Image
+          src={displayImage}
+          alt={item.title}
+          fill
+          className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px"
+          unoptimized
+        />
 
-            {item.trust?.user || item.trust?.company ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold border border-emerald-200/70 dark:border-emerald-800/50">
-                <ShieldCheck className="h-3 w-3" />
-                Doğrulanmış
-              </span>
-            ) : null}
-          </div>
+        {/* Görsel Üzeri Hafif Karartma */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-          {compactPrice && (
-            <span
-              className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-0.5 font-display text-xs font-bold tabular-nums border border-amber-300/80 bg-amber-50/80 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300"
-            >
-              {compactPrice}
-            </span>
-          )}
+        {/* Sol Üstte Işıltılı Kategori Hapı (Görsel İçi) */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-black/65 backdrop-blur-md text-white text-[11px] font-bold shadow-md border border-white/15">
+            {Icon ? <Icon className="h-3.5 w-3.5 text-amber-400" /> : <Sparkles className="h-3.5 w-3.5 text-amber-400" />}
+            <span>{typeLabel}</span>
+          </span>
         </div>
 
-        {/* Title */}
-        <h3 className="mt-3.5 line-clamp-2 font-display text-[1.15rem] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
+        {/* Sağ Üst Favori Butonu */}
+        {item.listingId && (
+          <div className="absolute top-3 right-3 z-10">
+            <div className="rounded-xl bg-black/40 backdrop-blur-md p-1 border border-white/10 hover:bg-black/60 transition-colors">
+              <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Kart Gövdesi */}
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        
+        {/* Görsel Altı Rozet Satırı (Kategori & Doğrulanmış Rozeti) */}
+        <div className="flex items-center gap-2">
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide"
+            style={{ backgroundColor: `${accent}18`, color: accent }}
+          >
+            {Icon ? <Icon className="h-3 w-3" /> : null}
+            <span>{typeLabel}</span>
+          </span>
+
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-zinc-800 text-white text-[11px] font-bold shadow-2xs">
+            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+            Doğrulanmış
+          </span>
+        </div>
+
+        {/* İlan Başlığı */}
+        <h3 className="mt-3 line-clamp-1 font-display text-[16px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
           {item.title}
         </h3>
 
-        {/* Company Name / Tag */}
-        {item.companyName ? (
-          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-400">
-            <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-zinc-500" />
-            <span className="truncate">{item.companyName}</span>
-          </div>
+        {/* 2 Satır Kısa Açıklama */}
+        {description ? (
+          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
+            {description}
+          </p>
         ) : null}
 
-        {/* Description + Favorite Button */}
-        <div className="mt-2.5 flex items-end justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            {description ? (
-              <p className="line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
-                {description}
-              </p>
-            ) : null}
+        {/* Şirket / Yayıncı Satırı */}
+        <div className="mt-3.5 flex items-center gap-2">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+            <Building2 className="h-3.5 w-3.5 text-slate-500" />
           </div>
-          {item.listingId && (
-            <div className="shrink-0 mb-0.5">
-              <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer Meta Strip */}
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-zinc-800/80 pt-3.5 text-xs text-slate-500 dark:text-zinc-400">
-        <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-          {item.location && (
-            <span className="inline-flex items-center gap-1 shrink-0">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-              <span className="truncate max-w-[110px] font-medium">{item.location}</span>
-            </span>
-          )}
-          {item.timeAgo && (
-            <span className="inline-flex items-center gap-1 shrink-0">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-              <span className="whitespace-nowrap font-medium">{item.timeAgo}</span>
-            </span>
-          )}
+          <span className="truncate text-xs font-bold text-slate-800 dark:text-zinc-200">
+            {item.companyName || (item.trust?.company ? 'Kurumsal Girişim' : 'Doğrulanmış Üye')}
+          </span>
         </div>
 
-        <span className="inline-flex items-center gap-1 rounded-xl bg-slate-900 dark:bg-zinc-800 text-white dark:text-zinc-200 px-3 py-1.5 text-xs font-bold shadow-2xs transition-all duration-200 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:scale-105">
-          <span>İncele</span>
-          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </span>
+        {/* 3. Alt Metadata Yığını & Siyah İncele Butonu */}
+        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-end justify-between gap-3">
+          
+          {/* Sol: Değerleme/Fiyat, Lokasyon ve Zaman */}
+          <div className="flex flex-col gap-1 text-[11.5px] text-slate-500 dark:text-zinc-400 font-medium">
+            {compactPrice && (
+              <span className="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-zinc-100">
+                <Coins className="h-3 w-3 text-amber-500 shrink-0" />
+                <span className="truncate">Değerleme / Fiyat: {compactPrice}</span>
+              </span>
+            )}
+            {item.location && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                <span className="truncate max-w-[130px]">{item.location}</span>
+              </span>
+            )}
+            {item.timeAgo && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                <span>{item.timeAgo}</span>
+              </span>
+            )}
+          </div>
+
+          {/* Sağ: Şık Siyah İncele Butonu */}
+          <span className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs shadow-md transition-all group-hover:scale-105">
+            <span>İncele</span>
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </span>
+        </div>
+
       </div>
     </article>
   );
