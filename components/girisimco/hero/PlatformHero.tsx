@@ -19,6 +19,7 @@ import {
   type HeroStatsCounts,
 } from '@/features/home/hooks/use-hero-stats';
 import { HeroNetworkVisual } from '@/components/girisimco/hero/hero-network';
+import { HeroSuperListingsWidget } from '@/components/girisimco/hero/HeroSuperListingsWidget';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -201,31 +202,13 @@ export function PlatformHero({ className }: { className?: string }) {
           </div>
 
           <div className="hidden justify-end xl:flex">
-            <ul
-              className="flex w-[12rem] flex-col gap-1.5"
-              aria-label="Platform istatistikleri"
-            >
-              {HERO_SIDEBAR_STATS.map((stat) => (
-                <li key={stat.key}>
-                  <StatPill stat={stat} counts={counts} isLoading={isLoading} />
-                </li>
-              ))}
-            </ul>
+            <HeroSuperListingsWidget className="w-[16.5rem]" />
           </div>
         </div>
       </div>
 
-      <div className="relative border-t border-[#EEF0F4] px-5 pb-1.5 pt-1.5 xl:hidden lg:px-8">
-        <ul
-          className="mx-auto grid max-w-[1280px] grid-cols-2 gap-1.5 sm:grid-cols-3"
-          aria-label="Platform istatistikleri"
-        >
-          {HERO_SIDEBAR_STATS.map((stat) => (
-            <li key={stat.key}>
-              <StatPill stat={stat} counts={counts} isLoading={isLoading} />
-            </li>
-          ))}
-        </ul>
+      <div className="relative border-t border-[#EEF0F4] dark:border-zinc-800 px-5 pb-3 pt-3 xl:hidden lg:px-8">
+        <HeroSuperListingsWidget className="mx-auto max-w-[420px]" />
       </div>
     </section>
   );

@@ -84,7 +84,7 @@ export function ContentCard({ item, accent }: ContentCardProps) {
   return card;
 }
 
-/** Linear-grade compact marketplace listing card. */
+/** Exclusive modern marketplace listing card. */
 function TextListingCardLayout({
   item,
   listingLink,
@@ -101,31 +101,36 @@ function TextListingCardLayout({
   return (
     <article
       className={cn(
-        'group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5',
-        'bg-card border border-border/70 hover:border-primary/40',
-        'shadow-sm hover:shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5',
+        'group relative flex h-full min-h-[14rem] flex-col justify-between overflow-hidden rounded-2xl p-5',
+        'bg-white/95 dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800/90',
+        'shadow-xs hover:border-amber-500/50 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50',
+        'transition-all duration-300 ease-out hover:-translate-y-1',
         listingLink && 'cursor-pointer',
       )}
     >
       <div>
-        {/* Top Meta Row: Type Pill + Price Badge (Side-by-side) */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1 text-[13px] font-bold"
-            style={{ backgroundColor: `${accent}14`, color: accent }}
-          >
-            {Icon ? <Icon className="h-4 w-4" /> : null}
-            <span>{typeLabel}</span>
-          </span>
+        {/* Top Meta Row: Type Pill + Badges + Price */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold tracking-wide"
+              style={{ backgroundColor: `${accent}14`, color: accent }}
+            >
+              {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
+              <span>{typeLabel}</span>
+            </span>
+
+            {item.trust?.user || item.trust?.company ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold border border-emerald-200/70 dark:border-emerald-800/50">
+                <ShieldCheck className="h-3 w-3" />
+                Doğrulanmış
+              </span>
+            ) : null}
+          </div>
 
           {compactPrice && (
             <span
-              className="inline-flex shrink-0 items-center rounded-lg px-3 py-1 font-display text-[13px] font-bold tabular-nums border"
-              style={{
-                backgroundColor: 'rgba(159, 18, 57, 0.07)',
-                color: '#9F1239',
-                borderColor: 'rgba(159, 18, 57, 0.20)',
-              }}
+              className="inline-flex shrink-0 items-center rounded-lg px-2.5 py-0.5 font-display text-xs font-bold tabular-nums border border-amber-300/80 bg-amber-50/80 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300"
             >
               {compactPrice}
             </span>
@@ -133,23 +138,23 @@ function TextListingCardLayout({
         </div>
 
         {/* Title */}
-        <h3 className="mt-3.5 line-clamp-2 font-display text-[1.125rem] font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+        <h3 className="mt-3.5 line-clamp-2 font-display text-[1.15rem] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
           {item.title}
         </h3>
 
-        {/* Open Company Name (for employer hiring listings) */}
+        {/* Company Name / Tag */}
         {item.companyName ? (
-          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            <Building2 className="h-3.5 w-3.5 shrink-0" />
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-400">
+            <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-zinc-500" />
             <span className="truncate">{item.companyName}</span>
           </div>
         ) : null}
 
-        {/* Description + Favorite Button (Yatay çizginin hemen üstünde, sağda) */}
+        {/* Description + Favorite Button */}
         <div className="mt-2.5 flex items-end justify-between gap-3">
           <div className="min-w-0 flex-1">
             {description ? (
-              <p className="line-clamp-2 text-[14.5px] leading-relaxed text-muted-foreground">
+              <p className="line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
                 {description}
               </p>
             ) : null}
@@ -162,26 +167,26 @@ function TextListingCardLayout({
         </div>
       </div>
 
-      {/* Footer Meta Strip (Yatay çizginin altı) */}
-      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[13px] text-muted-foreground">
-        <div className="flex min-w-0 items-center gap-2.5 overflow-hidden">
+      {/* Footer Meta Strip */}
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-zinc-800/80 pt-3.5 text-xs text-slate-500 dark:text-zinc-400">
+        <div className="flex min-w-0 items-center gap-3 overflow-hidden">
           {item.location && (
             <span className="inline-flex items-center gap-1 shrink-0">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate max-w-[110px]">{item.location}</span>
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+              <span className="truncate max-w-[110px] font-medium">{item.location}</span>
             </span>
           )}
           {item.timeAgo && (
             <span className="inline-flex items-center gap-1 shrink-0">
-              <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span className="whitespace-nowrap">{item.timeAgo}</span>
+              <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+              <span className="whitespace-nowrap font-medium">{item.timeAgo}</span>
             </span>
           )}
         </div>
 
-        <span className="inline-flex items-center gap-1 font-bold text-[13.5px] text-foreground transition-colors group-hover:text-primary whitespace-nowrap pl-2 shrink-0">
-          İncele
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        <span className="inline-flex items-center gap-1 rounded-xl bg-slate-900 dark:bg-zinc-800 text-white dark:text-zinc-200 px-3 py-1.5 text-xs font-bold shadow-2xs transition-all duration-200 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:scale-105">
+          <span>İncele</span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
     </article>
