@@ -43,13 +43,13 @@ export const HOME_CATEGORIES_CATALOG = [
     hint: 'İş arayanlar ve işverenler için iki ayrı yol. Önce hangisi olduğunuzu seçin.',
   },
   {
-    slug: 'dijital-ai',
-    href: '/dijital-ai',
-    label: 'Dijital ve AI Çözümleri',
-    color: GC_CATEGORY_COLORS['dijital-ai'],
-    audience: 'Ürün ve yetenekler',
-    shortCue: 'Ürün ve çözümler',
-    hint: 'Ürün adı, kısa tanıtım ve yetenek kartlarıyla AI / yazılım çözümlerini inceleyin.',
+    slug: 'market',
+    href: '/market',
+    label: 'Girişimbee Market',
+    color: '#F59E0B',
+    audience: 'Fırsat & Çözümler',
+    shortCue: 'Kurumsal çözümler',
+    hint: 'Girişiminiz için doğrulanmış ödeme, bulut, reklam ve hukuki çözümleri inceleyin.',
   },
   {
     slug: 'girisim-ortaklik',
@@ -77,7 +77,7 @@ export const HOME_GATEWAY_VISIBLE_SLUGS = [
 export const HOME_GATEWAY_DEFERRED_SLUGS = [
   'ortak-bul',
   'franchise',
-  'dijital-ai',
+  'market',
 ] as const satisfies readonly HomeCategorySlug[];
 
 const VISIBLE_SET = new Set<string>(HOME_GATEWAY_VISIBLE_SLUGS);

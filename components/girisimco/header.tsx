@@ -41,12 +41,11 @@ const INTENT_TABS = [
       p === '/kategori/ortak-bul',
   },
   {
-    label: 'Franchise ve Çözümler',
+    label: 'Franchise ve Market',
     href: '/franchise/buy',
     isActive: (p: string) =>
       p.startsWith('/franchise') ||
-      p === '/dijital-ai' ||
-      p === '/kategori/dijital-ai',
+      p.startsWith('/market'),
   },
 ];
 

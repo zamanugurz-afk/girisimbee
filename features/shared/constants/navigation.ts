@@ -5,15 +5,14 @@ import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
 export const NAV_LINKS = [
   { label: 'Kariyer ve İş Fırsatları', href: '/is' },
   { label: 'Ortaklık ve Devir', href: '/girisim-ortaklik' },
-  { label: 'Fırsatlar', href: '/market' },
-  { label: 'Çözümler', href: '/dijital-ai' },
+  { label: 'Fırsat ve Çözümler', href: '/market' },
 ] as const;
 
 export type FooterLinkItem = { label: string; href: string };
 
 /**
  * Footer columns follow homepage IA:
- * Kariyer · Ortaklık ve Devir · Fırsatlar · Çözümler · Hesap · İletişim
+ * Kariyer · Ortaklık ve Devir · Fırsatlar ve Çözümler · Hesap · İletişim
  */
 const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   'Kariyer ve İş Fırsatları': [
@@ -25,11 +24,9 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
     { label: 'Ortak Olmak İstiyorum', href: '/partners?intent=joining' },
     { label: 'Franchise Fırsatları', href: '/franchise/buy' },
   ],
-  Fırsatlar: [
+  'Fırsat ve Çözümler': [
     { label: 'Girişimbee MARKET', href: '/market' },
-  ],
-  Çözümler: [
-    { label: 'Dijital ve AI Çözümleri', href: '/dijital-ai' },
+    { label: 'Reklam ve İş Birliği', href: '/reklam' },
   ],
   Hesap: [
     { label: 'Giriş yap', href: AUTH_ROUTES.login },

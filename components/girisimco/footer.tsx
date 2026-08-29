@@ -20,7 +20,6 @@ export function Footer() {
         { label: 'Franchise ve Bayilik', href: '/franchise/buy' },
         { label: 'Ustalar ve Hizmetler', href: '/kategori/hizmetler' },
         { label: 'Girişimbee Market', href: '/market' },
-        { label: 'Dijital ve AI Çözümler', href: '/dijital-ai' },
       ],
     },
     {

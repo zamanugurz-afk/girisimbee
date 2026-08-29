@@ -49,12 +49,12 @@ const NODES: {
   },
   {
     id: 'solutions',
-    label: 'Çözümler',
-    href: '/dijital-ai',
+    label: 'Market',
+    href: '/market',
     Icon: Sparkles,
     className: 'left-[1%] top-1/2 -translate-y-1/2',
-    color: gcCategoryColors['dijital-ai'],
-    lineStroke: gcCategoryColors['dijital-ai'],
+    color: '#F59E0B',
+    lineStroke: '#F59E0B',
   },
 ];
 

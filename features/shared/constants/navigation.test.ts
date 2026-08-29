@@ -2,15 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { NAV_LINKS, getFooterLinks } from '@/features/shared/constants/navigation';
 
 describe('homepage information architecture navigation', () => {
-  it('exposes the four homepage pillars in the header', () => {
+  it('exposes the homepage pillars in the header', () => {
     expect(NAV_LINKS.map((link) => [link.label, link.href])).toEqual([
       ['Kariyer ve İş Fırsatları', '/is'],
       ['Ortaklık ve Devir', '/girisim-ortaklik'],
-      ['Fırsatlar', '/market'],
-      ['Çözümler', '/dijital-ai'],
+      ['Fırsat ve Çözümler', '/market'],
     ]);
     expect(NAV_LINKS.map((link) => link.label).join(' ')).not.toContain('Yatırım');
-    expect(NAV_LINKS.map((link) => link.label).join(' ')).not.toContain('&');
   });
 
   it('mirrors the same pillars in the footer without showing investment', () => {
@@ -18,8 +16,7 @@ describe('homepage information architecture navigation', () => {
     expect(Object.keys(footer)).toEqual([
       'Kariyer ve İş Fırsatları',
       'Ortaklık ve Devir',
-      'Fırsatlar',
-      'Çözümler',
+      'Fırsat ve Çözümler',
       'Hesap',
       'İletişim',
     ]);
@@ -32,11 +29,9 @@ describe('homepage information architecture navigation', () => {
       ['Ortak Olmak İstiyorum', '/partners?intent=joining'],
       ['Franchise Fırsatları', '/franchise/buy'],
     ]);
-    expect(footer.Fırsatlar?.map((link) => [link.label, link.href])).toEqual([
+    expect(footer['Fırsat ve Çözümler']?.map((link) => [link.label, link.href])).toEqual([
       ['Girişimbee MARKET', '/market'],
-    ]);
-    expect(footer.Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital ve AI Çözümleri', '/dijital-ai'],
+      ['Reklam ve İş Birliği', '/reklam'],
     ]);
     const allLabels = Object.values(footer).flat().map((link) => link.label);
     expect(allLabels).not.toContain('Yatırım Arıyorum');

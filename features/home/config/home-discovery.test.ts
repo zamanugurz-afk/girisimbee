@@ -104,14 +104,13 @@ describe('home user-facing investment discovery', () => {
   });
 
   it('keeps published non-investment listings on home Tümü', () => {
-    const items = listingsToContentItems([career, partnership, franchise, digitalAi]);
+    const items = listingsToContentItems([career, partnership, franchise]);
     expect(items.every(isUserDiscoverableContentItem)).toBe(true);
     expect(items.every((item) => allTab?.match(item))).toBe(true);
     expect(items.map((item) => item.title)).toEqual([
       'Yayında iş ilanı',
       'Yayında ortaklık ilanı',
       'Yayında franchise ilanı',
-      'Yayında dijital çözüm',
     ]);
   });
 
