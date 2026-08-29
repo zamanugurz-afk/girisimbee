@@ -81,41 +81,6 @@ function BeeWingFlutter() {
   );
 }
 
-/** Single rotating radar bar + 360° conic radar scan around the bee mark */
-function CenterRadarScanner() {
-  return (
-    <div
-      className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square w-[78.6%] rounded-full overflow-hidden z-[5] animate-spin"
-      style={{
-        animationDuration: '3.5s',
-        animationTimingFunction: 'linear',
-      }}
-      aria-hidden
-    >
-      {/* Conic Radar Beam Sweep (1. resimdeki tarama efekti) */}
-      <div
-        className="h-full w-full rounded-full"
-        style={{
-          background:
-            'conic-gradient(from 0deg, rgba(245, 158, 11, 0.32) 0deg, rgba(245, 158, 11, 0.08) 45deg, transparent 75deg, transparent 360deg)',
-        }}
-      />
-
-      {/* Tek Radar Çubuğu (Tek çizgi, çubuk uzunluğu arıdaki çubuklar kadar: merkezden dış çembere) */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-[50%]"
-        style={{
-          background: 'linear-gradient(to top, rgba(245, 158, 11, 0.25), #F59E0B 80%, #D97706)',
-          boxShadow: '0 0 10px rgba(245, 158, 11, 0.75)',
-        }}
-      >
-        {/* Radar ucu hedef tarama noktası (Blip dot) */}
-        <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-amber-200 dark:ring-amber-900 shadow-[0_0_10px_#F59E0B]" />
-      </div>
-    </div>
-  );
-}
-
 /** Network visual — sized by parent; category-aligned node colors. */
 export function HeroNetworkVisual({ className }: { className?: string }) {
   return (
@@ -145,6 +110,13 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
       {/* Orbit Rings & Structural Guidelines */}
       <div className="pointer-events-none absolute inset-[4%]" aria-hidden>
         <svg className="h-full w-full" viewBox="0 0 300 300" fill="none">
+          <defs>
+            <clipPath id="radar-sweep-clip">
+              <circle cx="118" cy="118" r="118" />
+            </clipPath>
+          </defs>
+
+          {/* Sabit Kılavuz Çemberler */}
           <circle cx="150" cy="150" r="86" stroke="#E8EAF0" strokeWidth="1.35" />
           <circle
             cx="150"
@@ -155,6 +127,62 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
             strokeDasharray="3 9"
             opacity="0.9"
           />
+
+          {/* =========================================================================
+              [YENİ VERSİYON - KESİN MATEMATİKSEL HİZALAMA]
+              Arı logosunun dışındaki çemberde dönen tek radar çubuğu ve radar tarama animasyonu
+              Doğrudan SVG koordinat sisteminde (150, 150) merkezli — asla kayma veya yalpalamaz!
+             ========================================================================= */}
+          {HERO_NETWORK_MODE === 'radar-sweep' && (
+            <g
+              className="animate-spin"
+              style={{
+                transformOrigin: '150px 150px',
+                animationDuration: '3.5s',
+                animationTimingFunction: 'linear',
+              }}
+            >
+              {/* Conic Radar Beam Sweep (1. resimdeki tarama efekti) */}
+              <foreignObject x="32" y="32" width="236" height="236" clipPath="url(#radar-sweep-clip)">
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    background:
+                      'conic-gradient(from 0deg, rgba(245, 158, 11, 0.36) 0deg, rgba(245, 158, 11, 0.09) 45deg, transparent 75deg, transparent 360deg)',
+                  }}
+                />
+              </foreignObject>
+
+              {/* Tek Radar Çubuğu (Merkezden dış çembere tam 118px) */}
+              <line
+                x1="150"
+                y1="150"
+                x2="150"
+                y2="32"
+                stroke="#F59E0B"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                style={{
+                  filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.85))',
+                }}
+              />
+
+              {/* Radar ucu hedef tarama noktası (Blip dot) */}
+              <circle
+                cx="150"
+                cy="32"
+                r="4"
+                fill="#F59E0B"
+                stroke="#FEF3C7"
+                strokeWidth="1.5"
+                style={{
+                  filter: 'drop-shadow(0 0 8px #F59E0B)',
+                }}
+              />
+            </g>
+          )}
 
           {/* =========================================================================
               [ESKİ VERSİYON SAKLANDI - GERİ DÖNÜLEBİLİR]
@@ -174,12 +202,6 @@ export function HeroNetworkVisual({ className }: { className?: string }) {
           )}
         </svg>
       </div>
-
-      {/* =========================================================================
-          [YENİ VERSİYON]
-          Arı logosunun dışındaki çemberde dönen tek radar çubuğu ve radar tarama animasyonu
-         ========================================================================= */}
-      {HERO_NETWORK_MODE === 'radar-sweep' && <CenterRadarScanner />}
 
       {/* Center Bee Avatar (Z-Index 10: radar sweep flows cleanly behind it) */}
       <div className="absolute left-1/2 top-1/2 z-10 flex h-[6.5rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_12px_32px_-12px_rgba(15,23,42,0.28)] ring-[3px] ring-[#FBBF24]/75 sm:h-[7rem] sm:w-[7rem]">
