@@ -73,6 +73,15 @@ export function ExploreSuperVitrin({
 
   const [pageIndex, setPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(true);
+
+  // Sayfa açıldığında tam 30 saniye boyunca yanıp sönsün / dikkat çeksin
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const totalPages = Math.ceil(superItems.length / ITEMS_PER_PAGE);
 
@@ -104,11 +113,21 @@ export function ExploreSuperVitrin({
 
   return (
     <section
-      className={cn('mb-10 min-w-0', className)}
+      className={cn(
+        'relative mb-10 min-w-0 overflow-hidden rounded-[2rem] p-4 sm:p-6 transition-all duration-700',
+        'bg-gradient-to-b from-amber-500/[0.04] via-amber-500/[0.015] to-transparent dark:from-amber-500/[0.08] dark:to-zinc-950/50',
+        isPulsing
+          ? 'border-2 border-amber-500 ring-4 ring-amber-400/40 shadow-[0_0_35px_rgba(245,158,11,0.30)] dark:shadow-[0_0_40px_rgba(245,158,11,0.25)] animate-pulse'
+          : 'border-2 border-amber-400/60 dark:border-amber-500/40 shadow-[0_4px_24px_rgba(245,158,11,0.08)]',
+        className,
+      )}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-label="Süper İlanlar Vitrini"
     >
+      {/* Arka Plan Vurgu Işığı */}
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl" aria-hidden="true" />
       {/* BAŞLIK VE SAYFALAMA ŞERİDİ */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-2.5">
