@@ -87,11 +87,11 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
             {/* ========================================================================= */}
             <div className="lg:col-span-6 flex flex-col justify-center">
               
-              {/* El Yazısı / Cursive Başlık */}
+              {/* Normal / Standart Başlık */}
               <div className="inline-flex items-baseline gap-2">
-                <span className="font-script text-4xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-slate-900 dark:text-white select-none">
-                  Girişimbee Market
-                </span>
+                <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
+                  Girişimbee <span className="text-amber-500">Market</span>
+                </h2>
               </div>
 
               {/* Vurgu Çizgisi (Teal/Turkuaz & Kehribar Gradyan) */}
