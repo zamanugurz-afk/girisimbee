@@ -114,17 +114,21 @@ export function ExploreSuperVitrin({
   return (
     <section
       className={cn(
-        'relative mb-10 min-w-0 overflow-hidden rounded-[2rem] p-4 sm:p-6 transition-all duration-700',
-        'bg-gradient-to-b from-amber-500/[0.04] via-amber-500/[0.015] to-transparent dark:from-amber-500/[0.08] dark:to-zinc-950/50',
-        isPulsing
-          ? 'border-2 border-amber-500 ring-4 ring-amber-400/40 shadow-[0_0_35px_rgba(245,158,11,0.30)] dark:shadow-[0_0_40px_rgba(245,158,11,0.25)] animate-pulse'
-          : 'border-2 border-amber-400/60 dark:border-amber-500/40 shadow-[0_4px_24px_rgba(245,158,11,0.08)]',
+        'relative mb-10 min-w-0 rounded-[2rem] p-4 sm:p-6 transition-all duration-500 border-2 border-amber-400/80 dark:border-amber-500/60 shadow-[0_4px_24px_rgba(245,158,11,0.08)] bg-gradient-to-b from-amber-500/[0.04] via-amber-500/[0.015] to-transparent dark:from-amber-500/[0.08] dark:to-zinc-950/50',
         className,
       )}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-label="Süper İlanlar Vitrini"
     >
+      {/* 30 Saniyelik Yanıp Sönen Kenarlık Efekti (Sadece Çerçevenin Kenarları Yanıp Söner, İçi Sabit Kalır) */}
+      {isPulsing && (
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[2rem] border-[3px] border-amber-500 ring-4 ring-amber-400/40 shadow-[0_0_35px_rgba(245,158,11,0.40)] animate-pulse z-20"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Arka Plan Vurgu Işığı */}
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl" aria-hidden="true" />
       <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl" aria-hidden="true" />
