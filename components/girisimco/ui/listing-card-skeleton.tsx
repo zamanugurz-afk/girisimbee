@@ -29,10 +29,10 @@ export function ListingCardSkeleton({ className }: ListingCardSkeletonProps) {
   );
 }
 
-export function ListingFeedSkeleton({ count = 6 }: { count?: number }) {
+export function ListingFeedSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
       aria-busy="true"
       aria-label="İlanlar yükleniyor"
     >
