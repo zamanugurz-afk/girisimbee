@@ -117,7 +117,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
               {/* Josefin Sans Gövde Metinleri */}
               <div className="mt-4 space-y-3 text-[15px] sm:text-[16px] leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
                 <p>
-                  Girişim ekosisteminde doğrulanmış en gözde fırsatlar, yatırım turları ve franchise genişleme olanakları tek bir vitrinde toplanıyor.
+                  Girişim ekosisteminde doğrulanmış en gözde fırsatlar, yatırım turları, stratejik iş birlikleri ve kurumsal büyüme çözümleri tek bir vitrinde toplanıyor.
                 </p>
                 <p>
                   Her fırsat titizlikle incelenir, doğrudan karar vericilerle gizli ve güvenli iletişim kanalı oluşturularak doğru insanlarla doğru hedeflere ulaşmanız sağlanır.
@@ -173,11 +173,11 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                 </Link>
 
                 <Link
-                  href="/ilan/olustur"
+                  href="/reklam"
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4.5 py-3 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:border-slate-300 transition-all"
                 >
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span>Fırsat İlanı Ekle</span>
+                  <span>Fırsat / Reklam Ekle</span>
                 </Link>
               </div>
             </div>

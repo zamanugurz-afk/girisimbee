@@ -169,69 +169,68 @@ export function ReklamPageView() {
 
   return (
     <div className="gc-header-offset bg-background border-b border-border/60">
-      <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
+      <div className="relative overflow-hidden border-b border-slate-200/80 dark:border-zinc-800 bg-gradient-to-b from-amber-500/[0.04] via-card to-background backdrop-blur-md">
         <div
-          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full blur-[120px] opacity-[0.04] dark:opacity-[0.06] bg-amber-500"
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full blur-[120px] opacity-[0.06] bg-amber-500"
           aria-hidden
         />
-        <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+        <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12">
           <ScrollReveal>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-                <Megaphone className="h-3.5 w-3.5" aria-hidden />
-                Reklam & İşbirliği
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                <Megaphone className="h-4 w-4" aria-hidden />
+                Girişimbee Market · Fırsat & Çözüm Portalı
               </span>
             </div>
-            <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-              Markanızı <BrandWordmark />’da Öne Çıkarın
+            <h1 className="mt-3.5 font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+              Fırsatınızı veya <span className="text-amber-500">Çözümünüzü</span> Öne Çıkarın
             </h1>
-            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              MARKET reklamını {MARKET_AD_PRICE_LABEL} ödeyerek hemen yayınlayın veya markanıza özel işbirliği
-              için talep oluşturun.
+            <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Girişim ekosisteminin karar vericilerine ulaşın. İster MARKET vitrininde doğrudan <strong>{MARKET_AD_PRICE_LABEL}</strong> ile sponsorlu ilan verin, ister kurumsal çözüm ve stratejik ortaklık talebi oluşturun.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2.5 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50/50 px-3 py-1 font-semibold text-amber-900 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300">
-                <Store className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden />
-                MARKET reklamı · {MARKET_AD_PRICE_LABEL} · anında yayın
+            <div className="mt-6 flex flex-wrap gap-3 text-xs sm:text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50/70 px-3.5 py-1.5 font-bold text-amber-900 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300">
+                <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden />
+                1. Sponsorlu Fırsat / Reklam · {MARKET_AD_PRICE_LABEL} · Anında Canlı
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50/60 px-3 py-1 font-semibold text-slate-700 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-slate-300">
-                <Handshake className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" aria-hidden />
-                Özel işbirliği talebi
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 font-bold text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-300">
+                <Handshake className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden />
+                2. Kurumsal Dijital Çözüm & İş Birliği Talebi
               </span>
             </div>
           </ScrollReveal>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-14">
         {doneId ? (
           <ScrollReveal>
-            <div className="mx-auto max-w-lg rounded-2xl border border-border/80 bg-card p-8 text-center shadow-sm">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-primary" aria-hidden />
-              <h2 className="mt-4 font-display text-xl font-semibold">
-                {publishedItemId ? 'Reklamınız yayınlandı' : 'Talebiniz alındı'}
+            <div className="mx-auto max-w-lg rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-card p-8 sm:p-10 text-center shadow-lg">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" aria-hidden />
+              <h2 className="mt-4 font-display text-2xl font-bold">
+                {publishedItemId ? 'İlanınız Yayına Alındı!' : 'Talebiniz Alındı!'}
               </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {publishedItemId
-                  ? 'Ödemeniz alındı. Kartınız MARKET alanında yayında.'
-                  : `Yönetim ekibi talebinizi inceleyecek. Gerekirse ${CONTACT_EMAILS.ads} üzerinden sizinle iletişime geçilecek.`}
+                  ? 'Ödemeniz başarıyla doğrulandı. Fırsat kartınız Girişimbee Market vitrininde yayında.'
+                  : `Yönetim ekibi talebinizi inceleyecek ve sizinle ${CONTACT_EMAILS.ads} üzerinden iletişime geçecektir.`}
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
                 {publishedItemId ? (
-                  <Button asChild>
+                  <Button asChild className="rounded-xl font-bold bg-amber-500 hover:bg-amber-600 text-slate-950">
                     <Link href={`/market/${publishedItemId}`}>
-                      Kartı görüntüle
+                      Kartı Görüntüle
                       <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                     </Link>
                   </Button>
                 ) : (
-                  <Button type="button" variant="outline" onClick={() => setDoneId(null)}>
-                    Yeni talep
+                  <Button type="button" variant="outline" className="rounded-xl font-bold" onClick={() => setDoneId(null)}>
+                    Yeni Başvuru
                   </Button>
                 )}
-                <Button asChild variant={publishedItemId ? 'outline' : 'default'}>
+                <Button asChild variant={publishedItemId ? 'outline' : 'default'} className="rounded-xl font-bold">
                   <Link href={ADS_ROUTES.market}>
-                    MARKET’e git
+                    Market Vitrinine Git
                     <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                   </Link>
                 </Button>
@@ -239,53 +238,55 @@ export function ReklamPageView() {
             </div>
           </ScrollReveal>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
-            <aside className="space-y-2">
+          <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
+            <aside className="space-y-3">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 pl-1">
+                İlan & Talep Türü
+              </span>
               <TabButton
                 active={tab === 'market_ad'}
                 onClick={() => setTab('market_ad')}
                 icon={Store}
-                title="MARKET’te yer al"
-                subtitle={`${MARKET_AD_PRICE_LABEL} · anında yayın`}
+                title="Sponsorlu Fırsat / Reklam"
+                subtitle={`${MARKET_AD_PRICE_LABEL} · Vitrinde anında yayın`}
               />
               <TabButton
                 active={tab === 'partnership'}
                 onClick={() => setTab('partnership')}
                 icon={Handshake}
-                title="Özel işbirliği"
-                subtitle="Sponsorluk, medya, etkinlik…"
+                title="Kurumsal Çözüm & İş Birliği"
+                subtitle="Dijital araç, hizmet, sponsorluk…"
               />
-              <p className="pt-4 text-xs leading-relaxed text-muted-foreground">
-                Güncel fırsatları görmek için{' '}
-                <Link href={ADS_ROUTES.market} className="font-medium text-primary hover:underline">
-                  MARKET sayfasına
-                </Link>{' '}
-                bakabilirsiniz.
-              </p>
+              <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-zinc-900 border border-amber-200/60 dark:border-zinc-800 text-xs text-muted-foreground mt-4">
+                💡 Girişimbee Market vitrinindeki tüm güncel fırsatları görmek için{' '}
+                <Link href={ADS_ROUTES.market} className="font-bold text-amber-700 dark:text-amber-400 hover:underline">
+                  Market Vitrini
+                </Link>
+                {' '}sayfasını ziyaret edebilirsiniz.
+              </div>
             </aside>
 
-            <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-7">
+            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-card p-6 sm:p-9 shadow-md">
               {tab === 'market_ad' ? (
-                <form onSubmit={(e) => void submitMarket(e)} className="space-y-5">
+                <form onSubmit={(e) => void submitMarket(e)} className="space-y-6">
                   <div>
-                    <h2 className="font-display text-lg font-semibold">MARKET reklamı oluştur</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Admin panelindeki MARKET kartı alanlarıyla aynı yapı.{' '}
-                      <strong className="text-foreground">{MARKET_AD_PRICE_LABEL}</strong> ödeyerek
-                      kartınız hemen yayınlanır.
+                    <h2 className="font-display text-xl sm:text-2xl font-bold">Sponsorlu Fırsat / Reklam İlanı</h2>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                      Girişimbee Market ana sayfa vitrininde ve katalogda öne çıkacak fırsat kartınızı oluşturun.{' '}
+                      <strong className="text-amber-600 dark:text-amber-400">{MARKET_AD_PRICE_LABEL}</strong> güvenli ödeme sonrası kartınız hemen yayına alınır.
                     </p>
                     {!user && !authLoading ? (
-                      <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200">
-                        Ödeme için{' '}
+                      <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs font-semibold text-amber-900 dark:text-amber-200">
+                        Ödeme ve yayın için{' '}
                         <Link
                           href={loginUrl(ADS_ROUTES.public)}
-                          className="font-semibold underline"
+                          className="font-bold underline"
                         >
                           giriş yapın
                         </Link>
                         {' '}veya{' '}
-                        <Link href={AUTH_ROUTES.register} className="font-semibold underline">
-                          kayıt olun
+                        <Link href={AUTH_ROUTES.register} className="font-bold underline">
+                          ücretsiz kayıt olun
                         </Link>
                         .
                       </p>
@@ -530,24 +531,28 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border px-3.5 py-3 text-left transition-colors',
+        'w-full rounded-2xl border px-4 py-3.5 text-left transition-all duration-200',
         active
-          ? 'border-primary/30 bg-primary/5 shadow-sm'
-          : 'border-border/70 bg-card hover:border-border',
+          ? 'border-amber-500 bg-amber-500/10 dark:bg-amber-500/15 shadow-sm ring-1 ring-amber-500/50'
+          : 'border-slate-200 dark:border-zinc-800 bg-card hover:border-slate-300 dark:hover:border-zinc-700',
       )}
     >
-      <span className="flex items-start gap-2.5">
+      <span className="flex items-start gap-3">
         <span
           className={cn(
-            'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
-            active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+            'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors',
+            active ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-muted text-muted-foreground',
           )}
         >
-          <Icon className="h-4 w-4" aria-hidden />
+          <Icon className="h-4.5 w-4.5" aria-hidden />
         </span>
-        <span>
-          <span className="block text-sm font-semibold text-foreground">{title}</span>
-          <span className="mt-0.5 block text-xs text-muted-foreground">{subtitle}</span>
+        <span className="min-w-0 flex-1">
+          <span className={cn('block text-sm font-bold leading-snug', active ? 'text-slate-900 dark:text-white' : 'text-foreground')}>
+            {title}
+          </span>
+          <span className="mt-0.5 block text-xs text-muted-foreground leading-relaxed">
+            {subtitle}
+          </span>
         </span>
       </span>
     </button>
