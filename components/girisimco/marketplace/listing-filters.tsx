@@ -251,17 +251,12 @@ export function ListingFilters({
   };
 
   return (
-    <div className={cn('w-full space-y-3', className)}>
-      {/* 1. ÜST SATIR: ANA ARAMA ÇUBUĞU & KATEGORİ SEÇİCİ (Tam Genişlik - %100) */}
-      <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
-        {searchSlot && (
-          <div className="flex-1 min-w-0">
-            {searchSlot}
-          </div>
-        )}
-
+    <div className={cn('w-full space-y-2.5 sm:space-y-3', className)}>
+      {/* 1. ÜST SATIR: TÜM FİLTRE DROPDOWN'LARI (Kategori, Sektör, Pozisyon, Şehir, En Yeni) */}
+      <div className="w-full flex flex-wrap items-center gap-2.5 sm:gap-3">
+        {/* Kategori Seçici */}
         {!hideCategory && (
-          <div className="w-full sm:w-[260px] lg:w-[290px] shrink-0">
+          <div className="flex-1 min-w-[160px] lg:min-w-[180px]">
             <Select
               value={filters.categorySlug ?? ALL_VALUE}
               onValueChange={handleCategoryChange}
@@ -284,31 +279,12 @@ export function ListingFilters({
             </Select>
           </div>
         )}
-      </div>
 
-      {showJobFlowFilters ? (
-        <JobFlowFilters
-          value={filters.jobFlow}
-          onChange={(jobFlow) => onChange({ jobFlow })}
-        />
-      ) : null}
-
-      {/* 2. ALT SATIR: DETAYLI PARAMETRE FİLTRELERİ (Eşit Sütunlu Tam Genişlik Izgara) */}
-      <div
-        className={cn(
-          'w-full grid gap-2.5 sm:gap-3 items-center',
-          isCareer || isPartnership
-            ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
-            : isBusinessTransfer || isFranchise
-            ? 'grid-cols-2 sm:grid-cols-4'
-            : 'grid-cols-1 sm:grid-cols-3',
-        )}
-      >
         {/* KARİYER ALAN FİLTRELERİ */}
         {isCareer && (
           <>
             {/* Sektör */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.sector ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -346,7 +322,7 @@ export function ListingFilters({
             </div>
 
             {/* Pozisyon */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.position ?? ALL_VALUE}
                 onValueChange={(val) =>
@@ -372,7 +348,7 @@ export function ListingFilters({
             </div>
 
             {/* Deneyim Seviyesi / Çalışma Şekli */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
               <Select
                 value={filters.careerLevel ?? ALL_VALUE}
                 onValueChange={(val) =>
@@ -404,7 +380,7 @@ export function ListingFilters({
         {isPartnership && (
           <>
             {/* Sektör */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.sector ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -433,7 +409,7 @@ export function ListingFilters({
 
             {/* Ortaklık Aşaması */}
             {availableStages.length > 0 && (
-              <div className="w-full min-w-0">
+              <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
                 <Select
                   value={filters.stage ?? ALL_VALUE}
                   onValueChange={(val) => {
@@ -460,7 +436,7 @@ export function ListingFilters({
 
             {/* Aranan Ortak Tipi */}
             {availablePartnerTypes.length > 0 && (
-              <div className="w-full min-w-0">
+              <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
                 <Select
                   value={filters.partnerType ?? ALL_VALUE}
                   onValueChange={(val) => {
@@ -491,7 +467,7 @@ export function ListingFilters({
         {isBusinessTransfer && (
           <>
             {/* Sektör */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.sector ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -519,7 +495,7 @@ export function ListingFilters({
 
             {/* İşletme Türü */}
             {availableBusinessTypes.length > 0 && (
-              <div className="w-full min-w-0">
+              <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
                 <Select
                   value={filters.businessType ?? ALL_VALUE}
                   onValueChange={(val) => {
@@ -550,7 +526,7 @@ export function ListingFilters({
         {isFranchise && (
           <>
             {/* Sektör */}
-            <div className="w-full min-w-0">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.sector ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -578,7 +554,7 @@ export function ListingFilters({
 
             {/* Konsept Türü */}
             {availableConceptTypes.length > 0 && (
-              <div className="w-full min-w-0">
+              <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
                 <Select
                   value={filters.conceptType ?? ALL_VALUE}
                   onValueChange={(val) => {
@@ -607,7 +583,7 @@ export function ListingFilters({
 
         {/* USTA VE HİZMETLER FİLTRELERİ */}
         {isServices && (
-          <div className="w-full min-w-0">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -641,7 +617,7 @@ export function ListingFilters({
 
         {/* GENEL SEKTÖR FİLTRESİ (Hiçbir kategori seçili değilse) */}
         {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isServices && availableSectors.length > 0 && (
-          <div className="w-full min-w-0">
+          <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -669,7 +645,7 @@ export function ListingFilters({
 
         {/* ŞEHİR FİLTRESİ */}
         {availableCities.length > 0 && (
-          <div className="w-full min-w-0">
+          <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
             <Select
               value={filters.city ?? ALL_VALUE}
               onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
@@ -689,8 +665,8 @@ export function ListingFilters({
           </div>
         )}
 
-        {/* SIRALAMA FİLTRESİ */}
-        <div className="w-full min-w-0">
+        {/* SIRALAMA FİLTRESİ (En Yeni) */}
+        <div className="flex-1 min-w-[120px] lg:min-w-[140px]">
           <Select
             value={filters.sortBy ?? 'newest'}
             onValueChange={(val) => onChange({ sortBy: val as MarketplaceFilterState['sortBy'] })}
@@ -709,23 +685,35 @@ export function ListingFilters({
         </div>
       </div>
 
-      {/* 3. AKTİF FİLTRELER & TEMİZLE BUTONU (Sağ alt köşe / Zarif çubuk) */}
-      {hasActiveFilters && (
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-muted-foreground font-medium">Filtreler uygulandı</span>
+      {showJobFlowFilters ? (
+        <JobFlowFilters
+          value={filters.jobFlow}
+          onChange={(jobFlow) => onChange({ jobFlow })}
+        />
+      ) : null}
+
+      {/* 2. ALT SATIR: KULLANICININ İSTEDİĞİ TAM GENİŞLİKTEKİ ARAMA ÇUBUĞU (En Yeni yerine) */}
+      <div className="w-full flex items-center gap-2.5 sm:gap-3">
+        {searchSlot && (
+          <div className="flex-1 min-w-0">
+            {searchSlot}
+          </div>
+        )}
+
+        {hasActiveFilters && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={handleResetAll}
-            className="h-8 px-2.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-lg transition-all flex items-center gap-1.5"
+            className="h-11 px-3.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-xl transition-all flex items-center gap-1.5 shrink-0 border border-rose-200/60 dark:border-rose-900/40 shadow-2xs"
             title="Tüm filtreleri sıfırla"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Filtreleri Temizle</span>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
