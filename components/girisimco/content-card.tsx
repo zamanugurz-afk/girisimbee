@@ -94,7 +94,7 @@ function TextListingCardLayout({
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
   const typeLabel = item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan';
-  const Icon = LISTING_TYPE_ICON_MAP[item.listingIconKey ?? 'general'];
+  const Icon = (item.listingIconKey && LISTING_TYPE_ICON_MAP[item.listingIconKey as keyof typeof LISTING_TYPE_ICON_MAP]) || LISTING_TYPE_ICON_MAP.general;
   const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
   const description = item.description || item.detail;
 
@@ -114,7 +114,7 @@ function TextListingCardLayout({
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold"
             style={{ backgroundColor: `${accent}12`, color: accent }}
           >
-            <Icon className="h-3.5 w-3.5" />
+            {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
             <span>{typeLabel}</span>
           </span>
 
