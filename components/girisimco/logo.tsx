@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,7 @@ interface LogoProps {
 }
 
 /**
- * Agreed lockup: [bee+G] + ir(navy) + işim(emerald with falling left hook) + bee(amber)
+ * Agreed lockup: [bee+G] + ir(navy) + isim(emerald) + bee(amber)
  * Existing bee mark is completely untouched.
  */
 export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
@@ -49,27 +49,8 @@ export function GirisimbeeLogo({ className, variant = 'full' }: LogoProps) {
           {/* 'ir' kısmı (Lacivert / Dark mode Beyaz) */}
           <span className="text-[#0F172A] dark:text-white transition-colors">ir</span>
 
-          {/* 'işim' kısmı (Zümrüt Yeşili - Sola düşen çengel ile) */}
-          <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-baseline transition-colors">
-            <span>i</span>
-            <span className="relative inline-block">
-              <span>s</span>
-              {/* Sola doğru kıvrılan ve düşüyormuş hissi veren mikro çengel */}
-              <svg
-                viewBox="0 0 10 12"
-                className="absolute -bottom-[5px] left-1/2 -translate-x-[60%] w-[7px] h-[8px] pointer-events-none text-emerald-600 dark:text-emerald-400"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5.5 0.5 C 5.5 3.5, 3.2 5.8, 1 5.2" />
-              </svg>
-            </span>
-            <span>im</span>
-          </span>
+          {/* 'isim' kısmı (Zümrüt Yeşili - 's' çengelsiz düz s) */}
+          <span className="text-emerald-600 dark:text-emerald-400 transition-colors">isim</span>
 
           {/* 'bee' kısmı (Altın Sarısı) */}
           <span className="text-[#F59E0B] dark:text-amber-400 transition-colors">bee</span>
