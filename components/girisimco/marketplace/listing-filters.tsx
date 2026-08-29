@@ -69,6 +69,7 @@ interface ListingFiltersProps {
   showJobFlowFilters?: boolean;
   /** Show Ortak Arıyorum / Ortak Olmak İstiyorum / İşletme Devri chips. */
   showVentureFlowFilters?: boolean;
+  searchSlot?: React.ReactNode;
   className?: string;
 }
 
@@ -78,6 +79,7 @@ export function ListingFilters({
   onChange,
   hideCategory = false,
   showJobFlowFilters = false,
+  searchSlot,
   className,
 }: ListingFiltersProps) {
   const isCareer = Boolean(
@@ -249,16 +251,22 @@ export function ListingFilters({
   };
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2.5', className)}>
+    <div className={cn('w-full flex flex-wrap items-center gap-2.5 sm:gap-3', className)}>
+      {/* 0. ARAMA KUTUSU (Alttaki çerçeve ile en boyutunu eşitler) */}
+      {searchSlot && (
+        <div className="flex-1 min-w-[220px] lg:flex-[1.3]">
+          {searchSlot}
+        </div>
+      )}
       
       {/* 1. KATEGORİ SEÇİCİ DROPDOWN (Her zaman en başta ve görünür) */}
       {!hideCategory && (
-        <div className="w-[190px] sm:w-[220px]">
+        <div className="flex-1 min-w-[170px] lg:min-w-[190px]">
           <Select
             value={filters.categorySlug ?? ALL_VALUE}
             onValueChange={handleCategoryChange}
           >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-slate-300 dark:border-zinc-700 bg-card px-3.5 text-sm font-medium shadow-xs">
+            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-zinc-700 bg-card px-3.5 text-sm font-medium shadow-xs">
               <SelectValue placeholder="Tüm Kategoriler" />
             </SelectTrigger>
             <SelectContent themeColor={themeColor}>
@@ -288,7 +296,7 @@ export function ListingFilters({
       {isCareer ? (
         <>
           {/* Sektör */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -311,7 +319,7 @@ export function ListingFilters({
                 });
               }}
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Sektör seçin" />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -326,7 +334,7 @@ export function ListingFilters({
           </div>
 
           {/* Pozisyon */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.position ?? ALL_VALUE}
               onValueChange={(val) =>
@@ -337,7 +345,7 @@ export function ListingFilters({
                 })
               }
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Pozisyon seçin" />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -352,7 +360,7 @@ export function ListingFilters({
           </div>
 
           {/* Deneyim Seviyesi / Çalışma Şekli */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
             <Select
               value={filters.careerLevel ?? ALL_VALUE}
               onValueChange={(val) =>
@@ -362,7 +370,7 @@ export function ListingFilters({
                 })
               }
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder={isSeek ? 'Deneyim seviyesi' : 'Çalışma şekli'} />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -384,7 +392,7 @@ export function ListingFilters({
       {isPartnership ? (
         <>
           {/* Sektör */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -397,7 +405,7 @@ export function ListingFilters({
                 });
               }}
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Sektör seçin" />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -413,7 +421,7 @@ export function ListingFilters({
 
           {/* Ortaklık Aşaması */}
           {availableStages.length > 0 ? (
-            <div className="w-[170px] sm:w-[190px]">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.stage ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -423,7 +431,7 @@ export function ListingFilters({
                   });
                 }}
               >
-                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                   <SelectValue placeholder="Aşama seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
@@ -440,7 +448,7 @@ export function ListingFilters({
 
           {/* Aranan Ortak Tipi */}
           {availablePartnerTypes.length > 0 ? (
-            <div className="w-[170px] sm:w-[190px]">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.partnerType ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -450,7 +458,7 @@ export function ListingFilters({
                   });
                 }}
               >
-                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                   <SelectValue placeholder="Ortak tipi seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
@@ -471,7 +479,7 @@ export function ListingFilters({
       {isBusinessTransfer ? (
         <>
           {/* Sektör */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -483,7 +491,7 @@ export function ListingFilters({
                 });
               }}
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Sektör seçin" />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -499,7 +507,7 @@ export function ListingFilters({
 
           {/* İşletme Türü */}
           {availableBusinessTypes.length > 0 ? (
-            <div className="w-[170px] sm:w-[190px]">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.businessType ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -509,7 +517,7 @@ export function ListingFilters({
                   });
                 }}
               >
-                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                   <SelectValue placeholder="İşletme türü seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
@@ -530,7 +538,7 @@ export function ListingFilters({
       {isFranchise ? (
         <>
           {/* Sektör */}
-          <div className="w-[170px] sm:w-[190px]">
+          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
             <Select
               value={filters.sector ?? ALL_VALUE}
               onValueChange={(val) => {
@@ -542,7 +550,7 @@ export function ListingFilters({
                 });
               }}
             >
-              <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                 <SelectValue placeholder="Sektör seçin" />
               </SelectTrigger>
               <SelectContent themeColor={themeColor}>
@@ -558,7 +566,7 @@ export function ListingFilters({
 
           {/* Konsept Türü */}
           {availableConceptTypes.length > 0 ? (
-            <div className="w-[170px] sm:w-[190px]">
+            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
               <Select
                 value={filters.conceptType ?? ALL_VALUE}
                 onValueChange={(val) => {
@@ -568,7 +576,7 @@ export function ListingFilters({
                   });
                 }}
               >
-                <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
                   <SelectValue placeholder="Konsept türü seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
@@ -587,7 +595,7 @@ export function ListingFilters({
 
       {/* 6. USTA VE HİZMETLER FİLTRELERİ */}
       {isServices ? (
-        <div className="w-[180px] sm:w-[220px]">
+        <div className="flex-1 min-w-[160px] lg:min-w-[190px]">
           <Select
             value={filters.sector ?? ALL_VALUE}
             onValueChange={(val) => {
@@ -598,7 +606,7 @@ export function ListingFilters({
               });
             }}
           >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
               <SelectValue placeholder="Tüm Hizmet Alanları" />
             </SelectTrigger>
             <SelectContent themeColor={themeColor}>
@@ -621,7 +629,7 @@ export function ListingFilters({
 
       {/* 7. GENEL SEKTÖR FİLTRESİ (Hiçbir kategori seçili değilse) */}
       {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isServices && availableSectors.length > 0 ? (
-        <div className="w-[170px] sm:w-[190px]">
+        <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
           <Select
             value={filters.sector ?? ALL_VALUE}
             onValueChange={(val) => {
@@ -632,7 +640,7 @@ export function ListingFilters({
               });
             }}
           >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
               <SelectValue placeholder="Sektör seçin" />
             </SelectTrigger>
             <SelectContent themeColor={themeColor}>
@@ -649,12 +657,12 @@ export function ListingFilters({
 
       {/* 8. ŞEHİR FİLTRESİ */}
       {availableCities.length > 0 ? (
-        <div className="w-[150px] sm:w-[170px]">
+        <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
           <Select
             value={filters.city ?? ALL_VALUE}
             onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
           >
-            <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
               <SelectValue placeholder="Şehir seçin" />
             </SelectTrigger>
             <SelectContent themeColor={themeColor}>
@@ -670,12 +678,12 @@ export function ListingFilters({
       ) : null}
 
       {/* 9. SIRALAMA FİLTRESİ */}
-      <div className="w-[150px] sm:w-[170px]">
+      <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
         <Select
           value={filters.sortBy ?? 'newest'}
           onValueChange={(val) => onChange({ sortBy: val as MarketplaceFilterState['sortBy'] })}
         >
-          <SelectTrigger className="h-11 min-h-[44px] rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+          <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
             <SelectValue placeholder="Sıralama seçin" />
           </SelectTrigger>
           <SelectContent themeColor={themeColor}>
@@ -695,7 +703,7 @@ export function ListingFilters({
           variant="ghost"
           size="sm"
           onClick={handleResetAll}
-          className="h-11 px-3 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-xl transition-all flex items-center gap-1.5"
+          className="h-11 px-3 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-xl transition-all flex items-center gap-1.5 shrink-0"
           title="Tüm filtreleri sıfırla"
         >
           <RotateCcw className="w-3.5 h-3.5" />
