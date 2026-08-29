@@ -1,6 +1,6 @@
 export const MARKET_BRAND_NAME = 'Girişimbee MARKET';
 
-export const MARKET_HOME_SUBTITLE = 'Seçili fırsat ve işbirlikleri';
+export const MARKET_HOME_SUBTITLE = 'Seçili fırsat, stratejik ortaklık ve Çözümler';
 
 export const MARKET_HOME_CTA_LABEL = 'Tüm fırsatlar';
 

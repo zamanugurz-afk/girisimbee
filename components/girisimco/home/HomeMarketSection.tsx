@@ -108,7 +108,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
 
               {/* Kalın Josefin Sans Alt Başlık */}
               <h3 className="font-sans text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-snug">
-                Seçili fırsat, stratejik ortaklık ve büyüme işbirlikleri
+                Seçili fırsat, stratejik ortaklık ve Çözümler
               </h3>
 
               {/* Josefin Sans Gövde Metinleri */}
