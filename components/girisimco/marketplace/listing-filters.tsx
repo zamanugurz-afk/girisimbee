@@ -251,39 +251,40 @@ export function ListingFilters({
   };
 
   return (
-    <div className={cn('w-full flex flex-wrap items-center gap-2.5 sm:gap-3', className)}>
-      {/* 0. ARAMA KUTUSU (Alttaki çerçeve ile en boyutunu eşitler) */}
-      {searchSlot && (
-        <div className="flex-1 min-w-[220px] lg:flex-[1.3]">
-          {searchSlot}
-        </div>
-      )}
-      
-      {/* 1. KATEGORİ SEÇİCİ DROPDOWN (Her zaman en başta ve görünür) */}
-      {!hideCategory && (
-        <div className="flex-1 min-w-[170px] lg:min-w-[190px]">
-          <Select
-            value={filters.categorySlug ?? ALL_VALUE}
-            onValueChange={handleCategoryChange}
-          >
-            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-zinc-700 bg-card px-3.5 text-sm font-medium shadow-xs">
-              <SelectValue placeholder="Tüm Kategoriler" />
-            </SelectTrigger>
-            <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Tüm Kategoriler</SelectItem>
-              {getUserDiscoverableCategorySlugs().map((slug) => {
-                const meta = resolveCategorySlug(slug);
-                const label = CATEGORY_CUSTOM_LABELS[slug] || meta?.label || slug;
-                return (
-                  <SelectItem key={slug} value={slug}>
-                    {label}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+    <div className={cn('w-full space-y-3', className)}>
+      {/* 1. ÜST SATIR: ANA ARAMA ÇUBUĞU & KATEGORİ SEÇİCİ (Tam Genişlik - %100) */}
+      <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+        {searchSlot && (
+          <div className="flex-1 min-w-0">
+            {searchSlot}
+          </div>
+        )}
+
+        {!hideCategory && (
+          <div className="w-full sm:w-[260px] lg:w-[290px] shrink-0">
+            <Select
+              value={filters.categorySlug ?? ALL_VALUE}
+              onValueChange={handleCategoryChange}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-zinc-700 bg-card px-3.5 text-sm font-medium shadow-xs">
+                <SelectValue placeholder="Tüm Kategoriler" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Tüm Kategoriler</SelectItem>
+                {getUserDiscoverableCategorySlugs().map((slug) => {
+                  const meta = resolveCategorySlug(slug);
+                  const label = CATEGORY_CUSTOM_LABELS[slug] || meta?.label || slug;
+                  return (
+                    <SelectItem key={slug} value={slug}>
+                      {label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
 
       {showJobFlowFilters ? (
         <JobFlowFilters
@@ -292,425 +293,439 @@ export function ListingFilters({
         />
       ) : null}
 
-      {/* 2. KARİYER ALAN FİLTRELERİ */}
-      {isCareer ? (
-        <>
-          {/* Sektör */}
-          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
-            <Select
-              value={filters.sector ?? ALL_VALUE}
-              onValueChange={(val) => {
-                const newSector = val === ALL_VALUE ? undefined : val;
-                const filteredForNewSector = newSector
-                  ? items.filter((item) => item.sector?.toLowerCase() === newSector.toLowerCase())
-                  : items;
-                const validPositions = getOptionsByCount(
-                  filteredForNewSector,
-                  (item) => item.position || (isSeek ? item.title : undefined),
-                );
-                const isPosValid =
-                  filters.position && validPositions.some((p) => p.value === filters.position);
-
-                onChange({
-                  sector: newSector,
-                  position: isPosValid ? filters.position : undefined,
-                  careerLevel: undefined,
-                  city: undefined,
-                });
-              }}
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Sektör seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {availableSectors.map((sec) => (
-                  <SelectItem key={sec.value} value={sec.value}>
-                    {sec.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Pozisyon */}
-          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
-            <Select
-              value={filters.position ?? ALL_VALUE}
-              onValueChange={(val) =>
-                onChange({
-                  position: val === ALL_VALUE ? undefined : val,
-                  careerLevel: undefined,
-                  city: undefined,
-                })
-              }
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Pozisyon seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Pozisyon seçin</SelectItem>
-                {availablePositions.map((pos) => (
-                  <SelectItem key={pos.value} value={pos.value}>
-                    {pos.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Deneyim Seviyesi / Çalışma Şekli */}
-          <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
-            <Select
-              value={filters.careerLevel ?? ALL_VALUE}
-              onValueChange={(val) =>
-                onChange({
-                  careerLevel: val === ALL_VALUE ? undefined : val,
-                  city: undefined,
-                })
-              }
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder={isSeek ? 'Deneyim seviyesi' : 'Çalışma şekli'} />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>
-                  {isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'}
-                </SelectItem>
-                {availableLevels.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      ) : null}
-
-      {/* 3. ORTAKLIK ALAN FİLTRELERİ */}
-      {isPartnership ? (
-        <>
-          {/* Sektör */}
-          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
-            <Select
-              value={filters.sector ?? ALL_VALUE}
-              onValueChange={(val) => {
-                const newSector = val === ALL_VALUE ? undefined : val;
-                onChange({
-                  sector: newSector,
-                  stage: undefined,
-                  partnerType: undefined,
-                  city: undefined,
-                });
-              }}
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Sektör seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {availableSectors.map((sec) => (
-                  <SelectItem key={sec.value} value={sec.value}>
-                    {sec.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Ortaklık Aşaması */}
-          {availableStages.length > 0 ? (
-            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
+      {/* 2. ALT SATIR: DETAYLI PARAMETRE FİLTRELERİ (Eşit Sütunlu Tam Genişlik Izgara) */}
+      <div
+        className={cn(
+          'w-full grid gap-2.5 sm:gap-3 items-center',
+          isCareer || isPartnership
+            ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+            : isBusinessTransfer || isFranchise
+            ? 'grid-cols-2 sm:grid-cols-4'
+            : 'grid-cols-1 sm:grid-cols-3',
+        )}
+      >
+        {/* KARİYER ALAN FİLTRELERİ */}
+        {isCareer && (
+          <>
+            {/* Sektör */}
+            <div className="w-full min-w-0">
               <Select
-                value={filters.stage ?? ALL_VALUE}
+                value={filters.sector ?? ALL_VALUE}
                 onValueChange={(val) => {
+                  const newSector = val === ALL_VALUE ? undefined : val;
+                  const filteredForNewSector = newSector
+                    ? items.filter((item) => item.sector?.toLowerCase() === newSector.toLowerCase())
+                    : items;
+                  const validPositions = getOptionsByCount(
+                    filteredForNewSector,
+                    (item) => item.position || (isSeek ? item.title : undefined),
+                  );
+                  const isPosValid =
+                    filters.position && validPositions.some((p) => p.value === filters.position);
+
                   onChange({
-                    stage: val === ALL_VALUE ? undefined : val,
+                    sector: newSector,
+                    position: isPosValid ? filters.position : undefined,
+                    careerLevel: undefined,
                     city: undefined,
                   });
                 }}
               >
                 <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                  <SelectValue placeholder="Aşama seçin" />
+                  <SelectValue placeholder="Sektör seçin" />
                 </SelectTrigger>
                 <SelectContent themeColor={themeColor}>
-                  <SelectItem value={ALL_VALUE}>Aşama seçin</SelectItem>
-                  {availableStages.map((st) => (
-                    <SelectItem key={st.value} value={st.value}>
-                      {st.value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-
-          {/* Aranan Ortak Tipi */}
-          {availablePartnerTypes.length > 0 ? (
-            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
-              <Select
-                value={filters.partnerType ?? ALL_VALUE}
-                onValueChange={(val) => {
-                  onChange({
-                    partnerType: val === ALL_VALUE ? undefined : val,
-                    city: undefined,
-                  });
-                }}
-              >
-                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                  <SelectValue placeholder="Ortak tipi seçin" />
-                </SelectTrigger>
-                <SelectContent themeColor={themeColor}>
-                  <SelectItem value={ALL_VALUE}>Ortak tipi seçin</SelectItem>
-                  {availablePartnerTypes.map((pt) => (
-                    <SelectItem key={pt.value} value={pt.value}>
-                      {pt.value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-        </>
-      ) : null}
-
-      {/* 4. İŞLETME DEVRİ FİLTRELERİ */}
-      {isBusinessTransfer ? (
-        <>
-          {/* Sektör */}
-          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
-            <Select
-              value={filters.sector ?? ALL_VALUE}
-              onValueChange={(val) => {
-                const newSector = val === ALL_VALUE ? undefined : val;
-                onChange({
-                  sector: newSector,
-                  businessType: undefined,
-                  city: undefined,
-                });
-              }}
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Sektör seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {availableSectors.map((sec) => (
-                  <SelectItem key={sec.value} value={sec.value}>
-                    {sec.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* İşletme Türü */}
-          {availableBusinessTypes.length > 0 ? (
-            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
-              <Select
-                value={filters.businessType ?? ALL_VALUE}
-                onValueChange={(val) => {
-                  onChange({
-                    businessType: val === ALL_VALUE ? undefined : val,
-                    city: undefined,
-                  });
-                }}
-              >
-                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                  <SelectValue placeholder="İşletme türü seçin" />
-                </SelectTrigger>
-                <SelectContent themeColor={themeColor}>
-                  <SelectItem value={ALL_VALUE}>İşletme türü seçin</SelectItem>
-                  {availableBusinessTypes.map((bt) => (
-                    <SelectItem key={bt.value} value={bt.value}>
-                      {bt.value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-        </>
-      ) : null}
-
-      {/* 5. FRANCHISE FİLTRELERİ */}
-      {isFranchise ? (
-        <>
-          {/* Sektör */}
-          <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
-            <Select
-              value={filters.sector ?? ALL_VALUE}
-              onValueChange={(val) => {
-                const newSector = val === ALL_VALUE ? undefined : val;
-                onChange({
-                  sector: newSector,
-                  conceptType: undefined,
-                  city: undefined,
-                });
-              }}
-            >
-              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                <SelectValue placeholder="Sektör seçin" />
-              </SelectTrigger>
-              <SelectContent themeColor={themeColor}>
-                <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
-                {availableSectors.map((sec) => (
-                  <SelectItem key={sec.value} value={sec.value}>
-                    {sec.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Konsept Türü */}
-          {availableConceptTypes.length > 0 ? (
-            <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
-              <Select
-                value={filters.conceptType ?? ALL_VALUE}
-                onValueChange={(val) => {
-                  onChange({
-                    conceptType: val === ALL_VALUE ? undefined : val,
-                    city: undefined,
-                  });
-                }}
-              >
-                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-                  <SelectValue placeholder="Konsept türü seçin" />
-                </SelectTrigger>
-                <SelectContent themeColor={themeColor}>
-                  <SelectItem value={ALL_VALUE}>Konsept türü seçin</SelectItem>
-                  {availableConceptTypes.map((ct) => (
-                    <SelectItem key={ct.value} value={ct.value}>
-                      {ct.value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-        </>
-      ) : null}
-
-      {/* 6. USTA VE HİZMETLER FİLTRELERİ */}
-      {isServices ? (
-        <div className="flex-1 min-w-[160px] lg:min-w-[190px]">
-          <Select
-            value={filters.sector ?? ALL_VALUE}
-            onValueChange={(val) => {
-              const newSector = val === ALL_VALUE ? undefined : val;
-              onChange({
-                sector: newSector,
-                city: undefined,
-              });
-            }}
-          >
-            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-              <SelectValue placeholder="Tüm Hizmet Alanları" />
-            </SelectTrigger>
-            <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Tüm Hizmet Alanları</SelectItem>
-              {availableSectors.length > 0
-                ? availableSectors.map((sec) => (
+                  <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                  {availableSectors.map((sec) => (
                     <SelectItem key={sec.value} value={sec.value}>
                       {sec.value}
                     </SelectItem>
-                  ))
-                : HIZMET_CATEGORY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {opt}
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pozisyon */}
+            <div className="w-full min-w-0">
+              <Select
+                value={filters.position ?? ALL_VALUE}
+                onValueChange={(val) =>
+                  onChange({
+                    position: val === ALL_VALUE ? undefined : val,
+                    careerLevel: undefined,
+                    city: undefined,
+                  })
+                }
+              >
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Pozisyon seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Pozisyon seçin</SelectItem>
+                  {availablePositions.map((pos) => (
+                    <SelectItem key={pos.value} value={pos.value}>
+                      {pos.value}
                     </SelectItem>
                   ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* 7. GENEL SEKTÖR FİLTRESİ (Hiçbir kategori seçili değilse) */}
-      {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isServices && availableSectors.length > 0 ? (
-        <div className="flex-1 min-w-[150px] lg:min-w-[170px]">
+            {/* Deneyim Seviyesi / Çalışma Şekli */}
+            <div className="w-full min-w-0">
+              <Select
+                value={filters.careerLevel ?? ALL_VALUE}
+                onValueChange={(val) =>
+                  onChange({
+                    careerLevel: val === ALL_VALUE ? undefined : val,
+                    city: undefined,
+                  })
+                }
+              >
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder={isSeek ? 'Deneyim seviyesi' : 'Çalışma şekli'} />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>
+                    {isSeek ? 'Deneyim seviyesi seçin' : 'Çalışma şekli seçin'}
+                  </SelectItem>
+                  {availableLevels.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+
+        {/* ORTAKLIK ALAN FİLTRELERİ */}
+        {isPartnership && (
+          <>
+            {/* Sektör */}
+            <div className="w-full min-w-0">
+              <Select
+                value={filters.sector ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  const newSector = val === ALL_VALUE ? undefined : val;
+                  onChange({
+                    sector: newSector,
+                    stage: undefined,
+                    partnerType: undefined,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Sektör seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                  {availableSectors.map((sec) => (
+                    <SelectItem key={sec.value} value={sec.value}>
+                      {sec.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Ortaklık Aşaması */}
+            {availableStages.length > 0 && (
+              <div className="w-full min-w-0">
+                <Select
+                  value={filters.stage ?? ALL_VALUE}
+                  onValueChange={(val) => {
+                    onChange({
+                      stage: val === ALL_VALUE ? undefined : val,
+                      city: undefined,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                    <SelectValue placeholder="Aşama seçin" />
+                  </SelectTrigger>
+                  <SelectContent themeColor={themeColor}>
+                    <SelectItem value={ALL_VALUE}>Aşama seçin</SelectItem>
+                    {availableStages.map((st) => (
+                      <SelectItem key={st.value} value={st.value}>
+                        {st.value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Aranan Ortak Tipi */}
+            {availablePartnerTypes.length > 0 && (
+              <div className="w-full min-w-0">
+                <Select
+                  value={filters.partnerType ?? ALL_VALUE}
+                  onValueChange={(val) => {
+                    onChange({
+                      partnerType: val === ALL_VALUE ? undefined : val,
+                      city: undefined,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                    <SelectValue placeholder="Ortak tipi seçin" />
+                  </SelectTrigger>
+                  <SelectContent themeColor={themeColor}>
+                    <SelectItem value={ALL_VALUE}>Ortak tipi seçin</SelectItem>
+                    {availablePartnerTypes.map((pt) => (
+                      <SelectItem key={pt.value} value={pt.value}>
+                        {pt.value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* İŞLETME DEVRİ FİLTRELERİ */}
+        {isBusinessTransfer && (
+          <>
+            {/* Sektör */}
+            <div className="w-full min-w-0">
+              <Select
+                value={filters.sector ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  const newSector = val === ALL_VALUE ? undefined : val;
+                  onChange({
+                    sector: newSector,
+                    businessType: undefined,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Sektör seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                  {availableSectors.map((sec) => (
+                    <SelectItem key={sec.value} value={sec.value}>
+                      {sec.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* İşletme Türü */}
+            {availableBusinessTypes.length > 0 && (
+              <div className="w-full min-w-0">
+                <Select
+                  value={filters.businessType ?? ALL_VALUE}
+                  onValueChange={(val) => {
+                    onChange({
+                      businessType: val === ALL_VALUE ? undefined : val,
+                      city: undefined,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                    <SelectValue placeholder="İşletme türü seçin" />
+                  </SelectTrigger>
+                  <SelectContent themeColor={themeColor}>
+                    <SelectItem value={ALL_VALUE}>İşletme türü seçin</SelectItem>
+                    {availableBusinessTypes.map((bt) => (
+                      <SelectItem key={bt.value} value={bt.value}>
+                        {bt.value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* FRANCHISE FİLTRELERİ */}
+        {isFranchise && (
+          <>
+            {/* Sektör */}
+            <div className="w-full min-w-0">
+              <Select
+                value={filters.sector ?? ALL_VALUE}
+                onValueChange={(val) => {
+                  const newSector = val === ALL_VALUE ? undefined : val;
+                  onChange({
+                    sector: newSector,
+                    conceptType: undefined,
+                    city: undefined,
+                  });
+                }}
+              >
+                <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                  <SelectValue placeholder="Sektör seçin" />
+                </SelectTrigger>
+                <SelectContent themeColor={themeColor}>
+                  <SelectItem value={ALL_VALUE}>Sektör seçin</SelectItem>
+                  {availableSectors.map((sec) => (
+                    <SelectItem key={sec.value} value={sec.value}>
+                      {sec.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Konsept Türü */}
+            {availableConceptTypes.length > 0 && (
+              <div className="w-full min-w-0">
+                <Select
+                  value={filters.conceptType ?? ALL_VALUE}
+                  onValueChange={(val) => {
+                    onChange({
+                      conceptType: val === ALL_VALUE ? undefined : val,
+                      city: undefined,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                    <SelectValue placeholder="Konsept türü seçin" />
+                  </SelectTrigger>
+                  <SelectContent themeColor={themeColor}>
+                    <SelectItem value={ALL_VALUE}>Konsept türü seçin</SelectItem>
+                    {availableConceptTypes.map((ct) => (
+                      <SelectItem key={ct.value} value={ct.value}>
+                        {ct.value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* USTA VE HİZMETLER FİLTRELERİ */}
+        {isServices && (
+          <div className="w-full min-w-0">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Tüm Hizmet Alanları" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Tüm Hizmet Alanları</SelectItem>
+                {availableSectors.length > 0
+                  ? availableSectors.map((sec) => (
+                      <SelectItem key={sec.value} value={sec.value}>
+                        {sec.value}
+                      </SelectItem>
+                    ))
+                  : HIZMET_CATEGORY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* GENEL SEKTÖR FİLTRESİ (Hiçbir kategori seçili değilse) */}
+        {!isCareer && !isPartnership && !isBusinessTransfer && !isFranchise && !isServices && availableSectors.length > 0 && (
+          <div className="w-full min-w-0">
+            <Select
+              value={filters.sector ?? ALL_VALUE}
+              onValueChange={(val) => {
+                const newSector = val === ALL_VALUE ? undefined : val;
+                onChange({
+                  sector: newSector,
+                  city: undefined,
+                });
+              }}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Sektör seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Tüm Sektörler</SelectItem>
+                {availableSectors.map((sec) => (
+                  <SelectItem key={sec.value} value={sec.value}>
+                    {sec.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* ŞEHİR FİLTRESİ */}
+        {availableCities.length > 0 && (
+          <div className="w-full min-w-0">
+            <Select
+              value={filters.city ?? ALL_VALUE}
+              onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
+            >
+              <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
+                <SelectValue placeholder="Şehir seçin" />
+              </SelectTrigger>
+              <SelectContent themeColor={themeColor}>
+                <SelectItem value={ALL_VALUE}>Tüm Şehirler</SelectItem>
+                {availableCities.map((city) => (
+                  <SelectItem key={city.value} value={city.value}>
+                    {city.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* SIRALAMA FİLTRESİ */}
+        <div className="w-full min-w-0">
           <Select
-            value={filters.sector ?? ALL_VALUE}
-            onValueChange={(val) => {
-              const newSector = val === ALL_VALUE ? undefined : val;
-              onChange({
-                sector: newSector,
-                city: undefined,
-              });
-            }}
+            value={filters.sortBy ?? 'newest'}
+            onValueChange={(val) => onChange({ sortBy: val as MarketplaceFilterState['sortBy'] })}
           >
             <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-              <SelectValue placeholder="Sektör seçin" />
+              <SelectValue placeholder="Sıralama seçin" />
             </SelectTrigger>
             <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Tüm Sektörler</SelectItem>
-              {availableSectors.map((sec) => (
-                <SelectItem key={sec.value} value={sec.value}>
-                  {sec.value}
+              {LISTING_SORT_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-      ) : null}
-
-      {/* 8. ŞEHİR FİLTRESİ */}
-      {availableCities.length > 0 ? (
-        <div className="flex-1 min-w-[140px] lg:min-w-[160px]">
-          <Select
-            value={filters.city ?? ALL_VALUE}
-            onValueChange={(val) => onChange({ city: val === ALL_VALUE ? undefined : val })}
-          >
-            <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-              <SelectValue placeholder="Şehir seçin" />
-            </SelectTrigger>
-            <SelectContent themeColor={themeColor}>
-              <SelectItem value={ALL_VALUE}>Tüm Şehirler</SelectItem>
-              {availableCities.map((city) => (
-                <SelectItem key={city.value} value={city.value}>
-                  {city.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
-
-      {/* 9. SIRALAMA FİLTRESİ */}
-      <div className="flex-1 min-w-[130px] lg:min-w-[150px]">
-        <Select
-          value={filters.sortBy ?? 'newest'}
-          onValueChange={(val) => onChange({ sortBy: val as MarketplaceFilterState['sortBy'] })}
-        >
-          <SelectTrigger className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 text-sm font-normal">
-            <SelectValue placeholder="Sıralama seçin" />
-          </SelectTrigger>
-          <SelectContent themeColor={themeColor}>
-            {LISTING_SORT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* 10. FİLTRELERİ TEMİZLE BUTONU */}
+      {/* 3. AKTİF FİLTRELER & TEMİZLE BUTONU (Sağ alt köşe / Zarif çubuk) */}
       {hasActiveFilters && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleResetAll}
-          className="h-11 px-3 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-xl transition-all flex items-center gap-1.5 shrink-0"
-          title="Tüm filtreleri sıfırla"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Filtreleri Temizle</span>
-        </Button>
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-xs text-muted-foreground font-medium">Filtreler uygulandı</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleResetAll}
+            className="h-8 px-2.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 rounded-lg transition-all flex items-center gap-1.5"
+            title="Tüm filtreleri sıfırla"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Filtreleri Temizle</span>
+          </Button>
+        </div>
       )}
-
     </div>
   );
 }
