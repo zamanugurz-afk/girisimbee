@@ -77,29 +77,6 @@ export function Header() {
       <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-3 px-4 sm:px-6 lg:px-8">
         <SiteLogo className="mr-1 shrink-0" />
 
-        <nav
-          className="pointer-events-none hidden min-w-0 flex-1 items-center justify-center gap-1.5 overflow-hidden xl:flex [&_a]:pointer-events-auto"
-          aria-label="Ana menü"
-        >
-          {NAV_LINKS.map((link) => {
-            const isActive = isNavLinkActive(pathname, link.href);
-            return (
-              <Link
-                key={link.href + link.label}
-                href={link.href}
-                className={cn(
-                  'relative whitespace-nowrap px-3 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-xl border',
-                  isActive
-                    ? 'border-primary/50 bg-primary/10 text-primary font-bold dark:border-primary/50 dark:bg-primary/20 dark:text-primary shadow-2xs'
-                    : 'border-slate-200 bg-white/90 text-slate-800 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/90 dark:hover:text-white shadow-2xs',
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-
         {/* Search, Notifications, Auth, CTA cluster */}
         <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 pl-1 sm:gap-2">
           <form
@@ -107,7 +84,7 @@ export function Header() {
               e.preventDefault();
               handleSearchSubmit(searchQuery);
             }}
-            className="hidden h-9 items-center rounded-full border border-slate-200/80 bg-slate-100/70 pl-3 pr-2 text-xs font-medium text-slate-500 transition-all duration-200 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 dark:border-zinc-700/80 dark:bg-zinc-800/60 dark:text-zinc-400 dark:focus-within:border-primary/50 dark:focus-within:bg-zinc-900 2xl:inline-flex"
+            className="hidden h-9 items-center rounded-full border border-slate-200/80 bg-slate-100/70 pl-3 pr-2 text-xs font-medium text-slate-500 transition-all duration-200 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 dark:border-zinc-700/80 dark:bg-zinc-800/60 dark:text-zinc-400 dark:focus-within:border-primary/50 dark:focus-within:bg-zinc-900 md:inline-flex"
             role="search"
           >
             <button
@@ -123,7 +100,7 @@ export function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="İlan veya girişim ara..."
-              className="w-28 xl:w-36 bg-transparent text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="w-40 sm:w-48 lg:w-56 bg-transparent text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
               aria-label="İlan veya girişim ara"
             />
             <kbd
@@ -134,7 +111,7 @@ export function Header() {
             </kbd>
           </form>
 
-          <Link href="/ara" className={cn(iconBtnClass, '2xl:hidden')} aria-label="Ara">
+          <Link href="/ara" className={cn(iconBtnClass, 'md:hidden')} aria-label="Ara">
             <Search className="h-4 w-4" />
           </Link>
 
