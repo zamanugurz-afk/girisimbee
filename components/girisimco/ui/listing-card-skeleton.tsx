@@ -29,25 +29,15 @@ export function ListingCardSkeleton({ className }: ListingCardSkeletonProps) {
   );
 }
 
-export function ListingFeedSkeleton({ count = 4 }: { count?: number }) {
+export function ListingFeedSkeleton({ count = 6 }: { count?: number }) {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 lg:gap-y-8 sm:divide-x divide-slate-200 dark:divide-zinc-800"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4"
       aria-busy="true"
       aria-label="İlanlar yükleniyor"
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className={cn(
-            'relative h-full',
-            i % 4 === 0
-              ? 'sm:pr-4 lg:pr-3 sm:pl-0'
-              : i % 4 === 3
-              ? 'sm:pl-4 lg:pl-3 sm:pr-0'
-              : 'sm:px-4 lg:px-3'
-          )}
-        >
+        <div key={i} className="relative h-full">
           <ListingCardSkeleton />
         </div>
       ))}

@@ -34,6 +34,7 @@ import { resolveContextualListingImage } from '@/features/listings/services/cont
 interface ContentCardProps {
   item: ContentItem;
   accent?: string;
+  compact?: boolean;
 }
 
 function Avatar({ initials, accent }: { initials: string; accent?: string }) {
@@ -64,14 +65,14 @@ function TypeIcon({ type }: { type: ContentItem['type'] }) {
   }
 }
 
-export function ContentCard({ item, accent }: ContentCardProps) {
+export function ContentCard({ item, accent, compact }: ContentCardProps) {
   const isArticle = item.type === 'article' || item.type === 'story';
   const isListingCard = Boolean(item.listingId && item.listingTypeLabel);
   const listingLink = item.href ?? (item.listingId ? listingHref(item.id) : null);
   const resolvedAccent = accent ?? item.listingGroupColor ?? GC_ACCENT;
 
   const card = isListingCard ? (
-    <TextListingCardLayout item={item} listingLink={listingLink} />
+    <TextListingCardLayout item={item} listingLink={listingLink} compact={compact} />
   ) : (
     <LegacyContentCardLayout
       item={item}
@@ -96,9 +97,11 @@ export function ContentCard({ item, accent }: ContentCardProps) {
 function TextListingCardLayout({
   item,
   listingLink,
+  compact = false,
 }: {
   item: ContentItem;
   listingLink: string | null;
+  compact?: boolean;
 }) {
   const accent = item.listingGroupColor ?? GC_ACCENT;
   const typeLabel = item.listingTypeLabel ?? item.listingGroupLabel ?? 'İlan';
@@ -118,7 +121,8 @@ function TextListingCardLayout({
   return (
     <article
       className={cn(
-        'group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.75rem]',
+        'group relative flex h-full flex-col justify-between overflow-hidden',
+        compact ? 'rounded-2xl' : 'rounded-[1.75rem]',
         'bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800',
         'shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out',
         'hover:border-amber-500/50 hover:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.12)] hover:-translate-y-1.5',
@@ -132,7 +136,7 @@ function TextListingCardLayout({
           alt={item.title}
           fill
           className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 220px"
           unoptimized
         />
 
@@ -140,17 +144,20 @@ function TextListingCardLayout({
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
         {/* Sol Üstte Işıltılı Kategori Hapı (Görsel İçi) */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-black/65 backdrop-blur-md text-white text-[11px] font-bold shadow-md border border-white/15">
-            {Icon ? <Icon className="h-3.5 w-3.5 text-amber-400" /> : <Sparkles className="h-3.5 w-3.5 text-amber-400" />}
+        <div className={cn('absolute z-10', compact ? 'top-2 left-2' : 'top-3 left-3')}>
+          <span className={cn(
+            'inline-flex items-center gap-1 bg-black/65 backdrop-blur-md text-white font-bold shadow-md border border-white/15',
+            compact ? 'px-2 py-0.5 rounded-lg text-[10px]' : 'px-3 py-1 rounded-xl text-[11px]'
+          )}>
+            {Icon ? <Icon className={compact ? 'h-3 w-3 text-amber-400' : 'h-3.5 w-3.5 text-amber-400'} /> : <Sparkles className={compact ? 'h-3 w-3 text-amber-400' : 'h-3.5 w-3.5 text-amber-400'} />}
             <span>{typeLabel}</span>
           </span>
         </div>
 
         {/* Sağ Üst Favori Butonu */}
         {item.listingId && (
-          <div className="absolute top-3 right-3 z-10">
-            <div className="rounded-xl bg-black/40 backdrop-blur-md p-1 border border-white/10 hover:bg-black/60 transition-colors">
+          <div className={cn('absolute z-10', compact ? 'top-2 right-2' : 'top-3 right-3')}>
+            <div className="rounded-xl bg-black/40 backdrop-blur-md p-0.5 border border-white/10 hover:bg-black/60 transition-colors">
               <FavoriteButton listingId={item.listingId as ListingId} title={item.title} />
             </div>
           </div>
@@ -158,75 +165,102 @@ function TextListingCardLayout({
       </div>
 
       {/* 2. Kart Gövdesi */}
-      <div className="flex flex-1 flex-col p-4">
+      <div className={cn('flex flex-1 flex-col', compact ? 'p-3' : 'p-4')}>
         
         {/* Görsel Altı Rozet Satırı (Kategori & Doğrulanmış Rozeti) */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <span
-            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold tracking-wide"
+            className={cn(
+              'inline-flex items-center gap-1 font-bold tracking-wide',
+              compact ? 'px-2 py-0.5 rounded-md text-[10.5px]' : 'px-2.5 py-0.5 rounded-lg text-xs'
+            )}
             style={{ backgroundColor: `${accent}18`, color: accent }}
           >
-            {Icon ? <Icon className="h-3 w-3" /> : null}
+            {Icon ? <Icon className={compact ? 'h-2.5 w-2.5' : 'h-3 w-3'} /> : null}
             <span>{typeLabel}</span>
           </span>
 
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-900 dark:bg-zinc-800 text-white text-[11px] font-bold shadow-2xs">
-            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+          <span className={cn(
+            'inline-flex items-center gap-1 bg-slate-900 dark:bg-zinc-800 text-white font-bold shadow-2xs',
+            compact ? 'px-1.5 py-0.5 rounded-md text-[10px]' : 'px-2 py-0.5 rounded-lg text-[11px]'
+          )}>
+            <ShieldCheck className={compact ? 'h-2.5 w-2.5 text-emerald-400' : 'h-3 w-3 text-emerald-400'} />
             Doğrulanmış
           </span>
         </div>
 
         {/* İlan Başlığı */}
-        <h3 className="mt-2.5 line-clamp-1 font-display text-[15px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400">
+        <h3 className={cn(
+          'line-clamp-1 font-display font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400',
+          compact ? 'mt-2 text-[13px] sm:text-[13.5px]' : 'mt-2.5 text-[15px]'
+        )}>
           {item.title}
         </h3>
 
         {/* 2 Satır Kısa Açıklama */}
         {description ? (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400 font-normal">
+          <p className={cn(
+            'line-clamp-2 leading-relaxed text-slate-600 dark:text-zinc-400 font-normal',
+            compact ? 'mt-1 text-[11px]' : 'mt-1 text-xs'
+          )}>
             {description}
           </p>
         ) : null}
 
         {/* Şirket / Yayıncı Satırı */}
-        <div className="mt-2.5 flex items-center gap-1.5 min-w-0">
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-            <Building2 className="h-3 w-3 text-slate-500" />
+        <div className={cn('flex items-center gap-1.5 min-w-0', compact ? 'mt-2' : 'mt-2.5')}>
+          <div className={cn(
+            'flex shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300',
+            compact ? 'h-4 w-4' : 'h-5 w-5'
+          )}>
+            <Building2 className={compact ? 'h-2.5 w-2.5 text-slate-500' : 'h-3 w-3 text-slate-500'} />
           </div>
-          <span className="truncate text-xs font-bold text-slate-800 dark:text-zinc-200">
+          <span className={cn(
+            'truncate font-bold text-slate-800 dark:text-zinc-200',
+            compact ? 'text-[11px]' : 'text-xs'
+          )}>
             {item.companyName || (item.trust?.company ? 'Kurumsal Girişim' : 'Doğrulanmış Üye')}
           </span>
         </div>
 
         {/* 3. Alt Metadata Yığını & Siyah İncele Butonu */}
-        <div className="mt-auto pt-3 border-t border-slate-100 dark:border-zinc-800/80 flex items-end justify-between gap-2">
+        <div className={cn(
+          'mt-auto border-t border-slate-100 dark:border-zinc-800/80 flex items-end justify-between gap-1.5',
+          compact ? 'pt-2.5' : 'pt-3'
+        )}>
           
           {/* Sol: Değerleme/Fiyat, Lokasyon ve Zaman */}
-          <div className="min-w-0 flex-1 flex flex-col gap-0.5 text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+          <div className={cn(
+            'min-w-0 flex-1 flex flex-col gap-0.5 text-slate-500 dark:text-zinc-400 font-medium',
+            compact ? 'text-[10px]' : 'text-[11px]'
+          )}>
             {compactPrice && (
               <span className="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-zinc-100 truncate">
-                <Coins className="h-3 w-3 text-amber-500 shrink-0" />
+                <Coins className={compact ? 'h-2.5 w-2.5 text-amber-500 shrink-0' : 'h-3 w-3 text-amber-500 shrink-0'} />
                 <span className="truncate">{compactPrice}</span>
               </span>
             )}
             {item.location && (
               <span className="inline-flex items-center gap-1 truncate">
-                <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                <MapPin className={compact ? 'h-2.5 w-2.5 text-slate-400 shrink-0' : 'h-3 w-3 text-slate-400 shrink-0'} />
                 <span className="truncate">{item.location}</span>
               </span>
             )}
             {item.timeAgo && (
               <span className="inline-flex items-center gap-1 truncate">
-                <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                <Clock className={compact ? 'h-2.5 w-2.5 text-slate-400 shrink-0' : 'h-3 w-3 text-slate-400 shrink-0'} />
                 <span className="truncate">{item.timeAgo}</span>
               </span>
             )}
           </div>
 
           {/* Sağ: Şık Siyah İncele Butonu */}
-          <span className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs shadow-xs transition-all group-hover:scale-105">
+          <span className={cn(
+            'shrink-0 inline-flex items-center gap-1 bg-[#0F172A] hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold shadow-xs transition-all group-hover:scale-105',
+            compact ? 'px-2.5 py-1 rounded-lg text-[11px]' : 'px-3 py-1.5 rounded-xl text-xs'
+          )}>
             <span>İncele</span>
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className={compact ? 'h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5' : 'h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5'} />
           </span>
         </div>
 

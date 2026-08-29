@@ -252,15 +252,15 @@ export function MarketplaceBrowseView({
               {description ?? categoryMeta?.description}
             </p>
           )}
-          <div className="mt-6 max-w-xl">
-            <MarketplaceSearchBar defaultQuery={initialQuery ?? filters.query} />
-          </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        {/* 1. FİLTRELER (3. Resimdeki Filtreler - En Üstte) */}
-        <div id="tum-filtreler-alani">
+        {/* 1. FİLTRELER & ARAMA ÇUBUĞU (Kategorilerin Yanında Arama Çubuğu) */}
+        <div id="tum-filtreler-alani" className="flex flex-wrap items-center gap-2.5 mb-6">
+          <div className="w-full sm:w-[260px] lg:w-[300px]">
+            <MarketplaceSearchBar defaultQuery={initialQuery ?? filters.query} />
+          </div>
           <ListingFilters
             items={items}
             filters={filters}
@@ -271,7 +271,7 @@ export function MarketplaceBrowseView({
               showVentureFlowFilters
               ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')
             }
-            className="mb-6"
+            className="flex-1"
           />
         </div>
 
