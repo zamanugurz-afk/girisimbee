@@ -55,9 +55,7 @@ export function Header() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -68,19 +66,6 @@ export function Header() {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Global Cmd+K / Ctrl+K keyboard shortcut listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        searchInputRef.current?.select();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleSearchSubmit = (queryStr: string) => {
@@ -103,12 +88,12 @@ export function Header() {
           : 'border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-white/5 dark:bg-background/80',
       )}
     >
-      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <SiteLogo className="mr-1 shrink-0" />
+      <div className="relative mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
+        <SiteLogo className="mr-1 shrink-0 relative z-20" />
 
-        {/* Center: Segmented Intent Switcher (Option 3) */}
+        {/* Center: Perfectly Centered Segmented Intent Switcher (Option 3) */}
         <nav
-          className="hidden md:flex items-center justify-center flex-1 min-w-0"
+          className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center z-10"
           aria-label="Ana Gezinme"
         >
           <div className="inline-flex items-center rounded-full p-1 bg-slate-100/90 border border-slate-200/80 shadow-2xs dark:bg-zinc-800/80 dark:border-zinc-700/80">
@@ -119,7 +104,7 @@ export function Header() {
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    'relative whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-full',
+                    'relative whitespace-nowrap px-4 py-1.5 text-xs font-semibold tracking-tight transition-all duration-200 rounded-full',
                     active
                       ? 'bg-white text-slate-900 shadow-xs font-bold dark:bg-zinc-900 dark:text-white'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-700/40',
@@ -132,44 +117,8 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Search, Notifications, Auth, CTA cluster */}
+        {/* Notifications, Auth, CTA cluster */}
         <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 pl-1 sm:gap-2">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearchSubmit(searchQuery);
-            }}
-            className="hidden h-9 items-center rounded-full border border-slate-200/80 bg-slate-100/70 pl-3 pr-2 text-xs font-medium text-slate-500 transition-all duration-200 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 dark:border-zinc-700/80 dark:bg-zinc-800/60 dark:text-zinc-400 dark:focus-within:border-primary/50 dark:focus-within:bg-zinc-900 xl:inline-flex"
-            role="search"
-          >
-            <button
-              type="submit"
-              className="mr-1.5 flex shrink-0 items-center justify-center text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-              aria-label="Ara"
-            >
-              <Search className="h-3.5 w-3.5" />
-            </button>
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="İlan veya girişim ara..."
-              className="w-28 2xl:w-40 bg-transparent text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
-              aria-label="İlan veya girişim ara"
-            />
-            <kbd
-              onClick={() => searchInputRef.current?.focus()}
-              className="ml-1 inline-flex h-4 items-center rounded border border-slate-200 bg-white px-1 font-mono text-[9px] font-semibold text-slate-400 shadow-2xs dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500 cursor-pointer select-none"
-            >
-              ⌘K
-            </kbd>
-          </form>
-
-          <Link href="/ara" className={cn(iconBtnClass, 'xl:hidden')} aria-label="Ara">
-            <Search className="h-4 w-4" />
-          </Link>
-
           <MarketplaceNotificationsBell />
 
           <AuthMenu />
@@ -189,7 +138,7 @@ export function Header() {
 
           <button
             type="button"
-            className={cn(iconBtnClass, 'xl:hidden')}
+            className={cn(iconBtnClass, 'md:hidden')}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
           >
@@ -199,7 +148,7 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl xl:hidden animate-fade-in-down dark:bg-background/95">
+        <div className="border-t border-border/50 bg-white/95 px-5 py-4 shadow-lg backdrop-blur-xl md:hidden animate-fade-in-down dark:bg-background/95">
           <form
             onSubmit={(e) => {
               e.preventDefault();
