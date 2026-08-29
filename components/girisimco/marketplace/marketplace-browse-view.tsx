@@ -259,11 +259,8 @@ export function MarketplaceBrowseView({
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        {!categorySlug && !initialQuery && (
-          <ExploreSuperShowcase items={items} className="mb-10" />
-        )}
-
-        <div id="tum-ilanlar-alani">
+        {/* 1. FİLTRELER (3. Resimdeki Filtreler - En Üstte) */}
+        <div id="tum-filtreler-alani">
           <ListingFilters
             items={items}
             filters={filters}
@@ -274,9 +271,30 @@ export function MarketplaceBrowseView({
               showVentureFlowFilters
               ?? (categorySlug === 'ortak-bul' || categorySlug === 'isletme-devri')
             }
-            className="mb-5"
+            className="mb-6"
           />
+        </div>
 
+        {/* 2. SÜPER İLANLAR VİTRİNİ (Filtrelerin Hemen Altında) */}
+        {!categorySlug && !initialQuery && !filters.categorySlug && (
+          <ExploreSuperShowcase
+            items={items}
+            onShowAllSuperListings={() => {
+              updateFilters({
+                isUrgent: true,
+                categorySlug: undefined,
+                sector: undefined,
+                city: undefined,
+              });
+              const el = document.getElementById('tum-ilanlar-akisi');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="mb-8"
+          />
+        )}
+
+        {/* 3. İLAN SAYISI VE AKIŞ */}
+        <div id="tum-ilanlar-akisi">
           {!isLoading && !error && (
             <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
               {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
