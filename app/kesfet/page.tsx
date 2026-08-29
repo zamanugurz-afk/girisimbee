@@ -10,6 +10,9 @@ import {
   resolveCategorySlug,
 } from '@/features/listings/config/marketplace.config';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'İlanları Keşfet — Girisimbee Marketplace',
   description: 'Tüm kategorilerdeki güncel girişim, kariyer, franchise ve ortaklık ilanlarını inceleyin.',
