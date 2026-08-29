@@ -13,7 +13,7 @@ import {
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
 import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
-import { ExploreSuperShowcase } from '@/components/girisimco/marketplace/explore-super-showcase';
+import { ExploreSuperVitrin } from '@/components/girisimco/marketplace/explore-super-vitrin';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -275,11 +275,11 @@ export function MarketplaceBrowseView({
           />
         </div>
 
-        {/* 2. SÜPER İLANLAR VİTRİNİ (Filtrelerin Hemen Altında) */}
+        {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Görsel 1 ile Birebir) */}
         {!categorySlug && !initialQuery && !filters.categorySlug && (
-          <ExploreSuperShowcase
+          <ExploreSuperVitrin
             items={items}
-            onShowAllSuperListings={() => {
+            onViewAllSuper={() => {
               updateFilters({
                 isUrgent: true,
                 categorySlug: undefined,
@@ -289,16 +289,17 @@ export function MarketplaceBrowseView({
               const el = document.getElementById('tum-ilanlar-akisi');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="mb-8"
           />
         )}
 
-        {/* 3. İLAN SAYISI VE AKIŞ */}
-        <div id="tum-ilanlar-akisi">
+        {/* 3. TÜM İLANLAR BAŞLIĞI VE AKIŞ */}
+        <div id="tum-ilanlar-akisi" className="pt-2">
           {!isLoading && !error && (
-            <p className="mb-4 text-sm font-medium text-muted-foreground tabular-nums">
-              {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
-            </p>
+            <div className="flex items-center justify-between gap-4 mb-4 pb-2 border-b border-slate-200/60 dark:border-zinc-800/80">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Tüm İlanlar <span className="text-sm font-normal text-muted-foreground">({countToDisplay.toLocaleString('tr-TR')} {resultNoun})</span>
+              </h2>
+            </div>
           )}
         </div>
 
