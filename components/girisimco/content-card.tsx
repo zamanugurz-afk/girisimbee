@@ -29,32 +29,11 @@ import { buttonVariants } from '@/components/ui/button';
 import { GC_ACCENT } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
+import { resolveContextualListingImage } from '@/features/listings/services/contextual-listing-image-resolver';
+
 interface ContentCardProps {
   item: ContentItem;
   accent?: string;
-}
-
-function getCategoryFallbackImage(typeLabel: string, typeKey?: string): string {
-  const normalized = (typeLabel + ' ' + (typeKey || '')).toLowerCase();
-  if (normalized.includes('yazılım') || normalized.includes('saas') || normalized.includes('tech') || normalized.includes('dijital')) {
-    return 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80';
-  }
-  if (normalized.includes('ortak') || normalized.includes('devir') || normalized.includes('b2b')) {
-    return 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=80';
-  }
-  if (normalized.includes('yatırım') || normalized.includes('seed') || normalized.includes('girişim') || normalized.includes('erken')) {
-    return 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=80';
-  }
-  if (normalized.includes('kariyer') || normalized.includes('iş') || normalized.includes('mühendis') || normalized.includes('cto')) {
-    return 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80';
-  }
-  if (normalized.includes('franchise') || normalized.includes('bayi')) {
-    return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80';
-  }
-  if (normalized.includes('hizmet') || normalized.includes('usta') || normalized.includes('danışman')) {
-    return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80';
-  }
-  return 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80';
 }
 
 function Avatar({ initials, accent }: { initials: string; accent?: string }) {
@@ -126,7 +105,15 @@ function TextListingCardLayout({
   const Icon = (item.listingIconKey && LISTING_TYPE_ICON_MAP[item.listingIconKey as keyof typeof LISTING_TYPE_ICON_MAP]) || LISTING_TYPE_ICON_MAP.general;
   const compactPrice = item.price && !item.price.includes('·') ? item.price : undefined;
   const description = item.description || item.detail;
-  const displayImage = item.imageUrl || item.coverUrl || getCategoryFallbackImage(typeLabel, item.listingIconKey);
+  const displayImage = resolveContextualListingImage({
+    title: item.title,
+    description: description,
+    categorySlug: item.listingGroupLabel || item.tag,
+    categoryName: typeLabel,
+    sector: item.sector,
+    imageUrl: item.imageUrl,
+    coverUrl: item.coverUrl,
+  });
 
   return (
     <article

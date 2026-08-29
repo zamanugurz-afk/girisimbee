@@ -28,6 +28,8 @@ function readStringArray(value: unknown): string[] | undefined {
   return undefined;
 }
 
+import { resolveContextualListingImage } from '@/features/listings/services/contextual-listing-image-resolver';
+
 function basePayload(values: ListingFormValues) {
   const { core, customFields = {} } = values;
   const resolvedPhone =
@@ -43,6 +45,14 @@ function basePayload(values: ListingFormValues) {
     || readString(customFields.authorizedPerson)
     || null;
 
+  const autoCoverUrl = resolveContextualListingImage({
+    title: core.title,
+    description: core.shortDescription,
+    sector: readString(customFields.sector) || undefined,
+    industry: readString(customFields.industry) || undefined,
+    coverUrl: readString(customFields.coverUrl) || readString((values as any).coverUrl) || null,
+  });
+
   return {
     title: core.title,
     shortDescription: core.shortDescription,
@@ -50,6 +60,7 @@ function basePayload(values: ListingFormValues) {
     city: core.city ?? null,
     contactPhone: resolvedPhone,
     contactName: resolvedName,
+    coverUrl: autoCoverUrl,
     publishConsents: values.publishConsents ?? null,
   };
 }
