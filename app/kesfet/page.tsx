@@ -11,8 +11,8 @@ import {
 } from '@/features/listings/config/marketplace.config';
 
 export const metadata: Metadata = {
-  title: 'Keşfet — Girisimbee Marketplace',
-  description: 'Kariyer, ortaklık ve fırsat ilanlarını keşfedin.',
+  title: 'İlanları Keşfet — Girisimbee Marketplace',
+  description: 'Tüm kategorilerdeki güncel girişim, kariyer, franchise ve ortaklık ilanlarını inceleyin.',
 };
 
 const SORT_VALUES: ListingSortBy[] = ['newest', 'most_viewed', 'most_favorited', 'recently_updated'];
@@ -34,18 +34,12 @@ function parseExploreFilters(
     filters.sortBy = DEFAULT_SORT;
   }
 
-  const isExplicitAll = get('all') === '1' || get('all') === 'true';
-  const isExplicitUrgentFalse = get('urgent') === '0' || get('urgent') === 'false';
   const isExplicitUrgentTrue = get('urgent') === '1' || get('urgent') === 'true';
-  const hasCategory = Boolean(get('category'));
-  const hasQuery = Boolean(get('q'));
-  const hasToday = get('today') === '1' || get('today') === 'true';
-
-  // İlk açılışta veya urgent=1 durumunda SADECE Süper İlanlar gösterilir
-  if (isExplicitUrgentTrue || (!isExplicitAll && !isExplicitUrgentFalse && !hasCategory && !hasQuery && !hasToday)) {
+  if (isExplicitUrgentTrue) {
     filters.isUrgent = true;
   }
 
+  const hasToday = get('today') === '1' || get('today') === 'true';
   if (hasToday) {
     filters.publishedAfter = startOfTodayIstanbulIso();
     filters.publishedBefore = endOfTodayIstanbulIso();
@@ -58,24 +52,28 @@ function parseExploreFilters(
 }
 
 function exploreTitle(searchParams: Record<string, string | string[] | undefined>): string {
-  const isExplicitAll = searchParams.all === '1' || searchParams.all === 'true';
-  const isExplicitUrgentFalse = searchParams.urgent === '0' || searchParams.urgent === 'false';
-  const isExplicitUrgentTrue = searchParams.urgent === '1' || searchParams.urgent === 'true';
-  const hasCategory = Boolean(searchParams.category);
-  const hasQuery = Boolean(searchParams.q);
-  const hasToday = searchParams.today === '1' || searchParams.today === 'true';
+  const get = (key: string) => {
+    const v = searchParams[key];
+    return typeof v === 'string' ? v : undefined;
+  };
 
-  if (isExplicitUrgentTrue || (!isExplicitAll && !isExplicitUrgentFalse && !hasCategory && !hasQuery && !hasToday)) {
+  const isExplicitUrgentTrue = get('urgent') === '1' || get('urgent') === 'true';
+  if (isExplicitUrgentTrue) {
     return 'Süper İlanlar';
   }
+
+  const hasToday = get('today') === '1' || get('today') === 'true';
   if (hasToday) return 'Bugünün İlanları';
-  if (searchParams.sort === 'most_viewed') return 'En Çok Görüntülenenler';
-  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+
+  if (get('sort') === 'most_viewed') return 'En Çok Görüntülenenler';
+
+  const category = get('category');
   if (category) {
     const meta = resolveCategorySlug(category);
     if (meta?.label) return meta.label;
   }
-  return 'Keşfet';
+
+  return 'İlanları Keşfet';
 }
 
 interface PageProps {
@@ -97,7 +95,7 @@ export default function ExplorePage({ searchParams }: PageProps) {
       description={
         categoryMeta
           ? (categoryMeta.description ?? 'Bu kategorideki güncel ilanları inceleyin.')
-          : 'Tüm kategorilerdeki güncel ilanları inceleyin.'
+          : 'Tüm kategorilerdeki güncel ilan ve fırsatları inceleyin.'
       }
       initialQuery={q}
       initialFilters={initialFilters}
