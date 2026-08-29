@@ -29,6 +29,8 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: '/dijital-ai', destination: '/market', permanent: false },
+      { source: '/kategori/dijital-ai', destination: '/market', permanent: false },
       { source: '/ilanlar', destination: '/kesfet', permanent: false },
       { source: '/franchise', destination: '/franchise/buy', permanent: false },
       { source: '/hesabim', destination: '/dashboard', permanent: false },
