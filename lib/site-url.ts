@@ -27,15 +27,19 @@ export function canonicalizeSiteOrigin(origin: string): string {
  */
 export function resolveSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (configured) {
+  if (configured && (configured.startsWith('http://') || configured.startsWith('https://'))) {
     return canonicalizeSiteOrigin(configured);
   }
 
   const vercelUrl = process.env.VERCEL_URL?.trim();
-  if (vercelUrl) {
+  if (vercelUrl && !vercelUrl.includes('[') && !vercelUrl.includes(']')) {
     const host = vercelUrl.replace(/\/$/, '');
     if (process.env.VERCEL_ENV === 'production') return CANONICAL_SITE_ORIGIN;
     return `https://${host}`;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return CANONICAL_SITE_ORIGIN;
   }
 
   return 'http://localhost:3000';
