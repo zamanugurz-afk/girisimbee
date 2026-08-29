@@ -12,18 +12,13 @@ import {
 } from 'lucide-react';
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { useHeroStats } from '@/features/home';
-import {
-  HomeListingsProvider,
-  HomeRestSections,
-} from '@/components/girisimco/home/HomeListingsModule';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 
 export function PlatformHome() {
   const { counts, isLoading } = useHeroStats();
 
   return (
-    <HomeListingsProvider>
-      <div className="gc-header-offset relative bg-slate-50/50 dark:bg-background">
+    <div className="gc-header-offset relative bg-slate-50/50 dark:bg-background">
         
         {/* ========================================================================= */}
         {/* 1. EKRAN / HERO BÖLÜMÜ (STANDART 1280PX GRID İLE MÜKEMMEL HİZALANMIŞ)     */}
@@ -174,14 +169,12 @@ export function PlatformHome() {
             />
           </div>
 
-          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET, SÜPER İLANLAR & DİĞER KATEGORİLER) */}
+          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET) */}
           <div className="relative z-10 space-y-4">
             <HomeMarketSection />
-            <HomeRestSections />
           </div>
         </div>
       </div>
-    </HomeListingsProvider>
   );
 }
 
