@@ -39,6 +39,7 @@ import {
   resolveListingCoverUrl,
   resolveSmartListingCover,
 } from '@/features/listings/config/listing-cover.config';
+import { resolveContextualListingImage } from '@/features/listings/services/contextual-listing-image-resolver';
 import { polishCareerSummary } from '@/features/candidates/lib/career-summary';
 import {
   ageFromBirthDate,
@@ -470,30 +471,30 @@ export function aggregateToListingDetail(
       : categorySlug === 'ise-al'
         ? 'ise-aliyorum'
         : (categoryRegistry.getListingType(listing.listingTypeId)?.slug ?? null);
-  const smartCoverUrl = resolveSmartListingCover({
-    uploadedUrl: uploadedGallery[0]?.imageUrl ?? null,
-    listingTypeSlug,
-    group: cardDisplay.group,
+
+  const contextualImage = resolveContextualListingImage({
     title: listing.title,
-    sector: resolveCoverSectorHint({
-      customFields: sourceCf,
-      industry: listing.industry,
-    }),
-    industry: listing.industry,
-    businessType: (cf.businessType ?? cf.businessTypeOther ?? null) as string | null,
-    businessName: (cf.businessName ?? cf.companyName ?? null) as string | null,
-    companyName: (cf.companyName ?? null) as string | null,
-    franchiseModel: (cf.franchiseModel ?? cf.businessCategory ?? null) as string | null,
-    role: resolveCareerCoverRole(
-      toDisplayValue(sourceCf.desiredRole)
-        || toDisplayValue(sourceCf.positionTitle),
-      toDisplayValue(sourceCf.desiredRoleOther)
-        || toDisplayValue(sourceCf.positionTitleOther),
-    ),
-    gender: (categorySlug === 'is-bul' || categorySlug === 'is-ariyorum' || listing.moduleKey === 'candidates') ? toDisplayValue(sourceCf.profileGender) : null,
     description: listing.longDescription || listing.shortDescription,
+    categorySlug: categorySlug,
+    categoryName: meta?.label || cardDisplay.typeLabel || category?.name,
+    sector:
+      toDisplayValue(sourceCf.primarySector)
+      || toDisplayValue(sourceCf.sector)
+      || toDisplayValue(listing.industry)
+      || undefined,
+    imageUrl:
+      uploadedGallery[0]?.imageUrl
+      || (typeof sourceCf.imageUrl === 'string' && sourceCf.imageUrl.trim()
+        ? sourceCf.imageUrl.trim()
+        : null),
+    coverUrl:
+      typeof sourceCf.coverUrl === 'string' && sourceCf.coverUrl.trim()
+        ? sourceCf.coverUrl.trim()
+        : null,
   });
-  const careerCoverUrl = smartCoverUrl;
+
+  const smartCoverUrl = contextualImage;
+  const careerCoverUrl = contextualImage;
   const galleryItems =
     categorySlug !== 'is-bul' && categorySlug !== 'is-ariyorum' && listing.moduleKey !== 'candidates' && uploadedGallery.length > 0
       ? uploadedGallery

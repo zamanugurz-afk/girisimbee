@@ -15,6 +15,7 @@ import {
 } from '@/features/founders/partnership-intent';
 import { resolveListingCardDisplay } from '@/features/listings/utils/listing-card-display';
 import { isEmptyDisplayValue, toDisplayValue } from '@/features/listings/utils/display-value';
+import { resolveContextualListingImage } from '@/features/listings/services/contextual-listing-image-resolver';
 
 type ListingWithDbMeta = Listing & {
   listingTypeSlug?: string | null;
@@ -106,33 +107,47 @@ export function listingToContentItem(
     listingGroupColor: cardDisplay.groupColor,
     listingGroupLabel: cardDisplay.groupLabel,
     listingIconKey: cardDisplay.iconKey,
-    coverUrl: resolveListingCoverUrl({
-      uploadedUrl:
+    imageUrl: resolveContextualListingImage({
+      title: listing.title,
+      description: listing.shortDescription || listing.longDescription,
+      categorySlug: categorySlug,
+      categoryName: cardDisplay.typeLabel,
+      sector:
+        typeof listing.customFields?.primarySector === 'string' && listing.customFields.primarySector.trim()
+          ? listing.customFields.primarySector.trim()
+          : typeof listing.customFields?.sector === 'string' && listing.customFields.sector.trim()
+            ? listing.customFields.sector.trim()
+            : listing.industry || undefined,
+      imageUrl:
         uploadedCoverUrl
-        || (typeof listing.customFields?.resolvedCoverUrl === 'string'
-          ? listing.customFields.resolvedCoverUrl
+        || (typeof listing.customFields?.imageUrl === 'string' && listing.customFields.imageUrl.trim()
+          ? listing.customFields.imageUrl.trim()
           : null),
-      listingTypeSlug,
-      group: cardDisplay.group,
-      sector: resolveCoverSectorHint({
-        customFields: listing.customFields,
-        industry: listing.industry,
-      }),
-      role: resolveCareerCoverRole(
-        typeof listing.customFields?.desiredRole === 'string'
-          ? listing.customFields.desiredRole
-          : typeof listing.customFields?.positionTitle === 'string'
-            ? listing.customFields.positionTitle
-            : null,
-        typeof listing.customFields?.desiredRoleOther === 'string'
-          ? listing.customFields.desiredRoleOther
-          : typeof listing.customFields?.positionTitleOther === 'string'
-            ? listing.customFields.positionTitleOther
-            : null,
-      ),
-      gender: typeof listing.customFields?.profileGender === 'string'
-        ? listing.customFields.profileGender
-        : null,
+      coverUrl:
+        typeof listing.customFields?.coverUrl === 'string' && listing.customFields.coverUrl.trim()
+          ? listing.customFields.coverUrl.trim()
+          : null,
+    }),
+    coverUrl: resolveContextualListingImage({
+      title: listing.title,
+      description: listing.shortDescription || listing.longDescription,
+      categorySlug: categorySlug,
+      categoryName: cardDisplay.typeLabel,
+      sector:
+        typeof listing.customFields?.primarySector === 'string' && listing.customFields.primarySector.trim()
+          ? listing.customFields.primarySector.trim()
+          : typeof listing.customFields?.sector === 'string' && listing.customFields.sector.trim()
+            ? listing.customFields.sector.trim()
+            : listing.industry || undefined,
+      imageUrl:
+        uploadedCoverUrl
+        || (typeof listing.customFields?.imageUrl === 'string' && listing.customFields.imageUrl.trim()
+          ? listing.customFields.imageUrl.trim()
+          : null),
+      coverUrl:
+        typeof listing.customFields?.coverUrl === 'string' && listing.customFields.coverUrl.trim()
+          ? listing.customFields.coverUrl.trim()
+          : null,
     }),
     tag: hasAnyTrustBadge(trust ?? { user: false, company: false, investor: false })
       ? undefined
