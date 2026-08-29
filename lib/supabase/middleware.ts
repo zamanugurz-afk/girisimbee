@@ -11,7 +11,7 @@ export function createClient(request: NextRequest) {
     'https://tszvmnaejsxsyuawwclr.supabase.co';
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzenZtbmFlanN4c3l1YXd3Y2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTAyOTgsImV4cCI6MjEwMDk4NjI5OH0.oZymsvxduZTFeNmza7iRCcCzzIFWsC0fZLYyyoRPeyA';
 
   const supabase = createServerClient(
     url,
