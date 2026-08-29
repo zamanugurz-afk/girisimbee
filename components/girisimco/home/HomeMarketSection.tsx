@@ -70,28 +70,25 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
   const activeItem = items[activeIndex] || items[0];
   const activeHref = activeItem?.linkUrl || `/market/${activeItem?.id || ''}`;
 
-  return (
-    <section
-      id="firsatlar"
-      className={cn(
-        'relative z-[1] min-w-0 overflow-x-hidden bg-transparent dark:bg-transparent',
-        fold && 'shrink-0',
-      )}
-      aria-labelledby="home-market-heading"
-    >
-      <div
-        className={cn(
-          'mx-auto w-full max-w-[1280px] px-5 lg:px-8',
-          fold ? 'py-4' : 'py-8 sm:py-12 lg:py-14',
-        )}
-      >
-        {/* Main Editorial Card Container */}
-        <div className="relative overflow-hidden rounded-[2.25rem] bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] p-6 sm:p-10 lg:p-14">
-          
-          {/* Subtle Ambient Glows inside card */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" aria-hidden="true" />
-          <div className="pointer-events-none absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" aria-hidden="true" />
+  // 2. Resimdeki gibi tam genişlikli gri arka plan formatı (kolayca geri alınabilir)
+  const USE_FULL_BLEED_GRAY_BG = true;
 
+  if (USE_FULL_BLEED_GRAY_BG) {
+    return (
+      <section
+        id="firsatlar"
+        className={cn(
+          'relative z-[1] min-w-0 overflow-x-hidden bg-[#F2F3F5] dark:bg-zinc-900/80 border-y border-slate-200/80 dark:border-zinc-800 my-4 sm:my-6 lg:my-8',
+          fold && 'shrink-0',
+        )}
+        aria-labelledby="home-market-heading"
+      >
+        <div
+          className={cn(
+            'mx-auto w-full max-w-[1280px] px-5 lg:px-8',
+            fold ? 'py-6' : 'py-10 sm:py-14 lg:py-16',
+          )}
+        >
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
             
             {/* ========================================================================= */}
@@ -142,7 +139,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                           'group text-left px-4 py-3 rounded-2xl text-[13px] font-bold transition-all duration-300 flex items-center justify-between border relative overflow-hidden',
                           isSelected
                             ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 border-slate-900 dark:border-white shadow-sm scale-[1.01]'
-                            : 'bg-slate-50/80 text-slate-700 hover:bg-slate-100 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:bg-zinc-800 border-slate-200/80 dark:border-zinc-700/80',
+                            : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 border-slate-200/90 dark:border-zinc-700/80 shadow-2xs',
                         )}
                       >
                         <span className="truncate pr-2 relative z-10">{item.title}</span>
@@ -151,7 +148,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
                             'text-[11px] shrink-0 font-black px-2 py-0.5 rounded-md relative z-10',
                             isSelected
                               ? 'bg-amber-400 text-slate-950'
-                              : 'bg-slate-200/80 text-slate-600 dark:bg-zinc-700 dark:text-zinc-300 group-hover:bg-amber-100 group-hover:text-amber-800',
+                              : 'bg-slate-100 text-slate-600 dark:bg-zinc-700 dark:text-zinc-300 group-hover:bg-amber-100 group-hover:text-amber-800',
                           )}
                         >
                           #{idx + 1}
@@ -163,7 +160,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
               </div>
 
               {/* Alt Aksiyon Butonları */}
-              <div className="mt-8 flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800/80">
+              <div className="mt-8 flex flex-wrap items-center gap-3 pt-4 border-t border-slate-200/80 dark:border-zinc-800">
                 <Link
                   href={MARKET_HOME_CTA_HREF}
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm px-5 py-3 shadow-sm shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -174,7 +171,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
 
                 <Link
                   href="/reklam"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4.5 py-3 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:border-slate-300 transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4.5 py-3 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:border-slate-400 transition-all shadow-2xs"
                 >
                   <Sparkles className="w-4 h-4 text-amber-500" />
                   <span>Fırsat / Reklam Ekle</span>
@@ -190,7 +187,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
-              <div className="group relative overflow-hidden rounded-[2rem] bg-slate-100 dark:bg-zinc-800 border border-slate-200/90 dark:border-zinc-700 shadow-xl aspect-[16/11] w-full">
+              <div className="group relative overflow-hidden rounded-[2rem] bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 shadow-xl aspect-[16/11] w-full">
                 
                 {/* Büyük Görsel (Fade geçişli) */}
                 <div key={activeItem?.id} className="absolute inset-0 transition-opacity duration-700 animate-fade-in">
@@ -272,6 +269,35 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Standart / Eski düzen (geri alma opsiyonu)
+  return (
+    <section
+      id="firsatlar"
+      className={cn(
+        'relative z-[1] min-w-0 overflow-x-hidden bg-transparent dark:bg-transparent',
+        fold && 'shrink-0',
+      )}
+      aria-labelledby="home-market-heading"
+    >
+      <div
+        className={cn(
+          'mx-auto w-full max-w-[1280px] px-5 lg:px-8',
+          fold ? 'py-4' : 'py-8 sm:py-12 lg:py-14',
+        )}
+      >
+        <div className="relative overflow-hidden rounded-[2.25rem] bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] p-6 sm:p-10 lg:p-14">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+            <div className="lg:col-span-6 flex flex-col justify-center">
+              <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
+                Girişimbee <span className="text-amber-500">Market</span>
+              </h2>
+            </div>
           </div>
         </div>
       </div>

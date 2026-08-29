@@ -451,7 +451,7 @@ export function ReklamPageView() {
                     <h2 className="font-display text-lg font-semibold">Özel işbirliği talebi</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Farklı paket, sponsorluk veya uzun soluklu işbirliği için firma bilgilerinizi
-                      ve talebinizi iletin. Admin panelinden takip edilir.
+                      ve talebinizi iletin.
                     </p>
                   </div>
 
