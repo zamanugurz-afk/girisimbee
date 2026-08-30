@@ -124,6 +124,19 @@ function matchesCategorySemantics(
   return true;
 }
 
+function inferCategoryForPoi(name: string, tags: Record<string, string> | undefined): { key: RadarCategoryKey; label: string } {
+  for (const [key, meta] of Object.entries(RADAR_CATEGORIES)) {
+    if (matchesCategorySemantics(name, tags, key as RadarCategoryKey)) {
+      return { key: key as RadarCategoryKey, label: meta.label };
+    }
+  }
+  const amenity = tags?.amenity;
+  const shop = tags?.shop;
+  if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
+  if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
+  return { key: 'cafe', label: 'Ticari İşletme' };
+}
+
 const POI_QUERY_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
 const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
 
@@ -142,8 +155,14 @@ export async function fetchOverpassCompetitorPois(
     return cached.data;
   }
 
-  const categoryMeta = RADAR_CATEGORIES[category] ?? RADAR_CATEGORIES.cafe;
-  const tagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]';
+  const isAll = category === 'all' || !category;
+  const categoryMeta = isAll
+    ? { label: 'Tüm İşletmeler', idealDensityPerKm2: 45 }
+    : (RADAR_CATEGORIES[category] ?? RADAR_CATEGORIES.cafe);
+
+  const tagFilter = isAll
+    ? '["amenity"]; node(around:' + radiusMeters + ',' + lat + ',' + lng + ')["shop"]; node(around:' + radiusMeters + ',' + lat + ',' + lng + ')["office"]'
+    : (CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]');
 
   const query = `
     [out:json][timeout:3];
@@ -151,7 +170,7 @@ export async function fetchOverpassCompetitorPois(
       node(around:${radiusMeters},${lat},${lng})${tagFilter};
       way(around:${radiusMeters},${lat},${lng})${tagFilter};
     );
-    out center 60;
+    out center 80;
   `.trim();
 
   for (const endpoint of OVERPASS_ENDPOINTS) {
@@ -190,19 +209,26 @@ export async function fetchOverpassCompetitorPois(
             el.tags?.brand ||
             el.tags?.['name:tr'];
 
-          if (rawName && !matchesCategorySemantics(rawName, el.tags, category)) {
+          let poiCategory = category;
+          let poiCategoryLabel = categoryMeta.label;
+
+          if (isAll) {
+            const inferred = inferCategoryForPoi(rawName || '', el.tags);
+            poiCategory = inferred.key;
+            poiCategoryLabel = inferred.label;
+          } else if (rawName && !matchesCategorySemantics(rawName, el.tags, category)) {
             continue;
           }
 
-          const displayName = rawName || `${categoryMeta.label} İşletmesi`;
+          const displayName = rawName || `${poiCategoryLabel} İşletmesi`;
 
           pois.push({
             id: `osm-${el.type}-${el.id}`,
             name: displayName,
             lat: elLat,
             lng: elLng,
-            category,
-            categoryLabel: categoryMeta.label,
+            category: poiCategory,
+            categoryLabel: poiCategoryLabel,
             address: el.tags?.['addr:street']
               ? `${el.tags['addr:street']} ${el.tags['addr:housenumber'] ?? ''}`.trim()
               : undefined,

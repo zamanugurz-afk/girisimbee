@@ -349,7 +349,17 @@ export function HomeInvestmentRadarSection() {
     return allCategories.filter((c) => c.isPopularTop8);
   }, [categorySearchQuery, onlyAvailableInCircle, radarData?.availableSectors, selectedCategory]);
 
-  const activeCategoryMeta = RADAR_CATEGORIES[selectedCategory] || RADAR_CATEGORIES.cafe;
+  const totalAreaBusinesses = useMemo(() => {
+    if (radarData?.availableSectors) {
+      const sum = Object.values(radarData.availableSectors).reduce((a, b) => a + b, 0);
+      if (sum > 0) return sum;
+    }
+    return radarData?.competitors.length ?? 0;
+  }, [radarData]);
+
+  const activeCategoryMeta = selectedCategory === 'all'
+    ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber' }
+    : (RADAR_CATEGORIES[selectedCategory] || RADAR_CATEGORIES.cafe);
 
   // Real-time dynamic demographic calculation based on exact coordinates and radius
   const demographicStats = useMemo(() => {
@@ -564,6 +574,39 @@ export function HomeInvestmentRadarSection() {
 
               {/* Dikey İş Kolları Listesi */}
               <div className="max-h-[300px] sm:max-h-[340px] lg:max-h-[380px] overflow-y-auto space-y-1.5 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-zinc-800">
+                {/* 1. TÜM İŞLETMELER SEÇENEĞİ */}
+                {!categorySearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('all')}
+                    className={cn(
+                      'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
+                      selectedCategory === 'all'
+                        ? 'bg-amber-500/15 border-amber-500/50 text-slate-900 dark:text-white shadow-xs font-bold'
+                        : 'bg-white/80 dark:bg-zinc-900/60 border-slate-200/80 dark:border-zinc-800/80 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/50 font-medium',
+                    )}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-base shrink-0">🌐</span>
+                      <span className="text-xs truncate">Tüm Sektörler & İşletmeler</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {totalAreaBusinesses > 0 ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                          {totalAreaBusinesses} Toplam
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-muted-foreground bg-slate-100 dark:bg-zinc-800">
+                          0
+                        </span>
+                      )}
+                      {selectedCategory === 'all' && (
+                        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                      )}
+                    </div>
+                  </button>
+                )}
+
                 {displayedCategories.map((cat) => {
                   const isSelected = selectedCategory === cat.key;
                   const sectorCount = radarData?.availableSectors?.[cat.key] ?? (isSelected ? (radarData?.competitors.length ?? 0) : 0);
