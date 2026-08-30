@@ -159,3 +159,99 @@ export function generateIntelligenceReport(
     recommendedPricePoint: 'Rekabetçi Fiyat / Yüksek Paket Satış',
   };
 }
+
+export interface DemographicProfile {
+  population: string;
+  populationRaw: number;
+  densityPerKm2: number;
+  sesGroup: string;
+  ageProfile: string;
+  footTraffic: string;
+  areaKm2: string;
+}
+
+export function resolveDemographicProfile(
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+  locationName?: string,
+): DemographicProfile {
+  const radiusKm = radiusMeters / 1000;
+  const areaKm2 = Math.PI * Math.pow(radiusKm, 2);
+
+  let density = 14500;
+  let ses = 'B / C1 Grubu';
+  let age = 'Çalışan Kitle & Aile (%58)';
+  let traffic = '8.4 / 10 (Hareketli)';
+
+  const loc = (locationName || '').toLowerCase();
+
+  // 1. Kadıköy / Moda cluster (Lat: 40.96-41.00, Lng: 29.01-29.08)
+  if (loc.includes('moda') || loc.includes('kadıköy') || (lat >= 40.96 && lat <= 41.00 && lng >= 29.01 && lng <= 29.08)) {
+    density = 24800;
+    ses = 'A+ / A Grubu';
+    age = 'Genç Profesyonel & Üniversite (%64)';
+    traffic = '9.4 / 10 (Çok Yoğun)';
+  }
+  // 2. Beşiktaş / Şişli / Nişantaşı / Beyoğlu (Lat: 41.02-41.07, Lng: 28.96-29.03)
+  else if (loc.includes('beşiktaş') || loc.includes('nişantaşı') || loc.includes('şişli') || (lat >= 41.02 && lat <= 41.07 && lng >= 28.96 && lng <= 29.03)) {
+    density = 26500;
+    ses = 'A+ / A Grubu';
+    age = 'Genç Kitle & Beyaz Yaka (%68)';
+    traffic = '9.6 / 10 (Çok Yoğun)';
+  }
+  // 3. Kartal / Maltepe / Cevizli cluster (Lat: 40.90-40.94, Lng: 29.13-29.20)
+  else if (loc.includes('cevizli') || loc.includes('kartal') || loc.includes('maltepe') || (lat >= 40.90 && lat <= 40.94 && lng >= 29.13 && lng <= 29.20)) {
+    density = 19400;
+    ses = 'B / C1 Grubu';
+    age = 'Çalışan Aile & Genç Nüfus (%62)';
+    traffic = '8.7 / 10 (Yoğun Ticaret)';
+  }
+  // 4. Çankaya / Tunalı (Lat: 39.88-39.93, Lng: 32.83-32.88)
+  else if (loc.includes('çankaya') || loc.includes('tunalı') || (lat >= 39.88 && lat <= 39.93 && lng >= 32.83 && lng <= 32.88)) {
+    density = 17800;
+    ses = 'A / B Grubu';
+    age = 'Bürokrat, Üniversite & Genç (%61)';
+    traffic = '9.0 / 10 (Yoğun)';
+  }
+  // 5. Karşıyaka / Alsancak / Konak (Lat: 38.42-38.48, Lng: 27.09-27.16)
+  else if (loc.includes('karşıyaka') || loc.includes('alsancak') || (lat >= 38.42 && lat <= 38.48 && lng >= 27.09 && lng <= 27.16)) {
+    density = 21200;
+    ses = 'A / B Grubu';
+    age = 'Sosyal Gençlik & Şehirli (%63)';
+    traffic = '9.2 / 10 (Çok Yoğun)';
+  }
+  // 6. Nilüfer / Özlüce (Lat: 40.20-40.24, Lng: 28.90-28.96)
+  else if (loc.includes('özlüce') || loc.includes('nilüfer') || (lat >= 40.20 && lat <= 40.24 && lng >= 28.90 && lng <= 28.96)) {
+    density = 16200;
+    ses = 'A / B Grubu';
+    age = 'Modern Aile & Gastronomi Kitlesi (%57)';
+    traffic = '8.6 / 10 (Gelişen Cazibe)';
+  }
+  // 7. Muratpaşa / Lara (Lat: 36.84-36.88, Lng: 30.73-30.79)
+  else if (loc.includes('lara') || loc.includes('muratpaşa') || (lat >= 36.84 && lat <= 36.88 && lng >= 30.73 && lng <= 30.79)) {
+    density = 14200;
+    ses = 'A / B Grubu (Turizm & Yerleşik)';
+    age = 'Turist & Yerleşik Yabancı / Aile (%54)';
+    traffic = '8.8 / 10 (Yüksek Sirkülasyon)';
+  }
+  // 8. General Istanbul metropolitan
+  else if (lat >= 40.80 && lat <= 41.30 && lng >= 28.40 && lng <= 29.60) {
+    density = 18500;
+    ses = 'B / C1 Grubu';
+    age = 'Çalışan Kitle & Genç Nüfus (%60)';
+    traffic = '8.5 / 10 (Hareketli)';
+  }
+
+  const popRaw = Math.round(areaKm2 * density);
+
+  return {
+    population: popRaw > 0 ? popRaw.toLocaleString('tr-TR') : '11.800',
+    populationRaw: popRaw,
+    densityPerKm2: density,
+    sesGroup: ses,
+    ageProfile: age,
+    footTraffic: traffic,
+    areaKm2: areaKm2.toFixed(2),
+  };
+}

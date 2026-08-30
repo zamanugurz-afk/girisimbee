@@ -33,6 +33,7 @@ import {
   RADAR_DEFAULT_CENTER,
   RADAR_DEFAULT_RADIUS_METERS,
 } from '@/features/radar/config/radar.config';
+import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -297,7 +298,29 @@ export function HomeInvestmentRadarSection() {
     setCenterLat(lat);
     setCenterLng(lng);
     setRadiusMeters(radius);
-    setActiveLocationTitle(`Seçili Koordinat (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+
+    // Look for nearby named district
+    const closest = TURKEY_POPULAR_DISTRICTS.find(
+      (d) => Math.abs(d.lat - lat) < 0.02 && Math.abs(d.lng - lng) < 0.02,
+    );
+    if (closest) {
+      setActiveLocationTitle(closest.name);
+    } else {
+      // Async reverse geocoding to retrieve actual neighborhood/district
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14`, {
+        headers: { 'Accept-Language': 'tr' },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.display_name) {
+            const shortName = data.display_name.split(',').slice(0, 3).join(', ');
+            setActiveLocationTitle(shortName);
+          }
+        })
+        .catch(() => {
+          setActiveLocationTitle(`Seçili Alan (${lat.toFixed(3)}, ${lng.toFixed(3)})`);
+        });
+    }
   };
 
   // Top 8 Primary Categories vs Searched Categories
@@ -316,44 +339,9 @@ export function HomeInvestmentRadarSection() {
 
   const activeCategoryMeta = RADAR_CATEGORIES[selectedCategory] || RADAR_CATEGORIES.cafe;
 
-  // Real-time demographic calculation based on radius & district density
+  // Real-time dynamic demographic calculation based on exact coordinates and radius
   const demographicStats = useMemo(() => {
-    const radiusKm = radiusMeters / 1000;
-    const areaKm2 = Math.PI * Math.pow(radiusKm, 2);
-    
-    // Dynamic density multiplier based on city / location
-    let densityBenchmark = 15200;
-    let incomeLevel = 'A / B Grubu';
-    let ageProfile = 'Genç & Çalışan (%58)';
-    let trafficScore = '8.9 / 10 (Yoğun)';
-
-    const lowerLoc = activeLocationTitle.toLowerCase();
-    if (lowerLoc.includes('moda') || lowerLoc.includes('kadıköy') || lowerLoc.includes('beşiktaş') || lowerLoc.includes('nişantaşı') || lowerLoc.includes('alsancak')) {
-      densityBenchmark = 22400;
-      incomeLevel = 'A+ / A Grubu';
-      ageProfile = 'Genç Profesyonel & Öğrenci (%64)';
-      trafficScore = '9.4 / 10 (Çok Yoğun)';
-    } else if (lowerLoc.includes('çankaya') || lowerLoc.includes('tunalı') || lowerLoc.includes('özlüce') || lowerLoc.includes('lara')) {
-      densityBenchmark = 16500;
-      incomeLevel = 'A / B Grubu';
-      ageProfile = 'Genç & Çalışan Aile (%56)';
-      trafficScore = '8.7 / 10 (Yoğun)';
-    } else if (lowerLoc.includes('kartal') || lowerLoc.includes('maltepe') || lowerLoc.includes('cevizli') || lowerLoc.includes('üsküdar') || lowerLoc.includes('bornova') || lowerLoc.includes('ataköy')) {
-      densityBenchmark = 18900;
-      incomeLevel = 'B / C1 Grubu';
-      ageProfile = 'Çalışan Kitle & Aile (%61)';
-      trafficScore = '8.4 / 10 (Hareketli)';
-    }
-
-    const popEst = Math.round(areaKm2 * densityBenchmark);
-
-    return {
-      population: popEst > 0 ? popEst.toLocaleString('tr-TR') : '11.800',
-      ageProfile,
-      sesGroup: incomeLevel,
-      footTraffic: trafficScore,
-      areaKm2: areaKm2.toFixed(2),
-    };
+    return resolveDemographicProfile(centerLat, centerLng, radiusMeters, activeLocationTitle);
   }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
 
   return (
