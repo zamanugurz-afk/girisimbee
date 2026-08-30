@@ -762,13 +762,13 @@ export function HomeInvestmentRadarSection() {
           {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
-            <div className="space-y-3.5">
+            <div className="flex-1 flex flex-col justify-between space-y-3.5">
               
               {/* 1. YAPAY ZEKA YATIRIM PUANI */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5">
+              <div className="p-4 sm:p-4.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-3">
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-300">
                     AI Yatırım Puanı
                   </span>
                 </div>
@@ -780,32 +780,32 @@ export function HomeInvestmentRadarSection() {
                     </span>
                     <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                   </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
                     {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
                   </span>
                 </div>
 
                 {/* 2 Temel Metrik Göstergesi */}
-                <div className="grid grid-cols-2 gap-1.5 pt-0.5">
-                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                  <div className="p-2 rounded-xl bg-white/90 dark:bg-zinc-800/70 border border-slate-200/60 dark:border-zinc-700/50">
                     <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle</span>
-                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{demographicStats.population} Kişi</strong>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block">{demographicStats.population} Kişi</strong>
                   </div>
-                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                  <div className="p-2 rounded-xl bg-white/90 dark:bg-zinc-800/70 border border-slate-200/60 dark:border-zinc-700/50">
                     <span className="text-[10px] text-muted-foreground block font-medium">Mevcut İşletme</span>
-                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{radarData?.competitors.length || 0} Adet</strong>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block">{radarData?.competitors.length || 0} Adet</strong>
                   </div>
                 </div>
                 
                 {/* Pazar Doygunluk Çubuğu */}
-                <div className="space-y-1 pt-1 border-t border-amber-500/20">
-                  <div className="flex items-center justify-between text-[11px]">
+                <div className="space-y-1.5 pt-1 border-t border-amber-500/20">
+                  <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
                     <span className="font-bold text-slate-900 dark:text-white">
                       %{radarData?.metrics.saturationScore ?? 28}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
@@ -818,61 +818,61 @@ export function HomeInvestmentRadarSection() {
                       style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
                     />
                   </div>
-                  <p className="text-[10px] font-medium text-muted-foreground truncate pt-0.5">
+                  <p className="text-[11px] font-medium text-muted-foreground leading-snug pt-0.5">
                     {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
                   </p>
                 </div>
               </div>
 
               {/* 2. DEMOGRAFİK YAPI VE NÜFUS ÖZETİ */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2">
+              <div className="p-4 sm:p-4.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
                 <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <Users className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
-                      Bölgesel Demografi & Nüfus
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">
+                      Bölgesel Demografi
                     </span>
                   </div>
                   {demographicStats.officialNeighborhoodPop && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
                       TÜİK Verisi
                     </span>
                   )}
                 </div>
                 
-                <div className="grid grid-cols-2 gap-1.5 text-xs">
-                  <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
                     <span className="text-[10px] text-muted-foreground block font-medium">Yerleşik Nüfus</span>
-                    <strong className="text-slate-900 dark:text-white font-bold text-xs">{demographicStats.population}</strong>
+                    <strong className="text-slate-900 dark:text-white font-bold text-xs sm:text-sm">{demographicStats.population}</strong>
                   </div>
-                  <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
                     <span className="text-[10px] text-muted-foreground block font-medium">Gelir Seviyesi (SES)</span>
-                    <strong className="text-slate-900 dark:text-white font-bold text-xs truncate block">{demographicStats.sesGroup}</strong>
+                    <strong className="text-slate-900 dark:text-white font-bold text-xs sm:text-sm block">{demographicStats.sesGroup}</strong>
                   </div>
-                  <div className="col-span-2 p-1.5 px-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.daytimeTraffic}</strong>
+                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">{demographicStats.daytimeTraffic}</strong>
                   </div>
-                  <div className="col-span-2 p-1.5 px-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop}</strong>
+                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">{demographicStats.officialNeighborhoodPop}</strong>
                   </div>
-                  <div className="col-span-2 p-1.5 px-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Kitle Profili:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px] truncate max-w-[170px] text-right">{demographicStats.ageProfile}</strong>
+                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-muted-foreground font-medium shrink-0">Kitle Profili:</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs text-right">{demographicStats.ageProfile}</strong>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Rapor İncele Butonu */}
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 href={`/radar?lat=${centerLat}&lng=${centerLng}&category=${selectedCategory}`}
-                className="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100/80 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-xs font-bold text-slate-900 dark:text-white text-center flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md"
               >
                 <span>Detaylı İstihbarat Raporunu Aç</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
