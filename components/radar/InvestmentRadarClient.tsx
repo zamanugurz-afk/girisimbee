@@ -120,10 +120,25 @@ export function InvestmentRadarClient() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
+  const [isReportBtnPulsing, setIsReportBtnPulsing] = useState(false);
 
+  const isInitialMount = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const locationSearchDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const locationDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 10 saniye boyunca butonu yanıp söndürme efekti (harita veya sol menü seçimi değiştiğinde)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    setIsReportBtnPulsing(true);
+    const timer = setTimeout(() => {
+      setIsReportBtnPulsing(false);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [selectedCategory, centerLat, centerLng, radiusMeters]);
 
   // Click outside and Escape key listener to close location dropdown
   useEffect(() => {
@@ -936,8 +951,7 @@ export function InvestmentRadarClient() {
                   </div>
 
                   {/* 3. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
-                  <div className="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <div className="flex items-center justify-center py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
                     <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300">
                       Demografi verileri <strong>TÜİK</strong> resmi kayıtları ile modellenmiştir.
                     </span>
@@ -1001,7 +1015,10 @@ export function InvestmentRadarClient() {
             <div className="pt-1">
               <Link
                 href="/ilan/olustur"
-                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md"
+                className={cn(
+                  "w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md",
+                  isReportBtnPulsing && "animate-pulse ring-4 ring-amber-400/80 shadow-lg shadow-amber-500/50 scale-[1.02]"
+                )}
               >
                 <span>Bu Bölgede Yeni İlan Oluştur</span>
                 <ArrowRight className="w-4 h-4" />
