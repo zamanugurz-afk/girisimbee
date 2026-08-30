@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Handshake,
   Compass,
+  Scale,
 } from 'lucide-react';
 import type { RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
@@ -287,7 +288,15 @@ export function RadarAnalysisPanel({ data, isLoading }: RadarAnalysisPanelProps)
         </div>
       </div>
 
-      {/* 4. KART: HIZLI AKSİYON BUTONLARI */}
+      {/* 4. YASAL BİLGİLENDİRME */}
+      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/80 dark:border-zinc-800 text-[10px] text-muted-foreground leading-relaxed flex items-start gap-2">
+        <Scale className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+        <div>
+          <strong className="font-semibold text-slate-700 dark:text-zinc-300">Yasal Bilgilendirme:</strong> Bu raporda yer alan veriler, ticari işletme yoğunluğu ve bölgesel demografik göstergeler baz alınarak üretilmiş istatistiksel bir pazar analizidir; resmi bir yatırım tavsiyesi niteliği taşımaz.
+        </div>
+      </div>
+
+      {/* 5. KART: HIZLI AKSİYON BUTONLARI */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex flex-col sm:flex-row gap-2.5">
           <Button

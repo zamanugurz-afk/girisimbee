@@ -20,7 +20,8 @@ import {
   Users2,
   Navigation,
   Loader2,
-  X
+  X,
+  Target
 } from 'lucide-react';
 import type {
   QuickLocationPreset,
@@ -34,6 +35,7 @@ import {
   RADAR_DEFAULT_RADIUS_METERS,
 } from '@/features/radar/config/radar.config';
 import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
+import { MarketGapsPanel } from '@/components/radar/MarketGapsPanel';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -112,6 +114,9 @@ export function HomeInvestmentRadarSection() {
 
   // Category search states
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
+
+  // Report tab view (Overview vs Market Gaps)
+  const [activeTab, setActiveTab] = useState<'overview' | 'gaps'>('overview');
 
   const [radarData, setRadarData] = useState<RadarSpatialResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -832,144 +837,183 @@ export function HomeInvestmentRadarSection() {
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
             <div className="space-y-4">
               
-              {/* 1. YAPAY ZEKA YATIRIM FIRSAT SKORU */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span>AI Yatırım Fırsat Skoru</span>
-                  </span>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
-                    {radarData?.metrics.opportunityLabel || 'Yüksek Fırsat'}
-                  </span>
-                </div>
-
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-                    {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
-                  </span>
-                  <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
-                </div>
-
-                {/* 2 Temel Metrik Göstergesi */}
-                <div className="grid grid-cols-2 gap-1.5 pt-0.5">
-                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle</span>
-                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{demographicStats.population} Kişi</strong>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Mevcut İşletme</span>
-                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{radarData?.competitors.length || 0} Adet</strong>
-                  </div>
-                </div>
-                
-                {/* Pazar Doygunluk Çubuğu */}
-                <div className="space-y-1 pt-1 border-t border-amber-500/20">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      %{radarData?.metrics.saturationScore ?? 28}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <div 
-                      className={cn(
-                        "h-full rounded-full transition-all duration-500",
-                        (radarData?.metrics.saturationScore ?? 28) < 40
-                          ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-                          : (radarData?.metrics.saturationScore ?? 28) < 70
-                          ? "bg-gradient-to-r from-amber-500 to-amber-400"
-                          : "bg-gradient-to-r from-orange-500 to-rose-500"
-                      )}
-                      style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
-                    />
-                  </div>
-                  <p className="text-[10px] font-medium text-muted-foreground truncate pt-0.5">
-                    {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
-                  </p>
-                </div>
-              </div>
-
-              {/* 2. DEMOGRAFİK YAPI VE NÜFUS ÖZETİ */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-primary" />
-                    <span>Bölgesel Demografi & Nüfus</span>
-                  </h4>
-                  {demographicStats.officialNeighborhoodPop && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
-                      TÜİK Verisi
-                    </span>
+              {/* Tab Switcher (Genel Bakış vs Pazar Açığı ve Fırsatlar) */}
+              <div className="flex rounded-xl bg-slate-100 dark:bg-zinc-800/80 p-1 border border-slate-200/60 dark:border-zinc-700/60">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('overview')}
+                  className={cn(
+                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
+                    activeTab === 'overview'
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Çember İçi Yerleşik Nüfus</span>
-                    <strong className="text-slate-900 dark:text-white font-bold text-sm">{demographicStats.population}</strong>
-                  </div>
-                  <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Gelir Seviyesi (SES)</span>
-                    <strong className="text-slate-900 dark:text-white font-bold">{demographicStats.sesGroup}</strong>
-                  </div>
-                  <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.daytimeTraffic}</strong>
-                  </div>
-                  <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop}</strong>
-                  </div>
-                  <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-medium">Kitle Profili:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.ageProfile}</strong>
-                  </div>
-                </div>
+                >
+                  Genel Bakış
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('gaps')}
+                  className={cn(
+                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5',
+                    activeTab === 'gaps'
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Target className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Pazar Açığı ve Fırsatlar</span>
+                </button>
               </div>
 
-              {/* 3. BÖLGEDEKİ AKTİF DEVİR VE ORTAKLIK İLANLARI */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-                    <Store className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Bölgedeki Aktif Fırsatlar</span>
-                  </h4>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
-                    {radarData?.listingsInRadius.length || 0} İlan
-                  </span>
-                </div>
-
-                <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 scrollbar-thin">
-                  {radarData && radarData.listingsInRadius.length > 0 ? (
-                    radarData.listingsInRadius.slice(0, 3).map((item) => (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className="block p-2.5 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:border-amber-500/50 transition-all group"
-                      >
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-tight">
-                            {item.tag || item.categoryLabel}
-                          </span>
-                          {item.price && (
-                            <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">
-                              {item.price}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-600 transition-colors">
-                          {item.title}
-                        </p>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="p-3 text-center rounded-xl bg-slate-50 dark:bg-zinc-800/30 text-[11px] text-muted-foreground">
-                      Bu çemberde henüz aktif devir/ortaklık ilanı yok.
+              {activeTab === 'overview' ? (
+                <>
+                  {/* 1. YAPAY ZEKA YATIRIM FIRSAT SKORU */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <span>AI Yatırım Fırsat Skoru</span>
+                      </span>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
+                        {radarData?.metrics.opportunityLabel || 'Yüksek Fırsat'}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </div>
+
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                        {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
+                    </div>
+
+                    {/* 2 Temel Metrik Göstergesi */}
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                        <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle</span>
+                        <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{demographicStats.population} Kişi</strong>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                        <span className="text-[10px] text-muted-foreground block font-medium">Mevcut İşletme</span>
+                        <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{radarData?.competitors.length || 0} Adet</strong>
+                      </div>
+                    </div>
+                    
+                    {/* Pazar Doygunluk Çubuğu */}
+                    <div className="space-y-1 pt-1 border-t border-amber-500/20">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          %{radarData?.metrics.saturationScore ?? 28}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500",
+                            (radarData?.metrics.saturationScore ?? 28) < 40
+                              ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                              : (radarData?.metrics.saturationScore ?? 28) < 70
+                              ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                              : "bg-gradient-to-r from-orange-500 to-rose-500"
+                          )}
+                          style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] font-medium text-muted-foreground truncate pt-0.5">
+                        {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 2. DEMOGRAFİK YAPI VE NÜFUS ÖZETİ */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span>Bölgesel Demografi & Nüfus</span>
+                      </h4>
+                      {demographicStats.officialNeighborhoodPop && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
+                          TÜİK Verisi
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
+                        <span className="text-[10px] text-muted-foreground block font-medium">Çember İçi Yerleşik Nüfus</span>
+                        <strong className="text-slate-900 dark:text-white font-bold text-sm">{demographicStats.population}</strong>
+                      </div>
+                      <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
+                        <span className="text-[10px] text-muted-foreground block font-medium">Gelir Seviyesi (SES)</span>
+                        <strong className="text-slate-900 dark:text-white font-bold">{demographicStats.sesGroup}</strong>
+                      </div>
+                      <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.daytimeTraffic}</strong>
+                      </div>
+                      <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop}</strong>
+                      </div>
+                      <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground font-medium">Kitle Profili:</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.ageProfile}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. BÖLGEDEKİ AKTİF DEVİR VE ORTAKLIK İLANLARI */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Store className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Bölgedeki Aktif Fırsatlar</span>
+                      </h4>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
+                        {radarData?.listingsInRadius.length || 0} İlan
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 scrollbar-thin">
+                      {radarData && radarData.listingsInRadius.length > 0 ? (
+                        radarData.listingsInRadius.slice(0, 3).map((item) => (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            className="block p-2.5 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:border-amber-500/50 transition-all group"
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-tight">
+                                {item.tag || item.categoryLabel}
+                              </span>
+                              {item.price && (
+                                <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                                  {item.price}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-600 transition-colors">
+                              {item.title}
+                            </p>
+                          </Link>
+                        ))
+                      ) : (
+                        <div className="p-3 text-center rounded-xl bg-slate-50 dark:bg-zinc-800/30 text-[11px] text-muted-foreground">
+                          Bu çemberde henüz aktif devir/ortaklık ilanı yok.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* PAZAR AÇIĞI VE EKSİK KONSEPTLER SEKME GÖRÜNÜMÜ */
+                <MarketGapsPanel
+                  radarData={radarData}
+                  demographicStats={demographicStats}
+                />
+              )}
             </div>
 
             {/* Rapor İncele Butonu */}
