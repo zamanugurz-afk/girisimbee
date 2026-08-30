@@ -930,7 +930,7 @@ export function InvestmentRadarClient() {
                 </>
               ) : (
                 /* AI STRATEJİ RAPORU SEKME GÖRÜNÜMÜ */
-                <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin text-xs">
+                <div className="space-y-2.5 text-xs">
                   {radarData?.intelligence ? (
                     <>
                       <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-500/30">
@@ -942,29 +942,29 @@ export function InvestmentRadarClient() {
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1.5">
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
                         <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
                           <CheckCircle className="w-3.5 h-3.5" /> Avantajlar
                         </span>
-                        <ul className="list-disc list-inside space-y-1 text-slate-700 dark:text-zinc-300 text-[11px]">
+                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-[11px]">
                           {radarData.intelligence.pros.map((p: string, idx: number) => (
                             <li key={idx}>{p}</li>
                           ))}
                         </ul>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1.5">
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
                         <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
                           <AlertTriangle className="w-3.5 h-3.5" /> Dikkat Edilecekler
                         </span>
-                        <ul className="list-disc list-inside space-y-1 text-slate-700 dark:text-zinc-300 text-[11px]">
+                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-[11px]">
                           {radarData.intelligence.cons.map((c: string, idx: number) => (
                             <li key={idx}>{c}</li>
                           ))}
                         </ul>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
                         <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
                           <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Farklılaşma Önerisi
                         </span>
