@@ -95,7 +95,7 @@ const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
 ];
 
 export function HomeInvestmentRadarSection() {
-  const [selectedCategory, setSelectedCategory] = useState<RadarCategoryKey>('pet_shop');
+  const [selectedCategory, setSelectedCategory] = useState<RadarCategoryKey>('all');
   const [centerLat, setCenterLat] = useState<number>(RADAR_DEFAULT_CENTER.lat);
   const [centerLng, setCenterLng] = useState<number>(RADAR_DEFAULT_CENTER.lng);
   const [zoom, setZoom] = useState<number>(RADAR_DEFAULT_CENTER.zoom);
@@ -323,9 +323,7 @@ export function HomeInvestmentRadarSection() {
     }
   };
 
-  const [onlyAvailableInCircle, setOnlyAvailableInCircle] = useState(true);
-
-  // Dynamic Categories: Available in Circle vs All vs Searched
+  // Dynamic Categories: Sorted with sectors present in circle first, then other popular sectors
   const displayedCategories = useMemo(() => {
     const allCategories = Object.values(RADAR_CATEGORIES);
     if (categorySearchQuery.trim()) {
@@ -336,18 +334,17 @@ export function HomeInvestmentRadarSection() {
       );
     }
 
-    if (onlyAvailableInCircle && radarData?.availableSectors) {
-      const available = allCategories.filter(
-        (c) => (radarData.availableSectors?.[c.key] ?? 0) > 0 || c.key === selectedCategory
-      );
-      if (available.length > 0) {
-        return available.sort((a, b) => (radarData.availableSectors?.[b.key] ?? 0) - (radarData.availableSectors?.[a.key] ?? 0));
+    return [...allCategories].sort((a, b) => {
+      const countA = radarData?.availableSectors?.[a.key] ?? 0;
+      const countB = radarData?.availableSectors?.[b.key] ?? 0;
+      if (countA !== countB) {
+        return countB - countA;
       }
-    }
-
-    // Default: Top 8 most prominent Turkish sectors
-    return allCategories.filter((c) => c.isPopularTop8);
-  }, [categorySearchQuery, onlyAvailableInCircle, radarData?.availableSectors, selectedCategory]);
+      if (a.isPopularTop8 && !b.isPopularTop8) return -1;
+      if (!a.isPopularTop8 && b.isPopularTop8) return 1;
+      return 0;
+    });
+  }, [categorySearchQuery, radarData?.availableSectors]);
 
   const totalAreaBusinesses = useMemo(() => {
     if (radarData?.availableSectors) {
@@ -517,38 +514,14 @@ export function HomeInvestmentRadarSection() {
               </div>
 
               {/* Hedef İş Kolu & Sektör Arama */}
-              {/* Hedef İş Kolu & Sektör Arama */}
               <div className="mb-2.5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Hedef İş Kolu / Sektör
                   </label>
-                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800/80 p-0.5 rounded-lg text-[10px] font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setOnlyAvailableInCircle(true)}
-                      className={cn(
-                        'px-2 py-0.5 rounded-md transition-all',
-                        onlyAvailableInCircle
-                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs font-bold'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      Bölgede Olanlar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setOnlyAvailableInCircle(false)}
-                      className={cn(
-                        'px-2 py-0.5 rounded-md transition-all',
-                        !onlyAvailableInCircle
-                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs font-bold'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      Tümü
-                    </button>
-                  </div>
+                  <span className="text-[10px] text-muted-foreground font-medium">
+                    (Seçim yapmadan tümü listelenir)
+                  </span>
                 </div>
                 
                 <div className="relative w-full">

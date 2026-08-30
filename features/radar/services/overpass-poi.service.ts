@@ -67,19 +67,86 @@ function matchesCategorySemantics(
   category: RadarCategoryKey,
 ): boolean {
   const lowerName = (name || '').toLowerCase();
-  const cuisine = (tags?.cuisine || '').toLowerCase();
   const shop = (tags?.shop || '').toLowerCase();
   const amenity = (tags?.amenity || '').toLowerCase();
   const office = (tags?.office || '').toLowerCase();
+  const leisure = (tags?.leisure || '').toLowerCase();
+  const cuisine = (tags?.cuisine || '').toLowerCase();
 
   if (category === 'pet_shop') {
     return lowerName.includes('pet') || lowerName.includes('veteriner') || lowerName.includes('pati') || lowerName.includes('mama') || lowerName.includes('kedi') || lowerName.includes('köpek') || shop.includes('pet') || amenity.includes('veterinary');
+  }
+  if (category === 'market') {
+    return lowerName.includes('market') || lowerName.includes('bakkal') || lowerName.includes('gıda') || lowerName.includes('büfe') || lowerName.includes('tekal') || lowerName.includes('tekel') || lowerName.includes('şok') || lowerName.includes('a101') || lowerName.includes('bim') || lowerName.includes('migros') || lowerName.includes('carrefour') || shop.includes('supermarket') || shop.includes('convenience') || shop.includes('grocery');
+  }
+  if (category === 'bakery') {
+    return lowerName.includes('fırın') || lowerName.includes('firin') || lowerName.includes('pastane') || lowerName.includes('ekmek') || lowerName.includes('patisserie') || lowerName.includes('pasta') || lowerName.includes('unlu') || shop.includes('bakery') || shop.includes('pastry');
+  }
+  if (category === 'butcher') {
+    return lowerName.includes('kasap') || lowerName.includes('şarküteri') || lowerName.includes('sarkuteri') || lowerName.includes('et') || lowerName.includes('tavuk') || shop.includes('butcher') || shop.includes('deli');
+  }
+  if (category === 'hairdresser') {
+    return lowerName.includes('kuaför') || lowerName.includes('kuafor') || lowerName.includes('berber') || lowerName.includes('barber') || lowerName.includes('güzellik') || lowerName.includes('estetik') || lowerName.includes('nail') || lowerName.includes('hair') || shop.includes('hairdresser') || shop.includes('beauty');
+  }
+  if (category === 'pharmacy') {
+    return lowerName.includes('eczane') || lowerName.includes('pharmacy') || amenity.includes('pharmacy');
+  }
+  if (category === 'gym') {
+    return lowerName.includes('spor') || lowerName.includes('gym') || lowerName.includes('fitness') || lowerName.includes('pilates') || lowerName.includes('crossfit') || leisure.includes('fitness_centre') || leisure.includes('sports_centre');
+  }
+  if (category === 'car_wash') {
+    return lowerName.includes('yıkama') || lowerName.includes('yikama') || lowerName.includes('car wash') || lowerName.includes('detailing') || amenity.includes('car_wash');
+  }
+  if (category === 'boutique') {
+    return lowerName.includes('butik') || lowerName.includes('giyim') || lowerName.includes('moda') || lowerName.includes('boutique') || lowerName.includes('fashion') || shop.includes('clothes') || shop.includes('boutique');
+  }
+  if (category === 'dry_cleaning') {
+    return lowerName.includes('kuru temizleme') || lowerName.includes('dry clean') || lowerName.includes('laundry') || shop.includes('dry_cleaning') || shop.includes('laundry');
+  }
+  if (category === 'insurance_agency') {
+    return lowerName.includes('sigorta') || lowerName.includes('kasko') || lowerName.includes('acente') || lowerName.includes('allianz') || lowerName.includes('anadolu') || lowerName.includes('axa') || office.includes('insurance');
+  }
+  if (category === 'travel_agency') {
+    return lowerName.includes('tur') || lowerName.includes('turizm') || lowerName.includes('seyahat') || lowerName.includes('travel') || lowerName.includes('bilet') || shop.includes('travel_agency');
+  }
+  if (category === 'real_estate') {
+    return lowerName.includes('emlak') || lowerName.includes('gayrimenkul') || lowerName.includes('re/max') || lowerName.includes('turyap') || lowerName.includes('coldwell') || office.includes('estate_agent');
+  }
+  if (category === 'auto_gallery') {
+    return lowerName.includes('galeri') || lowerName.includes('oto galeri') || lowerName.includes('otomotiv') || lowerName.includes('motors') || shop.includes('car');
+  }
+  if (category === 'stationery') {
+    return lowerName.includes('kırtasiye') || lowerName.includes('kirtasiye') || lowerName.includes('kitap') || lowerName.includes('fotokopi') || shop.includes('stationery') || shop.includes('books');
+  }
+  if (category === 'florist') {
+    return lowerName.includes('çiçek') || lowerName.includes('cicek') || lowerName.includes('florist') || shop.includes('florist');
+  }
+  if (category === 'optician') {
+    return lowerName.includes('optik') || lowerName.includes('gözlük') || lowerName.includes('gozluk') || shop.includes('optician');
+  }
+  if (category === 'dental_clinic') {
+    return lowerName.includes('diş') || lowerName.includes('dis') || lowerName.includes('dent') || lowerName.includes('dental') || amenity.includes('dentist');
+  }
+  if (category === 'kindergarten') {
+    return lowerName.includes('kreş') || lowerName.includes('kres') || lowerName.includes('anaokulu') || amenity.includes('kindergarten');
+  }
+  if (category === 'law_firm') {
+    return lowerName.includes('avukat') || lowerName.includes('hukuk') || lowerName.includes('law') || office.includes('lawyer');
+  }
+  if (category === 'software_agency') {
+    return lowerName.includes('yazılım') || lowerName.includes('yazilim') || lowerName.includes('dijital') || lowerName.includes('ajans') || office.includes('it') || office.includes('company');
+  }
+  if (category === 'furniture') {
+    return lowerName.includes('mobilya') || lowerName.includes('koltuk') || lowerName.includes('dekorasyon') || shop.includes('furniture');
+  }
+  if (category === 'electronics') {
+    return lowerName.includes('elektronik') || lowerName.includes('telefon') || lowerName.includes('bilgisayar') || lowerName.includes('teknoloji') || shop.includes('electronics');
   }
   if (category === 'cigkofteci') {
     return lowerName.includes('çiğ') || lowerName.includes('cig') || lowerName.includes('komagene') || lowerName.includes('battalbey') || lowerName.includes('oses') || lowerName.includes('tatlıses') || lowerName.includes('adıyaman');
   }
   if (category === 'borekci') {
-    return lowerName.includes('börek') || lowerName.includes('borek') || lowerName.includes('poğaça') || lowerName.includes('boyoz') || shop.includes('bakery') || shop.includes('pastry');
+    return lowerName.includes('börek') || lowerName.includes('borek') || lowerName.includes('poğaça') || lowerName.includes('boyoz') || (shop.includes('bakery') && lowerName.includes('börek'));
   }
   if (category === 'dondurmaci') {
     return lowerName.includes('dondurma') || lowerName.includes('gelato') || lowerName.includes('waffle') || lowerName.includes('mado') || cuisine.includes('ice_cream') || amenity.includes('ice_cream');
@@ -94,16 +161,7 @@ function matchesCategorySemantics(
     return lowerName.includes('kokoreç') || lowerName.includes('kokorec') || lowerName.includes('midye');
   }
   if (category === 'tatlici') {
-    return lowerName.includes('tatlı') || lowerName.includes('baklava') || lowerName.includes('künefe') || lowerName.includes('kadayıf') || lowerName.includes('güllüoğlu') || lowerName.includes('lokum') || shop.includes('confectionery') || shop.includes('pastry');
-  }
-  if (category === 'insurance_agency') {
-    return lowerName.includes('sigorta') || lowerName.includes('kasko') || lowerName.includes('acente') || lowerName.includes('allianz') || lowerName.includes('anadolu') || lowerName.includes('axa') || office.includes('insurance');
-  }
-  if (category === 'travel_agency') {
-    return lowerName.includes('tur') || lowerName.includes('turizm') || lowerName.includes('seyahat') || lowerName.includes('travel') || lowerName.includes('bilet') || shop.includes('travel_agency');
-  }
-  if (category === 'butcher') {
-    return lowerName.includes('kasap') || lowerName.includes('şarküteri') || lowerName.includes('et') || lowerName.includes('tavuk') || shop.includes('butcher') || shop.includes('deli');
+    return lowerName.includes('tatlı') || lowerName.includes('baklava') || lowerName.includes('künefe') || lowerName.includes('kadayıf') || lowerName.includes('güllüoğlu') || lowerName.includes('lokum') || shop.includes('confectionery');
   }
   if (category === 'cilingir') {
     return lowerName.includes('çilingir') || lowerName.includes('anahtar') || lowerName.includes('kilit') || shop.includes('locksmith');
@@ -120,20 +178,70 @@ function matchesCategorySemantics(
   if (category === 'oto_elektrik') {
     return lowerName.includes('elektrik') || lowerName.includes('akü') || lowerName.includes('aku') || lowerName.includes('klima') || lowerName.includes('marş');
   }
+  if (category === 'cafe') {
+    return lowerName.includes('kahve') || lowerName.includes('cafe') || lowerName.includes('coffee') || lowerName.includes('kafe') || lowerName.includes('espresso') || lowerName.includes('roaster') || lowerName.includes('çay') || lowerName.includes('roastery') || amenity.includes('cafe') || amenity.includes('coffee_shop');
+  }
+  if (category === 'restaurant') {
+    return lowerName.includes('restoran') || lowerName.includes('restaurant') || lowerName.includes('lokanta') || lowerName.includes('meyhane') || lowerName.includes('bistro') || lowerName.includes('burger') || lowerName.includes('pizza') || lowerName.includes('köfte') || amenity.includes('restaurant') || amenity.includes('fast_food');
+  }
 
-  return true;
+  return false;
 }
 
 function inferCategoryForPoi(name: string, tags: Record<string, string> | undefined): { key: RadarCategoryKey; label: string } {
-  for (const [key, meta] of Object.entries(RADAR_CATEGORIES)) {
-    if (matchesCategorySemantics(name, tags, key as RadarCategoryKey)) {
-      return { key: key as RadarCategoryKey, label: meta.label };
+  const priorityKeys: RadarCategoryKey[] = [
+    'pet_shop',
+    'pharmacy',
+    'butcher',
+    'bakery',
+    'hairdresser',
+    'gym',
+    'market',
+    'dental_clinic',
+    'car_wash',
+    'cigkofteci',
+    'borekci',
+    'dondurmaci',
+    'donerci',
+    'tatlici',
+    'kokorecci',
+    'insurance_agency',
+    'real_estate',
+    'travel_agency',
+    'boutique',
+    'stationery',
+    'florist',
+    'optician',
+    'kindergarten',
+    'law_firm',
+    'software_agency',
+    'furniture',
+    'electronics',
+    'lastikci',
+    'dry_cleaning',
+    'cilingir',
+    'balikci',
+    'manav',
+    'terzi',
+    'oto_elektrik',
+    'cafe',
+    'restaurant',
+  ];
+
+  for (const key of priorityKeys) {
+    if (matchesCategorySemantics(name, tags, key)) {
+      const meta = RADAR_CATEGORIES[key] ?? RADAR_CATEGORIES.cafe;
+      return { key, label: meta.label };
     }
   }
-  const amenity = tags?.amenity;
-  const shop = tags?.shop;
-  if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
-  if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
+
+  const amenity = (tags?.amenity || '').toLowerCase();
+  const shop = (tags?.shop || '').toLowerCase();
+
+  if (amenity === 'cafe' || amenity === 'coffee_shop') return { key: 'cafe', label: 'Kafe & Kahve Dükkanı' };
+  if (amenity === 'restaurant' || amenity === 'fast_food') return { key: 'restaurant', label: 'Restoran & Lokanta' };
+  if (shop) return { key: 'market', label: 'Market & Mağaza' };
+
   return { key: 'cafe', label: 'Ticari İşletme' };
 }
 

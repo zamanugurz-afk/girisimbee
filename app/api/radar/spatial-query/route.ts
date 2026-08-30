@@ -61,6 +61,14 @@ export async function GET(request: NextRequest) {
     const metrics = computeRadarMetrics(competitors.length, radius, categoryKey);
     const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName);
 
+    // Compute accurate sector distribution
+    const sectorDistribution: Record<string, number> = { ...(availableSectors || {}) };
+    for (const poi of competitors) {
+      if (poi.category && poi.category !== 'all') {
+        sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;
+      }
+    }
+
     const responseData: RadarSpatialResponse = {
       query: {
         lat,
@@ -74,7 +82,7 @@ export async function GET(request: NextRequest) {
       listingsInRadius,
       competitors,
       intelligence,
-      availableSectors,
+      availableSectors: sectorDistribution,
     };
 
     return NextResponse.json({
