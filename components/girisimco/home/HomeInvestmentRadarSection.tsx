@@ -676,11 +676,11 @@ export function HomeInvestmentRadarSection() {
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
             {/* Harita Üst Barı: Başlık & Açıklama */}
-            <div className="pb-0.5">
-              <h3 className="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white">
+            <div className="pb-1">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-display font-bold text-slate-900 dark:text-white tracking-tight">
                 Lokasyon Radarı
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 leading-relaxed">
                 İş kolunuzu seçin, çemberle tarayın. Demografi, rakip yoğunluğu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
               </p>
             </div>
