@@ -51,17 +51,29 @@ const SAMPLE_NAMES_BY_CATEGORY: Record<string, string[]> = {
   dry_cleaning: ['Dry Center', 'Express Kuru Temizleme', 'Terzi Hasan Usta', 'Eco Clean Terzi & Yıkama', 'Master Tailor Studio'],
 };
 
+const POI_QUERY_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
+
 export async function fetchOverpassCompetitorPois(
   lat: number,
   lng: number,
   radiusMeters: number,
   category: RadarCategoryKey,
 ): Promise<CompetitorPoi[]> {
+  const roundedLat = Math.round(lat * 1000) / 1000;
+  const roundedLng = Math.round(lng * 1000) / 1000;
+  const cacheKey = `${roundedLat}-${roundedLng}-${radiusMeters}-${category}`;
+
+  const cached = POI_QUERY_CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   const categoryMeta = RADAR_CATEGORIES[category] ?? RADAR_CATEGORIES.cafe;
   const tagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]';
 
   const query = `
-    [out:json][timeout:6];
+    [out:json][timeout:2];
     (
       node(around:${radiusMeters},${lat},${lng})${tagFilter};
       way(around:${radiusMeters},${lat},${lng})${tagFilter};
@@ -72,7 +84,7 @@ export async function fetchOverpassCompetitorPois(
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -124,7 +136,9 @@ export async function fetchOverpassCompetitorPois(
           }
 
           if (pois.length > 0) {
-            return pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+            const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+            POI_QUERY_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+            return sorted;
           }
         }
       }
@@ -133,7 +147,9 @@ export async function fetchOverpassCompetitorPois(
     }
   }
 
-  return generateHeuristicPois(lat, lng, radiusMeters, category);
+  const fallback = generateHeuristicPois(lat, lng, radiusMeters, category);
+  POI_QUERY_CACHE.set(cacheKey, { data: fallback, ts: Date.now() });
+  return fallback;
 }
 
 function generateHeuristicPois(

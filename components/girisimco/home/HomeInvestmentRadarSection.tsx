@@ -318,18 +318,43 @@ export function HomeInvestmentRadarSection() {
 
   // Real-time demographic calculation based on radius & district density
   const demographicStats = useMemo(() => {
-    const areaKm2 = Math.PI * Math.pow(radiusMeters / 1000, 2);
-    // Dynamic density benchmark per km2 based on Turkish metropolitan averages
-    const densityBenchmark = 14800;
+    const radiusKm = radiusMeters / 1000;
+    const areaKm2 = Math.PI * Math.pow(radiusKm, 2);
+    
+    // Dynamic density multiplier based on city / location
+    let densityBenchmark = 15200;
+    let incomeLevel = 'A / B Grubu';
+    let ageProfile = 'Genç & Çalışan (%58)';
+    let trafficScore = '8.9 / 10 (Yoğun)';
+
+    const lowerLoc = activeLocationTitle.toLowerCase();
+    if (lowerLoc.includes('moda') || lowerLoc.includes('kadıköy') || lowerLoc.includes('beşiktaş') || lowerLoc.includes('nişantaşı') || lowerLoc.includes('alsancak')) {
+      densityBenchmark = 22400;
+      incomeLevel = 'A+ / A Grubu';
+      ageProfile = 'Genç Profesyonel & Öğrenci (%64)';
+      trafficScore = '9.4 / 10 (Çok Yoğun)';
+    } else if (lowerLoc.includes('çankaya') || lowerLoc.includes('tunalı') || lowerLoc.includes('özlüce') || lowerLoc.includes('lara')) {
+      densityBenchmark = 16500;
+      incomeLevel = 'A / B Grubu';
+      ageProfile = 'Genç & Çalışan Aile (%56)';
+      trafficScore = '8.7 / 10 (Yoğun)';
+    } else if (lowerLoc.includes('kartal') || lowerLoc.includes('maltepe') || lowerLoc.includes('cevizli') || lowerLoc.includes('üsküdar') || lowerLoc.includes('bornova') || lowerLoc.includes('ataköy')) {
+      densityBenchmark = 18900;
+      incomeLevel = 'B / C1 Grubu';
+      ageProfile = 'Çalışan Kitle & Aile (%61)';
+      trafficScore = '8.4 / 10 (Hareketli)';
+    }
+
     const popEst = Math.round(areaKm2 * densityBenchmark);
 
     return {
-      population: popEst > 0 ? popEst.toLocaleString('tr-TR') : '34.200',
-      ageProfile: 'Genç & Çalışan (%58)',
-      sesGroup: 'A / B Grubu',
-      footTraffic: '8.9 / 10 (Yoğun)',
+      population: popEst > 0 ? popEst.toLocaleString('tr-TR') : '11.800',
+      ageProfile,
+      sesGroup: incomeLevel,
+      footTraffic: trafficScore,
+      areaKm2: areaKm2.toFixed(2),
     };
-  }, [radiusMeters]);
+  }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
 
   return (
     <section className="relative mx-auto w-full max-w-[1280px] px-5 lg:px-8 py-8 sm:py-12">
@@ -479,16 +504,9 @@ export function HomeInvestmentRadarSection() {
 
               {/* Hedef İş Kolu & Sektör Arama */}
               <div className="mb-2.5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
-                    Hedef İş Kolu / Sektör
-                  </label>
-                  {!categorySearchQuery && (
-                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
-                      Önemli 8 Sektör
-                    </span>
-                  )}
-                </div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
+                  Hedef İş Kolu / Sektör
+                </label>
                 
                 <div className="relative w-full">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -622,12 +640,13 @@ export function HomeInvestmentRadarSection() {
             <div className="space-y-4">
               
               {/* 1. YAPAY ZEKA YATIRIM FIRSAT SKORU */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> AI Yatırım Fırsat Skoru
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>AI Yatırım Fırsat Skoru</span>
                   </span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
                     {radarData?.metrics.opportunityLabel || 'Yüksek Fırsat'}
                   </span>
                 </div>
