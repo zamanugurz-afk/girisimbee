@@ -554,6 +554,10 @@ export async function fetchGooglePlacesPois(
   const mapping = GOOGLE_CATEGORY_MAPPING[category] || { keyword: category, fallbackLabel: 'Ticari İşletme' };
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    // 1. Try Legacy Places API (Nearby Search)
     const params = new URLSearchParams({
       location: `${lat},${lng}`,
       radius: radiusMeters.toString(),
@@ -568,73 +572,126 @@ export async function fetchGooglePlacesPois(
       if (mapping.keyword) params.append('keyword', mapping.keyword);
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const legacyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
+    const legacyRes = await fetch(legacyUrl, { signal: controller.signal });
 
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
-    const res = await fetch(url, {
+    if (legacyRes.ok) {
+      const json = (await legacyRes.json()) as GooglePlacesResponse;
+      if (json.status === 'OK' || json.status === 'ZERO_RESULTS') {
+        clearTimeout(timeoutId);
+        const results = json.results || [];
+        const pois: CompetitorPoi[] = [];
+
+        for (const place of results) {
+          if (!place.geometry?.location || !place.name) continue;
+          if (place.business_status === 'CLOSED_PERMANENTLY') continue;
+
+          const pLat = place.geometry.location.lat;
+          const pLng = place.geometry.location.lng;
+          const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+
+          if (dist > radiusMeters) continue;
+
+          let catKey = category;
+          let catLabel = mapping.fallbackLabel;
+
+          if (isAll) {
+            const typesRecord: Record<string, string> = {};
+            for (const t of place.types || []) {
+              typesRecord[t] = t;
+            }
+            const classified = classifyPoi(place.name, typesRecord);
+            catKey = classified.key;
+            catLabel = classified.label;
+          }
+
+          pois.push({
+            id: `gp-${place.place_id}`,
+            name: place.name,
+            lat: pLat,
+            lng: pLng,
+            category: catKey,
+            categoryLabel: catLabel,
+            address: place.vicinity,
+            distanceMeters: Math.round(dist),
+          });
+        }
+
+        const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+        GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+        return sorted;
+      }
+    }
+
+    // 2. Try Places API (New - v1)
+    const newPlacesUrl = 'https://places.googleapis.com/v1/places:searchNearby';
+    const newRes = await fetch(newPlacesUrl, {
+      method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Referer': 'https://girisimbee.com/',
-        'Origin': 'https://girisimbee.com',
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask':
+          'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.types',
       },
+      body: JSON.stringify({
+        includedTypes: mapping.type ? [mapping.type] : ['restaurant', 'cafe', 'store'],
+        maxResultCount: 20,
+        locationRestriction: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius: radiusMeters,
+          },
+        },
+      }),
       signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
-    if (!res.ok) {
-      console.warn('[google-places] HTTP status:', res.status);
-      return null;
-    }
+    if (newRes.ok) {
+      const newJson = await newRes.json();
+      const places = newJson.places || [];
+      const pois: CompetitorPoi[] = [];
 
-    const json = (await res.json()) as GooglePlacesResponse;
-    if (json.status !== 'OK' && json.status !== 'ZERO_RESULTS') {
-      console.warn('[google-places] API status:', json.status, json.error_message);
-      return null;
-    }
+      for (const p of places) {
+        if (!p.location?.latitude || !p.location?.longitude || !p.displayName?.text) continue;
 
-    const results = json.results || [];
-    const pois: CompetitorPoi[] = [];
+        const pLat = p.location.latitude;
+        const pLng = p.location.longitude;
+        const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+        if (dist > radiusMeters) continue;
 
-    for (const place of results) {
-      if (!place.geometry?.location || !place.name) continue;
-      if (place.business_status === 'CLOSED_PERMANENTLY') continue;
+        let catKey = category;
+        let catLabel = mapping.fallbackLabel;
 
-      const pLat = place.geometry.location.lat;
-      const pLng = place.geometry.location.lng;
-      const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
-
-      if (dist > radiusMeters) continue;
-
-      let catKey = category;
-      let catLabel = mapping.fallbackLabel;
-
-      if (isAll) {
-        const typesRecord: Record<string, string> = {};
-        for (const t of place.types || []) {
-          typesRecord[t] = t;
+        if (isAll) {
+          const typesRecord: Record<string, string> = {};
+          for (const t of p.types || []) {
+            typesRecord[t] = t;
+          }
+          const classified = classifyPoi(p.displayName.text, typesRecord);
+          catKey = classified.key;
+          catLabel = classified.label;
         }
-        const classified = classifyPoi(place.name, typesRecord);
-        catKey = classified.key;
-        catLabel = classified.label;
+
+        pois.push({
+          id: `gp-${p.id}`,
+          name: p.displayName.text,
+          lat: pLat,
+          lng: pLng,
+          category: catKey,
+          categoryLabel: catLabel,
+          address: p.formattedAddress,
+          distanceMeters: Math.round(dist),
+        });
       }
 
-      pois.push({
-        id: `gp-${place.place_id}`,
-        name: place.name,
-        lat: pLat,
-        lng: pLng,
-        category: catKey,
-        categoryLabel: catLabel,
-        address: place.vicinity,
-        distanceMeters: Math.round(dist),
-      });
+      const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+      GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+      return sorted;
     }
 
-    const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
-    return sorted;
+    return null;
   } catch (err: any) {
     console.warn('[google-places] Fetch failed, falling back to Overpass:', err?.message);
     return null;
