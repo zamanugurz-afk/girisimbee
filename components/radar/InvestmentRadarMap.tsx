@@ -55,14 +55,11 @@ export default function InvestmentRadarMap({
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        {
-          attribution: '&copy; CARTO &copy; OpenStreetMap',
-          maxZoom: 19,
-          subdomains: 'abcd',
-        },
-      ).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+        subdomains: ['a', 'b', 'c'],
+      }).addTo(map);
 
       if (map.pm) {
         map.pm.addControls({
@@ -80,9 +77,9 @@ export default function InvestmentRadarMap({
         });
 
         map.pm.setPathOptions({
-          color: '#4F46E5',
-          fillColor: '#6366F1',
-          fillOpacity: 0.15,
+          color: '#F59E0B',
+          fillColor: '#F59E0B',
+          fillOpacity: 0.12,
           weight: 2,
         });
 
@@ -147,9 +144,9 @@ export default function InvestmentRadarMap({
 
       const circle = L.circle([centerLat, centerLng], {
         radius: radiusMeters,
-        color: '#4F46E5',
-        fillColor: '#6366F1',
-        fillOpacity: 0.15,
+        color: '#F59E0B',
+        fillColor: '#F59E0B',
+        fillOpacity: 0.12,
         weight: 2,
         dashArray: '4, 4',
       }).addTo(map);
@@ -164,15 +161,14 @@ export default function InvestmentRadarMap({
       const centerIcon = L.divIcon({
         className: 'custom-center-marker',
         html: `
-          <div class="relative flex items-center justify-center">
-            <span class="absolute -inset-2 rounded-full bg-indigo-500/25 animate-ping"></span>
-            <div class="h-4 w-4 rounded-full bg-indigo-600 border-2 border-white shadow-md flex items-center justify-center">
-              <div class="h-1.5 w-1.5 rounded-full bg-white"></div>
+          <div class="relative flex items-center justify-center pointer-events-none">
+            <div class="h-3.5 w-3.5 rounded-full bg-slate-900 dark:bg-white border-2 border-amber-500 shadow-md flex items-center justify-center">
+              <div class="h-1 w-1 rounded-full bg-amber-500"></div>
             </div>
           </div>
         `,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
 
       centerMarkerRef.current = L.marker([centerLat, centerLng], {

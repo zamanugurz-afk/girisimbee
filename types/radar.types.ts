@@ -7,10 +7,24 @@ export type RadarCategoryKey =
   | 'hairdresser'
   | 'gym'
   | 'pharmacy'
+  | 'insurance_agency'
+  | 'travel_agency'
+  | 'real_estate'
+  | 'auto_gallery'
   | 'car_wash'
   | 'restaurant'
   | 'boutique'
-  | 'dry_cleaning';
+  | 'stationery'
+  | 'florist'
+  | 'optician'
+  | 'dry_cleaning'
+  | 'dental_clinic'
+  | 'kindergarten'
+  | 'law_firm'
+  | 'software_agency'
+  | 'furniture'
+  | 'electronics'
+  | (string & {});
 
 export interface RadarCategoryMeta {
   key: RadarCategoryKey;
@@ -21,6 +35,8 @@ export interface RadarCategoryMeta {
   overpassFilter: string;
   averageCatchmentRadius: number;
   idealDensityPerKm2: number;
+  isPopularTop8?: boolean;
+  searchKeywords?: string[];
 }
 
 export interface CompetitorPoi {

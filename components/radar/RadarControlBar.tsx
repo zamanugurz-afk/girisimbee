@@ -53,7 +53,7 @@ interface RadarControlBarProps {
   listingsCount: number;
 }
 
-const CATEGORY_ICONS: Record<RadarCategoryKey, React.ComponentType<{ className?: string }>> = {
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   cafe: Coffee,
   pet_shop: Dog,
   butcher: Flame,

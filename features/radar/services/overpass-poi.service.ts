@@ -21,7 +21,7 @@ const OVERPASS_ENDPOINTS = [
   'https://lz4.overpass-api.de/api/interpreter',
 ];
 
-const CATEGORY_TAG_MAP: Record<RadarCategoryKey, string> = {
+const CATEGORY_TAG_MAP: Record<string, string> = {
   cafe: '["amenity"~"cafe|coffee_shop|restaurant|fast_food|tea"]',
   pet_shop: '["shop"~"pet|pet_grooming|veterinary"]',
   butcher: '["shop"~"butcher|deli"]',
@@ -36,7 +36,7 @@ const CATEGORY_TAG_MAP: Record<RadarCategoryKey, string> = {
   dry_cleaning: '["shop"~"dry_cleaning|laundry|tailor"]',
 };
 
-const SAMPLE_NAMES_BY_CATEGORY: Record<RadarCategoryKey, string[]> = {
+const SAMPLE_NAMES_BY_CATEGORY: Record<string, string[]> = {
   cafe: ['Espresso Lab', 'Kahve Dünyası', 'Petra Roasting Co', 'Kronotrop', 'Starbucks', 'Moc Coffee', 'Federal Coffee', 'Walter’s Coffee', 'Caribou Coffee', 'Story Coffee'],
   pet_shop: ['Pati Dünyası', 'Dostlar Veteriner Kliniği', 'Pet Gross Market', 'Miya Pet Shop', 'Pati Butik', 'VetArt Klinik', 'Petlove', 'Happy Pets'],
   butcher: ['Öz Kasap & Şarküteri', 'Gurme Et & Meze', 'Trakya Et Pazarı', 'Bereket Kasabı', 'Çiftlik Gurme Et', 'Anadolu Şarküteri'],

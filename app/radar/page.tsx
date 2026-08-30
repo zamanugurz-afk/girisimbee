@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function RadarPage() {
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-slate-50/50 dark:bg-zinc-950">
+    <main className="gc-header-offset min-h-[calc(100vh-var(--gc-header-height,3.75rem))] bg-slate-50/50 dark:bg-zinc-950 pb-12">
       <InvestmentRadarClient />
     </main>
   );
