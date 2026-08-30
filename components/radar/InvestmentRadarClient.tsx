@@ -910,7 +910,7 @@ export function InvestmentRadarClient() {
                         <span>Bölgesel Demografi & Nüfus</span>
                       </h4>
                       {demographicStats.officialNeighborhoodPop && (
-                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
                           TÜİK Verisi
                         </span>
                       )}
@@ -947,7 +947,7 @@ export function InvestmentRadarClient() {
                         <Store className="w-3.5 h-3.5 text-amber-500" />
                         <span>Bölgedeki Aktif Fırsatlar</span>
                       </h4>
-                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
                         {radarData?.listingsInRadius.length || 0} İlan
                       </span>
                     </div>
