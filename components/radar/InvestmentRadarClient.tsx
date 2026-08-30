@@ -843,7 +843,7 @@ export function InvestmentRadarClient() {
                   )}
                 >
                   <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>AI Strateji Raporu</span>
+                  <span>Fırsat Avcısı & Strateji</span>
                 </button>
               </div>
 
@@ -962,53 +962,100 @@ export function InvestmentRadarClient() {
                   </div>
                 </>
               ) : (
-                /* AI STRATEJİ RAPORU SEKME GÖRÜNÜMÜ */
+                /* AI STRATEJİ & FIRSAT AVCISI RAPORU SEKME GÖRÜNÜMÜ */
                 <div className="space-y-2.5 text-xs">
                   {radarData?.intelligence ? (
                     <>
-                      <div className="p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-500/35">
-                        <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider block mb-1">
-                          📌 Stratejik Değerlendirme
-                        </span>
-                        <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[13px] leading-relaxed font-medium">
+                      {/* 1. STRATEJİK BÖLGE DEĞERLENDİRMESİ */}
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-500/35 space-y-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                            Stratejik Bölge Değerlendirmesi
+                          </span>
+                        </div>
+                        <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[12.5px] leading-relaxed font-medium">
                           {radarData.intelligence.summaryAdvice}
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5" /> Avantajlar
-                        </span>
-                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-xs">
-                          {radarData.intelligence.pros.map((p: string, idx: number) => (
-                            <li key={idx}>{p}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
-                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5" /> Dikkat Edilecekler
-                        </span>
-                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-xs">
-                          {radarData.intelligence.cons.map((c: string, idx: number) => (
-                            <li key={idx}>{c}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
-                        <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
-                          <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Farklılaşma Önerisi
-                        </span>
-                        <p className="text-slate-700 dark:text-zinc-300 text-xs leading-relaxed">
-                          {radarData.intelligence.differentiationIdea}
+                      {/* 2. TESPİT EDİLEN PAZAR AÇIĞI */}
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <TrendingUp className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                              Tespit Edilen Pazar Açığı
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shrink-0">
+                            %{radarData.intelligence.marketGapScore || 72} Fırsat Açığı
+                          </span>
+                        </div>
+                        <p className="text-muted-foreground text-xs leading-relaxed font-medium">
+                          {radarData.intelligence.marketGapSummary}
                         </p>
+                      </div>
+
+                      {/* 3. BÖLGEYE ÖZEL EKSİK KONSEPTLER (FIRSAT AVCISI) */}
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                            Eksik Konseptler (Ne Yapılabilir?)
+                          </span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          {radarData.intelligence.missingConcepts?.map((concept, idx) => (
+                            <div
+                              key={idx}
+                              className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 space-y-1"
+                            >
+                              <div className="flex items-start justify-between gap-1.5">
+                                <strong className="text-slate-900 dark:text-white font-bold text-[11.5px] leading-tight">
+                                  {concept.title}
+                                </strong>
+                                <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 shrink-0">
+                                  {concept.tag}
+                                </span>
+                              </div>
+                              <p className="text-muted-foreground text-[11px] leading-snug">
+                                {concept.description}
+                              </p>
+                              <div className="flex items-center justify-between pt-0.5 text-[10px] text-slate-600 dark:text-zinc-400 border-t border-slate-200/50 dark:border-zinc-700/50">
+                                <span className="truncate max-w-[70%]">🎯 {concept.targetAudience}</span>
+                                <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">%{concept.suitabilityScore} Uyum</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 4. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ */}
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Girişim Stratejisi
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 truncate max-w-[55%]">
+                            {radarData.intelligence.recommendedEntryStrategy.split('(')[0].trim()}
+                          </span>
+                        </div>
+                        <p className="text-muted-foreground text-[11px] leading-snug">
+                          {radarData.intelligence.strategyRationale}
+                        </p>
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800 text-[11px]">
+                          <span className="text-muted-foreground font-medium">Tahmini Sepet:</span>
+                          <strong className="text-slate-900 dark:text-white font-bold text-xs">
+                            {radarData.intelligence.estimatedTicketSize}
+                          </strong>
+                        </div>
                       </div>
                     </>
                   ) : (
                     <div className="p-6 text-center text-muted-foreground text-xs">
-                      Strateji raporu hesaplanıyor...
+                      Fırsat Avcısı strateji raporu hesaplanıyor...
                     </div>
                   )}
                 </div>

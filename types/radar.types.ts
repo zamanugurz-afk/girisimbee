@@ -81,11 +81,25 @@ export interface RadarAnalysisMetrics {
   opportunityLabel: string;
 }
 
+export interface MarketGapConcept {
+  title: string;
+  tag: string;
+  description: string;
+  targetAudience: string;
+  suitabilityScore: number;
+}
+
 export interface RadarIntelligenceReport {
   summaryAdvice: string;
+  marketGapSummary: string;
+  marketGapScore: number;
+  missingConcepts: MarketGapConcept[];
+  recommendedEntryStrategy: string;
+  strategyRationale: string;
+  estimatedTicketSize: string;
+  targetDemographic: string;
   pros: string[];
   cons: string[];
-  targetDemographic: string;
   differentiationIdea: string;
   recommendedPricePoint: string;
 }

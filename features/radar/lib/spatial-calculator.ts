@@ -1,5 +1,6 @@
 import type {
   CompetitorPoi,
+  MarketGapConcept,
   RadarAnalysisMetrics,
   RadarCategoryKey,
   RadarIntelligenceReport,
@@ -184,80 +185,418 @@ export function computeRadarMetrics(
   };
 }
 
+interface ConceptTemplate {
+  title: string;
+  tag: string;
+  description: string;
+  targetAudience: string;
+  suitabilityScore: number;
+}
+
+const SECTOR_CONCEPTS: Record<string, { upperSes: ConceptTemplate[]; standardSes: ConceptTemplate[] }> = {
+  cafe: {
+    upperSes: [
+      {
+        title: '3. Nesil Mikro-Kavurma & Sessiz Çalışma Alanı',
+        tag: 'Yüksek Kârlılık',
+        description: 'Nitelikli tek köken çekirdekler, ergonomik priz/hızlı Wi-Fi altyapısı ve laptop dostu çalışma ortamı.',
+        targetAudience: 'Genç Profesyoneller & Freelance Çalışanlar',
+        suitabilityScore: 95,
+      },
+      {
+        title: 'Artisan Fırın & Şekersiz / Glutensiz Brunch',
+        tag: 'Trend & Yüksek Marj',
+        description: 'Taze ekşi mayalı fırın ürünleri, soğuk sıkım içecekler ve hafta sonu premium kahvaltı menüsü.',
+        targetAudience: 'Sağlık Bilinci Yüksek Kitle & Aileler',
+        suitabilityScore: 91,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Hızlı Al-Götür (Grab & Go) & Kahve Aboneliği',
+        tag: 'Yüksek Sürüm',
+        description: 'Sabah iş saatlerinde ekspres servis, mobil ön sipariş ve avantajlı haftalık kahve paketleri.',
+        targetAudience: 'Toplu Taşıma & Ofis Yolcuları',
+        suitabilityScore: 92,
+      },
+      {
+        title: 'Tatlı & Yeni Nesil İçecek Füzyonu',
+        tag: 'Sosyal Çekim',
+        description: 'Bubble tea, taze kruvasan sandviç ve sosyal medya etkileşimi yüksek tatlı menüsü.',
+        targetAudience: 'Öğrenciler & Genç Dinamik Kitle',
+        suitabilityScore: 88,
+      },
+    ],
+  },
+  bakery: {
+    upperSes: [
+      {
+        title: 'Ekşi Mayalı Ekmek & Artisan Sandviç Bar',
+        tag: 'Günlük Sadakat',
+        description: 'Geleneksel fermantasyonlu ekşi maya ekmekleri, gurme soğuk sandviçler ve sabah sıcak kahvaltı kutuları.',
+        targetAudience: 'Mahalle Sakinleri & Sağlıklı Yaşam Odaklılar',
+        suitabilityScore: 94,
+      },
+      {
+        title: 'Glutensiz & Diyabetik Butik Pastacılık',
+        tag: 'Niş Pazar',
+        description: 'Diyetisyen onaylı rafine şekersiz tatlılar, özel un karışımları ve kişiye özel pasta siparişi.',
+        targetAudience: 'Özel Beslenenler & Kalori Bilinçli Kitle',
+        suitabilityScore: 89,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Sıcak Unlu Mamül & Çay / Kahvaltı İstasyonu',
+        tag: 'Yüksek Frekans',
+        description: 'Günün her saati taze poğaça, börek, simit ve çay eşliğinde hızlı ayaküstü kahvaltı.',
+        targetAudience: 'Çalışan Kitle & Sabah Yayaları',
+        suitabilityScore: 93,
+      },
+      {
+        title: 'Taze Tatlı & Pasta / Özel Gün Butiği',
+        tag: 'Yüksek Sepet',
+        description: 'Günlük taze pasta çeşitleri, kuru pasta paketleri ve uygun fiyatlı kutlama menüleri.',
+        targetAudience: 'Aileler & Mahalle Müdavimleri',
+        suitabilityScore: 87,
+      },
+    ],
+  },
+  pet_shop: {
+    upperSes: [
+      {
+        title: 'Doğal/Hipoalerjenik Mama & Butik Pet Kuaför',
+        tag: 'Yüksek Sadakat',
+        description: 'Randevulu tüy bakımı ve banyo, organik besinler ve adrese periyodik mama teslimat aboneliği.',
+        targetAudience: 'Evcil Hayvan Sahibi Profesyoneller',
+        suitabilityScore: 96,
+      },
+      {
+        title: 'Pet Oteli / Gündüz Bakım & Veteriner Danışmanlık',
+        tag: 'Katma Değerli',
+        description: 'Seyahat dönemlerinde güvenli konaklama, sosyalleşme alanı ve temel sağlık takip hizmeti.',
+        targetAudience: 'Sık Seyahat Eden Çiftler & Aileler',
+        suitabilityScore: 90,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Fiyat-Performans Mama & Hızlı Mahalle Servisi',
+        tag: 'Düzenli Tüketim',
+        description: 'Geniş marka yelpazesi, uygun fiyatlı kum/konserve paketleri ve WhatsApp üzerinden aynı gün teslimat.',
+        targetAudience: 'Mahalle Sakinleri & Aileler',
+        suitabilityScore: 92,
+      },
+      {
+        title: 'Aksesuar, Hijyen & Temel Bakım Merkezi',
+        tag: 'Geniş Ürün Gamı',
+        description: 'Tasma, oyuncak, taşıma çantası ve parazit/hijyen bakım ürünleri kombinasyonu.',
+        targetAudience: 'Yeni Evcil Hayvan Edinenler',
+        suitabilityScore: 86,
+      },
+    ],
+  },
+  gym: {
+    upperSes: [
+      {
+        title: 'Birebir Reformer Pilates & Fonksiyonel Stüdyo',
+        tag: 'Premium Üyelik',
+        description: 'Küçük gruplarla kişiselleştirilmiş antrenman, postür düzeltme ve özel beslenme koçluğu.',
+        targetAudience: 'Plaza Çalışanları & Formuna Özen Gösterenler',
+        suitabilityScore: 95,
+      },
+      {
+        title: 'Wellness & Recovery / Sauna & Buz Banyosu',
+        tag: 'Trend & Lüks',
+        description: 'Egzersiz sonrası toparlanma terapileri, masaj ve bütünsel zindelik seansları.',
+        targetAudience: 'Spor Tutkunları & Yüksek Gelir Grubu',
+        suitabilityScore: 88,
+      },
+    ],
+    standardSes: [
+      {
+        title: '24 Saat Açık Kartlı Akıllı Gym',
+        tag: 'Düşük Maliyet',
+        description: 'Personelsiz otomatik kart erişimi, esnek mesaili çalışanlar için modern kardiyo ve serbest ağırlık alanı.',
+        targetAudience: 'Gençler, Öğrenciler & Esnek Çalışanlar',
+        suitabilityScore: 93,
+      },
+      {
+        title: 'Kadınlara Özel Fitness & Grup Dersleri',
+        tag: 'Yüksek Talep',
+        description: 'Zumba, step, spinning ve pilates grup seanslarıyla motive edici ve güvenli spor ortamı.',
+        targetAudience: 'Mahalle Kadınları & Genç Kızlar',
+        suitabilityScore: 89,
+      },
+    ],
+  },
+  restaurant: {
+    upperSes: [
+      {
+        title: 'Sağlıklı Kase (Bowl) & Akdeniz Mutfağı Ekspres',
+        tag: 'Öğle Trafiği',
+        description: 'Kalori ve protein dengeli taze kaseler, ızgara lezzetler ve kurumsal şirketlere toplu paket servis.',
+        targetAudience: 'Ofis Çalışanları & Sağlık Odaklılar',
+        suitabilityScore: 93,
+      },
+      {
+        title: 'Gurme Burger & Ev Yapımı Şarküteri Füzyonu',
+        tag: 'Deneyim Odaklı',
+        description: 'Özel marine edilmiş etler, brioche ekmeği, el yapımı soslar ve akşam sosyal yemek deneyimi.',
+        targetAudience: 'Genç Gurmeler & Arkadaş Grupları',
+        suitabilityScore: 89,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Günün Ev Yemekleri & Hızlı Tabldot',
+        tag: 'Sürekli Ciro',
+        description: 'Anne eli lezzetinde zeytinyağlılar, sulu yemekler ve esnafa/ofislere ekonomik menüler.',
+        targetAudience: 'Çevre Esnafı & Çalışanlar',
+        suitabilityScore: 94,
+      },
+      {
+        title: 'Sokak Lezzetleri & Gece Paket Servis İstasyonu',
+        tag: 'Gece Hacmi',
+        description: 'Tavuk pilav, köfte ekmek, dürüm çeşitleri ve 02:00’ye kadar süren paket operasyonu.',
+        targetAudience: 'Genç Nüfus & Gece Çalışanları',
+        suitabilityScore: 90,
+      },
+    ],
+  },
+  hairdresser: {
+    upperSes: [
+      {
+        title: 'Medikal Manikür & Ekspres Nail Art Stüdyosu',
+        tag: 'Yüksek Frekans',
+        description: 'Steril cihazlı medikal el/ayak bakımı, kalıcı oje ve VIP randevu deneyimi.',
+        targetAudience: 'İş Kadınları & Bakımına Düşkün Kitle',
+        suitabilityScore: 94,
+      },
+      {
+        title: 'Premium Erkek Saç Spa & Kişisel Stil Salonu',
+        tag: 'Yüksek Sepet',
+        description: 'Saç/sakal terapisi, cilt bakımı ve kahve ikramlı rahatlatıcı salon atmosferi.',
+        targetAudience: 'Bakımlı Erkekler & Profesyoneller',
+        suitabilityScore: 90,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Hızlı & Uygun Fiyatlı Aile Kuaförü',
+        tag: 'Geniş Kitle',
+        description: 'Saç kesimi, boya ve fön işlemlerinde hızlı servis ve mahalle müdavimlerine özel fiyat avantajı.',
+        targetAudience: 'Aileler & Mahalle Sakinleri',
+        suitabilityScore: 92,
+      },
+      {
+        title: 'Özel Gün Türban & Gelin Başı Tasarım Salonu',
+        tag: 'Sezonluk Yüksek Gelir',
+        description: 'Düğün, nişan ve mezuniyetler için profesyonel makyaj ve tasarım paketleri.',
+        targetAudience: 'Genç Kızlar & Düğün/Kutlama Hazırlığı Yapanlar',
+        suitabilityScore: 87,
+      },
+    ],
+  },
+  market: {
+    upperSes: [
+      {
+        title: 'Gurme Şarküteri & Doğal / Organik Köy Ürünleri',
+        tag: 'Yüksek Sepet',
+        description: 'Coğrafi işaretli peynirler, soğuk sıkım zeytinyağları, katkısız mezeler ve ithal soslar.',
+        targetAudience: 'Gurme Damak Tadı Olan Aileler',
+        suitabilityScore: 95,
+      },
+      {
+        title: 'Hızlı Butik Şarap, Peynir & Meze İstasyonu',
+        tag: 'Akşam Trafiği',
+        description: 'Akşam eve dönüş saatlerinde pratik atıştırmalık ve meze tabakları hazır paket satışı.',
+        targetAudience: 'Sosyal Çiftler & Misafir Ağırlayanlar',
+        suitabilityScore: 89,
+      },
+    ],
+    standardSes: [
+      {
+        title: '15 Dakikada WhatsApp / Telefon Mahalle Marketi',
+        tag: 'Hızlı Servis',
+        description: 'Temel gıda, manav ve acil ev ihtiyaçlarını doğrudan kapıya ulaştıran güvenilir mahalle bakkalı.',
+        targetAudience: 'Ev Hanımları & Yoğun Aileler',
+        suitabilityScore: 93,
+      },
+      {
+        title: 'Toptan Fiyatına Perakende Temel Tüketim Marketi',
+        tag: 'Hacimli Satış',
+        description: 'Bakliyat, temizlik ve içecek ürünlerinde çoklu alım indirimleriyle bölge halkının tercihi olma.',
+        targetAudience: 'Geniş Aileler & Bütçe Odaklılar',
+        suitabilityScore: 88,
+      },
+    ],
+  },
+  pharmacy: {
+    upperSes: [
+      {
+        title: 'Dermokozmetik & Bütünsel Sağlık Danışmanlığı',
+        tag: 'Yüksek Marj',
+        description: 'Cilt analiz seansları, premium vitamin & anti-aging takviyeleri ve uzman eczacı tavsiyesi.',
+        targetAudience: 'Cilt ve Sağlık Bilinci Yüksek Kitle',
+        suitabilityScore: 95,
+      },
+      {
+        title: 'Anne-Bebek & Organik Bakım Ürünleri Köşesi',
+        tag: 'Sadık Müşteri',
+        description: 'Bebek beslenmesi, organik anne bakım ürünleri ve gelişim takip destek ürünleri.',
+        targetAudience: 'Yeni Anneler & Bebekli Aileler',
+        suitabilityScore: 91,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Geniş Reçeteli İlaç & Medikal Destek Merkezi',
+        tag: 'Temel Sağlık',
+        description: 'Hızlı ilaç temini, tansiyon/şeker ölçümü ve ortopedik medikal malzeme stoku.',
+        targetAudience: 'Mahalle Sakinleri & Yaşlı Nüfus',
+        suitabilityScore: 94,
+      },
+      {
+        title: 'Bitkisel Çaylar & Ekonomik Takviye Edici Gıdalar',
+        tag: 'Önleyici Sağlık',
+        description: 'Bağışıklık güçlendirici doğal karışımlar, kış çayları ve uygun fiyatlı gıda takviyeleri.',
+        targetAudience: 'Her Yaştan Bölge Sakini',
+        suitabilityScore: 87,
+      },
+    ],
+  },
+  default: {
+    upperSes: [
+      {
+        title: 'Deneyim ve Kalite Odaklı Butik Hizmet Noktası',
+        tag: 'Prestij & Marj',
+        description: 'A/A+ gelir grubunun beklentilerine uygun, kişiselleştirilmiş ve dijitalleşmiş hizmet tasarımı.',
+        targetAudience: 'Bölge Sakinleri & Şehirli Profesyoneller',
+        suitabilityScore: 92,
+      },
+      {
+        title: 'Mevcut Bir İşletmeyi Devralıp Markayı Yenileme',
+        tag: 'Düşük Risk',
+        description: 'Oturmuş yaya trafiğini koruyarak modern bir kurumsal kimlik ve menü/hizmet güncellemesiyle ciro artırma.',
+        targetAudience: 'Yatırımcılar & Girişimciler',
+        suitabilityScore: 89,
+      },
+    ],
+    standardSes: [
+      {
+        title: 'Fiyat-Performans ve Hızlı Teslimat Odaklı Girişim',
+        tag: 'Yüksek Hacim',
+        description: 'Bölgenin yoğun yaya trafiğine hitap eden, uygun maliyetli ve süratli hizmet modeli.',
+        targetAudience: 'Mahalle Halkı & Transit Geçenler',
+        suitabilityScore: 91,
+      },
+      {
+        title: 'Hazır Ruhsatlı Devren İşletme ile Hızlı Başlangıç',
+        tag: 'Zaman Tasarrufu',
+        description: 'Sıfırdan tadilat ve ruhsat süreçlerine girmeden mevcut müşteri portföyünü devralıp verimlilik sağlama.',
+        targetAudience: 'Girişimciler & Esnaflar',
+        suitabilityScore: 88,
+      },
+    ],
+  },
+};
+
 export function generateIntelligenceReport(
   categoryKey: RadarCategoryKey,
   metrics: RadarAnalysisMetrics,
   locationName?: string,
+  lat?: number,
+  lng?: number,
+  radiusMeters: number = 500,
 ): RadarIntelligenceReport {
-  const meta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
-  const loc = locationName ? `${locationName} bölgesinde` : 'Seçilen çember alanında';
+  const meta = RADAR_CATEGORIES[categoryKey] ?? {
+    key: 'all' as RadarCategoryKey,
+    label: 'Tüm Sektörler & İşletmeler',
+    emoji: '🌐',
+  };
+
+  const demographics = resolveDemographicProfile(lat ?? 40.9125, lng ?? 29.1764, radiusMeters, locationName);
+  const loc = locationName ? `${locationName}` : 'Seçili çember alanı';
+  const isUpperSes = demographics.sesGroup.includes('A');
+  const popStr = demographics.population;
+  const trafficStr = demographics.daytimeTraffic;
+  const compCount = metrics.competitorCount;
+  const isAll = categoryKey === 'all' || !categoryKey;
+
+  // 1. STRATEJİK DEĞERLENDİRME ÖZETİ (Nüfus, SES ve Sirkülasyon Entegrasyonu)
+  let summaryAdvice = '';
+  if (isAll) {
+    summaryAdvice = `${loc} çemberindeki ${popStr} yerleşik nüfus ve ${trafficStr} günlük yaya sirkülasyonu, ${demographics.sesGroup} gelir yapısıyla birleştiğinde güçlü bir ticari talep havuzu oluşturuyor. Toplam ${compCount} işletme bölgenin canlı bir çekim noktası olduğunu kanıtlıyor.`;
+  } else if (metrics.saturationLevel === 'oversaturated' || metrics.saturationLevel === 'high') {
+    summaryAdvice = `${loc} çemberindeki ${popStr} yerleşik nüfus ve ${trafficStr} günlük transit yaya sirkülasyonu, ${demographics.sesGroup} gelir profiliyle yüksek harcama potansiyeli taşıyor. Ancak bölgede ${compCount} ${meta.label.toLowerCase()} bulunması pazar doygunluğunu %${metrics.saturationScore} seviyesine taşıyor. Bu yoğunlukta standart bir işletme açmak yerine katma değerli niş konseptler veya hazır devir fırsatları tercih edilmelidir.`;
+  } else if (metrics.saturationLevel === 'low') {
+    summaryAdvice = `${loc} çemberinde ${popStr} yerleşik nüfus ve ${trafficStr} transit yaya akışı bulunmasına rağmen mevcut ${meta.label.toLowerCase()} sayısı yalnızca ${compCount} adettir. Bölgedeki güçlü tüketim gücü karşısında belirgin bir hizmet açığı bulunmaktadır.`;
+  } else {
+    summaryAdvice = `${loc} çemberindeki ${popStr} kişilik nüfus ve ${trafficStr} gündüz sirkülasyonu, ${meta.label.toLowerCase()} sektörü için dengeli bir pazar yapısı sunuyor (${compCount} mevcut rakip). Kalite, hız ve modern marka diliyle öne çıkmak mümkündür.`;
+  }
+
+  // 2. PAZAR AÇIĞI & ARZ/TALEP HESABI
+  let marketGapScore = 0;
+  let marketGapSummary = '';
 
   if (metrics.saturationLevel === 'low') {
-    return {
-      summaryAdvice: `${loc} ${meta.label.toLowerCase()} alanında belirgin bir arz açığı tespit edildi. ${metrics.competitorCount} adet mevcut işletme ile bölge potansiyelinin oldukça gerisinde. Yeni nesil ve güçlü müşteri deneyimi sunan bir konseptle hızlı pazar payı kazanılabilir.`,
-      pros: [
-        'Bölgedeki yerel talep karşısında rakip sayısı çok düşük',
-        'İlk giren işletme olma (first-mover) marka avantajı',
-        'Bölge sakinlerinin alternatif arayışı yüksek',
-      ],
-      cons: [
-        'Konsept tanıtımı için başlangıçta güçlü yerel lansman gerekebilir',
-        'Tedarik zinciri ve lojistik maliyetleri optimize edilmeli',
-      ],
-      targetDemographic: 'Çevre sitelerde yaşayan genç profesyoneller, aileler ve dijital çalışanlar.',
-      differentiationIdea: 'Sadakat programı, mobil ön sipariş ve organik/premium ürün çeşitliliği ile bölgenin çekim merkezi olmak.',
-      recommendedPricePoint: 'Orta-Üst Segment (Kalite ve deneyim odaklı fiyatlandırma)',
-    };
+    marketGapScore = Math.min(94, 80 + Math.round((100 - metrics.saturationScore) * 0.15));
+    marketGapSummary = `Bölgedeki ${popStr} kişilik yerleşik talep karşısında mevcut ${compCount} rakip yetersiz kalıyor. Kişi başına düşen hizmet kapasitesinde %${marketGapScore} doğrudan arz açığı tespit edilmiştir.`;
+  } else if (metrics.saturationLevel === 'moderate') {
+    marketGapScore = 65;
+    marketGapSummary = `Bölgede hacimsel talep dengeli; ancak ${demographics.ageProfile.split('(')[0].trim()} kitlesinin aradığı dijitalleşmiş ve modern alt-hizmetlerde %65 inovasyon açığı mevcuttur.`;
+  } else {
+    // High / Oversaturated
+    marketGapScore = isUpperSes ? 74 : 60;
+    marketGapSummary = `Bölgede standart işletme sayısı doymuş görünse de (${compCount} rakip), ${demographics.sesGroup} kitlesinin aradığı kişiselleştirilmiş ve deneyim odaklı niş segmentte %${marketGapScore} arz açığı bulunmaktadır.`;
   }
 
-  if (metrics.saturationLevel === 'moderate') {
-    return {
-      summaryAdvice: `${loc} pazar dengeli bir yapı sergiliyor. ${metrics.competitorCount} adet işletme var ancak henüz tekelleşen veya müşteri sadakatini tamamen domine eden bir yapı bulunmuyor. Hizmet kalitesi ve dijital görünürlükle öne çıkmak mümkün.`,
-      pros: [
-        'Kanıtlanmış ve hazır bir müşteri kitlesi mevcut',
-        'Yaya ve araç sirkülasyonu ticareti destekliyor',
-        'Ortalama sepet tutarı işletme kârlılığını karşılıyor',
-      ],
-      cons: [
-        'Mevcut işletmelerin sabit müşteri alışkanlıkları aşılmalı',
-        'Kira ve lokasyon maliyetleri dikkatle analiz edilmeli',
-      ],
-      targetDemographic: 'Genç nüfus, üniversite öğrencileri, plaza çalışanları ve mahalle müdavimleri.',
-      differentiationIdea: 'Paket servis hızı, özel abonelik modelleri ve tematik mekân tasarımı.',
-      recommendedPricePoint: 'Dinamik Fiyatlandırma (Hafta içi avantajlı menüler / hafta sonu premium deneyim)',
-    };
+  // 3. EKSİK KONSEPTLER (FIRSAT AVCISI)
+  const sectorPool = SECTOR_CONCEPTS[categoryKey] ?? SECTOR_CONCEPTS.default;
+  const missingConcepts: MarketGapConcept[] = isUpperSes ? sectorPool.upperSes : sectorPool.standardSes;
+
+  // 4. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ
+  let recommendedEntryStrategy = '';
+  let strategyRationale = '';
+  let estimatedTicketSize = '';
+
+  if (metrics.saturationScore >= 75) {
+    recommendedEntryStrategy = 'Hazır Devir veya Ortaklık (Düşük Risk & Oturmuş Ciro)';
+    strategyRationale = `Bölgedeki yüksek işletme yoğunluğu ve ruhsat/tabela maliyetleri nedeniyle sıfırdan dükkan açmak yerine sitedeki devir fırsatlarını değerlendirmek 10-14 ay amortisman avantajı sağlar.`;
+  } else if (metrics.saturationScore <= 35) {
+    recommendedEntryStrategy = 'Sıfırdan Yeni Konsept Açılışı (Pazar Liderliği)';
+    strategyRationale = `Bölgede ciddi arz açığı bulunduğundan ilk giren güçlü marka olma avantajıyla pazar payının %40+'ını hızla konsolide edebilirsiniz.`;
+  } else {
+    recommendedEntryStrategy = 'Niş Butik Konsept veya Franchise İle Farklılaşma';
+    strategyRationale = `Dengeli pazar yapısında standart rakiplerin arasından sıyrılmak için menü/hizmet inovasyonu ve güçlü dijital görünürlük esastır.`;
   }
 
-  if (metrics.saturationLevel === 'high') {
-    return {
-      summaryAdvice: `${loc} ${meta.label.toLowerCase()} yoğunluğu yüksek (${metrics.competitorCount} işletme). Standart ve jenerik bir operasyon yerine kesinlikle özelleşmiş bir alt-niş (örneğin glutensiz/vegan, 3. nesil mikro kavurma veya 7/24 ekspres servis) tercih edilmelidir.`,
-      pros: [
-        'Bölge zaten hedef kitle için bir cazibe merkezi',
-        'Müşteri arayışı sürekli ve yüksek hacimli',
-      ],
-      cons: [
-        'Fiyat rekabeti ve kâr marjı baskısı yüksek',
-        'Nitelikli personel tutundurma maliyeti artabilir',
-      ],
-      targetDemographic: 'Seçici, trendleri takip eden ve deneyim odaklı Z kuşağı / Y kuşağı tüketiciler.',
-      differentiationIdea: 'Mikro-uzmanlaşma: Tek bir üründe ustalaşarak şehrin en iyisi algısını oluşturmak.',
-      recommendedPricePoint: 'Niş Premium veya Yüksek Hacimli Ekspres Fiyatlandırma',
-    };
+  if (isUpperSes) {
+    estimatedTicketSize = '280₺ — 480₺ / Kişi (Yüksek Harcama Eğilimi)';
+  } else if (demographics.sesGroup.includes('B')) {
+    estimatedTicketSize = '180₺ — 300₺ / Kişi (Dengeli Fiyat-Performans)';
+  } else {
+    estimatedTicketSize = '120₺ — 200₺ / Kişi (Hızlı Tüketim & Sürüm)';
   }
 
   return {
-    summaryAdvice: `${loc} pazar doygunluk seviyesine ulaşmış durumda (${metrics.competitorCount} rakip). Sıfırdan dükkan açmak yerine sitedeki **aktif devren işletme** veya **mevcut ortaklık** ilanlarını değerlendirmek maliyet ve zaman açısından çok daha avantajlıdır.`,
-    pros: [
-      'Girişimbee üzerinde hazır devir ve ortaklık fırsatları mevcut',
-      'Müşteri trafiği oturmuş lokasyonlar devralınabilir',
-    ],
+    summaryAdvice,
+    marketGapSummary,
+    marketGapScore,
+    missingConcepts,
+    recommendedEntryStrategy,
+    strategyRationale,
+    estimatedTicketSize,
+    targetDemographic: demographics.ageProfile,
+    pros: missingConcepts.map((c) => `${c.title}: ${c.description}`),
     cons: [
-      'Sıfırdan açılışlarda yüksek yatırım amortisman süresi',
-      'Aşırı fiyat kırma savaşları',
+      metrics.saturationScore > 70
+        ? 'Standart/jenerik konseptlerde fiyat rekabeti riski'
+        : 'İlk açılışta yerel tanıtım ve tabela bilinirliği oluşturma gereksinimi',
     ],
-    targetDemographic: 'Geniş kitle, hızlı tüketim arayan transit yayalar.',
-    differentiationIdea: 'Mevcut bir işletmeyi devralıp marka kimliğini ve menüyü yenileyerek hızlı ciro artışı yakalamak.',
-    recommendedPricePoint: 'Rekabetçi Fiyat / Yüksek Paket Satış',
+    differentiationIdea: missingConcepts[0]?.title ?? 'Niş alt-segmentte uzmanlaşma',
+    recommendedPricePoint: isUpperSes ? 'Orta-Üst Segment' : 'Dinamik Fiyatlandırma',
   };
 }
 

@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Handshake,
   Compass,
+  Lightbulb,
 } from 'lucide-react';
 import type { RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
@@ -268,6 +269,30 @@ export function RadarAnalysisPanel({ data, isLoading }: RadarAnalysisPanelProps)
           </div>
         </div>
 
+        {/* Missing Concepts (Fırsat Avcısı) */}
+        {intelligence.missingConcepts && intelligence.missingConcepts.length > 0 && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-3 space-y-2">
+            <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+              <Lightbulb className="h-3.5 w-3.5 text-amber-500" /> Eksik Konseptler (Fırsat Avcısı)
+            </span>
+            <div className="space-y-1.5">
+              {intelligence.missingConcepts.map((concept, idx) => (
+                <div key={idx} className="p-2 rounded-lg bg-white/70 dark:bg-zinc-800/70 border border-slate-200/50 dark:border-zinc-700/50 text-[11px] space-y-0.5">
+                  <div className="flex items-center justify-between font-semibold text-slate-900 dark:text-white">
+                    <span>{concept.title}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 font-bold">{concept.tag}</span>
+                  </div>
+                  <p className="text-muted-foreground text-[10.5px] leading-snug">{concept.description}</p>
+                  <div className="flex items-center justify-between pt-0.5 text-[9.5px] text-muted-foreground border-t border-slate-200/40 dark:border-zinc-700/40">
+                    <span>🎯 {concept.targetAudience}</span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">%{concept.suitabilityScore} Uyum</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Target Demographic & Niche Idea */}
         <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 space-y-2 text-xs dark:border-zinc-800 dark:bg-zinc-800/40">
           <div className="flex items-start gap-2">
@@ -280,8 +305,8 @@ export function RadarAnalysisPanel({ data, isLoading }: RadarAnalysisPanelProps)
           <div className="flex items-start gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800">
             <Sparkles className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-foreground">Farklılaşma Önerisi: </span>
-              <span className="text-muted-foreground">{intelligence.differentiationIdea}</span>
+              <span className="font-bold text-foreground">Girişim Stratejisi: </span>
+              <span className="text-muted-foreground">{intelligence.recommendedEntryStrategy}</span>
             </div>
           </div>
         </div>
