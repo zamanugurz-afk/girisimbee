@@ -377,6 +377,10 @@ export function HomeInvestmentRadarSection() {
 
       {/* 2. ANA RADAR KOKPİTİ (3 ENTEGRE SÜTUN) */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
+        {/* Animated Loading Shimmer Bar */}
+        {isLoading && (
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400/20 via-amber-500 to-amber-400/20 animate-pulse z-30 shadow-[0_0_12px_rgba(245,158,11,0.8)]" />
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           
           {/* ========================================================================= */}
@@ -585,10 +589,19 @@ export function HomeInvestmentRadarSection() {
                 </div>
               </div>
 
-              {/* Canlı İlan Gösterge Rozeti */}
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{radarData?.listingsInRadius.length || 0} Aktif Fırsat Sinyali</span>
+              {/* Canlı İlan / Yükleniyor Gösterge Rozeti */}
+              <div className="flex items-center gap-1.5">
+                {isLoading ? (
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-full border border-amber-500/30 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
+                    <span>Analiz Güncelleniyor...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{radarData?.listingsInRadius.length || 0} Aktif Fırsat Sinyali</span>
+                  </div>
+                )}
               </div>
             </div>
 
