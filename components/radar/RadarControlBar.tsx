@@ -11,6 +11,9 @@ import {
   Utensils,
   ShoppingBag,
   Cross,
+  Flame,
+  Shirt,
+  Sparkles,
   MapPin,
   CircleDot,
   Trash2,
@@ -53,13 +56,16 @@ interface RadarControlBarProps {
 const CATEGORY_ICONS: Record<RadarCategoryKey, React.ComponentType<{ className?: string }>> = {
   cafe: Coffee,
   pet_shop: Dog,
+  butcher: Flame,
+  bakery: UtensilsCrossed,
+  market: ShoppingBag,
   hairdresser: Scissors,
   gym: Dumbbell,
-  bakery: UtensilsCrossed,
+  pharmacy: Cross,
   car_wash: Car,
   restaurant: Utensils,
-  market: ShoppingBag,
-  pharmacy: Cross,
+  boutique: Shirt,
+  dry_cleaning: Sparkles,
 };
 
 export function RadarControlBar({

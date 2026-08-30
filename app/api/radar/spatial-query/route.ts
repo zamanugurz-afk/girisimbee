@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { RadarCategoryKey, RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
@@ -19,13 +19,16 @@ const querySchema = z.object({
     .enum([
       'cafe',
       'pet_shop',
+      'butcher',
+      'bakery',
+      'market',
       'hairdresser',
       'gym',
-      'bakery',
+      'pharmacy',
       'car_wash',
       'restaurant',
-      'market',
-      'pharmacy',
+      'boutique',
+      'dry_cleaning',
     ])
     .default('cafe'),
   locationName: z.string().optional(),

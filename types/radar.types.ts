@@ -1,13 +1,16 @@
-﻿export type RadarCategoryKey =
+export type RadarCategoryKey =
   | 'cafe'
   | 'pet_shop'
+  | 'butcher'
+  | 'bakery'
+  | 'market'
   | 'hairdresser'
   | 'gym'
-  | 'bakery'
+  | 'pharmacy'
   | 'car_wash'
   | 'restaurant'
-  | 'market'
-  | 'pharmacy';
+  | 'boutique'
+  | 'dry_cleaning';
 
 export interface RadarCategoryMeta {
   key: RadarCategoryKey;

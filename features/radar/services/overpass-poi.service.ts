@@ -24,25 +24,31 @@ const OVERPASS_ENDPOINTS = [
 const CATEGORY_TAG_MAP: Record<RadarCategoryKey, string> = {
   cafe: '["amenity"~"cafe|coffee_shop|restaurant|fast_food|tea"]',
   pet_shop: '["shop"~"pet|pet_grooming|veterinary"]',
+  butcher: '["shop"~"butcher|deli"]',
+  bakery: '["shop"~"bakery|pastry|confectionery"]',
+  market: '["shop"~"supermarket|convenience|grocery"]',
   hairdresser: '["shop"~"hairdresser|beauty|barber"]',
   gym: '["leisure"~"fitness_centre|sports_centre|fitness_station"]',
-  bakery: '["shop"~"bakery|pastry|confectionery"]',
+  pharmacy: '["amenity"="pharmacy"]',
   car_wash: '["amenity"="car_wash"]',
   restaurant: '["amenity"="restaurant"]',
-  market: '["shop"~"supermarket|convenience|grocery"]',
-  pharmacy: '["amenity"="pharmacy"]',
+  boutique: '["shop"~"clothes|boutique|fashion"]',
+  dry_cleaning: '["shop"~"dry_cleaning|laundry|tailor"]',
 };
 
 const SAMPLE_NAMES_BY_CATEGORY: Record<RadarCategoryKey, string[]> = {
   cafe: ['Espresso Lab', 'Kahve Dünyası', 'Petra Roasting Co', 'Kronotrop', 'Starbucks', 'Moc Coffee', 'Federal Coffee', 'Walter’s Coffee', 'Caribou Coffee', 'Story Coffee'],
   pet_shop: ['Pati Dünyası', 'Dostlar Veteriner Kliniği', 'Pet Gross Market', 'Miya Pet Shop', 'Pati Butik', 'VetArt Klinik', 'Petlove', 'Happy Pets'],
+  butcher: ['Öz Kasap & Şarküteri', 'Gurme Et & Meze', 'Trakya Et Pazarı', 'Bereket Kasabı', 'Çiftlik Gurme Et', 'Anadolu Şarküteri'],
+  bakery: ['Tarihi Moda Fırını', 'Beyaz Fırın', 'Pelit Pastanesi', 'Artisan Ekmekçilik', 'Divan Pastanesi', 'Leman Fırın', 'Ekmekçi Dede', 'Karafırın'],
+  market: ['Migros Jet', 'CarrefourSA Mini', 'Şok Market', 'A101', 'BİM', 'Macrocenter', 'Yerel Gurme Market'],
   hairdresser: ['Kuaför Ahmet', 'Studio Hair & Beauty', 'The Barber Club', 'Güzellik Atölyesi', 'MOS Kuaför', 'Artisan Barber', 'Glamour Beauty Studio'],
   gym: ['MacFit', 'Club Sporium', 'CrossFit Kadıköy', 'Gymstop', 'Power GYM', 'Pilates Academy', 'Fit & Form Studio', 'Zone Training'],
-  bakery: ['Tarihi Moda Fırını', 'Beyaz Fırın', 'Pelit Pastanesi', 'Artisan Ekmekçilik', 'Divan Pastanesi', 'Leman Fırın', 'Ekmekçi Dede', 'Karafırın'],
+  pharmacy: ['Merkez Eczanesi', 'Hayat Eczanesi', 'Yeni Moda Eczanesi', 'Şifa Eczanesi', 'Güneş Eczanesi', 'Park Eczanesi'],
   car_wash: ['Oto Parlatma & Yıkama', 'Speedy Car Wash', 'Detailing Garage', 'Eco Buharlı Yıkama', 'Meguiar’s Car Care', 'Sonax Detailing'],
   restaurant: ['Moda Meyhanesi', 'Basta Street Food', 'Çiya Sofrası', 'Nusr-Et Burger', 'Köşebaşı Kebap', 'Trattoria Antica', 'Meşhur Dönerci'],
-  market: ['Migros Jet', 'CarrefourSA Mini', 'Şok Market', 'A101', 'BİM', 'Macrocenter', 'Yerel Gurme Market'],
-  pharmacy: ['Merkez Eczanesi', 'Hayat Eczanesi', 'Yeni Moda Eczanesi', 'Şifa Eczanesi', 'Güneş Eczanesi', 'Park Eczanesi'],
+  boutique: ['Maison Butik', 'Moda Concept Store', 'Trend Giyim', 'Vintage Room', 'Silk & Cotton Studio', 'Bella Butik'],
+  dry_cleaning: ['Dry Center', 'Express Kuru Temizleme', 'Terzi Hasan Usta', 'Eco Clean Terzi & Yıkama', 'Master Tailor Studio'],
 };
 
 export async function fetchOverpassCompetitorPois(

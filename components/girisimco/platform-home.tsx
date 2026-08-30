@@ -13,6 +13,7 @@ import {
 import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { useHeroStats } from '@/features/home';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
+import { HomeInvestmentRadarSection } from '@/components/girisimco/home/HomeInvestmentRadarSection';
 
 export function PlatformHome() {
   const { counts, isLoading } = useHeroStats();
@@ -169,9 +170,10 @@ export function PlatformHome() {
             />
           </div>
 
-          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET) */}
-          <div className="relative z-10 space-y-4">
+          {/* İÇERİK BİLEŞENLERİ (GİRİŞİMBEE MARKET & YATIRIM RADARI) */}
+          <div className="relative z-10 space-y-10 sm:space-y-16">
             <HomeMarketSection />
+            <HomeInvestmentRadarSection />
           </div>
         </div>
       </div>
