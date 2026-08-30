@@ -395,8 +395,8 @@ export function resolveDemographicProfile(
   return {
     population: calculatedCatchmentPop.toLocaleString('tr-TR'),
     populationRaw: calculatedCatchmentPop,
-    officialNeighborhoodPop: `${baseMahallePop.toLocaleString('tr-TR')} (Mahalle Nüfusu)`,
-    daytimeTraffic: `${calculatedDaytimeTraffic.toLocaleString('tr-TR')} (Gündüz Sirkülasyonu)`,
+    officialNeighborhoodPop: `${baseMahallePop.toLocaleString('tr-TR')} Kişi`,
+    daytimeTraffic: `${calculatedDaytimeTraffic.toLocaleString('tr-TR')} Kişi/Gün`,
     densityPerKm2: density,
     sesGroup: ses,
     ageProfile: age,
