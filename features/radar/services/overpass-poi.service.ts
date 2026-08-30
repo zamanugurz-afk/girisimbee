@@ -316,7 +316,7 @@ export function classifyPoi(
 }
 
 const POI_QUERY_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
-const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
+const CACHE_TTL_MS = 1000 * 60 * 3; // 3 minutes
 
 export async function fetchOverpassCompetitorPois(
   lat: number,

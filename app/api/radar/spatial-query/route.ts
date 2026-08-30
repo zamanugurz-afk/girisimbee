@@ -13,6 +13,7 @@ import {
 } from '@/features/radar/lib/spatial-calculator';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const querySchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
