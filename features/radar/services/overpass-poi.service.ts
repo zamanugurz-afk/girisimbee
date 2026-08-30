@@ -601,7 +601,7 @@ export async function fetchGooglePlacesPois(
     });
 
     if (isAll) {
-      params.append('keyword', 'kafe OR restoran OR market OR mağaza OR dükkan OR klinik OR kuaför OR eczane');
+      params.append('type', 'establishment');
     } else {
       if (mapping.keyword) {
         params.append('keyword', mapping.keyword);
