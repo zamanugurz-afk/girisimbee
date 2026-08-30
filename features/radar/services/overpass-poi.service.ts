@@ -340,21 +340,15 @@ export async function fetchOverpassCompetitorPois(
 
   let query = '';
   if (isAll) {
-    const amenityRegex = 'cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|bar|pub';
-    const shopRegex = 'supermarket|convenience|grocery|bakery|pastry|butcher|hairdresser|beauty|tyres|pet|clothes|boutique|stationery|florist|optician|furniture|electronics|locksmith|greengrocer|seafood|tailor|confectionery|car_repair';
-    const officeRegex = 'insurance|estate_agent|lawyer|company|it';
-    const leisureRegex = 'fitness_centre|sports_centre';
-
     query = `
-      [out:json][timeout:5];
+      [out:json][timeout:15];
       (
-        node(around:${radiusMeters},${lat},${lng})["amenity"~"${amenityRegex}"];
-        node(around:${radiusMeters},${lat},${lng})["shop"~"${shopRegex}"];
-        node(around:${radiusMeters},${lat},${lng})["office"~"${officeRegex}"];
-        node(around:${radiusMeters},${lat},${lng})["leisure"~"${leisureRegex}"];
-        way(around:${radiusMeters},${lat},${lng})["amenity"~"${amenityRegex}"];
-        way(around:${radiusMeters},${lat},${lng})["shop"~"${shopRegex}"];
-        way(around:${radiusMeters},${lat},${lng})["office"~"${officeRegex}"];
+        node(around:${radiusMeters},${lat},${lng})["amenity"~"cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|pub|bar"];
+        node(around:${radiusMeters},${lat},${lng})["shop"];
+        node(around:${radiusMeters},${lat},${lng})["office"];
+        node(around:${radiusMeters},${lat},${lng})["leisure"="fitness_centre"];
+        way(around:${radiusMeters},${lat},${lng})["amenity"~"cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|pub|bar"];
+        way(around:${radiusMeters},${lat},${lng})["shop"];
       );
       out center 120;
     `.trim();
@@ -364,7 +358,7 @@ export async function fetchOverpassCompetitorPois(
     const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
 
     query = `
-      [out:json][timeout:4];
+      [out:json][timeout:10];
       (
         ${nodes}
         ${ways}
@@ -376,7 +370,7 @@ export async function fetchOverpassCompetitorPois(
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -391,7 +385,9 @@ export async function fetchOverpassCompetitorPois(
       clearTimeout(timeoutId);
 
       if (res.ok) {
-        const json = (await res.json()) as OverpassResponse;
+        const text = await res.text();
+        if (!text.trim().startsWith('{')) continue;
+        const json = JSON.parse(text) as OverpassResponse;
         const elements = json.elements ?? [];
         const pois: CompetitorPoi[] = [];
 
