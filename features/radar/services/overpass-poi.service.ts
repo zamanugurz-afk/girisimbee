@@ -16,25 +16,49 @@ interface OverpassResponse {
 }
 
 const OVERPASS_ENDPOINTS = [
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
+  'https://z.overpass-api.de/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
 ];
 
+const EXCLUDED_AMENITIES = new Set([
+  'school',
+  'place_of_worship',
+  'hospital',
+  'bank',
+  'fuel',
+  'atm',
+  'parking',
+  'university',
+  'college',
+  'police',
+  'fire_station',
+  'post_office',
+  'townhall',
+  'courthouse',
+  'grave_yard',
+  'shelter',
+  'toilets',
+  'bench',
+  'waste_basket',
+  'recycling',
+  'telephone',
+]);
+
 const CATEGORY_TAG_MAP: Record<string, string> = {
-  cafe: '["amenity"~"cafe|coffee_shop|restaurant|fast_food|tea"]',
-  pet_shop: '["shop"~"pet|pet_grooming|veterinary"]',
+  cafe: '["amenity"~"cafe|coffee_shop"]',
+  pet_shop: '["shop"~"pet|pet_grooming"]; node(around:RADIUS,LAT,LNG)["amenity"="veterinary"]; way(around:RADIUS,LAT,LNG)["amenity"="veterinary"]',
   butcher: '["shop"~"butcher|deli"]',
   bakery: '["shop"~"bakery|pastry|confectionery"]',
   market: '["shop"~"supermarket|convenience|grocery"]',
   hairdresser: '["shop"~"hairdresser|beauty|barber"]',
-  gym: '["leisure"~"fitness_centre|sports_centre|fitness_station"]',
+  gym: '["leisure"~"fitness_centre|sports_centre"]',
   pharmacy: '["amenity"="pharmacy"]',
   car_wash: '["amenity"="car_wash"]',
-  restaurant: '["amenity"="restaurant"]',
+  restaurant: '["amenity"~"restaurant|fast_food"]',
   boutique: '["shop"~"clothes|boutique|fashion"]',
   dry_cleaning: '["shop"~"dry_cleaning|laundry|tailor"]',
-  insurance_agency: '["office"~"insurance|financial"]',
+  insurance_agency: '["office"="insurance"]',
   travel_agency: '["shop"="travel_agency"]',
   real_estate: '["office"="estate_agent"]',
   auto_gallery: '["shop"~"car|car_repair|car_parts"]',
@@ -48,7 +72,7 @@ const CATEGORY_TAG_MAP: Record<string, string> = {
   furniture: '["shop"="furniture"]',
   electronics: '["shop"="electronics"]',
   borekci: '["shop"~"bakery|pastry"]',
-  dondurmaci: '["amenity"~"ice_cream|cafe"]',
+  dondurmaci: '["amenity"="ice_cream"]',
   lastikci: '["shop"~"tyres|car_repair"]',
   cigkofteci: '["amenity"~"fast_food|restaurant"]',
   tatlici: '["shop"~"confectionery|pastry|bakery"]',
@@ -61,186 +85,232 @@ const CATEGORY_TAG_MAP: Record<string, string> = {
   oto_elektrik: '["shop"~"car_repair|car_parts"]',
 };
 
-function matchesCategorySemantics(
-  name: string,
-  tags: Record<string, string> | undefined,
-  category: RadarCategoryKey,
-): boolean {
-  const lowerName = (name || '').toLowerCase();
-  const shop = (tags?.shop || '').toLowerCase();
-  const amenity = (tags?.amenity || '').toLowerCase();
-  const office = (tags?.office || '').toLowerCase();
-  const leisure = (tags?.leisure || '').toLowerCase();
-  const cuisine = (tags?.cuisine || '').toLowerCase();
-
-  if (category === 'pet_shop') {
-    return lowerName.includes('pet') || lowerName.includes('veteriner') || lowerName.includes('pati') || lowerName.includes('mama') || lowerName.includes('kedi') || lowerName.includes('köpek') || shop.includes('pet') || amenity.includes('veterinary');
-  }
-  if (category === 'market') {
-    return lowerName.includes('market') || lowerName.includes('bakkal') || lowerName.includes('gıda') || lowerName.includes('büfe') || lowerName.includes('tekal') || lowerName.includes('tekel') || lowerName.includes('şok') || lowerName.includes('a101') || lowerName.includes('bim') || lowerName.includes('migros') || lowerName.includes('carrefour') || shop.includes('supermarket') || shop.includes('convenience') || shop.includes('grocery');
-  }
-  if (category === 'bakery') {
-    return lowerName.includes('fırın') || lowerName.includes('firin') || lowerName.includes('pastane') || lowerName.includes('ekmek') || lowerName.includes('patisserie') || lowerName.includes('pasta') || lowerName.includes('unlu') || shop.includes('bakery') || shop.includes('pastry');
-  }
-  if (category === 'butcher') {
-    return lowerName.includes('kasap') || lowerName.includes('şarküteri') || lowerName.includes('sarkuteri') || lowerName.includes('et') || lowerName.includes('tavuk') || shop.includes('butcher') || shop.includes('deli');
-  }
-  if (category === 'hairdresser') {
-    return lowerName.includes('kuaför') || lowerName.includes('kuafor') || lowerName.includes('berber') || lowerName.includes('barber') || lowerName.includes('güzellik') || lowerName.includes('estetik') || lowerName.includes('nail') || lowerName.includes('hair') || shop.includes('hairdresser') || shop.includes('beauty');
-  }
-  if (category === 'pharmacy') {
-    return lowerName.includes('eczane') || lowerName.includes('pharmacy') || amenity.includes('pharmacy');
-  }
-  if (category === 'gym') {
-    return lowerName.includes('spor') || lowerName.includes('gym') || lowerName.includes('fitness') || lowerName.includes('pilates') || lowerName.includes('crossfit') || leisure.includes('fitness_centre') || leisure.includes('sports_centre');
-  }
-  if (category === 'car_wash') {
-    return lowerName.includes('yıkama') || lowerName.includes('yikama') || lowerName.includes('car wash') || lowerName.includes('detailing') || amenity.includes('car_wash');
-  }
-  if (category === 'boutique') {
-    return lowerName.includes('butik') || lowerName.includes('giyim') || lowerName.includes('moda') || lowerName.includes('boutique') || lowerName.includes('fashion') || shop.includes('clothes') || shop.includes('boutique');
-  }
-  if (category === 'dry_cleaning') {
-    return lowerName.includes('kuru temizleme') || lowerName.includes('dry clean') || lowerName.includes('laundry') || shop.includes('dry_cleaning') || shop.includes('laundry');
-  }
-  if (category === 'insurance_agency') {
-    return lowerName.includes('sigorta') || lowerName.includes('kasko') || lowerName.includes('acente') || lowerName.includes('allianz') || lowerName.includes('anadolu') || lowerName.includes('axa') || office.includes('insurance');
-  }
-  if (category === 'travel_agency') {
-    return lowerName.includes('tur') || lowerName.includes('turizm') || lowerName.includes('seyahat') || lowerName.includes('travel') || lowerName.includes('bilet') || shop.includes('travel_agency');
-  }
-  if (category === 'real_estate') {
-    return lowerName.includes('emlak') || lowerName.includes('gayrimenkul') || lowerName.includes('re/max') || lowerName.includes('turyap') || lowerName.includes('coldwell') || office.includes('estate_agent');
-  }
-  if (category === 'auto_gallery') {
-    return lowerName.includes('galeri') || lowerName.includes('oto galeri') || lowerName.includes('otomotiv') || lowerName.includes('motors') || shop.includes('car');
-  }
-  if (category === 'stationery') {
-    return lowerName.includes('kırtasiye') || lowerName.includes('kirtasiye') || lowerName.includes('kitap') || lowerName.includes('fotokopi') || shop.includes('stationery') || shop.includes('books');
-  }
-  if (category === 'florist') {
-    return lowerName.includes('çiçek') || lowerName.includes('cicek') || lowerName.includes('florist') || shop.includes('florist');
-  }
-  if (category === 'optician') {
-    return lowerName.includes('optik') || lowerName.includes('gözlük') || lowerName.includes('gozluk') || shop.includes('optician');
-  }
-  if (category === 'dental_clinic') {
-    return lowerName.includes('diş') || lowerName.includes('dis') || lowerName.includes('dent') || lowerName.includes('dental') || amenity.includes('dentist');
-  }
-  if (category === 'kindergarten') {
-    return lowerName.includes('kreş') || lowerName.includes('kres') || lowerName.includes('anaokulu') || amenity.includes('kindergarten');
-  }
-  if (category === 'law_firm') {
-    return lowerName.includes('avukat') || lowerName.includes('hukuk') || lowerName.includes('law') || office.includes('lawyer');
-  }
-  if (category === 'software_agency') {
-    return lowerName.includes('yazılım') || lowerName.includes('yazilim') || lowerName.includes('dijital') || lowerName.includes('ajans') || office.includes('it') || office.includes('company');
-  }
-  if (category === 'furniture') {
-    return lowerName.includes('mobilya') || lowerName.includes('koltuk') || lowerName.includes('dekorasyon') || shop.includes('furniture');
-  }
-  if (category === 'electronics') {
-    return lowerName.includes('elektronik') || lowerName.includes('telefon') || lowerName.includes('bilgisayar') || lowerName.includes('teknoloji') || shop.includes('electronics');
-  }
-  if (category === 'cigkofteci') {
-    return lowerName.includes('çiğ') || lowerName.includes('cig') || lowerName.includes('komagene') || lowerName.includes('battalbey') || lowerName.includes('oses') || lowerName.includes('tatlıses') || lowerName.includes('adıyaman');
-  }
-  if (category === 'borekci') {
-    return lowerName.includes('börek') || lowerName.includes('borek') || lowerName.includes('poğaça') || lowerName.includes('boyoz') || (shop.includes('bakery') && lowerName.includes('börek'));
-  }
-  if (category === 'dondurmaci') {
-    return lowerName.includes('dondurma') || lowerName.includes('gelato') || lowerName.includes('waffle') || lowerName.includes('mado') || cuisine.includes('ice_cream') || amenity.includes('ice_cream');
-  }
-  if (category === 'lastikci') {
-    return lowerName.includes('lastik') || lowerName.includes('rot') || lowerName.includes('balans') || lowerName.includes('jant') || lowerName.includes('lassa') || lowerName.includes('michelin') || lowerName.includes('bridgestone') || shop.includes('tyres');
-  }
-  if (category === 'donerci') {
-    return lowerName.includes('döner') || lowerName.includes('doner') || lowerName.includes('iskender') || lowerName.includes('kebap') || lowerName.includes('dürüm');
-  }
-  if (category === 'kokorecci') {
-    return lowerName.includes('kokoreç') || lowerName.includes('kokorec') || lowerName.includes('midye');
-  }
-  if (category === 'tatlici') {
-    return lowerName.includes('tatlı') || lowerName.includes('baklava') || lowerName.includes('künefe') || lowerName.includes('kadayıf') || lowerName.includes('güllüoğlu') || lowerName.includes('lokum') || shop.includes('confectionery');
-  }
-  if (category === 'cilingir') {
-    return lowerName.includes('çilingir') || lowerName.includes('anahtar') || lowerName.includes('kilit') || shop.includes('locksmith');
-  }
-  if (category === 'balikci') {
-    return lowerName.includes('balık') || lowerName.includes('balik') || lowerName.includes('hamsi') || shop.includes('seafood');
-  }
-  if (category === 'manav') {
-    return lowerName.includes('manav') || lowerName.includes('sebze') || lowerName.includes('meyve') || shop.includes('greengrocer');
-  }
-  if (category === 'terzi') {
-    return lowerName.includes('terzi') || lowerName.includes('dikim') || lowerName.includes('tadilat') || shop.includes('tailor');
-  }
-  if (category === 'oto_elektrik') {
-    return lowerName.includes('elektrik') || lowerName.includes('akü') || lowerName.includes('aku') || lowerName.includes('klima') || lowerName.includes('marş');
-  }
-  if (category === 'cafe') {
-    return lowerName.includes('kahve') || lowerName.includes('cafe') || lowerName.includes('coffee') || lowerName.includes('kafe') || lowerName.includes('espresso') || lowerName.includes('roaster') || lowerName.includes('çay') || lowerName.includes('roastery') || amenity.includes('cafe') || amenity.includes('coffee_shop');
-  }
-  if (category === 'restaurant') {
-    return lowerName.includes('restoran') || lowerName.includes('restaurant') || lowerName.includes('lokanta') || lowerName.includes('meyhane') || lowerName.includes('bistro') || lowerName.includes('burger') || lowerName.includes('pizza') || lowerName.includes('köfte') || amenity.includes('restaurant') || amenity.includes('fast_food');
-  }
-
-  return false;
+function hasWord(text: string | undefined, words: string[]): boolean {
+  if (!text) return false;
+  const lower = ' ' + text.toLowerCase().replace(/[^a-z0-9ğüşıöç]/g, ' ') + ' ';
+  return words.some((w) => lower.includes(' ' + w.toLowerCase() + ' '));
 }
 
-function inferCategoryForPoi(name: string, tags: Record<string, string> | undefined): { key: RadarCategoryKey; label: string } {
-  const priorityKeys: RadarCategoryKey[] = [
-    'pet_shop',
-    'pharmacy',
-    'butcher',
-    'bakery',
-    'hairdresser',
-    'gym',
-    'market',
-    'dental_clinic',
-    'car_wash',
-    'cigkofteci',
-    'borekci',
-    'dondurmaci',
-    'donerci',
-    'tatlici',
-    'kokorecci',
-    'insurance_agency',
-    'real_estate',
-    'travel_agency',
-    'boutique',
-    'stationery',
-    'florist',
-    'optician',
-    'kindergarten',
-    'law_firm',
-    'software_agency',
-    'furniture',
-    'electronics',
-    'lastikci',
-    'dry_cleaning',
-    'cilingir',
-    'balikci',
-    'manav',
-    'terzi',
-    'oto_elektrik',
-    'cafe',
-    'restaurant',
-  ];
-
-  for (const key of priorityKeys) {
-    if (matchesCategorySemantics(name, tags, key)) {
-      const meta = RADAR_CATEGORIES[key] ?? RADAR_CATEGORIES.cafe;
-      return { key, label: meta.label };
-    }
-  }
-
+export function classifyPoi(
+  name: string | undefined,
+  tags: Record<string, string> | undefined,
+): { key: RadarCategoryKey; label: string } {
+  const n = name || '';
   const amenity = (tags?.amenity || '').toLowerCase();
   const shop = (tags?.shop || '').toLowerCase();
+  const office = (tags?.office || '').toLowerCase();
+  const leisure = (tags?.leisure || '').toLowerCase();
+  const craft = (tags?.craft || '').toLowerCase();
 
-  if (amenity === 'cafe' || amenity === 'coffee_shop') return { key: 'cafe', label: 'Kafe & Kahve Dükkanı' };
-  if (amenity === 'restaurant' || amenity === 'fast_food') return { key: 'restaurant', label: 'Restoran & Lokanta' };
-  if (shop) return { key: 'market', label: 'Market & Mağaza' };
+  // 1. Petshop & Veteriner
+  if (
+    amenity === 'veterinary' ||
+    shop === 'pet' ||
+    shop === 'pet_grooming' ||
+    hasWord(n, ['veteriner', 'veterineri', 'petshop', 'pet', 'pati', 'mamacı', 'veterinerlik', 'vet'])
+  ) {
+    return { key: 'pet_shop', label: 'Petshop & Veteriner' };
+  }
+
+  // 2. Eczane
+  if (amenity === 'pharmacy' || hasWord(n, ['eczane', 'eczanesi', 'pharmacy'])) {
+    return { key: 'pharmacy', label: 'Eczane & Medikal' };
+  }
+
+  // 3. Fırın & Unlu Mamüller
+  if (
+    shop === 'bakery' ||
+    shop === 'pastry' ||
+    hasWord(n, ['fırın', 'fırını', 'firin', 'pastane', 'pastanesi', 'patisserie', 'unlu mamüller', 'unlu mamulleri', 'ekmek'])
+  ) {
+    return { key: 'bakery', label: 'Fırın & Unlu Mamüller' };
+  }
+
+  // 4. Kasap & Şarküteri
+  if (
+    shop === 'butcher' ||
+    shop === 'deli' ||
+    hasWord(n, ['kasap', 'kasabı', 'şarküteri', 'sarkuteri', 'et pazarı', 'et reyonu'])
+  ) {
+    return { key: 'butcher', label: 'Kasap & Şarküteri' };
+  }
+
+  // 5. Süpermarket & Bakkal
+  if (
+    shop === 'supermarket' ||
+    shop === 'convenience' ||
+    shop === 'grocery' ||
+    hasWord(n, ['market', 'marketi', 'bakkal', 'bakkalı', 'büfe', 'büfesi', 'gıda', 'şok', 'a101', 'bim', 'migros', 'carrefour', 'carrefoursa', 'tarım kredi', 'file', 'macrocenter', 'gross'])
+  ) {
+    return { key: 'market', label: 'Süpermarket & Bakkal' };
+  }
+
+  // 6. Kuaför & Berber & Güzellik
+  if (
+    shop === 'hairdresser' ||
+    shop === 'beauty' ||
+    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım'])
+  ) {
+    return { key: 'hairdresser', label: 'Kuaför & Güzellik' };
+  }
+
+  // 7. Oto Lastikçi
+  if (
+    shop === 'tyres' ||
+    hasWord(n, ['lastik', 'lastikçi', 'lastikcisi', 'rot balans', 'oto lastik', 'lassa', 'bridgestone', 'michelin', 'goodyear', 'continental', 'pirelli', 'petlas'])
+  ) {
+    return { key: 'lastikci', label: 'Oto Lastikçi & Rot Balans' };
+  }
+
+  // 8. Oto Yıkama & Detailing
+  if (
+    amenity === 'car_wash' ||
+    hasWord(n, ['oto yıkama', 'oto yikama', 'car wash', 'detailing', 'buharlı yıkama', 'oto kuaför'])
+  ) {
+    return { key: 'car_wash', label: 'Oto Yıkama & Detailing' };
+  }
+
+  // 9. Spor Salonu & Fitness
+  if (
+    leisure === 'fitness_centre' ||
+    leisure === 'sports_centre' ||
+    hasWord(n, ['gym', 'fitness', 'pilates', 'crossfit', 'spor salonu', 'macfit', 'fizyoterapi', 'yoga'])
+  ) {
+    return { key: 'gym', label: 'Spor Salonu & Fitness' };
+  }
+
+  // 10. Diş Kliniği
+  if (amenity === 'dentist' || hasWord(n, ['diş', 'diş kliniği', 'diş hekimi', 'dental', 'dentistanbul', 'dentgroup', 'dent'])) {
+    return { key: 'dental_clinic', label: 'Diş Kliniği & Hekimliği' };
+  }
+
+  // 11. Börekçi
+  if (hasWord(n, ['börek', 'böreği', 'börekçi', 'borek', 'borekci', 'kır pidesi', 'poğaça', 'boyoz'])) {
+    return { key: 'borekci', label: 'Börekçi & Poğaçacı' };
+  }
+
+  // 12. Çiğ Köfteci
+  if (hasWord(n, ['çiğ köfte', 'çiğköfte', 'cig kofte', 'cigkofte', 'komagene', 'battalbey', 'oses', 'tatlıses', 'adıyaman'])) {
+    return { key: 'cigkofteci', label: 'Çiğ Köfteci' };
+  }
+
+  // 13. Dondurmacı
+  if (amenity === 'ice_cream' || hasWord(n, ['dondurma', 'dondurmacı', 'dondurmacisi', 'gelato', 'waffle', 'mado'])) {
+    return { key: 'dondurmaci', label: 'Dondurmacı & Waffle' };
+  }
+
+  // 14. Dönerci & Kebapçı
+  if (hasWord(n, ['döner', 'dönerci', 'doner', 'donerci', 'kebap', 'kebapçı', 'iskender', 'dürüm', 'adana kebap', 'urfa kebap'])) {
+    return { key: 'donerci', label: 'Dönerci & Kebapçı' };
+  }
+
+  // 15. Tatlıcı & Baklavacı
+  if (hasWord(n, ['tatlı', 'tatlıcı', 'tatlicisi', 'baklava', 'baklavacı', 'künefe', 'kadayıf', 'güllüoğlu', 'lokum', 'hafız mustafa', 'helvacı'])) {
+    return { key: 'tatlici', label: 'Tatlıcı & Baklavacı' };
+  }
+
+  // 16. Kafe & Kahve
+  if (
+    amenity === 'cafe' ||
+    amenity === 'coffee_shop' ||
+    hasWord(n, ['kahve', 'kahvesi', 'cafe', 'coffee', 'kafe', 'espresso', 'roaster', 'roastery', 'starbucks', 'kahve dünyası', 'espresso lab', 'çay bahçesi', 'çay ocağı', 'hookah', 'nargile'])
+  ) {
+    return { key: 'cafe', label: 'Kafe & Kahve Dükkanı' };
+  }
+
+  // 17. Restoran & Lokanta
+  if (
+    amenity === 'restaurant' ||
+    amenity === 'fast_food' ||
+    hasWord(n, ['restoran', 'restaurant', 'lokanta', 'lokantası', 'meyhane', 'bistro', 'burger', 'pizza', 'köfte', 'çorba', 'çorbacı', 'pide', 'balıkçı', 'steakhouse'])
+  ) {
+    return { key: 'restaurant', label: 'Restoran & Lokanta' };
+  }
+
+  // 18. Sigorta Acentesi
+  if (
+    office === 'insurance' ||
+    hasWord(n, ['sigorta', 'sigortası', 'sigorta acentesi', 'kasko', 'allianz', 'anadolu sigorta', 'axa sigorta', 'aksigorta', 'sompo', 'hdi', 'neova', 'quick sigorta'])
+  ) {
+    return { key: 'insurance_agency', label: 'Sigorta Acentesi' };
+  }
+
+  // 19. Gayrimenkul & Emlak
+  if (
+    office === 'estate_agent' ||
+    hasWord(n, ['emlak', 'emlakçılık', 'gayrimenkul', 're/max', 'remax', 'coldwell', 'turyap', 'keller williams', 'cb'])
+  ) {
+    return { key: 'real_estate', label: 'Gayrimenkul Danışmanlığı' };
+  }
+
+  // 20. Butik & Giyim
+  if (
+    shop === 'clothes' ||
+    shop === 'boutique' ||
+    shop === 'fashion' ||
+    hasWord(n, ['butik', 'giyim', 'moda', 'tekstil', 'boutique', 'lingerie', 'ayakkabı', 'çanta', 'abiye'])
+  ) {
+    return { key: 'boutique', label: 'Butik & Giyim Mağazası' };
+  }
+
+  // 21. Kırtasiye
+  if (
+    shop === 'stationery' ||
+    shop === 'books' ||
+    hasWord(n, ['kırtasiye', 'kirtasiye', 'kitabevi', 'kitapçı', 'fotokopi', 'd&r', 'nezih', 'ozalit'])
+  ) {
+    return { key: 'stationery', label: 'Kırtasiye & Kitabevi' };
+  }
+
+  // 22. Çiçekçi
+  if (shop === 'florist' || hasWord(n, ['çiçek', 'çiçekçi', 'cicek', 'cicekci', 'florist', 'botanika', 'peyzaj'])) {
+    return { key: 'florist', label: 'Çiçekçi & Botanik' };
+  }
+
+  // 23. Optik
+  if (shop === 'optician' || hasWord(n, ['optik', 'gözlük', 'gozluk', 'optisyen', 'atasun', 'optikçi'])) {
+    return { key: 'optician', label: 'Optik & Gözlükçü' };
+  }
+
+  // 24. Manav
+  if (shop === 'greengrocer' || hasWord(n, ['manav', 'manavı', 'sebze', 'meyve', 'organik pazar', 'halk manavı'])) {
+    return { key: 'manav', label: 'Manav & Organik Pazar' };
+  }
+
+  // 25. Çilingir
+  if (shop === 'locksmith' || craft === 'locksmith' || hasWord(n, ['çilingir', 'cilingir', 'anahtarcı', 'anahtar', 'kilit'])) {
+    return { key: 'cilingir', label: 'Çilingir & Anahtarcı' };
+  }
+
+  // 26. Terzi
+  if (shop === 'tailor' || craft === 'tailor' || hasWord(n, ['terzi', 'terzisi', 'dikim', 'tadilat', 'kuru temizleme'])) {
+    return { key: 'terzi', label: 'Terzi & Kuru Temizleme' };
+  }
+
+  // 27. Mobilya
+  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek'])) {
+    return { key: 'furniture', label: 'Mobilya & Ev Dekorasyon' };
+  }
+
+  // 28. Elektronik
+  if (shop === 'electronics' || hasWord(n, ['elektronik', 'telefon', 'bilgisayar', 'teknoloji', 'gsm', 'tamir', 'turkcell', 'vodafone', 'türk telekom'])) {
+    return { key: 'electronics', label: 'Elektronik & GSM' };
+  }
+
+  // 29. Avukat & Hukuk
+  if (office === 'lawyer' || hasWord(n, ['avukat', 'hukuk', 'arabuluculuk', 'law'])) {
+    return { key: 'law_firm', label: 'Hukuk & Avukatlık Bürosu' };
+  }
+
+  // 30. Anaokulu
+  if (amenity === 'kindergarten' || hasWord(n, ['kreş', 'kres', 'anaokulu', 'gündüz bakımevi'])) {
+    return { key: 'kindergarten', label: 'Anaokulu & Kreş' };
+  }
+
+  // Fallbacks
+  if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
+  if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
+  if (office) return { key: 'software_agency', label: 'Ofis & Danışmanlık' };
 
   return { key: 'cafe', label: 'Ticari İşletme' };
 }
@@ -267,33 +337,48 @@ export async function fetchOverpassCompetitorPois(
   const categoryMeta = isAll
     ? { label: 'Tüm İşletmeler', idealDensityPerKm2: 45 }
     : (RADAR_CATEGORIES[category] ?? RADAR_CATEGORIES.cafe);
-  const tagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]';
 
-  const query = isAll
-    ? `
-    [out:json][timeout:4];
-    (
-      node(around:${radiusMeters},${lat},${lng})["amenity"];
-      node(around:${radiusMeters},${lat},${lng})["shop"];
-      node(around:${radiusMeters},${lat},${lng})["office"];
-      way(around:${radiusMeters},${lat},${lng})["amenity"];
-      way(around:${radiusMeters},${lat},${lng})["shop"];
-    );
-    out center 120;
-  `.trim()
-    : `
-    [out:json][timeout:3];
-    (
-      node(around:${radiusMeters},${lat},${lng})${tagFilter};
-      way(around:${radiusMeters},${lat},${lng})${tagFilter};
-    );
-    out center 80;
-  `.trim();
+  let query = '';
+  if (isAll) {
+    const amenityRegex = 'cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|bar|pub';
+    const shopRegex = 'supermarket|convenience|grocery|bakery|pastry|butcher|hairdresser|beauty|tyres|pet|clothes|boutique|stationery|florist|optician|furniture|electronics|locksmith|greengrocer|seafood|tailor|confectionery|car_repair';
+    const officeRegex = 'insurance|estate_agent|lawyer|company|it';
+    const leisureRegex = 'fitness_centre|sports_centre';
+
+    query = `
+      [out:json][timeout:5];
+      (
+        node(around:${radiusMeters},${lat},${lng})["amenity"~"${amenityRegex}"];
+        node(around:${radiusMeters},${lat},${lng})["shop"~"${shopRegex}"];
+        node(around:${radiusMeters},${lat},${lng})["office"~"${officeRegex}"];
+        node(around:${radiusMeters},${lat},${lng})["leisure"~"${leisureRegex}"];
+        way(around:${radiusMeters},${lat},${lng})["amenity"~"${amenityRegex}"];
+        way(around:${radiusMeters},${lat},${lng})["shop"~"${shopRegex}"];
+        way(around:${radiusMeters},${lat},${lng})["office"~"${officeRegex}"];
+      );
+      out center 120;
+    `.trim();
+  } else {
+    const rawTagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"~"cafe|restaurant"]';
+    const tagFilter = rawTagFilter
+      .replace(/RADIUS/g, String(radiusMeters))
+      .replace(/LAT/g, String(lat))
+      .replace(/LNG/g, String(lng));
+
+    query = `
+      [out:json][timeout:4];
+      (
+        node(around:${radiusMeters},${lat},${lng})${tagFilter};
+        way(around:${radiusMeters},${lat},${lng})${tagFilter};
+      );
+      out center 80;
+    `.trim();
+  }
 
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -313,43 +398,48 @@ export async function fetchOverpassCompetitorPois(
         const pois: CompetitorPoi[] = [];
 
         for (const el of elements) {
+          const tags = el.tags || {};
+          const amenity = (tags.amenity || '').toLowerCase();
+
+          // 1. Exclude public and non-commercial entities
+          if (EXCLUDED_AMENITIES.has(amenity)) continue;
+
+          // 2. Must have recognized commercial tag or named entity
+          const hasCommercialTag =
+            tags.shop ||
+            (tags.amenity && !EXCLUDED_AMENITIES.has(amenity)) ||
+            tags.office ||
+            tags.craft ||
+            (tags.leisure && tags.leisure.includes('fitness'));
+          if (!hasCommercialTag && !tags.name) continue;
+
           const elLat = el.lat ?? el.center?.lat;
           const elLng = el.lon ?? el.center?.lon;
-
           if (typeof elLat !== 'number' || typeof elLng !== 'number') continue;
 
           const dist = calculateDistanceMeters(lat, lng, elLat, elLng);
           if (dist > radiusMeters) continue;
 
-          const rawName =
-            el.tags?.name ||
-            el.tags?.brand ||
-            el.tags?.['name:tr'];
+          const rawName = tags.name || tags.brand || tags['name:tr'];
+          const classified = classifyPoi(rawName, tags);
 
-          let poiCategory = category;
-          let poiCategoryLabel = categoryMeta.label;
-
-          if (isAll) {
-            const inferred = inferCategoryForPoi(rawName || '', el.tags);
-            poiCategory = inferred.key;
-            poiCategoryLabel = inferred.label;
-          } else if (rawName && !matchesCategorySemantics(rawName, el.tags, category)) {
+          if (!isAll && classified.key !== category) {
             continue;
           }
 
-          const displayName = rawName || `${poiCategoryLabel} İşletmesi`;
+          const displayName = rawName || `${classified.label} İşletmesi`;
 
           pois.push({
             id: `osm-${el.type}-${el.id}`,
             name: displayName,
             lat: elLat,
             lng: elLng,
-            category: poiCategory,
-            categoryLabel: poiCategoryLabel,
-            address: el.tags?.['addr:street']
-              ? `${el.tags['addr:street']} ${el.tags['addr:housenumber'] ?? ''}`.trim()
+            category: classified.key,
+            categoryLabel: classified.label,
+            address: tags['addr:street']
+              ? `${tags['addr:street']} ${tags['addr:housenumber'] ?? ''}`.trim()
               : undefined,
-            brand: el.tags?.brand,
+            brand: tags.brand,
             distanceMeters: dist,
           });
         }
@@ -383,78 +473,16 @@ export async function fetchAreaSectorCounts(
     return cached.data;
   }
 
-  const query = `
-    [out:json][timeout:3];
-    (
-      node(around:${radiusMeters},${lat},${lng})["amenity"];
-      node(around:${radiusMeters},${lat},${lng})["shop"];
-      node(around:${radiusMeters},${lat},${lng})["office"];
-    );
-    out tags 120;
-  `.trim();
+  // Run 'all' query to obtain complete sector distribution
+  const allPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all');
+  const counts: Record<string, number> = {};
 
-  for (const endpoint of OVERPASS_ENDPOINTS) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'User-Agent': 'GirisimbeeRadar/1.0 (https://girisimbee.com)',
-        },
-        body: `data=${encodeURIComponent(query)}`,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        const json = (await res.json()) as OverpassResponse;
-        const elements = json.elements ?? [];
-        const counts: Record<string, number> = {};
-
-        for (const el of elements) {
-          const rawName = el.tags?.name || el.tags?.brand || el.tags?.['name:tr'] || '';
-          const amenity = (el.tags?.amenity || '').toLowerCase();
-          const shop = (el.tags?.shop || '').toLowerCase();
-          const office = (el.tags?.office || '').toLowerCase();
-          const leisure = (el.tags?.leisure || '').toLowerCase();
-
-          // Direct tag checks first
-          if (amenity === 'cafe' || amenity === 'coffee_shop') counts.cafe = (counts.cafe || 0) + 1;
-          else if (amenity === 'pharmacy') counts.pharmacy = (counts.pharmacy || 0) + 1;
-          else if (amenity === 'dentist') counts.dental_clinic = (counts.dental_clinic || 0) + 1;
-          else if (amenity === 'restaurant') counts.restaurant = (counts.restaurant || 0) + 1;
-          else if (amenity === 'car_wash') counts.car_wash = (counts.car_wash || 0) + 1;
-          else if (shop === 'supermarket' || shop === 'convenience' || shop === 'grocery') counts.market = (counts.market || 0) + 1;
-          else if (shop === 'bakery' || shop === 'pastry') counts.bakery = (counts.bakery || 0) + 1;
-          else if (shop === 'butcher') counts.butcher = (counts.butcher || 0) + 1;
-          else if (shop === 'hairdresser' || shop === 'barber' || shop === 'beauty') counts.hairdresser = (counts.hairdresser || 0) + 1;
-          else if (shop === 'pet' || amenity === 'veterinary') counts.pet_shop = (counts.pet_shop || 0) + 1;
-          else if (shop === 'clothes' || shop === 'boutique') counts.boutique = (counts.boutique || 0) + 1;
-          else if (leisure === 'fitness_centre' || leisure === 'sports_centre') counts.gym = (counts.gym || 0) + 1;
-          else if (office === 'insurance') counts.insurance_agency = (counts.insurance_agency || 0) + 1;
-          else if (office === 'estate_agent') counts.real_estate = (counts.real_estate || 0) + 1;
-          else if (office === 'lawyer') counts.law_firm = (counts.law_firm || 0) + 1;
-          else {
-            for (const [catKey] of Object.entries(RADAR_CATEGORIES)) {
-              if (matchesCategorySemantics(rawName, el.tags, catKey as RadarCategoryKey)) {
-                counts[catKey] = (counts[catKey] || 0) + 1;
-                break;
-              }
-            }
-          }
-        }
-
-        SECTOR_COUNTS_CACHE.set(cacheKey, { data: counts, ts: Date.now() });
-        return counts;
-      }
-    } catch {
-      continue;
+  for (const p of allPois) {
+    if (p.category && p.category !== 'all') {
+      counts[p.category] = (counts[p.category] || 0) + 1;
     }
   }
 
-  return {};
+  SECTOR_COUNTS_CACHE.set(cacheKey, { data: counts, ts: Date.now() });
+  return counts;
 }
