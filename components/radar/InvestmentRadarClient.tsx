@@ -611,6 +611,12 @@ export function InvestmentRadarClient() {
 
             {/* İnteraktif Harita Tuvali */}
             <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
+              {/* Visible Loading Bar on Map Canvas */}
+              {isLoading && (
+                <div className="absolute top-0 left-0 right-0 h-1.5 z-40 bg-amber-500/25 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 animate-pulse w-full shadow-[0_0_12px_rgba(245,158,11,1)]" />
+                </div>
+              )}
               <InvestmentRadarMap
                 centerLat={centerLat}
                 centerLng={centerLng}

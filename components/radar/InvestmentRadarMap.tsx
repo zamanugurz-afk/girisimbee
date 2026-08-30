@@ -33,6 +33,12 @@ export default function InvestmentRadarMap({
   const centerMarkerRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
 
+  const radiusMetersRef = useRef(radiusMeters);
+  radiusMetersRef.current = radiusMeters;
+
+  const onCircleChangedRef = useRef(onCircleChanged);
+  onCircleChangedRef.current = onCircleChanged;
+
   useEffect(() => {
     if (!containerRef.current || isInitializedRef.current) return;
 
@@ -89,21 +95,21 @@ export default function InvestmentRadarMap({
             const center = layer.getLatLng();
             const radius = layer.getRadius();
             map.removeLayer(layer);
-            onCircleChanged(center.lat, center.lng, Math.round(radius));
+            onCircleChangedRef.current(center.lat, center.lng, Math.round(radius));
           } else if (e.shape === 'Polygon') {
             const bounds = layer.getBounds();
             const center = bounds.getCenter();
             const northEast = bounds.getNorthEast();
             const approxRadius = Math.round(center.distanceTo(northEast));
             map.removeLayer(layer);
-            onCircleChanged(center.lat, center.lng, approxRadius);
+            onCircleChangedRef.current(center.lat, center.lng, approxRadius);
           }
         });
       }
 
       map.on('click', (e: any) => {
         const { lat, lng } = e.latlng;
-        onCircleChanged(lat, lng, radiusMeters);
+        onCircleChangedRef.current(lat, lng, radiusMetersRef.current);
       });
 
       competitorsLayerGroupRef.current = L.layerGroup().addTo(map);
@@ -151,6 +157,10 @@ export default function InvestmentRadarMap({
         dashArray: '4, 4',
       }).addTo(map);
 
+      circle.on('click', (e: any) => {
+        onCircleChangedRef.current(e.latlng.lat, e.latlng.lng, radiusMetersRef.current);
+      });
+
       circleLayerRef.current = circle;
 
       if (centerMarkerRef.current) {
@@ -161,9 +171,9 @@ export default function InvestmentRadarMap({
       const centerIcon = L.divIcon({
         className: 'custom-center-marker',
         html: `
-          <div class="relative flex items-center justify-center pointer-events-none">
-            <div class="h-3.5 w-3.5 rounded-full bg-slate-900 dark:bg-white border-2 border-amber-500 shadow-md flex items-center justify-center">
-              <div class="h-1 w-1 rounded-full bg-amber-500"></div>
+          <div class="relative flex items-center justify-center cursor-grab active:cursor-grabbing">
+            <div class="h-4 w-4 rounded-full bg-slate-950 dark:bg-white border-2 border-amber-500 shadow-md flex items-center justify-center">
+              <div class="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
             </div>
           </div>
         `,
@@ -171,10 +181,18 @@ export default function InvestmentRadarMap({
         iconAnchor: [8, 8],
       });
 
-      centerMarkerRef.current = L.marker([centerLat, centerLng], {
+      const centerMarker = L.marker([centerLat, centerLng], {
         icon: centerIcon,
+        draggable: true,
         zIndexOffset: 1000,
       }).addTo(map);
+
+      centerMarker.on('dragend', (e: any) => {
+        const pos = e.target.getLatLng();
+        onCircleChangedRef.current(pos.lat, pos.lng, radiusMetersRef.current);
+      });
+
+      centerMarkerRef.current = centerMarker;
     });
   }, [centerLat, centerLng, radiusMeters]);
 

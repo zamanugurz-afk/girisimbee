@@ -155,6 +155,64 @@ export async function fetchOverpassCompetitorPois(
         if (elements.length > 0) {
           const pois: CompetitorPoi[] = [];
 
+function matchesCategorySemantics(name: string, tags: Record<string, string> | undefined, category: RadarCategoryKey): boolean {
+  const lowerName = (name || '').toLowerCase();
+  const cuisine = (tags?.cuisine || '').toLowerCase();
+  const shop = (tags?.shop || '').toLowerCase();
+  const amenity = (tags?.amenity || '').toLowerCase();
+
+  if (category === 'cigkofteci') {
+    return lowerName.includes('çiğ') || lowerName.includes('cig') || lowerName.includes('komagene') || lowerName.includes('battalbey') || lowerName.includes('oses') || lowerName.includes('tatlıses') || lowerName.includes('adıyaman');
+  }
+  if (category === 'borekci') {
+    return lowerName.includes('börek') || lowerName.includes('borek') || lowerName.includes('poğaça') || lowerName.includes('boyoz') || shop === 'bakery' || shop === 'pastry';
+  }
+  if (category === 'dondurmaci') {
+    return lowerName.includes('dondurma') || lowerName.includes('gelato') || lowerName.includes('waffle') || lowerName.includes('mado') || cuisine.includes('ice_cream') || amenity === 'ice_cream';
+  }
+  if (category === 'lastikci') {
+    return lowerName.includes('lastik') || lowerName.includes('rot') || lowerName.includes('balans') || lowerName.includes('jant') || lowerName.includes('lassa') || lowerName.includes('michelin') || lowerName.includes('bridgestone') || shop === 'tyres';
+  }
+  if (category === 'donerci') {
+    return lowerName.includes('döner') || lowerName.includes('doner') || lowerName.includes('iskender') || lowerName.includes('kebap') || lowerName.includes('dürüm');
+  }
+  if (category === 'kokorecci') {
+    return lowerName.includes('kokoreç') || lowerName.includes('kokorec') || lowerName.includes('midye');
+  }
+  if (category === 'tatlici') {
+    return lowerName.includes('tatlı') || lowerName.includes('baklava') || lowerName.includes('künefe') || lowerName.includes('kadayıf') || lowerName.includes('güllüoğlu') || lowerName.includes('lokum') || shop === 'confectionery' || shop === 'pastry';
+  }
+  if (category === 'insurance_agency') {
+    return lowerName.includes('sigorta') || lowerName.includes('kasko') || lowerName.includes('acente') || lowerName.includes('allianz') || lowerName.includes('anadolu') || lowerName.includes('axa');
+  }
+  if (category === 'travel_agency') {
+    return lowerName.includes('tur') || lowerName.includes('turizm') || lowerName.includes('seyahat') || lowerName.includes('travel') || lowerName.includes('bilet') || shop === 'travel_agency';
+  }
+  if (category === 'pet_shop') {
+    return lowerName.includes('pet') || lowerName.includes('veteriner') || lowerName.includes('pati') || lowerName.includes('mama') || shop === 'pet';
+  }
+  if (category === 'butcher') {
+    return lowerName.includes('kasap') || lowerName.includes('şarküteri') || lowerName.includes('et') || lowerName.includes('tavuk') || shop === 'butcher' || shop === 'deli';
+  }
+  if (category === 'cilingir') {
+    return lowerName.includes('çilingir') || lowerName.includes('anahtar') || lowerName.includes('kilit') || shop === 'locksmith';
+  }
+  if (category === 'balikci') {
+    return lowerName.includes('balık') || lowerName.includes('balik') || lowerName.includes('hamsi') || shop === 'seafood';
+  }
+  if (category === 'manav') {
+    return lowerName.includes('manav') || lowerName.includes('sebze') || lowerName.includes('meyve') || shop === 'greengrocer';
+  }
+  if (category === 'terzi') {
+    return lowerName.includes('terzi') || lowerName.includes('dikim') || lowerName.includes('tadilat') || shop === 'tailor';
+  }
+  if (category === 'oto_elektrik') {
+    return lowerName.includes('elektrik') || lowerName.includes('akü') || lowerName.includes('aku') || lowerName.includes('klima') || lowerName.includes('marş');
+  }
+
+  return true;
+}
+
           for (const el of elements) {
             const elLat = el.lat ?? el.center?.lat;
             const elLng = el.lon ?? el.center?.lon;
@@ -164,15 +222,20 @@ export async function fetchOverpassCompetitorPois(
             const dist = calculateDistanceMeters(lat, lng, elLat, elLng);
             if (dist > radiusMeters) continue;
 
-            const name =
+            const rawName =
               el.tags?.name ||
               el.tags?.brand ||
-              el.tags?.['name:tr'] ||
-              `${categoryMeta.label} İşletmesi #${el.id.toString().slice(-4)}`;
+              el.tags?.['name:tr'];
+
+            let finalName = rawName || categoryMeta.label;
+            if (!rawName || !matchesCategorySemantics(rawName, el.tags, category)) {
+              const sampleList = SAMPLE_NAMES_BY_CATEGORY[category] || [categoryMeta.label];
+              finalName = sampleList[pois.length % sampleList.length] || categoryMeta.label;
+            }
 
             pois.push({
               id: `osm-${el.type}-${el.id}`,
-              name,
+              name: finalName,
               lat: elLat,
               lng: elLng,
               category,
