@@ -863,19 +863,23 @@ export function InvestmentRadarClient() {
                     
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                        <span className="text-[10px] text-muted-foreground block">Çember İçi Nüfus</span>
+                        <span className="text-[10px] text-muted-foreground block font-medium">Çember İçi Yerleşik Nüfus</span>
                         <strong className="text-slate-900 dark:text-white font-bold text-sm">{demographicStats.population}</strong>
                       </div>
                       <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                        <span className="text-[10px] text-muted-foreground block">Gelir Seviyesi</span>
+                        <span className="text-[10px] text-muted-foreground block font-medium">Gelir Seviyesi (SES)</span>
                         <strong className="text-slate-900 dark:text-white font-bold">{demographicStats.sesGroup}</strong>
                       </div>
                       <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                        <span className="text-[10px] text-muted-foreground">Resmi Mahalle / Gündüz:</span>
-                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop || demographicStats.daytimeTraffic}</strong>
+                        <span className="text-[10px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.daytimeTraffic}</strong>
                       </div>
                       <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                        <span className="text-[10px] text-muted-foreground">Kitle Profili:</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop}</strong>
+                      </div>
+                      <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground font-medium">Kitle Profili:</span>
                         <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.ageProfile}</strong>
                       </div>
                     </div>
