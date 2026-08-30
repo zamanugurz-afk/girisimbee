@@ -21,8 +21,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Lightbulb,
-  DollarSign,
-  Target
+  DollarSign
 } from 'lucide-react';
 import type {
   RadarCategoryKey,
@@ -34,7 +33,6 @@ import {
   RADAR_DEFAULT_RADIUS_METERS,
 } from '@/features/radar/config/radar.config';
 import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
-import { MarketGapsPanel } from '@/components/radar/MarketGapsPanel';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -114,8 +112,8 @@ export function InvestmentRadarClient() {
   // Category search states
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
-  // Report tab view (Overview vs Market Gaps)
-  const [activeTab, setActiveTab] = useState<'overview' | 'gaps'>('overview');
+  // Report tab view (Overview vs Detailed Strategy)
+  const [activeTab, setActiveTab] = useState<'overview' | 'strategy'>('overview');
 
   const [radarData, setRadarData] = useState<RadarSpatialResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -839,7 +837,7 @@ export function InvestmentRadarClient() {
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
             <div className="space-y-4">
               
-              {/* Tab Switcher (Genel Bakış vs Pazar Açığı ve Fırsatlar) */}
+              {/* Tab Switcher (Özet vs Strateji Raporu) */}
               <div className="flex rounded-xl bg-slate-100 dark:bg-zinc-800/80 p-1 border border-slate-200/60 dark:border-zinc-700/60">
                 <button
                   type="button"
@@ -855,16 +853,15 @@ export function InvestmentRadarClient() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('gaps')}
+                  onClick={() => setActiveTab('strategy')}
                   className={cn(
-                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5',
-                    activeTab === 'gaps'
+                    'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
+                    activeTab === 'strategy'
                       ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
                       : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <Target className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Pazar Açığı ve Fırsatlar</span>
+                  AI Strateji Raporu
                 </button>
               </div>
 
@@ -1010,11 +1007,56 @@ export function InvestmentRadarClient() {
                   </div>
                 </>
               ) : (
-                /* PAZAR AÇIĞI VE EKSİK KONSEPTLER SEKME GÖRÜNÜMÜ */
-                <MarketGapsPanel
-                  radarData={radarData}
-                  demographicStats={demographicStats}
-                />
+                /* AI STRATEJİ RAPORU SEKME GÖRÜNÜMÜ */
+                <div className="space-y-2.5 text-xs">
+                  {radarData?.intelligence ? (
+                    <>
+                      <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-500/30">
+                        <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider block mb-1">
+                          📌 Stratejik Değerlendirme
+                        </span>
+                        <p className="text-slate-800 dark:text-zinc-200 text-xs leading-relaxed font-medium">
+                          {radarData.intelligence.summaryAdvice}
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" /> Avantajlar
+                        </span>
+                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-[11px]">
+                          {radarData.intelligence.pros.map((p: string, idx: number) => (
+                            <li key={idx}>{p}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
+                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" /> Dikkat Edilecekler
+                        </span>
+                        <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-zinc-300 text-[11px]">
+                          {radarData.intelligence.cons.map((c: string, idx: number) => (
+                            <li key={idx}>{c}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-1">
+                        <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Farklılaşma Önerisi
+                        </span>
+                        <p className="text-slate-700 dark:text-zinc-300 text-[11px]">
+                          {radarData.intelligence.differentiationIdea}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground text-xs">
+                      Strateji raporu hesaplanıyor...
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
