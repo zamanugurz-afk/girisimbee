@@ -20,7 +20,8 @@ import {
   Users2,
   Navigation,
   Loader2,
-  X
+  X,
+  Target
 } from 'lucide-react';
 import type {
   QuickLocationPreset,
@@ -825,42 +826,67 @@ export function HomeInvestmentRadarSection() {
               </div>
 
               {/* 2. DEMOGRAFİK YAPI VE NÜFUS ÖZETİ */}
-              <div className="p-4 sm:p-4.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
+              <div className="p-4 sm:p-4.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-3">
                 <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-primary shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                      <Users className="w-3.5 h-3.5" />
+                    </div>
                     <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">
                       Bölgesel Demografi
                     </span>
                   </div>
                   {demographicStats.officialNeighborhoodPop && (
-                    <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/25 whitespace-nowrap shrink-0">
                       TÜİK Verisi
                     </span>
                   )}
                 </div>
                 
+                {/* 4'lü Temiz Metrik Izgarası */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Yerleşik Nüfus</span>
-                    <strong className="text-slate-900 dark:text-white font-bold text-xs sm:text-sm">{demographicStats.population}</strong>
+                  {/* 1. Yerleşik Nüfus */}
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800/80">
+                    <span className="text-[10px] text-muted-foreground font-medium block">Yerleşik Nüfus</span>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-extrabold block mt-0.5">
+                      {demographicStats.population} Kişi
+                    </strong>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                    <span className="text-[10px] text-muted-foreground block font-medium">Gelir Seviyesi (SES)</span>
-                    <strong className="text-slate-900 dark:text-white font-bold text-xs sm:text-sm block">{demographicStats.sesGroup}</strong>
+
+                  {/* 2. Gelir Seviyesi */}
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800/80">
+                    <span className="text-[10px] text-muted-foreground font-medium block">Gelir Seviyesi (SES)</span>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-extrabold block mt-0.5">
+                      {demographicStats.sesGroup}
+                    </strong>
                   </div>
-                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">{demographicStats.daytimeTraffic}</strong>
+
+                  {/* 3. Gündüz Trafiği */}
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800/80">
+                    <span className="text-[10px] text-muted-foreground font-medium block">Gündüz Sirkülasyonu</span>
+                    <strong className="text-slate-900 dark:text-white text-xs font-bold block mt-0.5">
+                      {demographicStats.daytimeTraffic}
+                    </strong>
                   </div>
-                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">{demographicStats.officialNeighborhoodPop}</strong>
+
+                  {/* 4. Resmi Mahalle */}
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800/80">
+                    <span className="text-[10px] text-muted-foreground font-medium block">Resmi Mahalle Nüfusu</span>
+                    <strong className="text-slate-900 dark:text-white text-xs font-bold block mt-0.5">
+                      {demographicStats.officialNeighborhoodPop}
+                    </strong>
                   </div>
-                  <div className="col-span-2 p-2 px-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between gap-2">
-                    <span className="text-[11px] text-muted-foreground font-medium shrink-0">Kitle Profili:</span>
-                    <strong className="text-slate-900 dark:text-white font-semibold text-xs text-right">{demographicStats.ageProfile}</strong>
+                </div>
+
+                {/* Kitle Profili Vurgu Çubuğu */}
+                <div className="p-2.5 px-3 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 shrink-0 text-amber-900 dark:text-amber-300 text-xs font-bold">
+                    <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>Kitle Profili:</span>
                   </div>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white text-right">
+                    {demographicStats.ageProfile}
+                  </span>
                 </div>
               </div>
             </div>
