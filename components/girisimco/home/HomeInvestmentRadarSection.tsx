@@ -121,21 +121,25 @@ export function HomeInvestmentRadarSection() {
   const [isReportBtnPulsing, setIsReportBtnPulsing] = useState(false);
 
   const isInitialMount = useRef(true);
+  const hasTriggeredFirstPulse = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const locationSearchDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const locationDropdownRef = useRef<HTMLDivElement>(null);
 
-  // 10 saniye boyunca butonu yanıp söndürme efekti (harita veya sol menü seçimi değiştiğinde)
+  // Sadece İLK seçimde (harita veya sol menüden ilk kez işlem yapıldığında) 10 saniye yanıp sönme efekti
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    setIsReportBtnPulsing(true);
-    const timer = setTimeout(() => {
-      setIsReportBtnPulsing(false);
-    }, 10000);
-    return () => clearTimeout(timer);
+    if (!hasTriggeredFirstPulse.current) {
+      hasTriggeredFirstPulse.current = true;
+      setIsReportBtnPulsing(true);
+      const timer = setTimeout(() => {
+        setIsReportBtnPulsing(false);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
   }, [selectedCategory, centerLat, centerLng, radiusMeters]);
 
   // Click outside and Escape key listener to close location dropdown
