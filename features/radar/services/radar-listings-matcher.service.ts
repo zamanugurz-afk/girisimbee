@@ -89,52 +89,10 @@ export async function findListingsInRadius(
       }
     }
 
-    if (matches.length > 0) {
-      return matches.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    }
+    return matches.sort((a, b) => a.distanceMeters - b.distanceMeters);
   } catch (err) {
     console.error('[radar-listings-matcher] Database query failed:', err);
   }
 
-  return generateDemoCircleListings(centerLat, centerLng, radiusMeters);
-}
-
-function generateDemoCircleListings(
-  centerLat: number,
-  centerLng: number,
-  radiusMeters: number,
-): RadarListingMatch[] {
-  const count = Math.min(3, Math.max(1, Math.round((radiusMeters / 500) * 1.5)));
-  const demoTitles = [
-    'Devren İşletme: İşlek Lokasyonda Hazır Müşterili Butik Mekân',
-    'Yatırım & Büyüme: Şubeleşme Arayışında Olan Franchise Fırsatı',
-    'Kurucu Ortak: Dijital ve Operasyonel Büyüme İçin Sermaye & Yönetim Ortağı',
-  ];
-
-  const results: RadarListingMatch[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const angle = i * 2.1 + 0.5;
-    const dist = Math.round(radiusMeters * (0.25 + i * 0.28));
-    const latDelta = (dist * Math.cos(angle)) / 111320;
-    const lngDelta =
-      (dist * Math.sin(angle)) /
-      (111320 * Math.cos((centerLat * Math.PI) / 180));
-
-    results.push({
-      id: `radar-demo-listing-${i + 1}`,
-      title: demoTitles[i % demoTitles.length],
-      price: i === 0 ? '750.000 TL' : i === 1 ? '1.200.000 TL' : '%25 Hisse',
-      listingType: i === 0 ? 'İşletme Devri' : i === 1 ? 'Franchise' : 'Ortaklık',
-      categoryLabel: i === 0 ? 'Devren Dükkan' : i === 1 ? 'Bayilik' : 'Stratejik Ortak',
-      lat: parseFloat((centerLat + latDelta).toFixed(6)),
-      lng: parseFloat((centerLng + lngDelta).toFixed(6)),
-      distanceMeters: dist,
-      href: '/kesfet',
-      tag: i === 0 ? 'Süper İlan' : 'Doğrulanmış',
-      isSuper: i === 0,
-    });
-  }
-
-  return results.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  return [];
 }
