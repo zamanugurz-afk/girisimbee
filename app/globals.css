@@ -525,3 +525,20 @@
   animation: gc-super-vitrin-border-pulse 1.3s ease-in-out infinite;
 }
 
+@keyframes gc-radar-progress-stream {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(30%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.animate-radar-progress {
+  animation: gc-radar-progress-stream 1.6s ease-in-out infinite;
+}
+
+

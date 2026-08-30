@@ -93,6 +93,8 @@ const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'koc-izmit-yahyakaptan', name: 'Kocaeli, İzmit — Yahya Kaptan', lat: 40.7654, lng: 29.9682, city: 'Kocaeli', district: 'İzmit' },
 ];
 
+const CLIENT_RADAR_CACHE = new Map<string, RadarSpatialResponse>();
+
 export function InvestmentRadarClient() {
   const [selectedCategory, setSelectedCategory] = useState<RadarCategoryKey>('all');
   const [centerLat, setCenterLat] = useState<number>(RADAR_DEFAULT_CENTER.lat);
@@ -223,6 +225,17 @@ export function InvestmentRadarClient() {
   // Fetch Spatial Data
   const fetchSpatialData = useCallback(
     async (lat: number, lng: number, radius: number, category: RadarCategoryKey, locName?: string) => {
+      const roundedLat = Math.round(lat * 1000) / 1000;
+      const roundedLng = Math.round(lng * 1000) / 1000;
+      const cacheKey = `${roundedLat}-${roundedLng}-${radius}-${category}`;
+
+      const cached = CLIENT_RADAR_CACHE.get(cacheKey);
+      if (cached) {
+        setRadarData(cached);
+        setIsLoading(false);
+        return;
+      }
+
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -252,6 +265,7 @@ export function InvestmentRadarClient() {
 
         const json = await res.json();
         if (json.ok && json.data) {
+          CLIENT_RADAR_CACHE.set(cacheKey, json.data);
           setRadarData(json.data);
         } else {
           throw new Error(json.error || 'Veri alınamadı');
@@ -681,12 +695,23 @@ export function InvestmentRadarClient() {
 
             {/* İnteraktif Harita Tuvali */}
             <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
-              {/* Visible Loading Bar on Map Canvas */}
+              {/* Visible Loading Bar on Top of Map Canvas */}
               {isLoading && (
                 <div className="absolute top-0 left-0 right-0 h-1.5 z-40 bg-amber-500/25 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 animate-pulse w-full shadow-[0_0_12px_rgba(245,158,11,1)]" />
+                  <div className="h-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 w-full animate-radar-progress shadow-[0_0_12px_rgba(245,158,11,1)]" />
                 </div>
               )}
+
+              {/* On-Map Scanning Pill */}
+              {isLoading && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all">
+                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-amber-500/50 shadow-lg text-xs font-bold text-slate-800 dark:text-zinc-100 animate-pulse">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
+                    <span>Harita taranıyor...</span>
+                  </div>
+                </div>
+              )}
+
               <InvestmentRadarMap
                 centerLat={centerLat}
                 centerLng={centerLng}
@@ -696,6 +721,43 @@ export function InvestmentRadarClient() {
                 listings={radarData?.listingsInRadius || []}
                 onCircleChanged={handleCircleChanged}
               />
+            </div>
+
+            {/* HARİTANIN HEMEN ALTINDAKİ YÜKLEME VE DURUM ÇUBUĞU */}
+            <div className="w-full">
+              {isLoading ? (
+                <div className="w-full rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/35 p-3 space-y-2 shadow-xs transition-all animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between text-xs font-semibold text-amber-900 dark:text-amber-300">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-500 shrink-0" />
+                      <span>Bölge taranıyor... İşletmeler ve demografik veriler yükleniyor</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-950 dark:text-amber-200 shrink-0">
+                      Canlı Analiz
+                    </span>
+                  </div>
+                  {/* İlerleyen Yükleme Çubuğu */}
+                  <div className="relative w-full h-2 rounded-full bg-amber-200/60 dark:bg-amber-950/60 overflow-hidden">
+                    <div className="h-full w-2/3 bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 rounded-full animate-radar-progress shadow-[0_0_12px_rgba(245,158,11,0.8)]" />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-amber-800/90 dark:text-amber-400/90">
+                    <span>📍 Seçtiğiniz çaptaki ticari harita taranıyor. Lütfen bekleyiniz...</span>
+                    <span className="text-[10px] font-mono opacity-80">OSM Overpass Canlı Senkron</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-800/80 px-3.5 py-2 flex items-center justify-between text-xs text-muted-foreground transition-all">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                    <span className="font-medium text-slate-700 dark:text-zinc-300 truncate">
+                      Analiz Tamamlandı: <strong className="text-slate-900 dark:text-white font-bold">{radarData?.competitors.length || 0} işletme</strong> ve <strong className="text-slate-900 dark:text-white font-bold">{radarData?.listingsInRadius.length || 0} aktif ilan</strong> listelendi.
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shrink-0 ml-2">
+                    Güncel
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Harita Alt Lejantı (Pin Açıklamaları) */}
