@@ -46,7 +46,7 @@ const EXCLUDED_AMENITIES = new Set([
 ]);
 
 const CATEGORY_TAG_MAP: Record<string, string[]> = {
-  cafe: ['["amenity"~"cafe|coffee_shop"]'],
+  cafe: ['["amenity"~"cafe|coffee_shop|ice_cream|bistro"]', '["shop"~"coffee|tea"]'],
   pet_shop: ['["shop"~"pet|pet_grooming"]', '["amenity"="veterinary"]'],
   butcher: ['["shop"~"butcher|deli"]'],
   bakery: ['["shop"~"bakery|pastry|confectionery"]'],
@@ -55,7 +55,7 @@ const CATEGORY_TAG_MAP: Record<string, string[]> = {
   gym: ['["leisure"~"fitness_centre|sports_centre"]'],
   pharmacy: ['["amenity"="pharmacy"]'],
   car_wash: ['["amenity"="car_wash"]'],
-  restaurant: ['["amenity"~"restaurant|fast_food"]'],
+  restaurant: ['["amenity"~"restaurant|fast_food|food_court|bistro"]'],
   boutique: ['["shop"~"clothes|boutique|fashion"]'],
   dry_cleaning: ['["shop"~"dry_cleaning|laundry|tailor"]'],
   insurance_agency: ['["office"="insurance"]'],
