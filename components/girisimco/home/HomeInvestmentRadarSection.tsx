@@ -762,39 +762,39 @@ export function HomeInvestmentRadarSection() {
           {/* ========================================================================= */}
           {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
-            <div className="flex-1 flex flex-col justify-between space-y-3.5">
+          <div className="lg:col-span-3 flex flex-col justify-between space-y-3 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
+            <div className="space-y-3">
               
               {/* 1. YAPAY ZEKA YATIRIM PUANI */}
-              <div className="p-4 sm:p-4.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-3">
-                <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
-                      AI Yatırım Puanı
-                    </span>
-                  </div>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
-                    {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                    AI Yatırım Puanı
                   </span>
                 </div>
 
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-                    {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                      {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 shrink-0 text-center">
+                    {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
                   </span>
-                  <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                 </div>
                 
                 {/* Pazar Doygunluk Çubuğu */}
-                <div className="space-y-1.5 pt-2 border-t border-amber-500/20">
+                <div className="space-y-1 pt-1.5 border-t border-amber-500/20">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
                     <span className="font-bold text-slate-900 dark:text-white">
                       %{radarData?.metrics.saturationScore ?? 28}
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
@@ -814,16 +814,16 @@ export function HomeInvestmentRadarSection() {
               </div>
 
               {/* 2. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
-              <div className="p-4 sm:p-4.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-3">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
                 <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <Users className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 whitespace-nowrap">
+                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
                       Bölgesel Demografi
                     </span>
                   </div>
                   {demographicStats.officialNeighborhoodPop && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 whitespace-nowrap shrink-0">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 shrink-0">
                       TÜİK Verisi
                     </span>
                   )}
@@ -831,13 +831,13 @@ export function HomeInvestmentRadarSection() {
                 
                 {/* 2 Temel Metrik: Hedef Kitle & Mevcut Rakipler */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
                     <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle (Çember)</span>
                     <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
                       {demographicStats.population} Kişi
                     </strong>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
                     <span className="text-[10px] text-muted-foreground block font-medium">Mevcut Rakipler</span>
                     <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
                       {radarData?.competitors.length || 0} İşletme
@@ -846,29 +846,29 @@ export function HomeInvestmentRadarSection() {
                 </div>
 
                 {/* Demografik Göstergeler Listesi */}
-                <div className="space-y-1.5 pt-1.5 border-t border-slate-100 dark:border-zinc-800 text-xs">
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-800/60">
+                <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-zinc-800 text-xs">
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
                     <span className="text-[11px] text-muted-foreground font-medium">Gelir Seviyesi (SES):</span>
-                    <span className="font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-900 dark:text-amber-300 text-xs">
+                    <span className="font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-900 dark:text-amber-300 text-[11px]">
                       {demographicStats.sesGroup}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-800/60">
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
                     <span className="text-[11px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
                     <strong className="text-slate-900 dark:text-white font-semibold text-xs">
                       {demographicStats.daytimeTraffic}
                     </strong>
                   </div>
 
-                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-800/60">
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
                     <span className="text-[11px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
                     <strong className="text-slate-900 dark:text-white font-semibold text-xs">
                       {demographicStats.officialNeighborhoodPop}
                     </strong>
                   </div>
 
-                  <div className="flex items-start justify-between py-1 gap-2">
+                  <div className="flex items-start justify-between py-0.5 gap-2">
                     <span className="text-[11px] text-muted-foreground font-medium shrink-0 pt-0.5">Kitle Profili:</span>
                     <strong className="text-slate-900 dark:text-white font-semibold text-xs text-right leading-snug">
                       {demographicStats.ageProfile}
@@ -879,10 +879,10 @@ export function HomeInvestmentRadarSection() {
             </div>
 
             {/* Rapor İncele Butonu */}
-            <div className="pt-1">
+            <div className="pt-2">
               <Link
                 href={`/radar?lat=${centerLat}&lng=${centerLng}&category=${selectedCategory}`}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md"
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md"
               >
                 <span>Detaylı İstihbarat Raporunu Aç</span>
                 <ArrowRight className="w-4 h-4" />
