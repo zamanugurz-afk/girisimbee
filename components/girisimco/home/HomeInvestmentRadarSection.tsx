@@ -323,19 +323,31 @@ export function HomeInvestmentRadarSection() {
     }
   };
 
-  // Top 8 Primary Categories vs Searched Categories
+  const [onlyAvailableInCircle, setOnlyAvailableInCircle] = useState(true);
+
+  // Dynamic Categories: Available in Circle vs All vs Searched
   const displayedCategories = useMemo(() => {
     const allCategories = Object.values(RADAR_CATEGORIES);
-    if (!categorySearchQuery.trim()) {
-      // Default: Top 8 most prominent Turkish sectors
-      return allCategories.filter((c) => c.isPopularTop8);
+    if (categorySearchQuery.trim()) {
+      const q = categorySearchQuery.toLowerCase().trim();
+      return allCategories.filter((c) =>
+        c.label.toLowerCase().includes(q) ||
+        c.searchKeywords?.some((k) => k.toLowerCase().includes(q))
+      );
     }
-    const q = categorySearchQuery.toLowerCase().trim();
-    return allCategories.filter((c) =>
-      c.label.toLowerCase().includes(q) ||
-      c.searchKeywords?.some((k) => k.toLowerCase().includes(q))
-    );
-  }, [categorySearchQuery]);
+
+    if (onlyAvailableInCircle && radarData?.availableSectors) {
+      const available = allCategories.filter(
+        (c) => (radarData.availableSectors?.[c.key] ?? 0) > 0 || c.key === selectedCategory
+      );
+      if (available.length > 0) {
+        return available.sort((a, b) => (radarData.availableSectors?.[b.key] ?? 0) - (radarData.availableSectors?.[a.key] ?? 0));
+      }
+    }
+
+    // Default: Top 8 most prominent Turkish sectors
+    return allCategories.filter((c) => c.isPopularTop8);
+  }, [categorySearchQuery, onlyAvailableInCircle, radarData?.availableSectors, selectedCategory]);
 
   const activeCategoryMeta = RADAR_CATEGORIES[selectedCategory] || RADAR_CATEGORIES.cafe;
 
@@ -495,10 +507,39 @@ export function HomeInvestmentRadarSection() {
               </div>
 
               {/* Hedef İş Kolu & Sektör Arama */}
-              <div className="mb-2.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
-                  Hedef İş Kolu / Sektör
-                </label>
+              {/* Hedef İş Kolu & Sektör Arama */}
+              <div className="mb-2.5 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Hedef İş Kolu / Sektör
+                  </label>
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800/80 p-0.5 rounded-lg text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setOnlyAvailableInCircle(true)}
+                      className={cn(
+                        'px-2 py-0.5 rounded-md transition-all',
+                        onlyAvailableInCircle
+                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs font-bold'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Bölgede Olanlar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOnlyAvailableInCircle(false)}
+                      className={cn(
+                        'px-2 py-0.5 rounded-md transition-all',
+                        !onlyAvailableInCircle
+                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs font-bold'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Tümü
+                    </button>
+                  </div>
+                </div>
                 
                 <div className="relative w-full">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -525,6 +566,7 @@ export function HomeInvestmentRadarSection() {
               <div className="max-h-[300px] sm:max-h-[340px] lg:max-h-[380px] overflow-y-auto space-y-1.5 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-zinc-800">
                 {displayedCategories.map((cat) => {
                   const isSelected = selectedCategory === cat.key;
+                  const sectorCount = radarData?.availableSectors?.[cat.key] ?? (isSelected ? (radarData?.competitors.length ?? 0) : 0);
                   return (
                     <button
                       key={cat.key}
@@ -537,20 +579,31 @@ export function HomeInvestmentRadarSection() {
                           : 'bg-white/60 dark:bg-zinc-900/40 border-slate-200/60 dark:border-zinc-800/60 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/40 font-medium',
                       )}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
                         <span className="text-base shrink-0">{cat.emoji}</span>
                         <span className="text-xs truncate">{cat.label}</span>
                       </div>
-                      {isSelected && (
-                        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                      )}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {sectorCount > 0 ? (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+                            {sectorCount}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-muted-foreground bg-slate-100 dark:bg-zinc-800">
+                            0
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                        )}
+                      </div>
                     </button>
                   );
                 })}
 
                 {displayedCategories.length === 0 && (
                   <div className="p-3 text-center rounded-xl bg-slate-50 dark:bg-zinc-800/30 text-xs text-muted-foreground">
-                    Eşleşen sektör bulunamadı.
+                    Bu çember alanında kayıtlı sektör bulunamadı. &ldquo;Tümü&rdquo; butonuna tıklayarak istediğiniz sektörü seçebilirsiniz.
                   </div>
                 )}
               </div>

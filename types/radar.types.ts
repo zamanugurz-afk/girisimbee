@@ -111,6 +111,7 @@ export interface RadarSpatialResponse {
   listingsInRadius: RadarListingMatch[];
   competitors: CompetitorPoi[];
   intelligence: RadarIntelligenceReport;
+  availableSectors?: Record<string, number>;
 }
 
 export interface QuickLocationPreset {

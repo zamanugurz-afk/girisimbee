@@ -223,3 +223,72 @@ export async function fetchOverpassCompetitorPois(
   POI_QUERY_CACHE.set(cacheKey, { data: [], ts: Date.now() });
   return [];
 }
+
+const SECTOR_COUNTS_CACHE = new Map<string, { data: Record<string, number>; ts: number }>();
+
+export async function fetchAreaSectorCounts(
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+): Promise<Record<string, number>> {
+  const roundedLat = Math.round(lat * 1000) / 1000;
+  const roundedLng = Math.round(lng * 1000) / 1000;
+  const cacheKey = `sectors-${roundedLat}-${roundedLng}-${radiusMeters}`;
+
+  const cached = SECTOR_COUNTS_CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const query = `
+    [out:json][timeout:3];
+    (
+      node(around:${radiusMeters},${lat},${lng})["amenity"];
+      node(around:${radiusMeters},${lat},${lng})["shop"];
+      node(around:${radiusMeters},${lat},${lng})["office"];
+    );
+    out tags 120;
+  `.trim();
+
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'User-Agent': 'GirisimbeeRadar/1.0 (https://girisimbee.com)',
+        },
+        body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const json = (await res.json()) as OverpassResponse;
+        const elements = json.elements ?? [];
+        const counts: Record<string, number> = {};
+
+        for (const el of elements) {
+          const rawName = el.tags?.name || el.tags?.brand || el.tags?.['name:tr'] || '';
+
+          for (const [catKey] of Object.entries(RADAR_CATEGORIES)) {
+            if (matchesCategorySemantics(rawName, el.tags, catKey as RadarCategoryKey)) {
+              counts[catKey] = (counts[catKey] || 0) + 1;
+            }
+          }
+        }
+
+        SECTOR_COUNTS_CACHE.set(cacheKey, { data: counts, ts: Date.now() });
+        return counts;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return {};
+}

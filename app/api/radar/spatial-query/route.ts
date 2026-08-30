@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { RadarCategoryKey, RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
-import { fetchOverpassCompetitorPois } from '@/features/radar/services/overpass-poi.service';
+import {
+  fetchOverpassCompetitorPois,
+  fetchAreaSectorCounts,
+} from '@/features/radar/services/overpass-poi.service';
 import { findListingsInRadius } from '@/features/radar/services/radar-listings-matcher.service';
 import {
   computeRadarMetrics,
@@ -44,10 +47,11 @@ export async function GET(request: NextRequest) {
     const categoryKey = category as RadarCategoryKey;
     const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
 
-    // 1. Fetch competitors (POIs) and 2. Fetch listings in parallel
-    const [competitors, listingsInRadius] = await Promise.all([
+    // 1. Fetch competitors (POIs), 2. listings, and 3. area sector distribution in parallel
+    const [competitors, listingsInRadius, availableSectors] = await Promise.all([
       fetchOverpassCompetitorPois(lat, lng, radius, categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
+      fetchAreaSectorCounts(lat, lng, radius),
     ]);
 
     // 3. Compute Metrics and AI Intelligence Report
@@ -67,6 +71,7 @@ export async function GET(request: NextRequest) {
       listingsInRadius,
       competitors,
       intelligence,
+      availableSectors,
     };
 
     return NextResponse.json({
