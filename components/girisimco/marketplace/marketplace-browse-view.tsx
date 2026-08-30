@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wrench, ChevronLeft, ChevronRight, Layers, Sparkles } from 'lucide-react';
 import { resolveCategorySlug, getCategoryRoutePath } from '@/features/listings/config/marketplace.config';
 import { useMarketplaceBrowse } from '@/features/listings/hooks/use-marketplace-browse';
 import type { MarketplaceFilterState } from '@/features/listings/types/marketplace.types';
@@ -11,11 +11,27 @@ import {
   JOB_SEEKER_CARD_COLOR,
 } from '@/features/listings/utils/listing-card-display';
 import { ListingFilters } from '@/components/girisimco/marketplace/listing-filters';
-import { ListingFeedInfinite } from '@/components/girisimco/marketplace/listing-feed-infinite';
+import { ListingFeed } from '@/components/girisimco/marketplace/listing-feed';
+import { ListingFeedSkeleton } from '@/components/girisimco/ui/listing-card-skeleton';
 import { MarketplaceSearchBar } from '@/components/girisimco/marketplace/marketplace-search-bar';
 import { ExploreSuperVitrin } from '@/components/girisimco/marketplace/explore-super-vitrin';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+const ITEMS_PER_PAGE = 40;
+
+function getVisiblePageNumbers(current: number, total: number): (number | string)[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total];
+  }
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  }
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
 
 interface MarketplaceBrowsePageProps {
   categorySlug?: string;
@@ -62,19 +78,23 @@ export function MarketplaceBrowseView({
   const {
     items,
     total,
-    hasMore,
     isLoading,
-    isLoadingMore,
     error,
     filters,
     updateFilters,
-    loadMore,
     refresh,
   } = useMarketplaceBrowse({
     initialCategorySlug: categorySlug,
     initialQuery,
     initialFilters,
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Filtreler veya arama terimi değiştiğinde 1. sayfaya dön
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, initialQuery]);
 
   const feedAccent =
     filters.jobFlow === 'seek'
@@ -213,6 +233,21 @@ export function MarketplaceBrowseView({
   );
   const countToDisplay = hasLocalFilters ? displayedItems.length : total;
 
+  // Sayfalama (Pagination - En fazla 40 ilan)
+  const totalPages = Math.max(1, Math.ceil(displayedItems.length / ITEMS_PER_PAGE));
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return displayedItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [displayedItems, currentPage]);
+
+  const scrollToFeed = () => {
+    const el = document.getElementById('tum-ilanlar-akisi');
+    if (el) {
+      const topOffset = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: topOffset, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="gc-header-offset bg-background">
       <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-card/60 to-background backdrop-blur-md">
@@ -256,7 +291,7 @@ export function MarketplaceBrowseView({
       </div>
 
       <div className="mx-auto max-w-[1280px] px-5 py-6 lg:px-8 lg:py-8">
-        {/* 1. FİLTRELER & ARAMA ÇUBUĞU (Kategorilerin Yanında Arama Çubuğu - En Boyutu Eşitlendi) */}
+        {/* 1. FİLTRELER & ARAMA ÇUBUĞU */}
         <div id="tum-filtreler-alani" className="w-full mb-6">
           <ListingFilters
             items={items}
@@ -274,7 +309,7 @@ export function MarketplaceBrowseView({
           />
         </div>
 
-        {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Kategori ne seçilirse seçilsin SABİT kalır) */}
+        {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Altın Sarısı Yanıp Sönen Çerçeve) */}
         {!categorySlug && (
           <ExploreSuperVitrin
             items={items}
@@ -285,65 +320,177 @@ export function MarketplaceBrowseView({
                 sector: undefined,
                 city: undefined,
               });
-              const el = document.getElementById('tum-ilanlar-akisi');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              scrollToFeed();
             }}
           />
         )}
 
-        {/* 3. TÜM İLANLAR BAŞLIĞI VE AKIŞ */}
-        <div id="tum-ilanlar-akisi" className="pt-2">
-          {!isLoading && !error && (
-            <div className="flex items-center justify-between gap-4 mb-4 pb-2 border-b border-slate-200/60 dark:border-zinc-800/80">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Tüm İlanlar <span className="text-sm font-normal text-muted-foreground">({countToDisplay.toLocaleString('tr-TR')} {resultNoun})</span>
-              </h2>
+        {/* 3. AYRIM ÇİZGİSİ */}
+        <div className="relative my-7 sm:my-9 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200/90 dark:border-zinc-800/90" />
+          </div>
+          <div className="relative flex items-center gap-2 bg-background px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500/90" />
+            <span>Tüm Güncel İlanlar & Fırsatlar</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-500/90" />
+          </div>
+        </div>
+
+        {/* 4. ALTTTAKİ İLAN KATEGORİSİ ÇERÇEVESİ (Farklı Renkte Çerçeve & 40'lık Sayfalama) */}
+        <div
+          id="tum-ilanlar-akisi"
+          className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/40 p-4 sm:p-6 lg:p-7 shadow-xs backdrop-blur-xs ring-1 ring-slate-100 dark:ring-white/5 transition-all"
+        >
+          {/* Çerçeve Başlığı & İlan Sayacı */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-200/70 dark:border-zinc-800/80">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-sm shadow-xs">
+                <Layers className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{categorySlug ? (categoryMeta?.label ?? 'Kategori İlanları') : 'Tüm İlanlar'}</span>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200/60 dark:border-zinc-700">
+                    {countToDisplay.toLocaleString('tr-TR')} {resultNoun}
+                  </span>
+                </h2>
+              </div>
+            </div>
+
+            {/* Sayfa Özeti */}
+            {totalPages > 1 && (
+              <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <span>Sayfa</span>
+                <span className="font-bold text-foreground bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-zinc-700">
+                  {currentPage} / {totalPages}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-center">
+              <p className="text-sm text-destructive">{error}</p>
+              <Button variant="outline" size="sm" className="mt-3 rounded-lg" onClick={refresh}>
+                Tekrar Dene
+              </Button>
+            </div>
+          )}
+
+          {isLoading ? (
+            <ListingFeedSkeleton count={8} />
+          ) : (
+            <ListingFeed
+              items={paginatedItems}
+              accent={feedAccent}
+              emptyMessage={
+                emptyTitle
+                  ? (
+                    filters.query
+                    || filters.city
+                    || filters.isFeatured
+                    || filters.isUrgent
+                    || filters.publishedAfter
+                      ? 'Bu filtrelere uygun sonuç bulunmuyor.'
+                      : emptyTitle
+                  )
+                  : (
+                    filters.query
+                    || filters.categorySlug
+                    || filters.city
+                    || filters.jobFlow
+                    || filters.isFeatured
+                    || filters.isUrgent
+                    || filters.publishedAfter
+                      ? 'Bu filtrelere uygun ilan bulunmuyor.'
+                      : undefined
+                  )
+              }
+              emptyDescription={emptyTitle && !hasExtraFilters ? emptyDescription : undefined}
+              emptyCta={emptyTitle && !hasExtraFilters ? emptyCta : undefined}
+            />
+          )}
+
+          {/* 5. SAYFALAMA KONTROLLERİ (PAGINATION - 40 İlan Sınırı) */}
+          {!isLoading && totalPages > 1 && (
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200/70 dark:border-zinc-800/80">
+              <div className="text-xs text-muted-foreground font-medium">
+                Toplam <strong className="text-foreground">{displayedItems.length}</strong> ilandan{' '}
+                <strong className="text-foreground">
+                  {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, displayedItems.length)}
+                </strong>{' '}
+                arası gösteriliyor
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                {/* Önceki Sayfa */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (currentPage > 1) {
+                      setCurrentPage((prev) => prev - 1);
+                      scrollToFeed();
+                    }
+                  }}
+                  disabled={currentPage <= 1}
+                  className="h-9 px-3 text-xs font-medium rounded-xl border-slate-200 dark:border-zinc-800 disabled:opacity-40"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  <span>Önceki</span>
+                </Button>
+
+                {/* Sayfa Numaraları */}
+                {getVisiblePageNumbers(currentPage, totalPages).map((pageNum, idx) => {
+                  if (typeof pageNum === 'string') {
+                    return (
+                      <span key={`dots-${idx}`} className="px-2 text-xs text-muted-foreground select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setCurrentPage(pageNum);
+                        scrollToFeed();
+                      }}
+                      className={cn(
+                        'h-9 w-9 p-0 text-xs font-semibold rounded-xl transition-all',
+                        currentPage === pageNum
+                          ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm shadow-amber-500/20 font-bold scale-105'
+                          : 'border-slate-200 dark:border-zinc-800 text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+
+                {/* Sonraki Sayfa */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      setCurrentPage((prev) => prev + 1);
+                      scrollToFeed();
+                    }
+                  }}
+                  disabled={currentPage >= totalPages}
+                  className="h-9 px-3 text-xs font-medium rounded-xl border-slate-200 dark:border-zinc-800 disabled:opacity-40"
+                >
+                  <span>Sonraki</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
             </div>
           )}
         </div>
-
-        {error && (
-          <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-center">
-            <p className="text-sm text-destructive">{error}</p>
-            <Button variant="outline" size="sm" className="mt-3 rounded-lg" onClick={refresh}>
-              Tekrar Dene
-            </Button>
-          </div>
-        )}
-
-        <ListingFeedInfinite
-          items={displayedItems}
-          accent={feedAccent}
-          hasMore={hasMore}
-          isLoading={isLoading}
-          isLoadingMore={isLoadingMore}
-          onLoadMore={loadMore}
-          emptyMessage={
-            emptyTitle
-              ? (
-                filters.query
-                || filters.city
-                || filters.isFeatured
-                || filters.isUrgent
-                || filters.publishedAfter
-                  ? 'Bu filtrelere uygun sonuç bulunmuyor.'
-                  : emptyTitle
-              )
-              : (
-                filters.query
-                || filters.categorySlug
-                || filters.city
-                || filters.jobFlow
-                || filters.isFeatured
-                || filters.isUrgent
-                || filters.publishedAfter
-                  ? 'Bu filtrelere uygun ilan bulunmuyor.'
-                  : undefined
-              )
-          }
-          emptyDescription={emptyTitle && !hasExtraFilters ? emptyDescription : undefined}
-          emptyCta={emptyTitle && !hasExtraFilters ? emptyCta : undefined}
-        />
 
         {categorySlug && relatedCategories.length > 0 ? (
           <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-[#EEF0F4] pt-8 dark:border-border">
