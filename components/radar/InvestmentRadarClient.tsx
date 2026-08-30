@@ -123,8 +123,32 @@ export function InvestmentRadarClient() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const locationSearchDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Read URL search params on mount
+  // Helper to fetch IP-based location from server
+  const fetchIpLocation = async () => {
+    try {
+      const res = await fetch('/api/radar/user-location');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.lat && data.lng) {
+          setCenterLat(data.lat);
+          setCenterLng(data.lng);
+          setZoom(15);
+          if (data.locationTitle) {
+            setActiveLocationTitle(data.locationTitle);
+          }
+          return true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  };
+
+  // Read URL search params or auto-detect IP / GPS location on mount
   useEffect(() => {
+    let isMounted = true;
+
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const urlLat = params.get('lat');
@@ -139,25 +163,33 @@ export function InvestmentRadarClient() {
           setCenterLng(parsedLng);
         }
       } else if ('geolocation' in navigator) {
-        // Auto Geolocation fallback
+        // Auto Geolocation: GPS first, then IP fallback
         navigator.geolocation.getCurrentPosition(
           (pos) => {
+            if (!isMounted) return;
             setCenterLat(pos.coords.latitude);
             setCenterLng(pos.coords.longitude);
             setZoom(15);
             setActiveLocationTitle('Mevcut Konumunuz');
           },
-          () => {
-            // Default location
+          async () => {
+            if (!isMounted) return;
+            await fetchIpLocation();
           },
-          { timeout: 5000 },
+          { timeout: 3500, maximumAge: 60000 },
         );
+      } else {
+        fetchIpLocation();
       }
 
       if (urlCategory && RADAR_CATEGORIES[urlCategory]) {
         setSelectedCategory(urlCategory);
       }
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Live Location Search (Nominatim + Turkish index)
@@ -302,23 +334,28 @@ export function InvestmentRadarClient() {
     setIsLocationDropdownOpen(false);
   };
 
-  // Handle GPS Locate Me
-  const handleFindMyLocation = () => {
-    if (!('geolocation' in navigator)) return;
+  // Handle GPS / IP Locate Me
+  const handleFindMyLocation = async () => {
     setIsLocatingUser(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCenterLat(pos.coords.latitude);
-        setCenterLng(pos.coords.longitude);
-        setZoom(15);
-        setActiveLocationTitle('Mevcut Konumunuz');
-        setIsLocatingUser(false);
-      },
-      () => {
-        setIsLocatingUser(false);
-      },
-      { timeout: 8000 },
-    );
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setCenterLat(pos.coords.latitude);
+          setCenterLng(pos.coords.longitude);
+          setZoom(15);
+          setActiveLocationTitle('Mevcut Konumunuz');
+          setIsLocatingUser(false);
+        },
+        async () => {
+          await fetchIpLocation();
+          setIsLocatingUser(false);
+        },
+        { timeout: 5000 },
+      );
+    } else {
+      await fetchIpLocation();
+      setIsLocatingUser(false);
+    }
   };
 
   // Handle Map circle click / drag

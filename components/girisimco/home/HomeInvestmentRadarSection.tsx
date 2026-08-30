@@ -121,11 +121,36 @@ export function HomeInvestmentRadarSection() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const locationSearchDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. AUTO GEOLOCATION ON MOUNT
+  // Helper to fetch IP-based location from server
+  const fetchIpLocation = async () => {
+    try {
+      const res = await fetch('/api/radar/user-location');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.lat && data.lng) {
+          setCenterLat(data.lat);
+          setCenterLng(data.lng);
+          setZoom(15);
+          if (data.locationTitle) {
+            setActiveLocationTitle(data.locationTitle);
+          }
+          return true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  };
+
+  // 1. AUTO IP & BROWSER GEOLOCATION ON MOUNT
   useEffect(() => {
+    let isMounted = true;
+
     if (typeof window !== 'undefined' && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          if (!isMounted) return;
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           setCenterLat(lat);
@@ -133,13 +158,20 @@ export function HomeInvestmentRadarSection() {
           setZoom(15);
           setActiveLocationTitle('Mevcut Konumunuz');
         },
-        (err) => {
-          // Silent fallback to default Kadıköy
-          console.log('[geolocation] Default location loaded:', err.message);
+        async () => {
+          // If browser GPS permission denied/ignored, seamlessly load from IP location!
+          if (!isMounted) return;
+          await fetchIpLocation();
         },
-        { timeout: 6000, maximumAge: 60000 },
+        { timeout: 3500, maximumAge: 60000 },
       );
+    } else {
+      fetchIpLocation();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 2. LIVE LOCATION SEARCH (Nominatim + Turkish index)
@@ -286,25 +318,30 @@ export function HomeInvestmentRadarSection() {
     setIsLocationDropdownOpen(false);
   };
 
-  // Handle GPS Locate Me button
-  const handleFindMyLocation = () => {
-    if (!('geolocation' in navigator)) return;
+  // Handle GPS / IP Locate Me button
+  const handleFindMyLocation = async () => {
     setIsLocatingUser(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        setCenterLat(lat);
-        setCenterLng(lng);
-        setZoom(15);
-        setActiveLocationTitle('Mevcut Konumunuz');
-        setIsLocatingUser(false);
-      },
-      () => {
-        setIsLocatingUser(false);
-      },
-      { timeout: 8000 },
-    );
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setCenterLat(lat);
+          setCenterLng(lng);
+          setZoom(15);
+          setActiveLocationTitle('Mevcut Konumunuz');
+          setIsLocatingUser(false);
+        },
+        async () => {
+          await fetchIpLocation();
+          setIsLocatingUser(false);
+        },
+        { timeout: 5000 },
+      );
+    } else {
+      await fetchIpLocation();
+      setIsLocatingUser(false);
+    }
   };
 
   // Handle Map circle dragging or clicking
