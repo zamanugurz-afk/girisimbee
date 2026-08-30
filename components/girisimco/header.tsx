@@ -56,9 +56,41 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
 
+  const headerRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Close mobile menu on click outside or escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+      }
+    };
+
+    if (mobileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -80,6 +112,7 @@ export function Header() {
 
   return (
     <header
+      ref={headerRef}
       className={cn(
         'fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-smooth',
         scrolled

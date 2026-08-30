@@ -122,6 +122,37 @@ export function InvestmentRadarClient() {
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const locationSearchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Click outside and Escape key listener to close location dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        locationDropdownRef.current &&
+        !locationDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsLocationDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsLocationDropdownOpen(false);
+      }
+    };
+
+    if (isLocationDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLocationDropdownOpen]);
 
   // Helper to fetch IP-based location from server
   const fetchIpLocation = async () => {
@@ -464,7 +495,7 @@ export function InvestmentRadarClient() {
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-zinc-800/80 pb-5 lg:pb-0 lg:pr-5">
             <div>
               {/* Lokasyon Seçimi & Canlı Arama */}
-              <div className="mb-3.5 relative">
+              <div ref={locationDropdownRef} className="mb-3.5 relative">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
                   Lokasyon Seçimi
                 </label>
