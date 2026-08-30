@@ -535,17 +535,9 @@ export function HomeInvestmentRadarSection() {
                   )}
                 </div>
 
-                {/* Seçili Aktif Lokasyon Rozeti */}
-                <div className="mt-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span className="truncate flex items-center gap-1 font-semibold text-slate-800 dark:text-zinc-200">
-                    <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
-                    <span className="truncate">{activeLocationTitle}</span>
-                  </span>
-                </div>
-
                 {/* Canlı Lokasyon Arama Sonuçları Açılır Paneli */}
                 {isLocationDropdownOpen && (
-                  <div className="absolute left-0 right-0 top-[68px] z-50 rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden max-h-56 overflow-y-auto">
+                  <div className="absolute left-0 right-0 top-[46px] z-50 rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden max-h-56 overflow-y-auto">
                     {isSearchingLocation ? (
                       <div className="p-3 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
@@ -601,22 +593,22 @@ export function HomeInvestmentRadarSection() {
                   Hedef İş Kolu / Sektör
                 </label>
                 
-                <div className="relative w-full">
+                <div className="relative flex items-center">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <input
                     type="text"
                     placeholder="Sektör ara (örn: Kafe)..."
                     value={categorySearchQuery}
                     onChange={(e) => setCategorySearchQuery(e.target.value)}
-                    className="h-8.5 w-full rounded-lg border border-slate-200/80 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                    className="h-10 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 pl-8 pr-8 text-xs font-semibold text-foreground placeholder:text-muted-foreground placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/40"
                   />
                   {categorySearchQuery && (
                     <button
                       type="button"
                       onClick={() => setCategorySearchQuery('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>

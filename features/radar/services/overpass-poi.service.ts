@@ -140,7 +140,10 @@ export function classifyPoi(
     shop === 'supermarket' ||
     shop === 'convenience' ||
     shop === 'grocery' ||
-    hasWord(n, ['market', 'marketi', 'bakkal', 'bakkalı', 'büfe', 'büfesi', 'gıda', 'tekel', 'şok', 'a101', 'bim', 'migros', 'carrefour', 'carrefoursa', 'tarım kredi', 'file', 'macrocenter', 'gross'])
+    hasWord(n, [
+      'market', 'marketi', 'süpermarket', 'hipermarket', 'bakkal', 'bakkalı', 'büfe', 'büfesi', 'gıda', 'tekel',
+      'şok', 'a101', 'bim', 'migros', 'carrefour', 'carrefoursa', 'tarım kredi', 'file', 'macrocenter', 'gross', 'hakmar', 'çağrı', 'onur market', 'happy center', 'özkuruşlar', 'mopaş', 'kim market', 'metro market'
+    ])
   ) {
     return { key: 'market', label: 'Süpermarket & Bakkal' };
   }
@@ -520,7 +523,7 @@ export const GOOGLE_CATEGORY_MAPPING: Record<
   pet_shop: { keyword: 'petshop OR veteriner OR evcil hayvan OR pati OR veteriner kliniği', fallbackLabel: 'Petshop & Veteriner' },
   butcher: { keyword: 'kasap OR şarküteri OR et tavuk OR et pazarı', fallbackLabel: 'Kasap & Şarküteri' },
   bakery: { keyword: 'fırın OR pastane OR unlu mamül OR börekçi OR simitçi OR ekmek', fallbackLabel: 'Fırın & Unlu Mamüller' },
-  market: { keyword: 'market OR bakkal OR süpermarket OR tekel bayii OR gıda', fallbackLabel: 'Süpermarket & Bakkal' },
+  market: { keyword: 'süpermarket OR market OR Migros OR Carrefour OR BİM OR A101 OR ŞOK OR File Market OR Hakmar OR Macrocenter OR Tarım Kredi OR Çağrı Market OR hipermarket', fallbackLabel: 'Süpermarket & Bakkal' },
   hairdresser: { keyword: 'kuaför OR berber OR güzellik salonu OR estetik OR barber', fallbackLabel: 'Kuaför & Güzellik' },
   gym: { keyword: 'spor salonu OR fitness OR pilates OR yoga OR gym OR crossfit', fallbackLabel: 'Spor Salonu & Fitness' },
   pharmacy: { keyword: 'eczane OR medikal OR eczanesi', fallbackLabel: 'Eczane & Medikal' },
