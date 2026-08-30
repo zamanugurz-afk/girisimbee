@@ -121,7 +121,7 @@ export function classifyPoi(
   if (
     shop === 'bakery' ||
     shop === 'pastry' ||
-    hasWord(n, ['fırın', 'fırını', 'firin', 'pastane', 'pastanesi', 'patisserie', 'unlu mamüller', 'unlu mamulleri', 'ekmek'])
+    hasWord(n, ['fırın', 'fırını', 'firin', 'pastane', 'pastanesi', 'patisserie', 'unlu mamüller', 'unlu mamulleri', 'ekmek', 'simit', 'simitçi'])
   ) {
     return { key: 'bakery', label: 'Fırın & Unlu Mamüller' };
   }
@@ -130,7 +130,7 @@ export function classifyPoi(
   if (
     shop === 'butcher' ||
     shop === 'deli' ||
-    hasWord(n, ['kasap', 'kasabı', 'şarküteri', 'sarkuteri', 'et pazarı', 'et reyonu'])
+    hasWord(n, ['kasap', 'kasabı', 'şarküteri', 'sarkuteri', 'et pazarı', 'et reyonu', 'tavukçu', 'et tavuk'])
   ) {
     return { key: 'butcher', label: 'Kasap & Şarküteri' };
   }
@@ -140,7 +140,7 @@ export function classifyPoi(
     shop === 'supermarket' ||
     shop === 'convenience' ||
     shop === 'grocery' ||
-    hasWord(n, ['market', 'marketi', 'bakkal', 'bakkalı', 'büfe', 'büfesi', 'gıda', 'şok', 'a101', 'bim', 'migros', 'carrefour', 'carrefoursa', 'tarım kredi', 'file', 'macrocenter', 'gross'])
+    hasWord(n, ['market', 'marketi', 'bakkal', 'bakkalı', 'büfe', 'büfesi', 'gıda', 'tekel', 'şok', 'a101', 'bim', 'migros', 'carrefour', 'carrefoursa', 'tarım kredi', 'file', 'macrocenter', 'gross'])
   ) {
     return { key: 'market', label: 'Süpermarket & Bakkal' };
   }
@@ -149,7 +149,7 @@ export function classifyPoi(
   if (
     shop === 'hairdresser' ||
     shop === 'beauty' ||
-    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım'])
+    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'güzellik salonu', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım'])
   ) {
     return { key: 'hairdresser', label: 'Kuaför & Güzellik' };
   }
@@ -165,7 +165,7 @@ export function classifyPoi(
   // 8. Oto Yıkama & Detailing
   if (
     amenity === 'car_wash' ||
-    hasWord(n, ['oto yıkama', 'oto yikama', 'car wash', 'detailing', 'buharlı yıkama', 'oto kuaför'])
+    hasWord(n, ['oto yıkama', 'oto yikama', 'car wash', 'detailing', 'buharlı yıkama', 'oto kuaför', 'pasta cila'])
   ) {
     return { key: 'car_wash', label: 'Oto Yıkama & Detailing' };
   }
@@ -174,18 +174,18 @@ export function classifyPoi(
   if (
     leisure === 'fitness_centre' ||
     leisure === 'sports_centre' ||
-    hasWord(n, ['gym', 'fitness', 'pilates', 'crossfit', 'spor salonu', 'macfit', 'fizyoterapi', 'yoga'])
+    hasWord(n, ['gym', 'fitness', 'pilates', 'crossfit', 'spor salonu', 'macfit', 'fizyoterapi', 'yoga', 'boks', 'kick boks'])
   ) {
     return { key: 'gym', label: 'Spor Salonu & Fitness' };
   }
 
   // 10. Diş Kliniği
-  if (amenity === 'dentist' || hasWord(n, ['diş', 'diş kliniği', 'diş hekimi', 'dental', 'dentistanbul', 'dentgroup', 'dent'])) {
+  if (amenity === 'dentist' || hasWord(n, ['diş', 'diş kliniği', 'diş hekimi', 'dental', 'dentistanbul', 'dentgroup', 'dent', 'ağız ve diş', 'implant'])) {
     return { key: 'dental_clinic', label: 'Diş Kliniği & Hekimliği' };
   }
 
   // 11. Börekçi
-  if (hasWord(n, ['börek', 'böreği', 'börekçi', 'borek', 'borekci', 'kır pidesi', 'poğaça', 'boyoz'])) {
+  if (hasWord(n, ['börek', 'böreği', 'börekçi', 'borek', 'borekci', 'kır pidesi', 'poğaça', 'boyoz', 'su böreği'])) {
     return { key: 'borekci', label: 'Börekçi & Poğaçacı' };
   }
 
@@ -200,12 +200,12 @@ export function classifyPoi(
   }
 
   // 14. Dönerci & Kebapçı
-  if (hasWord(n, ['döner', 'dönerci', 'doner', 'donerci', 'kebap', 'kebapçı', 'iskender', 'dürüm', 'adana kebap', 'urfa kebap'])) {
+  if (hasWord(n, ['döner', 'dönerci', 'doner', 'donerci', 'kebap', 'kebapçı', 'iskender', 'dürüm', 'adana kebap', 'urfa kebap', 'lahmacun', 'pideci'])) {
     return { key: 'donerci', label: 'Dönerci & Kebapçı' };
   }
 
   // 15. Tatlıcı & Baklavacı
-  if (hasWord(n, ['tatlı', 'tatlıcı', 'tatlicisi', 'baklava', 'baklavacı', 'künefe', 'kadayıf', 'güllüoğlu', 'lokum', 'hafız mustafa', 'helvacı'])) {
+  if (hasWord(n, ['tatlı', 'tatlıcı', 'tatlicisi', 'baklava', 'baklavacı', 'künefe', 'kadayıf', 'güllüoğlu', 'lokum', 'hafız mustafa', 'helvacı', 'trileçe'])) {
     return { key: 'tatlici', label: 'Tatlıcı & Baklavacı' };
   }
 
@@ -213,7 +213,7 @@ export function classifyPoi(
   if (
     amenity === 'cafe' ||
     amenity === 'coffee_shop' ||
-    hasWord(n, ['kahve', 'kahvesi', 'cafe', 'coffee', 'kafe', 'espresso', 'roaster', 'roastery', 'starbucks', 'kahve dünyası', 'espresso lab', 'çay bahçesi', 'çay ocağı', 'hookah', 'nargile'])
+    hasWord(n, ['kahve', 'kahvesi', 'cafe', 'coffee', 'kafe', 'espresso', 'roaster', 'roastery', 'starbucks', 'kahve dünyası', 'espresso lab', 'çay bahçesi', 'çay ocağı', 'hookah', 'nargile', 'bistro'])
   ) {
     return { key: 'cafe', label: 'Kafe & Kahve Dükkanı' };
   }
@@ -222,7 +222,7 @@ export function classifyPoi(
   if (
     amenity === 'restaurant' ||
     amenity === 'fast_food' ||
-    hasWord(n, ['restoran', 'restaurant', 'lokanta', 'lokantası', 'meyhane', 'bistro', 'burger', 'pizza', 'köfte', 'çorba', 'çorbacı', 'pide', 'balıkçı', 'steakhouse'])
+    hasWord(n, ['restoran', 'restaurant', 'lokanta', 'lokantası', 'meyhane', 'bistro', 'burger', 'pizza', 'köfte', 'çorba', 'çorbacı', 'pide', 'steakhouse', 'ev yemekleri'])
   ) {
     return { key: 'restaurant', label: 'Restoran & Lokanta' };
   }
@@ -238,9 +238,9 @@ export function classifyPoi(
   // 19. Gayrimenkul & Emlak
   if (
     office === 'estate_agent' ||
-    hasWord(n, ['emlak', 'emlakçılık', 'gayrimenkul', 're/max', 'remax', 'coldwell', 'turyap', 'keller williams', 'cb'])
+    hasWord(n, ['emlak', 'emlakçılık', 'gayrimenkul', 're/max', 'remax', 'coldwell', 'turyap', 'keller williams', 'cb', 'arsa'])
   ) {
-    return { key: 'real_estate', label: 'Gayrimenkul Danışmanlığı' };
+    return { key: 'real_estate', label: 'Gayrimenkul & Emlak Ofisi' };
   }
 
   // 20. Butik & Giyim
@@ -248,7 +248,7 @@ export function classifyPoi(
     shop === 'clothes' ||
     shop === 'boutique' ||
     shop === 'fashion' ||
-    hasWord(n, ['butik', 'giyim', 'moda', 'tekstil', 'boutique', 'lingerie', 'ayakkabı', 'çanta', 'abiye'])
+    hasWord(n, ['butik', 'giyim', 'moda', 'tekstil', 'boutique', 'lingerie', 'ayakkabı', 'çanta', 'abiye', 'tasarım'])
   ) {
     return { key: 'boutique', label: 'Butik & Giyim Mağazası' };
   }
@@ -257,13 +257,13 @@ export function classifyPoi(
   if (
     shop === 'stationery' ||
     shop === 'books' ||
-    hasWord(n, ['kırtasiye', 'kirtasiye', 'kitabevi', 'kitapçı', 'fotokopi', 'd&r', 'nezih', 'ozalit'])
+    hasWord(n, ['kırtasiye', 'kirtasiye', 'kitabevi', 'kitapçı', 'fotokopi', 'd&r', 'nezih', 'ozalit', 'ofis kırtasiye'])
   ) {
     return { key: 'stationery', label: 'Kırtasiye & Kitabevi' };
   }
 
   // 22. Çiçekçi
-  if (shop === 'florist' || hasWord(n, ['çiçek', 'çiçekçi', 'cicek', 'cicekci', 'florist', 'botanika', 'peyzaj'])) {
+  if (shop === 'florist' || hasWord(n, ['çiçek', 'çiçekçi', 'cicek', 'cicekci', 'florist', 'botanika', 'peyzaj', 'kaktüs', 'çiçekçilik'])) {
     return { key: 'florist', label: 'Çiçekçi & Botanik' };
   }
 
@@ -273,38 +273,73 @@ export function classifyPoi(
   }
 
   // 24. Manav
-  if (shop === 'greengrocer' || hasWord(n, ['manav', 'manavı', 'sebze', 'meyve', 'organik pazar', 'halk manavı'])) {
+  if (shop === 'greengrocer' || hasWord(n, ['manav', 'manavı', 'sebze', 'meyve', 'organik pazar', 'halk manavı', 'bostan', 'yeşillik'])) {
     return { key: 'manav', label: 'Manav & Organik Pazar' };
   }
 
   // 25. Çilingir
-  if (shop === 'locksmith' || craft === 'locksmith' || hasWord(n, ['çilingir', 'cilingir', 'anahtarcı', 'anahtar', 'kilit'])) {
+  if (shop === 'locksmith' || craft === 'locksmith' || hasWord(n, ['çilingir', 'cilingir', 'anahtarcı', 'anahtar', 'kilit', 'kale kilit', 'oto anahtar'])) {
     return { key: 'cilingir', label: 'Çilingir & Anahtarcı' };
   }
 
   // 26. Terzi
-  if (shop === 'tailor' || craft === 'tailor' || hasWord(n, ['terzi', 'terzisi', 'dikim', 'tadilat', 'kuru temizleme'])) {
-    return { key: 'terzi', label: 'Terzi & Kuru Temizleme' };
+  if (shop === 'tailor' || craft === 'tailor' || hasWord(n, ['terzi', 'terzisi', 'dikim', 'tadilat', 'dikimevi', 'paça dikimi'])) {
+    return { key: 'terzi', label: 'Terzi & Dikim Evi' };
   }
 
-  // 27. Mobilya
-  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek'])) {
+  // 27. Kuru Temizleme & Lostra
+  if (shop === 'dry_cleaning' || shop === 'laundry' || hasWord(n, ['kuru temizleme', 'lostra', 'lostracı', 'halı yıkama', 'ütüleme', 'dry clean'])) {
+    return { key: 'dry_cleaning', label: 'Kuru Temizleme & Lostra' };
+  }
+
+  // 28. Mobilya & Ev Dekorasyon
+  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek', 'perde', 'perdeci'])) {
     return { key: 'furniture', label: 'Mobilya & Ev Dekorasyon' };
   }
 
-  // 28. Elektronik
-  if (shop === 'electronics' || hasWord(n, ['elektronik', 'telefon', 'bilgisayar', 'teknoloji', 'gsm', 'tamir', 'turkcell', 'vodafone', 'türk telekom'])) {
+  // 29. Elektronik & GSM
+  if (shop === 'electronics' || hasWord(n, ['elektronik', 'telefon', 'bilgisayar', 'teknoloji', 'gsm', 'tamir', 'turkcell', 'vodafone', 'türk telekom', 'teknik servis'])) {
     return { key: 'electronics', label: 'Elektronik & GSM' };
   }
 
-  // 29. Avukat & Hukuk
-  if (office === 'lawyer' || hasWord(n, ['avukat', 'hukuk', 'arabuluculuk', 'law'])) {
+  // 30. Avukat & Hukuk Bürosu
+  if (office === 'lawyer' || hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'arabulucu', 'arabuluculuk', 'law', 'danışmanlık ve hukuk', 'hukuk bürosu'])) {
     return { key: 'law_firm', label: 'Hukuk & Avukatlık Bürosu' };
   }
 
-  // 30. Anaokulu
-  if (amenity === 'kindergarten' || hasWord(n, ['kreş', 'kres', 'anaokulu', 'gündüz bakımevi'])) {
+  // 31. Anaokulu & Kreş
+  if (amenity === 'kindergarten' || hasWord(n, ['kreş', 'kres', 'anaokulu', 'gündüz bakımevi', 'çocuk kulübü', 'çocuk yuvası', 'oyun evi'])) {
     return { key: 'kindergarten', label: 'Anaokulu & Kreş' };
+  }
+
+  // 32. Oto Galeri
+  if (shop === 'car' || shop === 'car_dealer' || hasWord(n, ['oto galeri', 'galeri', 'otomotiv', 'motors', 'araç alım', 'ikinci el araç', 'auto'])) {
+    return { key: 'auto_gallery', label: 'Oto Galeri & Araç Satış' };
+  }
+
+  // 33. Turizm & Seyahat Acentesi
+  if (shop === 'travel_agency' || office === 'travel_agent' || hasWord(n, ['turizm', 'seyahat', 'turizm acentesi', 'bilet', 'uçak bileti', 'tur', 'turizm seyahat'])) {
+    return { key: 'travel_agency', label: 'Turizm & Seyahat Acentesi' };
+  }
+
+  // 34. Yazılım & Dijital Ajans
+  if (office === 'it' || office === 'company' || hasWord(n, ['yazılım', 'dijital ajans', 'reklam ajansı', 'bilişim', 'web tasarım', 'ajans', 'yazilim', 'ajansı'])) {
+    return { key: 'software_agency', label: 'Yazılım & Dijital Ajans' };
+  }
+
+  // 35. Kokoreç & Sokak Lezzeti
+  if (hasWord(n, ['kokoreç', 'kokorec', 'midye', 'midyeci', 'sokak lezzeti', 'tantuni', 'kumru'])) {
+    return { key: 'kokorecci', label: 'Kokoreç & Sokak Lezzeti' };
+  }
+
+  // 36. Balıkçı & Deniz Ürünleri
+  if (shop === 'seafood' || hasWord(n, ['balık', 'balıkçı', 'balikci', 'balik', 'deniz ürünleri', 'balık pazarı', 'balık ekmek'])) {
+    return { key: 'balikci', label: 'Balıkçı & Deniz Ürünleri' };
+  }
+
+  // 37. Oto Elektrik & Akü
+  if (hasWord(n, ['oto elektrik', 'akü', 'akücü', 'oto klima', 'akü bayii', 'marş motoru', 'oto elektronik'])) {
+    return { key: 'oto_elektrik', label: 'Oto Elektrik & Akü' };
   }
 
   // Fallbacks
@@ -479,45 +514,45 @@ interface GooglePlacesResponse {
 
 export const GOOGLE_CATEGORY_MAPPING: Record<
   string,
-  { type?: string; keyword?: string; fallbackLabel: string }
+  { type?: string; keyword: string; fallbackLabel: string }
 > = {
-  cafe: { type: 'cafe', keyword: 'kafe kahve cafe coffee', fallbackLabel: 'Kafe & Kahve Dükkanı' },
-  pet_shop: { type: 'pet_store', keyword: 'petshop veteriner', fallbackLabel: 'Petshop & Veteriner' },
-  butcher: { keyword: 'kasap şarküteri', fallbackLabel: 'Kasap & Şarküteri' },
-  bakery: { type: 'bakery', keyword: 'fırın pastane unlu mamül', fallbackLabel: 'Fırın & Unlu Mamüller' },
-  market: { type: 'supermarket', keyword: 'market bakkal süpermarket', fallbackLabel: 'Süpermarket & Bakkal' },
-  hairdresser: { type: 'hair_care', keyword: 'kuaför berber güzellik salonu', fallbackLabel: 'Kuaför & Güzellik' },
-  gym: { type: 'gym', keyword: 'spor salonu fitness pilates gym', fallbackLabel: 'Spor Salonu & Fitness' },
-  pharmacy: { type: 'pharmacy', keyword: 'eczane', fallbackLabel: 'Eczane & Medikal' },
-  car_wash: { type: 'car_wash', keyword: 'oto yıkama oto detailing', fallbackLabel: 'Oto Yıkama & Detailing' },
-  restaurant: { type: 'restaurant', keyword: 'restoran lokanta yemek', fallbackLabel: 'Restoran & Lokanta' },
-  boutique: { type: 'clothing_store', keyword: 'butik giyim mağazası', fallbackLabel: 'Butik & Giyim Mağazası' },
-  dry_cleaning: { type: 'laundry', keyword: 'kuru temizleme terzi', fallbackLabel: 'Kuru Temizleme & Terzi' },
-  insurance_agency: { type: 'insurance_agency', keyword: 'sigorta acentesi', fallbackLabel: 'Sigorta Acentesi' },
-  travel_agency: { type: 'travel_agency', keyword: 'turizm seyahat acentesi bilet', fallbackLabel: 'Turizm & Seyahat Acentesi' },
-  real_estate: { type: 'real_estate_agency', keyword: 'emlak gayrimenkul', fallbackLabel: 'Gayrimenkul & Emlak Ofisi' },
-  auto_gallery: { type: 'car_dealer', keyword: 'oto galeri araç satış', fallbackLabel: 'Oto Galeri & Araç Satış' },
-  stationery: { type: 'book_store', keyword: 'kırtasiye kitabevi', fallbackLabel: 'Kırtasiye & Kitabevi' },
-  florist: { type: 'florist', keyword: 'çiçekçi botanik', fallbackLabel: 'Çiçekçi & Botanik' },
-  optician: { keyword: 'optik gözlükçü', fallbackLabel: 'Optik & Gözlükçü' },
-  dental_clinic: { type: 'dentist', keyword: 'diş hekimi diş kliniği dental', fallbackLabel: 'Diş Kliniği & Hekimliği' },
-  kindergarten: { type: 'school', keyword: 'anaokulu kreş gündüz bakımevi', fallbackLabel: 'Anaokulu & Kreş' },
-  law_firm: { type: 'lawyer', keyword: 'avukatlık bürosu hukuk', fallbackLabel: 'Hukuk & Avukatlık Bürosu' },
-  software_agency: { keyword: 'yazılım ajansı dijital ajans', fallbackLabel: 'Yazılım & Dijital Ajans' },
-  furniture: { type: 'furniture_store', keyword: 'mobilya ev dekorasyon', fallbackLabel: 'Mobilya & Ev Dekorasyon' },
-  electronics: { type: 'electronics_store', keyword: 'elektronik telefon gsm', fallbackLabel: 'Elektronik & GSM' },
-  borekci: { keyword: 'börekçi börek pide poğaça', fallbackLabel: 'Börekçi & Poğaçacı' },
-  dondurmaci: { keyword: 'dondurmacı dondurma waffle gelato', fallbackLabel: 'Dondurmacı & Waffle' },
-  lastikci: { keyword: 'oto lastikçi rot balans lastik bayi', fallbackLabel: 'Oto Lastikçi & Rot Balans' },
-  cigkofteci: { keyword: 'çiğ köfteci çiğköfte dürüm', fallbackLabel: 'Çiğ Köfteci' },
-  tatlici: { keyword: 'tatlıcı baklavacı tatlı künefe', fallbackLabel: 'Tatlıcı & Baklavacı' },
-  donerci: { keyword: 'dönerci kebapçı iskender dürüm', fallbackLabel: 'Dönerci & Kebapçı' },
-  kokorecci: { keyword: 'kokoreç midye sokak lezzeti', fallbackLabel: 'Kokoreç & Sokak Lezzeti' },
-  cilingir: { type: 'locksmith', keyword: 'çilingir anahtarcı kilit', fallbackLabel: 'Çi̇li̇ngi̇r & Anahtarcı' },
-  balikci: { keyword: 'balıkçı balık restoranı balık pazarı', fallbackLabel: 'Balıkçı & Deniz Ürünleri' },
-  manav: { keyword: 'manav sebze meyve organik pazar', fallbackLabel: 'Manav & Organik Pazar' },
-  terzi: { keyword: 'terzi dikim tadilat', fallbackLabel: 'Terzi & Kuru Temizleme' },
-  oto_elektrik: { keyword: 'oto elektrik akü oto elektronik', fallbackLabel: 'Oto Elektrik & Akü' },
+  cafe: { keyword: 'kafe OR kahve OR cafe OR coffee OR tatlıcı OR espresso', fallbackLabel: 'Kafe & Kahve Dükkanı' },
+  pet_shop: { keyword: 'petshop OR veteriner OR evcil hayvan OR pati OR veteriner kliniği', fallbackLabel: 'Petshop & Veteriner' },
+  butcher: { keyword: 'kasap OR şarküteri OR et tavuk OR et pazarı', fallbackLabel: 'Kasap & Şarküteri' },
+  bakery: { keyword: 'fırın OR pastane OR unlu mamül OR börekçi OR simitçi OR ekmek', fallbackLabel: 'Fırın & Unlu Mamüller' },
+  market: { keyword: 'market OR bakkal OR süpermarket OR tekel bayii OR gıda', fallbackLabel: 'Süpermarket & Bakkal' },
+  hairdresser: { keyword: 'kuaför OR berber OR güzellik salonu OR estetik OR barber', fallbackLabel: 'Kuaför & Güzellik' },
+  gym: { keyword: 'spor salonu OR fitness OR pilates OR yoga OR gym OR crossfit', fallbackLabel: 'Spor Salonu & Fitness' },
+  pharmacy: { keyword: 'eczane OR medikal OR eczanesi', fallbackLabel: 'Eczane & Medikal' },
+  car_wash: { keyword: 'oto yıkama OR detailing OR oto kuaför OR oto yikama', fallbackLabel: 'Oto Yıkama & Detailing' },
+  restaurant: { keyword: 'restoran OR lokanta OR kebapçı OR köfteci OR yemek OR bistro', fallbackLabel: 'Restoran & Lokanta' },
+  boutique: { keyword: 'butik OR giyim mağazası OR elbise OR moda butik OR ayakkabı', fallbackLabel: 'Butik & Giyim Mağazası' },
+  dry_cleaning: { keyword: 'kuru temizleme OR lostra OR halı yıkama OR terzi lostra', fallbackLabel: 'Kuru Temizleme & Lostra' },
+  insurance_agency: { keyword: 'sigorta acentesi OR sigortacılık OR kasko trafik OR sigorta', fallbackLabel: 'Sigorta Acentesi' },
+  travel_agency: { keyword: 'turizm seyahat acentesi OR tur acentesi OR bilet satış OR turizm', fallbackLabel: 'Turizm & Seyahat Acentesi' },
+  real_estate: { keyword: 'emlak OR gayrimenkul ofisi OR danışmanlık OR emlakçı', fallbackLabel: 'Gayrimenkul & Emlak Ofisi' },
+  auto_gallery: { keyword: 'oto galeri OR galeri OR otomotiv OR araç alım satım OR motors', fallbackLabel: 'Oto Galeri & Araç Satış' },
+  stationery: { keyword: 'kırtasiye OR kitabevi OR ofis malzemeleri OR kırtasiyeci', fallbackLabel: 'Kırtasiye & Kitabevi' },
+  florist: { keyword: 'çiçekçi OR çiçek OR botanik OR peyzaj OR çiçekçilik', fallbackLabel: 'Çiçekçi & Botanik' },
+  optician: { keyword: 'optik OR gözlükçü OR optisyen OR gözlük', fallbackLabel: 'Optik & Gözlükçü' },
+  dental_clinic: { keyword: 'diş hekimi OR diş kliniği OR dental poliklinik OR ağız diş sağlığı OR dentist', fallbackLabel: 'Diş Kliniği & Hekimliği' },
+  kindergarten: { keyword: 'anaokulu OR kreş OR gündüz bakımevi OR çocuk yuvası OR oyun evi', fallbackLabel: 'Anaokulu & Kreş' },
+  law_firm: { keyword: 'avukat OR avukatlık bürosu OR hukuk bürosu OR arabuluculuk OR hukuk danışmanlığı', fallbackLabel: 'Hukuk & Avukatlık Bürosu' },
+  software_agency: { keyword: 'yazılım ajansı OR dijital ajans OR bilişim OR web tasarım OR yazılım', fallbackLabel: 'Yazılım & Dijital Ajans' },
+  furniture: { keyword: 'mobilya OR koltuk OR mobilyacı OR ev dekorasyon OR masa sandalye', fallbackLabel: 'Mobilya & Ev Dekorasyon' },
+  electronics: { keyword: 'telefon tamir OR gsm OR elektronik OR bilgisayar servisi OR teknik servis', fallbackLabel: 'Elektronik & GSM' },
+  borekci: { keyword: 'börekçi OR börek salonu OR su böreği OR poğaça OR kır pidesi', fallbackLabel: 'Börekçi & Poğaçacı' },
+  dondurmaci: { keyword: 'dondurmacı OR dondurma OR waffle OR gelato OR dondurmacisi', fallbackLabel: 'Dondurmacı & Waffle' },
+  lastikci: { keyword: 'lastikçi OR oto lastik OR rot balans OR lastik bayi OR oto lastikçi', fallbackLabel: 'Oto Lastikçi & Rot Balans' },
+  cigkofteci: { keyword: 'çiğ köfteci OR çiğköfte OR adıyamancı OR çiğ köfte', fallbackLabel: 'Çiğ Köfteci' },
+  tatlici: { keyword: 'tatlıcı OR baklavacı OR künefeci OR tatlı salonu OR helvacı', fallbackLabel: 'Tatlıcı & Baklavacı' },
+  donerci: { keyword: 'dönerci OR kebapçı OR dürümcü OR iskender OR pideci', fallbackLabel: 'Dönerci & Kebapçı' },
+  kokorecci: { keyword: 'kokoreç OR midyeci OR sokak lezzeti OR kokoreççi OR tantuni', fallbackLabel: 'Kokoreç & Sokak Lezzeti' },
+  cilingir: { keyword: 'çilingir OR anahtarcı OR oto anahtar OR kilit açma OR kale kilit', fallbackLabel: 'Çilingir & Anahtarcı' },
+  balikci: { keyword: 'balıkçı OR balık restoranı OR balık pazarı OR taze balık OR balık ekmek', fallbackLabel: 'Balıkçı & Deniz Ürünleri' },
+  manav: { keyword: 'manav OR yeşillik OR meyve sebze OR şarküteri manav OR halk manavı', fallbackLabel: 'Manav & Organik Pazar' },
+  terzi: { keyword: 'terzi OR dikim evi OR terzilik OR elbise tadilat OR paça dikimi', fallbackLabel: 'Terzi & Dikim Evi' },
+  oto_elektrik: { keyword: 'oto elektrik OR akücü OR oto klima OR akü bayii OR oto elektronik', fallbackLabel: 'Oto Elektrik & Akü' },
 };
 
 const GOOGLE_PLACES_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
@@ -566,10 +601,11 @@ export async function fetchGooglePlacesPois(
     });
 
     if (isAll) {
-      params.append('keyword', 'kafe OR restoran OR market OR mağaza OR dükkan OR klinik');
+      params.append('keyword', 'kafe OR restoran OR market OR mağaza OR dükkan OR klinik OR kuaför OR eczane');
     } else {
-      if (mapping.type) params.append('type', mapping.type);
-      if (mapping.keyword) params.append('keyword', mapping.keyword);
+      if (mapping.keyword) {
+        params.append('keyword', mapping.keyword);
+      }
     }
 
     const legacyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
