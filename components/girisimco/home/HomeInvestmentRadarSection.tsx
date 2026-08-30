@@ -446,36 +446,7 @@ export function HomeInvestmentRadarSection() {
   }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
 
   return (
-    <section className="relative mx-auto w-full max-w-[1280px] px-5 lg:px-8 py-8 sm:py-12">
-      {/* 1. BAŞLIK VE ÜST AÇIKLAMA */}
-      <div className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold tracking-tight text-slate-900 dark:text-white">
-            Yatırım ve Lokasyon Radarı
-          </h2>
-          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            İş kolunuzu seçin, haritada dilediğiniz alanı çemberle tarayın. Bölgenin demografik yapısını, rakip yoğunluğunu ve haritada yanıp sönen aktif <strong className="text-slate-900 dark:text-white">devir & ortaklık fırsatlarını</strong> anlık analiz edin.
-          </p>
-        </div>
-
-        {/* Hızlı Butonlar */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Link
-            href="/radar"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-200 hover:border-amber-500/40 hover:text-amber-600 transition-all shadow-xs"
-          >
-            <span>Tam Ekran Radar</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/ilan/olustur"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 shadow-sm shadow-amber-500/20 transition-all"
-          >
-            <span>Bu Bölgede İlan Ver</span>
-          </Link>
-        </div>
-      </div>
-
+    <section className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* 2. ANA RADAR KOKPİTİ (3 ENTEGRE SÜTUN) */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
         {/* Animated Loading Shimmer Bar */}
@@ -704,35 +675,28 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Yarıçap & Canlı Durum */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">Yarıçap:</span>
-                <div className="inline-flex rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-800/80 p-0.5">
-                  {RADIUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setRadiusMeters(opt.value)}
-                      className={cn(
-                        'px-2 py-0.5 text-[11px] font-bold rounded-md transition-all',
-                        radiusMeters === opt.value
-                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
-                          : 'text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+            {/* Harita Üst Barı: Başlık, Özet Açıklama & Canlı Durum */}
+            <div className="flex items-center justify-between gap-3 pb-0.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white">
+                    Lokasyon Radarı
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 shrink-0">
+                    Canlı Analiz
+                  </span>
                 </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                  İş kolunuzu seçin, çemberle tarayın. Demografi, rakip yoğunluğu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
+                </p>
               </div>
 
               {/* Canlı İlan / Yükleniyor Gösterge Rozeti */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {isLoading ? (
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-full border border-amber-500/30 animate-pulse">
                     <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
-                    <span>Analiz Güncelleniyor...</span>
+                    <span className="hidden sm:inline">Analiz Güncelleniyor...</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
@@ -773,56 +737,46 @@ export function HomeInvestmentRadarSection() {
               />
             </div>
 
-            {/* HARİTANIN HEMEN ALTINDAKİ YÜKLEME VE DURUM ÇUBUĞU */}
-            <div className="w-full">
-              {isLoading ? (
-                <div className="w-full rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/35 p-3 space-y-2 shadow-xs transition-all animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between text-xs font-semibold text-amber-900 dark:text-amber-300">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-amber-500 shrink-0" />
-                      <span>Bölge taranıyor... İşletmeler ve demografik veriler yükleniyor</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-950 dark:text-amber-200 shrink-0">
-                      Canlı Analiz
-                    </span>
-                  </div>
-                  {/* İlerleyen Yükleme Çubuğu */}
-                  <div className="relative w-full h-2 rounded-full bg-amber-200/60 dark:bg-amber-950/60 overflow-hidden">
-                    <div className="h-full w-2/3 bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-500 rounded-full animate-radar-progress shadow-[0_0_12px_rgba(245,158,11,0.8)]" />
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-amber-800/90 dark:text-amber-400/90">
-                    <span>📍 Seçtiğiniz çaptaki ticari harita taranıyor. Lütfen bekleyiniz...</span>
-                    <span className="text-[10px] font-mono opacity-80">OSM Overpass Canlı Senkron</span>
-                  </div>
+            {/* Harita Alt Barı: Yarıçap Seçimi & Lejant */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              {/* Yarıçap Seçici */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">Yarıçap:</span>
+                <div className="inline-flex rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-800/80 p-0.5">
+                  {RADIUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setRadiusMeters(opt.value)}
+                      className={cn(
+                        'px-2.5 py-1 text-xs font-bold rounded-md transition-all',
+                        radiusMeters === opt.value
+                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <div className="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-800/80 px-3.5 py-2 flex items-center justify-between text-xs text-muted-foreground transition-all">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                    <span className="font-medium text-slate-700 dark:text-zinc-300 truncate">
-                      Analiz Tamamlandı: <strong className="text-slate-900 dark:text-white font-bold">{radarData?.competitors.length || 0} işletme</strong> ve <strong className="text-slate-900 dark:text-white font-bold">{radarData?.listingsInRadius.length || 0} aktif ilan</strong> listelendi.
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shrink-0 ml-2">
-                    Güncel
-                  </span>
-                </div>
-              )}
-            </div>
+              </div>
 
-            {/* Harita Alt Lejantı (Pin Açıklamaları) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground pt-1 px-1">
-              <div className="flex items-center gap-4">
+              {/* Lejant (Pin Açıklamaları) */}
+              <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs animate-pulse" />
-                  <span className="font-medium text-slate-700 dark:text-zinc-300">Devir & Ortaklık İlanları ({radarData?.listingsInRadius.length || 0})</span>
+                  <span className="font-medium text-slate-700 dark:text-zinc-300">
+                    Devir & Ortaklık ({radarData?.listingsInRadius.length || 0})
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
-                  <span className="font-medium text-slate-700 dark:text-zinc-300">Mevcut Rakipler ({radarData?.competitors.length || 0})</span>
+                  <span className="font-medium text-slate-700 dark:text-zinc-300">
+                    Mevcut Rakipler ({radarData?.competitors.length || 0})
+                  </span>
                 </div>
+                <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">© OpenStreetMap</span>
               </div>
-              <span className="text-[10px] text-muted-foreground/80">© OpenStreetMap</span>
             </div>
           </div>
 
