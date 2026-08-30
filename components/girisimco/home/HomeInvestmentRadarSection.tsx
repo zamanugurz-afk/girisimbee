@@ -762,8 +762,8 @@ export function HomeInvestmentRadarSection() {
           {/* ========================================================================= */}
           {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-3 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
-            <div className="space-y-3">
+          <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
+            <div className="space-y-3 flex-1 flex flex-col justify-center">
               
               {/* 1. YAPAY ZEKA YATIRIM PUANI */}
               <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5">
@@ -815,18 +815,11 @@ export function HomeInvestmentRadarSection() {
 
               {/* 2. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
               <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
-                <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <Users className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
-                      Bölgesel Demografi
-                    </span>
-                  </div>
-                  {demographicStats.officialNeighborhoodPop && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 shrink-0">
-                      TÜİK Verisi
-                    </span>
-                  )}
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                    Bölgesel Demografi
+                  </span>
                 </div>
                 
                 {/* 2 Temel Metrik: Hedef Kitle & Mevcut Rakipler */}
@@ -876,10 +869,18 @@ export function HomeInvestmentRadarSection() {
                   </div>
                 </div>
               </div>
+
+              {/* 3. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
+              <div className="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300">
+                  Demografi verileri <strong>TÜİK</strong> resmi kayıtları ile modellenmiştir.
+                </span>
+              </div>
             </div>
 
             {/* Rapor İncele Butonu */}
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 href={`/radar?lat=${centerLat}&lng=${centerLng}&category=${selectedCategory}`}
                 className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md"
