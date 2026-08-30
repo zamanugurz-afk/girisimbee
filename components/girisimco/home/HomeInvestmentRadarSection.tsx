@@ -785,7 +785,7 @@ export function HomeInvestmentRadarSection() {
             <div className="space-y-3 flex-1 flex flex-col justify-center">
               
               {/* 1. YAPAY ZEKA YATIRIM PUANI */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5 overflow-hidden">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                   <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
@@ -793,14 +793,14 @@ export function HomeInvestmentRadarSection() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-baseline gap-1.5">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <div className="flex items-baseline gap-1 shrink-0">
                     <span className="text-3xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
                       {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
                     </span>
                     <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                   </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 shrink-0 text-center">
+                  <span className="text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 text-center leading-tight max-w-[62%]">
                     {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
                   </span>
                 </div>
