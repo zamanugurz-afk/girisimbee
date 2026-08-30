@@ -675,36 +675,14 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Başlık, Özet Açıklama & Canlı Durum */}
-            <div className="flex items-center justify-between gap-3 pb-0.5">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white">
-                    Lokasyon Radarı
-                  </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 shrink-0">
-                    Canlı Analiz
-                  </span>
-                </div>
-                <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                  İş kolunuzu seçin, çemberle tarayın. Demografi, rakip yoğunluğu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
-                </p>
-              </div>
-
-              {/* Canlı İlan / Yükleniyor Gösterge Rozeti */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                {isLoading ? (
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-full border border-amber-500/30 animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
-                    <span className="hidden sm:inline">Analiz Güncelleniyor...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{radarData?.listingsInRadius.length || 0} Aktif Fırsat Sinyali</span>
-                  </div>
-                )}
-              </div>
+            {/* Harita Üst Barı: Başlık & Açıklama */}
+            <div className="pb-0.5">
+              <h3 className="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white">
+                Lokasyon Radarı
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                İş kolunuzu seçin, çemberle tarayın. Demografi, rakip yoğunluğu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
+              </p>
             </div>
 
             {/* İnteraktif Harita Tuvali */}
@@ -781,28 +759,30 @@ export function HomeInvestmentRadarSection() {
           </div>
 
           {/* ========================================================================= */}
-          {/* C. SAĞ SÜTUN: DEMOGRAFİ, AI SKORU & İLAN LİSTESİ (~340px - lg:col-span-3)   */}
+          {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               
-              {/* 1. YAPAY ZEKA YATIRIM FIRSAT SKORU */}
+              {/* 1. YAPAY ZEKA YATIRIM PUANI */}
               <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5">
-                <div className="flex items-center justify-between gap-1.5">
-                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5 min-w-0">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span className="truncate">AI Yatırım Fırsat Skoru</span>
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
-                    {radarData?.metrics.opportunityLabel || 'Yüksek Fırsat'}
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                    AI Yatırım Puanı
                   </span>
                 </div>
 
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-                    {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                      {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
+                    {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
                   </span>
-                  <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                 </div>
 
                 {/* 2 Temel Metrik Göstergesi */}
@@ -881,49 +861,6 @@ export function HomeInvestmentRadarSection() {
                     <span className="text-[10px] text-muted-foreground font-medium">Kitle Profili:</span>
                     <strong className="text-slate-900 dark:text-white font-semibold text-[11px] truncate max-w-[170px] text-right">{demographicStats.ageProfile}</strong>
                   </div>
-                </div>
-              </div>
-
-              {/* 3. BÖLGEDEKİ AKTİF DEVİR VE ORTAKLIK İLANLARI */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-                    <Store className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Bölgedeki Aktif Fırsatlar</span>
-                  </h4>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
-                    {radarData?.listingsInRadius.length || 0} İlan
-                  </span>
-                </div>
-
-                <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 scrollbar-thin">
-                  {radarData && radarData.listingsInRadius.length > 0 ? (
-                    radarData.listingsInRadius.slice(0, 3).map((item) => (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className="block p-2.5 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:border-amber-500/50 transition-all group"
-                      >
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-tight">
-                            {item.tag || item.categoryLabel}
-                          </span>
-                          {item.price && (
-                            <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">
-                              {item.price}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-600 transition-colors">
-                          {item.title}
-                        </p>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="p-3 text-center rounded-xl bg-slate-50 dark:bg-zinc-800/30 text-[11px] text-muted-foreground">
-                      Bu çemberde henüz aktif devir/ortaklık ilanı yok.
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
