@@ -567,6 +567,37 @@ export function getGooglePlacesApiKey(): string | null {
   );
 }
 
+const ALL_COMMERCIAL_SECTOR_KEYS: RadarCategoryKey[] = [
+  'cafe',
+  'restaurant',
+  'market',
+  'bakery',
+  'hairdresser',
+  'pharmacy',
+  'pet_shop',
+  'florist',
+  'gym',
+  'law_firm',
+  'butcher',
+  'car_wash',
+  'boutique',
+  'dry_cleaning',
+  'dental_clinic',
+  'real_estate',
+  'auto_gallery',
+  'stationery',
+  'electronics',
+  'furniture',
+  'borekci',
+  'donerci',
+  'tatlici',
+  'cilingir',
+  'balikci',
+  'manav',
+  'terzi',
+  'oto_elektrik',
+];
+
 export async function fetchGooglePlacesPois(
   lat: number,
   lng: number,
@@ -586,27 +617,97 @@ export async function fetchGooglePlacesPois(
   }
 
   const isAll = category === 'all' || !category;
-  const mapping = GOOGLE_CATEGORY_MAPPING[category] || { keyword: category, fallbackLabel: 'Ticari İşletme' };
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
 
-    // 1. Try Legacy Places API (Nearby Search)
+    // If 'all' (Tüm Sektörler & İşletmeler) is requested:
+    // Aggregate all real businesses across commercial sectors in parallel for 100% accurate catchment representation
+    if (isAll) {
+      const promises = ALL_COMMERCIAL_SECTOR_KEYS.map(async (secKey) => {
+        const secMapping = GOOGLE_CATEGORY_MAPPING[secKey];
+        if (!secMapping?.keyword) return [];
+
+        const secCacheKey = `gplaces-${roundedLat}-${roundedLng}-${radiusMeters}-${secKey}`;
+        const secCached = GOOGLE_PLACES_CACHE.get(secCacheKey);
+        if (secCached && Date.now() - secCached.ts < CACHE_TTL_MS) {
+          return secCached.data;
+        }
+
+        const secParams = new URLSearchParams({
+          location: `${lat},${lng}`,
+          radius: radiusMeters.toString(),
+          key: apiKey,
+          language: 'tr',
+          keyword: secMapping.keyword,
+        });
+
+        try {
+          const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${secParams.toString()}`;
+          const res = await fetch(url, { signal: controller.signal });
+          if (!res.ok) return [];
+          const json = (await res.json()) as GooglePlacesResponse;
+          if (json.status !== 'OK') return [];
+
+          const secPois: CompetitorPoi[] = [];
+          for (const place of json.results || []) {
+            if (!place.geometry?.location || !place.name) continue;
+            if (place.business_status === 'CLOSED_PERMANENTLY') continue;
+
+            const pLat = place.geometry.location.lat;
+            const pLng = place.geometry.location.lng;
+            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+            if (dist > radiusMeters) continue;
+
+            secPois.push({
+              id: `gp-${place.place_id}`,
+              name: place.name,
+              lat: pLat,
+              lng: pLng,
+              category: secKey,
+              categoryLabel: secMapping.fallbackLabel,
+              address: place.vicinity,
+              distanceMeters: Math.round(dist),
+            });
+          }
+
+          GOOGLE_PLACES_CACHE.set(secCacheKey, { data: secPois, ts: Date.now() });
+          return secPois;
+        } catch {
+          return [];
+        }
+      });
+
+      const sectorResults = await Promise.all(promises);
+      clearTimeout(timeoutId);
+
+      const uniqueMap = new Map<string, CompetitorPoi>();
+      for (const list of sectorResults) {
+        for (const poi of list) {
+          if (!uniqueMap.has(poi.id)) {
+            uniqueMap.set(poi.id, poi);
+          }
+        }
+      }
+
+      const allAggregatedPois = Array.from(uniqueMap.values()).sort(
+        (a, b) => a.distanceMeters - b.distanceMeters,
+      );
+
+      GOOGLE_PLACES_CACHE.set(cacheKey, { data: allAggregatedPois, ts: Date.now() });
+      return allAggregatedPois;
+    }
+
+    // Specific Sector Query
+    const mapping = GOOGLE_CATEGORY_MAPPING[category] || { keyword: category, fallbackLabel: 'Ticari İşletme' };
     const params = new URLSearchParams({
       location: `${lat},${lng}`,
       radius: radiusMeters.toString(),
       key: apiKey,
       language: 'tr',
+      keyword: mapping.keyword,
     });
-
-    if (isAll) {
-      params.append('type', 'establishment');
-    } else {
-      if (mapping.keyword) {
-        params.append('keyword', mapping.keyword);
-      }
-    }
 
     const legacyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
     const legacyRes = await fetch(legacyUrl, { signal: controller.signal });
@@ -628,26 +729,13 @@ export async function fetchGooglePlacesPois(
 
           if (dist > radiusMeters) continue;
 
-          let catKey = category;
-          let catLabel = mapping.fallbackLabel;
-
-          if (isAll) {
-            const typesRecord: Record<string, string> = {};
-            for (const t of place.types || []) {
-              typesRecord[t] = t;
-            }
-            const classified = classifyPoi(place.name, typesRecord);
-            catKey = classified.key;
-            catLabel = classified.label;
-          }
-
           pois.push({
             id: `gp-${place.place_id}`,
             name: place.name,
             lat: pLat,
             lng: pLng,
-            category: catKey,
-            categoryLabel: catLabel,
+            category,
+            categoryLabel: mapping.fallbackLabel,
             address: place.vicinity,
             distanceMeters: Math.round(dist),
           });
