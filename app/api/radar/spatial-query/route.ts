@@ -15,22 +15,7 @@ const querySchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
   lng: z.coerce.number().min(-180).max(180),
   radius: z.coerce.number().min(50).max(10000).default(500),
-  category: z
-    .enum([
-      'cafe',
-      'pet_shop',
-      'butcher',
-      'bakery',
-      'market',
-      'hairdresser',
-      'gym',
-      'pharmacy',
-      'car_wash',
-      'restaurant',
-      'boutique',
-      'dry_cleaning',
-    ])
-    .default('cafe'),
+  category: z.string().default('cafe'),
   locationName: z.string().optional(),
 });
 
