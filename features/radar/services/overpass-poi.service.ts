@@ -267,12 +267,21 @@ export async function fetchOverpassCompetitorPois(
   const categoryMeta = isAll
     ? { label: 'Tüm İşletmeler', idealDensityPerKm2: 45 }
     : (RADAR_CATEGORIES[category] ?? RADAR_CATEGORIES.cafe);
+  const tagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]';
 
-  const tagFilter = isAll
-    ? '["amenity"]; node(around:' + radiusMeters + ',' + lat + ',' + lng + ')["shop"]; node(around:' + radiusMeters + ',' + lat + ',' + lng + ')["office"]'
-    : (CATEGORY_TAG_MAP[category] ?? '["amenity"="cafe"]');
-
-  const query = `
+  const query = isAll
+    ? `
+    [out:json][timeout:4];
+    (
+      node(around:${radiusMeters},${lat},${lng})["amenity"];
+      node(around:${radiusMeters},${lat},${lng})["shop"];
+      node(around:${radiusMeters},${lat},${lng})["office"];
+      way(around:${radiusMeters},${lat},${lng})["amenity"];
+      way(around:${radiusMeters},${lat},${lng})["shop"];
+    );
+    out center 120;
+  `.trim()
+    : `
     [out:json][timeout:3];
     (
       node(around:${radiusMeters},${lat},${lng})${tagFilter};
