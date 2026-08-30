@@ -34,41 +34,67 @@ export function computeRadarMetrics(
   radiusMeters: number,
   categoryKey: RadarCategoryKey,
 ): RadarAnalysisMetrics {
-  const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
+  const isAll = categoryKey === 'all' || !categoryKey;
   const radiusKm = radiusMeters / 1000;
   const areaKm2 = Math.max(0.01, parseFloat((Math.PI * Math.pow(radiusKm, 2)).toFixed(3)));
   const densityPerKm2 = Math.round(competitorCount / areaKm2);
 
-  // Saturation comparison
-  const idealDensity = categoryMeta.idealDensityPerKm2;
-  const saturationRatio = densityPerKm2 / idealDensity;
-  const saturationScore = Math.min(100, Math.max(5, Math.round(saturationRatio * 55)));
+  let idealDensity = 15;
+  if (isAll) {
+    idealDensity = 160;
+  } else {
+    const categoryMeta = RADAR_CATEGORIES[categoryKey];
+    idealDensity = categoryMeta?.idealDensityPerKm2 ?? 15;
+  }
+
+  // Multi-Factor Saturation Calculation
+  const saturationRatio = densityPerKm2 / Math.max(1, idealDensity);
+  const saturationScore = Math.min(100, Math.max(8, Math.round(saturationRatio * 45)));
 
   let saturationLevel: SaturationLevel = 'moderate';
-  let saturationLabel = 'Dengeli Pazar — İstikrarlı Talep';
-  let opportunityScore = 7.5;
+  let saturationLabel = 'Dengeli Pazar';
+  let opportunityScore = 7.8;
   let opportunityLabel = 'Yatırıma Uygun';
 
-  if (saturationScore < 35) {
-    saturationLevel = 'low';
-    saturationLabel = 'Düşük Yoğunluk — Yüksek Büyüme Fırsatı';
-    opportunityScore = Math.min(9.8, parseFloat((8.8 + Math.random() * 0.8).toFixed(1)));
-    opportunityLabel = 'Çok Yüksek Fırsat';
-  } else if (saturationScore <= 70) {
-    saturationLevel = 'moderate';
-    saturationLabel = 'Dengeli Rekabet — Doğru Konseptle Büyüme';
-    opportunityScore = Math.min(8.9, Math.max(6.5, parseFloat((7.4 + (70 - saturationScore) * 0.03).toFixed(1))));
-    opportunityLabel = 'Yatırıma Uygun';
-  } else if (saturationScore <= 90) {
-    saturationLevel = 'high';
-    saturationLabel = 'Yüksek Rekabet — Güçlü Farklılaşma Şart';
-    opportunityScore = Math.max(4.5, parseFloat((5.8 - (saturationScore - 70) * 0.04).toFixed(1)));
-    opportunityLabel = 'Dikkatli Planlama Gerekli';
+  if (isAll) {
+    if (competitorCount >= 40) {
+      saturationLevel = 'moderate';
+      saturationLabel = 'Canlı Ticaret Merkezi (Yüksek Yaya Trafiği)';
+      opportunityScore = 8.8;
+      opportunityLabel = 'Yüksek Ticari Potansiyel';
+    } else if (competitorCount >= 15) {
+      saturationLevel = 'low';
+      saturationLabel = 'Gelişmekte Olan Ticari Bölge';
+      opportunityScore = 8.3;
+      opportunityLabel = 'Büyüme Fırsatı';
+    } else {
+      saturationLevel = 'low';
+      saturationLabel = 'Sakin Bölge (Yerleşim Ağırlıklı)';
+      opportunityScore = 7.5;
+      opportunityLabel = 'Orta Potansiyel';
+    }
   } else {
-    saturationLevel = 'oversaturated';
-    saturationLabel = 'Aşırı Doygun — Niş Konsept Dışında Riskli';
-    opportunityScore = Math.max(2.5, parseFloat((3.8 - (saturationScore - 90) * 0.05).toFixed(1)));
-    opportunityLabel = 'Yüksek Rekabet Riski';
+    if (saturationScore < 35) {
+      saturationLevel = 'low';
+      saturationLabel = 'Düşük Rekabet — Yüksek Talep Açığı';
+      opportunityScore = Math.min(9.8, parseFloat((8.8 + (35 - saturationScore) * 0.03).toFixed(1)));
+      opportunityLabel = 'Çok Yüksek Fırsat';
+    } else if (saturationScore <= 65) {
+      saturationLevel = 'moderate';
+      saturationLabel = 'Dengeli Pazar — İstikrarlı Talep';
+      opportunityScore = Math.min(8.6, Math.max(7.2, parseFloat((7.6 + (65 - saturationScore) * 0.03).toFixed(1))));
+      opportunityLabel = 'Yatırıma Uygun';
+    } else if (saturationScore <= 85) {
+      saturationLevel = 'high';
+      saturationLabel = 'Yoğun Rekabet — Farklılaşma Şart';
+      opportunityScore = Math.max(5.5, parseFloat((7.0 - (saturationScore - 65) * 0.06).toFixed(1)));
+      opportunityLabel = 'Niş Konsept Önerilir';
+    } else {
+      saturationLevel = 'oversaturated';
+      saturationLabel = 'Yüksek Doygunluk — Rekabetçi';
+      opportunityScore = Math.max(4.2, parseFloat((5.4 - (saturationScore - 85) * 0.05).toFixed(1)));
+      opportunityLabel = 'Hazır Devir/Ortaklık Önerilir';
+    }
   }
 
   return {

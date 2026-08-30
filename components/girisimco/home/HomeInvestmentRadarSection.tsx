@@ -833,37 +833,60 @@ export function HomeInvestmentRadarSection() {
             <div className="space-y-4">
               
               {/* 1. YAPAY ZEKA YATIRIM FIRSAT SKORU */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     <span>AI Yatırım Fırsat Skoru</span>
                   </span>
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 whitespace-nowrap shrink-0">
                     {radarData?.metrics.opportunityLabel || 'Yüksek Fırsat'}
                   </span>
                 </div>
+
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display">
-                    {radarData ? (radarData.metrics.opportunityScore / 10).toFixed(1) : '8.8'}
+                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                    {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
                   </span>
                   <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                 </div>
+
+                {/* 2 Temel Metrik Göstergesi */}
+                <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle</span>
+                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{demographicStats.population} Kişi</strong>
+                  </div>
+                  <div className="p-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-700/50">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Mevcut İşletme</span>
+                    <strong className="text-slate-900 dark:text-white text-xs font-bold truncate block">{radarData?.competitors.length || 0} Adet</strong>
+                  </div>
+                </div>
                 
-                {/* Pazar Doygunluk Barı */}
-                <div className="mt-3">
-                  <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                    <span>Pazar Doygunluğu</span>
-                    <span className="font-bold text-slate-800 dark:text-zinc-200">
-                      %{radarData?.metrics.saturationScore ?? 34} ({radarData?.metrics.saturationLabel ?? 'Düşük Rekabet'})
+                {/* Pazar Doygunluk Çubuğu */}
+                <div className="space-y-1 pt-1 border-t border-amber-500/20">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      %{radarData?.metrics.saturationScore ?? 28}
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full transition-all duration-500" 
-                      style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 34)}%` }}
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        (radarData?.metrics.saturationScore ?? 28) < 40
+                          ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                          : (radarData?.metrics.saturationScore ?? 28) < 70
+                          ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                          : "bg-gradient-to-r from-orange-500 to-rose-500"
+                      )}
+                      style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
                     />
                   </div>
+                  <p className="text-[10px] font-medium text-muted-foreground truncate pt-0.5">
+                    {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
+                  </p>
                 </div>
               </div>
 
