@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { RadarCategoryKey, RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
 import {
-  fetchOverpassCompetitorPois,
+  fetchCompetitorPois,
   fetchAreaSectorCounts,
 } from '@/features/radar/services/overpass-poi.service';
 import { findListingsInRadius } from '@/features/radar/services/radar-listings-matcher.service';
@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
       ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
       : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
-    // 1. Fetch competitors (POIs) and 2. listings in parallel (single Overpass query)
+    // 1. Fetch competitors (POIs: Google Places with OSM fallback) and 2. listings in parallel
     const [competitors, listingsInRadius] = await Promise.all([
-      fetchOverpassCompetitorPois(lat, lng, radius, categoryKey),
+      fetchCompetitorPois(lat, lng, radius, categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
 
     const [competitors, listingsInRadius] = await Promise.all([
-      fetchOverpassCompetitorPois(lat, lng, radius, categoryKey),
+      fetchCompetitorPois(lat, lng, radius, categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
