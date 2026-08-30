@@ -597,20 +597,15 @@ export function HomeInvestmentRadarSection() {
 
               {/* Hedef İş Kolu & Sektör Arama */}
               <div className="mb-2.5 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Hedef İş Kolu / Sektör
-                  </label>
-                  <span className="text-[10px] text-muted-foreground font-medium">
-                    (Seçim yapmadan tümü listelenir)
-                  </span>
-                </div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Hedef İş Kolu / Sektör
+                </label>
                 
                 <div className="relative w-full">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Sektör ara (örn: acente, petshop, oto, emlak)..."
+                    placeholder="Sektör ara (örn: Kafe)..."
                     value={categorySearchQuery}
                     onChange={(e) => setCategorySearchQuery(e.target.value)}
                     className="h-8.5 w-full rounded-lg border border-slate-200/80 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
