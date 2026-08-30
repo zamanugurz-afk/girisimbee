@@ -51,19 +51,18 @@ export async function GET(request: NextRequest) {
       ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
       : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
-    // 1. Fetch competitors (POIs), 2. listings, and 3. area sector distribution in parallel
-    const [competitors, listingsInRadius, availableSectors] = await Promise.all([
+    // 1. Fetch competitors (POIs) and 2. listings in parallel (single Overpass query)
+    const [competitors, listingsInRadius] = await Promise.all([
       fetchOverpassCompetitorPois(lat, lng, radius, categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
-      fetchAreaSectorCounts(lat, lng, radius),
     ]);
 
-    // 3. Compute Metrics and AI Intelligence Report
+    // 2. Compute Metrics and AI Intelligence Report
     const metrics = computeRadarMetrics(competitors.length, radius, categoryKey);
     const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName);
 
-    // Compute accurate sector distribution
-    const sectorDistribution: Record<string, number> = { ...(availableSectors || {}) };
+    // Compute accurate sector distribution directly from POIs
+    const sectorDistribution: Record<string, number> = {};
     for (const poi of competitors) {
       if (poi.category && poi.category !== 'all') {
         sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;

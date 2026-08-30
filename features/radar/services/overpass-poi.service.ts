@@ -45,44 +45,44 @@ const EXCLUDED_AMENITIES = new Set([
   'telephone',
 ]);
 
-const CATEGORY_TAG_MAP: Record<string, string> = {
-  cafe: '["amenity"~"cafe|coffee_shop"]',
-  pet_shop: '["shop"~"pet|pet_grooming"]; node(around:RADIUS,LAT,LNG)["amenity"="veterinary"]; way(around:RADIUS,LAT,LNG)["amenity"="veterinary"]',
-  butcher: '["shop"~"butcher|deli"]',
-  bakery: '["shop"~"bakery|pastry|confectionery"]',
-  market: '["shop"~"supermarket|convenience|grocery"]',
-  hairdresser: '["shop"~"hairdresser|beauty|barber"]',
-  gym: '["leisure"~"fitness_centre|sports_centre"]',
-  pharmacy: '["amenity"="pharmacy"]',
-  car_wash: '["amenity"="car_wash"]',
-  restaurant: '["amenity"~"restaurant|fast_food"]',
-  boutique: '["shop"~"clothes|boutique|fashion"]',
-  dry_cleaning: '["shop"~"dry_cleaning|laundry|tailor"]',
-  insurance_agency: '["office"="insurance"]',
-  travel_agency: '["shop"="travel_agency"]',
-  real_estate: '["office"="estate_agent"]',
-  auto_gallery: '["shop"~"car|car_repair|car_parts"]',
-  stationery: '["shop"~"stationery|books"]',
-  florist: '["shop"="florist"]',
-  optician: '["shop"="optician"]',
-  dental_clinic: '["amenity"="dentist"]',
-  kindergarten: '["amenity"="kindergarten"]',
-  law_firm: '["office"="lawyer"]',
-  software_agency: '["office"~"it|company"]',
-  furniture: '["shop"="furniture"]',
-  electronics: '["shop"="electronics"]',
-  borekci: '["shop"~"bakery|pastry"]',
-  dondurmaci: '["amenity"="ice_cream"]',
-  lastikci: '["shop"~"tyres|car_repair"]',
-  cigkofteci: '["amenity"~"fast_food|restaurant"]',
-  tatlici: '["shop"~"confectionery|pastry|bakery"]',
-  donerci: '["amenity"~"restaurant|fast_food"]',
-  kokorecci: '["amenity"~"fast_food|restaurant"]',
-  cilingir: '["shop"="locksmith"]',
-  balikci: '["shop"="seafood"]',
-  manav: '["shop"="greengrocer"]',
-  terzi: '["shop"="tailor"]',
-  oto_elektrik: '["shop"~"car_repair|car_parts"]',
+const CATEGORY_TAG_MAP: Record<string, string[]> = {
+  cafe: ['["amenity"~"cafe|coffee_shop"]'],
+  pet_shop: ['["shop"~"pet|pet_grooming"]', '["amenity"="veterinary"]'],
+  butcher: ['["shop"~"butcher|deli"]'],
+  bakery: ['["shop"~"bakery|pastry|confectionery"]'],
+  market: ['["shop"~"supermarket|convenience|grocery"]'],
+  hairdresser: ['["shop"~"hairdresser|beauty|barber"]'],
+  gym: ['["leisure"~"fitness_centre|sports_centre"]'],
+  pharmacy: ['["amenity"="pharmacy"]'],
+  car_wash: ['["amenity"="car_wash"]'],
+  restaurant: ['["amenity"~"restaurant|fast_food"]'],
+  boutique: ['["shop"~"clothes|boutique|fashion"]'],
+  dry_cleaning: ['["shop"~"dry_cleaning|laundry|tailor"]'],
+  insurance_agency: ['["office"="insurance"]'],
+  travel_agency: ['["shop"="travel_agency"]'],
+  real_estate: ['["office"="estate_agent"]'],
+  auto_gallery: ['["shop"~"car|car_repair|car_parts"]'],
+  stationery: ['["shop"~"stationery|books"]'],
+  florist: ['["shop"="florist"]'],
+  optician: ['["shop"="optician"]'],
+  dental_clinic: ['["amenity"="dentist"]'],
+  kindergarten: ['["amenity"="kindergarten"]'],
+  law_firm: ['["office"="lawyer"]'],
+  software_agency: ['["office"~"it|company"]'],
+  furniture: ['["shop"="furniture"]'],
+  electronics: ['["shop"="electronics"]'],
+  borekci: ['["shop"~"bakery|pastry"]'],
+  dondurmaci: ['["amenity"="ice_cream"]'],
+  lastikci: ['["shop"~"tyres|car_repair"]'],
+  cigkofteci: ['["amenity"~"fast_food|restaurant"]'],
+  tatlici: ['["shop"~"confectionery|pastry|bakery"]'],
+  donerci: ['["amenity"~"restaurant|fast_food"]'],
+  kokorecci: ['["amenity"~"fast_food|restaurant"]'],
+  cilingir: ['["shop"="locksmith"]'],
+  balikci: ['["shop"="seafood"]'],
+  manav: ['["shop"="greengrocer"]'],
+  terzi: ['["shop"="tailor"]'],
+  oto_elektrik: ['["shop"~"car_repair|car_parts"]'],
 };
 
 function hasWord(text: string | undefined, words: string[]): boolean {
@@ -359,17 +359,15 @@ export async function fetchOverpassCompetitorPois(
       out center 120;
     `.trim();
   } else {
-    const rawTagFilter = CATEGORY_TAG_MAP[category] ?? '["amenity"~"cafe|restaurant"]';
-    const tagFilter = rawTagFilter
-      .replace(/RADIUS/g, String(radiusMeters))
-      .replace(/LAT/g, String(lat))
-      .replace(/LNG/g, String(lng));
+    const filters = CATEGORY_TAG_MAP[category] ?? ['["amenity"~"cafe|restaurant"]'];
+    const nodes = filters.map((f) => `node(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
+    const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
 
     query = `
       [out:json][timeout:4];
       (
-        node(around:${radiusMeters},${lat},${lng})${tagFilter};
-        way(around:${radiusMeters},${lat},${lng})${tagFilter};
+        ${nodes}
+        ${ways}
       );
       out center 80;
     `.trim();
