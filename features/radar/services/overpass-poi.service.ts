@@ -300,10 +300,33 @@ export async function fetchAreaSectorCounts(
 
         for (const el of elements) {
           const rawName = el.tags?.name || el.tags?.brand || el.tags?.['name:tr'] || '';
+          const amenity = (el.tags?.amenity || '').toLowerCase();
+          const shop = (el.tags?.shop || '').toLowerCase();
+          const office = (el.tags?.office || '').toLowerCase();
+          const leisure = (el.tags?.leisure || '').toLowerCase();
 
-          for (const [catKey] of Object.entries(RADAR_CATEGORIES)) {
-            if (matchesCategorySemantics(rawName, el.tags, catKey as RadarCategoryKey)) {
-              counts[catKey] = (counts[catKey] || 0) + 1;
+          // Direct tag checks first
+          if (amenity === 'cafe' || amenity === 'coffee_shop') counts.cafe = (counts.cafe || 0) + 1;
+          else if (amenity === 'pharmacy') counts.pharmacy = (counts.pharmacy || 0) + 1;
+          else if (amenity === 'dentist') counts.dental_clinic = (counts.dental_clinic || 0) + 1;
+          else if (amenity === 'restaurant') counts.restaurant = (counts.restaurant || 0) + 1;
+          else if (amenity === 'car_wash') counts.car_wash = (counts.car_wash || 0) + 1;
+          else if (shop === 'supermarket' || shop === 'convenience' || shop === 'grocery') counts.market = (counts.market || 0) + 1;
+          else if (shop === 'bakery' || shop === 'pastry') counts.bakery = (counts.bakery || 0) + 1;
+          else if (shop === 'butcher') counts.butcher = (counts.butcher || 0) + 1;
+          else if (shop === 'hairdresser' || shop === 'barber' || shop === 'beauty') counts.hairdresser = (counts.hairdresser || 0) + 1;
+          else if (shop === 'pet' || amenity === 'veterinary') counts.pet_shop = (counts.pet_shop || 0) + 1;
+          else if (shop === 'clothes' || shop === 'boutique') counts.boutique = (counts.boutique || 0) + 1;
+          else if (leisure === 'fitness_centre' || leisure === 'sports_centre') counts.gym = (counts.gym || 0) + 1;
+          else if (office === 'insurance') counts.insurance_agency = (counts.insurance_agency || 0) + 1;
+          else if (office === 'estate_agent') counts.real_estate = (counts.real_estate || 0) + 1;
+          else if (office === 'lawyer') counts.law_firm = (counts.law_firm || 0) + 1;
+          else {
+            for (const [catKey] of Object.entries(RADAR_CATEGORIES)) {
+              if (matchesCategorySemantics(rawName, el.tags, catKey as RadarCategoryKey)) {
+                counts[catKey] = (counts[catKey] || 0) + 1;
+                break;
+              }
             }
           }
         }

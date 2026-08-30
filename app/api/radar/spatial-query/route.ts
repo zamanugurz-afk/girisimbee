@@ -45,7 +45,10 @@ export async function GET(request: NextRequest) {
 
     const { lat, lng, radius, category, locationName } = parsed.data;
     const categoryKey = category as RadarCategoryKey;
-    const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
+    const isAll = categoryKey === 'all';
+    const categoryMeta = isAll
+      ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
+      : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
     // 1. Fetch competitors (POIs), 2. listings, and 3. area sector distribution in parallel
     const [competitors, listingsInRadius, availableSectors] = await Promise.all([
