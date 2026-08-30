@@ -29,70 +29,145 @@ export function calculateDistanceMeters(
   return Math.round(R * c);
 }
 
+export interface SectorConsumptionProfile {
+  requiredPopulation: number;
+  frequencyLabel: string;
+  upperSesAffinity: number; // A+, A
+  midSesAffinity: number;   // B, C1
+  lowerSesAffinity: number; // C2, D
+}
+
+export const SECTOR_CONSUMPTION_PROFILES: Record<string, SectorConsumptionProfile> = {
+  market: { requiredPopulation: 2200, frequencyLabel: 'Günlük Temel Tüketim', upperSesAffinity: 1.05, midSesAffinity: 1.0, lowerSesAffinity: 1.0 },
+  bakery: { requiredPopulation: 2600, frequencyLabel: 'Günlük Temel Tüketim', upperSesAffinity: 1.0, midSesAffinity: 1.05, lowerSesAffinity: 1.10 },
+  cafe: { requiredPopulation: 2800, frequencyLabel: 'Haftada 3-5 Kez', upperSesAffinity: 1.45, midSesAffinity: 1.10, lowerSesAffinity: 0.70 },
+  restaurant: { requiredPopulation: 3200, frequencyLabel: 'Haftalık Tüketim', upperSesAffinity: 1.30, midSesAffinity: 1.05, lowerSesAffinity: 0.80 },
+  donerci: { requiredPopulation: 3400, frequencyLabel: 'Haftalık Tüketim', upperSesAffinity: 0.85, midSesAffinity: 1.25, lowerSesAffinity: 1.30 },
+  borekci: { requiredPopulation: 3500, frequencyLabel: 'Haftada 2-3 Kez', upperSesAffinity: 0.90, midSesAffinity: 1.20, lowerSesAffinity: 1.25 },
+  hairdresser: { requiredPopulation: 2600, frequencyLabel: 'Aylık Düzenli Hizmet', upperSesAffinity: 1.20, midSesAffinity: 1.0, lowerSesAffinity: 0.90 },
+  pharmacy: { requiredPopulation: 3500, frequencyLabel: 'Düzenli Sağlık İhtiyacı', upperSesAffinity: 1.10, midSesAffinity: 1.0, lowerSesAffinity: 1.0 },
+  cigkofteci: { requiredPopulation: 4500, frequencyLabel: 'Haftalık Hızlı Tüketim', upperSesAffinity: 0.65, midSesAffinity: 1.20, lowerSesAffinity: 1.35 },
+  butcher: { requiredPopulation: 4600, frequencyLabel: 'Haftalık Alışveriş', upperSesAffinity: 1.15, midSesAffinity: 1.10, lowerSesAffinity: 0.85 },
+  manav: { requiredPopulation: 4200, frequencyLabel: 'Haftalık Alışveriş', upperSesAffinity: 1.10, midSesAffinity: 1.10, lowerSesAffinity: 0.95 },
+  stationery: { requiredPopulation: 5000, frequencyLabel: 'Dönemsel / Aylık İhtiyaç', upperSesAffinity: 1.15, midSesAffinity: 1.05, lowerSesAffinity: 0.90 },
+  dental_clinic: { requiredPopulation: 6000, frequencyLabel: 'Periyodik Sağlık & Bakım', upperSesAffinity: 1.40, midSesAffinity: 1.0, lowerSesAffinity: 0.70 },
+  real_estate: { requiredPopulation: 6000, frequencyLabel: 'Dönemsel Hizmet', upperSesAffinity: 1.25, midSesAffinity: 1.05, lowerSesAffinity: 0.75 },
+  optician: { requiredPopulation: 7500, frequencyLabel: 'Yıllık / İhtiyaç Odaklı', upperSesAffinity: 1.20, midSesAffinity: 1.0, lowerSesAffinity: 0.80 },
+  pet_shop: { requiredPopulation: 7500, frequencyLabel: 'Aylık Mama & Bakım', upperSesAffinity: 1.50, midSesAffinity: 1.05, lowerSesAffinity: 0.50 },
+  dondurmaci: { requiredPopulation: 7500, frequencyLabel: 'Haftalık / Sezonluk Keyif', upperSesAffinity: 1.30, midSesAffinity: 1.10, lowerSesAffinity: 0.80 },
+  cilingir: { requiredPopulation: 8000, frequencyLabel: 'Acil İhtiyaç Hizmeti', upperSesAffinity: 1.0, midSesAffinity: 1.0, lowerSesAffinity: 1.0 },
+  gym: { requiredPopulation: 8500, frequencyLabel: 'Aylık Üyelik & Spor', upperSesAffinity: 1.45, midSesAffinity: 1.05, lowerSesAffinity: 0.55 },
+  dry_cleaning: { requiredPopulation: 8500, frequencyLabel: 'Aylık Bakım & Temizlik', upperSesAffinity: 1.40, midSesAffinity: 1.0, lowerSesAffinity: 0.60 },
+  insurance_agency: { requiredPopulation: 8500, frequencyLabel: 'Yıllık Poliçe Hizmeti', upperSesAffinity: 1.15, midSesAffinity: 1.05, lowerSesAffinity: 0.85 },
+  kokorecci: { requiredPopulation: 9000, frequencyLabel: 'Gece / Seyrek Tüketim', upperSesAffinity: 0.75, midSesAffinity: 1.20, lowerSesAffinity: 1.20 },
+  florist: { requiredPopulation: 9500, frequencyLabel: 'Özel Gün / Hediye Odaklı', upperSesAffinity: 1.45, midSesAffinity: 1.0, lowerSesAffinity: 0.55 },
+  car_wash: { requiredPopulation: 10000, frequencyLabel: 'Aylık / 2 Haftada Bir', upperSesAffinity: 1.30, midSesAffinity: 1.10, lowerSesAffinity: 0.80 },
+  balikci: { requiredPopulation: 10000, frequencyLabel: 'Haftalık / Seyrek Tüketim', upperSesAffinity: 1.20, midSesAffinity: 1.05, lowerSesAffinity: 0.75 },
+  tatlici: { requiredPopulation: 11500, frequencyLabel: 'Özel Gün / Seyrek Tatlı Tüketimi', upperSesAffinity: 0.70, midSesAffinity: 1.25, lowerSesAffinity: 1.20 },
+  lastikci: { requiredPopulation: 12000, frequencyLabel: 'Yıllık / Sezonluk Lastik Değişimi', upperSesAffinity: 0.95, midSesAffinity: 1.10, lowerSesAffinity: 1.05 },
+  auto_gallery: { requiredPopulation: 15000, frequencyLabel: 'Çok Seyrek Araç Alım/Satım', upperSesAffinity: 1.10, midSesAffinity: 1.05, lowerSesAffinity: 0.85 },
+  travel_agency: { requiredPopulation: 16000, frequencyLabel: 'Yıllık Tatil & Vize', upperSesAffinity: 1.35, midSesAffinity: 1.0, lowerSesAffinity: 0.65 },
+  law_firm: { requiredPopulation: 4500, frequencyLabel: 'Dönemsel Hukuki Danışmanlık', upperSesAffinity: 1.35, midSesAffinity: 1.0, lowerSesAffinity: 0.70 },
+};
+
 export function computeRadarMetrics(
   competitorCount: number,
   radiusMeters: number,
   categoryKey: RadarCategoryKey,
+  lat?: number,
+  lng?: number,
+  locationName?: string,
 ): RadarAnalysisMetrics {
   const isAll = categoryKey === 'all' || !categoryKey;
   const radiusKm = radiusMeters / 1000;
   const areaKm2 = Math.max(0.01, parseFloat((Math.PI * Math.pow(radiusKm, 2)).toFixed(3)));
   const densityPerKm2 = Math.round(competitorCount / areaKm2);
 
-  let idealDensity = 15;
-  if (isAll) {
-    idealDensity = 160;
-  } else {
-    const categoryMeta = RADAR_CATEGORIES[categoryKey];
-    idealDensity = categoryMeta?.idealDensityPerKm2 ?? 15;
-  }
-
-  // Multi-Factor Saturation Calculation
-  const saturationRatio = densityPerKm2 / Math.max(1, idealDensity);
-  const saturationScore = Math.min(100, Math.max(8, Math.round(saturationRatio * 45)));
+  // Demografik nüfus ve profil çözümleme
+  const demographics = resolveDemographicProfile(lat ?? 40.9125, lng ?? 29.1764, radiusMeters, locationName);
+  const catchmentPop = parseInt(demographics.population.replace(/\./g, '')) || Math.round(areaKm2 * 12000);
+  const sesStr = demographics.sesGroup;
+  const isUpperSes = sesStr.includes('A');
+  const isLowerSes = sesStr.includes('C2') || sesStr.includes('D');
 
   let saturationLevel: SaturationLevel = 'moderate';
   let saturationLabel = 'Dengeli Pazar';
   let opportunityScore = 7.8;
   let opportunityLabel = 'Yatırıma Uygun';
+  let saturationScore = 45;
 
   if (isAll) {
+    // Tüm Sektörler seçildiğinde genel ticari çekim merkezi ve yaya canlılığı değerlendirilir
     if (competitorCount >= 40) {
       saturationLevel = 'moderate';
-      saturationLabel = 'Canlı Ticaret Merkezi (Yüksek Yaya Trafiği)';
+      saturationLabel = 'Canlı Ticaret Merkezi (Yüksek Yaya Sirkülasyonu)';
       opportunityScore = 8.8;
       opportunityLabel = 'Yüksek Ticari Potansiyel';
+      saturationScore = 38;
     } else if (competitorCount >= 15) {
       saturationLevel = 'low';
       saturationLabel = 'Gelişmekte Olan Ticari Bölge';
       opportunityScore = 8.3;
       opportunityLabel = 'Büyüme Fırsatı';
+      saturationScore = 25;
     } else {
       saturationLevel = 'low';
       saturationLabel = 'Sakin Bölge (Yerleşim Ağırlıklı)';
       opportunityScore = 7.5;
       opportunityLabel = 'Orta Potansiyel';
+      saturationScore = 15;
     }
   } else {
-    if (saturationScore < 35) {
+    // Sektöre özel Tüketim Sıklığı & Demografik Tercih Modeli
+    const profile: SectorConsumptionProfile = SECTOR_CONSUMPTION_PROFILES[categoryKey] ?? {
+      requiredPopulation: 6000,
+      frequencyLabel: 'Standart Tüketim',
+      upperSesAffinity: 1.0,
+      midSesAffinity: 1.0,
+      lowerSesAffinity: 1.0,
+    };
+
+    const affinityMultiplier = isUpperSes
+      ? profile.upperSesAffinity
+      : isLowerSes
+      ? profile.lowerSesAffinity
+      : profile.midSesAffinity;
+
+    // Çemberdeki efektif talep havuzu (Nüfus x Tercih Edilme Oranı)
+    const effectiveDemand = Math.round(catchmentPop * affinityMultiplier);
+    // Bu bölgenin sürdürülebilir olarak taşıyabileceği ideal dükkan sayısı
+    const idealCapacityCount = Math.max(0.4, effectiveDemand / profile.requiredPopulation);
+    
+    // Kapasite kullanım / doygunluk oranı
+    const saturationRatio = competitorCount / idealCapacityCount;
+
+    if (saturationRatio <= 0.35) {
+      // Belirgin arz açığı (Bölge 4-5 dükkan kaldırabilirken sadece 0-1 dükkan var)
       saturationLevel = 'low';
       saturationLabel = 'Düşük Rekabet — Yüksek Talep Açığı';
-      opportunityScore = Math.min(9.8, parseFloat((8.8 + (35 - saturationScore) * 0.03).toFixed(1)));
+      saturationScore = Math.max(8, Math.round(saturationRatio * 100));
+      opportunityScore = Math.min(9.8, parseFloat((8.8 + (0.35 - saturationRatio) * 2.5).toFixed(1)));
       opportunityLabel = 'Çok Yüksek Fırsat';
-    } else if (saturationScore <= 65) {
+    } else if (saturationRatio <= 0.85) {
+      // Dengeli pazar, sağlıklı büyüme alanı var
       saturationLevel = 'moderate';
       saturationLabel = 'Dengeli Pazar — İstikrarlı Talep';
-      opportunityScore = Math.min(8.6, Math.max(7.2, parseFloat((7.6 + (65 - saturationScore) * 0.03).toFixed(1))));
+      saturationScore = Math.round(35 + (saturationRatio - 0.35) * 60);
+      opportunityScore = Math.min(8.7, Math.max(7.4, parseFloat((7.4 + (0.85 - saturationRatio) * 2.4).toFixed(1))));
       opportunityLabel = 'Yatırıma Uygun';
-    } else if (saturationScore <= 85) {
+    } else if (saturationRatio <= 1.40) {
+      // Rekabet yoğun, kapasiteye yaklaşılmış veya hafif aşılmış
       saturationLevel = 'high';
       saturationLabel = 'Yoğun Rekabet — Farklılaşma Şart';
-      opportunityScore = Math.max(5.5, parseFloat((7.0 - (saturationScore - 65) * 0.06).toFixed(1)));
+      saturationScore = Math.min(85, Math.round(65 + (saturationRatio - 0.85) * 36));
+      opportunityScore = Math.max(5.8, parseFloat((7.2 - (saturationRatio - 0.85) * 2.5).toFixed(1)));
       opportunityLabel = 'Niş Konsept Önerilir';
     } else {
+      // Yüksek doygunluk (Nüfus ve tüketim sıklığına göre bölgede fazla işletme var)
       saturationLevel = 'oversaturated';
-      saturationLabel = 'Yüksek Doygunluk — Rekabetçi';
-      opportunityScore = Math.max(4.2, parseFloat((5.4 - (saturationScore - 85) * 0.05).toFixed(1)));
+      saturationLabel = 'Yüksek Doygunluk — Rekabetçi Pazar';
+      saturationScore = Math.min(100, Math.round(85 + (saturationRatio - 1.40) * 10));
+      opportunityScore = Math.max(4.2, parseFloat((5.4 - (saturationRatio - 1.40) * 0.6).toFixed(1)));
       opportunityLabel = 'Hazır Devir/Ortaklık Önerilir';
     }
   }

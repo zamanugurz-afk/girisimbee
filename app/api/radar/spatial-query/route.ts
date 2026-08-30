@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // 2. Compute Metrics and AI Intelligence Report
-    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey);
+    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
     const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName);
 
     // Compute accurate sector distribution directly from POIs
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
-    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey);
+    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
     const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName);
 
     const responseData: RadarSpatialResponse = {
