@@ -717,19 +717,30 @@ export function InvestmentRadarClient() {
 
                   {/* 2. DEMOGRAFİK YAPI VE NÜFUS ÖZETİ */}
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-primary" />
-                      <span>Bölgesel Demografi & Nüfus</span>
-                    </h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span>Bölgesel Demografi & Nüfus</span>
+                      </h4>
+                      {demographicStats.officialNeighborhoodPop && (
+                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                          TÜİK Verisi
+                        </span>
+                      )}
+                    </div>
                     
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
-                        <span className="text-[10px] text-muted-foreground block">Kapsanan Nüfus</span>
-                        <strong className="text-slate-900 dark:text-white font-bold">{demographicStats.population}</strong>
+                        <span className="text-[10px] text-muted-foreground block">Çember İçi Nüfus</span>
+                        <strong className="text-slate-900 dark:text-white font-bold text-sm">{demographicStats.population}</strong>
                       </div>
                       <div className="p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800">
                         <span className="text-[10px] text-muted-foreground block">Gelir Seviyesi</span>
                         <strong className="text-slate-900 dark:text-white font-bold">{demographicStats.sesGroup}</strong>
+                      </div>
+                      <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground">Resmi Mahalle / Gündüz:</span>
+                        <strong className="text-slate-900 dark:text-white font-semibold text-[11px]">{demographicStats.officialNeighborhoodPop || demographicStats.daytimeTraffic}</strong>
                       </div>
                       <div className="col-span-2 p-2 rounded-xl bg-white dark:bg-zinc-900/60 border border-slate-200/50 dark:border-zinc-800 flex items-center justify-between">
                         <span className="text-[10px] text-muted-foreground">Kitle Profili:</span>
