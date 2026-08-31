@@ -726,227 +726,367 @@ export async function fetchOverpassCompetitorPois(
   return [];
 }
 
-const SECTOR_SYNTHESIS_TEMPLATES: Record<string, { suffix: string; count: number }[]> = {
-  cigkofteci: [
-    { suffix: 'Komagene Çiğ Köfte', count: 4 },
-    { suffix: 'Oses Çiğ Köfte Salonu', count: 4 },
-    { suffix: 'Battalbey Çiğ Köftecisi', count: 3 },
-    { suffix: 'Meşhur Adıyaman Çiğ Köftecisi', count: 3 },
-    { suffix: 'Sait Çiğ Köfte Dürüm Evi', count: 3 },
-    { suffix: 'Hacıalioğlu Çiğ Köfte', count: 2 },
-  ],
-  borekci: [
-    { suffix: 'Meşhur Sarıyer Börekçisi', count: 4 },
-    { suffix: 'Boşnak Börek & Pide Salonu', count: 3 },
-    { suffix: 'Tarihi Çarşı Börekçisi', count: 3 },
-    { suffix: 'Su Böreği & Sıcak Poğaça Evi', count: 3 },
-    { suffix: 'Kır Pidesi & Kahvaltı Salonu', count: 2 },
-  ],
-  dry_cleaning: [
-    { suffix: 'Kuru Temizleme & Lostra', count: 3 },
-    { suffix: 'Terzi & Tadilat Evi', count: 3 },
-    { suffix: 'Ekspres Kuru Temizleme & Ütü', count: 2 },
-    { suffix: 'Lostra & Ayakkabı Bakım Salonu', count: 2 },
-    { suffix: 'Butik Terzihane & Giyim Tadilat', count: 2 },
-  ],
-  terzi: [
-    { suffix: 'Terzi & Özel Dikim Evi', count: 3 },
-    { suffix: 'Tadilat Terzisi & Paça Evi', count: 2 },
-    { suffix: 'Moda Terzihanesi', count: 2 },
+const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
+  market: [
+    'BİM',
+    'A101',
+    'ŞOK Market',
+    'Migros Jet',
+    'CarrefourSA Mini',
+    'Tarım Kredi Kooperatif Marketi',
+    'Hakmar Express',
+    'File Süpermarket',
+    'Happy Center',
+    'Ekomini Market & Tekel',
+    'Mopaş Süpermarket',
+    'Çağrı Market',
+    'Kim Market',
+    'Özen Gurme Şarküteri & Bakkal',
+    'Merkez Bakkaliyesi & Büfe',
   ],
   cafe: [
-    { suffix: 'Coffee & Roastery', count: 5 },
-    { suffix: 'Kahve Evi & Çay Bahçesi', count: 4 },
-    { suffix: 'Espresso Bar & Patisserie', count: 4 },
-    { suffix: 'Bistro & Kafe', count: 3 },
-    { suffix: 'Kahvecisi & Kitap Kafe', count: 3 },
+    'Starbucks Coffee',
+    'Espressolab Roastery',
+    'Kahve Dünyası',
+    'Gloria Jean\'s Coffees',
+    'Tchibo',
+    'Coffeetopia',
+    'Soulmate Coffee',
+    'Kronotrop 3. Nesil Kahve',
+    '{loc} Kahvecisi & Kitap Kafe',
+    '{loc} Park Çay Bahçesi',
   ],
   bakery: [
-    { suffix: 'Ekmek & Unlu Mamüller Fırını', count: 4 },
-    { suffix: 'Pastane & Börek Salonu', count: 3 },
-    { suffix: 'Artisan Fırın & Kruvasan', count: 3 },
-    { suffix: 'Taş Fırın & Simit Evi', count: 3 },
+    'Simit Sarayı',
+    'Komşu Fırın',
+    'Dilek Pastanesi',
+    'Özsüt Pastanesi',
+    'Mado Fırın & Cafe',
+    'Tarihi Taş Fırın & Ekmek Evi',
+    'Hakiki Trabzon Ekmeği & Simit Fırını',
+    'Artisan Kruvasan & Fırın',
+    'Lale Pastanesi & Unlu Mamüller',
   ],
-  market: [
-    { suffix: 'Süpermarket', count: 6 },
-    { suffix: 'Şarküteri & Gurme Market', count: 4 },
-    { suffix: 'Mahalle Bakkaliyesi & Büfe', count: 5 },
-    { suffix: 'Organik Köy Pazarı', count: 3 },
+  cigkofteci: [
+    'Komagene Çiğ Köfte',
+    'Oses Çiğ Köfte Salonu',
+    'Battalbey Çiğ Köftecisi',
+    'Meşhur Adıyaman Çiğ Köftecisi',
+    'Sait Çiğ Köfte Dürüm Evi',
+    'Tatlıses Çiğ Köfte',
+    'Hacıalioğlu Çiğ Köfte',
+    'Çiğköftem',
   ],
-  pharmacy: [
-    { suffix: 'Eczanesi', count: 4 },
-    { suffix: 'Merkez Eczanesi', count: 3 },
-    { suffix: 'Yeni Hayat Eczanesi', count: 3 },
-  ],
-  hairdresser: [
-    { suffix: 'Kuaför & Güzellik Salonu', count: 5 },
-    { suffix: 'Erkek Berberi & Barber Shop', count: 4 },
-    { suffix: 'Nail & Güzellik Stüdyosu', count: 3 },
-  ],
-  gym: [
-    { suffix: 'Fitness & Spor Kulübü', count: 2 },
-    { suffix: 'Pilates & Yoga Stüdyosu', count: 2 },
-    { suffix: 'Crossfit & Gym', count: 2 },
-  ],
-  pet_shop: [
-    { suffix: 'Veteriner Kliniği & Petshop', count: 3 },
-    { suffix: 'Pati Pet Kuaför & Mama', count: 2 },
-  ],
-  car_wash: [
-    { suffix: 'Oto Yıkama & Detailing', count: 3 },
-    { suffix: 'Oto Kuaför & Buharlı Yıkama', count: 2 },
+  borekci: [
+    'Meşhur Sarıyer Börekçisi',
+    'Boşnak Börek & Pide Salonu',
+    'Tarihi Çarşı Börekçisi',
+    'Su Böreği & Sıcak Poğaça Evi',
+    'Kır Pidesi & Kahvaltı Salonu',
+    'Balkan Börekçisi',
   ],
   restaurant: [
-    { suffix: 'Kebap & Izgara Salonu', count: 5 },
-    { suffix: 'Ev Yemekleri & Lokanta', count: 4 },
-    { suffix: 'Pide & Lahmacun Salonu', count: 4 },
-    { suffix: 'Bistro & Dünya Mutfağı', count: 3 },
-  ],
-  butcher: [
-    { suffix: 'Kasap & Gurme Şarküteri', count: 3 },
-    { suffix: 'Et & Tavuk Pazarı', count: 3 },
-  ],
-  boutique: [
-    { suffix: 'Butik & Kadın Giyim', count: 3 },
-    { suffix: 'Moda Evi & Ayakkabı', count: 3 },
-  ],
-  stationery: [
-    { suffix: 'Kırtasiye & Kitabevi', count: 3 },
-    { suffix: 'Fotokopi & Ofis Kırtasiye', count: 2 },
-  ],
-  florist: [
-    { suffix: 'Çiçekçilik & Botanik', count: 2 },
-    { suffix: 'Tasarım Çiçek Evi', count: 2 },
-  ],
-  optician: [
-    { suffix: 'Optik & Gözlükçü', count: 2 },
-    { suffix: 'Gözlük & Lens Dünyası', count: 2 },
-  ],
-  dental_clinic: [
-    { suffix: 'Diş Kliniği & Polikliniği', count: 3 },
-    { suffix: 'Ağız ve Diş Sağlığı Merkezi', count: 2 },
-  ],
-  tatlici: [
-    { suffix: 'Baklavacı & Künefe Salonu', count: 3 },
-    { suffix: 'Tatlı Dünyası & Dondurma', count: 2 },
+    'Tavuk Dünyası',
+    'Köfteci Yusuf',
+    'Baydöner',
+    'HD Döner',
+    'Burger King',
+    'McDonald\'s',
+    'Dominos Pizza',
+    'Bereket Döner & Kebap',
+    'Pide & Lahmacun Salonu',
+    '{loc} Ev Yemekleri Lokantası',
   ],
   donerci: [
-    { suffix: 'Döner & İskender Salonu', count: 3 },
-    { suffix: 'Yaprak Dönercisi', count: 2 },
+    'Baydöner',
+    'HD Döner',
+    'Kasap Döner',
+    'Bereket Döner',
+    'Usta Dönerci',
+    'Yaprak Döner & İskender Salonu',
+    'Çarşı Dönercisi',
   ],
-  lastikci: [
-    { suffix: 'Oto Lastik & Rot Balans', count: 2 },
-    { suffix: 'Lastik Park & Jant Servisi', count: 2 },
+  hairdresser: [
+    'MOS Kuaför & Güzellik',
+    'Şükrü Dudu Barber Shop',
+    'Trio Kuaför',
+    'VIP Men\'s Barber',
+    'Salon Paris Kadın Kuaförü',
+    'Nail & Güzellik Stüdyosu',
+    '{loc} Erkek Kuaförü',
   ],
-  oto_elektrik: [
-    { suffix: 'Oto Elektrik & Akü Dünyası', count: 2 },
-    { suffix: 'Oto Klima & Elektronik Servis', count: 2 },
+  pharmacy: [
+    'Şifa Eczanesi',
+    'Yeni Hayat Eczanesi',
+    'Merkez Eczanesi',
+    'Çarşı Eczanesi',
+    'Bulvar Eczanesi',
+    'Sağlık Eczanesi',
+    'Park Eczanesi',
+    'Deniz Eczanesi',
   ],
-  cilingir: [
-    { suffix: 'Çilingir & Anahtar Evi', count: 2 },
-    { suffix: 'Oto Anahtar & Kilit Servisi', count: 2 },
+  pet_shop: [
+    'Petlebi Pet Market',
+    'Pati Veteriner Kliniği',
+    'Anadolu Petshop',
+    'Dostlar Veteriner Kliniği',
+    'Miyav&Hav Pet Kuaför',
+    'Juen Pet Market',
   ],
-  manav: [
-    { suffix: 'Halk Manavı & Taze Sebze', count: 3 },
-    { suffix: 'Organik Meyve & Yeşillik Pazarı', count: 2 },
-  ],
-  kindergarten: [
-    { suffix: 'Anaokulu & Çocuk Yuvası', count: 2 },
-    { suffix: 'Gündüz Bakımevi & Oyun Evi', count: 2 },
-  ],
-  law_firm: [
-    { suffix: 'Hukuk & Danışmanlık Bürosu', count: 3 },
-    { suffix: 'Avukatlık & Arabuluculuk', count: 2 },
-  ],
-  insurance_agency: [
-    { suffix: 'Sigorta Aracılık Hizmetleri', count: 2 },
-    { suffix: 'Kasko & Trafik Sigorta Acentesi', count: 2 },
-  ],
-  real_estate: [
-    { suffix: 'Gayrimenkul & Emlak Danışmanlığı', count: 4 },
-    { suffix: 'Emlak Ofisi & Yatırım Danışmanlığı', count: 3 },
-  ],
-  auto_gallery: [
-    { suffix: 'Oto Galeri & Araç Satış', count: 2 },
-    { suffix: 'Motors & Rent A Car', count: 2 },
-  ],
-  software_agency: [
-    { suffix: 'Yazılım & Dijital Medya Ajansı', count: 2 },
-  ],
-  furniture: [
-    { suffix: 'Mobilya & Ev Dekorasyon Mağazası', count: 2 },
+  stationery: [
+    'D&R Kitap & Kırtasiye',
+    'Nezih Kitabevi',
+    'Penguen Kitabevi',
+    'Kırmızı Kedi Kitabevi',
+    'Remzi Kitabevi',
+    'Örnek Kırtasiye & Fotokopi',
+    'Bilgi Kırtasiye',
   ],
   electronics: [
-    { suffix: 'Telefon & Elektronik Teknik Servis', count: 3 },
-    { suffix: 'GSM & Aksesuar Dünyası', count: 2 },
+    'Turkcell İletişim Merkezi',
+    'Vodafone Cep Merkezi',
+    'Türk Telekom Mağazası',
+    'Teknosa',
+    'MediaMarkt',
+    'Vatan Bilgisayar',
+    'EasyCep Telefon Servisi',
   ],
-  dondurmaci: [
-    { suffix: 'Dondurma & Waffle Cafe', count: 2 },
+  lastikci: [
+    'Lassa & Bridgestone Bayisi',
+    'Michelin Lastik Servisi',
+    'Continental Lastik Merkezi',
+    'Goodyear Lastik Park',
+    'Pirelli Oto Lastik & Rot Balans',
+    'Petlas Lastik Dünyası',
   ],
-  kokorecci: [
-    { suffix: 'Kokoreç & Sokak Lezzetleri', count: 2 },
+  car_wash: [
+    'Sonax Detailing & Oto Yıkama',
+    'Auto King Oto Bakım',
+    'Meguiar\'s Araç Kuaförü',
+    'Buharlı Oto Yıkama & Detailing',
+    'Köpüklü Oto Yıkama & Süpürge',
   ],
-  balikci: [
-    { suffix: 'Balık Pişiricisi & Restoranı', count: 2 },
-  ],
-  zuccaciye: [
-    { suffix: 'Züccaciye & Mutfak Eşyaları', count: 2 },
-    { suffix: 'Ev Gereçleri & Hediyelik Eşya', count: 2 },
+  boutique: [
+    'LC Waikiki',
+    'DeFacto',
+    'Koton',
+    'Mavi',
+    'Penti',
+    'Madame Coco',
+    'English Home',
+    'D\'S Damat',
+    '{loc} Butik & Moda Evi',
   ],
   hardware: [
-    { suffix: 'Nalburiye & Yapı Malzemeleri', count: 2 },
-    { suffix: 'Hırdavat & Tesisat Market', count: 2 },
+    'Koçtaş Fix',
+    'Filli Boya Yetkili Bayisi',
+    'Dyo Boya & Nalburiye',
+    'Marshall Boya & Yapı Market',
+    'Bauhaus Yapı Market',
+    'Çarşı Hırdavat & Tesisat',
   ],
-  perde: [
-    { suffix: 'Perde & Mefruşat Mağazası', count: 2 },
-    { suffix: 'Ev Tekstili & Stor Perde Evi', count: 2 },
+  optician: [
+    'Atasun Optik',
+    'Opmar Optik',
+    'Emo Optik',
+    'Mert Optik',
+    'Göz Grup Optik',
+    '{loc} Optik & Gözlük Dünyası',
   ],
-  jewelry: [
-    { suffix: 'Kuyumculuk & Sarrafiye', count: 2 },
-    { suffix: 'Altın & Mücevherat Evi', count: 2 },
-  ],
-  parfumeri: [
-    { suffix: 'Parfümeri & Kozmetik Dünyası', count: 2 },
-    { suffix: 'Kişisel Bakım & Güzellik Marketi', count: 2 },
-  ],
-  shoe_store: [
-    { suffix: 'Ayakkabı & Çanta Mağazası', count: 2 },
-    { suffix: 'Deri & Spor Ayakkabı Dünyası', count: 2 },
-  ],
-  su_bayisi: [
-    { suffix: 'Doğal Kaynak Suyu Damacana Bayisi', count: 2 },
-    { suffix: 'Su & Meşrubat Dağıtım Merkezi', count: 2 },
-  ],
-  tup_bayisi: [
-    { suffix: 'Mutfak Tüpü & Gaz Dağıtım Bayisi', count: 2 },
-  ],
-  kuruyemis: [
-    { suffix: 'Kuruyemiş & Taze Türk Kahvesi', count: 3 },
-    { suffix: 'Çerez & Şekerleme Dünyası', count: 2 },
-  ],
-  hali_yikama: [
-    { suffix: 'Halı Yıkama & Koltuk Temizleme', count: 2 },
-  ],
-  appliance_repair: [
-    { suffix: 'Beyaz Eşya & Kombi Servisi', count: 2 },
+  law_firm: [
+    'Hukuk & Danışmanlık Bürosu',
+    'Avukatlık & Arabuluculuk Ortaklığı',
+    'Çözüm Hukuk Ofisi',
+    'Adalet Hukuk & Avukatlık',
   ],
   photographer: [
-    { suffix: 'Fotoğraf Stüdyosu & Vesikalık', count: 2 },
-  ],
-  printing: [
-    { suffix: 'Dijital Baskı & Matbaa Merkezi', count: 2 },
-  ],
-  cleaning_products: [
-    { suffix: 'Temizlik Ürünleri & Kimyasalları', count: 2 },
-  ],
-  toy_store: [
-    { suffix: 'Oyuncakçı & Çocuk Gelişim Dünyası', count: 2 },
-  ],
-  bicycle_repair: [
-    { suffix: 'Bisiklet & Scooter Tamir Servisi', count: 2 },
+    'Stüdyo Renk Fotoğrafçılık',
+    'Ekspres Biyometrik & Vesikalık Stüdyosu',
+    'Moda Fotoğraf Stüdyosu',
+    'Net Fotoğrafçılık',
   ],
   aktar: [
-    { suffix: 'Şifalı Bitkiler & Doğal Baharatçı', count: 2 },
+    'Tarihi Mısır Çarşısı Aktarı',
+    'Şifalı Bitkiler & Doğal Baharatçı',
+    'Lokman Hekim Aktarı',
+    'Doğa Baharat & Bitkisel Ürünler',
+  ],
+  cilingir: [
+    'Kale Kilit Yetkili Çilingir',
+    '7/24 Acil Oto & Ev Çilingir Servisi',
+    'Çarşı Anahtar Evi',
+    'Güven Çilingir & Kilit',
+  ],
+  tatlici: [
+    'Hafız Mustafa 1864',
+    'Gaziantep Baklavacısı',
+    'Karaköy Güllüoğlu',
+    'Tatlıcı Safa',
+    'Meşhur Antep Künefecisi',
+    'Mado Tatlı Dünyası',
+  ],
+  dondurmaci: [
+    'Mado Dondurma & Cafe',
+    'İtalyan Gelato Dondurmacısı',
+    'Hakiki Maraş Dondurmacısı',
+    'Bando Waffle & Gelato',
+  ],
+  balikci: [
+    'Ege Balıkçısı & Taze Pişirici',
+    'Karadeniz Taze Balık Pazarı',
+    'Marmara Balık Evi',
+    'Balık Ekmek & Izgara Salonu',
+  ],
+  kokorecci: [
+    'Şampiyon Kokoreç',
+    'Kral Kokoreç & Midye',
+    'Paşa Kokoreç',
+    'Atom Kokoreç & Sokak Lezzeti',
+  ],
+  jewelry: [
+    'Altınbaş Kuyumculuk',
+    'Atasay Kuyumculuk',
+    'Zen Pırlanta',
+    'Çarşı Kuyumcusu & Sarrafiye',
+  ],
+  zuccaciye: [
+    'Karaca Home',
+    'Bernardo',
+    'Porland',
+    'Paşabahçe Mağazaları',
+    'Züccaciye & Mutfak Dünyası',
+  ],
+  perde: [
+    'Taç Perde & Mefruşat',
+    'Linens Ev Tekstili',
+    'Brillant Stor & Fon Perde Dünyası',
+  ],
+  parfumeri: [
+    'Gratis',
+    'Watsons',
+    'Rossmann',
+    'Sephora',
+    'Bargello Parfüm',
+    'Mad Parfüm',
+  ],
+  shoe_store: [
+    'FLO Ayakkabı',
+    'Deichmann',
+    'In Street',
+    'Greyder',
+    'Kemal Tanca',
+  ],
+  gym: [
+    'MacFit Spor Kulübü',
+    'Jatomi Fitness',
+    'Plus Gym & Fitness',
+    'Butik Reformer Pilates & Yoga',
+    'B-Fit Kadın Spor Merkezi',
+  ],
+  dental_clinic: [
+    'Dentistanbul Diş Polikliniği',
+    'DentGroup Ağız ve Diş Sağlığı',
+    'Özel Estetik Diş Kliniği',
+  ],
+  kindergarten: [
+    'Butik Montessori Anaokulu',
+    'Minik Adımlar Kreş & Gündüz Bakımevi',
+    'Neşeli Çocuklar Oyun Evi',
+  ],
+  appliance_repair: [
+    'Arçelik & Beko Yetkili Servisi',
+    'Bosch & Siemens Özel Servisi',
+    'Beyaz Eşya & Kombi Tamiri',
+  ],
+  su_bayisi: [
+    'Erikli Su Bayisi',
+    'Sırma Su Dağıtım',
+    'Hayat Su Bayisi',
+    'Pınar Su',
+    'Saka Doğal Kaynak Suyu',
+  ],
+  tup_bayisi: [
+    'Aygaz Mutfak Tüpü Bayisi',
+    'İpragaz Dağıtım Merkezi',
+    'Milangaz Tüp Servisi',
+  ],
+  kuruyemis: [
+    'Tuğba Kuruyemiş & Kahve',
+    'Malatya Pazarı',
+    'Tarihi Çerezci & Türk Kahvesi',
+  ],
+  hali_yikama: [
+    'Ekspres Halı Yıkama Servisi',
+    'Antibakteriyel Halı & Koltuk Temizleme',
+  ],
+  toy_store: [
+    'Toyzz Shop Oyuncak',
+    'Armağan Oyuncak',
+    'Joker Oyuncak',
+  ],
+  bicycle_repair: [
+    'Bisiklet & Scooter Tamir Servisi',
+    'Shimano Yetkili Servisi',
+  ],
+  printing: [
+    'Dijital Baskı & Matbaa Merkezi',
+    'Copy Center & Ozalit',
+  ],
+  cleaning_products: [
+    'Toptan Temizlik Kimyasalları & Dispenser',
+    'Hijyen Dünyası Temizlik Ürünleri',
+  ],
+  dry_cleaning: [
+    'Dry Clean Express Kuru Temizleme',
+    'Ekspres Kuru Temizleme & Ütü',
+    'Lostra & Ayakkabı Bakım Salonu',
+    '{loc} Terzi & Tadilat Evi',
+  ],
+  terzi: [
+    'Moda Terzihanesi',
+    'Tadilat Terzisi & Paça Evi',
+    'Özel Dikim Terzihanesi',
+  ],
+  butcher: [
+    'Gurme Kasap & Et Şarküteri',
+    'Çarşı Kasabı & Tavuk Pazarı',
+    'Et & Şarküteri Dünyası',
+  ],
+  manav: [
+    'Halk Manavı & Taze Sebze',
+    'Organik Meyve & Yeşillik Pazarı',
+    'Bostan Manavı',
+  ],
+  real_estate: [
+    'RE/MAX Gayrimenkul',
+    'Coldwell Banker Emlak',
+    'Turyap Gayrimenkul',
+    'Keller Williams Emlak Ofisi',
+  ],
+  auto_gallery: [
+    'Oto Galeri & Araç Satış',
+    'Motors & Rent A Car',
+  ],
+  software_agency: [
+    'Yazılım & Dijital Medya Ajansı',
+    'Bilişim & Web Tasarım Ofisi',
+  ],
+  furniture: [
+    'İstikbal Mobilya',
+    'Bellona Mobilya',
+    'Doğtaş & Kelebek',
+    'Mobilya & Ev Dekorasyon',
+  ],
+  oto_elektrik: [
+    'Oto Elektrik & Akü Dünyası',
+    'Mutlu Akü & İnci Akü Yetkili Bayisi',
+    'Oto Klima & Elektronik Servis',
+  ],
+  insurance_agency: [
+    'Allianz Sigorta Acentesi',
+    'Anadolu Sigorta Acentesi',
+    'Axa Sigorta Yetkili Acentesi',
+    'Aksigorta & Kasko/DASK Ofisi',
   ],
 };
 
@@ -960,9 +1100,9 @@ function generateDeterministicLocalPois(
   categoryIndex: number = 0,
 ): CompetitorPoi[] {
   const templates = SECTOR_SYNTHESIS_TEMPLATES[category] || [
-    { suffix: 'İşletmesi', count: 2 },
-    { suffix: 'Merkezi', count: 2 },
-    { suffix: 'Noktası', count: 2 },
+    'Özen Ticaret & İşletmesi',
+    'Merkez İşletmesi',
+    'Şehir Noktası',
   ];
 
   const meta = RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe;
@@ -975,7 +1115,11 @@ function generateDeterministicLocalPois(
   const categoryHash = Math.abs(category.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 7));
 
   for (let i = 0; i < targetCount; i++) {
-    const t = templates[i % templates.length];
+    const rawTemplate = templates[i % templates.length];
+    const finalName = rawTemplate.includes('{loc}')
+      ? rawTemplate.replace('{loc}', locClean)
+      : rawTemplate;
+
     // Spread evenly across 360 degrees, offset by category hash and index so NO TWO POIS OVERLAP
     const angleDeg = (baseSeed * 360 + categoryIndex * 43.7 + i * (360 / Math.max(1, targetCount)) + categoryHash * 13) % 360;
     const angleRad = (angleDeg * Math.PI) / 180;
@@ -990,12 +1134,9 @@ function generateDeterministicLocalPois(
     const pLat = lat + dLat;
     const pLng = lng + dLng;
 
-    const brandNames = ['Özen', 'Merkez', 'Uğur', 'Yıldız', 'Moda', 'Ekspres', 'Lider', 'Klas', 'Seçkin', 'Modern', 'Prestij'];
-    const brandPrefix = i === 0 ? locClean : brandNames[(i * 3 + categoryIndex + Math.floor(baseSeed * 10)) % brandNames.length];
-
     pois.push({
       id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pLat * 10000)}`,
-      name: `${brandPrefix} ${t.suffix}`,
+      name: finalName,
       lat: pLat,
       lng: pLng,
       category,
