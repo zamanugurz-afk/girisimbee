@@ -726,11 +726,22 @@ export async function fetchOverpassCompetitorPois(
   return [];
 }
 
-/* ========================================================================= */
-/* TIER 4: REALISTIC HYPER-LOCAL TURKISH COMMERCIAL SYNTHESIZER              */
-/* ========================================================================= */
-
 const SECTOR_SYNTHESIS_TEMPLATES: Record<string, { suffix: string; count: number }[]> = {
+  cigkofteci: [
+    { suffix: 'Komagene Çiğ Köfte', count: 4 },
+    { suffix: 'Oses Çiğ Köfte Salonu', count: 4 },
+    { suffix: 'Battalbey Çiğ Köftecisi', count: 3 },
+    { suffix: 'Meşhur Adıyaman Çiğ Köftecisi', count: 3 },
+    { suffix: 'Sait Çiğ Köfte Dürüm Evi', count: 3 },
+    { suffix: 'Hacıalioğlu Çiğ Köfte', count: 2 },
+  ],
+  borekci: [
+    { suffix: 'Meşhur Sarıyer Börekçisi', count: 4 },
+    { suffix: 'Boşnak Börek & Pide Salonu', count: 3 },
+    { suffix: 'Tarihi Çarşı Börekçisi', count: 3 },
+    { suffix: 'Su Böreği & Sıcak Poğaça Evi', count: 3 },
+    { suffix: 'Kır Pidesi & Kahvaltı Salonu', count: 2 },
+  ],
   dry_cleaning: [
     { suffix: 'Kuru Temizleme & Lostra', count: 3 },
     { suffix: 'Terzi & Tadilat Evi', count: 3 },
@@ -815,14 +826,6 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, { suffix: string; count: number
     { suffix: 'Diş Kliniği & Polikliniği', count: 3 },
     { suffix: 'Ağız ve Diş Sağlığı Merkezi', count: 2 },
   ],
-  borekci: [
-    { suffix: 'Börek Salonu & Kır Pidesi', count: 3 },
-    { suffix: 'Su Böreği & Poğaça Fırını', count: 2 },
-  ],
-  cigkofteci: [
-    { suffix: 'Çiğ Köfte Salonu', count: 3 },
-    { suffix: 'Adıyaman Çiğ Köftecisi', count: 2 },
-  ],
   tatlici: [
     { suffix: 'Baklavacı & Künefe Salonu', count: 3 },
     { suffix: 'Tatlı Dünyası & Dondurma', count: 2 },
@@ -885,6 +888,65 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, { suffix: string; count: number
   ],
   balikci: [
     { suffix: 'Balık Pişiricisi & Restoranı', count: 2 },
+  ],
+  zuccaciye: [
+    { suffix: 'Züccaciye & Mutfak Eşyaları', count: 2 },
+    { suffix: 'Ev Gereçleri & Hediyelik Eşya', count: 2 },
+  ],
+  hardware: [
+    { suffix: 'Nalburiye & Yapı Malzemeleri', count: 2 },
+    { suffix: 'Hırdavat & Tesisat Market', count: 2 },
+  ],
+  perde: [
+    { suffix: 'Perde & Mefruşat Mağazası', count: 2 },
+    { suffix: 'Ev Tekstili & Stor Perde Evi', count: 2 },
+  ],
+  jewelry: [
+    { suffix: 'Kuyumculuk & Sarrafiye', count: 2 },
+    { suffix: 'Altın & Mücevherat Evi', count: 2 },
+  ],
+  parfumeri: [
+    { suffix: 'Parfümeri & Kozmetik Dünyası', count: 2 },
+    { suffix: 'Kişisel Bakım & Güzellik Marketi', count: 2 },
+  ],
+  shoe_store: [
+    { suffix: 'Ayakkabı & Çanta Mağazası', count: 2 },
+    { suffix: 'Deri & Spor Ayakkabı Dünyası', count: 2 },
+  ],
+  su_bayisi: [
+    { suffix: 'Doğal Kaynak Suyu Damacana Bayisi', count: 2 },
+    { suffix: 'Su & Meşrubat Dağıtım Merkezi', count: 2 },
+  ],
+  tup_bayisi: [
+    { suffix: 'Mutfak Tüpü & Gaz Dağıtım Bayisi', count: 2 },
+  ],
+  kuruyemis: [
+    { suffix: 'Kuruyemiş & Taze Türk Kahvesi', count: 3 },
+    { suffix: 'Çerez & Şekerleme Dünyası', count: 2 },
+  ],
+  hali_yikama: [
+    { suffix: 'Halı Yıkama & Koltuk Temizleme', count: 2 },
+  ],
+  appliance_repair: [
+    { suffix: 'Beyaz Eşya & Kombi Servisi', count: 2 },
+  ],
+  photographer: [
+    { suffix: 'Fotoğraf Stüdyosu & Vesikalık', count: 2 },
+  ],
+  printing: [
+    { suffix: 'Dijital Baskı & Matbaa Merkezi', count: 2 },
+  ],
+  cleaning_products: [
+    { suffix: 'Temizlik Ürünleri & Kimyasalları', count: 2 },
+  ],
+  toy_store: [
+    { suffix: 'Oyuncakçı & Çocuk Gelişim Dünyası', count: 2 },
+  ],
+  bicycle_repair: [
+    { suffix: 'Bisiklet & Scooter Tamir Servisi', count: 2 },
+  ],
+  aktar: [
+    { suffix: 'Şifalı Bitkiler & Doğal Baharatçı', count: 2 },
   ],
 };
 
@@ -957,6 +1019,47 @@ export interface AreaPoiCensusResult {
 
 const MASTER_AREA_CENSUS_CACHE = new Map<string, { data: AreaPoiCensusResult; ts: number }>();
 
+// TIER 1: Daily essential businesses present in EVERY neighborhood in Turkey
+const TIER_1_DAILY_ESSENTIALS = new Set([
+  'bakery',
+  'market',
+  'borekci',
+  'cigkofteci',
+  'hairdresser',
+  'cafe',
+  'restaurant',
+  'pharmacy',
+  'donerci',
+  'dry_cleaning',
+  'butcher',
+  'manav',
+  'car_wash',
+  'stationery',
+  'electronics',
+  'tatlici',
+  'pet_shop',
+]);
+
+// TIER 2: Secondary standard commercial street sectors
+const TIER_2_COMMERCIAL_STREET = new Set([
+  'gym',
+  'dental_clinic',
+  'optician',
+  'florist',
+  'boutique',
+  'hardware',
+  'zuccaciye',
+  'dondurmaci',
+  'kokorecci',
+  'balikci',
+  'kuruyemis',
+  'su_bayisi',
+  'real_estate',
+  'auto_gallery',
+  'travel_agency',
+  'software_agency',
+]);
+
 export async function fetchMasterAreaPoiCensus(
   lat: number,
   lng: number,
@@ -1008,37 +1111,43 @@ export async function fetchMasterAreaPoiCensus(
       finalPois.push(...existingReal);
       sectorCensus[catKey] = existingReal.length;
     } else {
-      const catMeta = RADAR_CATEGORIES[catKey];
-      const isTop = catMeta?.isPopularTop8;
       let targetCount = 0;
       const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543 + (catIdx + 1) * 77.3));
 
-      if (isTop) {
-        // Daily top sectors (cafe, restaurant, pet_shop, bakery, market, hairdresser, gym, pharmacy)
-        targetCount = radiusMeters <= 300 ? 2 : radiusMeters <= 600 ? (baseSeed > 0.5 ? 4 : 3) : 5;
-      } else if (
-        [
-          'dry_cleaning',
-          'butcher',
-          'car_wash',
-          'boutique',
-          'donerci',
-          'florist',
-          'stationery',
-          'optician',
-          'electronics',
-          'furniture',
-          'software_agency',
-          'travel_agency',
-          'dental_clinic',
-        ].includes(catKey)
-      ) {
-        // Secondary standard commercial sectors
-        targetCount = radiusMeters <= 300 ? 1 + (baseSeed > 0.4 ? 1 : 0) : radiusMeters <= 600 ? 2 + (baseSeed > 0.5 ? 1 : 0) : 4;
+      if (TIER_1_DAILY_ESSENTIALS.has(catKey)) {
+        // Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane...)
+        // ALWAYS present across Turkish neighborhoods, scaling accurately with radius
+        if (radiusMeters <= 300) {
+          targetCount = baseSeed > 0.5 ? 2 : 1;
+        } else if (radiusMeters <= 600) {
+          targetCount = baseSeed > 0.6 ? 4 : 3;
+        } else if (radiusMeters <= 1200) {
+          targetCount = baseSeed > 0.5 ? 7 : 5;
+        } else {
+          // 2km+ broad radius
+          targetCount = baseSeed > 0.5 ? 12 : 9;
+        }
+      } else if (TIER_2_COMMERCIAL_STREET.has(catKey)) {
+        // Secondary commercial street sectors (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye...)
+        if (radiusMeters <= 300) {
+          targetCount = baseSeed > 0.5 ? 1 : 0;
+        } else if (radiusMeters <= 600) {
+          targetCount = baseSeed > 0.4 ? 2 : 1;
+        } else if (radiusMeters <= 1200) {
+          targetCount = baseSeed > 0.5 ? 4 : 3;
+        } else {
+          targetCount = baseSeed > 0.5 ? 7 : 5;
+        }
       } else {
-        // Opportunity / Niche sectors (cilingir, lastikci, kindergarten, tatlici, dondurmaci, kokorecci, balikci, cigkofteci, etc.)
-        // Deterministically 0 in most residential zones to give realistic "0 İşletme" market gaps for Strateji report
-        targetCount = radiusMeters > 800 && baseSeed > 0.75 ? 1 : 0;
+        // TIER 3: Specialized / Niche trades (Çilingir, Lastikçi, Halı Yıkama, Anaokulu, Bisiklet Tamir, Aktar...)
+        // Rare in small residential pockets (allowing authentic "0 İşletme" gap recommendations), scaling in large areas
+        if (radiusMeters <= 500) {
+          targetCount = baseSeed > 0.85 ? 1 : 0;
+        } else if (radiusMeters <= 1200) {
+          targetCount = baseSeed > 0.6 ? 2 : (baseSeed > 0.3 ? 1 : 0);
+        } else {
+          targetCount = baseSeed > 0.5 ? 3 : 2;
+        }
       }
 
       if (targetCount > 0) {
