@@ -480,13 +480,39 @@ export function HomeInvestmentRadarSection() {
     });
   }, [categorySearchQuery, radarData?.availableSectors]);
 
+  // Master area POIs across all categories for instant brand-level search (e.g. 'bim', 'şok', 'starbucks', 'komagene')
+  const visibleCompetitors = useMemo(() => {
+    const rawPois = radarData?.competitors ?? [];
+    if (!categorySearchQuery.trim()) return rawPois;
+
+    const q = categorySearchQuery.toLowerCase().trim();
+    const roundedLat = Math.round(centerLat * 1000) / 1000;
+    const roundedLng = Math.round(centerLng * 1000) / 1000;
+    const masterKey = `${roundedLat}-${roundedLng}-${radiusMeters}-all`;
+    const masterData = CLIENT_RADAR_CACHE.get(masterKey);
+    const pool = (masterData?.competitors && masterData.competitors.length > rawPois.length)
+      ? masterData.competitors
+      : rawPois;
+
+    return pool.filter((p) => {
+      const name = (p.name || '').toLowerCase();
+      const catLabel = (p.categoryLabel || '').toLowerCase();
+      const catKey = (p.category || '').toLowerCase();
+      const brand = (p.brand || '').toLowerCase();
+      return name.includes(q) || catLabel.includes(q) || catKey.includes(q) || brand.includes(q);
+    });
+  }, [radarData?.competitors, categorySearchQuery, centerLat, centerLng, radiusMeters]);
+
   const totalAreaBusinesses = useMemo(() => {
+    if (categorySearchQuery.trim()) {
+      return visibleCompetitors.length;
+    }
     if (radarData?.availableSectors) {
       const sum = Object.values(radarData.availableSectors).reduce((a, b) => a + b, 0);
       if (sum > 0) return sum;
     }
     return radarData?.competitors.length ?? 0;
-  }, [radarData]);
+  }, [radarData, categorySearchQuery, visibleCompetitors]);
 
   const activeCategoryMeta = selectedCategory === 'all'
     ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber' }
@@ -775,12 +801,27 @@ export function HomeInvestmentRadarSection() {
                 </div>
               )}
 
+              {/* Active Search Query Filter Badge Over Map */}
+              {categorySearchQuery && (
+                <div className="absolute top-3.5 left-3.5 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 dark:bg-zinc-900/90 text-white text-xs font-bold shadow-lg border border-amber-500/50 backdrop-blur-md">
+                  <span>🔍 &ldquo;{categorySearchQuery}&rdquo; filtresi:</span>
+                  <span className="text-amber-400 font-extrabold">{visibleCompetitors.length} işletme</span>
+                  <button
+                    type="button"
+                    onClick={() => setCategorySearchQuery('')}
+                    className="ml-1 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               <InvestmentRadarMap
                 centerLat={centerLat}
                 centerLng={centerLng}
                 zoom={zoom}
                 radiusMeters={radiusMeters}
-                competitors={radarData?.competitors || []}
+                competitors={visibleCompetitors}
                 listings={radarData?.listingsInRadius || []}
                 onCircleChanged={handleCircleChanged}
               />
@@ -799,7 +840,7 @@ export function HomeInvestmentRadarSection() {
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
                   <span className="font-medium text-slate-700 dark:text-zinc-300">
-                    Mevcut Rakipler ({radarData?.competitors.length || 0})
+                    {categorySearchQuery ? `Eşleşen İşletmeler (${visibleCompetitors.length})` : `Mevcut Rakipler (${radarData?.competitors.length || 0})`}
                   </span>
                 </div>
               </div>
