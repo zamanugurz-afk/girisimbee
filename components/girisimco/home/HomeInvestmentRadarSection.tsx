@@ -725,7 +725,7 @@ export function HomeInvestmentRadarSection() {
             </div>
 
             {/* İnteraktif Harita Tuvali */}
-            <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
+            <div className="relative w-full h-[480px] sm:h-[540px] lg:h-[600px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
               {/* Visible Loading Bar on Top of Map Canvas */}
               {isLoading && (
                 <div className="absolute top-0 left-0 right-0 h-1.5 z-40 bg-amber-500/25 overflow-hidden">

@@ -283,7 +283,7 @@ export default function InvestmentRadarMap({
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-slate-200/90 shadow-sm dark:border-zinc-800">
-      <div ref={containerRef} className="h-full w-full z-0 min-h-[520px] lg:min-h-[660px]" />
+      <div ref={containerRef} className="h-full w-full z-0 min-h-[480px] lg:min-h-[600px]" />
     </div>
   );
 }
