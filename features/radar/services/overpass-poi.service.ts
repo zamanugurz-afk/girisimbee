@@ -1936,24 +1936,8 @@ export async function fetchMasterAreaPoiCensus(
     }
   }
 
-  // Inject verified landmark businesses from TURKEY_REAL_KNOWN_POI_REGISTRY inside radius
-  for (const known of TURKEY_REAL_KNOWN_POI_REGISTRY) {
-    const dist = calculateDistanceMeters(lat, lng, known.lat, known.lng);
-    if (dist <= radiusMeters) {
-      if (!categorizedRealPois[known.category]) {
-        categorizedRealPois[known.category] = [];
-      }
-      const alreadyHas = categorizedRealPois[known.category].some(
-        (p) => p.name.toLowerCase() === known.name.toLowerCase(),
-      );
-      if (!alreadyHas) {
-        categorizedRealPois[known.category].push({
-          ...known,
-          distanceMeters: Math.round(dist),
-        });
-      }
-    }
-  }
+  // When Google Places is active, NEVER inject hardcoded manual coordinates.
+  // All coordinates come 100% directly from Google Maps GPS building locations.
 
   // Calculate realistic urban population within the radar circle based on Turkish urban density
   const radiusKm = radiusMeters / 1000;
