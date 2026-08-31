@@ -209,37 +209,31 @@ export default function InvestmentRadarMap({
       layerGroup.clearLayers();
       poiMarkersMapRef.current.clear();
 
-      const isFilteredView = competitors.length > 0 && competitors.length <= 25;
-
       for (const poi of competitors) {
         const poiIcon = L.divIcon({
           className: 'custom-poi-marker',
-          html: isFilteredView ? `
+          html: `
             <div class="group relative flex items-center justify-center cursor-pointer">
-              <div class="h-3.5 w-3.5 rounded-full bg-rose-600 border-2 border-white shadow-md transition-transform duration-150 group-hover:scale-125"></div>
-              <span class="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md bg-slate-900/90 text-white font-bold text-[10px] shadow-md border border-slate-700 pointer-events-none transition-all">
-                ${poi.name}
-              </span>
-            </div>
-          ` : `
-            <div class="group relative flex items-center justify-center cursor-pointer">
-              <div class="h-3 w-3 rounded-full bg-rose-500 border border-white shadow-xs transition-transform duration-150 hover:scale-150"></div>
+              <div class="h-3.5 w-3.5 rounded-full bg-rose-600 hover:bg-rose-700 border-2 border-white shadow-md transition-transform duration-150 group-hover:scale-135"></div>
             </div>
           `,
-          iconSize: isFilteredView ? [20, 20] : [14, 14],
-          iconAnchor: isFilteredView ? [10, 10] : [7, 7],
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
         });
 
         const marker = L.marker([poi.lat, poi.lng], { icon: poiIcon });
         marker.bindPopup(
           `
-          <div style="font-family: inherit; padding: 3px 6px; min-width: 150px;">
-            <p style="font-weight: 800; font-size: 13px; margin: 0 0 2px 0; color: #0f172a;">${poi.name}</p>
-            <p style="font-size: 11px; margin: 0; color: #64748b; font-weight: 500;">${poi.categoryLabel}</p>
-            <p style="font-size: 11px; margin: 4px 0 0 0; color: #e11d48; font-weight: 700;">📍 ${poi.distanceMeters}m mesafe</p>
+          <div style="font-family: system-ui, -apple-system, sans-serif; padding: 4px 6px; min-width: 140px; text-align: left;">
+            <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3; margin-bottom: 2px;">
+              ${poi.name}
+            </div>
+            <div style="font-size: 11px; color: #64748b; font-weight: 500;">
+              ${poi.categoryLabel}
+            </div>
           </div>
         `,
-          { closeButton: false, offset: [0, isFilteredView ? -12 : -6] },
+          { closeButton: false, offset: [0, -8] },
         );
 
         layerGroup.addLayer(marker);

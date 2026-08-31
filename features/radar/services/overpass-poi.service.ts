@@ -1429,7 +1429,35 @@ const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [
   { id: 'real-sukru-dudu-besiktas', name: 'Şükrü Dudu Barber (Zorlu Center)', category: 'hairdresser', categoryLabel: 'Kuaför & Güzellik', lat: 41.06650, lng: 29.01750, address: 'Levazım Mah. Koru Sok. Zorlu Center, Beşiktaş / İstanbul', distanceMeters: 0 },
 ];
 
-function generateDeterministicLocalPois(
+export function extractCleanLocationName(locationName: string): string {
+  if (!locationName) return 'Merkez';
+  
+  let clean = locationName;
+  // Remove parentheticals like (Geniş Radar), (39.88, 32.85)
+  clean = clean.replace(/\(.*?\)/g, '');
+  // Remove unwanted suffixes and descriptions
+  clean = clean.replace(/tüm ilçe geneli|ilçe geneli|çemberi|alanı|mahallesi|mah\.|caddesi|cad\.|bölgesi|türkiye/gi, '');
+  
+  // If format is "İstanbul, Maltepe — Tüm İlçe Geneli", extract "Maltepe"
+  if (clean.includes('—')) {
+    const parts = clean.split('—');
+    const districtPart = parts[0].includes(',') ? parts[0].split(',')[1] : parts[0];
+    const subPart = parts[1]?.trim();
+    if (subPart && subPart.length > 1 && !subPart.toLowerCase().includes('genel') && !subPart.toLowerCase().includes('ilçe')) {
+      clean = subPart.split('/')[0].trim();
+    } else if (districtPart) {
+      clean = districtPart.trim();
+    }
+  } else if (clean.includes(',')) {
+    const parts = clean.split(',');
+    clean = parts[1] ? parts[1].trim() : parts[0].trim();
+  }
+
+  clean = clean.replace(/^[—,\s]+|[—,\s]+$/g, '').trim();
+  return clean || 'Merkez';
+}
+
+export function generateDeterministicLocalPois(
   lat: number,
   lng: number,
   radiusMeters: number,
@@ -1445,9 +1473,7 @@ function generateDeterministicLocalPois(
   ];
 
   const meta = RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe;
-  const locClean = locationName
-    .replace(/çemberi|alanı|mahallesi|caddesi|bölgesi/gi, '')
-    .trim() || 'Bölge';
+  const locClean = extractCleanLocationName(locationName);
 
   const pois: CompetitorPoi[] = [];
   const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543));
