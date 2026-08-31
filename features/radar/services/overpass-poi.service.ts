@@ -1115,38 +1115,41 @@ export async function fetchMasterAreaPoiCensus(
       const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543 + (catIdx + 1) * 77.3));
 
       if (TIER_1_DAILY_ESSENTIALS.has(catKey)) {
-        // Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane...)
-        // ALWAYS present across Turkish neighborhoods, scaling accurately with radius
+        // Tier 1: Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane, Kasap, Manav...)
         if (radiusMeters <= 300) {
           targetCount = baseSeed > 0.5 ? 2 : 1;
         } else if (radiusMeters <= 600) {
-          targetCount = baseSeed > 0.6 ? 4 : 3;
+          targetCount = baseSeed > 0.5 ? 4 : 3;
         } else if (radiusMeters <= 1200) {
-          targetCount = baseSeed > 0.5 ? 7 : 5;
+          targetCount = baseSeed > 0.5 ? 8 : 6;
         } else {
-          // 2km+ broad radius
-          targetCount = baseSeed > 0.5 ? 12 : 9;
+          // 2km+
+          targetCount = baseSeed > 0.5 ? 14 : 10;
         }
       } else if (TIER_2_COMMERCIAL_STREET.has(catKey)) {
-        // Secondary commercial street sectors (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye...)
+        // Tier 2: Commercial street trades (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye, Kuruyemiş, Su Bayisi...)
         if (radiusMeters <= 300) {
-          targetCount = baseSeed > 0.5 ? 1 : 0;
+          targetCount = baseSeed > 0.4 ? 1 : 1;
         } else if (radiusMeters <= 600) {
-          targetCount = baseSeed > 0.4 ? 2 : 1;
+          targetCount = baseSeed > 0.5 ? 3 : 2;
+        } else if (radiusMeters <= 1200) {
+          targetCount = baseSeed > 0.5 ? 5 : 4;
+        } else {
+          // 2km+
+          targetCount = baseSeed > 0.5 ? 8 : 6;
+        }
+      } else {
+        // Tier 3: Specialized trades (Hukuk & Avukatlık, Fotoğrafçı, Aktar, Çilingir, Lastikçi, Anaokulu, Beyaz Eşya Servisi, vb.)
+        // Always present in Turkish neighborhoods and commercial centers
+        if (radiusMeters <= 300) {
+          targetCount = baseSeed > 0.6 ? 1 : (baseSeed > 0.2 ? 1 : 0);
+        } else if (radiusMeters <= 600) {
+          targetCount = baseSeed > 0.5 ? 2 : 1;
         } else if (radiusMeters <= 1200) {
           targetCount = baseSeed > 0.5 ? 4 : 3;
         } else {
-          targetCount = baseSeed > 0.5 ? 7 : 5;
-        }
-      } else {
-        // TIER 3: Specialized / Niche trades (Çilingir, Lastikçi, Halı Yıkama, Anaokulu, Bisiklet Tamir, Aktar...)
-        // Rare in small residential pockets (allowing authentic "0 İşletme" gap recommendations), scaling in large areas
-        if (radiusMeters <= 500) {
-          targetCount = baseSeed > 0.85 ? 1 : 0;
-        } else if (radiusMeters <= 1200) {
-          targetCount = baseSeed > 0.6 ? 2 : (baseSeed > 0.3 ? 1 : 0);
-        } else {
-          targetCount = baseSeed > 0.5 ? 3 : 2;
+          // 2km+
+          targetCount = baseSeed > 0.5 ? 6 : 4;
         }
       }
 

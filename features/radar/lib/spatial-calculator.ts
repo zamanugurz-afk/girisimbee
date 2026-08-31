@@ -1020,20 +1020,20 @@ export function generateIntelligenceReport(
     marketGapSummary = `Bölgede standart işletme sayısı doymuş görünse de (${compCount} rakip), ${demographics.sesGroup} kitlesinin aradığı kişiselleştirilmiş ve deneyim odaklı niş segmentte %${marketGapScore} arz açığı bulunmaktadır.`;
   }
 
-  // 3. İL BAZINDA EN ÇOK ADETE SAHİP 50 MESLEK İÇİNDEN BU ÇEMBERDE OLMAYANLAR (KESİNLİKLE MAX 3 ÖNERİ)
+  // 3. İL BAZINDA EN ÇOK ADETE SAHİP 50 MESLEK İÇİNDEN BU ÇEMBERDE OLMAYANLAR VEYA EN ÇOK ARZ AÇIĞI OLANLAR (MAX 3)
   const counts = sectorCounts || {};
-  const missingSectorsList: MissingSectorItem[] = [];
+  const zeroExistingList: MissingSectorItem[] = [];
+  const deficitList: MissingSectorItem[] = [];
 
   for (const sec of TURKEY_PROVINCE_TOP_50_TRADES) {
     const existing = counts[sec.key] ?? 0;
     const ideal = Math.max(1, Math.round(popRaw / sec.requiredPop));
 
-    // STRICT KURAL: Sadece ve sadece bu çemberde 0 adet olan (hiç olmayan) sektörler önerilir!
     if (existing === 0) {
       const demandScore = Math.min(99, Math.max(88, 100 - sec.popularityRank));
       const statusBadge = `0 İşletme (İlde #${sec.popularityRank}. Sırada)`;
 
-      missingSectorsList.push({
+      zeroExistingList.push({
         key: sec.key,
         label: sec.label,
         emoji: sec.emoji,
@@ -1044,14 +1044,32 @@ export function generateIntelligenceReport(
         statusBadge,
         opportunityReason: isUpperSes ? sec.upperSesReason : sec.standardSesReason,
       });
+    } else if (existing < ideal) {
+      const deficit = ideal - existing;
+      const deficitRatio = deficit / ideal;
+      const demandScore = Math.min(96, Math.max(75, Math.round(deficitRatio * 100)));
+      const statusBadge = `Kapasite Açığı (${existing}/${ideal} İşletme)`;
+
+      deficitList.push({
+        key: sec.key,
+        label: sec.label,
+        emoji: sec.emoji,
+        existingCount: existing,
+        idealCount: ideal,
+        demandScore,
+        popularityRank: sec.popularityRank,
+        statusBadge,
+        opportunityReason: `İlde #${sec.popularityRank}. sırada en çok aranan meslek. Bu nüfus için ${ideal} işletme gerekirken çemberde yalnızca ${existing} adet var.`,
+      });
     }
   }
 
-  // İldeki en yüksek sıradan (en çok olandan) en az olana doğru sırala
-  missingSectorsList.sort((a, b) => a.popularityRank - b.popularityRank);
+  // Önce çemberde 0 adet olanları popülerlik sırasına göre al
+  zeroExistingList.sort((a, b) => a.popularityRank - b.popularityRank);
+  deficitList.sort((a, b) => a.popularityRank - b.popularityRank);
 
-  // KESİNLİKLE VE KESİNLİKLE MAX 3 ÖNERİ
-  const missingSectors = missingSectorsList.slice(0, 3);
+  const combinedList = [...zeroExistingList, ...deficitList];
+  const missingSectors = combinedList.slice(0, 3);
 
   // 4. EKSİK KONSEPTLER (Fallback/Detay)
   const sectorPool = SECTOR_CONCEPTS[categoryKey] ?? SECTOR_CONCEPTS.default;
