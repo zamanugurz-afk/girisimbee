@@ -27,6 +27,7 @@ import {
 import type {
   RadarCategoryKey,
   RadarSpatialResponse,
+  CompetitorPoi,
 } from '@/types/radar.types';
 import {
   RADAR_CATEGORIES,
@@ -94,6 +95,25 @@ const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'koc-izmit-yahyakaptan', name: 'Kocaeli, İzmit — Yahya Kaptan', lat: 40.7654, lng: 29.9682, city: 'Kocaeli', district: 'İzmit' },
 ];
 
+function normalizeTrText(str: string): string {
+  return (str || '')
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'ı')
+    .replace(/Ğ/g, 'g')
+    .replace(/Ü/g, 'u')
+    .replace(/Ş/g, 's')
+    .replace(/Ö/g, 'o')
+    .replace(/Ç/g, 'c')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/ı/g, 'i')
+    .toLowerCase()
+    .trim();
+}
+
 const CLIENT_RADAR_CACHE = new Map<string, RadarSpatialResponse>();
 
 export function InvestmentRadarClient() {
@@ -112,6 +132,7 @@ export function InvestmentRadarClient() {
 
   // Category search states
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const [selectedPoi, setSelectedPoi] = useState<CompetitorPoi | null>(null);
 
   // Report tab view (Overview vs Detailed Strategy)
   const [activeTab, setActiveTab] = useState<'overview' | 'strategy'>('overview');
@@ -473,10 +494,10 @@ export function InvestmentRadarClient() {
   const displayedCategories = useMemo(() => {
     const allCategories = Object.values(RADAR_CATEGORIES);
     if (categorySearchQuery.trim()) {
-      const q = categorySearchQuery.toLowerCase().trim();
+      const q = normalizeTrText(categorySearchQuery);
       return allCategories.filter((c) =>
-        c.label.toLowerCase().includes(q) ||
-        c.searchKeywords?.some((k) => k.toLowerCase().includes(q)),
+        normalizeTrText(c.label).includes(q) ||
+        c.searchKeywords?.some((k) => normalizeTrText(k).includes(q)),
       );
     }
 
@@ -497,7 +518,7 @@ export function InvestmentRadarClient() {
     const rawPois = radarData?.competitors ?? [];
     if (!categorySearchQuery.trim()) return rawPois;
 
-    const q = categorySearchQuery.toLowerCase().trim();
+    const q = normalizeTrText(categorySearchQuery);
     // Search across current competitors OR the full master census if available
     const roundedLat = Math.round(centerLat * 1000) / 1000;
     const roundedLng = Math.round(centerLng * 1000) / 1000;
@@ -508,10 +529,10 @@ export function InvestmentRadarClient() {
       : rawPois;
 
     return pool.filter((p) => {
-      const name = (p.name || '').toLowerCase();
-      const catLabel = (p.categoryLabel || '').toLowerCase();
-      const catKey = (p.category || '').toLowerCase();
-      const brand = (p.brand || '').toLowerCase();
+      const name = normalizeTrText(p.name);
+      const catLabel = normalizeTrText(p.categoryLabel);
+      const catKey = normalizeTrText(p.category);
+      const brand = normalizeTrText(p.brand || '');
       return name.includes(q) || catLabel.includes(q) || catKey.includes(q) || brand.includes(q);
     });
   }, [radarData?.competitors, categorySearchQuery, centerLat, centerLng, radiusMeters]);
@@ -695,13 +716,86 @@ export function InvestmentRadarClient() {
                 </div>
               </div>
 
-              {/* Dikey İş Kolları Listesi */}
-              <div className="h-[480px] lg:h-[530px] overflow-y-auto space-y-1.5 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-zinc-800">
+              {/* Dikey İş Kolları ve Eşleşen İşletmeler Listesi */}
+              <div className="h-[480px] lg:h-[530px] overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-zinc-800">
+                
+                {/* Arama Yapıldığında: EŞLEŞEN BİREYSEL İŞLETMELER (BİM, ŞOK, Starbucks vb.) */}
+                {categorySearchQuery && visibleCompetitors.length > 0 && (
+                  <div className="space-y-1.5 p-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/30">
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                        <span>📍 Eşleşen İşletmeler</span>
+                      </span>
+                      <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                        {visibleCompetitors.length} Adet
+                      </span>
+                    </div>
+
+                    <div className="max-h-56 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-400">
+                      {visibleCompetitors.map((poi) => {
+                        const isPoiSelected = selectedPoi?.id === poi.id;
+                        return (
+                          <button
+                            key={poi.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPoi(poi);
+                              if (selectedCategory !== 'all' && selectedCategory !== poi.category) {
+                                setSelectedCategory('all');
+                              }
+                            }}
+                            className={cn(
+                              'w-full flex items-center justify-between p-2 rounded-xl text-left transition-all group border',
+                              isPoiSelected
+                                ? 'bg-amber-500 text-slate-950 font-bold border-amber-600 shadow-xs'
+                                : 'bg-white/85 dark:bg-zinc-800/80 hover:bg-amber-500/20 text-slate-800 dark:text-zinc-200 border-slate-200/80 dark:border-zinc-700/80'
+                            )}
+                          >
+                            <div className="min-w-0 pr-2">
+                              <p className="text-xs font-bold truncate group-hover:text-amber-600">
+                                {poi.name}
+                              </p>
+                              <p className="text-[10px] opacity-75 truncate">{poi.categoryLabel}</p>
+                            </div>
+                            <span className={cn(
+                              'text-[10px] font-extrabold shrink-0 px-1.5 py-0.5 rounded-md',
+                              isPoiSelected
+                                ? 'bg-slate-950 text-white'
+                                : 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
+                            )}>
+                              {poi.distanceMeters}m
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Arama Sonucu Bulunamadı Uyarısı */}
+                {categorySearchQuery && visibleCompetitors.length === 0 && displayedCategories.length === 0 && (
+                  <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center space-y-2">
+                    <p className="text-xs font-bold text-rose-700 dark:text-rose-300">
+                      &ldquo;{categorySearchQuery}&rdquo; ile eşleşen işletme bulunamadı.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCategorySearchQuery('')}
+                      className="text-xs font-bold text-amber-600 hover:underline"
+                    >
+                      Aramayı Temizle
+                    </button>
+                  </div>
+                )}
+
                 {/* 1. TÜM İŞLETMELER SEÇENEĞİ */}
                 {!categorySearchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSelectedCategory('all')}
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setSelectedPoi(null);
+                    }}
                     className={cn(
                       'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
                       selectedCategory === 'all'
@@ -730,6 +824,13 @@ export function InvestmentRadarClient() {
                   </button>
                 )}
 
+                {/* Sektör Başlığı (Arama esnasında) */}
+                {categorySearchQuery && displayedCategories.length > 0 && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1 pt-1">
+                    İlgili Sektörler
+                  </p>
+                )}
+
                 {displayedCategories.map((cat) => {
                   const isSelected = selectedCategory === cat.key;
                   const sectorCount = radarData?.availableSectors?.[cat.key] ?? 0;
@@ -737,7 +838,10 @@ export function InvestmentRadarClient() {
                     <button
                       key={cat.key}
                       type="button"
-                      onClick={() => setSelectedCategory(cat.key)}
+                      onClick={() => {
+                        setSelectedCategory(cat.key);
+                        setSelectedPoi(null);
+                      }}
                       className={cn(
                         'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
                         isSelected
@@ -856,6 +960,7 @@ export function InvestmentRadarClient() {
                 competitors={visibleCompetitors}
                 listings={radarData?.listingsInRadius || []}
                 onCircleChanged={handleCircleChanged}
+                selectedPoi={selectedPoi}
               />
             </div>
 

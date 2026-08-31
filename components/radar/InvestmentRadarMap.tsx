@@ -13,6 +13,7 @@ interface InvestmentRadarMapProps {
   competitors: CompetitorPoi[];
   listings: RadarListingMatch[];
   onCircleChanged: (lat: number, lng: number, radius: number) => void;
+  selectedPoi?: CompetitorPoi | null;
   isDrawingMode?: boolean;
 }
 
@@ -24,6 +25,7 @@ export default function InvestmentRadarMap({
   competitors,
   listings,
   onCircleChanged,
+  selectedPoi,
 }: InvestmentRadarMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -32,6 +34,7 @@ export default function InvestmentRadarMap({
   const listingsLayerGroupRef = useRef<any>(null);
   const centerMarkerRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
+  const poiMarkersMapRef = useRef<Map<string, any>>(new Map());
 
   const radiusMetersRef = useRef(radiusMeters);
   radiusMetersRef.current = radiusMeters;
@@ -204,35 +207,54 @@ export default function InvestmentRadarMap({
       if (!layerGroup) return;
 
       layerGroup.clearLayers();
+      poiMarkersMapRef.current.clear();
+
+      const isFilteredView = competitors.length > 0 && competitors.length <= 25;
 
       for (const poi of competitors) {
         const poiIcon = L.divIcon({
           className: 'custom-poi-marker',
-          html: `
+          html: isFilteredView ? `
+            <div class="group relative flex items-center justify-center cursor-pointer">
+              <div class="h-3.5 w-3.5 rounded-full bg-rose-600 border-2 border-white shadow-md transition-transform duration-150 group-hover:scale-125"></div>
+              <span class="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md bg-slate-900/90 text-white font-bold text-[10px] shadow-md border border-slate-700 pointer-events-none transition-all">
+                ${poi.name}
+              </span>
+            </div>
+          ` : `
             <div class="group relative flex items-center justify-center cursor-pointer">
               <div class="h-3 w-3 rounded-full bg-rose-500 border border-white shadow-xs transition-transform duration-150 hover:scale-150"></div>
             </div>
           `,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7],
+          iconSize: isFilteredView ? [20, 20] : [14, 14],
+          iconAnchor: isFilteredView ? [10, 10] : [7, 7],
         });
 
         const marker = L.marker([poi.lat, poi.lng], { icon: poiIcon });
         marker.bindPopup(
           `
-          <div style="font-family: inherit; padding: 2px 4px; min-width: 140px;">
-            <p style="font-weight: 700; font-size: 12px; margin: 0 0 2px 0; color: #0f172a;">${poi.name}</p>
-            <p style="font-size: 11px; margin: 0; color: #64748b;">${poi.categoryLabel}</p>
-            <p style="font-size: 10px; margin: 4px 0 0 0; color: #e11d48; font-weight: 600;">📍 ${poi.distanceMeters}m mesafe</p>
+          <div style="font-family: inherit; padding: 3px 6px; min-width: 150px;">
+            <p style="font-weight: 800; font-size: 13px; margin: 0 0 2px 0; color: #0f172a;">${poi.name}</p>
+            <p style="font-size: 11px; margin: 0; color: #64748b; font-weight: 500;">${poi.categoryLabel}</p>
+            <p style="font-size: 11px; margin: 4px 0 0 0; color: #e11d48; font-weight: 700;">📍 ${poi.distanceMeters}m mesafe</p>
           </div>
         `,
-          { closeButton: false, offset: [0, -6] },
+          { closeButton: false, offset: [0, isFilteredView ? -12 : -6] },
         );
 
         layerGroup.addLayer(marker);
+        poiMarkersMapRef.current.set(poi.id, marker);
+      }
+
+      if (selectedPoi && poiMarkersMapRef.current.has(selectedPoi.id)) {
+        const marker = poiMarkersMapRef.current.get(selectedPoi.id);
+        marker.openPopup();
+        mapRef.current.flyTo([selectedPoi.lat, selectedPoi.lng], Math.max(16, mapRef.current.getZoom()), {
+          duration: 0.8,
+        });
       }
     });
-  }, [competitors]);
+  }, [competitors, selectedPoi]);
 
   useEffect(() => {
     if (!mapRef.current || !listingsLayerGroupRef.current) return;

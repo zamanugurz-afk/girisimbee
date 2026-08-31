@@ -1244,71 +1244,68 @@ export async function fetchMasterAreaPoiCensus(
   const sectorCensus: Record<string, number> = {};
 
   // For every category in RADAR_CATEGORIES:
-  // If real POIs exist, keep them.
-  // Otherwise, deterministically generate accurate commercial density.
+  // Ensure real POIs are preserved AND complete density (BİM, A101, ŞOK, Starbucks, etc.) is guaranteed
   allCategories.forEach((catKey, catIdx) => {
-    const existingReal = categorizedRealPois[catKey];
-    if (existingReal && existingReal.length > 0) {
-      finalPois.push(...existingReal);
-      sectorCensus[catKey] = existingReal.length;
+    const existingReal = categorizedRealPois[catKey] || [];
+    let targetCount = 0;
+    const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543 + (catIdx + 1) * 77.3));
+
+    if (TIER_1_DAILY_ESSENTIALS.has(catKey)) {
+      // Tier 1: Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane, Kasap, Manav...)
+      if (radiusMeters <= 300) {
+        targetCount = baseSeed > 0.5 ? 2 : 1;
+      } else if (radiusMeters <= 600) {
+        targetCount = baseSeed > 0.5 ? 4 : 3;
+      } else if (radiusMeters <= 1200) {
+        targetCount = baseSeed > 0.5 ? 8 : 6;
+      } else {
+        // 2km+
+        targetCount = baseSeed > 0.5 ? 14 : 10;
+      }
+    } else if (TIER_2_COMMERCIAL_STREET.has(catKey)) {
+      // Tier 2: Commercial street trades (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye, Kuruyemiş, Su Bayisi...)
+      if (radiusMeters <= 300) {
+        targetCount = baseSeed > 0.4 ? 1 : 1;
+      } else if (radiusMeters <= 600) {
+        targetCount = baseSeed > 0.5 ? 3 : 2;
+      } else if (radiusMeters <= 1200) {
+        targetCount = baseSeed > 0.5 ? 5 : 4;
+      } else {
+        // 2km+
+        targetCount = baseSeed > 0.5 ? 8 : 6;
+      }
     } else {
-      let targetCount = 0;
-      const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543 + (catIdx + 1) * 77.3));
-
-      if (TIER_1_DAILY_ESSENTIALS.has(catKey)) {
-        // Tier 1: Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane, Kasap, Manav...)
-        if (radiusMeters <= 300) {
-          targetCount = baseSeed > 0.5 ? 2 : 1;
-        } else if (radiusMeters <= 600) {
-          targetCount = baseSeed > 0.5 ? 4 : 3;
-        } else if (radiusMeters <= 1200) {
-          targetCount = baseSeed > 0.5 ? 8 : 6;
-        } else {
-          // 2km+
-          targetCount = baseSeed > 0.5 ? 14 : 10;
-        }
-      } else if (TIER_2_COMMERCIAL_STREET.has(catKey)) {
-        // Tier 2: Commercial street trades (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye, Kuruyemiş, Su Bayisi...)
-        if (radiusMeters <= 300) {
-          targetCount = baseSeed > 0.4 ? 1 : 1;
-        } else if (radiusMeters <= 600) {
-          targetCount = baseSeed > 0.5 ? 3 : 2;
-        } else if (radiusMeters <= 1200) {
-          targetCount = baseSeed > 0.5 ? 5 : 4;
-        } else {
-          // 2km+
-          targetCount = baseSeed > 0.5 ? 8 : 6;
-        }
+      // Tier 3: Specialized trades (Hukuk & Avukatlık, Fotoğrafçı, Aktar, Çilingir, Lastikçi, Anaokulu, Beyaz Eşya Servisi, vb.)
+      if (radiusMeters <= 300) {
+        targetCount = baseSeed > 0.6 ? 1 : (baseSeed > 0.2 ? 1 : 0);
+      } else if (radiusMeters <= 600) {
+        targetCount = baseSeed > 0.5 ? 2 : 1;
+      } else if (radiusMeters <= 1200) {
+        targetCount = baseSeed > 0.5 ? 4 : 3;
       } else {
-        // Tier 3: Specialized trades (Hukuk & Avukatlık, Fotoğrafçı, Aktar, Çilingir, Lastikçi, Anaokulu, Beyaz Eşya Servisi, vb.)
-        // Always present in Turkish neighborhoods and commercial centers
-        if (radiusMeters <= 300) {
-          targetCount = baseSeed > 0.6 ? 1 : (baseSeed > 0.2 ? 1 : 0);
-        } else if (radiusMeters <= 600) {
-          targetCount = baseSeed > 0.5 ? 2 : 1;
-        } else if (radiusMeters <= 1200) {
-          targetCount = baseSeed > 0.5 ? 4 : 3;
-        } else {
-          // 2km+
-          targetCount = baseSeed > 0.5 ? 6 : 4;
-        }
+        // 2km+
+        targetCount = baseSeed > 0.5 ? 6 : 4;
       }
+    }
 
-      if (targetCount > 0) {
-        const synthetic = generateDeterministicLocalPois(
-          lat,
-          lng,
-          radiusMeters,
-          catKey,
-          locationName,
-          targetCount,
-          catIdx,
-        );
-        finalPois.push(...synthetic);
-        sectorCensus[catKey] = synthetic.length;
-      } else {
-        sectorCensus[catKey] = 0;
-      }
+    finalPois.push(...existingReal);
+
+    // If real POIs are fewer than the expected commercial density, fill the remaining slots with authentic Turkish brands
+    const neededSynthetic = Math.max(0, targetCount - existingReal.length);
+    if (neededSynthetic > 0) {
+      const synthetic = generateDeterministicLocalPois(
+        lat,
+        lng,
+        radiusMeters,
+        catKey,
+        locationName,
+        neededSynthetic,
+        catIdx,
+      );
+      finalPois.push(...synthetic);
+      sectorCensus[catKey] = existingReal.length + synthetic.length;
+    } else {
+      sectorCensus[catKey] = existingReal.length;
     }
   });
 
