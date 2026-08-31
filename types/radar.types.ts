@@ -89,10 +89,23 @@ export interface MarketGapConcept {
   suitabilityScore: number;
 }
 
+export interface MissingSectorItem {
+  key: string;
+  label: string;
+  emoji: string;
+  existingCount: number;
+  idealCount: number;
+  demandScore: number;
+  popularityRank: number;
+  statusBadge: string;
+  opportunityReason: string;
+}
+
 export interface RadarIntelligenceReport {
   summaryAdvice: string;
   marketGapSummary: string;
   marketGapScore: number;
+  missingSectors: MissingSectorItem[];
   missingConcepts: MarketGapConcept[];
   recommendedEntryStrategy: string;
   strategyRationale: string;

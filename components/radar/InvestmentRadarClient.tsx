@@ -816,7 +816,7 @@ export function InvestmentRadarClient() {
           {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
-            <div className="space-y-3 flex-1 flex flex-col justify-center">
+            <div className="space-y-3 flex-1 flex flex-col">
               
               {/* Sekme Butonları (Tabs) */}
               <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700">
@@ -824,7 +824,7 @@ export function InvestmentRadarClient() {
                   type="button"
                   onClick={() => setActiveTab('overview')}
                   className={cn(
-                    'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all',
+                    'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all text-center',
                     activeTab === 'overview'
                       ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs'
                       : 'text-muted-foreground hover:text-foreground',
@@ -843,13 +843,28 @@ export function InvestmentRadarClient() {
                   )}
                 >
                   <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>Fırsat Avcısı & Strateji</span>
+                  <span>Hangi Sektörler Yok?</span>
                 </button>
               </div>
 
               {activeTab === 'overview' ? (
                 <>
-                  {/* 1. YAPAY ZEKA YATIRIM PUANI */}
+                  {/* 1. STRATEJİK BÖLGE DEĞERLENDİRMESİ */}
+                  {radarData?.intelligence?.summaryAdvice && (
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-500/35 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                          Stratejik Bölge Değerlendirmesi
+                        </span>
+                      </div>
+                      <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[12px] leading-relaxed font-medium">
+                        {radarData.intelligence.summaryAdvice}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 2. YAPAY ZEKA YATIRIM PUANI */}
                   <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5 overflow-hidden">
                     <div className="flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
@@ -897,7 +912,7 @@ export function InvestmentRadarClient() {
                     </div>
                   </div>
 
-                  {/* 2. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
+                  {/* 3. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
                   <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
                     <div className="flex items-center gap-1.5">
                       <Users className="w-4 h-4 text-primary shrink-0" />
@@ -954,7 +969,7 @@ export function InvestmentRadarClient() {
                     </div>
                   </div>
 
-                  {/* 3. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
+                  {/* 4. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
                   <div className="flex items-center justify-center py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
                     <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300">
                       Demografi verileri <strong>TÜİK</strong> resmi kayıtları ile modellenmiştir.
@@ -962,52 +977,65 @@ export function InvestmentRadarClient() {
                   </div>
                 </>
               ) : (
-                /* AI STRATEJİ & FIRSAT AVCISI RAPORU SEKME GÖRÜNÜMÜ */
+                /* HANGİ SEKTÖRLER YOK? (FIRSAT AVCISI) SEKME GÖRÜNÜMÜ */
                 <div className="space-y-2.5 text-xs">
                   {radarData?.intelligence ? (
                     <>
-                      {/* 1. STRATEJİK BÖLGE DEĞERLENDİRMESİ */}
-                      <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-500/35 space-y-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                          <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                            Stratejik Bölge Değerlendirmesi
-                          </span>
-                        </div>
-                        <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[12.5px] leading-relaxed font-medium">
-                          {radarData.intelligence.summaryAdvice}
-                        </p>
-                      </div>
-
-                      {/* 2. TESPİT EDİLEN PAZAR AÇIĞI */}
+                      {/* 1. SEKTÖR AÇIĞI BAŞLIĞI */}
                       <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
                         <div className="flex items-center justify-between gap-1.5">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <TrendingUp className="w-3.5 h-3.5 text-primary shrink-0" />
                             <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                              Tespit Edilen Pazar Açığı
+                              Bölgede Hangi Sektörler Yok?
                             </span>
                           </div>
                           <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shrink-0">
-                            %{radarData.intelligence.marketGapScore || 72} Fırsat Açığı
+                            %{radarData.intelligence.marketGapScore || 72} Pazar Açığı
                           </span>
                         </div>
-                        <p className="text-muted-foreground text-xs leading-relaxed font-medium">
-                          {radarData.intelligence.marketGapSummary}
+                        <p className="text-muted-foreground text-[11.5px] leading-relaxed">
+                          {demographicStats.population} kişilik yerleşik talep ve {demographicStats.sesGroup} gelir yapısına göre çemberde bulunmayan veya yetersiz olan öncelikli sektörler:
                         </p>
                       </div>
 
-                      {/* 3. BÖLGEYE ÖZEL EKSİK KONSEPTLER (FIRSAT AVCISI) */}
-                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2">
-                        <div className="flex items-center gap-1.5">
-                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                            Eksik Konseptler (Ne Yapılabilir?)
-                          </span>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          {radarData.intelligence.missingConcepts?.map((concept, idx) => (
+                      {/* 2. EKSİK SEKTÖRLER LİSTESİ (EN POPÜLERDEN EN AZA SIRALI) */}
+                      <div className="space-y-2">
+                        {radarData.intelligence.missingSectors && radarData.intelligence.missingSectors.length > 0 ? (
+                          radarData.intelligence.missingSectors.map((sec, idx) => (
+                            <div
+                              key={idx}
+                              className="p-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5 transition-all hover:border-amber-500/40"
+                            >
+                              <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className="text-base shrink-0 leading-none">{sec.emoji}</span>
+                                  <strong className="text-slate-900 dark:text-white font-bold text-xs truncate">
+                                    {sec.label}
+                                  </strong>
+                                </div>
+                                <span
+                                  className={cn(
+                                    'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 leading-tight',
+                                    sec.existingCount === 0
+                                      ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
+                                      : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30',
+                                  )}
+                                >
+                                  {sec.statusBadge}
+                                </span>
+                              </div>
+                              <p className="text-muted-foreground text-[11px] leading-snug">
+                                {sec.opportunityReason}
+                              </p>
+                              <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800/80 text-[10px]">
+                                <span className="text-slate-600 dark:text-zinc-400 font-medium">Bölgesel İhtiyaç:</span>
+                                <span className="font-bold text-emerald-600 dark:text-emerald-400">%{sec.demandScore} Talep Açığı</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          radarData.intelligence.missingConcepts?.map((concept, idx) => (
                             <div
                               key={idx}
                               className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 space-y-1"
@@ -1023,16 +1051,12 @@ export function InvestmentRadarClient() {
                               <p className="text-muted-foreground text-[11px] leading-snug">
                                 {concept.description}
                               </p>
-                              <div className="flex items-center justify-between pt-0.5 text-[10px] text-slate-600 dark:text-zinc-400 border-t border-slate-200/50 dark:border-zinc-700/50">
-                                <span className="truncate max-w-[70%]">🎯 {concept.targetAudience}</span>
-                                <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">%{concept.suitabilityScore} Uyum</span>
-                              </div>
                             </div>
-                          ))}
-                        </div>
+                          ))
+                        )}
                       </div>
 
-                      {/* 4. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ */}
+                      {/* 3. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ */}
                       <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
                         <div className="flex items-center justify-between gap-1">
                           <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
@@ -1055,7 +1079,7 @@ export function InvestmentRadarClient() {
                     </>
                   ) : (
                     <div className="p-6 text-center text-muted-foreground text-xs">
-                      Fırsat Avcısı strateji raporu hesaplanıyor...
+                      Eksik sektörler analiz ediliyor...
                     </div>
                   )}
                 </div>

@@ -57,10 +57,6 @@ export async function GET(request: NextRequest) {
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
-    // 2. Compute Metrics and AI Intelligence Report
-    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
-    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius);
-
     // Compute accurate sector distribution directly from POIs
     const sectorDistribution: Record<string, number> = {};
     for (const poi of competitors) {
@@ -68,6 +64,10 @@ export async function GET(request: NextRequest) {
         sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;
       }
     }
+
+    // 2. Compute Metrics and AI Intelligence Report
+    const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
+    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorDistribution);
 
     const responseData: RadarSpatialResponse = {
       query: {
@@ -125,8 +125,15 @@ export async function POST(request: NextRequest) {
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
+    const sectorDistribution: Record<string, number> = {};
+    for (const poi of competitors) {
+      if (poi.category && poi.category !== 'all') {
+        sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;
+      }
+    }
+
     const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
-    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius);
+    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorDistribution);
 
     const responseData: RadarSpatialResponse = {
       query: {

@@ -1,6 +1,7 @@
 import type {
   CompetitorPoi,
   MarketGapConcept,
+  MissingSectorItem,
   RadarAnalysisMetrics,
   RadarCategoryKey,
   RadarIntelligenceReport,
@@ -502,6 +503,136 @@ const SECTOR_CONCEPTS: Record<string, { upperSes: ConceptTemplate[]; standardSes
   },
 };
 
+export interface SectorPopularityMeta {
+  key: string;
+  label: string;
+  emoji: string;
+  requiredPop: number;
+  popularityRank: number;
+  upperSesReason: string;
+  standardSesReason: string;
+}
+
+export const POPULAR_SECTORS_CATALOG: SectorPopularityMeta[] = [
+  {
+    key: 'bakery',
+    label: 'Fırın & Unlu Mamüller / Kruvasan',
+    emoji: '🥐',
+    requiredPop: 2600,
+    popularityRank: 1,
+    upperSesReason: 'Sabah taze ekşi maya ekmek, artisan kruvasan ve kahvaltı trafiğinde yüksek açık.',
+    standardSesReason: 'Günün her saati sıcak simit, börek, poğaça ve taze ekmek ihtiyacı.',
+  },
+  {
+    key: 'pharmacy',
+    label: 'Eczane & Medikal / Dermokozmetik',
+    emoji: '💊',
+    requiredPop: 3500,
+    popularityRank: 2,
+    upperSesReason: 'Reçeteli ilaç ve premium dermokozmetik/vitamin takviyesi talebi çevreye kayıyor.',
+    standardSesReason: 'Mahalle sakinleri ve yaşlı nüfus için acil ve düzenli sağlık ihtiyacı.',
+  },
+  {
+    key: 'gym',
+    label: 'Fitness, Reformer Pilates & Spor',
+    emoji: '🏋️',
+    requiredPop: 8500,
+    popularityRank: 3,
+    upperSesReason: 'Plaza ve çalışan kitle için butik reformer pilates/fonksiyonel stüdyo yüksek marjlı.',
+    standardSesReason: 'Genç nüfus ve çalışanlar için uygun fiyatlı mahalle fitness salonu açığı.',
+  },
+  {
+    key: 'pet_shop',
+    label: 'Petshop & Veteriner / Pet Spa',
+    emoji: '🐾',
+    requiredPop: 7500,
+    popularityRank: 4,
+    upperSesReason: 'Evcil hayvan sahipliği yoğun; randevulu pet kuaför ve organik mama talebi yüksek.',
+    standardSesReason: 'Aylık mama, kum ve temel bakım ihtiyaçları için yakın mesafe açığı.',
+  },
+  {
+    key: 'market',
+    label: 'Gurme Şarküteri & Doğal Market',
+    emoji: '🧀',
+    requiredPop: 2200,
+    popularityRank: 5,
+    upperSesReason: 'Yöresel peynir, soğuk sıkım yağ ve hazır meze/şarküteri ürünlerinde yüksek açık.',
+    standardSesReason: 'Hızlı al-götür ve eve teslimat yapan pratik mahalle marketi ihtiyacı.',
+  },
+  {
+    key: 'hairdresser',
+    label: 'Kuaför, Güzellik & Nail Art',
+    emoji: '💇',
+    requiredPop: 2600,
+    popularityRank: 6,
+    upperSesReason: 'Medikal manikür, kalıcı oje ve VIP saç bakımında randevusuz hizmet açığı.',
+    standardSesReason: 'Aileler ve çalışanlar için uygun fiyatlı hızlı saç kesim/bakım salonu.',
+  },
+  {
+    key: 'restaurant',
+    label: 'Sağlıklı Kase (Bowl) & Hızlı Mutfak',
+    emoji: '🥗',
+    requiredPop: 3200,
+    popularityRank: 7,
+    upperSesReason: 'Öğle saatlerinde ofislere sağlıklı protein/bowl ve taze salata paket servisi.',
+    standardSesReason: 'Ekonomik ev yemekleri ve akşam hızlı sokak lezzetleri talebi.',
+  },
+  {
+    key: 'dry_cleaning',
+    label: 'Kuru Temizleme, Terzi & Lostra',
+    emoji: '🧺',
+    requiredPop: 8500,
+    popularityRank: 8,
+    upperSesReason: 'Beyaz yaka çalışanlar için gömlek/takım elbise ekspres temizleme ve adrese teslimat.',
+    standardSesReason: 'Tadilat, paça kısaltma ve mont/ceket temizliğinde mahalle açığı.',
+  },
+  {
+    key: 'butcher',
+    label: 'Gurme Kasap & Et Şarküteri',
+    emoji: '🥩',
+    requiredPop: 4600,
+    popularityRank: 9,
+    upperSesReason: 'Dinlendirilmiş dry-aged etler, marine ürünler ve şarküteri çeşitliliği.',
+    standardSesReason: 'Güvenilir taze kırmızı/beyaz et ve kıyma alışverişinde mahalle kasabı.',
+  },
+  {
+    key: 'dental_clinic',
+    label: 'Diş Kliniği & Estetik Gülüş',
+    emoji: '🦷',
+    requiredPop: 6000,
+    popularityRank: 10,
+    upperSesReason: 'İmplant, şeffaf plak ve estetik diş hekimliğinde randevulu butik klinik.',
+    standardSesReason: 'Mahalle sakinleri için genel muayene ve acil diş hekimliği hizmeti.',
+  },
+  {
+    key: 'florist',
+    label: 'Butik Çiçek & Tasarım Atölyesi',
+    emoji: '🌸',
+    requiredPop: 9500,
+    popularityRank: 11,
+    upperSesReason: 'Özel gün buketleri, saksı bitkileri ve ev dekorasyon çiçek aranjmanları.',
+    standardSesReason: 'Hızlı hediye ve kutlama çiçekleri için görünür caddede çiçekçi.',
+  },
+  {
+    key: 'stationery',
+    label: 'Kırtasiye, Kitap & Dijital Baskı',
+    emoji: '📚',
+    requiredPop: 5000,
+    popularityRank: 12,
+    upperSesReason: 'Sanatsal hobi malzemeleri, ithal kırtasiye ve hızlı dijital çıktı merkezi.',
+    standardSesReason: 'Okul ve ofis temel kırtasiye, fotokopi ve kargo paketleme noktası.',
+  },
+  {
+    key: 'optician',
+    label: 'Optik & Güneş Gözlüğü Butiği',
+    emoji: '👓',
+    requiredPop: 7500,
+    popularityRank: 13,
+    upperSesReason: 'Tasarım çerçeveler, premium güneş gözlükleri ve reçeteli lens temini.',
+    standardSesReason: 'SGK anlaşmalı reçeteli cam ve ekonomik çerçeve seçenekleri.',
+  },
+];
+
 export function generateIntelligenceReport(
   categoryKey: RadarCategoryKey,
   metrics: RadarAnalysisMetrics,
@@ -509,6 +640,7 @@ export function generateIntelligenceReport(
   lat?: number,
   lng?: number,
   radiusMeters: number = 500,
+  sectorCounts?: Record<string, number>,
 ): RadarIntelligenceReport {
   const meta = RADAR_CATEGORIES[categoryKey] ?? {
     key: 'all' as RadarCategoryKey,
@@ -520,6 +652,7 @@ export function generateIntelligenceReport(
   const loc = locationName ? `${locationName}` : 'Seçili çember alanı';
   const isUpperSes = demographics.sesGroup.includes('A');
   const popStr = demographics.population;
+  const popRaw = demographics.populationRaw || 12000;
   const trafficStr = demographics.daytimeTraffic;
   const compCount = metrics.competitorCount;
   const isAll = categoryKey === 'all' || !categoryKey;
@@ -552,11 +685,51 @@ export function generateIntelligenceReport(
     marketGapSummary = `Bölgede standart işletme sayısı doymuş görünse de (${compCount} rakip), ${demographics.sesGroup} kitlesinin aradığı kişiselleştirilmiş ve deneyim odaklı niş segmentte %${marketGapScore} arz açığı bulunmaktadır.`;
   }
 
-  // 3. EKSİK KONSEPTLER (FIRSAT AVCISI)
+  // 3. HANGİ SEKTÖRLER YOK? (FIRSAT AVCISI - EN POPÜLERDEN EN AZA DOĞRU SIRALI)
+  const counts = sectorCounts || {};
+  const missingSectorsList: MissingSectorItem[] = [];
+
+  for (const sec of POPULAR_SECTORS_CATALOG) {
+    const existing = counts[sec.key] ?? 0;
+    const ideal = Math.max(1, Math.round(popRaw / sec.requiredPop));
+
+    if (existing === 0 || existing < ideal * 0.5) {
+      const demandScore = existing === 0 
+        ? Math.min(99, 90 + (13 - sec.popularityRank))
+        : Math.min(88, 75 + (13 - sec.popularityRank));
+      
+      const statusBadge = existing === 0
+        ? '0 İşletme (Kritik Açık)'
+        : `Yetersiz Arz (${existing} İşletme / ${popStr} Kişi)`;
+
+      missingSectorsList.push({
+        key: sec.key,
+        label: sec.label,
+        emoji: sec.emoji,
+        existingCount: existing,
+        idealCount: ideal,
+        demandScore,
+        popularityRank: sec.popularityRank,
+        statusBadge,
+        opportunityReason: isUpperSes ? sec.upperSesReason : sec.standardSesReason,
+      });
+    }
+  }
+
+  // En popülerden en az tercih edilene doğru sırala (0 olanlar en başta)
+  missingSectorsList.sort((a, b) => {
+    if (a.existingCount === 0 && b.existingCount > 0) return -1;
+    if (a.existingCount > 0 && b.existingCount === 0) return 1;
+    return a.popularityRank - b.popularityRank;
+  });
+
+  const missingSectors = missingSectorsList.slice(0, 5);
+
+  // 4. EKSİK KONSEPTLER (Fallback/Detay)
   const sectorPool = SECTOR_CONCEPTS[categoryKey] ?? SECTOR_CONCEPTS.default;
   const missingConcepts: MarketGapConcept[] = isUpperSes ? sectorPool.upperSes : sectorPool.standardSes;
 
-  // 4. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ
+  // 5. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ
   let recommendedEntryStrategy = '';
   let strategyRationale = '';
   let estimatedTicketSize = '';
@@ -584,6 +757,7 @@ export function generateIntelligenceReport(
     summaryAdvice,
     marketGapSummary,
     marketGapScore,
+    missingSectors,
     missingConcepts,
     recommendedEntryStrategy,
     strategyRationale,
