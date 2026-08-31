@@ -1548,12 +1548,34 @@ const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [
   { id: 'real-sb-cevahir', name: 'Starbucks Coffee (Cevahir AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 41.06050, lng: 28.98750, address: '19 Mayıs Mah. Büyükdere Cad. Cevahir AVM, Şişli / İstanbul', distanceMeters: 0 },
   { id: 'real-sb-capacity-bakirkoy', name: 'Starbucks Coffee (Capacity AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97850, lng: 28.87450, address: 'Zeytinlik Mah. Fişekhane Cad. Capacity AVM, Bakırköy / İstanbul', distanceMeters: 0 },
 
-  // Ankara & İzmir
+  // Ankara
   { id: 'real-sb-ankara-tunali', name: 'Starbucks Coffee (Tunalı Hilmi Caddesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.90450, lng: 32.86020, address: 'Kavaklıdere Mah. Tunalı Hilmi Cad. No: 98, Çankaya / Ankara', distanceMeters: 0 },
   { id: 'real-sb-ankara-kizilay', name: 'Starbucks Coffee (Kızılay AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.92050, lng: 32.85420, address: 'Kızılay Mah. Gazi Mustafa Kemal Bulvarı Kızılay AVM, Çankaya / Ankara', distanceMeters: 0 },
+  { id: 'real-sb-ankara-armada', name: 'Starbucks Coffee (Armada AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.91250, lng: 32.80850, address: 'Beştepeler Mah. Eskişehir Yolu Armada AVM, Yenimahalle / Ankara', distanceMeters: 0 },
+  { id: 'real-sb-ankara-bahceli', name: 'Starbucks Coffee (Bahçelievler 7. Cadde)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.92250, lng: 32.82420, address: 'Bahçelievler Mah. Aşkabat Cad. No: 24, Çankaya / Ankara', distanceMeters: 0 },
+  { id: 'real-sb-ankara-gordion', name: 'Starbucks Coffee (Gordion AVM Çayyolu)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.88210, lng: 32.69850, address: 'Koru Mah. Ankaralılar Cad. Gordion AVM, Çankaya / Ankara', distanceMeters: 0 },
+
+  // İzmir
   { id: 'real-sb-izmir-alsancak', name: 'Starbucks Coffee (Alsancak Gül Sokak)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.43650, lng: 27.14250, address: 'Alsancak Mah. 1382. Sok. No: 12, Konak / İzmir', distanceMeters: 0 },
   { id: 'real-sb-izmir-karsiyaka', name: 'Starbucks Coffee (Karşıyaka Çarşı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.45750, lng: 27.11920, address: 'Tuna Mah. Kemalpaşa Cad. No: 45, Karşıyaka / İzmir', distanceMeters: 0 },
-  { id: 'real-sb-izmir-bostanli', name: 'Starbucks Coffee (Bostanlı Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.95250, lng: 29.09800, address: 'Bostanlı Mah. Cemal Gürsel Cad., Karşıyaka / İzmir', distanceMeters: 0 },
+  { id: 'real-sb-izmir-bostanli', name: 'Starbucks Coffee (Bostanlı Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.45520, lng: 27.09820, address: 'Bostanlı Mah. Cemal Gürsel Cad. No: 88, Karşıyaka / İzmir', distanceMeters: 0 },
+  { id: 'real-sb-izmir-mavibahce', name: 'Starbucks Coffee (Mavibahçe AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.47120, lng: 27.08520, address: 'Mavişehir Mah. Caher Dudayev Bulv. Mavibahçe AVM, Karşıyaka / İzmir', distanceMeters: 0 },
+  { id: 'real-sb-izmir-bornova-forum', name: 'Starbucks Coffee (Forum Bornova)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.46150, lng: 27.22850, address: 'Kazımdirik Mah. Forum Bornova AVM, Bornova / İzmir', distanceMeters: 0 },
+
+  // Bursa
+  { id: 'real-sb-bursa-korupark', name: 'Starbucks Coffee (Korupark AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.24520, lng: 28.96120, address: 'Adnan Menderes Mah. Mudanya Cad. Korupark AVM, Osmangazi / Bursa', distanceMeters: 0 },
+  { id: 'real-sb-bursa-fsm', name: 'Starbucks Coffee (FSM Bulvarı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.21850, lng: 28.97420, address: 'Cumhuriyet Mah. Fatih Sultan Mehmet Bulvarı, Nilüfer / Bursa', distanceMeters: 0 },
+  { id: 'real-sb-bursa-suryapi', name: 'Starbucks Coffee (Sur Yapı Marka AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.20820, lng: 28.99850, address: 'Odunluk Mah. Akademi Cad. Sur Yapı Marka AVM, Nilüfer / Bursa', distanceMeters: 0 },
+
+  // Antalya
+  { id: 'real-sb-antalya-terracity', name: 'Starbucks Coffee (TerraCity AVM Lara)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.85320, lng: 30.75580, address: 'Fener Mah. Tekelioğlu Cad. TerraCity AVM, Muratpaşa / Antalya', distanceMeters: 0 },
+  { id: 'real-sb-antalya-migros', name: 'Starbucks Coffee (Antalya 5M Migros AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.88120, lng: 30.65820, address: 'Arapsuyu Mah. Atatürk Bulvarı 5M Migros AVM, Konyaaltı / Antalya', distanceMeters: 0 },
+  { id: 'real-sb-antalya-isiklar', name: 'Starbucks Coffee (Işıklar Caddesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.88150, lng: 30.70950, address: 'Haşimişcan Mah. Işıklar Cad. No: 18, Muratpaşa / Antalya', distanceMeters: 0 },
+
+  // Adana & Eskişehir & Kocaeli
+  { id: 'real-sb-adana-ziyapasa', name: 'Starbucks Coffee (Ziyapaşa Bulvarı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.99620, lng: 35.32250, address: 'Kurtuluş Mah. Ziyapaşa Bulvarı, Seyhan / Adana', distanceMeters: 0 },
+  { id: 'real-sb-eskisehir-esparc', name: 'Starbucks Coffee (Espark AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.78250, lng: 30.51120, address: 'Eskibağlar Mah. Üniversite Cad. Espark AVM, Tepebaşı / Eskişehir', distanceMeters: 0 },
+  { id: 'real-sb-kocaeli-symbol', name: 'Starbucks Coffee (Symbol AVM Kocaeli)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.76120, lng: 29.98850, address: 'Ovacık Mah. D-100 Karayolu Üzeri Symbol AVM, Başiskele / Kocaeli', distanceMeters: 0 },
 ];
 
 export function extractCleanLocationName(locationName: string): string {

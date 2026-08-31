@@ -34,6 +34,8 @@ import {
   QUICK_LOCATION_PRESETS,
   RADAR_DEFAULT_CENTER,
   RADAR_DEFAULT_RADIUS_METERS,
+  TURKEY_POPULAR_DISTRICTS,
+  type LocationSearchResult,
 } from '@/features/radar/config/radar.config';
 import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
 import { Button } from '@/components/ui/button';
@@ -64,87 +66,6 @@ const RADIUS_OPTIONS = [
   { label: '2km', value: 2000 },
   { label: '3km', value: 3000 },
   { label: '5km', value: 5000 },
-];
-
-interface LocationSearchResult {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  city?: string;
-  district?: string;
-  isDistrictWide?: boolean;
-}
-
-// Built-in Turkish Location Index with District-Wide and Neighborhood precision
-const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
-  // İstanbul — Anadolu Yakası
-  { id: 'ist-maltepe-all', name: 'İstanbul, Maltepe — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9333, lng: 29.1333, city: 'İstanbul', district: 'Maltepe', isDistrictWide: true },
-  { id: 'ist-maltepe-bagdat', name: 'İstanbul, Maltepe — Bağdat Cad. / Sahil & Yalı', lat: 40.9231, lng: 29.1305, city: 'İstanbul', district: 'Maltepe' },
-  { id: 'ist-maltepe-cevizli', name: 'İstanbul, Maltepe — Cevizli Mah. / Tugay Yolu', lat: 40.9198, lng: 29.1523, city: 'İstanbul', district: 'Maltepe' },
-  { id: 'ist-maltepe-kucukyali', name: 'İstanbul, Maltepe — Küçükyalı / Altıntepe', lat: 40.9482, lng: 29.1121, city: 'İstanbul', district: 'Maltepe' },
-  { id: 'ist-maltepe-zumrutevler', name: 'İstanbul, Maltepe — Zümrütevler / Başıbüyük', lat: 40.9412, lng: 29.1512, city: 'İstanbul', district: 'Maltepe' },
-
-  { id: 'ist-kadikoy-all', name: 'İstanbul, Kadıköy — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9912, lng: 29.0435, city: 'İstanbul', district: 'Kadıköy', isDistrictWide: true },
-  { id: 'ist-kadikoy-moda', name: 'İstanbul, Kadıköy — Moda / Caferağa', lat: 40.9875, lng: 29.0289, city: 'İstanbul', district: 'Kadıköy' },
-  { id: 'ist-kadikoy-bagdat', name: 'İstanbul, Kadıköy — Bağdat Cad. / Caddebostan / Suadiye', lat: 40.9632, lng: 29.0712, city: 'İstanbul', district: 'Kadıköy' },
-  { id: 'ist-kadikoy-fikirtepe', name: 'İstanbul, Kadıköy — Fikirtepe / Hasanpaşa', lat: 40.9995, lng: 29.0489, city: 'İstanbul', district: 'Kadıköy' },
-
-  { id: 'ist-kartal-all', name: 'İstanbul, Kartal — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9012, lng: 29.1912, city: 'İstanbul', district: 'Kartal', isDistrictWide: true },
-  { id: 'ist-kartal-cevizli', name: 'İstanbul, Kartal — Cevizli Mah. / Kordonboyu', lat: 40.9125, lng: 29.1764, city: 'İstanbul', district: 'Kartal' },
-  { id: 'ist-kartal-soganlik', name: 'İstanbul, Kartal — Soğanlık / Uğur Mumcu', lat: 40.9198, lng: 29.2012, city: 'İstanbul', district: 'Kartal' },
-
-  { id: 'ist-atasehir-all', name: 'İstanbul, Ataşehir — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9832, lng: 29.1212, city: 'İstanbul', district: 'Ataşehir', isDistrictWide: true },
-  { id: 'ist-atasehir-batin', name: 'İstanbul, Ataşehir — Batı Ataşehir / Finans Merkezi', lat: 40.9923, lng: 29.1147, city: 'İstanbul', district: 'Ataşehir' },
-  { id: 'ist-atasehir-icerenkoy', name: 'İstanbul, Ataşehir — İçerenköy / Kozyatağı', lat: 40.9682, lng: 29.1012, city: 'İstanbul', district: 'Ataşehir' },
-
-  { id: 'ist-uskudar-all', name: 'İstanbul, Üsküdar — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0267, lng: 29.0350, city: 'İstanbul', district: 'Üsküdar', isDistrictWide: true },
-  { id: 'ist-uskudar-merkez', name: 'İstanbul, Üsküdar — Merkez / Mimar Sinan', lat: 41.0267, lng: 29.0167, city: 'İstanbul', district: 'Üsküdar' },
-  { id: 'ist-uskudar-acibadem', name: 'İstanbul, Üsküdar — Acıbadem / Koşuyolu', lat: 41.0082, lng: 29.0412, city: 'İstanbul', district: 'Üsküdar' },
-
-  { id: 'ist-pendik-all', name: 'İstanbul, Pendik — Tüm İlçe Geneli (Geniş Radar)', lat: 40.8812, lng: 29.2392, city: 'İstanbul', district: 'Pendik', isDistrictWide: true },
-  { id: 'ist-pendik-sahil', name: 'İstanbul, Pendik — Sahil / Batı Mah. / Çarşı', lat: 40.8782, lng: 29.2312, city: 'İstanbul', district: 'Pendik' },
-  { id: 'ist-pendik-kurtkoy', name: 'İstanbul, Pendik — Kurtköy / Yenişehir', lat: 40.9121, lng: 29.2982, city: 'İstanbul', district: 'Pendik' },
-
-  { id: 'ist-umraniye-all', name: 'İstanbul, Ümraniye — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0232, lng: 29.1121, city: 'İstanbul', district: 'Ümraniye', isDistrictWide: true },
-  { id: 'ist-umraniye-carsi', name: 'İstanbul, Ümraniye — Çarşı / Alemdağ Cad.', lat: 41.0278, lng: 29.0982, city: 'İstanbul', district: 'Ümraniye' },
-
-  // İstanbul — Avrupa Yakası
-  { id: 'ist-besiktas-all', name: 'İstanbul, Beşiktaş — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0512, lng: 29.0125, city: 'İstanbul', district: 'Beşiktaş', isDistrictWide: true },
-  { id: 'ist-besiktas-carsi', name: 'İstanbul, Beşiktaş — Çarşı / Sinanpaşa', lat: 41.0428, lng: 29.0069, city: 'İstanbul', district: 'Beşiktaş' },
-  { id: 'ist-besiktas-levent', name: 'İstanbul, Beşiktaş — Levent / Etiler / Bebek', lat: 41.0821, lng: 29.0212, city: 'İstanbul', district: 'Beşiktaş' },
-
-  { id: 'ist-sisli-all', name: 'İstanbul, Şişli — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0612, lng: 28.9889, city: 'İstanbul', district: 'Şişli', isDistrictWide: true },
-  { id: 'ist-sisli-nisantasi', name: 'İstanbul, Şişli — Nişantaşı / Teşvikiye', lat: 41.0531, lng: 28.9928, city: 'İstanbul', district: 'Şişli' },
-  { id: 'ist-sisli-mecidiyekoy', name: 'İstanbul, Şişli — Mecidiyeköy / Esentepe', lat: 41.0692, lng: 28.9981, city: 'İstanbul', district: 'Şişli' },
-
-  { id: 'ist-bakirkoy-all', name: 'İstanbul, Bakırköy — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9782, lng: 28.8689, city: 'İstanbul', district: 'Bakırköy', isDistrictWide: true },
-  { id: 'ist-bakirkoy-atakoy', name: 'İstanbul, Bakırköy — Ataköy / Yeşilyurt', lat: 40.9821, lng: 28.8712, city: 'İstanbul', district: 'Bakırköy' },
-
-  { id: 'ist-beyoglu-taksim', name: 'İstanbul, Beyoğlu — Taksim / Karaköy / Galata', lat: 41.0332, lng: 28.9782, city: 'İstanbul', district: 'Beyoğlu' },
-  { id: 'ist-fatih-tarihi', name: 'İstanbul, Fatih — Tarihi Yarımada / Aksaray', lat: 41.0182, lng: 28.9512, city: 'İstanbul', district: 'Fatih' },
-  { id: 'ist-sariyer-merkez', name: 'İstanbul, Sarıyer — Maslak / İstinye / Merkez', lat: 41.1182, lng: 29.0282, city: 'İstanbul', district: 'Sarıyer' },
-  { id: 'ist-basaksehir-merkez', name: 'İstanbul, Başakşehir — Bahçeşehir / Kayaşehir', lat: 41.0912, lng: 28.7912, city: 'İstanbul', district: 'Başakşehir' },
-  { id: 'ist-beylikduzu-merkez', name: 'İstanbul, Beylikdüzü — Cumhuriyet / Barış Mah.', lat: 41.0023, lng: 28.6412, city: 'İstanbul', district: 'Beylikdüzü' },
-
-  // Ankara
-  { id: 'ank-cankaya-all', name: 'Ankara, Çankaya — Tüm İlçe Geneli (Geniş Radar)', lat: 39.8912, lng: 32.8512, city: 'Ankara', district: 'Çankaya', isDistrictWide: true },
-  { id: 'ank-cankaya-tunali', name: 'Ankara, Çankaya — Tunalı Hilmi / Kızılay / Kavaklıdere', lat: 39.9022, lng: 32.8601, city: 'Ankara', district: 'Çankaya' },
-  { id: 'ank-cankaya-bahceli', name: 'Ankara, Çankaya — Bahçelievler / 7. Cadde', lat: 39.9214, lng: 32.8236, city: 'Ankara', district: 'Çankaya' },
-  { id: 'ank-yenimahalle-all', name: 'Ankara, Yenimahalle — Batıkent / Çayyolu', lat: 39.9678, lng: 32.7321, city: 'Ankara', district: 'Yenimahalle', isDistrictWide: true },
-
-  // İzmir
-  { id: 'izm-karsiyaka-all', name: 'İzmir, Karşıyaka — Tüm İlçe Geneli (Geniş Radar)', lat: 38.4593, lng: 27.1124, city: 'İzmir', district: 'Karşıyaka', isDistrictWide: true },
-  { id: 'izm-karsiyaka-bostanli', name: 'İzmir, Karşıyaka — Bostanlı / Çarşı / Mavişehir', lat: 38.4593, lng: 27.1012, city: 'İzmir', district: 'Karşıyaka' },
-  { id: 'izm-konak-alsancak', name: 'İzmir, Konak — Alsancak / Kordon / Çankaya', lat: 38.4382, lng: 27.1436, city: 'İzmir', district: 'Konak' },
-  { id: 'izm-bornova-all', name: 'İzmir, Bornova — Küçükpark / Ege Üniversitesi', lat: 38.4632, lng: 27.2189, city: 'İzmir', district: 'Bornova', isDistrictWide: true },
-
-  // Bursa & Antalya & Diğer Büyükşehirler
-  { id: 'bur-nilufer-all', name: 'Bursa, Nilüfer — Tüm İlçe Geneli (Geniş Radar)', lat: 40.2198, lng: 28.9189, city: 'Bursa', district: 'Nilüfer', isDistrictWide: true },
-  { id: 'ant-muratpasa-all', name: 'Antalya, Muratpaşa — Lara / Şirinyalı / Işıklar', lat: 36.8584, lng: 30.7588, city: 'Antalya', district: 'Muratpaşa', isDistrictWide: true },
-  { id: 'ant-konyaalti-all', name: 'Antalya, Konyaaltı — Liman / Sahil / Toros', lat: 36.8341, lng: 30.6012, city: 'Antalya', district: 'Konyaaltı', isDistrictWide: true },
-  { id: 'esk-tepebasi-all', name: 'Eskişehir, Tepebaşı — Bağlar / Üniversite Cad.', lat: 39.7824, lng: 30.5098, city: 'Eskişehir', district: 'Tepebaşı' },
-  { id: 'koc-izmit-all', name: 'Kocaeli, İzmit — Yahya Kaptan / Yürüyüş Yolu', lat: 40.7654, lng: 29.9682, city: 'Kocaeli', district: 'İzmit' },
 ];
 
 function normalizeTrText(str: string): string {
