@@ -542,7 +542,7 @@ export async function fetchGooglePlacesPois(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6500);
 
-    // 1. Try Google Places API (New)
+    // 1. Try Google Places API (New) - SearchNearby
     try {
       const newApiUrl = 'https://places.googleapis.com/v1/places:searchNearby';
       const newApiRes = await fetch(newApiUrl, {
@@ -550,6 +550,7 @@ export async function fetchGooglePlacesPois(
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
+          'Referer': 'https://girisimbee.com/',
           'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount',
         },
         body: JSON.stringify({
@@ -597,10 +598,69 @@ export async function fetchGooglePlacesPois(
         }
       }
     } catch {
-      // Fallback to legacy Google Places NearbySearch
+      // Fallback
     }
 
-    // 2. Fallback: Google Places API (Legacy NearbySearch)
+    // 2. Try Google Places API (New) - SearchText for specific keyword
+    try {
+      const textApiUrl = 'https://places.googleapis.com/v1/places:searchText';
+      const textApiRes = await fetch(textApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'Referer': 'https://girisimbee.com/',
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount',
+        },
+        body: JSON.stringify({
+          textQuery: `${mapping.keyword} ${category !== 'all' ? category : ''}`,
+          locationBias: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius: radiusMeters,
+            },
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      if (textApiRes.ok) {
+        const textJson = await textApiRes.json();
+        if (textJson.places && textJson.places.length > 0) {
+          clearTimeout(timeoutId);
+          const pois: CompetitorPoi[] = [];
+          for (const place of textJson.places) {
+            const pName = place.displayName?.text;
+            const pLat = place.location?.latitude;
+            const pLng = place.location?.longitude;
+            if (!pName || pLat == null || pLng == null) continue;
+
+            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+            if (dist > radiusMeters * 1.25) continue;
+
+            pois.push({
+              id: `gp-txt-${place.id}`,
+              name: pName,
+              lat: pLat,
+              lng: pLng,
+              category,
+              categoryLabel: mapping.fallbackLabel,
+              address: place.formattedAddress || 'Google Doğrulanmış Konum',
+              distanceMeters: Math.round(dist),
+            });
+          }
+          if (pois.length > 0) {
+            const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+            GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+            return sorted;
+          }
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    // 3. Fallback: Google Places API (Legacy NearbySearch)
     const params = new URLSearchParams({
       location: `${lat},${lng}`,
       radius: radiusMeters.toString(),
@@ -610,7 +670,10 @@ export async function fetchGooglePlacesPois(
     });
 
     const legacyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
-    const legacyRes = await fetch(legacyUrl, { signal: controller.signal });
+    const legacyRes = await fetch(legacyUrl, {
+      headers: { 'Referer': 'https://girisimbee.com/' },
+      signal: controller.signal,
+    });
     clearTimeout(timeoutId);
 
     if (legacyRes.ok) {
