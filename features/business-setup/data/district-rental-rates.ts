@@ -1090,17 +1090,21 @@ export function getDistrictRentalRate(cityName: string, districtName?: string): 
 }
 
 /**
- * İlk taşınma peşinatını hesaplar (1 Aylık Peşin + 2 Aylık Depozito + 1 Aylık Emlakçı Bedeli = 4x Kira)
+ * İlk taşınma peşinatını hesaplar (Varsayılan: 1 Aylık Peşin + 1 Aylık Depozito = 2x Kira)
  */
-export function calculateLeaseInitialCost(monthlyRent: number): {
+export function calculateLeaseInitialCost(
+  monthlyRent: number,
+  depositMonths: number = 1,
+  includeBrokerFee: boolean = false
+): {
   firstMonthRent: number;
   deposit: number;
   brokerFee: number;
   totalLeaseUpfront: number;
 } {
   const firstMonthRent = monthlyRent;
-  const deposit = monthlyRent * 2;
-  const brokerFee = monthlyRent;
+  const deposit = monthlyRent * depositMonths;
+  const brokerFee = includeBrokerFee ? monthlyRent : 0;
   const totalLeaseUpfront = firstMonthRent + deposit + brokerFee;
 
   return {

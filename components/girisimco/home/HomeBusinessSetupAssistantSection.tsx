@@ -22,6 +22,13 @@ import {
   Search,
   Store,
   AlertCircle,
+  ShieldCheck,
+  Scale,
+  X,
+  CheckCircle2,
+  FileDown,
+  Info,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -48,13 +55,13 @@ const STEPS = [
   { id: 2, label: 'Mekan & Kira', sub: 'm², kira ve tadilat', icon: Store },
   { id: 3, label: 'Ekip & Personel', sub: 'Maaş ve SGK bütçesi', icon: Users },
   { id: 4, label: 'Demirbaş & Cihaz', sub: 'Zorunlu ve ek ekipmanlar', icon: Wrench },
-  { id: 5, label: 'Ruhsat & Harçlar', sub: 'Resmi izin ve tesciller', icon: FileText },
+  { id: 5, label: 'Ruhsat & Sermaye', sub: 'Resmi harç ve yasal sermaye', icon: FileText },
   { id: 6, label: 'Fizibilite Özeti', sub: 'Başabaş ve bütçe planı', icon: TrendingUp },
 ];
 
 export function HomeBusinessSetupAssistantSection() {
   // 1. Sektör & Konum State
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('kafe_kahveci');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('sigorta_acentesi');
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
   const [sectorSearchQuery, setSectorSearchQuery] = useState<string>('');
   
@@ -69,20 +76,29 @@ export function HomeBusinessSetupAssistantSection() {
     return getBusinessTemplateById(selectedTemplateId);
   }, [selectedTemplateId]);
 
-  // 2. Mekan State
+  // 2. Mekan State (Varsayılan 2x Kira: 1 Peşin + 1 Depozito)
   const [m2, setM2] = useState<number>(activeTemplate.defaultM2);
   const [isCustomRent, setIsCustomRent] = useState<boolean>(false);
   const [customMonthlyRent, setCustomMonthlyRent] = useState<number | ''>('');
+  const [depositMonths, setDepositMonths] = useState<number>(1); // Varsayılan 1 ay depozito (toplam 2x kira)
+  const [includeBrokerFee, setIncludeBrokerFee] = useState<boolean>(false);
   const [includeFitout, setIncludeFitout] = useState<boolean>(true);
   const [customFitoutRate, setCustomFitoutRate] = useState<number>(activeTemplate.fitoutCostPerM2);
 
-  // 3. Ekip State
+  // 3. Ekip State (Kurucu kendisi yapabilir)
   const [staffList, setStaffList] = useState<SetupStaffRole[]>(activeTemplate.recommendedStaff);
 
   // 4. Demirbaş State
   const [equipmentList, setEquipmentList] = useState<
     (SetupEquipment & { selected: boolean; qty: number })[]
   >([]);
+
+  // Özel Demirbaş Ekleme State
+  const [isAddingCustomEq, setIsAddingCustomEq] = useState<boolean>(false);
+  const [customEqName, setCustomEqName] = useState<string>('');
+  const [customEqCost, setCustomEqCost] = useState<number | ''>('');
+  const [customEqCategory, setCustomEqCategory] = useState<string>('machinery');
+  const [customEqUnit, setCustomEqUnit] = useState<string>('Adet');
 
   // 5. Ruhsat State
   const [legalFeesList, setLegalFeesList] = useState<
@@ -94,6 +110,9 @@ export function HomeBusinessSetupAssistantSection() {
 
   // Equipment category filter in step 4
   const [eqCategoryFilter, setEqCategoryFilter] = useState<string>('all');
+
+  // PDF / Rapor Modal State
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState<boolean>(false);
 
   // Şablon değiştiğinde otomatik doldurma (Minimum Manuel Veri, Maksimum Otomatik Doldurma)
   useEffect(() => {
@@ -136,6 +155,8 @@ export function HomeBusinessSetupAssistantSection() {
       district: selectedDistrict,
       m2,
       customMonthlyRent: isCustomRent && typeof customMonthlyRent === 'number' ? customMonthlyRent : null,
+      depositMonths,
+      includeBrokerFee,
       includeFitout,
       customFitoutCostPerM2: customFitoutRate,
       equipments: equipmentList,
@@ -150,6 +171,8 @@ export function HomeBusinessSetupAssistantSection() {
     m2,
     isCustomRent,
     customMonthlyRent,
+    depositMonths,
+    includeBrokerFee,
     includeFitout,
     customFitoutRate,
     equipmentList,
@@ -182,14 +205,23 @@ export function HomeBusinessSetupAssistantSection() {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val);
   };
 
-  // Staff Count Handler
+  // Staff Count Handler (Kurucu kendisi yapabilir: count = 0 seçilebilir)
   const handleUpdateStaffCount = (index: number, delta: number) => {
     setStaffList((prev) =>
       prev.map((item, idx) => {
         if (idx !== index) return item;
-        const min = item.isMandatory ? 1 : 0;
-        const newCount = Math.max(min, item.count + delta);
+        const newCount = Math.max(0, item.count + delta);
         return { ...item, count: newCount };
+      })
+    );
+  };
+
+  // Staff Owner Toggle (Kurucu kendisi yürütecek)
+  const handleToggleStaffOwner = (index: number) => {
+    setStaffList((prev) =>
+      prev.map((item, idx) => {
+        if (idx !== index) return item;
+        return { ...item, count: item.count > 0 ? 0 : 1 };
       })
     );
   };
@@ -216,6 +248,30 @@ export function HomeBusinessSetupAssistantSection() {
     );
   };
 
+  // Özel Demirbaş Ekleme Fonksiyonu
+  const handleAddCustomEquipment = () => {
+    if (!customEqName.trim() || typeof customEqCost !== 'number' || customEqCost <= 0) return;
+
+    const newEq: SetupEquipment & { selected: boolean; qty: number } = {
+      id: `custom-eq-${Date.now()}`,
+      name: customEqName.trim(),
+      category: customEqCategory as any,
+      unitCost: customEqCost,
+      defaultQty: 1,
+      minQty: 0,
+      isLocked: false,
+      unitLabel: customEqUnit || 'Adet',
+      isCustom: true,
+      selected: true,
+      qty: 1,
+    };
+
+    setEquipmentList((prev) => [newEq, ...prev]);
+    setCustomEqName('');
+    setCustomEqCost('');
+    setIsAddingCustomEq(false);
+  };
+
   // Legal Fee Toggle Handler
   const handleToggleLegalFee = (index: number) => {
     setLegalFeesList((prev) =>
@@ -226,19 +282,20 @@ export function HomeBusinessSetupAssistantSection() {
     );
   };
 
-  // Yazdır / PDF İndir
-  const handlePrintReport = () => {
-    window.print();
-  };
-
   // Filtrelenmiş Ekipmanlar
   const filteredEquipments = useMemo(() => {
     if (eqCategoryFilter === 'all') return equipmentList;
     return equipmentList.filter((eq) => eq.category === eqCategoryFilter);
   }, [equipmentList, eqCategoryFilter]);
 
+  // Yazdır / PDF
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <section className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      
       {/* 1. ÜST BAŞLIK & ROZETLER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-5 gap-3">
         <div>
@@ -383,7 +440,6 @@ export function HomeBusinessSetupAssistantSection() {
 
           {/* ========================================================================= */}
           {/* B. SAĞ / GENİŞ ÇALIŞMA ALANI (lg:col-span-9)                             */}
-          {/* Adım 1-5 arasında form FERAH ve GENİŞ; Adım 6'da Bütçe Özeti görünür    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-9 flex flex-col justify-between min-h-[520px]">
             
@@ -509,7 +565,7 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 2: MEKAN & KİRA                                                  */}
+            {/* ADIM 2: MEKAN & KİRA (1 Peşin + 1 Depozito = 2x Kira Varsayılan)      */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 2 && (
               <div className="space-y-4">
@@ -558,7 +614,7 @@ export function HomeBusinessSetupAssistantSection() {
                   />
                 </div>
 
-                {/* 3'lü Detay Kutuları (Kira Çarpanı, Aylık Kira, Taşınma Peşinatı) */}
+                {/* 3'lü Detay Kutuları (Bölgesel Çarpan, Aylık Kira, Giriş Peşinatı 2x Kira) */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700">
                     <span className="text-[11px] font-semibold text-muted-foreground block">Bölgesel Kira Çarpanı</span>
@@ -584,13 +640,16 @@ export function HomeBusinessSetupAssistantSection() {
                     </button>
                   </div>
 
+                  {/* 1. RESİM İSTEĞİ: 2x Kira (1 Peşin + 1 Depozito) */}
                   <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700">
-                    <span className="text-[11px] font-semibold text-muted-foreground block">Giriş Peşinatı (4x Kira)</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground block">
+                      Giriş Peşinatı ({1 + depositMonths + (includeBrokerFee ? 1 : 0)}x Kira)
+                    </span>
                     <span className="text-base font-extrabold text-slate-900 dark:text-zinc-100 mt-1 block">
                       {formatCurrency(calculationResult.leaseInitialTotal)}
                     </span>
                     <span className="text-[10.5px] text-muted-foreground mt-0.5 block">
-                      1 Peşin + 2 Depozito + 1 Emlak
+                      1 Peşin + {depositMonths} Depozito {includeBrokerFee ? '+ 1 Emlak' : ''}
                     </span>
                   </div>
                 </div>
@@ -637,70 +696,109 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 3: EKİP & PERSONEL                                               */}
+            {/* ADIM 3: EKİP & PERSONEL (2. RESİM İSTEĞİ: KURUCU BELGELİ İSE 0 YAPABİLİR)*/}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 3 && (
               <div className="space-y-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                     <Users className="w-4 h-4 text-amber-500" />
-                    <span>03. Ekip, Personel & SGK Bordro Maliyeti</span>
+                    <span>03. Ekip, Personel & SGK İşveren Maliyeti</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    İşletme için önerilen kadro ve aylık işveren maliyeti hesaplanır.
+                    İşletme için önerilen kadro. Belge veya ruhsat sahibi sizseniz ilgili rolü 0 yapabilirsiniz.
                   </p>
                 </div>
 
-                {/* Personel Kartları Izgarası (2 Sütunlu Geniş) */}
+                {/* Personel Kartları Izgarası (Geniş Metin Alanı ve SGK Dökümü) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
-                  {staffList.map((st, idx) => (
-                    <div
-                      key={st.role}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 flex items-center justify-between gap-3 shadow-sm"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
-                            {st.role}
-                          </p>
-                          {st.isMandatory && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded">
-                              <Lock className="w-2.5 h-2.5" /> Zorunlu
-                            </span>
+                  {staffList.map((st, idx) => {
+                    const isSelfOwner = st.count === 0 && st.allowOwnerFulfillment;
+                    return (
+                      <div
+                        key={st.role}
+                        className={cn(
+                          'p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 shadow-sm',
+                          isSelfOwner
+                            ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/50'
+                            : 'bg-white dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700'
+                        )}
+                      >
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            {/* 3. RESİM ÇÖZÜMÜ: whitespace-normal break-words ile kesilmeyi önle */}
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug whitespace-normal break-words">
+                              {st.role}
+                            </h4>
+                            {st.isMandatory && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-md shrink-0">
+                                <Lock className="w-2.5 h-2.5" /> Zorunlu Kadro
+                              </span>
+                            )}
+                          </div>
+
+                          {st.description && (
+                            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed whitespace-normal break-words">
+                              {st.description}
+                            </p>
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                          Net: {formatCurrency(st.avgSalary)} • Toplam İşveren: {formatCurrency(Math.round(st.avgSalary * 1.225))}
-                        </p>
-                      </div>
 
-                      {/* Sayı Arttır / Azalt */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStaffCount(idx, -1)}
-                          disabled={st.isMandatory && st.count <= 1}
-                          className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-extrabold text-slate-900 dark:text-zinc-100">
-                          {st.count}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStaffCount(idx, 1)}
-                          className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                        {/* Kurucu Kendisi Yürütecek Butonu / Seçeneği */}
+                        {st.allowOwnerFulfillment && (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStaffOwner(idx)}
+                            className={cn(
+                              'p-2 rounded-xl text-[11px] font-semibold text-left transition-colors flex items-center gap-2',
+                              isSelfOwner
+                                ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                                : 'bg-slate-100 dark:bg-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
+                            )}
+                          >
+                            <CheckCircle2 className={cn('w-3.5 h-3.5 shrink-0', isSelfOwner ? 'text-emerald-600' : 'text-slate-400')} />
+                            <span>{isSelfOwner ? '✓ Belge/Ruhsat Sahibi Sizsiniz (Maaş: ₺0)' : 'Bu görevi kendim yürüteceğim (Belgeli / Diplomam var)'}</span>
+                          </button>
+                        )}
+
+                        <div className="pt-2 border-t border-slate-100 dark:border-zinc-700/60 flex items-center justify-between gap-2">
+                          <div>
+                            <span className="text-[11px] text-muted-foreground block">
+                              Net: {formatCurrency(st.avgSalary)} / Ay
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-700 dark:text-zinc-300 block">
+                              Toplam İşveren (SGK Dahil): {formatCurrency(Math.round(st.avgSalary * 1.48))}
+                            </span>
+                          </div>
+
+                          {/* Sayı Arttır / Azalt */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStaffCount(idx, -1)}
+                              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 transition-colors"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-6 text-center text-sm font-extrabold text-slate-900 dark:text-zinc-100">
+                              {st.count}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStaffCount(idx, 1)}
+                              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
-                  <span className="font-bold text-amber-900 dark:text-amber-200">Aylık Toplam Personel Gideri (SGK Dahil):</span>
+                  <span className="font-bold text-amber-900 dark:text-amber-200">Aylık Toplam Personel Gideri (Brüt + SGK İşveren Payı):</span>
                   <span className="font-extrabold text-amber-700 dark:text-amber-400 text-sm">
                     {formatCurrency(calculationResult.monthlyStaffCost)} / Ay
                   </span>
@@ -709,7 +807,7 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 4: DEMİRBAŞ & CİHAZ                                              */}
+            {/* ADIM 4: DEMİRBAŞ & CİHAZ (3. VE 4. RESİM İSTEKLERİ: KESİNTİSİZ METİN & MEVZUAT) */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 4 && (
               <div className="space-y-4">
@@ -720,52 +818,82 @@ export function HomeBusinessSetupAssistantSection() {
                       <span>04. Demirbaş, Ekipman & Makine Parkuru</span>
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Sektöre özel mevzuat ve operasyonel ekipman listesi.
+                      Yasal zorunlu donanımlar kilitlidir; operasyonel demirbaşları ihtiyacınıza göre düzenleyebilir veya yeni ekleyebilirsiniz.
                     </p>
                   </div>
 
-                  {/* Kategori Filtre Butonları */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    {[
-                      { id: 'all', label: 'Tümü' },
-                      { id: 'safety', label: 'Güvenlik & Zorunlu' },
-                      { id: 'machinery', label: 'Makine & Donanım' },
-                      { id: 'core_tech', label: 'Teknoloji & Kasa' },
-                      { id: 'furniture', label: 'Mobilya' },
-                      { id: 'appliances', label: 'Cihazlar' },
-                    ].map((f) => (
-                      <button
-                        key={f.id}
-                        type="button"
-                        onClick={() => setEqCategoryFilter(f.id)}
-                        className={cn(
-                          'px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors',
-                          eqCategoryFilter === f.id
-                            ? 'bg-amber-500 text-white shadow-sm'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'
-                        )}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Özel Demirbaş Ekle Butonu */}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setIsAddingCustomEq(!isAddingCustomEq)}
+                    className="h-8 px-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm gap-1.5 self-start sm:self-auto"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Özel Demirbaş Ekle</span>
+                  </Button>
                 </div>
 
-                {/* 2 Sütunlu Geniş Ekipman Listesi */}
+                {/* Özel Demirbaş Ekleme Form Alanı */}
+                {isAddingCustomEq && (
+                  <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-500/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+                        Yeni Demirbaş / Ekipman Tanımla
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingCustomEq(false)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                      <input
+                        type="text"
+                        placeholder="Ekipman Adı (Örn: Waffle Makinesi, Kasa)..."
+                        value={customEqName}
+                        onChange={(e) => setCustomEqName(e.target.value)}
+                        className="sm:col-span-2 h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                      />
+
+                      <input
+                        type="number"
+                        placeholder="Birim Maliyet (₺)..."
+                        value={customEqCost}
+                        onChange={(e) => setCustomEqCost(e.target.value ? Number(e.target.value) : '')}
+                        className="h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                      />
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleAddCustomEquipment}
+                        className="h-9 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      >
+                        Listeye Ekle
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2 Sütunlu Geniş Ekipman Listesi (3. RESİM ÇÖZÜMÜ: TAM VE KESİNTİSİZ METİN) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
                   {filteredEquipments.map((eq) => (
                     <div
                       key={eq.id}
                       className={cn(
-                        'p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-sm',
+                        'p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 shadow-sm',
                         eq.selected
                           ? 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700'
                           : 'bg-slate-50/50 dark:bg-zinc-900/40 border-dashed border-slate-200 dark:border-zinc-800 opacity-60'
                       )}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         {eq.isLocked ? (
-                          <div title="Mevzuat gereği zorunlu demirbaş" className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 shrink-0">
+                          <div title="Mevzuat gereği zorunlu demirbaş" className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 shrink-0 mt-0.5">
                             <Lock className="w-3.5 h-3.5" />
                           </div>
                         ) : (
@@ -773,51 +901,67 @@ export function HomeBusinessSetupAssistantSection() {
                             type="checkbox"
                             checked={eq.selected}
                             onChange={() => handleToggleEquipment(eq.id)}
-                            className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer shrink-0"
+                            className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer shrink-0 mt-0.5"
                           />
                         )}
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
+                          {/* 3. RESİM ÇÖZÜMÜ: Metin asla kesilmez, tam okunur */}
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug whitespace-normal break-words">
                             {eq.name}
-                          </p>
-                          <p className="text-[10.5px] text-muted-foreground mt-0.5">
-                            Birim: {formatCurrency(eq.unitCost)} / {eq.unitLabel}
-                          </p>
+                          </h4>
+
+                          {/* 4. RESİM MEVZUAT AÇIKLAMASI */}
+                          {eq.regulatoryNote && (
+                            <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-1 leading-snug font-medium whitespace-normal break-words">
+                              ⚖️ {eq.regulatoryNote}
+                            </p>
+                          )}
+                          {eq.description && !eq.regulatoryNote && (
+                            <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug whitespace-normal break-words">
+                              {eq.description}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       {/* Adet Sayacı & Tutar */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateEquipmentQty(eq.id, -1)}
-                          disabled={eq.isLocked && eq.qty <= eq.minQty}
-                          className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="w-5 text-center text-xs font-bold text-slate-900 dark:text-zinc-100">
-                          {eq.qty}
+                      <div className="pt-2 border-t border-slate-100 dark:border-zinc-700/60 flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-muted-foreground">
+                          Birim: {formatCurrency(eq.unitCost)} / {eq.unitLabel}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateEquipmentQty(eq.id, 1)}
-                          className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
 
-                        <span className="w-20 text-right text-xs font-extrabold text-slate-900 dark:text-zinc-100">
-                          {formatCurrency(eq.selected ? eq.unitCost * eq.qty : 0)}
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateEquipmentQty(eq.id, -1)}
+                            disabled={eq.isLocked && eq.qty <= eq.minQty}
+                            className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="w-5 text-center text-xs font-bold text-slate-900 dark:text-zinc-100">
+                            {eq.qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateEquipmentQty(eq.id, 1)}
+                            className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+
+                          <span className="w-20 text-right text-xs font-extrabold text-slate-900 dark:text-zinc-100">
+                            {formatCurrency(eq.selected ? eq.unitCost * eq.qty : 0)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
-                  <span className="font-bold text-amber-900 dark:text-amber-200">Toplam Demirbaş Bedeli:</span>
+                  <span className="font-bold text-amber-900 dark:text-amber-200">Toplam Demirbaş & Ekipman Bedeli:</span>
                   <span className="font-extrabold text-amber-700 dark:text-amber-400 text-sm">
                     {formatCurrency(calculationResult.equipmentTotal)}
                   </span>
@@ -826,22 +970,52 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 5: RUHSAT & RESMİ HARÇLAR                                        */}
+            {/* ADIM 5: RUHSAT & YASAL ASGARİ SERMAYE (5. RESİM İSTEĞİ)                */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 5 && (
               <div className="space-y-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-amber-500" />
-                    <span>05. Resmi Ruhsat, Tescil & İzin Harçları</span>
+                    <span>05. Resmi Ruhsat, Tescil & Yasal Asgari Sermaye Şartı</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Belediye, itfaiye ve meslek odası yasal zorunlu açılış giderleri.
+                    İlgili meslek odası, bakanlık ve belediye mevzuat gereksinimleri.
                   </p>
                 </div>
 
+                {/* 5. RESİM ÇÖZÜMÜ: YASAL ASGARİ SERMAYE ŞARTI KARTI */}
+                {activeTemplate.capitalRequirement && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-amber-50/60 dark:from-blue-950/30 dark:via-zinc-800 dark:to-amber-950/20 border border-blue-200 dark:border-blue-800/40 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Scale className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-blue-950 dark:text-blue-200">
+                          Mevzuat & Sermaye Yeterliliği Şartı
+                        </span>
+                      </div>
+                      <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                        {activeTemplate.capitalRequirement.legalBasis}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed whitespace-normal break-words">
+                      {activeTemplate.capitalRequirement.description}
+                    </p>
+
+                    {activeTemplate.capitalRequirement.minLegalCapital > 0 && (
+                      <div className="pt-2 border-t border-blue-100 dark:border-blue-800/30 flex items-center justify-between text-xs">
+                        <span className="font-semibold text-slate-600 dark:text-zinc-400">Yasal Asgari Sermaye / Mal Varlığı Şartı:</span>
+                        <span className="font-black text-blue-900 dark:text-blue-200 text-sm">
+                          {formatCurrency(activeTemplate.capitalRequirement.minLegalCapital)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* 2 Sütunlu Geniş Harçlar Listesi */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin">
                   {legalFeesList.map((fee, idx) => (
                     <div
                       key={fee.name}
@@ -860,10 +1034,10 @@ export function HomeBusinessSetupAssistantSection() {
                           className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer shrink-0"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
+                          <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 whitespace-normal break-words">
                             {fee.name}
                           </p>
-                          <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug">
+                          <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug whitespace-normal break-words">
                             {fee.description}
                           </p>
                         </div>
@@ -886,7 +1060,7 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 6: FİZİBİLİTE ÖZETİ & BÜTÇE PLANI (KULLANICININ İSTEDİĞİ ALAN)   */}
+            {/* ADIM 6: FİZİBİLİTE ÖZETİ & BÜTÇE PLANI                                 */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 6 && (
               <div className="space-y-4">
@@ -952,7 +1126,7 @@ export function HomeBusinessSetupAssistantSection() {
 
                       <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-700/60">
                         <span className="text-muted-foreground flex items-center gap-1.5">
-                          <Store className="w-3.5 h-3.5 text-blue-500" /> Giriş Peşinatı (4x Kira):
+                          <Store className="w-3.5 h-3.5 text-blue-500" /> Giriş Peşinatı ({1 + depositMonths}x Kira):
                         </span>
                         <span className="font-bold text-slate-900 dark:text-zinc-100">{formatCurrency(calculationResult.leaseInitialTotal)}</span>
                       </div>
@@ -980,7 +1154,7 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
                   </div>
 
-                  {/* SAĞ KOLON: KULLANICININ EKRAN GÖRÜNTÜSÜNDEKİ CANLI BÜTÇE PANELİ */}
+                  {/* SAĞ KOLON: CANLI BÜTÇE PANELİ */}
                   <div className="space-y-3.5">
                     
                     {/* 1. TOPLAM İLK KURULUM MALİYETİ KARTI */}
@@ -1069,7 +1243,7 @@ export function HomeBusinessSetupAssistantSection() {
                       <div className="flex items-center gap-2">
                         <Button
                           type="button"
-                          onClick={handlePrintReport}
+                          onClick={() => setIsPdfModalOpen(true)}
                           className="flex-1 h-10 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 shadow-md gap-2"
                         >
                           <Printer className="w-3.5 h-3.5" />
@@ -1149,11 +1323,11 @@ export function HomeBusinessSetupAssistantSection() {
                   <Button
                     type="button"
                     size="sm"
-                    onClick={handlePrintReport}
+                    onClick={() => setIsPdfModalOpen(true)}
                     className="h-8 px-4 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 shadow-sm gap-1.5"
                   >
-                    <Printer className="w-3.5 h-3.5" />
-                    <span>Planı Yazdır / Kaydet</span>
+                    <FileDown className="w-3.5 h-3.5" />
+                    <span>Planı İndir / Yazdır</span>
                   </Button>
                 )}
               </div>
@@ -1164,6 +1338,240 @@ export function HomeBusinessSetupAssistantSection() {
         </div>
 
       </div>
+
+      {/* ========================================================================= */}
+      {/* 3. YÜKSEK ÇÖZÜNÜRLÜKLÜ RESMİ KURULUM PLANI PDF / PRINT MODAL               */}
+      {/* ========================================================================= */}
+      {isPdfModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto print:max-w-none print:p-0 print:border-none print:shadow-none">
+            
+            {/* Modal Üst Bar (Yazdırma sırasında gizlenir) */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-zinc-800 print:hidden">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{activeTemplate.emoji}</span>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 dark:text-zinc-100">
+                    {activeTemplate.name} — Kurulum ve Fizibilite Raporu
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedCity} • {selectedDistrict} | Girişimbee Akıllı Kurulum Robotu
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handlePrint}
+                  className="h-8 px-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white gap-1.5"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Yazdır / PDF Kaydet</span>
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsPdfModalOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* RAPORUN ASIL BASKI GÖVDESİ */}
+            <div id="print-content" className="space-y-6 text-slate-900 dark:text-zinc-100">
+              
+              {/* Başlık ve Antet */}
+              <div className="flex items-start justify-between border-b border-slate-200 dark:border-zinc-700 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl">{activeTemplate.emoji}</span>
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900 dark:text-zinc-100">
+                        {activeTemplate.name}
+                      </h2>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 font-bold">
+                        {activeTemplate.categoryGroup} • {m2} m² İşletme Alanı
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right text-xs">
+                  <span className="font-extrabold text-amber-500 block text-sm">GİRİŞİMBEE</span>
+                  <span className="text-muted-foreground block">Akıllı Kurulum & Fizibilite Planı</span>
+                  <span className="text-muted-foreground block">{new Date().toLocaleDateString('tr-TR')}</span>
+                </div>
+              </div>
+
+              {/* Temel Özet Göstergeleri */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                  <span className="text-[10.5px] font-bold uppercase text-amber-800 dark:text-amber-300 block">İlk Kurulum Yatırımı</span>
+                  <span className="text-lg font-black text-amber-900 dark:text-amber-100 mt-1 block">
+                    {formatCurrency(calculationResult.totalInitialInvestment)}
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40">
+                  <span className="text-[10.5px] font-bold uppercase text-rose-800 dark:text-rose-300 block">Aylık Sabit Gider</span>
+                  <span className="text-lg font-black text-rose-900 dark:text-rose-100 mt-1 block">
+                    {formatCurrency(calculationResult.monthlyOperatingCost)} / Ay
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                  <span className="text-[10.5px] font-bold uppercase text-emerald-800 dark:text-emerald-300 block">Başabaş Noktası</span>
+                  <span className="text-lg font-black text-emerald-900 dark:text-emerald-100 mt-1 block">
+                    {calculationResult.dailyBreakEvenCount} {calculationResult.breakEvenMetric.unitLabel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Yasal Asgari Sermaye & Mevzuat Şartı */}
+              {activeTemplate.capitalRequirement && (
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-zinc-100 block">
+                    ⚖️ Yasal Mevzuat & Sermaye Şartı: {activeTemplate.capitalRequirement.legalBasis}
+                  </span>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {activeTemplate.capitalRequirement.description}
+                  </p>
+                  {activeTemplate.capitalRequirement.minLegalCapital > 0 && (
+                    <span className="font-bold text-blue-600 dark:text-blue-400 block pt-1">
+                      Asgari Yasal Sermaye: {formatCurrency(activeTemplate.capitalRequirement.minLegalCapital)}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* 1. TABLO: Demirbaş ve Donanım Parkuru */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
+                  1. Demirbaş, Ekipman & Makine Listesi
+                </h4>
+                <table className="w-full text-xs text-left border-collapse border border-slate-200 dark:border-zinc-700">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700">Ekipman</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-center">Adet</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-right">Birim Fiyat</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-right">Toplam Tutar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {equipmentList.filter((e) => e.selected).map((eq) => (
+                      <tr key={eq.id} className="border-b border-slate-100 dark:border-zinc-800">
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 font-medium">
+                          {eq.name} {eq.isLocked && <span className="text-[10px] text-amber-600 font-bold">(Zorunlu)</span>}
+                        </td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-center">{eq.qty}</td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right">{formatCurrency(eq.unitCost)}</td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right font-bold">{formatCurrency(eq.unitCost * eq.qty)}</td>
+                      </tr>
+                    ))}
+                    <tr className="bg-slate-50 dark:bg-zinc-800 font-bold">
+                      <td colSpan={3} className="p-2 border border-slate-200 dark:border-zinc-700">Toplam Demirbaş Bedeli</td>
+                      <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right text-amber-600">{formatCurrency(calculationResult.equipmentTotal)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 2. TABLO: Personel ve Bordro SGK */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
+                  2. Personel Kadrosu & Aylık SGK İşveren Maliyeti
+                </h4>
+                <table className="w-full text-xs text-left border-collapse border border-slate-200 dark:border-zinc-700">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700">Pozisyon</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-center">Kişi</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-right">Net Maaş</th>
+                      <th className="p-2 border border-slate-200 dark:border-zinc-700 text-right">SGK İşveren Toplam</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {staffList.filter((s) => s.count > 0).map((st) => (
+                      <tr key={st.role} className="border-b border-slate-100 dark:border-zinc-800">
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 font-medium">{st.role}</td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-center">{st.count}</td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right">{formatCurrency(st.avgSalary)}</td>
+                        <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right font-bold">{formatCurrency(Math.round(st.avgSalary * 1.48 * st.count))}</td>
+                      </tr>
+                    ))}
+                    {staffList.every((s) => s.count === 0) && (
+                      <tr>
+                        <td colSpan={4} className="p-2 border border-slate-200 dark:border-zinc-700 text-muted-foreground text-center">
+                          İşletme sahibi bizzat yürütecektir (Ek personel maliyeti ₺0).
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-slate-50 dark:bg-zinc-800 font-bold">
+                      <td colSpan={3} className="p-2 border border-slate-200 dark:border-zinc-700">Aylık Toplam Bordro & SGK Maliyeti</td>
+                      <td className="p-2 border border-slate-200 dark:border-zinc-700 text-right text-rose-600">{formatCurrency(calculationResult.monthlyStaffCost)} / Ay</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 3. Özet Maliyetler Dökümü */}
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1.5">
+                  <span className="font-bold block text-slate-800 dark:text-zinc-200">Mekan & Başlangıç Masrafları</span>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Aylık Kira:</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.monthlyRent)} / Ay</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Giriş Peşinatı (2x Kira):</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.leaseInitialTotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tadilat & Dekorasyon:</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.fitoutTotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Resmi Ruhsat & Harçlar:</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.legalFeesTotal)}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1.5">
+                  <span className="font-bold block text-slate-800 dark:text-zinc-200">Aylık Sabit İşletme Giderleri</span>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Kira + %20 Stopaj:</span>
+                    <span className="font-semibold">{formatCurrency(Math.round(calculationResult.monthlyRent * 1.2))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Personel (SGK Dahil):</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.monthlyStaffCost)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Fatura & Aidat:</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.monthlyUtilities)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Muhasebe & Yazılım:</span>
+                    <span className="font-semibold">{formatCurrency(calculationResult.monthlyAccounting + calculationResult.monthlySoftware)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Yasal Dipnot */}
+              <p className="text-[10px] text-muted-foreground leading-relaxed border-t border-slate-200 dark:border-zinc-700 pt-3">
+                <strong>Yasal Sorumluluk Reddi:</strong> Bu rapor Türkiye İstatistik Kurumu, meslek odaları ve bölgesel ticari kira endeksleri baz alınarak Girişimbee Akıllı Kurulum Asistanı tarafından üretilmiş bir simülasyondur. Resmi yatırım tavsiyesi niteliği taşımaz.
+              </p>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </section>
   );
 }

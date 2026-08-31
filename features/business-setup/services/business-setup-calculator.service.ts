@@ -1,4 +1,11 @@
-import type { BusinessTemplate, SetupEquipment, SetupStaffRole, SetupLegalFeeItem, BusinessSetupCalculationResult } from '../types/business-setup.types';
+import type {
+  BusinessTemplate,
+  SetupEquipment,
+  SetupStaffRole,
+  SetupLegalFeeItem,
+  BusinessSetupCalculationResult,
+  StaffCostDetail,
+} from '../types/business-setup.types';
 import { getDistrictRentalRate, calculateLeaseInitialCost } from '../data/district-rental-rates';
 
 export interface SetupCalculationParams {
@@ -7,6 +14,8 @@ export interface SetupCalculationParams {
   district?: string;
   m2: number;
   customMonthlyRent?: number | null;
+  depositMonths?: number;
+  includeBrokerFee?: boolean;
   includeFitout: boolean;
   customFitoutCostPerM2?: number | null;
   equipments: (SetupEquipment & { selected: boolean; qty: number })[];
@@ -18,6 +27,28 @@ export interface SetupCalculationParams {
   customSoftware?: number | null;
 }
 
+/**
+ * Türkiye Bordro Standartlarına Göre Net Maaştan Toplam İşveren Maliyeti Hesaplama:
+ * - Brüt Maaş: Net / ~0.78 (%14 SGK İşçi + %1 İşsizlik + Asgari Ücret Vergi İstisnası Üzeri Gelir Vergisi)
+ * - SGK İşveren Payı: Brüt x %15.5 (5 Puanlık Düzenli Ödeme Teşviki Dahil) + %2 İşveren İşsizlik = %17.5
+ * - Toplam İşveren Maliyeti: Brüt Maaş + SGK İşveren Primi
+ */
+export function calculateStaffEmployerCost(netSalary: number): StaffCostDetail {
+  if (!netSalary || netSalary <= 0) {
+    return { netSalary: 0, grossSalary: 0, sgkEmployerCost: 0, totalEmployerCost: 0 };
+  }
+  const grossSalary = Math.round(netSalary * 1.28);
+  const sgkEmployerCost = Math.round(grossSalary * 0.175);
+  const totalEmployerCost = grossSalary + sgkEmployerCost;
+
+  return {
+    netSalary,
+    grossSalary,
+    sgkEmployerCost,
+    totalEmployerCost,
+  };
+}
+
 export function calculateBusinessSetupBudget(params: SetupCalculationParams): BusinessSetupCalculationResult {
   const {
     template,
@@ -25,6 +56,8 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     district,
     m2,
     customMonthlyRent,
+    depositMonths = 1,
+    includeBrokerFee = false,
     includeFitout,
     customFitoutCostPerM2,
     equipments,
@@ -42,14 +75,14 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     return sum + eq.unitCost * (eq.qty || eq.defaultQty);
   }, 0);
 
-  // 2. Kira ve Taşınma Peşinatı
+  // 2. Kira ve Taşınma Peşinatı (1 Peşin + 1 Depozito = 2x Kira varsayılan)
   const calculatedM2Rate = getDistrictRentalRate(city, district);
   const monthlyRent = customMonthlyRent != null && customMonthlyRent > 0
     ? customMonthlyRent
     : Math.round(m2 * calculatedM2Rate);
 
-  const leaseCosts = calculateLeaseInitialCost(monthlyRent);
-  const leaseInitialTotal = leaseCosts.totalLeaseUpfront; // 1 Peşin + 2 Depozito + 1 Emlak Komisyonu
+  const leaseCosts = calculateLeaseInitialCost(monthlyRent, depositMonths, includeBrokerFee);
+  const leaseInitialTotal = leaseCosts.totalLeaseUpfront;
 
   // 3. Tadilat & Dekorasyon
   const fitoutRate = customFitoutCostPerM2 != null ? customFitoutCostPerM2 : template.fitoutCostPerM2;
@@ -61,11 +94,17 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     return sum + fee.cost;
   }, 0);
 
-  // 5. Aylık Personel Gideri (Net Maaş + %22.5 SGK / İşveren Payı Yaklaşımı)
-  const monthlyStaffCost = staff.reduce((sum, s) => {
-    const roleCost = s.count * s.avgSalary * 1.225; // Brüt işveren maliyeti
-    return sum + roleCost;
-  }, 0);
+  // 5. Aylık Personel Gideri (Detaylı SGK İşveren Dağılımı)
+  const staffCostDetails: { role: string; count: number; detail: StaffCostDetail }[] = [];
+  let monthlyStaffCost = 0;
+
+  for (const s of staff) {
+    if (s.count > 0 && s.avgSalary > 0) {
+      const detail = calculateStaffEmployerCost(s.avgSalary);
+      staffCostDetails.push({ role: s.role, count: s.count, detail });
+      monthlyStaffCost += s.count * detail.totalEmployerCost;
+    }
+  }
 
   // 6. Aylık Sabit İşletme Giderleri
   const monthlyUtilities = customUtilities != null ? customUtilities : template.monthlyUtilitiesEstimate;
@@ -107,10 +146,12 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     fitoutTotal,
     legalFeesTotal,
     workingCapitalReserve,
+    minLegalCapital: template.capitalRequirement?.minLegalCapital || 0,
 
     monthlyOperatingCost,
     monthlyRent,
     monthlyStaffCost: Math.round(monthlyStaffCost),
+    staffCostDetails,
     monthlyUtilities,
     monthlyAccounting,
     monthlySoftware,
