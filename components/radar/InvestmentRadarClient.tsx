@@ -486,9 +486,6 @@ export function InvestmentRadarClient() {
             <Radar className="w-7 h-7 text-amber-500" />
             <span>Yatırım ve Lokasyon Radarı</span>
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-            İş kolunuzu seçin, haritada dilediğiniz alanı çemberle tarayın. Bölgenin demografik yapısını, rakip yoğunluğunu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
