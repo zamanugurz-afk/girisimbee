@@ -1603,8 +1603,16 @@ export function generateDeterministicLocalPois(
   const locClean = extractCleanLocationName(locationName);
 
   const pois: CompetitorPoi[] = [];
-  const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543));
-  const categoryHash = Math.abs(category.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 7));
+  const isMarmaraCoast = lat >= 40.82 && lat <= 41.02 && lng >= 29.00 && lng <= 29.35;
+  const isAegeanCoast = lat >= 38.35 && lat <= 38.50 && lng >= 27.00 && lng <= 27.20;
+
+  // High-entropy 32-bit deterministic hash per point to ensure true 2D dispersion without ray alignment
+  function getSeed(idx: number): number {
+    let h = Math.round(lat * 10000 + lng * 10000 + categoryIndex * 1337 + idx * 7919) >>> 0;
+    h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+    h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  }
 
   for (let i = 0; i < targetCount; i++) {
     const rawTemplate = templates[i % templates.length];
@@ -1612,25 +1620,65 @@ export function generateDeterministicLocalPois(
       ? rawTemplate.replace('{loc}', locClean)
       : rawTemplate;
 
-    // Spread evenly across 360 degrees, offset by category hash and index so NO TWO POIS OVERLAP
-    const angleDeg = (baseSeed * 360 + categoryIndex * 43.7 + i * (360 / Math.max(1, targetCount)) + categoryHash * 13) % 360;
+    const s1 = getSeed(i * 3 + 1);
+    const s2 = getSeed(i * 3 + 2);
+    const s3 = getSeed(i * 3 + 3);
 
-    // Distribute nicely from 20% to 90% of circle radius
-    const distRatio = 0.20 + (((baseSeed * 100 + categoryIndex * 17 + i * 29) % 70) / 100);
-    const distMeters = Math.max(40, Math.min(radiusMeters - 15, Math.round(radiusMeters * distRatio)));
+    // Distance distributed naturally between 8% and 92% of radius using square-root distribution
+    const distRatio = 0.08 + 0.84 * Math.sqrt(s1);
+    const dist = Math.max(40, Math.min(radiusMeters * 0.92, Math.round(radiusMeters * distRatio)));
 
-    // Strictly clamp and snap to urban commercial land (never in the sea or offshore parks)
-    const pos = clampToUrbanSettlement(lat, lng, distMeters, angleDeg);
+    // Angle distributed organically across safe land directions
+    let rawAngle = s2 * 360;
+
+    if (isMarmaraCoast && lat < 40.955) {
+      // Marmara Sea is SW (140° to 305°). Safe land arc is NW to SE: 305° -> 360° -> 140° (195° of land)
+      rawAngle = (305 + s2 * 195) % 360;
+    } else if (isAegeanCoast && lng < 27.15) {
+      // Izmir Gulf sea is West (200° to 340°). Safe land arc: 340° -> 200° (220° of land)
+      rawAngle = (340 + s2 * 220) % 360;
+    }
+
+    const angleRad = (rawAngle * Math.PI) / 180;
+    const dLat = (dist / 111320) * Math.cos(angleRad);
+    const dLng = (dist / (111320 * Math.cos((lat * Math.PI) / 180))) * Math.sin(angleRad);
+
+    let pLat = lat + dLat;
+    let pLng = lng + dLng;
+
+    // Check specific unpopulated forest/military zones and snap to nearest urban commercial street
+    // 1. Başıbüyük Ormanı / Süreyyapaşa / Mağara Tepesi
+    if (pLat >= 40.938 && pLat <= 40.968 && pLng >= 29.142 && pLng <= 29.175) {
+      pLat = 40.925 + s3 * 0.012;
+      pLng = 29.128 + s1 * 0.018;
+    }
+    // 2. 2. Zırhlı Tugay Kışlası (Military Base)
+    if (pLat >= 40.922 && pLat <= 40.952 && pLng >= 29.165 && pLng <= 29.208) {
+      pLat = 40.915 + s3 * 0.010;
+      pLng = 29.144 + s1 * 0.016;
+    }
+    // 3. Kayışdağı Ormanı
+    if (pLat >= 40.968 && pLat <= 40.995 && pLng >= 29.145 && pLng <= 29.180) {
+      pLat = 40.978 + s3 * 0.008;
+      pLng = 29.122 + s1 * 0.016;
+    }
+    // 4. Aydos Ormanı
+    if (pLat >= 40.935 && pLat <= 40.985 && pLng >= 29.215 && pLng <= 29.275) {
+      pLat = 40.915 + s3 * 0.010;
+      pLng = 29.192 + s1 * 0.018;
+    }
+
+    const calcDist = Math.round(calculateDistanceMeters(lat, lng, pLat, pLng));
 
     pois.push({
-      id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pos.lat * 10000)}`,
+      id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pLat * 10000)}`,
       name: finalName,
-      lat: pos.lat,
-      lng: pos.lng,
+      lat: pLat,
+      lng: pLng,
       category,
       categoryLabel: meta.label,
       address: `${locClean} Mahallesi No: ${10 + (categoryIndex * 7 + i * 14) % 90}`,
-      distanceMeters: pos.adjustedDistance,
+      distanceMeters: calcDist,
     });
   }
 
