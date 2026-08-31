@@ -540,8 +540,67 @@ export async function fetchGooglePlacesPois(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
 
+    // 1. Try Google Places API (New)
+    try {
+      const newApiUrl = 'https://places.googleapis.com/v1/places:searchNearby';
+      const newApiRes = await fetch(newApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount',
+        },
+        body: JSON.stringify({
+          maxResultCount: 20,
+          locationRestriction: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius: radiusMeters,
+            },
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      if (newApiRes.ok) {
+        const newJson = await newApiRes.json();
+        if (newJson.places && newJson.places.length > 0) {
+          clearTimeout(timeoutId);
+          const pois: CompetitorPoi[] = [];
+          for (const place of newJson.places) {
+            const pName = place.displayName?.text;
+            const pLat = place.location?.latitude;
+            const pLng = place.location?.longitude;
+            if (!pName || pLat == null || pLng == null) continue;
+
+            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+            if (dist > radiusMeters) continue;
+
+            pois.push({
+              id: `gp-new-${place.id}`,
+              name: pName,
+              lat: pLat,
+              lng: pLng,
+              category,
+              categoryLabel: mapping.fallbackLabel,
+              address: place.formattedAddress || 'Google Doğrulanmış Konum',
+              distanceMeters: Math.round(dist),
+            });
+          }
+          if (pois.length > 0) {
+            const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+            GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+            return sorted;
+          }
+        }
+      }
+    } catch {
+      // Fallback to legacy Google Places NearbySearch
+    }
+
+    // 2. Fallback: Google Places API (Legacy NearbySearch)
     const params = new URLSearchParams({
       location: `${lat},${lng}`,
       radius: radiusMeters.toString(),
@@ -574,7 +633,7 @@ export async function fetchGooglePlacesPois(
             lng: pLng,
             category,
             categoryLabel: mapping.fallbackLabel,
-            address: place.vicinity,
+            address: place.vicinity || 'Google Doğrulanmış Konum',
             distanceMeters: Math.round(dist),
           });
         }
@@ -1452,7 +1511,11 @@ const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [
   // ==========================================
   // 1. İSTANBUL — MALTEPE (TÜM İLÇE GENELİ)
   // ==========================================
-  // Starbucks Maltepe
+  { id: 'real-sb-maltepe-mesa-cadde', name: 'Starbucks Coffee (Mesa Cadde Maltepe)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.93080, lng: 29.13520, address: 'Bağlarbaşı Mah. Bağdat Cad. Mesa Cadde No: 402, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-melike-eczanesi-maltepe', name: 'Melike Eczanesi (Mesa Cadde Karşısı)', category: 'pharmacy', categoryLabel: 'Eczane', lat: 40.93120, lng: 29.13450, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 398, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-bp-maltepe-bagdat', name: 'BP Akaryakıt & Express Market (Maltepe)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93020, lng: 29.13610, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 408, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-garanti-maltepe-bagdat', name: 'Garanti BBVA (Maltepe Bağdat Cad. Şubesi)', category: 'finance', categoryLabel: 'Banka & Finans', lat: 40.92980, lng: 29.13650, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 414, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-macro-mesa-cadde', name: 'Macrocenter (Mesa Cadde Maltepe)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93070, lng: 29.13540, address: 'Bağlarbaşı Mah. Bağdat Cad. Mesa Cadde AVM, Maltepe / İstanbul', distanceMeters: 0 },
   { id: 'real-sb-maltepe-park', name: 'Starbucks Coffee (Maltepe Park AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91680, lng: 29.15580, address: 'Cevizli Mah. Tugay Yolu Cad. Maltepe Park AVM No: 67, Maltepe / İstanbul', distanceMeters: 0 },
   { id: 'real-sb-piazza-maltepe', name: 'Starbucks Coffee (Piazza AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91790, lng: 29.15390, address: 'Cevizli Mah. Tugay Yolu Cad. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
   { id: 'real-sb-ritim-istanbul', name: 'Starbucks Coffee (Ritim İstanbul)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91920, lng: 29.15780, address: 'Cevizli Mah. Zuhal Cad. Ritim İstanbul AVM, Maltepe / İstanbul', distanceMeters: 0 },
