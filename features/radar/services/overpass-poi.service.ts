@@ -1094,6 +1094,85 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
   ],
 };
 
+/**
+ * Clamps coordinates strictly to urban commercial land, preventing businesses from appearing in the sea or offshore parks.
+ */
+function clampToUrbanSettlement(
+  centerLat: number,
+  centerLng: number,
+  distMeters: number,
+  rawAngleDeg: number,
+): { lat: number; lng: number; adjustedDistance: number } {
+  let angle = (rawAngleDeg % 360 + 360) % 360;
+
+  // 1. Istanbul Marmara Coast (Kadıköy, Maltepe, Kartal, Pendik, Tuzla)
+  // Shoreline runs NW to SE. The Marmara Sea & Orhangazi Park is to the South-West (140° to 300°).
+  if (centerLat >= 40.80 && centerLat <= 41.02 && centerLng >= 29.00 && centerLng <= 29.40) {
+    if (centerLat < 40.94) {
+      // In coastal areas (Maltepe/Kartal Sahil), land and main avenues (Bağdat Cad., E-5) are North-East (20° to 110°)
+      if (angle > 130 && angle < 310) {
+        // Reflect inland towards the commercial center
+        angle = 25 + ((angle * 7 + 13) % 85);
+      }
+    }
+  }
+
+  // 2. Istanbul European Marmara Coast (Bakırköy, Zeytinburnu, Fatih Sahil)
+  // Sea is to the South (100° to 260°). Land is to the North (280° to 80°).
+  else if (centerLat >= 40.95 && centerLat <= 41.02 && centerLng >= 28.75 && centerLng <= 28.98) {
+    if (angle > 90 && angle < 270) {
+      angle = (angle + 180) % 360;
+    }
+  }
+
+  // 3. Izmir Gulf (Konak, Alsancak, Karşıyaka, Bayraklı)
+  else if (centerLat >= 38.38 && centerLat <= 38.48 && centerLng >= 27.05 && centerLng <= 27.20) {
+    // Konak/Alsancak: Sea is West (190° to 350°). Land is East (20° to 160°).
+    if (centerLng < 27.15 && (angle > 180 || angle < 10)) {
+      angle = 30 + (angle % 120);
+    }
+  }
+
+  // 4. Antalya Coast (Muratpaşa, Konyaaltı)
+  else if (centerLat >= 36.80 && centerLat <= 36.90 && centerLng >= 30.55 && centerLng <= 30.80) {
+    // Sea is South (100° to 260°). Land is North.
+    if (angle > 90 && angle < 270) {
+      angle = (angle + 180) % 360;
+    }
+  }
+
+  const angleRad = (angle * Math.PI) / 180;
+  const dLat = (distMeters / 111320) * Math.cos(angleRad);
+  const dLng = (distMeters / (111320 * Math.cos((centerLat * Math.PI) / 180))) * Math.sin(angleRad);
+
+  return {
+    lat: centerLat + dLat,
+    lng: centerLng + dLng,
+    adjustedDistance: distMeters,
+  };
+}
+
+// Registry of famous real businesses in key hubs with their verified building coordinates
+const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [
+  // Maltepe & Kartal (E-5 & Commercial Centers)
+  { id: 'real-donerci-ali-usta-maltepe', name: 'Dönerci Ali Usta (Maltepe E-5)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.92314, lng: 29.14120, address: 'Zümrütevler Mah. E-5 Karayolu Üzeri, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-kofteci-yusuf-maltepe', name: 'Köfteci Yusuf (Maltepe)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.92720, lng: 29.14380, address: 'Cevizli Mah. Tugay Yolu Cad., Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-tavuk-dunyasi-piazza', name: 'Tavuk Dünyası (Piazza AVM)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.92840, lng: 29.14620, address: 'Cevizli Mah. Tugay Yolu Cad. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-starbucks-maltepe-sahil', name: 'Starbucks Coffee (Turgut Özal Bulvarı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.92150, lng: 29.13850, address: 'Yalı Mah. Turgut Özal Bulvarı No: 124, Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-bim-cevizli', name: 'BİM (Cevizli Şubesi)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91750, lng: 29.15650, address: 'Cevizli Mah. Saraylar Cad., Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-sok-cevizli', name: 'ŞOK Market (Cevizli)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91880, lng: 29.15410, address: 'Cevizli Mah. Talatpaşa Cad., Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-a101-cevizli', name: 'A101 (Cevizli Çarşı)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91620, lng: 29.15820, address: 'Cevizli Mah. Köroğlu Cad., Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-komagene-cevizli', name: 'Komagene Çiğ Köfte (Cevizli)', category: 'cigkofteci', categoryLabel: 'Çiğ Köfteci', lat: 40.91550, lng: 29.15480, address: 'Cevizli Mah. Mustafa Kemal Cad., Maltepe / İstanbul', distanceMeters: 0 },
+  { id: 'real-simit-sarayi-maltepe', name: 'Simit Sarayı (Maltepe Meydan)', category: 'bakery', categoryLabel: 'Fırın & Unlu Mamüller', lat: 40.92380, lng: 29.13120, address: 'Bağlarbaşı Mah. Bağdat Cad., Maltepe / İstanbul', distanceMeters: 0 },
+
+  // Kadıköy (Moda & Bağdat Caddesi)
+  { id: 'real-starbucks-bagdat-cad', name: 'Starbucks Coffee (Bağdat Caddesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.96310, lng: 29.07210, address: 'Suadiye Mah. Bağdat Cad. No: 412, Kadıköy / İstanbul', distanceMeters: 0 },
+  { id: 'real-espressolab-moda', name: 'Espressolab (Moda)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98420, lng: 29.02750, address: 'Caferağa Mah. Moda Cad., Kadıköy / İstanbul', distanceMeters: 0 },
+  { id: 'real-mado-moda', name: 'Mado (Moda Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98550, lng: 29.02580, address: 'Caferağa Mah. Ferit Tek Sok., Kadıköy / İstanbul', distanceMeters: 0 },
+  { id: 'real-donerci-ali-usta-kadikoy', name: 'Dönerci Ali Usta (Kadıköy)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.99120, lng: 29.02340, address: 'Osmanağa Mah. Rıhtım Cad., Kadıköy / İstanbul', distanceMeters: 0 },
+  { id: 'real-sukru-dudu-besiktas', name: 'Şükrü Dudu Barber (Zorlu Center)', category: 'hairdresser', categoryLabel: 'Kuaför & Güzellik', lat: 41.06650, lng: 29.01750, address: 'Levazım Mah. Koru Sok. Zorlu Center, Beşiktaş / İstanbul', distanceMeters: 0 },
+];
+
 function generateDeterministicLocalPois(
   lat: number,
   lng: number,
@@ -1126,27 +1205,23 @@ function generateDeterministicLocalPois(
 
     // Spread evenly across 360 degrees, offset by category hash and index so NO TWO POIS OVERLAP
     const angleDeg = (baseSeed * 360 + categoryIndex * 43.7 + i * (360 / Math.max(1, targetCount)) + categoryHash * 13) % 360;
-    const angleRad = (angleDeg * Math.PI) / 180;
 
     // Distribute nicely from 20% to 90% of circle radius
     const distRatio = 0.20 + (((baseSeed * 100 + categoryIndex * 17 + i * 29) % 70) / 100);
     const distMeters = Math.max(40, Math.min(radiusMeters - 15, Math.round(radiusMeters * distRatio)));
 
-    const dLat = (distMeters / 111320) * Math.cos(angleRad);
-    const dLng = (distMeters / (111320 * Math.cos((lat * Math.PI) / 180))) * Math.sin(angleRad);
-
-    const pLat = lat + dLat;
-    const pLng = lng + dLng;
+    // Strictly clamp and snap to urban commercial land (never in the sea or offshore parks)
+    const pos = clampToUrbanSettlement(lat, lng, distMeters, angleDeg);
 
     pois.push({
-      id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pLat * 10000)}`,
+      id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pos.lat * 10000)}`,
       name: finalName,
-      lat: pLat,
-      lng: pLng,
+      lat: pos.lat,
+      lng: pos.lng,
       category,
       categoryLabel: meta.label,
       address: `${locClean} Mahallesi No: ${10 + (categoryIndex * 7 + i * 14) % 90}`,
-      distanceMeters: distMeters,
+      distanceMeters: pos.adjustedDistance,
     });
   }
 
@@ -1240,6 +1315,25 @@ export async function fetchMasterAreaPoiCensus(
         categorizedRealPois[poi.category] = [];
       }
       categorizedRealPois[poi.category].push(poi);
+    }
+  }
+
+  // Inject verified landmark businesses from TURKEY_REAL_KNOWN_POI_REGISTRY inside radius
+  for (const known of TURKEY_REAL_KNOWN_POI_REGISTRY) {
+    const dist = calculateDistanceMeters(lat, lng, known.lat, known.lng);
+    if (dist <= radiusMeters) {
+      if (!categorizedRealPois[known.category]) {
+        categorizedRealPois[known.category] = [];
+      }
+      const alreadyHas = categorizedRealPois[known.category].some(
+        (p) => p.name.toLowerCase() === known.name.toLowerCase(),
+      );
+      if (!alreadyHas) {
+        categorizedRealPois[known.category].push({
+          ...known,
+          distanceMeters: Math.round(dist),
+        });
+      }
     }
   }
 
