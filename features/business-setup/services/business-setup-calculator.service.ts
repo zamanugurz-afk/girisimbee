@@ -20,13 +20,15 @@ export interface SetupCalculationParams {
   customFitoutCostPerM2?: number | null;
   includeInventory?: boolean;
   customInventoryCost?: number | null;
+  includeSoftwareLicense?: boolean;
+  customSoftwareInitialCost?: number | null;
+  customSoftwareMonthlyCost?: number | null;
   equipments: (SetupEquipment & { selected: boolean; qty: number })[];
   staff: SetupStaffRole[];
   legalFees: (SetupLegalFeeItem & { selected: boolean })[];
   workingCapitalMonths?: number;
   customUtilities?: number | null;
   customAccounting?: number | null;
-  customSoftware?: number | null;
 }
 
 export function calculateStaffEmployerCost(netSalary: number): StaffCostDetail {
@@ -58,13 +60,15 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     customFitoutCostPerM2,
     includeInventory = true,
     customInventoryCost,
+    includeSoftwareLicense = true,
+    customSoftwareInitialCost,
+    customSoftwareMonthlyCost,
     equipments,
     staff,
     legalFees,
     workingCapitalMonths = 3,
     customUtilities,
     customAccounting,
-    customSoftware,
   } = params;
 
   // 1. Ekipman / Demirbaş Maliyeti
@@ -91,13 +95,18 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     ? (customInventoryCost != null && customInventoryCost >= 0 ? customInventoryCost : template.initialInventoryCost)
     : 0;
 
-  // 5. Resmi Ruhsat & Harçlar
+  // 5. Sektörel ERP, POS & Lisans Maliyeti
+  const softwareLicenseInitial = includeSoftwareLicense
+    ? (customSoftwareInitialCost != null && customSoftwareInitialCost >= 0 ? customSoftwareInitialCost : (template.softwareLicense?.initialCost || 0))
+    : 0;
+
+  // 6. Resmi Ruhsat & Harçlar
   const legalFeesTotal = legalFees.reduce((sum, fee) => {
     if (!fee.selected) return sum;
     return sum + fee.cost;
   }, 0);
 
-  // 6. Aylık Personel Gideri (Detaylı SGK İşveren Dağılımı)
+  // 7. Aylık Personel Gideri (Detaylı SGK İşveren Dağılımı)
   const staffCostDetails: { role: string; count: number; detail: StaffCostDetail }[] = [];
   let monthlyStaffCost = 0;
 
@@ -109,10 +118,12 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     }
   }
 
-  // 7. Aylık Sabit İşletme Giderleri
+  // 8. Aylık Sabit İşletme Giderleri
   const monthlyUtilities = customUtilities != null ? customUtilities : template.monthlyUtilitiesEstimate;
   const monthlyAccounting = customAccounting != null ? customAccounting : template.monthlyAccountingFee;
-  const monthlySoftware = customSoftware != null ? customSoftware : template.monthlySoftwareFee;
+  const monthlySoftware = includeSoftwareLicense
+    ? (customSoftwareMonthlyCost != null && customSoftwareMonthlyCost >= 0 ? customSoftwareMonthlyCost : (template.softwareLicense?.monthlyCost || 0))
+    : 0;
   const monthlyStopaj = Math.round(monthlyRent * 0.20); // %20 Kira Stopajı
 
   const monthlyOperatingCost = Math.round(
@@ -124,24 +135,19 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     monthlySoftware
   );
 
-  // 8. İşletme Sermayesi Güvence Fonu (Varsayılan 3 ay)
+  // 9. İşletme Sermayesi Güvence Fonu (Varsayılan 3 ay)
   const workingCapitalReserve = Math.round(monthlyOperatingCost * (workingCapitalMonths || 0));
 
-  // 9. Toplam İlk Kurulum Yatırımı (Demirbaş + Mekan + Tadilat + İlk Stok + Harçlar + Güvence Fonu)
+  // 10. Toplam İlk Kurulum Yatırımı
   const totalInitialInvestment = Math.round(
     equipmentTotal +
     leaseInitialTotal +
     fitoutTotal +
     initialInventoryTotal +
+    softwareLicenseInitial +
     legalFeesTotal +
     workingCapitalReserve
   );
-
-  // 10. Başabaş Noktası (Break-Even)
-  const breakEvenMetric = template.breakEvenMetric;
-  const monthlyBreakEvenRevenue = monthlyOperatingCost;
-  const dailyRequiredGross = monthlyOperatingCost / 30;
-  const dailyBreakEvenCount = Math.ceil(dailyRequiredGross / (breakEvenMetric.unitPrice || 1));
 
   return {
     totalInitialInvestment,
@@ -149,6 +155,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     leaseInitialTotal,
     fitoutTotal,
     initialInventoryTotal,
+    softwareLicenseInitial,
     legalFeesTotal,
     workingCapitalReserve,
     minLegalCapital: template.capitalRequirement?.minLegalCapital || 0,
@@ -160,9 +167,5 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     monthlyUtilities,
     monthlyAccounting,
     monthlySoftware,
-
-    dailyBreakEvenCount,
-    monthlyBreakEvenRevenue,
-    breakEvenMetric,
   };
 }

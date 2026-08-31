@@ -19,6 +19,8 @@ export interface SetupEquipment {
   regulatoryNote?: string; // Mevzuat dayanağı (Örn: "Yangın Yönetmeliği Md. 99")
   description?: string;
   isCustom?: boolean;
+  scalesWithM2?: boolean; // m² büyüdükçe zorunlu/önerilen adet dinamik artar
+  m2Ratio?: number; // Her X m² için 1 adet
 }
 
 export interface SetupStaffRole {
@@ -37,11 +39,12 @@ export interface SetupLegalFeeItem {
   isMandatory?: boolean;
 }
 
-export interface SetupBreakEvenMetric {
-  label: string;
-  unitPrice: number;
-  targetUnitsPerDay: number;
-  unitLabel: string;
+export interface SetupSoftwareLicense {
+  name: string;
+  type: string; // ERP, POS, Medula, Lisans vb.
+  initialCost: number; // İlk Kurulum / Yıllık Lisans Bedeli
+  monthlyCost: number; // Aylık Bakım / Bulut Aboneliği
+  description: string;
 }
 
 export interface SetupCapitalRequirement {
@@ -59,14 +62,13 @@ export interface BusinessTemplate {
   fitoutCostPerM2: number; // Tadilat & Dekorasyon m² maliyeti
   initialInventoryCost: number; // İlk Mal / İlaç / Emtia / Hammadde Alım Bütçesi
   initialInventoryDescription: string;
+  softwareLicense: SetupSoftwareLicense; // Sektörel ERP & Lisans paketi
   capitalRequirement: SetupCapitalRequirement;
   mandatoryLegalItems: SetupLegalFeeItem[];
   equipments: SetupEquipment[];
   recommendedStaff: SetupStaffRole[];
-  breakEvenMetric: SetupBreakEvenMetric;
   monthlyUtilitiesEstimate: number;
   monthlyAccountingFee: number;
-  monthlySoftwareFee: number;
   workingCapitalMonths?: number;
 }
 
@@ -83,6 +85,7 @@ export interface BusinessSetupCalculationResult {
   leaseInitialTotal: number; // 1 Peşin + 1 Depozito (2x Kira)
   fitoutTotal: number;
   initialInventoryTotal: number; // İlk Stok / Emtia / İlaç Tutarı
+  softwareLicenseInitial: number; // İlk ERP & Lisans Bedeli
   legalFeesTotal: number;
   workingCapitalReserve: number;
   minLegalCapital: number;
@@ -94,8 +97,4 @@ export interface BusinessSetupCalculationResult {
   monthlyUtilities: number;
   monthlyAccounting: number;
   monthlySoftware: number;
-  
-  dailyBreakEvenCount: number;
-  monthlyBreakEvenRevenue: number;
-  breakEvenMetric: SetupBreakEvenMetric;
 }
