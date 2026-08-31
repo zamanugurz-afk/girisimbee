@@ -1540,35 +1540,45 @@ function clampToUrbanSettlement(
 ): { lat: number; lng: number; adjustedDistance: number } {
   let angle = (rawAngleDeg % 360 + 360) % 360;
 
-  // 1. Istanbul Marmara Coast (Kadıköy, Maltepe, Kartal, Pendik, Tuzla)
-  // Shoreline runs NW to SE. The Marmara Sea is to the South-West (140° to 300°).
-  if (centerLat >= 40.80 && centerLat <= 41.02 && centerLng >= 29.00 && centerLng <= 29.40) {
-    if (centerLat < 40.945) {
-      if (angle > 130 && angle < 310) {
-        // Reflect inland towards urban commercial belts (Bağdat Cad., Minibüs Cad., E-5)
-        angle = 25 + ((angle * 7 + 13) % 85);
-      }
+  // 1. Black Sea Coast (Trabzon, Rize, Ordu, Giresun, Samsun, Sinop, Kastamonu, Bartın, Zonguldak)
+  // Sea is to the NORTH (270° to 90°). Reflect southwards into commercial urban inland corridors.
+  if (centerLat >= 40.85 && centerLat <= 42.10 && centerLng >= 31.00 && centerLng <= 42.00) {
+    if (angle > 270 || angle < 90) {
+      angle = 90 + ((angle * 7 + 13) % 180); // Snap south towards city center & boulevards
     }
   }
 
-  // 2. Istanbul European Marmara Coast (Bakırköy, Zeytinburnu, Fatih Sahil)
-  else if (centerLat >= 40.95 && centerLat <= 41.02 && centerLng >= 28.75 && centerLng <= 28.98) {
-    if (angle > 90 && angle < 270) {
+  // 2. Mediterranean Coast (Antalya, Alanya, Mersin, Adana, Hatay/İskenderun)
+  // Sea is to the SOUTH (90° to 270°). Reflect northwards inland.
+  else if (centerLat >= 35.80 && centerLat <= 37.10 && centerLng >= 29.50 && centerLng <= 36.50) {
+    if (angle > 80 && angle < 280) {
+      angle = (280 + (angle % 160)) % 360; // Snap north towards inland avenues
+    }
+  }
+
+  // 3. Aegean Coast (İzmir, Çeşme, Bodrum, Marmaris, Fethiye, Kuşadası, Ayvalık)
+  // Sea is mostly to the WEST (160° to 340°). Reflect eastwards.
+  else if (centerLat >= 36.50 && centerLat <= 39.80 && centerLng >= 26.00 && centerLng <= 28.50) {
+    if (angle > 150 && angle < 330) {
+      angle = (330 + (angle % 180)) % 360; // Snap east inland
+    }
+  }
+
+  // 4. Istanbul Marmara Coast (Kadıköy, Maltepe, Kartal, Pendik, Tuzla, Bakırköy, Zeytinburnu)
+  else if (centerLat >= 40.80 && centerLat <= 41.05 && centerLng >= 28.60 && centerLng <= 29.40) {
+    if (centerLat < 40.945 && angle > 130 && angle < 310) {
+      angle = 25 + ((angle * 7 + 13) % 85);
+    } else if (centerLng < 28.98 && angle > 90 && angle < 270) {
       angle = (angle + 180) % 360;
     }
   }
 
-  // 3. Izmir Gulf (Konak, Alsancak, Karşıyaka, Bayraklı)
-  else if (centerLat >= 38.38 && centerLat <= 38.48 && centerLng >= 27.05 && centerLng <= 27.20) {
-    if (centerLng < 27.15 && (angle > 180 || angle < 10)) {
-      angle = 30 + (angle % 120);
-    }
-  }
-
-  // 4. Antalya Coast (Muratpaşa, Konyaaltı)
-  else if (centerLat >= 36.80 && centerLat <= 36.90 && centerLng >= 30.55 && centerLng <= 30.80) {
-    if (angle > 90 && angle < 270) {
-      angle = (angle + 180) % 360;
+  // 5. Van Lake (Van İpekyolu/Tuşba, Bitlis Tatvan)
+  else if (centerLat >= 38.30 && centerLat <= 38.80 && centerLng >= 42.20 && centerLng <= 43.40) {
+    if (centerLng >= 43.25 && (angle > 180 && angle < 360)) {
+      angle = (360 + (angle % 180)) % 360; // Snap east towards Van center
+    } else if (centerLng <= 42.35 && (angle > 0 && angle < 180)) {
+      angle = (180 + (angle % 180)) % 360; // Snap west towards Tatvan center
     }
   }
 
@@ -1579,41 +1589,32 @@ function clampToUrbanSettlement(
   let targetLat = centerLat + dLat;
   let targetLng = centerLng + dLng;
 
-  // EXCLUSION 1: Başıbüyük Ormanı / Süreyyapaşa Tepesi / Mağara Tepesi in Maltepe
-  // Forest/Mountain zone: lat 40.938 to 40.968, lng 29.140 to 29.175
+  // EXCLUSION 1: Adana Seyhan Baraj Gölü
+  if (targetLat >= 37.045 && targetLat <= 37.140 && targetLng >= 35.240 && targetLng <= 35.370) {
+    targetLat = 37.038 + ((Math.abs(Math.sin(targetLat * 88)) * 100) % 0.009);
+    targetLng = 35.285 + ((Math.abs(Math.cos(targetLng * 88)) * 100) % 0.018);
+  }
+
+  // EXCLUSION 2: Başıbüyük Ormanı / Süreyyapaşa Tepesi (İstanbul)
   if (targetLat >= 40.938 && targetLat <= 40.968 && targetLng >= 29.140 && targetLng <= 29.175) {
-    // Snap south to E-5 commercial avenue (Altayçeşme / Gülsuyu / Zümrütevler çarşı)
     targetLat = 40.926 + ((Math.abs(Math.sin(targetLat * 99)) * 100) % 0.009);
     targetLng = 29.132 + ((Math.abs(Math.cos(targetLng * 99)) * 100) % 0.015);
   }
 
-  // EXCLUSION 2: 2. Zırhlı Tugay Komutanlığı / General Nurettin Baransel Kışlası (Military Base)
-  // Military zone: lat 40.922 to 40.952, lng 29.162 to 29.208
+  // EXCLUSION 3: 2. Zırhlı Tugay Askeri Bölge (İstanbul)
   if (targetLat >= 40.922 && targetLat <= 40.952 && targetLng >= 29.162 && targetLng <= 29.208) {
-    // Snap south to Tugay Yolu / Cevizli Çarşı or west to Altayçeşme / E-5
     targetLat = 40.918 + ((Math.abs(Math.sin(targetLat * 88)) * 100) % 0.008);
     targetLng = 29.148 + ((Math.abs(Math.cos(targetLng * 88)) * 100) % 0.014);
   }
 
-  // EXCLUSION 3: Kayışdağı Ormanı
-  if (targetLat >= 40.968 && targetLat <= 40.995 && targetLng >= 29.145 && targetLng <= 29.180) {
-    // Snap north to Ataşehir Brandium/Kayışdağı Cad.
-    targetLat = 40.978 + ((Math.abs(Math.sin(targetLat * 77)) * 100) % 0.007);
-    targetLng = 29.122 + ((Math.abs(Math.cos(targetLng * 77)) * 100) % 0.016);
-  }
-
-  // EXCLUSION 4: Aydos Ormanı / Tepe
-  if (targetLat >= 40.935 && targetLat <= 40.985 && targetLng >= 29.215 && targetLng <= 29.275) {
-    // Snap south to Kartal Yakacık / Uğur Mumcu Çarşı
-    targetLat = 40.915 + ((Math.abs(Math.sin(targetLat * 66)) * 100) % 0.008);
-    targetLng = 29.192 + ((Math.abs(Math.cos(targetLng * 66)) * 100) % 0.018);
-  }
-
-  // EXCLUSION 5: Marmara Sea Coastal Incursion check
-  if (targetLng >= 29.02 && targetLng <= 29.35) {
-    const minSafeLatForLng = 40.990 - (targetLng - 29.02) * 0.53;
-    if (targetLat < minSafeLatForLng + 0.002) {
-      targetLat = minSafeLatForLng + 0.004 + ((Math.abs(Math.sin(targetLng * 55)) * 100) % 0.006);
+  // EXCLUSION 4: Kayışdağı & Aydos Ormanları (İstanbul)
+  if (targetLat >= 40.935 && targetLat <= 40.995 && targetLng >= 29.145 && targetLng <= 29.275) {
+    if (targetLat > 40.965) {
+      targetLat = 40.978 + ((Math.abs(Math.sin(targetLat * 77)) * 100) % 0.007);
+      targetLng = 29.122 + ((Math.abs(Math.cos(targetLng * 77)) * 100) % 0.016);
+    } else {
+      targetLat = 40.915 + ((Math.abs(Math.sin(targetLat * 66)) * 100) % 0.008);
+      targetLng = 29.192 + ((Math.abs(Math.cos(targetLng * 66)) * 100) % 0.018);
     }
   }
 

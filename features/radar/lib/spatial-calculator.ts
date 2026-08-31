@@ -1835,23 +1835,143 @@ const TURKEY_CENSUS_INDEX: DistrictCensusMeta[] = [
   { name: 'buca', district: 'Buca', city: 'İzmir', densityPerKm2: 14200, baseMahallePop: 38000, ilcePop: 520000, ses: 'B / C1 Grubu', age: 'Üniversite & Genç Nüfus (%67)', traffic: '8.9 / 10 (Yüksek Dinamizm)', daytimeMultiplier: 1.45 },
 
   // ==========================================
-  // 6. DİĞER BÜYÜKŞEHİRLER & BÖLGELER
+  // 6. GÜNEY MARMARA, EGE & AKDENİZ
   // ==========================================
   { name: 'özlüce', district: 'Nilüfer', city: 'Bursa', densityPerKm2: 8200, baseMahallePop: 32000, ilcePop: 540000, ses: 'A / B Grubu', age: 'Modern Aile & Gastronomi (%62)', traffic: '8.7 / 10 (Gelişen Cazibe)', daytimeMultiplier: 1.40 },
   { name: 'nilüfer', district: 'Nilüfer', city: 'Bursa', densityPerKm2: 7800, baseMahallePop: 31000, ilcePop: 540000, ses: 'A / B Grubu', age: 'Beyaz Yaka & Modern Aile (%63)', traffic: '8.8 / 10 (Prestij)', daytimeMultiplier: 1.35 },
   { name: 'osmangazi', district: 'Osmangazi', city: 'Bursa', densityPerKm2: 13500, baseMahallePop: 36000, ilcePop: 890000, ses: 'B / C1 Grubu', age: 'Tarihi Merkez & Ticaret (%60)', traffic: '9.2 / 10 (Yoğun Merkez)', daytimeMultiplier: 1.80 },
+  { name: 'yıldırım', district: 'Yıldırım', city: 'Bursa', densityPerKm2: 12800, baseMahallePop: 34000, ilcePop: 650000, ses: 'B / C1 Grubu', age: 'Geniş Aile & Esnaf (%58)', traffic: '8.8 / 10 (Hareketli)', daytimeMultiplier: 1.30 },
+  { name: 'bursa', district: 'Osmangazi', city: 'Bursa', densityPerKm2: 11000, baseMahallePop: 33000, ilcePop: 3100000, ses: 'A / B Grubu', age: 'Sanayi, Ticaret & Aile (%62)', traffic: '9.0 / 10 (Büyükşehir)', daytimeMultiplier: 1.55 },
+
   { name: 'lara', district: 'Muratpaşa', city: 'Antalya', densityPerKm2: 8600, baseMahallePop: 33800, ilcePop: 520000, ses: 'A / B Grubu', age: 'Turist, Yabancı & Aile (%58)', traffic: '8.9 / 10 (Yüksek Sirkülasyon)', daytimeMultiplier: 1.80 },
   { name: 'muratpaşa', district: 'Muratpaşa', city: 'Antalya', densityPerKm2: 9200, baseMahallePop: 31500, ilcePop: 520000, ses: 'A / B Grubu', age: 'Hizmet Sektörü, Turizm & Aile (%60)', traffic: '9.0 / 10 (Yoğun)', daytimeMultiplier: 1.70 },
   { name: 'konyaaltı', district: 'Konyaaltı', city: 'Antalya', densityPerKm2: 6500, baseMahallePop: 28000, ilcePop: 210000, ses: 'A / B Grubu', age: 'Yabancı, Sahil & Genç (%62)', traffic: '8.7 / 10 (Turizm & Sahil)', daytimeMultiplier: 1.75 },
+  { name: 'alanya', district: 'Alanya', city: 'Antalya', densityPerKm2: 7200, baseMahallePop: 29000, ilcePop: 360000, ses: 'A / B Grubu', age: 'Turizm, Yabancı & Ticaret (%60)', traffic: '9.2 / 10 (Yüksek Sirkülasyon)', daytimeMultiplier: 2.10 },
+  { name: 'antalya', district: 'Muratpaşa', city: 'Antalya', densityPerKm2: 8500, baseMahallePop: 31000, ilcePop: 2700000, ses: 'A / B Grubu', age: 'Turizm, Hizmet & Genç (%62)', traffic: '9.1 / 10 (Büyükşehir)', daytimeMultiplier: 1.75 },
+
+  { name: 'bodrum', district: 'Bodrum', city: 'Muğla', densityPerKm2: 4500, baseMahallePop: 19000, ilcePop: 195000, ses: 'A+ / A Grubu', age: 'Turist, Yabancı & Üst Gelir (%60)', traffic: '9.6 / 10 (Yüksek Sezon Sirkülasyonu)', daytimeMultiplier: 2.90 },
+  { name: 'fethiye', district: 'Fethiye', city: 'Muğla', densityPerKm2: 5200, baseMahallePop: 22000, ilcePop: 175000, ses: 'A / B Grubu', age: 'Turizm, Sahil & Yabancı (%59)', traffic: '9.0 / 10 (Dinamik Turizm)', daytimeMultiplier: 2.20 },
+  { name: 'marmaris', district: 'Marmaris', city: 'Muğla', densityPerKm2: 5800, baseMahallePop: 21000, ilcePop: 98000, ses: 'A / B Grubu', age: 'Turizm & Marina (%61)', traffic: '9.2 / 10 (Yoğun Sezon)', daytimeMultiplier: 2.40 },
+  { name: 'muğla', district: 'Menteşe', city: 'Muğla', densityPerKm2: 5500, baseMahallePop: 23000, ilcePop: 1050000, ses: 'A / B Grubu', age: 'Üniversite & Turizm (%63)', traffic: '8.8 / 10 (Bölgesel)', daytimeMultiplier: 1.60 },
+
+  { name: 'efeler', district: 'Efeler', city: 'Aydın', densityPerKm2: 8200, baseMahallePop: 31000, ilcePop: 300000, ses: 'B / C1 Grubu', age: 'Üniversite, Tarım & Aile (%61)', traffic: '8.8 / 10 (Hareketli)', daytimeMultiplier: 1.45 },
+  { name: 'kuşadası', district: 'Kuşadası', city: 'Aydın', densityPerKm2: 6800, baseMahallePop: 25000, ilcePop: 130000, ses: 'A / B Grubu', age: 'Liman, Turizm & Yazlıkçı (%58)', traffic: '9.1 / 10 (Turizm Trafiği)', daytimeMultiplier: 2.30 },
+  { name: 'aydın', district: 'Efeler', city: 'Aydın', densityPerKm2: 7800, baseMahallePop: 28000, ilcePop: 1150000, ses: 'B / C1 Grubu', age: 'Tarım, Sanayi & Aile (%60)', traffic: '8.7 / 10 (Bölgesel)', daytimeMultiplier: 1.40 },
+
+  { name: 'pamukkale', district: 'Pamukkale', city: 'Denizli', densityPerKm2: 8900, baseMahallePop: 32000, ilcePop: 350000, ses: 'A / B Grubu', age: 'Üniversite, Sanayi & Aile (%64)', traffic: '9.0 / 10 (Yoğun)', daytimeMultiplier: 1.60 },
+  { name: 'denizli', district: 'Pamukkale', city: 'Denizli', densityPerKm2: 8500, baseMahallePop: 30000, ilcePop: 1060000, ses: 'B / C1 Grubu', age: 'Tekstil, Sanayi & Ticaret (%62)', traffic: '8.9 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.50 },
+
+  { name: 'yunusemre', district: 'Yunusemre', city: 'Manisa', densityPerKm2: 9200, baseMahallePop: 34000, ilcePop: 265000, ses: 'B / C1 Grubu', age: 'Sanayi, Üniversite & Aile (%63)', traffic: '8.9 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.50 },
+  { name: 'manisa', district: 'Yunusemre', city: 'Manisa', densityPerKm2: 8800, baseMahallePop: 31000, ilcePop: 1470000, ses: 'B / C1 Grubu', age: 'Sanayi & Tarım (%61)', traffic: '8.8 / 10 (Bölgesel)', daytimeMultiplier: 1.45 },
+
+  { name: 'karesi', district: 'Karesi', city: 'Balıkesir', densityPerKm2: 7800, baseMahallePop: 28000, ilcePop: 190000, ses: 'B / C1 Grubu', age: 'Esnaf, Memur & Aile (%59)', traffic: '8.6 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.35 },
+  { name: 'balıkesir', district: 'Karesi', city: 'Balıkesir', densityPerKm2: 7500, baseMahallePop: 27000, ilcePop: 1260000, ses: 'B / C1 Grubu', age: 'Tarım, Transit & Aile (%59)', traffic: '8.6 / 10 (Bölgesel)', daytimeMultiplier: 1.35 },
+
+  { name: 'çanakkale', district: 'Merkez', city: 'Çanakkale', densityPerKm2: 8200, baseMahallePop: 29000, ilcePop: 195000, ses: 'A / B Grubu', age: 'Üniversite, Turizm & Şehirli (%68)', traffic: '9.0 / 10 (Dinamik)', daytimeMultiplier: 1.70 },
+
+  // ==========================================
+  // 7. KARADENİZ & TRAKYA & KOCAELİ
+  // ==========================================
   { name: 'izmit', district: 'İzmit', city: 'Kocaeli', densityPerKm2: 9500, baseMahallePop: 27500, ilcePop: 375000, ses: 'B / C1 Grubu', age: 'Sanayi, Üniversite & Aile (%61)', traffic: '8.8 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.50 },
   { name: 'gebze', district: 'Gebze', city: 'Kocaeli', densityPerKm2: 11000, baseMahallePop: 34000, ilcePop: 410000, ses: 'B / C1 Grubu', age: 'Sanayi, Teknoloji & İş Gücü (%63)', traffic: '8.9 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.45 },
-  { name: 'selçuklu', district: 'Selçuklu', city: 'Konya', densityPerKm2: 8200, baseMahallePop: 36000, ilcePop: 690000, ses: 'B / C1 Grubu', age: 'Üniversite, Sanayi & Aile (%61)', traffic: '8.7 / 10 (Büyüyen)', daytimeMultiplier: 1.35 },
-  { name: 'tepebaşı', district: 'Tepebaşı', city: 'Eskişehir', densityPerKm2: 9800, baseMahallePop: 31000, ilcePop: 390000, ses: 'A / B Grubu', age: 'Öğrenci, Genç & Kültür (%69)', traffic: '9.1 / 10 (Öğrenci & Dinamik)', daytimeMultiplier: 1.85 },
+  { name: 'kocaeli', district: 'İzmit', city: 'Kocaeli', densityPerKm2: 9800, baseMahallePop: 31000, ilcePop: 2100000, ses: 'B / C1 Grubu', age: 'Sanayi & Üniversite (%62)', traffic: '9.0 / 10 (Sanayi Devi)', daytimeMultiplier: 1.50 },
+
+  { name: 'serdivan', district: 'Serdivan', city: 'Sakarya', densityPerKm2: 8500, baseMahallePop: 32000, ilcePop: 160000, ses: 'A / B Grubu', age: 'Üniversite, Gençlik & Gastronomi (%72)', traffic: '9.2 / 10 (Zirve Sirkülasyon)', daytimeMultiplier: 2.10 },
+  { name: 'adapazarı', district: 'Adapazarı', city: 'Sakarya', densityPerKm2: 9800, baseMahallePop: 31000, ilcePop: 280000, ses: 'B / C1 Grubu', age: 'Ticaret, Çarşı & Aile (%60)', traffic: '8.9 / 10 (Yoğun Çarşı)', daytimeMultiplier: 1.55 },
+  { name: 'sakarya', district: 'Adapazarı', city: 'Sakarya', densityPerKm2: 8800, baseMahallePop: 29000, ilcePop: 1080000, ses: 'B / C1 Grubu', age: 'Sanayi, Tarım & Genç (%61)', traffic: '8.8 / 10 (Bölgesel)', daytimeMultiplier: 1.45 },
+
+  { name: 'çorlu', district: 'Çorlu', city: 'Tekirdağ', densityPerKm2: 11200, baseMahallePop: 36000, ilcePop: 290000, ses: 'B / C1 Grubu', age: 'Sanayi, Ticaret & Genç Aile (%65)', traffic: '9.1 / 10 (Yüksek Hacim)', daytimeMultiplier: 1.60 },
+  { name: 'tekirdağ', district: 'Süleymanpaşa', city: 'Tekirdağ', densityPerKm2: 8900, baseMahallePop: 29000, ilcePop: 1150000, ses: 'B / C1 Grubu', age: 'Sanayi, Liman & Sahil (%62)', traffic: '8.8 / 10 (Bölgesel)', daytimeMultiplier: 1.45 },
+
+  { name: 'edirne', district: 'Merkez', city: 'Edirne', densityPerKm2: 8600, baseMahallePop: 27000, ilcePop: 190000, ses: 'A / B Grubu', age: 'Üniversite, Sınır Ticareti & Turizm (%67)', traffic: '9.1 / 10 (Hareketli Sınır Kenti)', daytimeMultiplier: 1.80 },
+  { name: 'kırklareli', district: 'Merkez', city: 'Kırklareli', densityPerKm2: 6800, baseMahallePop: 22000, ilcePop: 110000, ses: 'B / C1 Grubu', age: 'Üniversite & Memur (%62)', traffic: '8.3 / 10 (Sakin Şehir)', daytimeMultiplier: 1.30 },
+  { name: 'yalova', district: 'Merkez', city: 'Yalova', densityPerKm2: 8400, baseMahallePop: 28000, ilcePop: 150000, ses: 'A / B Grubu', age: 'Sahil, Turizm & Yazlıkçı (%60)', traffic: '8.8 / 10 (Dinamik)', daytimeMultiplier: 1.50 },
+
   { name: 'atakum', district: 'Atakum', city: 'Samsun', densityPerKm2: 8800, baseMahallePop: 33000, ilcePop: 245000, ses: 'A / B Grubu', age: 'Sahil, Üniversite & Aile (%66)', traffic: '8.9 / 10 (Yüksek Dinamizm)', daytimeMultiplier: 1.60 },
+  { name: 'ilkadım', district: 'İlkadım', city: 'Samsun', densityPerKm2: 12500, baseMahallePop: 35000, ilcePop: 340000, ses: 'B / C1 Grubu', age: 'Ticaret, Çarşı & Aile (%59)', traffic: '9.2 / 10 (Yoğun Ticaret)', daytimeMultiplier: 1.70 },
+  { name: 'samsun', district: 'İlkadım', city: 'Samsun', densityPerKm2: 9500, baseMahallePop: 31000, ilcePop: 1370000, ses: 'B / C1 Grubu', age: 'Karadeniz Metropolü (%62)', traffic: '9.0 / 10 (Bölgesel Lider)', daytimeMultiplier: 1.55 },
+
   { name: 'ortahisar', district: 'Ortahisar', city: 'Trabzon', densityPerKm2: 10200, baseMahallePop: 31000, ilcePop: 340000, ses: 'B / C1 Grubu', age: 'Üniversite, Turizm & Ticaret (%62)', traffic: '9.1 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.70 },
+  { name: 'trabzon', district: 'Ortahisar', city: 'Trabzon', densityPerKm2: 9200, baseMahallePop: 29000, ilcePop: 820000, ses: 'B / C1 Grubu', age: 'Ticaret, Turizm & Aile (%61)', traffic: '9.0 / 10 (Bölgesel Lider)', daytimeMultiplier: 1.65 },
+
+  { name: 'ordu', district: 'Altınordu', city: 'Ordu', densityPerKm2: 8400, baseMahallePop: 28000, ilcePop: 240000, ses: 'B / C1 Grubu', age: 'Fındık Ticareti, Sahil & Aile (%59)', traffic: '8.7 / 10 (Hareketli)', daytimeMultiplier: 1.40 },
+  { name: 'giresun', district: 'Merkez', city: 'Giresun', densityPerKm2: 7800, baseMahallePop: 25000, ilcePop: 145000, ses: 'B / C1 Grubu', age: 'Sahil, Üniversite & Aile (%60)', traffic: '8.5 / 10 (Bölgesel)', daytimeMultiplier: 1.35 },
+  { name: 'rize', district: 'Merkez', city: 'Rize', densityPerKm2: 8500, baseMahallePop: 27000, ilcePop: 150000, ses: 'B / C1 Grubu', age: 'Çay Sanayi, Üniversite & Ticaret (%60)', traffic: '8.8 / 10 (Canlı Çarşı)', daytimeMultiplier: 1.45 },
+  { name: 'artvin', district: 'Merkez', city: 'Artvin', densityPerKm2: 5200, baseMahallePop: 18000, ilcePop: 36000, ses: 'B / C1 Grubu', age: 'Memur, Doğa & Üniversite (%63)', traffic: '8.1 / 10 (Bölgesel)', daytimeMultiplier: 1.25 },
+
+  { name: 'bolu', district: 'Merkez', city: 'Bolu', densityPerKm2: 7600, baseMahallePop: 27000, ilcePop: 220000, ses: 'A / B Grubu', age: 'Üniversite, Turizm & Aile (%65)', traffic: '8.8 / 10 (Canlı Cadde)', daytimeMultiplier: 1.50 },
+  { name: 'düzce', district: 'Merkez', city: 'Düzce', densityPerKm2: 8200, baseMahallePop: 29000, ilcePop: 250000, ses: 'B / C1 Grubu', age: 'Sanayi, Üniversite & Aile (%62)', traffic: '8.7 / 10 (Gelişen)', daytimeMultiplier: 1.40 },
+  { name: 'zonguldak', district: 'Merkez', city: 'Zonguldak', densityPerKm2: 7900, baseMahallePop: 26000, ilcePop: 105000, ses: 'B / C1 Grubu', age: 'Maden, Üniversite & Çarşı (%60)', traffic: '8.6 / 10 (Yoğun Merkez)', daytimeMultiplier: 1.35 },
+  { name: 'karabük', district: 'Merkez', city: 'Karabük', densityPerKm2: 7400, baseMahallePop: 25000, ilcePop: 135000, ses: 'B / C1 Grubu', age: 'Sanayi & Üniversite (%64)', traffic: '8.6 / 10 (Öğrenci & Çarşı)', daytimeMultiplier: 1.40 },
+  { name: 'bartın', district: 'Merkez', city: 'Bartın', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 85000, ses: 'B / C1 Grubu', age: 'Çarşı, Üniversite & Sahil (%60)', traffic: '8.3 / 10 (Bölgesel)', daytimeMultiplier: 1.30 },
+  { name: 'kastamonu', district: 'Merkez', city: 'Kastamonu', densityPerKm2: 7100, baseMahallePop: 25000, ilcePop: 155000, ses: 'B / C1 Grubu', age: 'Tarihi Çarşı, Üniversite & Memur (%59)', traffic: '8.4 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.30 },
+  { name: 'sinop', district: 'Merkez', city: 'Sinop', densityPerKm2: 6200, baseMahallePop: 21000, ilcePop: 68000, ses: 'A / B Grubu', age: 'Turizm, Emekli & Üniversite (%63)', traffic: '8.4 / 10 (Turizm & Sahil)', daytimeMultiplier: 1.45 },
+  { name: 'amasya', district: 'Merkez', city: 'Amasya', densityPerKm2: 7300, baseMahallePop: 24000, ilcePop: 150000, ses: 'B / C1 Grubu', age: 'Tarih, Turizm & Aile (%59)', traffic: '8.5 / 10 (Turistik)', daytimeMultiplier: 1.35 },
+  { name: 'çorum', district: 'Merkez', city: 'Çorum', densityPerKm2: 8400, baseMahallePop: 29000, ilcePop: 300000, ses: 'B / C1 Grubu', age: 'Sanayi, Ticaret & Esnaf (%60)', traffic: '8.7 / 10 (Ticari Merkez)', daytimeMultiplier: 1.40 },
+  { name: 'tokat', district: 'Merkez', city: 'Tokat', densityPerKm2: 7500, baseMahallePop: 26000, ilcePop: 165000, ses: 'B / C1 Grubu', age: 'Üniversite, Tarım & Çarşı (%61)', traffic: '8.5 / 10 (Bölgesel)', daytimeMultiplier: 1.35 },
+  { name: 'gümüşhane', district: 'Merkez', city: 'Gümüşhane', densityPerKm2: 5400, baseMahallePop: 17000, ilcePop: 42000, ses: 'B / C1 Grubu', age: 'Üniversite & Memur (%66)', traffic: '8.1 / 10 (Öğrenci Kenti)', daytimeMultiplier: 1.30 },
+  { name: 'bayburt', district: 'Merkez', city: 'Bayburt', densityPerKm2: 4800, baseMahallePop: 15000, ilcePop: 45000, ses: 'C1 / C2 Grubu', age: 'Esnaf, Tarım & Memur (%56)', traffic: '7.8 / 10 (Sakin)', daytimeMultiplier: 1.20 },
+
+  // ==========================================
+  // 8. İÇ, DOĞU & GÜNEYDOĞU ANADOLU TÜM İLLER
+  // ==========================================
+  { name: 'selçuklu', district: 'Selçuklu', city: 'Konya', densityPerKm2: 8200, baseMahallePop: 36000, ilcePop: 690000, ses: 'B / C1 Grubu', age: 'Üniversite, Sanayi & Aile (%61)', traffic: '8.7 / 10 (Büyüyen)', daytimeMultiplier: 1.35 },
+  { name: 'konya', district: 'Selçuklu', city: 'Konya', densityPerKm2: 8500, baseMahallePop: 34000, ilcePop: 2300000, ses: 'B / C1 Grubu', age: 'Sanayi, Tarım & Aile (%60)', traffic: '8.9 / 10 (Büyükşehir)', daytimeMultiplier: 1.45 },
+
+  { name: 'melikgazi', district: 'Melikgazi', city: 'Kayseri', densityPerKm2: 9800, baseMahallePop: 35000, ilcePop: 600000, ses: 'A / B Grubu', age: 'Ticaret, Plaza & Aile (%63)', traffic: '9.1 / 10 (Yoğun Ticaret)', daytimeMultiplier: 1.65 },
+  { name: 'kayseri', district: 'Melikgazi', city: 'Kayseri', densityPerKm2: 9200, baseMahallePop: 33000, ilcePop: 1450000, ses: 'B / C1 Grubu', age: 'Sanayi & Ticaret (%61)', traffic: '9.0 / 10 (Büyükşehir)', daytimeMultiplier: 1.55 },
+
+  { name: 'tepebaşı', district: 'Tepebaşı', city: 'Eskişehir', densityPerKm2: 9800, baseMahallePop: 31000, ilcePop: 390000, ses: 'A / B Grubu', age: 'Öğrenci, Genç & Kültür (%69)', traffic: '9.1 / 10 (Öğrenci & Dinamik)', daytimeMultiplier: 1.85 },
+  { name: 'eskişehir', district: 'Tepebaşı', city: 'Eskişehir', densityPerKm2: 9500, baseMahallePop: 30000, ilcePop: 900000, ses: 'A / B Grubu', age: 'Üniversite & Şehirli (%68)', traffic: '9.1 / 10 (Kültür & Gençlik)', daytimeMultiplier: 1.80 },
+
+  { name: 'sivas', district: 'Merkez', city: 'Sivas', densityPerKm2: 8200, baseMahallePop: 29000, ilcePop: 385000, ses: 'B / C1 Grubu', age: 'Üniversite, Sanayi & Aile (%60)', traffic: '8.7 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.40 },
+  { name: 'erzincan', district: 'Merkez', city: 'Erzincan', densityPerKm2: 6900, baseMahallePop: 24000, ilcePop: 160000, ses: 'B / C1 Grubu', age: 'Tarım, Üniversite & Asker (%60)', traffic: '8.4 / 10 (Bölgesel)', daytimeMultiplier: 1.30 },
+  { name: 'erzurum', district: 'Yakutiye', city: 'Erzurum', densityPerKm2: 8800, baseMahallePop: 31000, ilcePop: 760000, ses: 'B / C1 Grubu', age: 'Üniversite, Kış Turizmi & Ticaret (%63)', traffic: '9.0 / 10 (Doğu Lideri)', daytimeMultiplier: 1.65 },
+  { name: 'kars', district: 'Merkez', city: 'Kars', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 118000, ses: 'B / C1 Grubu', age: 'Turizm, Üniversite & Çarşı (%62)', traffic: '8.6 / 10 (Kış & Turizm)', daytimeMultiplier: 1.45 },
+  { name: 'ağrı', district: 'Merkez', city: 'Ağrı', densityPerKm2: 6400, baseMahallePop: 22000, ilcePop: 150000, ses: 'C1 / C2 Grubu', age: 'Genç Nüfus, Sınır & Esnaf (%55)', traffic: '8.3 / 10 (Çarşı Trafiği)', daytimeMultiplier: 1.25 },
+  { name: 'iğdır', district: 'Merkez', city: 'Iğdır', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 145000, ses: 'B / C1 Grubu', age: 'Sınır Ticareti & Tarım (%59)', traffic: '8.6 / 10 (Hareketli Sınır)', daytimeMultiplier: 1.40 },
+  { name: 'ardahan', district: 'Merkez', city: 'Ardahan', densityPerKm2: 4500, baseMahallePop: 14000, ilcePop: 42000, ses: 'B / C1 Grubu', age: 'Memur, Hayvancılık & Asker (%57)', traffic: '7.7 / 10 (Sakin)', daytimeMultiplier: 1.20 },
+
+  { name: 'malatya', district: 'Yeşilyurt', city: 'Malatya', densityPerKm2: 8900, baseMahallePop: 31000, ilcePop: 810000, ses: 'B / C1 Grubu', age: 'Kayısı Sanayi, Üniversite & Aile (%61)', traffic: '8.9 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.50 },
+  { name: 'elazığ', district: 'Merkez', city: 'Elazığ', densityPerKm2: 8700, baseMahallePop: 30000, ilcePop: 440000, ses: 'B / C1 Grubu', age: 'Üniversite, Sağlık & Ticaret (%62)', traffic: '8.9 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.55 },
+  { name: 'van', district: 'İpekyolu', city: 'Van', densityPerKm2: 9500, baseMahallePop: 34000, ilcePop: 1150000, ses: 'B / C1 Grubu', age: 'Genç Nüfus, Sınır Ticareti & Aile (%59)', traffic: '9.2 / 10 (Doğu Metropolü)', daytimeMultiplier: 1.70 },
+  { name: 'muş', district: 'Merkez', city: 'Muş', densityPerKm2: 6200, baseMahallePop: 21000, ilcePop: 120000, ses: 'C1 / C2 Grubu', age: 'Geniş Aile & Tarım (%56)', traffic: '8.2 / 10 (Çarşı)', daytimeMultiplier: 1.25 },
+  { name: 'bitlis', district: 'Tatvan', city: 'Bitlis', densityPerKm2: 6500, baseMahallePop: 22000, ilcePop: 95000, ses: 'B / C1 Grubu', age: 'Van Gölü Ticareti & Esnaf (%58)', traffic: '8.4 / 10 (Transit)', daytimeMultiplier: 1.30 },
+  { name: 'bingöl', district: 'Merkez', city: 'Bingöl', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 170000, ses: 'B / C1 Grubu', age: 'Üniversite & Esnaf (%60)', traffic: '8.4 / 10 (Bölgesel)', daytimeMultiplier: 1.30 },
+  { name: 'tunceli', district: 'Merkez', city: 'Tunceli', densityPerKm2: 5200, baseMahallePop: 16000, ilcePop: 38000, ses: 'A / B Grubu', age: 'Eğitimli, Üniversite & Doğa (%70)', traffic: '8.2 / 10 (Genç & Dinamik)', daytimeMultiplier: 1.40 },
+  { name: 'hakkari', district: 'Yüksekova', city: 'Hakkari', densityPerKm2: 6500, baseMahallePop: 23000, ilcePop: 120000, ses: 'C1 / C2 Grubu', age: 'Genç İş Gücü & Sınır (%58)', traffic: '8.4 / 10 (Hareketli Sınır)', daytimeMultiplier: 1.30 },
+
   { name: 'kayapınar', district: 'Kayapınar', city: 'Diyarbakır', densityPerKm2: 11500, baseMahallePop: 39000, ilcePop: 420000, ses: 'A / B Grubu', age: 'Yeni Şehir, Plaza & Genç Aile (%65)', traffic: '9.2 / 10 (Gelişen Cazibe)', daytimeMultiplier: 1.65 },
+  { name: 'diyarbakır', district: 'Kayapınar', city: 'Diyarbakır', densityPerKm2: 11000, baseMahallePop: 37000, ilcePop: 1800000, ses: 'B / C1 Grubu', age: 'Ticaret, Üniversite & Genç Nüfus (%64)', traffic: '9.3 / 10 (Büyükşehir)', daytimeMultiplier: 1.70 },
+
   { name: 'haliliye', district: 'Haliliye', city: 'Şanlıurfa', densityPerKm2: 12000, baseMahallePop: 41000, ilcePop: 395000, ses: 'B / C1 Grubu', age: 'Geniş Aile & Ticaret (%58)', traffic: '8.9 / 10 (Yoğun)', daytimeMultiplier: 1.45 },
-  { name: 'bodrum', district: 'Bodrum', city: 'Muğla', densityPerKm2: 4500, baseMahallePop: 19000, ilcePop: 195000, ses: 'A+ / A Grubu', age: 'Turist, Yabancı & Üst Gelir (%60)', traffic: '9.6 / 10 (Yüksek Sezon Sirkülasyonu)', daytimeMultiplier: 2.90 },
+  { name: 'şanlıurfa', district: 'Haliliye', city: 'Şanlıurfa', densityPerKm2: 11500, baseMahallePop: 39000, ilcePop: 2200000, ses: 'B / C1 Grubu', age: 'Tarih, Tarım & Genç Nüfus (%60)', traffic: '9.1 / 10 (Büyükşehir)', daytimeMultiplier: 1.55 },
+
+  { name: 'mardin', district: 'Artuklu', city: 'Mardin', densityPerKm2: 8900, baseMahallePop: 30000, ilcePop: 870000, ses: 'B / C1 Grubu', age: 'Turizm, Gastronomi & Ticaret (%61)', traffic: '9.1 / 10 (Turizm & Cazibe)', daytimeMultiplier: 1.85 },
+  { name: 'batman', district: 'Merkez', city: 'Batman', densityPerKm2: 12200, baseMahallePop: 39000, ilcePop: 460000, ses: 'B / C1 Grubu', age: 'Petrol Sanayi, Genç Nüfus & Ticaret (%66)', traffic: '9.2 / 10 (Yüksek Sirkülasyon)', daytimeMultiplier: 1.65 },
+  { name: 'adıyaman', district: 'Merkez', city: 'Adıyaman', densityPerKm2: 8200, baseMahallePop: 28000, ilcePop: 320000, ses: 'B / C1 Grubu', age: 'Tarım, Esnaf & Aile (%58)', traffic: '8.5 / 10 (Bölgesel)', daytimeMultiplier: 1.35 },
+  { name: 'siirt', district: 'Merkez', city: 'Siirt', densityPerKm2: 7800, baseMahallePop: 26000, ilcePop: 175000, ses: 'B / C1 Grubu', age: 'Üniversite, Fıstık Ticareti & Aile (%59)', traffic: '8.6 / 10 (Canlı Çarşı)', daytimeMultiplier: 1.40 },
+  { name: 'şırnak', district: 'Cizre', city: 'Şırnak', densityPerKm2: 8500, baseMahallePop: 29000, ilcePop: 155000, ses: 'B / C1 Grubu', age: 'Transit Lojistik, Sınır & Ticaret (%61)', traffic: '8.9 / 10 (Lojistik Koridoru)', daytimeMultiplier: 1.50 },
+
+  { name: 'isparta', district: 'Merkez', city: 'Isparta', densityPerKm2: 8400, baseMahallePop: 29000, ilcePop: 270000, ses: 'A / B Grubu', age: 'Gül Sanayi, Üniversite & Gençlik (%69)', traffic: '9.0 / 10 (Öğrenci & Dinamik)', daytimeMultiplier: 1.75 },
+  { name: 'burdur', district: 'Merkez', city: 'Burdur', densityPerKm2: 6800, baseMahallePop: 22000, ilcePop: 115000, ses: 'B / C1 Grubu', age: 'Üniversite & Memur (%61)', traffic: '8.3 / 10 (Sakin Merkez)', daytimeMultiplier: 1.30 },
+  { name: 'afyonkarahisar', district: 'Merkez', city: 'Afyonkarahisar', densityPerKm2: 8600, baseMahallePop: 30000, ilcePop: 325000, ses: 'B / C1 Grubu', age: 'Termal Turizm, Gastronomi & Transit (%60)', traffic: '8.9 / 10 (Transit & Ticaret)', daytimeMultiplier: 1.60 },
+  { name: 'aksaray', district: 'Merkez', city: 'Aksaray', densityPerKm2: 8500, baseMahallePop: 29000, ilcePop: 320000, ses: 'B / C1 Grubu', age: 'Otomotiv Sanayi & Ticaret (%62)', traffic: '8.8 / 10 (Hareketli)', daytimeMultiplier: 1.45 },
+  { name: 'niğde', district: 'Merkez', city: 'Niğde', densityPerKm2: 7600, baseMahallePop: 26000, ilcePop: 235000, ses: 'B / C1 Grubu', age: 'Üniversite & Tarım (%60)', traffic: '8.5 / 10 (Bölgesel)', daytimeMultiplier: 1.35 },
+  { name: 'nevşehir', district: 'Merkez', city: 'Nevşehir', densityPerKm2: 7200, baseMahallePop: 24000, ilcePop: 155000, ses: 'A / B Grubu', age: 'Kapadokya Turizmi & Hizmet (%64)', traffic: '9.4 / 10 (Global Turizm)', daytimeMultiplier: 2.50 },
+  { name: 'kırşehir', district: 'Merkez', city: 'Kırşehir', densityPerKm2: 7300, baseMahallePop: 24000, ilcePop: 160000, ses: 'B / C1 Grubu', age: 'Üniversite & Esnaf (%61)', traffic: '8.4 / 10 (Bölgesel)', daytimeMultiplier: 1.30 },
+  { name: 'kırıkkale', district: 'Merkez', city: 'Kırıkkale', densityPerKm2: 8200, baseMahallePop: 28000, ilcePop: 200000, ses: 'B / C1 Grubu', age: 'Savunma Sanayi & Üniversite (%62)', traffic: '8.7 / 10 (Sanayi)', daytimeMultiplier: 1.40 },
+  { name: 'yozgat', district: 'Merkez', city: 'Yozgat', densityPerKm2: 6600, baseMahallePop: 22000, ilcePop: 110000, ses: 'B / C1 Grubu', age: 'Memur, Üniversite & Tarım (%59)', traffic: '8.2 / 10 (Bölgesel)', daytimeMultiplier: 1.25 },
+  { name: 'çankırı', district: 'Merkez', city: 'Çankırı', densityPerKm2: 6400, baseMahallePop: 21000, ilcePop: 98000, ses: 'B / C1 Grubu', age: 'Tuz Sanayi & Üniversite (%60)', traffic: '8.2 / 10 (Sakin)', daytimeMultiplier: 1.25 },
+  { name: 'karaman', district: 'Merkez', city: 'Karaman', densityPerKm2: 7800, baseMahallePop: 27000, ilcePop: 200000, ses: 'B / C1 Grubu', age: 'Gıda Sanayi & Bisküvi (%61)', traffic: '8.6 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.35 },
+
+  { name: 'kütahya', district: 'Merkez', city: 'Kütahya', densityPerKm2: 8100, baseMahallePop: 28000, ilcePop: 280000, ses: 'B / C1 Grubu', age: 'Porselen Sanayi, Üniversite & Çarşı (%62)', traffic: '8.7 / 10 (Ticari)', daytimeMultiplier: 1.40 },
+  { name: 'uşak', district: 'Merkez', city: 'Uşak', densityPerKm2: 8300, baseMahallePop: 29000, ilcePop: 260000, ses: 'B / C1 Grubu', age: 'Deri, Tekstil & Üniversite (%62)', traffic: '8.7 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.45 },
+  { name: 'bilecik', district: 'Merkez', city: 'Bilecik', densityPerKm2: 6900, baseMahallePop: 23000, ilcePop: 85000, ses: 'B / C1 Grubu', age: 'Seramik Sanayi & Üniversite (%63)', traffic: '8.4 / 10 (Sanayi)', daytimeMultiplier: 1.35 },
+
+  { name: 'kahramanmaraş', district: 'Onikişubat', city: 'Kahramanmaraş', densityPerKm2: 9500, baseMahallePop: 33000, ilcePop: 1180000, ses: 'B / C1 Grubu', age: 'Tekstil, Dondurma & Sanayi (%60)', traffic: '8.9 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.50 },
+  { name: 'osmaniye', district: 'Merkez', city: 'Osmaniye', densityPerKm2: 8800, baseMahallePop: 30000, ilcePop: 285000, ses: 'B / C1 Grubu', age: 'Demir-Çelik, Yer Fıstığı & Aile (%59)', traffic: '8.7 / 10 (Sanayi & Ticaret)', daytimeMultiplier: 1.40 },
+  { name: 'kilis', district: 'Merkez', city: 'Kilis', densityPerKm2: 8200, baseMahallePop: 27000, ilcePop: 145000, ses: 'B / C1 Grubu', age: 'Zeytin, Sınır Ticareti & Üniversite (%61)', traffic: '8.6 / 10 (Sınır Dinamizmi)', daytimeMultiplier: 1.35 },
 ];
 
 export function resolveDemographicProfile(
