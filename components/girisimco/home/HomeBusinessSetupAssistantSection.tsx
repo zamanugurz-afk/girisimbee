@@ -33,8 +33,9 @@ import {
   Info,
   Rocket,
   Laptop,
-  Cpu,
-  Tv,
+  Coins,
+  ExternalLink,
+  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -61,12 +62,12 @@ import type {
 } from '@/features/business-setup/types/business-setup.types';
 
 const STEPS = [
-  { id: 1, label: 'Sektör & Meslek', sub: 'İşletme türü ve konumu', icon: Building2 },
+  { id: 1, label: 'Sektör & İlçe', sub: 'İşletme türü ve konumu', icon: Building2 },
   { id: 2, label: 'Mekan & Kira', sub: 'm², kira ve tadilat', icon: Store },
   { id: 3, label: 'Demirbaş & Donanım', sub: 'Zorunlu ve konfor donanımı', icon: Wrench },
   { id: 4, label: 'İlk Stok & Emtia', sub: 'İlk mal ve ilaç/ürün alımı', icon: PackageCheck },
-  { id: 5, label: 'Ekip, Ruhsat & ERP', sub: 'Bordro, harç ve yazılım', icon: FileText },
-  { id: 6, label: 'Fizibilite Özeti', sub: 'Yatırım ve maliyet planı', icon: Calculator },
+  { id: 5, label: 'Ekip, Ruhsat & ERP', sub: 'Bordro, harç ve sermaye', icon: FileText },
+  { id: 6, label: 'Fizibilite Özeti', sub: 'Yatırım ve başabaş planı', icon: Calculator },
 ];
 
 export function HomeBusinessSetupAssistantSection() {
@@ -74,8 +75,8 @@ export function HomeBusinessSetupAssistantSection() {
   const [isStarted, setIsStarted] = useState<boolean>(false);
 
   // 1. Sektör Grubu & Şablon State
-  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Kişisel Bakım & Sağlık');
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('eczane');
+  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Finans & Hizmet');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('sigorta-acentesi');
   const [sectorSearchQuery, setSectorSearchQuery] = useState<string>('');
   
   const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
@@ -96,7 +97,7 @@ export function HomeBusinessSetupAssistantSection() {
   const [depositMonths, setDepositMonths] = useState<number>(1);
   const [includeBrokerFee, setIncludeBrokerFee] = useState<boolean>(false);
   const [includeFitout, setIncludeFitout] = useState<boolean>(true);
-  const [customFitoutRate, setCustomFitoutRate] = useState<number>(activeTemplate.fitoutCostPerM2);
+  const [customFitoutRate, setCustomFitoutRate] = useState<number>(activeTemplate.fitoutCostPerM2 || 3000);
 
   // 3. Demirbaş State
   const [equipmentList, setEquipmentList] = useState<
@@ -126,16 +127,13 @@ export function HomeBusinessSetupAssistantSection() {
   // 6. Güvence Fonu (İşletme Sermayesi Ayı)
   const [workingCapitalMonths, setWorkingCapitalMonths] = useState<number>(3);
 
-  // Equipment category filter in step 3
-  const [eqCategoryFilter, setEqCategoryFilter] = useState<string>('all');
-
   // PDF / Rapor Modal State
   const [isPdfModalOpen, setIsPdfModalOpen] = useState<boolean>(false);
 
   // Şablon değiştiğinde otomatik doldurma (Minimum Manuel Veri, Maksimum Otomatik Doldurma)
   useEffect(() => {
     setM2(activeTemplate.defaultM2);
-    setCustomFitoutRate(activeTemplate.fitoutCostPerM2);
+    setCustomFitoutRate(activeTemplate.fitoutCostPerM2 || 3000);
     setStaffList(activeTemplate.recommendedStaff.map((s) => ({ ...s })));
     
     // m²'ye göre dinamik ekipman adetlerini ayarla
@@ -269,7 +267,7 @@ export function HomeBusinessSetupAssistantSection() {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val);
   };
 
-  // Staff Count Handler (Kurucu kendisi yapabilir: count = 0 seçilebilir)
+  // Staff Count Handler
   const handleUpdateStaffCount = (index: number, delta: number) => {
     setStaffList((prev) =>
       prev.map((item, idx) => {
@@ -280,7 +278,7 @@ export function HomeBusinessSetupAssistantSection() {
     );
   };
 
-  // Staff Owner Toggle (Kurucu kendisi yürütecek)
+  // Staff Owner Toggle
   const handleToggleStaffOwner = (index: number) => {
     setStaffList((prev) =>
       prev.map((item, idx) => {
@@ -321,7 +319,7 @@ export function HomeBusinessSetupAssistantSection() {
     setIsSmartSuggestionsOpen(false);
   };
 
-  // Özel Demirbaş Ekleme Fonksiyonu
+  // Özel Demirbaş Ekleme
   const handleAddCustomEquipment = () => {
     if (!customEqName.trim() || typeof customEqCost !== 'number' || customEqCost <= 0) return;
 
@@ -355,7 +353,7 @@ export function HomeBusinessSetupAssistantSection() {
     );
   };
 
-  // Filtrelenmiş Ekipmanlar (Zorunlu ve Konfor Ayrı Listeler)
+  // Zorunlu ve Konfor Ekipmanları
   const mandatoryEquipments = useMemo(() => {
     return equipmentList.filter((eq) => eq.isLocked || eq.category === 'mandatory' || eq.category === 'safety');
   }, [equipmentList]);
@@ -384,7 +382,7 @@ export function HomeBusinessSetupAssistantSection() {
     <section className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       
       {/* ========================================================================= */}
-      {/* ANA ASİSTAN KOKPİT ÇERÇEVESİ (TÜM BİLGİLER BU ÇERÇEVENİN İÇİNDEDİR)        */}
+      {/* ANA ASİSTAN KOKPİT ÇERÇEVESİ                                              */}
       {/* ========================================================================= */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/90 p-5 sm:p-7 lg:p-8 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
         
@@ -394,7 +392,7 @@ export function HomeBusinessSetupAssistantSection() {
         {!isStarted ? (
           <div className="space-y-6 sm:space-y-8">
             
-            {/* 1. Üst Başlık & Açıklama (1. Resimdeki rozet kaldırıldı) */}
+            {/* 1. Üst Başlık & Açıklama */}
             <div className="text-center max-w-3xl mx-auto space-y-2">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">
                 İş Kurma <span className="text-amber-500">Asistanı</span>
@@ -441,14 +439,14 @@ export function HomeBusinessSetupAssistantSection() {
                 <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-600 flex items-center justify-center">
                   <Laptop className="w-5 h-5" />
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">ERP & Lisans Paketi</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">2026 Mevzuat & ERP</h4>
                 <p className="text-[11px] text-muted-foreground leading-snug">
-                  Sektöre özel Medula, Adisyon, Barkod POS ve muhasebe yazılım maliyetleri.
+                  Güncel asgari sermaye şartları, yazılım lisansı ve resmi harçlar.
                 </p>
               </div>
             </div>
 
-            {/* 3. ANA SEKTÖRLERDEN SEÇİM YAPMA ALANI (2. Resim İsteği: Önce Sektör Grubu Seçilir) */}
+            {/* 3. ANA SEKTÖRLERDEN SEÇİM YAPMA ALANI */}
             <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/5 via-slate-50 to-slate-100/60 dark:from-amber-500/10 dark:via-zinc-800/40 dark:to-zinc-800/20 border border-amber-500/25 space-y-4">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -457,7 +455,7 @@ export function HomeBusinessSetupAssistantSection() {
                     1. Adım: Faaliyet Göstereceğiniz Ana Sektörü ve Şehri Seçin
                   </span>
                   <span className="text-[11px] text-muted-foreground">
-                    Sektör grubunu seçtiğinizde altındaki tüm meslek ve işletme türleri listelenecektir.
+                    Sektör grubunu seçtiğinizde altındaki tüm meslek ve işletme modelleri yüklenecektir.
                   </span>
                 </div>
 
@@ -492,11 +490,11 @@ export function HomeBusinessSetupAssistantSection() {
               {/* 5 Ana Sektör Grubu Kartları */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
                 {[
-                  { name: 'Kişisel Bakım & Sağlık', emoji: '💊', count: 'Eczane, Diş Kliniği, Kuaför, Güzellik, Optik' },
-                  { name: 'Yeme - İçme', emoji: '☕', count: 'Kafe, Restoran, Pastane, Fast Food, Dönerci' },
-                  { name: 'Perakende & Mağazacılık', emoji: '🛒', count: 'Market, Butik Giyim, Petshop, Kırtasiye' },
                   { name: 'Finans & Hizmet', emoji: '🛡️', count: 'Sigorta, Emlak, SMMM, Hukuk, Yazılım' },
-                  { name: 'Otomotiv & Sanayi Hizmetleri', emoji: '🔍', count: 'Oto Ekspertiz, Yıkama, Lastik, Mekanik' },
+                  { name: 'Yeme - İçme', emoji: '☕', count: 'Kafe, Restoran, Dönerci, Çiğköfte, Fırın' },
+                  { name: 'Kişisel Bakım & Sağlık', emoji: '💊', count: 'Eczane, Kuaför, Diş Kliniği, Optik, Pilates' },
+                  { name: 'Perakende & Mağazacılık', emoji: '🛒', count: 'Market, Butik, Petshop, Kırtasiye, Çiçekçi, Telefon' },
+                  { name: 'Otomotiv & Sanayi', emoji: '🔍', count: 'Oto Ekspertiz, Yıkama, Lastik, Kuru Temizleme' },
                 ].map((grp) => (
                   <button
                     key={grp.name}
@@ -523,7 +521,7 @@ export function HomeBusinessSetupAssistantSection() {
               {/* Ana Başlat Butonu */}
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200/60 dark:border-zinc-700/60">
                 <span className="text-xs text-muted-foreground">
-                  💡 Tüm sektör şablonlarında yasal asgari sermaye şartları ve mevzuat gereksinimleri tanımlıdır.
+                  💡 18 ticari meslek ve işletme modeli için 2026 mevzuat şartları ve güncel kira verileri hazırdır.
                 </span>
 
                 <Button
@@ -676,7 +674,7 @@ export function HomeBusinessSetupAssistantSection() {
             <div className="lg:col-span-9 flex flex-col justify-between min-h-[520px]">
               
               {/* ----------------------------------------------------------------- */}
-              {/* ADIM 1: SEKTÖR & MESLEK SEÇİMİ (2. Sayfa: Sektör Altındaki Meslekler) */}
+              {/* ADIM 1: SEKTÖR & İLÇE (Meslek Listesi)                            */}
               {/* ----------------------------------------------------------------- */}
               {activeStep === 1 && (
                 <div className="space-y-4">
@@ -687,11 +685,11 @@ export function HomeBusinessSetupAssistantSection() {
                         <span>01. Sektör & Meslek / Faaliyet Türü</span>
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {selectedCategoryGroup} sektörü altındaki işletme modelleri listelenmektedir.
+                        {selectedCategoryGroup} altındaki işletme modelleri ve Türkiye geneli 81 il lokasyonu.
                       </p>
                     </div>
 
-                    {/* Konum Seçiciler (İl ve İlçe) */}
+                    {/* Konum Seçiciler */}
                     <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80">
                       <select
                         value={selectedCity}
@@ -797,7 +795,7 @@ export function HomeBusinessSetupAssistantSection() {
               )}
 
               {/* ----------------------------------------------------------------- */}
-              {/* ADIM 2: MEKAN & KİRA (2x Kira: 1 Peşin + 1 Depozito)             */}
+              {/* ADIM 2: MEKAN & KİRA (m² ve Rayiç Peşinatı)                       */}
               {/* ----------------------------------------------------------------- */}
               {activeStep === 2 && (
                 <div className="space-y-4">
@@ -927,7 +925,7 @@ export function HomeBusinessSetupAssistantSection() {
               )}
 
               {/* ----------------------------------------------------------------- */}
-              {/* ADIM 3: DEMİRBAŞ & DONANIM (ZORUNLU VE KONFOR AYRI & AÇIKTA)       */}
+              {/* ADIM 3: DEMİRBAŞ & DONANIM                                        */}
               {/* ----------------------------------------------------------------- */}
               {activeStep === 3 && (
                 <div className="space-y-4">
@@ -935,7 +933,7 @@ export function HomeBusinessSetupAssistantSection() {
                     <div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-amber-500" />
-                        <span>03. Demirbaş, Ekipman & Konfor Donanımları</span>
+                        <span>03. Demirbaş, Ekipman & Donanım Parkuru</span>
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {m2} m² işletme alanına göre yangın tüpü ve klima adetleri mevzuata uygun hesaplanmıştır.
@@ -953,7 +951,7 @@ export function HomeBusinessSetupAssistantSection() {
                     </Button>
                   </div>
 
-                  {/* AKILLI DEMİRBAŞ ARAMA & EKLEME MOTORU (4. Resim İsteği: Masa yazınca öneriler çıksın) */}
+                  {/* AKILLI DEMİRBAŞ ARAMA & EKLEME MOTORU */}
                   {isAddingCustomEq && (
                     <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-500/30 space-y-3 relative">
                       <div className="flex items-center justify-between">
@@ -1032,7 +1030,7 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
                   )}
 
-                  {/* 1. BÖLÜM: YASAL ZORUNLU DONANIMLAR (Kilitli & m²'ye Göre Dinamik) */}
+                  {/* 1. BÖLÜM: YASAL ZORUNLU DONANIMLAR */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Lock className="w-3.5 h-3.5 text-amber-600" />
@@ -1100,7 +1098,7 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
                   </div>
 
-                  {/* 2. BÖLÜM: ZENGİN KONFOR & OPERASYONEL DONANIMLAR (Açıkta ve Kolayca Seçilebilir) */}
+                  {/* 2. BÖLÜM: ZENGİN KONFOR & OPERASYONEL DONANIMLAR */}
                   <div className="space-y-2 pt-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -1274,7 +1272,7 @@ export function HomeBusinessSetupAssistantSection() {
               )}
 
               {/* ----------------------------------------------------------------- */}
-              {/* ADIM 5: EKİP, RUHSAT & ERP LİSANS PAKETİ                          */}
+              {/* ADIM 5: EKİP, RUHSAT & ERP (2026 SERMAYE ŞARTI)                   */}
               {/* ----------------------------------------------------------------- */}
               {activeStep === 5 && (
                 <div className="space-y-4">
@@ -1284,32 +1282,56 @@ export function HomeBusinessSetupAssistantSection() {
                       <span>05. Ekip Bordrosu, ERP Yazılım Lisansı & Resmi Harçlar</span>
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Personel SGK maliyetleri, sektörel otomasyon lisansları ve resmi tescil harçları.
+                      Personel SGK maliyetleri, sektörel otomasyon lisansları ve 2026 yasal sermaye yeterlilik şartları.
                     </p>
                   </div>
 
-                  {/* 1. SEKTÖREL ERP, POS & YAZILIM LİSANSI KARTI (3. İstek) */}
-                  {activeTemplate.softwareLicense && (
+                  {/* 1. 2026 YASAL ASGARİ SERMAYE ŞARTI KARTI (Örn: Sigorta için 4.149.275 TL) */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-amber-50/60 dark:from-blue-950/30 dark:via-zinc-800 dark:to-amber-950/20 border border-blue-200 dark:border-blue-800/40 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Scale className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-blue-950 dark:text-blue-200">
+                          2026 Mevzuat & Sermaye Yeterliliği Şartı
+                        </span>
+                      </div>
+                      <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                        {activeTemplate.legalBasis}
+                      </span>
+                    </div>
+
+                    <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                      <span className="text-slate-600 dark:text-zinc-400">
+                        {activeTemplate.name} kuruluşu için gereken yasal asgari sermaye / mal varlığı:
+                      </span>
+                      <span className="font-black text-blue-900 dark:text-blue-200 text-sm">
+                        {formatCurrency(activeTemplate.statutoryCapital)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 2. SEKTÖREL ERP, POS & YAZILIM LİSANSI KARTI */}
+                  {activeTemplate.softwareLicenseCost && (
                     <div className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/40 space-y-2.5 shadow-sm">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-2.5">
                           <Laptop className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
                           <div>
                             <h4 className="text-xs font-bold text-purple-950 dark:text-purple-200">
-                              {activeTemplate.softwareLicense.name}
+                              {activeTemplate.softwareLicenseCost.name}
                             </h4>
                             <p className="text-[11px] text-purple-900/80 dark:text-purple-300 mt-0.5">
-                              {activeTemplate.softwareLicense.description}
+                              Sektörel entegrasyon, faturalama ve bulut veri tabanı altyapısı.
                             </p>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
                           <span className="text-xs font-black text-purple-950 dark:text-purple-100 block">
-                            Kurulum / Yıllık: {formatCurrency(activeTemplate.softwareLicense.initialCost)}
+                            Yıllık Lisans: {formatCurrency(activeTemplate.softwareLicenseCost.annual)}
                           </span>
                           <span className="text-[10px] text-purple-700 dark:text-purple-300 block">
-                            Aylık Bakım: {formatCurrency(activeTemplate.softwareLicense.monthlyCost)} / Ay
+                            Aylık Bakım: {formatCurrency(activeTemplate.softwareLicenseCost.monthlyMaintenance)} / Ay
                           </span>
                         </div>
                       </div>
@@ -1325,36 +1347,6 @@ export function HomeBusinessSetupAssistantSection() {
                           <span>ERP / Yazılım Lisans Paketi Dahil Edilsin</span>
                         </label>
                       </div>
-                    </div>
-                  )}
-
-                  {/* 2. YASAL ASGARİ SERMAYE ŞARTI KARTI */}
-                  {activeTemplate.capitalRequirement && (
-                    <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40 space-y-2 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Scale className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          <span className="text-xs font-bold text-blue-950 dark:text-blue-200">
-                            Mevzuat & Sermaye Yeterliliği Şartı
-                          </span>
-                        </div>
-                        <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
-                          {activeTemplate.capitalRequirement.legalBasis}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed whitespace-normal break-words">
-                        {activeTemplate.capitalRequirement.description}
-                      </p>
-
-                      {activeTemplate.capitalRequirement.minLegalCapital > 0 && (
-                        <div className="pt-2 border-t border-blue-100 dark:border-blue-800/30 flex items-center justify-between text-xs">
-                          <span className="font-semibold text-slate-600 dark:text-zinc-400">Yasal Asgari Sermaye / Mal Varlığı Şartı:</span>
-                          <span className="font-black text-blue-900 dark:text-blue-200 text-sm">
-                            {formatCurrency(activeTemplate.capitalRequirement.minLegalCapital)}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   )}
 
@@ -1473,17 +1465,17 @@ export function HomeBusinessSetupAssistantSection() {
               )}
 
               {/* ----------------------------------------------------------------- */}
-              {/* ADIM 6: FİZİBİLİTE ÖZETİ & BÜTÇE PLANI (BAŞABAŞ KALDIRILDI)        */}
+              {/* ADIM 6: FİZİBİLİTE ÖZETİ & BAŞABAŞ PROJEKSİYONU                   */}
               {/* ----------------------------------------------------------------- */}
               {activeStep === 6 && (
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                       <Calculator className="w-4 h-4 text-amber-500" />
-                      <span>06. Nihai Kurulum Bütçesi & Yatırım Raporu</span>
+                      <span>06. Nihai Kurulum Bütçesi & Fizibilite Raporu</span>
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {activeTemplate.name} için {selectedCity} / {selectedDistrict} lokasyonunda hesaplanan toplam başlangıç ve aylık maliyet tablosu.
+                      {activeTemplate.name} için {selectedCity} / {selectedDistrict} lokasyonunda hesaplanan toplam başlangıç bütçesi ve başabaş projeksiyonu.
                     </p>
                   </div>
 
@@ -1581,7 +1573,7 @@ export function HomeBusinessSetupAssistantSection() {
                       </div>
                     </div>
 
-                    {/* SAĞ KOLON: NİHAİ CANLI BÜTÇE PANELİ (Başabaş Kaldırıldı) */}
+                    {/* SAĞ KOLON: NİHAİ CANLI BÜTÇE PANELİ & BAŞABAŞ PROJEKSİYONU */}
                     <div className="space-y-3.5">
                       
                       {/* 1. TOPLAM İLK KURULUM MALİYETİ KARTI */}
@@ -1597,7 +1589,7 @@ export function HomeBusinessSetupAssistantSection() {
                           {formatCurrency(calculationResult.totalInitialInvestment)}
                         </div>
                         <p className="text-[11px] text-amber-100/90 mt-1">
-                          Demirbaş, ilk stok, ERP lisansı, mekan, harçlar ve {workingCapitalMonths} aylık güvence fonu dahil.
+                          Demirbaş, ilk stok, ERP lisansı, mekan peşinatı, harçlar ve {workingCapitalMonths} aylık güvence fonu dahil.
                         </p>
 
                         <div className="mt-3.5 pt-3 border-t border-amber-400/30 grid grid-cols-3 gap-2 text-[11px] text-amber-100">
@@ -1620,7 +1612,7 @@ export function HomeBusinessSetupAssistantSection() {
 
                         <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700 dark:text-zinc-300">
                           <div className="p-2 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60">
-                            <span className="text-muted-foreground block text-[10px]">Kira + Stopaj</span>
+                            <span className="text-muted-foreground block text-[10px]">Kira + %20 Stopaj</span>
                             <span className="font-bold text-slate-900 dark:text-zinc-100">
                               {formatCurrency(Math.round(calculationResult.monthlyRent * 1.2))}
                             </span>
@@ -1638,7 +1630,7 @@ export function HomeBusinessSetupAssistantSection() {
                             </span>
                           </div>
                           <div className="p-2 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60">
-                            <span className="text-muted-foreground block text-[10px]">Muhasebe & ERP/Yazılım</span>
+                            <span className="text-muted-foreground block text-[10px]">Muhasebe & ERP Bakım</span>
                             <span className="font-bold text-slate-900 dark:text-zinc-100">
                               {formatCurrency(calculationResult.monthlyAccounting + calculationResult.monthlySoftware)}
                             </span>
@@ -1646,7 +1638,26 @@ export function HomeBusinessSetupAssistantSection() {
                         </div>
                       </div>
 
-                      {/* 3. AKSİYON BUTONLARI & YASAL UYARI */}
+                      {/* 3. BAŞABAŞ SATIŞ / İŞLEM PROJEKSİYONU KARTI */}
+                      <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 space-y-1.5">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                          <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          <span>Başabaş Noktası Hedefi</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+                            {calculationResult.dailyBreakEvenCount}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                            {calculationResult.breakEvenMetric.unitLabel || 'Birim / Gün'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-emerald-900/80 dark:text-emerald-400/90 leading-tight">
+                          {calculationResult.breakEvenMetric.label} bazında aylık sabit giderleri ({formatCurrency(calculationResult.monthlyOperatingCost)}) karşılamak için gereken asgari işlem hacmi.
+                        </p>
+                      </div>
+
+                      {/* 4. AKSİYON BUTONLARI, PAZAR YERİ BAĞLANTILARI & YASAL UYARI */}
                       <div className="space-y-2.5 pt-1">
                         <div className="flex items-center gap-2">
                           <Button
@@ -1654,17 +1665,18 @@ export function HomeBusinessSetupAssistantSection() {
                             onClick={() => setIsPdfModalOpen(true)}
                             className="flex-1 h-10 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 shadow-md gap-2"
                           >
-                            <Printer className="w-3.5 h-3.5" />
+                            <FileDown className="w-3.5 h-3.5" />
                             <span>Kurulum Planını PDF İndir</span>
                           </Button>
 
                           <Button
                             asChild
                             variant="outline"
-                            className="h-10 px-3 rounded-xl text-xs font-semibold border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800"
+                            className="h-10 px-3 rounded-xl text-xs font-semibold border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 gap-1.5"
                           >
-                            <Link href="/kategori/hizmetler" title="Pazar Yerinde Usta & Hizmet Bul">
-                              <Wrench className="w-3.5 h-3.5 text-amber-500" />
+                            <Link href="/market" title="Girişimbee Pazar: Usta ve Demirbaş İlanları">
+                              <ShoppingBag className="w-3.5 h-3.5 text-amber-500" />
+                              <span>Pazarda Ekipman Bul</span>
                             </Link>
                           </Button>
                         </div>
@@ -1672,7 +1684,7 @@ export function HomeBusinessSetupAssistantSection() {
                         <div className="flex items-start gap-1.5 p-2 rounded-xl bg-slate-100/70 dark:bg-zinc-800/40 text-[10px] text-muted-foreground leading-relaxed">
                           <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                           <span>
-                            <strong>Yasal Not:</strong> Bu veriler bölgesel ticari göstergeler ve sektörel standartlar baz alınarak üretilen simülasyondur; resmi yatırım tavsiyesi değildir.
+                            <strong>⚖️ Yasal Sorumluluk Reddi:</strong> Bu rapordaki veriler bölgesel göstergeler ve 2026 sektörel mevzuat standartları baz alınarak simüle edilmiştir; resmi yatırım tavsiyesi niteliği taşımaz.
                           </span>
                         </div>
                       </div>
@@ -1761,7 +1773,7 @@ export function HomeBusinessSetupAssistantSection() {
                 <span className="text-2xl">{activeTemplate.emoji}</span>
                 <div>
                   <h3 className="text-base font-extrabold text-slate-900 dark:text-zinc-100">
-                    {activeTemplate.name} — Kurulum ve Yatırım Raporu
+                    {activeTemplate.name} — Kurulum ve Fizibilite Raporu
                   </h3>
                   <p className="text-xs text-muted-foreground">
                     {selectedCity} • {selectedDistrict} | Girişimbee Akıllı Kurulum Robotu
@@ -1810,44 +1822,44 @@ export function HomeBusinessSetupAssistantSection() {
 
                 <div className="text-right text-xs">
                   <span className="font-extrabold text-amber-500 block text-sm">GİRİŞİMBEE</span>
-                  <span className="text-muted-foreground block">Akıllı Kurulum & Yatırım Planı</span>
+                  <span className="text-muted-foreground block">Akıllı Kurulum & Fizibilite Planı</span>
                   <span className="text-muted-foreground block">{new Date().toLocaleDateString('tr-TR')}</span>
                 </div>
               </div>
 
               {/* Temel Özet Göstergeleri */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
                   <span className="text-[10.5px] font-bold uppercase text-amber-800 dark:text-amber-300 block">İlk Kurulum Yatırımı</span>
-                  <span className="text-xl font-black text-amber-900 dark:text-amber-100 mt-1 block">
+                  <span className="text-lg font-black text-amber-900 dark:text-amber-100 mt-1 block">
                     {formatCurrency(calculationResult.totalInitialInvestment)}
                   </span>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40">
                   <span className="text-[10.5px] font-bold uppercase text-rose-800 dark:text-rose-300 block">Aylık Sabit İşletme Gideri</span>
-                  <span className="text-xl font-black text-rose-900 dark:text-rose-100 mt-1 block">
+                  <span className="text-lg font-black text-rose-900 dark:text-rose-100 mt-1 block">
                     {formatCurrency(calculationResult.monthlyOperatingCost)} / Ay
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                  <span className="text-[10.5px] font-bold uppercase text-emerald-800 dark:text-emerald-300 block">Başabaş Noktası</span>
+                  <span className="text-lg font-black text-emerald-900 dark:text-emerald-100 mt-1 block">
+                    {calculationResult.dailyBreakEvenCount} {calculationResult.breakEvenMetric.unitLabel || 'İşlem'}
                   </span>
                 </div>
               </div>
 
               {/* Yasal Asgari Sermaye & Mevzuat Şartı */}
-              {activeTemplate.capitalRequirement && (
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs space-y-1">
-                  <span className="font-bold text-slate-900 dark:text-zinc-100 block">
-                    ⚖️ Yasal Mevzuat & Sermaye Şartı: {activeTemplate.capitalRequirement.legalBasis}
-                  </span>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    {activeTemplate.capitalRequirement.description}
-                  </p>
-                  {activeTemplate.capitalRequirement.minLegalCapital > 0 && (
-                    <span className="font-bold text-blue-600 dark:text-blue-400 block pt-1">
-                      Asgari Yasal Sermaye: {formatCurrency(activeTemplate.capitalRequirement.minLegalCapital)}
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs space-y-1">
+                <span className="font-bold text-slate-900 dark:text-zinc-100 block">
+                  ⚖️ 2026 Yasal Mevzuat & Sermaye Şartı: {activeTemplate.legalBasis}
+                </span>
+                <span className="font-bold text-blue-600 dark:text-blue-400 block pt-1">
+                  Yasal Asgari Sermaye / Mal Varlığı Şartı: {formatCurrency(activeTemplate.statutoryCapital)}
+                </span>
+              </div>
 
               {/* İlk Stok & ERP Lisans Bilgisi */}
               <div className="grid grid-cols-2 gap-3 text-xs">
@@ -1864,7 +1876,7 @@ export function HomeBusinessSetupAssistantSection() {
                     <span className="font-bold text-purple-900 dark:text-purple-200">ERP & Yazılım Lisansı:</span>
                     <span className="font-black text-purple-700 dark:text-purple-300">{formatCurrency(calculationResult.softwareLicenseInitial)}</span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">{activeTemplate.softwareLicense?.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{activeTemplate.softwareLicenseCost?.name}</p>
                 </div>
               </div>
 
@@ -1984,7 +1996,7 @@ export function HomeBusinessSetupAssistantSection() {
 
               {/* Yasal Dipnot */}
               <p className="text-[10px] text-muted-foreground leading-relaxed border-t border-slate-200 dark:border-zinc-700 pt-3">
-                <strong>Yasal Sorumluluk Reddi:</strong> Bu rapor Türkiye İstatistik Kurumu, meslek odaları ve bölgesel ticari kira endeksleri baz alınarak Girişimbee Akıllı Kurulum Asistanı tarafından üretilmiş bir simülasyondur. Resmi yatırım tavsiyesi niteliği taşımaz.
+                <strong>⚖️ Yasal Sorumluluk Reddi:</strong> Bu rapordaki veriler bölgesel göstergeler ve 2026 sektörel mevzuat standartları baz alınarak simüle edilmiştir; resmi yatırım tavsiyesi niteliği taşımaz.
               </p>
 
             </div>

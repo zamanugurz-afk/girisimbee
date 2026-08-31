@@ -87,7 +87,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   const leaseInitialTotal = leaseCosts.totalLeaseUpfront;
 
   // 3. Tadilat & Dekorasyon
-  const fitoutRate = customFitoutCostPerM2 != null ? customFitoutCostPerM2 : template.fitoutCostPerM2;
+  const fitoutRate = customFitoutCostPerM2 != null ? customFitoutCostPerM2 : (template.fitoutCostPerM2 || 3000);
   const fitoutTotal = includeFitout ? Math.round(m2 * fitoutRate) : 0;
 
   // 4. İlk Stok & Emtia / İlaç Alım Bütçesi
@@ -97,7 +97,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
 
   // 5. Sektörel ERP, POS & Lisans Maliyeti
   const softwareLicenseInitial = includeSoftwareLicense
-    ? (customSoftwareInitialCost != null && customSoftwareInitialCost >= 0 ? customSoftwareInitialCost : (template.softwareLicense?.initialCost || 0))
+    ? (customSoftwareInitialCost != null && customSoftwareInitialCost >= 0 ? customSoftwareInitialCost : (template.softwareLicenseCost?.annual || 0))
     : 0;
 
   // 6. Resmi Ruhsat & Harçlar
@@ -119,10 +119,10 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   }
 
   // 8. Aylık Sabit İşletme Giderleri
-  const monthlyUtilities = customUtilities != null ? customUtilities : template.monthlyUtilitiesEstimate;
-  const monthlyAccounting = customAccounting != null ? customAccounting : template.monthlyAccountingFee;
+  const monthlyUtilities = customUtilities != null ? customUtilities : (template.monthlyUtilitiesEstimate || 5000);
+  const monthlyAccounting = customAccounting != null ? customAccounting : (template.monthlyAccountingFee ?? 2500);
   const monthlySoftware = includeSoftwareLicense
-    ? (customSoftwareMonthlyCost != null && customSoftwareMonthlyCost >= 0 ? customSoftwareMonthlyCost : (template.softwareLicense?.monthlyCost || 0))
+    ? (customSoftwareMonthlyCost != null && customSoftwareMonthlyCost >= 0 ? customSoftwareMonthlyCost : (template.softwareLicenseCost?.monthlyMaintenance || 0))
     : 0;
   const monthlyStopaj = Math.round(monthlyRent * 0.20); // %20 Kira Stopajı
 
@@ -149,6 +149,11 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     workingCapitalReserve
   );
 
+  // 11. Başabaş Satış / İşlem Projeksiyonu
+  const unitPrice = template.breakEvenMetric?.unitPrice || 1000;
+  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * 0.4))); // %40 ortalama brüt marj baz alınarak
+  const dailyBreakEvenCount = template.breakEvenMetric?.targetUnitsPerDay || calculatedDailyUnits;
+
   return {
     totalInitialInvestment,
     equipmentTotal,
@@ -158,7 +163,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     softwareLicenseInitial,
     legalFeesTotal,
     workingCapitalReserve,
-    minLegalCapital: template.capitalRequirement?.minLegalCapital || 0,
+    statutoryCapital: template.statutoryCapital || 0,
 
     monthlyOperatingCost,
     monthlyRent,
@@ -167,5 +172,13 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     monthlyUtilities,
     monthlyAccounting,
     monthlySoftware,
+
+    breakEvenMetric: template.breakEvenMetric || {
+      label: 'Aylık Gerekli İşlem / Satış Hacmi',
+      unitPrice: 1000,
+      targetUnitsPerDay: 5,
+      unitLabel: 'İşlem / Gün',
+    },
+    dailyBreakEvenCount,
   };
 }
