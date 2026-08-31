@@ -60,10 +60,10 @@ const InvestmentRadarMap = dynamic(
 const RADIUS_OPTIONS = [
   { label: '250m', value: 250 },
   { label: '500m', value: 500 },
-  { label: '1 km', value: 1000 },
-  { label: '2 km', value: 2000 },
-  { label: '3 km', value: 3000 },
-  { label: '5 km (İlçe Geneli)', value: 5000 },
+  { label: '1km', value: 1000 },
+  { label: '2km', value: 2000 },
+  { label: '3km', value: 3000 },
+  { label: '5km', value: 5000 },
 ];
 
 interface LocationSearchResult {
@@ -909,32 +909,29 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Başlık & Yarıçap Seçici */}
-            <div className="flex items-center justify-between gap-2 pb-1">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-display font-bold text-slate-900 dark:text-white tracking-tight">
+            {/* Harita Üst Barı: Başlık & Yarıçap Seçici Yan Yana */}
+            <div className="flex items-center justify-between gap-2 pb-1 overflow-x-auto no-scrollbar">
+              <h3 className="text-base sm:text-lg font-display font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap shrink-0">
                 Lokasyon Radarı
               </h3>
 
-              {/* Yarıçap Seçici (Harita Üstü) */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">Yarıçap:</span>
-                <div className="inline-flex rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-800/80 p-0.5">
-                  {RADIUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setRadiusMeters(opt.value)}
-                      className={cn(
-                        'px-2 sm:px-2.5 py-1 text-xs font-bold rounded-md transition-all',
-                        radiusMeters === opt.value
-                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
-                          : 'text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
+              {/* Kompakt Yarıçap Seçici (Yarıçap yazısı kaldırıldı, tek satırda hizalandı) */}
+              <div className="inline-flex items-center rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-slate-100/90 dark:bg-zinc-800/80 p-0.5 shadow-2xs shrink-0">
+                {RADIUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setRadiusMeters(opt.value)}
+                    className={cn(
+                      'px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10.5px] sm:text-xs font-bold rounded-lg transition-all whitespace-nowrap leading-none',
+                      radiusMeters === opt.value
+                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
             </div>
 
