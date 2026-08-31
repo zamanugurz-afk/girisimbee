@@ -1130,19 +1130,81 @@ export interface LocationSearchResult {
   isDistrictWide?: boolean;
 }
 
-// Popular Turkish District Index with District-Wide and Neighborhood precision across Turkey
+// Popular Turkish District Index with District-Wide and Neighborhood precision across Turkey (81 Provinces & Key Hubs)
 export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
-  // 1. İSTANBUL (ANADOLU)
+  // =========================================================================
+  // 1. ADANA (TÜM İLÇE VE ANA TİCARİ ARTERLER)
+  // =========================================================================
+  { id: 'ada-seyhan-all', name: 'Adana, Seyhan — Tüm İlçe Geneli (Geniş Radar)', lat: 36.9912, lng: 35.3212, city: 'Adana', district: 'Seyhan', isDistrictWide: true },
+  { id: 'ada-seyhan-ziyapasa', name: 'Adana, Seyhan — Ziyapaşa Bulvarı / Atatürk Parkı / Gazipaşa', lat: 36.9985, lng: 35.3214, city: 'Adana', district: 'Seyhan' },
+  { id: 'ada-seyhan-barajyolu', name: 'Adana, Seyhan — Barajyolu / Bülent Angın Bulvarı / Gençlik Meydanı', lat: 37.0182, lng: 35.3225, city: 'Adana', district: 'Seyhan' },
+  { id: 'ada-seyhan-resatbey', name: 'Adana, Seyhan — Reşatbey / Fuzuli Cad. / Merkez Park', lat: 36.9921, lng: 35.3289, city: 'Adana', district: 'Seyhan' },
+  { id: 'ada-seyhan-cemalpasa', name: 'Adana, Seyhan — Cemalpaşa / Toros Cad. / Valilik', lat: 37.0042, lng: 35.3245, city: 'Adana', district: 'Seyhan' },
+  { id: 'ada-seyhan-kurukopru', name: 'Adana, Seyhan — Kuruköprü / Çakmak Cad. / Büyüksaat / Tarihi Çarşı', lat: 36.9882, lng: 35.3256, city: 'Adana', district: 'Seyhan' },
+  { id: 'ada-seyhan-tellidere', name: 'Adana, Seyhan — Tellidere / Yeşilyurt / Fatih Mah.', lat: 37.0089, lng: 35.2982, city: 'Adana', district: 'Seyhan' },
+
+  { id: 'ada-cukurova-all', name: 'Adana, Çukurova — Tüm İlçe Geneli (Geniş Radar)', lat: 37.0456, lng: 35.2912, city: 'Adana', district: 'Çukurova', isDistrictWide: true },
+  { id: 'ada-cukurova-turgutozal', name: 'Adana, Çukurova — Turgut Özal Bulvarı / Güzelyalı', lat: 37.0456, lng: 35.2912, city: 'Adana', district: 'Çukurova' },
+  { id: 'ada-cukurova-kenanevren', name: 'Adana, Çukurova — Kenan Evren Bulvarı / Toros Mah. / Mahfesığmaz', lat: 37.0345, lng: 35.3012, city: 'Adana', district: 'Çukurova' },
+  { id: 'ada-cukurova-suleymandemirel', name: 'Adana, Çukurova — Süleyman Demirel Bulvarı / Kurttepe', lat: 37.0589, lng: 35.2845, city: 'Adana', district: 'Çukurova' },
+  { id: 'ada-cukurova-beyazevler', name: 'Adana, Çukurova — Beyazevler / Adnan Menderes Sahil Yolu', lat: 37.0289, lng: 35.3112, city: 'Adana', district: 'Çukurova' },
+  { id: 'ada-cukurova-yuzuncuyil', name: 'Adana, Çukurova — 100. Yıl / Huzurevleri / Belediye Evleri', lat: 37.0489, lng: 35.2689, city: 'Adana', district: 'Çukurova' },
+
+  { id: 'ada-yuregir-all', name: 'Adana, Yüreğir — Tüm İlçe Geneli (Geniş Radar)', lat: 36.9856, lng: 35.3421, city: 'Adana', district: 'Yüreğir', isDistrictWide: true },
+  { id: 'ada-yuregir-kisla', name: 'Adana, Yüreğir — Kışla / Optimum AVM / Köprülü / Hilton', lat: 36.9856, lng: 35.3421, city: 'Adana', district: 'Yüreğir' },
+  { id: 'ada-yuregir-yavuzlar', name: 'Adana, Yüreğir — Yavuzlar / Sinanpaşa / Kazım Karabekir', lat: 36.9912, lng: 35.3512, city: 'Adana', district: 'Yüreğir' },
+
+  { id: 'ada-saricam-all', name: 'Adana, Sarıçam — Tüm İlçe Geneli (Geniş Radar)', lat: 37.0212, lng: 35.3812, city: 'Adana', district: 'Sarıçam', isDistrictWide: true },
+  { id: 'ada-saricam-balcali', name: 'Adana, Sarıçam — Çukurova Üniversitesi / Balcalı Hastanesi / Kampüs', lat: 37.0521, lng: 35.3612, city: 'Adana', district: 'Sarıçam' },
+  { id: 'ada-saricam-kozanyolu', name: 'Adana, Sarıçam — Kozan Yolu / Sofulu / Mehmet Akif Ersoy', lat: 37.0289, lng: 35.3889, city: 'Adana', district: 'Sarıçam' },
+
+  { id: 'ada-ceyhan-all', name: 'Adana, Ceyhan — Merkez / İstasyon Cad. / Cumhuriyet Meydanı', lat: 37.0289, lng: 35.8142, city: 'Adana', district: 'Ceyhan', isDistrictWide: true },
+  { id: 'ada-kozan-all', name: 'Adana, Kozan — Merkez / Saimbeyli Cad. / Çarşı', lat: 37.4542, lng: 35.8112, city: 'Adana', district: 'Kozan', isDistrictWide: true },
+  { id: 'ada-pozanti-all', name: 'Adana, Pozantı — Merkez / Toros Transit Hattı', lat: 37.4289, lng: 34.8712, city: 'Adana', district: 'Pozantı', isDistrictWide: true },
+  { id: 'ada-karatas-all', name: 'Adana, Karataş — Sahil / Liman / Çarşı', lat: 36.5789, lng: 35.3789, city: 'Adana', district: 'Karataş', isDistrictWide: true },
+  { id: 'ada-yumurtalik-all', name: 'Adana, Yumurtalık — Ayas / Marina / Sahil', lat: 36.7712, lng: 35.7912, city: 'Adana', district: 'Yumurtalık', isDistrictWide: true },
+  { id: 'ada-imamoglu-all', name: 'Adana, İmamoğlu — Merkez / Adana Yolu', lat: 37.2589, lng: 35.6612, city: 'Adana', district: 'İmamoğlu', isDistrictWide: true },
+  { id: 'ada-karaisali-all', name: 'Adana, Karaisalı — Merkez / Varda Köprüsü Yolu', lat: 37.2589, lng: 35.0612, city: 'Adana', district: 'Karaisalı', isDistrictWide: true },
+
+  // =========================================================================
+  // 2. MERSİN & DOĞU AKDENİZ
+  // =========================================================================
+  { id: 'mer-yenisehir-all', name: 'Mersin, Yenişehir — Pozcu / Kushimoto / Marina / Göçmen', lat: 36.7912, lng: 34.5912, city: 'Mersin', district: 'Yenişehir', isDistrictWide: true },
+  { id: 'mer-mezitli-all', name: 'Mersin, Mezitli — Sahil / Viranşehir / Soli', lat: 36.7512, lng: 34.5212, city: 'Mersin', district: 'Mezitli', isDistrictWide: true },
+  { id: 'mer-akdeniz-all', name: 'Mersin, Akdeniz — Çarşı / İstasyon / Liman / Atatürk Cad.', lat: 36.8012, lng: 34.6312, city: 'Mersin', district: 'Akdeniz', isDistrictWide: true },
+  { id: 'mer-toroslar-all', name: 'Mersin, Toroslar — Çağdaşkent / Akbelen / Gözne Yolu', lat: 36.8312, lng: 34.6112, city: 'Mersin', district: 'Toroslar', isDistrictWide: true },
+  { id: 'mer-tarsus-all', name: 'Mersin, Tarsus — Mersin Cad. / Çarşı / Kleopatra Kapısı', lat: 36.9189, lng: 34.8989, city: 'Mersin', district: 'Tarsus', isDistrictWide: true },
+  { id: 'mer-erdemli-all', name: 'Mersin, Erdemli — Merkez / Sahil / Kızkalesi', lat: 36.6089, lng: 34.3089, city: 'Mersin', district: 'Erdemli', isDistrictWide: true },
+  { id: 'mer-silifke-all', name: 'Mersin, Silifke — Merkez / Taşucu / Göksu', lat: 36.3789, lng: 33.9289, city: 'Mersin', district: 'Silifke', isDistrictWide: true },
+  { id: 'mer-anamur-all', name: 'Mersin, Anamur — Merkez / İskele / Sahil', lat: 36.0789, lng: 32.8389, city: 'Mersin', district: 'Anamur', isDistrictWide: true },
+
+  { id: 'gaz-sahinbey-all', name: 'Gaziantep, Şahinbey — Karataş / Gazimuhtar / Üniversite', lat: 37.0512, lng: 37.3712, city: 'Gaziantep', district: 'Şahinbey', isDistrictWide: true },
+  { id: 'gaz-sehitkamil-all', name: 'Gaziantep, Şehitkamil — İbrahimli / Batıkent / Emek', lat: 37.0812, lng: 37.3512, city: 'Gaziantep', district: 'Şehitkamil', isDistrictWide: true },
+  { id: 'gaz-nizip-all', name: 'Gaziantep, Nizip — Merkez / Çarşı / Fıstık Hali', lat: 37.0112, lng: 37.7912, city: 'Gaziantep', district: 'Nizip', isDistrictWide: true },
+
+  { id: 'hat-antakya-all', name: 'Hatay, Antakya — Merkez / Atatürk Cad. / Köprübaşı', lat: 36.2021, lng: 36.1601, city: 'Hatay', district: 'Antakya', isDistrictWide: true },
+  { id: 'hat-iskenderun-all', name: 'Hatay, İskenderun — Sahil Kordon / Çarşı / Pac Meydanı', lat: 36.5872, lng: 36.1732, city: 'Hatay', district: 'İskenderun', isDistrictWide: true },
+  { id: 'hat-defne-all', name: 'Hatay, Defne — Harbiye / Çekmece / Sümerler', lat: 36.1712, lng: 36.1312, city: 'Hatay', district: 'Defne', isDistrictWide: true },
+  { id: 'hat-dortyol-all', name: 'Hatay, Dörtyol — Merkez / Sanayi / Numuneevler', lat: 36.8489, lng: 36.2289, city: 'Hatay', district: 'Dörtyol', isDistrictWide: true },
+
+  { id: 'kah-onikisubat-all', name: 'Kahramanmaraş, Onikişubat — Trabzon Cad. / Binevler / Yatırım', lat: 37.5812, lng: 36.9212, city: 'Kahramanmaraş', district: 'Onikişubat', isDistrictWide: true },
+  { id: 'kah-dulkadiroglu-all', name: 'Kahramanmaraş, Dulkadiroğlu — Tarihi Çarşı / Ulu Cami', lat: 37.5712, lng: 36.9412, city: 'Kahramanmaraş', district: 'Dulkadiroğlu', isDistrictWide: true },
+  { id: 'osm-merkez-all', name: 'Osmaniye, Merkez — Atatürk Cad. / Park 328 AVM', lat: 37.0742, lng: 36.2467, city: 'Osmaniye', district: 'Merkez', isDistrictWide: true },
+  { id: 'kil-merkez-all', name: 'Kilis, Merkez — Cumhuriyet Meydanı / Çarşı', lat: 36.7167, lng: 37.1167, city: 'Kilis', district: 'Merkez', isDistrictWide: true },
+
+  // =========================================================================
+  // 3. İSTANBUL (ANADOLU & AVRUPA)
+  // =========================================================================
+  { id: 'ist-kadikoy-all', name: 'İstanbul, Kadıköy — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9912, lng: 29.0435, city: 'İstanbul', district: 'Kadıköy', isDistrictWide: true },
+  { id: 'ist-kadikoy-moda', name: 'İstanbul, Kadıköy — Moda / Caferağa', lat: 40.9875, lng: 29.0289, city: 'İstanbul', district: 'Kadıköy' },
+  { id: 'ist-kadikoy-bagdat', name: 'İstanbul, Kadıköy — Bağdat Cad. / Caddebostan / Suadiye', lat: 40.9632, lng: 29.0712, city: 'İstanbul', district: 'Kadıköy' },
+  { id: 'ist-kadikoy-fikirtepe', name: 'İstanbul, Kadıköy — Fikirtepe / Hasanpaşa / Söğütlüçeşme', lat: 40.9995, lng: 29.0489, city: 'İstanbul', district: 'Kadıköy' },
+
   { id: 'ist-maltepe-all', name: 'İstanbul, Maltepe — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9333, lng: 29.1333, city: 'İstanbul', district: 'Maltepe', isDistrictWide: true },
   { id: 'ist-maltepe-bagdat', name: 'İstanbul, Maltepe — Bağdat Cad. / Sahil & Yalı', lat: 40.9231, lng: 29.1305, city: 'İstanbul', district: 'Maltepe' },
   { id: 'ist-maltepe-cevizli', name: 'İstanbul, Maltepe — Cevizli Mah. / Tugay Yolu', lat: 40.9198, lng: 29.1523, city: 'İstanbul', district: 'Maltepe' },
   { id: 'ist-maltepe-kucukyali', name: 'İstanbul, Maltepe — Küçükyalı / Altıntepe', lat: 40.9482, lng: 29.1121, city: 'İstanbul', district: 'Maltepe' },
   { id: 'ist-maltepe-zumrutevler', name: 'İstanbul, Maltepe — Zümrütevler / Başıbüyük', lat: 40.9412, lng: 29.1512, city: 'İstanbul', district: 'Maltepe' },
-
-  { id: 'ist-kadikoy-all', name: 'İstanbul, Kadıköy — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9912, lng: 29.0435, city: 'İstanbul', district: 'Kadıköy', isDistrictWide: true },
-  { id: 'ist-kadikoy-moda', name: 'İstanbul, Kadıköy — Moda / Caferağa', lat: 40.9875, lng: 29.0289, city: 'İstanbul', district: 'Kadıköy' },
-  { id: 'ist-kadikoy-bagdat', name: 'İstanbul, Kadıköy — Bağdat Cad. / Caddebostan / Suadiye', lat: 40.9632, lng: 29.0712, city: 'İstanbul', district: 'Kadıköy' },
-  { id: 'ist-kadikoy-fikirtepe', name: 'İstanbul, Kadıköy — Fikirtepe / Hasanpaşa', lat: 40.9995, lng: 29.0489, city: 'İstanbul', district: 'Kadıköy' },
 
   { id: 'ist-kartal-all', name: 'İstanbul, Kartal — Tüm İlçe Geneli (Geniş Radar)', lat: 40.9012, lng: 29.1912, city: 'İstanbul', district: 'Kartal', isDistrictWide: true },
   { id: 'ist-kartal-cevizli', name: 'İstanbul, Kartal — Cevizli Mah. / Kordonboyu', lat: 40.9125, lng: 29.1764, city: 'İstanbul', district: 'Kartal' },
@@ -1158,7 +1220,7 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
 
   { id: 'ist-pendik-all', name: 'İstanbul, Pendik — Tüm İlçe Geneli (Geniş Radar)', lat: 40.8812, lng: 29.2392, city: 'İstanbul', district: 'Pendik', isDistrictWide: true },
   { id: 'ist-pendik-sahil', name: 'İstanbul, Pendik — Sahil / Batı Mah. / Çarşı', lat: 40.8782, lng: 29.2312, city: 'İstanbul', district: 'Pendik' },
-  { id: 'ist-pendik-kurtkoy', name: 'İstanbul, Pendik — Kurtköy / Yenişehir', lat: 40.9121, lng: 29.2982, city: 'İstanbul', district: 'Pendik' },
+  { id: 'ist-pendik-kurtkoy', name: 'İstanbul, Pendik — Kurtköy / Yenişehir / Sabiha Gökçen', lat: 40.9121, lng: 29.2982, city: 'İstanbul', district: 'Pendik' },
 
   { id: 'ist-umraniye-all', name: 'İstanbul, Ümraniye — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0232, lng: 29.1121, city: 'İstanbul', district: 'Ümraniye', isDistrictWide: true },
   { id: 'ist-umraniye-carsi', name: 'İstanbul, Ümraniye — Çarşı / Alemdağ Cad.', lat: 41.0278, lng: 29.0982, city: 'İstanbul', district: 'Ümraniye' },
@@ -1169,7 +1231,6 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'ist-beykoz-all', name: 'İstanbul, Beykoz — Kavacık / Göksu / Sahil', lat: 41.1167, lng: 29.1000, city: 'İstanbul', district: 'Beykoz', isDistrictWide: true },
   { id: 'ist-sile-all', name: 'İstanbul, Şile — Merkez / Liman', lat: 41.1750, lng: 29.6133, city: 'İstanbul', district: 'Şile', isDistrictWide: true },
 
-  // 2. İSTANBUL (AVRUPA)
   { id: 'ist-besiktas-all', name: 'İstanbul, Beşiktaş — Tüm İlçe Geneli (Geniş Radar)', lat: 41.0512, lng: 29.0125, city: 'İstanbul', district: 'Beşiktaş', isDistrictWide: true },
   { id: 'ist-besiktas-carsi', name: 'İstanbul, Beşiktaş — Çarşı / Sinanpaşa', lat: 41.0428, lng: 29.0069, city: 'İstanbul', district: 'Beşiktaş' },
   { id: 'ist-besiktas-levent', name: 'İstanbul, Beşiktaş — Levent / Etiler / Bebek', lat: 41.0821, lng: 29.0212, city: 'İstanbul', district: 'Beşiktaş' },
@@ -1199,12 +1260,15 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'ist-zeytinburnu-all', name: 'İstanbul, Zeytinburnu — 58. Bulvar / Sahil / Kazlıçeşme', lat: 40.9912, lng: 28.9012, city: 'İstanbul', district: 'Zeytinburnu', isDistrictWide: true },
   { id: 'ist-silivri-all', name: 'İstanbul, Silivri — Sahil / Çarşı', lat: 41.0736, lng: 28.2464, city: 'İstanbul', district: 'Silivri', isDistrictWide: true },
 
-  // 3. ANKARA
+  // =========================================================================
+  // 4. ANKARA
+  // =========================================================================
   { id: 'ank-cankaya-all', name: 'Ankara, Çankaya — Tüm İlçe Geneli (Geniş Radar)', lat: 39.8912, lng: 32.8512, city: 'Ankara', district: 'Çankaya', isDistrictWide: true },
   { id: 'ank-cankaya-tunali', name: 'Ankara, Çankaya — Tunalı Hilmi / Kızılay / Kavaklıdere', lat: 39.9022, lng: 32.8601, city: 'Ankara', district: 'Çankaya' },
   { id: 'ank-cankaya-bahceli', name: 'Ankara, Çankaya — Bahçelievler / 7. Cadde', lat: 39.9214, lng: 32.8236, city: 'Ankara', district: 'Çankaya' },
   { id: 'ank-cankaya-cayyolu', name: 'Ankara, Çankaya — Çayyolu / Ümitköy / Alacaatlı', lat: 39.8789, lng: 32.7012, city: 'Ankara', district: 'Çankaya' },
   { id: 'ank-cankaya-gaziosmanpasa', name: 'Ankara, Çankaya — GOP / Filistin / Arjantin Cad.', lat: 39.8956, lng: 32.8712, city: 'Ankara', district: 'Çankaya' },
+  { id: 'ank-cankaya-cukurambar', name: 'Ankara, Çankaya — Çukurambar / Söğütözü / Armada', lat: 39.9089, lng: 32.8112, city: 'Ankara', district: 'Çankaya' },
   { id: 'ank-yenimahalle-all', name: 'Ankara, Yenimahalle — Batıkent / Çayyolu / İvedik', lat: 39.9678, lng: 32.7321, city: 'Ankara', district: 'Yenimahalle', isDistrictWide: true },
   { id: 'ank-kecioren-all', name: 'Ankara, Keçiören — Gazino / Kalaba / Etlik', lat: 39.9812, lng: 32.8612, city: 'Ankara', district: 'Keçiören', isDistrictWide: true },
   { id: 'ank-mamak-all', name: 'Ankara, Mamak — Saimekadın / Natoyolu / Akdere', lat: 39.9312, lng: 32.9012, city: 'Ankara', district: 'Mamak', isDistrictWide: true },
@@ -1214,7 +1278,9 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'ank-golbasi-all', name: 'Ankara, Gölbaşı — Mogan / İncek / Hacılar', lat: 39.7912, lng: 32.8012, city: 'Ankara', district: 'Gölbaşı', isDistrictWide: true },
   { id: 'ank-pursaklar-all', name: 'Ankara, Pursaklar — Merkez / Saray', lat: 40.0389, lng: 32.8989, city: 'Ankara', district: 'Pursaklar', isDistrictWide: true },
 
-  // 4. İZMİR
+  // =========================================================================
+  // 5. İZMİR & EGE
+  // =========================================================================
   { id: 'izm-karsiyaka-all', name: 'İzmir, Karşıyaka — Tüm İlçe Geneli (Geniş Radar)', lat: 38.4593, lng: 27.1124, city: 'İzmir', district: 'Karşıyaka', isDistrictWide: true },
   { id: 'izm-karsiyaka-bostanli', name: 'İzmir, Karşıyaka — Bostanlı / Çarşı / Mavişehir', lat: 38.4593, lng: 27.1012, city: 'İzmir', district: 'Karşıyaka' },
   { id: 'izm-konak-all', name: 'İzmir, Konak — Alsancak / Kordon / Çankaya / Göztepe', lat: 38.4382, lng: 27.1436, city: 'İzmir', district: 'Konak', isDistrictWide: true },
@@ -1228,7 +1294,23 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'izm-urla-all', name: 'İzmir, Urla — Sanat Sokağı / İskele / Çeşmealtı', lat: 38.3242, lng: 26.7642, city: 'İzmir', district: 'Urla', isDistrictWide: true },
   { id: 'izm-cesme-all', name: 'İzmir, Çeşme — Alaçatı / Marina / Ilıca', lat: 38.3236, lng: 26.3056, city: 'İzmir', district: 'Çeşme', isDistrictWide: true },
 
-  // 5. BURSA
+  { id: 'mug-bodrum-all', name: 'Muğla, Bodrum — Marina / Çarşı / Yalıkavak / Türkbükü', lat: 37.0344, lng: 27.4305, city: 'Muğla', district: 'Bodrum', isDistrictWide: true },
+  { id: 'mug-fethiye-all', name: 'Muğla, Fethiye — Kordon / Ölüdeniz / Göcek / Çalış', lat: 36.6212, lng: 29.1112, city: 'Muğla', district: 'Fethiye', isDistrictWide: true },
+  { id: 'mug-marmaris-all', name: 'Muğla, Marmaris — Marina / Kordon / İçmeler', lat: 36.8550, lng: 28.2740, city: 'Muğla', district: 'Marmaris', isDistrictWide: true },
+  { id: 'mug-mentese-all', name: 'Muğla, Menteşe — Kötekli Kampüs / Tarihi Arasta', lat: 37.2153, lng: 28.3636, city: 'Muğla', district: 'Menteşe', isDistrictWide: true },
+
+  { id: 'ayd-efeler-all', name: 'Aydın, Efeler — Menderes Bulvarı / Çarşı / Forum', lat: 37.8489, lng: 27.8489, city: 'Aydın', district: 'Efeler', isDistrictWide: true },
+  { id: 'ayd-kusadasi-all', name: 'Aydın, Kuşadası — Marina / Kadınlar Denizi / Çarşı', lat: 37.8589, lng: 27.2589, city: 'Aydın', district: 'Kuşadası', isDistrictWide: true },
+  { id: 'ayd-didim-all', name: 'Aydın, Didim — Altınkum / Marina / Merkez', lat: 37.3789, lng: 27.2589, city: 'Aydın', district: 'Didim', isDistrictWide: true },
+
+  { id: 'man-yunusemre-all', name: 'Manisa, Yunusemre — Magnesia / Güzelyurt / Muradiye', lat: 38.6189, lng: 27.3812, city: 'Manisa', district: 'Yunusemre', isDistrictWide: true },
+  { id: 'man-sehzadeler-all', name: 'Manisa, Şehzadeler — Doğu Caddesi / Çarşı / Sultan Camii', lat: 38.6142, lng: 27.4289, city: 'Manisa', district: 'Şehzadeler', isDistrictWide: true },
+  { id: 'den-pamukkale-all', name: 'Denizli, Pamukkale — Çamlık / İncilipınar / Kınıklı Kampüs', lat: 37.7712, lng: 29.0912, city: 'Denizli', district: 'Pamukkale', isDistrictWide: true },
+  { id: 'den-merkezefendi-all', name: 'Denizli, Merkezefendi — Sırakapılar / Adalet / Servergazi', lat: 37.7812, lng: 29.0612, city: 'Denizli', district: 'Merkezefendi', isDistrictWide: true },
+
+  // =========================================================================
+  // 6. BURSA & GÜNEY MARMARA
+  // =========================================================================
   { id: 'bur-nilufer-all', name: 'Bursa, Nilüfer — Tüm İlçe Geneli (Geniş Radar)', lat: 40.2198, lng: 28.9189, city: 'Bursa', district: 'Nilüfer', isDistrictWide: true },
   { id: 'bur-nilufer-fsm', name: 'Bursa, Nilüfer — FSM Bulvarı / Özlüce / Balat / Görükle', lat: 40.2189, lng: 28.9712, city: 'Bursa', district: 'Nilüfer' },
   { id: 'bur-osmangazi-all', name: 'Bursa, Osmangazi — Heykel / Altıparmak / Kent Meydanı', lat: 40.1885, lng: 29.0610, city: 'Bursa', district: 'Osmangazi', isDistrictWide: true },
@@ -1236,7 +1318,14 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'bur-mudanya-all', name: 'Bursa, Mudanya — Sahil / Güzelyalı / Marina', lat: 40.3756, lng: 28.8824, city: 'Bursa', district: 'Mudanya', isDistrictWide: true },
   { id: 'bur-inegol-all', name: 'Bursa, İnegöl — Merkez / Mobilya AVM', lat: 40.0789, lng: 29.5133, city: 'Bursa', district: 'İnegöl', isDistrictWide: true },
 
-  // 6. ANTALYA
+  { id: 'bal-karesi-all', name: 'Balıkesir, Karesi — Milli Kuvvetler / Çarşı / Paşa Alanı', lat: 39.6512, lng: 27.8812, city: 'Balıkesir', district: 'Karesi', isDistrictWide: true },
+  { id: 'bal-edremit-all', name: 'Balıkesir, Edremit — Akçay / Altınoluk / Güre', lat: 39.5889, lng: 26.9289, city: 'Balıkesir', district: 'Edremit', isDistrictWide: true },
+  { id: 'bal-ayvalik-all', name: 'Balıkesir, Ayvalık — Cunda / Sarımsaklı / Çarşı', lat: 39.3194, lng: 26.6944, city: 'Balıkesir', district: 'Ayvalık', isDistrictWide: true },
+  { id: 'can-merkez-all', name: 'Çanakkale, Merkez — Kordon / Aynalı Çarşı / Kepez', lat: 40.1512, lng: 26.4012, city: 'Çanakkale', district: 'Merkez', isDistrictWide: true },
+
+  // =========================================================================
+  // 7. ANTALYA & AKDENİZ
+  // =========================================================================
   { id: 'ant-muratpasa-all', name: 'Antalya, Muratpaşa — Lara / Şirinyalı / Işıklar / Terracity', lat: 36.8584, lng: 30.7588, city: 'Antalya', district: 'Muratpaşa', isDistrictWide: true },
   { id: 'ant-konyaalti-all', name: 'Antalya, Konyaaltı — Liman / Sahil / Toros / Uncalı', lat: 36.8341, lng: 30.6012, city: 'Antalya', district: 'Konyaaltı', isDistrictWide: true },
   { id: 'ant-kepez-all', name: 'Antalya, Kepez — Dokuma / Kültür / Varsak', lat: 36.9212, lng: 30.6812, city: 'Antalya', district: 'Kepez', isDistrictWide: true },
@@ -1244,53 +1333,55 @@ export const TURKEY_POPULAR_DISTRICTS: LocationSearchResult[] = [
   { id: 'ant-manavgat-all', name: 'Antalya, Manavgat — Side / Kumköy / Merkez', lat: 36.7867, lng: 31.4428, city: 'Antalya', district: 'Manavgat', isDistrictWide: true },
   { id: 'ant-kas-all', name: 'Antalya, Kaş — Merkez / Kalkan / Çukurbağ', lat: 36.2000, lng: 29.6333, city: 'Antalya', district: 'Kaş', isDistrictWide: true },
 
-  // 7. DİĞER BÜYÜKŞEHİRLER & TÜM BÖLGELER
-  { id: 'ada-seyhan-all', name: 'Adana, Seyhan — Gazipaşa / Ziyapaşa / Barajyolu', lat: 36.9912, lng: 35.3212, city: 'Adana', district: 'Seyhan', isDistrictWide: true },
-  { id: 'ada-cukurova-all', name: 'Adana, Çukurova — Turgut Özal / Kenan Evren / Güzelyalı', lat: 37.0456, lng: 35.2912, city: 'Adana', district: 'Çukurova', isDistrictWide: true },
-
+  // =========================================================================
+  // 8. İÇ ANADOLU, DOĞU & KARADENİZ İLLERİ
+  // =========================================================================
   { id: 'kon-selcuklu-all', name: 'Konya, Selçuklu — Bosna Hersek / Nalçacı / Real', lat: 37.8912, lng: 32.4812, city: 'Konya', district: 'Selçuklu', isDistrictWide: true },
   { id: 'kon-meram-all', name: 'Konya, Meram — Zafer / Yaka / Havzan', lat: 37.8512, lng: 32.4412, city: 'Konya', district: 'Meram', isDistrictWide: true },
-
-  { id: 'gaz-sahinbey-all', name: 'Gaziantep, Şahinbey — Karataş / Gazimuhtar / Üniversite', lat: 37.0512, lng: 37.3712, city: 'Gaziantep', district: 'Şahinbey', isDistrictWide: true },
-  { id: 'gaz-sehitkamil-all', name: 'Gaziantep, Şehitkamil — İbrahimli / Batıkent / Emek', lat: 37.0812, lng: 37.3512, city: 'Gaziantep', district: 'Şehitkamil', isDistrictWide: true },
-
-  { id: 'koc-izmit-all', name: 'Kocaeli, İzmit — Yahya Kaptan / Yürüyüş Yolu / Outlet Center', lat: 40.7654, lng: 29.9682, city: 'Kocaeli', district: 'İzmit', isDistrictWide: true },
-  { id: 'koc-gebze-all', name: 'Kocaeli, Gebze — Merkez / Mutlukent / Çarşı', lat: 40.8028, lng: 29.4307, city: 'Kocaeli', district: 'Gebze', isDistrictWide: true },
-
-  { id: 'esk-tepebasi-all', name: 'Eskişehir, Tepebaşı — Doktorlar Cad. / Bağlar / Üniversite', lat: 39.7824, lng: 30.5098, city: 'Eskişehir', district: 'Tepebaşı', isDistrictWide: true },
-  { id: 'esk-odunpazari-all', name: 'Eskişehir, Odunpazarı — Tarihi Odunpazarı / Hamamyolu / Atatürk Bulvarı', lat: 39.7612, lng: 30.5289, city: 'Eskişehir', district: 'Odunpazarı', isDistrictWide: true },
-
-  { id: 'mer-yenisehir-all', name: 'Mersin, Yenişehir — Pozcu / Kushimoto / Marina / Göçmen', lat: 36.7912, lng: 34.5912, city: 'Mersin', district: 'Yenişehir', isDistrictWide: true },
-  { id: 'mer-mezitli-all', name: 'Mersin, Mezitli — Sahil / Viranşehir / Soli', lat: 36.7512, lng: 34.5212, city: 'Mersin', district: 'Mezitli', isDistrictWide: true },
+  { id: 'kon-karatay-all', name: 'Konya, Karatay — Mevlana Meydanı / Adliye Çevresi', lat: 37.8712, lng: 32.5012, city: 'Konya', district: 'Karatay', isDistrictWide: true },
 
   { id: 'kay-melikgazi-all', name: 'Kayseri, Melikgazi — Alpaslan / Sivas Cad. / Köşk Mah.', lat: 38.7212, lng: 35.5012, city: 'Kayseri', district: 'Melikgazi', isDistrictWide: true },
   { id: 'kay-talas-all', name: 'Kayseri, Talas — Anayurt / Mevlana / Bahçelievler', lat: 38.6912, lng: 35.5512, city: 'Kayseri', district: 'Talas', isDistrictWide: true },
+  { id: 'esk-tepebasi-all', name: 'Eskişehir, Tepebaşı — Doktorlar Cad. / Bağlar / Üniversite', lat: 39.7824, lng: 30.5098, city: 'Eskişehir', district: 'Tepebaşı', isDistrictWide: true },
+  { id: 'esk-odunpazari-all', name: 'Eskişehir, Odunpazarı — Tarihi Odunpazarı / Hamamyolu / Atatürk Bulvarı', lat: 39.7612, lng: 30.5289, city: 'Eskişehir', district: 'Odunpazarı', isDistrictWide: true },
+
+  { id: 'koc-izmit-all', name: 'Kocaeli, İzmit — Yahya Kaptan / Yürüyüş Yolu / Outlet Center', lat: 40.7654, lng: 29.9682, city: 'Kocaeli', district: 'İzmit', isDistrictWide: true },
+  { id: 'koc-gebze-all', name: 'Kocaeli, Gebze — Merkez / Mutlukent / Çarşı', lat: 40.8028, lng: 29.4307, city: 'Kocaeli', district: 'Gebze', isDistrictWide: true },
+  { id: 'sak-adapazari-all', name: 'Sakarya, Adapazarı — Çark Caddesi / Serdivan / Kampüs', lat: 40.7789, lng: 30.4012, city: 'Sakarya', district: 'Adapazarı', isDistrictWide: true },
+  { id: 'tek-corlu-all', name: 'Tekirdağ, Çorlu — Omurtak Cad. / Orion / Emlak Konutları', lat: 41.1589, lng: 27.7989, city: 'Tekirdağ', district: 'Çorlu', isDistrictWide: true },
 
   { id: 'sam-atakum-all', name: 'Samsun, Atakum — Sahil / Türkiş / Ömürevleri / Körfez', lat: 41.3212, lng: 36.2712, city: 'Samsun', district: 'Atakum', isDistrictWide: true },
   { id: 'sam-ilkadim-all', name: 'Samsun, İlkadım — Çiftlik Cad. / Cumhuriyet Meydanı / Saathane', lat: 41.2812, lng: 36.3312, city: 'Samsun', district: 'İlkadım', isDistrictWide: true },
-
-  { id: 'den-pamukkale-all', name: 'Denizli, Pamukkale — Çamlık / İncilipınar / Kınıklı Kampüs', lat: 37.7712, lng: 29.0912, city: 'Denizli', district: 'Pamukkale', isDistrictWide: true },
-  { id: 'diy-kayapinar-all', name: 'Diyarbakır, Kayapınar — Diclekent / 75 Metrelik Yol / Gaziler', lat: 37.9412, lng: 40.1812, city: 'Diyarbakır', district: 'Kayapınar', isDistrictWide: true },
-
-  { id: 'mug-bodrum-all', name: 'Muğla, Bodrum — Marina / Çarşı / Yalıkavak / Türkbükü', lat: 37.0344, lng: 27.4305, city: 'Muğla', district: 'Bodrum', isDistrictWide: true },
-  { id: 'mug-fethiye-all', name: 'Muğla, Fethiye — Kordon / Ölüdeniz / Göcek / Çalış', lat: 36.6212, lng: 29.1112, city: 'Muğla', district: 'Fethiye', isDistrictWide: true },
-  { id: 'mug-marmaris-all', name: 'Muğla, Marmaris — Marina / Kordon / İçmeler', lat: 36.8550, lng: 28.2740, city: 'Muğla', district: 'Marmaris', isDistrictWide: true },
-
   { id: 'tra-ortahisar-all', name: 'Trabzon, Ortahisar — Meydan / Uzun Sokak / KTÜ / Beşirli', lat: 41.0012, lng: 39.7212, city: 'Trabzon', district: 'Ortahisar', isDistrictWide: true },
-  { id: 'bal-karesi-all', name: 'Balıkesir, Karesi — Milli Kuvvetler / Çarşı / Paşa Alanı', lat: 39.6512, lng: 27.8812, city: 'Balıkesir', district: 'Karesi', isDistrictWide: true },
-  { id: 'bal-edremit-all', name: 'Balıkesir, Edremit — Akçay / Altınoluk / Güre', lat: 39.5889, lng: 26.9289, city: 'Balıkesir', district: 'Edremit', isDistrictWide: true },
-  { id: 'bal-ayvalik-all', name: 'Balıkesir, Ayvalık — Cunda / Sarımsaklı / Çarşı', lat: 39.3194, lng: 26.6944, city: 'Balıkesir', district: 'Ayvalık', isDistrictWide: true },
+  { id: 'ord-altinordu-all', name: 'Ordu, Altınordu — Sahil / Teleferik / Sırrıpaşa Cad.', lat: 40.9889, lng: 37.8789, city: 'Ordu', district: 'Altınordu', isDistrictWide: true },
+  { id: 'riz-merkez-all', name: 'Rize, Merkez — Sahil Parkı / Atatürk Cad. / Meydan', lat: 41.0256, lng: 40.5189, city: 'Rize', district: 'Merkez', isDistrictWide: true },
 
-  { id: 'tek-corlu-all', name: 'Tekirdağ, Çorlu — Omurtak Cad. / Orion / Emlak Konutları', lat: 41.1589, lng: 27.7989, city: 'Tekirdağ', district: 'Çorlu', isDistrictWide: true },
-  { id: 'sak-adapazari-all', name: 'Sakarya, Adapazarı — Çark Caddesi / Serdivan / Kampüs', lat: 40.7789, lng: 30.4012, city: 'Sakarya', district: 'Adapazarı', isDistrictWide: true },
-  { id: 'ayd-kusadasi-all', name: 'Aydın, Kuşadası — Marina / Kadınlar Denizi / Çarşı', lat: 37.8589, lng: 27.2589, city: 'Aydın', district: 'Kuşadası', isDistrictWide: true },
-  { id: 'can-merkez-all', name: 'Çanakkale, Merkez — Kordon / Aynalı Çarşı / Kepez', lat: 40.1512, lng: 26.4012, city: 'Çanakkale', district: 'Merkez', isDistrictWide: true },
+  { id: 'diy-kayapinar-all', name: 'Diyarbakır, Kayapınar — Diclekent / 75 Metrelik Yol / Gaziler', lat: 37.9412, lng: 40.1812, city: 'Diyarbakır', district: 'Kayapınar', isDistrictWide: true },
+  { id: 'diy-yenisehir-all', name: 'Diyarbakır, Yenişehir — Ofis / Ekinciler Cad. / Sanat Sokağı', lat: 37.9189, lng: 40.2189, city: 'Diyarbakır', district: 'Yenişehir', isDistrictWide: true },
   { id: 'san-haliliye-all', name: 'Şanlıurfa, Haliliye — Bahçelievler / Novada / Atatürk Bulvarı', lat: 37.1612, lng: 38.7912, city: 'Şanlıurfa', district: 'Haliliye', isDistrictWide: true },
+  { id: 'san-karakopru-all', name: 'Şanlıurfa, Karaköprü — Diyarbakır Yolu / Yenişehir', lat: 37.1989, lng: 38.7889, city: 'Şanlıurfa', district: 'Karaköprü', isDistrictWide: true },
   { id: 'mal-yesilyurt-all', name: 'Malatya, Yeşilyurt — Fahri Kayahan / Kanalboyu / Bostanbaşı', lat: 38.3312, lng: 38.2712, city: 'Malatya', district: 'Yeşilyurt', isDistrictWide: true },
   { id: 'erz-yakutiye-all', name: 'Erzurum, Yakutiye — Cumhuriyet Cad. / Havuzbaşı / Şükrüpaşa', lat: 39.9089, lng: 41.2789, city: 'Erzurum', district: 'Yakutiye', isDistrictWide: true },
   { id: 'van-ipekyolu-all', name: 'Van, İpekyolu — Maraş Cad. / Cumhuriyet Cad. / Beşyol', lat: 38.4989, lng: 43.3812, city: 'Van', district: 'İpekyolu', isDistrictWide: true },
-  { id: 'man-yunusemre-all', name: 'Manisa, Yunusemre — Magnesia / Güzelyurt / Muradiye', lat: 38.6189, lng: 27.3812, city: 'Manisa', district: 'Yunusemre', isDistrictWide: true },
   { id: 'siv-merkez-all', name: 'Sivas, Merkez — İstasyon Cad. / Meydan / Atatürk Bulvarı', lat: 39.7512, lng: 37.0189, city: 'Sivas', district: 'Merkez', isDistrictWide: true },
-  { id: 'ord-altinordu-all', name: 'Ordu, Altınordu — Sahil / Teleferik / Sırrıpaşa Cad.', lat: 40.9889, lng: 37.8789, city: 'Ordu', district: 'Altınordu', isDistrictWide: true },
-  { id: 'riz-merkez-all', name: 'Rize, Merkez — Sahil Parkı / Atatürk Cad. / Meydan', lat: 41.0256, lng: 40.5189, city: 'Rize', district: 'Merkez', isDistrictWide: true },
+  { id: 'bat-merkez-all', name: 'Batman, Merkez — Diyarbakır Cad. / Turgut Özal Bulvarı / Gültepe', lat: 37.8812, lng: 41.1312, city: 'Batman', district: 'Merkez', isDistrictWide: true },
+  { id: 'ela-merkez-all', name: 'Elazığ, Merkez — Gazi Cad. / Vali Fahribey / Park 23', lat: 38.6742, lng: 39.2236, city: 'Elazığ', district: 'Merkez', isDistrictWide: true },
+  { id: 'mar-artuklu-all', name: 'Mardin, Artuklu — Tarihi Mardin / 13 Mart / Yenişehir', lat: 37.3189, lng: 40.7389, city: 'Mardin', district: 'Artuklu', isDistrictWide: true },
+  { id: 'aks-merkez-all', name: 'Aksaray, Merkez — Hükümet Meydanı / Kafeler Cad. / Nora City', lat: 38.3689, lng: 34.0289, city: 'Aksaray', district: 'Merkez', isDistrictWide: true },
+  { id: 'isp-merkez-all', name: 'Isparta, Merkez — Kafeler Cad. / Iyaşpark / Mimar Sinan', lat: 37.7689, lng: 30.5589, city: 'Isparta', district: 'Merkez', isDistrictWide: true },
+  { id: 'afy-merkez-all', name: 'Afyonkarahisar, Merkez — Park Afyon / Ambaryolu / Yeşilyol', lat: 38.7589, lng: 30.5389, city: 'Afyonkarahisar', district: 'Merkez', isDistrictWide: true },
+  { id: 'edi-merkez-all', name: 'Edirne, Merkez — Saraçlar Cad. / Selimiye Çevresi / Erasta', lat: 41.6789, lng: 26.5589, city: 'Edirne', district: 'Merkez', isDistrictWide: true },
+  { id: 'yal-merkez-all', name: 'Yalova, Merkez — Sahil Kordon / Gazipaşa Cad. / Star AVM', lat: 40.6589, lng: 29.2789, city: 'Yalova', district: 'Merkez', isDistrictWide: true },
+  { id: 'bol-merkez-all', name: 'Bolu, Merkez — İzzet Baysal Cad. / 14 Burda AVM', lat: 40.7389, lng: 31.6089, city: 'Bolu', district: 'Merkez', isDistrictWide: true },
+  { id: 'duz-merkez-all', name: 'Düzce, Merkez — İstanbul Cad. / Krempark / Kremna', lat: 40.8412, lng: 31.1612, city: 'Düzce', district: 'Merkez', isDistrictWide: true },
+  { id: 'nev-merkez-all', name: 'Nevşehir, Merkez / Kapadokya — Göreme / Ürgüp / Avanos / Nissara', lat: 38.6289, lng: 34.7189, city: 'Nevşehir', district: 'Merkez', isDistrictWide: true },
+  { id: 'cor-merkez-all', name: 'Çorum, Merkez — Gazi Cad. / Saat Kulesi / AHL Park', lat: 40.5489, lng: 34.9589, city: 'Çorum', district: 'Merkez', isDistrictWide: true },
+  { id: 'kut-merkez-all', name: 'Kütahya, Merkez — Sevgi Yolu / Cumhuriyet Meydanı / Sera AVM', lat: 39.4212, lng: 29.9812, city: 'Kütahya', district: 'Merkez', isDistrictWide: true },
+  { id: 'usa-merkez-all', name: 'Uşak, Merkez — İsmetpaşa Cad. / Festiva AVM / Merkez', lat: 38.6789, lng: 29.4089, city: 'Uşak', district: 'Merkez', isDistrictWide: true },
+  { id: 'kas-merkez-all', name: 'Kastamonu, Merkez — Nasrullah Meydanı / Kastamall', lat: 41.3789, lng: 33.7789, city: 'Kastamonu', district: 'Merkez', isDistrictWide: true },
+  { id: 'ama-merkez-all', name: 'Amasya, Merkez — Şehzadeler Gezi Yolu / Çarşı', lat: 40.6589, lng: 35.8389, city: 'Amasya', district: 'Merkez', isDistrictWide: true },
+  { id: 'tok-merkez-all', name: 'Tokat, Merkez — Gaziosmanpaşa Bulvarı / Novada AVM', lat: 40.3189, lng: 36.5589, city: 'Tokat', district: 'Merkez', isDistrictWide: true },
+  { id: 'kar-merkez-all', name: 'Kars, Merkez — Faikbey Cad. / Kazımpaşa Cad.', lat: 40.6089, lng: 43.0989, city: 'Kars', district: 'Merkez', isDistrictWide: true },
+  { id: 'gir-merkez-all', name: 'Giresun, Merkez — Gazi Cad. / Sahil Kordon', lat: 40.9189, lng: 38.3889, city: 'Giresun', district: 'Merkez', isDistrictWide: true },
+  { id: 'zon-merkez-all', name: 'Zonguldak, Merkez — Gazipaşa Cad. / Demirpark AVM', lat: 41.4589, lng: 31.7989, city: 'Zonguldak', district: 'Merkez', isDistrictWide: true },
 ];

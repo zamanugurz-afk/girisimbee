@@ -1850,23 +1850,36 @@ export function generateDeterministicLocalPois(
     let pLat = lat + dLat;
     let pLng = lng + dLng;
 
-    // Check specific unpopulated forest/military zones and snap to nearest urban commercial street
-    // 1. Başıbüyük Ormanı / Süreyyapaşa / Mağara Tepesi
+    // Check specific unpopulated forest/military/lake zones and snap to nearest urban commercial street
+    // 1. Adana Seyhan Baraj Gölü & Kıyı Şeridi
+    if (pLat >= 37.045 && pLat <= 37.140 && pLng >= 35.240 && pLng <= 35.370) {
+      pLat = 37.038 + s3 * 0.012; // Snap south to Turgut Özal / Güzelyalı / Süleyman Demirel
+      pLng = 35.285 + s1 * 0.022;
+    }
+    // 2. Mersin Akdeniz Sahil Sınırı
+    if (pLat < 36.780 && pLng >= 34.50 && pLng <= 34.68) {
+      pLat = 36.788 + s3 * 0.008; // Snap to Pozcu / Mezitli sahil yolu
+    }
+    // 3. Antalya Falezler & Sahil Sınırı
+    if (pLat < 36.840 && pLng >= 30.68 && pLng <= 30.80) {
+      pLat = 36.852 + s3 * 0.008; // Snap to Lara / Şirinyalı
+    }
+    // 4. Başıbüyük Ormanı / Süreyyapaşa / Mağara Tepesi (İstanbul)
     if (pLat >= 40.938 && pLat <= 40.968 && pLng >= 29.142 && pLng <= 29.175) {
       pLat = 40.925 + s3 * 0.012;
       pLng = 29.128 + s1 * 0.018;
     }
-    // 2. 2. Zırhlı Tugay Kışlası (Military Base)
+    // 5. 2. Zırhlı Tugay Kışlası (Military Base)
     if (pLat >= 40.922 && pLat <= 40.952 && pLng >= 29.165 && pLng <= 29.208) {
       pLat = 40.915 + s3 * 0.010;
       pLng = 29.144 + s1 * 0.016;
     }
-    // 3. Kayışdağı Ormanı
+    // 6. Kayışdağı Ormanı
     if (pLat >= 40.968 && pLat <= 40.995 && pLng >= 29.145 && pLng <= 29.180) {
       pLat = 40.978 + s3 * 0.008;
       pLng = 29.122 + s1 * 0.016;
     }
-    // 4. Aydos Ormanı
+    // 7. Aydos Ormanı
     if (pLat >= 40.935 && pLat <= 40.985 && pLng >= 29.215 && pLng <= 29.275) {
       pLat = 40.915 + s3 * 0.010;
       pLng = 29.192 + s1 * 0.018;
