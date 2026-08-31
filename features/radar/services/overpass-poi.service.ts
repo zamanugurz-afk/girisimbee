@@ -1685,6 +1685,41 @@ export function generateDeterministicLocalPois(
   return pois;
 }
 
+const SECTOR_DENSITY_PER_10K: Record<string, number> = {
+  hairdresser: 6.5,   // Kuaför, Berber & Güzellik (~1 per 1,500 people)
+  restaurant: 5.8,    // Restoran & Lokanta (~1 per 1,700 people)
+  market: 5.2,        // Süpermarket & Bakkal (~1 per 1,900 people)
+  cafe: 4.6,          // Kafe & Kahve Dükkanı (~1 per 2,100 people)
+  donerci: 3.8,       // Dönerci & Kebapçı (~1 per 2,600 people)
+  real_estate: 3.4,   // Emlak & Gayrimenkul Ofisi
+  boutique: 2.8,      // Butik & Giyim Mağazası
+  bakery: 2.6,        // Fırın & Unlu Mamüller
+  oto_tamir: 2.2,     // Oto Tamir & Bakım Servisi
+  borekci: 1.8,       // Börekçi & Poğaçacı
+  cigkofteci: 1.7,    // Çiğ Köfteci
+  pharmacy: 1.5,      // Eczane (Yasal Kota: 1 / 3.500 kişi)
+  dry_cleaning: 1.4,  // Kuru Temizleme & Terzi
+  electronics: 1.3,   // Elektronik & Telefon Tamir
+  stationery: 1.1,    // Kırtasiye & Kitabevi
+  dental_clinic: 1.0, // Diş Kliniği
+  gym: 0.9,           // Spor Salonu & Pilates
+  pet_shop: 0.85,     // Petshop & Veteriner
+  optician: 0.8,      // Optik & Gözlükçü
+  florist: 0.75,      // Çiçekçi & Botanik
+  hardware: 0.9,      // Nalburiye & Hırdavat
+  zuccaciye: 0.8,     // Züccaciye
+  dondurmaci: 0.7,    // Dondurmacı & Waffle
+  tatlici: 0.8,       // Tatlıcı & Baklavacı
+  cilingir: 0.6,      // Çilingir & Anahtarcı
+  car_wash: 0.7,      // Oto Yıkama & Kuaför
+  law_firm: 1.2,      // Hukuk & Avukatlık
+  insurance_agency: 0.8, // Sigorta Acentesi
+  travel_agency: 0.5, // Turizm & Seyahat Acentesi
+  auto_gallery: 0.6,  // Oto Galeri
+  kindergarten: 0.6,  // Anaokulu & Kreş
+  noter: 0.16,        // Noter (Yasal Kota)
+};
+
 /* ========================================================================= */
 /* UNIFIED MASTER AREA POI & SECTOR CENSUS ENGINE                            */
 /* ========================================================================= */
@@ -1695,47 +1730,6 @@ export interface AreaPoiCensusResult {
 }
 
 const MASTER_AREA_CENSUS_CACHE = new Map<string, { data: AreaPoiCensusResult; ts: number }>();
-
-// TIER 1: Daily essential businesses present in EVERY neighborhood in Turkey
-const TIER_1_DAILY_ESSENTIALS = new Set([
-  'bakery',
-  'market',
-  'borekci',
-  'cigkofteci',
-  'hairdresser',
-  'cafe',
-  'restaurant',
-  'pharmacy',
-  'donerci',
-  'dry_cleaning',
-  'butcher',
-  'manav',
-  'car_wash',
-  'stationery',
-  'electronics',
-  'tatlici',
-  'pet_shop',
-]);
-
-// TIER 2: Secondary standard commercial street sectors
-const TIER_2_COMMERCIAL_STREET = new Set([
-  'gym',
-  'dental_clinic',
-  'optician',
-  'florist',
-  'boutique',
-  'hardware',
-  'zuccaciye',
-  'dondurmaci',
-  'kokorecci',
-  'balikci',
-  'kuruyemis',
-  'su_bayisi',
-  'real_estate',
-  'auto_gallery',
-  'travel_agency',
-  'software_agency',
-]);
 
 export async function fetchMasterAreaPoiCensus(
   lat: number,
@@ -1794,87 +1788,56 @@ export async function fetchMasterAreaPoiCensus(
     }
   }
 
+  // Calculate realistic urban population within the radar circle based on Turkish urban density
+  const radiusKm = radiusMeters / 1000;
+  const areaKm2 = Math.PI * radiusKm * radiusKm;
+  const isMarmaraCoast = lat >= 40.82 && lat <= 41.02 && lng >= 29.00 && lng <= 29.35;
+  const landAreaRatio = isMarmaraCoast && lat < 40.955 ? 0.62 : 0.95;
+  const estimatedUrbanPop = Math.max(
+    3500,
+    Math.round(areaKm2 * landAreaRatio * 18000),
+  );
+
   const allCategories = Object.keys(RADAR_CATEGORIES) as RadarCategoryKey[];
   const finalPois: CompetitorPoi[] = [];
   const sectorCensus: Record<string, number> = {};
 
   // For every category in RADAR_CATEGORIES:
-  // Ensure real POIs are preserved AND complete density (BİM, A101, ŞOK, Starbucks, etc.) is guaranteed
+  // Apply true demographic business-per-capita formula
   allCategories.forEach((catKey, catIdx) => {
     const existingReal = categorizedRealPois[catKey] || [];
-    let targetCount = 0;
-    const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543 + (catIdx + 1) * 77.3));
+    const densityRate = SECTOR_DENSITY_PER_10K[catKey] || 0.8;
+    const baseCensusEstimate = Math.max(
+      existingReal.length > 0 ? existingReal.length : 1,
+      Math.round((estimatedUrbanPop / 10000) * densityRate),
+    );
 
-    if (TIER_1_DAILY_ESSENTIALS.has(catKey)) {
-      // Tier 1: Daily essentials (Çiğ Köfteci, Fırın, Market, Börekçi, Kafe, Restoran, Kuaför, Eczane, Kasap, Manav...)
-      if (radiusMeters <= 300) {
-        targetCount = baseSeed > 0.5 ? 2 : 1;
-      } else if (radiusMeters <= 600) {
-        targetCount = baseSeed > 0.5 ? 4 : 3;
-      } else if (radiusMeters <= 1200) {
-        targetCount = baseSeed > 0.5 ? 8 : 6;
-      } else if (radiusMeters <= 2500) {
-        targetCount = baseSeed > 0.5 ? 16 : 12;
-      } else if (radiusMeters <= 3500) {
-        targetCount = baseSeed > 0.5 ? 24 : 18;
-      } else {
-        // 5km+ (İlçe Geneli)
-        targetCount = baseSeed > 0.5 ? 36 : 28;
-      }
-    } else if (TIER_2_COMMERCIAL_STREET.has(catKey)) {
-      // Tier 2: Commercial street trades (Gym, Diş Kliniği, Çiçekçi, Butik, Nalburiye, Züccaciye, Kuruyemiş, Su Bayisi...)
-      if (radiusMeters <= 300) {
-        targetCount = baseSeed > 0.4 ? 1 : 1;
-      } else if (radiusMeters <= 600) {
-        targetCount = baseSeed > 0.5 ? 3 : 2;
-      } else if (radiusMeters <= 1200) {
-        targetCount = baseSeed > 0.5 ? 5 : 4;
-      } else if (radiusMeters <= 2500) {
-        targetCount = baseSeed > 0.5 ? 10 : 8;
-      } else if (radiusMeters <= 3500) {
-        targetCount = baseSeed > 0.5 ? 16 : 12;
-      } else {
-        // 5km+
-        targetCount = baseSeed > 0.5 ? 24 : 18;
-      }
-    } else {
-      // Tier 3: Specialized trades (Hukuk & Avukatlık, Fotoğrafçı, Aktar, Çilingir, Lastikçi, Anaokulu, Beyaz Eşya Servisi, vb.)
-      if (radiusMeters <= 300) {
-        targetCount = baseSeed > 0.6 ? 1 : (baseSeed > 0.2 ? 1 : 0);
-      } else if (radiusMeters <= 600) {
-        targetCount = baseSeed > 0.5 ? 2 : 1;
-      } else if (radiusMeters <= 1200) {
-        targetCount = baseSeed > 0.5 ? 4 : 3;
-      } else if (radiusMeters <= 2500) {
-        targetCount = baseSeed > 0.5 ? 7 : 5;
-      } else if (radiusMeters <= 3500) {
-        targetCount = baseSeed > 0.5 ? 12 : 9;
-      } else {
-        // 5km+
-        targetCount = baseSeed > 0.5 ? 18 : 14;
-      }
-    }
+    // Map pins count: representative, performant sample on the Leaflet map (max 32-48 pins per category)
+    const mapPinTarget = Math.max(
+      existingReal.length,
+      Math.min(baseCensusEstimate, radiusMeters <= 500 ? 12 : (radiusMeters <= 1200 ? 20 : (radiusMeters <= 3000 ? 32 : 48))),
+    );
 
     finalPois.push(...existingReal);
 
     const existingNames = new Set(existingReal.map((r) => r.name.toLowerCase()));
+    const neededSynthetic = Math.max(0, mapPinTarget - existingReal.length);
 
-    // Ensure realistic commercial density and presence of major anchor brands (BİM, A101, ŞOK, Dönerci Ali Usta, Starbucks, etc.)
-    const neededSynthetic = Math.max(0, targetCount - existingReal.length);
-    const genCount = Math.max(neededSynthetic, targetCount >= 2 ? Math.min(targetCount, 4) : 1);
+    if (neededSynthetic > 0) {
+      const synthetic = generateDeterministicLocalPois(
+        lat,
+        lng,
+        radiusMeters,
+        catKey,
+        locationName,
+        neededSynthetic,
+        catIdx,
+      ).filter((p) => !existingNames.has(p.name.toLowerCase()));
 
-    const synthetic = generateDeterministicLocalPois(
-      lat,
-      lng,
-      radiusMeters,
-      catKey,
-      locationName,
-      genCount,
-      catIdx,
-    ).filter((p) => !existingNames.has(p.name.toLowerCase()));
+      finalPois.push(...synthetic);
+    }
 
-    finalPois.push(...synthetic);
-    sectorCensus[catKey] = existingReal.length + synthetic.length;
+    sectorCensus[catKey] = Math.max(finalPois.filter((p) => p.category === catKey).length, baseCensusEstimate);
   });
 
   const sortedAllPois = finalPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
