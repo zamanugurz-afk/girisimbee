@@ -90,7 +90,7 @@ function normalizeTrText(str: string): string {
 const CLIENT_RADAR_CACHE = new Map<string, RadarSpatialResponse>();
 
 export function HomeInvestmentRadarSection() {
-  const [selectedCategory, setSelectedCategory] = useState<RadarCategoryKey>('all');
+  const [selectedCategories, setSelectedCategories] = useState<RadarCategoryKey[]>([]);
   const [centerLat, setCenterLat] = useState<number>(RADAR_DEFAULT_CENTER.lat);
   const [centerLng, setCenterLng] = useState<number>(RADAR_DEFAULT_CENTER.lng);
   const [zoom, setZoom] = useState<number>(RADAR_DEFAULT_CENTER.zoom);
@@ -133,7 +133,7 @@ export function HomeInvestmentRadarSection() {
       }, 10000);
       return () => clearTimeout(timer);
     }
-  }, [selectedCategory, centerLat, centerLng, radiusMeters]);
+  }, [selectedCategories, centerLat, centerLng, radiusMeters]);
 
   // Click outside and Escape key listener to close location dropdown
   useEffect(() => {
@@ -218,7 +218,7 @@ export function HomeInvestmentRadarSection() {
     };
   }, []);
 
-  // 2. LIVE LOCATION SEARCH (Nominatim + Turkish index)
+  // 2. LOCATION SEARCH AUTOCOMPLETE (DEBOUNCED)
   useEffect(() => {
     if (!locationSearchQuery.trim()) {
       setLocationSearchResults([]);
@@ -230,65 +230,49 @@ export function HomeInvestmentRadarSection() {
       clearTimeout(locationSearchDebounceRef.current);
     }
 
-    const normQ = normalizeTrText(locationSearchQuery);
-
-    // Instant local match with Turkish normalization
-    const localMatches = TURKEY_POPULAR_DISTRICTS.filter((loc) => {
-      const nName = normalizeTrText(loc.name);
-      const nCity = normalizeTrText(loc.city || '');
-      const nDist = normalizeTrText(loc.district || '');
-      return nName.includes(normQ) || nCity.includes(normQ) || nDist.includes(normQ);
-    });
-
-    setLocationSearchResults(localMatches);
-    setIsSearchingLocation(true);
-
-    // Online Nominatim query for deep search (e.g. any neighborhood in Turkey)
     locationSearchDebounceRef.current = setTimeout(async () => {
+      setIsSearchingLocation(true);
       try {
+        const localMatches = TURKEY_POPULAR_DISTRICTS.filter((d) =>
+          normalizeTrText(d.name).includes(normalizeTrText(locationSearchQuery)),
+        );
+
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&countrycodes=tr&limit=6&q=${encodeURIComponent(
-            locationSearchQuery.trim() + ' türkiye',
+          `https://nominatim.openstreetmap.org/search?format=json&countrycodes=tr&limit=5&q=${encodeURIComponent(
+            locationSearchQuery,
           )}`,
           { headers: { 'Accept-Language': 'tr' } },
         );
-        if (res.ok) {
-          const data = await res.json();
-          const onlineResults: LocationSearchResult[] = data.map((item: any) => ({
-            id: `nom-${item.place_id}`,
-            name: item.display_name.split(',').slice(0, 3).join(', '),
-            lat: parseFloat(item.lat),
-            lng: parseFloat(item.lon),
-            isDistrictWide: item.type === 'administrative' || item.class === 'boundary',
-          }));
+        const geoResults = await res.json();
 
-          // Combine results without duplicates
-          const combined = [...localMatches];
-          for (const item of onlineResults) {
-            if (!combined.some((c) => Math.abs(c.lat - item.lat) < 0.005 && Math.abs(c.lng - item.lng) < 0.005)) {
-              combined.push(item);
-            }
-          }
-          setLocationSearchResults(combined);
-        }
-      } catch (err) {
-        console.error('[location-search] error:', err);
+        const formattedGeo: LocationSearchResult[] = geoResults.map((item: any) => ({
+          name: item.display_name.split(',').slice(0, 3).join(', '),
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon),
+          isDistrictWide: item.type === 'administrative' || item.type === 'city',
+        }));
+
+        const merged = [...localMatches, ...formattedGeo].slice(0, 6);
+        setLocationSearchResults(merged);
+      } catch (e) {
+        console.error('Location search failed', e);
       } finally {
         setIsSearchingLocation(false);
       }
-    }, 350);
+    }, 280);
 
     return () => {
       if (locationSearchDebounceRef.current) clearTimeout(locationSearchDebounceRef.current);
     };
   }, [locationSearchQuery]);
 
-  // 3. FETCH SPATIAL INTELLIGENCE
+  // 3. FETCH SPATIAL INTELLIGENCE (Supports Single or Dual Category Parallel Query)
   const fetchSpatialData = useCallback(
-    async (lat: number, lng: number, radius: number, category: RadarCategoryKey, locName?: string) => {
+    async (lat: number, lng: number, radius: number, categories: RadarCategoryKey[], locName?: string) => {
       const roundedLat = Math.round(lat * 1000) / 1000;
       const roundedLng = Math.round(lng * 1000) / 1000;
-      const cacheKey = `${roundedLat}-${roundedLng}-${radius}-${category}`;
+      const catKeyStr = categories.length === 0 ? 'all' : [...categories].sort().join(',');
+      const cacheKey = `${roundedLat}-${roundedLng}-${radius}-${catKeyStr}`;
       const masterKey = `${roundedLat}-${roundedLng}-${radius}-all`;
 
       const cached = CLIENT_RADAR_CACHE.get(cacheKey);
@@ -309,31 +293,84 @@ export function HomeInvestmentRadarSection() {
       setError(null);
 
       try {
-        const queryParams = new URLSearchParams({
-          lat: lat.toString(),
-          lng: lng.toString(),
-          radius: radius.toString(),
-          category,
-          ...(locName ? { locationName: locName } : {}),
-        });
+        if (categories.length <= 1) {
+          const singleCat = categories[0] || 'all';
+          const queryParams = new URLSearchParams({
+            lat: lat.toString(),
+            lng: lng.toString(),
+            radius: radius.toString(),
+            category: singleCat,
+            ...(locName ? { locationName: locName } : {}),
+          });
 
-        const res = await fetch(`/api/radar/spatial-query?${queryParams.toString()}`, {
-          signal: controller.signal,
-        });
+          const res = await fetch(`/api/radar/spatial-query?${queryParams.toString()}`, {
+            signal: controller.signal,
+          });
 
-        if (!res.ok) {
-          throw new Error('Mekânsal sorgu yanıt vermedi');
-        }
-
-        const json = await res.json();
-        if (json.ok && json.data) {
-          CLIENT_RADAR_CACHE.set(cacheKey, json.data);
-          if (category === 'all') {
-            CLIENT_RADAR_CACHE.set(masterKey, json.data);
+          if (!res.ok) {
+            throw new Error('Mekânsal sorgu yanıt vermedi');
           }
-          setRadarData(json.data);
+
+          const json = await res.json();
+          if (json.ok && json.data) {
+            CLIENT_RADAR_CACHE.set(cacheKey, json.data);
+            if (singleCat === 'all') {
+              CLIENT_RADAR_CACHE.set(masterKey, json.data);
+            }
+            setRadarData(json.data);
+          } else {
+            throw new Error(json.error || 'Veri alınamadı');
+          }
         } else {
-          throw new Error(json.error || 'Veri alınamadı');
+          // Dual category parallel fetch!
+          const [catA, catB] = categories;
+          const [resA, resB] = await Promise.all([
+            fetch(`/api/radar/spatial-query?${new URLSearchParams({
+              lat: lat.toString(),
+              lng: lng.toString(),
+              radius: radius.toString(),
+              category: catA,
+              ...(locName ? { locationName: locName } : {}),
+            }).toString()}`, { signal: controller.signal }),
+            fetch(`/api/radar/spatial-query?${new URLSearchParams({
+              lat: lat.toString(),
+              lng: lng.toString(),
+              radius: radius.toString(),
+              category: catB,
+              ...(locName ? { locationName: locName } : {}),
+            }).toString()}`, { signal: controller.signal }),
+          ]);
+
+          if (!resA.ok || !resB.ok) {
+            throw new Error('Mekânsal sorgu yanıt vermedi');
+          }
+
+          const [jsonA, jsonB] = await Promise.all([resA.json(), resB.json()]);
+          if (jsonA.ok && jsonB.ok && jsonA.data && jsonB.data) {
+            // Combine competitors without duplicates
+            const seen = new Set<string>();
+            const combinedCompetitors: CompetitorPoi[] = [];
+            for (const poi of [...jsonA.data.competitors, ...jsonB.data.competitors]) {
+              if (!seen.has(poi.id)) {
+                seen.add(poi.id);
+                combinedCompetitors.push(poi);
+              }
+            }
+
+            const combinedData: RadarSpatialResponse = {
+              ...jsonA.data,
+              competitors: combinedCompetitors,
+              availableSectors: {
+                ...jsonA.data.availableSectors,
+                ...jsonB.data.availableSectors,
+              },
+            };
+
+            CLIENT_RADAR_CACHE.set(cacheKey, combinedData);
+            setRadarData(combinedData);
+          } else {
+            throw new Error('Veri alınamadı');
+          }
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
@@ -353,10 +390,32 @@ export function HomeInvestmentRadarSection() {
       centerLat,
       centerLng,
       radiusMeters,
-      selectedCategory,
+      selectedCategories,
       activeLocationTitle,
     );
-  }, [centerLat, centerLng, radiusMeters, selectedCategory, activeLocationTitle, fetchSpatialData]);
+  }, [centerLat, centerLng, radiusMeters, selectedCategories, activeLocationTitle, fetchSpatialData]);
+
+  // Handle Category Toggle (Max 2 sectors selection)
+  const handleCategoryToggle = (catKey: RadarCategoryKey) => {
+    setSelectedPoi(null);
+    if (catKey === 'all') {
+      setSelectedCategories([]);
+      return;
+    }
+
+    setSelectedCategories((prev) => {
+      if (prev.includes(catKey)) {
+        // Deselect
+        return prev.filter((k) => k !== catKey);
+      }
+      if (prev.length >= 2) {
+        // Replace 2nd category
+        return [prev[0], catKey];
+      }
+      // Add as 2nd category
+      return [...prev, catKey];
+    });
+  };
 
   // Handle Location Select
   const handleSelectLocationResult = (loc: LocationSearchResult) => {
@@ -485,10 +544,6 @@ export function HomeInvestmentRadarSection() {
     }
     return radarData?.competitors.length ?? 0;
   }, [radarData, categorySearchQuery, visibleCompetitors]);
-
-  const activeCategoryMeta = selectedCategory === 'all'
-    ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber' }
-    : (RADAR_CATEGORIES[selectedCategory] || RADAR_CATEGORIES.cafe);
 
   // Real-time dynamic demographic calculation based on exact coordinates and radius
   const demographicStats = useMemo(() => {
@@ -659,8 +714,8 @@ export function HomeInvestmentRadarSection() {
                             type="button"
                             onClick={() => {
                               setSelectedPoi(poi);
-                              if (selectedCategory !== 'all' && selectedCategory !== poi.category) {
-                                setSelectedCategory('all');
+                              if (poi.category && !selectedCategories.includes(poi.category as RadarCategoryKey)) {
+                                setSelectedCategories([]);
                               }
                             }}
                             className={cn(
@@ -712,12 +767,12 @@ export function HomeInvestmentRadarSection() {
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedCategory('all');
+                      setSelectedCategories([]);
                       setSelectedPoi(null);
                     }}
                     className={cn(
                       'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
-                      selectedCategory === 'all'
+                      selectedCategories.length === 0
                         ? 'bg-amber-500/15 border-amber-500/50 text-slate-900 dark:text-white shadow-xs font-bold'
                         : 'bg-white/80 dark:bg-zinc-900/60 border-slate-200/80 dark:border-zinc-800/80 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/50 font-medium',
                     )}
@@ -736,7 +791,7 @@ export function HomeInvestmentRadarSection() {
                           0
                         </span>
                       )}
-                      {selectedCategory === 'all' && (
+                      {selectedCategories.length === 0 && (
                         <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
                       )}
                     </div>
@@ -751,30 +806,54 @@ export function HomeInvestmentRadarSection() {
                 )}
 
                 {displayedCategories.map((cat) => {
-                  const isSelected = selectedCategory === cat.key;
+                  const catIndex = selectedCategories.indexOf(cat.key);
+                  const isCat1 = catIndex === 0;
+                  const isCat2 = catIndex === 1;
+                  const isSelected = isCat1 || isCat2;
                   const sectorCount = radarData?.availableSectors?.[cat.key] ?? 0;
+
                   return (
                     <button
                       key={cat.key}
                       type="button"
-                      onClick={() => {
-                        setSelectedCategory(cat.key);
-                        setSelectedPoi(null);
-                      }}
+                      onClick={() => handleCategoryToggle(cat.key)}
                       className={cn(
                         'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
-                        isSelected
-                          ? 'bg-amber-500/10 border-amber-500/40 text-slate-900 dark:text-white shadow-xs font-bold'
+                        isCat1
+                          ? 'bg-rose-500/10 dark:bg-rose-500/20 border-rose-500/60 ring-1 ring-rose-500/40 text-slate-900 dark:text-white font-bold shadow-xs'
+                          : isCat2
+                          ? 'bg-sky-500/10 dark:bg-sky-500/20 border-sky-500/60 ring-1 ring-sky-500/40 text-slate-900 dark:text-white font-bold shadow-xs'
                           : 'bg-white/60 dark:bg-zinc-900/40 border-slate-200/60 dark:border-zinc-800/60 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/40 font-medium',
                       )}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-base shrink-0">{cat.emoji}</span>
-                        <span className="text-xs truncate">{cat.label}</span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs truncate">{cat.label}</span>
+                          {isCat1 && (
+                            <span className="text-[9px] font-extrabold text-rose-600 dark:text-rose-400">
+                              1. Sektör (Kırmızı)
+                            </span>
+                          )}
+                          {isCat2 && (
+                            <span className="text-[9px] font-extrabold text-sky-600 dark:text-sky-400">
+                              2. Sektör (Mavi)
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {sectorCount > 0 ? (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+                          <span
+                            className={cn(
+                              'text-[10px] px-2 py-0.5 rounded-full font-bold border',
+                              isCat1
+                                ? 'bg-rose-500/20 text-rose-800 dark:text-rose-200 border-rose-500/40'
+                                : isCat2
+                                ? 'bg-sky-500/20 text-sky-800 dark:text-sky-200 border-sky-500/40'
+                                : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/20',
+                            )}
+                          >
                             {sectorCount}
                           </span>
                         ) : (
@@ -782,8 +861,11 @@ export function HomeInvestmentRadarSection() {
                             0
                           </span>
                         )}
-                        {isSelected && (
-                          <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                        {isCat1 && (
+                          <span className="h-2.5 w-2.5 rounded-full bg-rose-500 shrink-0 ring-2 ring-rose-300" />
+                        )}
+                        {isCat2 && (
+                          <span className="h-2.5 w-2.5 rounded-full bg-sky-500 shrink-0 ring-2 ring-sky-300" />
                         )}
                       </div>
                     </button>
@@ -793,8 +875,8 @@ export function HomeInvestmentRadarSection() {
             </div>
 
             {/* Sol Alt Bilgi Kartı */}
-            <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-zinc-800/50 border border-slate-200/70 dark:border-zinc-700/60 text-[11px] text-muted-foreground leading-relaxed">
-              💡 Haritada çemberi sürükleyerek veya tıklayarak analiz yarıçapını değiştirebilirsiniz.
+            <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-zinc-800/50 border border-slate-200/70 dark:border-zinc-700/60 text-[11px] text-muted-foreground leading-relaxed space-y-1">
+              <div>💡 <strong>Çift Sektör Analizi:</strong> En fazla 2 sektör seçerek haritada aynı anda (🔴 Kırmızı & 🔵 Mavi) karşılaştırabilirsiniz.</div>
             </div>
           </div>
 
@@ -849,19 +931,45 @@ export function HomeInvestmentRadarSection() {
                 </div>
               )}
 
-              {/* Active Category Filter Badge Over Map */}
-              {selectedCategory !== 'all' && !categorySearchQuery && (
-                <div className="absolute top-3.5 left-3.5 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 dark:bg-zinc-900/90 text-white text-xs font-bold shadow-lg border border-amber-500/50 backdrop-blur-md animate-fade-in">
-                  <span>{activeCategoryMeta.emoji} {activeCategoryMeta.label}:</span>
-                  <span className="text-amber-400 font-extrabold">{visibleCompetitors.length} işletme</span>
+              {/* Active Category Filter Badges Over Map (Supports 1 or 2 categories) */}
+              {selectedCategories.length > 0 && !categorySearchQuery && (
+                <div className="absolute top-3.5 left-3.5 z-30 flex flex-wrap items-center gap-2 animate-fade-in max-w-[90%]">
+                  {selectedCategories.map((catKey, idx) => {
+                    const catMeta = RADAR_CATEGORIES[catKey] || { label: catKey, emoji: '📍' };
+                    const isCat1 = idx === 0;
+                    const catCount = visibleCompetitors.filter((p) => p.category === catKey).length;
+                    return (
+                      <div
+                        key={catKey}
+                        className={cn(
+                          'flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-xs font-bold shadow-lg border backdrop-blur-md',
+                          isCat1
+                            ? 'bg-rose-950/85 border-rose-500/70 text-rose-100'
+                            : 'bg-sky-950/85 border-sky-500/70 text-sky-100',
+                        )}
+                      >
+                        <span className={cn('h-2 w-2 rounded-full', isCat1 ? 'bg-rose-500' : 'bg-sky-500')} />
+                        <span>{catMeta.emoji} {catMeta.label}:</span>
+                        <span className={cn('font-extrabold', isCat1 ? 'text-rose-400' : 'text-sky-400')}>
+                          {catCount} işletme
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCategoryToggle(catKey)}
+                          title={`${catMeta.label} filtresini kaldır`}
+                          className="ml-1 flex items-center justify-center p-0.5 rounded-full hover:bg-white/20 text-zinc-300 hover:text-white transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
                   <button
                     type="button"
-                    onClick={() => setSelectedCategory('all')}
-                    title="Tüm İşletmeleri Göster"
-                    className="ml-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10.5px] text-zinc-200 transition-colors"
+                    onClick={() => setSelectedCategories([])}
+                    className="px-2 py-1 rounded-full bg-slate-900/80 hover:bg-slate-800 text-[11px] font-bold text-zinc-300 border border-slate-700 shadow-md backdrop-blur-md transition-all"
                   >
-                    <span>Tümü</span>
-                    <X className="w-3 h-3" />
+                    Tümünü Temizle
                   </button>
                 </div>
               )}
@@ -875,6 +983,8 @@ export function HomeInvestmentRadarSection() {
                 listings={radarData?.listingsInRadius || []}
                 onCircleChanged={handleCircleChanged}
                 selectedPoi={selectedPoi}
+                primaryCategory={selectedCategories[0] || null}
+                secondaryCategory={selectedCategories[1] || null}
               />
             </div>
 
@@ -900,19 +1010,40 @@ export function HomeInvestmentRadarSection() {
               </div>
 
               {/* Lejant (Pin Açıklamaları) */}
-              <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3.5 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs animate-pulse" />
                   <span className="font-medium text-slate-700 dark:text-zinc-300">
                     Devir & Ortaklık ({radarData?.listingsInRadius.length || 0})
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
-                  <span className="font-medium text-slate-700 dark:text-zinc-300">
-                    {categorySearchQuery ? `Eşleşen İşletmeler (${visibleCompetitors.length})` : `Mevcut Rakipler (${radarData?.competitors.length || 0})`}
-                  </span>
-                </div>
+                {selectedCategories.length === 2 ? (
+                  <>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
+                      <span className="font-medium text-slate-700 dark:text-zinc-300">
+                        {RADAR_CATEGORIES[selectedCategories[0]]?.label || '1. Sektör'} ({visibleCompetitors.filter(p => p.category === selectedCategories[0]).length})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-xs" />
+                      <span className="font-medium text-slate-700 dark:text-zinc-300">
+                        {RADAR_CATEGORIES[selectedCategories[1]]?.label || '2. Sektör'} ({visibleCompetitors.filter(p => p.category === selectedCategories[1]).length})
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
+                    <span className="font-medium text-slate-700 dark:text-zinc-300">
+                      {categorySearchQuery
+                        ? `Eşleşen İşletmeler (${visibleCompetitors.length})`
+                        : selectedCategories.length === 1
+                        ? `${RADAR_CATEGORIES[selectedCategories[0]]?.label || 'Mevcut'} (${visibleCompetitors.length})`
+                        : `Mevcut Rakipler (${radarData?.competitors.length || 0})`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1053,7 +1184,7 @@ export function HomeInvestmentRadarSection() {
             {/* Rapor İncele Butonu */}
             <div className="pt-1">
               <Link
-                href={`/radar?lat=${centerLat}&lng=${centerLng}&radius=${radiusMeters}&category=${selectedCategory}${activeLocationTitle ? `&title=${encodeURIComponent(activeLocationTitle)}` : ''}${categorySearchQuery ? `&q=${encodeURIComponent(categorySearchQuery)}` : ''}`}
+                href={`/radar?lat=${centerLat}&lng=${centerLng}&radius=${radiusMeters}&category=${selectedCategories.join(',') || 'all'}${activeLocationTitle ? `&title=${encodeURIComponent(activeLocationTitle)}` : ''}${categorySearchQuery ? `&q=${encodeURIComponent(categorySearchQuery)}` : ''}`}
                 className={cn(
                   "w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md",
                   isReportBtnPulsing && "animate-pulse ring-4 ring-amber-400/80 shadow-lg shadow-amber-500/50 scale-[1.02]"

@@ -15,6 +15,8 @@ interface InvestmentRadarMapProps {
   onCircleChanged: (lat: number, lng: number, radius: number) => void;
   selectedPoi?: CompetitorPoi | null;
   isDrawingMode?: boolean;
+  primaryCategory?: string | null;
+  secondaryCategory?: string | null;
 }
 
 export default function InvestmentRadarMap({
@@ -26,6 +28,8 @@ export default function InvestmentRadarMap({
   listings,
   onCircleChanged,
   selectedPoi,
+  primaryCategory,
+  secondaryCategory,
 }: InvestmentRadarMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -210,11 +214,15 @@ export default function InvestmentRadarMap({
       poiMarkersMapRef.current.clear();
 
       for (const poi of competitors) {
+        const isSecondary = Boolean(secondaryCategory && poi.category === secondaryCategory);
+        const pinBgColor = isSecondary ? 'bg-sky-500 hover:bg-sky-600' : 'bg-rose-600 hover:bg-rose-700';
+        const badgeColor = isSecondary ? '#0284c7' : '#e11d48';
+
         const poiIcon = L.divIcon({
           className: 'custom-poi-marker',
           html: `
             <div class="group relative flex items-center justify-center cursor-pointer">
-              <div class="h-3.5 w-3.5 rounded-full bg-rose-600 hover:bg-rose-700 border-2 border-white shadow-md transition-transform duration-150 group-hover:scale-135"></div>
+              <div class="h-3.5 w-3.5 rounded-full ${pinBgColor} border-2 border-white shadow-md transition-transform duration-150 group-hover:scale-135"></div>
             </div>
           `,
           iconSize: [16, 16],
@@ -225,10 +233,11 @@ export default function InvestmentRadarMap({
         marker.bindPopup(
           `
           <div style="font-family: system-ui, -apple-system, sans-serif; padding: 4px 6px; min-width: 140px; text-align: left;">
-            <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3; margin-bottom: 2px;">
+            <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3; margin-bottom: 3px;">
               ${poi.name}
             </div>
-            <div style="font-size: 11px; color: #64748b; font-weight: 500;">
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: ${badgeColor}; font-weight: 700;">
+              <span style="display: inline-block; width: 7px; height: 7px; border-radius: 9999px; background-color: ${badgeColor};"></span>
               ${poi.categoryLabel}
             </div>
           </div>
@@ -248,7 +257,7 @@ export default function InvestmentRadarMap({
         });
       }
     });
-  }, [competitors, selectedPoi]);
+  }, [competitors, selectedPoi, primaryCategory, secondaryCategory]);
 
   useEffect(() => {
     if (!mapRef.current || !listingsLayerGroupRef.current) return;
