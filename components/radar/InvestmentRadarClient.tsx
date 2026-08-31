@@ -869,7 +869,7 @@ export function InvestmentRadarClient() {
                       className={cn(
                         'w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 group border',
                         isCat1
-                          ? 'bg-slate-900/10 dark:bg-slate-800/60 border-slate-900/60 dark:border-slate-400/60 ring-1 ring-slate-900/30 text-slate-900 dark:text-white font-bold shadow-xs'
+                          ? 'bg-red-500/10 dark:bg-red-500/20 border-red-500/60 ring-1 ring-red-500/40 text-slate-900 dark:text-white font-bold shadow-xs'
                           : isCat2
                           ? 'bg-blue-500/10 dark:bg-blue-500/20 border-blue-500/60 ring-1 ring-blue-500/40 text-slate-900 dark:text-white font-bold shadow-xs'
                           : 'bg-white/60 dark:bg-zinc-900/40 border-slate-200/60 dark:border-zinc-800/60 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/40 font-medium',
@@ -880,8 +880,8 @@ export function InvestmentRadarClient() {
                         <div className="flex flex-col min-w-0">
                           <span className="text-xs truncate">{cat.label}</span>
                           {isCat1 && (
-                            <span className="text-[9px] font-extrabold text-slate-900 dark:text-slate-200">
-                              1. Sektör (Siyah)
+                            <span className="text-[9px] font-extrabold text-red-600 dark:text-red-400">
+                              1. Sektör (Kırmızı)
                             </span>
                           )}
                           {isCat2 && (
@@ -897,7 +897,7 @@ export function InvestmentRadarClient() {
                             className={cn(
                               'text-[10px] px-2 py-0.5 rounded-full font-bold border',
                               isCat1
-                                ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 border-slate-900'
+                                ? 'bg-red-500/20 text-red-800 dark:text-red-200 border-red-500/40'
                                 : isCat2
                                 ? 'bg-blue-500/20 text-blue-800 dark:text-blue-200 border-blue-500/40'
                                 : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/20',
@@ -911,7 +911,7 @@ export function InvestmentRadarClient() {
                           </span>
                         )}
                         {isCat1 && (
-                          <span className="h-2.5 w-2.5 rounded-full bg-slate-950 dark:bg-white shrink-0 ring-2 ring-slate-400" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-red-600 shrink-0 ring-2 ring-red-300" />
                         )}
                         {isCat2 && (
                           <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shrink-0 ring-2 ring-blue-300" />
@@ -931,7 +931,7 @@ export function InvestmentRadarClient() {
 
             {/* Sol Alt Bilgi Kartı */}
             <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-zinc-800/50 border border-slate-200/70 dark:border-zinc-700/60 text-[11px] text-muted-foreground leading-relaxed space-y-1">
-              <div>💡 <strong>Çift Sektör Analizi:</strong> En fazla 2 sektör seçerek haritada aynı anda (⚫ Siyah & 🔵 Mavi) karşılaştırabilirsiniz.</div>
+              <div>💡 <strong>Çift Sektör Analizi:</strong> En fazla 2 sektör seçerek haritada aynı anda (🔴 Kırmızı & 🔵 Mavi) karşılaştırabilirsiniz.</div>
             </div>
           </div>
 
@@ -1032,21 +1032,21 @@ export function InvestmentRadarClient() {
                 {selectedCategories.length === 2 ? (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-950 dark:bg-white shadow-xs" />
-                      <span className="font-medium text-slate-900 dark:text-white font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-xs" />
+                      <span className="font-medium text-red-600 dark:text-red-400 font-bold">
                         {RADAR_CATEGORIES[selectedCategories[0]]?.label || '1. Sektör'} ({visibleCompetitors.filter(p => p.category === selectedCategories[0] || (selectedCategories[0] === 'restaurant' && p.category === 'donerci') || (selectedCategories[0] === 'dry_cleaning' && p.category === 'terzi')).length})
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
-                      <span className="font-medium text-blue-700 dark:text-blue-300 font-bold">
+                      <span className="font-medium text-blue-600 dark:text-blue-400 font-bold">
                         {RADAR_CATEGORIES[selectedCategories[1]]?.label || '2. Sektör'} ({visibleCompetitors.filter(p => p.category === selectedCategories[1] || (selectedCategories[1] === 'restaurant' && p.category === 'donerci') || (selectedCategories[1] === 'dry_cleaning' && p.category === 'terzi')).length})
                       </span>
                     </div>
                   </>
                 ) : (
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-950 dark:bg-white shadow-xs" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-xs" />
                     <span className="font-medium text-slate-700 dark:text-zinc-300">
                       {categorySearchQuery
                         ? `Eşleşen İşletmeler (${visibleCompetitors.length})`

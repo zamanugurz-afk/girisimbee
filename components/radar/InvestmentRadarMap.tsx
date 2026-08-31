@@ -221,8 +221,8 @@ export default function InvestmentRadarMap({
             (secondaryCategory === 'dry_cleaning' && poi.category === 'terzi')
           )
         );
-        const pinBgColor = isSecondary ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-950 hover:bg-black';
-        const badgeColor = isSecondary ? '#2563eb' : '#0f172a';
+        const pinBgColor = isSecondary ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700';
+        const badgeColor = isSecondary ? '#2563eb' : '#dc2626';
 
         const poiIcon = L.divIcon({
           className: 'custom-poi-marker',
