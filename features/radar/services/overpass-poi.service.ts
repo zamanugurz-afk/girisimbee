@@ -82,6 +82,16 @@ export const CATEGORY_TAG_MAP: Record<string, string[]> = {
   manav: ['["shop"~"greengrocer|farm"]'],
   terzi: ['["shop"="tailor"]', '["craft"="tailor"]'],
   oto_elektrik: ['["shop"~"car_repair|car_parts"]'],
+  jewelry: ['["shop"="jewelry"]'],
+  su_bayisi: ['["shop"~"beverages|water"]'],
+  playstation_cafe: ['["leisure"~"video_arcade|amusement_arcade]'],
+  internet_cafe: ['["amenity"="internet_cafe"]'],
+  parti_evi: ['["amenity"~"childcare|events_venue]'],
+  oto_ekspertiz: ['["shop"~"car_repair|car_parts]'],
+  pilates_studio: ['["leisure"~"fitness_centre|dance]'],
+  kitap_kafe: ['["amenity"~"cafe|library]'],
+  tattoo_studio: ['["shop"="tattoo"]'],
+  dietitian: ['["healthcare"~"dietitian|nutritionist]'],
 };
 
 // Turkish Nominatim Search Keywords
@@ -118,6 +128,16 @@ const NOMINATIM_SECTOR_KEYWORDS: Record<string, string[]> = {
   dondurmaci: ['dondurmacı', 'waffle'],
   furniture: ['mobilya', 'dekorasyon'],
   electronics: ['telefon tamir', 'elektronik'],
+  jewelry: ['kuyumcu', 'sarraf', 'altın'],
+  su_bayisi: ['su bayisi', 'damacana su'],
+  playstation_cafe: ['playstation', 'ps5 cafe', 'oyun salonu'],
+  internet_cafe: ['internet cafe', 'gaming cafe', 'e-spor'],
+  parti_evi: ['parti evi', 'oyun evi', 'etkinlik evi'],
+  oto_ekspertiz: ['oto ekspertiz', 'dyno test', 'computest'],
+  pilates_studio: ['reformer pilates', 'pilates stüdyosu', 'yoga'],
+  kitap_kafe: ['kitap kafe', 'kitap kahve', 'çalışma alanı'],
+  tattoo_studio: ['dövme stüdyosu', 'tattoo', 'piercing'],
+  dietitian: ['diyetisyen', 'beslenme danışmanlığı'],
 };
 
 function hasWord(text: string | undefined, words: string[]): boolean {
@@ -1091,6 +1111,60 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
     'Anadolu Sigorta Acentesi',
     'Axa Sigorta Yetkili Acentesi',
     'Aksigorta & Kasko/DASK Ofisi',
+  ],
+  playstation_cafe: [
+    'Matrix Playstation & VIP Lounge',
+    'Arena PS5 & Konsol Oyun Salonu',
+    'GameZone Playstation Cafe',
+    'VIP Playstation & VR Club',
+    'Şampiyon Konsol & Playstation Cafe',
+  ],
+  internet_cafe: [
+    'Adeks Gaming Arena & E-Spor',
+    'Chatlak İnternet & Gaming Cafe',
+    'CyberSpace E-Spor Merkezi',
+    'Matrix İnternet & Oyun Salonu',
+    'Siber Gaming & Bilgisayar Cafe',
+  ],
+  parti_evi: [
+    'Joy Kids Parti & Oyun Evi',
+    'Masal Diyarı Doğum Günü & Etkinlik',
+    'Party Land Kids Club & Atölye',
+    'Renkli Düşler Çocuk Parti Evi',
+    'Happy Kids Doğum Günü & Oyun Evi',
+  ],
+  oto_ekspertiz: [
+    'Otorapor Oto Ekspertiz',
+    'Pilot Garage Oto Ekspertiz',
+    'TÜV SÜD D-Expert Ekspertiz',
+    'Dynomark Computest & Ekspertiz',
+    'Garantili Arabam Oto Ekspertiz',
+  ],
+  pilates_studio: [
+    'FitForm Reformer Pilates & Yoga',
+    'Zenith Pilates & Fonksiyonel Stüdyo',
+    'Balance Butik Reformer Pilates',
+    'Studio Pure Pilates & Wellness',
+    'Flex Reformer Pilates Stüdyosu',
+  ],
+  kitap_kafe: [
+    'Penguen Kitap Kafe & Kahve',
+    'Minoa Books & Coffee',
+    'Fahriye Kitap Kahve & Çalışma',
+    'Sayfa Kitap Kafe & Co-Working',
+    'Kütüphane Kafe & Sessiz Çalışma',
+  ],
+  tattoo_studio: [
+    'Ink Art Dövme & Piercing Stüdyosu',
+    'Golden Needle Tattoo Studio',
+    'Black Rose Tattoo & Piercing',
+    'Artisan Dövme & Kalıcı Makyaj',
+  ],
+  dietitian: [
+    'Dyt. {loc} Beslenme & Diyet Danışmanlığı',
+    'Formlife Diyet & Zayıflama Kliniği',
+    'FitFit Beslenme & Andulasyon Merkezi',
+    'Diyetisyen & Sağlıklı Yaşam Merkezi',
   ],
 };
 
