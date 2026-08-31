@@ -231,9 +231,17 @@ export function RadarAnalysisPanel({ data, isLoading }: RadarAnalysisPanelProps)
           </h3>
         </div>
 
-        {/* Summary Note */}
-        <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 text-xs leading-relaxed text-slate-800 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200">
-          <p>{intelligence.summaryAdvice}</p>
+        {/* Stratejik Bölge Değerlendirmesi */}
+        <div className="rounded-2xl border border-amber-500/35 bg-amber-50/90 dark:bg-amber-950/40 p-4 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span className="text-[10.5px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+              Stratejik Bölge Değerlendirmesi
+            </span>
+          </div>
+          <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[13px] leading-relaxed font-medium">
+            {intelligence.summaryAdvice}
+          </p>
         </div>
 
         {/* Pros & Cons */}

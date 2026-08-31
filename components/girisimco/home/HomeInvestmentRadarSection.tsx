@@ -782,24 +782,9 @@ export function HomeInvestmentRadarSection() {
           {/* C. SAĞ SÜTUN: DEMOGRAFİ & AI SKORU (~340px - lg:col-span-3)              */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
-            <div className="space-y-3 flex-1 flex flex-col">
+            <div className="space-y-3 flex-1 flex flex-col justify-center">
               
-              {/* 1. STRATEJİK BÖLGE DEĞERLENDİRMESİ */}
-              {radarData?.intelligence?.summaryAdvice && (
-                <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-500/35 space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                      Stratejik Bölge Değerlendirmesi
-                    </span>
-                  </div>
-                  <p className="text-slate-800 dark:text-zinc-200 text-xs sm:text-[12px] leading-relaxed font-medium">
-                    {radarData.intelligence.summaryAdvice}
-                  </p>
-                </div>
-              )}
-
-              {/* 2. YAPAY ZEKA YATIRIM PUANI */}
+              {/* 1. YAPAY ZEKA YATIRIM PUANI */}
               <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5 overflow-hidden">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
