@@ -5,6 +5,7 @@ import type {
   SetupLegalFeeItem,
   BusinessSetupCalculationResult,
   StaffCostDetail,
+  RevenueProjectionResult,
 } from '../types/business-setup.types';
 import { getDistrictRentalRate, calculateLeaseInitialCost } from '../data/district-rental-rates';
 
@@ -29,6 +30,8 @@ export interface SetupCalculationParams {
   workingCapitalMonths?: number;
   customUtilities?: number | null;
   customAccounting?: number | null;
+  customDailyVolume?: number | null;
+  customAvgTicketPrice?: number | null;
 }
 
 export function calculateStaffEmployerCost(netSalary: number): StaffCostDetail {
@@ -69,6 +72,8 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     workingCapitalMonths = 3,
     customUtilities,
     customAccounting,
+    customDailyVolume,
+    customAvgTicketPrice,
   } = params;
 
   // 1. Ekipman / Demirbaş Maliyeti
@@ -151,8 +156,47 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
 
   // 11. Başabaş Satış / İşlem Projeksiyonu
   const unitPrice = template.breakEvenMetric?.unitPrice || 1000;
-  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * 0.4))); // %40 ortalama brüt marj baz alınarak
+  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * (template.revenueModel?.grossMarginPercent ? template.revenueModel.grossMarginPercent / 100 : 0.4))));
   const dailyBreakEvenCount = template.breakEvenMetric?.targetUnitsPerDay || calculatedDailyUnits;
+
+  // 12. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI
+  const revModel = template.revenueModel || {
+    avgTicketPrice: 1000,
+    defaultDailyVolume: 10,
+    minDailyVolume: 1,
+    maxDailyVolume: 100,
+    unitLabel: 'İşlem',
+    grossMarginPercent: 40,
+    daysPerMonth: 26,
+  };
+
+  const dailyVolume = customDailyVolume != null && customDailyVolume > 0 ? customDailyVolume : revModel.defaultDailyVolume;
+  const avgTicketPrice = customAvgTicketPrice != null && customAvgTicketPrice > 0 ? customAvgTicketPrice : revModel.avgTicketPrice;
+  const daysPerMonth = revModel.daysPerMonth || 26;
+  const grossMarginPercent = revModel.grossMarginPercent || 40;
+
+  const monthlyVolume = Math.round(dailyVolume * daysPerMonth);
+  const monthlyGrossRevenue = Math.round(monthlyVolume * avgTicketPrice);
+  const monthlyGrossProfit = Math.round(monthlyGrossRevenue * (grossMarginPercent / 100));
+  const monthlyNetProfit = Math.round(monthlyGrossProfit - monthlyOperatingCost);
+
+  const isProfitable = monthlyNetProfit > 0;
+  const paybackMonths = isProfitable && totalInitialInvestment > 0
+    ? Math.max(1, Math.round((totalInitialInvestment / monthlyNetProfit) * 10) / 10)
+    : 0;
+
+  const revenueProjection: RevenueProjectionResult = {
+    dailyVolume,
+    monthlyVolume,
+    avgTicketPrice,
+    grossMarginPercent,
+    monthlyGrossRevenue,
+    monthlyGrossProfit,
+    monthlyFixedCost: monthlyOperatingCost,
+    monthlyNetProfit,
+    paybackMonths,
+    isProfitable,
+  };
 
   return {
     totalInitialInvestment,
@@ -180,5 +224,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
       unitLabel: 'İşlem / Gün',
     },
     dailyBreakEvenCount,
+
+    revenueProjection,
   };
 }

@@ -46,6 +46,17 @@ export interface SetupSoftwareLicense {
   description?: string;
 }
 
+export interface SetupRevenueModel {
+  avgTicketPrice: number; // Ortalama sepet / işlem tutarı (₺)
+  defaultDailyVolume: number; // Önerilen günlük müşteri / işlem sayısı
+  minDailyVolume: number;
+  maxDailyVolume: number;
+  unitLabel: string; // 'Müşteri', 'Poliçe', 'Reçete', 'Araç', 'Dosya' vb.
+  grossMarginPercent: number; // Brüt Kar Marjı (%): Örn: %65 kafe, %25 eczane, %80 müşavirlik
+  daysPerMonth: number; // 26 veya 30 gün
+  description?: string;
+}
+
 export interface SetupBreakEvenMetric {
   label: string;
   unitPrice: number;
@@ -69,6 +80,7 @@ export interface BusinessTemplate {
   softwareLicenseCost: SetupSoftwareLicense;
   recommendedStaff: SetupStaffRole[];
   breakEvenMetric: SetupBreakEvenMetric;
+  revenueModel: SetupRevenueModel;
   monthlyUtilitiesEstimate?: number;
   monthlyAccountingFee?: number;
   workingCapitalMonths?: number;
@@ -79,6 +91,19 @@ export interface StaffCostDetail {
   grossSalary: number;
   sgkEmployerCost: number;
   totalEmployerCost: number;
+}
+
+export interface RevenueProjectionResult {
+  dailyVolume: number;
+  monthlyVolume: number;
+  avgTicketPrice: number;
+  grossMarginPercent: number;
+  monthlyGrossRevenue: number;
+  monthlyGrossProfit: number;
+  monthlyFixedCost: number;
+  monthlyNetProfit: number;
+  paybackMonths: number;
+  isProfitable: boolean;
 }
 
 export interface BusinessSetupCalculationResult {
@@ -102,4 +127,6 @@ export interface BusinessSetupCalculationResult {
 
   breakEvenMetric: SetupBreakEvenMetric;
   dailyBreakEvenCount: number;
+
+  revenueProjection: RevenueProjectionResult;
 }

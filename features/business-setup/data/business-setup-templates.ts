@@ -33,11 +33,11 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     equipments: [
       { id: 'fire_ext', name: 'Yangın Söndürme Tüpü & İlk Yardım Seti (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 100, regulatoryNote: 'Yangın Yönetmeliği Md. 99.' },
       { id: 'archive_cab', name: 'Kilitli Çelik Arşiv ve Kıymetli Evrak Kasası', category: 'mandatory', unitCost: 14500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', regulatoryNote: 'SEDDK poliçe ve teminat evrakları güvenlik şartı.' },
-      { id: 'pc_setup', name: 'Çift Monitörlü Acente Bilgisayarı', category: 'core_tech', unitCost: 32000, defaultQty: 2, minQty: 1, isLocked: false, unitLabel: 'Adet' },
+      { id: 'pc_setup', name: 'Çift Monitörlü Acente Bilgisayarı (İntel i7 + UPS)', category: 'core_tech', unitCost: 32000, defaultQty: 2, minQty: 1, isLocked: false, unitLabel: 'Adet', description: 'Çoklu ekran poliçe karşılaştırma iş istasyonu.' },
       { id: 'printer', name: 'Yüksek Hızlı Çok Fonksiyonlu Belge Tarayıcı & Lazer Yazıcı', category: 'core_tech', unitCost: 16800, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
-      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU A+++)', category: 'appliances', unitCost: 28000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
+      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU A+++)', category: 'appliances', unitCost: 28000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 60 },
       { id: 'office_desk', name: 'Yönetici & Acente Müdürü Masa Takımı', category: 'furniture', unitCost: 22500, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Takım' },
-      { id: 'guest_chairs', name: 'Müşteri Karşılama ve İnceleme Koltuk Grubu', category: 'furniture', unitCost: 15400, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım' },
+      { id: 'guest_chairs', name: 'Müşteri Karşılama ve İnceleme Koltuk Grubu', category: 'furniture', unitCost: 15400, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım', description: 'Müşteri ağırlama deri koltuk ve sehpa takımı.' },
       { id: 'water_dispenser', name: 'Arıtmalı Sıcak-Soğuk Su Sebili', category: 'appliances', unitCost: 6500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' }
     ],
     initialInventoryCost: 8500,
@@ -48,6 +48,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Teknik Personel & Satış Uzmanı (SEGEM)', count: 1, avgSalary: 34000, isMandatory: false }
     ],
     breakEvenMetric: { label: 'Günlük Tanzim Edilen Poliçe Adedi', unitPrice: 3800, targetUnitsPerDay: 8, unitLabel: 'Poliçe / Gün' },
+    revenueModel: {
+      avgTicketPrice: 3800, // Ortalama Poliçe Primi
+      defaultDailyVolume: 8, // Günde 8 poliçe
+      minDailyVolume: 2,
+      maxDailyVolume: 30,
+      unitLabel: 'Poliçe',
+      grossMarginPercent: 18, // %18 Acente Komisyonu
+      daysPerMonth: 26,
+      description: 'Kasko, Trafik, DASK, Konut ve Tamamlayıcı Sağlık poliçeleri ortalama primi ve %18 net acente komisyonu.'
+    },
     monthlyUtilitiesEstimate: 4500,
     monthlyAccountingFee: 3000,
   },
@@ -69,7 +79,7 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { id: 'led_showcase', name: 'Işıklı Pleksi Cam İlan Vitrini Panoları (Set)', category: 'mandatory', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', regulatoryNote: 'Taşınmaz Ticareti Yönetmeliği vitrin standartları.' },
       { id: 'fire_ext', name: 'Yangın Söndürme Tüpü (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 100, regulatoryNote: 'Yangın Yönetmeliği Md. 99.' },
       { id: 'office_pc', name: 'Ofis Bilgisayarı & Çok Fonksiyonlu Yazıcı', category: 'core_tech', unitCost: 28000, defaultQty: 2, minQty: 1, isLocked: false, unitLabel: 'Adet' },
-      { id: 'meeting_table', name: 'Sözleşme & Toplantı Masası Grubu', category: 'furniture', unitCost: 24000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım' }
+      { id: 'meeting_table', name: 'Sözleşme & Toplantı Masası Grubu (6 Kişilik)', category: 'furniture', unitCost: 24000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım' }
     ],
     initialInventoryCost: 6500,
     initialInventoryDescription: 'Sözleşme koçanları, yetki belgeleri, branda, afiş ve kurumsal kırtasiye seti.',
@@ -79,6 +89,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Saha Satış Danışmanı', count: 1, avgSalary: 28000, isMandatory: false }
     ],
     breakEvenMetric: { label: 'Aylık Kiralama & Satış İşlemi', unitPrice: 35000, targetUnitsPerDay: 0.25, unitLabel: 'İşlem / Ay' },
+    revenueModel: {
+      avgTicketPrice: 35000, // Kiralama veya satış başına ortalama komisyon geliri
+      defaultDailyVolume: 0.25, // Ayda 6-7 işlem
+      minDailyVolume: 0.1,
+      maxDailyVolume: 1.5,
+      unitLabel: 'İşlem',
+      grossMarginPercent: 85, // Hizmet sektöründe brüt kar marjı
+      daysPerMonth: 26,
+      description: 'Konut ve ticari gayrimenkul kiralama ve satış aracılık hizmet bedeli.'
+    },
     monthlyUtilitiesEstimate: 4200,
     monthlyAccountingFee: 2800,
   },
@@ -108,7 +128,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'SMMM Mesul Müdür', count: 1, avgSalary: 60000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Muhasebe Meslek Elemanı', count: 1, avgSalary: 32000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Aylık Aktif Defter Mükellefi', unitPrice: 2200, targetUnitsPerDay: 1.5, unitLabel: 'Mükellef / Ay' },
+    breakEvenMetric: { label: 'Aylık Aktif Defter Mükellefi', unitPrice: 2400, targetUnitsPerDay: 1.5, unitLabel: 'Mükellef / Ay' },
+    revenueModel: {
+      avgTicketPrice: 2400, // Mükellef başı aylık defter tutma bedeli
+      defaultDailyVolume: 2.3, // ~60 aktif mükellef
+      minDailyVolume: 0.5,
+      maxDailyVolume: 6.0,
+      unitLabel: 'Mükellef',
+      grossMarginPercent: 82,
+      daysPerMonth: 26,
+      description: 'Aylık düzenli muhasebe, beyanname ve bordro danışmanlığı ücretleri.'
+    },
     monthlyUtilitiesEstimate: 3800,
     monthlyAccountingFee: 0,
   },
@@ -137,7 +167,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Ruhsatlı Avukat', count: 1, avgSalary: 55000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Hukuk Katibi / Asistan', count: 1, avgSalary: 26000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Aylık Alınan Dava / Danışmanlık Dosyası', unitPrice: 18000, targetUnitsPerDay: 0.3, unitLabel: 'Dava / Ay' },
+    breakEvenMetric: { label: 'Aylık Alınan Dava / Danışmanlık Dosyası', unitPrice: 22000, targetUnitsPerDay: 0.3, unitLabel: 'Dava / Ay' },
+    revenueModel: {
+      avgTicketPrice: 22000,
+      defaultDailyVolume: 0.38, // Ayda 10 dava / danışmanlık
+      minDailyVolume: 0.1,
+      maxDailyVolume: 1.5,
+      unitLabel: 'Dosya',
+      grossMarginPercent: 85,
+      daysPerMonth: 26,
+      description: 'Dava vekalet ücretleri, icra takipleri ve aylık kurumsal danışmanlık sözleşmeleri.'
+    },
     monthlyUtilitiesEstimate: 4000,
     monthlyAccountingFee: 2500,
   },
@@ -164,7 +204,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Kıdemli Yazılım / Tasarım Uzmanı', count: 2, avgSalary: 65000, isMandatory: true }
     ],
-    breakEvenMetric: { label: 'Aylık Tamamlanan Proje / Sprint', unitPrice: 45000, targetUnitsPerDay: 0.15, unitLabel: 'Proje / Ay' },
+    breakEvenMetric: { label: 'Aylık Tamamlanan Proje / Sprint', unitPrice: 55000, targetUnitsPerDay: 0.15, unitLabel: 'Proje / Ay' },
+    revenueModel: {
+      avgTicketPrice: 55000,
+      defaultDailyVolume: 0.2, // Ayda 5-6 proje
+      minDailyVolume: 0.05,
+      maxDailyVolume: 1.0,
+      unitLabel: 'Proje',
+      grossMarginPercent: 72,
+      daysPerMonth: 26,
+      description: 'Web/Mobil yazılım geliştirme, bulut altyapı ve aylık dijital pazarlama yönetim hizmetleri.'
+    },
     monthlyUtilitiesEstimate: 5500,
     monthlyAccountingFee: 3000,
   },
@@ -197,7 +247,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Barista / Mutfak Sorumlusu', count: 2, avgSalary: 32000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Servis Personeli', count: 1, avgSalary: 24000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Günlük Kahve & Tatlı Siparişi', unitPrice: 200, targetUnitsPerDay: 70, unitLabel: 'Sipariş / Gün' },
+    breakEvenMetric: { label: 'Günlük Kahve & Tatlı Siparişi', unitPrice: 220, targetUnitsPerDay: 70, unitLabel: 'Sipariş / Gün' },
+    revenueModel: {
+      avgTicketPrice: 220, // Ortalama adisyon tutarı (Kahve + Tatlı)
+      defaultDailyVolume: 90, // Günde 90 müşteri
+      minDailyVolume: 30,
+      maxDailyVolume: 300,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 68,
+      daysPerMonth: 30,
+      description: 'Nitelikli kahve, soğuk içecekler, kruvasan ve taze pasta satışlarından oluşan ortalama sipariş.'
+    },
     monthlyUtilitiesEstimate: 12500,
     monthlyAccountingFee: 3000,
   },
@@ -227,7 +287,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Mutfak Şefi / Aşçı', count: 1, avgSalary: 50000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Aşçı Yardımcısı & Bulaşıkçı', count: 2, avgSalary: 26000, isMandatory: true }
     ],
-    breakEvenMetric: { label: 'Günlük Ana Yemek Porsiyonu', unitPrice: 350, targetUnitsPerDay: 60, unitLabel: 'Porsiyon / Gün' },
+    breakEvenMetric: { label: 'Günlük Ana Yemek Porsiyonu', unitPrice: 380, targetUnitsPerDay: 60, unitLabel: 'Porsiyon / Gün' },
+    revenueModel: {
+      avgTicketPrice: 380,
+      defaultDailyVolume: 85,
+      minDailyVolume: 25,
+      maxDailyVolume: 250,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 58,
+      daysPerMonth: 30,
+      description: 'Öğle ve akşam servisi ana yemek, içecek ve meze siparişlerinin kişi başı ortalama tutarı.'
+    },
     monthlyUtilitiesEstimate: 22000,
     monthlyAccountingFee: 3500,
   },
@@ -257,6 +327,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Paket / Kurye Personeli', count: 2, avgSalary: 26000, isMandatory: false }
     ],
     breakEvenMetric: { label: 'Günlük Döner & Dürüm Porsiyonu', unitPrice: 260, targetUnitsPerDay: 75, unitLabel: 'Dürüm / Gün' },
+    revenueModel: {
+      avgTicketPrice: 260,
+      defaultDailyVolume: 120,
+      minDailyVolume: 40,
+      maxDailyVolume: 350,
+      unitLabel: 'Porsiyon',
+      grossMarginPercent: 52,
+      daysPerMonth: 30,
+      description: 'Et/Tavuk döner dürüm, porsiyon, patates ve içecekten oluşan hızlı tüketim siparişleri.'
+    },
     monthlyUtilitiesEstimate: 16000,
     monthlyAccountingFee: 3000,
   },
@@ -283,7 +363,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Usta / Dürüm Hazırlama Personeli', count: 1, avgSalary: 28000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Porsiyon / Dürüm Satışı', unitPrice: 120, targetUnitsPerDay: 60, unitLabel: 'Dürüm / Gün' },
+    breakEvenMetric: { label: 'Günlük Porsiyon / Dürüm Satışı', unitPrice: 140, targetUnitsPerDay: 60, unitLabel: 'Dürüm / Gün' },
+    revenueModel: {
+      avgTicketPrice: 140,
+      defaultDailyVolume: 95,
+      minDailyVolume: 30,
+      maxDailyVolume: 250,
+      unitLabel: 'Sipariş',
+      grossMarginPercent: 55,
+      daysPerMonth: 30,
+      description: 'Dürüm ve kilo ile çiğköfte paket satışları.'
+    },
     monthlyUtilitiesEstimate: 5000,
     monthlyAccountingFee: 2200,
   },
@@ -313,7 +403,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Fırın & Hamurkar Ustası', count: 1, avgSalary: 52000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Satış / Kasa Elemanı', count: 2, avgSalary: 24000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Günlük Ekmek & Unlu Mamul Satışı', unitPrice: 30, targetUnitsPerDay: 380, unitLabel: 'Adet / Gün' },
+    breakEvenMetric: { label: 'Günlük Ekmek & Unlu Mamul Satışı', unitPrice: 65, targetUnitsPerDay: 380, unitLabel: 'Fiş / Gün' },
+    revenueModel: {
+      avgTicketPrice: 65,
+      defaultDailyVolume: 420,
+      minDailyVolume: 150,
+      maxDailyVolume: 900,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 62,
+      daysPerMonth: 30,
+      description: 'Ekmek, simit, poğaça, börek ve unlu mamul perakende tezgah satışları.'
+    },
     monthlyUtilitiesEstimate: 24000,
     monthlyAccountingFee: 3500,
   },
@@ -346,6 +446,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Eczane Teknisyeni / Kalfası', count: 2, avgSalary: 32000, isMandatory: true }
     ],
     breakEvenMetric: { label: 'Günlük Reçete & OTC Satış Adedi', unitPrice: 420, targetUnitsPerDay: 75, unitLabel: 'Reçete / Gün' },
+    revenueModel: {
+      avgTicketPrice: 420, // Reçete + OTC ortalama sepet
+      defaultDailyVolume: 90, // Günde 90 işlem
+      minDailyVolume: 35,
+      maxDailyVolume: 220,
+      unitLabel: 'Hasta / Reçete',
+      grossMarginPercent: 26, // İlaç Fiyat Kararnamesi kademeli eczacı brüt marjı
+      daysPerMonth: 26,
+      description: 'SGK reçeteli ilaçlar, OTC gıda takviyeleri, dermokozmetik ve medikal ürün satışları.'
+    },
     monthlyUtilitiesEstimate: 6500,
     monthlyAccountingFee: 3000,
   },
@@ -376,7 +486,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Usta Kuaför / Uzman Estetisyen', count: 2, avgSalary: 38000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Yardımcı / Kalfa', count: 1, avgSalary: 24000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Günlük Hizmet Verilen Müşteri', unitPrice: 850, targetUnitsPerDay: 12, unitLabel: 'Müşteri / Gün' },
+    breakEvenMetric: { label: 'Günlük Hizmet Verilen Müşteri', unitPrice: 950, targetUnitsPerDay: 12, unitLabel: 'Müşteri / Gün' },
+    revenueModel: {
+      avgTicketPrice: 950,
+      defaultDailyVolume: 16,
+      minDailyVolume: 5,
+      maxDailyVolume: 40,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 75,
+      daysPerMonth: 26,
+      description: 'Saç kesim, renklendirme, ombre, keratin bakım, manikür/pedikür ve cilt bakımı seansları.'
+    },
     monthlyUtilitiesEstimate: 7500,
     monthlyAccountingFee: 2500,
   },
@@ -406,7 +526,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Diş Hekimi (Mesul Müdür)', count: 1, avgSalary: 80000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Ağız ve Diş Sağlığı Teknikeri', count: 1, avgSalary: 32000, isMandatory: true }
     ],
-    breakEvenMetric: { label: 'Günlük Tedavi & Dolgu / Bakım Sayısı', unitPrice: 1800, targetUnitsPerDay: 4, unitLabel: 'Hasta / Gün' },
+    breakEvenMetric: { label: 'Günlük Tedavi & Dolgu / Bakım Sayısı', unitPrice: 2200, targetUnitsPerDay: 4, unitLabel: 'Hasta / Gün' },
+    revenueModel: {
+      avgTicketPrice: 2200,
+      defaultDailyVolume: 6,
+      minDailyVolume: 2,
+      maxDailyVolume: 16,
+      unitLabel: 'Hasta',
+      grossMarginPercent: 65,
+      daysPerMonth: 26,
+      description: 'Dolgu, kanal tedavisi, diş temizliği, protez ve estetik diş hekimliği uygulamaları.'
+    },
     monthlyUtilitiesEstimate: 8500,
     monthlyAccountingFee: 3500,
   },
@@ -435,7 +565,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       { role: 'Mesul Müdür Optisyen', count: 1, avgSalary: 50000, isMandatory: true, allowOwnerFulfillment: true },
       { role: 'Satış Danışmanı', count: 1, avgSalary: 28000, isMandatory: false }
     ],
-    breakEvenMetric: { label: 'Günlük Gözlük & Cam Satış Adedi', unitPrice: 2200, targetUnitsPerDay: 3, unitLabel: 'Gözlük / Gün' },
+    breakEvenMetric: { label: 'Günlük Gözlük & Cam Satış Adedi', unitPrice: 2400, targetUnitsPerDay: 3, unitLabel: 'Gözlük / Gün' },
+    revenueModel: {
+      avgTicketPrice: 2400,
+      defaultDailyVolume: 5,
+      minDailyVolume: 1,
+      maxDailyVolume: 15,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 52,
+      daysPerMonth: 26,
+      description: 'Reçeteli optik cam/çerçeve, güneş gözlüğü ve kontak lens paket satışları.'
+    },
     monthlyUtilitiesEstimate: 4800,
     monthlyAccountingFee: 2800,
   },
@@ -462,7 +602,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Sertifikalı Pilates/Yoga Eğitmeni', count: 2, avgSalary: 35000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Aylık Aktif Paket Alan Üye Sayısı', unitPrice: 3500, targetUnitsPerDay: 1.2, unitLabel: 'Üye / Ay' },
+    breakEvenMetric: { label: 'Aylık Aktif Paket Alan Üye Sayısı', unitPrice: 3800, targetUnitsPerDay: 1.2, unitLabel: 'Üye / Ay' },
+    revenueModel: {
+      avgTicketPrice: 3800, // 8 Seanslık Aylık Reformer Paketi
+      defaultDailyVolume: 2.2, // ~55 aktif paket
+      minDailyVolume: 0.5,
+      maxDailyVolume: 6.0,
+      unitLabel: 'Üye Paketi',
+      grossMarginPercent: 80,
+      daysPerMonth: 26,
+      description: 'Birebir PT dersleri, düet reformer seansları ve aylık mat yoga üyelikleri.'
+    },
     monthlyUtilitiesEstimate: 5000,
     monthlyAccountingFee: 2500,
   },
@@ -492,7 +642,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Kasiyer & Reyon Elemanı', count: 2, avgSalary: 25000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Market Kasa Fiş Sayısı', unitPrice: 180, targetUnitsPerDay: 95, unitLabel: 'Fiş / Gün' },
+    breakEvenMetric: { label: 'Günlük Market Kasa Fiş Sayısı', unitPrice: 190, targetUnitsPerDay: 95, unitLabel: 'Fiş / Gün' },
+    revenueModel: {
+      avgTicketPrice: 190,
+      defaultDailyVolume: 160,
+      minDailyVolume: 50,
+      maxDailyVolume: 400,
+      unitLabel: 'Müşteri / Fiş',
+      grossMarginPercent: 24,
+      daysPerMonth: 30,
+      description: 'Gıda, şarküteri, temizlik ve günlük temel tüketim ürünleri kasa satışları.'
+    },
     monthlyUtilitiesEstimate: 14000,
     monthlyAccountingFee: 3000,
   },
@@ -520,7 +680,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Mağaza Satış Sorumlusu', count: 2, avgSalary: 26000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Parça Kıyafet Satışı', unitPrice: 750, targetUnitsPerDay: 10, unitLabel: 'Parça / Gün' },
+    breakEvenMetric: { label: 'Günlük Parça Kıyafet Satışı', unitPrice: 850, targetUnitsPerDay: 10, unitLabel: 'Parça / Gün' },
+    revenueModel: {
+      avgTicketPrice: 850,
+      defaultDailyVolume: 18,
+      minDailyVolume: 5,
+      maxDailyVolume: 50,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 52,
+      daysPerMonth: 26,
+      description: 'Kadın/Erkek hazır giyim, ceket, elbise ve tamamlayıcı aksesuar satışları.'
+    },
     monthlyUtilitiesEstimate: 4500,
     monthlyAccountingFee: 2500,
   },
@@ -547,7 +717,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Satış & Reyon Danışmanı', count: 1, avgSalary: 26000, isMandatory: false, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Mama & Aksesuar Sepeti', unitPrice: 480, targetUnitsPerDay: 20, unitLabel: 'Sepet / Gün' },
+    breakEvenMetric: { label: 'Günlük Mama & Aksesuar Sepeti', unitPrice: 520, targetUnitsPerDay: 20, unitLabel: 'Sepet / Gün' },
+    revenueModel: {
+      avgTicketPrice: 520,
+      defaultDailyVolume: 30,
+      minDailyVolume: 10,
+      maxDailyVolume: 80,
+      unitLabel: 'Sepet',
+      grossMarginPercent: 36,
+      daysPerMonth: 26,
+      description: 'Süper premium kedi/köpek maması, bentonit kum, tasma ve kemirgen/kuş yemleri.'
+    },
     monthlyUtilitiesEstimate: 4200,
     monthlyAccountingFee: 2400,
   },
@@ -575,7 +755,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Kırtasiye ve Baskı Elemanı', count: 1, avgSalary: 25000, isMandatory: false, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Kasa Fiş & Fotokopi İşlemi', unitPrice: 110, targetUnitsPerDay: 85, unitLabel: 'Fiş / Gün' },
+    breakEvenMetric: { label: 'Günlük Kasa Fiş & Fotokopi İşlemi', unitPrice: 120, targetUnitsPerDay: 85, unitLabel: 'Fiş / Gün' },
+    revenueModel: {
+      avgTicketPrice: 120,
+      defaultDailyVolume: 110,
+      minDailyVolume: 35,
+      maxDailyVolume: 280,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 48,
+      daysPerMonth: 26,
+      description: 'Okul ve ofis kırtasiyesi, test kitapları, dijital baskı, çıktı ve laminasyon hizmetleri.'
+    },
     monthlyUtilitiesEstimate: 4500,
     monthlyAccountingFee: 2400,
   },
@@ -602,7 +792,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Çiçek Tasarım Ustası', count: 1, avgSalary: 32000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Buket & Çiçek Siparişi', unitPrice: 450, targetUnitsPerDay: 15, unitLabel: 'Sipariş / Gün' },
+    breakEvenMetric: { label: 'Günlük Buket & Çiçek Siparişi', unitPrice: 480, targetUnitsPerDay: 15, unitLabel: 'Sipariş / Gün' },
+    revenueModel: {
+      avgTicketPrice: 480,
+      defaultDailyVolume: 22,
+      minDailyVolume: 6,
+      maxDailyVolume: 65,
+      unitLabel: 'Sipariş',
+      grossMarginPercent: 58,
+      daysPerMonth: 26,
+      description: 'Özel gün buketleri, saksı çiçekleri, çelenk ve kurumsal mekan süsleme siparişleri.'
+    },
     monthlyUtilitiesEstimate: 3800,
     monthlyAccountingFee: 2200,
   },
@@ -630,7 +830,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Mobil Cihaz Teknikeri', count: 1, avgSalary: 35000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Tamir & Aksesuar Satışı', unitPrice: 380, targetUnitsPerDay: 18, unitLabel: 'İşlem / Gün' },
+    breakEvenMetric: { label: 'Günlük Tamir & Aksesuar Satışı', unitPrice: 420, targetUnitsPerDay: 18, unitLabel: 'İşlem / Gün' },
+    revenueModel: {
+      avgTicketPrice: 420,
+      defaultDailyVolume: 24,
+      minDailyVolume: 8,
+      maxDailyVolume: 60,
+      unitLabel: 'Müşteri',
+      grossMarginPercent: 62,
+      daysPerMonth: 26,
+      description: 'Ekran/batarya değişimi, soket tamiri, kılıf, şarj aleti ve koruyucu cam uygulamaları.'
+    },
     monthlyUtilitiesEstimate: 4200,
     monthlyAccountingFee: 2400,
   },
@@ -661,7 +871,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Mesleki Yeterlilik Belgeli Ekspertiz Uzmanı', count: 2, avgSalary: 42000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Ekspertiz Yapılan Araç Sayısı', unitPrice: 3200, targetUnitsPerDay: 5, unitLabel: 'Araç / Gün' },
+    breakEvenMetric: { label: 'Günlük Ekspertiz Yapılan Araç Sayısı', unitPrice: 3400, targetUnitsPerDay: 5, unitLabel: 'Araç / Gün' },
+    revenueModel: {
+      avgTicketPrice: 3400,
+      defaultDailyVolume: 8,
+      minDailyVolume: 2,
+      maxDailyVolume: 25,
+      unitLabel: 'Araç',
+      grossMarginPercent: 78,
+      daysPerMonth: 26,
+      description: 'Full paket ekspertiz (Motor, mekanik, kaporta-boya, fren, süspansiyon ve diagnostik).'
+    },
     monthlyUtilitiesEstimate: 12000,
     monthlyAccountingFee: 3000,
   },
@@ -692,7 +912,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Yıkama & Detailing Ustası', count: 2, avgSalary: 30000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Yıkanan & Detailing Yapılan Araç', unitPrice: 400, targetUnitsPerDay: 22, unitLabel: 'Araç / Gün' },
+    breakEvenMetric: { label: 'Günlük Yıkanan & Detailing Yapılan Araç', unitPrice: 450, targetUnitsPerDay: 22, unitLabel: 'Araç / Gün' },
+    revenueModel: {
+      avgTicketPrice: 450,
+      defaultDailyVolume: 32,
+      minDailyVolume: 10,
+      maxDailyVolume: 75,
+      unitLabel: 'Araç',
+      grossMarginPercent: 70,
+      daysPerMonth: 30,
+      description: 'İç-dış yıkama, motor temizliği, hızlı cila ve detaylı kuaför/pasta-cila uygulamaları.'
+    },
     monthlyUtilitiesEstimate: 15000,
     monthlyAccountingFee: 2500,
   },
@@ -720,7 +950,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Lastik ve Balans Ustası', count: 2, avgSalary: 32000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Lastik Değişim / Tamir Sayısı', unitPrice: 600, targetUnitsPerDay: 12, unitLabel: 'İşlem / Gün' },
+    breakEvenMetric: { label: 'Günlük Lastik Değişim / Tamir Sayısı', unitPrice: 650, targetUnitsPerDay: 12, unitLabel: 'İşlem / Gün' },
+    revenueModel: {
+      avgTicketPrice: 650,
+      defaultDailyVolume: 18,
+      minDailyVolume: 5,
+      maxDailyVolume: 50,
+      unitLabel: 'Araç / İşlem',
+      grossMarginPercent: 55,
+      daysPerMonth: 26,
+      description: 'Lastik sökme-takma, rot-balans ayarı, lastik oteli saklama ve sıfır/ikinci el lastik satışları.'
+    },
     monthlyUtilitiesEstimate: 9500,
     monthlyAccountingFee: 2500,
   },
@@ -748,7 +988,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     recommendedStaff: [
       { role: 'Kuru Temizleme & Ütü Ustası', count: 1, avgSalary: 36000, isMandatory: true, allowOwnerFulfillment: true }
     ],
-    breakEvenMetric: { label: 'Günlük Kuru Temizleme Parça Sayısı', unitPrice: 240, targetUnitsPerDay: 30, unitLabel: 'Parça / Gün' },
+    breakEvenMetric: { label: 'Günlük Kuru Temizleme Parça Sayısı', unitPrice: 260, targetUnitsPerDay: 30, unitLabel: 'Parça / Gün' },
+    revenueModel: {
+      avgTicketPrice: 260,
+      defaultDailyVolume: 45,
+      minDailyVolume: 15,
+      maxDailyVolume: 120,
+      unitLabel: 'Parça',
+      grossMarginPercent: 68,
+      daysPerMonth: 26,
+      description: 'Takım elbise, kaban, gelinlik, perde, ütü ve lostra hizmetleri.'
+    },
     monthlyUtilitiesEstimate: 14000,
     monthlyAccountingFee: 2600,
   }
@@ -758,7 +1008,6 @@ export const BUSINESS_SETUP_TEMPLATES: BusinessTemplate[] = Object.values(BUSINE
 
 export function getBusinessTemplateById(id: string): BusinessTemplate {
   if (BUSINESS_TEMPLATES[id]) return BUSINESS_TEMPLATES[id];
-  // Backward compatibility check
   const found = BUSINESS_SETUP_TEMPLATES.find((t) => t.id === id);
   return found || BUSINESS_TEMPLATES['sigorta-acentesi'];
 }
