@@ -3,8 +3,7 @@ import { z } from 'zod';
 import type { RadarCategoryKey, RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
 import {
-  fetchCompetitorPois,
-  fetchAreaSectorCounts,
+  fetchMasterAreaPoiCensus,
 } from '@/features/radar/services/overpass-poi.service';
 import { findListingsInRadius } from '@/features/radar/services/radar-listings-matcher.service';
 import {
@@ -51,23 +50,27 @@ export async function GET(request: NextRequest) {
       ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
       : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
-    // 1. Fetch competitors (POIs: Google Places with OSM fallback) and 2. listings in parallel
-    const [competitors, listingsInRadius] = await Promise.all([
-      fetchCompetitorPois(lat, lng, radius, categoryKey, locationName || 'Bölge'),
+    // 1. Fetch complete area census (POIs + full sector distribution) and 2. listings in parallel
+    const [censusResult, listingsInRadius] = await Promise.all([
+      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge'),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
-    // Compute accurate sector distribution directly from POIs
-    const sectorDistribution: Record<string, number> = {};
-    for (const poi of competitors) {
-      if (poi.category && poi.category !== 'all') {
-        sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;
-      }
-    }
+    const { allPois, sectorCensus } = censusResult;
 
-    // 2. Compute Metrics and AI Intelligence Report
+    // Filter competitor POIs for map display based on selected category
+    const competitors = isAll
+      ? allPois
+      : allPois.filter(
+          (p) =>
+            p.category === categoryKey ||
+            (categoryKey === 'dry_cleaning' && (p.category === 'terzi' || p.category === 'dry_cleaning')) ||
+            (categoryKey === 'restaurant' && p.category === 'donerci'),
+        );
+
+    // 2. Compute Metrics and AI Intelligence Report using consistent sector census
     const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
-    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorDistribution);
+    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorCensus);
 
     const responseData: RadarSpatialResponse = {
       query: {
@@ -82,7 +85,7 @@ export async function GET(request: NextRequest) {
       listingsInRadius,
       competitors,
       intelligence,
-      availableSectors: sectorDistribution,
+      availableSectors: sectorCensus,
     };
 
     return NextResponse.json({
@@ -118,22 +121,29 @@ export async function POST(request: NextRequest) {
 
     const { lat, lng, radius, category, locationName } = parsed.data;
     const categoryKey = category as RadarCategoryKey;
-    const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
+    const isAll = categoryKey === 'all';
+    const categoryMeta = isAll
+      ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
+      : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
-    const [competitors, listingsInRadius] = await Promise.all([
-      fetchCompetitorPois(lat, lng, radius, categoryKey, locationName || 'Bölge'),
+    const [censusResult, listingsInRadius] = await Promise.all([
+      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge'),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
-    const sectorDistribution: Record<string, number> = {};
-    for (const poi of competitors) {
-      if (poi.category && poi.category !== 'all') {
-        sectorDistribution[poi.category] = (sectorDistribution[poi.category] || 0) + 1;
-      }
-    }
+    const { allPois, sectorCensus } = censusResult;
+
+    const competitors = isAll
+      ? allPois
+      : allPois.filter(
+          (p) =>
+            p.category === categoryKey ||
+            (categoryKey === 'dry_cleaning' && (p.category === 'terzi' || p.category === 'dry_cleaning')) ||
+            (categoryKey === 'restaurant' && p.category === 'donerci'),
+        );
 
     const metrics = computeRadarMetrics(competitors.length, radius, categoryKey, lat, lng, locationName);
-    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorDistribution);
+    const intelligence = generateIntelligenceReport(categoryKey, metrics, locationName, lat, lng, radius, sectorCensus);
 
     const responseData: RadarSpatialResponse = {
       query: {
@@ -148,6 +158,7 @@ export async function POST(request: NextRequest) {
       listingsInRadius,
       competitors,
       intelligence,
+      availableSectors: sectorCensus,
     };
 
     return NextResponse.json({

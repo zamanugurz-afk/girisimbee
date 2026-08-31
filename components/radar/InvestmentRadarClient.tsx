@@ -673,7 +673,7 @@ export function InvestmentRadarClient() {
 
                 {displayedCategories.map((cat) => {
                   const isSelected = selectedCategory === cat.key;
-                  const sectorCount = radarData?.availableSectors?.[cat.key] ?? (isSelected ? (radarData?.competitors.length ?? 0) : 0);
+                  const sectorCount = radarData?.availableSectors?.[cat.key] ?? 0;
                   return (
                     <button
                       key={cat.key}
