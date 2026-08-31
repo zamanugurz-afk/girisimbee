@@ -1010,6 +1010,23 @@ export function InvestmentRadarClient() {
                 </div>
               )}
 
+              {/* Active Opportunity / Category Filter Badge Over Map */}
+              {selectedCategory !== 'all' && !categorySearchQuery && (
+                <div className="absolute top-3.5 left-3.5 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 dark:bg-zinc-900/90 text-white text-xs font-bold shadow-lg border border-amber-500/50 backdrop-blur-md animate-fade-in">
+                  <span>{activeCategoryMeta.emoji} {activeCategoryMeta.label}:</span>
+                  <span className="text-amber-400 font-extrabold">{visibleCompetitors.length} işletme</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('all')}
+                    title="Tüm İşletmeleri Göster"
+                    className="ml-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10.5px] text-zinc-200 transition-colors"
+                  >
+                    <span>Tümü</span>
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
               <InvestmentRadarMap
                 centerLat={centerLat}
                 centerLng={centerLng}
@@ -1218,38 +1235,78 @@ export function InvestmentRadarClient() {
                       {/* 2. EKSİK SEKTÖRLER LİSTESİ (EN POPÜLERDEN EN AZA SIRALI) */}
                       <div className="space-y-2">
                         {radarData.intelligence.missingSectors && radarData.intelligence.missingSectors.length > 0 ? (
-                          radarData.intelligence.missingSectors.map((sec, idx) => (
-                            <div
-                              key={idx}
-                              className="p-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5 transition-all hover:border-amber-500/40"
-                            >
-                              <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <span className="text-base shrink-0 leading-none">{sec.emoji}</span>
-                                  <strong className="text-slate-900 dark:text-white font-bold text-xs truncate">
-                                    {sec.label}
-                                  </strong>
+                          radarData.intelligence.missingSectors.map((sec, idx) => {
+                            const isSelected = selectedCategory === sec.key;
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setSelectedCategory('all');
+                                  } else if (sec.key && (RADAR_CATEGORIES[sec.key as RadarCategoryKey] || sec.key === 'all')) {
+                                    setSelectedCategory(sec.key as RadarCategoryKey);
+                                    setCategorySearchQuery('');
+                                  }
+                                }}
+                                className={cn(
+                                  'w-full text-left p-2.5 rounded-2xl border shadow-xs space-y-1.5 transition-all cursor-pointer group',
+                                  isSelected
+                                    ? 'bg-amber-500/15 dark:bg-amber-500/20 border-amber-500 ring-2 ring-amber-500/50 shadow-md'
+                                    : 'bg-white dark:bg-zinc-900 border-slate-200/80 dark:border-zinc-800 hover:border-amber-500/70 hover:shadow-md hover:bg-slate-50/80 dark:hover:bg-zinc-800/80',
+                                )}
+                              >
+                                <div className="flex items-center justify-between gap-1.5">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="text-base shrink-0 leading-none">{sec.emoji}</span>
+                                    <strong
+                                      className={cn(
+                                        'font-bold text-xs truncate transition-colors',
+                                        isSelected
+                                          ? 'text-amber-600 dark:text-amber-400 font-extrabold'
+                                          : 'text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400',
+                                      )}
+                                    >
+                                      {sec.label}
+                                    </strong>
+                                  </div>
+                                  <span
+                                    className={cn(
+                                      'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 leading-tight',
+                                      sec.existingCount === 0
+                                        ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
+                                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30',
+                                    )}
+                                  >
+                                    {sec.statusBadge}
+                                  </span>
                                 </div>
-                                <span
-                                  className={cn(
-                                    'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 leading-tight',
-                                    sec.existingCount === 0
-                                      ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
-                                      : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30',
-                                  )}
-                                >
-                                  {sec.statusBadge}
-                                </span>
-                              </div>
-                              <p className="text-muted-foreground text-[11px] leading-snug">
-                                {sec.opportunityReason}
-                              </p>
-                              <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800/80 text-[10px]">
-                                <span className="text-slate-600 dark:text-zinc-400 font-medium">Bölgesel İhtiyaç:</span>
-                                <span className="font-bold text-emerald-600 dark:text-emerald-400">%{sec.demandScore} Talep Açığı</span>
-                              </div>
-                            </div>
-                          ))
+                                <p className="text-muted-foreground text-[11px] leading-snug">
+                                  {sec.opportunityReason}
+                                </p>
+                                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800/80 text-[10px]">
+                                  <span className="text-slate-600 dark:text-zinc-400 font-medium flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 text-amber-500" />
+                                    <span>{isSelected ? 'Haritada Filtrelendi' : 'Haritada Göster:'}</span>
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      'font-bold text-[10px] px-1.5 py-0.5 rounded-md transition-all flex items-center gap-1',
+                                      isSelected
+                                        ? 'bg-amber-500 text-slate-950 shadow-2xs font-extrabold'
+                                        : 'text-amber-600 dark:text-amber-400 group-hover:bg-amber-500/15 group-hover:underline',
+                                    )}
+                                  >
+                                    {isSelected
+                                      ? '✓ Seçili (Tümünü Aç)'
+                                      : sec.existingCount > 0
+                                      ? `${sec.existingCount} İşletmeyi Haritada Göster →`
+                                      : '0 İşletme (Pazar Boşluğu) →'}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })
                         ) : (
                           radarData.intelligence.missingConcepts?.map((concept, idx) => (
                             <div

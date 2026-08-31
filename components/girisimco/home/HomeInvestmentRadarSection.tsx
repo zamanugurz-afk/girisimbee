@@ -972,6 +972,23 @@ export function HomeInvestmentRadarSection() {
                 </div>
               )}
 
+              {/* Active Category Filter Badge Over Map */}
+              {selectedCategory !== 'all' && !categorySearchQuery && (
+                <div className="absolute top-3.5 left-3.5 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 dark:bg-zinc-900/90 text-white text-xs font-bold shadow-lg border border-amber-500/50 backdrop-blur-md animate-fade-in">
+                  <span>{activeCategoryMeta.emoji} {activeCategoryMeta.label}:</span>
+                  <span className="text-amber-400 font-extrabold">{visibleCompetitors.length} işletme</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('all')}
+                    title="Tüm İşletmeleri Göster"
+                    className="ml-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10.5px] text-zinc-200 transition-colors"
+                  >
+                    <span>Tümü</span>
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
               <InvestmentRadarMap
                 centerLat={centerLat}
                 centerLng={centerLng}
