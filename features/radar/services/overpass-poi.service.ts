@@ -788,6 +788,7 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
   restaurant: [
     'Tavuk Dünyası',
     'Köfteci Yusuf',
+    'Dönerci Ali Usta',
     'Baydöner',
     'HD Döner',
     'Burger King',
@@ -795,15 +796,18 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
     'Dominos Pizza',
     'Bereket Döner & Kebap',
     'Pide & Lahmacun Salonu',
+    'Gaziantep Kebap & Lahmacun',
     '{loc} Ev Yemekleri Lokantası',
   ],
   donerci: [
+    'Dönerci Ali Usta',
     'Baydöner',
     'HD Döner',
     'Kasap Döner',
     'Bereket Döner',
     'Usta Dönerci',
     'Yaprak Döner & İskender Salonu',
+    'Tarihi Hatay Dürüm Döner',
     'Çarşı Dönercisi',
   ],
   hairdresser: [
@@ -1290,23 +1294,24 @@ export async function fetchMasterAreaPoiCensus(
 
     finalPois.push(...existingReal);
 
-    // If real POIs are fewer than the expected commercial density, fill the remaining slots with authentic Turkish brands
+    const existingNames = new Set(existingReal.map((r) => r.name.toLowerCase()));
+
+    // Ensure realistic commercial density and presence of major anchor brands (BİM, A101, ŞOK, Dönerci Ali Usta, Starbucks, etc.)
     const neededSynthetic = Math.max(0, targetCount - existingReal.length);
-    if (neededSynthetic > 0) {
-      const synthetic = generateDeterministicLocalPois(
-        lat,
-        lng,
-        radiusMeters,
-        catKey,
-        locationName,
-        neededSynthetic,
-        catIdx,
-      );
-      finalPois.push(...synthetic);
-      sectorCensus[catKey] = existingReal.length + synthetic.length;
-    } else {
-      sectorCensus[catKey] = existingReal.length;
-    }
+    const genCount = Math.max(neededSynthetic, targetCount >= 2 ? Math.min(targetCount, 4) : 1);
+
+    const synthetic = generateDeterministicLocalPois(
+      lat,
+      lng,
+      radiusMeters,
+      catKey,
+      locationName,
+      genCount,
+      catIdx,
+    ).filter((p) => !existingNames.has(p.name.toLowerCase()));
+
+    finalPois.push(...synthetic);
+    sectorCensus[catKey] = existingReal.length + synthetic.length;
   });
 
   const sortedAllPois = finalPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
