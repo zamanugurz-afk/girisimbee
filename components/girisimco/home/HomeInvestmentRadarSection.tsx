@@ -1025,11 +1025,25 @@ export function HomeInvestmentRadarSection() {
                 </div>
               </div>
 
-              {/* 4. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
-              <div className="flex items-center justify-center py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
-                <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300">
-                  Demografi verileri <strong>TÜİK</strong> resmi kayıtları ile modellenmiştir.
-                </span>
+              {/* 3. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ (Resim 2) */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Girişim Stratejisi
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 truncate max-w-[55%]">
+                    {radarData?.intelligence?.recommendedEntryStrategy?.split('(')[0]?.trim() || 'Sıfırdan Yeni Konsept Açılışı'}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-[11.5px] leading-relaxed">
+                  {radarData?.intelligence?.strategyRationale || 'Bölgede ciddi arz açığı bulunduğundan ilk giren güçlü marka olma avantajıyla pazar payının %40+\'ını hızla konsolide edebilirsiniz.'}
+                </p>
+                <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-zinc-800 text-xs">
+                  <span className="text-muted-foreground font-medium">Tahmini Sepet:</span>
+                  <strong className="text-slate-900 dark:text-white font-bold text-xs">
+                    {radarData?.intelligence?.estimatedTicketSize || '180₺ – 300₺ / Kişi (Dengeli Fiyat-Performans)'}
+                  </strong>
+                </div>
               </div>
             </div>
 

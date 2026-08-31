@@ -106,9 +106,6 @@ export function InvestmentRadarClient() {
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [selectedPoi, setSelectedPoi] = useState<CompetitorPoi | null>(null);
 
-  // Report tab view (Overview vs Detailed Strategy)
-  const [activeTab, setActiveTab] = useState<'overview' | 'strategy'>('overview');
-
   const [radarData, setRadarData] = useState<RadarSpatialResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -1009,297 +1006,131 @@ export function InvestmentRadarClient() {
           <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-5">
             <div className="space-y-3 flex-1 flex flex-col justify-center">
               
-              {/* Sekme Butonları (Tabs) */}
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('overview')}
-                  className={cn(
-                    'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all text-center',
-                    activeTab === 'overview'
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  Genel Bakış
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('strategy')}
-                  className={cn(
-                    'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1',
-                    activeTab === 'strategy'
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>Strateji</span>
-                </button>
-              </div>
+              {/* 1. YAPAY ZEKA YATIRIM PUANI */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5 overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                    AI Yatırım Puanı
+                  </span>
+                </div>
 
-              {activeTab === 'overview' ? (
-                <>
-                  {/* 1. YAPAY ZEKA YATIRIM PUANI */}
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-slate-50 dark:to-zinc-900 border border-amber-500/30 space-y-2.5 overflow-hidden">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                      <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
-                        AI Yatırım Puanı
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-1.5 min-w-0">
-                      <div className="flex items-baseline gap-1 shrink-0">
-                        <span className="text-3xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-                          {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
-                        </span>
-                        <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
-                      </div>
-                      <span className="text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 text-center leading-tight max-w-[62%]">
-                        {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
-                      </span>
-                    </div>
-                    
-                    {/* Pazar Doygunluk Çubuğu */}
-                    <div className="space-y-1 pt-1.5 border-t border-amber-500/20">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
-                        <span className="font-bold text-slate-900 dark:text-white">
-                          %{radarData?.metrics.saturationScore ?? 28}
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        <div 
-                          className={cn(
-                            "h-full rounded-full transition-all duration-500",
-                            (radarData?.metrics.saturationScore ?? 28) < 40
-                              ? "bg-emerald-500"
-                              : (radarData?.metrics.saturationScore ?? 28) < 70
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
-                          )}
-                          style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
-                        />
-                      </div>
-                      <p className="text-[11px] font-medium text-muted-foreground leading-snug pt-0.5">
-                        {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
-                      </p>
-                    </div>
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                      {radarData ? radarData.metrics.opportunityScore.toFixed(1) : '8.8'}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-semibold">/ 10</span>
                   </div>
-
-                  {/* 3. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-4 h-4 text-primary shrink-0" />
-                      <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                        Bölgesel Demografi
-                      </span>
-                    </div>
-                    
-                    {/* 2 Temel Metrik: Hedef Kitle & Mevcut Rakipler */}
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
-                        <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle (Çember)</span>
-                        <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
-                          {demographicStats.population} Kişi
-                        </strong>
-                      </div>
-                      <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
-                        <span className="text-[10px] text-muted-foreground block font-medium">Mevcut Rakipler</span>
-                        <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
-                          {radarData?.competitors.length || 0} İşletme
-                        </strong>
-                      </div>
-                    </div>
-
-                    {/* Demografik Göstergeler Listesi */}
-                    <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-zinc-800 text-xs">
-                      <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
-                        <span className="text-[11px] text-muted-foreground font-medium">Gelir Seviyesi (SES):</span>
-                        <span className="font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-900 dark:text-amber-300 text-[11px]">
-                          {demographicStats.sesGroup}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
-                        <span className="text-[11px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
-                        <strong className="text-slate-900 dark:text-white font-semibold text-xs">
-                          {demographicStats.daytimeTraffic}
-                        </strong>
-                      </div>
-
-                      <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
-                        <span className="text-[11px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
-                        <strong className="text-slate-900 dark:text-white font-semibold text-xs">
-                          {demographicStats.officialNeighborhoodPop}
-                        </strong>
-                      </div>
-
-                      <div className="flex items-start justify-between py-0.5 gap-2">
-                        <span className="text-[11px] text-muted-foreground font-medium shrink-0 pt-0.5">Kitle Profili:</span>
-                        <strong className="text-slate-900 dark:text-white font-semibold text-xs text-right leading-snug">
-                          {demographicStats.ageProfile}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 4. TÜİK BİLGİLENDİRME ŞERİDİ (BOŞ ALANDA) */}
-                  <div className="flex items-center justify-center py-1.5 px-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-center">
-                    <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300">
-                      Demografi verileri <strong>TÜİK</strong> resmi kayıtları ile modellenmiştir.
+                  <span className="text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/35 text-amber-900 dark:text-amber-200 text-center leading-tight max-w-[62%]">
+                    {radarData?.metrics.opportunityLabel || 'Yüksek Ticari Potansiyel'}
+                  </span>
+                </div>
+                
+                {/* Pazar Doygunluk Çubuğu */}
+                <div className="space-y-1 pt-1.5 border-t border-amber-500/20">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-700 dark:text-zinc-300">Pazar Doygunluğu</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      %{radarData?.metrics.saturationScore ?? 28}
                     </span>
                   </div>
-                </>
-              ) : (
-                /* HANGİ SEKTÖRLER YOK? (FIRSAT AVCISI) SEKME GÖRÜNÜMÜ */
-                <div className="space-y-2.5 text-xs">
-                  {radarData?.intelligence ? (
-                    <>
-                      {/* 1. SEKTÖR AÇIĞI BAŞLIĞI */}
-                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
-                        <div className="flex items-center justify-between gap-1.5">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <TrendingUp className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                              Bölgede Hangi Sektörler Yok?
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shrink-0">
-                            %{radarData.intelligence.marketGapScore || 72} Pazar Açığı
-                          </span>
-                        </div>
-                        <p className="text-muted-foreground text-[11.5px] leading-relaxed">
-                          İlde en çok işletmeye sahip 50 meslek kolu arasında bu çemberde bulunmayan <strong>en yüksek potansiyelli ilk 3 fırsat sektörü</strong>:
-                        </p>
-                      </div>
-
-                      {/* 2. EKSİK SEKTÖRLER LİSTESİ (EN POPÜLERDEN EN AZA SIRALI) */}
-                      <div className="space-y-2">
-                        {radarData.intelligence.missingSectors && radarData.intelligence.missingSectors.length > 0 ? (
-                          radarData.intelligence.missingSectors.map((sec, idx) => {
-                            const isSelected = selectedCategory === sec.key;
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => {
-                                  if (isSelected) {
-                                    setSelectedCategory('all');
-                                  } else if (sec.key && (RADAR_CATEGORIES[sec.key as RadarCategoryKey] || sec.key === 'all')) {
-                                    setSelectedCategory(sec.key as RadarCategoryKey);
-                                    setCategorySearchQuery('');
-                                  }
-                                }}
-                                className={cn(
-                                  'w-full text-left p-2.5 rounded-2xl border shadow-xs space-y-1.5 transition-all cursor-pointer group',
-                                  isSelected
-                                    ? 'bg-amber-500/15 dark:bg-amber-500/20 border-amber-500 ring-2 ring-amber-500/50 shadow-md'
-                                    : 'bg-white dark:bg-zinc-900 border-slate-200/80 dark:border-zinc-800 hover:border-amber-500/70 hover:shadow-md hover:bg-slate-50/80 dark:hover:bg-zinc-800/80',
-                                )}
-                              >
-                                <div className="flex items-center justify-between gap-1.5">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <span className="text-base shrink-0 leading-none">{sec.emoji}</span>
-                                    <strong
-                                      className={cn(
-                                        'font-bold text-xs truncate transition-colors',
-                                        isSelected
-                                          ? 'text-amber-600 dark:text-amber-400 font-extrabold'
-                                          : 'text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400',
-                                      )}
-                                    >
-                                      {sec.label}
-                                    </strong>
-                                  </div>
-                                  <span
-                                    className={cn(
-                                      'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 leading-tight',
-                                      sec.existingCount === 0
-                                        ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
-                                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30',
-                                    )}
-                                  >
-                                    {sec.statusBadge}
-                                  </span>
-                                </div>
-                                <p className="text-muted-foreground text-[11px] leading-snug">
-                                  {sec.opportunityReason}
-                                </p>
-                                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800/80 text-[10px]">
-                                  <span className="text-slate-600 dark:text-zinc-400 font-medium flex items-center gap-1">
-                                    <MapPin className="w-3 h-3 text-amber-500" />
-                                    <span>{isSelected ? 'Haritada Filtrelendi' : 'Haritada Göster:'}</span>
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      'font-bold text-[10px] px-1.5 py-0.5 rounded-md transition-all flex items-center gap-1',
-                                      isSelected
-                                        ? 'bg-amber-500 text-slate-950 shadow-2xs font-extrabold'
-                                        : 'text-amber-600 dark:text-amber-400 group-hover:bg-amber-500/15 group-hover:underline',
-                                    )}
-                                  >
-                                    {isSelected
-                                      ? '✓ Seçili (Tümünü Aç)'
-                                      : sec.existingCount > 0
-                                      ? `${sec.existingCount} İşletmeyi Haritada Göster →`
-                                      : '0 İşletme (Pazar Boşluğu) →'}
-                                  </span>
-                                </div>
-                              </button>
-                            );
-                          })
-                        ) : (
-                          radarData.intelligence.missingConcepts?.map((concept, idx) => (
-                            <div
-                              key={idx}
-                              className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800 space-y-1"
-                            >
-                              <div className="flex items-start justify-between gap-1.5">
-                                <strong className="text-slate-900 dark:text-white font-bold text-[11.5px] leading-tight">
-                                  {concept.title}
-                                </strong>
-                                <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 shrink-0">
-                                  {concept.tag}
-                                </span>
-                              </div>
-                              <p className="text-muted-foreground text-[11px] leading-snug">
-                                {concept.description}
-                              </p>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {/* 3. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ */}
-                      <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-1.5">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-amber-500" /> Girişim Stratejisi
-                          </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 truncate max-w-[55%]">
-                            {radarData.intelligence.recommendedEntryStrategy.split('(')[0].trim()}
-                          </span>
-                        </div>
-                        <p className="text-muted-foreground text-[11px] leading-snug">
-                          {radarData.intelligence.strategyRationale}
-                        </p>
-                        <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-zinc-800 text-[11px]">
-                          <span className="text-muted-foreground font-medium">Tahmini Sepet:</span>
-                          <strong className="text-slate-900 dark:text-white font-bold text-xs">
-                            {radarData.intelligence.estimatedTicketSize}
-                          </strong>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-6 text-center text-muted-foreground text-xs">
-                      Eksik sektörler analiz ediliyor...
-                    </div>
-                  )}
+                  <div className="h-1.5 w-full bg-slate-200/80 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        (radarData?.metrics.saturationScore ?? 28) < 40
+                          ? "bg-emerald-500"
+                          : (radarData?.metrics.saturationScore ?? 28) < 70
+                          ? "bg-amber-500"
+                          : "bg-rose-500"
+                      )}
+                      style={{ width: `${Math.min(100, radarData?.metrics.saturationScore ?? 28)}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] font-medium text-muted-foreground leading-snug pt-0.5">
+                    {radarData?.metrics.saturationLabel ?? 'Düşük Rekabet — Yüksek Büyüme Fırsatı'}
+                  </p>
                 </div>
-              )}
+              </div>
+
+              {/* 2. BÖLGESEL DEMOGRAFİ VE TİCARİ ÇEVRE */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                    Bölgesel Demografi
+                  </span>
+                </div>
+                
+                {/* 2 Temel Metrik: Hedef Kitle & Mevcut Rakipler */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Hedef Kitle (Çember)</span>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
+                      {demographicStats.population} Kişi
+                    </strong>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Mevcut Rakipler</span>
+                    <strong className="text-slate-900 dark:text-white text-xs sm:text-sm font-bold block mt-0.5">
+                      {radarData?.competitors.length || 0} İşletme
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Demografik Göstergeler Listesi */}
+                <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-zinc-800 text-xs">
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
+                    <span className="text-[11px] text-muted-foreground font-medium">Gelir Seviyesi (SES):</span>
+                    <span className="font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-900 dark:text-amber-300 text-[11px]">
+                      {demographicStats.sesGroup}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
+                    <span className="text-[11px] text-muted-foreground font-medium">Gündüz Sirkülasyonu:</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">
+                      {demographicStats.daytimeTraffic}
+                    </strong>
+                  </div>
+
+                  <div className="flex items-center justify-between py-0.5 border-b border-slate-100 dark:border-zinc-800/60">
+                    <span className="text-[11px] text-muted-foreground font-medium">Resmi Mahalle (TÜİK):</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs">
+                      {demographicStats.officialNeighborhoodPop}
+                    </strong>
+                  </div>
+
+                  <div className="flex items-start justify-between py-0.5 gap-2">
+                    <span className="text-[11px] text-muted-foreground font-medium shrink-0 pt-0.5">Kitle Profili:</span>
+                    <strong className="text-slate-900 dark:text-white font-semibold text-xs text-right leading-snug">
+                      {demographicStats.ageProfile}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. GİRİŞİM STRATEJİSİ & SEPET BEKLENTİSİ (Resim 2) */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Girişim Stratejisi
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 truncate max-w-[55%]">
+                    {radarData?.intelligence?.recommendedEntryStrategy?.split('(')[0]?.trim() || 'Sıfırdan Yeni Konsept Açılışı'}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-[11.5px] leading-relaxed">
+                  {radarData?.intelligence?.strategyRationale || 'Bölgede ciddi arz açığı bulunduğundan ilk giren güçlü marka olma avantajıyla pazar payının %40+\'ını hızla konsolide edebilirsiniz.'}
+                </p>
+                <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-zinc-800 text-xs">
+                  <span className="text-muted-foreground font-medium">Tahmini Sepet:</span>
+                  <strong className="text-slate-900 dark:text-white font-bold text-xs">
+                    {radarData?.intelligence?.estimatedTicketSize || '180₺ – 300₺ / Kişi (Dengeli Fiyat-Performans)'}
+                  </strong>
+                </div>
+              </div>
             </div>
 
             {/* Alt Eylem Butonu */}
