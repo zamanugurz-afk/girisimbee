@@ -1141,7 +1141,7 @@ export function HomeInvestmentRadarSection() {
             {/* Rapor İncele Butonu */}
             <div className="pt-1">
               <Link
-                href={`/radar?lat=${centerLat}&lng=${centerLng}&category=${selectedCategory}`}
+                href={`/radar?lat=${centerLat}&lng=${centerLng}&radius=${radiusMeters}&category=${selectedCategory}${activeLocationTitle ? `&title=${encodeURIComponent(activeLocationTitle)}` : ''}${categorySearchQuery ? `&q=${encodeURIComponent(categorySearchQuery)}` : ''}`}
                 className={cn(
                   "w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs sm:text-sm font-bold text-slate-950 text-center flex items-center justify-center gap-2 transition-all shadow-sm shadow-amber-500/20 hover:shadow-md",
                   isReportBtnPulsing && "animate-pulse ring-4 ring-amber-400/80 shadow-lg shadow-amber-500/50 scale-[1.02]"

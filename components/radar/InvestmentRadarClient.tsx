@@ -277,6 +277,11 @@ export function InvestmentRadarClient() {
       const urlLat = params.get('lat');
       const urlLng = params.get('lng');
       const urlCategory = params.get('category') as RadarCategoryKey | null;
+      const urlRadius = params.get('radius');
+      const urlTitle = params.get('title');
+      const urlQuery = params.get('q');
+
+      let hasExplicitLocation = false;
 
       if (urlLat && urlLng) {
         const parsedLat = parseFloat(urlLat);
@@ -284,29 +289,57 @@ export function InvestmentRadarClient() {
         if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
           setCenterLat(parsedLat);
           setCenterLng(parsedLng);
+          hasExplicitLocation = true;
         }
-      } else if ('geolocation' in navigator) {
-        // Auto Geolocation: GPS first, then IP fallback
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            if (!isMounted) return;
-            setCenterLat(pos.coords.latitude);
-            setCenterLng(pos.coords.longitude);
-            setZoom(15);
-            setActiveLocationTitle('Mevcut Konumunuz');
-          },
-          async () => {
-            if (!isMounted) return;
-            await fetchIpLocation();
-          },
-          { timeout: 3500, maximumAge: 60000 },
-        );
-      } else {
-        fetchIpLocation();
       }
 
-      if (urlCategory && RADAR_CATEGORIES[urlCategory]) {
-        setSelectedCategory(urlCategory);
+      if (urlTitle) {
+        setActiveLocationTitle(decodeURIComponent(urlTitle));
+      }
+
+      if (urlRadius) {
+        const parsedRadius = parseInt(urlRadius, 10);
+        if (!isNaN(parsedRadius) && parsedRadius > 0) {
+          setRadiusMeters(parsedRadius);
+          if (parsedRadius >= 3000) {
+            setZoom(13);
+          } else if (parsedRadius >= 2000) {
+            setZoom(14);
+          } else {
+            setZoom(15);
+          }
+        }
+      }
+
+      if (urlCategory) {
+        if (urlCategory === 'all' || RADAR_CATEGORIES[urlCategory]) {
+          setSelectedCategory(urlCategory);
+        }
+      }
+
+      if (urlQuery) {
+        setCategorySearchQuery(decodeURIComponent(urlQuery));
+      }
+
+      if (!hasExplicitLocation) {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              if (!isMounted) return;
+              setCenterLat(pos.coords.latitude);
+              setCenterLng(pos.coords.longitude);
+              setZoom(15);
+              setActiveLocationTitle('Mevcut Konumunuz');
+            },
+            async () => {
+              if (!isMounted) return;
+              await fetchIpLocation();
+            },
+            { timeout: 3500, maximumAge: 60000 },
+          );
+        } else {
+          fetchIpLocation();
+        }
       }
     }
 
@@ -314,6 +347,24 @@ export function InvestmentRadarClient() {
       isMounted = false;
     };
   }, []);
+
+  // Synchronize state to URL search parameters seamlessly
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams();
+    params.set('lat', centerLat.toFixed(5));
+    params.set('lng', centerLng.toFixed(5));
+    params.set('radius', radiusMeters.toString());
+    params.set('category', selectedCategory);
+    if (activeLocationTitle && !activeLocationTitle.startsWith('Seçili Alan')) {
+      params.set('title', activeLocationTitle);
+    }
+    if (categorySearchQuery.trim()) {
+      params.set('q', categorySearchQuery.trim());
+    }
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  }, [centerLat, centerLng, radiusMeters, selectedCategory, activeLocationTitle, categorySearchQuery]);
 
   // Live Location Search (Nominatim + Turkish index)
   useEffect(() => {
