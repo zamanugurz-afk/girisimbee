@@ -293,84 +293,31 @@ export function HomeInvestmentRadarSection() {
       setError(null);
 
       try {
-        if (categories.length <= 1) {
-          const singleCat = categories[0] || 'all';
-          const queryParams = new URLSearchParams({
-            lat: lat.toString(),
-            lng: lng.toString(),
-            radius: radius.toString(),
-            category: singleCat,
-            ...(locName ? { locationName: locName } : {}),
-          });
+        const queryParams = new URLSearchParams({
+          lat: lat.toString(),
+          lng: lng.toString(),
+          radius: radius.toString(),
+          category: catKeyStr,
+          ...(locName ? { locationName: locName } : {}),
+        });
 
-          const res = await fetch(`/api/radar/spatial-query?${queryParams.toString()}`, {
-            signal: controller.signal,
-          });
+        const res = await fetch(`/api/radar/spatial-query?${queryParams.toString()}`, {
+          signal: controller.signal,
+        });
 
-          if (!res.ok) {
-            throw new Error('Mekânsal sorgu yanıt vermedi');
+        if (!res.ok) {
+          throw new Error('Mekânsal sorgu yanıt vermedi');
+        }
+
+        const json = await res.json();
+        if (json.ok && json.data) {
+          CLIENT_RADAR_CACHE.set(cacheKey, json.data);
+          if (catKeyStr === 'all') {
+            CLIENT_RADAR_CACHE.set(masterKey, json.data);
           }
-
-          const json = await res.json();
-          if (json.ok && json.data) {
-            CLIENT_RADAR_CACHE.set(cacheKey, json.data);
-            if (singleCat === 'all') {
-              CLIENT_RADAR_CACHE.set(masterKey, json.data);
-            }
-            setRadarData(json.data);
-          } else {
-            throw new Error(json.error || 'Veri alınamadı');
-          }
+          setRadarData(json.data);
         } else {
-          // Dual category parallel fetch!
-          const [catA, catB] = categories;
-          const [resA, resB] = await Promise.all([
-            fetch(`/api/radar/spatial-query?${new URLSearchParams({
-              lat: lat.toString(),
-              lng: lng.toString(),
-              radius: radius.toString(),
-              category: catA,
-              ...(locName ? { locationName: locName } : {}),
-            }).toString()}`, { signal: controller.signal }),
-            fetch(`/api/radar/spatial-query?${new URLSearchParams({
-              lat: lat.toString(),
-              lng: lng.toString(),
-              radius: radius.toString(),
-              category: catB,
-              ...(locName ? { locationName: locName } : {}),
-            }).toString()}`, { signal: controller.signal }),
-          ]);
-
-          if (!resA.ok || !resB.ok) {
-            throw new Error('Mekânsal sorgu yanıt vermedi');
-          }
-
-          const [jsonA, jsonB] = await Promise.all([resA.json(), resB.json()]);
-          if (jsonA.ok && jsonB.ok && jsonA.data && jsonB.data) {
-            // Combine competitors without duplicates
-            const seen = new Set<string>();
-            const combinedCompetitors: CompetitorPoi[] = [];
-            for (const poi of [...jsonA.data.competitors, ...jsonB.data.competitors]) {
-              if (!seen.has(poi.id)) {
-                seen.add(poi.id);
-                combinedCompetitors.push(poi);
-              }
-            }
-
-            const combinedData: RadarSpatialResponse = {
-              ...jsonA.data,
-              competitors: combinedCompetitors,
-              availableSectors: {
-                ...jsonA.data.availableSectors,
-                ...jsonB.data.availableSectors,
-              },
-            };
-
-            CLIENT_RADAR_CACHE.set(cacheKey, combinedData);
-            setRadarData(combinedData);
-          } else {
-            throw new Error('Veri alınamadı');
-          }
+          throw new Error(json.error || 'Veri alınamadı');
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
@@ -933,31 +880,37 @@ export function HomeInvestmentRadarSection() {
 
               {/* Active Category Filter Badges Over Map (Supports 1 or 2 categories) */}
               {selectedCategories.length > 0 && !categorySearchQuery && (
-                <div className="absolute top-3.5 left-3.5 z-30 flex flex-wrap items-center gap-2 animate-fade-in max-w-[90%]">
+                <div className="absolute top-3 left-14 z-30 flex flex-wrap items-center gap-1.5 animate-fade-in max-w-[calc(100%-110px)] pointer-events-auto">
                   {selectedCategories.map((catKey, idx) => {
                     const catMeta = RADAR_CATEGORIES[catKey] || { label: catKey, emoji: '📍' };
                     const isCat1 = idx === 0;
-                    const catCount = visibleCompetitors.filter((p) => p.category === catKey).length;
+                    const catCount = visibleCompetitors.filter((p) => {
+                      if (catKey === 'restaurant') return p.category === 'restaurant' || p.category === 'donerci';
+                      if (catKey === 'dry_cleaning') return p.category === 'dry_cleaning' || p.category === 'terzi';
+                      return p.category === catKey;
+                    }).length;
+                    const displayCount = catCount > 0 ? catCount : (radarData?.availableSectors?.[catKey] ?? 0);
+
                     return (
                       <div
                         key={catKey}
                         className={cn(
-                          'flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-xs font-bold shadow-lg border backdrop-blur-md',
+                          'flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-[11px] font-bold shadow-md border backdrop-blur-md shrink-0',
                           isCat1
-                            ? 'bg-rose-950/85 border-rose-500/70 text-rose-100'
-                            : 'bg-sky-950/85 border-sky-500/70 text-sky-100',
+                            ? 'bg-rose-950/90 border-rose-500/80 text-rose-100 ring-1 ring-rose-500/30'
+                            : 'bg-sky-950/90 border-sky-500/80 text-sky-100 ring-1 ring-sky-500/30',
                         )}
                       >
-                        <span className={cn('h-2 w-2 rounded-full', isCat1 ? 'bg-rose-500' : 'bg-sky-500')} />
-                        <span>{catMeta.emoji} {catMeta.label}:</span>
-                        <span className={cn('font-extrabold', isCat1 ? 'text-rose-400' : 'text-sky-400')}>
-                          {catCount} işletme
+                        <span className={cn('h-2 w-2 rounded-full shrink-0', isCat1 ? 'bg-rose-500' : 'bg-sky-500')} />
+                        <span className="truncate max-w-[100px] sm:max-w-[140px]">{catMeta.emoji} {catMeta.label}:</span>
+                        <span className={cn('font-extrabold shrink-0', isCat1 ? 'text-rose-400' : 'text-sky-400')}>
+                          {displayCount} işletme
                         </span>
                         <button
                           type="button"
                           onClick={() => handleCategoryToggle(catKey)}
                           title={`${catMeta.label} filtresini kaldır`}
-                          className="ml-1 flex items-center justify-center p-0.5 rounded-full hover:bg-white/20 text-zinc-300 hover:text-white transition-colors"
+                          className="ml-0.5 flex items-center justify-center p-0.5 rounded-full hover:bg-white/20 text-zinc-300 hover:text-white transition-colors shrink-0"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -967,9 +920,9 @@ export function HomeInvestmentRadarSection() {
                   <button
                     type="button"
                     onClick={() => setSelectedCategories([])}
-                    className="px-2 py-1 rounded-full bg-slate-900/80 hover:bg-slate-800 text-[11px] font-bold text-zinc-300 border border-slate-700 shadow-md backdrop-blur-md transition-all"
+                    className="px-2 py-1 rounded-full bg-slate-900/90 hover:bg-slate-800 text-[10.5px] font-bold text-zinc-300 border border-slate-700 shadow-md backdrop-blur-md transition-all shrink-0"
                   >
-                    Tümünü Temizle
+                    Temizle
                   </button>
                 </div>
               )}

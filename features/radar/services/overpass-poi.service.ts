@@ -1940,23 +1940,38 @@ export async function fetchMasterAreaPoiCensus(
   lng: number,
   radiusMeters: number,
   locationName: string = 'Bölge',
-  targetCategory: RadarCategoryKey = 'all',
+  targetCategory: RadarCategoryKey | RadarCategoryKey[] | string = 'all',
 ): Promise<AreaPoiCensusResult> {
   const roundedLat = Math.round(lat * 1000) / 1000;
   const roundedLng = Math.round(lng * 1000) / 1000;
-  const cacheKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}-${targetCategory}`;
+
+  const targetCategoryArray: RadarCategoryKey[] = Array.isArray(targetCategory)
+    ? targetCategory
+    : typeof targetCategory === 'string' && targetCategory !== 'all'
+    ? (targetCategory.split(',').filter(Boolean) as RadarCategoryKey[])
+    : [];
+
+  const catKeyStr = targetCategoryArray.length > 0
+    ? [...targetCategoryArray].sort().join(',')
+    : 'all';
+  const cacheKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}-${catKeyStr}`;
 
   const cached = MASTER_AREA_CENSUS_CACHE.get(cacheKey);
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
     return cached.data;
   }
 
-  // 1. Try fetching real Google Places points for the target category
+  // 1. Try fetching real Google Places points for target categories
   let realPois: CompetitorPoi[] = [];
-  if (targetCategory && targetCategory !== 'all') {
-    const googleCategoryPois = await fetchGooglePlacesPois(lat, lng, radiusMeters, targetCategory);
-    if (googleCategoryPois && googleCategoryPois.length > 0) {
-      realPois.push(...googleCategoryPois);
+  if (targetCategoryArray.length > 0) {
+    const sectorPromises = targetCategoryArray.map((sec) =>
+      fetchGooglePlacesPois(lat, lng, radiusMeters, sec),
+    );
+    const results = await Promise.all(sectorPromises);
+    for (const r of results) {
+      if (r && r.length > 0) {
+        realPois.push(...r);
+      }
     }
   } else {
     // When targetCategory === 'all', query across top commercial sectors
@@ -1972,7 +1987,8 @@ export async function fetchMasterAreaPoiCensus(
 
   // Fallback to Overpass OSM if Google returned nothing
   if (realPois.length === 0) {
-    const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, targetCategory);
+    const fallbackCategory = targetCategoryArray.length === 1 ? targetCategoryArray[0] : 'all';
+    const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, fallbackCategory);
     if (overpassPois && overpassPois.length > 0) {
       realPois = overpassPois;
     }

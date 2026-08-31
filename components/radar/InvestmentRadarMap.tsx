@@ -214,7 +214,13 @@ export default function InvestmentRadarMap({
       poiMarkersMapRef.current.clear();
 
       for (const poi of competitors) {
-        const isSecondary = Boolean(secondaryCategory && poi.category === secondaryCategory);
+        const isSecondary = Boolean(
+          secondaryCategory && (
+            poi.category === secondaryCategory ||
+            (secondaryCategory === 'restaurant' && poi.category === 'donerci') ||
+            (secondaryCategory === 'dry_cleaning' && poi.category === 'terzi')
+          )
+        );
         const pinBgColor = isSecondary ? 'bg-sky-500 hover:bg-sky-600' : 'bg-rose-600 hover:bg-rose-700';
         const badgeColor = isSecondary ? '#0284c7' : '#e11d48';
 
