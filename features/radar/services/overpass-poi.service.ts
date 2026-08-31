@@ -1987,8 +1987,11 @@ export async function fetchMasterAreaPoiCensus(
 
     finalPois.push(...existingReal);
 
+    // If Google Places API is active, DO NOT generate synthetic placeholder pins!
+    // Display ONLY 100% real verified businesses from Google Haritalar.
+    const hasGoogleKey = Boolean(getGooglePlacesApiKey());
     const existingNames = new Set(existingReal.map((r) => r.name.toLowerCase()));
-    const neededSynthetic = Math.max(0, mapPinTarget - existingReal.length);
+    const neededSynthetic = hasGoogleKey ? 0 : Math.max(0, mapPinTarget - existingReal.length);
 
     if (neededSynthetic > 0) {
       const synthetic = generateDeterministicLocalPois(
@@ -2004,7 +2007,7 @@ export async function fetchMasterAreaPoiCensus(
       finalPois.push(...synthetic);
     }
 
-    sectorCensus[catKey] = Math.max(finalPois.filter((p) => p.category === catKey).length, baseCensusEstimate);
+    sectorCensus[catKey] = Math.max(existingReal.length, baseCensusEstimate);
   });
 
   const sortedAllPois = finalPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
