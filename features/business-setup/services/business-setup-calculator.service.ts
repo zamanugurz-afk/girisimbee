@@ -18,6 +18,8 @@ export interface SetupCalculationParams {
   includeBrokerFee?: boolean;
   includeFitout: boolean;
   customFitoutCostPerM2?: number | null;
+  includeInventory?: boolean;
+  customInventoryCost?: number | null;
   equipments: (SetupEquipment & { selected: boolean; qty: number })[];
   staff: SetupStaffRole[];
   legalFees: (SetupLegalFeeItem & { selected: boolean })[];
@@ -27,12 +29,6 @@ export interface SetupCalculationParams {
   customSoftware?: number | null;
 }
 
-/**
- * Türkiye Bordro Standartlarına Göre Net Maaştan Toplam İşveren Maliyeti Hesaplama:
- * - Brüt Maaş: Net / ~0.78 (%14 SGK İşçi + %1 İşsizlik + Asgari Ücret Vergi İstisnası Üzeri Gelir Vergisi)
- * - SGK İşveren Payı: Brüt x %15.5 (5 Puanlık Düzenli Ödeme Teşviki Dahil) + %2 İşveren İşsizlik = %17.5
- * - Toplam İşveren Maliyeti: Brüt Maaş + SGK İşveren Primi
- */
 export function calculateStaffEmployerCost(netSalary: number): StaffCostDetail {
   if (!netSalary || netSalary <= 0) {
     return { netSalary: 0, grossSalary: 0, sgkEmployerCost: 0, totalEmployerCost: 0 };
@@ -60,6 +56,8 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     includeBrokerFee = false,
     includeFitout,
     customFitoutCostPerM2,
+    includeInventory = true,
+    customInventoryCost,
     equipments,
     staff,
     legalFees,
@@ -88,13 +86,18 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   const fitoutRate = customFitoutCostPerM2 != null ? customFitoutCostPerM2 : template.fitoutCostPerM2;
   const fitoutTotal = includeFitout ? Math.round(m2 * fitoutRate) : 0;
 
-  // 4. Resmi Ruhsat & Harçlar
+  // 4. İlk Stok & Emtia / İlaç Alım Bütçesi
+  const initialInventoryTotal = includeInventory
+    ? (customInventoryCost != null && customInventoryCost >= 0 ? customInventoryCost : template.initialInventoryCost)
+    : 0;
+
+  // 5. Resmi Ruhsat & Harçlar
   const legalFeesTotal = legalFees.reduce((sum, fee) => {
     if (!fee.selected) return sum;
     return sum + fee.cost;
   }, 0);
 
-  // 5. Aylık Personel Gideri (Detaylı SGK İşveren Dağılımı)
+  // 6. Aylık Personel Gideri (Detaylı SGK İşveren Dağılımı)
   const staffCostDetails: { role: string; count: number; detail: StaffCostDetail }[] = [];
   let monthlyStaffCost = 0;
 
@@ -106,7 +109,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     }
   }
 
-  // 6. Aylık Sabit İşletme Giderleri
+  // 7. Aylık Sabit İşletme Giderleri
   const monthlyUtilities = customUtilities != null ? customUtilities : template.monthlyUtilitiesEstimate;
   const monthlyAccounting = customAccounting != null ? customAccounting : template.monthlyAccountingFee;
   const monthlySoftware = customSoftware != null ? customSoftware : template.monthlySoftwareFee;
@@ -121,19 +124,20 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     monthlySoftware
   );
 
-  // 7. İşletme Sermayesi Güvence Fonu (Varsayılan 3 ay)
+  // 8. İşletme Sermayesi Güvence Fonu (Varsayılan 3 ay)
   const workingCapitalReserve = Math.round(monthlyOperatingCost * (workingCapitalMonths || 0));
 
-  // 8. Toplam İlk Kurulum Yatırımı
+  // 9. Toplam İlk Kurulum Yatırımı (Demirbaş + Mekan + Tadilat + İlk Stok + Harçlar + Güvence Fonu)
   const totalInitialInvestment = Math.round(
     equipmentTotal +
     leaseInitialTotal +
     fitoutTotal +
+    initialInventoryTotal +
     legalFeesTotal +
     workingCapitalReserve
   );
 
-  // 9. Başabaş Noktası (Break-Even)
+  // 10. Başabaş Noktası (Break-Even)
   const breakEvenMetric = template.breakEvenMetric;
   const monthlyBreakEvenRevenue = monthlyOperatingCost;
   const dailyRequiredGross = monthlyOperatingCost / 30;
@@ -144,6 +148,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     equipmentTotal,
     leaseInitialTotal,
     fitoutTotal,
+    initialInventoryTotal,
     legalFeesTotal,
     workingCapitalReserve,
     minLegalCapital: template.capitalRequirement?.minLegalCapital || 0,

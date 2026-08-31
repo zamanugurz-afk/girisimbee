@@ -22,13 +22,14 @@ import {
   Search,
   Store,
   AlertCircle,
-  ShieldCheck,
   Scale,
   X,
   CheckCircle2,
   FileDown,
+  PackageCheck,
+  Coffee,
+  ShieldAlert,
   Info,
-  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -53,15 +54,15 @@ import type {
 const STEPS = [
   { id: 1, label: 'Sektör & İl', sub: 'İşletme türü ve konumu', icon: Building2 },
   { id: 2, label: 'Mekan & Kira', sub: 'm², kira ve tadilat', icon: Store },
-  { id: 3, label: 'Ekip & Personel', sub: 'Maaş ve SGK bütçesi', icon: Users },
-  { id: 4, label: 'Demirbaş & Cihaz', sub: 'Zorunlu ve ek ekipmanlar', icon: Wrench },
-  { id: 5, label: 'Ruhsat & Sermaye', sub: 'Resmi harç ve yasal sermaye', icon: FileText },
+  { id: 3, label: 'Demirbaş & Cihaz', sub: 'Zorunlu ve konfor donanımı', icon: Wrench },
+  { id: 4, label: 'İlk Stok & Emtia', sub: 'İlk mal ve ilaç/ürün alımı', icon: PackageCheck },
+  { id: 5, label: 'Ekip & Ruhsat', sub: 'Bordro, SGK, harç ve sermaye', icon: FileText },
   { id: 6, label: 'Fizibilite Özeti', sub: 'Başabaş ve bütçe planı', icon: TrendingUp },
 ];
 
 export function HomeBusinessSetupAssistantSection() {
   // 1. Sektör & Konum State
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('sigorta_acentesi');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('eczane');
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
   const [sectorSearchQuery, setSectorSearchQuery] = useState<string>('');
   
@@ -80,15 +81,12 @@ export function HomeBusinessSetupAssistantSection() {
   const [m2, setM2] = useState<number>(activeTemplate.defaultM2);
   const [isCustomRent, setIsCustomRent] = useState<boolean>(false);
   const [customMonthlyRent, setCustomMonthlyRent] = useState<number | ''>('');
-  const [depositMonths, setDepositMonths] = useState<number>(1); // Varsayılan 1 ay depozito (toplam 2x kira)
+  const [depositMonths, setDepositMonths] = useState<number>(1);
   const [includeBrokerFee, setIncludeBrokerFee] = useState<boolean>(false);
   const [includeFitout, setIncludeFitout] = useState<boolean>(true);
   const [customFitoutRate, setCustomFitoutRate] = useState<number>(activeTemplate.fitoutCostPerM2);
 
-  // 3. Ekip State (Kurucu kendisi yapabilir)
-  const [staffList, setStaffList] = useState<SetupStaffRole[]>(activeTemplate.recommendedStaff);
-
-  // 4. Demirbaş State
+  // 3. Demirbaş State
   const [equipmentList, setEquipmentList] = useState<
     (SetupEquipment & { selected: boolean; qty: number })[]
   >([]);
@@ -97,10 +95,16 @@ export function HomeBusinessSetupAssistantSection() {
   const [isAddingCustomEq, setIsAddingCustomEq] = useState<boolean>(false);
   const [customEqName, setCustomEqName] = useState<string>('');
   const [customEqCost, setCustomEqCost] = useState<number | ''>('');
-  const [customEqCategory, setCustomEqCategory] = useState<string>('machinery');
+  const [customEqCategory, setCustomEqCategory] = useState<string>('comfort');
   const [customEqUnit, setCustomEqUnit] = useState<string>('Adet');
 
-  // 5. Ruhsat State
+  // 4. İlk Stok & Emtia State
+  const [includeInventory, setIncludeInventory] = useState<boolean>(true);
+  const [isCustomInventory, setIsCustomInventory] = useState<boolean>(false);
+  const [customInventoryCost, setCustomInventoryCost] = useState<number | ''>('');
+
+  // 5. Ekip & Ruhsat State
+  const [staffList, setStaffList] = useState<SetupStaffRole[]>(activeTemplate.recommendedStaff);
   const [legalFeesList, setLegalFeesList] = useState<
     (SetupLegalFeeItem & { selected: boolean })[]
   >([]);
@@ -108,7 +112,7 @@ export function HomeBusinessSetupAssistantSection() {
   // 6. Güvence Fonu (İşletme Sermayesi Ayı)
   const [workingCapitalMonths, setWorkingCapitalMonths] = useState<number>(3);
 
-  // Equipment category filter in step 4
+  // Equipment category filter in step 3
   const [eqCategoryFilter, setEqCategoryFilter] = useState<string>('all');
 
   // PDF / Rapor Modal State
@@ -134,6 +138,9 @@ export function HomeBusinessSetupAssistantSection() {
     );
     setIsCustomRent(false);
     setCustomMonthlyRent('');
+    setIsCustomInventory(false);
+    setCustomInventoryCost('');
+    setIncludeInventory(true);
   }, [activeTemplate]);
 
   // Şehir değiştikçe ilk geçerli ilçeyi seç
@@ -159,6 +166,8 @@ export function HomeBusinessSetupAssistantSection() {
       includeBrokerFee,
       includeFitout,
       customFitoutCostPerM2: customFitoutRate,
+      includeInventory,
+      customInventoryCost: isCustomInventory && typeof customInventoryCost === 'number' ? customInventoryCost : null,
       equipments: equipmentList,
       staff: staffList,
       legalFees: legalFeesList,
@@ -175,6 +184,9 @@ export function HomeBusinessSetupAssistantSection() {
     includeBrokerFee,
     includeFitout,
     customFitoutRate,
+    includeInventory,
+    isCustomInventory,
+    customInventoryCost,
     equipmentList,
     staffList,
     legalFeesList,
@@ -285,6 +297,8 @@ export function HomeBusinessSetupAssistantSection() {
   // Filtrelenmiş Ekipmanlar
   const filteredEquipments = useMemo(() => {
     if (eqCategoryFilter === 'all') return equipmentList;
+    if (eqCategoryFilter === 'mandatory') return equipmentList.filter((eq) => eq.isLocked || eq.category === 'mandatory' || eq.category === 'safety');
+    if (eqCategoryFilter === 'comfort') return equipmentList.filter((eq) => !eq.isLocked && (eq.category === 'comfort' || eq.category === 'furniture' || eq.category === 'appliances'));
     return equipmentList.filter((eq) => eq.category === eqCategoryFilter);
   }, [equipmentList, eqCategoryFilter]);
 
@@ -307,7 +321,7 @@ export function HomeBusinessSetupAssistantSection() {
             İş Kurma <span className="text-amber-500">Asistanı</span>
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl">
-            Türkiye&apos;nin 81 ilinde ve tüm sektörlerde; mekan, demirbaş, resmi harç, personel ve başabaş fizibilite bütçenizi saniyeler içinde simüle edin.
+            Türkiye&apos;nin 81 ilinde ve tüm sektörlerde; mekan, demirbaş, ilk mal stoku, harçlar ve başabaş fizibilite bütçenizi saniyeler içinde simüle edin.
           </p>
         </div>
 
@@ -330,7 +344,7 @@ export function HomeBusinessSetupAssistantSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           
           {/* ========================================================================= */}
-          {/* A. SOL SÜTUN: ADIM STEPPER & SEKTÖR/İL SEÇİMİ (lg:col-span-3)             */}
+          {/* A. SOL SÜTUN: ADIM STEPPER (lg:col-span-3)                                 */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-zinc-800/80 pb-5 lg:pb-0 lg:pr-5">
             <div>
@@ -395,7 +409,7 @@ export function HomeBusinessSetupAssistantSection() {
               {/* Hızlı Sektör Değiştirici Mini Kart */}
               <div className="mt-5 pt-4 border-t border-slate-100 dark:border-zinc-800">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                  Seçili İşletme & Konum
+                  Seçili İşletme Modeli
                 </label>
                 <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/5 via-slate-50 to-slate-100/50 dark:from-amber-500/10 dark:via-zinc-800/40 dark:to-zinc-800/20 border border-amber-500/20 flex items-center gap-3">
                   <span className="text-2xl shrink-0 p-2 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-slate-200/60 dark:border-zinc-700">
@@ -455,7 +469,7 @@ export function HomeBusinessSetupAssistantSection() {
                       <span>01. Sektör & Faaliyet Lokasyonu</span>
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Kurmayı planladığınız iş türünü ve şehri seçin; demirbaş, personel ve maliyetler otomatik dolacaktır.
+                      Kurmayı planladığınız iş türünü ve şehri seçin; demirbaş, ilk stok ve maliyetler otomatik dolacaktır.
                     </p>
                   </div>
 
@@ -565,7 +579,7 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 2: MEKAN & KİRA (1 Peşin + 1 Depozito = 2x Kira Varsayılan)      */}
+            {/* ADIM 2: MEKAN & KİRA (2x Kira Varsayılan: 1 Peşin + 1 Depozito)        */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 2 && (
               <div className="space-y-4">
@@ -640,16 +654,15 @@ export function HomeBusinessSetupAssistantSection() {
                     </button>
                   </div>
 
-                  {/* 1. RESİM İSTEĞİ: 2x Kira (1 Peşin + 1 Depozito) */}
                   <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700">
                     <span className="text-[11px] font-semibold text-muted-foreground block">
-                      Giriş Peşinatı ({1 + depositMonths + (includeBrokerFee ? 1 : 0)}x Kira)
+                      Giriş Peşinatı ({1 + depositMonths}x Kira)
                     </span>
                     <span className="text-base font-extrabold text-slate-900 dark:text-zinc-100 mt-1 block">
                       {formatCurrency(calculationResult.leaseInitialTotal)}
                     </span>
                     <span className="text-[10.5px] text-muted-foreground mt-0.5 block">
-                      1 Peşin + {depositMonths} Depozito {includeBrokerFee ? '+ 1 Emlak' : ''}
+                      1 Peşin + {depositMonths} Depozito
                     </span>
                   </div>
                 </div>
@@ -696,142 +709,57 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 3: EKİP & PERSONEL (2. RESİM İSTEĞİ: KURUCU BELGELİ İSE 0 YAPABİLİR)*/}
+            {/* ADIM 3: DEMİRBAŞ & CİHAZ (ZORUNLU VE KONFOR DEMİRBAŞLARI LİSTESİ)     */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 3 && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-amber-500" />
-                    <span>03. Ekip, Personel & SGK İşveren Maliyeti</span>
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    İşletme için önerilen kadro. Belge veya ruhsat sahibi sizseniz ilgili rolü 0 yapabilirsiniz.
-                  </p>
-                </div>
-
-                {/* Personel Kartları Izgarası (Geniş Metin Alanı ve SGK Dökümü) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
-                  {staffList.map((st, idx) => {
-                    const isSelfOwner = st.count === 0 && st.allowOwnerFulfillment;
-                    return (
-                      <div
-                        key={st.role}
-                        className={cn(
-                          'p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 shadow-sm',
-                          isSelfOwner
-                            ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/50'
-                            : 'bg-white dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700'
-                        )}
-                      >
-                        <div>
-                          <div className="flex items-start justify-between gap-2">
-                            {/* 3. RESİM ÇÖZÜMÜ: whitespace-normal break-words ile kesilmeyi önle */}
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug whitespace-normal break-words">
-                              {st.role}
-                            </h4>
-                            {st.isMandatory && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-md shrink-0">
-                                <Lock className="w-2.5 h-2.5" /> Zorunlu Kadro
-                              </span>
-                            )}
-                          </div>
-
-                          {st.description && (
-                            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed whitespace-normal break-words">
-                              {st.description}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Kurucu Kendisi Yürütecek Butonu / Seçeneği */}
-                        {st.allowOwnerFulfillment && (
-                          <button
-                            type="button"
-                            onClick={() => handleToggleStaffOwner(idx)}
-                            className={cn(
-                              'p-2 rounded-xl text-[11px] font-semibold text-left transition-colors flex items-center gap-2',
-                              isSelfOwner
-                                ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
-                                : 'bg-slate-100 dark:bg-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
-                            )}
-                          >
-                            <CheckCircle2 className={cn('w-3.5 h-3.5 shrink-0', isSelfOwner ? 'text-emerald-600' : 'text-slate-400')} />
-                            <span>{isSelfOwner ? '✓ Belge/Ruhsat Sahibi Sizsiniz (Maaş: ₺0)' : 'Bu görevi kendim yürüteceğim (Belgeli / Diplomam var)'}</span>
-                          </button>
-                        )}
-
-                        <div className="pt-2 border-t border-slate-100 dark:border-zinc-700/60 flex items-center justify-between gap-2">
-                          <div>
-                            <span className="text-[11px] text-muted-foreground block">
-                              Net: {formatCurrency(st.avgSalary)} / Ay
-                            </span>
-                            <span className="text-[10px] font-semibold text-slate-700 dark:text-zinc-300 block">
-                              Toplam İşveren (SGK Dahil): {formatCurrency(Math.round(st.avgSalary * 1.48))}
-                            </span>
-                          </div>
-
-                          {/* Sayı Arttır / Azalt */}
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateStaffCount(idx, -1)}
-                              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 transition-colors"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-6 text-center text-sm font-extrabold text-slate-900 dark:text-zinc-100">
-                              {st.count}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateStaffCount(idx, 1)}
-                              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-600 transition-colors"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
-                  <span className="font-bold text-amber-900 dark:text-amber-200">Aylık Toplam Personel Gideri (Brüt + SGK İşveren Payı):</span>
-                  <span className="font-extrabold text-amber-700 dark:text-amber-400 text-sm">
-                    {formatCurrency(calculationResult.monthlyStaffCost)} / Ay
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* --------------------------------------------------------------------- */}
-            {/* ADIM 4: DEMİRBAŞ & CİHAZ (3. VE 4. RESİM İSTEKLERİ: KESİNTİSİZ METİN & MEVZUAT) */}
-            {/* --------------------------------------------------------------------- */}
-            {activeStep === 4 && (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                       <Wrench className="w-4 h-4 text-amber-500" />
-                      <span>04. Demirbaş, Ekipman & Makine Parkuru</span>
+                      <span>03. Demirbaş, Ekipman & Konfor Donanımları</span>
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Yasal zorunlu donanımlar kilitlidir; operasyonel demirbaşları ihtiyacınıza göre düzenleyebilir veya yeni ekleyebilirsiniz.
+                      Mevzuat gereği yasal zorunlu donanımlar kilitlidir; bekleme koltuğu, tartı, kahve makinesi gibi konfor ekipmanlarını dilediğiniz gibi özelleştirebilirsiniz.
                     </p>
                   </div>
 
-                  {/* Özel Demirbaş Ekle Butonu */}
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setIsAddingCustomEq(!isAddingCustomEq)}
-                    className="h-8 px-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm gap-1.5 self-start sm:self-auto"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Özel Demirbaş Ekle</span>
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {/* Filtre Sekmeleri */}
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-[11px] font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setEqCategoryFilter('all')}
+                        className={cn('px-2.5 py-1 rounded-lg transition-colors', eqCategoryFilter === 'all' ? 'bg-white dark:bg-zinc-700 text-foreground shadow-sm' : 'text-muted-foreground')}
+                      >
+                        Tümü ({equipmentList.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEqCategoryFilter('mandatory')}
+                        className={cn('px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1', eqCategoryFilter === 'mandatory' ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-700 dark:text-amber-400')}
+                      >
+                        <Lock className="w-2.5 h-2.5" /> Yasal Zorunlu
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEqCategoryFilter('comfort')}
+                        className={cn('px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1', eqCategoryFilter === 'comfort' ? 'bg-emerald-500 text-white shadow-sm' : 'text-emerald-700 dark:text-emerald-400')}
+                      >
+                        <Coffee className="w-2.5 h-2.5" /> Konfor & Opsiyonel
+                      </button>
+                    </div>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setIsAddingCustomEq(!isAddingCustomEq)}
+                      className="h-8 px-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Özel Ekle</span>
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Özel Demirbaş Ekleme Form Alanı */}
@@ -853,7 +781,7 @@ export function HomeBusinessSetupAssistantSection() {
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                       <input
                         type="text"
-                        placeholder="Ekipman Adı (Örn: Waffle Makinesi, Kasa)..."
+                        placeholder="Ekipman Adı (Örn: Dijital Baskül, Su Sebili, TV)..."
                         value={customEqName}
                         onChange={(e) => setCustomEqName(e.target.value)}
                         className="sm:col-span-2 h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40"
@@ -879,7 +807,7 @@ export function HomeBusinessSetupAssistantSection() {
                   </div>
                 )}
 
-                {/* 2 Sütunlu Geniş Ekipman Listesi (3. RESİM ÇÖZÜMÜ: TAM VE KESİNTİSİZ METİN) */}
+                {/* 2 Sütunlu Geniş Ekipman Listesi (Kesintisiz Başlıklar & Mevzuat Notları) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
                   {filteredEquipments.map((eq) => (
                     <div
@@ -893,7 +821,7 @@ export function HomeBusinessSetupAssistantSection() {
                     >
                       <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         {eq.isLocked ? (
-                          <div title="Mevzuat gereği zorunlu demirbaş" className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 shrink-0 mt-0.5">
+                          <div title="Mevzuat gereği zorunlu donanım" className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 shrink-0 mt-0.5">
                             <Lock className="w-3.5 h-3.5" />
                           </div>
                         ) : (
@@ -906,12 +834,10 @@ export function HomeBusinessSetupAssistantSection() {
                         )}
 
                         <div className="min-w-0 flex-1">
-                          {/* 3. RESİM ÇÖZÜMÜ: Metin asla kesilmez, tam okunur */}
                           <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug whitespace-normal break-words">
                             {eq.name}
                           </h4>
 
-                          {/* 4. RESİM MEVZUAT AÇIKLAMASI */}
                           {eq.regulatoryNote && (
                             <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-1 leading-snug font-medium whitespace-normal break-words">
                               ⚖️ {eq.regulatoryNote}
@@ -970,21 +896,106 @@ export function HomeBusinessSetupAssistantSection() {
             )}
 
             {/* --------------------------------------------------------------------- */}
-            {/* ADIM 5: RUHSAT & YASAL ASGARİ SERMAYE (5. RESİM İSTEĞİ)                */}
+            {/* ADIM 4: İLK STOK & EMTİA ALIMI (KULLANICININ ÖZELLİKLE İSTEDİĞİ ALAN) */}
+            {/* --------------------------------------------------------------------- */}
+            {activeStep === 4 && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+                    <PackageCheck className="w-4 h-4 text-amber-500" />
+                    <span>04. Başlangıç Stok & Emtia / İlaç Alım Bütçesi</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    İşletmenin kapılarını açtığında reyonları dolduracak veya üretime başlayacak ilk mal ve hammadde alım maliyetidir.
+                  </p>
+                </div>
+
+                {/* Stok Açıklama ve Ana Kart */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/5 via-slate-50 to-slate-100/50 dark:from-amber-500/10 dark:via-zinc-800/40 dark:to-zinc-800/20 border border-amber-500/20 space-y-4 shadow-sm">
+                  
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{activeTemplate.emoji}</span>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100">
+                          {activeTemplate.name} — İlk Mal / Emtia Tedarik Paketi
+                        </h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {activeTemplate.initialInventoryDescription}
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-[11px] font-bold text-muted-foreground block">Önerilen Stok Bütçesi</span>
+                      <span className="text-xl font-black text-amber-600 dark:text-amber-400 block mt-0.5">
+                        {formatCurrency(calculationResult.initialInventoryTotal)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Stok Dahil Et / Hariç Tut & Manuel Bütçe Girişi */}
+                  <div className="pt-3 border-t border-slate-200/60 dark:border-zinc-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={includeInventory}
+                        onChange={(e) => setIncludeInventory(e.target.checked)}
+                        className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4"
+                      />
+                      <span>İlk Stok Alımı Kurulum Bütçesine Dahil Edilsin</span>
+                    </label>
+
+                    {includeInventory && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomInventory(!isCustomInventory)}
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {isCustomInventory ? '✓ Önerilen Tutara Dön' : '✏️ Özel Bütçe Belirle'}
+                        </button>
+
+                        {isCustomInventory && (
+                          <input
+                            type="number"
+                            placeholder="Örn: 500000"
+                            value={customInventoryCost}
+                            onChange={(e) => setCustomInventoryCost(e.target.value ? Number(e.target.value) : '')}
+                            className="w-36 h-8 rounded-xl border border-blue-300 dark:border-blue-700 bg-white dark:bg-zinc-800 px-2.5 text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sektörel Bilgilendirme Notu */}
+                <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40 flex items-start gap-3 text-xs text-blue-950 dark:text-blue-200 leading-relaxed">
+                  <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Sektörel Tedarik Bilgisi:</strong> {activeTemplate.name} açılışında ecza depoları / ana toptancılar genellikle ilk alımlarda peşin veya kısa vadeli teminat talep eder. Bu bütçe açılış günü dükkanın tam kapasite hizmet vermesini sağlar.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --------------------------------------------------------------------- */}
+            {/* ADIM 5: EKİP, RUHSAT & YASAL ASGARİ SERMAYE                           */}
             {/* --------------------------------------------------------------------- */}
             {activeStep === 5 && (
               <div className="space-y-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-amber-500" />
-                    <span>05. Resmi Ruhsat, Tescil & Yasal Asgari Sermaye Şartı</span>
+                    <span>05. Ekip Bordrosu, Resmi Harçlar & Yasal Asgari Sermaye</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    İlgili meslek odası, bakanlık ve belediye mevzuat gereksinimleri.
+                    Personel maliyetleri (SGK dahil), yasal asgari sermaye yeterliliği ve belediye/oda ruhsat harçları.
                   </p>
                 </div>
 
-                {/* 5. RESİM ÇÖZÜMÜ: YASAL ASGARİ SERMAYE ŞARTI KARTI */}
+                {/* YASAL ASGARİ SERMAYE ŞARTI KARTI */}
                 {activeTemplate.capitalRequirement && (
                   <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-amber-50/60 dark:from-blue-950/30 dark:via-zinc-800 dark:to-amber-950/20 border border-blue-200 dark:border-blue-800/40 space-y-2 shadow-sm">
                     <div className="flex items-center justify-between">
@@ -1014,47 +1025,116 @@ export function HomeBusinessSetupAssistantSection() {
                   </div>
                 )}
 
-                {/* 2 Sütunlu Geniş Harçlar Listesi */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin">
-                  {legalFeesList.map((fee, idx) => (
-                    <div
-                      key={fee.name}
-                      className={cn(
-                        'p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-sm',
-                        fee.selected
-                          ? 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700'
-                          : 'bg-slate-50/50 dark:bg-zinc-900/40 border-dashed border-slate-200 dark:border-zinc-800 opacity-60'
-                      )}
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={fee.selected}
-                          onChange={() => handleToggleLegalFee(idx)}
-                          className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer shrink-0"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 whitespace-normal break-words">
-                            {fee.name}
-                          </p>
-                          <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug whitespace-normal break-words">
-                            {fee.description}
-                          </p>
+                {/* 2 Sütunlu Personel ve Harçlar */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin">
+                  
+                  {/* Sol: Personel Kadrosu */}
+                  <div className="space-y-2.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Önerilen Kadro & SGK Maliyeti
+                    </span>
+
+                    {staffList.map((st, idx) => {
+                      const isSelfOwner = st.count === 0 && st.allowOwnerFulfillment;
+                      return (
+                        <div
+                          key={st.role}
+                          className={cn(
+                            'p-3 rounded-2xl border transition-all space-y-2 shadow-sm',
+                            isSelfOwner
+                              ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/50'
+                              : 'bg-white dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700'
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug whitespace-normal break-words">
+                                {st.role}
+                              </h4>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                                Net: {formatCurrency(st.avgSalary)} • Toplam İşveren: {formatCurrency(Math.round(st.avgSalary * 1.48))}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateStaffCount(idx, -1)}
+                                className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="w-5 text-center text-xs font-bold">{st.count}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateStaffCount(idx, 1)}
+                                className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center hover:bg-slate-200"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {st.allowOwnerFulfillment && (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStaffOwner(idx)}
+                              className={cn(
+                                'w-full p-1.5 rounded-lg text-[10.5px] font-semibold text-left transition-colors flex items-center gap-1.5',
+                                isSelfOwner
+                                  ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                                  : 'bg-slate-100 dark:bg-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
+                              )}
+                            >
+                              <CheckCircle2 className={cn('w-3 h-3 shrink-0', isSelfOwner ? 'text-emerald-600' : 'text-slate-400')} />
+                              <span>{isSelfOwner ? '✓ Belge Sahibi Sizsiniz (Maaş: ₺0)' : 'Bu görevi kendim yürüteceğim'}</span>
+                            </button>
+                          )}
                         </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Sağ: Resmi Harçlar */}
+                  <div className="space-y-2.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Resmi Ruhsat & İzin Harçları
+                    </span>
+
+                    {legalFeesList.map((fee, idx) => (
+                      <div
+                        key={fee.name}
+                        className={cn(
+                          'p-3 rounded-2xl border transition-all flex items-center justify-between gap-2.5 shadow-sm',
+                          fee.selected
+                            ? 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700'
+                            : 'bg-slate-50/50 dark:bg-zinc-900/40 border-dashed border-slate-200 opacity-60'
+                        )}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={fee.selected}
+                            onChange={() => handleToggleLegalFee(idx)}
+                            className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer shrink-0"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 whitespace-normal break-words">
+                              {fee.name}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight whitespace-normal break-words">
+                              {fee.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <span className="text-xs font-extrabold text-slate-900 dark:text-zinc-100 shrink-0">
+                          {formatCurrency(fee.cost)}
+                        </span>
                       </div>
+                    ))}
+                  </div>
 
-                      <span className="text-xs font-extrabold text-slate-900 dark:text-zinc-100 shrink-0">
-                        {formatCurrency(fee.cost)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
-                  <span className="font-bold text-amber-900 dark:text-amber-200">Toplam Resmi Ruhsat & Harçlar:</span>
-                  <span className="font-extrabold text-amber-700 dark:text-amber-400 text-sm">
-                    {formatCurrency(calculationResult.legalFeesTotal)}
-                  </span>
                 </div>
               </div>
             )}
@@ -1111,7 +1191,7 @@ export function HomeBusinessSetupAssistantSection() {
                       </div>
                     </div>
 
-                    {/* Bütçe Kalemleri Dağılım Tablosu */}
+                    {/* Bütçe Kalemleri Dağılım Tablosu (İlk Stok Dahil) */}
                     <div className="p-4 rounded-2xl bg-white dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-2.5 text-xs shadow-sm">
                       <h4 className="font-bold text-slate-900 dark:text-zinc-100 text-[11px] uppercase tracking-wider text-muted-foreground">
                         Yatırım Kalemleri Dökümü
@@ -1122,6 +1202,13 @@ export function HomeBusinessSetupAssistantSection() {
                           <Wrench className="w-3.5 h-3.5 text-amber-500" /> Demirbaş & Cihazlar:
                         </span>
                         <span className="font-bold text-slate-900 dark:text-zinc-100">{formatCurrency(calculationResult.equipmentTotal)}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-700/60">
+                        <span className="text-muted-foreground flex items-center gap-1.5">
+                          <PackageCheck className="w-3.5 h-3.5 text-emerald-600" /> İlk Stok & Emtia Alımı:
+                        </span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(calculationResult.initialInventoryTotal)}</span>
                       </div>
 
                       <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-700/60">
@@ -1140,7 +1227,7 @@ export function HomeBusinessSetupAssistantSection() {
 
                       <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-700/60">
                         <span className="text-muted-foreground flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-emerald-500" /> Resmi Ruhsat & Harçlar:
+                          <FileText className="w-3.5 h-3.5 text-purple-500" /> Resmi Ruhsat & Harçlar:
                         </span>
                         <span className="font-bold text-slate-900 dark:text-zinc-100">{formatCurrency(calculationResult.legalFeesTotal)}</span>
                       </div>
@@ -1170,11 +1257,12 @@ export function HomeBusinessSetupAssistantSection() {
                         {formatCurrency(calculationResult.totalInitialInvestment)}
                       </div>
                       <p className="text-[11px] text-amber-100/90 mt-1">
-                        Mekan, demirbaş, harçlar ve {workingCapitalMonths} aylık güvence fonu dahil.
+                        Demirbaş, ilk stok/emtia, mekan, harçlar ve {workingCapitalMonths} aylık güvence fonu dahil.
                       </p>
 
                       <div className="mt-3.5 pt-3 border-t border-amber-400/30 flex items-center justify-between text-[11px] text-amber-100">
                         <span>Demirbaş: {Math.round((calculationResult.equipmentTotal / (calculationResult.totalInitialInvestment || 1)) * 100)}%</span>
+                        <span>İlk Stok: {Math.round((calculationResult.initialInventoryTotal / (calculationResult.totalInitialInvestment || 1)) * 100)}%</span>
                         <span>Mekan: {Math.round(((calculationResult.leaseInitialTotal + calculationResult.fitoutTotal) / (calculationResult.totalInitialInvestment || 1)) * 100)}%</span>
                         <span>Fon: {Math.round((calculationResult.workingCapitalReserve / (calculationResult.totalInitialInvestment || 1)) * 100)}%</span>
                       </div>
@@ -1447,10 +1535,25 @@ export function HomeBusinessSetupAssistantSection() {
                 </div>
               )}
 
+              {/* İlk Stok & Emtia Bilgisi */}
+              <div className="p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-emerald-900 dark:text-emerald-200">
+                    📦 İlk Stok & Emtia / İlaç Tedarik Paketi:
+                  </span>
+                  <span className="font-black text-emerald-700 dark:text-emerald-300">
+                    {formatCurrency(calculationResult.initialInventoryTotal)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  {activeTemplate.initialInventoryDescription}
+                </p>
+              </div>
+
               {/* 1. TABLO: Demirbaş ve Donanım Parkuru */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
-                  1. Demirbaş, Ekipman & Makine Listesi
+                  1. Demirbaş, Ekipman & Donanım Listesi
                 </h4>
                 <table className="w-full text-xs text-left border-collapse border border-slate-200 dark:border-zinc-700">
                   <thead>

@@ -4,7 +4,8 @@ export type SetupEquipmentCategory =
   | 'furniture' 
   | 'appliances' 
   | 'machinery' 
-  | 'safety';
+  | 'safety'
+  | 'comfort';
 
 export interface SetupEquipment {
   id: string;
@@ -56,6 +57,8 @@ export interface BusinessTemplate {
   categoryGroup: string;
   defaultM2: number;
   fitoutCostPerM2: number; // Tadilat & Dekorasyon m² maliyeti
+  initialInventoryCost: number; // İlk Mal / İlaç / Emtia / Hammadde Alım Bütçesi
+  initialInventoryDescription: string;
   capitalRequirement: SetupCapitalRequirement;
   mandatoryLegalItems: SetupLegalFeeItem[];
   equipments: SetupEquipment[];
@@ -79,6 +82,7 @@ export interface BusinessSetupCalculationResult {
   equipmentTotal: number;
   leaseInitialTotal: number; // 1 Peşin + 1 Depozito (2x Kira)
   fitoutTotal: number;
+  initialInventoryTotal: number; // İlk Stok / Emtia / İlaç Tutarı
   legalFeesTotal: number;
   workingCapitalReserve: number;
   minLegalCapital: number;
