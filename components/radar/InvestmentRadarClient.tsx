@@ -365,35 +365,6 @@ export function InvestmentRadarClient() {
         return;
       }
 
-      // Check if we have the master 'all' census for this exact coordinate and radius
-      const masterKey = `${roundedLat}-${roundedLng}-${radius}-all`;
-      const masterData = CLIENT_RADAR_CACHE.get(masterKey);
-      if (masterData && category !== 'all') {
-        const filteredCompetitors = masterData.competitors.filter(
-          (p) =>
-            p.category === category ||
-            (category === 'dry_cleaning' && (p.category === 'terzi' || p.category === 'dry_cleaning')) ||
-            (category === 'restaurant' && p.category === 'donerci'),
-        );
-        const instantData: RadarSpatialResponse = {
-          ...masterData,
-          query: {
-            ...masterData.query,
-            category,
-            categoryLabel: (RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe).label,
-          },
-          competitors: filteredCompetitors,
-          metrics: {
-            ...masterData.metrics,
-            competitorCount: filteredCompetitors.length,
-          },
-        };
-        CLIENT_RADAR_CACHE.set(cacheKey, instantData);
-        setRadarData(instantData);
-        setIsLoading(false);
-        return;
-      }
-
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
