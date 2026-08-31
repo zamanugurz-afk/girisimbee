@@ -726,14 +726,33 @@ export function InvestmentRadarClient() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Başlık & Açıklama */}
-            <div className="pb-1">
+            {/* Harita Üst Barı: Başlık & Yarıçap Seçici */}
+            <div className="flex items-center justify-between gap-2 pb-1">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-display font-bold text-slate-900 dark:text-white tracking-tight">
                 Lokasyon Radarı
               </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 leading-relaxed">
-                İş kolunuzu seçin, çemberle tarayın. Demografi, rakip yoğunluğu ve aktif devir & ortaklık fırsatlarını anlık analiz edin.
-              </p>
+
+              {/* Yarıçap Seçici (Harita Üstü) */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">Yarıçap:</span>
+                <div className="inline-flex rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-800/80 p-0.5">
+                  {RADIUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setRadiusMeters(opt.value)}
+                      className={cn(
+                        'px-2 sm:px-2.5 py-1 text-xs font-bold rounded-md transition-all',
+                        radiusMeters === opt.value
+                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* İnteraktif Harita Tuvali */}
@@ -766,30 +785,8 @@ export function InvestmentRadarClient() {
               />
             </div>
 
-            {/* Harita Alt Barı: Yarıçap Seçimi & Lejant */}
+            {/* Harita Alt Barı: Lejant */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-              {/* Yarıçap Seçici */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">Yarıçap:</span>
-                <div className="inline-flex rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-800/80 p-0.5">
-                  {RADIUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setRadiusMeters(opt.value)}
-                      className={cn(
-                        'px-2.5 py-1 text-xs font-bold rounded-md transition-all',
-                        radiusMeters === opt.value
-                          ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
-                          : 'text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Lejant (Pin Açıklamaları) */}
               <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-1.5">
@@ -804,8 +801,8 @@ export function InvestmentRadarClient() {
                     Mevcut Rakipler ({radarData?.competitors.length || 0})
                   </span>
                 </div>
-                <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">© OpenStreetMap</span>
               </div>
+              <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">© OpenStreetMap</span>
             </div>
           </div>
 
