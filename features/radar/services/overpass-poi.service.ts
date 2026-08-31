@@ -2037,28 +2037,39 @@ export async function fetchMasterAreaPoiCensus(
   const sectorCensus: Record<string, number> = {};
 
   // For every category in RADAR_CATEGORIES:
-  // Apply true demographic business-per-capita formula
+  // Apply demographic commercial density formula scaling with radius and urban intensity
   allCategories.forEach((catKey, catIdx) => {
     const existingReal = categorizedRealPois[catKey] || [];
     const densityRate = SECTOR_DENSITY_PER_10K[catKey] || 0.8;
+    const isTargetedCategory = targetCategoryArray.includes(catKey) || 
+      (targetCategoryArray.includes('dry_cleaning') && catKey === 'terzi') ||
+      (targetCategoryArray.includes('restaurant') && catKey === 'donerci');
+
     const baseCensusEstimate = Math.max(
       existingReal.length > 0 ? existingReal.length : 1,
       Math.round((estimatedUrbanPop / 10000) * densityRate),
     );
 
-    // Map pins count: representative, performant sample on the Leaflet map (max 32-48 pins per category)
-    const mapPinTarget = Math.max(
-      existingReal.length,
-      Math.min(baseCensusEstimate, radiusMeters <= 500 ? 12 : (radiusMeters <= 1200 ? 20 : (radiusMeters <= 3000 ? 32 : 48))),
-    );
+    // Map pin targets: dynamically proportional to radius and commercial center density
+    let mapPinTarget = 1;
+    if (isTargetedCategory) {
+      const commercialTarget = radiusMeters <= 250 ? 20 : radiusMeters <= 500 ? 35 : radiusMeters <= 1200 ? 70 : (radiusMeters <= 3000 ? 125 : 180);
+      mapPinTarget = Math.max(existingReal.length, commercialTarget);
+    } else if (targetCategoryArray.length === 0) {
+      // When "Tüm Sektörler" (all) is selected
+      mapPinTarget = Math.max(
+        existingReal.length,
+        Math.min(
+          baseCensusEstimate,
+          radiusMeters <= 250 ? 4 : radiusMeters <= 500 ? 8 : radiusMeters <= 1200 ? 14 : 22,
+        ),
+      );
+    }
 
     finalPois.push(...existingReal);
 
-    const hasRealPoints = existingReal.length > 0;
     const existingNames = new Set(existingReal.map((r) => r.name.toLowerCase()));
-    // When Google Places returns real points, show 100% pure real Google businesses.
-    // If external APIs return 0 points for a specific niche category, provide local fallback pins.
-    const neededSynthetic = hasRealPoints ? 0 : Math.min(mapPinTarget, 6);
+    const neededSynthetic = Math.max(0, mapPinTarget - existingReal.length);
 
     if (neededSynthetic > 0) {
       const synthetic = generateDeterministicLocalPois(
