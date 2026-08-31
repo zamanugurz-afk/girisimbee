@@ -801,15 +801,18 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Büyük Lokasyon Radarı Başlığı */}
-            <div className="flex items-center justify-between pb-0.5">
-              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Lokasyon Radarı
-              </h2>
+            {/* Harita Üst Barı: Girişimbee Market Tarzı Vurgulu Başlık */}
+            <div className="flex flex-col pb-1">
+              <div className="inline-flex items-baseline gap-2">
+                <h2 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
+                  Lokasyon <span className="text-amber-500">Radarı</span>
+                </h2>
+              </div>
+              <div className="mt-1.5 h-1.5 w-16 rounded-full bg-gradient-to-r from-teal-400 to-amber-500" />
             </div>
 
             {/* İnteraktif Harita Tuvali */}
-            <div className="relative w-full h-[480px] sm:h-[540px] lg:h-[600px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-2xl overflow-hidden shadow-inner border border-slate-200/80 dark:border-zinc-800">
               {/* Visible Loading Bar on Top of Map Canvas */}
               {isLoading && (
                 <div className="absolute top-0 left-0 right-0 h-1.5 z-40 bg-amber-500/25 overflow-hidden">
