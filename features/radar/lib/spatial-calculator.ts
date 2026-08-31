@@ -631,6 +631,51 @@ export const POPULAR_SECTORS_CATALOG: SectorPopularityMeta[] = [
     upperSesReason: 'Tasarım çerçeveler, premium güneş gözlükleri ve reçeteli lens temini.',
     standardSesReason: 'SGK anlaşmalı reçeteli cam ve ekonomik çerçeve seçenekleri.',
   },
+  {
+    key: 'cilingir',
+    label: 'Çilingir & Güvenlik Kilit Sistemleri',
+    emoji: '🔑',
+    requiredPop: 9000,
+    popularityRank: 14,
+    upperSesReason: 'Akıllı kilitler, çelik kapı göbek değişimi ve acil oto anahtar servisi.',
+    standardSesReason: 'Acil kapı açma, anahtar çoğaltma ve bina kilit değişimi ihtiyacı.',
+  },
+  {
+    key: 'lastikci',
+    label: 'Oto Lastik & Rot Balans Servisi',
+    emoji: '🛞',
+    requiredPop: 10000,
+    popularityRank: 15,
+    upperSesReason: 'Mevsimlik lastik oteli, nitrojen dolumu ve balans ayarında butik servis.',
+    standardSesReason: 'Acil lastik tamiri, 2. el/sıfır lastik değişimi ve sibop kontrolü.',
+  },
+  {
+    key: 'kindergarten',
+    label: 'Butik Anaokulu & Çocuk Oyun Evi',
+    emoji: '🧸',
+    requiredPop: 8000,
+    popularityRank: 16,
+    upperSesReason: 'İki dilli eğitim, montessori atölyeleri ve çalışan ebeveynler için tam gün bakım.',
+    standardSesReason: 'Çalışan aileler için güvenli mahalle kreşi ve saatlik oyun alanı.',
+  },
+  {
+    key: 'tatlici',
+    label: 'Butik Baklavacı & Künefe Salonu',
+    emoji: '🍰',
+    requiredPop: 6500,
+    popularityRank: 17,
+    upperSesReason: 'Gaziantep usulü tereyağlı fıstıklı baklava ve akşam sıcak künefe servisi.',
+    standardSesReason: 'Özel gün tatlı kutuları, tulumba ve halka tatlısı hızlı satışı.',
+  },
+  {
+    key: 'dondurmaci',
+    label: 'İtalyan Gelato & Waffle Salonu',
+    emoji: '🍦',
+    requiredPop: 7000,
+    popularityRank: 18,
+    upperSesReason: 'Doğal meyveli İtalyan gelato, taze Belçika waffle ve kahve eşleşmesi.',
+    standardSesReason: 'Özellikle yaz aylarında ve akşam yürüyüşlerinde yoğun külah dondurma talebi.',
+  },
 ];
 
 export function generateIntelligenceReport(
@@ -685,7 +730,7 @@ export function generateIntelligenceReport(
     marketGapSummary = `Bölgede standart işletme sayısı doymuş görünse de (${compCount} rakip), ${demographics.sesGroup} kitlesinin aradığı kişiselleştirilmiş ve deneyim odaklı niş segmentte %${marketGapScore} arz açığı bulunmaktadır.`;
   }
 
-  // 3. HANGİ SEKTÖRLER YOK? (FIRSAT AVCISI - EN POPÜLERDEN EN AZA DOĞRU SIRALI)
+  // 3. HANGİ SEKTÖRLER YOK? (FIRSAT AVCISI - YALNIZCA ÇEMBERDE KESİNLİKLE 0 OLAN SEKTÖRLER)
   const counts = sectorCounts || {};
   const missingSectorsList: MissingSectorItem[] = [];
 
@@ -693,20 +738,16 @@ export function generateIntelligenceReport(
     const existing = counts[sec.key] ?? 0;
     const ideal = Math.max(1, Math.round(popRaw / sec.requiredPop));
 
-    if (existing === 0 || existing < ideal * 0.5) {
-      const demandScore = existing === 0 
-        ? Math.min(99, 90 + (13 - sec.popularityRank))
-        : Math.min(88, 75 + (13 - sec.popularityRank));
-      
-      const statusBadge = existing === 0
-        ? '0 İşletme (Kritik Açık)'
-        : `Yetersiz Arz (${existing} İşletme / ${popStr} Kişi)`;
+    // STRICT KURAL: Çemberde olan (existing > 0) sektörler asla "yok" listesinde gösterilmez!
+    if (existing === 0) {
+      const demandScore = Math.min(99, 90 + Math.max(0, 18 - sec.popularityRank));
+      const statusBadge = '0 İşletme (Kritik Açık)';
 
       missingSectorsList.push({
         key: sec.key,
         label: sec.label,
         emoji: sec.emoji,
-        existingCount: existing,
+        existingCount: 0,
         idealCount: ideal,
         demandScore,
         popularityRank: sec.popularityRank,
@@ -716,12 +757,8 @@ export function generateIntelligenceReport(
     }
   }
 
-  // En popülerden en az tercih edilene doğru sırala (0 olanlar en başta)
-  missingSectorsList.sort((a, b) => {
-    if (a.existingCount === 0 && b.existingCount > 0) return -1;
-    if (a.existingCount > 0 && b.existingCount === 0) return 1;
-    return a.popularityRank - b.popularityRank;
-  });
+  // En popülerden en aza doğru sırala
+  missingSectorsList.sort((a, b) => a.popularityRank - b.popularityRank);
 
   const missingSectors = missingSectorsList.slice(0, 5);
 

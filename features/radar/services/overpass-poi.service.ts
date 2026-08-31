@@ -895,6 +895,7 @@ function generateDeterministicLocalPois(
   category: RadarCategoryKey,
   locationName: string = 'Bölge',
   targetCount: number = 3,
+  categoryIndex: number = 0,
 ): CompetitorPoi[] {
   const templates = SECTOR_SYNTHESIS_TEMPLATES[category] || [
     { suffix: 'İşletmesi', count: 2 },
@@ -908,16 +909,18 @@ function generateDeterministicLocalPois(
     .trim() || 'Bölge';
 
   const pois: CompetitorPoi[] = [];
-  const seed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543));
+  const baseSeed = Math.abs(Math.sin(lat * 1234.567 + lng * 9876.543));
+  const categoryHash = Math.abs(category.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 7));
 
   for (let i = 0; i < targetCount; i++) {
     const t = templates[i % templates.length];
-    const angleDeg = (seed * 360 + i * (360 / Math.max(3, targetCount)) + (i * 47)) % 360;
+    // Spread evenly across 360 degrees, offset by category hash and index so NO TWO POIS OVERLAP
+    const angleDeg = (baseSeed * 360 + categoryIndex * 43.7 + i * (360 / Math.max(1, targetCount)) + categoryHash * 13) % 360;
     const angleRad = (angleDeg * Math.PI) / 180;
 
-    // Distribute nicely within 30% to 85% of radius
-    const distRatio = 0.3 + ((seed * 17 + i * 29) % 55) / 100;
-    const distMeters = Math.max(50, Math.min(radiusMeters - 20, Math.round(radiusMeters * distRatio)));
+    // Distribute nicely from 20% to 90% of circle radius
+    const distRatio = 0.20 + (((baseSeed * 100 + categoryIndex * 17 + i * 29) % 70) / 100);
+    const distMeters = Math.max(40, Math.min(radiusMeters - 15, Math.round(radiusMeters * distRatio)));
 
     const dLat = (distMeters / 111320) * Math.cos(angleRad);
     const dLng = (distMeters / (111320 * Math.cos((lat * Math.PI) / 180))) * Math.sin(angleRad);
@@ -925,17 +928,17 @@ function generateDeterministicLocalPois(
     const pLat = lat + dLat;
     const pLng = lng + dLng;
 
-    const brandNames = ['Özen', 'Merkez', 'Uğur', 'Yıldız', 'Moda', 'Ekspres', 'Lider', 'Klas'];
-    const brandPrefix = i === 0 ? locClean : brandNames[(i * 3 + Math.floor(seed * 10)) % brandNames.length];
+    const brandNames = ['Özen', 'Merkez', 'Uğur', 'Yıldız', 'Moda', 'Ekspres', 'Lider', 'Klas', 'Seçkin', 'Modern', 'Prestij'];
+    const brandPrefix = i === 0 ? locClean : brandNames[(i * 3 + categoryIndex + Math.floor(baseSeed * 10)) % brandNames.length];
 
     pois.push({
-      id: `syn-${category}-${i}-${Math.round(pLat * 10000)}`,
+      id: `syn-${category}-${categoryIndex}-${i}-${Math.round(pLat * 10000)}`,
       name: `${brandPrefix} ${t.suffix}`,
       lat: pLat,
       lng: pLng,
       category,
       categoryLabel: meta.label,
-      address: `${locClean} Mahallesi No: ${10 + i * 14}`,
+      address: `${locClean} Mahallesi No: ${10 + (categoryIndex * 7 + i * 14) % 90}`,
       distanceMeters: distMeters,
     });
   }
@@ -991,20 +994,20 @@ export async function fetchCompetitorPois(
   // 4. Hyper-Local Turkish Esnaf Seed fallback (guarantees non-empty authentic sector data anywhere in Turkey)
   let fallbackPois: CompetitorPoi[] = [];
   if (isAll) {
-    // Generate representative mix across top sectors for 'all'
+    // Generate representative mix across top sectors for 'all' with unique angular offsets
     const topKeys: RadarCategoryKey[] = [
       'cafe', 'restaurant', 'market', 'bakery', 'hairdresser',
       'pharmacy', 'dry_cleaning', 'pet_shop', 'car_wash', 'butcher',
     ];
-    for (const key of topKeys) {
-      const generated = generateDeterministicLocalPois(lat, lng, radiusMeters, key, locationName, 2);
+    topKeys.forEach((key, catIdx) => {
+      const generated = generateDeterministicLocalPois(lat, lng, radiusMeters, key, locationName, 2, catIdx);
       fallbackPois.push(...generated);
-    }
+    });
   } else {
     // For specific category (e.g. dry_cleaning, pharmacy, cafe...)
     // Radius 250m: 2-3 businesses, 500m: 3-5 businesses, 1km+: 5-8 businesses
-    const baseCount = radiusMeters <= 300 ? 2 : radiusMeters <= 600 ? 4 : 6;
-    fallbackPois = generateDeterministicLocalPois(lat, lng, radiusMeters, category, locationName, baseCount);
+    const baseCount = radiusMeters <= 300 ? 3 : radiusMeters <= 600 ? 4 : 6;
+    fallbackPois = generateDeterministicLocalPois(lat, lng, radiusMeters, category, locationName, baseCount, 0);
   }
 
   const sortedFallback = fallbackPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
