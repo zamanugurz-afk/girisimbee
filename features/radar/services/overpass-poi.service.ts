@@ -542,7 +542,68 @@ export async function fetchGooglePlacesPois(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6500);
 
-    // 1. Try Google Places API (New) - SearchNearby
+    // 1. If specific category, use Google Places TextSearch with targeted keywords
+    if (category !== 'all') {
+      try {
+        const textApiUrl = 'https://places.googleapis.com/v1/places:searchText';
+        const textApiRes = await fetch(textApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'Referer': 'https://girisimbee.com/',
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount',
+          },
+          body: JSON.stringify({
+            textQuery: mapping.keyword,
+            locationBias: {
+              circle: {
+                center: { latitude: lat, longitude: lng },
+                radius: radiusMeters,
+              },
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        if (textApiRes.ok) {
+          const textJson = await textApiRes.json();
+          if (textJson.places && textJson.places.length > 0) {
+            clearTimeout(timeoutId);
+            const pois: CompetitorPoi[] = [];
+            for (const place of textJson.places) {
+              const pName = place.displayName?.text;
+              const pLat = place.location?.latitude;
+              const pLng = place.location?.longitude;
+              if (!pName || pLat == null || pLng == null) continue;
+
+              const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+              if (dist > radiusMeters * 1.3) continue;
+
+              pois.push({
+                id: `gp-txt-${place.id}`,
+                name: pName,
+                lat: pLat,
+                lng: pLng,
+                category,
+                categoryLabel: mapping.fallbackLabel,
+                address: place.formattedAddress || 'Google Doğrulanmış Konum',
+                distanceMeters: Math.round(dist),
+              });
+            }
+            if (pois.length > 0) {
+              const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+              GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
+              return sorted;
+            }
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    // 2. Try Google Places API (New) - SearchNearby for general / fallback queries
     try {
       const newApiUrl = 'https://places.googleapis.com/v1/places:searchNearby';
       const newApiRes = await fetch(newApiUrl, {
@@ -581,65 +642,6 @@ export async function fetchGooglePlacesPois(
 
             pois.push({
               id: `gp-new-${place.id}`,
-              name: pName,
-              lat: pLat,
-              lng: pLng,
-              category,
-              categoryLabel: mapping.fallbackLabel,
-              address: place.formattedAddress || 'Google Doğrulanmış Konum',
-              distanceMeters: Math.round(dist),
-            });
-          }
-          if (pois.length > 0) {
-            const sorted = pois.sort((a, b) => a.distanceMeters - b.distanceMeters);
-            GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
-            return sorted;
-          }
-        }
-      }
-    } catch {
-      // Fallback
-    }
-
-    // 2. Try Google Places API (New) - SearchText for specific keyword
-    try {
-      const textApiUrl = 'https://places.googleapis.com/v1/places:searchText';
-      const textApiRes = await fetch(textApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'Referer': 'https://girisimbee.com/',
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount',
-        },
-        body: JSON.stringify({
-          textQuery: `${mapping.keyword} ${category !== 'all' ? category : ''}`,
-          locationBias: {
-            circle: {
-              center: { latitude: lat, longitude: lng },
-              radius: radiusMeters,
-            },
-          },
-        }),
-        signal: controller.signal,
-      });
-
-      if (textApiRes.ok) {
-        const textJson = await textApiRes.json();
-        if (textJson.places && textJson.places.length > 0) {
-          clearTimeout(timeoutId);
-          const pois: CompetitorPoi[] = [];
-          for (const place of textJson.places) {
-            const pName = place.displayName?.text;
-            const pLat = place.location?.latitude;
-            const pLng = place.location?.longitude;
-            if (!pName || pLat == null || pLng == null) continue;
-
-            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
-            if (dist > radiusMeters * 1.25) continue;
-
-            pois.push({
-              id: `gp-txt-${place.id}`,
               name: pName,
               lat: pLat,
               lng: pLng,
@@ -1001,13 +1003,14 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
     'Çarşı Dönercisi',
   ],
   hairdresser: [
-    'MOS Kuaför & Güzellik',
-    'Şükrü Dudu Barber Shop',
-    'Trio Kuaför',
-    'VIP Men\'s Barber',
-    'Salon Paris Kadın Kuaförü',
-    'Nail & Güzellik Stüdyosu',
-    '{loc} Erkek Kuaförü',
+    '{loc} Kuaför & Saç Tasarım',
+    '{loc} Erkek Berberi & Kuaför',
+    'Güzellik Salonu & Nail Studio',
+    'Stil Bayan Kuaförü & Bakım',
+    'Makas Saç Tasarım Atölyesi',
+    'VIP Men\'s Hair Club',
+    'Elit Kuaför & Güzellik Merkezi',
+    '{loc} Saç & Estetik Stüdyosu',
   ],
   pharmacy: [
     'Şifa Eczanesi',
@@ -1884,23 +1887,39 @@ export async function fetchMasterAreaPoiCensus(
   lng: number,
   radiusMeters: number,
   locationName: string = 'Bölge',
+  targetCategory: RadarCategoryKey = 'all',
 ): Promise<AreaPoiCensusResult> {
   const roundedLat = Math.round(lat * 1000) / 1000;
   const roundedLng = Math.round(lng * 1000) / 1000;
-  const cacheKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}`;
+  const cacheKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}-${targetCategory}`;
 
   const cached = MASTER_AREA_CENSUS_CACHE.get(cacheKey);
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
     return cached.data;
   }
 
-  // 1. Try fetching real OSM/Google points for the whole area first
+  // 1. Try fetching real Google Places points for the target category
   let realPois: CompetitorPoi[] = [];
-  const googlePois = await fetchGooglePlacesPois(lat, lng, radiusMeters, 'all');
-  if (googlePois && googlePois.length > 0) {
-    realPois = googlePois;
+  if (targetCategory && targetCategory !== 'all') {
+    const googleCategoryPois = await fetchGooglePlacesPois(lat, lng, radiusMeters, targetCategory);
+    if (googleCategoryPois && googleCategoryPois.length > 0) {
+      realPois.push(...googleCategoryPois);
+    }
   } else {
-    const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all');
+    // When targetCategory === 'all', query across top commercial sectors
+    const topSectors: RadarCategoryKey[] = ['cafe', 'restaurant', 'market', 'hairdresser', 'pharmacy', 'donerci', 'bakery', 'real_estate'];
+    const sectorPromises = topSectors.map((sec) => fetchGooglePlacesPois(lat, lng, radiusMeters, sec));
+    const results = await Promise.all(sectorPromises);
+    for (const r of results) {
+      if (r && r.length > 0) {
+        realPois.push(...r);
+      }
+    }
+  }
+
+  // Fallback to Overpass OSM if Google returned nothing
+  if (realPois.length === 0) {
+    const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, targetCategory);
     if (overpassPois && overpassPois.length > 0) {
       realPois = overpassPois;
     }
@@ -2005,7 +2024,7 @@ export async function fetchCompetitorPois(
   category: RadarCategoryKey,
   locationName: string = 'Bölge',
 ): Promise<CompetitorPoi[]> {
-  const { allPois } = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName);
+  const { allPois } = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, category);
 
   if (category === 'all' || !category) {
     return allPois;

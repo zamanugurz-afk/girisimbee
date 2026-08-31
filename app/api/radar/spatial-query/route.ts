@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Fetch complete area census (POIs + full sector distribution) and 2. listings in parallel
     const [censusResult, listingsInRadius] = await Promise.all([
-      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge'),
+      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge', categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
