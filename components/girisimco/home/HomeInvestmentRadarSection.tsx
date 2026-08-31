@@ -289,6 +289,7 @@ export function HomeInvestmentRadarSection() {
       const roundedLat = Math.round(lat * 1000) / 1000;
       const roundedLng = Math.round(lng * 1000) / 1000;
       const cacheKey = `${roundedLat}-${roundedLng}-${radius}-${category}`;
+      const masterKey = `${roundedLat}-${roundedLng}-${radius}-all`;
 
       const cached = CLIENT_RADAR_CACHE.get(cacheKey);
       if (cached) {
