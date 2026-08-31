@@ -319,6 +319,35 @@ export function InvestmentRadarClient() {
         return;
       }
 
+      // Check if we have the master 'all' census for this exact coordinate and radius
+      const masterKey = `${roundedLat}-${roundedLng}-${radius}-all`;
+      const masterData = CLIENT_RADAR_CACHE.get(masterKey);
+      if (masterData && category !== 'all') {
+        const filteredCompetitors = masterData.competitors.filter(
+          (p) =>
+            p.category === category ||
+            (category === 'dry_cleaning' && (p.category === 'terzi' || p.category === 'dry_cleaning')) ||
+            (category === 'restaurant' && p.category === 'donerci'),
+        );
+        const instantData: RadarSpatialResponse = {
+          ...masterData,
+          query: {
+            ...masterData.query,
+            category,
+            categoryLabel: (RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe).label,
+          },
+          competitors: filteredCompetitors,
+          metrics: {
+            ...masterData.metrics,
+            competitorCount: filteredCompetitors.length,
+          },
+        };
+        CLIENT_RADAR_CACHE.set(cacheKey, instantData);
+        setRadarData(instantData);
+        setIsLoading(false);
+        return;
+      }
+
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -349,6 +378,9 @@ export function InvestmentRadarClient() {
         const json = await res.json();
         if (json.ok && json.data) {
           CLIENT_RADAR_CACHE.set(cacheKey, json.data);
+          if (category === 'all') {
+            CLIENT_RADAR_CACHE.set(masterKey, json.data);
+          }
           setRadarData(json.data);
         } else {
           throw new Error(json.error || 'Veri alınamadı');
@@ -974,7 +1006,7 @@ export function InvestmentRadarClient() {
                           </span>
                         </div>
                         <p className="text-muted-foreground text-[11.5px] leading-relaxed">
-                          {demographicStats.population} kişilik yerleşik talep ve {demographicStats.sesGroup} gelir yapısına göre çemberde bulunmayan veya yetersiz olan öncelikli sektörler:
+                          İlde en çok işletmeye sahip 50 meslek kolu arasında bu çemberde bulunmayan <strong>en yüksek potansiyelli ilk 3 fırsat sektörü</strong>:
                         </p>
                       </div>
 

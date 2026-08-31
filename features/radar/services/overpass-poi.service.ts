@@ -645,10 +645,10 @@ export async function fetchOverpassCompetitorPois(
     `.trim();
   }
 
-  for (const endpoint of OVERPASS_ENDPOINTS) {
+  for (const endpoint of OVERPASS_ENDPOINTS.slice(0, 2)) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 1200);
 
       const params = new URLSearchParams();
       params.append('data', query);
