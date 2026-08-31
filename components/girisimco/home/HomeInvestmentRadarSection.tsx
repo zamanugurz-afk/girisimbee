@@ -801,30 +801,11 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Başlık & Yarıçap Seçici Yan Yana */}
-            <div className="flex items-center justify-between gap-2 pb-1 overflow-x-auto no-scrollbar">
-              <h3 className="text-base sm:text-lg font-display font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap shrink-0">
+            {/* Harita Üst Barı: Büyük Lokasyon Radarı Başlığı */}
+            <div className="flex items-center justify-between pb-0.5">
+              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Lokasyon Radarı
-              </h3>
-
-              {/* Kompakt Yarıçap Seçici (Yarıçap yazısı kaldırıldı, tek satırda hizalandı) */}
-              <div className="inline-flex items-center rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-slate-100/90 dark:bg-zinc-800/80 p-0.5 shadow-2xs shrink-0">
-                {RADIUS_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setRadiusMeters(opt.value)}
-                    className={cn(
-                      'px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10.5px] sm:text-xs font-bold rounded-lg transition-all whitespace-nowrap leading-none',
-                      radiusMeters === opt.value
-                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              </h2>
             </div>
 
             {/* İnteraktif Harita Tuvali */}
@@ -890,8 +871,27 @@ export function HomeInvestmentRadarSection() {
               />
             </div>
 
-            {/* Harita Alt Barı: Lejant */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            {/* Harita Alt Barı: Yarıçap Seçici & Lejant */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1.5">
+              {/* Yarıçap Seçici Buton Grubu (Haritanın Altında) */}
+              <div className="inline-flex items-center rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-slate-100/90 dark:bg-zinc-800/80 p-0.5 shadow-2xs shrink-0">
+                {RADIUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setRadiusMeters(opt.value)}
+                    className={cn(
+                      'px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap leading-none',
+                      radiusMeters === opt.value
+                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-2xs'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Lejant (Pin Açıklamaları) */}
               <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-1.5">
@@ -907,7 +907,6 @@ export function HomeInvestmentRadarSection() {
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">© OpenStreetMap</span>
             </div>
           </div>
 
