@@ -802,14 +802,17 @@ export function HomeInvestmentRadarSection() {
           {/* B. ORTA SÜTUN: İNTERAKTİF HARİTA & ÇEMBER RADAR (~500px - lg:col-span-6)    */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            {/* Harita Üst Barı: Girişimbee Market Tarzı Vurgulu Başlık */}
-            <div className="flex flex-col pb-1">
+            {/* Harita Üst Barı: Girişimbee Market Tarzı Vurgulu Başlık & Özet */}
+            <div className="flex flex-col pb-0.5 space-y-1">
               <div className="inline-flex items-baseline gap-2">
                 <h2 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
                   Lokasyon <span className="text-amber-500">Radarı</span>
                 </h2>
               </div>
-              <div className="mt-1.5 h-1.5 w-16 rounded-full bg-gradient-to-r from-teal-400 to-amber-500" />
+              <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-teal-400 to-amber-500" />
+              <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed pt-0.5">
+                Canlı harita ve yapay zeka verileriyle bölgedeki ticari yoğunluğu, demografiyi ve yatırım fırsatlarını anlık analiz edin.
+              </p>
             </div>
 
             {/* İnteraktif Harita Tuvali */}
