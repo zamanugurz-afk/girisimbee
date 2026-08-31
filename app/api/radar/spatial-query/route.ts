@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Fetch competitors (POIs: Google Places with OSM fallback) and 2. listings in parallel
     const [competitors, listingsInRadius] = await Promise.all([
-      fetchCompetitorPois(lat, lng, radius, categoryKey),
+      fetchCompetitorPois(lat, lng, radius, categoryKey, locationName || 'Bölge'),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         {
-          error: 'Geçersiz gövde parametreleri.',
+          error: 'Geçersiz parametreler.',
           details: parsed.error.format(),
         },
         { status: 400 },
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     const categoryMeta = RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe;
 
     const [competitors, listingsInRadius] = await Promise.all([
-      fetchCompetitorPois(lat, lng, radius, categoryKey),
+      fetchCompetitorPois(lat, lng, radius, categoryKey, locationName || 'Bölge'),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
