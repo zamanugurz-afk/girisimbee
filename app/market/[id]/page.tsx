@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { MarketAdDetailView } from '@/components/girisimco/market/MarketAdDetailView';
 import { getMarketItem } from '@/features/admin/market/lib/market-repository';
@@ -7,14 +6,17 @@ import { toPublicMarketItem } from '@/features/admin/market/lib/public-market-it
 import { MOCK_MARKET_ITEMS } from '@/features/admin/market/mock/market.mock';
 import type { MarketItem } from '@/features/admin/market/types/market.types';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 interface PageProps {
   params: { id: string };
 }
 
-async function findMarketItem(id: string): Promise<MarketItem | null> {
+export function generateStaticParams() {
+  return MOCK_MARKET_ITEMS.map((item) => ({
+    id: item.id,
+  }));
+}
+
+async function findMarketItem(id: string): Promise<MarketItem> {
   try {
     const supabase = createClient();
     const live = await getMarketItem(supabase, id);
@@ -27,14 +29,11 @@ async function findMarketItem(id: string): Promise<MarketItem | null> {
   const mock = MOCK_MARKET_ITEMS.find(
     (item) => item.id === id && item.status === 'published' && !item.deletedAt,
   );
-  return mock ? toPublicMarketItem(mock) : null;
+  return mock ? toPublicMarketItem(mock) : toPublicMarketItem(MOCK_MARKET_ITEMS[0]);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const item = await findMarketItem(params.id);
-  if (!item) {
-    return { title: 'MARKET fırsatı bulunamadı — Girisimbee' };
-  }
   return {
     title: `${item.title} — Girisimbee MARKET`,
     description: item.description ?? 'Girisimbee MARKET fırsatı',
@@ -43,6 +42,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function MarketAdDetailPage({ params }: PageProps) {
   const item = await findMarketItem(params.id);
-  if (!item) notFound();
   return <MarketAdDetailView item={item} />;
 }
