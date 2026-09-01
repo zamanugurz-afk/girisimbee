@@ -92,9 +92,9 @@ export function HomeListingSectionRow({
               <HomeSectionCard key={item.id} item={item} layout="scroll" />
             ))}
           </div>
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-slate-200/80 dark:bg-zinc-800/80 gap-px overflow-hidden shadow-sm">
             {visibleItems.map((item) => (
-              <div key={item.id} className="relative h-full min-w-0">
+              <div key={item.id} className="relative h-full min-w-0 bg-white dark:bg-zinc-900">
                 <HomeSectionCard item={item} layout="grid" />
               </div>
             ))}
