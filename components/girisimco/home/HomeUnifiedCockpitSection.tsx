@@ -129,7 +129,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
               )}
             </button>
 
-            {/* 3. Sekme: Resmi Başvuru & Hukuk */}
+            {/* 3. Sekme: Resmi Başvuru Süreci */}
             <button
               type="button"
               onClick={() => setActiveTab('legal')}
@@ -148,7 +148,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
               />
               <span className="flex items-center gap-1.5">
                 <span>⚖️</span>
-                <span>Resmi Başvuru & Hukuk</span>
+                <span>Resmi Başvuru Süreci</span>
               </span>
               {activeTab === 'legal' && (
                 <span className="hidden xl:inline-block text-[10.5px] font-semibold text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-md">

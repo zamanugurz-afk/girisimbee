@@ -104,7 +104,6 @@ export const HERO_SLIDES: HeroSlide[] = [
 const HERO_SIDEBAR_MODULES: {
   id: string;
   title: string;
-  subtitle: string;
   href: string;
   targetScrollId?: string;
   Icon: LucideIcon;
@@ -115,7 +114,6 @@ const HERO_SIDEBAR_MODULES: {
   {
     id: 'location-radar',
     title: 'Lokasyon Radarı',
-    subtitle: 'Canlı Pazar & Harita',
     href: '#radar-section',
     targetScrollId: '#radar-section',
     Icon: MapPin,
@@ -126,7 +124,6 @@ const HERO_SIDEBAR_MODULES: {
   {
     id: 'setup-assistant',
     title: 'İş Kurma Asistanı',
-    subtitle: 'Kira & Bütçe Robotu',
     href: '#assistant-section',
     targetScrollId: '#assistant-section',
     Icon: Bot,
@@ -136,8 +133,7 @@ const HERO_SIDEBAR_MODULES: {
   },
   {
     id: 'legal-assistant',
-    title: 'Resmi Başvuru & Hukuk',
-    subtitle: 'Mevzuat & Evrak Rehberi',
+    title: 'Resmi Başvuru Süreci',
     href: '#legal-section',
     targetScrollId: '#legal-section',
     Icon: Scale,
@@ -148,7 +144,6 @@ const HERO_SIDEBAR_MODULES: {
   {
     id: 'grants-radar',
     title: 'Hibe & Teşvik Radarı',
-    subtitle: 'KOSGEB & SGK Destekleri',
     href: '#grants-section',
     targetScrollId: '#grants-section',
     Icon: Landmark,
@@ -159,7 +154,6 @@ const HERO_SIDEBAR_MODULES: {
   {
     id: 'trend-ideas',
     title: 'Trend İş Fikirleri',
-    subtitle: '8 Yeni Niş Model',
     href: '#trend-ideas-section',
     targetScrollId: '#trend-ideas-section',
     Icon: Flame,
@@ -170,7 +164,6 @@ const HERO_SIDEBAR_MODULES: {
   {
     id: 'market-solutions',
     title: 'Girişimbee Market',
-    subtitle: 'Seçili Çözümler & Fırsatlar',
     href: '/market',
     targetScrollId: '#market-section',
     Icon: Sparkles,
@@ -200,7 +193,7 @@ function ModulePill({
         'dark:border-border dark:bg-card',
         item.hoverBorderClass,
       )}
-      aria-label={`${item.title}: ${item.subtitle}`}
+      aria-label={item.title}
     >
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
         <span
@@ -212,13 +205,8 @@ function ModulePill({
         >
           <item.Icon className={cn('h-3.5 w-3.5', item.iconClass)} strokeWidth={2} />
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-display text-[13px] font-bold leading-tight text-[#0B1220] transition-colors dark:text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400">
-            {item.title}
-          </span>
-          <span className="mt-0.5 block truncate text-[11px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
-            {item.subtitle}
-          </span>
+        <span className="block font-display text-[13px] font-bold leading-none text-[#0B1220] transition-colors dark:text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
+          {item.title}
         </span>
       </div>
 
