@@ -97,27 +97,27 @@ export function TrendIdeaCard({ item, index }: { item: PracticalBusinessIdea; in
 export function TrendIdeaAdvertiseCta() {
   return (
     <Link
-      href="/is-kurma-asistani"
+      href="/fikrim-var"
       className={cn(
         'group relative flex h-full min-h-[19rem] flex-col items-center justify-center p-6 text-center',
-        'rounded-2xl border-2 border-dashed border-amber-400/80 bg-amber-500/[0.03] dark:bg-amber-950/10 transition-all duration-300',
-        'hover:border-amber-500 hover:bg-amber-500/[0.08] hover:shadow-md hover:-translate-y-0.5',
+        'rounded-2xl border-2 border-dashed border-amber-400/90 bg-amber-500/[0.04] dark:bg-amber-950/20 transition-all duration-300',
+        'hover:border-amber-500 hover:bg-amber-500/[0.09] hover:shadow-md hover:-translate-y-0.5',
       )}
     >
       <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-sm transition-transform duration-300 group-hover:scale-110">
         <Sparkles className="h-6 w-6 fill-slate-950" />
       </div>
       <span className="text-[11px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
-        BU ALAN MÜSAİT
+        💡 GİRİŞİMCİLERE AÇIK
       </span>
-      <h3 className="mt-1 text-base font-bold text-slate-900 dark:text-white">
-        Kendi Niş Fikrini Simüle Et
+      <h3 className="mt-1 text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+        &quot;Fikrim Var, Bütçem Yok&quot;
       </h3>
-      <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 max-w-xs leading-relaxed">
-        Girişimbee asistanında sermayeni gir, m², kira ve personel maliyetlerini otomatik hesapla.
+      <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-300 max-w-xs leading-relaxed">
+        Fikrini, şahsi aracını, mekanını ve emeğini modelle; gereken bütçe için doğrulanmış melek yatırımcı ve ortak bul.
       </p>
       <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:text-amber-500">
-        <span>Hemen Başlayın</span>
+        <span>Fikrini Modelle & Yatırım Çağrısı Aç</span>
         <span>→</span>
       </span>
     </Link>
