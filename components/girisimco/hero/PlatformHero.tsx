@@ -318,29 +318,7 @@ export function PlatformHero({ className }: { className?: string }) {
         <div className="grid w-full items-center gap-4 py-2 sm:py-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.2fr)_auto] lg:gap-8 lg:py-2.5">
           {/* SOL SÜTUN: 4 ADIMLI DİNAMİK HERO SLIDER ALANI */}
           <div className="flex max-w-[36rem] flex-col justify-center">
-            {/* 1. Üst Navigasyon Hapları (Pills / Tabs) */}
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-3.5 sm:mb-4">
-              {HERO_SLIDES.map((slide, index) => {
-                const isActive = index === activeSlideIndex;
-                return (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    onClick={() => handleSelectSlide(index)}
-                    className={cn(
-                      'px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 border cursor-pointer select-none',
-                      isActive
-                        ? cn(slide.badgeColor, 'shadow-xs scale-[1.02]')
-                        : 'bg-white/80 dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700/80 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-700/60',
-                    )}
-                  >
-                    {slide.badge}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 2. Dinamik Başlık, Açıklama ve Butonlar (Animasyonlu Geçiş) */}
+            {/* Dinamik Başlık, Açıklama ve Butonlar (Animasyonlu Geçiş) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide.id}
@@ -350,6 +328,16 @@ export function PlatformHero({ className }: { className?: string }) {
                 transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-4"
               >
+                {/* Aktif Slayt Rozeti */}
+                <div
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-xs w-fit transition-colors',
+                    activeSlide.badgeColor,
+                  )}
+                >
+                  {activeSlide.badge}
+                </div>
+
                 {/* Başlık */}
                 <h1 className="font-display text-[2rem] font-extrabold leading-[1.1] tracking-tight text-[#0B1220] dark:text-foreground sm:text-[2.4rem] lg:text-[2.75rem] min-h-[5.5rem] sm:min-h-[6rem] lg:min-h-[6.5rem]">
                   {activeSlide.titlePrefix}
