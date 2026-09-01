@@ -4,6 +4,7 @@ export interface PracticalBusinessIdea {
   isFeaturedThisMonth: boolean;
   title: string;
   tagline: string;
+  imageUrl: string;
   category: 'Otomotiv & Mobil' | 'Gıda & Mutfak' | 'Hizmet & Otomasyon' | 'B2B & Kurumsal' | 'Evcil Hayvan';
   businessModelBadge: 'Dükkansız / Mobil' | 'Personelsiz / Otomat' | 'B2B Düzenli Gelir' | 'Düşük Sabit Maliyet';
   financials: {
@@ -33,6 +34,7 @@ export const MONTHLY_TREND_IDEAS: PracticalBusinessIdea[] = [
     isFeaturedThisMonth: true,
     title: 'Mobil Buharlı Araç & Koltuk Detailing',
     tagline: 'Dükkan kirası ödemeden, plazalarda ve sitelerde randevulu yerinde bakım.',
+    imageUrl: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1200&auto=format&fit=crop&q=80',
     category: 'Otomotiv & Mobil',
     businessModelBadge: 'Dükkansız / Mobil',
     financials: {
@@ -60,6 +62,7 @@ export const MONTHLY_TREND_IDEAS: PracticalBusinessIdea[] = [
     isFeaturedThisMonth: true,
     title: 'Self-Servis 7/24 Jetonlu Köpek Yıkama Kabini',
     tagline: 'Personelsiz, otomat mantığıyla çalışan iklimlendirmeli yıkama ve kurutma istasyonu.',
+    imageUrl: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=1200&auto=format&fit=crop&q=80',
     category: 'Evcil Hayvan',
     businessModelBadge: 'Personelsiz / Otomat',
     financials: {
@@ -85,8 +88,9 @@ export const MONTHLY_TREND_IDEAS: PracticalBusinessIdea[] = [
     id: 'b2b-cold-brew',
     monthEdition: 'Eylül 2026',
     isFeaturedThisMonth: false,
-    title: 'Ofislere Soğuk Kahve (Cold Brew) & Nitelikli Çekirdek Aboneliği',
+    title: 'Ofislere Soğuk Kahve & Nitelikli Çekirdek Aboneliği',
     tagline: 'Yazılım ve finans ofislerine düzenli fıçı ve şişeli taze kahve tedariği.',
+    imageUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80',
     category: 'B2B & Kurumsal',
     businessModelBadge: 'B2B Düzenli Gelir',
     financials: {
@@ -112,8 +116,9 @@ export const MONTHLY_TREND_IDEAS: PracticalBusinessIdea[] = [
     id: 'kurye-kask-bakim',
     monthEdition: 'Eylül 2026',
     isFeaturedThisMonth: false,
-    title: 'Motosiklet & Kurye Kask Hijyen / Hızlı Bakım İstasyonu',
+    title: 'Motosiklet & Kurye Kask Hijyen / Bakım İstasyonu',
     tagline: 'Ozonik kask sterilizasyonu, vizör bakımı ve mont temizliği mikro noktası.',
+    imageUrl: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=1200&auto=format&fit=crop&q=80',
     category: 'Hizmet & Otomasyon',
     businessModelBadge: 'Düşük Sabit Maliyet',
     financials: {
