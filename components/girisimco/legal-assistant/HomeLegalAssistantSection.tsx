@@ -55,6 +55,61 @@ const LEGAL_STEPS: LegalStepDef[] = [
   { id: 6, title: 'Belediye Ruhsatı', subtitle: 'İtfaiye ve işyeri açma izni' },
 ];
 
+function downloadTextFile(filename: string, text: string) {
+  if (typeof window === 'undefined') return;
+  const blob = new Blob([text], { type: 'application/msword;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function buildDetailedTemplate(
+  doc: RequiredDocumentItem,
+  roadmap: SectorLegalRoadmap,
+  city: string,
+  district: string,
+): DocumentTemplateContent {
+  if (doc.templateContent) {
+    return doc.templateContent;
+  }
+
+  const docName = doc.name;
+  return {
+    title: `T.C. RESMİ ${docName.toUpperCase()} TASLAĞI`,
+    authority: `${city.toUpperCase()} / ${district.toUpperCase()} YETKİLİ RESMİ MERCİİ`,
+    docType: docName,
+    summary: `${roadmap.sectorName} faaliyeti kapsamında 2026 mevzuatı gereği sunulması zorunlu resmi "${docName}" format örneği ve başvuru metnidir.`,
+    sections: [
+      {
+        heading: 'Madde 1 - Başvuru Sahibi ve İşletme Bilgileri',
+        body: `İşletme Unvanı: [İŞLETME UNVANI] | Sektör: ${roadmap.sectorName} | Lokasyon: ${district} / ${city} | NACE Kodu: İlgili Mesleki Faaliyet`,
+      },
+      {
+        heading: 'Madde 2 - Yasal Dayanak ve İlgili Mevzuat',
+        body: `İşbu belge, 6102 sayılı Türk Ticaret Kanunu, 5362 sayılı Esnaf Kanunu ve ${roadmap.statutoryCapitalRequirement.legalRef || 'ilgili mesleki mevzuat'} hükümlerine istinaden düzenlenmiştir.`,
+      },
+      {
+        heading: 'Madde 3 - Standartlar ve Yasal Taahhütler',
+        body: `İşletme bünyesinde 2026 yılı resmi yangın güvenliği, hijyen şartları, çevre/atıksu izinleri ve mesleki yeterlilik kriterlerinin eksiksiz sağlandığı, yapılacak denetimlerde aksi tespit edilmediği sürece sorumluluğun işletme yetkilisine ait olduğu taahhüt olunur.`,
+      },
+      {
+        heading: 'Madde 4 - Hüküm ve İbraz',
+        body: `İşbu evrak ${city} ili yetkili kurum ve kuruluşları nezdinde yürütülecek resmi işlemlerde geçerli olmak üzere tanzim ve imza edilmiştir.`,
+      },
+    ],
+    signers: [
+      'İşletme Yetkilisi / Şirket Müdürü (İmza - Kaşe)',
+      `${district} Ruhsat & Sicil Onay Yetkilisi (Mühür)`,
+    ],
+    legalDisclaimer: 'İşbu belge Girişimbee 2026 Mevzuat Kılavuzu tarafından üretilmiş resmi örnek taslaktır. İlgili kuruma sunulmadan önce fiili işletme ve kimlik bilgileri doldurulmalıdır.',
+  };
+}
+
 export function HomeLegalAssistantSection() {
   const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
@@ -165,7 +220,11 @@ export function HomeLegalAssistantSection() {
   };
 
   const handleOpenTemplateModal = (doc: RequiredDocumentItem) => {
-    setActiveTemplateDoc(doc);
+    const templ = buildDetailedTemplate(doc, currentRoadmap, selectedCity, selectedDistrict);
+    setActiveTemplateDoc({
+      ...doc,
+      templateContent: templ,
+    });
   };
 
   const handleCopyTemplateText = (content: DocumentTemplateContent) => {
@@ -176,6 +235,55 @@ export function HomeLegalAssistantSection() {
     navigator.clipboard.writeText(fullText);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleDownloadDocFile = (doc: RequiredDocumentItem) => {
+    const content = doc.templateContent || buildDetailedTemplate(doc, currentRoadmap, selectedCity, selectedDistrict);
+    const fullText = `========================================================================\n` +
+      `${content.authority}\n` +
+      `${content.title}\n` +
+      `RESMI ORNEK TASLAK - 2026 GIRISIMBEE\n` +
+      `========================================================================\n\n` +
+      `OZET:\n${content.summary}\n\n` +
+      `MADDELER VE HUKUKI DETAYLAR:\n` +
+      content.sections.map((s) => `[${s.heading}]\n${s.body}`).join('\n\n') +
+      `\n\nIMZA VE TASDIK YETKILILERI:\n` +
+      content.signers.map((sig) => `* ${sig}`).join('\n') +
+      `\n\nYASAL UYARI:\n${content.legalDisclaimer}\n`;
+
+    const sanitizedName = doc.name.replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase();
+    downloadTextFile(`${sanitizedName}_resmi_taslak.doc`, fullText);
+  };
+
+  const handleDownloadRoadmapReport = () => {
+    const reportText = `========================================================================\n` +
+      `GIRISIMBEE - 2026 RESMI BASVURU VE HUKUK YOL HARITASI RAPORU\n` +
+      `Sektor: ${currentRoadmap.sectorName} (${currentRoadmap.categoryGroup})\n` +
+      `Lokasyon: ${selectedCity} / ${selectedDistrict}\n` +
+      `Tarih: ${new Date().toLocaleDateString('tr-TR')}\n` +
+      `========================================================================\n\n` +
+      `OZET METRIKLER:\n` +
+      `- Toplam Tahmini Harc: ${formatCurrency(currentRoadmap.totalEstimatedLegalCost)}\n` +
+      `- Tahmini Islem Suresi: ${currentRoadmap.estimatedTotalDays}\n` +
+      `- Asgari Sermaye Tabani: ${currentRoadmap.statutoryCapitalRequirement.amount > 0 ? formatCurrency(currentRoadmap.statutoryCapitalRequirement.amount) : 'Sermaye Sarti Yok'}\n` +
+      `- Yasal Dayanak: ${currentRoadmap.statutoryCapitalRequirement.legalRef}\n\n` +
+      `RESMI BASVURU ASAMALARI:\n` +
+      currentRoadmap.steps.map((s) => {
+        return `------------------------------------------------------------------------\n` +
+          `ASAMA ${s.stepNumber}: ${s.title.toUpperCase()}\n` +
+          `Yetkili Kurum: ${s.institution}\n` +
+          `Basvuru Kanali: ${s.applicationChannel}\n` +
+          `Tahmini Harc: ${formatCurrency(s.estimatedCost)} | Sure: ${s.durationDays}\n` +
+          `Mevzuat Dayanak: ${s.legalBasis}\n` +
+          `Nereye & Nasil Basvurulur:\n${(s.processGuide || []).map((g) => `  * ${g}`).join('\n')}\n` +
+          `Gerekli Evraklar:\n${s.requiredDocuments.map((d) => `  [ ] ${d.name} (${d.format}) - Not: ${d.proTip}`).join('\n')}\n` +
+          `Kritik Puf Noktasi: ${s.proTips}\n`;
+      }).join('\n\n') +
+      `\n========================================================================\n` +
+      `Bu rapor 2026 resmi mevzuatina tam uyumlu olarak Girisimbee tarafindan uretilmistir.\n`;
+
+    const sanitizedSector = currentRoadmap.sectorName.replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase();
+    downloadTextFile(`${sanitizedSector}_${selectedCity.toLowerCase()}_yol_haritasi_raporu.doc`, reportText);
   };
 
   return (
@@ -521,20 +629,18 @@ export function HomeLegalAssistantSection() {
                             <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 text-[10px] font-bold">
                               {doc.format}
                             </span>
-                            {doc.isDownloadableTemplate && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleOpenTemplateModal(doc);
-                                }}
-                                className="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-[10px] font-bold flex items-center gap-1 shadow-xs cursor-pointer"
-                                title="Resmi Örnek Şablonu İncele & İndir"
-                              >
-                                <FileText className="w-3 h-3" />
-                                <span>Şablon</span>
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenTemplateModal(doc);
+                              }}
+                              className="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-[10px] font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                              title="Resmi Örnek Şablon / Taslak İncele & İndir"
+                            >
+                              <FileText className="w-3 h-3" />
+                              <span>Şablon</span>
+                            </button>
                           </div>
                         </div>
                       );
@@ -710,7 +816,10 @@ export function HomeLegalAssistantSection() {
       {/* ========================================================================= */}
       {activeTemplateDoc && activeTemplateDoc.templateContent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div
+            id="printable-document-modal"
+            className="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+          >
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-800/80">
               <div className="flex items-center gap-2.5">
@@ -791,21 +900,36 @@ export function HomeLegalAssistantSection() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-white dark:bg-zinc-900">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleCopyTemplateText(activeTemplateDoc.templateContent!)}
-                className="h-9 text-xs font-bold gap-1.5"
-              >
-                {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{isCopied ? 'Kopyalandı!' : 'Metni Kopyala'}</span>
-              </Button>
+            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-zinc-900 no-print">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopyTemplateText(activeTemplateDoc.templateContent!)}
+                  className="h-9 text-xs font-bold gap-1.5"
+                >
+                  {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{isCopied ? 'Kopyalandı!' : 'Metni Kopyala'}</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownloadDocFile(activeTemplateDoc)}
+                  className="h-9 text-xs font-bold gap-1.5 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Taslağı İndir (.doc)</span>
+                </Button>
+              </div>
 
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
+                  size="sm"
                   onClick={() => setActiveTemplateDoc(null)}
                   className="h-9 text-xs font-bold"
                 >
@@ -813,6 +937,7 @@ export function HomeLegalAssistantSection() {
                 </Button>
                 <Button
                   type="button"
+                  size="sm"
                   onClick={() => window.print()}
                   className="h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
                 >
@@ -830,7 +955,10 @@ export function HomeLegalAssistantSection() {
       {/* ========================================================================= */}
       {showRoadmapPrintModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div
+            id="printable-roadmap-modal"
+            className="relative w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+          >
             <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-800/80">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{currentRoadmap.emoji}</span>
@@ -846,7 +974,7 @@ export function HomeLegalAssistantSection() {
               <button
                 type="button"
                 onClick={() => setShowRoadmapPrintModal(false)}
-                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 text-muted-foreground transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 text-muted-foreground transition-colors cursor-pointer no-print"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -890,32 +1018,81 @@ export function HomeLegalAssistantSection() {
                     <div className="text-[11px] text-slate-600 dark:text-zinc-400">
                       <strong>Evraklar:</strong> {s.requiredDocuments.map((d) => d.name).join(', ')}
                     </div>
+                    <div className="text-[10.5px] text-amber-900 dark:text-amber-300 font-medium">
+                      💡 Püf Noktası: {s.proTips}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-2 bg-white dark:bg-zinc-900">
+            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-zinc-900 no-print">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setShowRoadmapPrintModal(false)}
-                className="h-9 text-xs font-bold"
+                size="sm"
+                onClick={handleDownloadRoadmapReport}
+                className="h-9 text-xs font-bold gap-1.5 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900"
               >
-                Kapat
+                <Download className="w-3.5 h-3.5" />
+                <span>Raporu İndir (.doc)</span>
               </Button>
-              <Button
-                type="button"
-                onClick={() => window.print()}
-                className="h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Raporu Yazdır / PDF İndir</span>
-              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRoadmapPrintModal(false)}
+                  className="h-9 text-xs font-bold"
+                >
+                  Kapat
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Raporu Yazdır / PDF İndir</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Global Print Stili: Modal açıkken sadece temiz resmi belge/rapor yazdırılır */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-document-modal, #printable-document-modal *,
+          #printable-roadmap-modal, #printable-roadmap-modal * {
+            visibility: visible !important;
+          }
+          #printable-document-modal, #printable-roadmap-modal {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: auto !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 12mm 15mm !important;
+            box-shadow: none !important;
+            border: none !important;
+            z-index: 999999 !important;
+            overflow: visible !important;
+            max-height: none !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
