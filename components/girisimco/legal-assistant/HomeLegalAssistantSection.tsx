@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
 import {
   Scale,
   Building2,
@@ -19,7 +18,6 @@ import {
   Sparkles,
   Info,
   Layers,
-  HelpCircle,
   FileCheck2,
 } from 'lucide-react';
 import {
@@ -31,18 +29,42 @@ import type {
   ApplicationStep,
   RequiredDocumentItem,
 } from '@/features/legal-assistant/types/legal-assistant.types';
-import { TURKEY_POPULAR_DISTRICTS } from '@/features/radar/config/radar.config';
+import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+interface LegalStepDef {
+  id: number;
+  title: string;
+  subtitle: string;
+}
+
+const LEGAL_STEPS: LegalStepDef[] = [
+  { id: 1, title: 'Sektör & Mevzuat', subtitle: 'Hedef meslek ve yasal taban' },
+  { id: 2, title: 'Şirket & Ticaret Sicil', subtitle: 'MERSİS ana sözleşme ve tescil' },
+  { id: 3, title: 'Vergi Dairesi', subtitle: 'Mükellefiyet ve fiili yoklama' },
+  { id: 4, title: 'Mesleki İzin & Sigorta', subtitle: 'Bakanlık / SEDDK teminatı' },
+  { id: 5, title: 'Oda & Birlik Kaydı', subtitle: 'TOBB, Baro, SMMM veya Esnaf' },
+  { id: 6, title: 'Belediye Ruhsatı', subtitle: 'İtfaiye ve işyeri açma izni' },
+];
+
 export function HomeLegalAssistantSection() {
-  const [selectedCity, setSelectedCity] = useState<string>('İstanbul (34)');
+  const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
+  const [activeStep, setActiveStep] = useState<number>(1);
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedSectorId, setSelectedSectorId] = useState<string>('sigorta-acentesi');
-  const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [completedDocs, setCompletedDocs] = useState<Record<string, boolean>>({});
+
+  const cityOptions = useMemo(() => Object.keys(TURKEY_CITY_RENTAL_RATES), []);
+  const districtOptions = useMemo(() => {
+    const cityData = TURKEY_CITY_RENTAL_RATES[selectedCity];
+    if (cityData?.districtRates) {
+      return Object.keys(cityData.districtRates);
+    }
+    return ['Merkez', 'Kadıköy', 'Beşiktaş', 'Maltepe', 'Çankaya'];
+  }, [selectedCity]);
 
   const availableRoadmaps = useMemo(() => {
     return Object.values(LEGAL_APPLICATION_ROADMAPS);
@@ -69,8 +91,13 @@ export function HomeLegalAssistantSection() {
     return getSectorLegalRoadmap(selectedSectorId);
   }, [selectedSectorId]);
 
+  // Aktif aşamadaki adım (Aşama 2..6 için)
+  const currentStepIndex = Math.min(
+    Math.max(0, activeStep - 2),
+    Math.max(0, currentRoadmap.steps.length - 1),
+  );
   const currentStep: ApplicationStep =
-    currentRoadmap.steps[activeStepIndex] || currentRoadmap.steps[0];
+    currentRoadmap.steps[currentStepIndex] || currentRoadmap.steps[0];
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -88,7 +115,7 @@ export function HomeLegalAssistantSection() {
   };
 
   const handleDownloadTemplate = (doc: RequiredDocumentItem) => {
-    alert(`📄 "${doc.name}" için 2026 resmi başvuru taslağı hazırlandı ve indiriliyor.`);
+    alert(`📄 "${doc.name}" için 2026 resmi başvuru şablonu hazırlandı ve indiriliyor.`);
   };
 
   const handlePrintRoadmap = () => {
@@ -100,206 +127,238 @@ export function HomeLegalAssistantSection() {
       id="legal-section"
       className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      {/* 2. ANA HUKUK KOKPİTİ (3 ENTEGRE SÜTUN) */}
+      {/* 2. ANA HUKUK KOKPİTİ (3 ENTEGRE SÜTUN - İLK 2 KART MİMARİSİYLE BİREBİR AYNI) */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* ========================================================================= */}
-          {/* A. SOL PANEL (SEKTÖR & LOKASYON SEÇİMİ - 3 SÜTUN)                          */}
+          {/* A. SOL SÜTUN: LOKASYON SEÇİMİ & 6 ADIMLI STEPPER (lg:col-span-3)          */}
           {/* ========================================================================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/80 dark:border-zinc-800 lg:pr-5">
-            <div className="space-y-3.5">
-              {/* Lokasyon Seçimi */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Kurulum Lokasyonu
-                </span>
-                <div className="grid grid-cols-2 gap-2">
+          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-zinc-800/80 pb-5 lg:pb-0 lg:pr-5">
+            <div>
+              {/* 1. Lokasyon Seçimi */}
+              <div className="mb-3.5 space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Kurulum Lokasyonu (81 İl)
+                </label>
+
+                <div className="grid grid-cols-2 gap-1.5">
                   <select
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
-                    className="h-8 px-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 px-2 text-xs font-bold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
                   >
-                    <option value="İstanbul (34)">İstanbul (34)</option>
-                    <option value="Ankara (06)">Ankara (06)</option>
-                    <option value="İzmir (35)">İzmir (35)</option>
-                    <option value="Bursa (16)">Bursa (16)</option>
-                    <option value="Antalya (07)">Antalya (07)</option>
+                    {cityOptions.map((c) => (
+                      <option key={c} value={c}>
+                        {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
+                      </option>
+                    ))}
                   </select>
 
                   <select
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
-                    className="h-8 px-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 px-2 text-xs font-bold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
                   >
-                    {TURKEY_POPULAR_DISTRICTS.map((d) => (
-                      <option key={d.district} value={d.district}>
-                        {d.district}
+                    {districtOptions.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
                       </option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Sektör Arama & Kategori Sekmeleri */}
-              <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Sektör veya mevzuat ara..."
-                    className="w-full h-8 pl-8 pr-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
+              {/* 2. 6 Adımlı Dikey Stepper Menüsü */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between pb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Resmi Başvuru Adımları
+                  </span>
+                  <span className="text-[10.5px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full">
+                    {activeStep} / 6
+                  </span>
                 </div>
 
-                {/* Kategori Hapları */}
-                <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-[10.5px]">
-                  {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık'].map(
-                    (cat) => (
+                <div className="space-y-1">
+                  {LEGAL_STEPS.map((step) => {
+                    const isActive = activeStep === step.id;
+                    const isCompleted = activeStep > step.id;
+
+                    return (
                       <button
-                        key={cat}
+                        key={step.id}
                         type="button"
-                        onClick={() => setSelectedCategoryGroup(cat)}
+                        onClick={() => setActiveStep(step.id)}
                         className={cn(
-                          'px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition-colors cursor-pointer',
-                          selectedCategoryGroup === cat
-                            ? 'bg-indigo-600 text-white shadow-xs'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:bg-slate-200 dark:hover:bg-zinc-700',
+                          'w-full text-left p-2.5 rounded-2xl transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer',
+                          isActive
+                            ? 'bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/40 shadow-xs'
+                            : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/50 border border-transparent',
                         )}
                       >
-                        {cat}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              {/* Sektör Seçim Kartları Listesi */}
-              <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
-                {filteredSectors.map((sector) => {
-                  const isSelected = sector.sectorId === selectedSectorId;
-                  return (
-                    <button
-                      key={sector.sectorId}
-                      type="button"
-                      onClick={() => {
-                        setSelectedSectorId(sector.sectorId);
-                        setActiveStepIndex(0);
-                      }}
-                      className={cn(
-                        'w-full text-left p-2.5 rounded-xl border transition-all duration-200 flex items-center justify-between gap-2 cursor-pointer',
-                        isSelected
-                          ? 'bg-indigo-500/10 border-indigo-500/50 shadow-xs'
-                          : 'bg-white dark:bg-zinc-800/60 border-slate-200/80 dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800',
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-xl shrink-0">{sector.emoji}</span>
-                        <div className="min-w-0">
-                          <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 block truncate">
-                            {sector.sectorName}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={cn(
+                              'w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-colors',
+                              isActive
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : isCompleted
+                                  ? 'bg-emerald-500/20 text-emerald-600 font-black'
+                                  : 'bg-slate-200 dark:bg-zinc-800 text-muted-foreground',
+                            )}
+                          >
+                            {isCompleted ? '✓' : step.id}
                           </span>
-                          <span className="text-[10px] text-muted-foreground block truncate">
-                            {sector.steps.length} Resmi Adım • {sector.estimatedTotalDays}
-                          </span>
+                          <div className="min-w-0">
+                            <h4
+                              className={cn(
+                                'text-xs font-bold truncate leading-tight',
+                                isActive
+                                  ? 'text-indigo-600 dark:text-indigo-400'
+                                  : 'text-slate-800 dark:text-zinc-200',
+                              )}
+                            >
+                              {step.title}
+                            </h4>
+                            <p className="text-[10.5px] text-muted-foreground truncate">
+                              {step.subtitle}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <ChevronRight
-                        className={cn(
-                          'w-3.5 h-3.5 shrink-0 transition-transform',
-                          isSelected ? 'text-indigo-600 translate-x-0.5' : 'text-slate-400',
-                        )}
-                      />
-                    </button>
-                  );
-                })}
+
+                        <ChevronRight
+                          className={cn(
+                            'w-3.5 h-3.5 shrink-0 transition-transform',
+                            isActive ? 'text-indigo-600 translate-x-0.5' : 'text-slate-300 dark:text-zinc-700',
+                          )}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            {/* Sol Alt Bilgilendirme Kartı */}
-            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80 text-[11px] text-muted-foreground leading-relaxed">
-              <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-zinc-100 mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
-                <span>2026 Mevzuat Güvencesi</span>
+            {/* Sol Alt Özet Sektör Rozeti */}
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xl shrink-0">{currentRoadmap.emoji}</span>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 block truncate">
+                    {currentRoadmap.sectorName}
+                  </span>
+                  <span className="text-[10.5px] text-muted-foreground block truncate">
+                    {selectedCity} - {selectedDistrict}
+                  </span>
+                </div>
               </div>
-              Tüm kurum harçları, tebliğler ve asgari sermaye şartları Resmi Gazete verileriyle güncel tutulmaktadır.
+              <div className="flex items-center gap-1 text-[10px] text-indigo-700 dark:text-indigo-300 font-bold pt-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                <span>2026 Mevzuatı Tam Uyumlu</span>
+              </div>
             </div>
           </div>
 
           {/* ========================================================================= */}
-          {/* B. ORTA PANEL (KRONOLOJİK ADIMLAR & GENİŞ REHBER DETAYI - 6 SÜTUN)         */}
+          {/* B. ORTA SÜTUN: SEÇİLİ ADIMIN GENİŞ ÇALIŞMA ALANI (lg:col-span-6)          */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
-            <div>
-              {/* Başlık & Sektör Etiketi */}
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{currentRoadmap.emoji}</span>
-                  <div>
-                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
-                      {currentRoadmap.sectorName}
-                    </h3>
-                    <span className="text-[11px] text-muted-foreground">
-                      {selectedCity} - {selectedDistrict} Resmi Başvuru Yol Haritası
-                    </span>
+            {/* ADIM 1: SEKTÖR & MESLEK SEÇİM IZGARASI (İLK KART GİBİ 2x3 FERAH GRİD) */}
+            {activeStep === 1 ? (
+              <div className="space-y-3.5">
+                {/* Üst Kategori Sekmeleri & Arama */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-xs">
+                      {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık'].map(
+                        (cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setSelectedCategoryGroup(cat)}
+                            className={cn(
+                              'px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors cursor-pointer text-xs',
+                              selectedCategoryGroup === cat
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700',
+                            )}
+                          >
+                            {cat}
+                          </button>
+                        ),
+                      )}
+                    </div>
+
+                    <div className="relative w-full sm:w-48">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Meslek ara..."
+                        className="w-full h-8 pl-8 pr-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <span className="px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 text-[10.5px] font-bold">
-                  {currentRoadmap.categoryGroup}
-                </span>
-              </div>
-
-              {/* 1. Yatay Kronolojik Adımlar Çubuğu (Tabs) */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100 dark:border-zinc-800 no-scrollbar">
-                {currentRoadmap.steps.map((step, idx) => {
-                  const isActive = idx === activeStepIndex;
-                  return (
-                    <button
-                      key={step.stepNumber}
-                      type="button"
-                      onClick={() => setActiveStepIndex(idx)}
-                      className={cn(
-                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer',
-                        isActive
-                          ? 'bg-indigo-600 text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700',
-                      )}
-                    >
-                      <span
+                {/* 2x3 Ferah Sektör Kartları Izgarası */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1">
+                  {filteredSectors.map((sector) => {
+                    const isSelected = sector.sectorId === selectedSectorId;
+                    return (
+                      <div
+                        key={sector.sectorId}
+                        onClick={() => setSelectedSectorId(sector.sectorId)}
                         className={cn(
-                          'w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black shrink-0',
-                          isActive ? 'bg-white/20 text-white' : 'bg-slate-300 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300',
+                          'p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between gap-3 cursor-pointer group',
+                          isSelected
+                            ? 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-500 shadow-md scale-[1.01]'
+                            : 'bg-white dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700 hover:border-indigo-500/40 hover:shadow-sm',
                         )}
                       >
-                        {step.stepNumber}
-                      </span>
-                      <span className="truncate max-w-[140px]">{step.title}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-700 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                            {sector.emoji}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-700 text-[10px] font-bold text-slate-600 dark:text-zinc-300">
+                            {sector.categoryGroup}
+                          </span>
+                        </div>
 
-              {/* 2. Seçili Adımın Geniş Detay Kartı */}
-              <div className="mt-4 p-4 rounded-2xl bg-slate-50/70 dark:bg-zinc-800/40 border border-slate-200/80 dark:border-zinc-800 space-y-4">
-                {/* Üst Bilgi Rozetleri & Portal Butonu */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60 dark:border-zinc-700/60">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-800 dark:text-blue-300 text-[10.5px] font-bold">
-                        🏛️ {currentStep.institution}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-800 dark:text-amber-300 text-[10.5px] font-bold">
-                        ⚡ {currentStep.applicationChannel}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-[10.5px] font-bold">
-                        ⏳ {currentStep.durationDays}
-                      </span>
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100">
-                      {currentStep.stepNumber}. Adım: {currentStep.title}
-                    </h4>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {sector.sectorName}
+                          </h4>
+                          <span className="text-[11px] text-muted-foreground mt-0.5 block">
+                            {sector.steps.length} Resmi Kurum Adımı • {sector.estimatedTotalDays}
+                          </span>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 dark:border-zinc-700/60 flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-muted-foreground">
+                            Resmi Harç:
+                          </span>
+                          <span className="font-bold text-indigo-700 dark:text-indigo-300">
+                            {formatCurrency(sector.totalEstimatedLegalCost)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              /* ADIM 2..6: SEÇİLİ BÜROKRASİ ADIMI DETAY KARTI (FERAH VE ŞIK) */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-zinc-800">
+                  <div>
+                    <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
+                      Aşama {activeStep - 1} / {currentRoadmap.steps.length}
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+                      {currentStep.title}
+                    </h3>
                   </div>
 
                   {currentStep.portalUrl && (
@@ -307,7 +366,7 @@ export function HomeLegalAssistantSection() {
                       href={currentStep.portalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors shrink-0 shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors shadow-xs shrink-0"
                     >
                       <span>Resmi Portala Git</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -315,24 +374,38 @@ export function HomeLegalAssistantSection() {
                   )}
                 </div>
 
-                {/* Hukuki Dayanak */}
-                <div className="text-xs flex items-start gap-1.5 text-muted-foreground bg-white dark:bg-zinc-800/80 p-2.5 rounded-xl border border-slate-200/60 dark:border-zinc-700/60">
-                  <Info className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Mevzuat Dayanağı:</strong> {currentStep.legalBasis}
-                  </span>
+                {/* 3'lü Özet Hapları */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Yetkili Kurum</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate block mt-0.5">
+                      {currentStep.institution}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Başvuru Kanalı</span>
+                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 truncate block mt-0.5">
+                      ⚡ {currentStep.applicationChannel}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                    <span className="text-[10px] text-muted-foreground block font-medium">Tahmini Süre</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate block mt-0.5">
+                      ⏳ {currentStep.durationDays}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Gerekli Evraklar (Checklist) */}
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 flex items-center justify-between">
-                    <span>📋 Gerekli Evraklar & Başvuru Belgeleri</span>
-                    <span className="text-[10px] text-muted-foreground">
-                      Hazırladıkça işaretleyin
-                    </span>
+                    <span>📋 Gerekli Başvuru Evrakları</span>
+                    <span className="text-[10.5px] text-muted-foreground">Hazırladıkça işaretleyin</span>
                   </span>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
                     {currentStep.requiredDocuments.map((doc, idx) => {
                       const isDone = !!completedDocs[doc.name];
                       return (
@@ -360,9 +433,7 @@ export function HomeLegalAssistantSection() {
                             <span
                               className={cn(
                                 'font-medium truncate',
-                                isDone
-                                  ? 'line-through text-muted-foreground'
-                                  : 'text-slate-900 dark:text-zinc-100',
+                                isDone ? 'line-through text-muted-foreground' : 'text-slate-900 dark:text-zinc-100',
                               )}
                             >
                               {doc.name}
@@ -394,24 +465,9 @@ export function HomeLegalAssistantSection() {
                   </div>
                 </div>
 
-                {/* Süreç Kılavuzu */}
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 block">
-                    📌 Adım Adım Nasıl Yapılır?
-                  </span>
-                  <ul className="space-y-1 text-xs text-muted-foreground">
-                    {currentStep.processGuide.map((guide, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5">
-                        <span className="text-indigo-600 font-bold shrink-0">•</span>
-                        <span>{guide}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
                 {/* Pro-Tips Box */}
                 {currentStep.proTips && (
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2">
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2">
                     <span className="text-base shrink-0">💡</span>
                     <div>
                       <strong className="block font-bold mb-0.5">Kritik Püf Noktası:</strong>
@@ -420,118 +476,108 @@ export function HomeLegalAssistantSection() {
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Orta Panel Alt Adım İlerlemesi */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800 text-xs">
+            {/* Orta Panel Alt Gezinme Butonu */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-zinc-800">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={activeStepIndex === 0}
-                onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
-                className="h-8 rounded-xl text-xs font-bold"
+                disabled={activeStep === 1}
+                onClick={() => setActiveStep((prev) => Math.max(1, prev - 1))}
+                className="h-9 rounded-xl text-xs font-bold"
               >
-                ← Önceki Adım
+                ← Önceki Aşama
               </Button>
-
-              <span className="text-muted-foreground font-semibold text-[11px]">
-                Adım {activeStepIndex + 1} / {currentRoadmap.steps.length}
-              </span>
 
               <Button
                 type="button"
                 size="sm"
-                disabled={activeStepIndex === currentRoadmap.steps.length - 1}
-                onClick={() =>
-                  setActiveStepIndex((prev) =>
-                    Math.min(currentRoadmap.steps.length - 1, prev + 1),
-                  )
-                }
-                className="h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
+                disabled={activeStep === 6}
+                onClick={() => setActiveStep((prev) => Math.min(6, prev + 1))}
+                className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs"
               >
-                Sonraki Adım →
+                {activeStep === 1
+                  ? '2. Aşama: Şirket & MERSİS Adımına Geç →'
+                  : `Sonraki Aşama (${LEGAL_STEPS[activeStep]?.title || 'Ruhsat'}) →`}
               </Button>
             </div>
           </div>
 
           {/* ========================================================================= */}
-          {/* C. SAĞ PANEL (MEVZUAT, HARÇ BÜTÇESİ & RESMİ AKSİYON - 3 SÜTUN)             */}
+          {/* C. SAĞ SÜTUN: MEVZUAT SKORU, ASGARİ SERMAYE & HARÇLAR (lg:col-span-3)     */}
           {/* ========================================================================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/80 dark:border-zinc-800 lg:pl-5">
-            <div className="space-y-3.5">
-              {/* 2026 Mevzuat & Asgari Sermaye Kartı */}
-              <div className="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 space-y-2">
-                <div className="flex items-center justify-between">
+          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
+            <div className="space-y-3">
+              {/* 1. AI Mevzuat & Uyum Skoru Kartı */}
+              <div className="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
-                    <Scale className="w-3.5 h-3.5" /> 2026 Mevzuat Şartı
+                    <Scale className="w-3.5 h-3.5" /> AI Mevzuat & Uyum Skoru
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
+                    Resmi Uyumlu
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">9.4</span>
+                  <span className="text-xs text-muted-foreground">/ 10</span>
+                </div>
+                <span className="text-[10.5px] text-muted-foreground mt-1 block">
+                  Bürokrasi Karmaşıklığı: %35 (Orta Seviye)
+                </span>
+              </div>
+
+              {/* 2. 2026 Mevzuat & Asgari Sermaye Şartı Kartı */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10.5px] font-bold text-muted-foreground">
+                    2026 Mevzuat Şartı
+                  </span>
+                  <span className="px-2 py-0.2 rounded bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-[9.5px] font-bold">
                     Resmi Tebliğ
                   </span>
                 </div>
-
-                <div>
-                  <span className="text-[10.5px] text-muted-foreground block">
-                    Asgari Ödenmiş Sermaye / Mal Varlığı
-                  </span>
-                  <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-0.5 block">
-                    {currentRoadmap.statutoryCapitalRequirement.amount > 0
-                      ? formatCurrency(currentRoadmap.statutoryCapitalRequirement.amount)
-                      : 'Sermaye Şartı Yok'}
-                  </span>
-                </div>
-
-                <p className="text-[11px] text-muted-foreground leading-snug bg-white/80 dark:bg-zinc-800/80 p-2 rounded-xl border border-indigo-500/10">
-                  {currentRoadmap.statutoryCapitalRequirement.description}
+                <span className="text-[10px] text-muted-foreground block">
+                  Asgari Yasal Sermaye / Mal Varlığı
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-zinc-100 block">
+                  {currentRoadmap.statutoryCapitalRequirement.amount > 0
+                    ? formatCurrency(currentRoadmap.statutoryCapitalRequirement.amount)
+                    : 'Sermaye Şartı Yok'}
+                </span>
+                <p className="text-[10px] text-muted-foreground leading-tight pt-0.5">
+                  {currentRoadmap.statutoryCapitalRequirement.legalRef}
                 </p>
               </div>
 
-              {/* Finansal Harç Özeti & Süre */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80">
-                  <span className="text-[10px] font-semibold text-muted-foreground block">
-                    Toplam Resmi Harç
+              {/* 3. Finansal Harç & Süre Özeti */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
+                    Resmi Harç Özeti
                   </span>
-                  <span className="font-black text-slate-900 dark:text-zinc-100 text-sm mt-0.5 block">
+                  <span className="text-[10px] font-bold text-indigo-600">2026 Tarife</span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60 dark:border-zinc-700/60">
+                  <span className="text-muted-foreground">Toplam Harç:</span>
+                  <span className="font-black text-slate-900 dark:text-zinc-100">
                     {formatCurrency(currentRoadmap.totalEstimatedLegalCost)}
                   </span>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/80">
-                  <span className="text-[10px] font-semibold text-muted-foreground block">
-                    Tahmini Süre
-                  </span>
-                  <span className="font-black text-slate-900 dark:text-zinc-100 text-sm mt-0.5 block">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Tahmini Süre:</span>
+                  <span className="font-bold text-slate-900 dark:text-zinc-100">
                     {currentRoadmap.estimatedTotalDays}
                   </span>
                 </div>
               </div>
-
-              {/* Adım Bazlı Harç Dökümü Tablosu */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Adım Bazlı Harç Dökümü
-                </span>
-                <div className="space-y-1 text-xs max-h-[140px] overflow-y-auto pr-1">
-                  {currentRoadmap.steps.map((s) => (
-                    <div
-                      key={s.stepNumber}
-                      className="p-2 rounded-lg bg-slate-50 dark:bg-zinc-800/40 flex items-center justify-between text-[11px]"
-                    >
-                      <span className="text-muted-foreground truncate max-w-[150px]">
-                        {s.stepNumber}. {s.title}
-                      </span>
-                      <span className="font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">
-                        {formatCurrency(s.estimatedCost)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
-            {/* Sağ Panel Alt Aksiyon Butonları */}
+            {/* Sağ Alt Aksiyon Butonları */}
             <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
               <Button
                 type="button"
@@ -547,7 +593,7 @@ export function HomeLegalAssistantSection() {
                 variant="outline"
                 onClick={() =>
                   alert(
-                    `📄 "${currentRoadmap.sectorName}" için 2026 Ana Sözleşme, Kira Damga Vergisi ve Belediye Ruhsat Şablon Paketi hazırlandı.`,
+                    `📄 "${currentRoadmap.sectorName}" için 2026 Sözleşme ve Dilekçe Paketi hazırlandı.`,
                   )
                 }
                 className="w-full h-9 rounded-xl border-slate-200 dark:border-zinc-700 text-xs font-bold text-foreground hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center gap-1.5"
