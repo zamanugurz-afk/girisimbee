@@ -15,15 +15,13 @@ import {
   Compass,
   Calculator,
   Landmark,
+  MapPin,
+  Bot,
+  Scale,
+  Flame,
   ArrowUpRight,
   type LucideIcon,
 } from 'lucide-react';
-import {
-  formatHeroStatCount,
-  useHeroStats,
-  type HeroStatKey,
-  type HeroStatsCounts,
-} from '@/features/home/hooks/use-hero-stats';
 import { HeroNetworkVisual } from '@/components/girisimco/hero/hero-network';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -103,122 +101,144 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
 ];
 
-const HERO_SIDEBAR_STATS: {
-  key: HeroStatKey;
-  label: string;
+const HERO_SIDEBAR_MODULES: {
+  id: string;
+  title: string;
+  subtitle: string;
+  badge?: string;
   href: string;
+  targetScrollId?: string;
   Icon: LucideIcon;
   iconClass: string;
   boxClass: string;
   hoverBorderClass: string;
 }[] = [
   {
-    key: 'total',
-    label: 'Toplam İlan',
-    href: '/kesfet',
-    Icon: Rocket,
-    iconClass: 'text-[#3B82F6]',
-    boxClass: 'bg-[#EFF6FF]',
-    hoverBorderClass: 'hover:border-[#3B82F6]/50',
+    id: 'location-radar',
+    title: 'Lokasyon Radarı',
+    subtitle: 'Canlı Pazar & Harita',
+    badge: 'Canlı Pazar',
+    href: '#radar-section',
+    targetScrollId: '#radar-section',
+    Icon: MapPin,
+    iconClass: 'text-emerald-600 dark:text-emerald-400',
+    boxClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600',
+    hoverBorderClass: 'hover:border-emerald-500/60 dark:hover:border-emerald-500/60',
   },
   {
-    key: 'jobs',
-    label: 'Kariyer',
-    href: '/is',
-    Icon: Briefcase,
-    iconClass: 'text-[#EA580C]',
-    boxClass: 'bg-[#FFF7ED]',
-    hoverBorderClass: 'hover:border-[#EA580C]/50',
+    id: 'setup-assistant',
+    title: 'İş Kurma Asistanı',
+    subtitle: 'Kira & Bütçe Robotu',
+    badge: 'Canlı Bütçe',
+    href: '#assistant-section',
+    targetScrollId: '#assistant-section',
+    Icon: Bot,
+    iconClass: 'text-sky-600 dark:text-sky-400',
+    boxClass: 'bg-sky-50 dark:bg-sky-950/50 text-sky-600',
+    hoverBorderClass: 'hover:border-sky-500/60 dark:hover:border-sky-500/60',
   },
   {
-    key: 'partners',
-    label: 'Ortaklık ve Devir',
-    href: '/girisim-ortaklik',
-    Icon: Handshake,
-    iconClass: 'text-[#DB2777]',
-    boxClass: 'bg-[#FDF2F8]',
-    hoverBorderClass: 'hover:border-[#DB2777]/50',
+    id: 'legal-assistant',
+    title: 'Resmi Başvuru & Hukuk',
+    subtitle: 'Mevzuat & Evrak Rehberi',
+    badge: '2026 Mevzuat',
+    href: '#legal-section',
+    targetScrollId: '#legal-section',
+    Icon: Scale,
+    iconClass: 'text-purple-600 dark:text-purple-400',
+    boxClass: 'bg-purple-50 dark:bg-purple-950/50 text-purple-600',
+    hoverBorderClass: 'hover:border-purple-500/60 dark:hover:border-purple-500/60',
   },
   {
-    key: 'franchise',
-    label: 'Franchise',
-    href: '/franchise/buy',
-    Icon: Store,
-    iconClass: 'text-[#C026D3]',
-    boxClass: 'bg-[#FDF4FF]',
-    hoverBorderClass: 'hover:border-[#C026D3]/50',
+    id: 'grants-radar',
+    title: 'Hibe & Teşvik Radarı',
+    subtitle: 'KOSGEB & SGK Destekleri',
+    badge: '₺3.1M Hibe',
+    href: '#grants-section',
+    targetScrollId: '#grants-section',
+    Icon: Landmark,
+    iconClass: 'text-teal-600 dark:text-teal-400',
+    boxClass: 'bg-teal-50 dark:bg-teal-950/50 text-teal-600',
+    hoverBorderClass: 'hover:border-teal-500/60 dark:hover:border-teal-500/60',
   },
   {
-    key: 'services',
-    label: 'Ustalar ve Hizmetler',
-    href: '/kategori/hizmetler',
-    Icon: Wrench,
-    iconClass: 'text-[#6366F1]',
-    boxClass: 'bg-[#EEF2FF]',
-    hoverBorderClass: 'hover:border-[#6366F1]/50',
+    id: 'trend-ideas',
+    title: 'Trend İş Fikirleri',
+    subtitle: '8 Yeni Niş Model',
+    badge: 'Eylül 2026',
+    href: '#trend-ideas-section',
+    targetScrollId: '#trend-ideas-section',
+    Icon: Flame,
+    iconClass: 'text-amber-600 dark:text-amber-400',
+    boxClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-600',
+    hoverBorderClass: 'hover:border-amber-500/60 dark:hover:border-amber-500/60',
   },
   {
-    key: 'opportunities',
-    label: 'Market ve Fırsatlar',
+    id: 'market-solutions',
+    title: 'Girişimbee Market',
+    subtitle: 'Seçili Çözümler & Fırsatlar',
+    badge: 'Doğrulanmış',
     href: '/market',
-    Icon: Megaphone,
-    iconClass: 'text-[#0EA5E9]',
-    boxClass: 'bg-[#F0F9FF]',
-    hoverBorderClass: 'hover:border-[#0EA5E9]/50',
+    targetScrollId: '#market-section',
+    Icon: Sparkles,
+    iconClass: 'text-indigo-600 dark:text-indigo-400',
+    boxClass: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600',
+    hoverBorderClass: 'hover:border-indigo-500/60 dark:hover:border-indigo-500/60',
   },
 ];
 
-function StatPill({
-  stat,
-  counts,
-  isLoading,
+function ModulePill({
+  item,
+  onNavigate,
 }: {
-  stat: (typeof HERO_SIDEBAR_STATS)[number];
-  counts: HeroStatsCounts;
-  isLoading: boolean;
+  item: (typeof HERO_SIDEBAR_MODULES)[number];
+  onNavigate: (e: React.MouseEvent, href: string, targetScrollId?: string) => void;
 }) {
   return (
     <Link
-      href={stat.href}
+      href={item.href}
+      onClick={(e) => onNavigate(e, item.href, item.targetScrollId)}
       className={cn(
-        'group flex items-center gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-1.5',
+        'group flex items-center justify-between gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-1.5',
         'shadow-[0_1px_3px_rgba(15,23,42,0.04)] backdrop-blur-sm',
         'cursor-pointer transition-all duration-200 ease-out',
         'hover:-translate-y-0.5 hover:shadow-md',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:-translate-y-0.5',
         'dark:border-border dark:bg-card',
-        stat.hoverBorderClass,
+        item.hoverBorderClass,
       )}
-      aria-label={`${stat.label}: ${isLoading ? 'Yükleniyor' : formatHeroStatCount(counts[stat.key])}`}
+      aria-label={`${item.title}: ${item.subtitle}`}
     >
-      <span
-        className={cn(
-          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-transform duration-200 group-hover:scale-105',
-          stat.boxClass,
-        )}
-        aria-hidden
-      >
-        <stat.Icon className={cn('h-3.5 w-3.5', stat.iconClass)} strokeWidth={1.75} />
-      </span>
-      <span className="min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <span
           className={cn(
-            'block font-display text-[13.5px] font-bold tabular-nums leading-none text-[#0B1220] transition-colors dark:text-foreground',
-            isLoading && 'animate-pulse text-muted-foreground',
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105',
+            item.boxClass,
           )}
+          aria-hidden
         >
-          {isLoading ? '—' : formatHeroStatCount(counts[stat.key])}
+          <item.Icon className={cn('h-3.5 w-3.5', item.iconClass)} strokeWidth={2} />
         </span>
-        <span className="mt-0.5 block truncate text-[11.5px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
-          {stat.label}
+        <span className="min-w-0">
+          <span className="block font-display text-[12.5px] font-bold leading-tight text-[#0B1220] transition-colors dark:text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
+            {item.title}
+          </span>
+          <span className="mt-0.5 block truncate text-[10.5px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
+            {item.subtitle}
+          </span>
         </span>
-      </span>
+      </div>
+
+      {item.badge && (
+        <span className="shrink-0 text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200/70 dark:border-zinc-700">
+          {item.badge}
+        </span>
+      )}
     </Link>
   );
 }
 
 export function PlatformHero({ className }: { className?: string }) {
-  const { counts, isLoading } = useHeroStats();
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -443,15 +463,15 @@ export function PlatformHero({ className }: { className?: string }) {
             <HeroNetworkVisual className="w-[min(370px,40dvh)] max-w-none" />
           </div>
 
-          {/* SAĞ SÜTUN: CANLI İSTATİSTİK SAYAÇLARI */}
+          {/* SAĞ SÜTUN: PLATFORM MODÜLLERİ VE ASİSTANLAR */}
           <div className="hidden justify-end xl:flex">
             <ul
-              className="flex w-[12rem] flex-col gap-1.5"
-              aria-label="Platform istatistikleri"
+              className="flex w-[13.5rem] flex-col gap-1.5"
+              aria-label="Platform modülleri ve asistanlar"
             >
-              {HERO_SIDEBAR_STATS.map((stat) => (
-                <li key={stat.key}>
-                  <StatPill stat={stat} counts={counts} isLoading={isLoading} />
+              {HERO_SIDEBAR_MODULES.map((item) => (
+                <li key={item.id}>
+                  <ModulePill item={item} onNavigate={handleSmoothScroll} />
                 </li>
               ))}
             </ul>
@@ -459,15 +479,15 @@ export function PlatformHero({ className }: { className?: string }) {
         </div>
       </div>
 
-      {/* MOBİL VE TABLET İÇİN ALT İSTATİSTİK KARTLARI */}
-      <div className="relative border-t border-[#EEF0F4] px-5 pb-1.5 pt-1.5 xl:hidden lg:px-8">
+      {/* MOBİL VE TABLET İÇİN ALT MODÜL KARTLARI */}
+      <div className="relative border-t border-[#EEF0F4] px-5 pb-2 pt-2 xl:hidden lg:px-8">
         <ul
           className="mx-auto grid max-w-[1280px] grid-cols-2 gap-1.5 sm:grid-cols-3"
-          aria-label="Platform istatistikleri"
+          aria-label="Platform modülleri ve asistanlar"
         >
-          {HERO_SIDEBAR_STATS.map((stat) => (
-            <li key={stat.key}>
-              <StatPill stat={stat} counts={counts} isLoading={isLoading} />
+          {HERO_SIDEBAR_MODULES.map((item) => (
+            <li key={item.id}>
+              <ModulePill item={item} onNavigate={handleSmoothScroll} />
             </li>
           ))}
         </ul>
