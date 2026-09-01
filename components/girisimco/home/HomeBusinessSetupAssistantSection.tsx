@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   Printer,
   ChevronRight,
+  ChevronLeft,
   Search,
   Store,
   AlertCircle,
@@ -51,6 +52,7 @@ import {
   SMART_EQUIPMENT_DICTIONARY,
   type SmartEquipmentPreset,
 } from '@/features/business-setup/data/business-setup-templates';
+import { getMasterSectorById } from '@/features/common/master-sectors-registry';
 import {
   TURKEY_CITY_RENTAL_RATES,
   getDistrictRentalRate,
@@ -90,6 +92,7 @@ export function HomeBusinessSetupAssistantSection() {
   } = useUnifiedCockpit();
 
   const [sectorSearchQuery, setSectorSearchQuery] = useState<string>('');
+  const [sectorPage, setSectorPage] = useState<number>(1);
 
   // Active step (1 to 7)
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -263,6 +266,13 @@ export function HomeBusinessSetupAssistantSection() {
       return matchesGroup && matchesSearch;
     });
   }, [selectedCategoryGroup, sectorSearchQuery]);
+
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage) || 1;
+  const paginatedTemplates = useMemo(() => {
+    const start = (sectorPage - 1) * itemsPerPage;
+    return filteredTemplates.slice(start, start + itemsPerPage);
+  }, [filteredTemplates, sectorPage]);
 
   // Akıllı Demirbaş Arama Önerileri (Autocomplete Suggestions)
   const smartSuggestions = useMemo(() => {
@@ -545,86 +555,137 @@ export function HomeBusinessSetupAssistantSection() {
               {/* ADIM 1: SEKTÖR & MESLEK SEÇİMİ                                  */}
               {/* --------------------------------------------------------------- */}
               {activeStep === 1 && (
-                <div className="space-y-3">
-                  {/* Sektör Kategori Sekmeleri & Arama */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
-                      {['Tümü', ...getAllCategoryGroups()].map((grp) => (
-                        <button
-                          key={grp}
-                          type="button"
-                          onClick={() => setSelectedCategoryGroup(grp)}
-                          className={cn(
-                            'px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-colors',
-                            selectedCategoryGroup === grp
-                              ? 'bg-amber-500 text-white shadow-xs'
-                              : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'
-                          )}
-                        >
-                          {grp}
-                        </button>
-                      ))}
+                <div className="space-y-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                        Adım 1: Sektör & Model Seçimi
+                      </span>
+                      <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+                        Hedef Mesleğinizi Seçin ({filteredTemplates.length} Sektör)
+                      </h3>
                     </div>
 
-                    <div className="relative sm:w-48">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        placeholder="Meslek ara..."
-                        value={sectorSearchQuery}
-                        onChange={(e) => setSectorSearchQuery(e.target.value)}
-                        className="w-full h-8 pl-8 pr-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/60 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                      />
+                    {/* Kategori Filtre Hapları */}
+                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                      {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
+                        (grp) => (
+                          <button
+                            key={grp}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategoryGroup(grp);
+                              setSectorPage(1);
+                            }}
+                            className={cn(
+                              'px-2.5 py-1 rounded-xl font-bold whitespace-nowrap text-[11px] transition-colors cursor-pointer',
+                              selectedCategoryGroup === grp
+                                ? 'bg-amber-500 text-white shadow-xs'
+                                : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
+                            )}
+                          >
+                            {grp}
+                          </button>
+                        ),
+                      )}
                     </div>
                   </div>
 
-                  {/* İlan Kartı Tarzında Meslek Modelleri Listesi */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {filteredTemplates.map((tpl) => {
+                  {/* Arama Çubuğu */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={sectorSearchQuery}
+                      onChange={(e) => {
+                        setSectorSearchQuery(e.target.value);
+                        setSectorPage(1);
+                      }}
+                      placeholder="Sektör, NACE kodu veya meslek ara..."
+                      className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 pl-8 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                    />
+                  </div>
+
+                  {/* 2x3 Meslek Kartları Grid'i */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {paginatedTemplates.map((tpl) => {
                       const isSelected = tpl.id === selectedSectorId;
+                      const masterInfo = getMasterSectorById(tpl.id);
+
                       return (
-                        <button
+                        <div
                           key={tpl.id}
-                          type="button"
                           onClick={() => setSelectedSectorId(tpl.id)}
                           className={cn(
-                            'p-3 rounded-2xl border text-left transition-all flex items-start justify-between gap-2.5 group shadow-xs',
+                            'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
                             isSelected
-                              ? 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-500 ring-2 ring-amber-500/20'
-                              : 'bg-white dark:bg-zinc-900 border-slate-200/80 dark:border-zinc-800 hover:border-amber-400/60 hover:shadow-sm'
+                              ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20 shadow-md ring-2 ring-amber-500/20'
+                              : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
                           )}
                         >
-                          <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                            <span className="text-2xl shrink-0 p-1.5 rounded-xl bg-slate-100 dark:bg-zinc-800 group-hover:scale-105 transition-transform">
-                              {tpl.emoji}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <p className={cn('text-xs font-bold truncate', isSelected ? 'text-amber-900 dark:text-amber-200' : 'text-slate-900 dark:text-zinc-100')}>
-                                {tpl.name}
-                              </p>
-                              <p className="text-[10.5px] text-muted-foreground truncate mt-0.5">
-                                {tpl.categoryGroup}
-                              </p>
-                              <div className="flex items-center gap-1.5 mt-2">
-                                <span className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-[10px] font-semibold text-slate-600 dark:text-zinc-400">
-                                  Ort. {tpl.defaultM2} m²
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/10 text-[10px] font-bold text-amber-800 dark:text-amber-300 truncate">
-                                  {tpl.softwareLicenseCost?.name ? 'ERP Hazır' : 'Sektörel'}
-                                </span>
-                              </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-2xl">{tpl.emoji}</span>
+                              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[9.5px] font-mono font-bold">
+                                {masterInfo.naceCode}
+                              </span>
                             </div>
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug line-clamp-1">
+                              {tpl.name}
+                            </h4>
+                            <span className="text-[10px] text-muted-foreground block line-clamp-1">
+                              {tpl.categoryGroup} • {tpl.defaultM2} m²
+                            </span>
                           </div>
 
-                          {isSelected && (
-                            <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                              <Check className="w-3 h-3 stroke-[3]" />
-                            </div>
-                          )}
-                        </button>
+                          <div className="pt-1 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+                            <span className="text-[9.5px] text-amber-700 dark:text-amber-400 font-bold">
+                              ₺{(tpl.fitoutCostPerM2 || 3000).toLocaleString('tr-TR')} / m² Tadilat
+                            </span>
+                            <span
+                              className={cn(
+                                'w-4 h-4 rounded-full flex items-center justify-center text-[10px]',
+                                isSelected ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400',
+                              )}
+                            >
+                              ✓
+                            </span>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
+
+                  {/* Sayfalama Kontrolleri */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        Sayfa {sectorPage} / {totalPages} ({filteredTemplates.length} Sektör)
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={sectorPage === 1}
+                          onClick={() => setSectorPage((p) => Math.max(1, p - 1))}
+                          className="h-7 px-2 text-xs cursor-pointer"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={sectorPage === totalPages}
+                          onClick={() => setSectorPage((p) => Math.min(totalPages, p + 1))}
+                          className="h-7 px-2 text-xs cursor-pointer"
+                        >
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

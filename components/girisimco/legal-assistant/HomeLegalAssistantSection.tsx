@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Search,
   ChevronRight,
+  ChevronLeft,
   ArrowRight,
   Sparkles,
   Info,
@@ -31,6 +32,7 @@ import {
   LEGAL_APPLICATION_ROADMAPS,
   getSectorLegalRoadmap,
 } from '@/features/legal-assistant/data/legal-application-roadmap';
+import { getMasterSectorById } from '@/features/common/master-sectors-registry';
 import type {
   SectorLegalRoadmap,
   ApplicationStep,
@@ -127,6 +129,7 @@ export function HomeLegalAssistantSection() {
 
   const [activeStep, setActiveStep] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sectorPage, setSectorPage] = useState<number>(1);
   const [completedDocs, setCompletedDocs] = useState<Record<string, boolean>>({});
   const [focusedDocId, setFocusedDocId] = useState<string | null>(null);
 
@@ -164,6 +167,13 @@ export function HomeLegalAssistantSection() {
     }
     return list;
   }, [availableRoadmaps, selectedCategoryGroup, searchQuery]);
+
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(filteredSectors.length / itemsPerPage) || 1;
+  const paginatedSectors = useMemo(() => {
+    const start = (sectorPage - 1) * itemsPerPage;
+    return filteredSectors.slice(start, start + itemsPerPage);
+  }, [filteredSectors, sectorPage]);
 
   const currentRoadmap: SectorLegalRoadmap = useMemo(() => {
     return getSectorLegalRoadmap(selectedSectorId);
@@ -437,90 +447,139 @@ export function HomeLegalAssistantSection() {
           {/* B. ORTA SÜTUN: SEÇİLİ ADIMIN GENİŞ ÇALIŞMA ALANI (lg:col-span-6)          */}
           {/* ========================================================================= */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
-            {/* ADIM 1: SEKTÖR & MESLEK SEÇİM IZGARASI (İLK KART GİBİ 2x3 FERAH GRİD) */}
+            {/* ADIM 1: SEKTÖR & MESLEK SEÇİM IZGARASI (2x3 FERAH GRİD) */}
             {activeStep === 1 ? (
               <div className="space-y-3.5">
-                {/* Üst Kategori Sekmeleri & Arama */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-xs">
-                      {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
-                        (cat) => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => setSelectedCategoryGroup(cat)}
-                            className={cn(
-                              'px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors cursor-pointer text-xs',
-                              selectedCategoryGroup === cat
-                                ? 'bg-indigo-600 text-white shadow-xs'
-                                : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700',
-                            )}
-                          >
-                            {cat}
-                          </button>
-                        ),
-                      )}
-                    </div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                      Adım 1: Sektör & Mevzuat Seçimi
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+                      Hedef Mesleğinizi Seçin ({filteredSectors.length} Sektör)
+                    </h3>
+                  </div>
 
-                    <div className="relative w-full sm:w-48">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Meslek ara..."
-                        className="w-full h-8 pl-8 pr-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
+                  {/* Kategori Filtre Hapları */}
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                    {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
+                      (cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategoryGroup(cat);
+                            setSectorPage(1);
+                          }}
+                          className={cn(
+                            'px-2.5 py-1 rounded-xl font-bold whitespace-nowrap text-[11px] transition-colors cursor-pointer',
+                            selectedCategoryGroup === cat
+                              ? 'bg-indigo-600 text-white shadow-xs'
+                              : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
+                          )}
+                        >
+                          {cat}
+                        </button>
+                      ),
+                    )}
                   </div>
                 </div>
 
-                {/* 2x3 Ferah Sektör Kartları Izgarası */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1">
-                  {filteredSectors.map((sector) => {
+                {/* Arama Çubuğu */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSectorPage(1);
+                    }}
+                    placeholder="Sektör, NACE kodu veya meslek ara..."
+                    className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 pl-8 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                  />
+                </div>
+
+                {/* 2x3 Meslek Kartları Grid'i */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {paginatedSectors.map((sector) => {
                     const isSelected = sector.sectorId === selectedSectorId;
+                    const masterInfo = getMasterSectorById(sector.sectorId);
+
                     return (
                       <div
                         key={sector.sectorId}
                         onClick={() => setSelectedSectorId(sector.sectorId)}
                         className={cn(
-                          'p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between gap-3 cursor-pointer group',
+                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
                           isSelected
-                            ? 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-500 shadow-md scale-[1.01]'
-                            : 'bg-white dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700 hover:border-indigo-500/40 hover:shadow-sm',
+                            ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20 shadow-md ring-2 ring-indigo-500/20'
+                            : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
                         )}
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-700 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
-                            {sector.emoji}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-700 text-[10px] font-bold text-slate-600 dark:text-zinc-300">
-                            {sector.categoryGroup}
-                          </span>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-2xl">{sector.emoji}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[9.5px] font-mono font-bold">
+                              {masterInfo.naceCode}
+                            </span>
+                          </div>
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug line-clamp-1">
                             {sector.sectorName}
                           </h4>
-                          <span className="text-[11px] text-muted-foreground mt-0.5 block">
-                            {sector.steps.length} Resmi Kurum Adımı • {sector.estimatedTotalDays}
+                          <span className="text-[10px] text-muted-foreground block line-clamp-1">
+                            {sector.categoryGroup} • {sector.estimatedTotalDays}
                           </span>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-100 dark:border-zinc-700/60 flex items-center justify-between text-[11px]">
-                          <span className="font-semibold text-muted-foreground">
-                            Resmi Harç:
+                        <div className="pt-1 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+                          <span className="text-[9.5px] text-indigo-700 dark:text-indigo-400 font-bold">
+                            {formatCurrency(sector.totalEstimatedLegalCost)} Harç
                           </span>
-                          <span className="font-bold text-indigo-700 dark:text-indigo-300">
-                            {formatCurrency(sector.totalEstimatedLegalCost)}
+                          <span
+                            className={cn(
+                              'w-4 h-4 rounded-full flex items-center justify-center text-[10px]',
+                              isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400',
+                            )}
+                          >
+                            ✓
                           </span>
                         </div>
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Sayfalama Kontrolleri */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      Sayfa {sectorPage} / {totalPages} ({filteredSectors.length} Sektör)
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={sectorPage === 1}
+                        onClick={() => setSectorPage((p) => Math.max(1, p - 1))}
+                        className="h-7 px-2 text-xs cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={sectorPage === totalPages}
+                        onClick={() => setSectorPage((p) => Math.min(totalPages, p + 1))}
+                        className="h-7 px-2 text-xs cursor-pointer"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               /* ADIM 2..6: SEÇİLİ BÜROKRASİ ADIMI DETAY KARTI (DİNAMİK PRO-TIP VE AKTİF ŞABLONLAR) */

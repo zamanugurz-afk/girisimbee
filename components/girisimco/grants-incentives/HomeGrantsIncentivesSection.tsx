@@ -395,7 +395,7 @@ export function HomeGrantsIncentivesSection() {
                       Adım 1: Sektör & NACE Seçimi
                     </span>
                     <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-                      Hedef Mesleğinizi Seçin (25 Sektör)
+                      Hedef Mesleğinizi Seçin ({filteredSectors.length} Sektör)
                     </h3>
                   </div>
 
