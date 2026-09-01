@@ -328,16 +328,6 @@ export function PlatformHero({ className }: { className?: string }) {
                 transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-4"
               >
-                {/* Aktif Slayt Rozeti */}
-                <div
-                  className={cn(
-                    'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-xs w-fit transition-colors',
-                    activeSlide.badgeColor,
-                  )}
-                >
-                  {activeSlide.badge}
-                </div>
-
                 {/* Başlık */}
                 <h1 className="font-display text-[2rem] font-extrabold leading-[1.1] tracking-tight text-[#0B1220] dark:text-foreground sm:text-[2.4rem] lg:text-[2.75rem] min-h-[5.5rem] sm:min-h-[6rem] lg:min-h-[6.5rem]">
                   {activeSlide.titlePrefix}
