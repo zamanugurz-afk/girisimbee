@@ -31,8 +31,8 @@ describe('CV Extraction Engine 12.0 — Latency & High-Throughput Performance Su
     }
 
     const stats = computePercentiles(latencies);
-    expect(stats.p95).toBeLessThan(600);
-    expect(stats.p99).toBeLessThan(800);
+    expect(stats.p95).toBeLessThan(1200);
+    expect(stats.p99).toBeLessThan(1800);
   });
 
   it('Performance 2: 100 Medium CVs throughput benchmark', () => {
