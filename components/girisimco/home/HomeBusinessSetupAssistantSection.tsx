@@ -588,7 +588,7 @@ export function HomeBusinessSetupAssistantSection() {
                   </div>
 
                   {/* 2x3 Meslek Kartları Grid'i */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {paginatedTemplates.map((tpl) => {
                       const isSelected = tpl.id === selectedSectorId;
                       const masterInfo = getMasterSectorById(tpl.id);
@@ -598,34 +598,36 @@ export function HomeBusinessSetupAssistantSection() {
                           key={tpl.id}
                           onClick={() => setSelectedSectorId(tpl.id)}
                           className={cn(
-                            'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative h-[128px]',
+                            'p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between select-none relative min-h-[148px]',
                             isSelected
                               ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20 shadow-md ring-2 ring-amber-500/20'
                               : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
                           )}
                         >
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-2xl">{tpl.emoji}</span>
-                              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[9.5px] font-mono font-bold">
+                              <span className="text-2xl sm:text-3xl">{tpl.emoji}</span>
+                              <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[10.5px] font-mono font-bold">
                                 {masterInfo.naceCode}
                               </span>
                             </div>
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug line-clamp-1">
-                              {tpl.name}
-                            </h4>
-                            <span className="text-[10px] text-muted-foreground block line-clamp-1">
-                              {tpl.categoryGroup} • {tpl.defaultM2} m²
-                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100 leading-snug line-clamp-1">
+                                {tpl.name}
+                              </h4>
+                              <span className="text-[11px] text-muted-foreground block line-clamp-1 mt-0.5">
+                                {tpl.categoryGroup} • {tpl.defaultM2} m²
+                              </span>
+                            </div>
                           </div>
 
-                          <div className="pt-1 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-                            <span className="text-[9.5px] text-amber-700 dark:text-amber-400 font-bold">
-                              ₺{(tpl.fitoutCostPerM2 || 3000).toLocaleString('tr-TR')} / m² Tadilat
+                          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+                            <span className="text-[11px] sm:text-xs text-amber-700 dark:text-amber-400 font-extrabold">
+                              ₺{(tpl.fitoutCostPerM2 || 3000).toLocaleString('tr-TR')} / m²
                             </span>
                             <span
                               className={cn(
-                                'w-4 h-4 rounded-full flex items-center justify-center text-[10px]',
+                                'w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
                                 isSelected ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400',
                               )}
                             >
