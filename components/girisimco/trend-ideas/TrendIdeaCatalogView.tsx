@@ -55,18 +55,18 @@ export function TrendIdeaCatalogView() {
           </p>
         </div>
 
-        {/* Kategori Filtre Butonları */}
-        <div className="mb-6 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
+        {/* Kategori Filtre Butonları (Tüm Alanların Eksiksiz ve Net Okunabilir Görünümü) */}
+        <div className="mb-8 flex flex-wrap items-center gap-2 sm:gap-2.5">
           {categories.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                'px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap select-none',
+                'px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer whitespace-nowrap select-none',
                 selectedCategory === cat
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'bg-white dark:bg-zinc-800 text-muted-foreground border border-slate-200/90 dark:border-zinc-700 hover:text-slate-900 dark:hover:text-white',
+                  : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200/90 dark:border-zinc-700 hover:text-slate-950 dark:hover:text-white hover:border-slate-300 dark:hover:border-zinc-600',
               )}
             >
               {cat}
