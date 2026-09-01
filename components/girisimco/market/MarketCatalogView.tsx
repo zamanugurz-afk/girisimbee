@@ -75,11 +75,11 @@ export function MarketCatalogView() {
         <MarketAdvertiseBanner />
 
         {loading ? (
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-slate-200/80 dark:bg-zinc-800/80 gap-px overflow-hidden shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="min-h-[14rem] animate-pulse rounded-2xl border border-[#E6E8EE] bg-white dark:border-border dark:bg-card"
+                className="min-h-[16rem] animate-pulse bg-white dark:bg-zinc-900 p-6"
               />
             ))}
           </div>
@@ -100,7 +100,7 @@ export function MarketCatalogView() {
             </Button>
           </div>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-slate-200/80 dark:bg-zinc-800/80 gap-px overflow-hidden shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
               <MarketAdCard key={item.id} item={item} />
             ))}
@@ -111,3 +111,5 @@ export function MarketCatalogView() {
     </div>
   );
 }
+
+export default MarketCatalogView;

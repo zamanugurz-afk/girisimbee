@@ -18,7 +18,6 @@ import {
   TrendingUp,
   Clock,
   Percent,
-  MessageCircle,
   BarChart3,
   Layers,
 } from 'lucide-react';
@@ -26,10 +25,6 @@ import { PracticalBusinessIdea } from '@/lib/data/monthly-trend-ideas';
 import { cn } from '@/lib/utils';
 
 export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
-  const whatsappUrl = `https://wa.me/905321000000?text=${encodeURIComponent(
-    `Merhaba, Girişimbee üzerinden "${item.title}" niş iş modeli hakkında detaylı fizibilite ve danışmanlık almak istiyorum.`,
-  )}`;
-
   return (
     <main className="gc-header-offset relative min-h-screen min-w-0 overflow-x-hidden bg-[#FAFBFC] dark:bg-zinc-950 py-4 sm:py-6">
       <div className="relative mx-auto min-w-0 max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -63,7 +58,7 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
         {/* ========================================================================= */}
         <div className="overflow-hidden rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg">
           
-          {/* 1. KOMPAKT HERO GÖRSEL BANNER */}
+          {/* 1. KOMPAKT HERO GÖRSEL BANNER (TEMİZ & YÜKSEK KONTRASTLI BAŞLIK) */}
           <div className="relative w-full h-[150px] sm:h-[185px] bg-slate-950 overflow-hidden">
             {item.imageUrl ? (
               <Image
@@ -83,29 +78,9 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
             {/* Güçlü Karartma Gradyanı */}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-black/35 pointer-events-none" />
 
-            {/* Üst Banner Rozetleri */}
-            <div className="absolute top-3 left-4 right-4 flex items-center justify-between pointer-events-none">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-slate-950 text-[11px] font-black tracking-wide shadow-md">
-                <Sparkles className="w-3 h-3 fill-slate-950" />
-                SEÇİLİ NİŞ FIRSAT
-              </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold border border-white/15">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Doğrulanmış Model
-              </span>
-            </div>
-
-            {/* Banner İçi Başlık (BEYAZ METİN & YÜKSEK KONTRAST) */}
-            <div className="absolute bottom-3.5 left-4 sm:left-6 right-4 sm:right-6 text-white z-10">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-xs">
-                  {item.category}
-                </span>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/20">
-                  {item.businessModelBadge}
-                </span>
-              </div>
-              <h1 className="text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white drop-shadow-md leading-tight truncate">
+            {/* Banner İçi Başlık */}
+            <div className="absolute bottom-4 left-4 sm:left-6 right-4 sm:right-6 text-white z-10">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white drop-shadow-md leading-tight truncate">
                 {item.title}
               </h1>
             </div>
@@ -134,7 +109,7 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
             <div className="lg:pr-6 space-y-5">
               
               {/* Sol 2 Finansal Hücre (Min. Sermaye & Aylık Net Kâr) */}
-              <div className="grid grid-cols-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 divide-x divide-slate-200 dark:divide-zinc-800 overflow-hidden shadow-2xs">
+              <div className="grid grid-cols-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 divide-x divide-slate-200 dark:divide-zinc-800 overflow-hidden shadow-xs">
                 {/* 1. Min. Sermaye */}
                 <div className="p-3.5 flex flex-col justify-between">
                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
@@ -235,7 +210,7 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
             <div className="lg:pl-6 space-y-5">
               
               {/* Sağ 2 Finansal Hücre (Amortisman & Brüt Kâr Marjı) */}
-              <div className="grid grid-cols-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 divide-x divide-slate-200 dark:divide-zinc-800 overflow-hidden shadow-2xs">
+              <div className="grid grid-cols-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-800/40 divide-x divide-slate-200 dark:divide-zinc-800 overflow-hidden shadow-xs">
                 {/* 3. Amortisman */}
                 <div className="p-3.5 flex flex-col justify-between">
                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
@@ -315,28 +290,36 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
           </div>
 
           {/* ========================================================================= */}
-          {/* 4. ALT AKSİYON VE ONAY ÇUBUĞU                                            */}
+          {/* 4. ALT AKSİYON ÇUBUĞU (ROZETLER VE ASİSTANDA SİMÜLE ET BUTONU)             */}
           {/* ========================================================================= */}
-          <div className="border-t border-slate-200/90 dark:border-zinc-800 p-4 sm:p-5 bg-slate-50/60 dark:bg-zinc-900/60 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-slate-600 dark:text-zinc-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span><strong className="text-slate-800 dark:text-zinc-200">Doğrulanmış Model:</strong> Eylül 2026 piyasa maliyet verileriyle hesaplanmıştır.</span>
+          <div className="border-t border-slate-200/90 dark:border-zinc-800 p-4 sm:p-5 bg-slate-50/80 dark:bg-zinc-900/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            {/* 2., 3. ve 4. Resimdeki Rozetler (WhatsApp yerine buraya yerleştirildi) */}
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black tracking-wide shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
+                SEÇİLİ NİŞ FIRSAT
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-bold shadow-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
+                Doğrulanmış Model
+              </span>
+
+              <span className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 shadow-2xs">
+                {item.category}
+              </span>
+
+              <span className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 shadow-2xs">
+                {item.businessModelBadge}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 shadow-sm transition-all hover:scale-105 active:scale-95"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp ile Bilgi Al</span>
-              </a>
-
+            {/* Sağ Aksiyon: İş Kurma Asistanında Simüle Et */}
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-center sm:justify-end">
               <Link
                 href="/#assistant-section"
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-950 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs sm:text-sm px-4 py-2.5 shadow-sm transition-all hover:scale-105 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs sm:text-sm px-5 py-3 shadow-md transition-all hover:scale-105 active:scale-95 w-full sm:w-auto"
               >
                 <BarChart3 className="w-4 h-4" />
                 <span>İş Kurma Asistanında Simüle Et</span>
