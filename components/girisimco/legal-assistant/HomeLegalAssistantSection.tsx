@@ -334,7 +334,7 @@ export function HomeLegalAssistantSection() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-xs">
-                      {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık'].map(
+                      {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
                         (cat) => (
                           <button
                             key={cat}
