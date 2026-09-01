@@ -15,7 +15,7 @@ import { MONTHLY_TREND_IDEAS, PracticalBusinessIdea } from '@/lib/data/monthly-t
 import { cn } from '@/lib/utils';
 
 export function HomeTrendBusinessIdeasSection({ fold = false }: { fold?: boolean }) {
-  const [items] = useState<PracticalBusinessIdea[]>(MONTHLY_TREND_IDEAS);
+  const items = MONTHLY_TREND_IDEAS;
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 

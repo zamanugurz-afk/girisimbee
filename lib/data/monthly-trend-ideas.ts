@@ -302,38 +302,4 @@ export const MONTHLY_TREND_IDEAS: PracticalBusinessIdea[] = [
       ],
     },
   },
-  {
-    id: 'mobil-detailing',
-    monthEdition: 'Eylül 2026',
-    isFeaturedThisMonth: false,
-    title: 'Mobil Buharlı Araç & Koltuk Detailing',
-    tagline: 'Dükkan kirası ödemeden, plazalarda ve sitelerde randevulu yerinde bakım.',
-    imageUrl: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1200&auto=format&fit=crop&q=80',
-    category: 'Otomotiv & Mobil',
-    businessModelBadge: 'Dükkansız / Mobil',
-    capitalRange: '280.000 – 350.000 TL',
-    profitMarginBadge: '%75 Brüt Marj',
-    financials: {
-      minCapital: 320000,
-      monthlyAvgRevenue: 135000,
-      monthlyNetProfit: 85000,
-      paybackPeriodMonths: 4,
-      grossMarginPercent: 75,
-    },
-    marketReality: {
-      whyItWorks: 'Plaza ve site sakinleri araç yıkama kuyruklarında vakit kaybetmek yerine mesai saatinde kapıda teslimatı tercih ediyor.',
-      idealLocationProfile: 'A+ Konut Siteleri, Finans Merkezleri ve Teknokent Otoparkları',
-      targetCustomer: 'Beyaz yaka çalışanlar ve zamanı kısıtlı araç sahipleri',
-      firstMonthTractionPlan: 'Site yönetimleri ve kurumsal şirket İK birimleriyle indirimli deneme temizliği anlaşmaları.',
-    },
-    setupProfile: {
-      minimumSpaceM2: 0,
-      requiredStaffCount: 1,
-      coreEquipments: [
-        '10 Bar Endüstriyel Buhar Jeneratörü',
-        'Sessiz Taşınabilir İnverter Güç Kaynağı',
-        'Islak-Kuru Sanayi Vakumu',
-      ],
-    },
-  },
 ];
