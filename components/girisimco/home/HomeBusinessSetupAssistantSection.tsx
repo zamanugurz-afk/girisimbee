@@ -172,17 +172,18 @@ export function HomeBusinessSetupAssistantSection() {
     setCustomAvgTicketPrice(null);
   }, [activeTemplate]);
 
-  // m² değiştiğinde yangın tüpü, klima ve masa adetlerini dinamik olarak güncelle
+  // m² değiştiğinde yangın tüpü, klima, çalışma ve müşteri masaları, raflar ve tüm demirbaşları m²'ye göre otomatik ölçekle
   useEffect(() => {
     setEquipmentList((prev) =>
       prev.map((item) => {
         if (!item.scalesWithM2 || !item.m2Ratio) return item;
         const dynamic = calculateDynamicEquipmentQty(item, m2);
-        const newQty = Math.max(dynamic.minQty, item.qty, dynamic.defaultQty);
         return {
           ...item,
           minQty: dynamic.minQty,
-          qty: newQty,
+          defaultQty: dynamic.defaultQty,
+          qty: dynamic.defaultQty,
+          selected: dynamic.defaultQty > 0 ? true : item.selected,
         };
       })
     );
@@ -835,9 +836,16 @@ export function HomeBusinessSetupAssistantSection() {
                               <Lock className="w-2.5 h-2.5" /> Zorunlu
                             </span>
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug">
-                                {eq.name}
-                              </h4>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug">
+                                  {eq.name}
+                                </h4>
+                                {eq.scalesWithM2 && (
+                                  <span className="px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9.5px] font-bold shrink-0">
+                                    📐 {m2} m² için {eq.qty} {eq.unitLabel}
+                                  </span>
+                                )}
+                              </div>
                               {eq.regulatoryNote && (
                                 <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-0.5 font-medium leading-tight">
                                   ⚖️ {eq.regulatoryNote}
@@ -898,9 +906,16 @@ export function HomeBusinessSetupAssistantSection() {
                               className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 w-3.5 h-3.5 mt-0.5 shrink-0"
                             />
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug">
-                                {eq.name}
-                              </h4>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug">
+                                  {eq.name}
+                                </h4>
+                                {eq.scalesWithM2 && (
+                                  <span className="px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9.5px] font-bold shrink-0">
+                                    📐 {m2} m² için {eq.qty} {eq.unitLabel}
+                                  </span>
+                                )}
+                              </div>
                               {eq.description && (
                                 <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
                                   {eq.description}
