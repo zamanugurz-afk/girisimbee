@@ -96,11 +96,16 @@ function CreateListingContent() {
               ?? null)
     )
     : null;
+  const urlHub = searchParams.get('hub');
+  const urlType = searchParams.get('type');
+  const isCareerUrl = urlHub === 'career' || urlType === 'job' || urlType === 'career';
+  const isVentureUrl = urlHub === 'venture' || urlType === 'venture' || urlType === 'partner';
+
   const hubStep: 'career' | 'venture' | null = categoryId
     ? null
-    : searchParams.get('hub') === 'venture'
+    : isVentureUrl
       ? 'venture'
-      : careerHubOpen
+      : (isCareerUrl || careerHubOpen)
         ? 'career'
         : null;
   const { listingType, isReady } = useListingFormConfig(categoryId, listingTypeId);

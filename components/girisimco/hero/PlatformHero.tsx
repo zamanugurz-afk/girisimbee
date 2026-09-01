@@ -14,6 +14,7 @@ import {
   Sparkles,
   Compass,
   Calculator,
+  Landmark,
   ArrowUpRight,
   type LucideIcon,
 } from 'lucide-react';
@@ -51,7 +52,6 @@ export const HERO_SLIDES: HeroSlide[] = [
     description: 'İster uzman ekibini kur, ister hayalindeki pozisyona başvur. İletişim bilgilerin tamamen gizli kalır; sadece doğrulanmış ve nitelikli eşleşmeler sağlanır.',
     primaryBtn: { label: 'Fırsatları Keşfet', href: '/is', icon: 'Search', style: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs' },
     secondaryBtn: { label: 'Kariyer İlanı Ver', href: '/ilan/olustur?type=job' },
-    targetScrollId: '#market-section',
   },
   {
     id: 'market-partnership',
@@ -84,10 +84,22 @@ export const HERO_SLIDES: HeroSlide[] = [
     titlePrefix: 'İşini Sıfır Riskle Kur: ',
     titleHighlight: 'Bütçeni & Şartları',
     titleSuffix: ' Hesapla.',
-    description: '25 sektörde m², kira peşinatı, kilitli yasal zorunluluklar, demirbaşlar, açılış emtiası ve ERP lisans maliyetlerini saniyeler içinde simüle et.',
+    description: '32 sektörde m², kira peşinatı, kilitli yasal zorunluluklar, demirbaşlar, açılış emtiası ve ERP lisans maliyetlerini saniyeler içinde simüle et.',
     primaryBtn: { label: 'İş Kurma Asistanı', href: '#assistant-section', icon: 'Calculator', style: 'bg-sky-600 hover:bg-sky-700 text-white shadow-xs' },
     secondaryBtn: { label: 'Örnek Fizibilite Gör', href: '#assistant-section' },
     targetScrollId: '#assistant-section',
+  },
+  {
+    id: 'grants-radar',
+    badge: '🏛️ Hibe & Teşvik Radarı',
+    badgeColor: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/60',
+    titlePrefix: 'Hibe & Teşvik ile ',
+    titleHighlight: 'Devlet Desteklerini',
+    titleSuffix: ' Keşfet.',
+    description: '32 sektörde NACE kodunuza özel KOSGEB hibe paketleri, Genç Girişimci vergi muafiyeti ve bölgesel SGK teşviklerini anlık hesaplayın.',
+    primaryBtn: { label: 'Teşvik Radarını Başlat', href: '#grants-section', icon: 'Landmark', style: 'bg-teal-600 hover:bg-teal-700 text-white shadow-xs' },
+    secondaryBtn: { label: '2026 Desteklerini Gör', href: '#grants-section' },
+    targetScrollId: '#grants-section',
   },
 ];
 
@@ -265,6 +277,8 @@ export function PlatformHero({ className }: { className?: string }) {
         return 'text-emerald-600 dark:text-emerald-400';
       case 'setup-assistant':
         return 'text-sky-600 dark:text-sky-400';
+      case 'grants-radar':
+        return 'text-teal-600 dark:text-teal-400';
       default:
         return 'text-[#F59E0B]';
     }
@@ -280,6 +294,8 @@ export function PlatformHero({ className }: { className?: string }) {
         return 'border-emerald-500/70';
       case 'setup-assistant':
         return 'border-sky-500/70';
+      case 'grants-radar':
+        return 'border-teal-500/70';
       default:
         return 'border-[#F59E0B]/70';
     }
@@ -295,6 +311,8 @@ export function PlatformHero({ className }: { className?: string }) {
         return <Compass className="h-4 w-4" aria-hidden />;
       case 'Calculator':
         return <Calculator className="h-4 w-4" aria-hidden />;
+      case 'Landmark':
+        return <Landmark className="h-4 w-4" aria-hidden />;
       default:
         return <Rocket className="h-4 w-4" aria-hidden />;
     }
