@@ -10,7 +10,10 @@ import { cn } from '@/lib/utils';
 export function TrendIdeaCatalogView() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Tümü');
 
-  const categories = ['Tümü', 'Otomotiv & Mobil', 'Evcil Hayvan', 'B2B & Kurumsal', 'Hizmet & Otomasyon'];
+  const categories = [
+    'Tümü',
+    ...Array.from(new Set(MONTHLY_TREND_IDEAS.map((i) => i.category))),
+  ];
 
   const filteredItems = selectedCategory === 'Tümü'
     ? MONTHLY_TREND_IDEAS
