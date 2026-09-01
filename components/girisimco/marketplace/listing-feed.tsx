@@ -37,12 +37,14 @@ export function ListingFeed({
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-slate-200/80 dark:bg-zinc-800/80 gap-px overflow-hidden shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
       {items.map((item) => (
-        <div key={item.id} className="relative h-full bg-white dark:bg-zinc-900">
+        <div key={item.id} className="relative h-full">
           <ContentCard item={item} accent={accent} />
         </div>
       ))}
     </div>
   );
 }
+
+export default ListingFeed;

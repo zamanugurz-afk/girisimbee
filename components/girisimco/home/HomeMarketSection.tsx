@@ -292,44 +292,47 @@ export function MarketAdCard({
     <Link
       href={detailHref}
       className={cn(
-        'group relative flex h-full min-h-[15rem] flex-col overflow-hidden rounded-2xl',
-        'border border-slate-200/90 bg-white/90 shadow-sm transition-all duration-300',
+        'group relative flex h-full min-h-[16rem] flex-col justify-between overflow-hidden rounded-2xl',
+        'border border-slate-200/90 bg-white dark:bg-zinc-900 shadow-sm transition-all duration-300',
         'hover:border-amber-500/50 hover:shadow-md hover:-translate-y-0.5',
-        'dark:border-zinc-800 dark:bg-zinc-900/90 dark:hover:border-amber-500/40',
+        'dark:border-zinc-800 dark:hover:border-amber-500/40',
       )}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-        {item.imageUrl ? (
-          <Image
-            src={item.imageUrl}
-            alt={item.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 350px"
-            unoptimized
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-zinc-400">
-            <Store className="h-8 w-8" aria-hidden />
+      <div>
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 border-b border-slate-100 dark:border-zinc-800">
+          {item.imageUrl ? (
+            <Image
+              src={item.imageUrl}
+              alt={item.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 350px"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-zinc-400">
+              <Store className="h-8 w-8" aria-hidden />
+            </div>
+          )}
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold tracking-wider uppercase">
+              Market
+            </span>
           </div>
-        )}
-        <div className="absolute top-2.5 left-2.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold tracking-wider uppercase">
-            Market
-          </span>
+        </div>
+        <div className="p-4 sm:p-4.5 space-y-2">
+          <h3 className="font-display text-[14.5px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400 line-clamp-1">
+            {item.title}
+          </h3>
+          <p className="line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400">
+            {item.description}
+          </p>
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-display text-[15px] font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400 line-clamp-1">
-          {item.title}
-        </h3>
-        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-zinc-400">
-          {item.description}
-        </p>
-        <span className="mt-auto inline-flex items-center gap-1.5 pt-3.5 text-xs font-bold text-slate-900 dark:text-amber-400 transition-colors group-hover:text-amber-600">
-          <span>{item.ctaLabel || 'İncele'}</span>
-          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
-        </span>
+
+      <div className="px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-slate-900 dark:text-amber-400 group-hover:text-amber-600">
+        <span>{item.ctaLabel || 'İncele'}</span>
+        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
       </div>
     </Link>
   );
