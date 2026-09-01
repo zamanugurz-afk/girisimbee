@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  Sparkles,
   ExternalLink,
   Download,
   Printer,
@@ -15,11 +14,13 @@ import {
   TrendingUp,
   UserCheck,
   FileBadge,
-  PhoneCall,
   Briefcase,
-  Layers,
-  Percent,
   Landmark,
+  ChevronRight,
+  ChevronLeft,
+  ShieldCheck,
+  Award,
+  Sparkles,
 } from 'lucide-react';
 import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
 import {
@@ -35,6 +36,20 @@ import type {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+interface GrantStepDef {
+  id: number;
+  title: string;
+  subtitle: string;
+}
+
+const GRANT_STEPS: GrantStepDef[] = [
+  { id: 1, title: 'Sektör & NACE Belirleme', subtitle: '25 sektör hibe ve NACE eşleşmesi' },
+  { id: 2, title: 'KOSGEB Girişimcilik Hibesi', subtitle: 'Makine, yazılım ve kuruluş desteği' },
+  { id: 3, title: 'Genç & Kadın Girişimci', subtitle: '3 Yıl Vergi + 1 Yıl Bağ-Kur desteği' },
+  { id: 4, title: 'İŞKUR İstihdam Teşviki', subtitle: 'Personel başı SGK prim indirimi' },
+  { id: 5, title: 'Bölgesel Yatırım & İhracat', subtitle: 'İl teşvik derecesi ve HİB destekleri' },
+];
+
 function downloadFile(filename: string, text: string) {
   if (typeof window === 'undefined') return;
   const blob = new Blob([text], { type: 'application/msword;charset=utf-8' });
@@ -49,18 +64,23 @@ function downloadFile(filename: string, text: string) {
 }
 
 export function HomeGrantsIncentivesSection() {
+  const [currentStepId, setCurrentStepId] = useState<number>(1);
   const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
   const [selectedSectorId, setSelectedSectorId] = useState<string>('yazilim-ajans');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
+  const [sectorPage, setSectorPage] = useState<number>(1);
 
-  // Girişimci Filtreleri
+  // Girişimci Profil Filtreleri
   const [filters, setFilters] = useState<EntrepreneurFilters>({
     isYoungEntrepreneur: true,
     isFemaleEntrepreneur: false,
     isPreEstablishment: true,
   });
+
+  // Şart Kontrol Durumu (Adım 2 Checklist)
+  const [checkedConditions, setCheckedConditions] = useState<Record<string, boolean>>({});
 
   // Modallar
   const [activeGrantDetail, setActiveGrantDetail] = useState<GrantSupportItem | null>(null);
@@ -87,7 +107,7 @@ export function HomeGrantsIncentivesSection() {
     [selectedSectorId],
   );
 
-  // Tüm Sektörler Listesi ve Arama Filtresi
+  // Tüm Sektörler ve Filtreleme
   const allSectors = useMemo(() => Object.values(SECTOR_INCENTIVE_PROFILES), []);
   const filteredSectors = useMemo(() => {
     return allSectors.filter((sec) => {
@@ -100,6 +120,14 @@ export function HomeGrantsIncentivesSection() {
       return matchCat && matchQuery;
     });
   }, [allSectors, selectedCategoryGroup, searchQuery]);
+
+  // 2x3 Sayfalama
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(filteredSectors.length / itemsPerPage);
+  const paginatedSectors = useMemo(() => {
+    const start = (sectorPage - 1) * itemsPerPage;
+    return filteredSectors.slice(start, start + itemsPerPage);
+  }, [filteredSectors, sectorPage]);
 
   // Toplam Potansiyel Devlet Desteği ve Tasarruf Hesabı
   const totalCalculatedBenefits = useMemo(() => {
@@ -214,16 +242,18 @@ export function HomeGrantsIncentivesSection() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const primaryKosgebGrant = currentProfile.availableGrants[0];
+
   return (
     <section
       id="grants-section"
       className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      {/* ANA HİBE & TEŞVİK KOKPİTİ (3 ENTEGRE SÜTUNLU MODERN MİMARİ) */}
+      {/* 3 SÜTUNLU UYUMLANDIRILMIŞ FERAH KOKPİT */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* ========================================================================= */}
-          {/* A. SOL SÜTUN: LOKASYON, NACE EŞLEŞMESİ & GİRİŞİMCİ FİLTRELERİ (col-span-3)*/}
+          {/* A. SOL SÜTUN: LOKASYON & 5 ADIMLI DİKEY STEPPER (col-span-3)             */}
           {/* ========================================================================= */}
           <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-zinc-800/80 pb-5 lg:pb-0 lg:pr-5">
             <div className="space-y-4">
@@ -258,7 +288,7 @@ export function HomeGrantsIncentivesSection() {
                   </select>
                 </div>
 
-                {/* Bölgesel Teşvik Rozeti */}
+                {/* Bölge Rozeti */}
                 <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-[11px]">
                   <span className="font-bold text-emerald-900 dark:text-emerald-300">
                     📍 {incentiveZone.zone}. Bölge Teşviki
@@ -269,60 +299,583 @@ export function HomeGrantsIncentivesSection() {
                 </div>
               </div>
 
-              {/* 2. Sektör & NACE Arama */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
-                  Hedef Sektör & NACE Kodu (25 Sektör)
-                </label>
+              {/* 2. Dikey 5 Adımlı Teşvik Stepper */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Teşvik & Hibe Adımları
+                </span>
 
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Sektör veya NACE ara..."
-                    className="h-8.5 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 pl-8 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-                  />
-                </div>
+                <div className="space-y-1">
+                  {GRANT_STEPS.map((step) => {
+                    const isActive = currentStepId === step.id;
+                    const isCompleted = currentStepId > step.id;
 
-                {/* Sektörler Hızlı Listesi */}
-                <div className="space-y-1 max-h-[150px] overflow-y-auto pr-1 no-scrollbar">
-                  {filteredSectors.slice(0, 8).map((sec) => {
-                    const isSelected = selectedSectorId === sec.sectorId;
                     return (
                       <button
-                        key={sec.sectorId}
+                        key={step.id}
                         type="button"
-                        onClick={() => setSelectedSectorId(sec.sectorId)}
+                        onClick={() => setCurrentStepId(step.id)}
                         className={cn(
-                          'w-full text-left p-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between gap-1.5 cursor-pointer',
-                          isSelected
+                          'w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-start gap-2.5 cursor-pointer select-none',
+                          isActive
                             ? 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/40 shadow-xs'
-                            : 'hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-slate-700 dark:text-zinc-300 border border-transparent',
+                            : isCompleted
+                              ? 'bg-slate-100/60 dark:bg-zinc-800/40 text-slate-700 dark:text-zinc-300 hover:bg-slate-100'
+                              : 'hover:bg-slate-100 dark:hover:bg-zinc-800/40 text-muted-foreground',
                         )}
                       >
-                        <span className="truncate flex items-center gap-1.5">
-                          <span>{sec.emoji}</span>
-                          <span>{sec.sectorName}</span>
+                        <span
+                          className={cn(
+                            'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 transition-colors',
+                            isActive
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : isCompleted
+                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-slate-200 dark:bg-zinc-700 text-slate-600 dark:text-zinc-400',
+                          )}
+                        >
+                          {isCompleted ? '✓' : step.id}
                         </span>
-                        <span className="text-[10px] font-mono text-muted-foreground shrink-0">
-                          {sec.naceCode}
-                        </span>
+                        <div className="min-w-0">
+                          <span
+                            className={cn(
+                              'font-bold block truncate',
+                              isActive
+                                ? 'text-emerald-950 dark:text-emerald-200'
+                                : 'text-slate-800 dark:text-zinc-200',
+                            )}
+                          >
+                            {step.title}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground block truncate">
+                            {step.subtitle}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               </div>
+            </div>
 
-              {/* 3. Girişimci Profil Filtreleri */}
-              <div className="space-y-2 pt-2 border-t border-slate-200/70 dark:border-zinc-800/80">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
-                  Hızlı Girişimci Filtreleri
+            {/* Sol Alt Seçili Sektör & NACE Özet Rozeti */}
+            <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 space-y-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-zinc-100">
+                <span>{currentProfile.emoji}</span>
+                <span className="truncate">{currentProfile.sectorName}</span>
+              </div>
+              <div className="text-[10.5px] font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
+                NACE: {currentProfile.naceCode}
+              </div>
+              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-tight">
+                {currentProfile.naceDescription}
+              </p>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* B. ORTA SÜTUN: İNTERAKTİF TEŞVİK ÇALIŞMA ALANI (col-span-6)               */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
+            {/* ADIM 1: FERAH 2x3 MESLEK IZGARASI VE NACE EŞLEŞTİRİCİ */}
+            {currentStepId === 1 && (
+              <div className="space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      Adım 1: Sektör & NACE Seçimi
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
+                      Hedef Mesleğinizi Seçin (25 Sektör)
+                    </h3>
+                  </div>
+
+                  {/* Kategori Filtre Hapları */}
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                    {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
+                      (cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategoryGroup(cat);
+                            setSectorPage(1);
+                          }}
+                          className={cn(
+                            'px-2.5 py-1 rounded-xl font-bold whitespace-nowrap text-[11px] transition-colors cursor-pointer',
+                            selectedCategoryGroup === cat
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
+                          )}
+                        >
+                          {cat}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Arama Çubuğu */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSectorPage(1);
+                    }}
+                    placeholder="Sektör, NACE kodu veya meslek ara..."
+                    className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 pl-8 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                  />
+                </div>
+
+                {/* 2x3 Meslek Kartları Grid'i */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {paginatedSectors.map((sec) => {
+                    const isSelected = selectedSectorId === sec.sectorId;
+                    const maxHibe = sec.availableGrants.reduce(
+                      (acc, g) => (g.supportType === 'Hibe (Geri Ödemesiz)' ? acc + g.maxAmount : acc),
+                      0,
+                    );
+
+                    return (
+                      <div
+                        key={sec.sectorId}
+                        onClick={() => setSelectedSectorId(sec.sectorId)}
+                        className={cn(
+                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
+                          isSelected
+                            ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/20'
+                            : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
+                        )}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-2xl">{sec.emoji}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[9.5px] font-mono font-bold">
+                              {sec.naceCode}
+                            </span>
+                          </div>
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 leading-snug line-clamp-1">
+                            {sec.sectorName}
+                          </h4>
+                          <span className="text-[10px] text-muted-foreground block line-clamp-1">
+                            {sec.kosgebCategory}
+                          </span>
+                        </div>
+
+                        <div className="pt-1 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+                          <span className="text-[9.5px] text-emerald-700 dark:text-emerald-400 font-bold">
+                            {formatCurrency(maxHibe)} Hibe
+                          </span>
+                          <span
+                            className={cn(
+                              'w-4 h-4 rounded-full flex items-center justify-center text-[10px]',
+                              isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400',
+                            )}
+                          >
+                            ✓
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Sayfalama Kontrolleri */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      Sayfa {sectorPage} / {totalPages} ({filteredSectors.length} Sektör)
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={sectorPage === 1}
+                        onClick={() => setSectorPage((p) => Math.max(1, p - 1))}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={sectorPage === totalPages}
+                        onClick={() => setSectorPage((p) => Math.min(totalPages, p + 1))}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ADIM 2: KOSGEB GİRİŞİMCİLİK HİBESİ VE İŞ PLANI DETAYI */}
+            {currentStepId === 2 && primaryKosgebGrant && (
+              <div className="space-y-3.5">
+                <div className="flex items-start justify-between gap-3 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10.5px] font-bold">
+                        KOSGEB
+                      </span>
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                        {currentProfile.kosgebCategory}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                      {primaryKosgebGrant.programName}
+                    </h3>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-muted-foreground block">Azami Hibe</span>
+                    <span className="text-lg font-black text-emerald-700 dark:text-emerald-400">
+                      {formatCurrency(primaryKosgebGrant.maxAmount)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3'lü Özet Hapları */}
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">Destek Türü</span>
+                    <span className="font-bold text-slate-900 dark:text-white">Geri Ödemesiz Hibe</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">Hibe Oranı</span>
+                    <span className="font-bold text-emerald-600">{primaryKosgebGrant.coverageRatio}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">Başvuru Kanalı</span>
+                    <span className="font-bold text-indigo-600">e-Devlet Portalı</span>
+                  </div>
+                </div>
+
+                {/* Nereye & Nasıl Başvurulur? */}
+                <div className="p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs space-y-1">
+                  <span className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                    <span>🧭</span>
+                    <span>KOSGEB Başvuru ve Kabul Süreci:</span>
+                  </span>
+                  <ul className="space-y-0.5 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-disc">
+                    <li>KOSGEB e-Akademi üzerinden online Girişimcilik Sertifikası tamamlanır.</li>
+                    <li>Şirket kuruluşu ve Ticaret/Esnaf Sicil tescili gerçekleştirilir.</li>
+                    <li>e-Devlet KOSGEB sistemine giriş yapılarak KOBİ Beyannamesi onaylanır.</li>
+                    <li>İş planı ve makine/teçhizat proforma faturaları kurula sunulur.</li>
+                  </ul>
+                </div>
+
+                {/* Başvuru Şartları Checklist */}
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 block">
+                    📋 Başvuru Kriterleri Kontrol Listesi:
+                  </span>
+                  <div className="space-y-1 text-xs">
+                    {primaryKosgebGrant.conditions.map((c, idx) => {
+                      const isChecked = !!checkedConditions[c];
+                      return (
+                        <label
+                          key={idx}
+                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/80 cursor-pointer select-none"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) =>
+                              setCheckedConditions((prev) => ({ ...prev, [c]: e.target.checked }))
+                            }
+                            className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
+                          />
+                          <span
+                            className={cn(
+                              'text-[11.5px] font-medium',
+                              isChecked ? 'line-through text-muted-foreground' : 'text-slate-800 dark:text-zinc-200',
+                            )}
+                          >
+                            {c}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Kritik Püf Noktası */}
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200">
+                  <strong>💡 Kritik Hibe Püf Noktası:</strong> Alımı yapılacak makine ve bilgisayar donanımlarının mutlaka sıfır (kullanılmamış) olması ve faturasının şirket adına kesilmesi şarttır. Yerli malı belgeli makinelerde hibe oranı ilave %15 artırılır.
+                </div>
+
+                {/* Aksiyon Butonları */}
+                <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveBusinessPlanDoc(primaryKosgebGrant)}
+                    className="h-8.5 rounded-xl text-xs font-bold gap-1 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Örnek İş Planı Taslağını Al (.doc)</span>
+                  </Button>
+
+                  <a
+                    href={primaryKosgebGrant.applicationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 h-8.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-xs"
+                  >
+                    <span>KOSGEB Portalı ile Başvur</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* ADIM 3: GENÇ & KADIN GİRİŞİMCİ VERGİ VE BAĞ-KUR MUAFİYETİ */}
+            {currentStepId === 3 && (
+              <div className="space-y-3.5">
+                <div className="flex items-start justify-between gap-3 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div className="space-y-0.5">
+                    <span className="px-2 py-0.5 rounded-md bg-sky-600 text-white text-[10.5px] font-bold">
+                      Gelir İdaresi (GİB) & SGK
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                      Genç Girişimci Vergi İstisnası ve Bağ-Kur Prim Teşviki
+                    </h3>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-muted-foreground block">Toplam Tasarruf</span>
+                    <span className="text-lg font-black text-sky-700 dark:text-sky-400">
+                      ~₺331.500
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="p-3 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/40 space-y-1">
+                    <span className="font-bold text-sky-900 dark:text-sky-300 block">
+                      3 Yıl Gelir Vergisi Muafiyeti
+                    </span>
+                    <div className="text-sm font-black text-sky-700 dark:text-sky-400">
+                      Yıllık 330.000 TL
+                    </div>
+                    <p className="text-[10.5px] text-muted-foreground leading-tight">
+                      18-29 yaş arası girişimcilerin ilk 3 vergilendirme dönemindeki ticari kazançlarının 330.000 TL\'lik kısmı gelir vergisinden tamamen istisnadır.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 space-y-1">
+                    <span className="font-bold text-emerald-900 dark:text-emerald-300 block">
+                      1 Yıl (365 Gün) Bağ-Kur Desteği
+                    </span>
+                    <div className="text-sm font-black text-emerald-700 dark:text-emerald-400">
+                      ₺84.000 Hazine Karşılar
+                    </div>
+                    <p className="text-[10.5px] text-muted-foreground leading-tight">
+                      Şirket kuruluş tarihinden itibaren 1 yıl boyunca aylık 4/b Bağ-Kur primlerinin tamamı Hazine ve Maliye Bakanlığı tarafından ödenir.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-xs space-y-1.5">
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    🧭 Genç Girişimci İstisna Belgesi Nasıl Alınır?
+                  </span>
+                  <ol className="space-y-1 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-decimal">
+                    <li>İnteraktif Vergi Dairesi (İVD) üzerinden "Genç Girişimci Kazanç İstisnası Dilekçesi" verilir.</li>
+                    <li>Vergi dairesinden onaylı "Genç Girişimci İstisna Yazısı" temin edilir.</li>
+                    <li>Alınan resmi yazı e-Devlet üzerinden SGK İl Müdürlüğü'ne iletilerek 1 yıllık Bağ-Kur prim muafiyeti aktif edilir.</li>
+                  </ol>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200">
+                  <strong>💡 Genç Girişimci Püf Noktası:</strong> İstisnadan faydalanabilmek için daha önce adınıza herhangi bir şahıs işletmesi veya adi ortaklık kurulmamış olması şarttır. Limited şirket ortaklıklarında vergi istisnası uygulanmaz.
+                </div>
+              </div>
+            )}
+
+            {/* ADIM 4: İŞKUR İSTİHDAM PRİM İNDİRİMİ */}
+            {currentStepId === 4 && (
+              <div className="space-y-3.5">
+                <div className="flex items-start justify-between gap-3 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div className="space-y-0.5">
+                    <span className="px-2 py-0.5 rounded-md bg-purple-600 text-white text-[10.5px] font-bold">
+                      İŞKUR & SGK
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                      Yeni İstihdam Başına SGK İşveren Payı Prim Teşviki
+                    </h3>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-muted-foreground block">Personel Başı</span>
+                    <span className="text-lg font-black text-purple-700 dark:text-purple-400">
+                      ₺54.000
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/40 text-xs space-y-1.5">
+                  <span className="font-bold text-purple-900 dark:text-purple-300">
+                    5510 Sayılı Kanun & 6111 Sayılı Genç İstihdam Teşviki
+                  </span>
+                  <p className="text-[11.5px] text-slate-700 dark:text-zinc-300 leading-relaxed">
+                    İşletmenizde yeni işe alacağınız ve son 3 aydır İŞKUR'a kayıtlı işsiz statüsündeki personeller için 6 ila 24 ay boyunca asgari ücret üzerinden SGK işveren hissesi devlet tarafından karşılanır.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-xs space-y-1.5">
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    🧭 İŞKUR İstihdam Teşviki Başvuru Adımları:
+                  </span>
+                  <ul className="space-y-1 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-disc">
+                    <li>İşletme e-Bildirge portalı üzerinden "4447 Geçici 10. Madde Teşvik Tanımlama" ekranına girilir.</li>
+                    <li>İşe alınacak personelin T.C. kimlik numarası ile teşvik uygunluğu sorgulanır.</li>
+                    <li>Aylık SGK prim bildirgeleri verilirken teşvik kodu seçilerek otomatik prim indirimi uygulanır.</li>
+                  </ul>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200">
+                  <strong>💡 İstihdam Teşviki Püf Noktası:</strong> İşe alınan personelin kadın veya 18-29 yaş arası genç olması durumunda teşvik süresi 6 aydan 24 aya kadar uzatılmaktadır.
+                </div>
+              </div>
+            )}
+
+            {/* ADIM 5: BÖLGESEL YATIRIM & İHRACAT TEŞVİKLERİ */}
+            {currentStepId === 5 && (
+              <div className="space-y-3.5">
+                <div className="flex items-start justify-between gap-3 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  <div className="space-y-0.5">
+                    <span className="px-2 py-0.5 rounded-md bg-teal-600 text-white text-[10.5px] font-bold">
+                      Sanayi Bakanlığı & Ticaret Bakanlığı
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                      {selectedCity} {incentiveZone.zoneName} Teşvikleri
+                    </h3>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-muted-foreground block">Teşvik Bölgesi</span>
+                    <span className="text-lg font-black text-teal-700 dark:text-teal-400">
+                      {incentiveZone.zone}. Bölge
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">SGK İşveren Desteği</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {incentiveZone.sgkEmployerShareSupportYears} Yıl
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">Vergi İndirim Oranı</span>
+                    <span className="font-bold text-teal-600">{incentiveZone.taxReductionRate}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                    <span className="text-[10px] text-muted-foreground block">Faiz Desteği</span>
+                    <span className="font-bold text-indigo-600">{incentiveZone.interestSupportPoints} Puan</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/40 text-xs space-y-1">
+                  <span className="font-bold text-teal-900 dark:text-teal-300">
+                    Bölgesel Yatırım Teşvik Belgesi Avantajları:
+                  </span>
+                  <p className="text-[11.5px] text-slate-700 dark:text-zinc-300 leading-relaxed">
+                    {selectedCity} ilinde yapacağınız sabit yatırımlarda KDV istisnası, Gümrük Vergisi muafiyeti ve yatırım yeri tahsisi imkanlarından yararlanabilirsiniz.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-xs space-y-1.5">
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    🌐 E-İhracat ve Hizmet İhracatı Teşvikleri (HİB):
+                  </span>
+                  <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
+                    Yurtdışına yönelik dijital reklamlar, Google/Meta pazarlama harcamaları ve yabancı dilde hazırlanan web sitesi giderlerinin %60'ı Ticaret Bakanlığı tarafından geri ödemesiz karşılanır.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ORTA ALT ADIM GEZİNME BUTONLARI */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={currentStepId === 1}
+                onClick={() => setCurrentStepId((s) => Math.max(1, s - 1))}
+                className="h-8 text-xs font-bold gap-1 cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Önceki Aşama</span>
+              </Button>
+
+              {currentStepId < 5 ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setCurrentStepId((s) => Math.min(5, s + 1))}
+                  className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1 cursor-pointer"
+                >
+                  <span>Sonraki Teşvik Adımı</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setShowReportModal(true)}
+                  className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Tüm Teşvik Raporunu İndir</span>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* C. SAĞ SÜTUN: TOPLAM DEVLET DESTEĞİ & GİRİŞİMCİ FİLTRELERİ (col-span-3)   */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
+            <div className="space-y-3.5">
+              {/* 1. Toplam Potansiyel Devlet Desteği Kartı */}
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/40 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300">
+                    Toplam Devlet Desteği
+                  </span>
+                  <Landmark className="w-4 h-4 text-emerald-600" />
+                </div>
+
+                <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+                  {formatCurrency(totalCalculatedBenefits)}
+                </div>
+
+                <p className="text-[10px] text-muted-foreground leading-tight">
+                  Seçili profilinizle kazanılabilecek hibe, 3 yıllık vergi muafiyeti ve Bağ-Kur tasarruflarının canlı toplamıdır.
+                </p>
+              </div>
+
+              {/* 2. Girişimci Profil Filtreleri */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-2 text-xs">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Girişimci Profil Filtreleri
                 </span>
 
                 <div className="space-y-1.5">
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold cursor-pointer select-none">
+                  <label className="flex items-center gap-2 p-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700 text-xs font-bold cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={filters.isYoungEntrepreneur}
@@ -332,16 +885,16 @@ export function HomeGrantsIncentivesSection() {
                       className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
                     />
                     <div className="min-w-0">
-                      <span className="text-slate-900 dark:text-zinc-100 block truncate">
+                      <span className="text-slate-900 dark:text-zinc-100 block text-[11px] truncate">
                         18-29 Yaş (Genç Girişimci)
                       </span>
-                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold block">
-                        3 Yıl Vergi + 1 Yıl Bağ-Kur Muafiyeti
+                      <span className="text-[9.5px] text-emerald-700 dark:text-emerald-400 font-semibold block">
+                        3 Yıl Vergi + 1 Yıl Bağ-Kur
                       </span>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold cursor-pointer select-none">
+                  <label className="flex items-center gap-2 p-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700 text-xs font-bold cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={filters.isFemaleEntrepreneur}
@@ -354,16 +907,16 @@ export function HomeGrantsIncentivesSection() {
                       className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
                     />
                     <div className="min-w-0">
-                      <span className="text-slate-900 dark:text-zinc-100 block truncate">
+                      <span className="text-slate-900 dark:text-zinc-100 block text-[11px] truncate">
                         Kadın Girişimci
                       </span>
-                      <span className="text-[10px] text-pink-700 dark:text-pink-400 font-semibold block">
+                      <span className="text-[9.5px] text-pink-700 dark:text-pink-400 font-semibold block">
                         +20.000 TL Ek Hibe Desteği
                       </span>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold cursor-pointer select-none">
+                  <label className="flex items-center gap-2 p-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700 text-xs font-bold cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={filters.isPreEstablishment}
@@ -376,292 +929,33 @@ export function HomeGrantsIncentivesSection() {
                       className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
                     />
                     <div className="min-w-0">
-                      <span className="text-slate-900 dark:text-zinc-100 block truncate">
+                      <span className="text-slate-900 dark:text-zinc-100 block text-[11px] truncate">
                         Şirket Henüz Kurulmadı
                       </span>
-                      <span className="text-[10px] text-sky-700 dark:text-sky-400 font-semibold block">
-                        KOSGEB Ön Başvuru Avantajı
+                      <span className="text-[9.5px] text-sky-700 dark:text-sky-400 font-semibold block">
+                        Ön Başvuru Avantajı
                       </span>
                     </div>
                   </label>
                 </div>
               </div>
-            </div>
 
-            {/* Sol Alt NACE Özet Rozeti */}
-            <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-zinc-100">
-                <span>{currentProfile.emoji}</span>
-                <span className="truncate">{currentProfile.sectorName}</span>
-              </div>
-              <div className="text-[10.5px] font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
-                NACE: {currentProfile.naceCode}
-              </div>
-              <p className="text-[10.5px] text-muted-foreground line-clamp-2 leading-tight">
-                {currentProfile.naceDescription}
-              </p>
-            </div>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* B. ORTA SÜTUN: AKTİF HİBE & TEŞVİK KARTLARI (lg:col-span-6)               */}
-          {/* ========================================================================= */}
-          <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
-            <div className="space-y-3.5">
-              {/* Orta Üst Başlık & Kategori Filtreleri */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                      2026 Devlet Destekleri & Hibeleri
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
-                      {currentProfile.kosgebCategory}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-                    {currentProfile.sectorName} İçin Aktif Teşvik Paketleri
-                  </h3>
-                </div>
-
-                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
-                  {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
-                    (cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setSelectedCategoryGroup(cat)}
-                        className={cn(
-                          'px-2.5 py-1 rounded-xl font-bold whitespace-nowrap text-[11px] transition-colors cursor-pointer',
-                          selectedCategoryGroup === cat
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
-                        )}
-                      >
-                        {cat}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              {/* HİBE VE TEŞVİK KARTLARI LİSTESİ */}
-              <div className="space-y-3">
-                {/* 1. KOSGEB Girişimcilik Paketi Kartı */}
-                {currentProfile.availableGrants.map((grant) => (
-                  <div
-                    key={grant.id}
-                    className="p-4 rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/15 space-y-3 transition-all hover:border-emerald-500/50 shadow-xs"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-0.5 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10.5px] font-bold">
-                            {grant.provider}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-[10.5px] font-semibold">
-                            {grant.supportType}
-                          </span>
-                          <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                            {grant.coverageRatio}
-                          </span>
-                        </div>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100 pt-1">
-                          {grant.programName}
-                        </h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          {grant.summary}
-                        </p>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <span className="text-[10px] text-muted-foreground block">Azami Hibe</span>
-                        <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
-                          {formatCurrency(grant.maxAmount)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Butonlar */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-emerald-500/20 flex-wrap">
-                      <div className="flex items-center gap-1.5">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveGrantDetail(grant)}
-                          className="h-8 rounded-xl text-xs font-bold gap-1 cursor-pointer"
-                        >
-                          <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Şartları İncele</span>
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveBusinessPlanDoc(grant)}
-                          className="h-8 rounded-xl text-xs font-bold gap-1 cursor-pointer text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Örnek İş Planı</span>
-                        </Button>
-                      </div>
-
-                      <a
-                        href={grant.applicationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-xs"
-                      >
-                        <span>e-Devlet Başvuru Portalı</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </div>
-                ))}
-
-                {/* 2. Genç Girişimci Vergi & SGK Avantaj Kartı */}
-                {filters.isYoungEntrepreneur && (
-                  <div className="p-4 rounded-2xl border border-sky-500/30 bg-sky-50/20 dark:bg-sky-950/15 space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-sky-600 text-white text-[10.5px] font-bold">
-                            Gelir İdaresi (GİB) & SGK
-                          </span>
-                          <span className="text-[11px] font-bold text-sky-700 dark:text-sky-400">
-                            193 Sayılı GVK Mükerrer 20. Md
-                          </span>
-                        </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100">
-                          Genç Girişimci 3 Yıl Vergi İstisnası + 1 Yıl Bağ-Kur Desteği
-                        </h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          18-29 yaş arası ilk defa şahıs şirketi kuran girişimcilere 3 takvim yılı boyunca yıllık 330.000 TL kazanç istisnası ve 1 yıl (12 ay) 4/b Bağ-Kur prim muafiyeti sağlanır.
-                        </p>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <span className="text-[10px] text-muted-foreground block">Toplam Tasarruf</span>
-                        <span className="text-sm sm:text-base font-black text-sky-700 dark:text-sky-400">
-                          ~₺331.500
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. İŞKUR İstihdam & Prim İndirimi Kartı */}
-                <div className="p-4 rounded-2xl border border-purple-500/30 bg-purple-50/20 dark:bg-purple-950/15 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md bg-purple-600 text-white text-[10.5px] font-bold">
-                          İŞKUR & SGK
-                        </span>
-                        <span className="text-[11px] font-bold text-purple-700 dark:text-purple-400">
-                          5510 Sayılı Kanun Teşviki
-                        </span>
-                      </div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100">
-                        Yeni İstihdam Başına SGK İşveren Hissesi Prim Desteği
-                      </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        İşletmenizde istihdam edeceğiniz yeni personeller için 6 ay boyunca asgari ücret üzerinden SGK işveren prim payı devlet tarafından karşılanır.
-                      </p>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <span className="text-[10px] text-muted-foreground block">Personel Başı</span>
-                      <span className="text-sm sm:text-base font-black text-purple-700 dark:text-purple-400">
-                        ₺54.000
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Alt Bilgilendirme Çubuğu */}
-            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-base shrink-0">💡</span>
-                <span className="text-[11.5px] text-amber-950 dark:text-amber-200 font-medium truncate">
-                  KOSGEB desteklerinden yararlanmak için şirket kurulmadan önce online girişimcilik sertifikası alınması tavsiye edilir.
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* C. SAĞ SÜTUN: TOPLAM FİNANSAL KAZANÇ KARNESİ & AKSİYONLAR (lg:col-span-3) */}
-          {/* ========================================================================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
-            <div className="space-y-3.5">
-              {/* 1. Toplam Potansiyel Devlet Desteği Kartı */}
-              <div className="p-4 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/40 space-y-2">
+              {/* 3. Teşvik Uygunluk Karnesi */}
+              <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 space-y-1.5 text-[11px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300">
-                    Toplam Devlet Desteği
+                  <span className="text-muted-foreground">KOSGEB NACE:</span>
+                  <span className="font-bold text-emerald-600">✓ Destek Kapsamında</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Bölgesel Derece:</span>
+                  <span className="font-bold text-slate-800 dark:text-zinc-200">{incentiveZone.zone}. Bölge</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Genç Girişimci:</span>
+                  <span className="font-bold text-sky-600">
+                    {filters.isYoungEntrepreneur ? '%100 Aktif' : 'Pasif'}
                   </span>
-                  <Landmark className="w-4 h-4 text-emerald-600" />
                 </div>
-
-                <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
-                  {formatCurrency(totalCalculatedBenefits)}
-                </div>
-
-                <p className="text-[10.5px] text-muted-foreground leading-tight">
-                  Seçili profilinizle hak kazanabileceğiniz doğrudan hibe, 3 yıllık vergi muafiyeti ve SGK prim tasarruflarının canlı toplamıdır.
-                </p>
-              </div>
-
-              {/* 2. Teşvik Uygunluk Karnesi */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-2 text-xs">
-                <span className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground block">
-                  NACE & Teşvik Karnesi
-                </span>
-
-                <div className="space-y-1.5 font-medium text-[11px]">
-                  <div className="flex items-center justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
-                    <span className="text-muted-foreground">KOSGEB NACE Durumu:</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                      ✓ Destek Kapsamında
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
-                    <span className="text-muted-foreground">Bölgesel Teşvik:</span>
-                    <span className="font-bold text-slate-900 dark:text-zinc-100">
-                      {incentiveZone.zone}. Bölge ({selectedCity})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
-                    <span className="text-muted-foreground">Genç Girişimci Muafiyeti:</span>
-                    <span className="font-bold text-sky-600 dark:text-sky-400">
-                      {filters.isYoungEntrepreneur ? '✓ %100 Aktif' : 'Pasif'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-muted-foreground">Kadın Girişimci Ek Puanı:</span>
-                    <span className="font-bold text-pink-600 dark:text-pink-400">
-                      {filters.isFemaleEntrepreneur ? '+₺20.000 Hibe' : 'Seçilmedi'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. Bölgesel Vergi & Prim Avantajı */}
-              <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                  {selectedCity} Teşvik Özeti
-                </span>
-                <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-snug">
-                  {incentiveZone.description}
-                </p>
               </div>
             </div>
 
