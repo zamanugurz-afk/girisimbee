@@ -159,23 +159,36 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * marginRatio)));
   const dailyBreakEvenCount = template.breakEvenMetric?.targetUnitsPerDay || calculatedDailyUnits;
 
-  // 12. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI
+  // 12. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI (GÜNLÜK vs AYLIK ÜYELİK)
   const revModel = template.revenueModel || {
-    avgTicketPrice: 1000,
-    defaultDailyVolume: 10,
-    minDailyVolume: 1,
-    maxDailyVolume: 100,
+    periodType: 'daily',
+    volumeLabel: 'Günlük İşlem Hacmi',
     unitLabel: 'İşlem',
+    priceLabel: 'Birim Satış Tutarı',
+    defaultVolume: 10,
+    minVolume: 1,
+    maxVolume: 100,
+    stepVolume: 1,
+    avgTicketPrice: 1000,
     grossMarginPercent: 35,
     daysPerMonth: 26,
   };
 
-  const dailyVolume = customDailyVolume != null && customDailyVolume > 0 ? customDailyVolume : revModel.defaultDailyVolume;
+  const periodType = revModel.periodType || 'daily';
+  const currentVolume = customDailyVolume != null && customDailyVolume > 0 ? customDailyVolume : revModel.defaultVolume;
   const avgTicketPrice = customAvgTicketPrice != null && customAvgTicketPrice > 0 ? customAvgTicketPrice : revModel.avgTicketPrice;
-  const daysPerMonth = revModel.daysPerMonth || 26;
   const grossMarginPercent = revModel.grossMarginPercent || 35;
 
-  const monthlyVolume = Math.round(dailyVolume * daysPerMonth);
+  let monthlyVolume: number;
+  if (periodType === 'monthly') {
+    // Aylık Düzenli Üyelik / Mükellef / Proje Modeli (Örn: 55 Pilates Üyesi * 3.800 ₺)
+    monthlyVolume = currentVolume;
+  } else {
+    // Günlük Satış / Fiş / Reçete Modeli (Örn: 90 Günlük Kahve * 30 Gün * 220 ₺)
+    const daysPerMonth = revModel.daysPerMonth || 26;
+    monthlyVolume = Math.round(currentVolume * daysPerMonth);
+  }
+
   const monthlyGrossRevenue = Math.round(monthlyVolume * avgTicketPrice);
   const monthlyGrossProfit = Math.round(monthlyGrossRevenue * (grossMarginPercent / 100));
   const monthlyNetProfit = Math.round(monthlyGrossProfit - monthlyOperatingCost);
@@ -186,7 +199,11 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     : 0;
 
   const revenueProjection: RevenueProjectionResult = {
-    dailyVolume,
+    periodType,
+    volumeLabel: revModel.volumeLabel,
+    unitLabel: revModel.unitLabel,
+    priceLabel: revModel.priceLabel,
+    currentVolume,
     monthlyVolume,
     avgTicketPrice,
     grossMarginPercent,

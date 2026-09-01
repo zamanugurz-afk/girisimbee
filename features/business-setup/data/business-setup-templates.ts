@@ -54,12 +54,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Tanzim Edilen Poliçe Adedi', unitPrice: 3800, targetUnitsPerDay: 8, unitLabel: 'Poliçe / Gün' },
     revenueModel: {
-      avgTicketPrice: 3800, // Ortalama Poliçe Primi (Trafik, Kasko, DASK, Konut, Sağlık karma)
-      defaultDailyVolume: 8, // Günde 8 poliçe
-      minDailyVolume: 2,
-      maxDailyVolume: 35,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Tanzim Edilen Poliçe Hacmi',
       unitLabel: 'Poliçe',
-      grossMarginPercent: 11.5, // %11.5 Gerçekçi Sektörel Ağırlıklı Ortalama Brüt Komisyon
+      priceLabel: 'Ortalama Poliçe Primi',
+      defaultVolume: 8,
+      minVolume: 2,
+      maxVolume: 35,
+      stepVolume: 1,
+      avgTicketPrice: 3800,
+      grossMarginPercent: 11.5,
       daysPerMonth: 26,
       description: 'Trafik (%8-%10), Kasko (%13-%15), DASK (%12.5) ve Sağlık poliçelerinden oluşan ağırlıklı ortalama %11.5 acente komisyonu.'
     },
@@ -103,14 +107,17 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Aylık Kiralama & Satış İşlemi', unitPrice: 35000, targetUnitsPerDay: 0.25, unitLabel: 'İşlem / Ay' },
     revenueModel: {
-      avgTicketPrice: 35000, // Kiralama veya satış başına ortalama komisyon geliri
-      defaultDailyVolume: 0.25, // Ayda 6-7 işlem
-      minDailyVolume: 0.1,
-      maxDailyVolume: 1.5,
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Kiralama & Satış İşlem Sayısı',
       unitLabel: 'İşlem',
-      grossMarginPercent: 82, // Hizmet sektöründe brüt kar marjı
-      daysPerMonth: 26,
-      description: 'Konut ve ticari gayrimenkul kiralama ve satış aracılık hizmet bedeli.'
+      priceLabel: 'İşlem Başına Ortalama Hizmet Bedeli',
+      defaultVolume: 6,
+      minVolume: 1,
+      maxVolume: 20,
+      stepVolume: 1,
+      avgTicketPrice: 35000,
+      grossMarginPercent: 82,
+      description: 'Konut ve ticari gayrimenkul kiralama ve satış aracılık hizmet bedelleri.'
     },
     monthlyUtilitiesEstimate: 4800,
     monthlyAccountingFee: 3000,
@@ -150,13 +157,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Aylık Aktif Defter Mükellefi', unitPrice: 2400, targetUnitsPerDay: 1.5, unitLabel: 'Mükellef / Ay' },
     revenueModel: {
-      avgTicketPrice: 2400, // Mükellef başı aylık defter tutma bedeli
-      defaultDailyVolume: 2.3, // ~60 aktif mükellef
-      minDailyVolume: 0.5,
-      maxDailyVolume: 6.0,
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Aktif Defter Mükellefi Sayısı',
       unitLabel: 'Mükellef',
+      priceLabel: 'Mükellef Başına Aylık Muhasebe Ücreti',
+      defaultVolume: 60,
+      minVolume: 15,
+      maxVolume: 180,
+      stepVolume: 5,
+      avgTicketPrice: 2400,
       grossMarginPercent: 80,
-      daysPerMonth: 26,
       description: 'Aylık düzenli muhasebe, beyanname ve bordro danışmanlığı ücretleri.'
     },
     monthlyUtilitiesEstimate: 4500,
@@ -197,13 +207,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Aylık Alınan Dava / Danışmanlık Dosyası', unitPrice: 22000, targetUnitsPerDay: 0.3, unitLabel: 'Dava / Ay' },
     revenueModel: {
-      avgTicketPrice: 22000,
-      defaultDailyVolume: 0.38, // Ayda 10 dava / danışmanlık
-      minDailyVolume: 0.1,
-      maxDailyVolume: 1.5,
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Yeni Dava / Danışmanlık Dosyası',
       unitLabel: 'Dosya',
+      priceLabel: 'Dosya Başına Ortalama Vekalet Ücreti',
+      defaultVolume: 10,
+      minVolume: 2,
+      maxVolume: 35,
+      stepVolume: 1,
+      avgTicketPrice: 22000,
       grossMarginPercent: 82,
-      daysPerMonth: 26,
       description: 'Dava vekalet ücretleri, icra takipleri ve aylık kurumsal danışmanlık sözleşmeleri.'
     },
     monthlyUtilitiesEstimate: 4800,
@@ -240,13 +253,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Aylık Tamamlanan Proje / Sprint', unitPrice: 55000, targetUnitsPerDay: 0.15, unitLabel: 'Proje / Ay' },
     revenueModel: {
-      avgTicketPrice: 55000,
-      defaultDailyVolume: 0.2, // Ayda 5-6 proje
-      minDailyVolume: 0.05,
-      maxDailyVolume: 1.0,
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Tamamlanan Proje / Sözleşme',
       unitLabel: 'Proje',
+      priceLabel: 'Proje Başına Ortalama Hizmet Bedeli',
+      defaultVolume: 5,
+      minVolume: 1,
+      maxVolume: 20,
+      stepVolume: 1,
+      avgTicketPrice: 55000,
       grossMarginPercent: 70,
-      daysPerMonth: 26,
       description: 'Web/Mobil yazılım geliştirme, bulut altyapı ve aylık dijital pazarlama yönetim hizmetleri.'
     },
     monthlyUtilitiesEstimate: 6500,
@@ -293,12 +309,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Kahve & Tatlı Siparişi', unitPrice: 220, targetUnitsPerDay: 70, unitLabel: 'Sipariş / Gün' },
     revenueModel: {
-      avgTicketPrice: 220, // Ortalama adisyon tutarı (Kahve + Tatlı)
-      defaultDailyVolume: 90, // Günde 90 müşteri
-      minDailyVolume: 30,
-      maxDailyVolume: 300,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Kahve & Tatlı Müşterisi',
       unitLabel: 'Müşteri',
-      grossMarginPercent: 62, // %62 Gerçekçi Kahve & Yeme-İçme Brüt Marjı
+      priceLabel: 'Ortalama Kişi Başı Adisyon Tutarı',
+      defaultVolume: 90,
+      minVolume: 30,
+      maxVolume: 300,
+      stepVolume: 5,
+      avgTicketPrice: 220,
+      grossMarginPercent: 62,
       daysPerMonth: 30,
       description: 'Nitelikli kahve, soğuk içecekler, kruvasan ve taze pasta satışlarından oluşan ortalama sipariş.'
     },
@@ -344,12 +364,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Ana Yemek Porsiyonu', unitPrice: 380, targetUnitsPerDay: 60, unitLabel: 'Porsiyon / Gün' },
     revenueModel: {
-      avgTicketPrice: 380,
-      defaultDailyVolume: 85,
-      minDailyVolume: 25,
-      maxDailyVolume: 250,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Ana Yemek & Adisyon Sayısı',
       unitLabel: 'Müşteri',
-      grossMarginPercent: 50, // %50 Gerçekçi Restoran Gıda Marjı
+      priceLabel: 'Ortalama Kişi Başı Hesap Tutarı',
+      defaultVolume: 85,
+      minVolume: 25,
+      maxVolume: 250,
+      stepVolume: 5,
+      avgTicketPrice: 380,
+      grossMarginPercent: 50,
       daysPerMonth: 30,
       description: 'Öğle ve akşam servisi ana yemek, içecek ve meze siparişlerinin kişi başı ortalama tutarı.'
     },
@@ -373,7 +397,7 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     equipments: [
       { id: 'hood_system', name: 'Sulu Filtreli Davlumbaz & Çatı Tahliye Bacası', category: 'mandatory', unitCost: 65000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Sistem' },
       { id: 'doner_burner', name: '4 Radyanlı Motorlu Gazlı Döner Ocağı & Otomatik Bıçak/Robot', category: 'machinery', unitCost: 54000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
-      { id: 'fryer_toast', name: 'Sanayi Tipi Çiftli Fritöz & Döküm Tost Makinesi', category: 'machinery', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'fryer_toast', name: 'Sanayi Tipi Çiftli Fritöz & Döküm Tost Makinesi', category: 'machinery', unitCost: 26000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set' },
       { id: 'salad_bar', name: 'Soğutmalı Salata Barı ve Meze Tezgahı', category: 'appliances', unitCost: 36000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Adet' },
       { id: 'beverage_cooler', name: 'Dik Camlı Meşrubat & Ayran Soğutma Dolabı', category: 'appliances', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Adet' },
       { id: 'tables_set', name: 'Dönerci Masa & Sandalye Takımları (4 Kişilik)', category: 'furniture', unitCost: 8500, defaultQty: 8, minQty: 2, isLocked: false, unitLabel: 'Takım', scalesWithM2: true, m2Ratio: 10 },
@@ -390,12 +414,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Döner & Dürüm Porsiyonu', unitPrice: 260, targetUnitsPerDay: 75, unitLabel: 'Dürüm / Gün' },
     revenueModel: {
-      avgTicketPrice: 260,
-      defaultDailyVolume: 120,
-      minDailyVolume: 40,
-      maxDailyVolume: 350,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Döner & Dürüm Porsiyonu',
       unitLabel: 'Porsiyon',
-      grossMarginPercent: 48, // %48 Döner Fast-Food Brüt Marjı
+      priceLabel: 'Ortalama Dürüm / Menü Tutarı',
+      defaultVolume: 120,
+      minVolume: 40,
+      maxVolume: 350,
+      stepVolume: 10,
+      avgTicketPrice: 260,
+      grossMarginPercent: 48,
       daysPerMonth: 30,
       description: 'Et/Tavuk döner dürüm, porsiyon, patates ve içecekten oluşan hızlı tüketim siparişleri.'
     },
@@ -434,12 +462,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Porsiyon / Dürüm Satışı', unitPrice: 140, targetUnitsPerDay: 60, unitLabel: 'Dürüm / Gün' },
     revenueModel: {
-      avgTicketPrice: 140,
-      defaultDailyVolume: 95,
-      minDailyVolume: 30,
-      maxDailyVolume: 250,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Dürüm & Paket Siparişi',
       unitLabel: 'Sipariş',
-      grossMarginPercent: 48, // %48 Çiğköfte Perakende Brüt Marjı
+      priceLabel: 'Ortalama Dürüm / Sipariş Tutarı',
+      defaultVolume: 95,
+      minVolume: 30,
+      maxVolume: 250,
+      stepVolume: 5,
+      avgTicketPrice: 140,
+      grossMarginPercent: 48,
       daysPerMonth: 30,
       description: 'Dürüm ve kilo ile çiğköfte paket satışları.'
     },
@@ -479,12 +511,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Ekmek & Unlu Mamul Satışı', unitPrice: 65, targetUnitsPerDay: 380, unitLabel: 'Fiş / Gün' },
     revenueModel: {
-      avgTicketPrice: 65,
-      defaultDailyVolume: 420,
-      minDailyVolume: 150,
-      maxDailyVolume: 900,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Müşteri / Fiş Sayısı',
       unitLabel: 'Müşteri',
-      grossMarginPercent: 54, // %54 Unlu Mamul Brüt Marjı
+      priceLabel: 'Ortalama Müşteri Fiş Tutarı',
+      defaultVolume: 420,
+      minVolume: 150,
+      maxVolume: 900,
+      stepVolume: 20,
+      avgTicketPrice: 65,
+      grossMarginPercent: 54,
       daysPerMonth: 30,
       description: 'Ekmek, simit, poğaça, börek ve unlu mamul perakende tezgah satışları.'
     },
@@ -530,12 +566,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Reçete & OTC Satış Adedi', unitPrice: 420, targetUnitsPerDay: 75, unitLabel: 'Reçete / Gün' },
     revenueModel: {
-      avgTicketPrice: 420, // Reçete + OTC ortalama sepet
-      defaultDailyVolume: 90, // Günde 90 işlem
-      minDailyVolume: 35,
-      maxDailyVolume: 220,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Hasta & Reçete Sayısı',
       unitLabel: 'Hasta / Reçete',
-      grossMarginPercent: 24, // %24 İlaç Fiyat Kararnamesi kademeli eczacı brüt marjı
+      priceLabel: 'Reçete & OTC Ortalama Sepet Tutarı',
+      defaultVolume: 90,
+      minVolume: 35,
+      maxVolume: 220,
+      stepVolume: 5,
+      avgTicketPrice: 420,
+      grossMarginPercent: 24,
       daysPerMonth: 26,
       description: 'SGK reçeteli ilaçlar, OTC gıda takviyeleri, dermokozmetik ve medikal ürün satışları.'
     },
@@ -577,12 +617,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Hizmet Verilen Müşteri', unitPrice: 950, targetUnitsPerDay: 12, unitLabel: 'Müşteri / Gün' },
     revenueModel: {
-      avgTicketPrice: 950,
-      defaultDailyVolume: 16,
-      minDailyVolume: 5,
-      maxDailyVolume: 40,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Hizmet Verilen Müşteri Sayısı',
       unitLabel: 'Müşteri',
-      grossMarginPercent: 68, // %68 Hizmet & Kozmetik Brüt Marjı
+      priceLabel: 'Müşteri Başına Ortalama Hizmet Tutarı',
+      defaultVolume: 16,
+      minVolume: 5,
+      maxVolume: 40,
+      stepVolume: 1,
+      avgTicketPrice: 950,
+      grossMarginPercent: 68,
       daysPerMonth: 26,
       description: 'Saç kesim, renklendirme, ombre, keratin bakım, manikür/pedikür ve cilt bakımı seansları.'
     },
@@ -622,11 +666,15 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Tedavi & Dolgu / Bakım Sayısı', unitPrice: 2200, targetUnitsPerDay: 4, unitLabel: 'Hasta / Gün' },
     revenueModel: {
-      avgTicketPrice: 2200,
-      defaultDailyVolume: 6,
-      minDailyVolume: 2,
-      maxDailyVolume: 16,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Tedavi Gören Hasta Sayısı',
       unitLabel: 'Hasta',
+      priceLabel: 'Hasta Başına Ortalama Tedavi Tutarı',
+      defaultVolume: 6,
+      minVolume: 2,
+      maxVolume: 16,
+      stepVolume: 1,
+      avgTicketPrice: 2200,
       grossMarginPercent: 62,
       daysPerMonth: 26,
       description: 'Dolgu, kanal tedavisi, diş temizliği, protez ve estetik diş hekimliği uygulamaları.'
@@ -665,11 +713,15 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Gözlük & Cam Satış Adedi', unitPrice: 2400, targetUnitsPerDay: 3, unitLabel: 'Gözlük / Gün' },
     revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Gözlük & Cam Satış Adedi',
+      unitLabel: 'Gözlük',
+      priceLabel: 'Ortalama Gözlük / Çerçeve Tutarı',
+      defaultVolume: 5,
+      minVolume: 1,
+      maxVolume: 15,
+      stepVolume: 1,
       avgTicketPrice: 2400,
-      defaultDailyVolume: 5,
-      minDailyVolume: 1,
-      maxDailyVolume: 15,
-      unitLabel: 'Müşteri',
       grossMarginPercent: 48,
       daysPerMonth: 26,
       description: 'Reçeteli optik cam/çerçeve, güneş gözlüğü ve kontak lens paket satışları.'
@@ -707,13 +759,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Aylık Aktif Paket Alan Üye Sayısı', unitPrice: 3800, targetUnitsPerDay: 1.2, unitLabel: 'Üye / Ay' },
     revenueModel: {
-      avgTicketPrice: 3800, // 8 Seanslık Aylık Reformer Paketi
-      defaultDailyVolume: 2.2, // ~55 aktif paket
-      minDailyVolume: 0.5,
-      maxDailyVolume: 6.0,
-      unitLabel: 'Üye Paketi',
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Düzenli Aktif Üye / Paket Sayısı',
+      unitLabel: 'Üye',
+      priceLabel: 'Aylık Reformer / Yoga Paket Ücreti',
+      defaultVolume: 55,
+      minVolume: 15,
+      maxVolume: 150,
+      stepVolume: 5,
+      avgTicketPrice: 3800,
       grossMarginPercent: 78,
-      daysPerMonth: 26,
       description: 'Birebir PT dersleri, düet reformer seansları ve aylık mat yoga üyelikleri.'
     },
     monthlyUtilitiesEstimate: 5500,
@@ -751,12 +806,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Market Kasa Fiş Sayısı', unitPrice: 190, targetUnitsPerDay: 95, unitLabel: 'Fiş / Gün' },
     revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Kasa Fiş Sayısı',
+      unitLabel: 'Kasa Fişi',
+      priceLabel: 'Ortalama Market Sepet Tutarı',
+      defaultVolume: 160,
+      minVolume: 50,
+      maxVolume: 400,
+      stepVolume: 10,
       avgTicketPrice: 190,
-      defaultDailyVolume: 160,
-      minDailyVolume: 50,
-      maxDailyVolume: 400,
-      unitLabel: 'Müşteri / Fiş',
-      grossMarginPercent: 19, // %19 Hızlı Tüketim & Tekel Ortalama Brüt Marjı
+      grossMarginPercent: 19,
       daysPerMonth: 30,
       description: 'Gıda, şarküteri, temizlik ve günlük temel tüketim ürünleri kasa satışları.'
     },
@@ -794,12 +853,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Parça Kıyafet Satışı', unitPrice: 850, targetUnitsPerDay: 10, unitLabel: 'Parça / Gün' },
     revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Satılan Kıyafet / Parça Sayısı',
+      unitLabel: 'Parça',
+      priceLabel: 'Parça Başına Ortalama Satış Tutarı',
+      defaultVolume: 18,
+      minVolume: 5,
+      maxVolume: 50,
+      stepVolume: 1,
       avgTicketPrice: 850,
-      defaultDailyVolume: 18,
-      minDailyVolume: 5,
-      maxDailyVolume: 50,
-      unitLabel: 'Müşteri',
-      grossMarginPercent: 46, // %46 Hazır Giyim Brüt Marjı
+      grossMarginPercent: 46,
       daysPerMonth: 26,
       description: 'Kadın/Erkek hazır giyim, ceket, elbise ve tamamlayıcı aksesuar satışları.'
     },
@@ -835,12 +898,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Mama & Aksesuar Sepeti', unitPrice: 520, targetUnitsPerDay: 20, unitLabel: 'Sepet / Gün' },
     revenueModel: {
-      avgTicketPrice: 520,
-      defaultDailyVolume: 30,
-      minDailyVolume: 10,
-      maxDailyVolume: 80,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Mama & Aksesuar Müşterisi',
       unitLabel: 'Sepet',
-      grossMarginPercent: 30, // %30 Petshop Mama & Aksesuar Brüt Marjı
+      priceLabel: 'Ortalama Müşteri Sepet Tutarı',
+      defaultVolume: 30,
+      minVolume: 10,
+      maxVolume: 80,
+      stepVolume: 2,
+      avgTicketPrice: 520,
+      grossMarginPercent: 30,
       daysPerMonth: 26,
       description: 'Süper premium kedi/köpek maması, bentonit kum, tasma ve kemirgen/kuş yemleri.'
     },
@@ -876,12 +943,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Kasa Fiş & Fotokopi İşlemi', unitPrice: 120, targetUnitsPerDay: 85, unitLabel: 'Fiş / Gün' },
     revenueModel: {
-      avgTicketPrice: 120,
-      defaultDailyVolume: 110,
-      minDailyVolume: 35,
-      maxDailyVolume: 280,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Kırtasiye & Baskı Müşterisi',
       unitLabel: 'Müşteri',
-      grossMarginPercent: 44, // %44 Kırtasiye & Baskı Brüt Marjı
+      priceLabel: 'Ortalama Müşteri Fiş Tutarı',
+      defaultVolume: 110,
+      minVolume: 35,
+      maxVolume: 280,
+      stepVolume: 5,
+      avgTicketPrice: 120,
+      grossMarginPercent: 44,
       daysPerMonth: 26,
       description: 'Okul ve ofis kırtasiyesi, test kitapları, dijital baskı, çıktı ve laminasyon hizmetleri.'
     },
@@ -917,12 +988,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Buket & Çiçek Siparişi', unitPrice: 480, targetUnitsPerDay: 15, unitLabel: 'Sipariş / Gün' },
     revenueModel: {
-      avgTicketPrice: 480,
-      defaultDailyVolume: 22,
-      minDailyVolume: 6,
-      maxDailyVolume: 65,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Buket & Çiçek Siparişi',
       unitLabel: 'Sipariş',
-      grossMarginPercent: 52, // %52 Çiçek & Tasarım Brüt Marjı
+      priceLabel: 'Buket Başına Ortalama Sipariş Tutarı',
+      defaultVolume: 22,
+      minVolume: 6,
+      maxVolume: 65,
+      stepVolume: 1,
+      avgTicketPrice: 480,
+      grossMarginPercent: 52,
       daysPerMonth: 26,
       description: 'Özel gün buketleri, saksı çiçekleri, çelenk ve kurumsal mekan süsleme siparişleri.'
     },
@@ -958,12 +1033,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Tamir & Aksesuar Satışı', unitPrice: 420, targetUnitsPerDay: 18, unitLabel: 'İşlem / Gün' },
     revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Tamir & Aksesuar Satışı',
+      unitLabel: 'İşlem',
+      priceLabel: 'İşlem Başına Ortalama Tutar',
+      defaultVolume: 24,
+      minVolume: 8,
+      maxVolume: 60,
+      stepVolume: 1,
       avgTicketPrice: 420,
-      defaultDailyVolume: 24,
-      minDailyVolume: 8,
-      maxDailyVolume: 60,
-      unitLabel: 'Müşteri',
-      grossMarginPercent: 58, // %58 Teknik Servis & Aksesuar Brüt Marjı
+      grossMarginPercent: 58,
       daysPerMonth: 26,
       description: 'Ekran/batarya değişimi, soket tamiri, kılıf, şarj aleti ve koruyucu cam uygulamaları.'
     },
@@ -1003,12 +1082,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Ekspertiz Yapılan Araç Sayısı', unitPrice: 3400, targetUnitsPerDay: 5, unitLabel: 'Araç / Gün' },
     revenueModel: {
-      avgTicketPrice: 3400,
-      defaultDailyVolume: 8,
-      minDailyVolume: 2,
-      maxDailyVolume: 25,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Ekspertiz Yapılan Araç Sayısı',
       unitLabel: 'Araç',
-      grossMarginPercent: 72, // %72 Ekspertiz Hizmet Brüt Marjı
+      priceLabel: 'Araç Başına Full Paket Ekspertiz Bedeli',
+      defaultVolume: 8,
+      minVolume: 2,
+      maxVolume: 25,
+      stepVolume: 1,
+      avgTicketPrice: 3400,
+      grossMarginPercent: 72,
       daysPerMonth: 26,
       description: 'Full paket ekspertiz (Motor, mekanik, kaporta-boya, fren, süspansiyon ve diagnostik).'
     },
@@ -1047,12 +1130,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Yıkanan & Detailing Yapılan Araç', unitPrice: 450, targetUnitsPerDay: 22, unitLabel: 'Araç / Gün' },
     revenueModel: {
-      avgTicketPrice: 450,
-      defaultDailyVolume: 32,
-      minDailyVolume: 10,
-      maxDailyVolume: 75,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Yıkanan Araç Sayısı',
       unitLabel: 'Araç',
-      grossMarginPercent: 65, // %65 Oto Kuaför & Yıkama Brüt Marjı
+      priceLabel: 'Araç Başına Ortalama Yıkama/Kuaför Tutarı',
+      defaultVolume: 32,
+      minVolume: 10,
+      maxVolume: 75,
+      stepVolume: 2,
+      avgTicketPrice: 450,
+      grossMarginPercent: 65,
       daysPerMonth: 30,
       description: 'İç-dış yıkama, motor temizliği, hızlı cila ve detaylı kuaför/pasta-cila uygulamaları.'
     },
@@ -1089,12 +1176,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Lastik Değişim / Tamir Sayısı', unitPrice: 650, targetUnitsPerDay: 12, unitLabel: 'İşlem / Gün' },
     revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Lastik & Servis İşlemi',
+      unitLabel: 'Araç',
+      priceLabel: 'Araç Başına Ortalama Servis Tutarı',
+      defaultVolume: 18,
+      minVolume: 5,
+      maxVolume: 50,
+      stepVolume: 1,
       avgTicketPrice: 650,
-      defaultDailyVolume: 18,
-      minDailyVolume: 5,
-      maxDailyVolume: 50,
-      unitLabel: 'Araç / İşlem',
-      grossMarginPercent: 42, // %42 Lastik Satış & İşçilik Brüt Marjı
+      grossMarginPercent: 42,
       daysPerMonth: 26,
       description: 'Lastik sökme-takma, rot-balans ayarı, lastik oteli saklama ve sıfır/ikinci el lastik satışları.'
     },
@@ -1131,12 +1222,16 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     ],
     breakEvenMetric: { label: 'Günlük Kuru Temizleme Parça Sayısı', unitPrice: 260, targetUnitsPerDay: 30, unitLabel: 'Parça / Gün' },
     revenueModel: {
-      avgTicketPrice: 260,
-      defaultDailyVolume: 45,
-      minDailyVolume: 15,
-      maxDailyVolume: 120,
+      periodType: 'daily',
+      volumeLabel: 'Günlük Kuru Temizleme Parça Sayısı',
       unitLabel: 'Parça',
-      grossMarginPercent: 60, // %60 Kuru Temizleme Brüt Marjı
+      priceLabel: 'Parça Başına Ortalama Temizleme Ücreti',
+      defaultVolume: 45,
+      minVolume: 15,
+      maxVolume: 120,
+      stepVolume: 5,
+      avgTicketPrice: 260,
+      grossMarginPercent: 60,
       daysPerMonth: 26,
       description: 'Takım elbise, kaban, gelinlik, perde, ütü ve lostra hizmetleri.'
     },

@@ -7,6 +7,8 @@ export type SetupEquipmentCategory =
   | 'safety'
   | 'comfort';
 
+export type RevenuePeriodType = 'daily' | 'monthly';
+
 export interface SetupEquipment {
   id: string;
   name: string;
@@ -47,13 +49,17 @@ export interface SetupSoftwareLicense {
 }
 
 export interface SetupRevenueModel {
-  avgTicketPrice: number; // Ortalama sepet / işlem tutarı (₺)
-  defaultDailyVolume: number; // Önerilen günlük müşteri / işlem sayısı
-  minDailyVolume: number;
-  maxDailyVolume: number;
-  unitLabel: string; // 'Müşteri', 'Poliçe', 'Reçete', 'Araç', 'Dosya' vb.
-  grossMarginPercent: number; // Brüt Kar Marjı (%): Örn: %65 kafe, %25 eczane, %80 müşavirlik
-  daysPerMonth: number; // 26 veya 30 gün
+  periodType: RevenuePeriodType; // 'daily' (günlük fiş/müşteri) veya 'monthly' (aylık üye/mükellef/proje)
+  volumeLabel: string; // 'Aylık Aktif Üye Sayısı', 'Günlük Müşteri Sayısı', 'Aylık Mükellef Portföyü' vb.
+  unitLabel: string; // 'Üye', 'Müşteri', 'Mükellef', 'Poliçe', 'Proje', 'İşlem', 'Reçete', 'Araç' vb.
+  priceLabel: string; // 'Aylık Üyelik Paket Ücreti', 'Ortalama Müşteri Sepeti', 'Mükellef Başı Aylık Ücret' vb.
+  defaultVolume: number; // Önerilen başlangıç hacmi
+  minVolume: number;
+  maxVolume: number;
+  stepVolume?: number;
+  avgTicketPrice: number; // Ortalama birim tutar (₺)
+  grossMarginPercent: number; // Brüt Kar Marjı (%): Örn: %62 kafe, %24 eczane, %80 müşavirlik, %11.5 sigorta
+  daysPerMonth?: number; // Günlük modeller için 26 veya 30 gün
   description?: string;
 }
 
@@ -94,8 +100,12 @@ export interface StaffCostDetail {
 }
 
 export interface RevenueProjectionResult {
-  dailyVolume: number;
-  monthlyVolume: number;
+  periodType: RevenuePeriodType;
+  volumeLabel: string;
+  unitLabel: string;
+  priceLabel: string;
+  currentVolume: number; // Günlük işlem adedi veya Aylık üye/mükellef sayısı
+  monthlyVolume: number; // Aylık toplam adet
   avgTicketPrice: number;
   grossMarginPercent: number;
   monthlyGrossRevenue: number;

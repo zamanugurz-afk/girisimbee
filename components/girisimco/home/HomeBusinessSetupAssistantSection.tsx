@@ -1221,7 +1221,7 @@ export function HomeBusinessSetupAssistantSection() {
               )}
 
               {/* --------------------------------------------------------------- */}
-              {/* ADIM 7 (YENİ!): GELİR & CİRO MODELİ & AMORTİSMAN SİMÜLASYONU   */}
+              {/* ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SİMÜLASYONU            */}
               {/* --------------------------------------------------------------- */}
               {activeStep === 7 && (
                 <div className="space-y-3">
@@ -1235,7 +1235,7 @@ export function HomeBusinessSetupAssistantSection() {
                           <span>{activeTemplate.name} — Gelir Modeli Simülatörü</span>
                         </h4>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {activeTemplate.revenueModel?.description || 'Günlük müşteri trafiği ve ortalama sepet tutarı.'}
+                          {activeTemplate.revenueModel?.description || 'Hacim, fiyat ve kâr marjı simülasyonu.'}
                         </p>
                       </div>
 
@@ -1244,32 +1244,32 @@ export function HomeBusinessSetupAssistantSection() {
                       </span>
                     </div>
 
-                    {/* 1. Günlük Müşteri / İşlem Slider'ı */}
+                    {/* 1. Hacim / Üye / Müşteri Slider'ı */}
                     <div className="space-y-1.5 pt-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-slate-800 dark:text-zinc-200">
-                          Günlük Hedeflenen {activeTemplate.revenueModel?.unitLabel || 'İşlem'} Hacmi:
+                          {activeTemplate.revenueModel?.volumeLabel || 'Hedeflenen İşlem Hacmi'}:
                         </span>
                         <span className="font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                          {calculationResult.revenueProjection.dailyVolume} {activeTemplate.revenueModel?.unitLabel || 'İşlem'} / Gün
+                          {calculationResult.revenueProjection.currentVolume} {activeTemplate.revenueModel?.unitLabel || 'Adet'} {activeTemplate.revenueModel?.periodType === 'monthly' ? '/ Ay' : '/ Gün'}
                         </span>
                       </div>
 
                       <input
                         type="range"
-                        min={activeTemplate.revenueModel?.minDailyVolume || 1}
-                        max={activeTemplate.revenueModel?.maxDailyVolume || 100}
-                        step={activeTemplate.revenueModel?.maxDailyVolume && activeTemplate.revenueModel.maxDailyVolume > 50 ? 2 : 1}
-                        value={calculationResult.revenueProjection.dailyVolume}
+                        min={activeTemplate.revenueModel?.minVolume || 1}
+                        max={activeTemplate.revenueModel?.maxVolume || 100}
+                        step={activeTemplate.revenueModel?.stepVolume || 1}
+                        value={calculationResult.revenueProjection.currentVolume}
                         onChange={(e) => setCustomDailyVolume(Number(e.target.value))}
                         className="w-full h-2 bg-emerald-200 dark:bg-emerald-950 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                       />
                     </div>
 
-                    {/* 2. Ortalama Sepet / İşlem Tutarı */}
+                    {/* 2. Ortalama Ücret / Sepet Tutarı */}
                     <div className="flex items-center justify-between pt-1 border-t border-emerald-200/50 dark:border-emerald-900/40 text-xs">
                       <span className="font-bold text-slate-800 dark:text-zinc-200">
-                        Ortalama {activeTemplate.revenueModel?.unitLabel || 'Müşteri'} Sepeti:
+                        {activeTemplate.revenueModel?.priceLabel || 'Ortalama Birim Tutar'}:
                       </span>
                       <div className="flex items-center gap-1.5">
                         <input
@@ -1280,6 +1280,25 @@ export function HomeBusinessSetupAssistantSection() {
                         />
                         <span className="font-bold text-muted-foreground">₺</span>
                       </div>
+                    </div>
+
+                    {/* 3. Hesaplama Formülü İpucu Rozeti */}
+                    <div className="pt-2 border-t border-emerald-200/50 dark:border-emerald-900/40 flex items-center justify-between text-[11px] text-emerald-900 dark:text-emerald-300 font-medium">
+                      <span className="flex items-center gap-1">
+                        💡 <strong className="font-bold">Hesaplama:</strong>
+                        {activeTemplate.revenueModel?.periodType === 'monthly' ? (
+                          <span>
+                            {calculationResult.revenueProjection.currentVolume} Aktif {activeTemplate.revenueModel.unitLabel} × {formatCurrency(calculationResult.revenueProjection.avgTicketPrice)}
+                          </span>
+                        ) : (
+                          <span>
+                            {calculationResult.revenueProjection.currentVolume} {activeTemplate.revenueModel?.unitLabel || 'Müşteri'}/Gün × {activeTemplate.revenueModel?.daysPerMonth || 26} Gün × {formatCurrency(calculationResult.revenueProjection.avgTicketPrice)}
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-black text-emerald-800 dark:text-emerald-200">
+                        = {formatCurrency(calculationResult.revenueProjection.monthlyGrossRevenue)} Ciro / Ay
+                      </span>
                     </div>
                   </div>
 
@@ -1645,11 +1664,17 @@ export function HomeBusinessSetupAssistantSection() {
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                   <div>
-                    <span className="text-muted-foreground block text-[10.5px]">Günlük İşlem:</span>
-                    <span className="font-bold">{calculationResult.revenueProjection.dailyVolume} {activeTemplate.revenueModel?.unitLabel}</span>
+                    <span className="text-muted-foreground block text-[10.5px]">
+                      {activeTemplate.revenueModel?.periodType === 'monthly' ? 'Aylık Portföy:' : 'Günlük Hacim:'}
+                    </span>
+                    <span className="font-bold">
+                      {calculationResult.revenueProjection.currentVolume} {activeTemplate.revenueModel?.unitLabel}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10.5px]">Ort. Sepet:</span>
+                    <span className="text-muted-foreground block text-[10.5px]">
+                      {activeTemplate.revenueModel?.periodType === 'monthly' ? 'Aylık Ücret:' : 'Ort. Sepet:'}
+                    </span>
                     <span className="font-bold">{formatCurrency(calculationResult.revenueProjection.avgTicketPrice)}</span>
                   </div>
                   <div>
