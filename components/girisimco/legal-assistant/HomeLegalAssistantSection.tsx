@@ -461,7 +461,7 @@ export function HomeLegalAssistantSection() {
                   </div>
 
                   {/* Kategori Filtre Hapları */}
-                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none text-xs">
                     {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
                       (cat) => (
                         <button
@@ -511,7 +511,7 @@ export function HomeLegalAssistantSection() {
                         key={sector.sectorId}
                         onClick={() => setSelectedSectorId(sector.sectorId)}
                         className={cn(
-                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
+                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative h-[128px]',
                           isSelected
                             ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20 shadow-md ring-2 ring-indigo-500/20'
                             : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
@@ -736,39 +736,57 @@ export function HomeLegalAssistantSection() {
               </div>
             )}
 
-            {/* Orta Panel Alt Gezinme & Tebrikler Durumu */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-zinc-800">
+            {/* Alt Adım Değiştirme ve İlerleme Çubuğu */}
+            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-3">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 disabled={activeStep === 1}
                 onClick={() => setActiveStep((prev) => Math.max(1, prev - 1))}
-                className="h-9 rounded-xl text-xs font-bold"
+                className="h-8 px-3 rounded-xl text-xs font-semibold cursor-pointer"
               >
-                ← Önceki Aşama
+                Önceki Adım
               </Button>
+
+              <div className="flex items-center gap-1">
+                {LEGAL_STEPS.map((step) => (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => setActiveStep(step.id)}
+                    className={cn(
+                      'h-1.5 rounded-full transition-all cursor-pointer',
+                      activeStep === step.id
+                        ? 'w-6 bg-indigo-600'
+                        : activeStep > step.id
+                          ? 'w-3 bg-indigo-400'
+                          : 'w-1.5 bg-slate-200 dark:bg-zinc-700'
+                    )}
+                    aria-label={`Aşama ${step.id}`}
+                  />
+                ))}
+              </div>
 
               {activeStep === 6 ? (
                 <Button
                   type="button"
                   size="sm"
                   onClick={() => setShowRoadmapPrintModal(true)}
-                  className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="h-8 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Tüm Başvuru Raporunu PDF İndir</span>
+                  <span>Raporu PDF İndir</span>
                 </Button>
               ) : (
                 <Button
                   type="button"
                   size="sm"
                   onClick={() => setActiveStep((prev) => Math.min(6, prev + 1))}
-                  className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs"
+                  className="h-8 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs gap-1 cursor-pointer"
                 >
-                  {activeStep === 1
-                    ? '2. Aşama: Şirket & MERSİS Adımına Geç →'
-                    : `Sonraki Aşama (${LEGAL_STEPS[activeStep]?.title || 'Ruhsat'}) →`}
+                  <span>{LEGAL_STEPS[activeStep]?.title || 'Sonraki'} Adımına Geç</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>

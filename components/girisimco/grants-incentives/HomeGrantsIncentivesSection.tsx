@@ -18,6 +18,7 @@ import {
   Landmark,
   ChevronRight,
   ChevronLeft,
+  ArrowRight,
   ShieldCheck,
   Award,
   Sparkles,
@@ -400,7 +401,7 @@ export function HomeGrantsIncentivesSection() {
                   </div>
 
                   {/* Kategori Filtre Hapları */}
-                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none text-xs">
                     {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
                       (cat) => (
                         <button
@@ -453,7 +454,7 @@ export function HomeGrantsIncentivesSection() {
                         key={sec.sectorId}
                         onClick={() => setSelectedSectorId(sec.sectorId)}
                         className={cn(
-                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
+                          'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative h-[128px]',
                           isSelected
                             ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/20'
                             : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
@@ -817,38 +818,57 @@ export function HomeGrantsIncentivesSection() {
             )}
 
             {/* ORTA ALT ADIM GEZİNME BUTONLARI */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800">
+            {/* Alt Adım Değiştirme ve İlerleme Çubuğu */}
+            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-3">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 disabled={currentStepId === 1}
                 onClick={() => setCurrentStepId((s) => Math.max(1, s - 1))}
-                className="h-8 text-xs font-bold gap-1 cursor-pointer"
+                className="h-8 px-3 rounded-xl text-xs font-semibold cursor-pointer"
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Önceki Aşama</span>
+                Önceki Adım
               </Button>
+
+              <div className="flex items-center gap-1">
+                {GRANT_STEPS.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setCurrentStepId(s.id)}
+                    className={cn(
+                      'h-1.5 rounded-full transition-all cursor-pointer',
+                      currentStepId === s.id
+                        ? 'w-6 bg-emerald-600'
+                        : currentStepId > s.id
+                          ? 'w-3 bg-emerald-400'
+                          : 'w-1.5 bg-slate-200 dark:bg-zinc-700',
+                    )}
+                    aria-label={`Adım ${s.id}`}
+                  />
+                ))}
+              </div>
 
               {currentStepId < 5 ? (
                 <Button
                   type="button"
                   size="sm"
                   onClick={() => setCurrentStepId((s) => Math.min(5, s + 1))}
-                  className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1 cursor-pointer"
+                  className="h-8 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs gap-1 cursor-pointer"
                 >
-                  <span>Sonraki Teşvik Adımı</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <span>{GRANT_STEPS[currentStepId]?.title || 'Sonraki'} Adımına Geç</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               ) : (
                 <Button
                   type="button"
                   size="sm"
                   onClick={() => setShowReportModal(true)}
-                  className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1 cursor-pointer"
+                  className="h-8 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Tüm Teşvik Raporunu İndir</span>
+                  <span>Teşvik Dosyasını İndir</span>
                 </Button>
               )}
             </div>

@@ -548,7 +548,7 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
 
                     {/* Kategori Filtre Hapları */}
-                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs">
+                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none text-xs">
                       {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
                         (grp) => (
                           <button
@@ -598,7 +598,7 @@ export function HomeBusinessSetupAssistantSection() {
                           key={tpl.id}
                           onClick={() => setSelectedSectorId(tpl.id)}
                           className={cn(
-                            'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative',
+                            'p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-2 select-none relative h-[128px]',
                             isSelected
                               ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20 shadow-md ring-2 ring-amber-500/20'
                               : 'border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-slate-300 dark:hover:border-zinc-700',
@@ -1460,7 +1460,18 @@ export function HomeBusinessSetupAssistantSection() {
           )}
 
             {/* 3. Alt Bar: İlerleme Çubuğu & Buton Grubu */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800">
+            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={activeStep === 1}
+                onClick={() => setActiveStep((prev) => Math.max(1, prev - 1))}
+                className="h-8 px-3 rounded-xl text-xs font-semibold cursor-pointer"
+              >
+                Önceki Adım
+              </Button>
+
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                   <button
@@ -1468,53 +1479,39 @@ export function HomeBusinessSetupAssistantSection() {
                     type="button"
                     onClick={() => setActiveStep(i)}
                     className={cn(
-                      'h-2 rounded-full transition-all',
+                      'h-1.5 rounded-full transition-all cursor-pointer',
                       activeStep === i
                         ? 'w-6 bg-amber-500'
                         : activeStep > i
                         ? 'w-3 bg-emerald-500'
-                        : 'w-2 bg-slate-200 dark:bg-zinc-700'
+                        : 'w-1.5 bg-slate-200 dark:bg-zinc-700'
                     )}
                     aria-label={`Adım ${i}`}
                   />
                 ))}
               </div>
 
-              <div className="flex items-center gap-2">
-                {activeStep > 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveStep((prev) => prev - 1)}
-                    className="h-8 px-2.5 rounded-xl text-xs font-semibold"
-                  >
-                    Önceki Adım
-                  </Button>
-                )}
-
-                {activeStep < 7 ? (
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setActiveStep((prev) => prev + 1)}
-                    className="h-8 px-3.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs gap-1"
-                  >
-                    <span>{STEPS[activeStep]?.label} Adımına Geç</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setIsPdfModalOpen(true)}
-                    className="h-8 px-3.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs gap-1"
-                  >
-                    <FileDown className="w-3.5 h-3.5" />
-                    <span>Planı PDF İndir</span>
-                  </Button>
-                )}
-              </div>
+              {activeStep < 7 ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setActiveStep((prev) => Math.min(7, prev + 1))}
+                  className="h-8 px-4 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs gap-1 cursor-pointer"
+                >
+                  <span>{STEPS[activeStep]?.label || 'Sonraki'} Adımına Geç</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setIsPdfModalOpen(true)}
+                  className="h-8 px-4 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs gap-1 cursor-pointer"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  <span>Planı PDF İndir</span>
+                </Button>
+              )}
             </div>
 
           </div>
