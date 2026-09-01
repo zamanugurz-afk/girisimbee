@@ -68,26 +68,25 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
   return (
     <div id="cockpit-container" className="relative w-full">
       {/* ========================================================================= */}
-      {/* 1. ÜST SEGMENTED SEKME ÇUBUĞU (4'LÜ MODERN PILL SWITCHER)                  */}
+      {/* 1. ÜST SEGMENTED SEKME ÇUBUĞU (4'LÜ TAM GENİŞLİK YAN YANA DÜZEN)           */}
       {/* ========================================================================= */}
-      <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 pt-4 pb-2">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-zinc-800 pb-3">
-          {/* Sol 4'lü Sekme Anahtarı */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/90 border border-slate-200/90 dark:border-zinc-700/80 shadow-xs backdrop-blur-md overflow-x-auto max-w-full no-scrollbar">
+      <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 pt-4 pb-2 space-y-2.5">
+        <div className="w-full p-1.5 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/90 border border-slate-200/90 dark:border-zinc-700/80 shadow-xs backdrop-blur-md">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
             {/* 1. Sekme: Lokasyon Radarı */}
             <button
               type="button"
               onClick={() => setActiveTab('radar')}
               className={cn(
-                'relative flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap',
+                'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer select-none whitespace-nowrap',
                 activeTab === 'radar'
                   ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white',
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50',
               )}
             >
               <span
                 className={cn(
-                  'w-2 h-2 rounded-full transition-colors shrink-0',
+                  'w-2 h-2 rounded-full shrink-0 transition-colors',
                   activeTab === 'radar' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400',
                 )}
               />
@@ -96,7 +95,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
                 <span>Lokasyon Radarı</span>
               </span>
               {activeTab === 'radar' && (
-                <span className="hidden sm:inline-block text-[10.5px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md ml-0.5">
+                <span className="hidden xl:inline-block text-[10.5px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md">
                   Canlı Pazar
                 </span>
               )}
@@ -107,15 +106,15 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
               type="button"
               onClick={() => setActiveTab('assistant')}
               className={cn(
-                'relative flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap',
+                'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer select-none whitespace-nowrap',
                 activeTab === 'assistant'
                   ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white',
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50',
               )}
             >
               <span
                 className={cn(
-                  'w-2 h-2 rounded-full transition-colors shrink-0',
+                  'w-2 h-2 rounded-full shrink-0 transition-colors',
                   activeTab === 'assistant' ? 'bg-sky-500 animate-pulse' : 'bg-slate-400',
                 )}
               />
@@ -124,7 +123,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
                 <span>İş Kurma Asistanı</span>
               </span>
               {activeTab === 'assistant' && (
-                <span className="hidden sm:inline-block text-[10.5px] font-semibold text-sky-800 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-md ml-0.5">
+                <span className="hidden xl:inline-block text-[10.5px] font-semibold text-sky-800 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-md">
                   Bütçe Robotu
                 </span>
               )}
@@ -135,15 +134,15 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
               type="button"
               onClick={() => setActiveTab('legal')}
               className={cn(
-                'relative flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap',
+                'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer select-none whitespace-nowrap',
                 activeTab === 'legal'
                   ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white',
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50',
               )}
             >
               <span
                 className={cn(
-                  'w-2 h-2 rounded-full transition-colors shrink-0',
+                  'w-2 h-2 rounded-full shrink-0 transition-colors',
                   activeTab === 'legal' ? 'bg-indigo-500 animate-pulse' : 'bg-slate-400',
                 )}
               />
@@ -152,7 +151,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
                 <span>Resmi Başvuru & Hukuk</span>
               </span>
               {activeTab === 'legal' && (
-                <span className="hidden sm:inline-block text-[10.5px] font-semibold text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-md ml-0.5">
+                <span className="hidden xl:inline-block text-[10.5px] font-semibold text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-md">
                   Mevzuat 2026
                 </span>
               )}
@@ -163,15 +162,15 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
               type="button"
               onClick={() => setActiveTab('grants')}
               className={cn(
-                'relative flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap',
+                'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer select-none whitespace-nowrap',
                 activeTab === 'grants'
                   ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-zinc-700'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white',
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50',
               )}
             >
               <span
                 className={cn(
-                  'w-2 h-2 rounded-full transition-colors shrink-0',
+                  'w-2 h-2 rounded-full shrink-0 transition-colors',
                   activeTab === 'grants' ? 'bg-teal-500 animate-pulse' : 'bg-slate-400',
                 )}
               />
@@ -180,28 +179,29 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
                 <span>Hibe & Teşvik Radarı</span>
               </span>
               {activeTab === 'grants' && (
-                <span className="hidden sm:inline-block text-[10.5px] font-semibold text-teal-800 dark:text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded-md ml-0.5">
+                <span className="hidden xl:inline-block text-[10.5px] font-semibold text-teal-800 dark:text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded-md">
                   2026 Teşvikleri
                 </span>
               )}
             </button>
           </div>
+        </div>
 
-          {/* Sağ Bilgi Notu & Mevzuat Rozeti */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>
-                {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
-                {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
-                {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
-                {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold shrink-0">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>{getRegulatoryBadgeText()}</span>
-            </div>
+        {/* Bilgilendirme ve Aylık Güncelleme Onay Satırı */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-2 text-[11.5px] text-muted-foreground font-medium">
+          <div className="flex items-center gap-1.5 truncate">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="truncate">
+              {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
+              {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
+              {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
+              {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{getRegulatoryBadgeText()}</span>
           </div>
         </div>
       </div>
