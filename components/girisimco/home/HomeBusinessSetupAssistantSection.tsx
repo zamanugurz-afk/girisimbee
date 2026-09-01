@@ -539,7 +539,7 @@ export function HomeBusinessSetupAssistantSection() {
               <div className="space-y-3.5">
                   <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
                     <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 shrink-0">
-                      Adım 1: Sektör Seçimi ({filteredTemplates.length})
+                      Sektör Seçimi
                     </span>
 
                     {/* Kategori Filtre Hapları */}

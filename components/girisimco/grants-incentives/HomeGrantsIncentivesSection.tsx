@@ -392,7 +392,7 @@ export function HomeGrantsIncentivesSection() {
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 shrink-0">
-                    Adım 1: Sektör Seçimi ({filteredSectors.length})
+                    Sektör Seçimi
                   </span>
 
                   {/* Kategori Filtre Hapları */}
