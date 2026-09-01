@@ -605,7 +605,7 @@ export function HomeGrantsIncentivesSection() {
                           <span
                             className={cn(
                               'text-[11.5px] font-medium',
-                              isChecked ? 'line-through text-muted-foreground' : 'text-slate-800 dark:text-zinc-200',
+                              isChecked ? 'text-emerald-900 dark:text-emerald-200 font-semibold' : 'text-slate-800 dark:text-zinc-200',
                             )}
                           >
                             {c}

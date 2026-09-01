@@ -628,7 +628,7 @@ export function HomeLegalAssistantSection() {
                             <span
                               className={cn(
                                 'font-medium truncate',
-                                isDone ? 'line-through text-muted-foreground' : 'text-slate-900 dark:text-zinc-100',
+                                isDone ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-900 dark:text-zinc-100',
                               )}
                             >
                               {doc.name}
