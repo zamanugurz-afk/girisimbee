@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Lightbulb,
@@ -19,15 +19,23 @@ import {
   Percent,
   Calculator,
   Flame,
+  Search,
+  ChevronRight,
+  ChevronLeft,
+  FileText,
+  Share2,
+  MapPin,
+  Briefcase,
+  Layers,
+  Award,
 } from 'lucide-react';
 import { useVentureBuilderStore } from '@/lib/stores/venture-builder-store';
 import {
   VentureCategory,
   WorkspaceType,
   VehicleType,
-  TimeCommitment,
 } from '@/lib/types/venture-builder';
-import { VentureIdeaPreviewCard } from './VentureIdeaPreviewCard';
+import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,6 +55,87 @@ const CATEGORIES: VentureCategory[] = [
   'Teknoloji & Dijital Servis',
   'Hizmet & Temizlik',
   'Diğer Niş Girişim',
+];
+
+const PRESET_IDEAS = [
+  {
+    id: 'pup-party',
+    title: 'Pet Doğum Günü Paketi (Pup-Party Box)',
+    category: 'Evcil Hayvan & Yaşam' as VentureCategory,
+    oneLiner: 'Köpekler için şekersiz fıstık ezmeli yaş pasta, temalı parti şapkası ve anı kutusu.',
+    whyItWorks: 'Köpek sahipleri doğum günlerinde kutlama ve sosyal medya içeriği için hazır kişiselleştirilmiş parti kutuları sipariş ediyor.',
+    workspace: 'home' as WorkspaceType,
+    vehicle: 'personal_car' as VehicleType,
+    capital: 35000,
+    monthlyNetProfit: 60000,
+    share: 35,
+    icon: '🐕',
+  },
+  {
+    id: 'pop-up-cinema',
+    title: 'Mobil Açık Hava Sinema Kurulumu (Pop-Up Cinema)',
+    category: 'Deneyim & Etkinlik' as VentureCategory,
+    oneLiner: 'Bahçe ve teraslara 2 saatte kurulan bohem şezlonglu açık hava sinema deneyimi.',
+    whyItWorks: 'Evlilik teklifi, doğum günü ve butik kutlamalarda mekan kiralamak yerine kişiye özel açık hava sineması tercih ediliyor.',
+    workspace: 'client_location' as WorkspaceType,
+    vehicle: 'light_commercial' as VehicleType,
+    capital: 55000,
+    monthlyNetProfit: 80000,
+    share: 40,
+    icon: '🎬',
+  },
+  {
+    id: 'epoksi-cicek',
+    title: 'Gelin Çiçeklerini Epoksi Tabloya Dönüştürme',
+    category: 'Zanaat & Hatıra' as VentureCategory,
+    oneLiner: 'Gelin buketi ve teklif güllerini sararmayan kristal reçinede ömür boyu anı objesine çevirme.',
+    whyItWorks: 'Gelinler solan buketlerini atmak yerine kristal reçine bloklarda ömür boyu saklamak istiyor.',
+    workspace: 'home' as WorkspaceType,
+    vehicle: 'none' as VehicleType,
+    capital: 30000,
+    monthlyNetProfit: 63000,
+    share: 30,
+    icon: '🌸',
+  },
+  {
+    id: 'ses-dalgasi-qr',
+    title: 'Ses Dalgalı & QR Kodlu Kişiye Özel Ahşap Panolar',
+    category: 'Tasarım & Hediyelik' as VentureCategory,
+    oneLiner: 'Bebek kalp atışı veya özel ses kayıtlarını dinlenebilir sanat panolarına dönüştürün.',
+    whyItWorks: 'Duygusal bağ kurduran taranabilir QR sesli tablolar yüksek marjla kişiye özel hediye olarak satılıyor.',
+    workspace: 'garage_workshop' as WorkspaceType,
+    vehicle: 'none' as VehicleType,
+    capital: 45000,
+    monthlyNetProfit: 64000,
+    share: 35,
+    icon: '🎙️',
+  },
+  {
+    id: 'diy-parfum',
+    title: '"Kendi Parfümünü Yap" Evde Atölye Kiti',
+    category: 'Kozmetik & Deneyim' as VentureCategory,
+    oneLiner: '12 koku esansı, cam damlalıklar ve formül defteriyle evde imza koku tasarlama seti.',
+    whyItWorks: 'Niş parfüm fiyatları artarken insanlar evde kendi imza kokusunu tasarlama deneyimini çok seviyor.',
+    workspace: 'home' as WorkspaceType,
+    vehicle: 'none' as VehicleType,
+    capital: 48000,
+    monthlyNetProfit: 84000,
+    share: 35,
+    icon: '🧪',
+  },
+  {
+    id: 'kisisel-kitap',
+    title: 'Kişiselleştirilmiş Çocuk Masal Kitabı',
+    category: 'Yayıncılık & Çocuk' as VentureCategory,
+    oneLiner: 'Çocuğun adı, karakteri ve fotoğrafıyla basılan; başrolde olduğu renkli ciltli masal kitabı.',
+    whyItWorks: 'Ebeveynler çocuklarına okuma sevgisi aşılamak için başrolde oldukları kitapları hediye ediyor.',
+    workspace: 'virtual_mobile' as WorkspaceType,
+    vehicle: 'none' as VehicleType,
+    capital: 35000,
+    monthlyNetProfit: 64000,
+    share: 30,
+    icon: '📖',
+  },
 ];
 
 const WORKSPACES: { id: WorkspaceType; label: string; desc: string; icon: typeof Home }[] = [
@@ -78,38 +167,113 @@ export function VentureBuilderWizard() {
     submitDraftForReview,
   } = useVentureBuilderStore();
 
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<string>('Tümü');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Şehir / İlçe listesi
+  const cityOptions = useMemo(() => Object.keys(TURKEY_CITY_RENTAL_RATES), []);
+  const currentCityKey = draft.authorCity || 'İstanbul';
+  const districtOptions = useMemo(() => {
+    return Object.keys(TURKEY_CITY_RENTAL_RATES[currentCityKey]?.districtRates || { Merkez: 1000 });
+  }, [currentCityKey]);
+
+  const [selectedDistrict, setSelectedDistrict] = useState<string>(districtOptions[0] || 'Kadıköy');
+
+  const handleCityChange = (city: string) => {
+    updateBasicInfo({ authorCity: city });
+    const newDistricts = Object.keys(TURKEY_CITY_RENTAL_RATES[city]?.districtRates || {});
+    setSelectedDistrict(newDistricts[0] || 'Merkez');
+  };
+
+  const handleSelectPreset = (preset: (typeof PRESET_IDEAS)[number]) => {
+    updateBasicInfo({
+      title: preset.title,
+      category: preset.category,
+      oneLiner: preset.oneLiner,
+      whyItWorks: preset.whyItWorks,
+    });
+    updateCollateral({
+      workspaceType: preset.workspace,
+      vehicleType: preset.vehicle,
+    });
+    updateBudget({
+      equipmentCost: Math.round(preset.capital * 0.6),
+      initialStockCost: Math.round(preset.capital * 0.25),
+      marketingCost: Math.round(preset.capital * 0.15),
+      operatingBufferCost: 0,
+    });
+    updateFinancials({
+      estimatedMonthlyRevenue: Math.round(preset.monthlyNetProfit * 1.5),
+      estimatedMonthlyNetProfit: preset.monthlyNetProfit,
+      offeredInvestorSharePercent: preset.share,
+    });
+  };
 
   const handleSubmit = () => {
     submitDraftForReview();
     setIsSubmitted(true);
   };
 
-  const steps = [
-    { num: 1, title: 'Fikir & Konsept' },
-    { num: 2, title: 'Masaya Koydukların' },
-    { num: 3, title: 'Bütçe İhtiyacı' },
-    { num: 4, title: 'Yatırımcı Teklifi' },
-    { num: 5, title: 'Önizleme & Onay' },
+  const stepsList = [
+    { num: 1, title: 'Fikir & Konsept', desc: 'İşletme türü & pazar açığı' },
+    { num: 2, title: 'Masaya Koyduklarım', desc: 'Şahsi araç, mekan & emek' },
+    { num: 3, title: 'Aranan Bütçe', desc: 'Ekipman, stok & reklam fonu' },
+    { num: 4, title: 'Gelir & Kâr Payı', desc: 'Ciro, net kâr & amortisman' },
+    { num: 5, title: 'Önizleme & Onay', desc: 'İletişim & Admin incelemesi' },
   ];
+
+  // Yatırımcı Aylık Getirisi Hesabı
+  const monthlyInvestorReturn = Math.round(
+    (draft.financials.estimatedMonthlyNetProfit || 0) *
+      ((draft.financials.offeredInvestorSharePercent || 35) / 100)
+  );
+
+  const formatCurrency = (val?: number) => {
+    if (!val) return '₺0';
+    return `₺${val.toLocaleString('tr-TR')}`;
+  };
+
+  const formatCurrencyShort = (val?: number) => {
+    if (!val) return '₺0';
+    if (val >= 1000000) return `₺${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `₺${Math.round(val / 1000)}k`;
+    return `₺${val}`;
+  };
+
+  const filteredPresets = useMemo(() => {
+    return PRESET_IDEAS.filter((item) => {
+      const matchCat = selectedCategoryTab === 'Tümü' || item.category === selectedCategoryTab;
+      const matchQuery =
+        !searchQuery.trim() ||
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.oneLiner.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchQuery;
+    });
+  }, [selectedCategoryTab, searchQuery]);
 
   if (isSubmitted) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-12 px-4">
+      <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/90 p-8 sm:p-12 shadow-xl backdrop-blur-md text-center max-w-3xl mx-auto my-6">
         <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-500/20">
           <CheckCircle2 className="w-8 h-8" />
         </div>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/20 mb-3">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          Fizibilite İncelemeye Alındı
+        </span>
         <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-foreground">
-          Fikriniz Başarıyla Modellendi ve İncelemeye Alındı!
+          &quot;{draft.title || 'Niş Girişim'}&quot; Başarıyla Modellendi!
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-zinc-300 max-w-lg mx-auto leading-relaxed">
-          Girişimbee moderasyon ekibi fizibilite verilerinizi inceledikten sonra projeniz onaylanacak ve{' '}
-          <strong className="text-slate-900 dark:text-white">Girişimbee Ortaklık & Yatırımcı Vitrininde</strong> yayına
+          Fizibilite ve kâr projeksiyonu verileriniz Girişimbee moderasyon ekibine iletildi. Onaylandıktan hemen sonra{' '}
+          <strong className="text-slate-900 dark:text-white">Girişimbee Yatırımcı & Ortaklık Vitrininde</strong> yayına
           alınacaktır.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button asChild className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl h-11 px-6">
+          <Button asChild className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl h-11 px-6 shadow-sm">
             <Link href="/girisim-ortaklik">Yatırım & Ortaklık Havuzunu İncele</Link>
           </Button>
           <Button asChild variant="outline" className="w-full sm:w-auto rounded-xl h-11 px-6">
@@ -121,501 +285,747 @@ export function VentureBuilderWizard() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-      {/* SOL ALAN: ÇOK ADIMLI FORM SİHİRBAZI */}
-      <div className="lg:col-span-7 flex flex-col justify-between rounded-2xl sm:rounded-3xl bg-white dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800 p-6 sm:p-8 shadow-xs">
-        {/* İlerleme Çubuğu & Adım Başlıkları */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Adım 0{currentStep} / 05
-            </span>
-            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">
-              {steps[currentStep - 1]?.title}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-5 gap-1.5 h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
-            {steps.map((s) => (
-              <div
-                key={s.num}
-                className={cn(
-                  'h-full transition-all duration-300 rounded-full',
-                  currentStep >= s.num ? 'bg-amber-500' : 'bg-transparent'
-                )}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* ADIM 1: FİKİR & KONSEPT                                                   */}
-        {/* ========================================================================= */}
-        {currentStep === 1 && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            <div>
-              <h3 className="font-display text-xl font-bold text-slate-900 dark:text-foreground">
-                1. Fikrinin Adı & Niş Konsepti
-              </h3>
-              <p className="text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-1">
-                Yatırımcının ilk göreceği dikkat çekici başlığı ve kategoriyi belirleyin.
-              </p>
-            </div>
-
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                Fikir / Proje Başlığı *
-              </Label>
-              <Input
-                placeholder="Örn: Evcil Hayvan Doğum Günü & Parti Kutusu (Pup-Party Box)"
-                value={draft.title}
-                onChange={(e) => updateBasicInfo({ title: e.target.value })}
-                className="mt-1.5 h-11 rounded-xl"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Sektör / Kategori *
-                </Label>
+    <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        
+        {/* ===================================================================== */}
+        {/* A. SOL SÜTUN: LOKASYON & 5 ADIMLI STEPPER (lg:col-span-3)             */}
+        {/* ===================================================================== */}
+        <div className="lg:col-span-3 flex flex-col justify-between space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-zinc-800/80 pb-5 lg:pb-0 lg:pr-5">
+          <div>
+            {/* 1. Lokasyon Seçimi */}
+            <div className="mb-3.5 space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                Kurulum Lokasyonu (81 İl)
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
                 <select
-                  value={draft.category}
-                  onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
-                  className="mt-1.5 w-full h-11 rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={draft.authorCity || 'İstanbul'}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 px-2 text-xs font-bold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
                 >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  {cityOptions.map((c) => (
+                    <option key={c} value={c}>
+                      {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  className="h-9 w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/60 px-2 text-xs font-bold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                >
+                  {districtOptions.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
                     </option>
                   ))}
                 </select>
               </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Şehir / Lokasyon *
-                </Label>
-                <Input
-                  placeholder="Örn: İstanbul / Türkiye Geneli"
-                  value={draft.authorCity}
-                  onChange={(e) => updateBasicInfo({ authorCity: e.target.value })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
             </div>
 
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                Tek Cümlelik Çarpıcı Özet (One-Liner) *
-              </Label>
-              <Input
-                placeholder="Örn: Köpekler için şekersiz pasta, parti şapkası ve anı çerçevesinden oluşan kişiselleştirilmiş parti kutusu."
-                value={draft.oneLiner}
-                onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                className="mt-1.5 h-11 rounded-xl"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                Bu Fikir Neden Tutar / Çok Satar? (Pazar Açığı) *
-              </Label>
-              <Textarea
-                rows={3}
-                placeholder="Örn: Köpek sahipleri doğum günlerinde sosyal medyada paylaşmak için özel temalı kutlamalar yapıyor ve hazır kutu seti bulamıyor..."
-                value={draft.whyItWorks}
-                onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                className="mt-1.5 rounded-xl resize-none"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* ADIM 2: MASAYA KOYDUKLARIN (ÖZKAYNAKLAR)                                 */}
-        {/* ========================================================================= */}
-        {currentStep === 2 && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div>
-              <h3 className="font-display text-xl font-bold text-slate-900 dark:text-foreground">
-                2. Sen Masaya Ne Koyuyorsun? (Özkaynakların)
-              </h3>
-              <p className="text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-1">
-                Yatırımcıya bütçen olmasa bile işi yürütecek araç, mekan veya emeğinin hazır olduğunu gösterin.
-              </p>
-            </div>
-
-            {/* Çalışma Alanı / Mekan Seçimi */}
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
-                Çalışma Alanı & Mekan Durumu
-              </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {WORKSPACES.map((ws) => {
-                  const isSelected = draft.collateral.workspaceType === ws.id;
-                  const Icon = ws.icon;
-                  return (
-                    <button
-                      key={ws.id}
-                      type="button"
-                      onClick={() => updateCollateral({ workspaceType: ws.id })}
-                      className={cn(
-                        'flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer',
-                        isSelected
-                          ? 'border-amber-500 bg-amber-500/5 text-slate-900 dark:text-white'
-                          : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300 text-slate-700 dark:text-zinc-300'
-                      )}
-                    >
-                      <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
-                      <div>
-                        <span className="block text-xs font-bold">{ws.label}</span>
-                        <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">{ws.desc}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Taşıt Durumu */}
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
-                Lojistik & Taşıt İmkânı
-              </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {VEHICLES.map((vh) => {
-                  const isSelected = draft.collateral.vehicleType === vh.id;
-                  const Icon = vh.icon;
-                  return (
-                    <button
-                      key={vh.id}
-                      type="button"
-                      onClick={() => updateCollateral({ vehicleType: vh.id })}
-                      className={cn(
-                        'flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer',
-                        isSelected
-                          ? 'border-amber-500 bg-amber-500/5 text-slate-900 dark:text-white'
-                          : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300 text-slate-700 dark:text-zinc-300'
-                      )}
-                    >
-                      <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
-                      <div>
-                        <span className="block text-xs font-bold">{vh.label}</span>
-                        <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">{vh.desc}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Emek & Zaman Taahhüdü */}
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5 block">
-                Haftalık Ayırabileceğin Çalışma Saati (Emek)
-              </Label>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="number"
-                  min={5}
-                  max={80}
-                  value={draft.collateral.hoursPerWeek}
-                  onChange={(e) => updateCollateral({ hoursPerWeek: Number(e.target.value) || 40 })}
-                  className="w-28 h-11 rounded-xl font-bold"
-                />
-                <span className="text-xs text-slate-500 dark:text-zinc-400">
-                  Saat / Hafta (Örn: Tam zamanlı için 40-50 saat)
+            {/* 2. 5 Adımlı Dikey Stepper Menüsü */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between pb-1 px-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Modelleme Adımları
+                </span>
+                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                  {currentStep} / 5
                 </span>
               </div>
+
+              {stepsList.map((st) => {
+                const isActive = currentStep === st.num;
+                const isPassed = currentStep > st.num;
+                return (
+                  <button
+                    key={st.num}
+                    type="button"
+                    onClick={() => setCurrentStep(st.num)}
+                    className={cn(
+                      'w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition-all duration-200 cursor-pointer',
+                      isActive
+                        ? 'bg-white dark:bg-zinc-800/90 shadow-sm border border-slate-200/90 dark:border-zinc-700/80 ring-1 ring-amber-500/20'
+                        : 'hover:bg-slate-50 dark:hover:bg-zinc-800/50 text-slate-600 dark:text-zinc-400'
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className={cn(
+                          'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors',
+                          isActive
+                            ? 'bg-amber-500 text-slate-950 shadow-xs'
+                            : isPassed
+                            ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-slate-100 dark:bg-zinc-800 text-slate-500'
+                        )}
+                      >
+                        {isPassed ? <CheckCircle2 className="w-3.5 h-3.5" /> : st.num}
+                      </span>
+                      <div className="min-w-0">
+                        <span
+                          className={cn(
+                            'block text-xs font-bold truncate leading-tight',
+                            isActive ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-zinc-300'
+                          )}
+                        >
+                          {st.title}
+                        </span>
+                        <span className="block text-[10.5px] text-muted-foreground truncate mt-0.5">
+                          {st.desc}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        'w-3.5 h-3.5 shrink-0 transition-transform',
+                        isActive ? 'text-amber-500 translate-x-0.5' : 'text-slate-300 dark:text-zinc-600'
+                      )}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* ADIM 3: BÜTÇE İHTİYACI                                                    */}
-        {/* ========================================================================= */}
-        {currentStep === 3 && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            <div>
-              <h3 className="font-display text-xl font-bold text-slate-900 dark:text-foreground">
-                3. Ne Kadar Bütçeye İhtiyacın Var?
-              </h3>
-              <p className="text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-1">
-                İşi sıfırdan ayağa kaldırmak için yatırımcıdan aradığınız net başlangıç maliyetlerini girin.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Ekipman & Cihaz Maliyeti (₺)
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="35000"
-                  value={draft.budget.equipmentCost || ''}
-                  onChange={(e) => updateBudget({ equipmentCost: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  İlk 2-3 Aylık Hammadde / Stok (₺)
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="15000"
-                  value={draft.budget.initialStockCost || ''}
-                  onChange={(e) => updateBudget({ initialStockCost: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Başlangıç Reklam & Tanıtım (₺)
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="10000"
-                  value={draft.budget.marketingCost || ''}
-                  onChange={(e) => updateBudget({ marketingCost: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  İşletme & Tampon Bütçe (₺)
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="5000"
-                  value={draft.budget.operatingBufferCost || ''}
-                  onChange={(e) => updateBudget({ operatingBufferCost: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
+          {/* Sol Alt: Girişimci Özkaynak Özeti */}
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                Girişimcinin Özkaynakları:
+              </span>
+              <div className="space-y-1 text-[11px] font-medium text-slate-700 dark:text-zinc-300">
+                <div className="flex items-center gap-1.5">
+                  <Car className="w-3 h-3 text-emerald-600 shrink-0" />
+                  <span className="truncate">
+                    {draft.collateral.vehicleType === 'personal_car'
+                      ? 'Şahsi Binek Araç Hazır'
+                      : draft.collateral.vehicleType === 'light_commercial'
+                      ? 'Hafif Ticari Araç Hazır'
+                      : 'Taşıtsız Model'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Home className="w-3 h-3 text-sky-600 shrink-0" />
+                  <span className="truncate">
+                    {draft.collateral.workspaceType === 'home'
+                      ? 'Ev / Mutfak (₺0 Kira)'
+                      : draft.collateral.workspaceType === 'garage_workshop'
+                      ? 'Özel Atölye / Garaj'
+                      : 'Müşteri Sahası'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 text-purple-600 shrink-0" />
+                  <span>{draft.collateral.hoursPerWeek} Saat / Hafta Emek</span>
+                </div>
               </div>
             </div>
 
-            {/* Otomatik Toplam Kutu */}
-            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-amber-800 dark:text-amber-300">
-                  Toplam Aranan Yatırım Bütçesi:
-                </span>
-                <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-0.5">
-                  Yatırımcıya sunulacak net sermaye talebi
-                </p>
-              </div>
-              <span className="font-display text-2xl font-extrabold text-amber-600 dark:text-amber-400">
-                ₺{draft.budget.totalRequiredCapital.toLocaleString('tr-TR')}
+            <div className="p-2 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 text-[10.5px] text-amber-800 dark:text-amber-300 leading-relaxed flex items-start gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>2026 Güvencesi:</strong> Fikriniz korunur, sadece doğrulanmış yatırımcılarla eşleştirilir.
               </span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ========================================================================= */}
-        {/* ADIM 4: PROJEKSİYON & YATIRIMCI TEKLİFİ                                   */}
-        {/* ========================================================================= */}
-        {currentStep === 4 && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            <div>
-              <h3 className="font-display text-xl font-bold text-slate-900 dark:text-foreground">
-                4. Finansal Öngörü & Yatırımcıya Teklifin
-              </h3>
-              <p className="text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-1">
-                Aylık kâr tahmininizi ve yatırımcıya önerdiğiniz kâr ortaklığı oranını belirleyin.
-              </p>
+        {/* ===================================================================== */}
+        {/* B. ORTA SÜTUN: İNTERAKTİF ÇALIŞMA ALANI (lg:col-span-6)               */}
+        {/* ===================================================================== */}
+        <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
+          <div>
+            {/* Üst Kategori Filtre Butonları (flex-wrap) */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+              {['Tümü', 'Evcil Hayvan & Yaşam', 'Deneyim & Etkinlik', 'Zanaat & Hatıra', 'Tasarım & Hediyelik', 'Kozmetik & Deneyim'].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategoryTab(cat)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap',
+                    selectedCategoryTab === cat
+                      ? 'bg-amber-500 text-slate-950 shadow-xs'
+                      : 'bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200/90 dark:border-zinc-700 hover:text-slate-900'
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Tahmini Aylık Ciro / Gelir (₺) *
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="85000"
-                  value={draft.financials.estimatedMonthlyRevenue || ''}
-                  onChange={(e) => updateFinancials({ estimatedMonthlyRevenue: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Tahmini Aylık Net Kâr (₺) *
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="55000"
-                  value={draft.financials.estimatedMonthlyNetProfit || ''}
-                  onChange={(e) => updateFinancials({ estimatedMonthlyNetProfit: Number(e.target.value) || 0 })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Yatırımcıya Önerilen Net Kâr Payı Oranı (%) *
-                </Label>
-                <span className="font-display text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
-                  %{draft.financials.offeredInvestorSharePercent}
-                </span>
-              </div>
+            {/* Arama Barı */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
-                type="range"
-                min={10}
-                max={50}
-                step={5}
-                value={draft.financials.offeredInvestorSharePercent}
-                onChange={(e) => updateFinancials({ offeredInvestorSharePercent: Number(e.target.value) })}
-                className="w-full accent-amber-500 cursor-pointer"
+                type="text"
+                placeholder="Niş konsept, sektör veya iş modeli ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 text-xs font-medium text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
               />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1 font-semibold">
-                <span>%10 (Küçük Katkı)</span>
-                <span>%30 - %40 (Dengeli Ortaklık)</span>
-                <span>%50 (Yarı Yarıya)</span>
-              </div>
             </div>
 
-            {/* Otomatik Amortisman & Dönüş Kutusu */}
-            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                  Yatırımcının Parasını Çıkarma Süresi:
+            {/* =============================================================== */}
+            {/* ADIM 1: FİKİR & KONSEPT (HAZIR İLHAM KARTLARI + ÖZEL FORM)       */}
+            {/* =============================================================== */}
+            {currentStep === 1 && (
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-1.5">
+                    💡 Hızlı Başlangıç: Popüler Niş Şablonlardan Birini Seçin (veya Kendi Fikrini Yaz):
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {filteredPresets.slice(0, 6).map((preset) => {
+                      const isSelected = draft.title === preset.title;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          className={cn(
+                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between h-[5.5rem]',
+                            isSelected
+                              ? 'border-amber-500 bg-amber-500/10 shadow-xs ring-1 ring-amber-500/30'
+                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                          )}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-base">{preset.icon}</span>
+                            <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                              {formatCurrencyShort(preset.capital)}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 line-clamp-2 leading-tight">
+                            {preset.title}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Fikir / Proje Başlığı *
+                    </Label>
+                    <Input
+                      placeholder="Örn: Evcil Hayvan Doğum Günü Kutusu (Pup-Party Box)"
+                      value={draft.title}
+                      onChange={(e) => updateBasicInfo({ title: e.target.value })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Tek Cümlelik Çarpıcı Özet (One-Liner) *
+                    </Label>
+                    <Input
+                      placeholder="Örn: Köpekler için şekersiz pasta ve parti şapkasından oluşan anı seti."
+                      value={draft.oneLiner}
+                      onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Bu Fikir Neden Tutar / Çok Satar? (Pazar Açığı) *
+                    </Label>
+                    <Textarea
+                      rows={2}
+                      placeholder="Örn: Köpek sahipleri doğum günlerinde kutlama içeriği üretmek için hazır kutu arıyor..."
+                      value={draft.whyItWorks}
+                      onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
+                      className="mt-1 rounded-xl text-xs resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =============================================================== */}
+            {/* ADIM 2: MASAYA KOYDUKLARIN (MEKAN & TAŞIT & EMEK)               */}
+            {/* =============================================================== */}
+            {currentStep === 2 && (
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
+                    1. Çalışma Alanı & Mekan Durumu
+                  </Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {WORKSPACES.map((ws) => {
+                      const isSelected = draft.collateral.workspaceType === ws.id;
+                      const Icon = ws.icon;
+                      return (
+                        <button
+                          key={ws.id}
+                          type="button"
+                          onClick={() => updateCollateral({ workspaceType: ws.id })}
+                          className={cn(
+                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2',
+                            isSelected
+                              ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30'
+                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                          )}
+                        >
+                          <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
+                          <div>
+                            <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                              {ws.label}
+                            </span>
+                            <span className="block text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                              {ws.desc}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
+                    2. Lojistik & Taşıt İmkânı
+                  </Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {VEHICLES.map((vh) => {
+                      const isSelected = draft.collateral.vehicleType === vh.id;
+                      const Icon = vh.icon;
+                      return (
+                        <button
+                          key={vh.id}
+                          type="button"
+                          onClick={() => updateCollateral({ vehicleType: vh.id })}
+                          className={cn(
+                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2',
+                            isSelected
+                              ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30'
+                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                          )}
+                        >
+                          <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
+                          <div>
+                            <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                              {vh.label}
+                            </span>
+                            <span className="block text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                              {vh.desc}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1 block">
+                    3. Haftalık Ayırabileceğin Çalışma Saati (Emek)
+                  </Label>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      min={5}
+                      max={80}
+                      value={draft.collateral.hoursPerWeek}
+                      onChange={(e) => updateCollateral({ hoursPerWeek: Number(e.target.value) || 40 })}
+                      className="w-24 h-9 rounded-xl font-bold text-xs"
+                    />
+                    <span className="text-xs text-slate-500">
+                      Saat / Hafta (Tam zamanlı operasyon: 40-50 saat)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =============================================================== */}
+            {/* ADIM 3: ARANAN BÜTÇE İHTİYACI                                   */}
+            {/* =============================================================== */}
+            {currentStep === 3 && (
+              <div className="space-y-3.5 animate-in fade-in duration-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Ekipman & Cihaz Bütçesi (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="35000"
+                      value={draft.budget.equipmentCost || ''}
+                      onChange={(e) => updateBudget({ equipmentCost: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      İlk 3 Aylık Hammadde / Stok (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="15000"
+                      value={draft.budget.initialStockCost || ''}
+                      onChange={(e) => updateBudget({ initialStockCost: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Başlangıç Reklam & Tanıtım (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="10000"
+                      value={draft.budget.marketingCost || ''}
+                      onChange={(e) => updateBudget({ marketingCost: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Tampon & İşletme Bütçesi (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="5000"
+                      value={draft.budget.operatingBufferCost || ''}
+                      onChange={(e) => updateBudget({ operatingBufferCost: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-amber-800 dark:text-amber-300">
+                      Toplam Aranan Yatırım Bütçesi:
+                    </span>
+                    <p className="text-[10.5px] text-amber-700/80 dark:text-amber-400/80">
+                      Yatırımcıdan talep edilecek net sermaye tutarı
+                    </p>
+                  </div>
+                  <span className="font-display text-xl font-black text-amber-600 dark:text-amber-400">
+                    ₺{draft.budget.totalRequiredCapital.toLocaleString('tr-TR')}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* =============================================================== */}
+            {/* ADIM 4: GELİR & KÂR PAYI ORTAKLIĞI                              */}
+            {/* =============================================================== */}
+            {currentStep === 4 && (
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Tahmini Aylık Ciro (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="85000"
+                      value={draft.financials.estimatedMonthlyRevenue || ''}
+                      onChange={(e) => updateFinancials({ estimatedMonthlyRevenue: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Tahmini Aylık Net Kâr (₺)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="55000"
+                      value={draft.financials.estimatedMonthlyNetProfit || ''}
+                      onChange={(e) => updateFinancials({ estimatedMonthlyNetProfit: Number(e.target.value) || 0 })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Yatırımcıya Önerilen Net Kâr Payı Oranı (%)
+                    </Label>
+                    <span className="font-display text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
+                      %{draft.financials.offeredInvestorSharePercent}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={50}
+                    step={5}
+                    value={draft.financials.offeredInvestorSharePercent}
+                    onChange={(e) => updateFinancials({ offeredInvestorSharePercent: Number(e.target.value) })}
+                    className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-200 dark:bg-zinc-700 rounded-lg"
+                  />
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      Yatırımcının Parasını Çıkarma Hızı:
+                    </span>
+                    <p className="text-[10.5px] text-emerald-700/80 dark:text-emerald-400/80">
+                      Aylık {formatCurrency(monthlyInvestorReturn)} getiri ile amortisman
+                    </p>
+                  </div>
+                  <span className="font-display text-xl font-black text-emerald-600 dark:text-emerald-400">
+                    ~{draft.financials.calculatedPaybackMonths} Ay
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* =============================================================== */}
+            {/* ADIM 5: İLETİŞİM & GÖNDERİM                                     */}
+            {/* =============================================================== */}
+            {currentStep === 5 && (
+              <div className="space-y-3.5 animate-in fade-in duration-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Adınız & Soyadınız *
+                    </Label>
+                    <Input
+                      placeholder="Örn: Uğur Zaman"
+                      value={draft.authorName}
+                      onChange={(e) => updateBasicInfo({ authorName: e.target.value })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                      Telefon Numaranız *
+                    </Label>
+                    <Input
+                      placeholder="05XX XXX XX XX"
+                      value={draft.authorPhone || ''}
+                      onChange={(e) => updateBasicInfo({ authorPhone: e.target.value })}
+                      className="mt-1 h-10 rounded-xl text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    E-Posta Adresiniz *
+                  </Label>
+                  <Input
+                    type="email"
+                    placeholder="girisimci@ornek.com"
+                    value={draft.authorEmail || ''}
+                    onChange={(e) => updateBasicInfo({ authorEmail: e.target.value })}
+                    className="mt-1 h-10 rounded-xl text-xs"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 inline mr-1" />
+                  Modeliniz moderasyon onayından geçtikten sonra <strong>Girişimbee Yatırım & Ortaklık Havuzunda</strong> canlıya alınacaktır.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Alt Stepper Navigasyon Çubuğu (Image 1 ile Birebir Aynı) */}
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-zinc-800">
+            {currentStep > 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevStep}
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-700 dark:text-zinc-300 border-slate-200"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Önceki Adım
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            {/* Adım İlerleme Noktaları */}
+            <div className="flex items-center gap-1.5">
+              {stepsList.map((st) => (
+                <span
+                  key={st.num}
+                  className={cn(
+                    'h-2 rounded-full transition-all duration-300',
+                    currentStep === st.num
+                      ? 'w-6 bg-amber-500'
+                      : currentStep > st.num
+                      ? 'w-2 bg-emerald-500'
+                      : 'w-2 bg-slate-200 dark:bg-zinc-700'
+                  )}
+                />
+              ))}
+            </div>
+
+            {currentStep < 5 ? (
+              <Button
+                type="button"
+                onClick={nextStep}
+                className="h-10 rounded-xl px-5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+              >
+                Sonraki Adım
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                className="h-10 rounded-xl px-5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-1" />
+                Admin Onayına Gönder
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* ===================================================================== */}
+        {/* C. SAĞ SÜTUN: CANLI YATIRIMCI VE FİZİBİLİTE KOKPİTİ (lg:col-span-3)  */}
+        {/* ===================================================================== */}
+        <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
+          <div className="space-y-3">
+            {/* 1. AI Yatırımcı Çekicilik Skoru */}
+            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 fill-current" />
+                  AI Yatırım Skoru
                 </span>
-                <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 mt-0.5">
-                  Aranan bütçenin kâr payıyla geri ödenme hızı
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                  Yüksek Verimlilik
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-2xl font-black text-slate-900 dark:text-white">9.4</span>
+                <span className="text-xs font-bold text-slate-400">/ 10</span>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-zinc-300">
+                  <span>Özkaynak Güç Endeksi</span>
+                  <span className="text-emerald-600 font-black">%92</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full w-[92%]" />
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-tight pt-1">
+                  Mekan ve araç maliyeti sıfırlandığı için yatırımcı riski minimumdur.
                 </p>
               </div>
-              <span className="font-display text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                ~{draft.financials.calculatedPaybackMonths} Ay
+            </div>
+
+            {/* 2. Ortaklık & Yatırım Şartı */}
+            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 p-3.5 space-y-1.5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-900 dark:text-white inline-flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-indigo-600" />
+                  Ortaklık Modeli
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                  Doğrulanmış
+                </span>
+              </div>
+
+              <div className="pt-1 space-y-1 text-xs text-slate-600 dark:text-zinc-300">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Aranan Sermaye:</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400">
+                    {formatCurrencyShort(draft.budget.totalRequiredCapital)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Yatırımcı Payı:</span>
+                  <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                    %{draft.financials.offeredInvestorSharePercent} Net Kâr
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Canlı Finansal Özet */}
+            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                Finansal Özet (Canlı)
               </span>
-            </div>
-          </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* ADIM 5: ÖNİZLEME & ONAY                                                    */}
-        {/* ========================================================================= */}
-        {currentStep === 5 && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            <div>
-              <h3 className="font-display text-xl font-bold text-slate-900 dark:text-foreground">
-                5. İletişim Bilgileriniz & Son Onay
-              </h3>
-              <p className="text-xs sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-1">
-                Yatırımcıların sizinle iletişime geçebilmesi için iletişim bilgilerinizi girin.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Adınız & Soyadınız *
-                </Label>
-                <Input
-                  placeholder="Örn: Burak Özdemir"
-                  value={draft.authorName}
-                  onChange={(e) => updateBasicInfo({ authorName: e.target.value })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  Telefon Numaranız *
-                </Label>
-                <Input
-                  placeholder="05XX XXX XX XX"
-                  value={draft.authorPhone || ''}
-                  onChange={(e) => updateBasicInfo({ authorPhone: e.target.value })}
-                  className="mt-1.5 h-11 rounded-xl"
-                />
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between text-slate-700 dark:text-zinc-300">
+                  <span className="text-muted-foreground">Aylık Net Kâr:</span>
+                  <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(draft.financials.estimatedMonthlyNetProfit)} / Ay
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-700 dark:text-zinc-300">
+                  <span className="text-muted-foreground">Yatırımcı Getirisi:</span>
+                  <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                    {formatCurrency(monthlyInvestorReturn)} / Ay
+                  </span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-slate-200/60 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+                  <span>Tahmini Amortisman:</span>
+                  <span className="text-emerald-600">~{draft.financials.calculatedPaybackMonths} Ay</span>
+                </div>
               </div>
             </div>
-
-            <div>
-              <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                E-Posta Adresiniz *
-              </Label>
-              <Input
-                type="email"
-                placeholder="girisimci@ornek.com"
-                value={draft.authorEmail || ''}
-                onChange={(e) => updateBasicInfo({ authorEmail: e.target.value })}
-                className="mt-1.5 h-11 rounded-xl"
-              />
-            </div>
-
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 inline mr-1.5" />
-              Modeliniz gönderildikten sonra Girişimbee moderatörleri tarafından incelenir ve onaylandığında{' '}
-              <strong>Girişimbee Ortaklık & Yatırımcı Vitrininde</strong> canlıya alınır.
-            </div>
           </div>
-        )}
 
-        {/* Alt Adım Butonları */}
-        <div className="mt-8 pt-5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-          {currentStep > 1 ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={prevStep}
-              className="rounded-xl h-11 px-5 font-semibold text-xs sm:text-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1.5" />
-              Geri
-            </Button>
-          ) : (
-            <div />
-          )}
-
-          {currentStep < 5 ? (
-            <Button
-              type="button"
-              onClick={nextStep}
-              className="rounded-xl h-11 px-6 font-bold text-xs sm:text-sm bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
-            >
-              Devam Et
-              <ArrowRight className="w-4 h-4 ml-1.5" />
-            </Button>
-          ) : (
+          {/* Sağ Alt Aksiyon Butonları */}
+          <div className="space-y-2 pt-2">
             <Button
               type="button"
               onClick={handleSubmit}
-              className="rounded-xl h-11 px-6 font-bold text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              className="w-full h-10 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
             >
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              Admin Onayına Gönder & Yatırım Çağrısı Aç
+              Yatırım Çağrısını Başlat
             </Button>
-          )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.print()}
+              className="w-full h-9 rounded-xl text-xs font-semibold border-slate-200 dark:border-zinc-700"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              Fizibilite Özeti Yazdır
+            </Button>
+          </div>
         </div>
+
       </div>
 
-      {/* SAĞ ALAN: CANLI FİZİBİLİTE KARTI ÖNİZLEMESİ */}
-      <div className="lg:col-span-5 sticky top-24 space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 inline-flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Canlı Yatırımcı Kartı Önizlemesi
-          </p>
-          <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-            Otomatik Güncellenir
-          </span>
+      {/* ========================================================================= */}
+      {/* D. ALT BİLGİ ŞERİDİ (FOOTER STRIP - Image 1 ile Birebir Aynı)             */}
+      {/* ========================================================================= */}
+      <div className="mt-5 pt-3.5 border-t border-slate-200/70 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span>Şahsi araç, ev atölyesi ve tam zamanlı emek ile sıfır riskli niş girişim modelleme motoru</span>
         </div>
-
-        <VentureIdeaPreviewCard draft={draft} />
-
-        <div className="p-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-800/50 border border-slate-200/80 dark:border-zinc-700/60 text-[11.5px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-          💡 Bu kart, modelinizi tamamladığınızda <strong>/girisim-ortaklik</strong> sayfasında yatırımcılara ve kurucu ortak adaylarına sergilenecektir.
+        <div className="flex items-center gap-2 font-medium">
+          <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            1 Eylül 2026 Güncel
+          </span>
+          <span>•</span>
+          <span>Doğrulanmış Melek Yatırımcı & Kurucu Ortak Ağı</span>
         </div>
       </div>
     </div>
