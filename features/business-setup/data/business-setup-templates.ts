@@ -1259,10 +1259,369 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     },
     monthlyUtilitiesEstimate: 16000,
     monthlyAccountingFee: 2800,
+  },
+
+  // ================= 26. KREŞ & GÜNDÜZ BAKIMEVİ =================
+  'kres-gunduz-bakimevi': {
+    id: 'kres-gunduz-bakimevi',
+    name: 'Kreş & Gündüz Bakımevi / Anaokulu',
+    emoji: '👶',
+    categoryGroup: 'Finans & Hizmet',
+    defaultM2: 220,
+    fitoutCostPerM2: 3500,
+    legalBasis: 'Aile ve Sosyal Hizmetler Bakanlığı Özel Kreş ve Gündüz Bakımevleri Yönetmeliği',
+    statutoryCapital: 300000,
+    mandatoryLegalItems: [
+      { name: 'Aile Bakanlığı Açılış İzin Harcı & Ruhsatı', cost: 45000, description: 'İl Aile ve Sosyal Hizmetler Müdürlüğü onay harcı' },
+      { name: 'İtfaiye Yangın & Çift Kaçış Merdiveni Uygunluk Raporu', cost: 18000, description: 'Bina tahliye ve yangın güvenlik onayı' },
+      { name: 'İl Sağlık Müdürlüğü Hijyen & Kapasite Raporu', cost: 12000, description: 'Grup odaları hava debisi ve aydınlatma onayı' },
+      { name: 'Ticaret Sicil Şirket Kuruluş Harçları', cost: 24000, description: 'Ana sözleşme ve tescil' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Söndürme Tüpü & Yangın Dolabı (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 3, minQty: 2, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 75, regulatoryNote: 'Özel Kreş Yönetmeliği yangın güvenlik şartı.' },
+      { id: 'cctv_parent', name: 'Ebeveyn Canlı İzleme NVR Güvenlik Kamera Sistemi (16 Kamera)', category: 'core_tech', unitCost: 38000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', description: 'Tüm sınıfları ve bahçeyi kaydeden yüksek çözünürlüklü IP kamera seti.' },
+      { id: 'kids_furniture', name: 'Ahşap Ergonomik Çocuk Aktivite Masası & Sandalye Seti (4 Grup)', category: 'furniture', unitCost: 42000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Takım', scalesWithM2: true, m2Ratio: 50 },
+      { id: 'soft_play', name: 'Yumuşak Zemin Kaplama, Top Havuzu & Eğitici Oyun Alanı', category: 'machinery', unitCost: 55000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'beds_rest', name: 'İstiflenebilir Anti-Bakteriyel Çocuk Yatakları & Uyku Seti (30 Adet)', category: 'furniture', unitCost: 36000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'kitchen_inox', name: 'Paslanmaz Çelik Kreş Mutfak & Yemekhane Ekipmanları', category: 'appliances', unitCost: 65000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'smart_board', name: 'Etkileşimli Akıllı Eğitim Tahtası & Ses Sistemi', category: 'core_tech', unitCost: 28000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
+      { id: 'ac_system', name: 'Merkezi Havalandırma & Filtreli Inverter Klimalar', category: 'appliances', unitCost: 58000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set', scalesWithM2: true, m2Ratio: 80 }
+    ],
+    initialInventoryCost: 35000,
+    initialInventoryDescription: 'Montessori materyalleri, boyama setleri, hijyen sarf malzemeleri ve ilk yardım kitleri.',
+    softwareLicenseCost: { annual: 18000, monthlyMaintenance: 1200, name: 'Kreş Ebeveyn İletişim, Yemek & Yoklama Otomasyonu' },
+    recommendedStaff: [
+      { role: 'Kurum Müdürü (Çocuk Gelişimi / Okul Öncesi Lisans)', count: 1, avgSalary: 60000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: 'Okul Öncesi Öğretmeni & Eğitmen', count: 2, avgSalary: 42000, isMandatory: true },
+      { role: 'Yardımcı Bakıcı & Mutfak Personeli', count: 1, avgSalary: 30000, isMandatory: true }
+    ],
+    breakEvenMetric: { label: 'Aylık Kayıtlı Öğrenci Sayısı', unitPrice: 18000, targetUnitsPerDay: 20, unitLabel: 'Öğrenci' },
+    revenueModel: {
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Kayıtlı Öğrenci Sayısı',
+      unitLabel: 'Öğrenci',
+      priceLabel: 'Aylık Öğrenci Başı Kreş Ücreti',
+      defaultVolume: 35,
+      minVolume: 10,
+      maxVolume: 80,
+      stepVolume: 5,
+      avgTicketPrice: 18000,
+      grossMarginPercent: 65,
+      daysPerMonth: 30,
+      description: 'Tam gün bakım, kahvaltı, öğle yemeği, ikindi ve pedagojik eğitim paketi.'
+    },
+    monthlyUtilitiesEstimate: 18000,
+    monthlyAccountingFee: 4000,
+  },
+
+  // ================= 27. KURYE & LOJİSTİK =================
+  'lojistik-kurye': {
+    id: 'lojistik-kurye',
+    name: 'Kurye Dağıtım & Şehir İçi Lojistik',
+    emoji: '🛵',
+    categoryGroup: 'Finans & Hizmet',
+    defaultM2: 40,
+    fitoutCostPerM2: 2200,
+    legalBasis: 'Ulaştırma ve Altyapı Bakanlığı Kargo ve Kurye Yönetmeliği (P2 / K1)',
+    statutoryCapital: 100000,
+    mandatoryLegalItems: [
+      { name: 'Ulaştırma Bakanlığı P2 / Kurye Yetki Belgesi Harcı', cost: 65000, description: 'Şehir içi kargo/kurye işletme yetkilendirmesi' },
+      { name: 'Şirket Kuruluş & Vergi Levhası', cost: 20000, description: 'Ticaret Sicil tescili' },
+      { name: 'Belediye İşyeri Ruhsat Harcı', cost: 10000, description: 'Lojistik ofis ruhsatı' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Söndürme Tüpü (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 100 },
+      { id: 'dispatch_server', name: 'Kurye Rota Optimizasyon Sunucusu & Çoklu Çağrı PC İstasyonu', category: 'core_tech', unitCost: 32000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', description: 'Canlı GPS kurye haritası ve sipariş dağıtım terminali.' },
+      { id: 'barcode_scanners', name: 'Endüstriyel El Terminalleri & Barkod/Karekod Okuyucular (4 Adet)', category: 'core_tech', unitCost: 28000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'secure_racks', name: 'Kilitli Emanet & Paket Ayrıştırma Raf Sistemi', category: 'furniture', unitCost: 18000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'courier_gear', name: 'Kurye Güvenlik Ekipman Seti (DOT Kask, Reflektörlü Mont, Termal Çantalar - 4 Kurye)', category: 'mandatory', unitCost: 24000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'cctv_kit', name: 'Güvenlik Kamera Sistemi (Ofis & Depo)', category: 'core_tech', unitCost: 16000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set' }
+    ],
+    initialInventoryCost: 18000,
+    initialInventoryDescription: 'Kargo zarfları, hava kabarcıklı poşetler, bantlar ve fatura fiş ruloları.',
+    softwareLicenseCost: { annual: 24000, monthlyMaintenance: 1600, name: 'Canlı Kurye Takip, Mobil Sürücü Uygulaması & Müşteri Takip API' },
+    recommendedStaff: [
+      { role: 'Operasyon & Filo Sorumlusu', count: 1, avgSalary: 45000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: 'Motorlu Kurye', count: 3, avgSalary: 35000, isMandatory: true }
+    ],
+    breakEvenMetric: { label: 'Günlük Teslim Edilen Paket / Gönderi', unitPrice: 75, targetUnitsPerDay: 85, unitLabel: 'Paket / Gün' },
+    revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Teslim Edilen Paket Sayısı',
+      unitLabel: 'Paket',
+      priceLabel: 'Paket Başına Ortalama Teslimat Ücreti',
+      defaultVolume: 140,
+      minVolume: 40,
+      maxVolume: 450,
+      stepVolume: 20,
+      avgTicketPrice: 75,
+      grossMarginPercent: 45,
+      daysPerMonth: 26,
+      description: 'E-ticaret aynı gün teslimat, restoran kurye kiralama ve kurumsal evrak taşıma.'
+    },
+    monthlyUtilitiesEstimate: 8000,
+    monthlyAccountingFee: 3000,
+  },
+
+  // ================= 28. MİMARLIK & MÜHENDİSLİK =================
+  'mimarlik-muhendislik': {
+    id: 'mimarlik-muhendislik',
+    name: 'Mimarlık & Mühendislik Proje Ofisi',
+    emoji: '📐',
+    categoryGroup: 'Finans & Hizmet',
+    defaultM2: 55,
+    fitoutCostPerM2: 2800,
+    legalBasis: 'TMMOB Mimarlar Odası / İnşaat Mühendisleri Odası Büro Tescil Belgesi (BTB)',
+    statutoryCapital: 50000,
+    mandatoryLegalItems: [
+      { name: 'TMMOB Oda Kayıt & Büro Tescil Belgesi (BTB) Harcı', cost: 22000, description: 'Oda serbest mimarlık/mühendislik tescili' },
+      { name: 'Limited Şirket / Şahıs Kuruluş & Tescil Harcı', cost: 18000, description: 'Ticaret Sicil tescili' },
+      { name: 'Belediye İşyeri Ruhsat Harcı', cost: 9500, description: 'Ofis çalışma ruhsatı' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Tüpü (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 100 },
+      { id: 'render_workstations', name: 'Yüksek Performanslı 3D Render & BIM İş İstasyonları (Çift Monitör - 2 Adet)', category: 'core_tech', unitCost: 75000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', description: 'RTX ekran kartlı, 64GB RAM mimari çizim ve render PC takımları.' },
+      { id: 'plotter_a0', name: 'A0 Geniş Format Renkli Mühendislik Plotter / Çizici', category: 'machinery', unitCost: 65000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
+      { id: 'plan_archive', name: 'Çelik Yatay Pafta & Proje Arşiv Dolabı', category: 'furniture', unitCost: 18000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'meeting_table', name: 'Müşteri Proje Sunum & Müzakere Toplantı Masası Grubu', category: 'furniture', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Takım' },
+      { id: 'presentation_screen', name: '55 inç 4K 3D Render ve Proje Sunum Ekranı', category: 'core_tech', unitCost: 19500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
+      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU)', category: 'appliances', unitCost: 29500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 45 }
+    ],
+    initialInventoryCost: 12000,
+    initialInventoryDescription: 'A0/A1 plotter rulo kağıtları, kartuşlar, numune malzeme katalogları ve kurumsal dosyalar.',
+    softwareLicenseCost: { annual: 48000, monthlyMaintenance: 2800, name: 'BIM / CAD & 3D Mimari Modelleme Lisans Paketi (Autodesk Revit / Archicad / Lumion)' },
+    recommendedStaff: [
+      { role: 'Yönetici Mimar / İnşaat Mühendisi (İmza Yetkili)', count: 1, avgSalary: 70000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: '3D Görselleştirme & Çizim Teknikeri', count: 1, avgSalary: 42000, isMandatory: false }
+    ],
+    breakEvenMetric: { label: 'Aylık Tamamlanan Proje Sayısı', unitPrice: 75000, targetUnitsPerDay: 1, unitLabel: 'Proje / Ay' },
+    revenueModel: {
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Tamamlanan Proje Sayısı',
+      unitLabel: 'Proje',
+      priceLabel: 'Proje Başına Ortalama Mimari / Statik Tasarım Ücreti',
+      defaultVolume: 3,
+      minVolume: 1,
+      maxVolume: 10,
+      stepVolume: 1,
+      avgTicketPrice: 75000,
+      grossMarginPercent: 75,
+      daysPerMonth: 30,
+      description: 'Ruhsat projeleri, iç mekan konsept tasarım, şantiye kontrollüğü ve 3D görselleştirme.'
+    },
+    monthlyUtilitiesEstimate: 6000,
+    monthlyAccountingFee: 3200,
+  },
+
+  // ================= 29. PASTANE & TATLICI =================
+  'tatlici-pastane': {
+    id: 'tatlici-pastane',
+    name: 'Pastane, Tatlıcı & Butik Fırın',
+    emoji: '🍰',
+    categoryGroup: 'Yeme - İçme',
+    defaultM2: 75,
+    fitoutCostPerM2: 4500,
+    legalBasis: 'Tarım ve Orman Bakanlığı Gıda Hijyeni Yönetmeliği',
+    statutoryCapital: 100000,
+    mandatoryLegalItems: [
+      { name: 'Tarım ve Orman Bakanlığı Gıda İşletme Onay Belgesi', cost: 18000, description: 'Gıda üretim ve satış izin tescili' },
+      { name: 'Belediye Sıhhi Müessese Ruhsatı', cost: 15000, description: 'Pastane açılış ruhsatı' },
+      { name: 'İtfaiye Baca ve Yangın Uygunluk Raporu', cost: 9000, description: 'Fırın bacası onay raporu' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Söndürme Tüpü (6kg ABC) & Yangın Battaniyesi', category: 'mandatory', unitCost: 4500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', scalesWithM2: true, m2Ratio: 75 },
+      { id: 'cake_showcase', name: 'Nem Ayarlı LED Işıklı Yatay Pasta Teşhir Dolabı (2.5 Metre)', category: 'appliances', unitCost: 78000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', description: 'Pastaların kurumasını önleyen cam vitrinli buzdolabı.' },
+      { id: 'convection_oven', name: 'Konveksiyonel 4 Tepsili Buharlı Pasta & Börek Fırını', category: 'machinery', unitCost: 65000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Adet' },
+      { id: 'planetary_mixer', name: 'Planet Mikser (20 Litre) & Hamur Yoğurma Makinesi', category: 'machinery', unitCost: 38000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'inox_workbenches', name: 'Paslanmaz Çelik Mermer Tezgahlı Çalışma Bankoları', category: 'furniture', unitCost: 32000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'espresso_tea', name: 'Çift Gruplu Espresso Kahve Makinesi & Otomatik Çay Kazanı', category: 'appliances', unitCost: 42000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set' },
+      { id: 'patisserie_tables', name: 'İç & Dış Mekan Müşteri Masaları ve Sandalyeleri (6 Masa Takımı)', category: 'furniture', unitCost: 36000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım', scalesWithM2: true, m2Ratio: 20 },
+      { id: 'pos_counter', name: 'Dokunmatik Kasa POS, Barkodlu Terazi & Çekmece', category: 'core_tech', unitCost: 24000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU)', category: 'appliances', unitCost: 29500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 45 }
+    ],
+    initialInventoryCost: 65000,
+    initialInventoryDescription: 'Un, tereyağı, Belçika çikolatası, fıstık, meyve püreleri, pasta kutuları ve ambalaj malzemeleri.',
+    softwareLicenseCost: { annual: 12000, monthlyMaintenance: 950, name: 'Pastane Adisyon, Reçete Maliyet & Hızlı Satış POS Yazılımı' },
+    recommendedStaff: [
+      { role: 'Baş Pastacı & Tatlı Ustası', count: 1, avgSalary: 55000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: 'Servis, Barista & Kasa Personeli', count: 1, avgSalary: 32000, isMandatory: true }
+    ],
+    breakEvenMetric: { label: 'Günlük Satılan Pasta / Tatlı Porsiyonu', unitPrice: 150, targetUnitsPerDay: 50, unitLabel: 'Porsiyon / Gün' },
+    revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Satılan Pasta & Tatlı Porsiyon Sayısı',
+      unitLabel: 'Porsiyon',
+      priceLabel: 'Porsiyon Başına Ortalama Satış Fiyatı',
+      defaultVolume: 90,
+      minVolume: 30,
+      maxVolume: 250,
+      stepVolume: 10,
+      avgTicketPrice: 150,
+      grossMarginPercent: 62,
+      daysPerMonth: 30,
+      description: 'Özel tasarım yaş pastalar, kuru pasta, baklava, kruvasan ve sıcak/soğuk kahve içecekleri.'
+    },
+    monthlyUtilitiesEstimate: 17000,
+    monthlyAccountingFee: 3200,
+  },
+
+  // ================= 30. PSİKOLOJİK DANIŞMANLIK =================
+  'psikolojik-danismanlik': {
+    id: 'psikolojik-danismanlik',
+    name: 'Psikolojik Danışmanlık & Terapi',
+    emoji: '🧠',
+    categoryGroup: 'Kişisel Bakım & Sağlık',
+    defaultM2: 55,
+    fitoutCostPerM2: 2600,
+    legalBasis: 'İl Sağlık Müdürlüğü ve Aile ve Sosyal Hizmetler İl Müdürlüğü Danışmanlık Yönetmeliği',
+    statutoryCapital: 50000,
+    mandatoryLegalItems: [
+      { name: 'Aile Danışma Merkezi / Danışmanlık Açılış İzni', cost: 20000, description: 'Resmi danışmanlık merkezi açılış harcı' },
+      { name: 'Şahıs / Limited Şirket Kuruluşu', cost: 15000, description: 'Vergi levhası ve oda tescili' },
+      { name: 'Belediye İşyeri Ruhsat Harcı', cost: 9000, description: 'Danışmanlık ofis ruhsatı' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Tüpü (6kg ABC)', category: 'mandatory', unitCost: 3500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 100 },
+      { id: 'acoustic_panels', name: 'Akustik Ses Yalıtımlı Terapi Odası Kapı & Duvar Panelleri', category: 'furniture', unitCost: 28000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', description: 'Danışan gizliliği için ses yalıtım sistemi.' },
+      { id: 'therapy_armchairs', name: 'Ortopedik Konforlu Terapi Koltuk Grubu & Sehpa Seti', category: 'furniture', unitCost: 24000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Takım' },
+      { id: 'white_noise', name: 'Beyaz Gürültü (White Noise) Ses Maskeleme Cihazı', category: 'core_tech', unitCost: 6500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet' },
+      { id: 'psychology_tests', name: 'Akredite Psikolojik Test & Değerlendirme Materyalleri Kiti', category: 'core_tech', unitCost: 18000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'reception_lounge', name: 'Danışan Bekleme Odası Koltukları & Dinlendirici Işık Ünitesi', category: 'furniture', unitCost: 16000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Takım' },
+      { id: 'pc_setup', name: 'Danışan Kayıt PC, Yazıcı & Kilitli Gizli Evrak Arşivi', category: 'core_tech', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU)', category: 'appliances', unitCost: 29500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 45 }
+    ],
+    initialInventoryCost: 8000,
+    initialInventoryDescription: 'Danışan formları, test materyalleri, aromaterapi difüzörleri ve ikram paketleri.',
+    softwareLicenseCost: { annual: 10000, monthlyMaintenance: 750, name: 'Danışan Randevu, Online Terapi Entegrasyonu & KVKK Uyumlu Not Yazılımı' },
+    recommendedStaff: [
+      { role: 'Uzman Klinik Psikolog / Aile Danışmanı', count: 1, avgSalary: 65000, isMandatory: true, allowOwnerFulfillment: true }
+    ],
+    breakEvenMetric: { label: 'Günlük Terapi / Danışmanlık Seansı', unitPrice: 1800, targetUnitsPerDay: 2, unitLabel: 'Seans / Gün' },
+    revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Tamamlanan Terapi Seansı Sayısı',
+      unitLabel: 'Seans',
+      priceLabel: 'Seans Başına Ortalama Terapi Ücreti',
+      defaultVolume: 5,
+      minVolume: 1,
+      maxVolume: 12,
+      stepVolume: 1,
+      avgTicketPrice: 1800,
+      grossMarginPercent: 88,
+      daysPerMonth: 24,
+      description: 'Bireysel yetişkin terapisi, çift ve aile danışmanlığı, çocuk-ergen terapisi ve kurumsal eğitimler.'
+    },
+    monthlyUtilitiesEstimate: 5000,
+    monthlyAccountingFee: 2800,
+  },
+
+  // ================= 31. SÜRÜCÜ KURSU =================
+  'surucu-kursu': {
+    id: 'surucu-kursu',
+    name: 'Sürücü Kursu & MTSK Merkezi',
+    emoji: '🚗',
+    categoryGroup: 'Finans & Hizmet',
+    defaultM2: 140,
+    fitoutCostPerM2: 3000,
+    legalBasis: 'MEB Özel Motorlu Taşıt Sürücüleri Kursu Yönetmeliği',
+    statutoryCapital: 250000,
+    mandatoryLegalItems: [
+      { name: 'MEB Özel Öğretim Kurumu Açılış İzin Harcı & Ruhsatı', cost: 42000, description: 'İl Milli Eğitim Müdürlüğü açılış tescili' },
+      { name: 'İtfaiye ve MEB Derslik Uygunluk Raporu', cost: 16000, description: 'Tahliye ve aydınlatma onayı' },
+      { name: 'Şirket Kuruluş ve Ticaret Sicil Gazetesi', cost: 22000, description: 'Şirket ana sözleşme tescili' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Söndürme Tüpü & İlkyardım Dolabı', category: 'mandatory', unitCost: 4500, defaultQty: 2, minQty: 2, isLocked: true, unitLabel: 'Set', scalesWithM2: true, m2Ratio: 75 },
+      { id: 'driver_simulator', name: 'MEB Onaylı 3 Ekranlı Sürücü Eğitim Simülatörü', category: 'machinery', unitCost: 95000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet', description: 'MEB mevzuatınca zorunlu simülatör cihazı.' },
+      { id: 'classroom_desks', name: 'Trafik & İlkyardım Derslik Sıraları & Sandalyeleri (20 Kişilik)', category: 'furniture', unitCost: 34000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set' },
+      { id: 'engine_cutout_model', name: 'Kesit Motor ve Şanzıman Mekanik Eğitim Maketi', category: 'core_tech', unitCost: 22000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Adet' },
+      { id: 'smart_board_meb', name: 'Derslik Akıllı Tahta & Projeksiyon Sistemi', category: 'core_tech', unitCost: 24000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set' },
+      { id: 'admin_furniture', name: 'Müdür Odası, Öğretmenler Odası ve Kayıt Masaları', category: 'furniture', unitCost: 32000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'ac_unit', name: 'Derslik & İdare Inverter Klimalar (2 Adet)', category: 'appliances', unitCost: 48000, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Set', scalesWithM2: true, m2Ratio: 70 }
+    ],
+    initialInventoryCost: 15000,
+    initialInventoryDescription: 'Trafik ders kitapları, ilkyardım mankenleri, makbuzlar ve MEBBİS formları.',
+    softwareLicenseCost: { annual: 16000, monthlyMaintenance: 1100, name: 'MEBBİS Entegre Sürücü Kursu Otomasyonu, e-Sınav & Ders Takip Yazılımı' },
+    recommendedStaff: [
+      { role: 'Kurum Müdürü (MEB Şartlarını Taşıyan Lisans Mezunu)', count: 1, avgSalary: 55000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: 'Direksiyon & Trafik Usta Öğreticisi', count: 2, avgSalary: 40000, isMandatory: true }
+    ],
+    breakEvenMetric: { label: 'Aylık Yeni Ehliyet Kursiyer Kaydı', unitPrice: 16000, targetUnitsPerDay: 18, unitLabel: 'Kursiyer / Ay' },
+    revenueModel: {
+      periodType: 'monthly',
+      volumeLabel: 'Aylık Yeni Kayıt Olan Kursiyer Sayısı',
+      unitLabel: 'Kursiyer',
+      priceLabel: 'Kursiyer Başına Ortalama Ehliyet Eğitim Ücreti (B Sınıfı)',
+      defaultVolume: 32,
+      minVolume: 10,
+      maxVolume: 90,
+      stepVolume: 2,
+      avgTicketPrice: 16000,
+      grossMarginPercent: 55,
+      daysPerMonth: 30,
+      description: 'B sınıfı otomobil, A sınıfı motosiklet, özel direksiyon dersleri ve SRC belgesi eğitimleri.'
+    },
+    monthlyUtilitiesEstimate: 14000,
+    monthlyAccountingFee: 3500,
+  },
+
+  // ================= 32. VETERİNER KLİNİĞİ =================
+  'veteriner-klinigi': {
+    id: 'veteriner-klinigi',
+    name: 'Veteriner Kliniği & Hayvan Hastanesi',
+    emoji: '🩺',
+    categoryGroup: 'Kişisel Bakım & Sağlık',
+    defaultM2: 85,
+    fitoutCostPerM2: 4800,
+    legalBasis: 'Tarım ve Orman Bakanlığı Veteriner Teşhis ve Tedavi Merkezleri Yönetmeliği',
+    statutoryCapital: 200000,
+    mandatoryLegalItems: [
+      { name: 'Tarım ve Orman Bakanlığı Veteriner Kliniği Ruhsat Harcı', cost: 35000, description: 'İl Tarım Müdürlüğü klinik tescili' },
+      { name: 'TAEK / NDK Röntgen Cihazı Lisans ve Zırhlama Onayı', cost: 28000, description: 'Röntgen odası kurşun zırhlama ve TAEK lisansı' },
+      { name: 'Veteriner Hekimler Odası Tescil Harcı', cost: 16000, description: 'Oda üye ve klinik levhası' },
+      { name: 'Belediye İşyeri Açma Ruhsatı', cost: 12000, description: 'Sıhhi müessese ruhsatı' }
+    ],
+    equipments: [
+      { id: 'fire_ext', name: 'Yangın Söndürme Tüpü & Medikal Atık Kutusu', category: 'mandatory', unitCost: 4500, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', scalesWithM2: true, m2Ratio: 85 },
+      { id: 'dr_xray', name: 'Yüksek Frekanslı Dijital Veteriner Röntgen (DR) Sistemi', category: 'machinery', unitCost: 240000, defaultQty: 1, minQty: 1, isLocked: true, unitLabel: 'Set', description: 'Kurşun zırhlı oda için doğrudan dijital röntgen dedektörü ve jeneratör.' },
+      { id: 'blood_analyzer', name: 'Otomatik Veteriner Biyokimya & Hemogram Kan Sayım Cihazı', category: 'core_tech', unitCost: 110000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'operation_table', name: 'Paslanmaz Hidrolik Cerrahi Operasyon Masası & Tavan Skialitik Lambası', category: 'machinery', unitCost: 48000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Takım' },
+      { id: 'autoclave_vet', name: 'B Sınıfı Medikal Otoklav Sterilizatör & Cerrahi El Aletleri Seti', category: 'appliances', unitCost: 38000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'icu_cages', name: 'Paslanmaz Çelik Hasta Hayvan Post-Op & Yoğun Bakım Kafes Ünitesi (6 Bölmeli)', category: 'furniture', unitCost: 36000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'vaccine_fridge', name: 'Dijital Sıcaklık Takip Kayıtlı Aşı ve İlaç Medikal Buzdolabı', category: 'appliances', unitCost: 28000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Adet' },
+      { id: 'examination_table', name: 'Muayene Masası, Hasta Tartısı & Otoskop/Oftalmoskop Kiti', category: 'core_tech', unitCost: 26000, defaultQty: 1, minQty: 1, isLocked: false, unitLabel: 'Set' },
+      { id: 'ac_unit', name: 'Inverter Split Klima (18.000 BTU)', category: 'appliances', unitCost: 29500, defaultQty: 1, minQty: 0, isLocked: false, unitLabel: 'Adet', scalesWithM2: true, m2Ratio: 45 }
+    ],
+    initialInventoryCost: 85000,
+    initialInventoryDescription: 'Aşılar, antibiyotikler, anestezi ilaçları, serumlar, bandaj ve cerrahi sarf malzemeleri.',
+    softwareLicenseCost: { annual: 16000, monthlyMaintenance: 1200, name: 'Veteriner Hasta Takip, Aşı Hatırlatma, Çip & e-Reçete (İTS/ATS) Entegrasyonu' },
+    recommendedStaff: [
+      { role: 'Sorumlu Veteriner Hekim (Klinik Sahibi)', count: 1, avgSalary: 75000, isMandatory: true, allowOwnerFulfillment: true },
+      { role: 'Veteriner Sağlık Teknikeri & Yardımcı', count: 1, avgSalary: 38000, isMandatory: false }
+    ],
+    breakEvenMetric: { label: 'Günlük Muayene, Aşı & Operasyon Sayısı', unitPrice: 1250, targetUnitsPerDay: 6, unitLabel: 'İşlem / Gün' },
+    revenueModel: {
+      periodType: 'daily',
+      volumeLabel: 'Günlük Tamamlanan Muayene, Aşı & Tedavi Sayısı',
+      unitLabel: 'İşlem',
+      priceLabel: 'İşlem Başına Ortalama Veterinerlik Hizmet Geliri',
+      defaultVolume: 14,
+      minVolume: 3,
+      maxVolume: 35,
+      stepVolume: 1,
+      avgTicketPrice: 1250,
+      grossMarginPercent: 68,
+      daysPerMonth: 26,
+      description: 'Muayene, aşı takvimi, kısırlaştırma cerrahisi, dijital röntgen, laboratuvar tahlilleri ve pet pansiyon.'
+    },
+    monthlyUtilitiesEstimate: 12000,
+    monthlyAccountingFee: 3200,
   }
 };
 
-export const BUSINESS_SETUP_TEMPLATES: BusinessTemplate[] = Object.values(BUSINESS_TEMPLATES);
+export const BUSINESS_SETUP_TEMPLATES: BusinessTemplate[] = Object.values(BUSINESS_TEMPLATES).sort((a, b) =>
+  a.name.localeCompare(b.name, 'tr')
+);
 
 export function getBusinessTemplateById(id: string): BusinessTemplate {
   if (BUSINESS_TEMPLATES[id]) return BUSINESS_TEMPLATES[id];
@@ -1271,14 +1630,16 @@ export function getBusinessTemplateById(id: string): BusinessTemplate {
 }
 
 export function getTemplatesByCategoryGroup(groupName: string): BusinessTemplate[] {
+  if (groupName === 'Tümü') return BUSINESS_SETUP_TEMPLATES;
   return BUSINESS_SETUP_TEMPLATES.filter((t) => t.categoryGroup === groupName);
 }
 
-export function getAllCategoryGroups(): ('Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Mağazacılık' | 'Otomotiv & Sanayi')[] {
+export function getAllCategoryGroups(): ('Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Zanaat' | 'Perakende & Mağazacılık' | 'Otomotiv & Sanayi')[] {
   return [
     'Finans & Hizmet',
     'Yeme - İçme',
     'Kişisel Bakım & Sağlık',
+    'Perakende & Zanaat',
     'Perakende & Mağazacılık',
     'Otomotiv & Sanayi'
   ];

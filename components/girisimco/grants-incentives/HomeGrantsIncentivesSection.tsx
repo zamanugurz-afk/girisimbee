@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
 import {
-  SECTOR_INCENTIVE_PROFILES,
+  ALL_SECTOR_INCENTIVE_PROFILES,
   getCityIncentiveZone,
   getSectorIncentiveProfile,
 } from '@/features/grants-incentives/data/grants-incentives-data';
@@ -33,6 +33,8 @@ import type {
   GrantSupportItem,
   EntrepreneurFilters,
 } from '@/features/grants-incentives/types/grants-incentives.types';
+import { useUnifiedCockpit } from '@/features/common/context/UnifiedCockpitContext';
+import { getRegulatoryBadgeText } from '@/features/common/config/market-version.config';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -64,12 +66,19 @@ function downloadFile(filename: string, text: string) {
 }
 
 export function HomeGrantsIncentivesSection() {
+  const {
+    selectedCity,
+    setSelectedCity,
+    selectedDistrict,
+    setSelectedDistrict,
+    selectedSectorId,
+    setSelectedSectorId,
+    selectedCategoryGroup,
+    setSelectedCategoryGroup,
+  } = useUnifiedCockpit();
+
   const [currentStepId, setCurrentStepId] = useState<number>(1);
-  const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
-  const [selectedSectorId, setSelectedSectorId] = useState<string>('yazilim-ajans');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
   const [sectorPage, setSectorPage] = useState<number>(1);
 
   // Girişimci Profil Filtreleri
@@ -107,8 +116,8 @@ export function HomeGrantsIncentivesSection() {
     [selectedSectorId],
   );
 
-  // Tüm Sektörler ve Filtreleme
-  const allSectors = useMemo(() => Object.values(SECTOR_INCENTIVE_PROFILES), []);
+  // Tüm Sektörler ve Filtreleme (32 A-Z Sektör)
+  const allSectors = useMemo(() => ALL_SECTOR_INCENTIVE_PROFILES, []);
   const filteredSectors = useMemo(() => {
     return allSectors.filter((sec) => {
       const matchCat =

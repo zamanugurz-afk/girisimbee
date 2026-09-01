@@ -546,6 +546,13 @@ const DEFAULT_NACE_MAPPING: Record<
   'oto-yikama': { name: 'Oto Yıkama & Detailing', emoji: '🚗', category: 'Perakende & Zanaat', nace: '45.20.06', desc: 'Otomobil Yıkama, Cilalama ve Benzeri Faaliyetler' },
   'lastik-servisi': { name: 'Lastik & Jant Servis Merkezi', emoji: '🛞', category: 'Perakende & Zanaat', nace: '45.20.04', desc: 'Lastik Onarımı, Değişimi ve Balans Ayarı' },
   'kuru-temizleme': { name: 'Kuru Temizleme & Terzi', emoji: '👔', category: 'Perakende & Zanaat', nace: '96.01.01', desc: 'Çamaşırhane ve Kuru Temizleme Hizmetleri' },
+  'kres-gunduz-bakimevi': { name: 'Kreş & Gündüz Bakımevi / Anaokulu', emoji: '👶', category: 'Finans & Hizmet', nace: '88.91.01', desc: 'Çocuk Gündüz Bakım ve Okul Öncesi Eğitim Faaliyetleri' },
+  'lojistik-kurye': { name: 'Kurye Dağıtım & Şehir İçi Lojistik', emoji: '🛵', category: 'Finans & Hizmet', nace: '53.20.09', desc: 'Kurye ve Hızlı Paket Dağıtım Faaliyetleri' },
+  'mimarlik-muhendislik': { name: 'Mimarlık & Mühendislik Proje Ofisi', emoji: '📐', category: 'Finans & Hizmet', nace: '71.11.01', desc: 'Mimarlık, Statik Proje ve Bina Tasarım Hizmetleri' },
+  'tatlici-pastane': { name: 'Pastane, Tatlıcı & Butik Fırın', emoji: '🍰', category: 'Yeme - İçme', nace: '10.71.02', desc: 'Pastane Ürünleri, Tatlı ve Pasta İmalatı ve Satışı' },
+  'psikolojik-danismanlik': { name: 'Psikolojik Danışmanlık & Terapi', emoji: '🧠', category: 'Kişisel Bakım & Sağlık', nace: '86.90.14', desc: 'Psikolog ve Aile Danışmanlığı Faaliyetleri' },
+  'surucu-kursu': { name: 'Sürücü Kursu & MTSK Merkezi', emoji: '🚗', category: 'Finans & Hizmet', nace: '85.53.01', desc: 'Motorlu Taşıt Sürücüleri Kursu (MTSK) Faaliyetleri' },
+  'veteriner-klinigi': { name: 'Veteriner Kliniği & Hayvan Hastanesi', emoji: '🩺', category: 'Kişisel Bakım & Sağlık', nace: '75.00.02', desc: 'Evcil Hayvan Sağlığı, Teşhis ve Veterinerlik Hizmetleri', isAdvanced: true },
 };
 
 for (const [id, def] of Object.entries(DEFAULT_NACE_MAPPING)) {
@@ -601,6 +608,10 @@ for (const [id, def] of Object.entries(DEFAULT_NACE_MAPPING)) {
     };
   }
 }
+
+export const ALL_SECTOR_INCENTIVE_PROFILES: SectorIncentiveProfile[] = Object.values(
+  SECTOR_INCENTIVE_PROFILES,
+).sort((a, b) => a.sectorName.localeCompare(b.sectorName, 'tr'));
 
 export function getSectorIncentiveProfile(sectorId: string): SectorIncentiveProfile {
   return (

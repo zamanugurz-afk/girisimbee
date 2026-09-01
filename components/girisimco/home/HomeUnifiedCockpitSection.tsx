@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, CheckCircle2 } from 'lucide-react';
 import { HomeInvestmentRadarSection } from '@/components/girisimco/home/HomeInvestmentRadarSection';
 import { HomeBusinessSetupAssistantSection } from '@/components/girisimco/home/HomeBusinessSetupAssistantSection';
 import { HomeLegalAssistantSection } from '@/components/girisimco/legal-assistant/HomeLegalAssistantSection';
 import { HomeGrantsIncentivesSection } from '@/components/girisimco/grants-incentives/HomeGrantsIncentivesSection';
+import {
+  UnifiedCockpitProvider,
+  useUnifiedCockpit,
+} from '@/features/common/context/UnifiedCockpitContext';
+import { getRegulatoryBadgeText } from '@/features/common/config/market-version.config';
 import { cn } from '@/lib/utils';
 
 export type CockpitTab = 'radar' | 'assistant' | 'legal' | 'grants';
@@ -14,10 +19,9 @@ interface HomeUnifiedCockpitSectionProps {
   defaultTab?: CockpitTab;
 }
 
-export function HomeUnifiedCockpitSection({
-  defaultTab = 'radar',
-}: HomeUnifiedCockpitSectionProps) {
+function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSectionProps) {
   const [activeTab, setActiveTab] = useState<CockpitTab>(defaultTab);
+  const { selectedCity, selectedDistrict, selectedSectorId } = useUnifiedCockpit();
 
   // Hash / Link dinleyici: #radar-section, #assistant-section, #legal-section veya #grants-section
   useEffect(() => {
@@ -183,20 +187,22 @@ export function HomeUnifiedCockpitSection({
           </div>
         </div>
 
-        {/* Bilgilendirme Satırı */}
-        <div className="flex items-center justify-between px-2 text-[11.5px] text-muted-foreground font-medium">
+        {/* Bilgilendirme ve Aylık Güncelleme Onay Satırı */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-2 text-[11px] text-muted-foreground font-medium">
           <div className="flex items-center gap-1.5 truncate">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span className="truncate">
               {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
-              {activeTab === 'assistant' && '25 sektörde m², kira ve demirbaş maliyetlerini simüle edin'}
+              {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
               {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
               {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
             </span>
           </div>
-          <span className="hidden md:inline-block text-[10.5px] text-slate-400 shrink-0">
-            Girişimbee 2026 Canlı Veri Motoru
-          </span>
+
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold shrink-0">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+            <span>{getRegulatoryBadgeText()}</span>
+          </div>
         </div>
       </div>
 
@@ -221,6 +227,14 @@ export function HomeUnifiedCockpitSection({
         </div>
       </div>
     </div>
+  );
+}
+
+export function HomeUnifiedCockpitSection(props: HomeUnifiedCockpitSectionProps) {
+  return (
+    <UnifiedCockpitProvider>
+      <UnifiedCockpitInner {...props} />
+    </UnifiedCockpitProvider>
   );
 }
 

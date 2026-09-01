@@ -780,6 +780,97 @@ const SECTOR_METAS: Record<string, SectorMeta> = {
     step3ProTip: 'Perkloretilen kimyasal atık bertaraf sözleşmesi ve MMO buhar kazanı muayene raporu şarttır.',
     step5ProTip: 'Müstakil baca ve yangın güvenliği kontrolü sonrası belediye GSM 3. Sınıf ruhsatı düzenlenir.',
   },
+  'kres-gunduz-bakimevi': {
+    name: 'Kreş & Gündüz Bakımevi / Anaokulu',
+    emoji: '👶',
+    category: 'Finans & Hizmet',
+    capital: 300000,
+    cost: 58000,
+    days: '25 - 35 İş Günü',
+    institution3: 'Aile ve Sosyal Hizmetler İl Müdürlüğü',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Özel Kreş Açılış İzin Belgesi & Bina Standartları Onayı',
+    step3ProTip: 'Bahçe alanı, çift kaçış merdiveni, çocuk başına düşen m² ve hava debisi denetlenir.',
+    step5ProTip: 'Aile Bakanlığı onayından sonra belediye ve itfaiye ortak ruhsatı düzenler.',
+  },
+  'lojistik-kurye': {
+    name: 'Kurye Dağıtım & Şehir İçi Lojistik',
+    emoji: '🛵',
+    category: 'Finans & Hizmet',
+    capital: 100000,
+    cost: 75000,
+    days: '10 - 15 İş Günü',
+    institution3: 'Ulaştırma ve Altyapı Bakanlığı Bölge Müdürlüğü',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'P2 / Kurye Dağıtım İşletmeciliği Yetki Belgesi',
+    step3ProTip: 'Özmal veya sözleşmeli en az 3 adet kurye aracı/motosiklet tescili ve kurye takip yazılımı şarttır.',
+    step5ProTip: 'Yetki belgesi ile birlikte belediyeye lojistik büro ruhsatı başvurusu yapılır.',
+  },
+  'mimarlik-muhendislik': {
+    name: 'Mimarlık & Mühendislik Proje Ofisi',
+    emoji: '📐',
+    category: 'Finans & Hizmet',
+    capital: 50000,
+    cost: 26000,
+    days: '4 - 6 İş Günü',
+    institution3: 'TMMOB Mimarlar Odası / İnşaat Mühendisleri Odası',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Serbest Mimarlık / Mühendislik Büro Tescil Belgesi (BTB)',
+    step3ProTip: 'Oda aidatı, imza sirküleri ve mimar/mühendis diploma tescili ile BTB belgesi alınır.',
+    step5ProTip: 'Belediyeye mimarlık bürosu ruhsat dosyası verilir.',
+  },
+  'tatlici-pastane': {
+    name: 'Pastane, Tatlıcı & Butik Fırın',
+    emoji: '🍰',
+    category: 'Yeme - İçme',
+    capital: 100000,
+    cost: 38000,
+    days: '7 - 10 İş Günü',
+    institution3: 'İl/İlçe Tarım ve Orman Müdürlüğü',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Gıda İşletme Kayıt / Onay Belgesi & Hijyen Denetimi',
+    step3ProTip: 'Fırın bacası, su analiz raporu, personel hijyen eğitimi ve zararlı mücadele sözleşmesi aranır.',
+    step5ProTip: 'İtfaiye baca raporu ve gıda kayıt belgesiyle belediye sıhhi ruhsatı verir.',
+  },
+  'psikolojik-danismanlik': {
+    name: 'Psikolojik Danışmanlık & Terapi',
+    emoji: '🧠',
+    category: 'Kişisel Bakım & Sağlık',
+    capital: 50000,
+    cost: 24000,
+    days: '6 - 8 İş Günü',
+    institution3: 'İl Sağlık Müdürlüğü / Aile ve Sosyal Hizmetler Müdürlüğü',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Psikolojik Danışmanlık & Aile Danışma Merkezi İzin Belgesi',
+    step3ProTip: 'Psikoloji lisans/yüksek lisans diploması, ses yalıtımı ve danışan bekleme alanı şarttır.',
+    step5ProTip: 'Belediyeye danışmanlık merkezi açılış beyannamesi verilir.',
+  },
+  'surucu-kursu': {
+    name: 'Sürücü Kursu & MTSK Merkezi',
+    emoji: '🚗',
+    category: 'Finans & Hizmet',
+    capital: 250000,
+    cost: 65000,
+    days: '20 - 30 İş Günü',
+    institution3: 'T.C. Millî Eğitim Bakanlığı (MEB Özel Öğretim Kurumları)',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'MEB Özel MTSK Kurum Açma İzni ve İş Yeri Açma Ruhsatı',
+    step3ProTip: 'Derslik tavan yüksekliği, simülatör cihazı, eğitim araçları ve usta öğretici sözleşmeleri denetlenir.',
+    step5ProTip: 'MEB müfettiş raporu sonrası kurum açılış ruhsatı valilikçe onaylanır.',
+  },
+  'veteriner-klinigi': {
+    name: 'Veteriner Kliniği & Hayvan Hastanesi',
+    emoji: '🩺',
+    category: 'Kişisel Bakım & Sağlık',
+    capital: 200000,
+    cost: 72000,
+    days: '15 - 20 İş Günü',
+    institution3: 'Tarım ve Orman Bakanlığı & Nükleer Düzenleme Kurumu (NDK)',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Veteriner Kliniği Çalışma İzni & Röntgen Odası TAEK/NDK Lisansı',
+    step3ProTip: 'Kurşun kaplı röntgen odası, ameliyathane, otoklav ve veteriner hekim diploma tescili zorunludur.',
+    step5ProTip: 'İl Tarım Müdürlüğü denetimi sonrası klinik ruhsatı verilir.',
+  },
 };
 
 // Metadatalardan eksik kalan tüm sektörleri 5 adımlı tam şablonla otomatik doldur
@@ -935,6 +1026,10 @@ for (const [key, meta] of Object.entries(SECTOR_METAS)) {
     });
   }
 }
+
+export const ALL_LEGAL_ROADMAPS: SectorLegalRoadmap[] = Object.values(LEGAL_APPLICATION_ROADMAPS).sort((a, b) =>
+  a.sectorName.localeCompare(b.sectorName, 'tr')
+);
 
 export function getSectorLegalRoadmap(sectorId: string): SectorLegalRoadmap {
   return (

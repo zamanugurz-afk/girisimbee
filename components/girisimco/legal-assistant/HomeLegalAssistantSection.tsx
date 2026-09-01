@@ -27,6 +27,7 @@ import {
   FileBadge,
 } from 'lucide-react';
 import {
+  ALL_LEGAL_ROADMAPS,
   LEGAL_APPLICATION_ROADMAPS,
   getSectorLegalRoadmap,
 } from '@/features/legal-assistant/data/legal-application-roadmap';
@@ -37,6 +38,8 @@ import type {
   DocumentTemplateContent,
 } from '@/features/legal-assistant/types/legal-assistant.types';
 import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
+import { useUnifiedCockpit } from '@/features/common/context/UnifiedCockpitContext';
+import { getRegulatoryBadgeText } from '@/features/common/config/market-version.config';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -111,12 +114,19 @@ function buildDetailedTemplate(
 }
 
 export function HomeLegalAssistantSection() {
-  const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
+  const {
+    selectedCity,
+    setSelectedCity,
+    selectedDistrict,
+    setSelectedDistrict,
+    selectedSectorId,
+    setSelectedSectorId,
+    selectedCategoryGroup,
+    setSelectedCategoryGroup,
+  } = useUnifiedCockpit();
+
   const [activeStep, setActiveStep] = useState<number>(1);
-  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Tümü');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedSectorId, setSelectedSectorId] = useState<string>('sigorta-acentesi');
   const [completedDocs, setCompletedDocs] = useState<Record<string, boolean>>({});
   const [focusedDocId, setFocusedDocId] = useState<string | null>(null);
 
@@ -135,7 +145,7 @@ export function HomeLegalAssistantSection() {
   }, [selectedCity]);
 
   const availableRoadmaps = useMemo(() => {
-    return Object.values(LEGAL_APPLICATION_ROADMAPS);
+    return ALL_LEGAL_ROADMAPS;
   }, []);
 
   const filteredSectors = useMemo(() => {

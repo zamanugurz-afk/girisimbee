@@ -64,6 +64,8 @@ import type {
   SetupStaffRole,
   SetupLegalFeeItem,
 } from '@/features/business-setup/types/business-setup.types';
+import { useUnifiedCockpit } from '@/features/common/context/UnifiedCockpitContext';
+import { getRegulatoryBadgeText } from '@/features/common/config/market-version.config';
 
 const STEPS = [
   { id: 1, label: 'Sektör & Meslek', sub: 'İşletme türü ve konumu', icon: Building2 },
@@ -76,21 +78,26 @@ const STEPS = [
 ];
 
 export function HomeBusinessSetupAssistantSection() {
-  // 1. Sektör Grubu & Şablon State
-  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('Finans & Hizmet');
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('sigorta-acentesi');
+  const {
+    selectedCity,
+    setSelectedCity,
+    selectedDistrict,
+    setSelectedDistrict,
+    selectedSectorId,
+    setSelectedSectorId,
+    selectedCategoryGroup,
+    setSelectedCategoryGroup,
+  } = useUnifiedCockpit();
+
   const [sectorSearchQuery, setSectorSearchQuery] = useState<string>('');
-  
-  const [selectedCity, setSelectedCity] = useState<string>('İstanbul');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('Kadıköy');
 
   // Active step (1 to 7)
   const [activeStep, setActiveStep] = useState<number>(1);
 
-  // Current Template
+  // Current Template from unified sector ID
   const activeTemplate = useMemo(() => {
-    return getBusinessTemplateById(selectedTemplateId);
-  }, [selectedTemplateId]);
+    return getBusinessTemplateById(selectedSectorId);
+  }, [selectedSectorId]);
 
   // 2. Mekan State (Varsayılan 2x Kira: 1 Peşin + 1 Depozito)
   const [m2, setM2] = useState<number>(activeTemplate.defaultM2);
@@ -574,12 +581,12 @@ export function HomeBusinessSetupAssistantSection() {
                   {/* İlan Kartı Tarzında Meslek Modelleri Listesi */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {filteredTemplates.map((tpl) => {
-                      const isSelected = tpl.id === selectedTemplateId;
+                      const isSelected = tpl.id === selectedSectorId;
                       return (
                         <button
                           key={tpl.id}
                           type="button"
-                          onClick={() => setSelectedTemplateId(tpl.id)}
+                          onClick={() => setSelectedSectorId(tpl.id)}
                           className={cn(
                             'p-3 rounded-2xl border text-left transition-all flex items-start justify-between gap-2.5 group shadow-xs',
                             isSelected

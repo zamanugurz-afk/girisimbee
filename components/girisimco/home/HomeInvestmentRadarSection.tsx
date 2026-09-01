@@ -39,6 +39,7 @@ import {
 } from '@/features/radar/config/radar.config';
 import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
 import { Button } from '@/components/ui/button';
+import { useUnifiedCockpit } from '@/features/common/context/UnifiedCockpitContext';
 import { cn } from '@/lib/utils';
 
 // Dynamic SSR-safe Leaflet Map
@@ -90,6 +91,15 @@ function normalizeTrText(str: string): string {
 const CLIENT_RADAR_CACHE = new Map<string, RadarSpatialResponse>();
 
 export function HomeInvestmentRadarSection() {
+  const {
+    selectedCity,
+    setSelectedCity,
+    selectedDistrict,
+    setSelectedDistrict,
+    selectedSectorId,
+    setSelectedSectorId,
+  } = useUnifiedCockpit();
+
   const [selectedCategories, setSelectedCategories] = useState<RadarCategoryKey[]>([]);
   const [centerLat, setCenterLat] = useState<number>(RADAR_DEFAULT_CENTER.lat);
   const [centerLng, setCenterLng] = useState<number>(RADAR_DEFAULT_CENTER.lng);
