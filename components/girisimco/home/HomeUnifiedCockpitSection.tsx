@@ -186,24 +186,6 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
             </button>
           </div>
         </div>
-
-        {/* Bilgilendirme ve Aylık Güncelleme Onay Satırı */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-2 text-[11.5px] text-muted-foreground font-medium">
-          <div className="flex items-center gap-1.5 truncate">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="truncate">
-              {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
-              {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
-              {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
-              {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold shrink-0">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>{getRegulatoryBadgeText()}</span>
-          </div>
-        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -224,6 +206,28 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
 
         <div className={cn(activeTab === 'grants' ? 'block' : 'hidden')}>
           <HomeGrantsIncentivesSection />
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. ALT BİLGİLENDİRME & AYLIK GÜNCELLEME ONAY SATIRI                      */}
+      {/* ========================================================================= */}
+      <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 pt-3 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-2 text-[11.5px] text-muted-foreground font-medium">
+          <div className="flex items-center gap-1.5 truncate">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="truncate">
+              {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
+              {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
+              {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
+              {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{getRegulatoryBadgeText()}</span>
+          </div>
         </div>
       </div>
     </div>
