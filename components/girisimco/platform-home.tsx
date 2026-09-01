@@ -14,6 +14,7 @@ import { PlatformHero } from '@/components/girisimco/hero/PlatformHero';
 import { useHeroStats } from '@/features/home';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 import { HomeUnifiedCockpitSection } from '@/components/girisimco/home/HomeUnifiedCockpitSection';
+import { HomeTrendBusinessIdeasSection } from '@/components/girisimco/home/HomeTrendBusinessIdeasSection';
 
 export function PlatformHome() {
   const { counts, isLoading } = useHeroStats();
@@ -170,10 +171,11 @@ export function PlatformHome() {
             />
           </div>
 
-          {/* İÇERİK BİLEŞENLERİ (1. MARKET, 2. BİRLEŞİK KOKPİT: LOKASYON RADARI & İŞ KURMA ASİSTANI) */}
+          {/* İÇERİK BİLEŞENLERİ (1. MARKET, 2. BİRLEŞİK KOKPİT, 3. TREND & YENİ NESİL İŞ FİKİRLERİ) */}
           <div className="relative z-10 space-y-10 sm:space-y-16">
             <HomeMarketSection />
             <HomeUnifiedCockpitSection />
+            <HomeTrendBusinessIdeasSection />
           </div>
         </div>
       </div>
