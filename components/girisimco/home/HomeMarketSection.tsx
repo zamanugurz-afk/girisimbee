@@ -72,7 +72,7 @@ export function HomeMarketSection({ fold = false }: { fold?: boolean }) {
 
   return (
     <section
-      id="firsatlar"
+      id="market-section"
       className={cn(
         'relative z-[1] min-w-0 overflow-x-hidden bg-transparent dark:bg-transparent',
         fold && 'shrink-0',

@@ -381,7 +381,7 @@ export function HomeBusinessSetupAssistantSection() {
   };
 
   return (
-    <section className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <section id="assistant-section" className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       
       {/* ========================================================================= */}
       {/* 2. ANA ASİSTAN KOKPİTİ (3 ENTEGRE SÜTUN - LOKASYON RADARI BÜTÜNLÜĞÜNDE)     */}

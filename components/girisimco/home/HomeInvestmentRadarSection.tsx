@@ -498,7 +498,7 @@ export function HomeInvestmentRadarSection() {
   }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
 
   return (
-    <section className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <section id="radar-section" className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* 2. ANA RADAR KOKPİTİ (3 ENTEGRE SÜTUN) */}
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
         {/* Animated Loading Shimmer Bar */}
