@@ -461,7 +461,7 @@ export function HomeLegalAssistantSection() {
                     <span className="text-[10px] text-muted-foreground">İşaretledikçe alt detay güncellenir</span>
                   </span>
 
-                  <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                  <div className="space-y-1.5">
                     {currentStep.requiredDocuments.map((doc) => {
                       const isDone = !!(completedDocs[doc.id] || completedDocs[doc.name]);
                       const isFocused = activeFocusedDoc?.id === doc.id;
