@@ -1,11 +1,24 @@
 export type ApplicationChannel = 'Online Portal' | 'Fiziki Başvuru' | 'Noter / Odalar';
 export type DocumentFormat = 'E-İmza' | 'Asıl Belge' | 'Noter Onaylı' | 'PDF';
 
+export interface DocumentTemplateContent {
+  title: string;
+  authority: string;
+  docType: string;
+  summary: string;
+  sections: { heading: string; body: string }[];
+  signers: string[];
+  legalDisclaimer: string;
+}
+
 export interface RequiredDocumentItem {
+  id: string;
   name: string;
   format: DocumentFormat;
   isDownloadableTemplate?: boolean;
   templateFileName?: string;
+  proTip: string;
+  templateContent?: DocumentTemplateContent;
 }
 
 export interface ApplicationStep {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Scale,
   Building2,
@@ -19,6 +19,12 @@ import {
   Info,
   Layers,
   FileCheck2,
+  Printer,
+  Copy,
+  Check,
+  X,
+  PartyPopper,
+  FileBadge,
 } from 'lucide-react';
 import {
   LEGAL_APPLICATION_ROADMAPS,
@@ -28,6 +34,7 @@ import type {
   SectorLegalRoadmap,
   ApplicationStep,
   RequiredDocumentItem,
+  DocumentTemplateContent,
 } from '@/features/legal-assistant/types/legal-assistant.types';
 import { TURKEY_CITY_RENTAL_RATES } from '@/features/business-setup/data/district-rental-rates';
 import { Button } from '@/components/ui/button';
@@ -56,6 +63,13 @@ export function HomeLegalAssistantSection() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedSectorId, setSelectedSectorId] = useState<string>('sigorta-acentesi');
   const [completedDocs, setCompletedDocs] = useState<Record<string, boolean>>({});
+  const [focusedDocId, setFocusedDocId] = useState<string | null>(null);
+
+  // Modallar
+  const [activeTemplateDoc, setActiveTemplateDoc] = useState<RequiredDocumentItem | null>(null);
+  const [showRoadmapPrintModal, setShowRoadmapPrintModal] = useState<boolean>(false);
+  const [showSuccessCelebration, setShowSuccessCelebration] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const cityOptions = useMemo(() => Object.keys(TURKEY_CITY_RENTAL_RATES), []);
   const districtOptions = useMemo(() => {
@@ -99,6 +113,38 @@ export function HomeLegalAssistantSection() {
   const currentStep: ApplicationStep =
     currentRoadmap.steps[currentStepIndex] || currentRoadmap.steps[0];
 
+  // Adım değiştiğinde odaklanan dökümanı sıfırla veya ilk dökümana odakla
+  useEffect(() => {
+    if (currentStep?.requiredDocuments?.length > 0) {
+      setFocusedDocId(currentStep.requiredDocuments[0].id);
+    }
+  }, [activeStep, selectedSectorId]);
+
+  // Aktif odaklanan döküman
+  const activeFocusedDoc = useMemo(() => {
+    if (!currentStep?.requiredDocuments) return null;
+    return (
+      currentStep.requiredDocuments.find((d) => d.id === focusedDocId) ||
+      currentStep.requiredDocuments[0] ||
+      null
+    );
+  }, [currentStep, focusedDocId]);
+
+  // Tüm evraklar işaretli mi?
+  const isCurrentStepAllChecked = useMemo(() => {
+    if (!currentStep?.requiredDocuments || currentStep.requiredDocuments.length === 0) return false;
+    return currentStep.requiredDocuments.every(
+      (d) => completedDocs[d.id] || completedDocs[d.name],
+    );
+  }, [currentStep, completedDocs]);
+
+  // Tüm yol haritasındaki evraklar tamamlandı mı?
+  const isTotalRoadmapCompleted = useMemo(() => {
+    const allDocs = currentRoadmap.steps.flatMap((s) => s.requiredDocuments);
+    if (allDocs.length === 0) return false;
+    return allDocs.every((d) => completedDocs[d.id] || completedDocs[d.name]);
+  }, [currentRoadmap, completedDocs]);
+
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -107,19 +153,37 @@ export function HomeLegalAssistantSection() {
     }).format(val);
   };
 
-  const toggleDoc = (docName: string) => {
-    setCompletedDocs((prev) => ({
-      ...prev,
-      [docName]: !prev[docName],
-    }));
+  const toggleDoc = (doc: RequiredDocumentItem) => {
+    setFocusedDocId(doc.id);
+    setCompletedDocs((prev) => {
+      const nextState = !prev[doc.id];
+      const updated = {
+        ...prev,
+        [doc.id]: nextState,
+        [doc.name]: nextState,
+      };
+
+      // Eğer son adımdaysa veya tüm adımlar tamamlandıysa tebrikler modalını tetikle
+      if (nextState && (activeStep === 6 || isTotalRoadmapCompleted)) {
+        setTimeout(() => setShowSuccessCelebration(true), 300);
+      }
+
+      return updated;
+    });
   };
 
-  const handleDownloadTemplate = (doc: RequiredDocumentItem) => {
-    alert(`📄 "${doc.name}" için 2026 resmi başvuru şablonu hazırlandı ve indiriliyor.`);
+  const handleOpenTemplateModal = (doc: RequiredDocumentItem) => {
+    setActiveTemplateDoc(doc);
   };
 
-  const handlePrintRoadmap = () => {
-    window.print();
+  const handleCopyTemplateText = (content: DocumentTemplateContent) => {
+    const fullText = `${content.title}\n${content.authority}\n\n${content.summary}\n\n` +
+      content.sections.map((s) => `${s.heading}\n${s.body}`).join('\n\n') +
+      `\n\nİmzalayanlar: ${content.signers.join(', ')}\n\n${content.legalDisclaimer}`;
+
+    navigator.clipboard.writeText(fullText);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   return (
@@ -349,9 +413,9 @@ export function HomeLegalAssistantSection() {
                 </div>
               </div>
             ) : (
-              /* ADIM 2..6: SEÇİLİ BÜROKRASİ ADIMI DETAY KARTI (FERAH VE ŞIK) */
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-zinc-800">
+              /* ADIM 2..6: SEÇİLİ BÜROKRASİ ADIMI DETAY KARTI (DİNAMİK PRO-TIP VE AKTİF ŞABLONLAR) */
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-100 dark:border-zinc-800">
                   <div>
                     <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
                       Aşama {activeStep - 1} / {currentRoadmap.steps.length}
@@ -376,21 +440,21 @@ export function HomeLegalAssistantSection() {
 
                 {/* 3'lü Özet Hapları */}
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
                     <span className="text-[10px] text-muted-foreground block font-medium">Yetkili Kurum</span>
                     <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate block mt-0.5">
                       {currentStep.institution}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
                     <span className="text-[10px] text-muted-foreground block font-medium">Başvuru Kanalı</span>
                     <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 truncate block mt-0.5">
                       ⚡ {currentStep.applicationChannel}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700">
                     <span className="text-[10px] text-muted-foreground block font-medium">Tahmini Süre</span>
                     <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate block mt-0.5">
                       ⏳ {currentStep.durationDays}
@@ -399,24 +463,28 @@ export function HomeLegalAssistantSection() {
                 </div>
 
                 {/* Gerekli Evraklar (Checklist) */}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 flex items-center justify-between">
                     <span>📋 Gerekli Başvuru Evrakları</span>
-                    <span className="text-[10.5px] text-muted-foreground">Hazırladıkça işaretleyin</span>
+                    <span className="text-[10px] text-muted-foreground">İşaretledikçe alt detay güncellenir</span>
                   </span>
 
                   <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
-                    {currentStep.requiredDocuments.map((doc, idx) => {
-                      const isDone = !!completedDocs[doc.name];
+                    {currentStep.requiredDocuments.map((doc) => {
+                      const isDone = !!(completedDocs[doc.id] || completedDocs[doc.name]);
+                      const isFocused = activeFocusedDoc?.id === doc.id;
+
                       return (
                         <div
-                          key={idx}
-                          onClick={() => toggleDoc(doc.name)}
+                          key={doc.id}
+                          onClick={() => toggleDoc(doc)}
                           className={cn(
-                            'p-2.5 rounded-xl border flex items-center justify-between gap-3 text-xs transition-colors cursor-pointer select-none',
+                            'p-2.5 rounded-xl border flex items-center justify-between gap-3 text-xs transition-all cursor-pointer select-none',
                             isDone
-                              ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30'
-                              : 'bg-white dark:bg-zinc-800/90 border-slate-200/80 dark:border-zinc-700',
+                              ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/40 shadow-xs'
+                              : isFocused
+                                ? 'bg-indigo-50/60 dark:bg-indigo-950/30 border-indigo-400'
+                                : 'bg-white dark:bg-zinc-800/90 border-slate-200/80 dark:border-zinc-700 hover:border-slate-300',
                           )}
                         >
                           <div className="flex items-center gap-2 min-w-0">
@@ -449,12 +517,12 @@ export function HomeLegalAssistantSection() {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDownloadTemplate(doc);
+                                  handleOpenTemplateModal(doc);
                                 }}
-                                className="p-1 rounded-md bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 transition-colors text-[10px] font-bold flex items-center gap-1"
-                                title="Taslak Şablonu İndir"
+                                className="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-[10px] font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                                title="Resmi Örnek Şablonu İncele & İndir"
                               >
-                                <Download className="w-3 h-3" />
+                                <FileText className="w-3 h-3" />
                                 <span>Şablon</span>
                               </button>
                             )}
@@ -465,20 +533,26 @@ export function HomeLegalAssistantSection() {
                   </div>
                 </div>
 
-                {/* Pro-Tips Box */}
-                {currentStep.proTips && (
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2">
-                    <span className="text-base shrink-0">💡</span>
-                    <div>
-                      <strong className="block font-bold mb-0.5">Kritik Püf Noktası:</strong>
-                      {currentStep.proTips}
+                {/* DİNAMİK PÜF NOKTASI VE DENETİM DETAYI (SEÇİLEN EVRAKA GÖRE DEĞİŞİR) */}
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-950 dark:text-amber-200 transition-all">
+                  <div className="flex items-start gap-2">
+                    <span className="text-base shrink-0 mt-0.5">💡</span>
+                    <div className="space-y-0.5 min-w-0">
+                      <strong className="block font-bold text-amber-900 dark:text-amber-300">
+                        {activeFocusedDoc
+                          ? `${activeFocusedDoc.name} İçin Püf Noktası:`
+                          : 'Kritik Püf Noktası:'}
+                      </strong>
+                      <p className="leading-relaxed text-[11.5px]">
+                        {activeFocusedDoc?.proTip || currentStep.proTips}
+                      </p>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             )}
 
-            {/* Orta Panel Alt Gezinme Butonu */}
+            {/* Orta Panel Alt Gezinme & Tebrikler Durumu */}
             <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-zinc-800">
               <Button
                 type="button"
@@ -491,17 +565,29 @@ export function HomeLegalAssistantSection() {
                 ← Önceki Aşama
               </Button>
 
-              <Button
-                type="button"
-                size="sm"
-                disabled={activeStep === 6}
-                onClick={() => setActiveStep((prev) => Math.min(6, prev + 1))}
-                className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs"
-              >
-                {activeStep === 1
-                  ? '2. Aşama: Şirket & MERSİS Adımına Geç →'
-                  : `Sonraki Aşama (${LEGAL_STEPS[activeStep]?.title || 'Ruhsat'}) →`}
-              </Button>
+              {/* SON AŞAMADA VEYA TÜMÜ TAMAMLANDIĞINDA TEBRİKLER BUTONU */}
+              {activeStep === 6 || isTotalRoadmapCompleted ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setShowSuccessCelebration(true)}
+                  className="h-9 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold px-4 shadow-md flex items-center gap-1.5 animate-pulse"
+                >
+                  <PartyPopper className="w-4 h-4" />
+                  <span>Tebrikler! Tüm Şartlar Tamamlandı 🎉</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setActiveStep((prev) => Math.min(6, prev + 1))}
+                  className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs"
+                >
+                  {activeStep === 1
+                    ? '2. Aşama: Şirket & MERSİS Adımına Geç →'
+                    : `Sonraki Aşama (${LEGAL_STEPS[activeStep]?.title || 'Ruhsat'}) →`}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -581,8 +667,8 @@ export function HomeLegalAssistantSection() {
             <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
               <Button
                 type="button"
-                onClick={handlePrintRoadmap}
-                className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
+                onClick={() => setShowRoadmapPrintModal(true)}
+                className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>Yol Haritasını PDF İndir</span>
@@ -591,12 +677,17 @@ export function HomeLegalAssistantSection() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  alert(
-                    `📄 "${currentRoadmap.sectorName}" için 2026 Sözleşme ve Dilekçe Paketi hazırlandı.`,
-                  )
-                }
-                className="w-full h-9 rounded-xl border-slate-200 dark:border-zinc-700 text-xs font-bold text-foreground hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center gap-1.5"
+                onClick={() => {
+                  const firstTemplateDoc = currentRoadmap.steps
+                    .flatMap((s) => s.requiredDocuments)
+                    .find((d) => d.isDownloadableTemplate);
+                  if (firstTemplateDoc) {
+                    setActiveTemplateDoc(firstTemplateDoc);
+                  } else {
+                    setShowRoadmapPrintModal(true);
+                  }
+                }}
+                className="w-full h-9 rounded-xl border-slate-200 dark:border-zinc-700 text-xs font-bold text-foreground hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <FileCheck2 className="w-4 h-4 text-indigo-600" />
                 <span>Hazır Sözleşme Paketini Al</span>
@@ -605,6 +696,254 @@ export function HomeLegalAssistantSection() {
           </div>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 3. RESMİ ÖRNEK BELGE & ŞABLON MODALI                                       */}
+      {/* ========================================================================= */}
+      {activeTemplateDoc && activeTemplateDoc.templateContent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                  <FileBadge className="w-5 h-5" />
+                </span>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    {activeTemplateDoc.name}
+                  </h3>
+                  <span className="text-[11px] text-muted-foreground">
+                    2026 Resmi Mevzuat Örnek Şablonu
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTemplateDoc(null)}
+                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 text-muted-foreground transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: Resmi Belge Görünümü */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs font-mono leading-relaxed bg-slate-50/40 dark:bg-zinc-950/40">
+              {/* Belge Başlığı & Filigran */}
+              <div className="text-center pb-3 border-b-2 border-slate-300 dark:border-zinc-700 space-y-1">
+                <span className="text-[10px] tracking-widest text-indigo-600 dark:text-indigo-400 font-bold block">
+                  ★ {activeTemplateDoc.templateContent.authority} ★
+                </span>
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase">
+                  {activeTemplateDoc.templateContent.title}
+                </h2>
+                <div className="inline-block px-2.5 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[10px] font-bold font-sans">
+                  RESMİ ÖRNEK TASLAK - 2026 GİRİŞİMBEE
+                </div>
+              </div>
+
+              {/* Özet */}
+              <p className="text-slate-600 dark:text-zinc-400 font-sans italic bg-white dark:bg-zinc-900 p-3 rounded-xl border border-slate-200 dark:border-zinc-800 text-[11.5px]">
+                {activeTemplateDoc.templateContent.summary}
+              </p>
+
+              {/* Maddeler */}
+              <div className="space-y-3 font-sans">
+                {activeTemplateDoc.templateContent.sections.map((sec, idx) => (
+                  <div key={idx} className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-1">
+                    <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                      {sec.heading}
+                    </h4>
+                    <p className="text-xs text-slate-700 dark:text-zinc-300 leading-normal">
+                      {sec.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* İmza Alanı */}
+              <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 font-sans">
+                <span className="text-[10.5px] font-bold text-muted-foreground block mb-2">
+                  İmza & Tasdik Yetkilileri:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {activeTemplateDoc.templateContent.signers.map((sig, idx) => (
+                    <div key={idx} className="p-2 rounded-lg border border-dashed border-slate-300 dark:border-zinc-700 text-center text-[10.5px] text-slate-600 dark:text-zinc-400">
+                      {sig}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Yasal Not */}
+              <p className="text-[10px] text-muted-foreground font-sans border-t border-slate-200 dark:border-zinc-800 pt-2">
+                ⚖️ {activeTemplateDoc.templateContent.legalDisclaimer}
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-white dark:bg-zinc-900">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleCopyTemplateText(activeTemplateDoc.templateContent!)}
+                className="h-9 text-xs font-bold gap-1.5"
+              >
+                {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{isCopied ? 'Kopyalandı!' : 'Metni Kopyala'}</span>
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveTemplateDoc(null)}
+                  className="h-9 text-xs font-bold"
+                >
+                  Kapat
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Yazdır / PDF Kaydet</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 4. YOL HARİTASI TAM RAPOR YAZDIRMA / PDF MODALI                             */}
+      {/* ========================================================================= */}
+      {showRoadmapPrintModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-800/80">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{currentRoadmap.emoji}</span>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    {currentRoadmap.sectorName} - 2026 Resmi Başvuru Yol Haritası
+                  </h3>
+                  <span className="text-[11px] text-muted-foreground">
+                    {selectedCity} / {selectedDistrict} Kurulum Raporu
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRoadmapPrintModal(false)}
+                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 text-muted-foreground transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                  <span className="text-[10px] text-muted-foreground block">Toplam Harç</span>
+                  <span className="font-black text-sm text-slate-900 dark:text-white">
+                    {formatCurrency(currentRoadmap.totalEstimatedLegalCost)}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                  <span className="text-[10px] text-muted-foreground block">Tahmini Süre</span>
+                  <span className="font-black text-sm text-slate-900 dark:text-white">
+                    {currentRoadmap.estimatedTotalDays}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                  <span className="text-[10px] text-muted-foreground block">Asgari Sermaye</span>
+                  <span className="font-black text-sm text-indigo-600 dark:text-indigo-400">
+                    {currentRoadmap.statutoryCapitalRequirement.amount > 0
+                      ? formatCurrency(currentRoadmap.statutoryCapitalRequirement.amount)
+                      : 'Şart Yok'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                  Resmi Başvuru Adımları ve Evrak Dökümü
+                </h4>
+                {currentRoadmap.steps.map((s) => (
+                  <div key={s.stepNumber} className="p-3 rounded-xl border border-slate-200 dark:border-zinc-800 space-y-1.5">
+                    <div className="flex items-center justify-between font-bold">
+                      <span>{s.stepNumber}. {s.title}</span>
+                      <span className="text-indigo-600">{formatCurrency(s.estimatedCost)}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Kurum: {s.institution} • Kanal: {s.applicationChannel} • Süre: {s.durationDays}</p>
+                    <div className="text-[11px] text-slate-600 dark:text-zinc-400">
+                      <strong>Evraklar:</strong> {s.requiredDocuments.map((d) => d.name).join(', ')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-2 bg-white dark:bg-zinc-900">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowRoadmapPrintModal(false)}
+                className="h-9 text-xs font-bold"
+              >
+                Kapat
+              </Button>
+              <Button
+                type="button"
+                onClick={() => window.print()}
+                className="h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Raporu Yazdır / PDF İndir</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. TEBRİKLER & BAŞARI KUTLAMA MODALI                                      */}
+      {/* ========================================================================= */}
+      {showSuccessCelebration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border-2 border-emerald-500/40 shadow-2xl p-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center mx-auto shadow-lg text-3xl animate-bounce">
+              🎉
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                Tebrikler! Resmi Başvuru Şartları Tamamlandı
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <strong>{currentRoadmap.sectorName}</strong> için tüm resmi kurum evraklarınız, noter onaylarınız ve belediye ruhsat şartlarınız eksiksiz hazırlandı. İşletmeniz 2026 mevzuatına %100 uyumlu olarak faaliyete hazırdır!
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 font-semibold">
+              ✓ 2026 Mevzuat Uyumu: %100 • Resmi Harç Bütçesi: {formatCurrency(currentRoadmap.totalEstimatedLegalCost)}
+            </div>
+
+            <div className="pt-2 flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                onClick={() => setShowSuccessCelebration(false)}
+                className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs"
+              >
+                Harika, Teşekkürler!
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
