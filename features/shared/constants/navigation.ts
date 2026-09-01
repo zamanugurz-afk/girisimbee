@@ -26,7 +26,6 @@ const FOOTER_LINKS_ALL: Record<string, FooterLinkItem[]> = {
   ],
   'Fırsat ve Çözümler': [
     { label: 'Girişimbee MARKET', href: '/market' },
-    { label: 'Yeni İş Fikirleri', href: '/yeni-is-fikirleri' },
     { label: 'İş Kurma Robotu', href: '/is-kurma-asistani' },
     { label: 'Yatırım Radarı', href: '/radar' },
     { label: 'Reklam ve İş Birliği', href: '/reklam' },
