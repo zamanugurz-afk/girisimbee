@@ -16,6 +16,8 @@ export function TrendIdeaCatalogView() {
     ? MONTHLY_TREND_IDEAS
     : MONTHLY_TREND_IDEAS.filter((i) => i.category === selectedCategory);
 
+  const totalGridCount = filteredItems.length + 1; // +1 for CTA
+
   return (
     <div className="gc-header-offset min-w-0 overflow-x-hidden border-b border-[#EEF0F4] bg-[#FAFBFC] dark:border-border dark:bg-background">
       <div className="mx-auto min-w-0 max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
@@ -69,12 +71,33 @@ export function TrendIdeaCatalogView() {
           ))}
         </div>
 
-        {/* İlan Kartları Izgarası (3 Kolonlu Kart Düzeneği) */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredItems.map((item, idx) => (
-            <TrendIdeaCard key={item.id} item={item} index={idx} />
-          ))}
-          <TrendIdeaAdvertiseCta />
+        {/* İlan Kartları Izgarası (İKİ İLAN ARASINDA DİKEY AYRIM ÇİZGİSİ DÜZENİ) */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 relative">
+          {filteredItems.map((item, idx) => {
+            const isNotLastColLg = (idx + 1) % 3 !== 0 && idx !== totalGridCount - 1;
+            const isNotLastColSm = (idx + 1) % 2 !== 0 && idx !== totalGridCount - 1;
+
+            return (
+              <div key={item.id} className="relative flex flex-col h-full">
+                <TrendIdeaCard item={item} index={idx} />
+                
+                {/* Masaüstü Dikey Ayrım Çizgisi (İki İlan Arasında) */}
+                {isNotLastColLg && (
+                  <div className="hidden lg:block absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+                )}
+
+                {/* Tablet Dikey Ayrım Çizgisi (İki İlan Arasında) */}
+                {isNotLastColSm && (
+                  <div className="hidden sm:block lg:hidden absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+                )}
+              </div>
+            );
+          })}
+
+          {/* 5. Reklam Kartı (CTA) */}
+          <div className="relative flex flex-col h-full">
+            <TrendIdeaAdvertiseCta />
+          </div>
         </div>
 
       </div>

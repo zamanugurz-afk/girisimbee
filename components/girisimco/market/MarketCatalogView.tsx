@@ -56,6 +56,8 @@ export function MarketCatalogView() {
     };
   }, []);
 
+  const totalGridCount = items.length + 1; // +1 for CTA
+
   return (
     <div className="gc-header-offset min-w-0 overflow-x-hidden border-b border-[#EEF0F4] bg-[#FAFBFC] dark:border-border dark:bg-background">
       <div className="mx-auto min-w-0 max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">
@@ -75,7 +77,7 @@ export function MarketCatalogView() {
         <MarketAdvertiseBanner />
 
         {loading ? (
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
@@ -100,11 +102,31 @@ export function MarketCatalogView() {
             </Button>
           </div>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <MarketAdCard key={item.id} item={item} />
-            ))}
-            <MarketAdvertiseCta />
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 relative">
+            {items.map((item, idx) => {
+              const isNotLastColLg = (idx + 1) % 3 !== 0 && idx !== totalGridCount - 1;
+              const isNotLastColSm = (idx + 1) % 2 !== 0 && idx !== totalGridCount - 1;
+
+              return (
+                <div key={item.id} className="relative flex flex-col h-full">
+                  <MarketAdCard item={item} />
+                  
+                  {/* Masaüstü Dikey Ayrım Çizgisi (İki İlan Arasında) */}
+                  {isNotLastColLg && (
+                    <div className="hidden lg:block absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+                  )}
+
+                  {/* Tablet Dikey Ayrım Çizgisi (İki İlan Arasında) */}
+                  {isNotLastColSm && (
+                    <div className="hidden sm:block lg:hidden absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+                  )}
+                </div>
+              );
+            })}
+
+            <div className="relative flex flex-col h-full">
+              <MarketAdvertiseCta />
+            </div>
           </div>
         )}
       </div>

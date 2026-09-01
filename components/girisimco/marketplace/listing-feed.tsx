@@ -36,13 +36,36 @@ export function ListingFeed({
     );
   }
 
+  const total = items.length;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-      {items.map((item) => (
-        <div key={item.id} className="relative h-full">
-          <ContentCard item={item} accent={accent} />
-        </div>
-      ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 relative">
+      {items.map((item, idx) => {
+        const isNotLastColLg = (idx + 1) % 4 !== 0 && idx !== total - 1;
+        const isNotLastColMd = (idx + 1) % 3 !== 0 && idx !== total - 1;
+        const isNotLastColSm = (idx + 1) % 2 !== 0 && idx !== total - 1;
+
+        return (
+          <div key={item.id} className="relative flex flex-col h-full">
+            <ContentCard item={item} accent={accent} />
+
+            {/* Masaüstü 4 Kolon Dikey Ayrım Çizgisi */}
+            {isNotLastColLg && (
+              <div className="hidden lg:block absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+            )}
+
+            {/* Orta Boy 3 Kolon Dikey Ayrım Çizgisi */}
+            {isNotLastColMd && (
+              <div className="hidden md:block lg:hidden absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+            )}
+
+            {/* Tablet 2 Kolon Dikey Ayrım Çizgisi */}
+            {isNotLastColSm && (
+              <div className="hidden sm:block md:hidden absolute -right-3 top-3 bottom-3 w-[1px] bg-slate-200/90 dark:bg-zinc-800 pointer-events-none" />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
