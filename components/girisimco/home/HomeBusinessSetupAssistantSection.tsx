@@ -531,31 +531,12 @@ export function HomeBusinessSetupAssistantSection() {
           </div>
 
           {/* ===================================================================== */}
-          {/* B. ORTA SÜTUN: İÇERİK KANVASI & ADIM KOKPİTİ (~500px - lg:col-span-6) */}
+          {/* B. ORTA SÜTUN: İÇERİK KANVASI & ADIM KOKPİTİ (lg:col-span-6)         */}
           {/* ===================================================================== */}
-          <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
-            
-            {/* 1. Üst Bar: Lokasyon Radarı Tarzı Vurgulu Başlık & Çizgi */}
-            <div className="flex flex-col pb-0.5 space-y-1">
-              <div className="inline-flex items-baseline gap-2">
-                <h2 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
-                  İş Kurma <span className="text-amber-500">Asistanı</span>
-                </h2>
-              </div>
-              <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-teal-400 to-amber-500" />
-              <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed pt-0.5">
-                Türkiye&apos;nin 81 ilinde ve tüm sektörlerde; mekan, demirbaş, ilk mal stoku, personel, harç ve ciro simülasyonunu anlık çalıştırın.
-              </p>
-            </div>
-
-            {/* 2. ANA ÇALIŞMA ALANI (ADIM 1 - 7) */}
-            <div className="min-h-[460px] max-h-[480px] overflow-y-auto pr-1 scrollbar-thin space-y-3.5">
-              
-              {/* --------------------------------------------------------------- */}
-              {/* ADIM 1: SEKTÖR & MESLEK SEÇİMİ                                  */}
-              {/* --------------------------------------------------------------- */}
-              {activeStep === 1 && (
-                <div className="space-y-3.5">
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
+            {/* ADIM 1: SEKTÖR & MESLEK SEÇİMİ (2x3 FERAH GRİD - SCROLLBARSIZ) */}
+            {activeStep === 1 ? (
+              <div className="space-y-3.5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
                     <div>
                       <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
@@ -687,12 +668,13 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
                   )}
                 </div>
-              )}
-
-              {/* --------------------------------------------------------------- */}
-              {/* ADIM 2: MEKAN ALANI & KİRA PLANI                                */}
-              {/* --------------------------------------------------------------- */}
-              {activeStep === 2 && (
+              ) : (
+                /* ADIM 2..7: DETAYLI HESAPLAMA VE GİRDİ FORMLARI */
+                <div className="space-y-3.5 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                  {/* --------------------------------------------------------------- */}
+                  {/* ADIM 2: MEKAN ALANI & KİRA PLANI                                */}
+                  {/* --------------------------------------------------------------- */}
+                  {activeStep === 2 && (
                 <div className="space-y-3">
                   <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/70 dark:border-zinc-700/60 space-y-2.5">
                     <div className="flex items-center justify-between">
@@ -1474,8 +1456,8 @@ export function HomeBusinessSetupAssistantSection() {
 
                 </div>
               )}
-
             </div>
+          )}
 
             {/* 3. Alt Bar: İlerleme Çubuğu & Buton Grubu */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800">
