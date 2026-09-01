@@ -450,34 +450,28 @@ export function HomeLegalAssistantSection() {
             {/* ADIM 1: SEKTÖR & MESLEK SEÇİM IZGARASI (2x3 FERAH GRİD) */}
             {activeStep === 1 ? (
               <div className="space-y-3.5">
-                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 shrink-0">
-                    Sektör Seçimi
-                  </span>
-
-                  {/* Kategori Filtre Hapları */}
-                  <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] text-xs">
-                    {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
-                      (cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => {
-                            setSelectedCategoryGroup(cat);
-                            setSectorPage(1);
-                          }}
-                          className={cn(
-                            'px-2.5 py-1 rounded-xl font-bold whitespace-nowrap text-[11px] transition-colors cursor-pointer',
-                            selectedCategoryGroup === cat
-                              ? 'bg-indigo-600 text-white shadow-xs'
-                              : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
-                          )}
-                        >
-                          {cat}
-                        </button>
-                      ),
-                    )}
-                  </div>
+                {/* Kategori Filtre Hapları */}
+                <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] text-xs pb-2 border-b border-slate-100 dark:border-zinc-800">
+                  {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
+                    (cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategoryGroup(cat);
+                          setSectorPage(1);
+                        }}
+                        className={cn(
+                          'px-3 py-1.5 rounded-xl font-bold whitespace-nowrap text-xs transition-colors cursor-pointer',
+                          selectedCategoryGroup === cat
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'bg-slate-100 dark:bg-zinc-800 text-muted-foreground hover:text-slate-900 dark:hover:text-white',
+                        )}
+                      >
+                        {cat}
+                      </button>
+                    ),
+                  )}
                 </div>
 
                 {/* Arama Çubuğu */}
