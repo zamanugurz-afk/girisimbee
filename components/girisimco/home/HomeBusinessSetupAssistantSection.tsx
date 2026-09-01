@@ -1333,12 +1333,37 @@ export function HomeBusinessSetupAssistantSection() {
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-center">
-                      <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 block">Aylık Net Kâr</span>
-                      <span className="text-xs font-black text-emerald-700 dark:text-emerald-300 mt-0.5 block">
-                        {formatCurrency(calculationResult.revenueProjection.monthlyNetProfit)}
-                      </span>
-                    </div>
+                    {/* 3. Aylık Net Kâr / Net Zarar Kartı */}
+                    {(() => {
+                      const isPositive = calculationResult.revenueProjection.monthlyNetProfit >= 0;
+                      return (
+                        <div
+                          className={cn(
+                            'p-2.5 rounded-xl border text-center transition-all',
+                            isPositive
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800'
+                              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'text-[10px] font-bold block',
+                              isPositive ? 'text-emerald-900 dark:text-emerald-300' : 'text-rose-900 dark:text-rose-300'
+                            )}
+                          >
+                            {isPositive ? 'Aylık Net Kâr' : 'Aylık Net Zarar'}
+                          </span>
+                          <span
+                            className={cn(
+                              'text-xs font-black mt-0.5 block',
+                              isPositive ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'
+                            )}
+                          >
+                            {formatCurrency(calculationResult.revenueProjection.monthlyNetProfit)}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* 4. Amortisman ve Yatırım Geri Dönüş Çubuğu */}
@@ -1697,8 +1722,19 @@ export function HomeBusinessSetupAssistantSection() {
                     <span className="font-bold">{formatCurrency(calculationResult.revenueProjection.monthlyGrossRevenue)}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10.5px]">Aylık Net Kâr:</span>
-                    <span className="font-bold text-emerald-600">{formatCurrency(calculationResult.revenueProjection.monthlyNetProfit)}</span>
+                    <span className="text-muted-foreground block text-[10.5px]">
+                      {calculationResult.revenueProjection.monthlyNetProfit >= 0 ? 'Aylık Net Kâr:' : 'Aylık Net Zarar:'}
+                    </span>
+                    <span
+                      className={cn(
+                        'font-bold',
+                        calculationResult.revenueProjection.monthlyNetProfit >= 0
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-rose-600 dark:text-rose-400'
+                      )}
+                    >
+                      {formatCurrency(calculationResult.revenueProjection.monthlyNetProfit)}
+                    </span>
                   </div>
                 </div>
               </div>
