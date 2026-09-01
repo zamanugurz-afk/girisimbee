@@ -68,7 +68,6 @@ export function HomeLegalAssistantSection() {
   // Modallar
   const [activeTemplateDoc, setActiveTemplateDoc] = useState<RequiredDocumentItem | null>(null);
   const [showRoadmapPrintModal, setShowRoadmapPrintModal] = useState<boolean>(false);
-  const [showSuccessCelebration, setShowSuccessCelebration] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const cityOptions = useMemo(() => Object.keys(TURKEY_CITY_RENTAL_RATES), []);
@@ -157,18 +156,11 @@ export function HomeLegalAssistantSection() {
     setFocusedDocId(doc.id);
     setCompletedDocs((prev) => {
       const nextState = !prev[doc.id];
-      const updated = {
+      return {
         ...prev,
         [doc.id]: nextState,
         [doc.name]: nextState,
       };
-
-      // Eğer son adımdaysa veya tüm adımlar tamamlandıysa tebrikler modalını tetikle
-      if (nextState && (activeStep === 6 || isTotalRoadmapCompleted)) {
-        setTimeout(() => setShowSuccessCelebration(true), 300);
-      }
-
-      return updated;
     });
   };
 
@@ -565,16 +557,15 @@ export function HomeLegalAssistantSection() {
                 ← Önceki Aşama
               </Button>
 
-              {/* SON AŞAMADA VEYA TÜMÜ TAMAMLANDIĞINDA TEBRİKLER BUTONU */}
-              {activeStep === 6 || isTotalRoadmapCompleted ? (
+              {activeStep === 6 ? (
                 <Button
                   type="button"
                   size="sm"
-                  onClick={() => setShowSuccessCelebration(true)}
-                  className="h-9 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold px-4 shadow-md flex items-center gap-1.5 animate-pulse"
+                  onClick={() => setShowRoadmapPrintModal(true)}
+                  className="h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
-                  <PartyPopper className="w-4 h-4" />
-                  <span>Tebrikler! Tüm Şartlar Tamamlandı 🎉</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Tüm Başvuru Raporunu PDF İndir</span>
                 </Button>
               ) : (
                 <Button
@@ -903,42 +894,6 @@ export function HomeLegalAssistantSection() {
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Raporu Yazdır / PDF İndir</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 5. TEBRİKLER & BAŞARI KUTLAMA MODALI                                      */}
-      {/* ========================================================================= */}
-      {showSuccessCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in zoom-in-95 duration-200">
-          <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border-2 border-emerald-500/40 shadow-2xl p-6 text-center space-y-4">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center mx-auto shadow-lg text-3xl animate-bounce">
-              🎉
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                Tebrikler! Resmi Başvuru Şartları Tamamlandı
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                <strong>{currentRoadmap.sectorName}</strong> için tüm resmi kurum evraklarınız, noter onaylarınız ve belediye ruhsat şartlarınız eksiksiz hazırlandı. İşletmeniz 2026 mevzuatına %100 uyumlu olarak faaliyete hazırdır!
-              </p>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 font-semibold">
-              ✓ 2026 Mevzuat Uyumu: %100 • Resmi Harç Bütçesi: {formatCurrency(currentRoadmap.totalEstimatedLegalCost)}
-            </div>
-
-            <div className="pt-2 flex items-center justify-center gap-2">
-              <Button
-                type="button"
-                onClick={() => setShowSuccessCelebration(false)}
-                className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs"
-              >
-                Harika, Teşekkürler!
               </Button>
             </div>
           </div>
