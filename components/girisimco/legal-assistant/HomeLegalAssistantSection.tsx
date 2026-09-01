@@ -454,6 +454,23 @@ export function HomeLegalAssistantSection() {
                   </div>
                 </div>
 
+                {/* Nereye & Nasıl Başvurulur Süreç Kılavuzu */}
+                {currentStep.processGuide && currentStep.processGuide.length > 0 && (
+                  <div className="p-2.5 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-indigo-900 dark:text-indigo-300">
+                      <span>🧭</span>
+                      <span>Nereye & Nasıl Başvurulur?</span>
+                    </div>
+                    <ul className="space-y-0.5 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-disc">
+                      {currentStep.processGuide.map((guide, idx) => (
+                        <li key={idx} className="leading-snug">
+                          {guide}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {/* Gerekli Evraklar (Checklist) */}
                 <div className="space-y-1.5">
                   <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 flex items-center justify-between">
