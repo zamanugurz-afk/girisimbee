@@ -7,7 +7,7 @@ import type {
   StaffCostDetail,
   RevenueProjectionResult,
 } from '../types/business-setup.types';
-import { getDistrictRentalRate, calculateLeaseInitialCost } from '../data/district-rental-rates';
+import { getDistrictRentalRate, calculateMonthlyRent, calculateLeaseInitialCost } from '../data/district-rental-rates';
 
 export interface SetupCalculationParams {
   template: BusinessTemplate;
@@ -83,10 +83,9 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   }, 0);
 
   // 2. Kira ve Taşınma Peşinatı (1 Peşin + 1 Depozito = 2x Kira varsayılan)
-  const calculatedM2Rate = getDistrictRentalRate(city, district);
   const monthlyRent = customMonthlyRent != null && customMonthlyRent > 0
     ? customMonthlyRent
-    : Math.round(m2 * calculatedM2Rate);
+    : calculateMonthlyRent(city, district, m2);
 
   const leaseCosts = calculateLeaseInitialCost(monthlyRent, depositMonths, includeBrokerFee);
   const leaseInitialTotal = leaseCosts.totalLeaseUpfront;
@@ -156,7 +155,8 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
 
   // 11. Başabaş Satış / İşlem Projeksiyonu
   const unitPrice = template.breakEvenMetric?.unitPrice || 1000;
-  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * (template.revenueModel?.grossMarginPercent ? template.revenueModel.grossMarginPercent / 100 : 0.4))));
+  const marginRatio = template.revenueModel?.grossMarginPercent ? (template.revenueModel.grossMarginPercent / 100) : 0.35;
+  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * marginRatio)));
   const dailyBreakEvenCount = template.breakEvenMetric?.targetUnitsPerDay || calculatedDailyUnits;
 
   // 12. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI
@@ -166,14 +166,14 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     minDailyVolume: 1,
     maxDailyVolume: 100,
     unitLabel: 'İşlem',
-    grossMarginPercent: 40,
+    grossMarginPercent: 35,
     daysPerMonth: 26,
   };
 
   const dailyVolume = customDailyVolume != null && customDailyVolume > 0 ? customDailyVolume : revModel.defaultDailyVolume;
   const avgTicketPrice = customAvgTicketPrice != null && customAvgTicketPrice > 0 ? customAvgTicketPrice : revModel.avgTicketPrice;
   const daysPerMonth = revModel.daysPerMonth || 26;
-  const grossMarginPercent = revModel.grossMarginPercent || 40;
+  const grossMarginPercent = revModel.grossMarginPercent || 35;
 
   const monthlyVolume = Math.round(dailyVolume * daysPerMonth);
   const monthlyGrossRevenue = Math.round(monthlyVolume * avgTicketPrice);

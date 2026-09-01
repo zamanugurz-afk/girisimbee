@@ -54,6 +54,7 @@ import {
 import {
   TURKEY_CITY_RENTAL_RATES,
   getDistrictRentalRate,
+  RENTAL_RATES_METADATA,
 } from '@/features/business-setup/data/district-rental-rates';
 import {
   calculateBusinessSetupBudget,
@@ -682,24 +683,31 @@ export function HomeBusinessSetupAssistantSection() {
                     </div>
                   </div>
 
-                  {/* Manuel Kira Değiştirme */}
-                  <div className="flex items-center justify-between px-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsCustomRent(!isCustomRent)}
-                      className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      {isCustomRent ? '✓ Bölge Kira Endeksine Dön' : '✏️ Tuttuğunuz dükkanın özel kirasını girin'}
-                    </button>
-                    {isCustomRent && (
-                      <input
-                        type="number"
-                        placeholder="Örn: 45000"
-                        value={customMonthlyRent}
-                        onChange={(e) => setCustomMonthlyRent(e.target.value ? Number(e.target.value) : '')}
-                        className="w-28 h-7 rounded-lg border border-blue-300 dark:border-blue-700 bg-white dark:bg-zinc-800 px-2 text-xs font-bold text-foreground focus:outline-none"
-                      />
-                    )}
+                  {/* Manuel Kira Değiştirme & Güncellik Rozeti */}
+                  <div className="flex items-center justify-between px-1 flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomRent(!isCustomRent)}
+                        className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {isCustomRent ? '✓ Bölge Kira Endeksine Dön' : '✏️ Tuttuğunuz dükkanın özel kirasını girin'}
+                      </button>
+
+                      {isCustomRent && (
+                        <input
+                          type="number"
+                          placeholder="Örn: 45000"
+                          value={customMonthlyRent}
+                          onChange={(e) => setCustomMonthlyRent(e.target.value ? Number(e.target.value) : '')}
+                          className="w-28 h-7 rounded-lg border border-blue-300 dark:border-blue-700 bg-white dark:bg-zinc-800 px-2 text-xs font-bold text-foreground focus:outline-none"
+                        />
+                      )}
+                    </div>
+
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
+                      📈 {RENTAL_RATES_METADATA.lastUpdatedMonth} Piyasa Rayici
+                    </span>
                   </div>
 
                   {/* Tadilat & Dekorasyon Kartı */}
