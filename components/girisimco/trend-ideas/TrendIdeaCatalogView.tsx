@@ -69,8 +69,8 @@ export function TrendIdeaCatalogView() {
           ))}
         </div>
 
-        {/* İlan Kartları Izgarası (HER KART ARASINDA BELİRGİN 1PX AYRIM ÇİZGİSİ DÜZENİ) */}
-        <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-slate-200/80 dark:bg-zinc-800/80 gap-px overflow-hidden shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {/* İlan Kartları Izgarası (3 Kolonlu Kart Düzeneği) */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item, idx) => (
             <TrendIdeaCard key={item.id} item={item} index={idx} />
           ))}

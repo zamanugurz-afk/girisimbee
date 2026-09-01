@@ -318,7 +318,7 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
             {/* Sağ Aksiyon: İş Kurma Asistanında Simüle Et */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto justify-center sm:justify-end">
               <Link
-                href="/#assistant-section"
+                href="/is-kurma-asistani"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs sm:text-sm px-5 py-3 shadow-md transition-all hover:scale-105 active:scale-95 w-full sm:w-auto"
               >
                 <BarChart3 className="w-4 h-4" />

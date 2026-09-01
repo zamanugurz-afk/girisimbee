@@ -21,13 +21,13 @@ export function TrendIdeaCard({ item, index }: { item: PracticalBusinessIdea; in
       href={detailHref}
       className={cn(
         'group relative flex h-full min-h-[19rem] flex-col justify-between overflow-hidden',
-        'bg-white dark:bg-zinc-900 p-5 transition-all duration-300',
-        'hover:bg-slate-50/90 dark:hover:bg-zinc-850',
+        'rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xs transition-all duration-300',
+        'hover:border-amber-500/50 hover:shadow-md hover:-translate-y-0.5',
       )}
     >
       <div className="space-y-4">
         {/* Görsel Alanı */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-800">
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-800">
           {item.imageUrl ? (
             <Image
               src={item.imageUrl}
@@ -69,7 +69,7 @@ export function TrendIdeaCard({ item, index }: { item: PracticalBusinessIdea; in
       {/* Alt Bölüm: Ayrım Çizgili Finansal Matris & Detay Linki */}
       <div className="space-y-3.5 pt-4 mt-2">
         {/* Finansal Matris (Ayrım Çizgili 3 Hücre) */}
-        <div className="grid grid-cols-3 rounded-xl border border-slate-200/80 dark:border-zinc-800 divide-x divide-slate-200/80 dark:divide-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 overflow-hidden text-center">
+        <div className="grid grid-cols-3 rounded-xl border border-slate-200/80 dark:border-zinc-800 divide-x divide-slate-200/80 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 overflow-hidden text-center">
           <div className="p-2">
             <div className="text-[9.5px] font-bold text-muted-foreground uppercase">Sermaye</div>
             <div className="text-xs font-black text-slate-900 dark:text-white mt-0.5">₺{(item.financials.minCapital / 1000).toFixed(0)}k</div>
@@ -97,11 +97,11 @@ export function TrendIdeaCard({ item, index }: { item: PracticalBusinessIdea; in
 export function TrendIdeaAdvertiseCta() {
   return (
     <Link
-      href="/#assistant-section"
+      href="/is-kurma-asistani"
       className={cn(
         'group relative flex h-full min-h-[19rem] flex-col items-center justify-center p-6 text-center',
-        'bg-amber-500/[0.02] dark:bg-amber-950/10 transition-all duration-300',
-        'hover:bg-amber-500/[0.06] dark:hover:bg-amber-950/20',
+        'rounded-2xl border-2 border-dashed border-amber-400/80 bg-amber-500/[0.03] dark:bg-amber-950/10 transition-all duration-300',
+        'hover:border-amber-500 hover:bg-amber-500/[0.08] hover:shadow-md hover:-translate-y-0.5',
       )}
     >
       <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-sm transition-transform duration-300 group-hover:scale-110">
