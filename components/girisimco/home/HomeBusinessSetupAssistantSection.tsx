@@ -537,18 +537,13 @@ export function HomeBusinessSetupAssistantSection() {
             {/* ADIM 1: SEKTÖR & MESLEK SEÇİMİ (2x3 FERAH GRİD - SCROLLBARSIZ) */}
             {activeStep === 1 ? (
               <div className="space-y-3.5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                    <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                        Adım 1: Sektör & Model Seçimi
-                      </span>
-                      <h3 className="text-base font-black text-slate-900 dark:text-zinc-100 mt-0.5">
-                        Hedef Mesleğinizi Seçin ({filteredTemplates.length} Sektör)
-                      </h3>
-                    </div>
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 shrink-0">
+                      Adım 1: Sektör Seçimi ({filteredTemplates.length})
+                    </span>
 
                     {/* Kategori Filtre Hapları */}
-                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none text-xs">
+                    <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] text-xs">
                       {['Tümü', 'Finans & Hizmet', 'Yeme - İçme', 'Kişisel Bakım & Sağlık', 'Perakende & Zanaat'].map(
                         (grp) => (
                           <button
