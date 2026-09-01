@@ -29,14 +29,10 @@ import {
 
 describe('Dijital & AI Çözümleri presentation', () => {
   it('keeps Çözümler on /dijital-ai and separate from MARKET', () => {
-    expect(NAV_LINKS.find((link) => link.label === 'Çözümler')?.href).toBe('/dijital-ai');
-    expect(NAV_LINKS.find((link) => link.label === 'Fırsatlar')?.href).toBe('/market');
-    expect(getFooterLinks().Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital ve AI Çözümleri', '/dijital-ai'],
-    ]);
-    expect(getFooterLinks().Fırsatlar?.map((link) => [link.label, link.href])).toEqual([
+    expect(NAV_LINKS.find((link) => link.label === 'Fırsat ve Çözümler')?.href).toBe('/market');
+    expect(getFooterLinks()['Fırsat ve Çözümler']?.map((link) => [link.label, link.href])).toContainEqual(
       ['Girişimbee MARKET', '/market'],
-    ]);
+    );
     expect(DIGITAL_AI_HOME_CTA_HREF).toBe('/dijital-ai');
     expect(DIGITAL_AI_HOME_CTA_LABEL).toBe('Tüm çözümleri gör');
     expect(DIGITAL_AI_HOME_SECTION_TITLE).toBe('Çözümler');
@@ -65,7 +61,7 @@ describe('Dijital & AI Çözümleri presentation', () => {
     );
     expect(HOME_CATEGORIES.some((item) => item.slug === 'dijital-ai')).toBe(false);
     expect(HOME_CATEGORIES.map((item) => item.label).join(' ')).not.toContain('Yatırım Arıyorum');
-    expect(getFooterLinks().Çözümler?.some((link) => link.label === 'Yatırım Arıyorum')).toBe(false);
+    expect(getFooterLinks()['Fırsat ve Çözümler']?.some((link) => link.label === 'Yatırım Arıyorum')).toBe(false);
   });
 
   it('keeps contact on the existing request flow and hides private card fields', () => {

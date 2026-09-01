@@ -669,7 +669,7 @@ export function HomeGrantsIncentivesSection() {
                       Yıllık 330.000 TL
                     </div>
                     <p className="text-[10.5px] text-muted-foreground leading-tight">
-                      18-29 yaş arası girişimcilerin ilk 3 vergilendirme dönemindeki ticari kazançlarının 330.000 TL\'lik kısmı gelir vergisinden tamamen istisnadır.
+                      18-29 yaş arası girişimcilerin ilk 3 vergilendirme dönemindeki ticari kazançlarının 330.000 TL&apos;lik kısmı gelir vergisinden tamamen istisnadır.
                     </p>
                   </div>
 
@@ -691,9 +691,9 @@ export function HomeGrantsIncentivesSection() {
                     🧭 Genç Girişimci İstisna Belgesi Nasıl Alınır?
                   </span>
                   <ol className="space-y-1 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-decimal">
-                    <li>İnteraktif Vergi Dairesi (İVD) üzerinden "Genç Girişimci Kazanç İstisnası Dilekçesi" verilir.</li>
-                    <li>Vergi dairesinden onaylı "Genç Girişimci İstisna Yazısı" temin edilir.</li>
-                    <li>Alınan resmi yazı e-Devlet üzerinden SGK İl Müdürlüğü'ne iletilerek 1 yıllık Bağ-Kur prim muafiyeti aktif edilir.</li>
+                    <li>İnteraktif Vergi Dairesi (İVD) üzerinden &ldquo;Genç Girişimci Kazanç İstisnası Dilekçesi&rdquo; verilir.</li>
+                    <li>Vergi dairesinden onaylı &ldquo;Genç Girişimci İstisna Yazısı&rdquo; temin edilir.</li>
+                    <li>Alınan resmi yazı e-Devlet üzerinden SGK İl Müdürlüğü&apos;ne iletilerek 1 yıllık Bağ-Kur prim muafiyeti aktif edilir.</li>
                   </ol>
                 </div>
 
@@ -729,7 +729,7 @@ export function HomeGrantsIncentivesSection() {
                     5510 Sayılı Kanun & 6111 Sayılı Genç İstihdam Teşviki
                   </span>
                   <p className="text-[11.5px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    İşletmenizde yeni işe alacağınız ve son 3 aydır İŞKUR'a kayıtlı işsiz statüsündeki personeller için 6 ila 24 ay boyunca asgari ücret üzerinden SGK işveren hissesi devlet tarafından karşılanır.
+                    İşletmenizde yeni işe alacağınız ve son 3 aydır İŞKUR&apos;a kayıtlı işsiz statüsündeki personeller için 6 ila 24 ay boyunca asgari ücret üzerinden SGK işveren hissesi devlet tarafından karşılanır.
                   </p>
                 </div>
 
@@ -738,7 +738,7 @@ export function HomeGrantsIncentivesSection() {
                     🧭 İŞKUR İstihdam Teşviki Başvuru Adımları:
                   </span>
                   <ul className="space-y-1 text-[11px] text-slate-700 dark:text-zinc-300 pl-4 list-disc">
-                    <li>İşletme e-Bildirge portalı üzerinden "4447 Geçici 10. Madde Teşvik Tanımlama" ekranına girilir.</li>
+                    <li>İşletme e-Bildirge portalı üzerinden &ldquo;4447 Geçici 10. Madde Teşvik Tanımlama&rdquo; ekranına girilir.</li>
                     <li>İşe alınacak personelin T.C. kimlik numarası ile teşvik uygunluğu sorgulanır.</li>
                     <li>Aylık SGK prim bildirgeleri verilirken teşvik kodu seçilerek otomatik prim indirimi uygulanır.</li>
                   </ul>
@@ -802,7 +802,7 @@ export function HomeGrantsIncentivesSection() {
                     🌐 E-İhracat ve Hizmet İhracatı Teşvikleri (HİB):
                   </span>
                   <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    Yurtdışına yönelik dijital reklamlar, Google/Meta pazarlama harcamaları ve yabancı dilde hazırlanan web sitesi giderlerinin %60'ı Ticaret Bakanlığı tarafından geri ödemesiz karşılanır.
+                    Yurtdışına yönelik dijital reklamlar, Google/Meta pazarlama harcamaları ve yabancı dilde hazırlanan web sitesi giderlerinin %60&apos;ı Ticaret Bakanlığı tarafından geri ödemesiz karşılanır.
                   </p>
                 </div>
               </div>

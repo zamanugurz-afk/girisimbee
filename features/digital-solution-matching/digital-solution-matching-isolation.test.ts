@@ -51,8 +51,7 @@ describe('Digital Solution Matching Isolation', () => {
   it('keeps navigation and footer clean and free of investment discovery', () => {
     expect(NAV_LINKS.find((link) => link.label === 'Kariyer ve İş Fırsatları')?.href).toBe('/is');
     expect(NAV_LINKS.find((link) => link.label === 'Ortaklık ve Devir')?.href).toBe('/girisim-ortaklik');
-    expect(NAV_LINKS.find((link) => link.label === 'Fırsatlar')?.href).toBe('/market');
-    expect(NAV_LINKS.find((link) => link.label === 'Çözümler')?.href).toBe('/dijital-ai');
+    expect(NAV_LINKS.find((link) => link.label === 'Fırsat ve Çözümler')?.href).toBe('/market');
 
     const footer = getFooterLinks();
     expect(JSON.stringify(footer)).not.toMatch(/\/invest|Yatırım Arıyorum/);

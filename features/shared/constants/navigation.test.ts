@@ -31,6 +31,8 @@ describe('homepage information architecture navigation', () => {
     ]);
     expect(footer['Fırsat ve Çözümler']?.map((link) => [link.label, link.href])).toEqual([
       ['Girişimbee MARKET', '/market'],
+      ['İş Kurma Robotu', '/is-kurma-asistani'],
+      ['Yatırım Radarı', '/radar'],
       ['Reklam ve İş Birliği', '/reklam'],
     ]);
     const allLabels = Object.values(footer).flat().map((link) => link.label);

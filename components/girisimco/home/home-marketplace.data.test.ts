@@ -24,13 +24,13 @@ describe('career hub on homepage catalog', () => {
     expect(HOME_CATEGORIES.map((cat) => cat.slug as string)).not.toContain('yatirim-bul');
     expect(HOME_CATEGORIES.some((cat) => cat.slug === 'dijital-ai')).toBe(false);
     expect(HOME_CATEGORIES_CATALOG.map((cat) => cat.slug as string)).not.toContain('yatirim-bul');
-    expect(HOME_CATEGORIES_CATALOG.find((cat) => cat.slug === 'dijital-ai')?.href).toBe(
-      '/dijital-ai',
+    expect(HOME_CATEGORIES_CATALOG.find((cat) => cat.slug === 'market')?.href).toBe(
+      '/market',
     );
     expect(HOME_GATEWAY_DEFERRED_SLUGS).toEqual([
       'ortak-bul',
       'franchise',
-      'dijital-ai',
+      'market',
     ]);
     expect(HOME_CATEGORIES.map((cat) => cat.label).join(' ')).not.toContain('&');
   });

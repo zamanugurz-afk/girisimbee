@@ -215,7 +215,7 @@ export function ListingOwnerPackagePanel({ listingId, className }: ListingOwnerP
               İlanınızı Süper İlan yapın
             </p>
             <p className="mt-0.5 text-gc-xs text-muted-foreground">
-              Süper İlan paketi ile aramalarda ve Keşfet'te en üst sırada görünün.
+              Süper İlan paketi ile aramalarda ve Keşfet&apos;te en üst sırada görünün.
             </p>
           </div>
           <Button type="button" onClick={() => setOpen(true)} className="shrink-0">

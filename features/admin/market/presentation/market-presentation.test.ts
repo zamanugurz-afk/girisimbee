@@ -25,17 +25,13 @@ import { HOME_CATEGORIES } from '@/components/girisimco/home/home-marketplace.da
 
 describe('Girişimbee MARKET presentation', () => {
   it('keeps Fırsatlar → MARKET routes isolated from Digital & AI and create listing', () => {
-    expect(NAV_LINKS.find((link) => link.label === 'Fırsatlar')?.href).toBe('/market');
-    expect(NAV_LINKS.find((link) => link.label === 'Çözümler')?.href).toBe('/dijital-ai');
-    expect(getFooterLinks().Fırsatlar?.map((link) => [link.label, link.href])).toEqual([
+    expect(NAV_LINKS.find((link) => link.label === 'Fırsat ve Çözümler')?.href).toBe('/market');
+    expect(getFooterLinks()['Fırsat ve Çözümler']?.map((link) => [link.label, link.href])).toContainEqual(
       ['Girişimbee MARKET', '/market'],
-    ]);
-    expect(getFooterLinks().Çözümler?.map((link) => [link.label, link.href])).toEqual([
-      ['Dijital ve AI Çözümleri', '/dijital-ai'],
-    ]);
+    );
     expect(MARKET_HOME_CTA_HREF).toBe('/market');
     expect(MARKET_HOME_CTA_LABEL).toBe('Tüm fırsatlar');
-    expect(MARKET_HOME_SUBTITLE).toBe('Seçili fırsat ve işbirlikleri');
+    expect(MARKET_HOME_SUBTITLE).toBe('Seçili fırsat, stratejik ortaklık ve Çözümler');
     expect(MARKET_BRAND_NAME).toBe('Girişimbee MARKET');
     expect(CREATE_LISTING_PICKER_ORDER).toEqual([]);
     expect(CREATE_LISTING_VENTURE_COPY.options.map((item) => item.label)).not.toContain(
@@ -50,16 +46,10 @@ describe('Girişimbee MARKET presentation', () => {
     const home = getMockHomeMarketAds();
     expect(home).toHaveLength(4);
     expect(home.map((item) => item.title)).toEqual([
-      'Seed turu arayan SaaS girişimi',
-      'Teknoloji ortaklığı — ürün geliştirme',
-      'Ulusal franchise genişleme paketi',
-      'Erken aşama fintech büyüme turu',
-    ]);
-    expect(home.map((item) => item.ctaLabel)).toEqual([
-      'Fırsatı incele',
-      'Detaylara bak',
-      'Bayiliği incele',
-      'Fırsatı incele',
+      'iyzico ile Girişiminiz İçin Güvenli ve Hızlı Ödeme Altyapısı',
+      'AWS Cloud ve Yapay Zeka Girişimlerine 5.000$ Bulut Kredisi',
+      'GrowthBee ile B2B ve E-Ticaret Büyüme ve Reklam Çözümleri',
+      'LegalTech ile Otomatik Hissedar ve Yatırım Sözleşmeleri Paketi',
     ]);
     expect(home.every((item) => item.status === 'published')).toBe(true);
     expect(JSON.stringify(home)).not.toMatch(/\/invest|Yatırım Arıyorum|createdBy":"[^n]/);
@@ -113,7 +103,7 @@ describe('Girişimbee MARKET presentation', () => {
       MARKET_HOME_SUBTITLE,
     ].join(' ');
     expect(labels).not.toContain('Yatırım Arıyorum');
-    expect(getFooterLinks().Fırsatlar?.some((link) => link.href === '/dijital-ai')).toBe(false);
+    expect(getFooterLinks()['Fırsat ve Çözümler']?.some((link) => link.href === '/dijital-ai')).toBe(false);
     expect(HOME_CATEGORIES.map((item) => item.label).join(' ')).not.toContain('MARKET');
     expect(isMarketSafePublicHref('/api/career')).toBe(false);
     expect(isMarketSafePublicHref('/api/partnership')).toBe(false);

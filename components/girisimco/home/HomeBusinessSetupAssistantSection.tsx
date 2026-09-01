@@ -208,7 +208,7 @@ export function HomeBusinessSetupAssistantSection() {
         setSelectedDistrict(districts[0]);
       }
     }
-  }, [selectedCity, selectedDistrict]);
+  }, [selectedCity, selectedDistrict, setSelectedDistrict]);
 
   // Canlı Hesaplama Sonuçları
   const calculationResult = useMemo(() => {

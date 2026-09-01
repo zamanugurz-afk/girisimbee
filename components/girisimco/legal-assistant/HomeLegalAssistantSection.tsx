@@ -192,7 +192,7 @@ export function HomeLegalAssistantSection() {
     if (currentStep?.requiredDocuments?.length > 0) {
       setFocusedDocId(currentStep.requiredDocuments[0].id);
     }
-  }, [activeStep, selectedSectorId]);
+  }, [activeStep, selectedSectorId, currentStep?.requiredDocuments]);
 
   // Aktif odaklanan döküman
   const activeFocusedDoc = useMemo(() => {

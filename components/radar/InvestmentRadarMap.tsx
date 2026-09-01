@@ -133,6 +133,7 @@ export default function InvestmentRadarMap({
         isInitializedRef.current = false;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

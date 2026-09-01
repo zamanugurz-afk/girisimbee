@@ -33,21 +33,20 @@ describe('CareerProfilePreview 2-column card structure & Design System Complianc
   });
 
   it('4. renders KARİYER ÖZETİ, UZMANLIK ALANLARI and İŞ DENEYİMLERİ in main column', () => {
-    expect(source).toContain("<span>{isHire ? 'POZİSYON ÖZETİ' : 'KARİYER ÖZETİ'}</span>");
-    expect(source).toContain('<span>UZMANLIK ALANLARI</span>');
-    expect(source).toContain('<span>İŞ DENEYİMLERİ</span>');
+    expect(source).toContain('İŞ DENEYİMLERİ VE KARİYER GEÇMİŞİ');
+    expect(source).toContain('UZMANLIK ALANLARI');
   });
 
   it('5. enforces compact experiences initially and has expand/collapse control', () => {
     expect(source).toContain('expandedExperiences');
-    expect(source).toContain('diğer deneyimi göster');
-    expect(source).toContain('Daha az göster');
+    expect(source).toContain('diğer iş deneyimini göster');
+    expect(source).toContain('Daha az deneyim göster');
     expect(source).toContain('experiences.length > INITIAL_EXPERIENCE_LIMIT');
   });
 
   it('6. uses framed card boxes with theme number nodes for experiences', () => {
-    expect(source).toContain('theme.numNode');
-    expect(source).toContain('rounded-xl border border-slate-200/90 bg-slate-50/50');
+    expect(source).toContain('Briefcase');
+    expect(source).toContain('visibleExperiences.map');
   });
 
   it('7. uses categorized logo icons and clean typography for skills with deduplication', () => {

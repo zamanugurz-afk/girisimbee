@@ -152,7 +152,6 @@ describe('franchise presentation', () => {
       '/is',
       '/girisim-ortaklik',
       '/market',
-      '/dijital-ai',
     ]);
     expect(FRANCHISE_FLOW_ROUTES.listings).toBe('/franchise/buy');
     expect(VENTURE_PARTNERSHIP_OPTIONS.map((item) => item.href)).not.toContain('/is');

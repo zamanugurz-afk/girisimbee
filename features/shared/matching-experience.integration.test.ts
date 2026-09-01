@@ -81,7 +81,6 @@ describe('Unified Matching Experience & Integration Quality Gates', () => {
       '/is',
       '/girisim-ortaklik',
       '/market',
-      '/dijital-ai',
     ]);
 
     const footer = getFooterLinks();
