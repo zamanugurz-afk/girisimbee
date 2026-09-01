@@ -105,7 +105,6 @@ const HERO_SIDEBAR_MODULES: {
   id: string;
   title: string;
   subtitle: string;
-  badge?: string;
   href: string;
   targetScrollId?: string;
   Icon: LucideIcon;
@@ -117,7 +116,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'location-radar',
     title: 'Lokasyon Radarı',
     subtitle: 'Canlı Pazar & Harita',
-    badge: 'Canlı Pazar',
     href: '#radar-section',
     targetScrollId: '#radar-section',
     Icon: MapPin,
@@ -129,7 +127,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'setup-assistant',
     title: 'İş Kurma Asistanı',
     subtitle: 'Kira & Bütçe Robotu',
-    badge: 'Canlı Bütçe',
     href: '#assistant-section',
     targetScrollId: '#assistant-section',
     Icon: Bot,
@@ -141,7 +138,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'legal-assistant',
     title: 'Resmi Başvuru & Hukuk',
     subtitle: 'Mevzuat & Evrak Rehberi',
-    badge: '2026 Mevzuat',
     href: '#legal-section',
     targetScrollId: '#legal-section',
     Icon: Scale,
@@ -153,7 +149,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'grants-radar',
     title: 'Hibe & Teşvik Radarı',
     subtitle: 'KOSGEB & SGK Destekleri',
-    badge: '₺3.1M Hibe',
     href: '#grants-section',
     targetScrollId: '#grants-section',
     Icon: Landmark,
@@ -165,7 +160,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'trend-ideas',
     title: 'Trend İş Fikirleri',
     subtitle: '8 Yeni Niş Model',
-    badge: 'Eylül 2026',
     href: '#trend-ideas-section',
     targetScrollId: '#trend-ideas-section',
     Icon: Flame,
@@ -177,7 +171,6 @@ const HERO_SIDEBAR_MODULES: {
     id: 'market-solutions',
     title: 'Girişimbee Market',
     subtitle: 'Seçili Çözümler & Fırsatlar',
-    badge: 'Doğrulanmış',
     href: '/market',
     targetScrollId: '#market-section',
     Icon: Sparkles,
@@ -199,7 +192,7 @@ function ModulePill({
       href={item.href}
       onClick={(e) => onNavigate(e, item.href, item.targetScrollId)}
       className={cn(
-        'group flex items-center justify-between gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-1.5',
+        'group flex items-center justify-between gap-2.5 rounded-xl border border-[#E6E8EE] bg-white/95 px-3 py-2',
         'shadow-[0_1px_3px_rgba(15,23,42,0.04)] backdrop-blur-sm',
         'cursor-pointer transition-all duration-200 ease-out',
         'hover:-translate-y-0.5 hover:shadow-md',
@@ -209,7 +202,7 @@ function ModulePill({
       )}
       aria-label={`${item.title}: ${item.subtitle}`}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
         <span
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105',
@@ -219,21 +212,17 @@ function ModulePill({
         >
           <item.Icon className={cn('h-3.5 w-3.5', item.iconClass)} strokeWidth={2} />
         </span>
-        <span className="min-w-0">
-          <span className="block font-display text-[12.5px] font-bold leading-tight text-[#0B1220] transition-colors dark:text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-[13px] font-bold leading-tight text-[#0B1220] transition-colors dark:text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400">
             {item.title}
           </span>
-          <span className="mt-0.5 block truncate text-[10.5px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
+          <span className="mt-0.5 block truncate text-[11px] font-medium text-[#64748B] transition-colors group-hover:text-foreground">
             {item.subtitle}
           </span>
         </span>
       </div>
 
-      {item.badge && (
-        <span className="shrink-0 text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200/70 dark:border-zinc-700">
-          {item.badge}
-        </span>
-      )}
+      <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 dark:text-zinc-600 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-amber-600 dark:group-hover:text-amber-400 shrink-0" />
     </Link>
   );
 }
