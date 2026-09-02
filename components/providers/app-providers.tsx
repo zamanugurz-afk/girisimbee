@@ -9,6 +9,7 @@ import { GcPageTransition } from '@/components/girisimco/ui/gc-page-transition';
 import { SiteChrome } from '@/components/girisimco/site-chrome';
 import { AuthProvider } from '@/features/authentication/providers/auth-provider';
 import type { SessionUser } from '@/features/authentication/types/auth.types';
+import { ActiveCompanyProvider } from '@/features/companies';
 import { FavoritesProvider } from '@/features/favorites/providers/favorites-provider';
 import { CookieConsentBanner } from '@/features/legal/components/CookieConsentBanner';
 
@@ -41,26 +42,28 @@ export function AppProviders({
     >
       <QueryClientProvider client={client}>
         <AuthProvider initialUser={initialUser}>
-          <FavoritesProvider>
-            <TooltipProvider delayDuration={150}>
-              <SiteChrome>
-                <GcPageTransition>{children}</GcPageTransition>
-              </SiteChrome>
-              <CookieConsentBanner />
-              <Toaster
-                position="bottom-right"
-                theme="system"
-                richColors
-                closeButton
-                toastOptions={{
-                  classNames: {
-                    toast:
-                      'rounded-xl border border-border bg-card text-card-foreground shadow-pop',
-                  },
-                }}
-              />
-            </TooltipProvider>
-          </FavoritesProvider>
+          <ActiveCompanyProvider>
+            <FavoritesProvider>
+              <TooltipProvider delayDuration={150}>
+                <SiteChrome>
+                  <GcPageTransition>{children}</GcPageTransition>
+                </SiteChrome>
+                <CookieConsentBanner />
+                <Toaster
+                  position="bottom-right"
+                  theme="system"
+                  richColors
+                  closeButton
+                  toastOptions={{
+                    classNames: {
+                      toast:
+                        'rounded-xl border border-border bg-card text-card-foreground shadow-pop',
+                    },
+                  }}
+                />
+              </TooltipProvider>
+            </FavoritesProvider>
+          </ActiveCompanyProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

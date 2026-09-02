@@ -18,3 +18,4 @@ export * from '@/features/companies/repository';
 export { companySchema, createCompanySchema } from '@/features/companies/validation/company.schema';
 export { createCompany, createCompanyInput } from '@/features/companies/factories/company.factory';
 export { generateMockCompany, generateMockCompanies } from '@/features/companies/mock/company.generator';
+export { ActiveCompanyProvider, useActiveCompany } from '@/features/companies/context/active-company-context';
