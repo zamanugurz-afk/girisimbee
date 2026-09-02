@@ -58,6 +58,18 @@ async function resolveListingRow(
     listing = byNumber.data[0] ?? null;
   }
 
+  if (!listing) {
+    try {
+      const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
+      const memRepo = getSharedMemoryContainer().listingRepository;
+      listing = isUuid
+        ? await memRepo.findById(raw as ListingId)
+        : await memRepo.findBySlug(raw);
+    } catch {
+      // fallback
+    }
+  }
+
   return listing;
 }
 
@@ -74,8 +86,7 @@ export const loadListingPagePayload = cache(
         const supabase = createClient();
         const container = getServerContainer(supabase);
         const listing = await resolveListingRow(idOrSlug, container);
-        if (!listing) return null;
-        if (!isUserDiscoverableListing(listing)) return null;
+        if (!listing || listing.deletedAt) return null;
 
         let viewerUserId: string | null = null;
         try {

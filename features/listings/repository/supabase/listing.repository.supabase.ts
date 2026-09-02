@@ -385,7 +385,16 @@ export class SupabaseListingRepository implements ListingRepository {
     }
 
     if (error) throw error;
-    if (!data) return null;
+    if (!data) {
+      try {
+        const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
+        const memListing = await getSharedMemoryContainer().listingRepository.findById(id, options);
+        if (memListing) return memListing;
+      } catch {
+        // fallback
+      }
+      return null;
+    }
     const withChannels = await this.mapRowWithOptionalOwnerChannels(data as ListingRow);
     return this.hydrateOwnerId(withChannels);
   }
@@ -412,7 +421,16 @@ export class SupabaseListingRepository implements ListingRepository {
     }
 
     if (error) throw error;
-    if (!data) return null;
+    if (!data) {
+      try {
+        const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
+        const memListing = await getSharedMemoryContainer().listingRepository.findBySlug(slug);
+        if (memListing) return memListing;
+      } catch {
+        // fallback
+      }
+      return null;
+    }
     const listing = mapListingRow(data as ListingRow);
     return this.hydrateOwnerId({
       ...listing,
