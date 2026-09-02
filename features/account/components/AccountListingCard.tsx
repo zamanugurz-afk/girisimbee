@@ -221,12 +221,25 @@ export function AccountListingCard({
 
               {/* Right Side: Status Badge + Showcase + Quick Management Menu */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Süper İlan Badge */}
-                {listing.isUrgentShowcase && (
+                {/* Süper İlan Badge veya Teşvik Edici Süper İlan Yap Butonu */}
+                {listing.isUrgentShowcase ? (
                   <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400">
                     <Zap className="h-3 w-3 fill-rose-500 text-rose-500" />
                     Süper İlan
                   </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPromoteOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:border-amber-500 hover:from-amber-500/25 hover:to-rose-500/25 transition-all shadow-xs animate-pulse cursor-pointer"
+                  >
+                    <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+                    <span>Süper İlan Yap</span>
+                  </button>
                 )}
 
                 {/* Status Badge */}

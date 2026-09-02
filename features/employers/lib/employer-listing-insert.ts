@@ -94,9 +94,14 @@ export async function createEmployerListing(
       try {
         const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
         const memRepo = getSharedMemoryContainer().listingRepository;
-        const created = await memRepo.create(input);
+        const created = await memRepo.create({
+          ...input,
+          status: publishNow ? 'published' : 'draft',
+          workflowStatus: input.workflowStatus ?? (publishNow ? 'published' : 'draft'),
+        });
         return {
           ...created,
+          slug,
           ownerId: entity.ownerId,
           contactPhone: entity.contactPhone ?? null,
           contactWhatsapp: entity.contactWhatsapp ?? null,

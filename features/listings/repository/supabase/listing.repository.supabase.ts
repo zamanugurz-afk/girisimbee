@@ -402,25 +402,45 @@ export class SupabaseListingRepository implements ListingRepository {
   async findBySlug(slug: string): Promise<Listing | null> {
     const privileged = this.getPrivilegedClient();
     const client = privileged ?? this.supabase;
+    const decodedSlug = decodeURIComponent(slug);
+
     let { data, error } = await client
       .from(TABLE)
       .select(LISTING_ROW_SELECT)
-      .eq('slug', slug)
+      .or(`slug.eq."${slug}",slug.eq."${decodedSlug}",slug.ilike."${slug}"`)
       .is('deleted_at', null)
+      .limit(1)
       .maybeSingle();
 
-    if (error && error.code === '42501' && privileged && client !== privileged) {
+    if ((error || !data) && privileged && client !== privileged) {
       const fallback = await privileged
         .from(TABLE)
         .select(LISTING_ROW_SELECT)
-        .eq('slug', slug)
+        .or(`slug.eq."${slug}",slug.eq."${decodedSlug}",slug.ilike."${slug}"`)
         .is('deleted_at', null)
+        .limit(1)
         .maybeSingle();
-      data = fallback.data;
-      error = fallback.error;
+      if (fallback.data) {
+        data = fallback.data;
+        error = null;
+      }
     }
 
-    if (error) throw error;
+    if (!data) {
+      // Prefix fallback (e.g. resepsiyonist-1 when navigating to resepsiyonist)
+      const prefixQuery = client
+        .from(TABLE)
+        .select(LISTING_ROW_SELECT)
+        .ilike('slug', `${slug}%`)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const prefixRes = await prefixQuery.maybeSingle();
+      if (prefixRes.data) {
+        data = prefixRes.data;
+      }
+    }
+
     if (!data) {
       try {
         const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
@@ -586,6 +606,7 @@ export class SupabaseListingRepository implements ListingRepository {
       ownerScopedIds,
     })
       .order('is_urgent', { ascending: false })
+      .order('is_featured', { ascending: false })
       .order(column, { ascending })
       .range(start, end);
 
@@ -595,6 +616,7 @@ export class SupabaseListingRepository implements ListingRepository {
         ownerScopedIds,
       })
         .order('is_urgent', { ascending: false })
+        .order('is_featured', { ascending: false })
         .order(column, { ascending })
         .range(start, end);
     }

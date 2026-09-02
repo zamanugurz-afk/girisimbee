@@ -182,6 +182,40 @@ export function CompanySettingsForm({ slug }: CompanySettingsFormProps) {
           İptal
         </Button>
       </div>
+
+      {/* Tehlikeli Alan / Şirketi Sil */}
+      <div className="mt-12 pt-8 border-t border-destructive/20 space-y-4">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 sm:p-6 space-y-3">
+          <h3 className="text-base font-bold text-destructive flex items-center gap-2">
+            <span>Tehlikeli Alan: Şirket Profilini Sil</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Bu şirket profilini kalıcı olarak silmek istediğinizden emin misiniz? Şirkete bağlı tüm aktif ilanlar ve bilgiler arşivlenecektir.
+          </p>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="rounded-xl font-bold"
+            onClick={async () => {
+              if (!user || !company) return;
+              const confirmed = window.confirm(`"${company.name}" adlı şirket profilini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`);
+              if (!confirmed) return;
+
+              try {
+                await getCompanyService().delete(company.id, user.id as UserId);
+                toast.success('Şirket profili başarıyla silindi.');
+                router.push('/dashboard');
+                router.refresh();
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'Şirket silinemedi.');
+              }
+            }}
+          >
+            Şirket Profilini Sil
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }
