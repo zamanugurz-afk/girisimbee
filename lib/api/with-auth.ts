@@ -61,14 +61,18 @@ export async function resolveAuthContext(requireAuth = true, request?: Request):
   }
 
   if (!user) {
-    if (process.env.NODE_ENV === 'development') {
+    const isDemoCookie =
+      request?.headers.get('cookie')?.includes('girisimbee_demo_auth=1') ||
+      request?.headers.get('x-demo-auth') === '1';
+
+    if (process.env.NODE_ENV === 'development' || isDemoCookie) {
       const container = getServerContainer(supabase);
-      const testUserId = ids.user('test-user-ugur-zaman');
+      const testUserId = ids.user('00000000-0000-0000-0000-000000000001');
       return {
         user: { id: testUserId, email: 'test@girisimbee.com' } as any,
         userId: testUserId,
-        profileId: ids.profile('test-profile-ugur'),
-        profile: { id: ids.profile('test-profile-ugur'), userId: testUserId, displayName: 'Uğur Zaman' } as any,
+        profileId: ids.profile('00000000-0000-0000-0000-000000000001'),
+        profile: { id: ids.profile('00000000-0000-0000-0000-000000000001'), userId: testUserId, displayName: 'Test Girişimci' } as any,
         container,
       };
     }

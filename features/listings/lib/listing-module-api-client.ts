@@ -9,10 +9,14 @@ async function moduleFetch<T>(moduleKey: string, path: string, init?: RequestIni
   traceListingPublish(moduleKey, 'action_request', { payload: { path, method: init?.method ?? 'GET' } });
 
   let token: string | undefined;
+  let isDemoAuth = false;
   try {
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     token = session?.access_token;
+    if (typeof window !== 'undefined') {
+      isDemoAuth = localStorage.getItem('girisimbee_demo_auth') === '1';
+    }
   } catch {
     // fallback
   }
@@ -25,6 +29,7 @@ async function moduleFetch<T>(moduleKey: string, path: string, init?: RequestIni
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(isDemoAuth ? { 'x-demo-auth': '1' } : {}),
         ...init?.headers,
       },
     });

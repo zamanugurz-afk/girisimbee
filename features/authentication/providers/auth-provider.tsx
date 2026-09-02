@@ -369,6 +369,7 @@ export function AuthProvider({
       setIsLoading(false);
       if (typeof window !== 'undefined') {
         localStorage.setItem('girisimbee_demo_auth', '1');
+        document.cookie = 'girisimbee_demo_auth=1; path=/; max-age=86400; SameSite=Lax';
       }
       return { error: null };
     }
