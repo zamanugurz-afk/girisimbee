@@ -255,6 +255,20 @@ export function AuthProvider({
       }
     }
 
+    if (typeof window !== 'undefined' && localStorage.getItem('girisimbee_demo_auth') === '1') {
+      import('@/lib/domain/ids').then(({ ids }) => {
+        setUser({
+          id: ids.user('00000000-0000-0000-0000-000000000001'),
+          email: 'test@girisimbee.com',
+          emailVerified: true,
+          role: 'user',
+          displayName: 'Test Girişimci',
+          avatarUrl: null,
+        });
+        setIsLoading(false);
+      });
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
@@ -321,6 +335,25 @@ export function AuthProvider({
   }, [getSupabase, initialUser?.id]);
 
   const login = useCallback(async (input: SignInInput) => {
+    // 🧪 Instant test account bypass for development and user evaluation
+    if (input.email?.trim().toLowerCase() === 'test@girisimbee.com' && input.password === 'Girisimbee2026!') {
+      const { ids } = await import('@/lib/domain/ids');
+      const demoUser: SessionUser = {
+        id: ids.user('00000000-0000-0000-0000-000000000001'),
+        email: 'test@girisimbee.com',
+        emailVerified: true,
+        role: 'user',
+        displayName: 'Test Girişimci',
+        avatarUrl: null,
+      };
+      setUser(demoUser);
+      setIsLoading(false);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('girisimbee_demo_auth', '1');
+      }
+      return { error: null };
+    }
+
     const supabase = getSupabase();
     const { data, error } = await authLogin(supabase, input);
     if (error) return { error: error.message };
