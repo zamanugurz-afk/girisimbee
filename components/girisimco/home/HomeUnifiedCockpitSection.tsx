@@ -218,7 +218,7 @@ function UnifiedCockpitInner({ defaultTab = 'radar' }: HomeUnifiedCockpitSection
             <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span className="truncate">
               {activeTab === 'radar' && 'Harita üzerinden rakip yoğunluğunu ve demografiyi analiz edin'}
-              {activeTab === 'assistant' && '32 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
+              {activeTab === 'assistant' && '33 sektörde m², kira, demirbaş maliyeti ve başabaş ciro simülasyonu'}
               {activeTab === 'legal' && 'Resmi kurum izinleri, evrak kontrol listeleri ve 2026 harçlarını inceleyin'}
               {activeTab === 'grants' && 'KOSGEB hibeleri, NACE kodları, genç girişimci vergi muafiyeti ve SGK teşviklerini hesaplayın'}
             </span>

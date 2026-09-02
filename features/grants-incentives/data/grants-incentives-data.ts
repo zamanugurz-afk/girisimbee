@@ -553,6 +553,7 @@ const DEFAULT_NACE_MAPPING: Record<
   'psikolojik-danismanlik': { name: 'Psikolojik Danışmanlık & Terapi', emoji: '🧠', category: 'Kişisel Bakım & Sağlık', nace: '86.90.14', desc: 'Psikolog ve Aile Danışmanlığı Faaliyetleri' },
   'surucu-kursu': { name: 'Sürücü Kursu & MTSK Merkezi', emoji: '🚗', category: 'Finans & Hizmet', nace: '85.53.01', desc: 'Motorlu Taşıt Sürücüleri Kursu (MTSK) Faaliyetleri' },
   'veteriner-klinigi': { name: 'Veteriner Kliniği & Hayvan Hastanesi', emoji: '🩺', category: 'Kişisel Bakım & Sağlık', nace: '75.00.02', desc: 'Evcil Hayvan Sağlığı, Teşhis ve Veterinerlik Hizmetleri', isAdvanced: true },
+  'waffle-cikolata': { name: 'Waffle & Butik Tatlıcı', emoji: '🧇', category: 'Yeme - İçme', nace: '56.10.08', desc: 'Waffle, Krep, Çikolata ve Butik Tatlı Hazırlama ve Satışı' },
 };
 
 for (const [id, def] of Object.entries(DEFAULT_NACE_MAPPING)) {

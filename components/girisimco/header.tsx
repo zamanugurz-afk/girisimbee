@@ -394,7 +394,7 @@ export function Header() {
                         İş Kurma Asistanı
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        32 sektör maliyet simülatörü
+                        33 sektör maliyet simülatörü
                       </span>
                     </div>
                   </Link>

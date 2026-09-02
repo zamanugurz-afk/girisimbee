@@ -871,6 +871,19 @@ const SECTOR_METAS: Record<string, SectorMeta> = {
     step3ProTip: 'Kurşun kaplı röntgen odası, ameliyathane, otoklav ve veteriner hekim diploma tescili zorunludur.',
     step5ProTip: 'İl Tarım Müdürlüğü denetimi sonrası klinik ruhsatı verilir.',
   },
+  'waffle-cikolata': {
+    name: 'Waffle & Butik Tatlıcı',
+    emoji: '🧇',
+    category: 'Yeme - İçme',
+    capital: 50000,
+    cost: 38000,
+    days: '7 - 10 İş Günü',
+    institution3: 'İl/İlçe Tarım ve Orman Müdürlüğü',
+    channel3: 'Fiziki Başvuru',
+    step3Title: 'Gıda İşletme Kayıt Belgesi & Hijyen Denetimi',
+    step3ProTip: 'Davlumbaz koku filtresi, su analiz raporu, personel hijyen eğitimi ve zararlı mücadele sözleşmesi aranır.',
+    step5ProTip: 'İtfaiye yangın ve baca raporu ile gıda kayıt belgesiyle belediye sıhhi işyeri açma ruhsatı verir.',
+  },
 };
 
 // Metadatalardan eksik kalan tüm sektörleri 5 adımlı tam şablonla otomatik doldur

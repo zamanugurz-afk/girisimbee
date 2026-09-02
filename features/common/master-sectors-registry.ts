@@ -1,5 +1,5 @@
 /**
- * GİRİŞİMBEE MASTER 32 SEKTÖR VE NACE REFERANS VERİTABANI
+ * GİRİŞİMBEE MASTER 33 SEKTÖR VE NACE REFERANS VERİTABANI
  * Tüm 4 kokpit modülünde (Lokasyon Radarı, Bütçe Asistanı, Hukuk, Hibe)
  * kullanılan meslek havuzu bu merkezi kaynaktan alfabetik (A-Z) olarak sıralanır.
  */
@@ -485,7 +485,22 @@ export const MASTER_SECTORS_LIST: MasterSectorDefinition[] = [
     competitorPoiCategory: 'service',
     primaryAuthority: 'Tarım ve Orman Bakanlığı & Türk Veteriner Hekimleri Birliği (TVHB)',
   },
-  // 32. Y
+  // 32. W (YENİ)
+  {
+    id: 'waffle-cikolata',
+    name: 'Waffle & Butik Tatlıcı',
+    emoji: '🧇',
+    categoryGroup: 'Yeme - İçme',
+    naceCode: '56.10.08',
+    naceDescription: 'Waffle, Krep, Çikolata ve Butik Tatlı Hazırlama ve Satış Faaliyetleri',
+    defaultM2: 45,
+    statutoryCapital: 50000,
+    isKosgebEligible: true,
+    kosgebCategory: 'Geleneksel Girişimci',
+    competitorPoiCategory: 'food',
+    primaryAuthority: 'İl/İlçe Tarım ve Orman Müdürlüğü & Belediye',
+  },
+  // 33. Y
   {
     id: 'yazilim-ajans',
     name: 'Yazılım, SaaS & Dijital Ajans',
