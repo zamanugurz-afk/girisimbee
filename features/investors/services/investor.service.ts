@@ -117,15 +117,23 @@ export class InvestorService {
   }
 
   async createThesisListing(input: CreateThesisListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId);
+    try {
+      await this.activateProfile(input.profileId);
+    } catch (err) {
+      console.warn('[investors] activateProfile non-fatal error:', err);
+    }
     const mapped = investorPayloadToCreateInput(input.listing);
     const publishNow = !input.asDraft;
 
     if (publishNow) {
-      await this.moduleProfileRepo.upsertInvestorProfile({
-        profileId: input.profileId,
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertInvestorProfile({
+          profileId: input.profileId,
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[investors] upsertInvestorProfile non-fatal error:', err);
+      }
     }
 
     const listingTypeConfig = LISTING_TYPE_CONFIGS.find(

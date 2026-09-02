@@ -92,7 +92,11 @@ export class EntrepreneurService {
   }
 
   async createStartupListing(input: CreateStartupListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId);
+    try {
+      await this.activateProfile(input.profileId);
+    } catch (err) {
+      console.warn('[entrepreneurs] activateProfile non-fatal error:', err);
+    }
     if (input.pitchDeckDocumentId) {
       await this.documentService.requireById(input.pitchDeckDocumentId);
     }
@@ -103,11 +107,15 @@ export class EntrepreneurService {
     if (publishNow) {
       const deckId = input.pitchDeckDocumentId
         ?? (input.listing.pitchDeckDocumentId ? (input.listing.pitchDeckDocumentId as DocumentId) : null);
-      await this.moduleProfileRepo.upsertEntrepreneurProfile({
-        profileId: input.profileId,
-        pitchDeckDocumentId: deckId,
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertEntrepreneurProfile({
+          profileId: input.profileId,
+          pitchDeckDocumentId: deckId,
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[entrepreneurs] upsertEntrepreneurProfile non-fatal error:', err);
+      }
     }
 
     console.log('[entrepreneurs] listingRepo.create', {

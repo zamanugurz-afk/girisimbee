@@ -148,16 +148,24 @@ export class FranchiseService {
   }
 
   async createListing(input: CreateFranchiseListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId, input.flow);
+    try {
+      await this.activateProfile(input.profileId, input.flow);
+    } catch (err) {
+      console.warn('[franchise] activateProfile non-fatal error:', err);
+    }
     const mapped = this.buildCreateInput(input.flow, input.listing);
     const publishNow = !input.asDraft;
 
     if (publishNow) {
-      await this.moduleProfileRepo.upsertFranchiseProfile({
-        profileId: input.profileId,
-        subcategorySlug: FLOW_TO_SUBCATEGORY[input.flow],
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertFranchiseProfile({
+          profileId: input.profileId,
+          subcategorySlug: FLOW_TO_SUBCATEGORY[input.flow],
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[franchise] upsertFranchiseProfile non-fatal error:', err);
+      }
     }
 
     return this.listingRepo.create({

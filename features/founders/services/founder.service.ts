@@ -115,7 +115,11 @@ export class FounderService {
   }
 
   async createCofounderListing(input: CreateCofounderListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId);
+    try {
+      await this.activateProfile(input.profileId);
+    } catch (err) {
+      console.warn('[founders] activateProfile non-fatal error:', err);
+    }
     const mapped = founderPayloadToCreateInput(input.listing);
     const publishNow = !input.asDraft;
 

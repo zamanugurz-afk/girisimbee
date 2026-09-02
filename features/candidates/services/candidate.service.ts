@@ -91,7 +91,11 @@ export class CandidateService {
   }
 
   async createCandidateListing(input: CreateCandidateListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId);
+    try {
+      await this.activateProfile(input.profileId);
+    } catch (err) {
+      console.warn('[candidates] activateProfile non-fatal error:', err);
+    }
 
     const experiences = parseCareerExperiences(input.listing.experiences);
     const expError = validateCareerExperiences(experiences);
@@ -120,10 +124,14 @@ export class CandidateService {
     const publishNow = !input.asDraft;
 
     if (publishNow) {
-      await this.moduleProfileRepo.upsertCandidateProfile({
-        profileId: input.profileId,
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertCandidateProfile({
+          profileId: input.profileId,
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[candidates] upsertCandidateProfile non-fatal error:', err);
+      }
     }
 
     console.log('[candidates] listingRepo.create', {

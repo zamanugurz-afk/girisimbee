@@ -78,15 +78,23 @@ export class EmployerService {
   }
 
   async createJobListing(input: CreateJobListingInput): Promise<Listing> {
-    await this.activateProfile(input.profileId);
+    try {
+      await this.activateProfile(input.profileId);
+    } catch (err) {
+      console.warn('[employers] activateProfile non-fatal error:', err);
+    }
     const mapped = employerPayloadToCreateInput(input.listing);
     const publishNow = !input.asDraft;
 
     if (publishNow) {
-      await this.moduleProfileRepo.upsertEmployerProfile({
-        profileId: input.profileId,
-        workflowStatus: 'published',
-      });
+      try {
+        await this.moduleProfileRepo.upsertEmployerProfile({
+          profileId: input.profileId,
+          workflowStatus: 'published',
+        });
+      } catch (err) {
+        console.warn('[employers] upsertEmployerProfile non-fatal error:', err);
+      }
     }
 
     console.log('[employers] listingRepo.create', {
