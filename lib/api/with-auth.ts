@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { getServerContainer, type PersistenceContainer } from '@/lib/persistence/container';
 import { ids, type ProfileId, type UserId } from '@/lib/domain/ids';
@@ -7,6 +8,9 @@ import { apiError } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
 import { resolveProfileForUser } from '@/lib/api/resolve-profile';
 import { NextResponse } from 'next/server';
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tszvmnaejsxsyuawwclr.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzenZtbmFlanN4c3l1YXd3Y2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTAyOTgsImV4cCI6MjEwMDk4NjI5OH0.oZymsvxduZTFeNmza7iRCcCzzIFWsC0fZLYyyoRPeyA';
 
 export interface AuthContext {
   user: User;
@@ -42,9 +46,12 @@ export async function resolveAuthContext(requireAuth = true, request?: Request):
       const token = authHeader.substring(7).trim();
       if (token) {
         try {
-          const tokenRes = await supabase.auth.getUser(token);
-          if (tokenRes.data.user) {
-            user = tokenRes.data.user;
+          const directSupabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false },
+          });
+          const { data: tokenData } = await directSupabase.auth.getUser(token);
+          if (tokenData?.user) {
+            user = tokenData.user;
           }
         } catch {
           // fallback

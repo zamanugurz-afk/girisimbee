@@ -129,11 +129,8 @@ export function isGuestOnlyRoute(pathname: string): boolean {
 /** Skip Supabase auth in middleware for fully public document routes. */
 export function needsMiddlewareAuth(pathname: string): boolean {
   if (pathname.startsWith('/api/')) {
-    // Refresh session cookies on admin API + publish so Route Handlers see a valid user.
-    return (
-      pathname.startsWith('/api/admin')
-      || /^\/api\/listings\/[^/]+\/publish$/.test(pathname)
-    );
+    // Refresh session cookies on all API endpoints so Route Handlers see a valid user.
+    return true;
   }
   // Guest-only pages are also listed as public for SSR — still need session checks.
   if (isGuestOnlyRoute(pathname)) return true;
