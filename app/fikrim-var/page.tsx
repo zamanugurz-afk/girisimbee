@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft, Lightbulb, ShieldCheck, Coins } from 'lucide-react';
+import { Sparkles, ArrowLeft } from 'lucide-react';
 import { VentureBuilderWizard } from '@/components/girisimco/venture-builder/VentureBuilderWizard';
 
 export const metadata = {
@@ -30,15 +30,11 @@ export default function FikrimVarPage() {
         </div>
 
         {/* Başlık & Tanıtım Alanı */}
-        <div className="mb-8 max-w-3xl">
-          <p className="inline-flex items-center gap-1.5 font-display text-[13px] font-bold tracking-tight text-amber-600 dark:text-amber-400">
-            <Lightbulb className="h-4 w-4 shrink-0" />
-            Girişimbee Girişim Modelleme & Ortaklık Motoru
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground sm:text-3xl lg:text-4xl">
+        <div className="mb-8 max-w-2xl">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground sm:text-3xl">
             &quot;Fikrim Var, Bütçem Yok&quot; <span className="text-amber-500">Stüdyosu</span>
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400 sm:text-base">
+          <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400 sm:text-[15px]">
             Harika bir iş fikrin, şahsi bir araban, evinde atölye alanın veya tam zamanlı emeğin mi var? Bütçe eksikliğini engel olmaktan çıkar. Fikrinin gelir-gider fizibilitesini dakikalar içinde modelle; onaylanan projenle <strong>Yatırım & Ortaklık Radarına</strong> çık.
           </p>
         </div>
