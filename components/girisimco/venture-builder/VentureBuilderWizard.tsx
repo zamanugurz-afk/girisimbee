@@ -19,7 +19,6 @@ import {
   Percent,
   Calculator,
   Flame,
-  Search,
   ChevronRight,
   ChevronLeft,
   FileText,
@@ -28,6 +27,12 @@ import {
   Briefcase,
   Layers,
   Award,
+  Package,
+  Wrench,
+  Palette,
+  RefreshCw,
+  Users,
+  Target,
 } from 'lucide-react';
 import { useVentureBuilderStore } from '@/lib/stores/venture-builder-store';
 import {
@@ -57,90 +62,60 @@ const CATEGORIES: VentureCategory[] = [
   'Diğer Niş Girişim',
 ];
 
-const PRESET_IDEAS = [
+const BUSINESS_MODELS = [
   {
-    id: 'pup-party',
-    title: 'Pet Doğum Günü Paketi (Pup-Party Box)',
-    category: 'Evcil Hayvan & Yaşam' as VentureCategory,
-    oneLiner: 'Köpekler için şekersiz fıstık ezmeli yaş pasta, temalı parti şapkası ve anı kutusu.',
-    whyItWorks: 'Köpek sahipleri doğum günlerinde kutlama ve sosyal medya içeriği için hazır kişiselleştirilmiş parti kutuları sipariş ediyor.',
-    workspace: 'home' as WorkspaceType,
-    vehicle: 'personal_car' as VehicleType,
-    capital: 35000,
-    monthlyNetProfit: 60000,
-    share: 35,
-    icon: '🐕',
+    id: 'product_craft',
+    title: 'Ürün İmalatı & Zanaat',
+    desc: 'Evde/atölyede üretim ve kargo/online satış',
+    icon: Package,
+    defaultWorkspace: 'home' as WorkspaceType,
+    defaultVehicle: 'none' as VehicleType,
   },
   {
-    id: 'pop-up-cinema',
-    title: 'Mobil Açık Hava Sinema Kurulumu (Pop-Up Cinema)',
-    category: 'Deneyim & Etkinlik' as VentureCategory,
-    oneLiner: 'Bahçe ve teraslara 2 saatte kurulan bohem şezlonglu açık hava sinema deneyimi.',
-    whyItWorks: 'Evlilik teklifi, doğum günü ve butik kutlamalarda mekan kiralamak yerine kişiye özel açık hava sineması tercih ediliyor.',
-    workspace: 'client_location' as WorkspaceType,
-    vehicle: 'light_commercial' as VehicleType,
-    capital: 55000,
-    monthlyNetProfit: 80000,
-    share: 40,
-    icon: '🎬',
+    id: 'mobile_service',
+    title: 'Mobil & Yerinde Servis',
+    desc: 'Şahsi araçla müşterinin adresinde yerinde hizmet',
+    icon: Car,
+    defaultWorkspace: 'client_location' as WorkspaceType,
+    defaultVehicle: 'personal_car' as VehicleType,
   },
   {
-    id: 'epoksi-cicek',
-    title: 'Gelin Çiçeklerini Epoksi Tabloya Dönüştürme',
-    category: 'Zanaat & Hatıra' as VentureCategory,
-    oneLiner: 'Gelin buketi ve teklif güllerini sararmayan kristal reçinede ömür boyu anı objesine çevirme.',
-    whyItWorks: 'Gelinler solan buketlerini atmak yerine kristal reçine bloklarda ömür boyu saklamak istiyor.',
-    workspace: 'home' as WorkspaceType,
-    vehicle: 'none' as VehicleType,
-    capital: 30000,
-    monthlyNetProfit: 63000,
-    share: 30,
-    icon: '🌸',
+    id: 'subscription_box',
+    title: 'Abonelik & Periyodik Kutu',
+    desc: 'Aylık düzenli gönderim & paket teslimat modeli',
+    icon: RefreshCw,
+    defaultWorkspace: 'home' as WorkspaceType,
+    defaultVehicle: 'personal_car' as VehicleType,
   },
   {
-    id: 'ses-dalgasi-qr',
-    title: 'Ses Dalgalı & QR Kodlu Kişiye Özel Ahşap Panolar',
-    category: 'Tasarım & Hediyelik' as VentureCategory,
-    oneLiner: 'Bebek kalp atışı veya özel ses kayıtlarını dinlenebilir sanat panolarına dönüştürün.',
-    whyItWorks: 'Duygusal bağ kurduran taranabilir QR sesli tablolar yüksek marjla kişiye özel hediye olarak satılıyor.',
-    workspace: 'garage_workshop' as WorkspaceType,
-    vehicle: 'none' as VehicleType,
-    capital: 45000,
-    monthlyNetProfit: 64000,
-    share: 35,
-    icon: '🎙️',
+    id: 'experience_event',
+    title: 'Deneyim & Pop-Up Etkinlik',
+    desc: 'Kişiye özel mekan kurulumu, kutlama & organizasyon',
+    icon: Sparkles,
+    defaultWorkspace: 'client_location' as WorkspaceType,
+    defaultVehicle: 'light_commercial' as VehicleType,
   },
   {
-    id: 'diy-parfum',
-    title: '"Kendi Parfümünü Yap" Evde Atölye Kiti',
-    category: 'Kozmetik & Deneyim' as VentureCategory,
-    oneLiner: '12 koku esansı, cam damlalıklar ve formül defteriyle evde imza koku tasarlama seti.',
-    whyItWorks: 'Niş parfüm fiyatları artarken insanlar evde kendi imza kokusunu tasarlama deneyimini çok seviyor.',
-    workspace: 'home' as WorkspaceType,
-    vehicle: 'none' as VehicleType,
-    capital: 48000,
-    monthlyNetProfit: 84000,
-    share: 35,
-    icon: '🧪',
+    id: 'digital_hybrid',
+    title: 'Dijital & Hibrit Servis',
+    desc: 'Yazılım, tasarım, içerik veya uzaktan danışmanlık',
+    icon: Calculator,
+    defaultWorkspace: 'virtual_mobile' as WorkspaceType,
+    defaultVehicle: 'none' as VehicleType,
   },
   {
-    id: 'kisisel-kitap',
-    title: 'Kişiselleştirilmiş Çocuk Masal Kitabı',
-    category: 'Yayıncılık & Çocuk' as VentureCategory,
-    oneLiner: 'Çocuğun adı, karakteri ve fotoğrafıyla basılan; başrolde olduğu renkli ciltli masal kitabı.',
-    whyItWorks: 'Ebeveynler çocuklarına okuma sevgisi aşılamak için başrolde oldukları kitapları hediye ediyor.',
-    workspace: 'virtual_mobile' as WorkspaceType,
-    vehicle: 'none' as VehicleType,
-    capital: 35000,
-    monthlyNetProfit: 64000,
-    share: 30,
-    icon: '📖',
+    id: 'custom_niche',
+    title: 'Özel Çözüm & Niş Model',
+    desc: 'Sektöre veya kişiye özel yenilikçi iş fikri',
+    icon: Wrench,
+    defaultWorkspace: 'garage_workshop' as WorkspaceType,
+    defaultVehicle: 'none' as VehicleType,
   },
 ];
 
 const WORKSPACES: { id: WorkspaceType; label: string; desc: string; icon: typeof Home }[] = [
   { id: 'home', label: 'Kendi Evim / Odam', desc: 'Kira masrafı ₺0 (Mutfak, oda veya masa)', icon: Home },
-  { id: 'garage_workshop', label: 'Garaj / Özel Atölye', desc: 'Müstakil alan veya hobi atölyesi', icon: Building },
+  { id: 'garage_workshop', label: 'Garaj / Özel Atölye', desc: 'Müstakil alan veya hobi atölyesi (₺0 Kira)', icon: Building },
   { id: 'client_location', label: 'Müşteri Yerinde / Sahada', desc: 'Müşterinin bahçesinde, sitesinde veya plazada', icon: Sparkles },
   { id: 'virtual_mobile', label: 'Tamamen Sanal / Dijital', desc: 'Sadece bilgisayar ve internet altyapısı', icon: Calculator },
   { id: 'rented_shop', label: 'Kiralık Dükkan / Butik', desc: 'Fiziksel vitrin ve müşteri kabul alanı', icon: Building },
@@ -167,8 +142,7 @@ export function VentureBuilderWizard() {
     submitDraftForReview,
   } = useVentureBuilderStore();
 
-  const [selectedCategoryTab, setSelectedCategoryTab] = useState<string>('Tümü');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedModelType, setSelectedModelType] = useState<string>('product_craft');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Şehir / İlçe listesi
@@ -186,27 +160,11 @@ export function VentureBuilderWizard() {
     setSelectedDistrict(newDistricts[0] || 'Merkez');
   };
 
-  const handleSelectPreset = (preset: (typeof PRESET_IDEAS)[number]) => {
-    updateBasicInfo({
-      title: preset.title,
-      category: preset.category,
-      oneLiner: preset.oneLiner,
-      whyItWorks: preset.whyItWorks,
-    });
+  const handleSelectBusinessModel = (model: (typeof BUSINESS_MODELS)[number]) => {
+    setSelectedModelType(model.id);
     updateCollateral({
-      workspaceType: preset.workspace,
-      vehicleType: preset.vehicle,
-    });
-    updateBudget({
-      equipmentCost: Math.round(preset.capital * 0.6),
-      initialStockCost: Math.round(preset.capital * 0.25),
-      marketingCost: Math.round(preset.capital * 0.15),
-      operatingBufferCost: 0,
-    });
-    updateFinancials({
-      estimatedMonthlyRevenue: Math.round(preset.monthlyNetProfit * 1.5),
-      estimatedMonthlyNetProfit: preset.monthlyNetProfit,
-      offeredInvestorSharePercent: preset.share,
+      workspaceType: model.defaultWorkspace,
+      vehicleType: model.defaultVehicle,
     });
   };
 
@@ -216,7 +174,7 @@ export function VentureBuilderWizard() {
   };
 
   const stepsList = [
-    { num: 1, title: 'Fikir & Konsept', desc: 'İşletme türü & pazar açığı' },
+    { num: 1, title: 'Fikir & Özgün Konsept', desc: 'Model tipi, tanım & pazar açığı' },
     { num: 2, title: 'Masaya Koyduklarım', desc: 'Şahsi araç, mekan & emek' },
     { num: 3, title: 'Aranan Bütçe', desc: 'Ekipman, stok & reklam fonu' },
     { num: 4, title: 'Gelir & Kâr Payı', desc: 'Ciro, net kâr & amortisman' },
@@ -241,18 +199,6 @@ export function VentureBuilderWizard() {
     return `₺${val}`;
   };
 
-  const filteredPresets = useMemo(() => {
-    return PRESET_IDEAS.filter((item) => {
-      const matchCat = selectedCategoryTab === 'Tümü' || item.category === selectedCategoryTab;
-      const matchQuery =
-        !searchQuery.trim() ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.oneLiner.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchQuery;
-    });
-  }, [selectedCategoryTab, searchQuery]);
-
   if (isSubmitted) {
     return (
       <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/90 p-8 sm:p-12 shadow-xl backdrop-blur-md text-center max-w-3xl mx-auto my-6">
@@ -264,10 +210,10 @@ export function VentureBuilderWizard() {
           Fizibilite İncelemeye Alındı
         </span>
         <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-foreground">
-          &quot;{draft.title || 'Niş Girişim'}&quot; Başarıyla Modellendi!
+          &quot;{draft.title || 'Özgün Girişim Fikri'}&quot; Başarıyla Modellendi!
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-zinc-300 max-w-lg mx-auto leading-relaxed">
-          Fizibilite ve kâr projeksiyonu verileriniz Girişimbee moderasyon ekibine iletildi. Onaylandıktan hemen sonra{' '}
+          Özgün fizibilite ve kâr projeksiyonu verileriniz Girişimbee moderasyon ekibine iletildi. Onaylandıktan hemen sonra{' '}
           <strong className="text-slate-900 dark:text-white">Girişimbee Yatırımcı & Ortaklık Vitrininde</strong> yayına
           alınacaktır.
         </p>
@@ -404,6 +350,8 @@ export function VentureBuilderWizard() {
                       ? 'Şahsi Binek Araç Hazır'
                       : draft.collateral.vehicleType === 'light_commercial'
                       ? 'Hafif Ticari Araç Hazır'
+                      : draft.collateral.vehicleType === 'motorcycle'
+                      ? 'Motosiklet / Kurye Hazır'
                       : 'Taşıtsız Model'}
                   </span>
                 </div>
@@ -413,7 +361,9 @@ export function VentureBuilderWizard() {
                     {draft.collateral.workspaceType === 'home'
                       ? 'Ev / Mutfak (₺0 Kira)'
                       : draft.collateral.workspaceType === 'garage_workshop'
-                      ? 'Özel Atölye / Garaj'
+                      ? 'Özel Atölye / Garaj (₺0 Kira)'
+                      : draft.collateral.workspaceType === 'virtual_mobile'
+                      ? 'Sanal / Dijital Altyapı'
                       : 'Müşteri Sahası'}
                   </span>
                 </div>
@@ -427,94 +377,87 @@ export function VentureBuilderWizard() {
             <div className="p-2 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 text-[10.5px] text-amber-800 dark:text-amber-300 leading-relaxed flex items-start gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
               <span>
-                <strong>2026 Güvencesi:</strong> Fikriniz korunur, sadece doğrulanmış yatırımcılarla eşleştirilir.
+                <strong>2026 Güvencesi:</strong> Özgün fikriniz korunur, sadece doğrulanmış yatırımcılarla eşleştirilir.
               </span>
             </div>
           </div>
         </div>
 
         {/* ===================================================================== */}
-        {/* B. ORTA SÜTUN: İNTERAKTİF ÇALIŞMA ALANI (lg:col-span-6)               */}
+        {/* B. ORTA SÜTUN: ÖZGÜN FİKİR MODELLEME ÇALIŞMA ALANI (lg:col-span-6)    */}
         {/* ===================================================================== */}
         <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
           <div>
-            {/* Üst Kategori Filtre Butonları (flex-wrap) */}
-            <div className="flex flex-wrap items-center gap-1.5 mb-3">
-              {['Tümü', 'Evcil Hayvan & Yaşam', 'Deneyim & Etkinlik', 'Zanaat & Hatıra', 'Tasarım & Hediyelik', 'Kozmetik & Deneyim'].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategoryTab(cat)}
-                  className={cn(
-                    'px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap',
-                    selectedCategoryTab === cat
-                      ? 'bg-amber-500 text-slate-950 shadow-xs'
-                      : 'bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200/90 dark:border-zinc-700 hover:text-slate-900'
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Arama Barı */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Niş konsept, sektör veya iş modeli ara..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 text-xs font-medium text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-              />
+            {/* Üst Başlık & Dinamik Bilgilendirme */}
+            <div className="mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 inline-flex items-center gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5" />
+                  Özgün İş Fikri Modelleme Stüdyosu
+                </span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">
+                  Adım {currentStep} / 5
+                </span>
+              </div>
+              <h3 className="font-display text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+                {stepsList[currentStep - 1]?.title}
+              </h3>
             </div>
 
             {/* =============================================================== */}
-            {/* ADIM 1: FİKİR & KONSEPT (HAZIR İLHAM KARTLARI + ÖZEL FORM)       */}
+            {/* ADIM 1: FİKİR & ÖZGÜN KONSEPT (MODEL TİPİ SEÇİMİ + DETAYLAR)     */}
             {/* =============================================================== */}
             {currentStep === 1 && (
               <div className="space-y-4 animate-in fade-in duration-200">
+                {/* 1. İşletme / Model Türü Seçimi (6 İnteraktif Tip) */}
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-1.5">
-                    💡 Hızlı Başlangıç: Popüler Niş Şablonlardan Birini Seçin (veya Kendi Fikrini Yaz):
-                  </label>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-2">
+                    1. Aklındaki İş Fikrinin İşletme / Hizmet Türü:
+                  </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {filteredPresets.slice(0, 6).map((preset) => {
-                      const isSelected = draft.title === preset.title;
+                    {BUSINESS_MODELS.map((model) => {
+                      const isSelected = selectedModelType === model.id;
+                      const Icon = model.icon;
                       return (
                         <button
-                          key={preset.id}
+                          key={model.id}
                           type="button"
-                          onClick={() => handleSelectPreset(preset)}
+                          onClick={() => handleSelectBusinessModel(model)}
                           className={cn(
-                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between h-[5.5rem]',
+                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between h-[5.75rem]',
                             isSelected
                               ? 'border-amber-500 bg-amber-500/10 shadow-xs ring-1 ring-amber-500/30'
                               : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
                           )}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-base">{preset.icon}</span>
-                            <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                              {formatCurrencyShort(preset.capital)}
+                            <Icon className={cn('w-4 h-4', isSelected ? 'text-amber-600' : 'text-slate-400')} />
+                            {isSelected && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            )}
+                          </div>
+                          <div>
+                            <span className="block text-[11px] font-bold text-slate-900 dark:text-zinc-100 leading-tight">
+                              {model.title}
+                            </span>
+                            <span className="block text-[9.5px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
+                              {model.desc}
                             </span>
                           </div>
-                          <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 line-clamp-2 leading-tight">
-                            {preset.title}
-                          </span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-2">
-                  <div>
+                {/* 2. Fikir Başlığı & Kategori */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  <div className="sm:col-span-2">
                     <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                      Fikir / Proje Başlığı *
+                      Fikir / Proje Başlığı (Marka Taslağı) *
                     </Label>
                     <Input
-                      placeholder="Örn: Evcil Hayvan Doğum Günü Kutusu (Pup-Party Box)"
+                      placeholder="Örn: Butik Kahve & Çekirdek Aboneliği"
                       value={draft.title}
                       onChange={(e) => updateBasicInfo({ title: e.target.value })}
                       className="mt-1 h-10 rounded-xl text-xs"
@@ -523,28 +466,47 @@ export function VentureBuilderWizard() {
 
                   <div>
                     <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                      Tek Cümlelik Çarpıcı Özet (One-Liner) *
+                      Sektör / Kategori *
                     </Label>
-                    <Input
-                      placeholder="Örn: Köpekler için şekersiz pasta ve parti şapkasından oluşan anı seti."
-                      value={draft.oneLiner}
-                      onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                      className="mt-1 h-10 rounded-xl text-xs"
-                    />
+                    <select
+                      value={draft.category}
+                      onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
+                      className="mt-1 w-full h-10 rounded-xl border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+                </div>
 
-                  <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                      Bu Fikir Neden Tutar / Çok Satar? (Pazar Açığı) *
-                    </Label>
-                    <Textarea
-                      rows={2}
-                      placeholder="Örn: Köpek sahipleri doğum günlerinde kutlama içeriği üretmek için hazır kutu arıyor..."
-                      value={draft.whyItWorks}
-                      onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                      className="mt-1 rounded-xl text-xs resize-none"
-                    />
-                  </div>
+                {/* 3. Tek Cümlelik Değer Önerisi */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    Tek Cümlelik Çarpıcı Konsept (Ne Sunuyorsun?) *
+                  </Label>
+                  <Input
+                    placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş nitelikli çekirdek kahve ve demleme seti teslimatı."
+                    value={draft.oneLiner}
+                    onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
+                    className="mt-1 h-10 rounded-xl text-xs"
+                  />
+                </div>
+
+                {/* 4. Pazardaki Açık & Neden Başarılı Olur? */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    Pazardaki Açık / Bu Fikir Neden Tutar? (Fırsat Analizi) *
+                  </Label>
+                  <Textarea
+                    rows={2}
+                    placeholder="Örn: İnsanlar kaliteli kahveye ulaşmak istiyor fakat zincir kafelerde yüksek fiyatlar ödüyor. Düzenli abonelik modeliyle sabit ve öngörülebilir nakit akışı sağlar..."
+                    value={draft.whyItWorks}
+                    onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
+                    className="mt-1 rounded-xl text-xs resize-none"
+                  />
                 </div>
               </div>
             )}
@@ -556,7 +518,7 @@ export function VentureBuilderWizard() {
               <div className="space-y-4 animate-in fade-in duration-200">
                 <div>
                   <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
-                    1. Çalışma Alanı & Mekan Durumu
+                    1. Çalışma & Üretim Alanı (Mekan Seçimi)
                   </Label>
                   <div className="grid grid-cols-2 gap-2">
                     {WORKSPACES.map((ws) => {
@@ -626,7 +588,7 @@ export function VentureBuilderWizard() {
 
                 <div>
                   <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1 block">
-                    3. Haftalık Ayırabileceğin Çalışma Saati (Emek)
+                    3. Haftalık Ayırabileceğin Çalışma Saati (Bizzat Emek)
                   </Label>
                   <div className="flex items-center gap-3">
                     <Input
@@ -638,7 +600,7 @@ export function VentureBuilderWizard() {
                       className="w-24 h-9 rounded-xl font-bold text-xs"
                     />
                     <span className="text-xs text-slate-500">
-                      Saat / Hafta (Tam zamanlı operasyon: 40-50 saat)
+                      Saat / Hafta (Tam zamanlı operasyonel emek: 40-50 saat)
                     </span>
                   </div>
                 </div>
@@ -835,7 +797,7 @@ export function VentureBuilderWizard() {
 
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 inline mr-1" />
-                  Modeliniz moderasyon onayından geçtikten sonra <strong>Girişimbee Yatırım & Ortaklık Havuzunda</strong> canlıya alınacaktır.
+                  Özgün modeliniz moderasyon onayından geçtikten sonra <strong>Girişimbee Yatırım & Ortaklık Havuzunda</strong> canlıya alınacaktır.
                 </div>
               </div>
             )}
