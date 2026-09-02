@@ -8,6 +8,7 @@ import { apiError } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
 import { resolveProfileForUser } from '@/lib/api/resolve-profile';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tszvmnaejsxsyuawwclr.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzenZtbmFlanN4c3l1YXd3Y2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTAyOTgsImV4cCI6MjEwMDk4NjI5OH0.oZymsvxduZTFeNmza7iRCcCzzIFWsC0fZLYyyoRPeyA';
@@ -61,11 +62,31 @@ export async function resolveAuthContext(requireAuth = true, request?: Request):
   }
 
   if (!user) {
-    const isDemoCookie =
-      request?.headers.get('cookie')?.includes('girisimbee_demo_auth=1') ||
-      request?.headers.get('x-demo-auth') === '1';
+    let isDemo = false;
+    try {
+      const cookieJar = cookies();
+      if (
+        cookieJar.get('girisimbee_demo_auth')?.value === '1' ||
+        cookieJar.get('gb_preview')?.value === '1'
+      ) {
+        isDemo = true;
+      }
+    } catch {
+      // fallback
+    }
 
-    if (process.env.NODE_ENV === 'development' || isDemoCookie) {
+    if (!isDemo && request) {
+      const cookieHeader = request.headers.get('cookie') || '';
+      if (
+        cookieHeader.includes('girisimbee_demo_auth=1') ||
+        request.headers.get('x-demo-auth') === '1' ||
+        cookieHeader.includes('gb_preview=1')
+      ) {
+        isDemo = true;
+      }
+    }
+
+    if (process.env.NODE_ENV === 'development' || isDemo) {
       const container = getServerContainer(supabase);
       const testUserId = ids.user('00000000-0000-0000-0000-000000000001');
       return {
