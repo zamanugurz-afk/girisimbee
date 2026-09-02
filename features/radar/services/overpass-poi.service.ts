@@ -1989,72 +1989,34 @@ export async function fetchMasterAreaPoiCensus(
     }
   }
 
-  // Group real POIs by category
+  // Group real POIs by category and deduplicate
+  const seenPoiIds = new Set<string>();
   const categorizedRealPois: Record<string, CompetitorPoi[]> = {};
+  const deduplicatedPois: CompetitorPoi[] = [];
+
   for (const poi of realPois) {
-    if (poi.category && poi.category !== 'all') {
-      if (!categorizedRealPois[poi.category]) {
-        categorizedRealPois[poi.category] = [];
+    if (!seenPoiIds.has(poi.id)) {
+      seenPoiIds.add(poi.id);
+      deduplicatedPois.push(poi);
+      if (poi.category && poi.category !== 'all') {
+        if (!categorizedRealPois[poi.category]) {
+          categorizedRealPois[poi.category] = [];
+        }
+        categorizedRealPois[poi.category].push(poi);
       }
-      categorizedRealPois[poi.category].push(poi);
     }
   }
 
-  // When Google Places is active, NEVER inject hardcoded manual coordinates.
-  // All coordinates come 100% directly from Google Maps GPS building locations.
-
-  // Calculate realistic urban population within the radar circle based on Turkish urban density
-  const radiusKm = radiusMeters / 1000;
-  const areaKm2 = Math.PI * radiusKm * radiusKm;
-  const isMarmaraCoast = lat >= 40.82 && lat <= 41.02 && lng >= 29.00 && lng <= 29.35;
-  const landAreaRatio = isMarmaraCoast && lat < 40.955 ? 0.62 : 0.95;
-  const estimatedUrbanPop = Math.max(
-    3500,
-    Math.round(areaKm2 * landAreaRatio * 18000),
-  );
-
   const allCategories = Object.keys(RADAR_CATEGORIES) as RadarCategoryKey[];
-  const finalPois: CompetitorPoi[] = [];
   const sectorCensus: Record<string, number> = {};
 
-  // For every category in RADAR_CATEGORIES:
-  // Apply demographic commercial density formula scaling with radius and urban intensity
-  allCategories.forEach((catKey, catIdx) => {
-    const existingReal = categorizedRealPois[catKey] || [];
-    const densityRate = SECTOR_DENSITY_PER_10K[catKey] || 0.8;
-    const isTargetedCategory = targetCategoryArray.includes(catKey) || 
-      (targetCategoryArray.includes('dry_cleaning') && catKey === 'terzi') ||
-      (targetCategoryArray.includes('restaurant') && catKey === 'donerci');
-
-    const baseCensusEstimate = Math.max(
-      existingReal.length > 0 ? existingReal.length : 1,
-      Math.round((estimatedUrbanPop / 10000) * densityRate),
-    );
-
-    // Map pin targets: dynamically proportional to radius and commercial center density
-    let mapPinTarget = 1;
-    if (isTargetedCategory) {
-      const commercialTarget = radiusMeters <= 250 ? 20 : radiusMeters <= 500 ? 35 : radiusMeters <= 1200 ? 70 : (radiusMeters <= 3000 ? 125 : 180);
-      mapPinTarget = Math.max(existingReal.length, commercialTarget);
-    } else if (targetCategoryArray.length === 0) {
-      // When "Tüm Sektörler" (all) is selected
-      mapPinTarget = Math.max(
-        existingReal.length,
-        Math.min(
-          baseCensusEstimate,
-          radiusMeters <= 250 ? 4 : radiusMeters <= 500 ? 8 : radiusMeters <= 1200 ? 14 : 22,
-        ),
-      );
-    }
-
-    // ONLY push 100% real, verified Google Places / OpenStreetMap businesses to the map
-    finalPois.push(...existingReal);
-
-    // Calculate official demographic census count for intelligence metrics
-    sectorCensus[catKey] = existingReal.length > 0 ? existingReal.length : Math.max(1, baseCensusEstimate);
+  // Exact real count of businesses in every sector directly matching map markers
+  allCategories.forEach((catKey) => {
+    const count = categorizedRealPois[catKey]?.length || 0;
+    sectorCensus[catKey] = count;
   });
 
-  const sortedAllPois = finalPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  const sortedAllPois = deduplicatedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
   const result: AreaPoiCensusResult = {
     allPois: sortedAllPois,
     sectorCensus,
