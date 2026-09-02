@@ -1950,51 +1950,65 @@ export async function fetchMasterAreaPoiCensus(
     ? [...targetCategoryArray].sort().join(',')
     : 'all';
   const cacheKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}-${catKeyStr}`;
+  const masterAllKey = `master-census-${roundedLat}-${roundedLng}-${radiusMeters}-all`;
 
   const cached = MASTER_AREA_CENSUS_CACHE.get(cacheKey);
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
     return cached.data;
   }
 
-  // 1. Try fetching real Google Places points for target categories
-  let realPois: CompetitorPoi[] = [];
-  if (targetCategoryArray.length > 0) {
-    const sectorPromises = targetCategoryArray.map((sec) =>
-      fetchGooglePlacesPois(lat, lng, radiusMeters, sec),
-    );
-    const results = await Promise.all(sectorPromises);
-    for (const r of results) {
-      if (r && r.length > 0) {
-        realPois.push(...r);
-      }
-    }
+  // Always ensure base master area census is available
+  let masterCensusPois: CompetitorPoi[] = [];
+  const cachedAll = MASTER_AREA_CENSUS_CACHE.get(masterAllKey);
+  if (cachedAll && Date.now() - cachedAll.ts < CACHE_TTL_MS) {
+    masterCensusPois = cachedAll.data.allPois;
   } else {
-    // When targetCategory === 'all', query across top commercial sectors
     const topSectors: RadarCategoryKey[] = ['cafe', 'restaurant', 'market', 'hairdresser', 'pharmacy', 'donerci', 'bakery', 'real_estate'];
     const sectorPromises = topSectors.map((sec) => fetchGooglePlacesPois(lat, lng, radiusMeters, sec));
     const results = await Promise.all(sectorPromises);
     for (const r of results) {
       if (r && r.length > 0) {
-        realPois.push(...r);
+        masterCensusPois.push(...r);
+      }
+    }
+    if (masterCensusPois.length === 0) {
+      const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all');
+      if (overpassPois && overpassPois.length > 0) {
+        masterCensusPois = overpassPois;
       }
     }
   }
 
-  // Fallback to Overpass OSM if Google returned nothing
-  if (realPois.length === 0) {
-    const fallbackCategory = targetCategoryArray.length === 1 ? targetCategoryArray[0] : 'all';
-    const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, fallbackCategory);
-    if (overpassPois && overpassPois.length > 0) {
-      realPois = overpassPois;
+  // If specific target categories were requested, also fetch those targeted POIs
+  let targetedPois: CompetitorPoi[] = [];
+  if (targetCategoryArray.length > 0) {
+    const targetPromises = targetCategoryArray.map((sec) =>
+      fetchGooglePlacesPois(lat, lng, radiusMeters, sec),
+    );
+    const results = await Promise.all(targetPromises);
+    for (const r of results) {
+      if (r && r.length > 0) {
+        targetedPois.push(...r);
+      }
+    }
+    if (targetedPois.length === 0) {
+      const fallbackCategory = targetCategoryArray.length === 1 ? targetCategoryArray[0] : 'all';
+      const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, fallbackCategory);
+      if (overpassPois && overpassPois.length > 0) {
+        targetedPois = overpassPois;
+      }
     }
   }
+
+  // Merge master POIs and targeted POIs
+  const combinedPois = [...masterCensusPois, ...targetedPois];
 
   // Group real POIs by category and deduplicate
   const seenPoiIds = new Set<string>();
   const categorizedRealPois: Record<string, CompetitorPoi[]> = {};
   const deduplicatedPois: CompetitorPoi[] = [];
 
-  for (const poi of realPois) {
+  for (const poi of combinedPois) {
     if (!seenPoiIds.has(poi.id)) {
       seenPoiIds.add(poi.id);
       deduplicatedPois.push(poi);
@@ -2023,6 +2037,10 @@ export async function fetchMasterAreaPoiCensus(
   };
 
   MASTER_AREA_CENSUS_CACHE.set(cacheKey, { data: result, ts: Date.now() });
+  if (catKeyStr === 'all' || !MASTER_AREA_CENSUS_CACHE.has(masterAllKey)) {
+    MASTER_AREA_CENSUS_CACHE.set(masterAllKey, { data: result, ts: Date.now() });
+  }
+
   return result;
 }
 

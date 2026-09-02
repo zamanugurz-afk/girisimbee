@@ -517,6 +517,28 @@ export function InvestmentRadarClient() {
     }
   };
 
+  // Master area sector distribution across all categories (never collapses to 0 on single selection)
+  const effectiveAvailableSectors = useMemo(() => {
+    const roundedLat = Math.round(centerLat * 1000) / 1000;
+    const roundedLng = Math.round(centerLng * 1000) / 1000;
+    const masterKey = `${roundedLat}-${roundedLng}-${radiusMeters}-all`;
+    const masterData = CLIENT_RADAR_CACHE.get(masterKey);
+    const masterSectors = masterData?.availableSectors;
+    const currentSectors = radarData?.availableSectors;
+
+    const merged: Record<string, number> = { ...(masterSectors || {}) };
+    if (currentSectors) {
+      for (const [key, count] of Object.entries(currentSectors)) {
+        if (count > (merged[key] ?? 0)) {
+          merged[key] = count;
+        } else if (merged[key] === undefined) {
+          merged[key] = count;
+        }
+      }
+    }
+    return merged;
+  }, [centerLat, centerLng, radiusMeters, radarData?.availableSectors]);
+
   // Dynamic Categories: Sorted with sectors present in circle first, then other popular sectors
   const displayedCategories = useMemo(() => {
     const allCategories = Object.values(RADAR_CATEGORIES);
@@ -529,8 +551,8 @@ export function InvestmentRadarClient() {
     }
 
     return [...allCategories].sort((a, b) => {
-      const countA = radarData?.availableSectors?.[a.key] ?? 0;
-      const countB = radarData?.availableSectors?.[b.key] ?? 0;
+      const countA = effectiveAvailableSectors[a.key] ?? 0;
+      const countB = effectiveAvailableSectors[b.key] ?? 0;
       if (countA !== countB) {
         return countB - countA;
       }
@@ -538,7 +560,7 @@ export function InvestmentRadarClient() {
       if (!a.isPopularTop8 && b.isPopularTop8) return 1;
       return 0;
     });
-  }, [categorySearchQuery, radarData?.availableSectors]);
+  }, [categorySearchQuery, effectiveAvailableSectors]);
 
   // Master area POIs across all categories for instant brand-level search (e.g. 'bim', 'şok', 'starbucks', 'komagene')
   const visibleCompetitors = useMemo(() => {
@@ -568,12 +590,10 @@ export function InvestmentRadarClient() {
     if (categorySearchQuery.trim()) {
       return visibleCompetitors.length;
     }
-    if (radarData?.availableSectors) {
-      const sum = Object.values(radarData.availableSectors).reduce((a, b) => a + b, 0);
-      if (sum > 0) return sum;
-    }
+    const sum = Object.values(effectiveAvailableSectors).reduce((a, b) => a + b, 0);
+    if (sum > 0) return sum;
     return radarData?.competitors.length ?? 0;
-  }, [radarData, categorySearchQuery, visibleCompetitors]);
+  }, [effectiveAvailableSectors, categorySearchQuery, visibleCompetitors, radarData?.competitors.length]);
 
   // Real-time demographic calculation based on exact coordinates and radius
   const demographicStats = useMemo(() => {
@@ -859,7 +879,7 @@ export function InvestmentRadarClient() {
                   const isCat1 = catIndex === 0;
                   const isCat2 = catIndex === 1;
                   const isSelected = isCat1 || isCat2;
-                  const sectorCount = radarData?.availableSectors?.[cat.key] ?? 0;
+                  const sectorCount = effectiveAvailableSectors[cat.key] ?? radarData?.availableSectors?.[cat.key] ?? 0;
 
                   return (
                     <button
