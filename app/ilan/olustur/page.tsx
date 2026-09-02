@@ -52,25 +52,13 @@ import {
   type PartnershipIntent,
 } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
-import {
-  CompanyIdentitySelector,
-  type CompanyIdentityDraft,
-} from '@/components/girisimco/listing/company-identity-selector';
-import { useActiveCompany } from '@/features/companies';
-import { getCompanyService } from '@/lib/persistence/container';
-import type { UserId } from '@/lib/domain/ids';
 
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, actorId, createListing, publishListing } = useListingEngine();
   const { user, isLoading: authLoading } = useAuth();
-  const { activeCompany, userCompanies, switchToCompany } = useActiveCompany();
   const [sessionReady, setSessionReady] = useState(false);
-  const [companyIdentity, setCompanyIdentity] = useState<CompanyIdentityDraft>({
-    mode: activeCompany ? 'existing' : 'personal',
-    companyId: activeCompany?.id,
-  });
 
   const urlPartnershipIntent = parsePartnershipIntentParam(searchParams.get('intent'));
   const resolvedInitialCategory = categoryRegistry.resolveCategoryId(
@@ -218,48 +206,6 @@ function CreateListingContent() {
     }
     if (!listingTypeId) {
       throw new Error('İlan tipi seçilmedi.');
-    }
-
-    // Check if new company identity needs to be created or attached
-    if (companyIdentity.mode === 'new' && companyIdentity.newName?.trim() && user) {
-      try {
-        const service = getCompanyService();
-        const baseSlug = companyIdentity.newName
-          .trim()
-          .toLowerCase()
-          .replace(/[^a-z0-9ğüşıöç]+/g, '-')
-          .replace(/^-+|-+$/g, '');
-        const slug = `${baseSlug || 'isletme'}-${Date.now().toString().slice(-4)}`;
-
-        const newComp = await service.create({
-          ownerId: user.id as UserId,
-          name: companyIdentity.newName.trim(),
-          slug,
-          industry: companyIdentity.newIndustry || null,
-          website: companyIdentity.newWebsite || null,
-          country: 'TR',
-          contactEmail: user.email,
-        });
-        switchToCompany(newComp.id);
-        values.customFields = {
-          ...(values.customFields || {}),
-          companyId: newComp.id,
-          companySlug: newComp.slug,
-          companyName: newComp.name,
-        };
-      } catch (err) {
-        console.warn('Auto company creation error:', err);
-      }
-    } else if (companyIdentity.mode === 'existing' && companyIdentity.companyId) {
-      const comp = userCompanies.find((c) => c.id === companyIdentity.companyId);
-      if (comp) {
-        values.customFields = {
-          ...(values.customFields || {}),
-          companyId: comp.id,
-          companySlug: comp.slug,
-          companyName: comp.name,
-        };
-      }
     }
 
     const moduleKey = LISTING_TYPE_CONFIGS.find((c) => c.categoryId === categoryId)?.slug ?? categoryId;
@@ -491,30 +437,16 @@ function CreateListingContent() {
       ) : null}
 
       {isReady && formListingType && categoryId ? (
-        <div className="space-y-6">
-          {/* İş Yeri / Girişim Kimliği Seçici (Doğal & Akıcı Şirket Profili Entegrasyonu) */}
-          {(categoryId === CATEGORY_IDS.ortakBul ||
-            categoryId === CATEGORY_IDS.bayilikAl ||
-            categoryId === CATEGORY_IDS.iseAl ||
-            categoryId === CATEGORY_IDS.isletmeDevri) && (
-            <CompanyIdentitySelector
-              categoryTitle={selectedLabel}
-              value={companyIdentity}
-              onChange={setCompanyIdentity}
-            />
-          )}
-
-          <CategoryListingForm
-            key={`${categoryId}-${listingTypeId ?? 'default'}-${partnershipIntent ?? 'none'}`}
-            listingType={formListingType}
-            categoryId={categoryId}
-            partnershipIntent={partnershipIntent ?? undefined}
-            userId={actorId}
-            onPublish={handlePublish}
-            showPreviewButton
-            showPublishButton
-          />
-        </div>
+        <CategoryListingForm
+          key={`${categoryId}-${listingTypeId ?? 'default'}-${partnershipIntent ?? 'none'}`}
+          listingType={formListingType}
+          categoryId={categoryId}
+          partnershipIntent={partnershipIntent ?? undefined}
+          userId={actorId}
+          onPublish={handlePublish}
+          showPreviewButton
+          showPublishButton
+        />
       ) : (
         categoryId && (
           <div className="rounded-xl border border-dashed border-[#E6E8EE] bg-white p-12 text-center text-sm text-[#64748B] dark:border-border dark:bg-card">

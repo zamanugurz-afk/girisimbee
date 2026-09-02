@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Cloud, Shield, Sparkles, User } from 'lucide-react';
+import { Building2, ChevronLeft, ChevronRight, Cloud, Shield, Sparkles, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useActiveCompany } from '@/features/companies';
 import { cn } from '@/lib/utils';
 import type { ListingType } from '@/features/listings/types/listing-type.types';
 import type { CategoryId, ListingId } from '@/lib/domain/ids';
@@ -384,6 +385,7 @@ export function CategoryListingForm({
   partnershipIntent,
 }: CategoryListingFormProps) {
   const { user } = useAuth();
+  const { activeCompany, userCompanies, switchToCompany } = useActiveCompany();
   const isBusinessTransferBuy =
     categoryId === CATEGORY_IDS.isletmeDevri &&
     listingType.id === LISTING_TYPE_IDS.businessTransferBuyDefault;
@@ -444,6 +446,39 @@ export function CategoryListingForm({
   const [stepIndex, setStepIndex] = useState(0);
   const [core, setCore] = useState<CoreListingFieldsInput>(defaults.core);
   const [customFields, setCustomFields] = useState<Record<string, unknown>>(defaults.customFields);
+
+  // Auto-fill active company info if fields are empty
+  useEffect(() => {
+    if (activeCompany) {
+      if (fieldByKey.has('companyName')) {
+        setCustomFields((prev) => {
+          if (!prev.companyName) {
+            return {
+              ...prev,
+              companyName: activeCompany.name,
+              companyId: activeCompany.id,
+              companySlug: activeCompany.slug,
+              ...(activeCompany.industry && !prev.primarySector ? { primarySector: activeCompany.industry } : {}),
+            };
+          }
+          return prev;
+        });
+      }
+      if (fieldByKey.has('businessName')) {
+        setCustomFields((prev) => {
+          if (!prev.businessName) {
+            return {
+              ...prev,
+              businessName: activeCompany.name,
+              companyId: activeCompany.id,
+              companySlug: activeCompany.slug,
+            };
+          }
+          return prev;
+        });
+      }
+    }
+  }, [activeCompany, fieldByKey]);
 
   const mutateCustomFields = useCallback(
     (
@@ -3559,6 +3594,33 @@ export function CategoryListingForm({
 
                     {fieldByKey.get('businessName') ? (
                       <div className="space-y-2">
+                        {userCompanies.length > 0 && (
+                          <div className="flex items-center justify-between text-xs pb-0.5">
+                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5" />
+                              <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
+                            </span>
+                            {userCompanies.length > 1 && (
+                              <select
+                                value={activeCompany?.id || ''}
+                                onChange={(e) => {
+                                  const comp = userCompanies.find((c) => c.id === e.target.value);
+                                  if (comp) {
+                                    switchToCompany(comp.id);
+                                    handleCustomFieldChange('businessName', comp.name);
+                                  }
+                                }}
+                                className="text-[11px] bg-slate-100 dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium"
+                              >
+                                {userCompanies.map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {c.name}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
                         <DynamicField
                           field={fieldByKey.get('businessName')!}
                           value={mergedCustomFields.businessName}
@@ -3636,14 +3698,46 @@ export function CategoryListingForm({
                         context={dynamicFieldContext}
                       />
                     ) : fieldByKey.get('companyName') ? (
-                      <DynamicField
-                        field={fieldByKey.get('companyName')!}
-                        value={mergedCustomFields.companyName}
-                        onChange={(val) => handleCustomFieldChange('companyName', val)}
-                        error={resolveFieldError(fieldErrors, 'companyName')}
-                        disabled={disabled || isBusy}
-                        context={dynamicFieldContext}
-                      />
+                      <div className="space-y-2">
+                        {userCompanies.length > 0 && (
+                          <div className="flex items-center justify-between text-xs pb-0.5">
+                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5" />
+                              <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
+                            </span>
+                            {userCompanies.length > 1 && (
+                              <select
+                                value={activeCompany?.id || ''}
+                                onChange={(e) => {
+                                  const comp = userCompanies.find((c) => c.id === e.target.value);
+                                  if (comp) {
+                                    switchToCompany(comp.id);
+                                    handleCustomFieldChange('companyName', comp.name);
+                                    if (comp.industry && !mergedCustomFields.primarySector) {
+                                      handleCustomFieldChange('primarySector', comp.industry);
+                                    }
+                                  }
+                                }}
+                                className="text-[11px] bg-slate-100 dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium"
+                              >
+                                {userCompanies.map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {c.name}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
+                        <DynamicField
+                          field={fieldByKey.get('companyName')!}
+                          value={mergedCustomFields.companyName}
+                          onChange={(val) => handleCustomFieldChange('companyName', val)}
+                          error={resolveFieldError(fieldErrors, 'companyName')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                      </div>
                     ) : null}
                   </div>
 
