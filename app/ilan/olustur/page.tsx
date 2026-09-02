@@ -198,7 +198,7 @@ function CreateListingContent() {
   }
 
   async function handlePublish(values: ListingFormValues) {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !user) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
     if (!categoryId) {

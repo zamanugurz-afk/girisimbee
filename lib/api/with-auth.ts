@@ -32,11 +32,26 @@ type PublicHandler = (
   routeContext: RouteContext,
 ) => Promise<NextResponse>;
 
-export async function resolveAuthContext(requireAuth = true): Promise<AuthContext | NextResponse> {
+export async function resolveAuthContext(requireAuth = true, request?: Request): Promise<AuthContext | NextResponse> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = (await supabase.auth.getUser()).data.user;
+
+  if (!user && request) {
+    const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7).trim();
+      if (token) {
+        try {
+          const tokenRes = await supabase.auth.getUser(token);
+          if (tokenRes.data.user) {
+            user = tokenRes.data.user;
+          }
+        } catch {
+          // fallback
+        }
+      }
+    }
+  }
 
   if (!user) {
     if (process.env.NODE_ENV === 'development') {
@@ -72,7 +87,7 @@ export async function resolveAuthContext(requireAuth = true): Promise<AuthContex
 export function withAuth(handler: AuthenticatedHandler) {
   return async (request: Request, routeContext: RouteContext): Promise<NextResponse> => {
     try {
-      const ctxOrError = await resolveAuthContext(true);
+      const ctxOrError = await resolveAuthContext(true, request);
       if (ctxOrError instanceof NextResponse) return ctxOrError;
       return await handler(ctxOrError, request, routeContext);
     } catch (err) {

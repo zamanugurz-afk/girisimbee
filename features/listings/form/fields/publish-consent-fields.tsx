@@ -160,9 +160,14 @@ export function PublishConsentFields({
   variant = 'default',
   themeColor = 'emerald',
 }: PublishConsentFieldsProps) {
+  const [showManualEdit, setShowManualEdit] = useState(false);
   const currentTheme = CONSENT_THEME_CLASSES[themeColor] || CONSENT_THEME_CLASSES.emerald;
 
   const effectivePhone = contactPhone !== undefined ? (contactPhone || '') : (phoneHint || '');
+  const hasValidPhone = Boolean(effectivePhone && effectivePhone.replace(/\D/g, '').length >= 10);
+  const hasValidEmail = Boolean(contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail.trim()));
+  const isComplete = hasValidPhone && hasValidEmail && !phoneError && !emailError;
+  const shouldShowInputs = !isComplete || showManualEdit;
 
   function toggle(key: PublishConsentKey, checked: boolean) {
     onChange({ ...value, [key]: checked });
@@ -175,98 +180,131 @@ export function PublishConsentFields({
 
   return (
     <div className="space-y-4">
-      {/* 1. İlan İletişim & Şirket Bilgileri (Zorunlu) */}
-      <div className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/50 space-y-3.5">
-        <div className="flex items-center gap-2.5 pb-2 border-b border-slate-200/70 dark:border-zinc-800">
-          <div className={cn('flex h-8 w-8 items-center justify-center rounded-xl', currentTheme.headerIcon)}>
-            <Building2 className="h-4 w-4 stroke-[2.5]" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
-              İlan İletişim & Şirket Bilgileri (Zorunlu)
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              İlanınız yayınlandığında ilgilenen tarafların ve sistemin sizinle iletişime geçebilmesi için zorunludur.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-          {/* Telefon Numarası */}
-          <div className="space-y-1.5">
-            <Label htmlFor="publish-contact-phone" className="text-xs font-bold flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
-                <Phone className="w-3.5 h-3.5 text-amber-500" />
-                <span>Telefon Numarası *</span>
-              </span>
-              {effectivePhone && effectivePhone.replace(/\D/g, '').length >= 10 ? (
-                <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
-                </span>
-              ) : (
-                <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
-              )}
-            </Label>
-            <div className="relative">
-              <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="publish-contact-phone"
-                type="tel"
-                value={effectivePhone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                placeholder="05XX XXX XX XX"
-                className={cn(
-                  'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
-                  phoneError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
-                )}
-                disabled={disabled}
-              />
+      {/* 1. İlan İletişim & Şirket Bilgileri (Yalnızca Eksik Olduğunda veya Düzenle Denildiğinde Görünür) */}
+      {!shouldShowInputs ? (
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 text-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <CheckCircle2 className="h-3.5 w-3.5" />
             </div>
-            {phoneError ? (
-              <p className="text-[11px] font-medium text-rose-500">{phoneError}</p>
-            ) : (
-              <p className="text-[10.5px] text-muted-foreground">İletişim ve SMS doğrulama için kullanılır.</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-muted-foreground truncate">
+                İletişim: <span className="font-semibold text-slate-900 dark:text-foreground">{effectivePhone}</span> · <span className="font-semibold text-slate-900 dark:text-foreground">{contactEmail}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowManualEdit(true)}
+            className="text-xs font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 hover:underline shrink-0 ml-2 cursor-pointer"
+          >
+            Düzenle
+          </button>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/50 space-y-3.5">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-zinc-800">
+            <div className="flex items-center gap-2.5">
+              <div className={cn('flex h-8 w-8 items-center justify-center rounded-xl', currentTheme.headerIcon)}>
+                <Building2 className="h-4 w-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
+                  İlan İletişim & Şirket Bilgileri (Zorunlu)
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  İlanınız yayınlandığında ilgilenen tarafların ve sistemin sizinle iletişime geçebilmesi için zorunludur.
+                </p>
+              </div>
+            </div>
+            {isComplete && (
+              <button
+                type="button"
+                onClick={() => setShowManualEdit(false)}
+                className="text-xs font-medium text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+              >
+                Kapat
+              </button>
             )}
           </div>
 
-          {/* Şirket / Kurumsal E-posta */}
-          <div className="space-y-1.5">
-            <Label htmlFor="publish-company-email" className="text-xs font-bold flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
-                <Mail className="w-3.5 h-3.5 text-amber-500" />
-                <span>Şirket / İletişim E-Postası *</span>
-              </span>
-              {contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail) ? (
-                <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            {/* Telefon Numarası */}
+            <div className="space-y-1.5">
+              <Label htmlFor="publish-contact-phone" className="text-xs font-bold flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
+                  <Phone className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Telefon Numarası *</span>
                 </span>
-              ) : (
-                <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
-              )}
-            </Label>
-            <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="publish-company-email"
-                type="email"
-                value={contactEmail || ''}
-                onChange={(e) => onEmailChange?.(e.target.value)}
-                placeholder="ornek@sirketiniz.com"
-                className={cn(
-                  'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
-                  emailError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
+                {effectivePhone && effectivePhone.replace(/\D/g, '').length >= 10 ? (
+                  <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
+                  </span>
+                ) : (
+                  <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
                 )}
-                disabled={disabled}
-              />
+              </Label>
+              <div className="relative">
+                <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="publish-contact-phone"
+                  type="tel"
+                  value={effectivePhone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  placeholder="05XX XXX XX XX"
+                  className={cn(
+                    'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
+                    phoneError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
+                  )}
+                  disabled={disabled}
+                />
+              </div>
+              {phoneError ? (
+                <p className="text-[11px] font-medium text-rose-500">{phoneError}</p>
+              ) : (
+                <p className="text-[10.5px] text-muted-foreground">İletişim ve SMS doğrulama için kullanılır.</p>
+              )}
             </div>
-            {emailError ? (
-              <p className="text-[11px] font-medium text-rose-500">{emailError}</p>
-            ) : (
-              <p className="text-[10.5px] text-muted-foreground">Teklif ve resmi bildirimler bu adrese iletilir.</p>
-            )}
+
+            {/* Şirket / Kurumsal E-posta */}
+            <div className="space-y-1.5">
+              <Label htmlFor="publish-company-email" className="text-xs font-bold flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
+                  <Mail className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Şirket / İletişim E-Postası *</span>
+                </span>
+                {contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail) ? (
+                  <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
+                  </span>
+                ) : (
+                  <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
+                )}
+              </Label>
+              <div className="relative">
+                <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="publish-company-email"
+                  type="email"
+                  value={contactEmail || ''}
+                  onChange={(e) => onEmailChange?.(e.target.value)}
+                  placeholder="ornek@sirketiniz.com"
+                  className={cn(
+                    'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
+                    emailError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
+                  )}
+                  disabled={disabled}
+                />
+              </div>
+              {emailError ? (
+                <p className="text-[11px] font-medium text-rose-500">{emailError}</p>
+              ) : (
+                <p className="text-[10.5px] text-muted-foreground">Teklif ve resmi bildirimler bu adrese iletilir.</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 2. Yasal İzinler ve Rıza Beyanları Header */}
       <div className="flex items-center gap-2.5 pb-2 border-b border-border/60 pt-2">

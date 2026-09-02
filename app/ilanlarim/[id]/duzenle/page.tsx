@@ -22,6 +22,7 @@ import { supportsCompanyPublisher } from '@/features/listings/config/listing-cat
 import { getPartnerFormSchema } from '@/features/founders/partnership-form';
 import { resolvePartnershipIntent } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS } from '@/features/listings/config/listing-type-config';
+import { useAuth } from '@/features/authentication/hooks/use-auth';
 
 const EDITABLE_STATUSES: ListingStatus[] = [
   'draft',
@@ -39,6 +40,7 @@ export default function EditListingPage() {
   const params = useParams<{ id: string }>();
   const listingId = params.id as ListingId;
   const { getListing, updateListing, publishListing, isAuthenticated, actorId } = useListingEngine();
+  const { user } = useAuth();
 
   const [initialValues, setInitialValues] = useState<ListingFormValues | null>(null);
   const [categoryId, setCategoryId] = useState<CategoryId | null>(null);
@@ -204,7 +206,7 @@ export default function EditListingPage() {
   }
 
   async function handleSaveDraft(values: ListingFormValues) {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !user) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
     if (showCompanyPublisher && publisherMode === 'company' && !publisherCompanyId) {
@@ -217,7 +219,7 @@ export default function EditListingPage() {
   }
 
   async function handlePublish(values: ListingFormValues) {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !user) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
     if (showCompanyPublisher && publisherMode === 'company' && !publisherCompanyId) {

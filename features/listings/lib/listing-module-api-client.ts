@@ -3,16 +3,28 @@ import type { CategoryId } from '@/lib/domain/ids';
 import { ValidationError } from '@/lib/domain/errors';
 import { getListingCategoryModule } from '@/features/listings/config/listing-category-module.config';
 import { traceListingPublish, tracePublishFailure } from '@/lib/debug/listing-publish-trace';
+import { createClient } from '@/lib/supabase/client';
 
 async function moduleFetch<T>(moduleKey: string, path: string, init?: RequestInit): Promise<T> {
   traceListingPublish(moduleKey, 'action_request', { payload: { path, method: init?.method ?? 'GET' } });
+
+  let token: string | undefined;
+  try {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.access_token;
+  } catch {
+    // fallback
+  }
 
   let res: Response;
   try {
     res = await fetch(path, {
       ...init,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...init?.headers,
       },
     });
