@@ -234,10 +234,10 @@ const STEPS = [
     num: 2,
     formattedNum: '02',
     title: 'Masaya Koyduklarım',
-    desc: 'Şahsi araç, çalışma mekanı ve haftalık emek',
+    desc: 'Şahsi araç ve çalışma mekanı',
     icon: Car,
-    formTitle: 'Özkaynaklar & Yetkinlikler',
-    formSubtitle: 'Sermaye olmasa da işi yürütecek araç, mekan ve emeğinizi tanımlayın.',
+    formTitle: 'Özkaynaklar & Mekan / Taşıt',
+    formSubtitle: 'Sermaye olmasa da işi yürütecek araç ve mekan imkânınızı tanımlayın.',
   },
   {
     num: 3,
@@ -532,7 +532,7 @@ export function VentureBuilderWizard() {
                     </span>
                   </div>
                   <Input
-                    placeholder="Örn: Çıtır Dürüm ve Çiğ Köfte Ltd. Şti."
+                    placeholder="Firma veya proje adını giriniz"
                     maxLength={100}
                     value={draft.title}
                     onChange={(e) => updateBasicInfo({ title: e.target.value })}
@@ -598,7 +598,7 @@ export function VentureBuilderWizard() {
                     Tek Cümlelik Konsept (Ne Sunuyorsun?) *
                   </Label>
                   <Input
-                    placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş kahve teslimatı."
+                    placeholder="Konseptinizi ve sunduğunuz değeri kısaca açıklayın"
                     value={draft.oneLiner}
                     onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
                     className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
@@ -611,7 +611,7 @@ export function VentureBuilderWizard() {
                   </Label>
                   <Textarea
                     rows={2}
-                    placeholder="Örn: Kaliteli kahveye erişim pahalı; abonelik modeliyle düzenli nakit akışı sağlar..."
+                    placeholder="Fikrinizin neden başarılı olacağını ve pazar fırsatını açıklayın"
                     value={draft.whyItWorks}
                     onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
                     className="rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium resize-none min-h-[50px]"
@@ -952,7 +952,7 @@ export function VentureBuilderWizard() {
                         Adınız Soyadınız *
                       </Label>
                       <Input
-                        placeholder="Örn: Uğur Zaman"
+                        placeholder="Adınız ve Soyadınız"
                         value={draft.authorName}
                         onChange={(e) => updateBasicInfo({ authorName: e.target.value })}
                         className="h-9 rounded-xl text-xs font-medium"

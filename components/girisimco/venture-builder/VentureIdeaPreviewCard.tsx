@@ -123,10 +123,6 @@ export function VentureIdeaPreviewCard({
               <Home className="w-3 h-3" />
               {wsData.label}
             </span>
-            <span className="inline-flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-              <Clock className="w-3 h-3 text-purple-600" />
-              {draft.collateral.hoursPerWeek}s / Hafta
-            </span>
           </div>
         </div>
 
