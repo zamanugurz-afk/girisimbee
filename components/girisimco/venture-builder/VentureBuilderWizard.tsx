@@ -520,14 +520,20 @@ export function VentureBuilderWizard() {
                 </div>
               </div>
 
-              {/* SAĞ SÜTUN: FİRMA ADI, SEKTÖR, LOKASYON & KONSEPT ALANLARI */}
-              <div className="space-y-3 pl-0 md:pl-2">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200">
-                      Firma / Proje Adı *
-                    </Label>
-                    <span className="text-[11px] text-slate-400 font-medium">
+              {/* SAĞ SÜTUN: KART KONSEPTİNDE GİRİŞİM BİLGİLERİ */}
+              <div className="space-y-2 pl-0 md:pl-2">
+                {/* 1. Firma / Proje Adı Kartı */}
+                <div className="p-2.5 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-400">
+                        <Building className="w-3.5 h-3.5" />
+                      </span>
+                      <Label className="text-xs font-bold text-slate-900 dark:text-white">
+                        Firma / Proje Adı *
+                      </Label>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-medium">
                       {draft.title.length}/100
                     </span>
                   </div>
@@ -536,18 +542,24 @@ export function VentureBuilderWizard() {
                     maxLength={100}
                     value={draft.title}
                     onChange={(e) => updateBasicInfo({ title: e.target.value })}
-                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                    className="h-9 rounded-xl border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-medium"
                   />
                 </div>
 
-                <div>
-                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Sektör / Kategori *
-                  </Label>
+                {/* 2. Sektör / Kategori Kartı */}
+                <div className="p-2.5 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="p-1 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 dark:bg-purple-950/40 dark:text-purple-400">
+                      <Briefcase className="w-3.5 h-3.5" />
+                    </span>
+                    <Label className="text-xs font-bold text-slate-900 dark:text-white">
+                      Sektör / Kategori *
+                    </Label>
+                  </div>
                   <select
                     value={draft.category}
                     onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
-                    className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                    className="w-full h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
                   >
                     {CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -557,15 +569,21 @@ export function VentureBuilderWizard() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                      Kurulum Lokasyonu (İl) *
+                {/* 3. Lokasyon & İlçe Kartı */}
+                <div className="p-2.5 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="p-1 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </span>
+                    <Label className="text-xs font-bold text-slate-900 dark:text-white">
+                      Kurulum Lokasyonu & Hedef İlçe *
                     </Label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <select
                       value={draft.authorCity || 'İstanbul'}
                       onChange={(e) => handleCityChange(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                      className="w-full h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
                     >
                       {cityOptions.map((c) => (
                         <option key={c} value={c}>
@@ -573,16 +591,10 @@ export function VentureBuilderWizard() {
                         </option>
                       ))}
                     </select>
-                  </div>
-
-                  <div>
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                      Hedeflenen İlçe
-                    </Label>
                     <select
                       value={selectedDistrict}
                       onChange={(e) => setSelectedDistrict(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                      className="w-full h-9 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
                     >
                       {districtOptions.map((d) => (
                         <option key={d} value={d}>
@@ -593,28 +605,40 @@ export function VentureBuilderWizard() {
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Tek Cümlelik Konsept (Ne Sunuyorsun?) *
-                  </Label>
+                {/* 4. Tek Cümlelik Konsept Kartı */}
+                <div className="p-2.5 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="p-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </span>
+                    <Label className="text-xs font-bold text-slate-900 dark:text-white">
+                      Tek Cümlelik Konsept (Ne Sunuyorsun?) *
+                    </Label>
+                  </div>
                   <Input
                     placeholder="Konseptinizi ve sunduğunuz değeri kısaca açıklayın"
                     value={draft.oneLiner}
                     onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                    className="h-9 rounded-xl border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-medium"
                   />
                 </div>
 
-                <div>
-                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Pazardaki Açık & Fırsat Analizi *
-                  </Label>
+                {/* 5. Pazardaki Açık & Fırsat Analizi Kartı */}
+                <div className="p-2.5 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="p-1 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-400">
+                      <Target className="w-3.5 h-3.5" />
+                    </span>
+                    <Label className="text-xs font-bold text-slate-900 dark:text-white">
+                      Pazardaki Açık & Fırsat Analizi *
+                    </Label>
+                  </div>
                   <Textarea
                     rows={2}
                     placeholder="Fikrinizin neden başarılı olacağını ve pazar fırsatını açıklayın"
                     value={draft.whyItWorks}
                     onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                    className="rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium resize-none min-h-[50px]"
+                    className="rounded-xl border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-medium resize-none min-h-[44px]"
                   />
                 </div>
               </div>
