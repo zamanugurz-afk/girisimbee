@@ -18,7 +18,6 @@ import {
   TrendingUp,
   Clock,
   Percent,
-  BarChart3,
   Layers,
 } from 'lucide-react';
 import { PracticalBusinessIdea } from '@/lib/data/monthly-trend-ideas';
@@ -287,44 +286,6 @@ export function TrendIdeaDetailView({ item }: { item: PracticalBusinessIdea }) {
 
             </div>
 
-          </div>
-
-          {/* ========================================================================= */}
-          {/* 4. ALT AKSİYON ÇUBUĞU (ROZETLER VE ASİSTANDA SİMÜLE ET BUTONU)             */}
-          {/* ========================================================================= */}
-          <div className="border-t border-slate-200/90 dark:border-zinc-800 p-4 sm:p-5 bg-slate-50/80 dark:bg-zinc-900/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            
-            {/* 2., 3. ve 4. Resimdeki Rozetler (WhatsApp yerine buraya yerleştirildi) */}
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black tracking-wide shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
-                SEÇİLİ NİŞ FIRSAT
-              </span>
-
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-bold shadow-xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
-                Doğrulanmış Model
-              </span>
-
-              <span className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 shadow-2xs">
-                {item.category}
-              </span>
-
-              <span className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 shadow-2xs">
-                {item.businessModelBadge}
-              </span>
-            </div>
-
-            {/* Sağ Aksiyon: İş Kurma Asistanında Simüle Et */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-center sm:justify-end">
-              <Link
-                href="/is-kurma-asistani"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold text-xs sm:text-sm px-5 py-3 shadow-md transition-all hover:scale-105 active:scale-95 w-full sm:w-auto"
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span>İş Kurma Asistanında Simüle Et</span>
-              </Link>
-            </div>
           </div>
 
         </div>
