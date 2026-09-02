@@ -198,7 +198,20 @@ function CreateListingContent() {
   }
 
   async function handlePublish(values: ListingFormValues) {
-    if (!isAuthenticated && !user) {
+    let currentUser = user;
+    if (!currentUser) {
+      try {
+        const supabase = (await import('@/lib/supabase/client')).createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          currentUser = session.user as any;
+        }
+      } catch {
+        // fallback
+      }
+    }
+
+    if (!isAuthenticated && !currentUser) {
       throw new Error('Oturum açmanız gerekiyor.');
     }
     if (!categoryId) {
