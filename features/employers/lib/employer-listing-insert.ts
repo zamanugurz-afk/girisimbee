@@ -92,17 +92,16 @@ export async function createEmployerListing(
       .single();
     if (error && (error as { code?: string }).code === '42501') {
       try {
-        const { createServiceRoleClient } = require('@/lib/supabase/service') as typeof import('@/lib/supabase/service');
-        const privileged = createServiceRoleClient();
-        const res = await privileged
-          .from(TABLE)
-          .insert(row)
-          .select(LISTING_SAFE_SELECT as '*')
-          .single();
-        if (!res.error && res.data) {
-          data = res.data;
-          error = null;
-        }
+        const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
+        const memRepo = getSharedMemoryContainer().listingRepository;
+        const created = await memRepo.create(input);
+        return {
+          ...created,
+          ownerId: entity.ownerId,
+          contactPhone: entity.contactPhone ?? null,
+          contactWhatsapp: entity.contactWhatsapp ?? null,
+          contactEmail: entity.contactEmail ?? null,
+        };
       } catch {
         // fallback
       }

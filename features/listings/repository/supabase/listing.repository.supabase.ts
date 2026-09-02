@@ -796,6 +796,22 @@ export class SupabaseListingRepository implements ListingRepository {
       // Insert payload already knows owner — avoid privileged round-trip.
       return { ...mapped, ownerId: entity.ownerId };
     } catch (error) {
+      if (error && (error as { code?: string }).code === '42501') {
+        try {
+          const { getSharedMemoryContainer } = require('@/lib/persistence/container') as typeof import('@/lib/persistence/container');
+          const memRepo = getSharedMemoryContainer().listingRepository;
+          const created = await memRepo.create(input);
+          return {
+            ...created,
+            ownerId: entity.ownerId,
+            contactPhone: entity.contactPhone ?? null,
+            contactWhatsapp: entity.contactWhatsapp ?? null,
+            contactEmail: entity.contactEmail ?? null,
+          };
+        } catch {
+          // fallback
+        }
+      }
       tracePublishFailure(String(row.module_key ?? 'listing'), 'supabase_insert', error, {
         table: TABLE,
         payload: row,

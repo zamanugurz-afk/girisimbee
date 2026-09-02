@@ -1,7 +1,7 @@
 import type { User } from '@supabase/supabase-js';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
-import { getServerContainer, type PersistenceContainer } from '@/lib/persistence/container';
+import { getServerContainer, getSharedMemoryContainer, type PersistenceContainer } from '@/lib/persistence/container';
 import { ids, type ProfileId, type UserId } from '@/lib/domain/ids';
 import type { Profile } from '@/features/profiles/types/profile.types';
 import { apiError } from '@/lib/api/response';
@@ -87,7 +87,7 @@ export async function resolveAuthContext(requireAuth = true, request?: Request):
     }
 
     if (process.env.NODE_ENV === 'development' || isDemo) {
-      const container = getServerContainer(supabase);
+      const container = isDemo ? getSharedMemoryContainer() : getServerContainer(supabase);
       const testUserId = ids.user('00000000-0000-0000-0000-000000000001');
       return {
         user: { id: testUserId, email: 'test@girisimbee.com' } as any,
