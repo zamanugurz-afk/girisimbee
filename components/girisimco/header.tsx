@@ -124,12 +124,14 @@ export function Header() {
         {/* ========================================================================= */}
         {/* ORTA MENÜ ELEMANLARI (TAM ORTALANMIŞ DESKTOP NAV)                         */}
         {/* ========================================================================= */}
-        <nav className="hidden lg:flex items-center gap-1.5 text-[13px] font-bold text-slate-700 dark:text-zinc-200 absolute left-1/2 -translate-x-1/2 z-20">
-          {/* 1. PAZAR YERİ DROPDOWN */}
+        <nav
+          className="hidden lg:flex items-center gap-1.5 text-[13px] font-bold text-slate-700 dark:text-zinc-200 absolute left-1/2 -translate-x-1/2 z-20"
+          onMouseLeave={handleMouseLeave}
+        >
+          {/* 1. PAZAR YERİ */}
           <div
-            className="relative"
             onMouseEnter={() => handleMouseEnter('marketplace')}
-            onMouseLeave={handleMouseLeave}
+            className="relative"
           >
             <button
               type="button"
@@ -149,11 +151,73 @@ export function Header() {
                 )}
               />
             </button>
+          </div>
 
-            {/* Popover Card */}
-            {activeDropdown === 'marketplace' && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[460px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
+          {/* 2. İŞ FİKİRLERİ */}
+          <div
+            onMouseEnter={() => handleMouseEnter('ideas')}
+            className="relative"
+          >
+            <button
+              type="button"
+              onClick={() => setActiveDropdown(activeDropdown === 'ideas' ? null : 'ideas')}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                activeDropdown === 'ideas'
+                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>İş Fikirleri</span>
+              <ChevronDown
+                className={cn(
+                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                  activeDropdown === 'ideas' && 'rotate-180 text-slate-700 dark:text-zinc-200'
+                )}
+              />
+            </button>
+          </div>
+
+          {/* 3. AI İSTİHBARAT */}
+          <div
+            onMouseEnter={() => handleMouseEnter('ai-tools')}
+            className="relative"
+          >
+            <button
+              type="button"
+              onClick={() => setActiveDropdown(activeDropdown === 'ai-tools' ? null : 'ai-tools')}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                activeDropdown === 'ai-tools'
+                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
+              )}
+            >
+              <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
+              <span>AI İstihbarat</span>
+              <ChevronDown
+                className={cn(
+                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                  activeDropdown === 'ai-tools' && 'rotate-180 text-slate-700 dark:text-zinc-200'
+                )}
+              />
+            </button>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* ORTAK ORTALANMIŞ AÇILIR POPOVER PENCERE (3 ALANIN TAM ORTASINA DENK GELİR) */}
+          {/* ========================================================================= */}
+          {activeDropdown && (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+              onMouseEnter={() => {
+                if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+              }}
+              onMouseLeave={handleMouseLeave}
+            >
+              {activeDropdown === 'marketplace' && (
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl w-[460px]">
                   <Link
                     href="/girisim-ortaklik"
                     className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
@@ -222,40 +286,10 @@ export function Header() {
                     </div>
                   </Link>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* 2. İŞ FİKİRLERİ & KULUÇKA */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('ideas')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              type="button"
-              onClick={() => setActiveDropdown(activeDropdown === 'ideas' ? null : 'ideas')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
-                activeDropdown === 'ideas'
-                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
-                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
               )}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>İş Fikirleri</span>
-              <ChevronDown
-                className={cn(
-                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
-                  activeDropdown === 'ideas' && 'rotate-180 text-slate-700 dark:text-zinc-200'
-                )}
-              />
-            </button>
 
-            {/* Ideas Popover Card */}
-            {activeDropdown === 'ideas' && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[380px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-2 backdrop-blur-2xl">
+              {activeDropdown === 'ideas' && (
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-2 backdrop-blur-2xl w-[380px]">
                   <Link
                     href="/trend-fikirler"
                     className="p-3 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-3 group"
@@ -290,40 +324,10 @@ export function Header() {
                     </div>
                   </Link>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* 3. AI İSTİHBARAT & AKILLI ARAÇLAR */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('ai-tools')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              type="button"
-              onClick={() => setActiveDropdown(activeDropdown === 'ai-tools' ? null : 'ai-tools')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
-                activeDropdown === 'ai-tools'
-                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
-                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
               )}
-            >
-              <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
-              <span>AI İstihbarat</span>
-              <ChevronDown
-                className={cn(
-                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
-                  activeDropdown === 'ai-tools' && 'rotate-180 text-slate-700 dark:text-zinc-200'
-                )}
-              />
-            </button>
 
-            {/* AI Tools Popover */}
-            {activeDropdown === 'ai-tools' && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[360px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-1.5 backdrop-blur-2xl">
+              {activeDropdown === 'ai-tools' && (
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-1.5 backdrop-blur-2xl w-[360px]">
                   <Link
                     href="/radar"
                     className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-center gap-3 group"
@@ -375,9 +379,9 @@ export function Header() {
                     </div>
                   </Link>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </nav>
 
           {/* ========================================================================= */}
