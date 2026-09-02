@@ -473,16 +473,16 @@ export function VentureBuilderWizard() {
           </div>
 
           {/* ===================================================================== */}
-          {/* ADIM 1: TEMEL BİLGİLER & FİKİR                                       */}
+          {/* ADIM 1: TEMEL BİLGİLER & FİKİR (Ekteki 3. Görselle Birebir Mimari)     */}
           {/* ===================================================================== */}
           {currentStep === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              {/* İş Modeli Türü (6 Renkli Rozetli Kart) */}
-              <div>
-                <Label className="text-xs font-bold text-slate-900 dark:text-white block mb-2">
-                  İşletme / Operasyon Modeli *
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch animate-in fade-in duration-200">
+              {/* SOL SÜTUN: İŞLETME / OPERASYON MODELİ (ALT ALTA KÜÇÜK KARTLAR) */}
+              <div className="space-y-2 pr-0 md:pr-5 border-b md:border-b-0 md:border-r border-slate-200 dark:border-zinc-800 pb-4 md:pb-0">
+                <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
+                  1. İşletme / Operasyon Modeli *
                 </Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div className="space-y-1.5">
                   {BUSINESS_MODELS.map((model) => {
                     const isSelected = selectedModelType === model.id;
                     const Icon = model.icon;
@@ -492,146 +492,130 @@ export function VentureBuilderWizard() {
                         type="button"
                         onClick={() => handleSelectBusinessModel(model)}
                         className={cn(
-                          'p-3 rounded-2xl border text-left transition-all duration-150 cursor-pointer flex flex-col justify-between min-h-[5rem]',
+                          'w-full p-2.5 rounded-2xl border text-left transition-all duration-150 cursor-pointer flex items-center justify-between',
                           isSelected
                             ? 'border-[#00A86B] bg-[#E8F8F2]/80 dark:bg-emerald-950/50 ring-2 ring-[#00A86B]/30 shadow-2xs'
                             : 'border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40 hover:border-slate-300'
                         )}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <span className={cn('p-1.5 rounded-xl border flex items-center justify-center', model.colorClass)}>
-                            <Icon className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className={cn('p-2 rounded-xl border flex items-center justify-center shrink-0', model.colorClass)}>
+                            <Icon className="w-4 h-4" />
                           </span>
-                          <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-300 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-slate-200/80">
-                            {model.badgeText}
-                          </span>
+                          <div className="min-w-0">
+                            <span className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
+                              {model.title}
+                            </span>
+                            <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                              {model.desc}
+                            </span>
+                          </div>
                         </div>
-                        <div className="mt-2">
-                          <span className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                            {model.title}
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
-                            {model.desc}
-                          </span>
-                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 shrink-0 ml-2">
+                          {model.badgeText}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* 2 Sütunlu DİK AYRIM ÇİZGİLİ Form Alanı (Ekteki Mimari) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch pt-2 border-t border-slate-100 dark:border-zinc-800">
-                {/* SOL SÜTUN */}
-                <div className="space-y-3.5 pr-0 md:pr-5 border-b md:border-b-0 md:border-r border-slate-200 dark:border-zinc-800 pb-4 md:pb-0">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200">
-                        Firma / Proje Adı *
-                      </Label>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        {draft.title.length}/100
-                      </span>
-                    </div>
-                    <Input
-                      placeholder="Örn: Butik Kahve & Çekirdek Aboneliği"
-                      maxLength={100}
-                      value={draft.title}
-                      onChange={(e) => updateBasicInfo({ title: e.target.value })}
-                      className="h-11 rounded-2xl border-slate-200 dark:border-zinc-700 text-sm font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
-                      Tek Cümlelik Konsept *
+              {/* SAĞ SÜTUN: FİRMA ADI, SEKTÖR, LOKASYON & KONSEPT ALANLARI */}
+              <div className="space-y-3 pl-0 md:pl-2">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200">
+                      Firma / Proje Adı *
                     </Label>
-                    <Input
-                      placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş kahve seti teslimatı."
-                      value={draft.oneLiner}
-                      onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                      className="h-11 rounded-2xl border-slate-200 dark:border-zinc-700 text-sm font-medium"
-                    />
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {draft.title.length}/100
+                    </span>
                   </div>
-
-                  <div>
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
-                      Pazardaki Açık & Fırsat Analizi *
-                    </Label>
-                    <Textarea
-                      rows={2}
-                      placeholder="Örn: Kaliteli kahveye erişim pahalı; abonelikle uygun fiyata öngörülebilir nakit akışı sağlar..."
-                      value={draft.whyItWorks}
-                      onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                      className="rounded-2xl border-slate-200 dark:border-zinc-700 text-sm font-medium resize-none min-h-[60px]"
-                    />
-                  </div>
+                  <Input
+                    placeholder="Örn: Çıtır Dürüm ve Çiğ Köfte Ltd. Şti."
+                    maxLength={100}
+                    value={draft.title}
+                    onChange={(e) => updateBasicInfo({ title: e.target.value })}
+                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                  />
                 </div>
 
-                {/* SAĞ SÜTUN */}
-                <div className="space-y-3.5 pl-0 md:pl-2">
+                <div>
+                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                    Sektör / Kategori *
+                  </Label>
+                  <select
+                    value={draft.category}
+                    onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
+                    className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
-                      Sektör / Kategori *
+                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                      Kurulum Lokasyonu (İl) *
                     </Label>
                     <select
-                      value={draft.category}
-                      onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
-                      className="w-full h-11 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                      value={draft.authorCity || 'İstanbul'}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
                     >
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
+                      {cityOptions.map((c) => (
+                        <option key={c} value={c}>
+                          {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div>
-                      <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
-                        Kurulum Lokasyonu (İl) *
-                      </Label>
-                      <select
-                        value={draft.authorCity || 'İstanbul'}
-                        onChange={(e) => handleCityChange(e.target.value)}
-                        className="w-full h-11 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
-                      >
-                        {cityOptions.map((c) => (
-                          <option key={c} value={c}>
-                            {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1.5">
-                        Hedeflenen İlçe
-                      </Label>
-                      <select
-                        value={selectedDistrict}
-                        onChange={(e) => setSelectedDistrict(e.target.value)}
-                        className="w-full h-11 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
-                      >
-                        {districtOptions.map((d) => (
-                          <option key={d} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  <div>
+                    <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                      Hedeflenen İlçe
+                    </Label>
+                    <select
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A86B]"
+                    >
+                      {districtOptions.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+                </div>
 
-                  {/* Yatırımcı İpucu Kartı */}
-                  <div className="p-3.5 rounded-2xl bg-[#E8F8F2]/70 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/50 text-xs text-slate-700 dark:text-zinc-300">
-                    <span className="font-bold text-[#00A86B] dark:text-emerald-400 block mb-1">
-                      💡 Yatırımcı Tavsiyesi
-                    </span>
-                    <p className="text-[11.5px] text-slate-600 dark:text-zinc-400 leading-relaxed">
-                      Doğrulanmış melek yatırımcılar, sıfırdan dükkan masrafı yerine şahsi araç ve ev atölyesiyle riski sıfırlayan projelere öncelik verir.
-                    </p>
-                  </div>
+                <div>
+                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                    Tek Cümlelik Konsept (Ne Sunuyorsun?) *
+                  </Label>
+                  <Input
+                    placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş kahve teslimatı."
+                    value={draft.oneLiner}
+                    onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
+                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                    Pazardaki Açık & Fırsat Analizi *
+                  </Label>
+                  <Textarea
+                    rows={2}
+                    placeholder="Örn: Kaliteli kahveye erişim pahalı; abonelik modeliyle düzenli nakit akışı sağlar..."
+                    value={draft.whyItWorks}
+                    onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
+                    className="rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium resize-none min-h-[50px]"
+                  />
                 </div>
               </div>
             </div>
