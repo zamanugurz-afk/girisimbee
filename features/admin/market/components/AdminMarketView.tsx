@@ -205,21 +205,22 @@ export function AdminMarketView() {
       description="Sponsorlu MARKET reklamlarını yönetin. Yalnızca admin ve süper admin reklam oluşturabilir. En fazla 5 kart yayınlanabilir."
       toolbar={
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">
-            Yayında: <span className="font-medium text-foreground">{publishedCount}</span> /{' '}
-            {MARKET_MAX_PUBLISHED}
-            <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-400">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <span>
+              Yayında: <strong className="font-medium text-foreground">{publishedCount}</strong> / {MARKET_MAX_PUBLISHED}
+            </span>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-400">
               Canlı veri
             </span>
-            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
               Admin / süper admin
             </span>
             {!canWrite ? (
-              <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                 Salt okunur
               </span>
             ) : null}
-          </p>
+          </div>
           {canWrite ? (
             <Button type="button" size="sm" className="rounded-xl" onClick={openCreate}>
               <Plus className="mr-1.5 h-4 w-4" />
