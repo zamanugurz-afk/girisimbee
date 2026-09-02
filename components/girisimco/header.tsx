@@ -206,7 +206,7 @@ export function Header() {
           </div>
 
           {/* ========================================================================= */}
-          {/* ORTAK ORTALANMIŞ AÇILIR POPOVER PENCERE (3 ALANIN TAM ORTASINA DENK GELİR) */}
+          {/* ORTAK ORTALANMIŞ AÇILIR POPOVER PENCERE (HER BİRİ BİREBİR AYNI BOYUTTA)   */}
           {/* ========================================================================= */}
           {activeDropdown && (
             <div
@@ -216,8 +216,9 @@ export function Header() {
               }}
               onMouseLeave={handleMouseLeave}
             >
+              {/* 1. PAZAR YERİ */}
               {activeDropdown === 'marketplace' && (
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl w-[460px]">
+                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/girisim-ortaklik"
                     className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
@@ -288,58 +289,94 @@ export function Header() {
                 </div>
               )}
 
+              {/* 2. İŞ FİKİRLERİ */}
               {activeDropdown === 'ideas' && (
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-2 backdrop-blur-2xl w-[380px]">
+                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/trend-fikirler"
-                    className="p-3 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-3 group"
+                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
                   >
-                    <span className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 group-hover:scale-105 transition-transform">
-                      <Flame className="w-4 h-4 fill-current" />
+                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Flame className="w-4 h-4" />
                     </span>
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
-                        Trend & Yeni İş Fikirleri
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
+                        Trend & Yeni Fikirler
                       </span>
-                      <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Amortismanı, sermayesi ve aylık kârı hesaplanmış doğrulanmış modeller
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Hesaplanmış hazır modeller
                       </span>
                     </div>
                   </Link>
 
                   <Link
                     href="/fikrim-var"
-                    className="p-3 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-3 group"
+                    className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
                   >
-                    <span className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0 group-hover:scale-105 transition-transform">
-                      <Rocket className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Rocket className="w-4 h-4" />
                     </span>
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 leading-tight">
                         &quot;Fikrim Var, Bütçem Yok&quot;
                       </span>
-                      <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Aracını, mekanını ve fikrini 5 adımda modelle; melek yatırımcı çağrısı aç
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        5 adımda modelle, ortak bul
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/trend-fikirler"
+                    className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Sparkles className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 leading-tight">
+                        Düşük Sermayeli İşler
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Mikro bütçeli girişimler
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/trend-fikirler"
+                    className="p-2.5 rounded-2xl hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Store className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">
+                        Yüksek Kârlı Sektörler
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Yüksek marjlı fizibiliteler
                       </span>
                     </div>
                   </Link>
                 </div>
               )}
 
+              {/* 3. AI İSTİHBARAT */}
               {activeDropdown === 'ai-tools' && (
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-1.5 backdrop-blur-2xl w-[360px]">
+                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/radar"
-                    className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-center gap-3 group"
+                    className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
                       <Compass className="w-4 h-4" />
                     </span>
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 leading-tight">
                         Lokasyon Radarı
                       </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                         81 İl demografi & rakip haritası
                       </span>
                     </div>
@@ -347,34 +384,51 @@ export function Header() {
 
                   <Link
                     href="/is-kurma-asistani"
-                    className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-center gap-3 group"
+                    className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
                       <Wrench className="w-4 h-4" />
                     </span>
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400">
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 leading-tight">
                         İş Kurma Asistanı
                       </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                        32 sektör maliyet & kurulum simülatörü
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        32 sektör maliyet simülatörü
                       </span>
                     </div>
                   </Link>
 
                   <Link
                     href="/is-kurma-asistani"
-                    className="p-2.5 rounded-2xl hover:bg-teal-500/10 border border-transparent hover:border-teal-500/20 transition-all flex items-center gap-3 group"
+                    className="p-2.5 rounded-2xl hover:bg-teal-500/10 border border-transparent hover:border-teal-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0 group-hover:scale-105 transition-transform">
                       <Landmark className="w-4 h-4" />
                     </span>
-                    <div>
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400">
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 leading-tight">
                         Hibe & Teşvik Radarı
                       </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                         2026 KOSGEB & vergi muafiyeti
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/radar"
+                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Zap className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
+                        Pazar Uygunluk Skoru
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Bölgesel talep & fizibilite
                       </span>
                     </div>
                   </Link>
