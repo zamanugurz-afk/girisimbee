@@ -65,39 +65,39 @@ const CATEGORIES: VentureCategory[] = [
 const BUSINESS_MODELS = [
   {
     id: 'product_craft',
-    title: 'Ürün İmalatı & Zanaat',
-    desc: 'Evde/atölyede üretim ve kargo/online satış',
+    title: 'Ürün & Zanaat',
+    desc: 'Evde/atölyede üretim, kargo/online satış',
     icon: Package,
     defaultWorkspace: 'home' as WorkspaceType,
     defaultVehicle: 'none' as VehicleType,
   },
   {
     id: 'mobile_service',
-    title: 'Mobil & Yerinde Servis',
-    desc: 'Şahsi araçla müşterinin adresinde yerinde hizmet',
+    title: 'Mobil Hizmet',
+    desc: 'Araçla müşterinin adresinde yerinde servis',
     icon: Car,
     defaultWorkspace: 'client_location' as WorkspaceType,
     defaultVehicle: 'personal_car' as VehicleType,
   },
   {
     id: 'subscription_box',
-    title: 'Abonelik & Periyodik Kutu',
-    desc: 'Aylık düzenli gönderim & paket teslimat modeli',
+    title: 'Abonelik Kutusu',
+    desc: 'Periyodik düzenli teslimat & paket modeli',
     icon: RefreshCw,
     defaultWorkspace: 'home' as WorkspaceType,
     defaultVehicle: 'personal_car' as VehicleType,
   },
   {
     id: 'experience_event',
-    title: 'Deneyim & Pop-Up Etkinlik',
-    desc: 'Kişiye özel mekan kurulumu, kutlama & organizasyon',
+    title: 'Deneyim & Pop-Up',
+    desc: 'Kişiye özel mekan kurulumu & organizasyon',
     icon: Sparkles,
     defaultWorkspace: 'client_location' as WorkspaceType,
     defaultVehicle: 'light_commercial' as VehicleType,
   },
   {
     id: 'digital_hybrid',
-    title: 'Dijital & Hibrit Servis',
+    title: 'Dijital & Hibrit',
     desc: 'Yazılım, tasarım, içerik veya uzaktan danışmanlık',
     icon: Calculator,
     defaultWorkspace: 'virtual_mobile' as WorkspaceType,
@@ -105,8 +105,8 @@ const BUSINESS_MODELS = [
   },
   {
     id: 'custom_niche',
-    title: 'Özel Çözüm & Niş Model',
-    desc: 'Sektöre veya kişiye özel yenilikçi iş fikri',
+    title: 'Özel Çözüm',
+    desc: 'Sektöre veya kişiye özel yenilikçi iş modeli',
     icon: Wrench,
     defaultWorkspace: 'garage_workshop' as WorkspaceType,
     defaultVehicle: 'none' as VehicleType,
@@ -178,7 +178,7 @@ export function VentureBuilderWizard() {
     { num: 2, title: 'Masaya Koyduklarım', desc: 'Şahsi araç, mekan & emek' },
     { num: 3, title: 'Aranan Bütçe', desc: 'Ekipman, stok & reklam fonu' },
     { num: 4, title: 'Gelir & Kâr Payı', desc: 'Ciro, net kâr & amortisman' },
-    { num: 5, title: 'Önizleme & Onay', desc: 'İletişim & Admin incelemesi' },
+    { num: 5, title: 'Önizleme & Onay', desc: 'Fizibilite, AI skoru & gönderim' },
   ];
 
   // Yatırımcı Aylık Getirisi Hesabı
@@ -229,6 +229,8 @@ export function VentureBuilderWizard() {
       </div>
     );
   }
+
+  const isFinalStep = currentStep === 5;
 
   return (
     <div className="relative rounded-3xl border-2 border-slate-200/90 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 p-4 sm:p-5 lg:p-6 shadow-xl backdrop-blur-md overflow-hidden ring-1 ring-slate-100 dark:ring-white/5">
@@ -384,9 +386,14 @@ export function VentureBuilderWizard() {
         </div>
 
         {/* ===================================================================== */}
-        {/* B. ORTA SÜTUN: ÖZGÜN FİKİR MODELLEME ÇALIŞMA ALANI (lg:col-span-6)    */}
+        {/* B. ORTA SÜTUN: ÖZGÜN FİKİR MODELLEME ÇALIŞMA ALANI                   */}
         {/* ===================================================================== */}
-        <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
+        <div
+          className={cn(
+            'flex flex-col justify-between space-y-4',
+            isFinalStep ? 'lg:col-span-5' : 'lg:col-span-9'
+          )}
+        >
           <div>
             {/* Üst Başlık & Dinamik Bilgilendirme */}
             <div className="mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800">
@@ -405,16 +412,16 @@ export function VentureBuilderWizard() {
             </div>
 
             {/* =============================================================== */}
-            {/* ADIM 1: FİKİR & ÖZGÜN KONSEPT (MODEL TİPİ SEÇİMİ + DETAYLAR)     */}
+            {/* ADIM 1: FİKİR & ÖZGÜN KONSEPT (SADELEŞTİRİLMİŞ & GÖRÜNÜR DİZAYN) */}
             {/* =============================================================== */}
             {currentStep === 1 && (
-              <div className="space-y-4 animate-in fade-in duration-200">
-                {/* 1. İşletme / Model Türü Seçimi (6 İnteraktif Tip) */}
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* 1. İşletme / Model Türü Seçimi (Daha Sade, Yüksek Kontrastlı ve Geniş) */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-2">
-                    1. Aklındaki İş Fikrinin İşletme / Hizmet Türü:
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-2.5">
+                    1. Aklındaki İş Fikrinin Türünü Seç:
                   </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {BUSINESS_MODELS.map((model) => {
                       const isSelected = selectedModelType === model.id;
                       const Icon = model.icon;
@@ -424,23 +431,32 @@ export function VentureBuilderWizard() {
                           type="button"
                           onClick={() => handleSelectBusinessModel(model)}
                           className={cn(
-                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between h-[5.75rem]',
+                            'p-3 sm:p-3.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[5.25rem]',
                             isSelected
-                              ? 'border-amber-500 bg-amber-500/10 shadow-xs ring-1 ring-amber-500/30'
-                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                              ? 'border-amber-500 bg-amber-500/10 shadow-sm ring-2 ring-amber-500/40 text-slate-950 dark:text-white'
+                              : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 hover:border-slate-300 text-slate-700 dark:text-zinc-200'
                           )}
                         >
-                          <div className="flex items-center justify-between">
-                            <Icon className={cn('w-4 h-4', isSelected ? 'text-amber-600' : 'text-slate-400')} />
+                          <div className="flex items-center justify-between w-full">
+                            <span
+                              className={cn(
+                                'flex h-7 w-7 items-center justify-center rounded-xl transition-colors',
+                                isSelected
+                                  ? 'bg-amber-500 text-slate-950'
+                                  : 'bg-slate-100 dark:bg-zinc-700 text-slate-600 dark:text-zinc-300'
+                              )}
+                            >
+                              <Icon className="w-4 h-4" />
+                            </span>
                             {isSelected && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                              <CheckCircle2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                             )}
                           </div>
-                          <div>
-                            <span className="block text-[11px] font-bold text-slate-900 dark:text-zinc-100 leading-tight">
+                          <div className="mt-2">
+                            <span className="block text-xs sm:text-sm font-bold leading-tight">
                               {model.title}
                             </span>
-                            <span className="block text-[9.5px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
+                            <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
                               {model.desc}
                             </span>
                           </div>
@@ -450,28 +466,28 @@ export function VentureBuilderWizard() {
                   </div>
                 </div>
 
-                {/* 2. Fikir Başlığı & Kategori */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div className="sm:col-span-2">
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                {/* 2. Fikir Başlığı & Kategori (Daha Görünür & Yüksek Hiyerarşi) */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 pt-1">
+                  <div className="sm:col-span-8">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
                       Fikir / Proje Başlığı (Marka Taslağı) *
                     </Label>
                     <Input
                       placeholder="Örn: Butik Kahve & Çekirdek Aboneliği"
                       value={draft.title}
                       onChange={(e) => updateBasicInfo({ title: e.target.value })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="h-11 rounded-xl text-sm font-medium border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
                     />
                   </div>
 
-                  <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                  <div className="sm:col-span-4">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
                       Sektör / Kategori *
                     </Label>
                     <select
                       value={draft.category}
                       onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
-                      className="mt-1 w-full h-10 rounded-xl border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="w-full h-11 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                     >
                       {CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
@@ -484,28 +500,28 @@ export function VentureBuilderWizard() {
 
                 {/* 3. Tek Cümlelik Değer Önerisi */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                    Tek Cümlelik Çarpıcı Konsept (Ne Sunuyorsun?) *
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
+                    Tek Cümlelik Çarpıcı Konsept (Müşteriye Ne Sunacaksın?) *
                   </Label>
                   <Input
                     placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş nitelikli çekirdek kahve ve demleme seti teslimatı."
                     value={draft.oneLiner}
                     onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                    className="mt-1 h-10 rounded-xl text-xs"
+                    className="h-11 rounded-xl text-sm font-medium border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
                   />
                 </div>
 
-                {/* 4. Pazardaki Açık & Neden Başarılı Olur? */}
+                {/* 4. Pazardaki Açık & Fırsat Analizi */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
                     Pazardaki Açık / Bu Fikir Neden Tutar? (Fırsat Analizi) *
                   </Label>
                   <Textarea
-                    rows={2}
+                    rows={3}
                     placeholder="Örn: İnsanlar kaliteli kahveye ulaşmak istiyor fakat zincir kafelerde yüksek fiyatlar ödüyor. Düzenli abonelik modeliyle sabit ve öngörülebilir nakit akışı sağlar..."
                     value={draft.whyItWorks}
                     onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                    className="mt-1 rounded-xl text-xs resize-none"
+                    className="rounded-xl text-sm font-medium border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none"
                   />
                 </div>
               </div>
@@ -515,12 +531,12 @@ export function VentureBuilderWizard() {
             {/* ADIM 2: MASAYA KOYDUKLARIN (MEKAN & TAŞIT & EMEK)               */}
             {/* =============================================================== */}
             {currentStep === 2 && (
-              <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="space-y-5 animate-in fade-in duration-200">
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-2 block">
                     1. Çalışma & Üretim Alanı (Mekan Seçimi)
                   </Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {WORKSPACES.map((ws) => {
                       const isSelected = draft.collateral.workspaceType === ws.id;
                       const Icon = ws.icon;
@@ -530,18 +546,18 @@ export function VentureBuilderWizard() {
                           type="button"
                           onClick={() => updateCollateral({ workspaceType: ws.id })}
                           className={cn(
-                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2',
+                            'p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-2.5',
                             isSelected
-                              ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30'
-                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                              ? 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/40 text-slate-900 dark:text-white'
+                              : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 hover:border-slate-300 text-slate-700 dark:text-zinc-200'
                           )}
                         >
                           <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
                           <div>
-                            <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                            <span className="block text-xs sm:text-sm font-bold leading-tight">
                               {ws.label}
                             </span>
-                            <span className="block text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                            <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
                               {ws.desc}
                             </span>
                           </div>
@@ -552,10 +568,10 @@ export function VentureBuilderWizard() {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-2 block">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-2 block">
                     2. Lojistik & Taşıt İmkânı
                   </Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {VEHICLES.map((vh) => {
                       const isSelected = draft.collateral.vehicleType === vh.id;
                       const Icon = vh.icon;
@@ -565,18 +581,18 @@ export function VentureBuilderWizard() {
                           type="button"
                           onClick={() => updateCollateral({ vehicleType: vh.id })}
                           className={cn(
-                            'p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2',
+                            'p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-2.5',
                             isSelected
-                              ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30'
-                              : 'border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/60 hover:border-slate-300'
+                              ? 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/40 text-slate-900 dark:text-white'
+                              : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 hover:border-slate-300 text-slate-700 dark:text-zinc-200'
                           )}
                         >
                           <Icon className={cn('w-4 h-4 mt-0.5 shrink-0', isSelected ? 'text-amber-600' : 'text-slate-400')} />
                           <div>
-                            <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                            <span className="block text-xs sm:text-sm font-bold leading-tight">
                               {vh.label}
                             </span>
-                            <span className="block text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                            <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
                               {vh.desc}
                             </span>
                           </div>
@@ -587,7 +603,7 @@ export function VentureBuilderWizard() {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1 block">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1.5 block">
                     3. Haftalık Ayırabileceğin Çalışma Saati (Bizzat Emek)
                   </Label>
                   <div className="flex items-center gap-3">
@@ -597,9 +613,9 @@ export function VentureBuilderWizard() {
                       max={80}
                       value={draft.collateral.hoursPerWeek}
                       onChange={(e) => updateCollateral({ hoursPerWeek: Number(e.target.value) || 40 })}
-                      className="w-24 h-9 rounded-xl font-bold text-xs"
+                      className="w-28 h-11 rounded-xl font-bold text-sm"
                     />
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300">
                       Saat / Hafta (Tam zamanlı operasyonel emek: 40-50 saat)
                     </span>
                   </div>
@@ -611,10 +627,10 @@ export function VentureBuilderWizard() {
             {/* ADIM 3: ARANAN BÜTÇE İHTİYACI                                   */}
             {/* =============================================================== */}
             {currentStep === 3 && (
-              <div className="space-y-3.5 animate-in fade-in duration-200">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Ekipman & Cihaz Bütçesi (₺)
                     </Label>
                     <Input
@@ -622,12 +638,12 @@ export function VentureBuilderWizard() {
                       placeholder="35000"
                       value={draft.budget.equipmentCost || ''}
                       onChange={(e) => updateBudget({ equipmentCost: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       İlk 3 Aylık Hammadde / Stok (₺)
                     </Label>
                     <Input
@@ -635,12 +651,12 @@ export function VentureBuilderWizard() {
                       placeholder="15000"
                       value={draft.budget.initialStockCost || ''}
                       onChange={(e) => updateBudget({ initialStockCost: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Başlangıç Reklam & Tanıtım (₺)
                     </Label>
                     <Input
@@ -648,12 +664,12 @@ export function VentureBuilderWizard() {
                       placeholder="10000"
                       value={draft.budget.marketingCost || ''}
                       onChange={(e) => updateBudget({ marketingCost: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Tampon & İşletme Bütçesi (₺)
                     </Label>
                     <Input
@@ -661,21 +677,21 @@ export function VentureBuilderWizard() {
                       placeholder="5000"
                       value={draft.budget.operatingBufferCost || ''}
                       onChange={(e) => updateBudget({ operatingBufferCost: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-amber-800 dark:text-amber-300">
+                    <span className="text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300">
                       Toplam Aranan Yatırım Bütçesi:
                     </span>
-                    <p className="text-[10.5px] text-amber-700/80 dark:text-amber-400/80">
+                    <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
                       Yatırımcıdan talep edilecek net sermaye tutarı
                     </p>
                   </div>
-                  <span className="font-display text-xl font-black text-amber-600 dark:text-amber-400">
+                  <span className="font-display text-2xl font-black text-amber-600 dark:text-amber-400">
                     ₺{draft.budget.totalRequiredCapital.toLocaleString('tr-TR')}
                   </span>
                 </div>
@@ -687,9 +703,9 @@ export function VentureBuilderWizard() {
             {/* =============================================================== */}
             {currentStep === 4 && (
               <div className="space-y-4 animate-in fade-in duration-200">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Tahmini Aylık Ciro (₺)
                     </Label>
                     <Input
@@ -697,12 +713,12 @@ export function VentureBuilderWizard() {
                       placeholder="85000"
                       value={draft.financials.estimatedMonthlyRevenue || ''}
                       onChange={(e) => updateFinancials({ estimatedMonthlyRevenue: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Tahmini Aylık Net Kâr (₺)
                     </Label>
                     <Input
@@ -710,17 +726,17 @@ export function VentureBuilderWizard() {
                       placeholder="55000"
                       value={draft.financials.estimatedMonthlyNetProfit || ''}
                       onChange={(e) => updateFinancials({ estimatedMonthlyNetProfit: Number(e.target.value) || 0 })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <div className="p-4 rounded-2xl bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Yatırımcıya Önerilen Net Kâr Payı Oranı (%)
                     </Label>
-                    <span className="font-display text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
+                    <span className="font-display text-base font-extrabold text-indigo-600 dark:text-indigo-400">
                       %{draft.financials.offeredInvestorSharePercent}
                     </span>
                   </div>
@@ -731,20 +747,25 @@ export function VentureBuilderWizard() {
                     step={5}
                     value={draft.financials.offeredInvestorSharePercent}
                     onChange={(e) => updateFinancials({ offeredInvestorSharePercent: Number(e.target.value) })}
-                    className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-200 dark:bg-zinc-700 rounded-lg"
+                    className="w-full accent-amber-500 cursor-pointer h-2.5 bg-slate-200 dark:bg-zinc-700 rounded-lg"
                   />
+                  <div className="flex justify-between text-[11px] text-slate-400 mt-1.5 font-semibold">
+                    <span>%10</span>
+                    <span>%30 - %35 (Dengeli Teklif)</span>
+                    <span>%50</span>
+                  </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                      Yatırımcının Parasını Çıkarma Hızı:
+                    <span className="text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                      Yatırımcının Parasını Çıkarma Hızı (Amortisman):
                     </span>
-                    <p className="text-[10.5px] text-emerald-700/80 dark:text-emerald-400/80">
-                      Aylık {formatCurrency(monthlyInvestorReturn)} getiri ile amortisman
+                    <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80 mt-0.5">
+                      Aylık {formatCurrency(monthlyInvestorReturn)} kâr payı ile geri dönüş
                     </p>
                   </div>
-                  <span className="font-display text-xl font-black text-emerald-600 dark:text-emerald-400">
+                  <span className="font-display text-2xl font-black text-emerald-600 dark:text-emerald-400">
                     ~{draft.financials.calculatedPaybackMonths} Ay
                   </span>
                 </div>
@@ -752,38 +773,43 @@ export function VentureBuilderWizard() {
             )}
 
             {/* =============================================================== */}
-            {/* ADIM 5: İLETİŞİM & GÖNDERİM                                     */}
+            {/* ADIM 5: İLETİŞİM & SON ONAY (SON SAYFA)                          */}
             {/* =============================================================== */}
             {currentStep === 5 && (
-              <div className="space-y-3.5 animate-in fade-in duration-200">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-4 animate-in fade-in duration-200">
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
+                  <span className="font-bold block mb-1">📋 Fikir Fizibiliteniz Hazırlandı!</span>
+                  Sağ taraftaki AI Yatırım Skoru ve Finansal Özetinizi kontrol ettikten sonra bilgilerinizi girerek moderasyon onayına gönderebilirsiniz.
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Adınız & Soyadınız *
                     </Label>
                     <Input
                       placeholder="Örn: Uğur Zaman"
                       value={draft.authorName}
                       onChange={(e) => updateBasicInfo({ authorName: e.target.value })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       Telefon Numaranız *
                     </Label>
                     <Input
                       placeholder="05XX XXX XX XX"
                       value={draft.authorPhone || ''}
                       onChange={(e) => updateBasicInfo({ authorPhone: e.target.value })}
-                      className="mt-1 h-10 rounded-xl text-xs"
+                      className="mt-1 h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     E-Posta Adresiniz *
                   </Label>
                   <Input
@@ -791,26 +817,26 @@ export function VentureBuilderWizard() {
                     placeholder="girisimci@ornek.com"
                     value={draft.authorEmail || ''}
                     onChange={(e) => updateBasicInfo({ authorEmail: e.target.value })}
-                    className="mt-1 h-10 rounded-xl text-xs"
+                    className="mt-1 h-11 rounded-xl text-sm"
                   />
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 inline mr-1" />
-                  Özgün modeliniz moderasyon onayından geçtikten sonra <strong>Girişimbee Yatırım & Ortaklık Havuzunda</strong> canlıya alınacaktır.
+                  Özgün modeliniz moderasyon onayından geçtikten sonra <strong>Girişimbee Yatırım & Ortaklık Havuzunda</strong> doğrulanmış olarak canlıya alınacaktır.
                 </div>
               </div>
             )}
           </div>
 
-          {/* Alt Stepper Navigasyon Çubuğu (Image 1 ile Birebir Aynı) */}
+          {/* Alt Stepper Navigasyon Çubuğu */}
           <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-zinc-800">
             {currentStep > 1 ? (
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
-                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-700 dark:text-zinc-300 border-slate-200"
+                className="h-11 rounded-xl px-5 text-xs sm:text-sm font-bold text-slate-700 dark:text-zinc-300 border-slate-200"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Önceki Adım
@@ -840,7 +866,7 @@ export function VentureBuilderWizard() {
               <Button
                 type="button"
                 onClick={nextStep}
-                className="h-10 rounded-xl px-5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+                className="h-11 rounded-xl px-6 text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
               >
                 Sonraki Adım
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -849,9 +875,9 @@ export function VentureBuilderWizard() {
               <Button
                 type="button"
                 onClick={handleSubmit}
-                className="h-10 rounded-xl px-5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                className="h-11 rounded-xl px-6 text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
               >
-                <CheckCircle2 className="w-4 h-4 mr-1" />
+                <CheckCircle2 className="w-4 h-4 mr-1.5" />
                 Admin Onayına Gönder
               </Button>
             )}
@@ -859,122 +885,124 @@ export function VentureBuilderWizard() {
         </div>
 
         {/* ===================================================================== */}
-        {/* C. SAĞ SÜTUN: CANLI YATIRIMCI VE FİZİBİLİTE KOKPİTİ (lg:col-span-3)  */}
+        {/* C. SAĞ SÜTUN: SADECE SON SAYFADA GÖSTERİLEN FİZİBİLİTE & YATIRIM KOKPİTİ */}
         {/* ===================================================================== */}
-        <div className="lg:col-span-3 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5">
-          <div className="space-y-3">
-            {/* 1. AI Yatırımcı Çekicilik Skoru */}
-            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 fill-current" />
-                  AI Yatırım Skoru
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                  Yüksek Verimlilik
-                </span>
+        {isFinalStep && (
+          <div className="lg:col-span-4 flex flex-col justify-between space-y-3.5 border-t lg:border-t-0 lg:border-l border-slate-200/70 dark:border-zinc-800/80 pt-5 lg:pt-0 lg:pl-5 animate-in fade-in duration-300">
+            <div className="space-y-3">
+              {/* 1. AI Yatırımcı Çekicilik Skoru */}
+              <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 fill-current" />
+                    AI Yatırım Skoru
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                    Yüksek Verimlilik
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display text-2xl font-black text-slate-900 dark:text-white">9.4</span>
+                  <span className="text-xs font-bold text-slate-400">/ 10</span>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-zinc-300">
+                    <span>Özkaynak Güç Endeksi</span>
+                    <span className="text-emerald-600 font-black">%92</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full w-[92%]" />
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-tight pt-1">
+                    Mekan ve araç maliyeti sıfırlandığı için yatırımcı riski minimumdur.
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="font-display text-2xl font-black text-slate-900 dark:text-white">9.4</span>
-                <span className="text-xs font-bold text-slate-400">/ 10</span>
+              {/* 2. Ortaklık & Yatırım Şartı */}
+              <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 p-3.5 space-y-1.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-900 dark:text-white inline-flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-indigo-600" />
+                    Ortaklık Modeli
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                    Doğrulanmış
+                  </span>
+                </div>
+
+                <div className="pt-1 space-y-1 text-xs text-slate-600 dark:text-zinc-300">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Aranan Sermaye:</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">
+                      {formatCurrencyShort(draft.budget.totalRequiredCapital)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Yatırımcı Payı:</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                      %{draft.financials.offeredInvestorSharePercent} Net Kâr
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-[10.5px] font-bold text-slate-600 dark:text-zinc-300">
-                  <span>Özkaynak Güç Endeksi</span>
-                  <span className="text-emerald-600 font-black">%92</span>
+              {/* 3. Canlı Finansal Özet */}
+              <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Finansal Özet (Canlı)
+                </span>
+
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between text-slate-700 dark:text-zinc-300">
+                    <span className="text-muted-foreground">Aylık Net Kâr:</span>
+                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                      {formatCurrency(draft.financials.estimatedMonthlyNetProfit)} / Ay
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-slate-700 dark:text-zinc-300">
+                    <span className="text-muted-foreground">Yatırımcı Getirisi:</span>
+                    <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                      {formatCurrency(monthlyInvestorReturn)} / Ay
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-slate-200/60 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+                    <span>Tahmini Amortisman:</span>
+                    <span className="text-emerald-600">~{draft.financials.calculatedPaybackMonths} Ay</span>
+                  </div>
                 </div>
-                <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full w-[92%]" />
-                </div>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-tight pt-1">
-                  Mekan ve araç maliyeti sıfırlandığı için yatırımcı riski minimumdur.
-                </p>
               </div>
             </div>
 
-            {/* 2. Ortaklık & Yatırım Şartı */}
-            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 p-3.5 space-y-1.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-900 dark:text-white inline-flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-indigo-600" />
-                  Ortaklık Modeli
-                </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
-                  Doğrulanmış
-                </span>
-              </div>
-
-              <div className="pt-1 space-y-1 text-xs text-slate-600 dark:text-zinc-300">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Aranan Sermaye:</span>
-                  <span className="font-bold text-amber-600 dark:text-amber-400">
-                    {formatCurrencyShort(draft.budget.totalRequiredCapital)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Yatırımcı Payı:</span>
-                  <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                    %{draft.financials.offeredInvestorSharePercent} Net Kâr
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Canlı Finansal Özet */}
-            <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50 p-3.5 space-y-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                Finansal Özet (Canlı)
-              </span>
-
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between text-slate-700 dark:text-zinc-300">
-                  <span className="text-muted-foreground">Aylık Net Kâr:</span>
-                  <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
-                    {formatCurrency(draft.financials.estimatedMonthlyNetProfit)} / Ay
-                  </span>
-                </div>
-                <div className="flex justify-between text-slate-700 dark:text-zinc-300">
-                  <span className="text-muted-foreground">Yatırımcı Getirisi:</span>
-                  <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
-                    {formatCurrency(monthlyInvestorReturn)} / Ay
-                  </span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-slate-200/60 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
-                  <span>Tahmini Amortisman:</span>
-                  <span className="text-emerald-600">~{draft.financials.calculatedPaybackMonths} Ay</span>
-                </div>
-              </div>
+            {/* Sağ Alt Aksiyon Butonları */}
+            <div className="space-y-2 pt-2">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                className="w-full h-11 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                Yatırım Çağrısını Başlat
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.print()}
+                className="w-full h-10 rounded-xl text-xs font-semibold border-slate-200 dark:border-zinc-700"
+              >
+                <FileText className="w-3.5 h-3.5 mr-1.5" />
+                Fizibilite Özeti Yazdır
+              </Button>
             </div>
           </div>
-
-          {/* Sağ Alt Aksiyon Butonları */}
-          <div className="space-y-2 pt-2">
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full h-10 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
-            >
-              <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              Yatırım Çağrısını Başlat
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => window.print()}
-              className="w-full h-9 rounded-xl text-xs font-semibold border-slate-200 dark:border-zinc-700"
-            >
-              <FileText className="w-3.5 h-3.5 mr-1.5" />
-              Fizibilite Özeti Yazdır
-            </Button>
-          </div>
-        </div>
+        )}
 
       </div>
 
       {/* ========================================================================= */}
-      {/* D. ALT BİLGİ ŞERİDİ (FOOTER STRIP - Image 1 ile Birebir Aynı)             */}
+      {/* D. ALT BİLGİ ŞERİDİ (FOOTER STRIP)                                       */}
       {/* ========================================================================= */}
       <div className="mt-5 pt-3.5 border-t border-slate-200/70 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-muted-foreground">
         <div className="flex items-center gap-1.5">
