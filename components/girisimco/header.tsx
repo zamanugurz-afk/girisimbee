@@ -109,23 +109,16 @@ export function Header() {
     <header
       ref={headerRef}
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-300 pointer-events-none px-3 sm:px-6',
-        scrolled ? 'pt-2 sm:pt-2.5' : 'pt-3 sm:pt-3.5'
+        'fixed inset-x-0 top-0 z-50 transition-all duration-300 border-b bg-white dark:bg-zinc-950',
+        scrolled
+          ? 'border-slate-200/90 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.08)] dark:border-zinc-800'
+          : 'border-slate-200/80 dark:border-zinc-800/80'
       )}
     >
-      <div className="mx-auto max-w-[1240px]">
-        {/* Dynamic Island Floating Glass Bar */}
-        <div
-          className={cn(
-            'pointer-events-auto flex items-center justify-between rounded-full border transition-all duration-300',
-            'border-slate-200/90 bg-white/85 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-2xl',
-            'dark:border-white/10 dark:bg-zinc-950/85 dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)]',
-            'px-3.5 sm:px-5 py-1.5 sm:py-2'
-          )}
-        >
-          {/* Sol: Logo */}
-          <div className="flex items-center gap-6">
-            <SiteLogo className="shrink-0 relative z-20" />
+      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Sol: Logo */}
+        <div className="flex items-center gap-6">
+          <SiteLogo className="shrink-0 relative z-20" />
 
             {/* ========================================================================= */}
             {/* ORTA DYNAMIC ISLAND MENÜ ELEMANLARI (DESKTOP)                             */}
@@ -427,7 +420,7 @@ export function Header() {
             {/* Mobil Menü Butonu */}
             <button
               type="button"
-              className="flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+              className="flex lg:hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all cursor-pointer"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
             >
@@ -435,13 +428,12 @@ export function Header() {
             </button>
           </div>
         </div>
-      </div>
 
       {/* ========================================================================= */}
-      {/* MOBİL YÜZEN MENÜ ÇEKMECESİ (DYNAMIC MOBILE DRAWER)                       */}
+      {/* MOBİL AÇILIR MENÜ (MOBILE DRAWER)                                         */}
       {/* ========================================================================= */}
       {mobileOpen && (
-        <div className="pointer-events-auto mx-auto mt-2 max-w-[1240px] rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 p-4 shadow-2xl backdrop-blur-2xl lg:hidden animate-in fade-in-0 slide-in-from-top-2 duration-200">
+        <div className="border-t border-slate-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 px-5 py-4 shadow-xl backdrop-blur-xl lg:hidden animate-in fade-in-0 slide-in-from-top-2 duration-200">
           {/* Mobil Arama Çubuğu */}
           <form
             onSubmit={(e) => {
