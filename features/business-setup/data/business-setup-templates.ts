@@ -1672,7 +1672,3833 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
     },
     monthlyUtilitiesEstimate: 12000,
     monthlyAccountingFee: 3200,
-  }
+  },
+
+  // ================= YENİ EKLENEN 22 POPÜLER MESLEK & SEKTÖR =================
+  'bubble-tea-bar': {
+  "id": "bubble-tea-bar",
+  "name": "Bubble Tea & Özel İçecek Barı",
+  "emoji": "🧋",
+  "categoryGroup": "Yeme - İçme",
+  "defaultM2": 35,
+  "fitoutCostPerM2": 3800,
+  "legalBasis": "5996 Sayılı Gıda ve Yem Kanunu & İlçe Tarım İşletme Kayıt Tebliği",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İlçe Tarım Gıda İşletme Kayıt Belgesi",
+      "cost": 16000,
+      "description": "Gıda ve içecek hazırlama/satış resmi tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "İlçe belediyesi ticari işletme ruhsat harcı"
+    },
+    {
+      "name": "İtfaiye Yangın & Tahliye Uygunluk Raporu",
+      "cost": 7500,
+      "description": "İşyeri yangın güvenliği onay raporu"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "cup_sealer",
+      "name": "Otomatik Dijital Bardak Kapatma (Cup Sealing) Makinesi",
+      "category": "machinery",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "Bubble tea bardaklarını sızdırmaz film ile presleyen ünite."
+    },
+    {
+      "id": "shaker_machine",
+      "name": "Çift Kollu Otomatik İçecek Çalkalama (Shaker) Makinesi",
+      "category": "machinery",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "fructose_dispenser",
+      "name": "Hassas Dijital Fruktoz & Şurup Dozajlama Dispenseri (16 Buton)",
+      "category": "machinery",
+      "unitCost": 19500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "tea_brewer",
+      "name": "Otomatik Çay Demleme & Sıcak Tutma Termos İstasyonu (3 Gözlü)",
+      "category": "machinery",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ice_maker",
+      "name": "Endüstriyel Gurme Kar Buz Yapma Makinesi (Günde 80kg)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "tapioca_cooker",
+      "name": "Otomatik Karıştırmalı Manyetik Boba/Tapyoka Pişirme Kazanı",
+      "category": "machinery",
+      "unitCost": 21000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "undercounter_fridge",
+      "name": "Tezgah Altı Paslanmaz Bar Soğutucusu & Gastronom Küvetler",
+      "category": "appliances",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "pos_system",
+      "name": "Dokunmatik POS Kasa, Barkod Okuyucu & Termal Sipariş Yazıcı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "bar_seating",
+      "name": "Gençlik Konsepti Bar Tabureleri & Küçük Bistro Masalar",
+      "category": "furniture",
+      "unitCost": 6500,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 10
+    },
+    {
+      "id": "neon_signboard",
+      "name": "Işıklı Neon Tabela & Dijital Menü Board Ekranı",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    }
+  ],
+  "initialInventoryCost": 55000,
+  "initialInventoryDescription": "Tapyoka incileri, patlayan meyveli bobalar, yasemin yeşil çayı, siyah Seylan çayı, meyve püreleri, özel süt tozları, kalın pipetler ve logo baskılı bardaklar.",
+  "softwareLicenseCost": {
+    "annual": 14000,
+    "monthlyMaintenance": 1100,
+    "name": "Restoran Bulut POS, Sadakat Kart & Online Paket Entegrasyonu"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Bubble Tea Baristası & Hazırlık Görevlisi",
+      "count": 1,
+      "avgSalary": 32000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Kasa & Sipariş Karşılama Elemanı",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Satılan Bubble Tea Bardağı",
+    "unitPrice": 140,
+    "targetUnitsPerDay": 70,
+    "unitLabel": "Bardak / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Bubble Tea & Özel İçecek Satışı",
+    "unitLabel": "Bardak",
+    "priceLabel": "Ortalama Bardak Fiyatı",
+    "defaultVolume": 120,
+    "minVolume": 40,
+    "maxVolume": 350,
+    "stepVolume": 10,
+    "avgTicketPrice": 140,
+    "grossMarginPercent": 72,
+    "daysPerMonth": 30,
+    "description": "Sütlü çaylar, meyveli buzlu çaylar, smoothie ve waffle çubukları satışından oluşan ortalama günlük sepet."
+  },
+  "monthlyUtilitiesEstimate": 11500,
+  "monthlyAccountingFee": 3000
+},
+
+  'butik-burger': {
+  "id": "butik-burger",
+  "name": "Butik Burger & Sokak Lezzetleri",
+  "emoji": "🍔",
+  "categoryGroup": "Yeme - İçme",
+  "defaultM2": 65,
+  "fitoutCostPerM2": 4500,
+  "legalBasis": "Gıda Hijyen Yönetmeliği & İlçe Tarım ve Orman Müdürlüğü Kayıt Tebliği",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İlçe Tarım Gıda Üretim & Satış Kayıt Belgesi",
+      "cost": 18000,
+      "description": "Et ve sıcak yemek işleme resmi ruhsatı"
+    },
+    {
+      "name": "İtfaiye Baca, Davlumbaz & Yangın Raporu",
+      "cost": 18000,
+      "description": "Ağır duman/koku tahliye uygunluk izni"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 16000,
+      "description": "Restoran açılış ruhsatı ve çevre temizlik harcı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "exhaust_hood",
+      "name": "Elektrostatik Filtreli Paslanmaz Sanayi Davlumbaz & Emiş Motoru",
+      "category": "mandatory",
+      "unitCost": 65000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Sistem",
+      "regulatoryNote": "İtfaiye ve çevre sağlık yönetmeliği koku filtresi şartı."
+    },
+    {
+      "id": "fire_ext",
+      "name": "Davlumbaz İçi Otomatik Yangın Söndürme Sistemi (K Tipi)",
+      "category": "mandatory",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Sistem",
+      "regulatoryNote": "Mutfak Yangın Yönetmeliği zorunlu otomatik söndürme tertibatı."
+    },
+    {
+      "id": "griddle_plate",
+      "name": "Krom Kaplama Döküm Gazlı Smash Burger Pleyt Izgarası (90 cm)",
+      "category": "machinery",
+      "unitCost": 48000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "fryer_double",
+      "name": "Çift Hazneli Termostatlı Endüstriyel Fritöz (2x12 Litre)",
+      "category": "machinery",
+      "unitCost": 36000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "bun_toaster",
+      "name": "Dikey Karamelize Burger Ekmeği Kızartma Makinesi",
+      "category": "machinery",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "prep_fridge",
+      "name": "Üstten Gastronom Soğutuculu Paslanmaz Burger Hazırlık Tezgahı",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "meat_grinder",
+      "name": "Soğutmalı Paslanmaz Kıyma Makinesi & Smash Burger Presi",
+      "category": "machinery",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "drink_cooler",
+      "name": "Çift Kapılı Dik Camlı Meşrubat & Sos Teşhir Dolabı",
+      "category": "appliances",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "pos_kitchen",
+      "name": "Dokunmatik Kasa POS + Mutfak KDS Ekranı & Adisyon Yazıcı",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "dining_tables",
+      "name": "Endüstriyel Ahşap/Metal Burger Masaları & Sandalye Grubu (8 Takım)",
+      "category": "furniture",
+      "unitCost": 9500,
+      "defaultQty": 8,
+      "minQty": 2,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 8
+    },
+    {
+      "id": "ac_unit",
+      "name": "Salon Tipi Yüksek Debili Ticari Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "signboard",
+      "name": "Retro Işıklı Kutu Harf Tabela & Cephe Aydınlatması",
+      "category": "core_tech",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 95000,
+  "initialInventoryDescription": "Taze dana döş kıyma, tereyağlı brioche ekmekleri, cheddar peyniri, trüf/füme/özel burger sosları, patates kızartması ve kraft paket servis kutuları.",
+  "softwareLicenseCost": {
+    "annual": 18000,
+    "monthlyMaintenance": 1400,
+    "name": "Restoran Bulut POS, Yemeksepeti/Getir/Trendyol Çoklu Sipariş Entegratörü"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Smash Burger Ustası & Şef",
+      "count": 1,
+      "avgSalary": 45000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Fritöz / Hazırlık & Paketleme Elemanı",
+      "count": 1,
+      "avgSalary": 30000,
+      "isMandatory": false
+    },
+    {
+      "role": "Kasa & Salon Görevlisi",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Satılan Burger Menü Adedi",
+    "unitPrice": 320,
+    "targetUnitsPerDay": 55,
+    "unitLabel": "Menü / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Burger & Yan Lezzet Siparişi",
+    "unitLabel": "Menü",
+    "priceLabel": "Ortalama Menü Fiş Tutarı",
+    "defaultVolume": 110,
+    "minVolume": 35,
+    "maxVolume": 300,
+    "stepVolume": 5,
+    "avgTicketPrice": 320,
+    "grossMarginPercent": 62,
+    "daysPerMonth": 30,
+    "description": "Salonda tüketim ve paket servis platformlarından (Yemeksepeti, Getir, Trendyol) oluşan toplam siparişler."
+  },
+  "monthlyUtilitiesEstimate": 18000,
+  "monthlyAccountingFee": 3400
+},
+
+  'dondurma-gelato': {
+  "id": "dondurma-gelato",
+  "name": "Artisan Dondurmacı & Gelato Barı",
+  "emoji": "🍨",
+  "categoryGroup": "Yeme - İçme",
+  "defaultM2": 40,
+  "fitoutCostPerM2": 4000,
+  "legalBasis": "5996 Sayılı Gıda Güvenliği Kanunu & Süt Ürünleri Hijyen Tebliği",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İlçe Tarım Dondurma Üretim ve Satış İzni",
+      "cost": 16000,
+      "description": "Sütlü tatlı ve dondurma imalat tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "Ruhsat ve çevre temizlik harcı"
+    },
+    {
+      "name": "İtfaiye Yangın & Güvenlik Raporu",
+      "cost": 7500,
+      "description": "Yangın güvenliği uygunluk onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "gelato_machine",
+      "name": "İtalyan Tipi Endüstriyel Dondurma & Gelato Yapıcı (Batch Freezer)",
+      "category": "machinery",
+      "unitCost": 185000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "Taze sütten dakikada kremsi artisan gelato üreten makine."
+    },
+    {
+      "id": "pasteurizer",
+      "name": "Süt Pastörizatörü & Dondurma Miks Hazırlama Kazanı (30 Litre)",
+      "category": "machinery",
+      "unitCost": 65000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "blast_chiller",
+      "name": "Şok Dondurucu Dolap (-40°C Hızlı Şoklama)",
+      "category": "appliances",
+      "unitCost": 52000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "gelato_display",
+      "name": "Görsel Havalandırmalı Kavisli Cam Gelato Teşhir Reyonu (18 Küvet)",
+      "category": "appliances",
+      "unitCost": 75000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Ünite"
+    },
+    {
+      "id": "waffle_cone",
+      "name": "Külah Pişirme & Kıvırma Makinesi (Taze Kornet)",
+      "category": "machinery",
+      "unitCost": 14000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "pos_cash",
+      "name": "Dokunmatik Satış POS & Hızlı Kasa Terminali",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "outdoor_seating",
+      "name": "Renkli Dış Mekan Bistro Masa & Sandalye Seti (4 Takım)",
+      "category": "furniture",
+      "unitCost": 7500,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 10
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "led_sign",
+      "name": "Işıklı Dondurma Külahı Tasarımlı 3D Tabela",
+      "category": "core_tech",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 60000,
+  "initialInventoryDescription": "Taze çiftlik sütü, krema, Belçika çikolatası, Antep fıstığı ezmesi, İtalyan meyve püreleri, vanilya çubukları, kornet külahlar ve biyoçözünür dondurma kapları.",
+  "softwareLicenseCost": {
+    "annual": 12000,
+    "monthlyMaintenance": 950,
+    "name": "Hızlı Kasa & Terazi Entegre Perakende Satış Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Dondurma & Gelato Ustası",
+      "count": 1,
+      "avgSalary": 42000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Satış & Servis Elemanı",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Satılan Dondurma Topu / Porsiyonu",
+    "unitPrice": 120,
+    "targetUnitsPerDay": 75,
+    "unitLabel": "Porsiyon / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Porsiyon Dondurma & Tatlı Satışı",
+    "unitLabel": "Porsiyon",
+    "priceLabel": "Ortalama Porsiyon Fiyatı",
+    "defaultVolume": 140,
+    "minVolume": 40,
+    "maxVolume": 400,
+    "stepVolume": 10,
+    "avgTicketPrice": 120,
+    "grossMarginPercent": 75,
+    "daysPerMonth": 30,
+    "description": "Külah dondurma, kiloluk paket dondurma, dondurmalı waffle ve soğuk frappe satışları."
+  },
+  "monthlyUtilitiesEstimate": 14500,
+  "monthlyAccountingFee": 3000
+},
+
+  'kahvalti-borek-salonu': {
+  "id": "kahvalti-borek-salonu",
+  "name": "Kahvaltı & Serpme Börek Salonu",
+  "emoji": "🍳",
+  "categoryGroup": "Yeme - İçme",
+  "defaultM2": 90,
+  "fitoutCostPerM2": 3200,
+  "legalBasis": "Gıda Hijyen Yönetmeliği & İlçe Tarım ve Orman Müdürlüğü Kaydı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İlçe Tarım Gıda İşletme Kayıt Belgesi",
+      "cost": 16000,
+      "description": "Sıcak kahvaltı ve unlu mamul sunum izni"
+    },
+    {
+      "name": "İtfaiye Yangın & Baca Uygunluk Raporu",
+      "cost": 14000,
+      "description": "Mutfak havalandırma ve güvenlik onayı"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 16000,
+      "description": "Ticari lokanta/kahvaltı salonu ruhsatı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "heated_borek_display",
+      "name": "Isıtmalı Camlı Çift Katlı Börek & Poğaça Teşhir Tezgahı (180 cm)",
+      "category": "furniture",
+      "unitCost": 44000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "tea_boiler",
+      "name": "Bakır İşlemeli 4 Demlikli Tam Otomatik Doğalgazlı Çay Kazanı",
+      "category": "appliances",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "kitchen_range",
+      "name": "4 Gözlü Sanayi Tipi Ocak & Menemen/Sahanda Yumurta İstasyonu",
+      "category": "machinery",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "salad_prep_fridge",
+      "name": "Paslanmaz Soğutmalı Kahvaltılık Şarküteri Hazırlık Tezgahı",
+      "category": "appliances",
+      "unitCost": 36000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "commercial_dishwasher",
+      "name": "Sanayi Tipi 500 Tabak/Saat Hızlı Bulaşık Yıkama Makinesi",
+      "category": "appliances",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "breakfast_tables",
+      "name": "Geniş Serpme Kahvaltı Masaları & Ahşap Sandalye Takımları (12 Takım)",
+      "category": "furniture",
+      "unitCost": 8500,
+      "defaultQty": 12,
+      "minQty": 4,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 7.5
+    },
+    {
+      "id": "pos_system",
+      "name": "Dokunmatik Restoran POS, Garson El Terminali & Adisyon Yazıcı",
+      "category": "core_tech",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Salon Tipi İnverter Ticari Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "signboard",
+      "name": "Işıklı Dış Cephe Tabela & Giriş Totemi",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 75000,
+  "initialInventoryDescription": "Su böreği, kol böreği, peynir çeşitleri (Ezine, kaşar, tulum), zeytin çeşitleri, tereyağı, bal, reçeller, yumurta, sucuk, domates, salatalık ve Rize çayı.",
+  "softwareLicenseCost": {
+    "annual": 16000,
+    "monthlyMaintenance": 1200,
+    "name": "Restoran Masalı POS & Stok Takip Sistemi"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Kahvaltı Şefi / Sıcak Ustası",
+      "count": 1,
+      "avgSalary": 42000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Servis / Garson",
+      "count": 2,
+      "avgSalary": 26000,
+      "isMandatory": false
+    },
+    {
+      "role": "Mutfak Yardımcısı & Bulaşık",
+      "count": 1,
+      "avgSalary": 24000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Serpme & Hızlı Kahvaltı Masası",
+    "unitPrice": 350,
+    "targetUnitsPerDay": 45,
+    "unitLabel": "Masa / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Kahvaltı & Börek Masası",
+    "unitLabel": "Masa",
+    "priceLabel": "Ortalama Masa / Fiş Tutarı",
+    "defaultVolume": 85,
+    "minVolume": 25,
+    "maxVolume": 200,
+    "stepVolume": 5,
+    "avgTicketPrice": 350,
+    "grossMarginPercent": 60,
+    "daysPerMonth": 30,
+    "description": "Hafta içi hızlı börek/poğaça & çay kahvaltısı, hafta sonu zengin serpme aile kahvaltıları."
+  },
+  "monthlyUtilitiesEstimate": 16000,
+  "monthlyAccountingFee": 3200
+},
+
+  'corbaci-paca': {
+  "id": "corbaci-paca",
+  "name": "Tarihi Gece Çorbacısı & Paça Salonu",
+  "emoji": "🥣",
+  "categoryGroup": "Yeme - İçme",
+  "defaultM2": 80,
+  "fitoutCostPerM2": 3600,
+  "legalBasis": "Gıda Hijyen Yönetmeliği & 24 Saat Çalışma Belediye İzni",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İlçe Tarım Gıda Üretim Kayıt Tescili",
+      "cost": 16000,
+      "description": "Sıcak et suyu ve çorba üretim izni"
+    },
+    {
+      "name": "Belediye 24 Saat / Gece Çalışma Ruhsatı",
+      "cost": 22000,
+      "description": "Gece açık kalabilme resmi ruhsat harcı"
+    },
+    {
+      "name": "İtfaiye Yangın & Baca Uygunluk Raporu",
+      "cost": 16000,
+      "description": "Sürekli kaynayan kazanlar için baca onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "soup_counter",
+      "name": "Bakır İşlemeli 6 Gözlü Sıcak Benmari Çorba Tezgahı (180 cm)",
+      "category": "machinery",
+      "unitCost": 55000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "stock_pot_burner",
+      "name": "Endüstriyel Ayaklı Çorba Kaynatma Ocakları (2 Adet)",
+      "category": "machinery",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "stainless_prep",
+      "name": "Et Ayıklama ve Sarımsak/Sirke Sos Hazırlama Paslanmaz Masaları",
+      "category": "furniture",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "meat_cooler",
+      "name": "Büyük Boy Paslanmaz Et & Kemik Suyu Soğuk Depolama Dolabı",
+      "category": "appliances",
+      "unitCost": 42000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "dishwasher",
+      "name": "Sanayi Tipi Hızlı Tabak Yıkama Makinesi (Günde 1000 Kase)",
+      "category": "appliances",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "dining_sets",
+      "name": "Geleneksel Ahşap Çorbacı Masaları & Deri Sandalyeler (10 Takım)",
+      "category": "furniture",
+      "unitCost": 8000,
+      "defaultQty": 10,
+      "minQty": 3,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 8
+    },
+    {
+      "id": "pos_cash",
+      "name": "Dokunmatik Kasa POS & Adisyon Yazıcı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "neon_sign",
+      "name": "Gece Görünürlüğü Yüksek Işıklı Neon & Kutu Harf Tabela",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 80000,
+  "initialInventoryDescription": "İlikli dana kemiği, kuzu kelle, paça, işkembe, tereyağı, un, sarımsak, sirke, pul biber ve taze sıcak ekmek tedariği.",
+  "softwareLicenseCost": {
+    "annual": 14000,
+    "monthlyMaintenance": 1100,
+    "name": "Restoran POS & Gece Vardiyası Kasa Raporlama Sistemi"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Gündüz Çorba & Mutfak Ustası",
+      "count": 1,
+      "avgSalary": 45000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Gece Vardiyası Çorba Ustası",
+      "count": 1,
+      "avgSalary": 48000,
+      "isMandatory": true
+    },
+    {
+      "role": "Servis / Garson (Gündüz + Gece)",
+      "count": 2,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Satılan Kase Çorba Sayısı",
+    "unitPrice": 160,
+    "targetUnitsPerDay": 90,
+    "unitLabel": "Kase / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Kase Çorba & Yan Ürün Satışı",
+    "unitLabel": "Kase",
+    "priceLabel": "Ortalama Kase Fiyatı",
+    "defaultVolume": 180,
+    "minVolume": 60,
+    "maxVolume": 450,
+    "stepVolume": 10,
+    "avgTicketPrice": 160,
+    "grossMarginPercent": 65,
+    "daysPerMonth": 30,
+    "description": "Mercimek, ezogelin, tavuk suyu, kelle paça, beyran, işkembe ve pilav satışları (24 saat çalışma esası)."
+  },
+  "monthlyUtilitiesEstimate": 21000,
+  "monthlyAccountingFee": 3400
+},
+
+  'guzellik-lazer-merkezi': {
+  "id": "guzellik-lazer-merkezi",
+  "name": "Güzellik & Lazer Epilasyon Merkezi",
+  "emoji": "💄",
+  "categoryGroup": "Kişisel Bakım & Sağlık",
+  "defaultM2": 85,
+  "fitoutCostPerM2": 3800,
+  "legalBasis": "Güzellik Salonları Yönetmeliği (Sağlık Bakanlığı & Belediye Tebliği)",
+  "statutoryCapital": 100000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Usta Öğreticilik / Güzellik Uzmanlığı Ruhsat Tescili",
+      "cost": 24000,
+      "description": "Meslek odası ve il sağlık uygunluk belgesi"
+    },
+    {
+      "name": "Belediye Güzellik Merkezi Açma ve Çalışma Ruhsatı",
+      "cost": 18000,
+      "description": "Ruhsat ve mekan uygunluk harçları"
+    },
+    {
+      "name": "İtfaiye Yangın & Havalandırma Raporu",
+      "cost": 8500,
+      "description": "Lazer odaları havalandırma uygunluk onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpleri & Acil Müdahale Kiti",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "diode_laser",
+      "name": "Buz Başlıklı 808nm / 3 Dalga Boylu Medikal Diyot Lazer Cihazı",
+      "category": "machinery",
+      "unitCost": 240000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "FDA/CE onaylı acısız 4 mevsim epilasyon cihazı."
+    },
+    {
+      "id": "hydrafacial_machine",
+      "name": "14 Fonksiyonlu Medikal Cilt Bakımı & Hydrafacial Cihazı",
+      "category": "machinery",
+      "unitCost": 48000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "motorized_beds",
+      "name": "3 Motorlu Uzaktan Kumandalı Estetik Tedavi & Sedye Koltuğu",
+      "category": "furniture",
+      "unitCost": 26000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "autoclave_sterilizer",
+      "name": "B Sınıfı Medikal Otoklav & Kuru Hava Sterilizasyon Cihazı",
+      "category": "machinery",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "regulatoryNote": "İl Sağlık ve hijyen yönetmeliği şartı."
+    },
+    {
+      "id": "lounge_reception",
+      "name": "Estetik Karşılama Bankosu & VIP Müşteri Bekleme Lounge Grubu",
+      "category": "furniture",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "skin_analyzer",
+      "name": "3D Dijital Cilt Analiz ve Yüz Haritalama Cihazı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "ac_units",
+      "name": "Her Kabin İçin Inverter Split Klima (2 Adet)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 40
+    },
+    {
+      "id": "signboard",
+      "name": "Lüks Pleksi Gold Işıklı Dış Tabela & Cam Giydirme",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 65000,
+  "initialInventoryDescription": "Lazer soğutucu jeller, tek kullanımlık sedye örtüleri, profesyonel serumlar, peeling solüsyonları, maskeler, eldivenler ve steril bakım sarf malzemeleri.",
+  "softwareLicenseCost": {
+    "annual": 16000,
+    "monthlyMaintenance": 1200,
+    "name": "Güzellik Merkezi Randevu, Seans Takip, SMS Hatırlatma & Kasa ERP Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Usta Öğretici / Mesul Müdür (Güzellik Uzmanı)",
+      "count": 1,
+      "avgSalary": 55000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Estetisyen / Lazer Uygulama Uzmanı",
+      "count": 1,
+      "avgSalary": 36000,
+      "isMandatory": false
+    },
+    {
+      "role": "Danışma & Randevu Karşılama",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Tamamlanan Seans / Danışan Sayısı",
+    "unitPrice": 1400,
+    "targetUnitsPerDay": 5,
+    "unitLabel": "Seans / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Ortalama Seans & Paket Satışı",
+    "unitLabel": "Seans",
+    "priceLabel": "Seans / Paket Başı Ortalama Tutar",
+    "defaultVolume": 12,
+    "minVolume": 3,
+    "maxVolume": 30,
+    "stepVolume": 1,
+    "avgTicketPrice": 1400,
+    "grossMarginPercent": 78,
+    "daysPerMonth": 26,
+    "description": "Tüm vücut lazer epilasyon paketleri (6-8 seans), medikal cilt bakımı, bölgesel incelme ve dermapen işlemleri."
+  },
+  "monthlyUtilitiesEstimate": 12500,
+  "monthlyAccountingFee": 3200
+},
+
+  'nail-art-protez-tirnak': {
+  "id": "nail-art-protez-tirnak",
+  "name": "Nail Art & Protez Tırnak Stüdyosu",
+  "emoji": "💅",
+  "categoryGroup": "Kişisel Bakım & Sağlık",
+  "defaultM2": 40,
+  "fitoutCostPerM2": 3200,
+  "legalBasis": "Güzellik ve Kişisel Bakım Salonları Hijyen Yönetmeliği",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Güzellik / Manikür-Pedikür Mesleki Yeterlilik Belgesi",
+      "cost": 14000,
+      "description": "MYK Seviye 4 tırnak uygulayıcı belgesi"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 12000,
+      "description": "Belediye güzellik hizmetleri açılış ruhsatı"
+    },
+    {
+      "name": "İtfaiye Yangın & Tahliye Uygunluk Raporu",
+      "cost": 6500,
+      "description": "İşyeri yangın onay belgesi"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "nail_desks",
+      "name": "Toz Emiş Motorlu Profesyonel Manikür & Nail Art Masası (2 Takım)",
+      "category": "furniture",
+      "unitCost": 22000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 15
+    },
+    {
+      "id": "uv_led_lamps",
+      "name": "Hızlı Kurutucu Akıllı Sensörlü UV/LED Tırnak Lambaları (4 Adet)",
+      "category": "core_tech",
+      "unitCost": 6500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "milling_drill",
+      "name": "Profesyonel 35.000 RPM Sessiz Freze Tırnak Törpü Cihazı (2 Adet)",
+      "category": "machinery",
+      "unitCost": 12500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pedicure_spa_chair",
+      "name": "Masajlı & Jakuzili Pedikür Spa Koltuğu",
+      "category": "furniture",
+      "unitCost": 36000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "sterilizer_oven",
+      "name": "Kuru Hava Sterilizatörü & Ultrasonik Alet Temizleyici",
+      "category": "machinery",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "regulatoryNote": "Mantar ve enfeksiyon önleme zorunlu hijyen standardı."
+    },
+    {
+      "id": "guest_couch",
+      "name": "Estetik Misafir Bekleme Koltuğu & Sehpa",
+      "category": "furniture",
+      "unitCost": 16000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "pos_cash",
+      "name": "Dokunmatik POS Kasa & Randevu Ekranı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "neon_sign",
+      "name": "Estetik Neon Yazılı Duvar Dekoru & Işıklı Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 45000,
+  "initialInventoryDescription": "200+ renk kalıcı oje seti, protez tırnak jelleri, akrilik tozlar, tipsler, nail art fırça ve taşları, tırnak bakım yağları, steril tek kullanımlık törpüler.",
+  "softwareLicenseCost": {
+    "annual": 12000,
+    "monthlyMaintenance": 950,
+    "name": "Online Randevu, Instagram Entegrasyonu & Müşteri Takip Sistemi"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Kıdemli Nail Art & Protez Tırnak Uzmanı",
+      "count": 1,
+      "avgSalary": 38000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Manikür / Pedikür Teknikeri",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Tamamlanan Tırnak / Bakım İşlemi",
+    "unitPrice": 650,
+    "targetUnitsPerDay": 5,
+    "unitLabel": "İşlem / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Nail Art & Protez Tırnak İşlemi",
+    "unitLabel": "İşlem",
+    "priceLabel": "İşlem Başına Ortalama Tutar",
+    "defaultVolume": 15,
+    "minVolume": 4,
+    "maxVolume": 35,
+    "stepVolume": 1,
+    "avgTicketPrice": 650,
+    "grossMarginPercent": 82,
+    "daysPerMonth": 26,
+    "description": "Kalıcı oje, jel tırnak, protez tırnak, nail art çizimleri, spa pedikür ve ipek kirpik işlemleri."
+  },
+  "monthlyUtilitiesEstimate": 8500,
+  "monthlyAccountingFee": 2800
+},
+
+  'diyetisyen-beslenme-klinigi': {
+  "id": "diyetisyen-beslenme-klinigi",
+  "name": "Diyetisyen & Beslenme Danışmanlığı",
+  "emoji": "🥗",
+  "categoryGroup": "Kişisel Bakım & Sağlık",
+  "defaultM2": 45,
+  "fitoutCostPerM2": 2800,
+  "legalBasis": "Sağlık Meslek Mensupları Yönetmeliği & İl Sağlık Müdürlüğü Uygunluk Belgesi",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Beslenme ve Diyetetik Lisans Diploması & Sağlık Bakanlığı Tescili",
+      "cost": 18000,
+      "description": "Resmi diyetisyenlik meslek tescili"
+    },
+    {
+      "name": "İl Sağlık Müdürlüğü Muayenehane / Merkez Uygunluk Belgesi",
+      "cost": 16000,
+      "description": "Danışmanlık merkezi açılış onayı"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 12000,
+      "description": "Belediye açılış ruhsatı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "bia_analyzer",
+      "name": "Medikal Segmental Vücut Analiz Cihazı (Tanita / InBody Profesyonel)",
+      "category": "machinery",
+      "unitCost": 110000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "Kas, yağ, ödem ve viseral yağlanmayı miligram hassasiyetinde ölçen cihaz."
+    },
+    {
+      "id": "stadiometer",
+      "name": "Dijital Boy Ölçerli Boy-Kilo Medikal Tartı İstasyonu",
+      "category": "core_tech",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "dietitian_desk",
+      "name": "Diyetisyen Makam Masası & Ergonomik Hekim Koltuğu",
+      "category": "furniture",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "client_chairs",
+      "name": "Danışan Görüşme Koltukları & Sehpa Takımı",
+      "category": "furniture",
+      "unitCost": 14000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "pc_setup",
+      "name": "Diyet Yazılımı Entegre PC, Monitör & Renkli Grafik Rapor Yazıcısı",
+      "category": "core_tech",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "water_coffee",
+      "name": "Detoks Su Sebili & Bitki Çayı / Kahve İkram İstasyonu",
+      "category": "appliances",
+      "unitCost": 9500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "brass_sign",
+      "name": "Pirinç / Pleksi Kurumsal Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 16000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    }
+  ],
+  "initialInventoryCost": 20000,
+  "initialInventoryDescription": "Baskılı diyet listesi klasörleri, mezura setleri, vücut ölçüm kartları, kurumsal dosya ve sağlıklı ikram başlangıç paketi.",
+  "softwareLicenseCost": {
+    "annual": 16000,
+    "monthlyMaintenance": 1200,
+    "name": "Diyetisyen Danışan Takip, Kalori/Makro Hesaplama & Mobil Danışan Uygulaması"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Uzman Diyetisyen (Klinik Sahibi)",
+      "count": 1,
+      "avgSalary": 65000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Klinik Sekreteri & Danışan İletişim",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Yüz Yüze / Online Diyet Seansı",
+    "unitPrice": 900,
+    "targetUnitsPerDay": 4,
+    "unitLabel": "Seans / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Danışan & Diyet Paketi Seansı",
+    "unitLabel": "Seans",
+    "priceLabel": "Seans Başı Ortalama Gelir",
+    "defaultVolume": 8,
+    "minVolume": 2,
+    "maxVolume": 20,
+    "stepVolume": 1,
+    "avgTicketPrice": 900,
+    "grossMarginPercent": 88,
+    "daysPerMonth": 24,
+    "description": "Yüz yüze haftalık tartı kontrolleri, online diyet takibi, sporcu beslenmesi ve kurumsal beslenme danışmanlığı."
+  },
+  "monthlyUtilitiesEstimate": 7500,
+  "monthlyAccountingFee": 2800
+},
+
+  'yeni-nesil-berber': {
+  "id": "yeni-nesil-berber",
+  "name": "Yeni Nesil Berber & Erkek Bakım Salonu",
+  "emoji": "💈",
+  "categoryGroup": "Kişisel Bakım & Sağlık",
+  "defaultM2": 50,
+  "fitoutCostPerM2": 3400,
+  "legalBasis": "Berberler ve Kuaförler Odası Standartları & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ustalık Belgesi & Esnaf Odası Kayıt Harçları",
+      "cost": 16000,
+      "description": "Erkek berberliği resmi ustalık tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 12000,
+      "description": "Ruhsat ve hijyen muayene harcı"
+    },
+    {
+      "name": "İtfaiye Yangın Uygunluk Raporu",
+      "cost": 6500,
+      "description": "İşyeri yangın önlem belgesi"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "barber_chairs",
+      "name": "Ağır Hizmet Hidrolik Yatar Berber Koltuğu (3 Adet)",
+      "category": "furniture",
+      "unitCost": 24000,
+      "defaultQty": 3,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 16
+    },
+    {
+      "id": "barber_stations",
+      "name": "Işıklı Aynalı Ahşap Berber Tezgahı & Lavabo Ünitesi (3 İstasyon)",
+      "category": "furniture",
+      "unitCost": 28000,
+      "defaultQty": 3,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 16
+    },
+    {
+      "id": "hair_wash_unit",
+      "name": "Seramik Masajlı Saç Yıkama Koltuğu & Bataryası",
+      "category": "furniture",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "uv_sterilizer",
+      "name": "UV Sterilizatör & Sıcak Havlu Isıtıcı Dolabı",
+      "category": "machinery",
+      "unitCost": 14000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "regulatoryNote": "Ustura ve makas sterilizasyon şartı."
+    },
+    {
+      "id": "clipper_set",
+      "name": "Profesyonel Kablosuz Tıraş & Saç Kesim Makineleri (Wahl/Panasonic)",
+      "category": "machinery",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "waiting_lounge",
+      "name": "Deri Chesterfield Müşteri Bekleme Koltuğu & Sehpa",
+      "category": "furniture",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "pos_cash",
+      "name": "Dokunmatik Kasa POS & Randevu Takip Ekranı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "barber_pole",
+      "name": "Dönen Işıklı Orijinal Berber Direği (Barber Pole) & Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 35000,
+  "initialInventoryDescription": "Erkek saç şekillendirici killer, vaks, sakal serumları, şampuanlar, tıraş köpüğü, kolonyalar ve tek kullanımlık havlular.",
+  "softwareLicenseCost": {
+    "annual": 12000,
+    "monthlyMaintenance": 950,
+    "name": "Berber Online Randevu, SMS Hatırlatma & Gelir-Gider Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Usta Berber / Salon Sahibi",
+      "count": 1,
+      "avgSalary": 45000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Kalfa / Tıraş Uzmanı",
+      "count": 1,
+      "avgSalary": 32000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Tamamlanan Saç & Sakal Tıraşı",
+    "unitPrice": 350,
+    "targetUnitsPerDay": 10,
+    "unitLabel": "Tıraş / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Saç, Sakal & Cilt Bakım Tıraşı",
+    "unitLabel": "Tıraş",
+    "priceLabel": "İşlem Başına Ortalama Ücret",
+    "defaultVolume": 24,
+    "minVolume": 8,
+    "maxVolume": 60,
+    "stepVolume": 2,
+    "avgTicketPrice": 350,
+    "grossMarginPercent": 80,
+    "daysPerMonth": 26,
+    "description": "Saç kesimi, sakal tasarımı, saç yıkama, cilt bakımı ve saç şekillendirici ürün perakende satışları."
+  },
+  "monthlyUtilitiesEstimate": 9500,
+  "monthlyAccountingFee": 2800
+},
+
+  'nalbur-yapi-market': {
+  "id": "nalbur-yapi-market",
+  "name": "Nalbur & Yapı Hırdavat Marketi",
+  "emoji": "🔨",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 120,
+  "fitoutCostPerM2": 2400,
+  "legalBasis": "Ticaret Bakanlığı Perakende Ticaret Kanunu & İtfaiye Yanıcı Madde Güvenlik Tebliği",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret / Esnaf Odası Kaydı & Vergi Tescili",
+      "cost": 18000,
+      "description": "Hırdavat ve yapı malzemeleri tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 16000,
+      "description": "Ruhsat harcı ve çevre temizlik vergisi"
+    },
+    {
+      "name": "İtfaiye Yangın & Kimyasal/Tiner Depolama Raporu",
+      "cost": 12000,
+      "description": "Yanıcı boya ve tiner güvenlik raporu"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpleri (6kg KKT & Köpüklü)",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "heavy_racks",
+      "name": "Ağır Hizmet Modüler Çelik Yapı Market Raf Sistemleri (30 Metretül)",
+      "category": "furniture",
+      "unitCost": 55000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 40
+    },
+    {
+      "id": "paint_mixer",
+      "name": "Otomatik Bilgisayarlı Boya Renk Karıştırma & Çalkalama Makinesi",
+      "category": "machinery",
+      "unitCost": 78000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "tool_display_boards",
+      "name": "Perfore Delikli El Aletleri & Hırdavat Askı Panoları",
+      "category": "furniture",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "hand_pallet_truck",
+      "name": "Hidrolik Manuel Yük Taşıma Transpaleti (2.5 Ton)",
+      "category": "machinery",
+      "unitCost": 16500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "pos_barcode",
+      "name": "Barkod Okuyuculu Hızlı Satış POS Kasa & Etiket Yazıcı",
+      "category": "core_tech",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "cctv_system",
+      "name": "8 Kameralı Gece Görüşlü Mağaza Güvenlik Sistemi",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Salon Tipi Ticari Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 60
+    },
+    {
+      "id": "signboard",
+      "name": "Büyük Boy Işıklı Dış Cephe Tabela & Giriş Totemi",
+      "category": "core_tech",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 350000,
+  "initialInventoryDescription": "Boya ve astarlar, tinerler, su/elektrik tesisat malzemeleri, cıvata/vida çeşitleri, el aletleri (matkap, spiral), kilitler, yapıştırıcılar ve zımpara.",
+  "softwareLicenseCost": {
+    "annual": 16000,
+    "monthlyMaintenance": 1200,
+    "name": "Hırdavat Barkodlu Stok Takip, Cari Hesap & e-Fatura ERP Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Mağaza Müdürü / Satış Uzmanı",
+      "count": 1,
+      "avgSalary": 40000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Depo & Sevkiyat Elemanı",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Müşteri Alışveriş Fişi",
+    "unitPrice": 450,
+    "targetUnitsPerDay": 35,
+    "unitLabel": "Fiş / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Alışveriş Yapan Müşteri / Usta Sayısı",
+    "unitLabel": "Müşteri",
+    "priceLabel": "Ortalama Sepet Tutarı",
+    "defaultVolume": 60,
+    "minVolume": 20,
+    "maxVolume": 180,
+    "stepVolume": 5,
+    "avgTicketPrice": 450,
+    "grossMarginPercent": 38,
+    "daysPerMonth": 26,
+    "description": "Mahalle sakinleri, ustalar, müteahhitler ve tadilat müşterilerine hırdavat, boya ve tesisat satışı."
+  },
+  "monthlyUtilitiesEstimate": 9500,
+  "monthlyAccountingFee": 3200
+},
+
+  'kuyumcu-sarraf': {
+  "id": "kuyumcu-sarraf",
+  "name": "Kuyumcu & Sarrafiye Mağazası",
+  "emoji": "💍",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 35,
+  "fitoutCostPerM2": 6000,
+  "legalBasis": "Kuyum Ticareti Hakkında Yönetmelik (Ticaret Bakanlığı & MASAK Tebliği)",
+  "statutoryCapital": 1000000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Bakanlığı Kuyum Ticareti Yetki Belgesi",
+      "cost": 45000,
+      "description": "Resmi kuyumculuk yetki belgesi harcı"
+    },
+    {
+      "name": "MASAK Uyum & Kimlik Doğrulama Altyapı Tescili",
+      "cost": 25000,
+      "description": "Mali suçları önleme resmi bildirim sistemi"
+    },
+    {
+      "name": "Kuyumcular Odası Kayıt & Ustalık Tescili",
+      "cost": 28000,
+      "description": "Oda levha kayıt ve teminat onayı"
+    },
+    {
+      "name": "Belediye İşyeri Açma Ruhsatı",
+      "cost": 20000,
+      "description": "1. Sınıf güvenlikli kuyumcu ruhsatı"
+    },
+    {
+      "name": "İl Emniyet Panik Butonu & Alarm Hat Entegrasyonu",
+      "cost": 18000,
+      "description": "Polis imdat doğrudan hat entegrasyonu"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "bulletproof_glass",
+      "name": "BR4 Seviye Kurşun Geçirmez Vitrin & Banko Camı",
+      "category": "mandatory",
+      "unitCost": 85000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "regulatoryNote": "Kuyum Ticareti Yönetmeliği zorunlu güvenlik standardı."
+    },
+    {
+      "id": "heavy_safe",
+      "name": "Kademeli Zırhlı Çelik Para & Altın Kasası (2.5 Ton Ağır Gövde)",
+      "category": "mandatory",
+      "unitCost": 140000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "regulatoryNote": "Sigorta ve mevzuat onaylı zırhlı kasa."
+    },
+    {
+      "id": "precision_scale",
+      "name": "Bakanlık Mühürlü Dijital Hassas Kuyumcu Terazisi (0.01g)",
+      "category": "mandatory",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "regulatoryNote": "Sanayi ve Teknoloji Bakanlığı damgalı terazi."
+    },
+    {
+      "id": "cctv_4k_alarm",
+      "name": "4K Ultra HD Gece Görüşlü CCTV + Panik Butonlu Alarm Sistemi",
+      "category": "mandatory",
+      "unitCost": 45000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "showcase_led",
+      "name": "Özel Işıklı Kadife & Deri Mücevher Teşhir Bankoları",
+      "category": "furniture",
+      "unitCost": 65000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "gold_pos",
+      "name": "Kuyumcu ERP, Canlı Altın/Döviz Ekranı & Barkodlu POS",
+      "category": "core_tech",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "Lüks Pirinç & LED Işıklı Kutu Harf Tabela",
+      "category": "core_tech",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 1200000,
+  "initialInventoryDescription": "Çeyrek/Yarım/Tam ziynet altınları, 22 ayar bilezikler, 14 ayar takı setleri, pırlanta tektaşlar ve gümüş aksesuarlar.",
+  "softwareLicenseCost": {
+    "annual": 24000,
+    "monthlyMaintenance": 1800,
+    "name": "Canlı Kapalıçarşı Altın Kurları Entegre Kuyumcu POS & Stok Takip ERP"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Mesul Müdür / Kuyumcu (Yetki Belgeli)",
+      "count": 1,
+      "avgSalary": 75000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Satış Danışmanı & Kasa Görevlisi",
+      "count": 1,
+      "avgSalary": 35000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Sarrafiye & Takı İşlem Hacmi",
+    "unitPrice": 4200,
+    "targetUnitsPerDay": 8,
+    "unitLabel": "İşlem / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Gerçekleşen Altın / Takı İşlemi",
+    "unitLabel": "İşlem",
+    "priceLabel": "İşlem Başına Ortalama Tutar",
+    "defaultVolume": 18,
+    "minVolume": 4,
+    "maxVolume": 60,
+    "stepVolume": 1,
+    "avgTicketPrice": 4200,
+    "grossMarginPercent": 6.5,
+    "daysPerMonth": 26,
+    "description": "Ziynet altın alım-satım makas farkı (%2.5), 14/22 ayar işçilikli takı ve pırlanta kâr marjı (%15-%25)."
+  },
+  "monthlyUtilitiesEstimate": 14000,
+  "monthlyAccountingFee": 4500
+},
+
+  'zuccaciye-ev-esyalari': {
+  "id": "zuccaciye-ev-esyalari",
+  "name": "Züccaciye & Ev Eşyaları Mağazası",
+  "emoji": "🍽️",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 90,
+  "fitoutCostPerM2": 2200,
+  "legalBasis": "Perakende Ticaretin Düzenlenmesi Hakkında Kanun & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Odası Kaydı & Vergi Levhası Onayları",
+      "cost": 18000,
+      "description": "Züccaciye perakende tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "İşyeri açılış ruhsatı harçları"
+    },
+    {
+      "name": "İtfaiye Yangın Önlem Raporu",
+      "cost": 7500,
+      "description": "Yangın güvenliği uygunluk onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "glass_shelves",
+      "name": "Spot Aydınlatmalı Cam & Ahşap Züccaciye Teşhir Rafları (25 Metretül)",
+      "category": "furniture",
+      "unitCost": 48000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 35
+    },
+    {
+      "id": "middle_display_islands",
+      "name": "Orta Reyon Teşhir Masaları & Porselen Sunum Adaları",
+      "category": "furniture",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "packing_station",
+      "name": "Hediye Paketi & Balonlu Naylon Ambalajlama Tezgahı",
+      "category": "furniture",
+      "unitCost": 12000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "pos_barcode",
+      "name": "Barkod Okuyuculu Hızlı Kasa POS & Fiş Yazıcı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "cctv_system",
+      "name": "Mağaza İçi 6 Kameralı Güvenlik Sistemi",
+      "category": "core_tech",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Salon Tipi Ticari Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "signboard",
+      "name": "Işıklı Dış Cephe Tabela & Vitrin Spotları",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 220000,
+  "initialInventoryDescription": "Porselen yemek takımları, tencere/tava setleri, çatal-bıçak takımları, cam bardak setleri, plastik ev gereçleri ve hediyelik eşyalar.",
+  "softwareLicenseCost": {
+    "annual": 14000,
+    "monthlyMaintenance": 1100,
+    "name": "Perakende Barkodlu Stok Takip & Çoklu Kasa Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Mağaza Müdürü & Satış Danışmanı",
+      "count": 1,
+      "avgSalary": 38000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Kasa & Paketleme Elemanı",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Alışveriş Fişi Sayısı",
+    "unitPrice": 480,
+    "targetUnitsPerDay": 25,
+    "unitLabel": "Fiş / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Satış Yapılan Müşteri Sayısı",
+    "unitLabel": "Müşteri",
+    "priceLabel": "Ortalama Müşteri Sepeti",
+    "defaultVolume": 45,
+    "minVolume": 15,
+    "maxVolume": 150,
+    "stepVolume": 5,
+    "avgTicketPrice": 480,
+    "grossMarginPercent": 46,
+    "daysPerMonth": 26,
+    "description": "Çeyiz alışverişleri, günlük mutfak gereçleri, hediyelik eşya ve küçük ev aletleri perakende satışları."
+  },
+  "monthlyUtilitiesEstimate": 8500,
+  "monthlyAccountingFee": 3000
+},
+
+  'dijital-baski-matbaa': {
+  "id": "dijital-baski-matbaa",
+  "name": "Dijital Baskı & Matbaa Merkezi",
+  "emoji": "🖨️",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 70,
+  "fitoutCostPerM2": 2600,
+  "legalBasis": "Basım ve Yayın Faaliyetleri Mevzuatı & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Odası Basım & Yayıncılık Meslek Kaydı",
+      "cost": 18000,
+      "description": "Matbaacılık ve dijital baskı tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "İşletme çalışma ruhsatı harçları"
+    },
+    {
+      "name": "İtfaiye Yangın & Kağıt Depolama Güvenlik Raporu",
+      "cost": 8500,
+      "description": "Kağıt ve kimyasal mürekkep yangın onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "plotter_printer",
+      "name": "Geniş Format Eko-Solvent Dijital Baskı & Folyo Kesici Plotter (160 cm)",
+      "category": "machinery",
+      "unitCost": 165000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "Branda, folyo, one way vision ve kanvas basan endüstriyel makine."
+    },
+    {
+      "id": "copier_production",
+      "name": "Yüksek Hızlı Renkli Dijital Üretim Fotokopi & Baskı İstasyonu",
+      "category": "machinery",
+      "unitCost": 95000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "paper_cutter",
+      "name": "Elektrikli Programlanabilir Hidrolik Giyotin Kağıt Kesme Makinesi",
+      "category": "machinery",
+      "unitCost": 42000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "laminator_binder",
+      "name": "Sıcak-Soğuk Rulo Selefon & Spiral Ciltleme Makinesi",
+      "category": "machinery",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "designer_workstation",
+      "name": "Grafik Tasarım İş İstasyonu (iMac / Yüksek RAM PC + Çift Monitör)",
+      "category": "core_tech",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pos_cash",
+      "name": "Dokunmatik POS Kasa & Sipariş Takip Terminali",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "LED Işıklı Örnek Baskı Dış Cephe Tabelası",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 75000,
+  "initialInventoryDescription": "Branda ruloları, yapışkanlı folyolar, 80g-350g kuşe kağıtlar, orijinal kartuş/mürekkep setleri, cilt spiralleri ve laminasyon filmleri.",
+  "softwareLicenseCost": {
+    "annual": 22000,
+    "monthlyMaintenance": 1600,
+    "name": "Adobe Creative Cloud Kurumsal Lisansı & RIP Baskı Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Grafik Tasarımcı & Baskı Operatörü",
+      "count": 1,
+      "avgSalary": 42000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Baskı Sonrası / Uygulama & Teslimat Elemanı",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Tamamlanan Baskı & Reklam Siparişi",
+    "unitPrice": 750,
+    "targetUnitsPerDay": 8,
+    "unitLabel": "Sipariş / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Tamamlanan Baskı Siparişi",
+    "unitLabel": "Sipariş",
+    "priceLabel": "Sipariş Başı Ortalama Tutar",
+    "defaultVolume": 35,
+    "minVolume": 10,
+    "maxVolume": 120,
+    "stepVolume": 5,
+    "avgTicketPrice": 750,
+    "grossMarginPercent": 65,
+    "daysPerMonth": 26,
+    "description": "Kartvizit, broşür, etiket, tabela, araç giydirme, afiş, tez ciltleme ve promosyon ürün baskıları."
+  },
+  "monthlyUtilitiesEstimate": 12500,
+  "monthlyAccountingFee": 3200
+},
+
+  'dil-okulu-kurs': {
+  "id": "dil-okulu-kurs",
+  "name": "Yabancı Dil Kursu & Sınav Hazırlık",
+  "emoji": "📚",
+  "categoryGroup": "Finans & Hizmet",
+  "defaultM2": 160,
+  "fitoutCostPerM2": 2800,
+  "legalBasis": "MEB Özel Öğretim Kurumları Kanunu & Standartlar Yönergesi",
+  "statutoryCapital": 100000,
+  "mandatoryLegalItems": [
+    {
+      "name": "MEB Özel Öğretim Kurumu Kurum Açma İzin Harcı",
+      "cost": 35000,
+      "description": "Milli Eğitim Bakanlığı resmi kurum açılış izni"
+    },
+    {
+      "name": "İlçe İtfaiye Yangın Merdiveni & Tahliye Raporu",
+      "cost": 22000,
+      "description": "Öğrenci güvenliği ve yangın merdiveni onayı"
+    },
+    {
+      "name": "İl Sağlık Müdürlüğü Mekansal Hijyen & Havalandırma İzni",
+      "cost": 16000,
+      "description": "Derslik aydınlatma ve temiz hava onayı"
+    },
+    {
+      "name": "Belediye İşyeri Ruhsatı & Numarataj",
+      "cost": 18000,
+      "description": "Eğitim kurumu ticari ruhsat harcı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_system",
+      "name": "Yangın Söndürme Dolabı, Tüpler & Yangın İkaz Butonları",
+      "category": "mandatory",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Sistem",
+      "regulatoryNote": "MEB yangın güvenlik standartları."
+    },
+    {
+      "id": "smart_boards",
+      "name": "İnteraktif Akıllı Dokunmatik Tahtalar & Projeksiyon (4 Derslik)",
+      "category": "core_tech",
+      "unitCost": 36000,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 35
+    },
+    {
+      "id": "student_desks",
+      "name": "Ergonomik Öğrenci Sandalye & Kolçaklı Yazı Masası (60 Adet)",
+      "category": "furniture",
+      "unitCost": 1800,
+      "defaultQty": 60,
+      "minQty": 15,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 2.5
+    },
+    {
+      "id": "teachers_room",
+      "name": "Öğretmenler Odası Masa, Koltuk & Kilitli Dolap Seti",
+      "category": "furniture",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "reception_desk",
+      "name": "Giriş Kayıt Kabul Bankosu & Bekleme Koltuk Grubu",
+      "category": "furniture",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pc_admin",
+      "name": "MEBBİS & Öğrenci Kayıt Yönetim PC İstasyonları (2 Adet)",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "ac_classrooms",
+      "name": "Derslikler İçin Inverter Split Klimalar (4 Adet)",
+      "category": "appliances",
+      "unitCost": 26000,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 40
+    },
+    {
+      "id": "signboard",
+      "name": "MEB Kurumsal Kimlik Uyumlu Dış Cephe Tabelası",
+      "category": "core_tech",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 45000,
+  "initialInventoryDescription": "Orijinal İngilizce/Almanca ders kitapları, seviye tespit sınav evrakları, öğrenci kimlik kartları ve kırtasiye malzemeleri.",
+  "softwareLicenseCost": {
+    "annual": 24000,
+    "monthlyMaintenance": 1800,
+    "name": "MEB Uyumlu Öğrenci Bilgi Sistemi, Yoklama, Online Test & Veli SMS Portalı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Kurum Müdürü (MEB Şartlarını Taşıyan Eğitimci)",
+      "count": 1,
+      "avgSalary": 55000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Yabancı Dil Öğretmeni (İngilizce / Almanca)",
+      "count": 2,
+      "avgSalary": 38000,
+      "isMandatory": true
+    },
+    {
+      "role": "Kayıt / Eğitim Danışmanı",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Aylık Kayıtlı Aktif Kursiyer Sayısı",
+    "unitPrice": 4500,
+    "targetUnitsPerDay": 40,
+    "unitLabel": "Öğrenci / Ay"
+  },
+  "revenueModel": {
+    "periodType": "monthly",
+    "volumeLabel": "Aylık Kayıtlı Aktif Öğrenci Sayısı",
+    "unitLabel": "Öğrenci",
+    "priceLabel": "Aylık Kurs & Eğitim Ücreti",
+    "defaultVolume": 85,
+    "minVolume": 25,
+    "maxVolume": 250,
+    "stepVolume": 5,
+    "avgTicketPrice": 4500,
+    "grossMarginPercent": 58,
+    "daysPerMonth": 30,
+    "description": "Genel İngilizce kurları, IELTS/TOEFL sınav hazırlık, Almanca A1-B2 aile birleşimi ve kurumsal şirket eğitimleri."
+  },
+  "monthlyUtilitiesEstimate": 16000,
+  "monthlyAccountingFee": 3600
+},
+
+  'turizm-seyahat-acentesi': {
+  "id": "turizm-seyahat-acentesi",
+  "name": "Turizm & Seyahat Acentesi (TÜRSAB)",
+  "emoji": "✈️",
+  "categoryGroup": "Finans & Hizmet",
+  "defaultM2": 50,
+  "fitoutCostPerM2": 2800,
+  "legalBasis": "1618 Sayılı Seyahat Acentaları ve Seyahat Acentaları Birliği Kanunu",
+  "statutoryCapital": 350000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Kültür ve Turizm Bakanlığı A Grubu Acente Belgesi",
+      "cost": 65000,
+      "description": "Bakanlık resmi seyahat acentası unvan tescili"
+    },
+    {
+      "name": "TÜRSAB Giriş Aidatı & Levha Kayıt Harcı",
+      "cost": 85000,
+      "description": "TÜRSAB sicil kayıt bedeli"
+    },
+    {
+      "name": "Bakanlık Resmi Teminat Mektubu Masrafları",
+      "cost": 35000,
+      "description": "Banka teminat mektubu komisyon ve noter tescili"
+    },
+    {
+      "name": "Mesleki Sorumluluk Turizm Sigortası",
+      "cost": 24000,
+      "description": "Zorunlu paket tur sigorta poliçesi"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "Ticari acente çalışma ruhsatı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü & İlk Yardım Seti (6kg ABC)",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "booking_desks",
+      "name": "Biletleme & Satış Danışmanı Masası, Koltuk ve PC İstasyonu (2 Takım)",
+      "category": "furniture",
+      "unitCost": 26000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 25
+    },
+    {
+      "id": "manager_desk",
+      "name": "Acente Müdürü Makam Masası & Deri Koltuk Takımı",
+      "category": "furniture",
+      "unitCost": 26000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "tour_presentation_tv",
+      "name": "55 inç 4K Ultra HD Turizm & Otel Sunum Ekranı",
+      "category": "core_tech",
+      "unitCost": 19500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "guest_lounge",
+      "name": "Müşteri Tatil Planlama Lounge Oturma Grubu",
+      "category": "furniture",
+      "unitCost": 18500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "scanner_printer",
+      "name": "Hızlı Lazer Renkli Yazıcı, Vize Evrak Tarayıcı & POS Terminali",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "TÜRSAB Plaket Yuvalı Işıklı Kurumsal Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 25000,
+  "initialInventoryDescription": "Bilet ve voucher kapları, seyahat katalogları, vize başvuru evrak dosyaları ve kurumsal promosyon ürünleri.",
+  "softwareLicenseCost": {
+    "annual": 28000,
+    "monthlyMaintenance": 2200,
+    "name": "GDS Uçak Bileti (Amadeus/Sabre/Galileo), B2B Otel & Turizm ERP Portalı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Sorumlu Müdür (Enformasyon Memuru veya 4 Yıl Turizm Lisans)",
+      "count": 1,
+      "avgSalary": 55000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Biletleme & Rezervasyon Satış Uzmanı",
+      "count": 1,
+      "avgSalary": 35000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Tamamlanan Uçak Bileti & Tur Rezervasyonu",
+    "unitPrice": 6500,
+    "targetUnitsPerDay": 5,
+    "unitLabel": "Rezervasyon / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Satılan Bilet, Otel & Tur Sayısı",
+    "unitLabel": "Rezervasyon",
+    "priceLabel": "Ortalama Rezervasyon Tutarı",
+    "defaultVolume": 12,
+    "minVolume": 3,
+    "maxVolume": 40,
+    "stepVolume": 1,
+    "avgTicketPrice": 6500,
+    "grossMarginPercent": 9.5,
+    "daysPerMonth": 26,
+    "description": "Yurtiçi/yurtdışı uçak bileti servis bedelleri, kültür turları (%12-%18 komisyon), otel rezervasyonları ve vize danışmanlığı."
+  },
+  "monthlyUtilitiesEstimate": 7500,
+  "monthlyAccountingFee": 3200
+},
+
+  'parti-cocuk-oyun-evi': {
+  "id": "parti-cocuk-oyun-evi",
+  "name": "Çocuk Oyun Evi & Doğum Günü Atölyesi",
+  "emoji": "🎈",
+  "categoryGroup": "Finans & Hizmet",
+  "defaultM2": 120,
+  "fitoutCostPerM2": 3400,
+  "legalBasis": "Çocuk Oyun Alanları Güvenlik Standardı (TS EN 1176/1177) & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Oyun Alanı TSE EN 1176 Güvenlik & Darbe Emici Zemin Uygunluğu",
+      "cost": 22000,
+      "description": "TSE onaylı çocuk güvenlik sertifikası"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 16000,
+      "description": "Eğlence ve oyun evi işletme ruhsatı"
+    },
+    {
+      "name": "İtfaiye Yangın & Acil Tahliye Raporu",
+      "cost": 12000,
+      "description": "Çocuk mekanları yangın güvenliği onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpleri & Çocuk İlk Yardım Donanımı",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "softplay_arena",
+      "name": "Modüler Çift Katlı Softplay Top Havuzu, Trambolin & Kaydırak Parkuru",
+      "category": "machinery",
+      "unitCost": 145000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Sistem",
+      "description": "TSE güvenlik belgeli yumuşak sünger kaplı oyun parkuru."
+    },
+    {
+      "id": "workshop_tables",
+      "name": "Çocuk Ahşap Sanat/Atölye Masaları & Renkli Sandalyeler (4 Takım)",
+      "category": "furniture",
+      "unitCost": 12000,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "party_room_setup",
+      "name": "Tematik Doğum Günü Kutlama Masası, Fon Perdesi & LED Işıklandırma",
+      "category": "furniture",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "parent_cafe_tables",
+      "name": "Ebeveyn Bekleme Kafe Masaları & Konforlu Sandalyeler (6 Takım)",
+      "category": "furniture",
+      "unitCost": 8500,
+      "defaultQty": 6,
+      "minQty": 2,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 18
+    },
+    {
+      "id": "cctv_safety",
+      "name": "Ebeveynlerin İzleyebileceği 8 Kameralı Full HD Güvenlik Kamera Sistemi",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pos_entry",
+      "name": "Saatlik Giriş / Biletleme POS Kasa & Turnike/Kart Sistemi",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Yüksek Debili Taze Hava Destekli Ticari Klima (24.000 BTU)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "signboard",
+      "name": "Renkli 3D Işıklı Çocuk Dostu Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 40000,
+  "initialInventoryDescription": "Boya ve seramik atölye malzemeleri, parti süsleri, balonlar, tek kullanımlık tabak/bardaklar, ebeveyn kafe çay/kahve ve atıştırmalık stokları.",
+  "softwareLicenseCost": {
+    "annual": 14000,
+    "monthlyMaintenance": 1100,
+    "name": "Oyun Evi Süre Takip, Doğum Günü Rezervasyon & Kasa Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Çocuk Gelişimi Uzmanı / Oyun Ablası (Sorumlu)",
+      "count": 1,
+      "avgSalary": 36000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Oyun Alanı Gözetmeni / Etkinlik Asistanı",
+      "count": 1,
+      "avgSalary": 26000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Saatlik Oyun Girişi + Hafta Sonu Parti",
+    "unitPrice": 200,
+    "targetUnitsPerDay": 25,
+    "unitLabel": "Çocuk / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Saatlik Giriş Sayısı (Aylık Partiler Dahil)",
+    "unitLabel": "Giriş",
+    "priceLabel": "Ortalama Saatlik Giriş / Paket Tutarı",
+    "defaultVolume": 35,
+    "minVolume": 10,
+    "maxVolume": 100,
+    "stepVolume": 5,
+    "avgTicketPrice": 200,
+    "grossMarginPercent": 78,
+    "daysPerMonth": 30,
+    "description": "Saatlik serbest oyun girişleri (200 TL/saat), hafta sonu özel kapatmalı doğum günü organizasyonları (10.000 - 25.000 TL) ve atölyeler."
+  },
+  "monthlyUtilitiesEstimate": 14000,
+  "monthlyAccountingFee": 3000
+},
+
+  'oto-kiralama-rentacar': {
+  "id": "oto-kiralama-rentacar",
+  "name": "Oto Kiralama & Rent A Car Ofisi",
+  "emoji": "🚘",
+  "categoryGroup": "Finans & Hizmet",
+  "defaultM2": 45,
+  "fitoutCostPerM2": 3000,
+  "legalBasis": "Kiralık Araç Bildirim Sistemi (KABİS) & Ticaret Bakanlığı Yetki Belgesi",
+  "statutoryCapital": 250000,
+  "mandatoryLegalItems": [
+    {
+      "name": "İl Emniyet Müdürlüğü KABİS Sistem Entegrasyonu & Onayı",
+      "cost": 16000,
+      "description": "Emniyet Genel Müdürlüğü resmi kiralık araç bildirim sistemi"
+    },
+    {
+      "name": "Ticaret Bakanlığı Motorlu Kara Taşıtı Ticareti / Kiralama Yetkisi",
+      "cost": 24000,
+      "description": "Ticaret İl Müdürlüğü açılış belgesi"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "Oto kiralama işletme ruhsatı"
+    },
+    {
+      "name": "Kiralık Araç Filo Kasko Poliçe Giderleri",
+      "cost": 45000,
+      "description": "Rent a car kaskosu ve teminatları"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "key_safe",
+      "name": "Şifreli Elektronik Güvenlikli Araç Anahtar Kasası (50 Kapasiteli)",
+      "category": "mandatory",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "regulatoryNote": "Araç anahtarları ve ruhsat evrakları güvenlik şartı."
+    },
+    {
+      "id": "rental_desks",
+      "name": "KABİS Entegre Rezervasyon & Sözleşme Çalışma Masası ve PC",
+      "category": "furniture",
+      "unitCost": 26000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 25
+    },
+    {
+      "id": "lounge_seating",
+      "name": "Müşteri Karşılama ve Sözleşme İmzalama Koltuk Grubu",
+      "category": "furniture",
+      "unitCost": 18500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "pos_provizyon",
+      "name": "Mail Order & Kredi Kartı Depozito Provizyon Destekli POS Terminali",
+      "category": "core_tech",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "gps_tracking_hub",
+      "name": "Filo GPS Araç Takip & Uzaktan Motor Kilitleme Yazılım İstasyonu",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "LED Işıklı Kurumsal Dış Tabela & Yol Yönlendirme Panosu",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 35000,
+  "initialInventoryDescription": "Sözleşme koçanları, araç içi yıkama ve temizlik setleri, OGS/HGS etiketleri, araç takip sim kartları ve kurumsal teslim formları.",
+  "softwareLicenseCost": {
+    "annual": 22000,
+    "monthlyMaintenance": 1600,
+    "name": "KABİS Entegre Rent a Car Filo, Sözleşme, Findex & Provizyon ERP Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Acente Müdürü / Filo Yöneticisi",
+      "count": 1,
+      "avgSalary": 45000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Araç Teslimat & Karşılama Personeli",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Kirada Olan Araç Sayısı",
+    "unitPrice": 1600,
+    "targetUnitsPerDay": 5,
+    "unitLabel": "Araç / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Kirada Olan Ortalama Araç Sayısı",
+    "unitLabel": "Araç",
+    "priceLabel": "Günlük Ortalama Araç Kiralama Bedeli",
+    "defaultVolume": 14,
+    "minVolume": 4,
+    "maxVolume": 45,
+    "stepVolume": 1,
+    "avgTicketPrice": 1600,
+    "grossMarginPercent": 64,
+    "daysPerMonth": 30,
+    "description": "Ekonomik ve orta segment binek araçların günlük/haftalık/aylık kiralanması, ek kasko ve havalimanı teslimat gelirleri."
+  },
+  "monthlyUtilitiesEstimate": 8500,
+  "monthlyAccountingFee": 3200
+},
+
+  'oto-yedek-parca': {
+  "id": "oto-yedek-parca",
+  "name": "Oto Yedek Parça & Akü Satış",
+  "emoji": "⚙️",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 80,
+  "fitoutCostPerM2": 2400,
+  "legalBasis": "Motorlu Araçlar Yedek Parça Ticareti Tebliği & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Odası Otomotiv Yedek Parça Meslek Tescili",
+      "cost": 18000,
+      "description": "Yedek parça ve madeni yağ toptan/perakende kaydı"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 14000,
+      "description": "İşletme çalışma ruhsatı harcı"
+    },
+    {
+      "name": "İtfaiye Yangın & Akü/Yağ Güvenlik Raporu",
+      "cost": 8500,
+      "description": "Akü asidi ve yağ depolama yangın onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg KKT) & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "auto_part_racks",
+      "name": "Ağır Hizmet Modüler Çelik Parça Raf Sistemleri (20 Metretül)",
+      "category": "furniture",
+      "unitCost": 48000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 35
+    },
+    {
+      "id": "battery_tester",
+      "name": "Dijital Akü Test, Yükleme & Hızlı Şarj Cihazı İstasyonu",
+      "category": "machinery",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "epc_pc",
+      "name": "Orijinal Şasi No (VIN) & TecDoc Parça Arama Bilgisayar İstasyonu",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 35
+    },
+    {
+      "id": "pos_barcode",
+      "name": "Barkod Okuyuculu Hızlı Kasa POS, Fiş & e-Arşiv Yazıcı",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "counter_desk",
+      "name": "Ağır Hizmet Müşteri Tezgahı & Karşılama Bankosu",
+      "category": "furniture",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "LED Işıklı Dış Tabela & Akü Markaları Panosu",
+      "category": "core_tech",
+      "unitCost": 28000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 400000,
+  "initialInventoryDescription": "Periyodik bakım filtreleri (yağ, hava, polen, yakıt), fren balata ve diskleri, motor yağları, antifriz, akü çeşitleri, bujiler ve silecekler.",
+  "softwareLicenseCost": {
+    "annual": 24000,
+    "monthlyMaintenance": 1800,
+    "name": "TecDoc / Parça Katalogu Entegre Oto Yedek Parça ERP & e-Fatura Sistemi"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Yedek Parça Uzmanı / Satış Danışmanı",
+      "count": 1,
+      "avgSalary": 42000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Depo & Sevkiyat / Kurye Personeli",
+      "count": 1,
+      "avgSalary": 28000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Satılan Yedek Parça & Bakım Kalemi",
+    "unitPrice": 850,
+    "targetUnitsPerDay": 20,
+    "unitLabel": "Parça / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Satılan Yedek Parça & Ürün Kalemi",
+    "unitLabel": "Parça",
+    "priceLabel": "Parça Başına Ortalama Satış Tutarı",
+    "defaultVolume": 40,
+    "minVolume": 12,
+    "maxVolume": 120,
+    "stepVolume": 5,
+    "avgTicketPrice": 850,
+    "grossMarginPercent": 35,
+    "daysPerMonth": 26,
+    "description": "Oto sanayi tamirhanelerine toptan parça satışı, perakende araç sahiplerine periyodik bakım setleri ve akü satış/montajı."
+  },
+  "monthlyUtilitiesEstimate": 9500,
+  "monthlyAccountingFee": 3200
+},
+
+  'dijital-pazarlama-ajansi': {
+  "id": "dijital-pazarlama-ajansi",
+  "name": "Dijital Pazarlama & Sosyal Medya Ajansı",
+  "emoji": "📢",
+  "categoryGroup": "Finans & Hizmet",
+  "defaultM2": 60,
+  "fitoutCostPerM2": 3000,
+  "legalBasis": "Türk Ticaret Kanunu & Fikir ve Sanat Eserleri Kanunu",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Odası Reklam & Dijital Medya Faaliyet Tescili",
+      "cost": 18000,
+      "description": "Reklam ajansı ve dijital pazarlama tescili"
+    },
+    {
+      "name": "Vergi Dairesi Açılış & e-Fatura Kayıtları",
+      "cost": 12000,
+      "description": "Elektronik fatura ve mali mühür onayı"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 12000,
+      "description": "Ofis çalışma ruhsatı harcı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü & İlk Yardım Seti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "creative_desks",
+      "name": "Ergonomik Yükseklik Ayarlı Ajans Çalışma Masaları & Fileli Koltuklar (4 İstasyon)",
+      "category": "furniture",
+      "unitCost": 18000,
+      "defaultQty": 4,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım",
+      "scalesWithM2": true,
+      "m2Ratio": 15
+    },
+    {
+      "id": "design_macs",
+      "name": "Yüksek Performanslı Video Kurgu & Grafik Tasarım İstasyonları (iMac / M-Serisi)",
+      "category": "core_tech",
+      "unitCost": 55000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "studio_lighting_camera",
+      "name": "Stüdyo Fotoğraf & Video Çekim Kiti (4K Kamera, Softbox Işıklar & Mikrofon)",
+      "category": "core_tech",
+      "unitCost": 45000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "client_meeting_table",
+      "name": "Müşteri Sunum & Strateji Toplantı Masası (8 Kişilik) + 55 inç Sunum TV",
+      "category": "furniture",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "lounge_coffee",
+      "name": "Ajans Kahve Barı & Relax Müşteri Koltuk Grubu",
+      "category": "furniture",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Inverter Split Klima (18.000 BTU)",
+      "category": "appliances",
+      "unitCost": 29500,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 45
+    },
+    {
+      "id": "signboard",
+      "name": "Neon Işıklı Kurumsal Ajans Dış & İç Tabelası",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 20000,
+  "initialInventoryDescription": "Sunum dosyaları, kurumsal kimlik kitleri, çekim arka plan fonları ve ofis sarf malzemeleri.",
+  "softwareLicenseCost": {
+    "annual": 32000,
+    "monthlyMaintenance": 2400,
+    "name": "Adobe Creative Cloud Team, Meta Ads/Google Analytics Dashboard & Semrush SEO Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Ajans Başkanı / Dijital Stratejist",
+      "count": 1,
+      "avgSalary": 60000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Sosyal Medya Yöneticisi & İçerik Üreticisi",
+      "count": 1,
+      "avgSalary": 35000,
+      "isMandatory": false
+    },
+    {
+      "role": "Grafik Tasarımcı & Video Kurgucu",
+      "count": 1,
+      "avgSalary": 38000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Aylık Düzenli Retainer Müşteri Portföyü",
+    "unitPrice": 22000,
+    "targetUnitsPerDay": 8,
+    "unitLabel": "Marka / Ay"
+  },
+  "revenueModel": {
+    "periodType": "monthly",
+    "volumeLabel": "Aylık Düzenli Hizmet Verilen Marka Sayısı",
+    "unitLabel": "Marka",
+    "priceLabel": "Marka Başına Aylık Retainer Hizmet Bedeli",
+    "defaultVolume": 18,
+    "minVolume": 4,
+    "maxVolume": 50,
+    "stepVolume": 1,
+    "avgTicketPrice": 22000,
+    "grossMarginPercent": 72,
+    "daysPerMonth": 30,
+    "description": "Aylık sosyal medya yönetimi (Instagram/TikTok), Google/Meta reklam yönetimi, SEO ve web tasarım/prodüksiyon sözleşmeleri."
+  },
+  "monthlyUtilitiesEstimate": 7500,
+  "monthlyAccountingFee": 3200
+},
+
+  'mobilya-dekorasyon': {
+  "id": "mobilya-dekorasyon",
+  "name": "Butik Mobilya & Ev Dekorasyonu",
+  "emoji": "🛋️",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 140,
+  "fitoutCostPerM2": 2600,
+  "legalBasis": "Tüketicinin Korunması Hakkında Kanun & Belediye Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Ticaret Odası Mobilya & Ev Eşyaları Perakende Tescili",
+      "cost": 18000,
+      "description": "Mobilya ve dekorasyon ticaret tescili"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 18000,
+      "description": "Büyük mağaza açılış ruhsatı harcı"
+    },
+    {
+      "name": "İtfaiye Yangın & Ahşap Güvenlik Raporu",
+      "cost": 12000,
+      "description": "Ahşap ve döşeme yangın uygunluk onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & Yangın Dolabı",
+      "category": "mandatory",
+      "unitCost": 6500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "lighting_spots",
+      "name": "Ray Spot Mimari Mağaza Aydınlatma Seti (30 Spot + Raylar)",
+      "category": "furniture",
+      "unitCost": 45000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 50
+    },
+    {
+      "id": "interior_design_desk",
+      "name": "İç Mimar & Tasarımcı Görüşme Masası, PC ve Kumaş Numune Standı",
+      "category": "furniture",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "pos_barcode",
+      "name": "Barkodlu Kasa POS & Taksitli Satış Terminali",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "ac_unit",
+      "name": "Salon Tipi Ticari Klima (24.000 BTU - 2 Adet)",
+      "category": "appliances",
+      "unitCost": 38000,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet",
+      "scalesWithM2": true,
+      "m2Ratio": 70
+    },
+    {
+      "id": "signboard",
+      "name": "Lüks Pleksi Gold Işıklı Showroom Tabelası",
+      "category": "core_tech",
+      "unitCost": 36000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 380000,
+  "initialInventoryDescription": "Teşhir koltuk takımları, yemek masaları, konsollar, sehpa setleri, aydınlatma abajurları, tablolar ve dekoratif objeler.",
+  "softwareLicenseCost": {
+    "annual": 18000,
+    "monthlyMaintenance": 1400,
+    "name": "Mobilya Sipariş, Özel Ölçü Üretim & Sevkiyat ERP Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "İç Mimar / Satış Yöneticisi",
+      "count": 1,
+      "avgSalary": 48000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Satış Danışmanı & Müşteri Temsilcisi",
+      "count": 1,
+      "avgSalary": 30000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Aylık Tamamlanan Mobilya / Dekorasyon Siparişi",
+    "unitPrice": 45000,
+    "targetUnitsPerDay": 6,
+    "unitLabel": "Sipariş / Ay"
+  },
+  "revenueModel": {
+    "periodType": "monthly",
+    "volumeLabel": "Aylık Satılan Mobilya & Dekorasyon Takımı",
+    "unitLabel": "Takım",
+    "priceLabel": "Takım / Sipariş Başı Ortalama Tutar",
+    "defaultVolume": 15,
+    "minVolume": 4,
+    "maxVolume": 50,
+    "stepVolume": 1,
+    "avgTicketPrice": 45000,
+    "grossMarginPercent": 48,
+    "daysPerMonth": 30,
+    "description": "Özel üretim salon takımları, yemek odaları, butik konsollar, tablolar ve anahtar teslim iç mimari dekorasyon projeleri."
+  },
+  "monthlyUtilitiesEstimate": 14000,
+  "monthlyAccountingFee": 3400
+},
+
+  'cilingir-anahtar': {
+  "id": "cilingir-anahtar",
+  "name": "Çilingir & Güvenlik Kilit Atölyesi",
+  "emoji": "🔑",
+  "categoryGroup": "Perakende & Zanaat",
+  "defaultM2": 30,
+  "fitoutCostPerM2": 2400,
+  "legalBasis": "Çilingirlik ve Kilitçilik Mesleki Yeterlilik Standartları & Emniyet Bildirimi",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Çilingirler ve Anahtarcılar Odası Ustalık Tescili",
+      "cost": 16000,
+      "description": "Resmi çilingir ustalık belgesi ve sicil kaydı"
+    },
+    {
+      "name": "İl Emniyet Müdürlüğü Çilingir Güvenlik Soruşturma Onayı",
+      "cost": 12000,
+      "description": "Emniyet adli sicil ve kayıt onayı"
+    },
+    {
+      "name": "Belediye İşyeri Açma ve Çalışma Ruhsatı",
+      "cost": 10000,
+      "description": "Belediye çalışma ruhsatı harcı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpü (6kg ABC) & İlk Yardım Kiti",
+      "category": "mandatory",
+      "unitCost": 3500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "key_cutting_lathe",
+      "name": "Otomatik Çift Kollu Lazer / Mekanik Anahtar Çoğaltma Makinesi",
+      "category": "machinery",
+      "unitCost": 38000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "Oda ve çelik kapı anahtarlarını kopyalayan hassas freze."
+    },
+    {
+      "id": "auto_key_programmer",
+      "name": "İmmobilizer Oto Çipli Anahtar Kopyalama & Kodlama Cihazı",
+      "category": "machinery",
+      "unitCost": 45000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "key_blanks_board",
+      "name": "Duvar Tipi Ham Anahtar Askı Panoları (500+ Model Kapasiteli)",
+      "category": "furniture",
+      "unitCost": 14000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "mobile_locksmith_kit",
+      "name": "Acil Kapı Açma & Maymuncuk Çilingir El Takımı Çantası",
+      "category": "machinery",
+      "unitCost": 16000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "counter_desk",
+      "name": "Atölye Çalışma Tezgahı, Mengene & Kasa",
+      "category": "furniture",
+      "unitCost": 14000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pos_cash",
+      "name": "Mobil Saha Destekli POS Terminali & Yazar Kasa",
+      "category": "core_tech",
+      "unitCost": 16000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "signboard",
+      "name": "LED Işıklı Anahtar Tasarımlı Dış Tabela & Gece Totemi",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 45000,
+  "initialInventoryDescription": "Bilyalı çelik kapı kilit göbekleri (Kale/Yuma), asma kilitler, ham pirinç anahtar taslakları, oto kumanda kapları, piller ve kilit emniyet rozetleri.",
+  "softwareLicenseCost": {
+    "annual": 12000,
+    "monthlyMaintenance": 950,
+    "name": "Oto İmmobilizer PIN Kod & Müşteri İşlem Kayıt Yazılımı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Usta Çilingir / Atölye Sahibi",
+      "count": 1,
+      "avgSalary": 45000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Saha / Gezici Kapı Açma Elemanı",
+      "count": 1,
+      "avgSalary": 30000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Anahtar Kopyalama & Kapı Açma Servisi",
+    "unitPrice": 380,
+    "targetUnitsPerDay": 8,
+    "unitLabel": "İşlem / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Anahtar Kopyalama & Çilingir Servisi",
+    "unitLabel": "İşlem",
+    "priceLabel": "İşlem Başına Ortalama Gelir",
+    "defaultVolume": 20,
+    "minVolume": 6,
+    "maxVolume": 50,
+    "stepVolume": 2,
+    "avgTicketPrice": 380,
+    "grossMarginPercent": 75,
+    "daysPerMonth": 30,
+    "description": "Ev anahtarı kopyalama (50-150 TL), oto immobilizer kumanda kodlama (800-2500 TL), kilit değişimi ve 7/24 acil kapı açma servisleri."
+  },
+  "monthlyUtilitiesEstimate": 5500,
+  "monthlyAccountingFee": 2600
+},
+
+  'oto-tamir-mekanik': {
+  "id": "oto-tamir-mekanik",
+  "name": "Oto Tamir & Mekanik Bakım Servisi",
+  "emoji": "🔧",
+  "categoryGroup": "Otomotiv & Sanayi",
+  "defaultM2": 110,
+  "fitoutCostPerM2": 2800,
+  "legalBasis": "TSE 12047 Yetkili/Özel Servis Standardı & Belediye Sanayi Ruhsatı",
+  "statutoryCapital": 50000,
+  "mandatoryLegalItems": [
+    {
+      "name": "Sanayi / Esnaf Odası Motorlu Araç Bakım Ustalık Tescili",
+      "cost": 18000,
+      "description": "Motor ve mekanik ustalık tescili"
+    },
+    {
+      "name": "Belediye Gayrisıhhi Müessese İşyeri Ruhsatı",
+      "cost": 22000,
+      "description": "Sanayi sitesi işyeri açma ruhsatı"
+    },
+    {
+      "name": "İtfaiye Yangın & Atık Yağ Depolama Raporu",
+      "cost": 14000,
+      "description": "Atık motor yağı bertaraf ve yangın onayı"
+    }
+  ],
+  "equipments": [
+    {
+      "id": "fire_ext",
+      "name": "Yangın Söndürme Tüpleri (6kg KKT & Köpüklü)",
+      "category": "mandatory",
+      "unitCost": 4500,
+      "defaultQty": 2,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set",
+      "scalesWithM2": true,
+      "m2Ratio": 100
+    },
+    {
+      "id": "hydraulic_lift",
+      "name": "Elektro-Hidrolik 2 Sütunlu Araç Kaldırma Lifti (4 Ton Kapasiteli)",
+      "category": "machinery",
+      "unitCost": 85000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Adet",
+      "description": "TSE/CE onaylı araç altı mekanik onarım lifti."
+    },
+    {
+      "id": "diagnostic_scanner",
+      "name": "Universal Arıza Tespit & Beyin Kodlama Cihazı (Launch/Autel)",
+      "category": "core_tech",
+      "unitCost": 45000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "tool_chest",
+      "name": "Dolu Mekanik Takım Arabası & Lokma/Anahtar Setleri (7 Çekmeceli)",
+      "category": "machinery",
+      "unitCost": 34000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": true,
+      "unitLabel": "Takım"
+    },
+    {
+      "id": "oil_drainer",
+      "name": "Pnömatik Atık Yağ Emiş & Boşaltma Tankı (80 Litre)",
+      "category": "machinery",
+      "unitCost": 16500,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "compressor_air",
+      "name": "Vidalı/Pistonlu Hava Kompresörü (300 Litre 8 Bar)",
+      "category": "machinery",
+      "unitCost": 32000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Adet"
+    },
+    {
+      "id": "office_desk",
+      "name": "Müşteri Kabul Masası, PC İstasyonu & Koltuk",
+      "category": "furniture",
+      "unitCost": 18000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "pos_cash",
+      "name": "POS Kasa & e-Fatura Terminali",
+      "category": "core_tech",
+      "unitCost": 22000,
+      "defaultQty": 1,
+      "minQty": 1,
+      "isLocked": false,
+      "unitLabel": "Set"
+    },
+    {
+      "id": "signboard",
+      "name": "LED Işıklı Sanayi Dış Tabela",
+      "category": "core_tech",
+      "unitCost": 24000,
+      "defaultQty": 1,
+      "minQty": 0,
+      "isLocked": false,
+      "unitLabel": "Set"
+    }
+  ],
+  "initialInventoryCost": 65000,
+  "initialInventoryDescription": "Filtreler, motor yağları, fren hidrolikleri, bujiler, kelepçeler, cıvatalar, balata spreyleri ve temizlik kimyasalları.",
+  "softwareLicenseCost": {
+    "annual": 16000,
+    "monthlyMaintenance": 1200,
+    "name": "Oto Servis İş Emri, Parça Maliyet & Müşteri Takip Programı"
+  },
+  "recommendedStaff": [
+    {
+      "role": "Baş Mekanik Ustası / Servis Sahibi",
+      "count": 1,
+      "avgSalary": 55000,
+      "isMandatory": true,
+      "allowOwnerFulfillment": true
+    },
+    {
+      "role": "Mekanik Kalfası & Bakım Elemanı",
+      "count": 1,
+      "avgSalary": 35000,
+      "isMandatory": false
+    }
+  ],
+  "breakEvenMetric": {
+    "label": "Günlük Periyodik Bakım & Onarım Aracı",
+    "unitPrice": 1800,
+    "targetUnitsPerDay": 4,
+    "unitLabel": "Araç / Gün"
+  },
+  "revenueModel": {
+    "periodType": "daily",
+    "volumeLabel": "Günlük Bakım & Tamir Yapılan Araç Sayısı",
+    "unitLabel": "Araç",
+    "priceLabel": "Araç Başına Ortalama İşçilik & Bakım Tutarı",
+    "defaultVolume": 8,
+    "minVolume": 2,
+    "maxVolume": 25,
+    "stepVolume": 1,
+    "avgTicketPrice": 1800,
+    "grossMarginPercent": 55,
+    "daysPerMonth": 26,
+    "description": "Periyodik yağ/filtre bakımları (800-1500 TL işçilik), fren/balata değişimi, alt takım onarımı ve motor revizyonları."
+  },
+  "monthlyUtilitiesEstimate": 12000,
+  "monthlyAccountingFee": 3200
+},
+
 };
 
 export const BUSINESS_SETUP_TEMPLATES: BusinessTemplate[] = Object.values(BUSINESS_TEMPLATES).sort((a, b) =>

@@ -66,9 +66,9 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     includeSoftwareLicense = true,
     customSoftwareInitialCost,
     customSoftwareMonthlyCost,
-    equipments,
-    staff,
-    legalFees,
+    equipments = [],
+    staff = [],
+    legalFees = [],
     workingCapitalMonths = 3,
     customUtilities,
     customAccounting,
@@ -77,7 +77,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   } = params;
 
   // 1. Ekipman / Demirbaş Maliyeti
-  const equipmentTotal = equipments.reduce((sum, eq) => {
+  const equipmentTotal = (equipments || []).reduce((sum, eq) => {
     if (!eq.selected) return sum;
     return sum + eq.unitCost * (eq.qty || eq.defaultQty);
   }, 0);

@@ -70,11 +70,19 @@ export interface SetupBreakEvenMetric {
   unitLabel?: string;
 }
 
+export type BusinessCategoryGroup = 
+  | 'Finans & Hizmet' 
+  | 'Yeme - İçme' 
+  | 'Kişisel Bakım & Sağlık' 
+  | 'Perakende & Zanaat'
+  | 'Perakende & Mağazacılık' 
+  | 'Otomotiv & Sanayi';
+
 export interface BusinessTemplate {
   id: string;
   name: string;
   emoji?: string;
-  categoryGroup: 'Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Mağazacılık' | 'Otomotiv & Sanayi';
+  categoryGroup: BusinessCategoryGroup;
   defaultM2: number;
   fitoutCostPerM2?: number;
   legalBasis: string;
