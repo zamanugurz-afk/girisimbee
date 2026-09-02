@@ -145,6 +145,9 @@ export function AuthProvider({
   }, [getSupabase]);
 
   const refresh = useCallback(async () => {
+    if (typeof window !== 'undefined' && localStorage.getItem('girisimbee_demo_auth') === '1') {
+      return;
+    }
     const supabase = getSupabase();
     const sessionUser = await fetchSessionUser(supabase);
     if (sessionUser) {
@@ -171,6 +174,22 @@ export function AuthProvider({
       options?: { skipIfSameUser?: boolean },
     ) {
       if (!session?.user) {
+        if (typeof window !== 'undefined' && localStorage.getItem('girisimbee_demo_auth') === '1') {
+          const { ids } = await import('@/lib/domain/ids');
+          if (mounted) {
+            setUser({
+              id: ids.user('00000000-0000-0000-0000-000000000001'),
+              email: 'test@girisimbee.com',
+              emailVerified: true,
+              role: 'user',
+              displayName: 'Test Girişimci',
+              avatarUrl: null,
+            });
+            setIsLoading(false);
+          }
+          return;
+        }
+
         if (mounted) {
           setUser(null);
           setIsLoading(false);

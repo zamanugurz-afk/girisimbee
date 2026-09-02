@@ -176,7 +176,9 @@ export async function middleware(request: NextRequest) {
   // shows "Giriş Yap" — silent redirects made those buttons look broken.
   // Login/register pages handle an existing session in the UI instead.
 
-  if (!user && isProtectedRoute(pathname) && request.nextUrl.searchParams.get('test_session') !== '1') {
+  const isDemoSession = request.cookies.get('girisimbee_demo_auth')?.value === '1';
+
+  if (!user && !isDemoSession && isProtectedRoute(pathname) && request.nextUrl.searchParams.get('test_session') !== '1') {
     const next = `${pathname}${request.nextUrl.search}`;
     return NextResponse.redirect(new URL(loginUrl(next), request.url));
   }
