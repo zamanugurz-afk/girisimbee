@@ -115,284 +115,270 @@ export function Header() {
           : 'border-slate-200/80 dark:border-zinc-800/80'
       )}
     >
-      <div className="mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex h-[var(--gc-header-height)] max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Sol: Logo */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center">
           <SiteLogo className="shrink-0 relative z-20" />
+        </div>
 
-            {/* ========================================================================= */}
-            {/* ORTA DYNAMIC ISLAND MENÜ ELEMANLARI (DESKTOP)                             */}
-            {/* ========================================================================= */}
-            <nav className="hidden lg:flex items-center gap-1 text-[13px] font-bold text-slate-700 dark:text-zinc-200">
-              {/* 1. PAZAR YERİ DROPDOWN */}
-              <div
-                className="relative"
-                onMouseEnter={() => handleMouseEnter('marketplace')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === 'marketplace' ? null : 'marketplace')}
-                  className={cn(
-                    'px-3 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
-                    activeDropdown === 'marketplace'
-                      ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
-                      : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
-                  )}
-                >
-                  <span>Pazar Yeri</span>
-                  <ChevronDown
-                    className={cn(
-                      'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
-                      activeDropdown === 'marketplace' && 'rotate-180 text-slate-700 dark:text-zinc-200'
-                    )}
-                  />
-                </button>
-
-                {/* Popover Card */}
-                {activeDropdown === 'marketplace' && (
-                  <div className="absolute left-0 top-full pt-2.5 w-[460px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
-                      <Link
-                        href="/girisim-ortaklik"
-                        className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
-                      >
-                        <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Handshake className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
-                            Girişim Ortaklığı
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                            Sermaye & yetenek ortakları
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/isletme-devri"
-                        className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
-                      >
-                        <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Store className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 leading-tight">
-                            Devren İşletmeler
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                            Hazır kârlı devir ilanları
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/franchise/buy"
-                        className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-start gap-2.5 group"
-                      >
-                        <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Coffee className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 leading-tight">
-                            Franchise & Bayilik
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                            Doğrulanmış marka ağları
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/is"
-                        className="p-2.5 rounded-2xl hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/20 transition-all flex items-start gap-2.5 group"
-                      >
-                        <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Briefcase className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">
-                            Kariyer & Yetenek
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                            Startup ekibi & uzmanlar
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
+        {/* ========================================================================= */}
+        {/* ORTA MENÜ ELEMANLARI (TAM ORTALANMIŞ DESKTOP NAV)                         */}
+        {/* ========================================================================= */}
+        <nav className="hidden lg:flex items-center gap-1.5 text-[13px] font-bold text-slate-700 dark:text-zinc-200 absolute left-1/2 -translate-x-1/2 z-20">
+          {/* 1. PAZAR YERİ DROPDOWN */}
+          <div
+            className="relative"
+            onMouseEnter={() => handleMouseEnter('marketplace')}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveDropdown(activeDropdown === 'marketplace' ? null : 'marketplace')}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                activeDropdown === 'marketplace'
+                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
+              )}
+            >
+              <span>Pazar Yeri</span>
+              <ChevronDown
+                className={cn(
+                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                  activeDropdown === 'marketplace' && 'rotate-180 text-slate-700 dark:text-zinc-200'
                 )}
-              </div>
+              />
+            </button>
 
-              {/* 2. İŞ FİKİRLERİ & KULUÇKA */}
-              <div
-                className="relative"
-                onMouseEnter={() => handleMouseEnter('ideas')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === 'ideas' ? null : 'ideas')}
-                  className={cn(
-                    'px-3 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
-                    activeDropdown === 'ideas'
-                      ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
-                      : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
-                  )}
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>İş Fikirleri</span>
-                  <ChevronDown
-                    className={cn(
-                      'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
-                      activeDropdown === 'ideas' && 'rotate-180 text-slate-700 dark:text-zinc-200'
-                    )}
-                  />
-                </button>
-
-                {/* Ideas Popover Card */}
-                {activeDropdown === 'ideas' && (
-                  <div className="absolute left-0 top-full pt-2.5 w-[380px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-2 backdrop-blur-2xl">
-                      <Link
-                        href="/trend-fikirler"
-                        className="p-3 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-3 group"
-                      >
-                        <span className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 group-hover:scale-105 transition-transform">
-                          <Flame className="w-4 h-4 fill-current" />
-                        </span>
-                        <div>
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
-                            Trend & Yeni İş Fikirleri
-                          </span>
-                          <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                            Amortismanı, sermayesi ve aylık kârı hesaplanmış doğrulanmış modeller
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/fikrim-var"
-                        className="p-3 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-3 group"
-                      >
-                        <span className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0 group-hover:scale-105 transition-transform">
-                          <Rocket className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                        </span>
-                        <div>
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                            &quot;Fikrim Var, Bütçem Yok&quot;
-                          </span>
-                          <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                            Aracını, mekanını ve fikrini 5 adımda modelle; melek yatırımcı çağrısı aç
-                          </span>
-                        </div>
-                      </Link>
+            {/* Popover Card */}
+            {activeDropdown === 'marketplace' && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[460px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
+                  <Link
+                    href="/girisim-ortaklik"
+                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Handshake className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
+                        Girişim Ortaklığı
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Sermaye & yetenek ortakları
+                      </span>
                     </div>
-                  </div>
-                )}
-              </div>
+                  </Link>
 
-              {/* 3. AI İSTİHBARAT & AKILLI ARAÇLAR */}
-              <div
-                className="relative"
-                onMouseEnter={() => handleMouseEnter('ai-tools')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveDropdown(activeDropdown === 'ai-tools' ? null : 'ai-tools')}
-                  className={cn(
-                    'px-3 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
-                    activeDropdown === 'ai-tools'
-                      ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
-                      : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
-                  )}
-                >
-                  <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
-                  <span>AI İstihbarat</span>
-                  <ChevronDown
-                    className={cn(
-                      'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
-                      activeDropdown === 'ai-tools' && 'rotate-180 text-slate-700 dark:text-zinc-200'
-                    )}
-                  />
-                </button>
-
-                {/* AI Tools Popover */}
-                {activeDropdown === 'ai-tools' && (
-                  <div className="absolute left-0 top-full pt-2.5 w-[360px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-1.5 backdrop-blur-2xl">
-                      <Link
-                        href="/radar"
-                        className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-center gap-3 group"
-                      >
-                        <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Compass className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                            Lokasyon Radarı
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                            81 İl demografi & rakip haritası
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/is-kurma-asistani"
-                        className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-center gap-3 group"
-                      >
-                        <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Wrench className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400">
-                            İş Kurma Asistanı
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                            32 sektör maliyet & kurulum simülatörü
-                          </span>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/is-kurma-asistani"
-                        className="p-2.5 rounded-2xl hover:bg-teal-500/10 border border-transparent hover:border-teal-500/20 transition-all flex items-center gap-3 group"
-                      >
-                        <span className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                          <Landmark className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400">
-                            Hibe & Teşvik Radarı
-                          </span>
-                          <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                            2026 KOSGEB & vergi muafiyeti
-                          </span>
-                        </div>
-                      </Link>
+                  <Link
+                    href="/isletme-devri"
+                    className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Store className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 leading-tight">
+                        Devren İşletmeler
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Hazır kârlı devir ilanları
+                      </span>
                     </div>
-                  </div>
-                )}
-              </div>
+                  </Link>
 
-              {/* 4. ENTEGRE HIZLI ARAMA PİLLİ (COMMAND PALETTE TRIGGER) */}
-              <button
-                type="button"
-                onClick={() => router.push('/ara')}
-                className="ml-1 px-3 py-1.5 rounded-full border border-slate-200/80 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900/80 text-xs font-medium text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:hover:border-zinc-700 hover:text-slate-800 dark:hover:text-zinc-200 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
-              >
-                <Search className="w-3.5 h-3.5 text-slate-400" />
-                <span className="hidden xl:inline text-[11.5px]">Girişim veya ilan ara...</span>
-                <span className="xl:hidden text-[11.5px]">Ara...</span>
-                <kbd className="px-1.5 py-0.2 rounded bg-white dark:bg-zinc-800 text-[9.5px] font-mono border border-slate-200 dark:border-zinc-700 text-slate-400">
-                  ⌘K
-                </kbd>
-              </button>
-            </nav>
+                  <Link
+                    href="/franchise/buy"
+                    className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Coffee className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 leading-tight">
+                        Franchise & Bayilik
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Doğrulanmış marka ağları
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/is"
+                    className="p-2.5 rounded-2xl hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Briefcase className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">
+                        Kariyer & Yetenek
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Startup ekibi & uzmanlar
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* 2. İŞ FİKİRLERİ & KULUÇKA */}
+          <div
+            className="relative"
+            onMouseEnter={() => handleMouseEnter('ideas')}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveDropdown(activeDropdown === 'ideas' ? null : 'ideas')}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                activeDropdown === 'ideas'
+                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>İş Fikirleri</span>
+              <ChevronDown
+                className={cn(
+                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                  activeDropdown === 'ideas' && 'rotate-180 text-slate-700 dark:text-zinc-200'
+                )}
+              />
+            </button>
+
+            {/* Ideas Popover Card */}
+            {activeDropdown === 'ideas' && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[380px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-2 backdrop-blur-2xl">
+                  <Link
+                    href="/trend-fikirler"
+                    className="p-3 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-3 group"
+                  >
+                    <span className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 group-hover:scale-105 transition-transform">
+                      <Flame className="w-4 h-4 fill-current" />
+                    </span>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                        Trend & Yeni İş Fikirleri
+                      </span>
+                      <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Amortismanı, sermayesi ve aylık kârı hesaplanmış doğrulanmış modeller
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/fikrim-var"
+                    className="p-3 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-3 group"
+                  >
+                    <span className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0 group-hover:scale-105 transition-transform">
+                      <Rocket className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    </span>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                        &quot;Fikrim Var, Bütçem Yok&quot;
+                      </span>
+                      <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Aracını, mekanını ve fikrini 5 adımda modelle; melek yatırımcı çağrısı aç
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 3. AI İSTİHBARAT & AKILLI ARAÇLAR */}
+          <div
+            className="relative"
+            onMouseEnter={() => handleMouseEnter('ai-tools')}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveDropdown(activeDropdown === 'ai-tools' ? null : 'ai-tools')}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                activeDropdown === 'ai-tools'
+                  ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                  : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
+              )}
+            >
+              <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
+              <span>AI İstihbarat</span>
+              <ChevronDown
+                className={cn(
+                  'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                  activeDropdown === 'ai-tools' && 'rotate-180 text-slate-700 dark:text-zinc-200'
+                )}
+              />
+            </button>
+
+            {/* AI Tools Popover */}
+            {activeDropdown === 'ai-tools' && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 w-[360px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 space-y-1.5 backdrop-blur-2xl">
+                  <Link
+                    href="/radar"
+                    className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-center gap-3 group"
+                  >
+                    <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Compass className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                        Lokasyon Radarı
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                        81 İl demografi & rakip haritası
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/is-kurma-asistani"
+                    className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-center gap-3 group"
+                  >
+                    <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Wrench className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400">
+                        İş Kurma Asistanı
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                        32 sektör maliyet & kurulum simülatörü
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/is-kurma-asistani"
+                    className="p-2.5 rounded-2xl hover:bg-teal-500/10 border border-transparent hover:border-teal-500/20 transition-all flex items-center gap-3 group"
+                  >
+                    <span className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Landmark className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400">
+                        Hibe & Teşvik Radarı
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                        2026 KOSGEB & vergi muafiyeti
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
 
           {/* ========================================================================= */}
           {/* SAĞ ALAN: BİLDİRİM, PROFİL, TEMA VE İLAN VER BUTONU                       */}
