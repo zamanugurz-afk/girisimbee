@@ -1927,6 +1927,7 @@ const TURKEY_CENSUS_INDEX: DistrictCensusMeta[] = [
   { name: 'sivas', district: 'Merkez', city: 'Sivas', densityPerKm2: 8200, baseMahallePop: 29000, ilcePop: 385000, ses: 'B / C1 Grubu', age: 'Üniversite, Sanayi & Aile (%60)', traffic: '8.7 / 10 (Bölgesel Merkez)', daytimeMultiplier: 1.40 },
   { name: 'erzincan', district: 'Merkez', city: 'Erzincan', densityPerKm2: 6900, baseMahallePop: 24000, ilcePop: 160000, ses: 'B / C1 Grubu', age: 'Tarım, Üniversite & Asker (%60)', traffic: '8.4 / 10 (Bölgesel)', daytimeMultiplier: 1.30 },
   { name: 'erzurum', district: 'Yakutiye', city: 'Erzurum', densityPerKm2: 8800, baseMahallePop: 31000, ilcePop: 760000, ses: 'B / C1 Grubu', age: 'Üniversite, Kış Turizmi & Ticaret (%63)', traffic: '9.0 / 10 (Doğu Lideri)', daytimeMultiplier: 1.65 },
+  { name: 'sarıkamış', district: 'Sarıkamış', city: 'Kars', densityPerKm2: 2400, baseMahallePop: 4200, ilcePop: 38000, ses: 'B / C1 Grubu', age: 'Kış Turizmi, Asker, Üniversite & Yerel Halk (%58)', traffic: '8.4 / 10 (Kayak Sezonu & Çarşı)', daytimeMultiplier: 1.40 },
   { name: 'kars', district: 'Merkez', city: 'Kars', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 118000, ses: 'B / C1 Grubu', age: 'Turizm, Üniversite & Çarşı (%62)', traffic: '8.6 / 10 (Kış & Turizm)', daytimeMultiplier: 1.45 },
   { name: 'ağrı', district: 'Merkez', city: 'Ağrı', densityPerKm2: 6400, baseMahallePop: 22000, ilcePop: 150000, ses: 'C1 / C2 Grubu', age: 'Genç Nüfus, Sınır & Esnaf (%55)', traffic: '8.3 / 10 (Çarşı Trafiği)', daytimeMultiplier: 1.25 },
   { name: 'iğdır', district: 'Merkez', city: 'Iğdır', densityPerKm2: 6800, baseMahallePop: 23000, ilcePop: 145000, ses: 'B / C1 Grubu', age: 'Sınır Ticareti & Tarım (%59)', traffic: '8.6 / 10 (Hareketli Sınır)', daytimeMultiplier: 1.40 },
@@ -1984,10 +1985,12 @@ export function resolveDemographicProfile(
   const radiusKm = radiusMeters / 1000;
   const areaKm2 = Math.PI * Math.pow(radiusKm, 2);
 
-  const loc = (locationName || '').toLowerCase();
+  const loc = (locationName || '').toLowerCase().trim();
 
-  // Find best matching census metadata by name
-  let matchedMeta = TURKEY_CENSUS_INDEX.find((m) => loc.includes(m.name));
+  // Find best matching census metadata by name (longest/most specific name first so 'sarıkamış' matches before 'kars')
+  let matchedMeta: DistrictCensusMeta | undefined = TURKEY_CENSUS_INDEX
+    .filter((m) => loc.includes(m.name.toLowerCase()))
+    .sort((a, b) => b.name.length - a.name.length)[0];
 
   // High-precision coordinate fallbacks if location name text is generic
   if (!matchedMeta) {
@@ -2022,19 +2025,31 @@ export function resolveDemographicProfile(
   }
 
   // Realistic regional density defaults for Turkey (TÜİK ADNKS averages)
-  const density = matchedMeta ? matchedMeta.densityPerKm2 : 9500;
-  const baseMahallePop = matchedMeta ? matchedMeta.baseMahallePop : 28500;
+  const coreDensity = matchedMeta ? matchedMeta.densityPerKm2 : 6800;
+  const baseMahallePop = matchedMeta ? matchedMeta.baseMahallePop : 18000;
+  const maxDistrictPop = matchedMeta ? matchedMeta.ilcePop : 350000;
   const ses = matchedMeta ? matchedMeta.ses : 'B / C1 Grubu';
   const age = matchedMeta ? matchedMeta.age : 'Çalışan Aile & Genç Nüfus (%60)';
   const traffic = matchedMeta ? matchedMeta.traffic : '8.5 / 10 (Hareketli)';
   const daytimeMult = matchedMeta ? matchedMeta.daytimeMultiplier : 1.30;
 
-  // Exact Catchment Resident Population: Area (km²) * Urban Density (people/km²)
-  // Guaranteed mathematically sound: 250m (~0.196 km²) -> ~2.000-3.500 resident population
-  // 500m (~0.785 km²) -> ~8.000-14.000 resident population
-  // 1000m (~3.142 km²) -> ~30.000-58.000 resident population
-  // 2000m (~12.566 km²) -> ~100.000-240.000 resident population
-  const calculatedCatchmentPop = Math.max(150, Math.round(areaKm2 * density));
+  // Radial GIS Density Decay Factor:
+  // Urban cores have high density (r <= 0.5km = 1.0).
+  // As radius expands to 1km, 2km, 3km, 5km, the outer rings include residential fringes,
+  // rural zones, forests, and non-residential land, reducing average circle density.
+  let densityDecay = 1.0;
+  if (radiusKm > 0.5) {
+    densityDecay = Math.max(0.18, 1 / (1 + (radiusKm - 0.5) * 0.70));
+  }
+
+  const rawEstimatedPop = Math.round(areaKm2 * coreDensity * densityDecay);
+
+  // Exact Catchment Resident Population:
+  // Hard clamped so that catchment population can NEVER exceed the actual total district population (ilcePop).
+  const calculatedCatchmentPop = Math.max(
+    150,
+    Math.min(maxDistrictPop, rawEstimatedPop)
+  );
   const calculatedDaytimeTraffic = Math.round(calculatedCatchmentPop * daytimeMult);
 
   return {
@@ -2042,7 +2057,7 @@ export function resolveDemographicProfile(
     populationRaw: calculatedCatchmentPop,
     officialNeighborhoodPop: `${baseMahallePop.toLocaleString('tr-TR')} Kişi`,
     daytimeTraffic: `${calculatedDaytimeTraffic.toLocaleString('tr-TR')} Kişi/Gün`,
-    densityPerKm2: density,
+    densityPerKm2: Math.round(coreDensity * densityDecay),
     sesGroup: ses,
     ageProfile: age,
     footTraffic: traffic,
