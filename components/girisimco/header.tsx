@@ -128,7 +128,7 @@ export function Header() {
           className="hidden lg:flex items-center gap-1.5 text-[13px] font-bold text-slate-700 dark:text-zinc-200 absolute left-1/2 -translate-x-1/2 z-20"
           onMouseLeave={handleMouseLeave}
         >
-          {/* 1. PAZAR YERİ */}
+          {/* 1. İŞ FIRSATLARI */}
           <div
             onMouseEnter={() => handleMouseEnter('marketplace')}
             className="relative"
@@ -143,7 +143,7 @@ export function Header() {
                   : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
               )}
             >
-              <span>Pazar Yeri</span>
+              <span>İş Fırsatları</span>
               <ChevronDown
                 className={cn(
                   'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
@@ -179,7 +179,7 @@ export function Header() {
             </button>
           </div>
 
-          {/* 3. AI İSTİHBARAT */}
+          {/* 3. GİRİŞİM İŞ RADARI */}
           <div
             onMouseEnter={() => handleMouseEnter('ai-tools')}
             className="relative"
@@ -195,7 +195,7 @@ export function Header() {
               )}
             >
               <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
-              <span>AI İstihbarat</span>
+              <span>Girişim İş Radarı</span>
               <ChevronDown
                 className={cn(
                   'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
@@ -502,7 +502,7 @@ export function Header() {
           {/* Mobil Kategorik Linkler */}
           <div className="space-y-1 text-xs font-bold text-slate-700 dark:text-zinc-200">
             <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-              Pazar Yeri
+              İş Fırsatları
             </div>
             <div className="grid grid-cols-2 gap-1.5 mb-2">
               <Link
@@ -541,7 +541,7 @@ export function Header() {
 
             <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
               <Sparkles className="w-3 h-3 fill-current" />
-              İş Fikirleri & Kuluçka
+              İş Fikirleri
             </div>
             <div className="grid grid-cols-1 gap-1.5 mb-2">
               <Link
@@ -570,7 +570,7 @@ export function Header() {
 
             <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
               <Zap className="w-3 h-3 fill-current" />
-              AI İstihbarat & Araçlar
+              Girişim İş Radarı
             </div>
             <div className="grid grid-cols-3 gap-1 mb-3">
               <Link
