@@ -13,7 +13,7 @@ export const DASHBOARD_ROUTES = {
   eslesmeler: `${DASHBOARD_BASE}/eslesmeler`,
   ortaklikEslesmeleri: `${DASHBOARD_BASE}/ortaklik-eslesmeleri`,
   favorilerim: `${DASHBOARD_BASE}/favorilerim`,
-  mesajlarim: '/mesajlarim',
+  mesajlarim: `${DASHBOARD_BASE}/mesajlarim`,
   iletisimTalepleri: `${DASHBOARD_BASE}/iletisim-talepleri`,
   takipcilerim: `${DASHBOARD_BASE}/takipcilerim`,
   bildirimlerim: `${DASHBOARD_BASE}/bildirimlerim`,
