@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Phone, ShieldCheck } from 'lucide-react';
+import { Phone, ShieldCheck, Mail, Building2, CheckCircle2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,14 @@ export interface PublishConsentFieldsProps {
   phoneHint?: string | null;
   userId?: string | null;
   onPhoneSaved?: (phone: string) => void;
+  /** Direct controlled phone input value and handler */
+  contactPhone?: string | null;
+  onPhoneChange?: (phone: string) => void;
+  /** Direct controlled company email input value and handler */
+  contactEmail?: string;
+  onEmailChange?: (email: string) => void;
+  phoneError?: string;
+  emailError?: string;
   /** Career (İş Arıyorum): explain contact-request gating without widening consent scope. */
   variant?: 'default' | 'career';
   /** Category dynamic theme color (amber, emerald, sky, blue, purple, teal, rose). */
@@ -143,45 +151,125 @@ export function PublishConsentFields({
   phoneHint,
   userId,
   onPhoneSaved,
+  contactPhone,
+  onPhoneChange,
+  contactEmail,
+  onEmailChange,
+  phoneError,
+  emailError,
   variant = 'default',
   themeColor = 'emerald',
 }: PublishConsentFieldsProps) {
-  const [draftPhone, setDraftPhone] = useState('');
-  const [savingPhone, setSavingPhone] = useState(false);
-
   const currentTheme = CONSENT_THEME_CLASSES[themeColor] || CONSENT_THEME_CLASSES.emerald;
+
+  const effectivePhone = contactPhone !== undefined ? (contactPhone || '') : (phoneHint || '');
 
   function toggle(key: PublishConsentKey, checked: boolean) {
     onChange({ ...value, [key]: checked });
   }
 
-  async function savePhone() {
-    if (!userId) {
-      toast.error('Telefon eklemek için giriş yapın.');
-      return;
-    }
-    const next = draftPhone.trim();
-    if (next.length < 10) {
-      toast.error('Geçerli bir telefon numarası girin.');
-      return;
-    }
-    setSavingPhone(true);
-    try {
-      const saved = await syncMarketplaceProfilePhone(userId as UserId, next);
-      onPhoneSaved?.(saved);
-      setDraftPhone('');
-      toast.success('Telefon kaydedildi. Yayınlamaya devam edebilirsiniz.');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Telefon kaydedilemedi.');
-    } finally {
-      setSavingPhone(false);
-    }
+  function handlePhoneChange(val: string) {
+    onPhoneChange?.(val);
+    onPhoneSaved?.(val);
   }
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
+      {/* 1. İlan İletişim & Şirket Bilgileri (Zorunlu) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/50 space-y-3.5">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-slate-200/70 dark:border-zinc-800">
+          <div className={cn('flex h-8 w-8 items-center justify-center rounded-xl', currentTheme.headerIcon)}>
+            <Building2 className="h-4 w-4 stroke-[2.5]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
+              İlan İletişim & Şirket Bilgileri (Zorunlu)
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              İlanınız yayınlandığında ilgilenen tarafların ve sistemin sizinle iletişime geçebilmesi için zorunludur.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+          {/* Telefon Numarası */}
+          <div className="space-y-1.5">
+            <Label htmlFor="publish-contact-phone" className="text-xs font-bold flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
+                <Phone className="w-3.5 h-3.5 text-amber-500" />
+                <span>Telefon Numarası *</span>
+              </span>
+              {effectivePhone && effectivePhone.replace(/\D/g, '').length >= 10 ? (
+                <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
+                </span>
+              ) : (
+                <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
+              )}
+            </Label>
+            <div className="relative">
+              <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="publish-contact-phone"
+                type="tel"
+                value={effectivePhone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="05XX XXX XX XX"
+                className={cn(
+                  'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
+                  phoneError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
+                )}
+                disabled={disabled}
+              />
+            </div>
+            {phoneError ? (
+              <p className="text-[11px] font-medium text-rose-500">{phoneError}</p>
+            ) : (
+              <p className="text-[10.5px] text-muted-foreground">İletişim ve SMS doğrulama için kullanılır.</p>
+            )}
+          </div>
+
+          {/* Şirket / Kurumsal E-posta */}
+          <div className="space-y-1.5">
+            <Label htmlFor="publish-company-email" className="text-xs font-bold flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-slate-900 dark:text-zinc-100">
+                <Mail className="w-3.5 h-3.5 text-amber-500" />
+                <span>Şirket / İletişim E-Postası *</span>
+              </span>
+              {contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail) ? (
+                <span className="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Girildi
+                </span>
+              ) : (
+                <span className="text-[10.5px] font-semibold text-rose-500">Zorunlu</span>
+              )}
+            </Label>
+            <div className="relative">
+              <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="publish-company-email"
+                type="email"
+                value={contactEmail || ''}
+                onChange={(e) => onEmailChange?.(e.target.value)}
+                placeholder="ornek@sirketiniz.com"
+                className={cn(
+                  'h-10 pl-9 text-xs font-medium bg-white dark:bg-zinc-950',
+                  emailError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-zinc-800',
+                )}
+                disabled={disabled}
+              />
+            </div>
+            {emailError ? (
+              <p className="text-[11px] font-medium text-rose-500">{emailError}</p>
+            ) : (
+              <p className="text-[10.5px] text-muted-foreground">Teklif ve resmi bildirimler bu adrese iletilir.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Yasal İzinler ve Rıza Beyanları Header */}
+      <div className="flex items-center gap-2.5 pb-2 border-b border-border/60 pt-2">
         <div className={cn('flex h-8 w-8 items-center justify-center rounded-xl', currentTheme.headerIcon)}>
           <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
         </div>
@@ -195,7 +283,7 @@ export function PublishConsentFields({
         </div>
       </div>
 
-      {/* Yasal Onay Checkbox Kartları */}
+      {/* 3. Yasal Onay Checkbox Kartları */}
       <div className="space-y-2.5 pt-1">
         {PUBLISH_CONSENT_POLICY_ITEMS.map((item) => {
           const isChecked = value[item.key];

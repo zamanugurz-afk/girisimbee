@@ -535,6 +535,14 @@ export function CategoryListingForm({
   const [contactPhone, setContactPhone] = useState<string | null>(
     defaults.contactPhone ?? null,
   );
+  const [contactEmail, setContactEmail] = useState<string>(() => {
+    return (
+      (defaults.customFields?.companyEmail as string) ||
+      (defaults.customFields?.contactEmail as string) ||
+      user?.email ||
+      ''
+    );
+  });
   const [packageSelection, setPackageSelection] = useState<ListingPackageSelectionValue>(
     defaults.packageSelection ?? defaultPackageSelectionFor(categoryId),
   );
@@ -638,6 +646,12 @@ export function CategoryListingForm({
       customFieldsRole: customFields?.desiredRole,
     });
   }, [storageKey, customFields]);
+
+  useEffect(() => {
+    if (!contactEmail && user?.email) {
+      setContactEmail(user.email);
+    }
+  }, [user, contactEmail]);
 
   const currentStep = steps[stepIndex];
   const isPreviewStep = Boolean(currentStep.preview);
@@ -2655,9 +2669,14 @@ export function CategoryListingForm({
             }
           : core;
 
+    const finalCustomFields = {
+      ...customFieldsWithCv,
+      ...(contactEmail.trim() ? { companyEmail: contactEmail.trim(), contactEmail: contactEmail.trim() } : {}),
+    };
+
     return {
       core: derivedCore,
-      customFields: customFieldsWithCv,
+      customFields: finalCustomFields,
       tags,
       images: [...images]
         .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
@@ -2665,7 +2684,7 @@ export function CategoryListingForm({
       cvUrl: categoryId === CATEGORY_IDS.isBul ? null : cvUrl,
       kvkkConsents,
       publishConsents,
-      contactPhone,
+      contactPhone: contactPhone?.trim() || null,
       packageSelection,
     };
   }
@@ -2714,10 +2733,25 @@ export function CategoryListingForm({
         contactPhone,
       });
 
-      if (!contactPhone?.trim()) {
-        setPublishErrors([
-          'Yayınlamak için telefon numarası gerekli. Yayın Onayları adımından ekleyin.',
-        ]);
+      const phoneClean = (contactPhone || '').trim();
+      const emailClean = (contactEmail || '').trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const contactFieldErrors: Record<string, string> = {};
+      const contactErrorMsgs: string[] = [];
+
+      if (!phoneClean || phoneClean.replace(/\D/g, '').length < 10) {
+        contactFieldErrors.contactPhone = 'Yayınlamak için geçerli bir telefon numarası zorunludur.';
+        contactErrorMsgs.push('Yayınlamak için telefon numarası gerekli. Lütfen yukarıdaki alana telefon bilginizi giriniz.');
+      }
+      if (!emailClean || !emailRegex.test(emailClean)) {
+        contactFieldErrors.contactEmail = 'Yayınlamak için geçerli bir şirket / kurumsal e-posta adresi zorunludur.';
+        contactErrorMsgs.push('Yayınlamak için şirket / iletişim e-postası gerekli. Lütfen yukarıdaki alana geçerli bir e-posta giriniz.');
+      }
+
+      if (contactErrorMsgs.length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...contactFieldErrors }));
+        setPublishErrors(contactErrorMsgs);
+        toast.error('Lütfen zorunlu iletişim alanlarını (telefon ve şirket e-postası) doldurun.');
         return;
       }
 
@@ -3258,20 +3292,34 @@ export function CategoryListingForm({
                   disabled={disabled || isBusy}
                   variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
                   themeColor={categoryThemeColor}
-                  error={
-                    resolveFieldError(fieldErrors, 'publishConsents')
-                    || resolveFieldError(fieldErrors, 'contactPhone')
-                  }
-                  phoneHint={contactPhone}
-                  userId={userId}
-                  onPhoneSaved={(phone) => {
+                  error={resolveFieldError(fieldErrors, 'publishConsents')}
+                  contactPhone={contactPhone}
+                  onPhoneChange={(phone) => {
                     setContactPhone(phone);
                     setFieldErrors((prev) => {
-                      if (!prev.contactPhone && !prev.publishConsents) return prev;
+                      if (!prev.contactPhone) return prev;
                       const next = { ...prev };
                       delete next.contactPhone;
                       return next;
                     });
+                    setPublishErrors((prev) => prev.filter((m) => !m.toLowerCase().includes('telefon')));
+                  }}
+                  contactEmail={contactEmail}
+                  onEmailChange={(email) => {
+                    setContactEmail(email);
+                    setFieldErrors((prev) => {
+                      if (!prev.contactEmail) return prev;
+                      const next = { ...prev };
+                      delete next.contactEmail;
+                      return next;
+                    });
+                    setPublishErrors((prev) => prev.filter((m) => !m.toLowerCase().includes('posta') && !m.toLowerCase().includes('mail')));
+                  }}
+                  phoneError={resolveFieldError(fieldErrors, 'contactPhone')}
+                  emailError={resolveFieldError(fieldErrors, 'contactEmail')}
+                  userId={userId}
+                  onPhoneSaved={(phone) => {
+                    setContactPhone(phone);
                   }}
                 />
               </div>
@@ -4231,20 +4279,34 @@ export function CategoryListingForm({
                     disabled={disabled || isBusy}
                     variant={categoryId === CATEGORY_IDS.isBul ? 'career' : 'default'}
                     themeColor={categoryThemeColor}
-                    error={
-                      resolveFieldError(fieldErrors, 'publishConsents')
-                      || resolveFieldError(fieldErrors, 'contactPhone')
-                    }
-                    phoneHint={contactPhone}
-                    userId={userId}
-                    onPhoneSaved={(phone) => {
+                    error={resolveFieldError(fieldErrors, 'publishConsents')}
+                    contactPhone={contactPhone}
+                    onPhoneChange={(phone) => {
                       setContactPhone(phone);
                       setFieldErrors((prev) => {
-                        if (!prev.contactPhone && !prev.publishConsents) return prev;
+                        if (!prev.contactPhone) return prev;
                         const next = { ...prev };
                         delete next.contactPhone;
                         return next;
                       });
+                      setPublishErrors((prev) => prev.filter((m) => !m.toLowerCase().includes('telefon')));
+                    }}
+                    contactEmail={contactEmail}
+                    onEmailChange={(email) => {
+                      setContactEmail(email);
+                      setFieldErrors((prev) => {
+                        if (!prev.contactEmail) return prev;
+                        const next = { ...prev };
+                        delete next.contactEmail;
+                        return next;
+                      });
+                      setPublishErrors((prev) => prev.filter((m) => !m.toLowerCase().includes('posta') && !m.toLowerCase().includes('mail')));
+                    }}
+                    phoneError={resolveFieldError(fieldErrors, 'contactPhone')}
+                    emailError={resolveFieldError(fieldErrors, 'contactEmail')}
+                    userId={userId}
+                    onPhoneSaved={(phone) => {
+                      setContactPhone(phone);
                     }}
                   />
                 </div>
