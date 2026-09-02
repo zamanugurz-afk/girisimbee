@@ -310,20 +310,19 @@ export function MarketplaceBrowseView({
         </div>
 
         {/* 2. SÜPER İLANLAR VİTRİN ŞERİDİ (Altın Sarısı Yanıp Sönen Çerçeve) */}
-        {!categorySlug && (
-          <ExploreSuperVitrin
-            items={items}
-            onViewAllSuper={() => {
-              updateFilters({
-                isUrgent: true,
-                categorySlug: undefined,
-                sector: undefined,
-                city: undefined,
-              });
-              scrollToFeed();
-            }}
-          />
-        )}
+        <ExploreSuperVitrin
+          items={items}
+          categorySlug={categorySlug}
+          onViewAllSuper={() => {
+            updateFilters({
+              isUrgent: true,
+              categorySlug: categorySlug ?? undefined,
+              sector: undefined,
+              city: undefined,
+            });
+            scrollToFeed();
+          }}
+        />
 
         {/* 3. AYRIM ÇİZGİSİ */}
         <div className="relative my-7 sm:my-9 flex items-center justify-center">

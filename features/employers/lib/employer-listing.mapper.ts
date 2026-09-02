@@ -45,6 +45,10 @@ const DETAIL_KEYS = [
   'salaryMin',
   'salaryMax',
   'languageTags',
+  'companyId',
+  'companyName',
+  'companySlug',
+  'businessName',
 ] as const;
 
 export function extractEmployerListingDetails(listing: Listing): EmployerJobListingDetails {
@@ -86,6 +90,7 @@ export function employerPayloadToCreateInput(
   | 'contactWebsite'
   | 'customFields'
   | 'anonymousMode'
+  | 'companyId'
 > {
   return {
     title: payload.title,
@@ -98,6 +103,7 @@ export function employerPayloadToCreateInput(
     contactWhatsapp: payload.contactWhatsapp ?? null,
     contactEmail: payload.contactEmail ?? null,
     contactWebsite: payload.contactWebsite ?? null,
+    companyId: payload.companyId ? (payload.companyId as any) : null,
     anonymousMode: true,
     customFields: buildCustomFields(payload as unknown as Record<string, unknown>),
   };
@@ -121,6 +127,7 @@ export function employerPayloadToUpdateInput(
   if (payload.contactWhatsapp !== undefined) update.contactWhatsapp = payload.contactWhatsapp;
   if (payload.contactEmail !== undefined) update.contactEmail = payload.contactEmail;
   if (payload.contactWebsite !== undefined) update.contactWebsite = payload.contactWebsite;
+  if (payload.companyId !== undefined) update.companyId = payload.companyId as any;
 
   const customPatch = buildCustomFields(payload as unknown as Record<string, unknown>);
   if (Object.keys(customPatch).length > 0) {

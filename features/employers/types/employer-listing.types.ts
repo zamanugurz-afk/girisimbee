@@ -51,6 +51,10 @@ export interface EmployerJobListingPayload {
   availability?: string | null;
   positionTitle?: string | null;
   languageTags?: string[] | null;
+  companyId?: string | null;
+  companyName?: string | null;
+  companySlug?: string | null;
+  businessName?: string | null;
 }
 
 export interface EmployerJobListingFilter {

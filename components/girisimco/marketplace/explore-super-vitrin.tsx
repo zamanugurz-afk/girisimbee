@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 interface ExploreSuperVitrinProps {
   items: ContentItem[];
+  categorySlug?: string;
   onViewAllSuper?: () => void;
   className?: string;
 }
@@ -23,6 +24,7 @@ const AUTO_ROTATE_INTERVAL_MS = 10000; // 10 saniye
 
 export function ExploreSuperVitrin({
   items,
+  categorySlug,
   onViewAllSuper,
   className,
 }: ExploreSuperVitrinProps) {
@@ -63,13 +65,29 @@ export function ExploreSuperVitrin({
     }
   }, [items]);
 
-  // Süper ilanlar havuzu (Kategori ne seçilirse seçilsin tüm süper ilanlar sabit kalır)
+  // Süper ilanlar havuzu (Kategori bazlı önceliklendirme)
   const superItems = useMemo(() => {
-    if (globalSuperListings.length > 0) return globalSuperListings;
-    const urgents = items.filter((item) => item.isUrgent || item.isShowcase);
-    if (urgents.length > 0) return urgents;
+    const fromPropsUrgents = items.filter((item) => item.isUrgent || item.isShowcase);
+    if (categorySlug && fromPropsUrgents.length >= 4) {
+      return fromPropsUrgents;
+    }
+    if (globalSuperListings.length > 0) {
+      if (categorySlug) {
+        const matched = globalSuperListings.filter(
+          (item) =>
+            item.listingGroupLabel?.toLowerCase().includes(categorySlug.toLowerCase()) ||
+            item.listingTypeLabel?.toLowerCase().includes(categorySlug.toLowerCase()) ||
+            item.tag?.toLowerCase().includes(categorySlug.toLowerCase()),
+        );
+        const others = globalSuperListings.filter((item) => !matched.some((m) => m.id === item.id));
+        const combined = [...matched, ...others];
+        if (combined.length > 0) return combined;
+      }
+      return globalSuperListings;
+    }
+    if (fromPropsUrgents.length > 0) return fromPropsUrgents;
     return items.slice(0, 8);
-  }, [globalSuperListings, items]);
+  }, [categorySlug, globalSuperListings, items]);
 
   const [pageIndex, setPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);

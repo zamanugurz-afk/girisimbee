@@ -264,6 +264,7 @@ function CreateListingContent() {
             shortDescription: values.core.shortDescription,
             longDescription: values.core.longDescription,
             city: values.core.city ?? null,
+            companyId: (values.customFields?.companyId as any) || null,
           },
           customFields: {
             ...values.customFields,
