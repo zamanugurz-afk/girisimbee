@@ -225,7 +225,7 @@ export function Header() {
                 )}
               </div>
 
-              {/* 2. İŞ FİKİRLERİ & KULUÇKA (GOLDEN GLOW SPOTLIGHT) */}
+              {/* 2. İŞ FİKİRLERİ & KULUÇKA */}
               <div
                 className="relative"
                 onMouseEnter={() => handleMouseEnter('ideas')}
@@ -235,20 +235,18 @@ export function Header() {
                   type="button"
                   onClick={() => setActiveDropdown(activeDropdown === 'ideas' ? null : 'ideas')}
                   className={cn(
-                    'px-3.5 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none',
-                    'bg-amber-500/10 hover:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-black shadow-2xs',
-                    activeDropdown === 'ideas' && 'ring-2 ring-amber-500/30'
+                    'px-3 py-1.5 rounded-full transition-all duration-150 flex items-center gap-1 cursor-pointer select-none',
+                    activeDropdown === 'ideas'
+                      ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white'
+                      : 'hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-950 dark:hover:text-white'
                   )}
                 >
-                  <Sparkles className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   <span>İş Fikirleri</span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-amber-500 text-slate-950 text-[9.5px] font-black tracking-wide">
-                    YENİ
-                  </span>
                   <ChevronDown
                     className={cn(
-                      'w-3.5 h-3.5 text-amber-600 dark:text-amber-400 transition-transform duration-200',
-                      activeDropdown === 'ideas' && 'rotate-180'
+                      'w-3.5 h-3.5 text-slate-400 transition-transform duration-200',
+                      activeDropdown === 'ideas' && 'rotate-180 text-slate-700 dark:text-zinc-200'
                     )}
                   />
                 </button>
