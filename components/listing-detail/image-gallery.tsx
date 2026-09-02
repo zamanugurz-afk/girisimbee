@@ -206,7 +206,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             onClick={() => setFullscreen(false)}
           >
             <button
-              className="absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-muted"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFullscreen(false);
+              }}
+              className="absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-muted cursor-pointer"
               aria-label="Kapat"
             >
               <X className="h-6 w-6" />

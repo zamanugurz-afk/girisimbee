@@ -314,13 +314,12 @@ function LegacyContentCardLayout({
       {isArticle && (
         <div className="mt-3 flex items-center justify-between sm:mt-0 sm:ml-auto sm:flex-col sm:items-end sm:gap-2">
           {item.meta && <span className="text-xs text-muted-foreground">{item.meta}</span>}
-          <button
-            type="button"
+          <span
             className="inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors duration-200 group-hover:text-primary"
           >
             Oku
             <ArrowUpRight className="h-3 w-3" />
-          </button>
+          </span>
         </div>
       )}
     </article>
@@ -483,12 +482,10 @@ function CardFooter({
 
 export function ContentCardCompact({ item, accent }: ContentCardProps) {
   const resolvedAccent = accent ?? GC_ACCENT;
+  const href = item.id ? listingHref(item.id) : undefined;
 
-  return (
-    <button
-      type="button"
-      className="group flex w-full items-center gap-3 rounded-xl border border-border/80 bg-card p-3 text-left shadow-soft transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card"
-    >
+  const innerContent = (
+    <>
       {item.initials ? (
         <Avatar initials={item.initials} accent={resolvedAccent} />
       ) : item.emoji ? (
@@ -497,7 +494,7 @@ export function ContentCardCompact({ item, accent }: ContentCardProps) {
         </span>
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+        <p className="truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item.title}</p>
         <p className="truncate text-xs text-muted-foreground">
           {item.subtitle ?? item.detail ?? item.location}
         </p>
@@ -505,6 +502,25 @@ export function ContentCardCompact({ item, accent }: ContentCardProps) {
       {item.timeAgo && (
         <span className="shrink-0 text-[11px] text-muted-foreground">{item.timeAgo}</span>
       )}
-    </button>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="group flex w-full items-center gap-3 rounded-xl border border-border/80 bg-card p-3 text-left shadow-soft transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card cursor-pointer"
+      >
+        {innerContent}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className="group flex w-full items-center gap-3 rounded-xl border border-border/80 bg-card p-3 text-left shadow-soft transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card"
+    >
+      {innerContent}
+    </div>
   );
 }
