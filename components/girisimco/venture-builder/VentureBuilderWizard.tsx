@@ -522,100 +522,118 @@ export function VentureBuilderWizard() {
                 </div>
               </div>
 
-              {/* 2. Temel Tanım & Lokasyon Bilgileri */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
-                <div className="sm:col-span-6">
-                  <div className="flex items-center justify-between mb-1">
-                    <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                      Fikir / Proje Başlığı (Marka Taslağı) *
-                    </Label>
-                    <span className="text-[10.5px] text-slate-400 font-medium">
-                      {draft.title.length}/100
-                    </span>
+              {/* 2 Sütunlu Dik Ayrım Çizgili Form Alanı */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch pt-1">
+                {/* Sol Sütun: Fikir Başlığı, Konsept & Fırsat Analizi */}
+                <div className="space-y-3 pr-0 md:pr-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-zinc-800 pb-3 md:pb-0">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                        Fikir / Proje Başlığı (Marka Taslağı) *
+                      </Label>
+                      <span className="text-[10.5px] text-slate-400 font-medium">
+                        {draft.title.length}/100
+                      </span>
+                    </div>
+                    <Input
+                      placeholder="Örn: Butik Kahve & Çekirdek Aboneliği"
+                      maxLength={100}
+                      value={draft.title}
+                      onChange={(e) => updateBasicInfo({ title: e.target.value })}
+                      className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                    />
                   </div>
-                  <Input
-                    placeholder="Örn: Butik Kahve & Çekirdek Aboneliği"
-                    maxLength={100}
-                    value={draft.title}
-                    onChange={(e) => updateBasicInfo({ title: e.target.value })}
-                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
-                  />
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                      Tek Cümlelik Çarpıcı Konsept (Ne Sunuyorsun?) *
+                    </Label>
+                    <Input
+                      placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş nitelikli kahve seti teslimatı."
+                      value={draft.oneLiner}
+                      onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
+                      className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                      Pazardaki Açık / Neden Tutar? (Fırsat Analizi) *
+                    </Label>
+                    <Textarea
+                      rows={2}
+                      placeholder="Örn: İnsanlar kaliteli kahveye ulaşmak istiyor fakat zincir kafelerde yüksek fiyatlar ödüyor. Abonelik modeliyle düzenli nakit akışı sağlar..."
+                      value={draft.whyItWorks}
+                      onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
+                      className="rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium resize-none min-h-[54px]"
+                    />
+                  </div>
                 </div>
 
-                <div className="sm:col-span-3">
-                  <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Sektör / Kategori *
-                  </Label>
-                  <select
-                    value={draft.category}
-                    onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
-                    className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088D1]"
-                  >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Sağ Sütun: Sektör & Lokasyon & İlçe & Yatırımcı İpucu */}
+                <div className="space-y-3 pl-0 md:pl-2">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                      Sektör / Kategori *
+                    </Label>
+                    <select
+                      value={draft.category}
+                      onChange={(e) => updateBasicInfo({ category: e.target.value as VentureCategory })}
+                      className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088D1]"
+                    >
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="sm:col-span-3">
-                  <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Kurulum Lokasyonu (İl) *
-                  </Label>
-                  <select
-                    value={draft.authorCity || 'İstanbul'}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088D1]"
-                  >
-                    {cityOptions.map((c) => (
-                      <option key={c} value={c}>
-                        {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                        Kurulum Lokasyonu (İl) *
+                      </Label>
+                      <select
+                        value={draft.authorCity || 'İstanbul'}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088D1]"
+                      >
+                        {cityOptions.map((c) => (
+                          <option key={c} value={c}>
+                            {c} ({TURKEY_CITY_RENTAL_RATES[c]?.plate})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-              {/* =============================================================== */}
-              {/* ORTA AYRIM ÇİZGİSİ (KULLANICININ İSTEDİĞİ BÖLÜM AYIRICI)         */}
-              {/* =============================================================== */}
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-slate-200/90 dark:border-zinc-800" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-white dark:bg-card px-3 text-[10.5px] font-extrabold uppercase tracking-wider text-[#0088D1] dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 rounded-full border border-sky-100 dark:border-sky-900 py-0.5">
-                    Konsept & Pazar Açığı Analizi
-                  </span>
-                </div>
-              </div>
+                    <div>
+                      <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
+                        Hedeflenen İlçe
+                      </Label>
+                      <select
+                        value={selectedDistrict}
+                        onChange={(e) => setSelectedDistrict(e.target.value)}
+                        className="w-full h-10 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 text-xs sm:text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088D1]"
+                      >
+                        {districtOptions.map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-              {/* 3. Konsept & Fırsat Analizi */}
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Tek Cümlelik Çarpıcı Konsept (Müşteriye Ne Sunuyorsun?) *
-                  </Label>
-                  <Input
-                    placeholder="Örn: Plazalara ve ev ofislere haftalık taze kavrulmuş nitelikli çekirdek kahve ve demleme seti teslimatı."
-                    value={draft.oneLiner}
-                    onChange={(e) => updateBasicInfo({ oneLiner: e.target.value })}
-                    className="h-10 rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
-                    Pazardaki Açık / Bu Fikir Neden Tutar? (Fırsat Analizi) *
-                  </Label>
-                  <Textarea
-                    rows={2}
-                    placeholder="Örn: İnsanlar kaliteli kahveye ulaşmak istiyor fakat zincir kafelerde yüksek fiyatlar ödüyor. Düzenli abonelik modeliyle sabit ve öngörülebilir nakit akışı sağlar..."
-                    value={draft.whyItWorks}
-                    onChange={(e) => updateBasicInfo({ whyItWorks: e.target.value })}
-                    className="rounded-xl border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-medium resize-none min-h-[56px]"
-                  />
+                  {/* Yatırımcı İpucu Kutusu */}
+                  <div className="p-3 rounded-xl bg-[#E8F4FD]/70 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/50 text-xs text-slate-700 dark:text-zinc-300">
+                    <span className="font-bold text-[#0088D1] dark:text-sky-400 block mb-0.5">
+                      💡 Yatırımcı Tavsiyesi
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-snug">
+                      Net bir problem tanımı ve uygulanabilir niş çözüm, melek yatırımcının projenize ilk 15 saniyede güven duymasını sağlar.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
