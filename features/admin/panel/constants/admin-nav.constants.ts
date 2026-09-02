@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   BadgeCheck,
   Bell,
+  Building2,
   CreditCard,
   FileText,
   Handshake,
@@ -23,6 +24,7 @@ export const ADMIN_PANEL_BASE = '/admin';
 export type AdminNavId =
   | 'overview'
   | 'users'
+  | 'companies'
   | 'listings'
   | 'verifications'
   | 'moderation'
@@ -53,6 +55,7 @@ export type AdminNavItem = {
 export const ADMIN_ROUTES = {
   overview: ADMIN_PANEL_BASE,
   users: `${ADMIN_PANEL_BASE}/users`,
+  companies: `${ADMIN_PANEL_BASE}/companies`,
   listings: `${ADMIN_PANEL_BASE}/listings`,
   verifications: `${ADMIN_PANEL_BASE}/verifications`,
   moderation: `${ADMIN_PANEL_BASE}/moderation`,
@@ -85,6 +88,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
     exact: true,
   },
   { id: 'users', label: 'Kullanıcılar', href: ADMIN_ROUTES.users, icon: Users },
+  { id: 'companies', label: 'Şirketler', href: ADMIN_ROUTES.companies, icon: Building2 },
   { id: 'listings', label: 'İlanlar', href: ADMIN_ROUTES.listings, icon: Megaphone },
   {
     id: 'placements',

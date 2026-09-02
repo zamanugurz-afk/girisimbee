@@ -7,33 +7,46 @@ export const GET = withAdmin(async (ctx) => {
   try {
     const supabase = createServiceRoleClient();
 
-    const [moderation, support, ads] = await Promise.all([
-      ctx.container.reportRepository.count({ status: 'submitted' }),
-      supabase
+    let moderation = 0;
+    let support = 0;
+    let ads = 0;
+
+    try {
+      moderation = await ctx.container.reportRepository.count({ status: 'submitted' });
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { count } = await supabase
         .from('marketplace_support_inquiries')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'new')
-        .then(({ count, error }) => {
-          if (error) throw new Error(error.message);
-          return count ?? 0;
-        }),
-      supabase
+        .eq('status', 'new');
+      support = count ?? 0;
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { count } = await supabase
         .from('marketplace_ad_inquiries')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'new')
-        .then(({ count, error }) => {
-          if (error) throw new Error(error.message);
-          return count ?? 0;
-        }),
-    ]);
+        .eq('status', 'new');
+      ads = count ?? 0;
+    } catch {
+      // ignore
+    }
 
     return ok({
       moderation,
       support_inquiries: support,
       ad_inquiries: ads,
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Uyarılar yüklenemedi';
-    return apiError(message, 500, { code: 'NAV_ALERTS_FAILED' });
+  } catch {
+    return ok({
+      moderation: 0,
+      support_inquiries: 0,
+      ad_inquiries: 0,
+    });
   }
 });
