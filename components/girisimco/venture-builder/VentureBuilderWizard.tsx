@@ -669,10 +669,10 @@ export function VentureBuilderWizard() {
                 </div>
               </div>
 
-              {/* SAĞ SÜTUN: TAŞIT & EMEK */}
-              <div className="space-y-3.5 pl-0 md:pl-2">
+              {/* SAĞ SÜTUN: TAŞIT */}
+              <div className="space-y-2.5 pl-0 md:pl-2">
                 <div>
-                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-2">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block mb-1">
                     2. Lojistik & Taşıt İmkânı *
                   </Label>
                   <div className="space-y-2">
@@ -710,31 +710,6 @@ export function VentureBuilderWizard() {
                         </button>
                       );
                     })}
-                  </div>
-                </div>
-
-                {/* Emek Saati */}
-                <div className="p-3.5 rounded-2xl bg-[#E8F8F2]/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between gap-3">
-                  <div>
-                    <Label className="text-xs font-bold text-slate-900 dark:text-white block">
-                      3. Haftalık Operasyonel Emek Saatin *
-                    </Label>
-                    <p className="text-[10.5px] text-slate-500 dark:text-zinc-400">
-                      Tam zamanlı bizzat emek için 40-50 saat önerilir.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Input
-                      type="number"
-                      min={5}
-                      max={80}
-                      value={draft.collateral.hoursPerWeek}
-                      onChange={(e) => updateCollateral({ hoursPerWeek: Number(e.target.value) || 40 })}
-                      className="w-20 h-9 rounded-xl font-black text-xs bg-white dark:bg-zinc-800 text-center"
-                    />
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                      s/Hafta
-                    </span>
                   </div>
                 </div>
               </div>
