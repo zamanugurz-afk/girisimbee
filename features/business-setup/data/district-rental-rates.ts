@@ -1071,13 +1071,14 @@ export function getDistrictRentalRate(city: string, district?: string): number {
  * Küçük dükkan taban kira eşiğini (küçük metrekare çarpanı) uygular.
  */
 export function calculateMonthlyRent(city: string, district: string | undefined, m2: number): number {
+  if (!m2 || m2 <= 0) return 0;
   const m2Rate = getDistrictRentalRate(city, district);
   const rawRent = Math.round(m2 * m2Rate);
   
   const cityData = TURKEY_CITY_RENTAL_RATES[city];
   const floorRent = cityData?.minSmallShopFloorRent || 15000;
 
-  // Küçük alanlarda (< 40m²) çarpan eğrisi
+  // Küçük alanlarda (< 35m²) çarpan eğrisi
   if (m2 < 35) {
     const smallFactor = 1 + ((35 - m2) / 70); // %0 - %25 arası küçük dükkan çarpanı
     return Math.max(floorRent, Math.round(rawRent * smallFactor));

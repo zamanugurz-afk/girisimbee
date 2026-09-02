@@ -79,7 +79,8 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   // 1. Ekipman / Demirbaş Maliyeti
   const equipmentTotal = (equipments || []).reduce((sum, eq) => {
     if (!eq.selected) return sum;
-    return sum + eq.unitCost * (eq.qty || eq.defaultQty);
+    const qty = (eq.qty !== undefined && eq.qty !== null) ? eq.qty : eq.defaultQty;
+    return sum + eq.unitCost * qty;
   }, 0);
 
   // 2. Kira ve Taşınma Peşinatı (1 Peşin + 1 Depozito = 2x Kira varsayılan)
@@ -153,13 +154,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
     workingCapitalReserve
   );
 
-  // 11. Başabaş Satış / İşlem Projeksiyonu
-  const unitPrice = template.breakEvenMetric?.unitPrice || 1000;
-  const marginRatio = template.revenueModel?.grossMarginPercent ? (template.revenueModel.grossMarginPercent / 100) : 0.35;
-  const calculatedDailyUnits = Math.max(1, Math.round((monthlyOperatingCost / 26) / (unitPrice * marginRatio)));
-  const dailyBreakEvenCount = template.breakEvenMetric?.targetUnitsPerDay || calculatedDailyUnits;
-
-  // 12. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI (GÜNLÜK vs AYLIK ÜYELİK)
+  // 11. ADIM 7: GELİR & CİRO MODELİ & AMORTİSMAN SÜRESİ HESAPLAMASI (GÜNLÜK vs AYLIK ÜYELİK)
   const revModel = template.revenueModel || {
     periodType: 'daily',
     volumeLabel: 'Günlük İşlem Hacmi',
@@ -179,13 +174,24 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
   const avgTicketPrice = customAvgTicketPrice != null && customAvgTicketPrice > 0 ? customAvgTicketPrice : revModel.avgTicketPrice;
   const grossMarginPercent = revModel.grossMarginPercent || 35;
 
+  // Dinamik Başabaş Hesaplama (Aylık vs Günlük modele duyarlı)
+  const unitPrice = template.breakEvenMetric?.unitPrice || avgTicketPrice || 1000;
+  const marginRatio = grossMarginPercent / 100;
+  const grossProfitPerUnit = Math.max(1, unitPrice * marginRatio);
+  const daysPerMonth = revModel.daysPerMonth || 26;
+
+  const calculatedDailyUnits = periodType === 'monthly'
+    ? Math.max(1, Math.ceil(monthlyOperatingCost / grossProfitPerUnit))
+    : Math.max(1, Math.ceil((monthlyOperatingCost / daysPerMonth) / grossProfitPerUnit));
+
+  const dailyBreakEvenCount = calculatedDailyUnits;
+
   let monthlyVolume: number;
   if (periodType === 'monthly') {
     // Aylık Düzenli Üyelik / Mükellef / Proje Modeli (Örn: 55 Pilates Üyesi * 3.800 ₺)
     monthlyVolume = currentVolume;
   } else {
     // Günlük Satış / Fiş / Reçete Modeli (Örn: 90 Günlük Kahve * 30 Gün * 220 ₺)
-    const daysPerMonth = revModel.daysPerMonth || 26;
     monthlyVolume = Math.round(currentVolume * daysPerMonth);
   }
 
@@ -195,7 +201,7 @@ export function calculateBusinessSetupBudget(params: SetupCalculationParams): Bu
 
   const isProfitable = monthlyNetProfit > 0;
   const paybackMonths = isProfitable && totalInitialInvestment > 0
-    ? Math.max(1, Math.round((totalInitialInvestment / monthlyNetProfit) * 10) / 10)
+    ? Math.min(999, Math.max(1, Math.round((totalInitialInvestment / monthlyNetProfit) * 10) / 10))
     : 0;
 
   const revenueProjection: RevenueProjectionResult = {

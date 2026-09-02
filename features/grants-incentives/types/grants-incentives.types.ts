@@ -44,7 +44,7 @@ export interface SectorIncentiveProfile {
   sectorId: string;
   sectorName: string;
   emoji: string;
-  categoryGroup: 'Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Zanaat';
+  categoryGroup: 'Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Zanaat' | 'Otomotiv & Sanayi';
   naceCode: string;
   naceDescription: string;
   isKosgebEligible: boolean;

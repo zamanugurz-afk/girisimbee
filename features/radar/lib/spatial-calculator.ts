@@ -27,7 +27,8 @@ export function calculateDistanceMeters(
       Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const aClamped = Math.min(1, Math.max(0, a));
+  const c = 2 * Math.atan2(Math.sqrt(aClamped), Math.sqrt(1 - aClamped));
   return Math.round(R * c);
 }
 
@@ -143,7 +144,7 @@ export function computeRadarMetrics(
 
   // Demografik nüfus ve profil çözümleme
   const demographics = resolveDemographicProfile(lat ?? 40.9125, lng ?? 29.1764, radiusMeters, locationName);
-  const catchmentPop = parseInt(demographics.population.replace(/\./g, '')) || Math.round(areaKm2 * 12000);
+  const catchmentPop = demographics.populationRaw || parseInt(demographics.population.replace(/\./g, '')) || Math.round(areaKm2 * 12000);
   const sesStr = demographics.sesGroup;
   const isUpperSes = sesStr.includes('A');
   const isLowerSes = sesStr.includes('C2') || sesStr.includes('D');
@@ -155,14 +156,14 @@ export function computeRadarMetrics(
   let saturationScore = 45;
 
   if (isAll) {
-    // Tüm Sektörler seçildiğinde genel ticari çekim merkezi ve yaya canlılığı değerlendirilir
-    if (competitorCount >= 40) {
+    // Tüm Sektörler seçildiğinde genel ticari çekim merkezi, yoğunluk ve yaya canlılığı değerlendirilir
+    if (densityPerKm2 >= 50 || competitorCount >= 40) {
       saturationLevel = 'moderate';
       saturationLabel = 'Canlı Ticaret Merkezi (Yüksek Yaya Sirkülasyonu)';
       opportunityScore = 8.8;
       opportunityLabel = 'Yüksek Ticari Potansiyel';
       saturationScore = 38;
-    } else if (competitorCount >= 15) {
+    } else if (densityPerKm2 >= 20 || competitorCount >= 15) {
       saturationLevel = 'low';
       saturationLabel = 'Gelişmekte Olan Ticari Bölge';
       opportunityScore = 8.3;
@@ -203,29 +204,29 @@ export function computeRadarMetrics(
       // Belirgin arz açığı (Bölge 4-5 dükkan kaldırabilirken sadece 0-1 dükkan var)
       saturationLevel = 'low';
       saturationLabel = 'Düşük Rekabet — Yüksek Talep Açığı';
-      saturationScore = Math.max(8, Math.round(saturationRatio * 100));
-      opportunityScore = Math.min(9.8, parseFloat((8.8 + (0.35 - saturationRatio) * 2.5).toFixed(1)));
+      saturationScore = Math.max(5, Math.round(saturationRatio * 100));
+      opportunityScore = parseFloat(Math.min(9.8, 9.8 - saturationRatio * 2.857).toFixed(1));
       opportunityLabel = 'Çok Yüksek Fırsat';
     } else if (saturationRatio <= 0.85) {
       // Dengeli pazar, sağlıklı büyüme alanı var
       saturationLevel = 'moderate';
       saturationLabel = 'Dengeli Pazar — İstikrarlı Talep';
       saturationScore = Math.round(35 + (saturationRatio - 0.35) * 60);
-      opportunityScore = Math.min(8.7, Math.max(7.4, parseFloat((7.4 + (0.85 - saturationRatio) * 2.4).toFixed(1))));
+      opportunityScore = parseFloat(Math.max(7.4, 8.8 - (saturationRatio - 0.35) * 2.80).toFixed(1));
       opportunityLabel = 'Yatırıma Uygun';
     } else if (saturationRatio <= 1.40) {
       // Rekabet yoğun, kapasiteye yaklaşılmış veya hafif aşılmış
       saturationLevel = 'high';
       saturationLabel = 'Yoğun Rekabet — Farklılaşma Şart';
-      saturationScore = Math.min(85, Math.round(65 + (saturationRatio - 0.85) * 36));
-      opportunityScore = Math.max(5.8, parseFloat((7.2 - (saturationRatio - 0.85) * 2.5).toFixed(1)));
+      saturationScore = Math.min(85, Math.round(65 + (saturationRatio - 0.85) * 36.36));
+      opportunityScore = parseFloat(Math.max(5.8, 7.4 - (saturationRatio - 0.85) * 2.909).toFixed(1));
       opportunityLabel = 'Niş Konsept Önerilir';
     } else {
       // Yüksek doygunluk (Nüfus ve tüketim sıklığına göre bölgede fazla işletme var)
       saturationLevel = 'oversaturated';
       saturationLabel = 'Yüksek Doygunluk — Rekabetçi Pazar';
       saturationScore = Math.min(100, Math.round(85 + (saturationRatio - 1.40) * 10));
-      opportunityScore = Math.max(4.2, parseFloat((5.4 - (saturationRatio - 1.40) * 0.6).toFixed(1)));
+      opportunityScore = parseFloat(Math.max(1.5, 5.8 - (saturationRatio - 1.40) * 1.20).toFixed(1));
       opportunityLabel = 'Hazır Devir/Ortaklık Önerilir';
     }
   }
@@ -1542,6 +1543,54 @@ export const TURKEY_PROVINCE_TOP_50_TRADES: SectorPopularityMeta[] = [
     standardSesAffinity: 1.25,
     upperSesReason: 'Taze Belçika çikolatalı çilekli waffle, fondü ve el yapımı spesiyal trüf çikolata açığı.',
     standardSesReason: 'Gençler ve aileler için bol malzemeli çıtır waffle ve tatlı krep dükkanı.',
+  },
+  {
+    key: 'travel_agency',
+    label: 'Turizm & Seyahat Acentesi / Vize Ofisi',
+    emoji: '✈️',
+    domainGroup: 'service',
+    requiredPop: 8000,
+    popularityRank: 83,
+    upperSesAffinity: 1.5,
+    standardSesAffinity: 1.0,
+    upperSesReason: 'TÜRSAB A Grubu butik yurt dışı turizm paketleri, cruise ve hızlı VIP vize danışmanlığı açığı.',
+    standardSesReason: 'Yurt içi kültür turları, uçak bileti, otel rezervasyonu ve hac/umre turizm ofisi.',
+  },
+  {
+    key: 'auto_gallery',
+    label: 'Oto Galeri & İkinci El Araç Alım/Satım',
+    emoji: '🚗',
+    domainGroup: 'service',
+    requiredPop: 10000,
+    popularityRank: 84,
+    upperSesAffinity: 1.3,
+    standardSesAffinity: 1.1,
+    upperSesReason: 'Ekspertiz garantili lüks segment 2. el araç portföyü ve takas merkezi açığı.',
+    standardSesReason: 'Ticaret Bakanlığı yetki belgeli güvenilir mahalle oto galerisi ve ticari araç alım satımı.',
+  },
+  {
+    key: 'terzi',
+    label: 'Terzi, Modaevi & Paça/Tadilat Atölyesi',
+    emoji: '🧵',
+    domainGroup: 'service',
+    requiredPop: 4000,
+    popularityRank: 85,
+    upperSesAffinity: 1.3,
+    standardSesAffinity: 1.15,
+    upperSesReason: 'Kişiye özel takım elbise/abiye dikimi, kuru temizleme anlaşmalı ekspres paça ve daraltma servisi.',
+    standardSesReason: 'Mahalle sakinleri için pantolon paçası, fermuar değişimi ve hızlı elbise tadilat atölyesi.',
+  },
+  {
+    key: 'software_agency',
+    label: 'Yazılım, Web Tasarım & Dijital Ajans',
+    emoji: '💻',
+    domainGroup: 'service',
+    requiredPop: 6500,
+    popularityRank: 86,
+    upperSesAffinity: 1.8,
+    standardSesAffinity: 1.1,
+    upperSesReason: 'Bölgedeki yerel KOBİ ve kurumsal firmalar için özel yazılım geliştirme, ERP entegrasyonu ve dijital dönüşüm ofisi.',
+    standardSesReason: 'Esnaflar ve yerel işletmeler için e-ticaret sitesi, Google Haritalar SEO ve sosyal medya yönetim ajansı.',
   },
 ];
 

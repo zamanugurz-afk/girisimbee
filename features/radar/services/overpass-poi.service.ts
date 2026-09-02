@@ -1320,6 +1320,19 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
     'Axa Sigorta Yetkili Acentesi',
     'Aksigorta & Kasko/DASK Ofisi',
   ],
+  florist: [
+    'Lale Çiçekçilik & Botanik',
+    'Gül Tasarım & Canlı Çiçek Evi',
+    'Gardenia Çiçek & Teraryum Atölyesi',
+    'Çarşı Çiçekçisi & Gelin Buketi',
+  ],
+  travel_agency: [
+    'Jolly Tur Yetkili Acentesi',
+    'ETS Tur Satış Ofisi',
+    'Setur Seyahat Acentesi',
+    'TatilBudur & Vize Danışmanlık',
+    'Anı Tur & Uçak Bileti Acentesi',
+  ],
   playstation_cafe: [
     'Matrix Playstation & VIP Lounge',
     'Arena PS5 & Konsol Oyun Salonu',

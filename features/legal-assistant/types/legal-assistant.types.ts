@@ -45,7 +45,7 @@ export interface SectorLegalRoadmap {
   sectorId: string;
   sectorName: string;
   emoji: string;
-  categoryGroup: 'Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Zanaat';
+  categoryGroup: 'Finans & Hizmet' | 'Yeme - İçme' | 'Kişisel Bakım & Sağlık' | 'Perakende & Zanaat' | 'Otomotiv & Sanayi';
   totalEstimatedLegalCost: number;
   estimatedTotalDays: string;
   statutoryCapitalRequirement: StatutoryCapitalRequirement;

@@ -23,8 +23,10 @@ export const TURKEY_CITY_INCENTIVE_ZONES: Record<string, RegionalIncentiveZone> 
   Adana: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Çukurova sanayi ve tarım teşvik havzası.' },
   Aydın: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Ege tarım ve turizm entegre destekleri.' },
   Balıkesir: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Marmara geçiş bölgesi üretim ve gıda teşvikleri.' },
+  Burdur: { zone: 2, zoneName: '2. Bölge (Göller Yöresi)', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Mermer, hayvancılık ve tarımsal sanayi teşvikleri.' },
   Denizli: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Tekstil, ihracat ve makine hibe destekleri.' },
   Edirne: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Trakya sınır ve lojistik teşvikleri.' },
+  Isparta: { zone: 2, zoneName: '2. Bölge (Göller Yöresi)', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Gül, kozmetik, meyvecilik ve sanayi teşvikleri.' },
   Kayseri: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'İç Anadolu sanayi ve mobilya üretim destekleri.' },
   Konya: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Tarım makineleri ve gıda imalatı teşvikleri.' },
   Manisa: { zone: 2, zoneName: '2. Bölge', sgkEmployerShareSupportYears: 3, taxReductionRate: '%55', interestSupportPoints: 4, description: 'Elektronik ve beyaz eşya tedarik teşvikleri.' },
@@ -39,6 +41,7 @@ export const TURKEY_CITY_INCENTIVE_ZONES: Record<string, RegionalIncentiveZone> 
   Düzce: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Orman ürünleri ve otomotiv yan sanayi.' },
   Gaziantep: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Güneydoğu ana sanayi ve ihracat merkezi.' },
   Karabük: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Demir-çelik ve ağır metal teşvikleri.' },
+  Karaman: { zone: 3, zoneName: '3. Bölge (Gıda Vadisi)', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Bisküvi, çikolata, ambalaj ve gıda sanayi teşvikleri.' },
   Kırklareli: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Trakya gıda ve süt ürünleri teşvikleri.' },
   Kütahya: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Porselen, çini ve madencilik destekleri.' },
   Mersin: { zone: 3, zoneName: '3. Bölge', sgkEmployerShareSupportYears: 5, taxReductionRate: '%60', interestSupportPoints: 5, description: 'Akdeniz ana limanı ve lojistik teşvikleri.' },
@@ -56,6 +59,7 @@ export const TURKEY_CITY_INCENTIVE_ZONES: Record<string, RegionalIncentiveZone> 
   Elazığ: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Doğu Anadolu madencilik ve hizmet merkezi.' },
   Erzincan: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Süt ürünleri ve doğa sporları turizmi.' },
   Giresun: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Fındık mamulleri ve gıda işleme.' },
+  Hatay: { zone: 4, zoneName: '4. Bölge (Özel Destek Statüsü)', sgkEmployerShareSupportYears: 10, taxReductionRate: '%90', interestSupportPoints: 9, description: 'Yatırım ve istihdamda 6. bölge seviyesinde maksimum devlet desteği.' },
   Kastamonu: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Ahşap sanayi ve sarımsak entegre tesisleri.' },
   Kırıkkale: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Silah ve metal sanayi teşvikleri.' },
   Kırşehir: { zone: 4, zoneName: '4. Bölge', sgkEmployerShareSupportYears: 6, taxReductionRate: '%70', interestSupportPoints: 6, description: 'Petlas lastik yan sanayi ve jeotermal.' },
@@ -581,14 +585,51 @@ const DEFAULT_NACE_MAPPING: Record<
 for (const [id, def] of Object.entries(DEFAULT_NACE_MAPPING)) {
   if (!SECTOR_INCENTIVE_PROFILES[id]) {
     const isAdv = !!def.isAdvanced;
+    const isEligible = (def as any).isKosgebEligible !== false && id !== 'kuyumcu-sarraf';
+
+    const grants: GrantSupportItem[] = [];
+    if (isEligible) {
+      grants.push({
+        id: `kosgeb_${id}`,
+        provider: 'KOSGEB',
+        programName: isAdv ? 'İleri Girişimci Destek Programı' : 'Geleneksel Girişimcilik Kuruluş Hibe Programı',
+        supportType: 'Hibe (Geri Ödemesiz)',
+        maxAmount: isAdv ? 375000 : 85000,
+        coverageRatio: isAdv ? '%75 Hibe' : '%100 Hibe',
+        conditions: [
+          'KOSGEB Girişimcilik online eğitimi tamamlanmış olmalıdır.',
+          'İşletme tescilinden sonra KOSGEB portalı üzerinden başvuru yapılır.',
+          'Kadın veya genç girişimcilerde ek hibe ödenir.',
+        ],
+        applicationUrl: 'https://edevlet.kosgeb.gov.tr',
+        summary: isAdv
+          ? '375.000 TL makine ve ekipman geri ödemesiz hibe desteği.'
+          : '65.000 TL taban kuruluş desteği + kadın/genç girişimcilere 20.000 TL ek hibe.',
+        officialReference: 'KOSGEB Girişimcilik Uygulama Esasları',
+      });
+    }
+
+    grants.push({
+      id: `iskur_${id}`,
+      provider: 'İŞKUR',
+      programName: 'İstihdam Prim Desteği (SGK İşveren Teşviki)',
+      supportType: 'Vergi / Prim Muafiyeti',
+      maxAmount: 54000,
+      coverageRatio: '%100 Karşılama',
+      conditions: ['Yeni işe alınacak personelin İŞKUR kaydının bulunması.'],
+      applicationUrl: 'https://www.iskur.gov.tr',
+      summary: 'Personel başına 6 ay boyunca SGK işveren hissesi devletçe karşılanır.',
+      officialReference: '5510 sayılı Kanun',
+    });
+
     SECTOR_INCENTIVE_PROFILES[id] = {
       sectorId: id,
       sectorName: def.name,
       emoji: def.emoji,
-      categoryGroup: def.category,
+      categoryGroup: def.category as any,
       naceCode: def.nace,
       naceDescription: def.desc,
-      isKosgebEligible: true,
+      isKosgebEligible: isEligible,
       kosgebCategory: isAdv ? 'İleri Girişimci (Teknoloji/İmalat)' : 'Geleneksel Girişimci',
       taxExemptions: {
         youngEntrepreneurTaxDiscount: true,
@@ -596,38 +637,7 @@ for (const [id, def] of Object.entries(DEFAULT_NACE_MAPPING)) {
         annualEstimatedTaxSaving: 82500,
         annualBagkurSaving: 84000,
       },
-      availableGrants: [
-        {
-          id: `kosgeb_${id}`,
-          provider: 'KOSGEB',
-          programName: isAdv ? 'İleri Girişimci Destek Programı' : 'Geleneksel Girişimcilik Kuruluş Hibe Programı',
-          supportType: 'Hibe (Geri Ödemesiz)',
-          maxAmount: isAdv ? 375000 : 85000,
-          coverageRatio: isAdv ? '%75 Hibe' : '%100 Hibe',
-          conditions: [
-            'KOSGEB Girişimcilik online eğitimi tamamlanmış olmalıdır.',
-            'İşletme tescilinden sonra KOSGEB portalı üzerinden başvuru yapılır.',
-            'Kadın veya genç girişimcilerde ek hibe ödenir.',
-          ],
-          applicationUrl: 'https://edevlet.kosgeb.gov.tr',
-          summary: isAdv
-            ? '375.000 TL makine ve ekipman geri ödemesiz hibe desteği.'
-            : '65.000 TL taban kuruluş desteği + kadın/genç girişimcilere 20.000 TL ek hibe.',
-          officialReference: 'KOSGEB Girişimcilik Uygulama Esasları',
-        },
-        {
-          id: `iskur_${id}`,
-          provider: 'İŞKUR',
-          programName: 'İstihdam Prim Desteği (SGK İşveren Teşviki)',
-          supportType: 'Vergi / Prim Muafiyeti',
-          maxAmount: 54000,
-          coverageRatio: '%100 Karşılama',
-          conditions: ['Yeni işe alınacak personelin İŞKUR kaydının bulunması.'],
-          applicationUrl: 'https://www.iskur.gov.tr',
-          summary: 'Personel başına 6 ay boyunca SGK işveren hissesi devletçe karşılanır.',
-          officialReference: '5510 sayılı Kanun',
-        },
-      ],
+      availableGrants: grants,
     };
   }
 }
