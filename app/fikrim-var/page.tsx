@@ -32,7 +32,7 @@ export default function FikrimVarPage() {
         {/* Başlık & Tanıtım Alanı */}
         <div className="mb-4 max-w-2xl">
           <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground">
-            &quot;Fikrim Var, Bütçem Yok&quot; <span className="text-amber-500">Stüdyosu</span>
+            &quot;Fikrim Var, Bütçem Yok&quot;
           </h1>
           <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
             Harika bir iş fikrin, şahsi bir araban, evinde atölye alanın veya emeğin mi var? Fikrinin fizibilitesini dakikalar içinde modelle; onaylanan projenle <strong>Yatırım & Ortaklık Radarına</strong> çık.

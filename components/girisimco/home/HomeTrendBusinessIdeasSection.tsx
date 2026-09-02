@@ -136,7 +136,7 @@ export function HomeTrendBusinessIdeasSection({ fold = false }: { fold?: boolean
                 </Link>
 
                 <Link
-                  href="/#assistant-section"
+                  href="/fikrim-var"
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4.5 py-3 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:border-slate-300 transition-all"
                 >
                   <Sparkles className="w-4 h-4 text-amber-500" />
