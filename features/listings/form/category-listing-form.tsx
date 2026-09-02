@@ -3607,176 +3607,183 @@ export function CategoryListingForm({
                     />
                   ) : null}
                 </div>
-              ) : null}
+              ) : isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul) ? (
+                <div className="space-y-4">
+                  {userCompanies.length > 0 && (fieldByKey.get('businessName') || fieldByKey.get('companyName')) && (
+                    <div className="flex items-center justify-between text-xs px-3 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg">
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5" />
+                        <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
+                      </span>
+                      {userCompanies.length > 1 && (
+                        <select
+                          value={activeCompany?.id || ''}
+                          onChange={(e) => {
+                            const comp = userCompanies.find((c) => c.id === e.target.value);
+                            if (comp) {
+                              switchToCompany(comp.id);
+                              if (fieldByKey.get('businessName')) {
+                                handleCustomFieldChange('businessName', comp.name);
+                              }
+                              if (fieldByKey.get('companyName')) {
+                                handleCustomFieldChange('companyName', comp.name);
+                              }
+                            }
+                          }}
+                          className="text-[11px] bg-white dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium text-slate-700 dark:text-slate-200"
+                        >
+                          {userCompanies.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )}
 
-              {isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isletmeDevri || categoryId === CATEGORY_IDS.bayilikAl || categoryId === CATEGORY_IDS.ortakBul) ? (
-                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
-                  {/* Middle Vertical Divider */}
-                  <div
-                    aria-hidden="true"
-                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
-                  />
-
-                  {/* Left Column: Başlık, Kısa Açıklama, Varsa Tabela/Marka Adı */}
-                  <div className="space-y-4 w-full min-w-0">
-                    <CoreListingFields
-                      values={core}
-                      onChange={(next) => {
-                        const cityChanged = next.city !== core.city;
-                        handleCoreChange(next);
-                        if (cityChanged) {
-                          setCustomField('district', '');
-                          setCustomField('districtOther', '');
-                        }
-                      }}
-                      include={['title', 'shortDescription']}
-                      labels={coreFieldLabels}
-                      fieldUi={coreFieldUi}
-                      errors={{
-                        title: resolveFieldError(fieldErrors, 'title'),
-                        shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
-                      }}
-                      disabled={disabled || isBusy}
-                      themeColor={categoryThemeColor}
+                  <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
+                    {/* Middle Vertical Divider */}
+                    <div
+                      aria-hidden="true"
+                      className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
                     />
 
-                    {fieldByKey.get('businessName') ? (
-                      <div className="space-y-2">
-                        {userCompanies.length > 0 && (
-                          <div className="flex items-center justify-between text-xs pb-0.5">
-                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                              <Building2 className="w-3.5 h-3.5" />
-                              <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
-                            </span>
-                            {userCompanies.length > 1 && (
-                              <select
-                                value={activeCompany?.id || ''}
-                                onChange={(e) => {
-                                  const comp = userCompanies.find((c) => c.id === e.target.value);
-                                  if (comp) {
-                                    switchToCompany(comp.id);
-                                    handleCustomFieldChange('businessName', comp.name);
-                                  }
-                                }}
-                                className="text-[11px] bg-slate-100 dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium"
-                              >
-                                {userCompanies.map((c) => (
-                                  <option key={c.id} value={c.id}>
-                                    {c.name}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                          </div>
-                        )}
-                        <DynamicField
-                          field={fieldByKey.get('businessName')!}
-                          value={mergedCustomFields.businessName}
-                          onChange={(val) => handleCustomFieldChange('businessName', val)}
-                          error={resolveFieldError(fieldErrors, 'businessName')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      </div>
-                    ) : null}
+                    {/* Left Column: Başlık, Kısa Açıklama, Varsa Tabela/Marka Adı */}
+                    <div className="space-y-4 w-full min-w-0">
+                      <CoreListingFields
+                        values={core}
+                        onChange={(next) => {
+                          const cityChanged = next.city !== core.city;
+                          handleCoreChange(next);
+                          if (cityChanged) {
+                            setCustomField('district', '');
+                            setCustomField('districtOther', '');
+                          }
+                        }}
+                        include={['title', 'shortDescription']}
+                        labels={coreFieldLabels}
+                        fieldUi={coreFieldUi}
+                        errors={{
+                          title: resolveFieldError(fieldErrors, 'title'),
+                          shortDescription: resolveFieldError(fieldErrors, 'shortDescription'),
+                        }}
+                        disabled={disabled || isBusy}
+                        themeColor={categoryThemeColor}
+                      />
 
-                    {fieldByKey.get('brandName') ? (
-                      <div className="space-y-2">
-                        <DynamicField
-                          field={fieldByKey.get('brandName')!}
-                          value={mergedCustomFields.brandName}
-                          onChange={(val) => handleCustomFieldChange('brandName', val)}
-                          error={resolveFieldError(fieldErrors, 'brandName')}
-                          disabled={disabled || isBusy}
-                          context={dynamicFieldContext}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
+                      {fieldByKey.get('businessName') ? (
+                        <div className="space-y-2">
+                          <DynamicField
+                            field={fieldByKey.get('businessName')!}
+                            value={mergedCustomFields.businessName}
+                            onChange={(val) => handleCustomFieldChange('businessName', val)}
+                            error={resolveFieldError(fieldErrors, 'businessName')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        </div>
+                      ) : null}
 
-                  {/* Right Column: İşletme Türleri, Sektörler, Ortaklık Türleri */}
-                  <div className="space-y-4 w-full min-w-0">
-                    {restCustomKeys
-                      .filter((key) => key !== 'businessName' && key !== 'brandName')
-                      .map((key) => {
-                        const field = fieldByKey.get(key);
-                        if (!field) return null;
-                        return (
-                          <div key={key} className="space-y-2">
-                            <DynamicField
-                              field={field}
-                              value={mergedCustomFields[key]}
-                              onChange={(val) => handleCustomFieldChange(key, val)}
-                              error={resolveFieldError(fieldErrors, key)}
-                              disabled={disabled || isBusy}
-                              context={dynamicFieldContext}
-                            />
-                          </div>
-                        );
-                      })}
+                      {fieldByKey.get('brandName') ? (
+                        <div className="space-y-2">
+                          <DynamicField
+                            field={fieldByKey.get('brandName')!}
+                            value={mergedCustomFields.brandName}
+                            onChange={(val) => handleCustomFieldChange('brandName', val)}
+                            error={resolveFieldError(fieldErrors, 'brandName')}
+                            disabled={disabled || isBusy}
+                            context={dynamicFieldContext}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* Right Column: İşletme Türleri, Sektörler, Ortaklık Türleri */}
+                    <div className="space-y-4 w-full min-w-0">
+                      {restCustomKeys
+                        .filter((key) => key !== 'businessName' && key !== 'brandName')
+                        .map((key) => {
+                          const field = fieldByKey.get(key);
+                          if (!field) return null;
+                          return (
+                            <div key={key} className="space-y-2">
+                              <DynamicField
+                                field={field}
+                                value={mergedCustomFields[key]}
+                                onChange={(val) => handleCustomFieldChange(key, val)}
+                                error={resolveFieldError(fieldErrors, key)}
+                                disabled={disabled || isBusy}
+                                context={dynamicFieldContext}
+                              />
+                            </div>
+                          );
+                        })}
+                    </div>
                   </div>
                 </div>
               ) : isFormStep && stepIndex === 0 && (categoryId === CATEGORY_IDS.isBul || categoryId === CATEGORY_IDS.iseAl) ? (
-                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
-                  {/* Middle Vertical Divider */}
-                  <div
-                    aria-hidden="true"
-                    className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
-                  />
+                <div className="space-y-4">
+                  {userCompanies.length > 0 && fieldByKey.get('companyName') && (
+                    <div className="flex items-center justify-between text-xs px-3 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg">
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5" />
+                        <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
+                      </span>
+                      {userCompanies.length > 1 && (
+                        <select
+                          value={activeCompany?.id || ''}
+                          onChange={(e) => {
+                            const comp = userCompanies.find((c) => c.id === e.target.value);
+                            if (comp) {
+                              switchToCompany(comp.id);
+                              handleCustomFieldChange('companyName', comp.name);
+                              if (comp.industry && !mergedCustomFields.primarySector) {
+                                handleCustomFieldChange('primarySector', comp.industry);
+                              }
+                            }
+                          }}
+                          className="text-[11px] bg-white dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium text-slate-700 dark:text-slate-200"
+                        >
+                          {userCompanies.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )}
 
-                  {/* Row 1, Col 1: İsim Soyisim (isBul) veya Firma Adı (iseAl) */}
-                  <div className="w-full min-w-0">
-                    {fieldByKey.get('fullName') ? (
-                      <DynamicField
-                        field={fieldByKey.get('fullName')!}
-                        value={mergedCustomFields.fullName ?? ''}
-                        onChange={(val) => {
-                          handleCustomFieldChange('fullName', val);
-                          if (cvFilledKeys.has('fullName')) {
-                            setCvFilledKeys((prev) => {
-                              const next = new Set(prev);
-                              next.delete('fullName');
-                              return next;
-                            });
-                          }
-                        }}
-                        isCvFilled={cvFilledKeys.has('fullName')}
-                        error={resolveFieldError(fieldErrors, 'fullName')}
-                        disabled={disabled || isBusy}
-                        context={dynamicFieldContext}
-                      />
-                    ) : fieldByKey.get('companyName') ? (
-                      <div className="space-y-2">
-                        {userCompanies.length > 0 && (
-                          <div className="flex items-center justify-between text-xs pb-0.5">
-                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                              <Building2 className="w-3.5 h-3.5" />
-                              <span>İşletme: {activeCompany?.name || userCompanies[0].name}</span>
-                            </span>
-                            {userCompanies.length > 1 && (
-                              <select
-                                value={activeCompany?.id || ''}
-                                onChange={(e) => {
-                                  const comp = userCompanies.find((c) => c.id === e.target.value);
-                                  if (comp) {
-                                    switchToCompany(comp.id);
-                                    handleCustomFieldChange('companyName', comp.name);
-                                    if (comp.industry && !mergedCustomFields.primarySector) {
-                                      handleCustomFieldChange('primarySector', comp.industry);
-                                    }
-                                  }
-                                }}
-                                className="text-[11px] bg-slate-100 dark:bg-zinc-800 rounded px-2 py-0.5 border border-slate-200 dark:border-zinc-700 font-medium"
-                              >
-                                {userCompanies.map((c) => (
-                                  <option key={c.id} value={c.id}>
-                                    {c.name}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                          </div>
-                        )}
+                  <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
+                    {/* Middle Vertical Divider */}
+                    <div
+                      aria-hidden="true"
+                      className={cn('hidden md:block absolute left-1/2 top-0 bottom-0 -ml-px w-px pointer-events-none', theme.dividerColor)}
+                    />
+
+                    {/* Row 1, Col 1: İsim Soyisim (isBul) veya Firma Adı (iseAl) */}
+                    <div className="w-full min-w-0">
+                      {fieldByKey.get('fullName') ? (
+                        <DynamicField
+                          field={fieldByKey.get('fullName')!}
+                          value={mergedCustomFields.fullName ?? ''}
+                          onChange={(val) => {
+                            handleCustomFieldChange('fullName', val);
+                            if (cvFilledKeys.has('fullName')) {
+                              setCvFilledKeys((prev) => {
+                                const next = new Set(prev);
+                                next.delete('fullName');
+                                return next;
+                              });
+                            }
+                          }}
+                          isCvFilled={cvFilledKeys.has('fullName')}
+                          error={resolveFieldError(fieldErrors, 'fullName')}
+                          disabled={disabled || isBusy}
+                          context={dynamicFieldContext}
+                        />
+                      ) : fieldByKey.get('companyName') ? (
                         <DynamicField
                           field={fieldByKey.get('companyName')!}
                           value={mergedCustomFields.companyName}
@@ -3785,9 +3792,8 @@ export function CategoryListingForm({
                           disabled={disabled || isBusy}
                           context={dynamicFieldContext}
                         />
-                      </div>
-                    ) : null}
-                  </div>
+                      ) : null}
+                    </div>
 
                   {/* Row 1, Col 2: Pozisyon / Açık Pozisyon */}
                   <div className="w-full min-w-0 space-y-2">
@@ -4018,6 +4024,7 @@ export function CategoryListingForm({
                       />
                     </div>
                   ) : null}
+                  </div>
                 </div>
               ) : isFormStep && (currentStep.id === 'offer' || currentStep.id === 'preferences') && (categoryId === CATEGORY_IDS.iseAl || categoryId === CATEGORY_IDS.isBul) ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 items-start">
