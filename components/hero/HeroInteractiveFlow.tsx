@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import { 
   Briefcase, 
@@ -12,13 +12,26 @@ import {
 } from 'lucide-react';
 import { BrandMarkSlot } from '@/components/girisimco/brand-mark-slot';
 import { useHeroStats } from '@/features/home';
+import { HeroMascotParkour } from '@/components/hero/HeroMascotParkour';
 
 export function HeroInteractiveFlow() {
   const { counts, isLoading } = useHeroStats();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const card0Ref = useRef<HTMLDivElement>(null);
+  const card1Ref = useRef<HTMLDivElement>(null);
+  const card2Ref = useRef<HTMLDivElement>(null);
+  const card3Ref = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="relative w-full max-w-7xl mx-auto my-auto py-3 select-none overflow-visible">
+    <div ref={containerRef} className="relative w-full max-w-7xl mx-auto my-auto py-3 select-none overflow-visible">
       
+      {/* 3D CANLI ZIPLAMA & MERDİVEN PARKURU (İZOLE & GERİ ALINABİLİR MODÜL) */}
+      <HeroMascotParkour
+        containerRef={containerRef}
+        cardRefs={[card0Ref, card1Ref, card2Ref, card3Ref]}
+      />
+
       {/* LOKAL ARKA PLAN DERİNLİK KÜRELERİ */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-visible">
         <div style={{ position: 'absolute', left: '-10px', top: '5px', width: '280px', height: '120px', background: 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%)', filter: 'blur(28px)' }} />
@@ -134,7 +147,7 @@ export function HeroInteractiveFlow() {
       {/* 3. ALTTAKİ 4'LÜ BENTO KARTLARI (ORİJİNAL VE DENGELİ FORMATTA) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4.5 mt-5 mb-1">
         {/* Kariyer */}
-        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between cursor-pointer">
+        <div ref={card0Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between cursor-pointer">
           <Link href="/is" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40" aria-label="Kariyer ve İş Fırsatları" />
           <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
@@ -152,7 +165,7 @@ export function HeroInteractiveFlow() {
         </div>
 
         {/* Ortaklık ve Devir */}
-        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between cursor-pointer">
+        <div ref={card1Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between cursor-pointer">
           <Link href="/girisim-ortaklik" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40" aria-label="Ortaklık ve Devir" />
           <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
@@ -170,7 +183,7 @@ export function HeroInteractiveFlow() {
         </div>
 
         {/* Franchise ve Bayilik */}
-        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-rose-500/40 transition-all flex flex-col justify-between cursor-pointer">
+        <div ref={card2Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-md hover:border-rose-500/40 transition-all flex flex-col justify-between cursor-pointer">
           <Link href="/franchise/buy" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40" aria-label="Franchise ve Bayilik" />
           <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
@@ -188,7 +201,7 @@ export function HeroInteractiveFlow() {
         </div>
 
         {/* 4. Slot: Ustalar ve Hizmetler */}
-        <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all flex flex-col justify-between cursor-pointer">
+        <div ref={card3Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4.5 sm:p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all flex flex-col justify-between cursor-pointer">
           <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Ustalar ve Hizmetler" />
           <div className="relative z-1 pointer-events-none">
             <div className="flex items-center justify-between mb-2.5">
