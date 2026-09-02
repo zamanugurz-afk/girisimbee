@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Flame, Sparkles, ArrowLeft } from 'lucide-react';
+import { Flame, ArrowLeft } from 'lucide-react';
 import { MONTHLY_TREND_IDEAS } from '@/lib/data/monthly-trend-ideas';
 import { TrendIdeaCard, TrendIdeaAdvertiseCta } from './TrendIdeaCard';
 import { cn } from '@/lib/utils';
@@ -43,11 +43,7 @@ export function TrendIdeaCatalogView() {
 
         {/* Başlık Alanı */}
         <div className="mb-8 max-w-2xl">
-          <p className="inline-flex items-center gap-1.5 font-display text-[13px] font-bold tracking-tight text-amber-600 dark:text-amber-400">
-            <Sparkles className="h-3.5 w-3.5 shrink-0" />
-            Girişimbee Niş Konseptler
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground sm:text-3xl">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground sm:text-3xl">
             Trend & Yeni Nesil İş Fikirleri
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400 sm:text-[15px]">
