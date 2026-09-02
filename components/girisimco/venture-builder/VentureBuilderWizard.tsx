@@ -506,14 +506,11 @@ export function VentureBuilderWizard() {
                             <span className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
                               {model.title}
                             </span>
-                            <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                            <span className="block text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                               {model.desc}
                             </span>
                           </div>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 shrink-0 ml-2">
-                          {model.badgeText}
-                        </span>
                       </button>
                     );
                   })}
