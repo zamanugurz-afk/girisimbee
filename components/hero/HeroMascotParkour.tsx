@@ -44,6 +44,7 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
+  const [isReady, setIsReady] = useState(false);
   const [coords, setCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shadowCoords, setShadowCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [ladderState, setLadderState] = useState<{ show: boolean; x: number; y: number; width: number }>({
@@ -69,6 +70,8 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
 
     const cardRect = cardEl.getBoundingClientRect();
     const containerRect = containerEl.getBoundingClientRect();
+
+    if (cardRect.width === 0 || containerRect.width === 0) return;
 
     const targetX = cardRect.left - containerRect.left + cardRect.width / 2 - 44;
     const targetY = cardRect.top - containerRect.top - 88;
@@ -118,6 +121,7 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
           setShadowCoords({ x: targetX + 16, y: targetY + 98 });
           setIsJumping(false);
           setSpeech({ icon: step.icon, text: step.text });
+          setIsReady(true);
 
           setTimeout(() => {
             setLadderState((prev) => ({ ...prev, show: false }));
@@ -137,6 +141,7 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
     setTimeout(() => {
       setCoords({ x: targetX, y: targetY });
       setShadowCoords({ x: targetX + 16, y: targetY + 98 });
+      setIsReady(true);
 
       if (step.action === 'slip') {
         setIsSlipping(true);
@@ -190,13 +195,16 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
       updatePosition(currentStep);
     };
 
-    const timer = setTimeout(() => {
-      updatePosition(0);
-    }, 400);
+    // Retry measuring multiple times after mount to ensure layout is ready
+    const t1 = setTimeout(() => updatePosition(0), 100);
+    const t2 = setTimeout(() => updatePosition(0), 400);
+    const t3 = setTimeout(() => updatePosition(0), 900);
 
     window.addEventListener('resize', handleResize);
     return () => {
-      clearTimeout(timer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
       window.removeEventListener('resize', handleResize);
     };
   }, [currentStep, updatePosition]);
@@ -231,7 +239,10 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
 
       {/* ================= 3D TRANSPARENT MASCOT CHARACTER ================= */}
       <div
-        className="absolute z-30 transition-all duration-700 ease-out"
+        className={cn(
+          'absolute z-30 transition-all duration-700 ease-out',
+          isReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
         style={{
           left: `${coords.x}px`,
           top: `${coords.y}px`,
@@ -294,6 +305,7 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
             alt="Girişimbee 3D Karakter"
             width={88}
             height={112}
+            unoptimized
             className="w-full h-full object-contain filter drop-shadow-[0_10px_16px_rgba(0,0,0,0.22)] select-none pointer-events-none"
             priority
           />
@@ -302,7 +314,10 @@ export function HeroMascotParkour({ cardRefs, containerRef, className }: HeroMas
 
       {/* Ground Contact Shadow */}
       <div
-        className="absolute z-20 w-13 h-2.5 bg-black/30 dark:bg-black/50 rounded-full blur-[2px] transition-all duration-700 ease-out pointer-events-none"
+        className={cn(
+          'absolute z-20 w-13 h-2.5 bg-black/30 dark:bg-black/50 rounded-full blur-[2px] transition-all duration-700 ease-out pointer-events-none',
+          isReady ? 'opacity-100' : 'opacity-0'
+        )}
         style={{
           left: `${shadowCoords.x}px`,
           top: `${shadowCoords.y}px`,

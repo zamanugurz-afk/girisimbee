@@ -15,9 +15,16 @@ import { useHeroStats } from '@/features/home';
 import { HomeMarketSection } from '@/components/girisimco/home/HomeMarketSection';
 import { HomeUnifiedCockpitSection } from '@/components/girisimco/home/HomeUnifiedCockpitSection';
 import { HomeTrendBusinessIdeasSection } from '@/components/girisimco/home/HomeTrendBusinessIdeasSection';
+import { HeroMascotParkour } from '@/components/hero/HeroMascotParkour';
 
 export function PlatformHome() {
   const { counts, isLoading } = useHeroStats();
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const card0Ref = React.useRef<HTMLDivElement>(null);
+  const card1Ref = React.useRef<HTMLDivElement>(null);
+  const card2Ref = React.useRef<HTMLDivElement>(null);
+  const card3Ref = React.useRef<HTMLDivElement>(null);
 
   return (
     <div className="gc-header-offset relative bg-slate-50/50 dark:bg-background">
@@ -52,10 +59,16 @@ export function PlatformHome() {
           </div>
 
           {/* 2. ALT ALAN: 4'LÜ BENTO KARTLARI (TAM STANDART 1280PX GRID ÇİZGİSİNE HİZALI & SOLA GÖRE ORTALANMIŞ) */}
-          <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-8 sm:mt-10 lg:mt-12 mb-3 sm:mb-5">
+          <div ref={containerRef} className="relative z-10 mx-auto w-full max-w-[1280px] px-5 lg:px-8 shrink-0 mt-8 sm:mt-10 lg:mt-12 mb-3 sm:mb-5">
+            {/* 3D CANLI SAYDAM MASKOT ZIPLAMA & MERDİVEN PARKURU */}
+            <HeroMascotParkour
+              containerRef={containerRef}
+              cardRefs={[card0Ref, card1Ref, card2Ref, card3Ref]}
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Kariyer */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div ref={card0Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/is" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40" aria-label="Kariyer ve İş Fırsatları" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3.5">
@@ -75,7 +88,7 @@ export function PlatformHome() {
               </div>
 
               {/* Ortaklık ve Devir */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div ref={card1Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/girisim-ortaklik" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40" aria-label="Ortaklık ve Devir" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3.5">
@@ -95,7 +108,7 @@ export function PlatformHome() {
               </div>
 
               {/* Franchise ve Bayilik */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div ref={card2Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/franchise/buy" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40" aria-label="Franchise ve Bayilik" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3.5">
@@ -115,7 +128,7 @@ export function PlatformHome() {
               </div>
 
               {/* Ustalar ve Hizmetler */}
-              <div className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
+              <div ref={card3Ref} className="group relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-lg hover:border-indigo-500/40 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between cursor-pointer">
                 <Link href="/kategori/hizmetler" className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40" aria-label="Ustalar ve Hizmetler" />
                 <div className="relative z-1 pointer-events-none">
                   <div className="flex items-center justify-between mb-3.5">
