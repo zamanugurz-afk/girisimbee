@@ -52,6 +52,8 @@ import {
   type PartnershipIntent,
 } from '@/features/founders/partnership-intent';
 import { CATEGORY_IDS, LISTING_TYPE_IDS } from '@/features/listings/config/listing-type-config';
+import { getCompanyService } from '@/lib/persistence/container';
+import { suggestCompanySlug } from '@/features/companies/validation/company-editor.schema';
 
 function CreateListingContent() {
   const router = useRouter();
@@ -349,6 +351,37 @@ function CreateListingContent() {
           values: syncValues,
         }),
       }).catch(() => undefined);
+    }
+
+    // Kurumsal İş Yeri Profili Senkronizasyonu (İşe Al / İşveren İlanlarında)
+    const candidateCompanyName = String(
+      values.customFields?.companyName || values.customFields?.businessName || '',
+    ).trim();
+    if (candidateCompanyName && user) {
+      try {
+        const compService = getCompanyService();
+        const existingComps = await compService.listForUser(user.id as any);
+        let matched = existingComps.find(
+          (c) => c.name.toLowerCase() === candidateCompanyName.toLowerCase(),
+        );
+        if (!matched) {
+          const compSlug = suggestCompanySlug(candidateCompanyName);
+          matched = await compService.create({
+            ownerId: user.id as any,
+            name: candidateCompanyName,
+            slug: compSlug,
+            industry: String(values.customFields?.primarySector || values.customFields?.sector || 'Hizmet & Ticaret'),
+            city: values.core.city || 'İstanbul',
+            contactEmail: user.email,
+            description: `${candidateCompanyName} kurumsal iş yeri profili.`,
+          });
+        }
+        if (typeof window !== 'undefined' && matched?.id) {
+          localStorage.setItem('girisimbee_active_company_id', matched.id);
+        }
+      } catch (e) {
+        console.warn('Auto-create company error:', e);
+      }
     }
 
     registerListingTextFingerprint(

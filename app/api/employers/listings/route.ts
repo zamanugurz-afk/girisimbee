@@ -47,6 +47,35 @@ export const POST = withAuth(async (ctx, request) => {
       asDraft: !publishNow,
     });
 
+    // Auto-create company profile on server if companyName is provided
+    const compName = String((parsed as any).companyName || (parsed as any).businessName || '').trim();
+    if (compName) {
+      try {
+        const existing = await ctx.container.companyRepository.findByOwnerId(ctx.userId);
+        const match = existing.find((c) => c.name.toLowerCase() === compName.toLowerCase());
+        if (!match) {
+          const compSlug = compName
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 120);
+          await ctx.container.companyRepository.create({
+            ownerId: ctx.userId,
+            name: compName,
+            slug: compSlug,
+            industry: String((parsed as any).primarySector || (parsed as any).sector || 'Hizmet & Ticaret'),
+            city: (parsed as any).city || 'İstanbul',
+            contactEmail: ctx.user?.email,
+            description: `${compName} kurumsal iş yeri profili.`,
+          });
+        }
+      } catch (e) {
+        console.warn('Server auto-create company non-fatal error:', e);
+      }
+    }
+
     logPublicationState('employers', 'after_insert', {
       status: listing.status,
       published_at: listing.publishedAt,

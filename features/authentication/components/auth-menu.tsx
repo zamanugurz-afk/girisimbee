@@ -268,6 +268,15 @@ export function AuthMenu() {
               </button>
             );
           })}
+
+          {/* Yeni Şirket / İş Yeri Ekle Butonu */}
+          <Link
+            href="/company/create"
+            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-all mt-1.5 border border-dashed border-emerald-300/80 dark:border-emerald-800"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Yeni Şirket / İş Yeri Ekle</span>
+          </Link>
         </div>
 
         <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-zinc-800" />

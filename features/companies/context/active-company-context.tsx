@@ -69,6 +69,34 @@ export function ActiveCompanyProvider({ children }: { children: React.ReactNode 
         }
       }
 
+      // Auto-discover company from user's published job/hire listings if no company exists
+      if (list.length === 0) {
+        try {
+          const res = await fetch('/api/account/listings?status=all');
+          if (res.ok) {
+            const data = await res.json();
+            const jobListing = (data.listings || []).find(
+              (l: any) => l.customFields?.companyName || l.customFields?.businessName,
+            );
+            const foundName = (jobListing?.customFields?.companyName || jobListing?.customFields?.businessName || '').trim();
+            if (foundName) {
+              const created = await service.create({
+                ownerId: user.id as UserId,
+                name: foundName,
+                slug: foundName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+                industry: String(jobListing.customFields?.primarySector || jobListing.customFields?.sector || 'Hizmet & Ticaret'),
+                city: jobListing.city || 'İstanbul',
+                contactEmail: user.email,
+                description: `${foundName} kurumsal iş yeri profili.`,
+              });
+              list = [created];
+            }
+          }
+        } catch (e) {
+          console.warn('Auto-discover company from listings error:', e);
+        }
+      }
+
       setUserCompanies(list);
 
       // Check stored preference
