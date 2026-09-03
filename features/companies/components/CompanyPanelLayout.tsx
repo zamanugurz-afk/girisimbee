@@ -16,7 +16,7 @@ export function CompanyPanelLayout({ children }: CompanyPanelLayoutProps) {
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0 gc-dot-grid opacity-20" aria-hidden />
-      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="relative mx-auto w-full max-w-[1680px] px-3 sm:px-6 py-3 sm:py-4">
         {children}
       </div>
     </div>
