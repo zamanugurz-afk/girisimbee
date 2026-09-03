@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from '@/features/authentication/lib/get-session';
 import { AUTH_ROUTES } from '@/features/authentication/constants/routes';
+import { DashboardPanelLayout } from '@/features/dashboard/panel';
 import { CompanyCreateForm } from '@/features/companies/components/company-create-form';
 
 export const metadata = {
@@ -12,16 +13,26 @@ export default async function CompanyCreatePage() {
   if (!user) redirect(AUTH_ROUTES.login);
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-16 pt-20 lg:px-8">
-      <div className="mb-8">
-        <h1 className="font-display text-2xl font-semibold text-foreground">
-          Şirket Oluştur
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Şirket profilinizi oluşturun ve ilanları şirket adına yayınlayın.
-        </p>
+    <DashboardPanelLayout>
+      <div className="space-y-6 py-6 sm:py-8">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-1">
+            <span>Kullanıcı Paneli</span>
+            <span>/</span>
+            <span className="text-foreground">Şirket Oluştur</span>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Yeni Kurumsal Şirket Profili
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Şirket profilinizi oluşturun, ekibinizi yönetin ve kurumsal ilanları şirketiniz adına yayınlayın.
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md">
+          <CompanyCreateForm />
+        </div>
       </div>
-      <CompanyCreateForm />
-    </main>
+    </DashboardPanelLayout>
   );
 }
