@@ -91,10 +91,10 @@ export function CompanySidebar({ slug }: CompanySidebarProps) {
       items: [
         {
           id: 'settings',
-          label: 'Şirket Bilgileri',
-          href: `/company/${slug}/settings`,
+          label: 'Şirket Bilgilerini Düzenle',
+          href: `/company/${slug}/dashboard?tab=settings`,
           icon: Settings,
-          active: isSettings || activeTab === 'settings',
+          active: activeTab === 'settings',
         },
         {
           id: 'verification',

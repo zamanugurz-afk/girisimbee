@@ -21,6 +21,7 @@ interface ActiveCompanyContextValue {
 const ActiveCompanyContext = createContext<ActiveCompanyContextValue | null>(null);
 
 const STORAGE_KEY = 'girisimbee_active_company_id';
+const SEEDED_KEY = 'girisimbee_companies_seeded';
 
 export function ActiveCompanyProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -42,9 +43,13 @@ export function ActiveCompanyProvider({ children }: { children: React.ReactNode 
       const service = getCompanyService();
       let list = await service.listForUser(user.id as UserId);
 
-      // Bootstrap sample company if user has none
-      if (list.length === 0) {
+      // Bootstrap sample company only on initial first run if never initialized
+      const isSeeded = typeof window !== 'undefined' ? localStorage.getItem(SEEDED_KEY) : null;
+      if (list.length === 0 && !isSeeded) {
         try {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(SEEDED_KEY, 'true');
+          }
           const sample = await service.create({
             ownerId: user.id as UserId,
             name: 'Kahve Durağı A.Ş.',
