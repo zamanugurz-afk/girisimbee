@@ -864,7 +864,7 @@ export function HomeInvestmentRadarSection() {
             {/* Harita Üst Barı: Girişimbee Market Tarzı Vurgulu Başlık & Özet */}
             <div className="flex flex-col pb-0.5 space-y-1">
               <div className="inline-flex items-baseline gap-2">
-                <h2 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
+                <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white select-none">
                   Lokasyon <span className="text-amber-500">Radarı</span>
                 </h2>
               </div>
