@@ -1,8 +1,11 @@
+'use client';
+
+import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { BRAND_SYMBOL_SRC, BRAND_SYMBOL_DARK_SRC } from '@/components/girisimco/brand-mark.constants';
 
-/** Official Girisimbee mark — bee + G (`public/brand/girisimbee-symbol.png`). */
-export const BRAND_SYMBOL_SRC = '/brand/girisimbee-symbol.png';
+export { BRAND_SYMBOL_SRC, BRAND_SYMBOL_DARK_SRC };
 
 export function BrandMarkSlot({
   className,
@@ -22,12 +25,23 @@ export function BrandMarkSlot({
       style={{ width: size, height: size }}
       aria-hidden
     >
+      {/* Light Mode Symbol (Transparent Background, Dark G) */}
       <Image
         src={BRAND_SYMBOL_SRC}
         alt=""
         width={size * 2}
         height={size * 2}
-        className="h-full w-full object-contain object-center transition-all duration-200 dark:brightness-110 dark:contrast-125 dark:drop-shadow-[0_0_8px_rgba(245,158,11,0.35)]"
+        className="h-full w-full object-contain object-center transition-all duration-200 dark:hidden"
+        priority={priority}
+      />
+
+      {/* Dark Mode Symbol (Transparent Background, Crisp White G & Golden Glow) */}
+      <Image
+        src={BRAND_SYMBOL_DARK_SRC}
+        alt=""
+        width={size * 2}
+        height={size * 2}
+        className="hidden h-full w-full object-contain object-center transition-all duration-200 dark:block dark:drop-shadow-[0_0_8px_rgba(245,158,11,0.35)]"
         priority={priority}
       />
     </span>
