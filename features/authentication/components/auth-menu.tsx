@@ -293,15 +293,6 @@ export function AuthMenu() {
                 <span>Şirket Yönetim Paneli</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link
-                href={`/company/${activeCompany.slug}/dashboard?tab=settings`}
-                className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
-              >
-                <Settings className="h-4 w-4 text-slate-400 dark:text-zinc-500 shrink-0" />
-                <span>Şirket Bilgilerini Düzenle</span>
-              </Link>
-            </DropdownMenuItem>
           </div>
         ) : (
           <div className="space-y-0.5 py-1">
