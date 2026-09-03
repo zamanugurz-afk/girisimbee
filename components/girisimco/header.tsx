@@ -405,7 +405,7 @@ export function Header() {
 
               {/* 2. İŞ FIRSATLARI */}
               {activeDropdown === 'marketplace' && (
-                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
+                <div className="w-[580px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/girisim-ortaklik"
                     className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
@@ -418,7 +418,7 @@ export function Header() {
                         Girişim Ortaklığı
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Sermaye & yetenek ortakları
+                        Sermaye & eş-kurucu ortakları
                       </span>
                     </div>
                   </Link>
@@ -435,7 +435,7 @@ export function Header() {
                         Devren İşletmeler
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Hazır kârlı devir ilanları
+                        Hazır kârlı dükkan & devir ilanları
                       </span>
                     </div>
                   </Link>
@@ -452,7 +452,7 @@ export function Header() {
                         Franchise & Bayilik
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Doğrulanmış marka ağları
+                        Doğrulanmış hazır şube ağları
                       </span>
                     </div>
                   </Link>
@@ -466,10 +466,44 @@ export function Header() {
                     </span>
                     <div className="min-w-0">
                       <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">
-                        Kariyer & Yetenek
+                        İş & Kariyer İlanları
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Startup ekibi & uzmanlar
+                        Girişimlerde açık iş fırsatları
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/kategori/hizmetler"
+                    className="p-2.5 rounded-2xl hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Wrench className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 leading-tight">
+                        Ustalar ve Hizmetler
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Tadilat, mutfak, marangoz & usta ilanları
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/is-ariyorum"
+                    className="p-2.5 rounded-2xl hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Users className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 leading-tight">
+                        Aday & Yetenek Havuzu
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        Doğrulanmış uzman & yönetici CV'leri
                       </span>
                     </div>
                   </Link>
@@ -478,7 +512,7 @@ export function Header() {
 
               {/* 3. İŞ FİKİRLERİ */}
               {activeDropdown === 'ideas' && (
-                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
+                <div className="w-[520px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/trend-fikirler"
                     className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
@@ -491,7 +525,7 @@ export function Header() {
                         Trend & Yeni Fikirler
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Hesaplanmış hazır modeller
+                        2026 popüler iş modelleri & analizler
                       </span>
                     </div>
                   </Link>
@@ -508,41 +542,41 @@ export function Header() {
                         &quot;Fikrim Var, Bütçem Yok&quot;
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        5 adımda modelle, ortak bul
+                        5 adımda modelle, sermayesiz başla
                       </span>
                     </div>
                   </Link>
 
                   <Link
-                    href="/trend-fikirler"
+                    href="/is-kurma-asistani"
                     className="p-2.5 rounded-2xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                      <Sparkles className="w-4 h-4" />
+                      <Store className="w-4 h-4" />
                     </span>
                     <div className="min-w-0">
                       <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 leading-tight">
-                        Düşük Sermayeli İşler
+                        İş Kurma Bütçe Robotu
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Mikro bütçeli girişimler
+                        55 sektörde anahtar teslim maliyet
                       </span>
                     </div>
                   </Link>
 
                   <Link
-                    href="/trend-fikirler"
+                    href="/is-kurma-asistani#grants-section"
                     className="p-2.5 rounded-2xl hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                      <Store className="w-4 h-4" />
+                      <Landmark className="w-4 h-4" />
                     </span>
                     <div className="min-w-0">
                       <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">
-                        Yüksek Kârlı Sektörler
+                        Hibe & Teşvik Destekleri
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Yüksek marjlı fizibiliteler
+                        375.000 TL KOSGEB hibesi & muafiyet
                       </span>
                     </div>
                   </Link>
@@ -551,7 +585,7 @@ export function Header() {
 
               {/* 4. GİRİŞİM İŞ RADARI */}
               {activeDropdown === 'ai-tools' && (
-                <div className="w-[470px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
+                <div className="w-[520px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
                     href="/radar"
                     className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
@@ -564,7 +598,7 @@ export function Header() {
                         Lokasyon Radarı
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        81 İl demografi & rakip haritası
+                        81 İl canlı demografi & rakip haritası
                       </span>
                     </div>
                   </Link>
@@ -581,13 +615,30 @@ export function Header() {
                         İş Kurma Asistanı
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        33 sektör maliyet simülatörü
+                        55 sektör dinamik maliyet & demirbaş robotu
                       </span>
                     </div>
                   </Link>
 
                   <Link
-                    href="/is-kurma-asistani"
+                    href="/is-kurma-asistani#legal-section"
+                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
+                  >
+                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
+                      <Store className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
+                        Resmi Başvuru Süreci
+                      </span>
+                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                        MERSİS, ruhsat & 5 adımlı yol haritası
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/is-kurma-asistani#grants-section"
                     className="p-2.5 rounded-2xl hover:bg-teal-500/10 border border-transparent hover:border-teal-500/20 transition-all flex items-start gap-2.5 group"
                   >
                     <span className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0 group-hover:scale-105 transition-transform">
@@ -598,24 +649,7 @@ export function Header() {
                         Hibe & Teşvik Radarı
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        2026 KOSGEB & vergi muafiyeti
-                      </span>
-                    </div>
-                  </Link>
-
-                  <Link
-                    href="/radar"
-                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
-                  >
-                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                      <Zap className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
-                        Pazar Uygunluk Skoru
-                      </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Bölgesel talep & fizibilite
+                        2026 KOSGEB & bölgesel teşvik analizi
                       </span>
                     </div>
                   </Link>
@@ -795,7 +829,23 @@ export function Header() {
                 className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-indigo-500/10 flex items-center gap-2"
               >
                 <Briefcase className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Kariyer</span>
+                <span>İş İlanları</span>
+              </Link>
+              <Link
+                href="/kategori/hizmetler"
+                onClick={() => setMobileOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-rose-500/10 flex items-center gap-2"
+              >
+                <Wrench className="w-3.5 h-3.5 text-rose-500" />
+                <span>Ustalar & Hizmet</span>
+              </Link>
+              <Link
+                href="/is-ariyorum"
+                onClick={() => setMobileOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-purple-500/10 flex items-center gap-2"
+              >
+                <Users className="w-3.5 h-3.5 text-purple-500" />
+                <span>Aday / Yetenek</span>
               </Link>
             </div>
 
@@ -814,7 +864,7 @@ export function Header() {
                   <Flame className="w-3.5 h-3.5 text-amber-500 fill-current" />
                   <span>Trend & Yeni İş Fikirleri</span>
                 </div>
-                <span className="text-[10px] font-mono font-black">Fizibilite</span>
+                <span className="text-[10px] font-mono font-black">2026 Model</span>
               </Link>
               <Link
                 href="/fikrim-var"
@@ -834,30 +884,38 @@ export function Header() {
               <Zap className="w-3 h-3 fill-current" />
               Girişim İş Radarı
             </div>
-            <div className="grid grid-cols-3 gap-1 mb-3">
+            <div className="grid grid-cols-2 gap-1.5 mb-3">
               <Link
                 href="/radar"
                 onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 text-center"
+                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 flex items-center gap-2"
               >
-                <Compass className="w-3.5 h-3.5 mx-auto text-emerald-500 mb-1" />
-                <span className="block text-[11px] truncate">Radar</span>
+                <Compass className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span className="text-[11px] font-semibold truncate">Lokasyon Radarı</span>
               </Link>
               <Link
                 href="/is-kurma-asistani"
                 onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 text-center"
+                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 flex items-center gap-2"
               >
-                <Wrench className="w-3.5 h-3.5 mx-auto text-sky-500 mb-1" />
-                <span className="block text-[11px] truncate">Asistan</span>
+                <Wrench className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                <span className="text-[11px] font-semibold truncate">Kurma Asistanı</span>
               </Link>
               <Link
-                href="/is-kurma-asistani"
+                href="/is-kurma-asistani#legal-section"
                 onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 text-center"
+                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 flex items-center gap-2"
               >
-                <Landmark className="w-3.5 h-3.5 mx-auto text-teal-500 mb-1" />
-                <span className="block text-[11px] truncate">Hibe</span>
+                <Store className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="text-[11px] font-semibold truncate">Resmi Süreç</span>
+              </Link>
+              <Link
+                href="/is-kurma-asistani#grants-section"
+                onClick={() => setMobileOpen(false)}
+                className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 flex items-center gap-2"
+              >
+                <Landmark className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                <span className="text-[11px] font-semibold truncate">Hibe & Teşvik</span>
               </Link>
             </div>
           </div>
