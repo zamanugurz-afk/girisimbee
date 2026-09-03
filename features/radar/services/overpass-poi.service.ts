@@ -17,7 +17,6 @@ interface OverpassResponse {
 
 const CACHE_TTL_MS = 1000 * 60 * 30; // 30 mins
 const POI_QUERY_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
-const GOOGLE_PLACES_CACHE = new Map<string, { data: CompetitorPoi[]; ts: number }>();
 const SECTOR_COUNTS_CACHE = new Map<string, { data: Record<string, number>; ts: number }>();
 
 const EXCLUDED_AMENITIES = new Set([
