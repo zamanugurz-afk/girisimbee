@@ -13,28 +13,20 @@ import {
   Plus,
   ExternalLink,
   Loader2,
-  LayoutDashboard,
   MapPin,
-  Globe,
   Mail,
   ShieldCheck,
-  Phone,
-  FileText,
-  Sparkles,
-  TrendingUp,
-  UserPlus,
-  Eye,
   CheckCircle2,
-  Clock,
-  Zap,
+  Check,
+  Target,
+  ChevronRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '@/features/authentication/hooks/use-auth';
 import { getCompanyService } from '@/lib/persistence/container';
 import type { PublicCompanyView } from '@/features/companies/types/company-public.types';
 import type { UserId } from '@/lib/domain/ids';
 import { Button } from '@/components/ui/button';
-import { formatNumber } from '@/lib/utils';
-import { AccountListingCard } from '@/features/account/components/AccountListingCard';
 import { mapListingToAccountCard } from '@/features/account/lib/map-listing-to-account-card';
 import type {
   AccountListingCardData,
@@ -50,28 +42,26 @@ interface CompanyDashboardViewProps {
 export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
   const { user } = useAuth();
   const searchParams = useSearchParams();
-  const urlTab = searchParams.get('tab') as 'listings' | 'team' | 'followers' | 'settings' | 'verification' | null;
+  const initialSettings = searchParams.get('tab') === 'settings';
 
   const [data, setData] = useState<PublicCompanyView | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'listings' | 'team' | 'followers' | 'settings' | 'verification'>(urlTab || 'listings');
+  const [viewMode, setViewMode] = useState<'board' | 'settings'>(initialSettings ? 'settings' : 'board');
   const [listingCards, setListingCards] = useState<AccountListingCardData[]>([]);
   const [listingFilter, setListingFilter] = useState<'all' | 'active' | 'unpublished'>('all');
 
-  const handleTabChange = (newTab: 'listings' | 'team' | 'followers' | 'settings' | 'verification') => {
-    setTab(newTab);
+  const handleToggleView = (mode: 'board' | 'settings') => {
+    setViewMode(mode);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      url.searchParams.set('tab', newTab);
+      if (mode === 'settings') {
+        url.searchParams.set('tab', 'settings');
+      } else {
+        url.searchParams.delete('tab');
+      }
       window.history.replaceState({}, '', url.toString());
     }
   };
-
-  useEffect(() => {
-    if (urlTab && ['listings', 'team', 'followers', 'settings', 'verification'].includes(urlTab)) {
-      setTab(urlTab);
-    }
-  }, [urlTab]);
 
   useEffect(() => {
     if (!user) return;
@@ -130,343 +120,434 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
 
   const company = data.company;
 
-    <div className="space-y-3">
-      {/* 1. TEK EKRAN KOMPAKT KOKPİT ÜST BARI (~52px) */}
-      <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md p-2.5 sm:p-3 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5">
-        {/* Sol: Logo + Şirket Adı + Künye */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700 flex items-center justify-center">
-            {company.logoUrl ? (
-              <Image src={company.logoUrl} alt={company.name} fill className="object-cover" unoptimized />
-            ) : (
-              <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h1 className="font-display text-base font-bold text-foreground truncate">
-                {company.name}
-              </h1>
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded-md shrink-0">
-                <CheckCircle2 className="w-3 h-3" />
-                Doğrulanmış
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
-              <span className="font-mono">@{company.slug}</span>
-              {company.industry && <span>• {company.industry}</span>}
-              {company.city && <span>• {company.city}</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* Orta: Kompakt 4 Metrik Rozeti */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 text-xs font-semibold shrink-0">
-            <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{listingCards.length} İlan</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-900 dark:text-rose-200 text-xs font-semibold shrink-0">
-            <Heart className="w-3.5 h-3.5 text-rose-600" />
-            <span>{data.followersCount} Takipçi</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-900 dark:text-amber-200 text-xs font-semibold shrink-0">
-            <Users className="w-3.5 h-3.5 text-amber-600" />
-            <span>{data.members.length} Ekip</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-900 dark:text-sky-200 text-xs font-semibold shrink-0">
-            <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
-            <span>{company.status === 'active' ? 'Aktif' : 'Taslak'}</span>
-          </div>
-        </div>
-
-        {/* Sağ: Aksiyon Butonları */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Button asChild size="sm" className="h-8 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
-            <Link href="/ilan/olustur?category=ise-al">
-              <Plus className="w-3.5 h-3.5 mr-1" />
-              Yeni İlan
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="sm" className="h-8 rounded-xl text-xs font-semibold">
-            <Link href={`/company/${slug}`} target="_blank">
-              <ExternalLink className="w-3 h-3 mr-1" />
-              Vitrin
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="h-8 rounded-xl text-xs text-muted-foreground hover:text-foreground">
-            <Link href="/dashboard">
-              ← Panel
-            </Link>
-          </Button>
+  return (
+    <div className="space-y-4">
+      {/* 1. ÜST NAVİGASYON VE BREADCRUMB (Görseldeki gibi: ← Kariyer Menüsüne Dön / Ana Sayfa > İş İlanları > İlan) */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground pb-1">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 font-semibold text-slate-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400 transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Kullanıcı Paneline Dön</span>
+        </Link>
+        <div className="flex items-center gap-1.5 font-medium">
+          <span>Ana Sayfa</span>
+          <span>›</span>
+          <span>Şirket Yönetimi</span>
+          <span>›</span>
+          <span className="font-bold text-foreground">{company.name}</span>
         </div>
       </div>
 
-      {/* 2. KOMPAKT TEK EKRAN SEKME ÇUBUĞU (~38px) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto p-1 rounded-xl bg-slate-100/90 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/80">
-        <TabButton
-          active={tab === 'listings'}
-          onClick={() => handleTabChange('listings')}
-          icon={Briefcase}
-          label={`İlanlar (${listingCards.length})`}
-        />
-        <TabButton
-          active={tab === 'settings'}
-          onClick={() => handleTabChange('settings')}
-          icon={Settings}
-          label="Şirket Bilgilerini Düzenle"
-        />
-        <TabButton
-          active={tab === 'team'}
-          onClick={() => handleTabChange('team')}
-          icon={Users}
-          label={`Ekip (${data.members.length})`}
-        />
-        <TabButton
-          active={tab === 'verification'}
-          onClick={() => handleTabChange('verification')}
-          icon={ShieldCheck}
-          label="Doğrulama & Belgeler"
-        />
-        <TabButton
-          active={tab === 'followers'}
-          onClick={() => handleTabChange('followers')}
-          icon={Heart}
-          label={`Takipçiler (${data.followersCount})`}
-        />
-      </div>
+      {/* 2. ANA 2 KOLONLU MİMARİ (Görseldeki exact layout: Sol Sidebar + Sağ Main) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* SOL KOLON (Sidebar) - lg:col-span-4 xl:col-span-3 space-y-3.5 */}
+        <aside className="lg:col-span-4 xl:col-span-3 space-y-3.5">
+          {/* Kart 1: Şirket Başlık Kartı (Görseldeki AppFlow Mobil Teknolojiler kutusu) */}
+          <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-4 sm:p-5 shadow-xs space-y-1">
+            <h1 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-foreground">
+              {company.name}
+            </h1>
+            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+              {company.industry || 'Kurumsal İşletme'} · @{company.slug}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {company.city || 'Türkiye'}
+            </p>
+          </div>
 
-      {/* 3. TEK EKRAN KOKPİT ANA İÇERİK ALANI */}
-      <div>
-        {/* Sekme: İlanlar — Bizim İlan Kart Yapımız ile */}
-        {tab === 'listings' && (
-          <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-4 shadow-xs backdrop-blur-md space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-zinc-800">
-              <div>
-                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-emerald-600" />
-                  <span>Şirketin Açık İlanları & İlan Havuzu</span>
-                </h2>
-                <p className="text-xs text-muted-foreground">Şirket adına açılan pozisyonları ve iş ilanlarını tek ekrandan yönetin.</p>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setListingFilter('all')}
-                    className={cn(
-                      'px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer',
-                      listingFilter === 'all'
-                        ? 'bg-white dark:bg-zinc-700 text-foreground shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    Tümü ({listingCards.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setListingFilter('active')}
-                    className={cn(
-                      'px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer',
-                      listingFilter === 'active'
-                        ? 'bg-white dark:bg-zinc-700 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    Yayında ({listingCards.filter((l) => l.status === 'active').length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setListingFilter('unpublished')}
-                    className={cn(
-                      'px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer',
-                      listingFilter === 'unpublished'
-                        ? 'bg-white dark:bg-zinc-700 text-amber-600 dark:text-amber-400 shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    Pasif ({listingCards.filter((l) => l.status !== 'active').length})
-                  </button>
+          {/* Kart 2: Kurumsal Doğrulama Bilgisi (Görseldeki ARANAN EĞİTİM tarzı) */}
+          <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3.5 sm:p-4 shadow-xs space-y-2">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+              <ShieldCheck className="h-4 w-4" />
+              <span>KURUMSAL DOĞRULAMA</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-slate-900 dark:text-foreground">
+                Doğrulanmış Kurumsal Profil
+              </p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Vergi Levhası, Ticaret Sicil ve Temsilci Yetkisi onaylanmıştır.
+              </p>
+            </div>
+          </div>
+
+          {/* Kart 3: Şirket Şartları ve Durumu (Görseldeki ÇALIŞMA ŞARTLARI kartı) */}
+          <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3.5 sm:p-4 shadow-xs space-y-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+              <Briefcase className="h-4 w-4" />
+              <span>ŞİRKET & YÖNETİM DURUMU</span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">HESAP DURUMU</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                    {company.status === 'active' ? 'Aktif (Onaylı)' : 'Taslak'}
+                  </p>
                 </div>
-                <Button asChild size="sm" className="h-7 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
-                  <Link href="/ilan/olustur?category=ise-al">
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    İlan Ekle
-                  </Link>
-                </Button>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Briefcase className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">AÇIK İLANLAR</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                    {listingCards.length} Yayında İlan
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Users className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">EKİP YETKİLİLERİ</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                    {data.members.length} Üye
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Heart className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">TAKİPÇİ TOPLULUĞU</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                    {data.followersCount} Takipçi
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">İLETİŞİM E-POSTA</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5 truncate">
+                    {company.contactEmail || 'Belirtilmedi'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">TERCİH EDİLEN LOKASYON</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-foreground mt-0.5">
+                    {company.city || 'İstanbul'}
+                  </p>
+                </div>
               </div>
             </div>
-
-            {listingCards.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-200 dark:border-zinc-800 p-8 text-center bg-slate-50/50 dark:bg-zinc-900/40">
-                <Briefcase className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-                <p className="text-sm font-semibold text-foreground">Henüz bu şirket adına açılmış bir ilan bulunmuyor.</p>
-                <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                  Hemen açık bir pozisyon veya iş ilanı yayınlayarak aday başvurularını toplamaya başlayın.
-                </p>
-                <Button asChild size="sm" className="mt-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs text-xs">
-                  <Link href="/ilan/olustur?category=ise-al">
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    İlk İlanı Yayınla
-                  </Link>
-                </Button>
-              </div>
-            ) : filteredListings.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-200 dark:border-zinc-800 p-6 text-center text-xs text-muted-foreground">
-                Seçilen filtreyle eşleşen şirket ilanı bulunamadı.
-              </div>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
-                {filteredListings.map((listing) => (
-                  <AccountListingCard
-                    key={listing.id}
-                    listing={listing}
-                    onStatusChange={handleStatusChange}
-                    onDelete={handleDelete}
-                    onPromote={handlePromote}
-                  />
-                ))}
-              </div>
-            )}
           </div>
-        )}
 
-        {/* Sekme: Şirket Ayarları (2 Kolonlu Kompakt Form, Tek Ekrana Sığar) */}
-        {tab === 'settings' && data.isOwner && (
-          <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-4 sm:p-5 shadow-xs backdrop-blur-md">
-            <CompanySettingsForm slug={slug} />
+          {/* Sol Kolon Aksiyon Butonları (Görseldeki POZİSYONA BAŞVUR butonu) */}
+          <div className="space-y-2 pt-1">
+            <Button
+              asChild
+              className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-[13px] font-bold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all"
+            >
+              <Link href="/ilan/olustur?category=ise-al">
+                <Plus className="h-4 w-4" />
+                <span>+ YENİ İLAN YAYINLA</span>
+              </Link>
+            </Button>
+
+            <Button
+              type="button"
+              onClick={() => handleToggleView(viewMode === 'settings' ? 'board' : 'settings')}
+              variant="outline"
+              className="w-full h-9 rounded-xl border-emerald-200 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:border-emerald-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>{viewMode === 'settings' ? 'Yönetim Panosuna Dön' : 'Şirket Bilgilerini Düzenle'}</span>
+            </Button>
           </div>
-        )}
+        </aside>
 
-        {/* Sekme: Ekip */}
-        {tab === 'team' && (
-          <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-4 sm:p-5 shadow-xs backdrop-blur-md space-y-3">
-            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-zinc-800">
-              <div>
-                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-600" />
-                  <span>Ekip Üyeleri & Yetkiler</span>
-                </h3>
-                <p className="text-xs text-muted-foreground">Şirket panelini yönetme yetkisine sahip kullanıcılar.</p>
-              </div>
-              <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-semibold gap-1">
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Üye Davet Et</span>
-              </Button>
+        {/* SAĞ KOLON (Main) - lg:col-span-8 xl:col-span-9 space-y-4 */}
+        <main className="lg:col-span-8 xl:col-span-9 space-y-4">
+          {/* 1. ÜST ÖZET & VURGU KARTI (Görseldeki üst yeşil kutucuklu özet kartı) */}
+          <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-4 sm:p-4.5 shadow-xs flex items-center gap-4">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs border bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+              <Building2 className="h-5 w-5" />
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-[13px] text-slate-800 dark:text-foreground font-medium leading-relaxed">
+                {company.description ||
+                  `${company.name} kurumsal iş yeri profili — açık pozisyonlarınızı, ekip yetkilerinizi ve kurumsal kimliğinizi tek ekrandan yönetin.`}
+              </p>
+            </div>
+          </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {data.members.map(({ member, profile }) => (
-                <div key={member.id} className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40 p-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
-                      {profile?.displayName?.slice(0, 2).toUpperCase() || 'ÜY'}
+          {/* 2. ORTA BÖLÜM: EĞER AYARLAR AÇIKSA FORMU GÖSTER, DEĞİLSE GÖRSELDEKİ 01/02/03 KOKPİTİNİ GÖSTER */}
+          {viewMode === 'settings' ? (
+            <div className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card p-5 sm:p-6 shadow-xs">
+              <CompanySettingsForm slug={slug} />
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5">
+              {/* Başlık Çubuğu (Görseldeki gibi: ARANAN NİTELİKLER & GÖREV DAĞILIMI | 3 BÖLÜM) */}
+              <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-zinc-800">
+                <div className="flex items-center gap-2 text-xs sm:text-[13px] font-extrabold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                  <Briefcase className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>ŞİRKET İLANLARI VE İŞ YÖNETİMİ</span>
+                </div>
+                <span className="rounded-full px-3 py-0.5 text-[11px] font-bold border bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400">
+                  {listingCards.length} İLAN · 3 BÖLÜM
+                </span>
+              </div>
+
+              {/* İki Kolonlu Grid: Sol Kolon 01/02/03 Kartları (%65) + Sağ Kolon Yetkinlik/Aksiyon Listesi (%35) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                {/* Sol Alt Grid: 01, 02, 03 Aşamalı Kartlar */}
+                <div className="lg:col-span-7 xl:col-span-8 space-y-3">
+                  {/* Kart 01: Şirketin Açık Pozisyonları ve İlanları */}
+                  <div className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-emerald-200 transition-colors">
+                    {/* Sol Yeşil Numara Bloğu */}
+                    <div className="w-14 sm:w-16 bg-[#059669] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                      <span className="text-xl sm:text-2xl font-extrabold tracking-tight">01</span>
+                      <Target className="h-5 w-5 stroke-[2]" />
                     </div>
-                    <div>
-                      <p className="font-bold text-xs text-foreground">{profile?.displayName ?? 'Kullanıcı'}</p>
-                      <p className="text-[10px] text-muted-foreground">{member.role === 'owner' ? 'Şirket Sahibi' : 'Yönetici / Ekip Üyesi'}</p>
+                    {/* Sağ İçerik */}
+                    <div className="p-3.5 sm:p-4 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                            Şirketin Açık Pozisyonları ve İlanları
+                          </h4>
+                          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                            {company.industry || 'Kariyer Fırsatları'} · {listingCards.length} İlan
+                          </p>
+                        </div>
+                        <span className="rounded-md border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-zinc-300 shrink-0">
+                          İlanlar
+                        </span>
+                      </div>
+
+                      {listingCards.length > 0 ? (
+                        <div className="space-y-1.5 pt-1">
+                          {listingCards.slice(0, 3).map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between text-xs py-1 border-b border-slate-100 dark:border-zinc-800 last:border-0"
+                            >
+                              <span className="font-semibold text-slate-800 dark:text-zinc-200 truncate">
+                                {item.title}
+                              </span>
+                              <span
+                                className={cn(
+                                  'text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0',
+                                  item.status === 'active'
+                                    ? 'bg-emerald-50 text-emerald-700'
+                                    : 'bg-amber-50 text-amber-700',
+                                )}
+                              >
+                                {item.status === 'active' ? 'Yayında' : 'Pasif'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground pt-1">
+                          Henüz açık pozisyonunuz bulunmuyor. Yeni bir ilan yayınlayarak aday başvurularını toplayabilirsiniz.
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
-                    {member.role === 'owner' ? 'Sahip' : 'Üye'}
-                  </span>
+
+                  {/* Kart 02: Ekip & Yetki Dağılımı */}
+                  <div className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-emerald-200 transition-colors">
+                    <div className="w-14 sm:w-16 bg-[#059669] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                      <span className="text-xl sm:text-2xl font-extrabold tracking-tight">02</span>
+                      <Users className="h-5 w-5 stroke-[2]" />
+                    </div>
+                    <div className="p-3.5 sm:p-4 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                            Ekip Üyeleri & Yetki Dağılımı
+                          </h4>
+                          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                            {data.members.length} Yetkili Hesap Yöneticisi
+                          </p>
+                        </div>
+                        <span className="rounded-md border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-zinc-300 shrink-0">
+                          Ekip
+                        </span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-1 pt-1 list-disc list-inside">
+                        <li>Hesap Sahibi: {user?.displayName || 'Yönetici'} (Tam Yetki)</li>
+                        <li>İlan oluşturma, düzenleme ve başvuru takibi aktif.</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Kart 03: Çalışma Modeli & Şirket İmkanları */}
+                  <div className="rounded-2xl border border-emerald-100/90 dark:border-border bg-white dark:bg-card/50 overflow-hidden shadow-2xs flex items-stretch hover:border-emerald-200 transition-colors">
+                    <div className="w-14 sm:w-16 bg-[#059669] text-white flex flex-col items-center justify-between py-4 px-2 shrink-0">
+                      <span className="text-xl sm:text-2xl font-extrabold tracking-tight">03</span>
+                      <ShieldCheck className="h-5 w-5 stroke-[2]" />
+                    </div>
+                    <div className="p-3.5 sm:p-4 flex-1 min-w-0 flex flex-col justify-center space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm sm:text-[15px] font-bold text-slate-900 dark:text-foreground leading-snug">
+                            Kurumsal Güvenlik & Doğrulama Statüsü
+                          </h4>
+                          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                            {company.city || 'Türkiye'} · Doğrulanmış Firma
+                          </p>
+                        </div>
+                        <span className="rounded-md border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-zinc-300 shrink-0">
+                          Güven
+                        </span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-1 pt-1 list-disc list-inside">
+                        <li>E-Devlet / GİB Vergi Levhası Onaylı.</li>
+                        <li>Şirket vitrini ve tüm ilanlar platform genelinde yayında.</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-              ))}
+
+                {/* Sağ Alt Grid: Hızlı Yönetim Aksiyonları (Görseldeki ARANAN YETKİNLİKLER tarzı dikey liste) */}
+                <div className="lg:col-span-5 xl:col-span-4 rounded-2xl border border-emerald-100/90 dark:border-border bg-slate-50/50 dark:bg-card/40 p-4 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-border">
+                      <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-foreground">
+                        <Target className="h-4 w-4 text-emerald-600" />
+                        <span>HIZLI İŞLEMLER</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        6 Aksiyon
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleView('settings')}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all cursor-pointer shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Şirket Bilgilerini Düzenle</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </button>
+
+                      <Link
+                        href="/ilan/olustur?category=ise-al"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Yeni İş İlanı Yayınla</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </Link>
+
+                      <Link
+                        href={`/company/${slug}`}
+                        target="_blank"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Genel Şirket Vitrinini Gör</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </Link>
+
+                      <Link
+                        href="/dashboard/ilanlarim"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Tüm Platform İlanlarım</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </Link>
+
+                      <Link
+                        href="/dashboard/iletisim-talepleri"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Gelen İletişim Talepleri</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </Link>
+
+                      <Link
+                        href="/dashboard/mesajlarim"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 hover:border-emerald-300 hover:text-emerald-700 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                          <span>Kurumsal Mesajlarım</span>
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-muted-foreground pt-3 text-center">
+                    + Şirket yönetimi tam yetkisi aktif
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </main>
+      </div>
 
-        {/* Sekme: Doğrulama & Belgeler */}
-        {tab === 'verification' && (
-          <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-4 sm:p-5 shadow-xs backdrop-blur-md space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
-              <div>
-                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Kurumsal Doğrulama & Belgeler</span>
-                </h3>
-                <p className="text-xs text-muted-foreground">İşletmenizi doğrulayın, yeşil kurumsal güven rozeti kazanın.</p>
-              </div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-xs border border-emerald-500/20">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Doğrulanmış İşletme
-              </span>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">1. Vergi Levhası</span>
-                  <span className="text-[10px] font-semibold text-emerald-600">✓ Onaylı</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">E-Devlet / GİB üzerinden vergi kimlik numarası eşleştirildi.</p>
-              </div>
-
-              <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">2. Ticaret Sicil</span>
-                  <span className="text-[10px] font-semibold text-emerald-600">✓ Onaylı</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">Ana sözleşme ve Sicil Gazetesi kaydı onaylandı.</p>
-              </div>
-
-              <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">3. Yetkili Temsilci</span>
-                  <span className="text-[10px] font-semibold text-emerald-600">✓ Aktif</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">Hesap sahibi şirketi temsile yetkili yönetici olarak doğrulandı.</p>
-              </div>
-
-              <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">4. Kurumsal Alan Adı</span>
-                  <span className="text-[10px] font-semibold text-emerald-600">✓ Onaylı</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">Resmi şirket alan adı uzantılı kurumsal e-posta onaylandı.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sekme: Takipçiler */}
-        {tab === 'followers' && (
-          <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-5 shadow-xs backdrop-blur-md text-center space-y-2">
-            <Heart className="w-8 h-8 text-rose-500 mx-auto" />
-            <p className="text-lg font-bold text-foreground">{formatNumber(data.followersCount)} Takipçi</p>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Kullanıcılar şirketinizin açık pozisyonlarını ve yeni ilan güncellemelerini anlık olarak takip edebilir.
+      {/* 3. EN ALT ÖZET ŞERİT (Görseldeki 4'lü alt çip şeridi) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+        <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3 shadow-xs flex items-center gap-3">
+          <Briefcase className="h-4 w-4 text-emerald-600 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">YAYINDAKİ İLANLAR</p>
+            <p className="text-xs font-bold text-slate-800 dark:text-foreground truncate">
+              {listingCards.length} Aktif İlan
             </p>
-        )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3 shadow-xs flex items-center gap-3">
+          <Building2 className="h-4 w-4 text-emerald-600 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">FAALİYET SEKTÖRÜ</p>
+            <p className="text-xs font-bold text-slate-800 dark:text-foreground truncate">
+              {company.industry || 'Genel Sektör'}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3 shadow-xs flex items-center gap-3">
+          <MapPin className="h-4 w-4 text-emerald-600 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">LOKASYON / ŞEHİR</p>
+            <p className="text-xs font-bold text-slate-800 dark:text-foreground truncate">
+              {company.city || 'Türkiye'}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-emerald-100/90 dark:border-emerald-950/60 bg-white dark:bg-card p-3 shadow-xs flex items-center gap-3">
+          <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">HESAP STATÜSÜ</p>
+            <p className="text-xs font-bold text-slate-800 dark:text-foreground truncate">
+              Doğrulanmış İşletme
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  icon: Icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer',
-        active
-          ? 'bg-emerald-600 text-white shadow-xs'
-          : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-200/60 dark:hover:bg-zinc-700/60 hover:text-slate-900 dark:hover:text-white',
-      )}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      <span>{label}</span>
-    </button>
   );
 }
