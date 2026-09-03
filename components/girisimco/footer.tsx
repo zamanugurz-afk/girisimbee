@@ -26,8 +26,8 @@ export function Footer() {
       title: 'PLATFORM',
       links: [
         { label: 'İlan Ver', href: '/ilan/olustur' },
-        { label: 'İlanlarım', href: '/hesabim/ilanlarim' },
-        { label: 'Favorilerim', href: '/hesabim/favorilerim' },
+        { label: 'İlanlarım', href: '/dashboard/ilanlarim' },
+        { label: 'Favorilerim', href: '/dashboard/favorilerim' },
         { label: 'Giriş Yap', href: '/giris' },
         { label: 'Kayıt Ol', href: '/kayit' },
       ],

@@ -3,6 +3,8 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['pdf-parse'],
+    cpus: 1,
+    workerThreads: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -42,9 +44,6 @@ const nextConfig = {
       { source: '/hesabim/odemelerim', destination: '/dashboard/odemelerim', permanent: false },
       { source: '/hesabim/ayarlar', destination: '/dashboard/ayarlar', permanent: false },
       { source: '/hesabim/vitrinlerim', destination: '/dashboard/paketlerim', permanent: false },
-      { source: '/mesajlar', destination: '/dashboard', permanent: false },
-      { source: '/mesajlar/:path*', destination: '/dashboard', permanent: false },
-      { source: '/dashboard/mesajlarim', destination: '/dashboard', permanent: false },
       { source: '/bildirimler', destination: '/dashboard/bildirimlerim', permanent: false },
       { source: '/favoriler', destination: '/dashboard/favorilerim', permanent: false },
       { source: '/ilanlarim', destination: '/dashboard/ilanlarim', permanent: false },
