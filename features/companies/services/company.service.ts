@@ -131,6 +131,26 @@ export class CompanyService implements ICompanyService {
       viewerId ? this.followRepo.isFollowing(viewerId, company.id) : Promise.resolve(false),
     ]);
 
+    let companyListings = listingsResult.data;
+    if (companyListings.length === 0 && company.ownerId) {
+      try {
+        const ownerListings = await this.listingRepo.search(
+          { ownerId: company.ownerId, status: 'published' },
+          { page: 1, limit: 50 },
+        );
+        const compLower = company.name.trim().toLowerCase();
+        const matched = ownerListings.data.filter((l) => {
+          const cName = String(l.customFields?.companyName || l.customFields?.businessName || '').trim().toLowerCase();
+          return cName === compLower;
+        });
+        if (matched.length > 0) {
+          companyListings = matched;
+        }
+      } catch {
+        // fallback ignored
+      }
+    }
+
     const memberViews = await Promise.all(
       members.map(async (member) => ({
         member,
@@ -141,7 +161,7 @@ export class CompanyService implements ICompanyService {
     return {
       company,
       members: memberViews,
-      listings: listingsResult.data,
+      listings: companyListings,
       followersCount,
       isOwner,
       isMember,

@@ -103,7 +103,11 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
       {/* 1. ÜST BAŞLIK & BREADCRUMB */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-1.5">
+            <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
+              <span>← Kullanıcı Paneli</span>
+            </Link>
+            <span>/</span>
             <span>Şirket Paneli</span>
             <span>/</span>
             <span className="text-foreground">@{company.slug}</span>
