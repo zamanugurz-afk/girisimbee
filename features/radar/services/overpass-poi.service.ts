@@ -560,16 +560,9 @@ export const GOOGLE_CATEGORY_MAPPING: Record<
 };
 
 export function getGooglePlacesApiKey(): string | null {
-  const envKey =
-    process.env.GOOGLE_PLACES_API_KEY ||
-    process.env.GOOGLE_MAPS_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
-
-  if (envKey && envKey.trim().length > 10 && !envKey.includes('_oAQT')) {
-    return envKey.trim();
-  }
-  return 'AIzaSyAkzsIz1CJBQMjuC-_oRQTcTbf8FoGZrBY';
+  // Google Places API is completely disabled to avoid paid Google Cloud API usage.
+  // Lokasyon Radarı uses OpenStreetMap (Overpass & Nominatim) for 100% free real-time data.
+  return null;
 }
 
 export const CATEGORY_SEARCH_SUBQUERIES: Record<string, string[]> = {
@@ -599,152 +592,12 @@ export const CATEGORY_SEARCH_SUBQUERIES: Record<string, string[]> = {
 };
 
 export async function fetchGooglePlacesPois(
-  lat: number,
-  lng: number,
-  radiusMeters: number,
-  category: RadarCategoryKey,
+  _lat: number,
+  _lng: number,
+  _radiusMeters: number,
+  _category: RadarCategoryKey,
 ): Promise<CompetitorPoi[] | null> {
-  const apiKey = getGooglePlacesApiKey();
-  if (!apiKey) return null;
-
-  const roundedLat = Math.round(lat * 1000) / 1000;
-  const roundedLng = Math.round(lng * 1000) / 1000;
-  const cacheKey = `gplaces-pure-${roundedLat}-${roundedLng}-${radiusMeters}-${category}`;
-
-  const cached = GOOGLE_PLACES_CACHE.get(cacheKey);
-  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
-    return cached.data;
-  }
-
-  const mapping = GOOGLE_CATEGORY_MAPPING[category] || { keyword: category, fallbackLabel: 'Ticari İşletme' };
-  const subQueries = CATEGORY_SEARCH_SUBQUERIES[category] || [mapping.keyword];
-
-  const latDiff = (radiusMeters * 1.15) / 111320;
-  const lngDiff = (radiusMeters * 1.15) / (111320 * Math.cos((lat * Math.PI) / 180));
-
-  const textApiUrl = 'https://places.googleapis.com/v1/places:searchText';
-  const seenIds = new Set<string>();
-  const collectedPois: CompetitorPoi[] = [];
-
-  const promises = subQueries.map(async (queryStr) => {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6500);
-
-      const res = await fetch(textApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'Referer': 'https://girisimbee.com/',
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount',
-        },
-        body: JSON.stringify({
-          textQuery: queryStr,
-          locationRestriction: {
-            rectangle: {
-              low: { latitude: lat - latDiff, longitude: lng - lngDiff },
-              high: { latitude: lat + latDiff, longitude: lng + lngDiff },
-            },
-          },
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        const textJson = await res.json();
-        if (textJson.places && Array.isArray(textJson.places)) {
-          for (const place of textJson.places) {
-            const pName = place.displayName?.text;
-            const pLat = place.location?.latitude;
-            const pLng = place.location?.longitude;
-            if (!pName || pLat == null || pLng == null) continue;
-            if (seenIds.has(place.id)) continue;
-
-            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
-            if (dist > radiusMeters * 1.2) continue;
-
-            seenIds.add(place.id);
-            collectedPois.push({
-              id: `gp-${place.id}`,
-              name: pName,
-              lat: pLat,
-              lng: pLng,
-              category,
-              categoryLabel: mapping.fallbackLabel,
-              address: place.formattedAddress || 'Google Doğrulanmış Konum',
-              distanceMeters: Math.round(dist),
-            });
-          }
-        }
-      }
-    } catch {}
-  });
-
-  await Promise.all(promises);
-
-  if (collectedPois.length > 0) {
-    const sorted = collectedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
-    return sorted;
-  }
-
-  // Fallback: single query with locationBias
-  try {
-    const fallbackRes = await fetch(textApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'Referer': 'https://girisimbee.com/',
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount',
-      },
-      body: JSON.stringify({
-        textQuery: mapping.keyword,
-        locationBias: {
-          circle: {
-            center: { latitude: lat, longitude: lng },
-            radius: radiusMeters,
-          },
-        },
-      }),
-    });
-    if (fallbackRes.ok) {
-      const fbJson = await fallbackRes.json();
-      if (fbJson.places && Array.isArray(fbJson.places)) {
-        for (const place of fbJson.places) {
-          const pName = place.displayName?.text;
-          const pLat = place.location?.latitude;
-          const pLng = place.location?.longitude;
-          if (!pName || pLat == null || pLng == null) continue;
-          if (seenIds.has(place.id)) continue;
-          const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
-          if (dist > radiusMeters * 1.2) continue;
-
-          seenIds.add(place.id);
-          collectedPois.push({
-            id: `gp-${place.id}`,
-            name: pName,
-            lat: pLat,
-            lng: pLng,
-            category,
-            categoryLabel: mapping.fallbackLabel,
-            address: place.formattedAddress || 'Google Doğrulanmış Konum',
-            distanceMeters: Math.round(dist),
-          });
-        }
-      }
-    }
-  } catch {}
-
-  if (collectedPois.length > 0) {
-    const sorted = collectedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    GOOGLE_PLACES_CACHE.set(cacheKey, { data: sorted, ts: Date.now() });
-    return sorted;
-  }
-
+  // Completely bypassed — zero Google Cloud API cost
   return null;
 }
 
@@ -1976,32 +1829,15 @@ export async function fetchMasterAreaPoiCensus(
         distanceMeters: Math.round(calculateDistanceMeters(lat, lng, p.lat, p.lng)),
       }));
 
-    // B. Fetch live real POIs from Google Places (if key exists) or Overpass
+    // B. Fetch live real POIs from OpenStreetMap (Overpass & Nominatim) — 100% Free & Open Source
     let livePois: CompetitorPoi[] = [];
-    const topSectors: RadarCategoryKey[] = [
-      'cafe',
-      'restaurant',
-      'market',
-      'hairdresser',
-      'pharmacy',
-      'donerci',
-      'bakery',
-      'real_estate',
-      'insurance_agency',
-    ];
-    const sectorPromises = topSectors.map((sec) => fetchGooglePlacesPois(lat, lng, radiusMeters, sec));
-    const googleResults = await Promise.all(sectorPromises);
-    for (const r of googleResults) {
-      if (r && r.length > 0) {
-        livePois.push(...r);
-      }
-    }
-
-    if (livePois.length === 0) {
+    try {
       const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all');
       if (overpassPois && overpassPois.length > 0) {
         livePois = overpassPois;
       }
+    } catch {
+      // Overpass fallback handled gracefully
     }
 
     // C. Merge & Deduplicate real collected POIs
