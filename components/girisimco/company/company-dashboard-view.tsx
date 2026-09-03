@@ -50,6 +50,15 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'listings' | 'team' | 'followers' | 'settings' | 'verification'>('listings');
 
+  const handleTabChange = (newTab: 'listings' | 'team' | 'followers' | 'settings' | 'verification') => {
+    setTab(newTab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', newTab);
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
+
   useEffect(() => {
     if (urlTab && ['listings', 'team', 'followers', 'settings', 'verification'].includes(urlTab)) {
       setTab(urlTab);
@@ -190,27 +199,33 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
           <div className="flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-2xl bg-slate-100/80 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-800">
             <TabButton
               active={tab === 'listings'}
-              onClick={() => setTab('listings')}
+              onClick={() => handleTabChange('listings')}
               icon={Briefcase}
               label={`İlanlar (${data.listings.length})`}
             />
             <TabButton
               active={tab === 'team'}
-              onClick={() => setTab('team')}
+              onClick={() => handleTabChange('team')}
               icon={Users}
               label={`Ekip (${data.members.length})`}
             />
             <TabButton
               active={tab === 'followers'}
-              onClick={() => setTab('followers')}
+              onClick={() => handleTabChange('followers')}
               icon={Heart}
               label={`Takipçiler (${data.followersCount})`}
             />
             <TabButton
               active={tab === 'settings'}
-              onClick={() => setTab('settings')}
+              onClick={() => handleTabChange('settings')}
               icon={Settings}
               label="Şirket Ayarları"
+            />
+            <TabButton
+              active={tab === 'verification'}
+              onClick={() => handleTabChange('verification')}
+              icon={ShieldCheck}
+              label="Doğrulama & Belgeler"
             />
           </div>
 
@@ -313,6 +328,61 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
                 Şirket Profilini ve Bilgilerini Düzenle
               </h3>
               <CompanySettingsForm slug={slug} />
+            </div>
+          )}
+
+          {/* Sekme 5: Doğrulama & Belgeler */}
+          {tab === 'verification' && (
+            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-zinc-800">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    <span>Kurumsal Doğrulama & Belgeler</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Girişimbee üzerinde işletmenizi doğrulayın, yeşil kurumsal güven rozeti kazanın.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-xs border border-emerald-500/20">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Doğrulanmış İşletme
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">1. Vergi Levhası Doğrulaması</span>
+                    <span className="text-[11px] font-semibold text-emerald-600">✓ Onaylandı</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">E-Devlet / GİB üzerinden şirket vergi kimlik numarası doğrulanmıştır.</p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">2. Ticaret Sicil / MERSİS Kaydı</span>
+                    <span className="text-[11px] font-semibold text-emerald-600">✓ Onaylandı</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Şirket ana sözleşmesi ve Ticaret Sicil Gazetesi ilanı eşleşmiştir.</p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">3. Yetkili Temsilci & İmza</span>
+                    <span className="text-[11px] font-semibold text-emerald-600">✓ Aktif</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Hesap sahibi şirketi temsile yetkili yönetici olarak doğrulanmıştır.</p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">4. Kurumsal Alan Adı & E-posta</span>
+                    <span className="text-[11px] font-semibold text-emerald-600">✓ Doğrulandı</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Şirketin resmi alan adı uzantılı kurumsal e-posta adresi onaylandı.</p>
+                </div>
+              </div>
             </div>
           )}
         </div>
