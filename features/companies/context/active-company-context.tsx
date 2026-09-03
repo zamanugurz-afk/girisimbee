@@ -40,60 +40,28 @@ export function ActiveCompanyProvider({ children }: { children: React.ReactNode 
 
     try {
       setIsLoading(true);
-      const service = getCompanyService();
-      let list = await service.listForUser(user.id as UserId);
+      let list: Company[] = [];
 
-      // Bootstrap sample company only on initial first run if never initialized
-      const isSeeded = typeof window !== 'undefined' ? localStorage.getItem(SEEDED_KEY) : null;
-      if (list.length === 0 && !isSeeded) {
-        try {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(SEEDED_KEY, 'true');
+      // 1. Fetch from authoritative /api/companies/mine (handles session, RLS, and auto-recovers from published job listings)
+      try {
+        const res = await fetch('/api/companies/mine');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.companies) && data.companies.length > 0) {
+            list = data.companies;
           }
-          const sample = await service.create({
-            ownerId: user.id as UserId,
-            name: 'Kahve Durağı A.Ş.',
-            slug: 'kahve-duragi',
-            description: '3. Nesil Nitelikli Kahve & Franchise Ağı',
-            industry: 'Yeme-İçme & Kafe',
-            employeeCount: '11-50',
-            foundedYear: 2021,
-            city: 'İstanbul',
-            country: 'TR',
-            contactEmail: user.email,
-            website: 'https://kahveduragi.com',
-          });
-          list = [sample];
-        } catch {
-          list = await service.listForUser(user.id as UserId);
         }
+      } catch (err) {
+        console.warn('Failed to fetch from /api/companies/mine, falling back to local service:', err);
       }
 
-      // Auto-discover company from user's published job/hire listings if no company exists
+      // 2. Fallback to client service if needed
       if (list.length === 0) {
         try {
-          const res = await fetch('/api/account/listings?status=all');
-          if (res.ok) {
-            const data = await res.json();
-            const jobListing = (data.listings || []).find(
-              (l: any) => l.customFields?.companyName || l.customFields?.businessName,
-            );
-            const foundName = (jobListing?.customFields?.companyName || jobListing?.customFields?.businessName || '').trim();
-            if (foundName) {
-              const created = await service.create({
-                ownerId: user.id as UserId,
-                name: foundName,
-                slug: foundName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
-                industry: String(jobListing.customFields?.primarySector || jobListing.customFields?.sector || 'Hizmet & Ticaret'),
-                city: jobListing.city || 'İstanbul',
-                contactEmail: user.email,
-                description: `${foundName} kurumsal iş yeri profili.`,
-              });
-              list = [created];
-            }
-          }
-        } catch (e) {
-          console.warn('Auto-discover company from listings error:', e);
+          const service = getCompanyService();
+          list = await service.listForUser(user.id as UserId);
+        } catch {
+          // ignore
         }
       }
 
