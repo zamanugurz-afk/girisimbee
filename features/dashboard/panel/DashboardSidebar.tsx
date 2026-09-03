@@ -19,6 +19,7 @@ import {
   User,
   Users,
   ArrowLeft,
+  Building2,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ import {
 import { useDashboardPanelPath } from '@/features/dashboard/panel/use-dashboard-panel-path';
 import { useUnreadMessageCount } from '@/features/messaging/hooks/use-unread-message-count';
 import { usePendingContactRequestCount } from '@/features/contact-requests/hooks/use-pending-contact-request-count';
+import { useActiveCompany } from '@/features/companies/context/active-company-context';
 
 const ICONS: Record<DashboardNavIcon, LucideIcon> = {
   LayoutDashboard,
@@ -58,6 +60,9 @@ export function DashboardSidebar() {
   const { isActive } = useDashboardPanelPath();
   const { count: unreadMessages } = useUnreadMessageCount();
   const pendingContactCount = usePendingContactRequestCount();
+  const { activeCompany, userCompanies } = useActiveCompany();
+
+  const currentCompany = activeCompany || userCompanies[0];
 
   return (
     <aside className="flex h-full w-full flex-col border-r border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95">
@@ -82,6 +87,37 @@ export function DashboardSidebar() {
 
       {/* Navigation Sections */}
       <nav className="flex-1 space-y-4 overflow-y-auto p-3" aria-label="Kullanıcı paneli menüsü">
+        {/* Şirket & İş Yönetimi Bloğu */}
+        <div className="space-y-1 pb-1">
+          <h2 className="px-3 text-[10px] font-bold tracking-wider text-emerald-700 dark:text-emerald-400 uppercase flex items-center gap-1.5">
+            <Building2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+            <span>ŞİRKET & İŞ YÖNETİMİ</span>
+          </h2>
+          <div className="space-y-0.5">
+            {currentCompany ? (
+              <Link
+                href={`/company/${currentCompany.slug}/dashboard`}
+                className="group flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/15 transition-all border border-emerald-500/25 bg-emerald-500/10 shadow-2xs"
+              >
+                <span className="flex items-center gap-2 truncate">
+                  <span className="truncate font-bold">{currentCompany.name}</span>
+                </span>
+                <span className="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold shrink-0">
+                  Yönetim Paneli ➔
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/company/create"
+                className="group flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-zinc-800 transition-all border border-dashed border-slate-200 dark:border-zinc-700"
+              >
+                <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                <span>+ Şirket / İş Yeri Ekle</span>
+              </Link>
+            )}
+          </div>
+        </div>
+
         {DASHBOARD_NAV_SECTIONS.map((section, idx) => (
           <div key={section.title || idx} className="space-y-1">
             {section.title ? (

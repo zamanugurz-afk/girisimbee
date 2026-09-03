@@ -13,6 +13,7 @@ import {
   Plus,
   ExternalLink,
   Loader2,
+  LayoutDashboard,
   MapPin,
   Globe,
   Mail,
@@ -49,26 +50,60 @@ interface CompanyDashboardViewProps {
 export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
   const { user } = useAuth();
   const searchParams = useSearchParams();
-  const urlTab = searchParams.get('tab') as 'listings' | 'team' | 'followers' | 'settings' | 'verification' | null;
+  const urlTab = searchParams.get('tab') as 'all' | 'listings' | 'team' | 'followers' | 'settings' | 'verification' | null;
 
   const [data, setData] = useState<PublicCompanyView | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'listings' | 'team' | 'followers' | 'settings' | 'verification'>('listings');
+  const [tab, setTab] = useState<'all' | 'listings' | 'team' | 'followers' | 'settings' | 'verification'>('all');
   const [listingCards, setListingCards] = useState<AccountListingCardData[]>([]);
   const [listingFilter, setListingFilter] = useState<'all' | 'active' | 'unpublished'>('all');
 
-  const handleTabChange = (newTab: 'listings' | 'team' | 'followers' | 'settings' | 'verification') => {
+  const scrollToSection = (sectionId: string) => {
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  const handleTabChange = (newTab: 'all' | 'listings' | 'team' | 'followers' | 'settings' | 'verification') => {
     setTab(newTab);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      url.searchParams.set('tab', newTab);
+      if (newTab === 'all') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', newTab);
+      }
       window.history.replaceState({}, '', url.toString());
+
+      const map: Record<string, string> = {
+        listings: 'section-listings',
+        settings: 'section-settings',
+        team: 'section-team',
+        verification: 'section-verification',
+        followers: 'section-followers',
+      };
+      if (newTab !== 'all' && map[newTab]) {
+        scrollToSection(map[newTab]);
+      }
     }
   };
 
   useEffect(() => {
     if (urlTab && ['listings', 'team', 'followers', 'settings', 'verification'].includes(urlTab)) {
       setTab(urlTab);
+      const map: Record<string, string> = {
+        listings: 'section-listings',
+        settings: 'section-settings',
+        team: 'section-team',
+        verification: 'section-verification',
+        followers: 'section-followers',
+      };
+      setTimeout(() => {
+        if (map[urlTab]) scrollToSection(map[urlTab]);
+      }, 150);
     }
   }, [urlTab]);
 
@@ -250,8 +285,14 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
         
         {/* SOL GENİŞ ALAN: SEKMELER VE ANA İÇERİK (7/12 KOLON) */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-5">
-          {/* Tek Sayfa Sekme Butonları */}
-          <div className="flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-2xl bg-slate-100/80 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-800">
+          {/* Tek Sayfa Sekme / Bölüm Atlama Butonları */}
+          <div className="sticky top-4 z-20 flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 shadow-xs">
+            <TabButton
+              active={tab === 'all'}
+              onClick={() => handleTabChange('all')}
+              icon={LayoutDashboard}
+              label="Tüm Sayfa (Tek Ekran)"
+            />
             <TabButton
               active={tab === 'listings'}
               onClick={() => handleTabChange('listings')}
@@ -271,25 +312,28 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
               label={`Ekip (${data.members.length})`}
             />
             <TabButton
-              active={tab === 'followers'}
-              onClick={() => handleTabChange('followers')}
-              icon={Heart}
-              label={`Takipçiler (${data.followersCount})`}
-            />
-            <TabButton
               active={tab === 'verification'}
               onClick={() => handleTabChange('verification')}
               icon={ShieldCheck}
               label="Doğrulama & Belgeler"
             />
+            <TabButton
+              active={tab === 'followers'}
+              onClick={() => handleTabChange('followers')}
+              icon={Heart}
+              label={`Takipçiler (${data.followersCount})`}
+            />
           </div>
 
-          {/* Sekme 1: İlanlar — Bizim İlan Kart Yapımız ile */}
-          {tab === 'listings' && (
-            <div className="space-y-4">
+          {/* 1. İLANLAR BÖLÜMÜ — Bizim İlan Kart Yapımız ile */}
+          {(tab === 'all' || tab === 'listings') && (
+            <div id="section-listings" className="scroll-mt-20 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-zinc-800">
                 <div>
-                  <h3 className="text-base font-bold text-foreground">Şirketin Açık İlanları</h3>
+                  <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-emerald-600" />
+                    <span>Şirketin Açık İlanları & İlan Havuzu</span>
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">Şirket adına açılan iş ve kariyer pozisyonlarını yönetin</p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -376,12 +420,31 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
             </div>
           )}
 
-          {/* Sekme 2: Ekip Üyeleri */}
-          {tab === 'team' && (
-            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
+          {/* 2. ŞİRKET BİLGİLERİNİ DÜZENLE BÖLÜMÜ */}
+          {(tab === 'all' || tab === 'settings') && data.isOwner && (
+            <div id="section-settings" className="scroll-mt-20 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md space-y-6">
+              <div className="pb-3 border-b border-slate-100 dark:border-zinc-800">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-emerald-600" />
+                  <span>Şirket Bilgilerini Düzenle</span>
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Logonuzu, kapak görselinizi, kurumsal detaylarınızı ve iletişim kanallarınızı güncelleyin.
+                </p>
+              </div>
+              <CompanySettingsForm slug={slug} />
+            </div>
+          )}
+
+          {/* 3. EKİP ÜYELERİ & YETKİLER BÖLÜMÜ */}
+          {(tab === 'all' || tab === 'team') && (
+            <div id="section-team" className="scroll-mt-20 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
                 <div>
-                  <h3 className="text-base font-bold text-foreground">Ekip Üyeleri</h3>
+                  <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-600" />
+                    <span>Ekip Üyeleri & Yetkiler</span>
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">Şirket panelini yönetme yetkisine sahip kullanıcılar</p>
                 </div>
                 <Button size="sm" variant="outline" className="rounded-xl text-xs font-semibold gap-1">
@@ -411,36 +474,9 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
             </div>
           )}
 
-          {/* Sekme 3: Takipçiler */}
-          {tab === 'followers' && (
-            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
-              <div className="pb-3 border-b border-slate-100 dark:border-zinc-800">
-                <h3 className="text-base font-bold text-foreground">Takipçiler & İlgi</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Şirket ilanlarını ve güncellemelerini takip eden kullanıcılar</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800 p-6 text-center">
-                <Heart className="w-8 h-8 text-rose-500 mx-auto mb-2" />
-                <p className="text-base font-bold text-foreground">{formatNumber(data.followersCount)} Takipçi</p>
-                <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                  Kullanıcılar şirketinizin açık pozisyonlarını ve ilan güncellemelerini anlık olarak takip edebilir.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Sekme 4: Şirket Ayarları */}
-          {tab === 'settings' && data.isOwner && (
-            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md">
-              <h3 className="text-lg font-bold text-foreground mb-6 pb-3 border-b border-slate-100 dark:border-zinc-800">
-                Şirket Profilini ve Bilgilerini Düzenle
-              </h3>
-              <CompanySettingsForm slug={slug} />
-            </div>
-          )}
-
-          {/* Sekme 5: Doğrulama & Belgeler */}
-          {tab === 'verification' && (
-            <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md space-y-6">
+          {/* 4. DOĞRULAMA & BELGELER BÖLÜMÜ */}
+          {(tab === 'all' || tab === 'verification') && (
+            <div id="section-verification" className="scroll-mt-20 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 sm:p-8 shadow-xs backdrop-blur-md space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-zinc-800">
                 <div>
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -492,10 +528,30 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
               </div>
             </div>
           )}
+
+          {/* 5. TAKİPÇİLER & İLGİ BÖLÜMÜ */}
+          {(tab === 'all' || tab === 'followers') && (
+            <div id="section-followers" className="scroll-mt-20 rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
+              <div className="pb-3 border-b border-slate-100 dark:border-zinc-800">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-rose-500" />
+                  <span>Takipçiler & Kurumsal İlgi</span>
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Şirket ilanlarını ve kurumsal güncellemelerini takip eden kullanıcılar</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800 p-8 text-center">
+                <Heart className="w-10 h-10 text-rose-500 mx-auto mb-2" />
+                <p className="text-xl font-bold text-foreground">{formatNumber(data.followersCount)} Takipçi</p>
+                <p className="text-xs text-muted-foreground mt-1.5 max-w-sm mx-auto">
+                  Kullanıcılar şirketinizin açık pozisyonlarını ve yeni ilanlarını anlık olarak takip edebilir.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* SAĞ YAN KOLON: KURUMSAL KİMLİK & KISAYOLLAR (5/12 KOLON) */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-5">
+        <div className="lg:col-span-5 xl:col-span-4 space-y-5 sticky top-24">
           
           {/* 1. Kurumsal Kimlik & İletişim Kartı */}
           <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-6 shadow-xs backdrop-blur-md space-y-4">
