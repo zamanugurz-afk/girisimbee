@@ -248,23 +248,6 @@ export function Header() {
               {activeDropdown === 'discover' && (
                 <div className="w-[580px] bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl p-3 grid grid-cols-2 gap-2 backdrop-blur-2xl">
                   <Link
-                    href="/kategori/yatirim-bul"
-                    className="p-2.5 rounded-2xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all flex items-start gap-2.5 group"
-                  >
-                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                      <Rocket className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 leading-tight">
-                        Yatırım Arayan Girişimler
-                      </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Erken & büyüme aşaması projeler
-                      </span>
-                    </div>
-                  </Link>
-
-                  <Link
                     href="/kategori/yatirim-yap"
                     className="p-2.5 rounded-2xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all flex items-start gap-2.5 group"
                   >
@@ -362,23 +345,6 @@ export function Header() {
                       </span>
                       <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                         Kıdemli uzman & yönetici adayları
-                      </span>
-                    </div>
-                  </Link>
-
-                  <Link
-                    href="/dijital-ai"
-                    className="p-2.5 rounded-2xl hover:bg-cyan-500/10 border border-transparent hover:border-cyan-500/20 transition-all flex items-start gap-2.5 group"
-                  >
-                    <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0 group-hover:scale-105 transition-transform">
-                      <Sparkles className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 leading-tight">
-                        Dijital & AI Çözümleri
-                      </span>
-                      <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                        Mikro SaaS & yapay zeka araçları
                       </span>
                     </div>
                   </Link>
@@ -729,14 +695,6 @@ export function Header() {
             </div>
             <div className="grid grid-cols-2 gap-1.5 mb-2">
               <Link
-                href="/kategori/yatirim-bul"
-                onClick={() => setMobileOpen(false)}
-                className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-amber-500/10 flex items-center gap-2"
-              >
-                <Rocket className="w-3.5 h-3.5 text-amber-500" />
-                <span>Yatırım Arayan</span>
-              </Link>
-              <Link
                 href="/kategori/yatirim-yap"
                 onClick={() => setMobileOpen(false)}
                 className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-emerald-500/10 flex items-center gap-2"
@@ -783,14 +741,6 @@ export function Header() {
               >
                 <Users className="w-3.5 h-3.5 text-purple-500" />
                 <span>Aday / Yetenek</span>
-              </Link>
-              <Link
-                href="/dijital-ai"
-                onClick={() => setMobileOpen(false)}
-                className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-cyan-500/10 flex items-center gap-2"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
-                <span>Dijital & AI</span>
               </Link>
             </div>
 
