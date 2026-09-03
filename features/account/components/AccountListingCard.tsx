@@ -221,25 +221,12 @@ export function AccountListingCard({
 
               {/* Right Side: Status Badge + Showcase + Quick Management Menu */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Süper İlan Badge veya Teşvik Edici Süper İlan Yap Butonu */}
-                {listing.isUrgentShowcase ? (
-                  <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                {/* Süper İlan Badge (Aktifse Göster) */}
+                {listing.isUrgentShowcase && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400">
                     <Zap className="h-3 w-3 fill-rose-500 text-rose-500" />
-                    Süper İlan
+                    <span>Süper İlan</span>
                   </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setPromoteOpen(true);
-                    }}
-                    className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:border-amber-500 hover:from-amber-500/25 hover:to-rose-500/25 transition-all shadow-xs animate-pulse cursor-pointer"
-                  >
-                    <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
-                    <span>Süper İlan Yap</span>
-                  </button>
                 )}
 
                 {/* Status Badge */}
@@ -371,6 +358,32 @@ export function AccountListingCard({
                 {listing.shortDescription}
               </p>
             ) : null}
+
+            {/* Kart Altı Süper İlan Teşvik Çubuğu (Yanıp sönen şık buton) */}
+            {!listing.isUrgentShowcase && listing.status === 'active' && (
+              <div className="mt-3.5 pt-2.5 border-t border-dashed border-amber-500/25 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400">10x Fazla Görün</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPromoteOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/50 bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-800 dark:text-amber-200 hover:border-amber-500 hover:from-amber-500/30 hover:to-rose-500/30 transition-all shadow-xs cursor-pointer animate-pulse"
+                >
+                  <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+                  <span>⚡ Süper İlan Yap</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Footer Meta Strip */}

@@ -380,7 +380,7 @@ function formatListingPrice(listing: Listing, group: ListingCardGroup): string |
   }
 
   if (group === 'genel') {
-    const price = toDisplayValue(cf.priceRange);
+    const price = toDisplayValue(cf?.priceRange);
     if (price) return price;
   }
 

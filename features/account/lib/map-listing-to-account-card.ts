@@ -7,7 +7,7 @@ import type {
 } from '@/features/account/types/account-listings.types';
 
 function mapStatus(listing: Listing): AccountListingStatus {
-  if (listing.status === 'published') return 'active';
+  if (listing.status === 'published' || listing.status === ('active' as unknown)) return 'active';
   if (listing.status === 'expired') return 'expired';
   return 'unpublished';
 }
