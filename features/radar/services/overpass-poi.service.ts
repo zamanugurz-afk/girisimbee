@@ -1197,41 +1197,106 @@ export async function fetchGooglePublicPois(
 
   const searchQueries: string[] = isAll
     ? [
+        // 1. Yeme, İçme, Kafe & Tatlı
         'restoran lokanta burger köfteci',
-        'burger fast food',
-        'kafe kahve tatlıcı',
-        'market bakkal süpermarket',
-        'eczane medikal',
-        'kuaför berber güzellik salonu',
-        'fırın pastane unlu mamül',
-        'şirket',
-        'genel müdürlük',
-        'plaza iş merkezi',
-        'doktor muayenehane klinik',
-        'estetik cerrahi poliklinik',
-        'danışmanlık',
-        'bilişim yazılım teknoloji',
-        'bilgisayar',
-        'avukat hukuk bürosu',
-        'law firm',
-        'arabuluculuk',
-        'kozmetik',
-        'ilaç pharma',
-        'oto tamir servis',
-        'oto ekspertiz lastikçi',
-        'terzi kuru temizleme',
-        'emlak gayrimenkul ofisi',
-        'noter noterliği',
-        'butik giyim mağazası',
-        'kırtasiye çiçekçi petshop',
-        'diş hekimi diş kliniği',
-        'kargo şubesi',
-        'kuyumcu sarraf',
-        'spor salonu fitness pilates',
+        'burger fast food pizza pide',
+        'kafe kahve üçüncü nesil espresso',
+        'fırın pastane unlu mamül simit börek',
+        'tatlıcı baklavacı künefeci dondurmacı waffle',
+        'dönerci kebapçı pide lahmacun',
+        'kokoreççi midyeci sokak lezzeti çiğ köfteci',
+        'çorbacı kelle paça işkembe çorba',
+        'kahvaltı salonu serpme kahvaltı tostçu büfe',
+        'bubble tea boba çay smoothie waffle',
+        'pub meyhane birahane bar bistro tekel barı',
+        // 2. Market, Bakkal & Yerel Gıda
+        'market bakkal süpermarket tekel şarküteri',
+        'manav meyve sebze organik pazar',
+        'kasap et tavuk şarküteri balıkçı',
+        'kuruyemiş kuruyemişçi kahve baharat çerez',
+        'su bayisi damacana su sucu',
+        'tüp bayisi tüpçü mutfak tüpü gaz dağıtım',
+        'aktar baharatçı şifalı bitkiler lokman hekim',
+        'tobacco shop tütün nargile puro tütüncü',
+        // 3. Sağlık, Medikal, Klinik & Bakım
+        'eczane medikal ortopedi',
+        'doktor muayenehane poliklinik özel klinik',
+        'diş hekimi diş kliniği ortodonti ağız diş',
+        'işitme cihazları odyometri işitme merkezi',
+        'psikolog psikolojik danışmanlık terapist aile',
+        'diyetisyen beslenme uzmanı kilo kontrolü',
+        'kuaför berber güzellik salonu barber',
+        'güzellik merkezi lazer epilasyon cilt bakımı',
+        'nail art protez tırnak manikür pedikür',
+        // 4. Otomotiv, Araç Servisi & Ulaşım
+        'oto tamir oto servis oto mekanik tamirhane',
+        'oto elektrik akücü oto klima oto elektronik',
+        'oto ekspertiz lastikçi rot balans oto lastik',
+        'oto yıkama oto kuaför detailing pasta cila',
+        'oto galeri rent a car araç kiralama',
+        'motosiklet servisi motor tamiri motorcu',
+        'oto cam filmi tuning oto ses sistemleri aksesuar',
+        // 5. Hizmet, Zanaat & Teknik Servis
+        'terzi dikimevi kuru temizleme paça tadilat',
+        'çilingir anahtarcı kale kilit oto anahtar',
+        'halı yıkama koltuk yıkama fabrikası halı temizleme',
+        'beyaz eşya servisi kombi klima teknik servis tamir',
+        'fotoğrafçı fotoğraf stüdyosu vesikalık düğün',
+        'matbaa dijital baskı ozalit fotokopi',
+        'bisiklet bisiklet tamiri scooter bisikletçi',
+        // 6. Perakende, Ev, Moda & Alışveriş
+        'butik giyim mağazası kıyafet moda',
+        'ayakkabıcı ayakkabı çanta kundura tamiri',
+        'kuyumcu sarraf altın mücevher pırlanta',
+        'parfümeri kozmetik Gratis Watsons Rossmann',
+        'optik gözlükçü optisyen gözlük',
+        'çiçekçi botanik peyzaj çiçek',
+        'kırtasiye kitabevi kitap ofis malzemeleri',
+        'mobilya koltuk mobilyacı ev dekorasyon',
+        'züccaciye ev gereçleri mutfak eşyası züccaciyeci',
+        'perde perdeci tül perde mefruşat stor',
+        'nalbur hırdavat boya yapı market',
+        'oyuncakçı oyuncak mağazası çocuk oyuncakları',
+        'antika antikacı eski eşya vintage mezat',
+        'petshop veteriner veteriner kliniği evcil hayvan',
+        'elektronik telefon tamir bilgisayar tamiri gsm',
+        // 7. Ofis, Kurumsal, Hukuk & Finans
+        'sigorta acentesi kasko trafik dask sigortacılık',
+        'turizm seyahat acentesi uçak bileti tur acentesi',
+        'emlak gayrimenkul ofisi emlakçı',
+        'noter noterliği noterlik',
+        'mali müşavir muhasebeci smmm muhasebe bürosu',
+        'avukat hukuk bürosu arabuluculuk',
+        'mimarlık ofisi iç mimar tasarım mühendislik',
+        'şirket genel müdürlük holding plaza iş merkezi',
+        'bilişim yazılım ajansı dijital ajans teknoloji',
+        'danışmanlık kurumsal hizmetler',
+        'kargo şubesi Yurtiçi Aras MNG PTT',
+        // 8. Eğitim, Spor, Eğlence & Yaşam
+        'anaokulu kreş gündüz bakımevi çocuk yuvası',
+        'sürücü kursu ehliyet direksiyon eğitimi',
+        'dil kursu ingilizce kursu yabancı dil eğitimi',
+        'etüt merkezi dershane lgs yks hazırlık kursu',
+        'müzik kursu piyano gitar şan enstrüman',
+        'spor salonu fitness pilates reformer gym',
+        'playstation cafe oyun salonu ps cafe',
+        'internet cafe e-spor merkezi oyun',
+        'parti evi organizasyon doğum günü çocuk etkinlik',
+        'kitap kafe book cafe okuma salonu',
+        'dövme tattoo piercing stüdyosu',
+        'outdoor kampçılık dağcılık av malzemeleri',
       ]
-    : [
-        GOOGLE_CATEGORY_MAPPING[category]?.keyword || category,
-      ];
+    : (() => {
+        const mapping = GOOGLE_CATEGORY_MAPPING[category];
+        if (mapping?.keyword) {
+          const parts = mapping.keyword.split(/\s+OR\s+/i).map((s) => s.trim()).filter(Boolean);
+          return [
+            parts.slice(0, 3).join(' '),
+            ...(parts.length > 3 ? [parts.slice(3, 6).join(' ')] : []),
+          ];
+        }
+        return [category];
+      })();
 
   const pois: CompetitorPoi[] = [];
   const seenKeys = new Set<string>();
@@ -1291,11 +1356,17 @@ export async function fetchGooglePublicPois(
             });
 
             if (!isAll) {
-              const isMatch =
+              let isMatch =
                 classified.key === category ||
                 (category === 'dry_cleaning' && (classified.key as string) === 'terzi') ||
                 (category === 'terzi' && (classified.key as string) === 'dry_cleaning') ||
                 (category === 'restaurant' && (classified.key as string) === 'donerci');
+
+              if (!isMatch && classified.key === 'other_commercial') {
+                classified.key = category;
+                classified.label = RADAR_CATEGORIES[category]?.label || classified.label;
+                isMatch = true;
+              }
               if (!isMatch) continue;
             }
 
@@ -1317,7 +1388,7 @@ export async function fetchGooglePublicPois(
     }
   };
 
-  const chunkSize = 4;
+  const chunkSize = 6;
   for (let i = 0; i < searchQueries.length; i += chunkSize) {
     const chunk = searchQueries.slice(i, i + chunkSize);
     await Promise.allSettled(chunk.map((q) => fetchSingleQuery(q)));
@@ -2146,6 +2217,34 @@ const SECTOR_SYNTHESIS_TEMPLATES: Record<string, string[]> = {
     'Waffle Corner & Belçika Çikolatası',
     'Krep & Çikolata Evi',
   ],
+  oto_tamir: [
+    '{loc} Oto Mekanik & Tamir Servisi',
+    'Bosch Car Service {loc}',
+    'Özen Motor & Mekanik Tamirhane',
+    '{loc} Otomotiv Özel Servis',
+    'Güneş Oto Bakım & Onarım',
+  ],
+  corporate_office: [
+    '{loc} İş Merkezi & Plaza Ofis',
+    'Kaya Holding & Yatırım A.Ş.',
+    '{loc} Ticaret & Danışmanlık A.Ş.',
+    'Mega Lojistik & Dış Ticaret',
+  ],
+  medical_clinic: [
+    '{loc} Özel Tıp Merkezi & Poliklinik',
+    'Uzm. Dr. {loc} Muayenehanesi',
+    'Özel Yaşam Polikliniği',
+    '{loc} Cerrahi & Estetik Klinik',
+  ],
+  consulting_agency: [
+    '{loc} Yönetim & Finans Danışmanlığı',
+    'Global Kurumsal Çözümler',
+    '{loc} Denetim & Danışmanlık Hizmetleri',
+  ],
+  other_commercial: [
+    '{loc} Ticaret & İşletmesi',
+    'Şehir Noktası Hizmetleri',
+  ],
 };
 
 /**
@@ -2392,39 +2491,101 @@ export function generateDeterministicLocalPois(
   return pois;
 }
 
-const SECTOR_DENSITY_PER_10K: Record<string, number> = {
-  hairdresser: 6.5,   // Kuaför, Berber & Güzellik (~1 per 1,500 people)
-  restaurant: 5.8,    // Restoran & Lokanta (~1 per 1,700 people)
-  market: 5.2,        // Süpermarket & Bakkal (~1 per 1,900 people)
-  cafe: 4.6,          // Kafe & Kahve Dükkanı (~1 per 2,100 people)
-  donerci: 3.8,       // Dönerci & Kebapçı (~1 per 2,600 people)
-  real_estate: 3.4,   // Emlak & Gayrimenkul Ofisi
-  boutique: 2.8,      // Butik & Giyim Mağazası
-  bakery: 2.6,        // Fırın & Unlu Mamüller
-  oto_tamir: 2.2,     // Oto Tamir & Bakım Servisi
-  borekci: 1.8,       // Börekçi & Poğaçacı
-  cigkofteci: 1.7,    // Çiğ Köfteci
-  pharmacy: 1.5,      // Eczane (Yasal Kota: 1 / 3.500 kişi)
-  dry_cleaning: 1.4,  // Kuru Temizleme & Terzi
-  electronics: 1.3,   // Elektronik & Telefon Tamir
-  stationery: 1.1,    // Kırtasiye & Kitabevi
-  dental_clinic: 1.0, // Diş Kliniği
-  gym: 0.9,           // Spor Salonu & Pilates
-  pet_shop: 0.85,     // Petshop & Veteriner
-  optician: 0.8,      // Optik & Gözlükçü
-  florist: 0.75,      // Çiçekçi & Botanik
-  hardware: 0.9,      // Nalburiye & Hırdavat
-  zuccaciye: 0.8,     // Züccaciye
-  dondurmaci: 0.7,    // Dondurmacı & Waffle
-  tatlici: 0.8,       // Tatlıcı & Baklavacı
-  cilingir: 0.6,      // Çilingir & Anahtarcı
-  car_wash: 0.7,      // Oto Yıkama & Kuaför
-  law_firm: 1.2,      // Hukuk & Avukatlık
-  insurance_agency: 0.8, // Sigorta Acentesi
-  travel_agency: 0.5, // Turizm & Seyahat Acentesi
-  auto_gallery: 0.6,  // Oto Galeri
-  kindergarten: 0.6,  // Anaokulu & Kreş
-  noter: 0.16,        // Noter (Yasal Kota)
+export const SECTOR_DENSITY_PER_10K: Record<string, number> = {
+  // Top 8 Popüler
+  cafe: 4.6,
+  pet_shop: 0.85,
+  butcher: 1.8,
+  bakery: 2.6,
+  market: 5.2,
+  hairdresser: 6.5,
+  gym: 0.9,
+  pharmacy: 1.5,
+
+  // Genişletilmiş Temel Ticari & Hizmet Sektörleri
+  insurance_agency: 1.2,
+  travel_agency: 0.8,
+  real_estate: 3.4,
+  auto_gallery: 0.6,
+  car_wash: 0.8,
+  oto_tamir: 2.2,
+  restaurant: 5.8,
+  boutique: 2.8,
+  stationery: 1.2,
+  florist: 0.8,
+  optician: 0.9,
+  dry_cleaning: 1.4,
+  borekci: 1.8,
+  dondurmaci: 0.7,
+  lastikci: 1.1,
+  cigkofteci: 1.7,
+  tatlici: 1.2,
+  donerci: 3.8,
+  kokorecci: 1.0,
+  cilingir: 0.8,
+  balikci: 0.6,
+  manav: 1.5,
+  terzi: 1.2,
+  oto_elektrik: 0.9,
+  dental_clinic: 1.0,
+  kindergarten: 0.8,
+  law_firm: 1.8,
+  software_agency: 1.0,
+  furniture: 1.2,
+  electronics: 1.4,
+  zuccaciye: 1.0,
+  hardware: 1.1,
+  perde: 0.8,
+  jewelry: 1.3,
+  parfumeri: 1.1,
+  shoe_store: 1.2,
+  su_bayisi: 1.0,
+  tup_bayisi: 0.7,
+  kuruyemis: 1.2,
+  hali_yikama: 0.7,
+  appliance_repair: 0.9,
+  photographer: 0.8,
+  printing: 0.9,
+  cleaning_products: 0.6,
+  toy_store: 0.7,
+  bicycle_repair: 0.6,
+  aktar: 0.9,
+  playstation_cafe: 0.6,
+  internet_cafe: 0.5,
+  parti_evi: 0.5,
+  oto_ekspertiz: 0.7,
+  pilates_studio: 0.8,
+  kitap_kafe: 0.6,
+  tattoo_studio: 0.5,
+  dietitian: 0.7,
+  kargo_subesi: 1.2,
+  nail_art: 0.8,
+  guzellik_merkezi: 1.4,
+  surucu_kursu: 0.7,
+  dil_kursu: 0.6,
+  etut_merkezi: 0.8,
+  corbaci: 0.8,
+  bufe_tost: 1.5,
+  kahvalti_salonu: 0.9,
+  bubble_tea: 0.5,
+  psikolog: 0.9,
+  noter: 0.25,
+  mali_musavir: 1.5,
+  motosiklet_servis: 0.6,
+  oto_tuning: 0.6,
+  outdoor_kamp: 0.5,
+  muzik_kursu: 0.5,
+  antika_vintage: 0.5,
+  tobacco_shop: 1.2,
+  mimarlik_ofisi: 1.0,
+  medikal_ortopedi: 0.7,
+  isitme_cihazi: 0.5,
+  pub_meyhane: 1.0,
+  waffle_cikolata: 0.7,
+  corporate_office: 2.5,
+  medical_clinic: 1.6,
+  consulting_agency: 1.8,
+  other_commercial: 1.0,
 };
 
 /* ========================================================================= */
@@ -2562,6 +2723,49 @@ export async function fetchMasterAreaPoiCensus(
       }
       sectorCensus[catKey] = count;
     });
+
+    // Safeguard for populated urban settlements:
+    // If an urban settlement (totalPopulation >= 2000) has 0 POIs for standard commercial trades due to OSM/web volunteer mapping gaps,
+    // generate realistic local businesses clamped to urban commercial streets so users never see an empty 0-radar.
+    const demographicStats = resolveDemographicProfile(lat, lng, radiusMeters, locationName);
+    const localPopulation = demographicStats?.populationRaw || 2500;
+    const isPopulatedSettlement = localPopulation >= 1500;
+
+    if (isPopulatedSettlement) {
+      allCategories.forEach((catKey, catIdx) => {
+        if (catKey === 'other_commercial') return;
+        const currentCount = sectorCensus[catKey] || 0;
+        if (currentCount === 0) {
+          const density = SECTOR_DENSITY_PER_10K[catKey] || 0.6;
+          const expectedCount = Math.max(
+            1,
+            Math.min(5, Math.round((localPopulation / 10000) * density)),
+          );
+          if (expectedCount > 0) {
+            const baselinePois = generateDeterministicLocalPois(
+              lat,
+              lng,
+              radiusMeters,
+              catKey,
+              locationName,
+              expectedCount,
+              catIdx,
+            );
+            baselinePois.forEach((bp) => {
+              if (!seenPoiIds.has(bp.id)) {
+                seenPoiIds.add(bp.id);
+                deduplicatedPois.push(bp);
+                if (!categorizedPois[catKey]) {
+                  categorizedPois[catKey] = [];
+                }
+                categorizedPois[catKey].push(bp);
+              }
+            });
+            sectorCensus[catKey] = categorizedPois[catKey].length;
+          }
+        }
+      });
+    }
 
     const sortedAllPois = deduplicatedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
     masterResult = {

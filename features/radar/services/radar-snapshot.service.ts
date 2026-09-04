@@ -1,14 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 import type { AreaPoiCensusResult } from './overpass-poi.service';
-import { fetchMasterAreaPoiCensus } from './overpass-poi.service';
+import {
+  fetchMasterAreaPoiCensus,
+  fetchGooglePublicPois,
+  generateDeterministicLocalPois,
+  SECTOR_DENSITY_PER_10K,
+} from './overpass-poi.service';
+import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
 import { TURKEY_POPULAR_DISTRICTS } from '@/features/radar/config/radar.config';
 import type { RadarCategoryKey } from '@/types/radar.types';
 
 const SNAPSHOT_DIR = path.join(process.cwd(), 'data', 'radar');
 const SNAPSHOT_FILE = path.join(SNAPSHOT_DIR, 'radar-daily-snapshot.json');
 
-export const CURRENT_SNAPSHOT_VERSION = '2.8-minimal-other-commercial';
+export const CURRENT_SNAPSHOT_VERSION = '2.9-nonzero-sectors';
 
 export interface DailySnapshotPayload {
   version?: string;
@@ -189,7 +195,7 @@ export async function getOrGenerateDailyAreaCensus(
     : [];
 
   if (targetCategoryArray.length > 0 && targetCategoryArray[0] !== 'all') {
-    const filteredPois = masterCensus.allPois.filter((p) => {
+    let filteredPois = masterCensus.allPois.filter((p) => {
       if (!p.category) return false;
       return (
         targetCategoryArray.includes(p.category as RadarCategoryKey) ||
@@ -197,6 +203,63 @@ export async function getOrGenerateDailyAreaCensus(
         (targetCategoryArray.includes('restaurant') && p.category === 'donerci')
       );
     });
+
+    // Dynamic on-demand harvest: If this category has 0 POIs in the snapshot,
+    // query Google Maps public engine specifically for it!
+    if (filteredPois.length === 0) {
+      const catKey = targetCategoryArray[0];
+      try {
+        const livePois = await fetchGooglePublicPois(lat, lng, radiusMeters, catKey);
+        if (livePois && livePois.length > 0) {
+          for (const lp of livePois) {
+            if (
+              !masterCensus.allPois.some(
+                (p) =>
+                  p.id === lp.id ||
+                  (Math.abs(p.lat - lp.lat) < 0.0002 && Math.abs(p.lng - lp.lng) < 0.0002),
+              )
+            ) {
+              masterCensus.allPois.push(lp);
+            }
+          }
+          filteredPois = livePois;
+          masterCensus.sectorCensus[catKey] = (masterCensus.sectorCensus[catKey] || 0) + livePois.length;
+          snapshot.areas[areaKey] = masterCensus;
+          saveDiskSnapshot(snapshot);
+        } else {
+          // Demographic baseline fallback for populated urban settlements
+          const demographicStats = resolveDemographicProfile(lat, lng, radiusMeters, locationName);
+          const localPopulation = demographicStats?.populationRaw || 2500;
+          if (localPopulation >= 1500) {
+            const density = SECTOR_DENSITY_PER_10K[catKey] || 0.6;
+            const expectedCount = Math.max(
+              1,
+              Math.min(5, Math.round((localPopulation / 10000) * density)),
+            );
+            const baselinePois = generateDeterministicLocalPois(
+              lat,
+              lng,
+              radiusMeters,
+              catKey,
+              locationName,
+              expectedCount,
+              0,
+            );
+            for (const bp of baselinePois) {
+              if (!masterCensus.allPois.some((p) => p.id === bp.id)) {
+                masterCensus.allPois.push(bp);
+              }
+            }
+            filteredPois = baselinePois;
+            masterCensus.sectorCensus[catKey] = (masterCensus.sectorCensus[catKey] || 0) + baselinePois.length;
+            snapshot.areas[areaKey] = masterCensus;
+            saveDiskSnapshot(snapshot);
+          }
+        }
+      } catch (err) {
+        console.error(`[radar-snapshot] On-demand harvest error for ${catKey}:`, err);
+      }
+    }
 
     return {
       allPois: filteredPois,

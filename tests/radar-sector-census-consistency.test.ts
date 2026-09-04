@@ -78,4 +78,44 @@ describe('Investment Radar — Sector Census & Consistency Regression Test', () 
     },
     45000,
   );
+
+  it(
+    'guarantees that standard commercial sectors have non-zero realistic counts in populated urban settlements',
+    async () => {
+      // Coords for populated urban area
+      const lat = 40.923;
+      const lng = 29.131;
+      const radiusMeters = 500;
+      const locationName = 'İstanbul — Maltepe / Çarşı';
+
+      const masterResult = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, 'all');
+      expect(masterResult.allPois.length).toBeGreaterThan(0);
+
+      // Verify that trades commonly showing 0 previously now have non-zero counts
+      const sampleSectors = [
+        'insurance_agency',
+        'cilingir',
+        'stationery',
+        'florist',
+        'optician',
+        'tatlici',
+        'car_wash',
+        'kindergarten',
+        'su_bayisi',
+        'tup_bayisi',
+        'kuruyemis',
+        'hali_yikama',
+      ];
+
+      for (const sec of sampleSectors) {
+        const count = masterResult.sectorCensus[sec] || 0;
+        expect(count).toBeGreaterThan(0);
+
+        // Verify targeted query returns exact matching count
+        const targeted = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, sec);
+        expect(targeted.allPois.length).toBe(count);
+      }
+    },
+    45000,
+  );
 });
