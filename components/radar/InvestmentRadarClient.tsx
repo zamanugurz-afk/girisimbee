@@ -604,11 +604,15 @@ export function InvestmentRadarClient() {
     <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 py-5 space-y-5">
       {/* 1. ÜST BAŞLIK VE KONTROL BUTONLARI */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4 dark:border-zinc-800">
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <Radar className="w-7 h-7 text-amber-500" />
             <span>Yatırım ve Lokasyon Radarı</span>
           </h1>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>04:00 TSİ Günlük Snapshot Haritası</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">

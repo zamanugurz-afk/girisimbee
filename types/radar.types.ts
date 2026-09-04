@@ -139,6 +139,11 @@ export interface RadarSpatialResponse {
   competitors: CompetitorPoi[];
   intelligence: RadarIntelligenceReport;
   availableSectors?: Record<string, number>;
+  dailySnapshot?: {
+    cycleId: string;
+    syncedAt: string;
+    isDailySnapshot: boolean;
+  };
 }
 
 export interface QuickLocationPreset {

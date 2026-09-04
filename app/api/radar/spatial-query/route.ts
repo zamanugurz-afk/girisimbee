@@ -3,8 +3,8 @@ import { z } from 'zod';
 import type { RadarCategoryKey, RadarSpatialResponse } from '@/types/radar.types';
 import { RADAR_CATEGORIES } from '@/features/radar/config/radar.config';
 import {
-  fetchMasterAreaPoiCensus,
-} from '@/features/radar/services/overpass-poi.service';
+  getOrGenerateDailyAreaCensus,
+} from '@/features/radar/services/radar-snapshot.service';
 import { findListingsInRadius } from '@/features/radar/services/radar-listings-matcher.service';
 import {
   computeRadarMetrics,
@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
       ? { key: 'all' as RadarCategoryKey, label: 'Tüm Sektörler & İşletmeler', emoji: '🌐', accent: 'amber', idealDensityPerKm2: 45 }
       : (RADAR_CATEGORIES[primaryKey] ?? RADAR_CATEGORIES.cafe);
 
-    // 1. Fetch complete area census (POIs + full sector distribution) and 2. listings in parallel
+    // 1. Fetch from 04:00 TSİ daily snapshot (or cache for the day) and 2. listings in parallel
     const [censusResult, listingsInRadius] = await Promise.all([
-      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge', isAll ? 'all' : catKeys),
+      getOrGenerateDailyAreaCensus(lat, lng, radius, locationName || 'Bölge', isAll ? 'all' : catKeys),
       findListingsInRadius(lat, lng, radius, primaryKey),
     ]);
 
@@ -95,6 +95,11 @@ export async function GET(request: NextRequest) {
       competitors,
       intelligence,
       availableSectors: sectorCensus,
+      dailySnapshot: {
+        cycleId: censusResult.cycleId,
+        syncedAt: censusResult.syncedAt,
+        isDailySnapshot: true,
+      },
     };
 
     return NextResponse.json({
@@ -136,7 +141,7 @@ export async function POST(request: NextRequest) {
       : (RADAR_CATEGORIES[categoryKey] ?? RADAR_CATEGORIES.cafe);
 
     const [censusResult, listingsInRadius] = await Promise.all([
-      fetchMasterAreaPoiCensus(lat, lng, radius, locationName || 'Bölge'),
+      getOrGenerateDailyAreaCensus(lat, lng, radius, locationName || 'Bölge', categoryKey),
       findListingsInRadius(lat, lng, radius, categoryKey),
     ]);
 
@@ -168,6 +173,11 @@ export async function POST(request: NextRequest) {
       competitors,
       intelligence,
       availableSectors: sectorCensus,
+      dailySnapshot: {
+        cycleId: censusResult.cycleId,
+        syncedAt: censusResult.syncedAt,
+        isDailySnapshot: true,
+      },
     };
 
     return NextResponse.json({
