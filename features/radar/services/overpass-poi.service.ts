@@ -653,11 +653,12 @@ async function fetchNominatimPois(
             seenIds.add(id);
 
             const displayName = (item.display_name || '').split(',')[0].trim();
+            if (!displayName || displayName.length === 0) continue;
             const meta = RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe;
 
             pois.push({
               id,
-              name: displayName || `${meta.label} İşletmesi`,
+              name: displayName,
               lat: pLat,
               lng: pLng,
               category,
@@ -681,9 +682,9 @@ async function fetchNominatimPois(
 /* ========================================================================= */
 
 const OVERPASS_ENDPOINTS = [
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
   'https://overpass-api.de/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
-  'https://z.overpass-api.de/api/interpreter',
 ];
 
 export async function fetchOverpassCompetitorPois(
@@ -697,37 +698,37 @@ export async function fetchOverpassCompetitorPois(
 
   if (isAll) {
     query = `
-      [out:json][timeout:10];
+      [out:json][timeout:15];
       (
-        node(around:${radiusMeters},${lat},${lng})["amenity"~"cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|pub|bar"];
-        node(around:${radiusMeters},${lat},${lng})["shop"];
-        node(around:${radiusMeters},${lat},${lng})["craft"];
-        node(around:${radiusMeters},${lat},${lng})["office"];
-        node(around:${radiusMeters},${lat},${lng})["leisure"="fitness_centre"];
-        way(around:${radiusMeters},${lat},${lng})["amenity"~"cafe|restaurant|fast_food|pharmacy|dentist|veterinary|car_wash|ice_cream|pub|bar"];
-        way(around:${radiusMeters},${lat},${lng})["shop"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["shop"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["office"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["craft"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["shop"];
       );
-      out center 120;
+      out center 400;
     `.trim();
   } else {
     const filters = CATEGORY_TAG_MAP[category] ?? ['["amenity"~"cafe|restaurant"]'];
-    const nodes = filters.map((f) => `node(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
-    const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
+    const nodes = filters.map((f) => `node(around:${radiusMeters},${lat},${lng})["name"]${f};`).join('\n');
+    const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})["name"]${f};`).join('\n');
 
     query = `
-      [out:json][timeout:8];
+      [out:json][timeout:12];
       (
         ${nodes}
         ${ways}
       );
-      out center 80;
+      out center 150;
     `.trim();
   }
 
-  for (const endpoint of OVERPASS_ENDPOINTS.slice(0, 2)) {
+  for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200);
+      const timeoutId = setTimeout(() => controller.abort(), 9500);
 
       const params = new URLSearchParams();
       params.append('data', query);
@@ -763,7 +764,10 @@ export async function fetchOverpassCompetitorPois(
           const dist = calculateDistanceMeters(lat, lng, elLat, elLng);
           if (dist > radiusMeters) continue;
 
-          const rawName = tags.name || tags.brand || tags['name:tr'];
+          const rawName = (tags.name || tags.brand || tags['name:tr'] || '').trim();
+          // STRICT 1:1 REAL MAP RULE: Never include unnamed nodes or fake placeholders
+          if (!rawName || rawName.length === 0) continue;
+
           const classified = classifyPoi(rawName, tags);
 
           // Allow dry_cleaning and terzi to be unified under dry_cleaning
@@ -776,11 +780,9 @@ export async function fetchOverpassCompetitorPois(
             if (!isMatch) continue;
           }
 
-          const displayName = rawName || `${classified.label} İşletmesi`;
-
           pois.push({
             id: `osm-${el.type}-${el.id}`,
-            name: displayName,
+            name: rawName,
             lat: elLat,
             lng: elLng,
             category: classified.key,
@@ -1858,54 +1860,8 @@ export async function fetchMasterAreaPoiCensus(
       }
     }
 
-    // D. For every sector in RADAR_CATEGORIES, ensure complete, robust area census across all of Turkey
+    // D. Compute exact census from REAL, 1-to-1 collected POIs across all categories
     const allCategories = Object.keys(RADAR_CATEGORIES) as RadarCategoryKey[];
-    const demo = resolveDemographicProfile(lat, lng, radiusMeters, locationName);
-    const catchmentPop = demo.populationRaw || parseInt((demo.population || '').replace(/\D/g, ''), 10) || 5000;
-
-    allCategories.forEach((catKey, categoryIndex) => {
-      const existing = categorizedPois[catKey] || [];
-      if (existing.length === 0) {
-        // Special rule for 'noter': Notaries are fixed numbered legal offices.
-        // Never synthesize fake "{loc} 2. Noterliği" at arbitrary coordinates.
-        // Only real notaries from registry/OSM appear at their exact verified addresses.
-        if (catKey === 'noter') {
-          categorizedPois[catKey] = [];
-          return;
-        }
-
-        // Calculate deterministic realistic business count for this area
-        const densityRate = SECTOR_DENSITY_PER_10K[catKey] ?? 0.8;
-        let estimatedCount = Math.round((catchmentPop / 10000) * densityRate);
-
-        if (estimatedCount === 0) {
-          const seed = Math.abs(Math.sin(lat * 7919 + lng * 3571 + (categoryIndex + 1) * 1337)) * 1000;
-          estimatedCount = 1 + (Math.floor(seed) % 4); // Deterministic 1, 2, 3 or 4
-        }
-
-        if (estimatedCount > 0) {
-          const synthPois = generateDeterministicLocalPois(
-            lat,
-            lng,
-            radiusMeters,
-            catKey,
-            locationName,
-            estimatedCount,
-            categoryIndex,
-          );
-          categorizedPois[catKey] = synthPois;
-          for (const sp of synthPois) {
-            if (!seenPoiIds.has(sp.id)) {
-              seenPoiIds.add(sp.id);
-              deduplicatedPois.push(sp);
-            }
-          }
-        } else {
-          categorizedPois[catKey] = [];
-        }
-      }
-    });
-
     const sectorCensus: Record<string, number> = {};
     allCategories.forEach((catKey) => {
       sectorCensus[catKey] = categorizedPois[catKey]?.length || 0;

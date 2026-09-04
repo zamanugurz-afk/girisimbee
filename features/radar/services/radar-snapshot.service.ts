@@ -224,8 +224,8 @@ export async function runNightlyRadarBatchSync(options: {
     }
   }
 
-  // Process in chunks of 4 concurrent operations
-  const CHUNK_SIZE = 4;
+  // Process in polite chunks of 2 concurrent operations with gentle pacing
+  const CHUNK_SIZE = 2;
   for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
     const chunk = tasks.slice(i, i + CHUNK_SIZE);
     await Promise.all(
@@ -251,6 +251,11 @@ export async function runNightlyRadarBatchSync(options: {
     };
     memorySnapshot = intermediatePayload;
     saveDiskSnapshot(intermediatePayload);
+
+    // Polite 400ms pause to avoid Overpass rate-limiting
+    if (i + CHUNK_SIZE < tasks.length) {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    }
   }
 
   const finalPayload: DailySnapshotPayload = {
