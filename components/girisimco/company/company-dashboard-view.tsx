@@ -127,7 +127,7 @@ export function CompanyDashboardView({ slug }: CompanyDashboardViewProps) {
   return (
     <div className="space-y-4">
       {/* 1. ÜST NAVİGASYON & BREADCRUMB */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground pb-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground pb-1 mb-1">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 font-semibold text-slate-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400 transition-colors"
