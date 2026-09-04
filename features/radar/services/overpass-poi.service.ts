@@ -23,15 +23,12 @@ const EXCLUDED_AMENITIES = new Set([
   'school',
   'place_of_worship',
   'hospital',
-  'bank',
-  'fuel',
   'atm',
   'parking',
   'university',
   'college',
   'police',
   'fire_station',
-  'post_office',
   'townhall',
   'courthouse',
   'grave_yard',
@@ -706,7 +703,7 @@ export async function fetchOverpassCompetitorPois(
 
   if (isAll) {
     query = `
-      [out:json][timeout:20];
+      [out:json][timeout:25];
       (
         node(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
         node(around:${radiusMeters},${lat},${lng})["name"]["shop"];
@@ -714,14 +711,22 @@ export async function fetchOverpassCompetitorPois(
         node(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
         node(around:${radiusMeters},${lat},${lng})["name"]["craft"];
         node(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["tourism"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["commercial"];
         way(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
         way(around:${radiusMeters},${lat},${lng})["name"]["shop"];
         way(around:${radiusMeters},${lat},${lng})["name"]["office"];
         way(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
         way(around:${radiusMeters},${lat},${lng})["name"]["craft"];
         way(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["tourism"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["commercial"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["building"~"commercial|retail|office"];
+        relation(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
+        relation(around:${radiusMeters},${lat},${lng})["name"]["shop"];
+        relation(around:${radiusMeters},${lat},${lng})["name"]["office"];
       );
-      out center 400;
+      out center 1500;
     `.trim();
   } else {
     const filters = CATEGORY_TAG_MAP[category] ?? ['["amenity"~"cafe|restaurant"]'];
@@ -734,7 +739,7 @@ export async function fetchOverpassCompetitorPois(
         ${nodes}
         ${ways}
       );
-      out center 200;
+      out center 500;
     `.trim();
   }
 
