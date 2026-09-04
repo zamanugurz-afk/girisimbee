@@ -604,13 +604,17 @@ export async function fetchGooglePlacesPois(
 /* TIER 2: NOMINATIM BOUNDING-BOX SEARCH (FAST OPENSTREETMAP GEOCODER)       */
 /* ========================================================================= */
 
-async function fetchNominatimPois(
+export async function fetchNominatimPois(
   lat: number,
   lng: number,
   radiusMeters: number,
-  category: RadarCategoryKey,
+  category: RadarCategoryKey | 'all',
 ): Promise<CompetitorPoi[]> {
-  const keywords = NOMINATIM_SECTOR_KEYWORDS[category] || [category];
+  const isAll = category === 'all' || !category;
+  const keywords = isAll
+    ? ['market', 'eczane', 'kafe', 'restoran', 'fırın', 'kuaför', 'kasap', 'kırtasiye']
+    : (NOMINATIM_SECTOR_KEYWORDS[category] || [category]).slice(0, 2);
+
   const pois: CompetitorPoi[] = [];
   const seenIds = new Set<string>();
 
@@ -621,15 +625,15 @@ async function fetchNominatimPois(
   const minLon = lng - lngDelta;
   const maxLon = lng + lngDelta;
 
-  for (const q of keywords.slice(0, 2)) {
+  for (const q of keywords) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&viewbox=${minLon},${maxLat},${maxLon},${minLat}&bounded=1&limit=40`;
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&viewbox=${minLon},${maxLat},${maxLon},${minLat}&bounded=1&limit=30`;
       const res = await fetch(url, {
         headers: {
-          'User-Agent': 'GirisimbeeRadar/2.0 (commercial-spatial-analysis)',
+          'User-Agent': 'GirisimbeeRadarPlatform/2.0 (https://girisimbee.com; contact: tech@girisimbee.com)',
           'Accept-Language': 'tr,en;q=0.9',
         },
         signal: controller.signal,
@@ -654,17 +658,20 @@ async function fetchNominatimPois(
 
             const displayName = (item.display_name || '').split(',')[0].trim();
             if (!displayName || displayName.length === 0) continue;
-            const meta = RADAR_CATEGORIES[category] || RADAR_CATEGORIES.cafe;
+
+            const classified = classifyPoi(displayName, undefined);
+            const poiCategory = isAll ? classified.key : category;
+            const meta = RADAR_CATEGORIES[poiCategory] || RADAR_CATEGORIES.cafe;
 
             pois.push({
               id,
               name: displayName,
               lat: pLat,
               lng: pLng,
-              category,
+              category: poiCategory,
               categoryLabel: meta.label,
               address: item.display_name,
-              distanceMeters: dist,
+              distanceMeters: Math.round(dist),
             });
           }
         }
@@ -683,8 +690,9 @@ async function fetchNominatimPois(
 
 const OVERPASS_ENDPOINTS = [
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
-  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
 ];
 
 export async function fetchOverpassCompetitorPois(
@@ -698,15 +706,20 @@ export async function fetchOverpassCompetitorPois(
 
   if (isAll) {
     query = `
-      [out:json][timeout:15];
+      [out:json][timeout:20];
       (
         node(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
         node(around:${radiusMeters},${lat},${lng})["name"]["shop"];
         node(around:${radiusMeters},${lat},${lng})["name"]["office"];
         node(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
         node(around:${radiusMeters},${lat},${lng})["name"]["craft"];
+        node(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
         way(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
         way(around:${radiusMeters},${lat},${lng})["name"]["shop"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["office"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["craft"];
+        way(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
       );
       out center 400;
     `.trim();
@@ -716,12 +729,12 @@ export async function fetchOverpassCompetitorPois(
     const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})["name"]${f};`).join('\n');
 
     query = `
-      [out:json][timeout:12];
+      [out:json][timeout:15];
       (
         ${nodes}
         ${ways}
       );
-      out center 150;
+      out center 200;
     `.trim();
   }
 
@@ -737,7 +750,7 @@ export async function fetchOverpassCompetitorPois(
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'User-Agent': 'GirisimbeeRadar/2.0',
+          'User-Agent': 'GirisimbeeRadarPlatform/2.0 (https://girisimbee.com; contact: tech@girisimbee.com)',
         },
         body: params,
         signal: controller.signal,
@@ -1475,140 +1488,9 @@ function clampToUrbanSettlement(
   };
 }
 
-// Registry of verified real landmark businesses across Turkey with exact building coordinates
-const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [
-  // ==========================================
-  // 1. İSTANBUL — MALTEPE (TÜM İLÇE GENELİ)
-  // ==========================================
-  { id: 'real-sb-maltepe-mesa-cadde', name: 'Starbucks Coffee (Mesa Cadde Maltepe)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.93080, lng: 29.13520, address: 'Bağlarbaşı Mah. Bağdat Cad. Mesa Cadde No: 402, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-melike-eczanesi-maltepe', name: 'Melike Eczanesi (Mesa Cadde Karşısı)', category: 'pharmacy', categoryLabel: 'Eczane', lat: 40.93120, lng: 29.13450, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 398, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-bp-maltepe-bagdat', name: 'BP Akaryakıt & Express Market (Maltepe)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93020, lng: 29.13610, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 408, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-garanti-maltepe-bagdat', name: 'Garanti BBVA (Maltepe Bağdat Cad. Şubesi)', category: 'finance', categoryLabel: 'Banka & Finans', lat: 40.92980, lng: 29.13650, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 414, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-macro-mesa-cadde', name: 'Macrocenter (Mesa Cadde Maltepe)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93070, lng: 29.13540, address: 'Bağlarbaşı Mah. Bağdat Cad. Mesa Cadde AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-maltepe-park', name: 'Starbucks Coffee (Maltepe Park AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91680, lng: 29.15580, address: 'Cevizli Mah. Tugay Yolu Cad. Maltepe Park AVM No: 67, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-piazza-maltepe', name: 'Starbucks Coffee (Piazza AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91790, lng: 29.15390, address: 'Cevizli Mah. Tugay Yolu Cad. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-ritim-istanbul', name: 'Starbucks Coffee (Ritim İstanbul)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91920, lng: 29.15780, address: 'Cevizli Mah. Zuhal Cad. Ritim İstanbul AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-hilltown-kucukyali', name: 'Starbucks Coffee (Hilltown AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.95210, lng: 29.12350, address: 'Aydınevler Mah. Siteler Yolu Cad. Hilltown AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kucukyali-cinar', name: 'Starbucks Coffee (Küçükyalı Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.94720, lng: 29.11180, address: 'Çınar Mah. Çınar Cad. No: 42, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-idealtepe-sahil', name: 'Starbucks Coffee (İdealtepe)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.93850, lng: 29.12050, address: 'İdealtepe Mah. Bağdat Cad. No: 184, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-maltepe-sahil', name: 'Starbucks Coffee (Maltepe Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.92150, lng: 29.13850, address: 'Yalı Mah. Turgut Özal Bulvarı No: 124, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-maltepe-carsi', name: 'Starbucks Coffee (Maltepe Çarşı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.92550, lng: 29.13120, address: 'Bağlarbaşı Mah. Atatürk Cad. No: 58, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-altaycesme-metro', name: 'Starbucks Coffee (Altayçeşme Metro)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.92980, lng: 29.14150, address: 'Altayçeşme Mah. Samanyolu Sok. No: 14, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-zumrutevler-nish', name: 'Starbucks Coffee (Nish Adalar)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.93950, lng: 29.15280, address: 'Zümrütevler Mah. Nish Adalar Çarşı No: 8, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-maltepe-uni', name: 'Starbucks Coffee (Maltepe Üniversitesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.95800, lng: 29.18200, address: 'Büyükbakkalköy Mah. Marmara Eğitim Köyü, Maltepe / İstanbul', distanceMeters: 0 },
-
-  // Diğer Popüler Kahve & Kafe Zincirleri (Maltepe)
-  { id: 'real-kd-piazza', name: 'Kahve Dünyası (Piazza AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91760, lng: 29.15420, address: 'Cevizli Mah. Piazza AVM Zemin Kat, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-kd-maltepe-park', name: 'Kahve Dünyası (Maltepe Park AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91650, lng: 29.15620, address: 'Cevizli Mah. Maltepe Park AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-kd-hilltown', name: 'Kahve Dünyası (Hilltown AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.95250, lng: 29.12310, address: 'Aydınevler Mah. Hilltown AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-el-maltepe-sahil', name: 'Espressolab (Maltepe Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.92220, lng: 29.13780, address: 'Yalı Mah. Turgut Özal Bulvarı No: 98, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-el-kucukyali', name: 'Espressolab (Küçükyalı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.94650, lng: 29.11250, address: 'Çınar Mah. Bağdat Cad. No: 88, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-el-piazza', name: 'Espressolab (Piazza AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.91820, lng: 29.15350, address: 'Cevizli Mah. Piazza AVM Teras Kat, Maltepe / İstanbul', distanceMeters: 0 },
-
-  // Restoran & Döner (Maltepe)
-  { id: 'real-donerci-ali-usta-maltepe', name: 'Dönerci Ali Usta (Maltepe E-5)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.92314, lng: 29.14120, address: 'Zümrütevler Mah. E-5 Karayolu Üzeri No: 12, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-kofteci-yusuf-maltepe', name: 'Köfteci Yusuf (Maltepe)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.92720, lng: 29.14380, address: 'Cevizli Mah. Tugay Yolu Cad. No: 45, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-tavuk-dunyasi-piazza', name: 'Tavuk Dünyası (Piazza AVM)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.92840, lng: 29.14620, address: 'Cevizli Mah. Tugay Yolu Cad. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-tavuk-dunyasi-maltepe-park', name: 'Tavuk Dünyası (Maltepe Park AVM)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.91690, lng: 29.15550, address: 'Cevizli Mah. Maltepe Park AVM Food Court, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-tavuk-dunyasi-hilltown', name: 'Tavuk Dünyası (Hilltown AVM)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.95280, lng: 29.12380, address: 'Aydınevler Mah. Hilltown AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-hd-iskender-piazza', name: 'HD İskender (Piazza AVM)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.91810, lng: 29.15380, address: 'Cevizli Mah. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-baydoner-maltepe-park', name: 'Baydöner (Maltepe Park AVM)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.91660, lng: 29.15590, address: 'Cevizli Mah. Maltepe Park AVM, Maltepe / İstanbul', distanceMeters: 0 },
-
-  // Market & Perakende (Maltepe)
-  { id: 'real-bim-cevizli', name: 'BİM (Cevizli Şubesi)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91750, lng: 29.15650, address: 'Cevizli Mah. Saraylar Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-bim-baglarbasi', name: 'BİM (Bağlarbaşı Şubesi)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.92420, lng: 29.13250, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 120, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-bim-altaycesme', name: 'BİM (Altayçeşme)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93120, lng: 29.13950, address: 'Altayçeşme Mah. Çam Sok., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-bim-zumrutevler', name: 'BİM (Zümrütevler)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93880, lng: 29.14920, address: 'Zümrütevler Mah. Nil Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-bim-kucukyali', name: 'BİM (Küçükyalı Çınar)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.94820, lng: 29.11350, address: 'Çınar Mah. Çınar Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sok-cevizli', name: 'ŞOK Market (Cevizli)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91880, lng: 29.15410, address: 'Cevizli Mah. Talatpaşa Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sok-maltepe-carsi', name: 'ŞOK Market (Maltepe Çarşı)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.92580, lng: 29.13050, address: 'Bağlarbaşı Mah. Atatürk Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-sok-zumrutevler', name: 'ŞOK Market (Zümrütevler)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.93750, lng: 29.15100, address: 'Zümrütevler Mah. Tülin Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-a101-cevizli', name: 'A101 (Cevizli Çarşı)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91620, lng: 29.15820, address: 'Cevizli Mah. Köroğlu Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-a101-inonu', name: 'A101 (İnönü Caddesi)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.92750, lng: 29.13450, address: 'Bağlarbaşı Mah. İnönü Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-a101-kucukyali', name: 'A101 (Küçükyalı Sahil)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.94900, lng: 29.11200, address: 'Çınar Mah. Sahil Yolu Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-migros-piazza', name: '5M Migros (Piazza AVM)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91780, lng: 29.15450, address: 'Cevizli Mah. Tugay Yolu Cad. Piazza AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-migros-maltepe-park', name: 'CarrefourSA Hiper (Maltepe Park)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.91620, lng: 29.15520, address: 'Cevizli Mah. Maltepe Park AVM, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-migros-hilltown', name: 'Macrocenter (Hilltown AVM)', category: 'market', categoryLabel: 'Süpermarket & Bakkal', lat: 40.95200, lng: 29.12400, address: 'Aydınevler Mah. Hilltown AVM, Maltepe / İstanbul', distanceMeters: 0 },
-
-  // Çiğ Köfte & Fırın & Noter (Maltepe)
-  { id: 'real-komagene-cevizli', name: 'Komagene Çiğ Köfte (Cevizli)', category: 'cigkofteci', categoryLabel: 'Çiğ Köfteci', lat: 40.91550, lng: 29.15480, address: 'Cevizli Mah. Mustafa Kemal Cad. No: 18, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-komagene-maltepe-meydan', name: 'Komagene Çiğ Köfte (Maltepe Meydan)', category: 'cigkofteci', categoryLabel: 'Çiğ Köfteci', lat: 40.92450, lng: 29.13150, address: 'Bağlarbaşı Mah. Bağdat Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-oses-maltepe', name: 'Oses Çiğ Köfte (Maltepe Çarşı)', category: 'cigkofteci', categoryLabel: 'Çiğ Köfteci', lat: 40.92620, lng: 29.13020, address: 'Bağlarbaşı Mah. Atatürk Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-simit-sarayi-maltepe', name: 'Simit Sarayı (Maltepe Meydan)', category: 'bakery', categoryLabel: 'Fırın & Unlu Mamüller', lat: 40.92380, lng: 29.13120, address: 'Bağlarbaşı Mah. Bağdat Cad., Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-noter-maltepe-1', name: 'Maltepe 1. Noterliği', category: 'noter', categoryLabel: 'Noter', lat: 40.92510, lng: 29.13180, address: 'Bağlarbaşı Mah. Bağdat Cad. No: 342, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-noter-maltepe-2', name: 'Maltepe 2. Noterliği', category: 'noter', categoryLabel: 'Noter', lat: 40.91850, lng: 29.15250, address: 'Cevizli Mah. Tugay Yolu Cad. No: 28, Maltepe / İstanbul', distanceMeters: 0 },
-  { id: 'real-noter-maltepe-3', name: 'Maltepe 3. Noterliği', category: 'noter', categoryLabel: 'Noter', lat: 40.95150, lng: 29.12150, address: 'Aydınevler Mah. Sanayi Cad., Maltepe / İstanbul', distanceMeters: 0 },
-
-  // ==========================================
-  // 2. İSTANBUL — KADIKÖY & ÇEVRESİ
-  // ==========================================
-  { id: 'real-sb-suadiye', name: 'Starbucks Coffee (Bağdat Caddesi — Suadiye)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.96310, lng: 29.07210, address: 'Suadiye Mah. Bağdat Cad. No: 412, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-erenkoy', name: 'Starbucks Coffee (Bağdat Caddesi — Erenköy)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.96850, lng: 29.06820, address: 'Erenköy Mah. Bağdat Cad. No: 320, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-caddebostan', name: 'Starbucks Coffee (Bağdat Caddesi — Caddebostan)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97150, lng: 29.06100, address: 'Caddebostan Mah. Bağdat Cad. No: 280, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-ciftehavuzlar', name: 'Starbucks Coffee (Çiftehavuzlar)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97520, lng: 29.05350, address: 'Çiftehavuzlar Mah. Bağdat Cad., Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kadikoy-rihtim', name: 'Starbucks Coffee (Kadıköy Rıhtım)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.99180, lng: 29.02250, address: 'Caferağa Mah. Rıhtım Cad. No: 18, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kadikoy-moda', name: 'Starbucks Coffee (Kadıköy Moda)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98450, lng: 29.02700, address: 'Caferağa Mah. Moda Cad. No: 120, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-bostanci-iskele', name: 'Starbucks Coffee (Bostancı İskele)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.95280, lng: 29.09550, address: 'Bostancı Mah. Çetin Emeç Bulvarı İskele Meydanı, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kozyatagi-citys', name: 'Starbucks Coffee (City’s Kozyatağı AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97650, lng: 29.09820, address: 'Kozyatağı Mah. Bayar Cad. City’s AVM, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-donerci-ali-usta-kadikoy', name: 'Dönerci Ali Usta (Kadıköy)', category: 'donerci', categoryLabel: 'Dönerci & Kebapçı', lat: 40.99120, lng: 29.02340, address: 'Osmanağa Mah. Rıhtım Cad. No: 24, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-espressolab-moda', name: 'Espressolab (Moda)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98420, lng: 29.02750, address: 'Caferağa Mah. Moda Cad. No: 104, Kadıköy / İstanbul', distanceMeters: 0 },
-  { id: 'real-mado-moda', name: 'Mado (Moda Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98550, lng: 29.02580, address: 'Caferağa Mah. Ferit Tek Sok., Kadıköy / İstanbul', distanceMeters: 0 },
-
-  // ==========================================
-  // 3. İSTANBUL — KARTAL & PENDİK
-  // ==========================================
-  { id: 'real-sb-kartal-istmarina', name: 'Starbucks Coffee (İstMarina AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.89120, lng: 29.18650, address: 'Kordonboyu Mah. Ankara Cad. İstMarina AVM, Kartal / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kartal-meydan', name: 'Starbucks Coffee (Kartal Meydan)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.89950, lng: 29.18820, address: 'Yukarı Mah. Ankara Cad. No: 35, Kartal / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-pendik-marina', name: 'Starbucks Coffee (Pendik Marintürk)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.87520, lng: 29.23150, address: 'Batı Mah. Sahil Bulvarı Marintürk Marina, Pendik / İstanbul', distanceMeters: 0 },
-  { id: 'real-kofteci-yusuf-kartal', name: 'Köfteci Yusuf (Kartal E-5)', category: 'restaurant', categoryLabel: 'Restoran & Lokanta', lat: 40.90250, lng: 29.19120, address: 'Cevizli Mah. D-100 Yan Yol No: 18, Kartal / İstanbul', distanceMeters: 0 },
-
-  // ==========================================
-  // 4. İSTANBUL — ATAŞEHİR & ÜSKÜDAR
-  // ==========================================
-  { id: 'real-sb-atasehir-metropol', name: 'Starbucks Coffee (Metropol İstanbul AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.99620, lng: 29.12450, address: 'Atatürk Mah. Ataşehir Bulvarı Metropol AVM, Ataşehir / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-atasehir-watergarden', name: 'Starbucks Coffee (Watergarden AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.99750, lng: 29.10980, address: 'Barbaros Mah. Kızılbegonya Sok. Watergarden AVM, Ataşehir / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-atasehir-palladium', name: 'Starbucks Coffee (Palladium AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.98450, lng: 29.09750, address: 'Barbaros Mah. Halk Cad. Palladium AVM, Ataşehir / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-atasehir-brandium', name: 'Starbucks Coffee (Brandium AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97820, lng: 29.11750, address: 'Küçükbakkalköy Mah. Dudullu Cad. Brandium AVM, Ataşehir / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-uskudar-akasya', name: 'Starbucks Coffee (Akasya AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 41.00150, lng: 29.05580, address: 'Acıbadem Mah. Çeçen Sok. Akasya AVM, Üsküdar / İstanbul', distanceMeters: 0 },
-
-  // ==========================================
-  // 5. İSTANBUL AVRUPA & DİĞER BÜYÜK ŞEHİRLER
-  // ==========================================
-  { id: 'real-sb-zorlu-center', name: 'Starbucks Coffee (Zorlu Center)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 41.06650, lng: 29.01750, address: 'Levazım Mah. Koru Sok. Zorlu Center, Beşiktaş / İstanbul', distanceMeters: 0 },
-  { id: 'real-sukru-dudu-besiktas', name: 'Şükrü Dudu Barber (Zorlu Center)', category: 'hairdresser', categoryLabel: 'Kuaför & Güzellik', lat: 41.06650, lng: 29.01750, address: 'Levazım Mah. Koru Sok. Zorlu Center, Beşiktaş / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-kanyon', name: 'Starbucks Coffee (Kanyon AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 41.07820, lng: 29.01050, address: 'Esentepe Mah. Büyükdere Cad. Kanyon AVM, Şişli / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-cevahir', name: 'Starbucks Coffee (Cevahir AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 41.06050, lng: 28.98750, address: '19 Mayıs Mah. Büyükdere Cad. Cevahir AVM, Şişli / İstanbul', distanceMeters: 0 },
-  { id: 'real-sb-capacity-bakirkoy', name: 'Starbucks Coffee (Capacity AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.97850, lng: 28.87450, address: 'Zeytinlik Mah. Fişekhane Cad. Capacity AVM, Bakırköy / İstanbul', distanceMeters: 0 },
-
-  // Ankara
-  { id: 'real-sb-ankara-tunali', name: 'Starbucks Coffee (Tunalı Hilmi Caddesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.90450, lng: 32.86020, address: 'Kavaklıdere Mah. Tunalı Hilmi Cad. No: 98, Çankaya / Ankara', distanceMeters: 0 },
-  { id: 'real-sb-ankara-kizilay', name: 'Starbucks Coffee (Kızılay AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.92050, lng: 32.85420, address: 'Kızılay Mah. Gazi Mustafa Kemal Bulvarı Kızılay AVM, Çankaya / Ankara', distanceMeters: 0 },
-  { id: 'real-sb-ankara-armada', name: 'Starbucks Coffee (Armada AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.91250, lng: 32.80850, address: 'Beştepeler Mah. Eskişehir Yolu Armada AVM, Yenimahalle / Ankara', distanceMeters: 0 },
-  { id: 'real-sb-ankara-bahceli', name: 'Starbucks Coffee (Bahçelievler 7. Cadde)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.92250, lng: 32.82420, address: 'Bahçelievler Mah. Aşkabat Cad. No: 24, Çankaya / Ankara', distanceMeters: 0 },
-  { id: 'real-sb-ankara-gordion', name: 'Starbucks Coffee (Gordion AVM Çayyolu)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.88210, lng: 32.69850, address: 'Koru Mah. Ankaralılar Cad. Gordion AVM, Çankaya / Ankara', distanceMeters: 0 },
-
-  // İzmir
-  { id: 'real-sb-izmir-alsancak', name: 'Starbucks Coffee (Alsancak Gül Sokak)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.43650, lng: 27.14250, address: 'Alsancak Mah. 1382. Sok. No: 12, Konak / İzmir', distanceMeters: 0 },
-  { id: 'real-sb-izmir-karsiyaka', name: 'Starbucks Coffee (Karşıyaka Çarşı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.45750, lng: 27.11920, address: 'Tuna Mah. Kemalpaşa Cad. No: 45, Karşıyaka / İzmir', distanceMeters: 0 },
-  { id: 'real-sb-izmir-bostanli', name: 'Starbucks Coffee (Bostanlı Sahil)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.45520, lng: 27.09820, address: 'Bostanlı Mah. Cemal Gürsel Cad. No: 88, Karşıyaka / İzmir', distanceMeters: 0 },
-  { id: 'real-sb-izmir-mavibahce', name: 'Starbucks Coffee (Mavibahçe AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.47120, lng: 27.08520, address: 'Mavişehir Mah. Caher Dudayev Bulv. Mavibahçe AVM, Karşıyaka / İzmir', distanceMeters: 0 },
-  { id: 'real-sb-izmir-bornova-forum', name: 'Starbucks Coffee (Forum Bornova)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 38.46150, lng: 27.22850, address: 'Kazımdirik Mah. Forum Bornova AVM, Bornova / İzmir', distanceMeters: 0 },
-
-  // Bursa
-  { id: 'real-sb-bursa-korupark', name: 'Starbucks Coffee (Korupark AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.24520, lng: 28.96120, address: 'Adnan Menderes Mah. Mudanya Cad. Korupark AVM, Osmangazi / Bursa', distanceMeters: 0 },
-  { id: 'real-sb-bursa-fsm', name: 'Starbucks Coffee (FSM Bulvarı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.21850, lng: 28.97420, address: 'Cumhuriyet Mah. Fatih Sultan Mehmet Bulvarı, Nilüfer / Bursa', distanceMeters: 0 },
-  { id: 'real-sb-bursa-suryapi', name: 'Starbucks Coffee (Sur Yapı Marka AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.20820, lng: 28.99850, address: 'Odunluk Mah. Akademi Cad. Sur Yapı Marka AVM, Nilüfer / Bursa', distanceMeters: 0 },
-
-  // Antalya
-  { id: 'real-sb-antalya-terracity', name: 'Starbucks Coffee (TerraCity AVM Lara)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.85320, lng: 30.75580, address: 'Fener Mah. Tekelioğlu Cad. TerraCity AVM, Muratpaşa / Antalya', distanceMeters: 0 },
-  { id: 'real-sb-antalya-migros', name: 'Starbucks Coffee (Antalya 5M Migros AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.88120, lng: 30.65820, address: 'Arapsuyu Mah. Atatürk Bulvarı 5M Migros AVM, Konyaaltı / Antalya', distanceMeters: 0 },
-  { id: 'real-sb-antalya-isiklar', name: 'Starbucks Coffee (Işıklar Caddesi)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.88150, lng: 30.70950, address: 'Haşimişcan Mah. Işıklar Cad. No: 18, Muratpaşa / Antalya', distanceMeters: 0 },
-
-  // Adana & Eskişehir & Kocaeli
-  { id: 'real-sb-adana-ziyapasa', name: 'Starbucks Coffee (Ziyapaşa Bulvarı)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 36.99620, lng: 35.32250, address: 'Kurtuluş Mah. Ziyapaşa Bulvarı, Seyhan / Adana', distanceMeters: 0 },
-  { id: 'real-sb-eskisehir-esparc', name: 'Starbucks Coffee (Espark AVM)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 39.78250, lng: 30.51120, address: 'Eskibağlar Mah. Üniversite Cad. Espark AVM, Tepebaşı / Eskişehir', distanceMeters: 0 },
-  { id: 'real-sb-kocaeli-symbol', name: 'Starbucks Coffee (Symbol AVM Kocaeli)', category: 'cafe', categoryLabel: 'Kafe & Kahve', lat: 40.76120, lng: 29.98850, address: 'Ovacık Mah. D-100 Karayolu Üzeri Symbol AVM, Başiskele / Kocaeli', distanceMeters: 0 },
-];
+// Registry of verified real landmark businesses across Turkey
+// Set to empty array to ensure 100% of POIs use exact GIS coordinates directly from OpenStreetMap
+const TURKEY_REAL_KNOWN_POI_REGISTRY: CompetitorPoi[] = [];
 
 export function extractCleanLocationName(locationName: string): string {
   if (!locationName) return 'Merkez';
@@ -1841,6 +1723,18 @@ export async function fetchMasterAreaPoiCensus(
       // Overpass fallback handled gracefully
     }
 
+    // Secondary fallback: If Overpass returned 0 POIs, query Nominatim bounding box for real surveyed businesses
+    if (livePois.length === 0) {
+      try {
+        const nomPois = await fetchNominatimPois(lat, lng, radiusMeters, 'all');
+        if (nomPois && nomPois.length > 0) {
+          livePois = nomPois;
+        }
+      } catch {
+        // Nominatim fallback handled gracefully
+      }
+    }
+
     // C. Merge & Deduplicate real collected POIs
     const rawCollectedPois = [...knownPois, ...livePois];
     const seenPoiIds = new Set<string>();
@@ -1864,7 +1758,13 @@ export async function fetchMasterAreaPoiCensus(
     const allCategories = Object.keys(RADAR_CATEGORIES) as RadarCategoryKey[];
     const sectorCensus: Record<string, number> = {};
     allCategories.forEach((catKey) => {
-      sectorCensus[catKey] = categorizedPois[catKey]?.length || 0;
+      let count = categorizedPois[catKey]?.length || 0;
+      if (catKey === 'restaurant') {
+        count += (categorizedPois['donerci']?.length || 0);
+      } else if (catKey === 'dry_cleaning') {
+        count += (categorizedPois['terzi']?.length || 0);
+      }
+      sectorCensus[catKey] = count;
     });
 
     const sortedAllPois = deduplicatedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
@@ -1873,7 +1773,9 @@ export async function fetchMasterAreaPoiCensus(
       sectorCensus,
     };
 
-    MASTER_AREA_CENSUS_CACHE.set(masterAllKey, { data: masterResult, ts: Date.now() });
+    if (sortedAllPois.length > 0) {
+      MASTER_AREA_CENSUS_CACHE.set(masterAllKey, { data: masterResult, ts: Date.now() });
+    }
   }
 
   // 2. If specific target category was requested, filter from the consistent master census

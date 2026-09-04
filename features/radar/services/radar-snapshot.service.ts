@@ -92,7 +92,15 @@ function saveDiskSnapshot(payload: DailySnapshotPayload): void {
     if (!fs.existsSync(SNAPSHOT_DIR)) {
       fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
     }
-    fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(payload, null, 2), 'utf-8');
+    // Clean out any 0 POI entries before saving to disk
+    const cleanAreas: Record<string, AreaPoiCensusResult> = {};
+    for (const [k, v] of Object.entries(payload.areas || {})) {
+      if (v && v.allPois && v.allPois.length > 0) {
+        cleanAreas[k] = v;
+      }
+    }
+    const cleanPayload: DailySnapshotPayload = { ...payload, areas: cleanAreas };
+    fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(cleanPayload, null, 2), 'utf-8');
   } catch (err) {
     console.error('[radar-snapshot] Error writing snapshot file:', err);
   }
@@ -110,16 +118,31 @@ function getActiveSnapshot(): DailySnapshotPayload {
 
   const diskData = loadDiskSnapshot();
   if (diskData && diskData.cycleId === currentCycle) {
+    // Filter out any corrupted 0-POI entries
+    const validAreas: Record<string, AreaPoiCensusResult> = {};
+    for (const [k, v] of Object.entries(diskData.areas || {})) {
+      if (v && v.allPois && v.allPois.length > 0) {
+        validAreas[k] = v;
+      }
+    }
+    diskData.areas = validAreas;
     memorySnapshot = diskData;
     return memorySnapshot;
   }
 
   // Initialize fresh snapshot container for today's cycle
+  const validDiskAreas: Record<string, AreaPoiCensusResult> = {};
+  for (const [k, v] of Object.entries(diskData?.areas || {})) {
+    if (v && v.allPois && v.allPois.length > 0) {
+      validDiskAreas[k] = v;
+    }
+  }
+
   memorySnapshot = {
     cycleId: currentCycle,
     syncedAt: new Date().toISOString(),
     nextSyncAt: getNextSyncAt(),
-    areas: diskData?.areas ? { ...diskData.areas } : {},
+    areas: validDiskAreas,
   };
 
   return memorySnapshot;
@@ -133,7 +156,7 @@ export interface DailyAreaResult extends AreaPoiCensusResult {
 
 /**
  * Returns census data from the daily 04:00 snapshot.
- * If area is not yet in snapshot, computes it once and persists it for the day.
+ * If area is not yet in snapshot or has 0 POIs, computes it once and persists it for the day.
  */
 export async function getOrGenerateDailyAreaCensus(
   lat: number,
@@ -147,11 +170,14 @@ export async function getOrGenerateDailyAreaCensus(
 
   let masterCensus = snapshot.areas[areaKey];
 
-  if (!masterCensus) {
+  // If area is missing or previously corrupted with 0 POIs, fetch fresh
+  if (!masterCensus || !masterCensus.allPois || masterCensus.allPois.length === 0) {
     // Generate clean master census once for this area and lock it into today's snapshot
     masterCensus = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, 'all');
-    snapshot.areas[areaKey] = masterCensus;
-    saveDiskSnapshot(snapshot);
+    if (masterCensus && masterCensus.allPois && masterCensus.allPois.length > 0) {
+      snapshot.areas[areaKey] = masterCensus;
+      saveDiskSnapshot(snapshot);
+    }
   }
 
   // Filter for specific category if requested
@@ -233,9 +259,11 @@ export async function runNightlyRadarBatchSync(options: {
         const areaKey = makeAreaKey(loc.lat, loc.lng, radius);
         try {
           const census = await fetchMasterAreaPoiCensus(loc.lat, loc.lng, radius, loc.name, 'all');
-          mergedAreas[areaKey] = census;
-          totalPois += census.allPois.length;
-          syncedCount++;
+          if (census && census.allPois && census.allPois.length > 0) {
+            mergedAreas[areaKey] = census;
+            totalPois += census.allPois.length;
+            syncedCount++;
+          }
         } catch (err) {
           console.warn(`[radar-snapshot] Warning syncing ${loc.name} (${radius}m):`, err);
         }
