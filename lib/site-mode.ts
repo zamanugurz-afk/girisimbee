@@ -3,23 +3,17 @@ import { isSiteIpAllowlistEnabled } from '@/lib/site-ip-allowlist';
 /**
  * Public site visibility gate.
  *
- * NEXT_PUBLIC_SITE_MODE=maintenance → visitors see /bakim
- * NEXT_PUBLIC_SITE_MODE=live        → full site for everyone
- *
- * Do NOT set live until the owner explicitly asks to open publicly.
- * An IP allowlist keeps production usable for this machine only; everyone
- * else is rewritten to /bakim in middleware.
- *
- * When unset: development → live; production → maintenance until launch.
+ * Site halka tamamen KAPALIDIR (bakım / yapım aşamasında).
+ * Sadece localhost geliştirme ortamına açıktır.
  */
 export type SiteMode = 'live' | 'maintenance';
 
 export function resolveSiteMode(): SiteMode {
-  return 'live';
+  return 'maintenance';
 }
 
 export function isMaintenanceMode(): boolean {
-  return false;
+  return true;
 }
 
 /** Paths anonymous visitors may hit while the public site is gated. */

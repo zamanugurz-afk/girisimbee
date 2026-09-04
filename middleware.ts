@@ -131,12 +131,26 @@ export async function middleware(request: NextRequest) {
     return attachTiming(NextResponse.redirect(callbackUrl), nowMs() - mwStart);
   }
 
-  // Redirect any legacy /bakim request to home
-  if (pathname === '/bakim') {
-    const home = request.nextUrl.clone();
-    home.pathname = '/';
-    home.search = '';
-    return attachTiming(NextResponse.redirect(home), nowMs() - mwStart);
+  // =========================================================================
+  // HALKA KAPALI — SADECE LOCALHOST ERİŞİMİNE AÇIK KORUMA
+  // =========================================================================
+  const host = request.headers.get('host') || '';
+  const hostname = host.split(':')[0].toLowerCase();
+  const isLocalhost =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1' ||
+    hostname.endsWith('.localhost');
+
+  const hasPreviewCookie = request.cookies.get('gb_preview')?.value === '1';
+
+  // Localhost harici (canlı/halka açık internet) tüm istekleri /bakim sayfasına yönlendir/kapat
+  if (!isLocalhost && !hasPreviewCookie) {
+    if (!isMaintenanceBypassPath(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/bakim';
+      return attachTiming(NextResponse.rewrite(url), nowMs() - mwStart);
+    }
   }
 
   const publishBlocked = await validatePublishRequest(request);
