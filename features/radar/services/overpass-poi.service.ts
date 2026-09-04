@@ -206,7 +206,8 @@ export function classifyPoi(
   name: string | undefined,
   tags: Record<string, string> | undefined,
 ): { key: RadarCategoryKey; label: string } {
-  const n = name || '';
+  const gCat = tags?.googleCategory || tags?.categoryName || '';
+  const n = ((name || '') + ' ' + gCat).trim();
   const amenity = (tags?.amenity || '').toLowerCase();
   const shop = (tags?.shop || '').toLowerCase();
   const office = (tags?.office || '').toLowerCase();
@@ -462,6 +463,262 @@ export function classifyPoi(
     return { key: 'oto_elektrik', label: 'Oto Elektrik & Akü' };
   }
 
+  // 37. Noter & Resmi Onay Dairesi
+  if (
+    amenity === 'notary' ||
+    hasWord(n, ['noter', 'noteri', 'noterlik', 'noterliği', 'noterliğ', 'notary'])
+  ) {
+    return { key: 'noter', label: 'Noter & Resmi Onay Dairesi' };
+  }
+
+  // 38. Kargo Şubesi & Dağıtım
+  if (
+    amenity === 'post_office' ||
+    hasWord(n, ['kargo', 'kargosu', 'kargo şubesi', 'yurtiçi kargo', 'yurtici kargo', 'aras kargo', 'mng kargo', 'sürat kargo', 'surat kargo', 'ptt kargo', 'trendyol express', 'hepsijet', 'kolay gelsin', 'ups kargo', 'dhl', 'fedex', 'scotty'])
+  ) {
+    return { key: 'kargo_subesi', label: 'Kargo Şubesi & Dağıtım' };
+  }
+
+  // 39. Kuyumcu & Sarraf
+  if (
+    shop === 'jewelry' ||
+    hasWord(n, ['kuyumcu', 'kuyumculuk', 'sarraf', 'sarrafiye', 'altın', 'pırlanta', 'gümüşçü', 'mücevher', 'mücevherat', 'atasay', 'altınbaş', 'zen pırlanta', 'koçak'])
+  ) {
+    return { key: 'jewelry', label: 'Kuyumcu & Sarraf' };
+  }
+
+  // 40. Oto Ekspertiz
+  if (
+    hasWord(n, ['oto ekspertiz', 'ekspertiz', 'computest', 'dyno', 'pilot garage', 'otorapor', 'dynobil', 'umran oto', 'eft oto'])
+  ) {
+    return { key: 'oto_ekspertiz', label: 'Oto Ekspertiz' };
+  }
+
+  // 41. Su & Tüp Bayisi
+  if (
+    hasWord(n, ['su bayisi', 'su bayii', 'damacana', 'erikli', 'hayat su', 'sırma', 'hamidiye su', 'pınar su', 'buzdağı', 'abant su', 'tüp ve su', 'aygaz'])
+  ) {
+    return { key: 'su_bayisi', label: 'Su & Tüp Bayisi' };
+  }
+
+  // 42. Mali Müşavir & Muhasebe
+  if (
+    office === 'accountant' ||
+    office === 'financial' ||
+    hasWord(n, ['mali müşavir', 'mali musavir', 'muhasebe', 'muhasebeci', 'smmm', 'serbest muhasebeci', 'yeminli mali müşavir', 'ymm', 'vergi danışmanı'])
+  ) {
+    return { key: 'mali_musavir', label: 'Mali Müşavir & Muhasebe' };
+  }
+
+  // 43. Güzellik Merkezi & Bakım
+  if (
+    hasWord(n, ['güzellik merkezi', 'güzellik salonu', 'lazer epilasyon', 'cilt bakımı', 'estetisyen', 'medikal estetik', 'epilasyon'])
+  ) {
+    return { key: 'guzellik_merkezi', label: 'Güzellik Merkezi & Bakım' };
+  }
+
+  // 44. Nail Art & Tırnak Stüdyosu
+  if (
+    hasWord(n, ['nail art', 'nail studio', 'protez tırnak', 'kalıcı oje', 'manikür', 'pedikür', 'ipek kirpik'])
+  ) {
+    return { key: 'nail_art', label: 'Nail Art & Tırnak Stüdyosu' };
+  }
+
+  // 45. Pilates & Yoga Stüdyosu
+  if (
+    hasWord(n, ['reformer pilates', 'pilates stüdyosu', 'pilates studio', 'yoga stüdyosu', 'yoga studio', 'reformer', 'aletli pilates'])
+  ) {
+    return { key: 'pilates_studio', label: 'Pilates & Yoga Stüdyosu' };
+  }
+
+  // 46. Sürücü Kursu
+  if (
+    amenity === 'driving_school' ||
+    hasWord(n, ['sürücü kursu', 'surucu kursu', 'ehliyet kursu', 'motorlu taşıtlar sürücü kursu', 'mtszk', 'direksiyon'])
+  ) {
+    return { key: 'surucu_kursu', label: 'Sürücü Kursu' };
+  }
+
+  // 47. Dil Kursu
+  if (
+    amenity === 'language_school' ||
+    hasWord(n, ['dil kursu', 'ingilizce kursu', 'yabancı dil', 'british time', 'american life', 'amerikan kültür', 'wall street', 'tömer'])
+  ) {
+    return { key: 'dil_kursu', label: 'Yabancı Dil Kursu' };
+  }
+
+  // 48. Etüt & Sınav Hazırlık
+  if (
+    hasWord(n, ['etüt merkezi', 'etut merkezi', 'özel öğretim kursu', 'yks kursu', 'lgs kursu', 'dershane', 'vip kurs', 'özel ders'])
+  ) {
+    return { key: 'etut_merkezi', label: 'Etüt & Sınav Hazırlık' };
+  }
+
+  // 49. Çorbacı & Gece Lezzeti
+  if (
+    hasWord(n, ['çorbacı', 'corbaci', 'çorba salonu', 'paçacı', 'işkembe', 'kelle paça'])
+  ) {
+    return { key: 'corbaci', label: 'Çorbacı & Gece Lezzeti' };
+  }
+
+  // 50. Büfe & Tost Sandviç
+  if (
+    amenity === 'kiosk' ||
+    hasWord(n, ['büfe', 'bufe', 'tostçu', 'tost salonu', 'sandviç', 'kumrucu', 'patso', 'marmaris büfe'])
+  ) {
+    return { key: 'bufe_tost', label: 'Büfe & Tost Sandviç' };
+  }
+
+  // 51. Kahvaltı Salonu
+  if (
+    hasWord(n, ['kahvaltı salonu', 'kahvaltıcı', 'van kahvaltı', 'serpme kahvaltı', 'kahvaltı evi', 'breakfast'])
+  ) {
+    return { key: 'kahvalti_salonu', label: 'Kahvaltı Salonu' };
+  }
+
+  // 52. Bubble Tea Dükkanı
+  if (
+    hasWord(n, ['bubble tea', 'boba tea', 'boba', 'tapioca'])
+  ) {
+    return { key: 'bubble_tea', label: 'Bubble Tea Dükkanı' };
+  }
+
+  // 53. Psikolog & Terapi Merkezi
+  if (
+    hasWord(n, ['psikolog', 'psikolojik danışmanlık', 'klinik psikolog', 'terapi merkezi', 'aile danışmanı', 'psikoterapi'])
+  ) {
+    return { key: 'psikolog', label: 'Psikolog & Terapi Merkezi' };
+  }
+
+  // 54. Motosiklet Servis & Ekipman
+  if (
+    shop === 'motorcycle' ||
+    hasWord(n, ['motosiklet', 'motor servisi', 'motosiklet tamir', 'motor tamiri', 'motul', 'kask mont', 'scooter servisi'])
+  ) {
+    return { key: 'motosiklet_servis', label: 'Motosiklet Servis & Ekipman' };
+  }
+
+  // 55. Oto Aksesuar & Tuning
+  if (
+    hasWord(n, ['oto tuning', 'tuning', 'cam filmi', 'ppf kaplama', 'ses sistemi', 'oto ses ve görüntü', 'body kit', 'chip tuning'])
+  ) {
+    return { key: 'oto_tuning', label: 'Oto Aksesuar & Tuning' };
+  }
+
+  // 56. Diyetisyen & Beslenme
+  if (
+    hasWord(n, ['diyetisyen', 'beslenme ve diyet', 'uzman diyetisyen', 'sağlıklı beslenme', 'nutritionist'])
+  ) {
+    return { key: 'dietitian', label: 'Diyetisyen & Beslenme' };
+  }
+
+  // 57. PlayStation & Oyun Salonu
+  if (
+    hasWord(n, ['playstation', 'ps cafe', 'ps5 cafe', 'oyun salonu', 'game center', 'gaming cafe', 'espor'])
+  ) {
+    return { key: 'playstation_cafe', label: 'PlayStation & Oyun Salonu' };
+  }
+
+  // 58. İnternet Cafe
+  if (
+    amenity === 'internet_cafe' ||
+    hasWord(n, ['internet cafe', 'internet kafe', 'net cafe', 'cyber cafe'])
+  ) {
+    return { key: 'internet_cafe', label: 'İnternet Cafe' };
+  }
+
+  // 59. Dövme & Piercing Stüdyosu
+  if (
+    shop === 'tattoo' ||
+    hasWord(n, ['tattoo', 'dövme stüdyosu', 'dövmeci', 'piercing', 'tattoos'])
+  ) {
+    return { key: 'tattoo_studio', label: 'Dövme & Piercing Stüdyosu' };
+  }
+
+  // 60. Kitap Kafe & Çalışma Alanı
+  if (
+    hasWord(n, ['kitap kafe', 'kitap kahve', 'book cafe', 'çalışma alanı', 'ders çalışma kafe'])
+  ) {
+    return { key: 'kitap_kafe', label: 'Kitap Kafe & Çalışma Alanı' };
+  }
+
+  // 61. Çocuk Parti & Oyun Evi
+  if (
+    hasWord(n, ['parti evi', 'oyun evi', 'çocuk parti', 'soft play', 'doğum günü parti evi'])
+  ) {
+    return { key: 'parti_evi', label: 'Çocuk Parti & Oyun Evi' };
+  }
+
+  // 62. Pub, Bar & Meyhane
+  if (
+    amenity === 'pub' ||
+    amenity === 'bar' ||
+    hasWord(n, ['pub', 'meyhane', 'bira', 'beer', 'gastropub', 'bar', 'şarap evi', 'meyhanesi'])
+  ) {
+    return { key: 'pub_meyhane', label: 'Pub, Bar & Meyhane' };
+  }
+
+  // 63. Waffle & Çikolata Dükkanı
+  if (
+    hasWord(n, ['waffle', 'wafflecı', 'çikolata', 'chocolatier', 'kahve çikolata', 'waffle evi'])
+  ) {
+    return { key: 'waffle_cikolata', label: 'Waffle & Çikolata Dükkanı' };
+  }
+
+  // 64. Mimarlık & Tasarım Ofisi
+  if (
+    office === 'architect' ||
+    hasWord(n, ['mimarlık', 'iç mimarlık', 'mimarlık ofisi', 'proje tasarım', 'peyzaj mimarlığı', 'architecture'])
+  ) {
+    return { key: 'mimarlik_ofisi', label: 'Mimarlık & Tasarım Ofisi' };
+  }
+
+  // 65. Medikal & Ortopedi Ürünleri
+  if (
+    shop === 'medical_supply' ||
+    hasWord(n, ['medikal', 'ortopedi', 'tıbbi malzeme', 'hasta bezi', 'medikal market', 'tekerlekli sandalye'])
+  ) {
+    return { key: 'medikal_ortopedi', label: 'Medikal & Ortopedi Ürünleri' };
+  }
+
+  // 66. İşitme Cihazları Merkezi
+  if (
+    shop === 'hearing_aids' ||
+    hasWord(n, ['işitme cihazı', 'isitme cihazi', 'işitme merkezi', 'odyoloji'])
+  ) {
+    return { key: 'isitme_cihazi', label: 'İşitme Cihazları Merkezi' };
+  }
+
+  // 67. Tobacco Shop & Nargile
+  if (
+    shop === 'tobacco' ||
+    hasWord(n, ['tobacco', 'tütüncü', 'tütün', 'nargile malzemeleri', 'puro', 'tobacco shop'])
+  ) {
+    return { key: 'tobacco_shop', label: 'Tobacco Shop & Nargile' };
+  }
+
+  // 68. Müzik Kursu & Enstrüman
+  if (
+    hasWord(n, ['müzik kursu', 'gitar kursu', 'piyano kursu', 'müzik aletleri', 'enstrüman'])
+  ) {
+    return { key: 'muzik_kursu', label: 'Müzik Kursu & Enstrüman' };
+  }
+
+  // 69. Antika & Vintage Mağazası
+  if (
+    shop === 'antiques' ||
+    hasWord(n, ['antika', 'vintage', 'mezat', 'antikacı', 'ikinci el saat'])
+  ) {
+    return { key: 'antika_vintage', label: 'Antika & Vintage Mağazası' };
+  }
+
+  // 70. Outdoor & Kamp Malzemeleri
+  if (
+    hasWord(n, ['kamp malzemeleri', 'outdoor', 'avcılık', 'balık av malzemeleri', 'olta'])
+  ) {
+    return { key: 'outdoor_kamp', label: 'Outdoor & Kamp Malzemeleri' };
+  }
+
   // Fallbacks based on verified commercial OSM tag
   if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
   if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
@@ -603,14 +860,138 @@ export const CATEGORY_SEARCH_SUBQUERIES: Record<string, string[]> = {
   noter: ['noter OR noterliği'],
 };
 
+export async function fetchGooglePublicPois(
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+  category: RadarCategoryKey | 'all' = 'all',
+): Promise<CompetitorPoi[]> {
+  const isAll = category === 'all' || !category;
+
+  const searchQueries: string[] = isAll
+    ? [
+        'restoran lokanta kafe yeme içme',
+        'market bakkal süpermarket tekel şarküteri',
+        'eczane medikal sağlık poliklinik',
+        'kuaför berber güzellik salonu estetik',
+        'fırın pastane tatlıcı börekçi unlu mamüller',
+        'oto tamir bakım servis oto sanayi kaporta',
+        'oto ekspertiz oto lastik rot balans',
+        'terzi kuru temizleme lostra dikim',
+        'emlak gayrimenkul ofisi danışmanlık',
+        'noter noterliği',
+        'avukat hukuk bürosu arabulucu',
+        'mağazalar butik giyim ayakkabı moda',
+        'kırtasiye çiçekçi petshop veteriner',
+        'diş hekimi diş kliniği dental',
+        'kargo şubesi dağıtım',
+        'kuyumcu sarraf altın',
+      ]
+    : [
+        GOOGLE_CATEGORY_MAPPING[category]?.keyword || category,
+      ];
+
+  const pois: CompetitorPoi[] = [];
+  const seenKeys = new Set<string>();
+
+  const fetchSingleQuery = async (q: string) => {
+    try {
+      const pb = `!4m8!1m3!1d${radiusMeters}!2d${lng}!3d${lat}!3m2!1i1024!2i768!4f13.1!7i50!10b1`;
+      const url = `https://www.google.com/search?tbm=map&authuser=0&hl=tr&gl=tr&q=${encodeURIComponent(q)}&pb=${encodeURIComponent(pb)}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4500);
+
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept-Language': 'tr-TR,tr;q=0.9',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      if (!res.ok) return;
+
+      const text = await res.text();
+      const clean = text.replace(/^\)\]\}'/, '').trim();
+      if (!clean.startsWith('[')) return;
+
+      const json = JSON.parse(clean);
+      if (json[0] && Array.isArray(json[0][1])) {
+        for (const item of json[0][1]) {
+          if (!item || !Array.isArray(item)) continue;
+          const placeData = item[14];
+          if (!placeData || !Array.isArray(placeData)) continue;
+
+          const rawName = placeData[11];
+          const coords = placeData[9];
+          const categoryArr = placeData[13];
+          const address = placeData[39] || placeData[18];
+          const googleCat = categoryArr && categoryArr[0] ? String(categoryArr[0]) : '';
+
+          if (rawName && coords && typeof coords[2] === 'number' && typeof coords[3] === 'number') {
+            const pLat = coords[2];
+            const pLng = coords[3];
+            const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
+            if (dist > radiusMeters * 1.08) continue;
+
+            const normKey = `${rawName.toLowerCase().trim()}_${Math.round(pLat * 10000)}_${Math.round(pLng * 10000)}`;
+            if (seenKeys.has(normKey)) continue;
+            seenKeys.add(normKey);
+
+            const classified = classifyPoi(rawName, {
+              amenity: googleCat,
+              shop: googleCat,
+              office: googleCat,
+              googleCategory: googleCat,
+            });
+
+            if (!isAll) {
+              const isMatch =
+                classified.key === category ||
+                (category === 'dry_cleaning' && (classified.key as string) === 'terzi') ||
+                (category === 'terzi' && (classified.key as string) === 'dry_cleaning') ||
+                (category === 'restaurant' && (classified.key as string) === 'donerci');
+              if (!isMatch) continue;
+            }
+
+            pois.push({
+              id: `gmap-${item[0] || `${pLat.toFixed(5)}_${pLng.toFixed(5)}`}`,
+              name: rawName,
+              lat: pLat,
+              lng: pLng,
+              category: classified.key,
+              categoryLabel: classified.label,
+              address: typeof address === 'string' ? address : undefined,
+              distanceMeters: Math.round(dist),
+            });
+          }
+        }
+      }
+    } catch {
+      // Gracefully ignore individual query failure
+    }
+  };
+
+  const chunkSize = 4;
+  for (let i = 0; i < searchQueries.length; i += chunkSize) {
+    const chunk = searchQueries.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((q) => fetchSingleQuery(q)));
+  }
+
+  return pois;
+}
+
 export async function fetchGooglePlacesPois(
-  _lat: number,
-  _lng: number,
-  _radiusMeters: number,
-  _category: RadarCategoryKey,
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+  category: RadarCategoryKey,
 ): Promise<CompetitorPoi[] | null> {
-  // Completely bypassed — zero Google Cloud API cost
-  return null;
+  // Free public Google Maps engine integration ($0 cost)
+  return fetchGooglePublicPois(lat, lng, radiusMeters, category);
 }
 
 /* ========================================================================= */
@@ -1735,18 +2116,23 @@ export async function fetchMasterAreaPoiCensus(
         distanceMeters: Math.round(calculateDistanceMeters(lat, lng, p.lat, p.lng)),
       }));
 
-    // B. Fetch live real POIs from OpenStreetMap (Overpass & Nominatim) — 100% Free & Open Source
-    let livePois: CompetitorPoi[] = [];
-    try {
-      const overpassPois = await fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all');
-      if (overpassPois && overpassPois.length > 0) {
-        livePois = overpassPois;
-      }
-    } catch {
-      // Overpass fallback handled gracefully
-    }
+    // B. Concurrently fetch live real POIs from Overpass (OSM) AND Google Maps Public Engine ($0 cost)
+    const targetCatKey = (targetCategoryArray.length > 0 && targetCategoryArray[0] !== 'all')
+      ? targetCategoryArray[0]
+      : undefined;
 
-    // Secondary fallback: If Overpass returned 0 POIs, query Nominatim bounding box for real surveyed businesses
+    const [overpassRes, gmapAllRes, gmapTargetRes] = await Promise.allSettled([
+      fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all'),
+      fetchGooglePublicPois(lat, lng, radiusMeters, 'all'),
+      targetCatKey ? fetchGooglePublicPois(lat, lng, radiusMeters, targetCatKey) : Promise.resolve([]),
+    ]);
+
+    const overpassPois = overpassRes.status === 'fulfilled' ? overpassRes.value : [];
+    const gmapAllPois = gmapAllRes.status === 'fulfilled' ? gmapAllRes.value : [];
+    const gmapTargetPois = gmapTargetRes.status === 'fulfilled' ? gmapTargetRes.value : [];
+    let livePois: CompetitorPoi[] = [...overpassPois, ...gmapAllPois, ...gmapTargetPois];
+
+    // Secondary fallback: If both returned 0 POIs, query Nominatim bounding box
     if (livePois.length === 0) {
       try {
         const nomPois = await fetchNominatimPois(lat, lng, radiusMeters, 'all');
@@ -1759,21 +2145,54 @@ export async function fetchMasterAreaPoiCensus(
     }
 
     // C. Merge & Deduplicate real collected POIs
+    // Deduplicate by ID and spatial proximity (< 25m) + normalized name matching
     const rawCollectedPois = [...knownPois, ...livePois];
     const seenPoiIds = new Set<string>();
+    const spatialIndex: Array<{ lat: number; lng: number; normName: string }> = [];
     const categorizedPois: Record<string, CompetitorPoi[]> = {};
     const deduplicatedPois: CompetitorPoi[] = [];
 
+    const normalizePoiName = (text: string) =>
+      text.toLowerCase().replace(/[^a-z0-9ğüşıöç]/g, '').trim();
+
     for (const poi of rawCollectedPois) {
-      if (!seenPoiIds.has(poi.id)) {
-        seenPoiIds.add(poi.id);
-        deduplicatedPois.push(poi);
-        if (poi.category && poi.category !== 'all') {
-          if (!categorizedPois[poi.category]) {
-            categorizedPois[poi.category] = [];
+      if (!poi || !poi.id || seenPoiIds.has(poi.id)) continue;
+
+      const normName = normalizePoiName(poi.name);
+      let isDuplicate = false;
+
+      // Proximity & name overlap check
+      for (const existing of spatialIndex) {
+        if (
+          Math.abs(poi.lat - existing.lat) < 0.0003 && // ~30m
+          Math.abs(poi.lng - existing.lng) < 0.0003
+        ) {
+          const dist = calculateDistanceMeters(poi.lat, poi.lng, existing.lat, existing.lng);
+          if (dist < 25) {
+            if (
+              normName.length > 2 &&
+              (normName === existing.normName ||
+                normName.includes(existing.normName) ||
+                existing.normName.includes(normName))
+            ) {
+              isDuplicate = true;
+              break;
+            }
           }
-          categorizedPois[poi.category].push(poi);
         }
+      }
+
+      if (isDuplicate) continue;
+
+      seenPoiIds.add(poi.id);
+      spatialIndex.push({ lat: poi.lat, lng: poi.lng, normName });
+      deduplicatedPois.push(poi);
+
+      if (poi.category && poi.category !== 'all') {
+        if (!categorizedPois[poi.category]) {
+          categorizedPois[poi.category] = [];
+        }
+        categorizedPois[poi.category].push(poi);
       }
     }
 

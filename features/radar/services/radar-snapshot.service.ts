@@ -8,7 +8,10 @@ import type { RadarCategoryKey } from '@/types/radar.types';
 const SNAPSHOT_DIR = path.join(process.cwd(), 'data', 'radar');
 const SNAPSHOT_FILE = path.join(SNAPSHOT_DIR, 'radar-daily-snapshot.json');
 
+export const CURRENT_SNAPSHOT_VERSION = '2.1-unlimited-hybrid';
+
 export interface DailySnapshotPayload {
+  version?: string;
   cycleId: string;       // e.g. "2026-09-04"
   syncedAt: string;      // ISO string
   nextSyncAt: string;    // Next 04:00 TSİ ISO string
@@ -63,7 +66,7 @@ function makeAreaKey(lat: number, lng: number, radiusMeters: number): string {
 }
 
 /**
- * Loads the daily snapshot from disk if valid for the current cycle.
+ * Loads the daily snapshot from disk if valid for the current cycle and engine version.
  */
 function loadDiskSnapshot(): DailySnapshotPayload | null {
   try {
@@ -74,7 +77,7 @@ function loadDiskSnapshot(): DailySnapshotPayload | null {
     const parsed: DailySnapshotPayload = JSON.parse(raw);
     const currentCycle = getCurrentDailyCycleId();
 
-    if (parsed.cycleId === currentCycle) {
+    if (parsed.cycleId === currentCycle && parsed.version === CURRENT_SNAPSHOT_VERSION) {
       return parsed;
     }
     return null;
@@ -99,7 +102,11 @@ function saveDiskSnapshot(payload: DailySnapshotPayload): void {
         cleanAreas[k] = v;
       }
     }
-    const cleanPayload: DailySnapshotPayload = { ...payload, areas: cleanAreas };
+    const cleanPayload: DailySnapshotPayload = {
+      ...payload,
+      version: CURRENT_SNAPSHOT_VERSION,
+      areas: cleanAreas,
+    };
     fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(cleanPayload, null, 2), 'utf-8');
   } catch (err) {
     console.error('[radar-snapshot] Error writing snapshot file:', err);
@@ -112,12 +119,12 @@ function saveDiskSnapshot(payload: DailySnapshotPayload): void {
 function getActiveSnapshot(): DailySnapshotPayload {
   const currentCycle = getCurrentDailyCycleId();
 
-  if (memorySnapshot && memorySnapshot.cycleId === currentCycle) {
+  if (memorySnapshot && memorySnapshot.cycleId === currentCycle && memorySnapshot.version === CURRENT_SNAPSHOT_VERSION) {
     return memorySnapshot;
   }
 
   const diskData = loadDiskSnapshot();
-  if (diskData && diskData.cycleId === currentCycle) {
+  if (diskData && diskData.cycleId === currentCycle && diskData.version === CURRENT_SNAPSHOT_VERSION) {
     // Filter out any corrupted 0-POI entries
     const validAreas: Record<string, AreaPoiCensusResult> = {};
     for (const [k, v] of Object.entries(diskData.areas || {})) {
@@ -130,19 +137,13 @@ function getActiveSnapshot(): DailySnapshotPayload {
     return memorySnapshot;
   }
 
-  // Initialize fresh snapshot container for today's cycle
-  const validDiskAreas: Record<string, AreaPoiCensusResult> = {};
-  for (const [k, v] of Object.entries(diskData?.areas || {})) {
-    if (v && v.allPois && v.allPois.length > 0) {
-      validDiskAreas[k] = v;
-    }
-  }
-
+  // Initialize fresh snapshot container for today's cycle with hybrid engine version
   memorySnapshot = {
+    version: CURRENT_SNAPSHOT_VERSION,
     cycleId: currentCycle,
     syncedAt: new Date().toISOString(),
     nextSyncAt: getNextSyncAt(),
-    areas: validDiskAreas,
+    areas: {},
   };
 
   return memorySnapshot;
