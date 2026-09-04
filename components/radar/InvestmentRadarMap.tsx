@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Compass } from 'lucide-react';
 import type { CompetitorPoi, RadarListingMatch } from '@/types/radar.types';
 import 'leaflet/dist/leaflet.css';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
@@ -40,6 +41,9 @@ export default function InvestmentRadarMap({
   const isInitializedRef = useRef(false);
   const poiMarkersMapRef = useRef<Map<string, any>>(new Map());
 
+  const [showSearchHereBtn, setShowSearchHereBtn] = useState(false);
+  const [pannedCenter, setPannedCenter] = useState<{ lat: number; lng: number } | null>(null);
+
   const radiusMetersRef = useRef(radiusMeters);
   radiusMetersRef.current = radiusMeters;
 
@@ -68,11 +72,46 @@ export default function InvestmentRadarMap({
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // 1. Google Haritalar Standart Katmanı (Tüm Türkiye işletmeleri, mağaza isimleri ve sokaklar)
+      const googleRoadmap = L.tileLayer(
+        'https://mt{s}.google.com/vt/lyrs=m&hl=tr&x={x}&y={y}&z={z}',
+        {
+          attribution: '&copy; Google Haritalar',
+          maxZoom: 20,
+          subdomains: ['0', '1', '2', '3'],
+        },
+      );
+
+      // 2. Google Haritalar Uydu & Hibrit Katmanı
+      const googleHybrid = L.tileLayer(
+        'https://mt{s}.google.com/vt/lyrs=y&hl=tr&x={x}&y={y}&z={z}',
+        {
+          attribution: '&copy; Google Haritalar Uydu',
+          maxZoom: 20,
+          subdomains: ['0', '1', '2', '3'],
+        },
+      );
+
+      // 3. OpenStreetMap Katmanı
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
         subdomains: ['a', 'b', 'c'],
-      }).addTo(map);
+      });
+
+      googleRoadmap.addTo(map);
+
+      L.control
+        .layers(
+          {
+            'Google Haritalar (Tüm İşletmeler)': googleRoadmap,
+            'Google Uydu': googleHybrid,
+            OpenStreetMap: osm,
+          },
+          undefined,
+          { position: 'bottomright' },
+        )
+        .addTo(map);
 
       if (map.pm) {
         map.pm.addControls({
@@ -116,7 +155,21 @@ export default function InvestmentRadarMap({
 
       map.on('click', (e: any) => {
         const { lat, lng } = e.latlng;
+        setShowSearchHereBtn(false);
         onCircleChangedRef.current(lat, lng, radiusMetersRef.current);
+      });
+
+      map.on('moveend', () => {
+        const center = map.getCenter();
+        const latDiff = (center.lat - centerLat) * 111320;
+        const lngDiff = (center.lng - centerLng) * 111320 * Math.cos((centerLat * Math.PI) / 180);
+        const dist = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+        if (dist > Math.max(250, radiusMetersRef.current * 0.4)) {
+          setPannedCenter({ lat: center.lat, lng: center.lng });
+          setShowSearchHereBtn(true);
+        } else {
+          setShowSearchHereBtn(false);
+        }
       });
 
       competitorsLayerGroupRef.current = L.layerGroup().addTo(map);
@@ -138,6 +191,7 @@ export default function InvestmentRadarMap({
 
   useEffect(() => {
     if (!mapRef.current) return;
+    setShowSearchHereBtn(false);
     mapRef.current.flyTo([centerLat, centerLng], zoom, {
       duration: 1.2,
       easeLinearity: 0.25,
@@ -312,9 +366,28 @@ export default function InvestmentRadarMap({
     });
   }, [listings]);
 
+  const handleSearchThisArea = () => {
+    if (pannedCenter) {
+      setShowSearchHereBtn(false);
+      onCircleChangedRef.current(pannedCenter.lat, pannedCenter.lng, radiusMetersRef.current);
+    }
+  };
+
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-slate-200/90 shadow-sm dark:border-zinc-800">
       <div ref={containerRef} className="h-full w-full z-0 min-h-[480px] lg:min-h-[600px]" />
+      {showSearchHereBtn && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] animate-in fade-in slide-in-from-top-2 duration-200 pointer-events-auto">
+          <button
+            type="button"
+            onClick={handleSearchThisArea}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/95 text-white hover:bg-slate-900 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 shadow-2xl text-xs font-bold transition-all transform hover:scale-105 border border-white/20 active:scale-95"
+          >
+            <Compass className="w-4 h-4 text-amber-400 dark:text-slate-950 animate-spin-slow" />
+            <span>Bu Bölgeyi Tara</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
