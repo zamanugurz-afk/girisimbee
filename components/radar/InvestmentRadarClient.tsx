@@ -609,10 +609,6 @@ export function InvestmentRadarClient() {
             <Radar className="w-7 h-7 text-amber-500" />
             <span>Yatırım ve Lokasyon Radarı</span>
           </h1>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span>04:00 TSİ Günlük Snapshot Haritası</span>
-          </div>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
