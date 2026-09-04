@@ -40,6 +40,17 @@ const EXCLUDED_AMENITIES = new Set([
   'telephone',
 ]);
 
+const EXCLUDED_LEISURE = new Set([
+  'park',
+  'playground',
+  'pitch',
+  'garden',
+  'nature_reserve',
+  'common',
+  'dog_park',
+  'track',
+]);
+
 export const CATEGORY_TAG_MAP: Record<string, string[]> = {
   cafe: ['["amenity"~"cafe|coffee_shop|ice_cream|bistro"]', '["shop"~"coffee|tea"]'],
   pet_shop: ['["shop"~"pet|pet_grooming"]', '["amenity"="veterinary"]'],
@@ -451,9 +462,14 @@ export function classifyPoi(
     return { key: 'oto_elektrik', label: 'Oto Elektrik & Akü' };
   }
 
-  // Fallbacks
+  // Fallbacks based on verified commercial OSM tag
   if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
   if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
+  if (office) return { key: 'real_estate', label: 'Hizmet & Ofis' };
+  if (craft) return { key: 'terzi', label: 'Zanaat & Atölye' };
+  if (tags?.healthcare) return { key: 'pharmacy', label: 'Sağlık & Medikal' };
+  if (tags?.tourism) return { key: 'cafe', label: 'Turizm & Konaklama' };
+  if (tags?.leisure) return { key: 'gym', label: 'Spor & Eğlence' };
 
   return { key: 'market', label: 'Ticari İşletme' };
 }
@@ -705,33 +721,33 @@ export async function fetchOverpassCompetitorPois(
     query = `
       [out:json][timeout:25];
       (
-        node(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["shop"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["office"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["craft"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["tourism"];
-        node(around:${radiusMeters},${lat},${lng})["name"]["commercial"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["shop"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["office"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["leisure"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["craft"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["healthcare"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["tourism"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["commercial"];
-        way(around:${radiusMeters},${lat},${lng})["name"]["building"~"commercial|retail|office"];
-        relation(around:${radiusMeters},${lat},${lng})["name"]["amenity"];
-        relation(around:${radiusMeters},${lat},${lng})["name"]["shop"];
-        relation(around:${radiusMeters},${lat},${lng})["name"]["office"];
+        node(around:${radiusMeters},${lat},${lng})["amenity"];
+        node(around:${radiusMeters},${lat},${lng})["shop"];
+        node(around:${radiusMeters},${lat},${lng})["office"];
+        node(around:${radiusMeters},${lat},${lng})["leisure"];
+        node(around:${radiusMeters},${lat},${lng})["craft"];
+        node(around:${radiusMeters},${lat},${lng})["healthcare"];
+        node(around:${radiusMeters},${lat},${lng})["tourism"];
+        node(around:${radiusMeters},${lat},${lng})["commercial"];
+        way(around:${radiusMeters},${lat},${lng})["amenity"];
+        way(around:${radiusMeters},${lat},${lng})["shop"];
+        way(around:${radiusMeters},${lat},${lng})["office"];
+        way(around:${radiusMeters},${lat},${lng})["leisure"];
+        way(around:${radiusMeters},${lat},${lng})["craft"];
+        way(around:${radiusMeters},${lat},${lng})["healthcare"];
+        way(around:${radiusMeters},${lat},${lng})["tourism"];
+        way(around:${radiusMeters},${lat},${lng})["commercial"];
+        way(around:${radiusMeters},${lat},${lng})["building"~"commercial|retail|office"];
+        relation(around:${radiusMeters},${lat},${lng})["amenity"];
+        relation(around:${radiusMeters},${lat},${lng})["shop"];
+        relation(around:${radiusMeters},${lat},${lng})["office"];
       );
-      out center 1500;
+      out center;
     `.trim();
   } else {
     const filters = CATEGORY_TAG_MAP[category] ?? ['["amenity"~"cafe|restaurant"]'];
-    const nodes = filters.map((f) => `node(around:${radiusMeters},${lat},${lng})["name"]${f};`).join('\n');
-    const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})["name"]${f};`).join('\n');
+    const nodes = filters.map((f) => `node(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
+    const ways = filters.map((f) => `way(around:${radiusMeters},${lat},${lng})${f};`).join('\n');
 
     query = `
       [out:json][timeout:15];
@@ -739,7 +755,7 @@ export async function fetchOverpassCompetitorPois(
         ${nodes}
         ${ways}
       );
-      out center 500;
+      out center;
     `.trim();
   }
 
@@ -773,7 +789,11 @@ export async function fetchOverpassCompetitorPois(
         for (const el of elements) {
           const tags = el.tags || {};
           const amenity = (tags.amenity || '').toLowerCase();
+          const leisure = (tags.leisure || '').toLowerCase();
+          const highway = (tags.highway || '').toLowerCase();
           if (EXCLUDED_AMENITIES.has(amenity)) continue;
+          if (EXCLUDED_LEISURE.has(leisure) && !tags.amenity && !tags.shop && !tags.craft && !tags.office) continue;
+          if (highway && !tags.amenity && !tags.shop && !tags.craft && !tags.office) continue;
 
           const elLat = el.lat ?? el.center?.lat;
           const elLng = el.lon ?? el.center?.lon;
@@ -782,11 +802,9 @@ export async function fetchOverpassCompetitorPois(
           const dist = calculateDistanceMeters(lat, lng, elLat, elLng);
           if (dist > radiusMeters) continue;
 
-          const rawName = (tags.name || tags.brand || tags['name:tr'] || '').trim();
-          // STRICT 1:1 REAL MAP RULE: Never include unnamed nodes or fake placeholders
-          if (!rawName || rawName.length === 0) continue;
-
+          const rawName = (tags.name || tags.brand || tags.operator || tags['name:tr'] || tags.description || '').trim();
           const classified = classifyPoi(rawName, tags);
+          const finalName = rawName || tags.brand || tags.operator || classified.label;
 
           // Allow dry_cleaning and terzi to be unified under dry_cleaning
           if (!isAll) {
@@ -800,7 +818,7 @@ export async function fetchOverpassCompetitorPois(
 
           pois.push({
             id: `osm-${el.type}-${el.id}`,
-            name: rawName,
+            name: finalName,
             lat: elLat,
             lng: elLng,
             category: classified.key,

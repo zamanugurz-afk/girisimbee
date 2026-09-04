@@ -228,8 +228,8 @@ export async function runNightlyRadarBatchSync(options: {
   syncedAt: string;
 }> {
   const currentCycle = getCurrentDailyCycleId();
-  const limit = options.districtLimit ?? 20;
-  console.log(`[radar-snapshot] Starting nightly 04:00 TSİ batch sync for cycle: ${currentCycle} (limit: ${limit})`);
+  const limit = options.districtLimit ?? TURKEY_POPULAR_DISTRICTS.length;
+  console.log(`[radar-snapshot] Starting nightly 04:00 TSİ batch sync for cycle: ${currentCycle} (districts: ${limit})`);
 
   const existingDisk = loadDiskSnapshot();
   const mergedAreas: Record<string, AreaPoiCensusResult> = {
