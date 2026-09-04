@@ -8,7 +8,7 @@ import type { RadarCategoryKey } from '@/types/radar.types';
 const SNAPSHOT_DIR = path.join(process.cwd(), 'data', 'radar');
 const SNAPSHOT_FILE = path.join(SNAPSHOT_DIR, 'radar-daily-snapshot.json');
 
-export const CURRENT_SNAPSHOT_VERSION = '2.7-strict-radius';
+export const CURRENT_SNAPSHOT_VERSION = '2.8-minimal-other-commercial';
 
 export interface DailySnapshotPayload {
   version?: string;

@@ -28,6 +28,7 @@ export type RadarCategoryKey =
   | 'medical_clinic'
   | 'consulting_agency'
   | 'other_commercial'
+  | 'oto_tamir'
   | (string & {});
 
 export interface RadarCategoryMeta {

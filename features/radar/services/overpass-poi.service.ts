@@ -200,10 +200,28 @@ const NOMINATIM_SECTOR_KEYWORDS: Record<string, string[]> = {
   other_commercial: ['işletme', 'ticari', 'şube', 'merkez'],
 };
 
+function normalizeText(text: string | undefined): string {
+  if (!text) return '';
+  return (' ' + text + ' ')
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'i')
+    .toLowerCase()
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c');
+}
+
 function hasWord(text: string | undefined, words: string[]): boolean {
   if (!text) return false;
-  const lower = ' ' + text.toLowerCase().replace(/[^a-z0-9ğüşıöç]/g, ' ') + ' ';
-  return words.some((w) => lower.includes(' ' + w.toLowerCase() + ' '));
+  const clean = normalizeText(text).replace(/[^a-z0-9]/g, ' ');
+  return words.some((w) => {
+    const cleanWord = normalizeText(w).replace(/[^a-z0-9]/g, ' ').trim();
+    if (!cleanWord) return false;
+    return clean.includes(' ' + cleanWord + ' ') || clean.includes(cleanWord);
+  });
 }
 
 export function classifyPoi(
@@ -218,9 +236,16 @@ export function classifyPoi(
   const leisure = (tags?.leisure || '').toLowerCase();
   const craft = (tags?.craft || '').toLowerCase();
 
-  // 0. Öncelikli Kurumsal, Medikal, Hukuk ve Danışmanlık Taraması
+  // 0. Öncelikli Kurumsal, Medikal, Hukuk, Danışmanlık ve Hizmet Taraması
   if (
-    hasWord(n, ['genel müdürlük', 'genel müdürlüğü', 'holding', 'holdingi', 'headquarters', 'bölge müdürlüğü'])
+    hasWord(n, [
+      'genel müdürlük', 'genel müdürlüğü', 'holding', 'holdingi', 'headquarters',
+      'bölge müdürlüğü', 'iş merkezi', 'iş hanı', 'çarşısı', 'pasajı', 'pasaj',
+      'sanayi ve ticaret', 'san. tic.', 'san tic', 'dış ticaret', 'lojistik',
+      'inşaat', 'insaat', 'yapı sanayi', 'yapı', 'yapi', 'makine', 'makina', 'şube müdürlüğü', 'müteahhit', 'gayrimenkul geliştirme',
+      'bina yönetimi', 'site yönetimi', 'eşya depolama', 'kiralık depo', 'depolama',
+      'antrepo', 'mühendislik', 'şirketler grubu', 'ticaret ltd', 'a.ş', 'ltd. şti'
+    ])
   ) {
     return { key: 'corporate_office', label: 'Kurumsal Şirket & Genel Müdürlük' };
   }
@@ -228,7 +253,9 @@ export function classifyPoi(
   if (
     hasWord(n, [
       'prof dr', 'op dr', 'uzm dr', 'doktor', 'doktoru', 'plastik cerrahi', 'estetik cerrah',
-      'cerrahi', 'klinik', 'kliniği', 'muayenehane', 'muayenehanesi', 'poliklinik', 'polikliniği', 'tıp merkezi'
+      'cerrahi', 'klinik', 'kliniği', 'muayenehane', 'muayenehanesi', 'poliklinik', 'polikliniği',
+      'tıp merkezi', 'hastane', 'hastanesi', 'görüntüleme merkezi', 'radyoloji', 'eeg',
+      'laboratuvar', 'fizik tedavi', 'sağlık ocağı', 'diyaliz', 'tedavi', 'sağlık merkezi'
     ])
   ) {
     return { key: 'medical_clinic', label: 'Doktor & Özel Muayenehane' };
@@ -236,17 +263,211 @@ export function classifyPoi(
 
   if (
     office === 'lawyer' ||
-    hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'legal', 'law', 'arabulucu', 'arabuluculuk', 'attorney', 'hukuk bürosu']) ||
-    n.toLowerCase().includes('legal') ||
-    n.toLowerCase().includes('law')
+    hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'legal', 'law', 'arabulucu', 'arabuluculuk', 'attorney', 'hukuk bürosu'])
   ) {
     return { key: 'law_firm', label: 'Hukuk & Avukatlık Bürosu' };
   }
 
   if (
-    hasWord(n, ['danışmanlık', 'danismanlik', 'consulting', 'consultancy', 'expat', 'solutions', 'insan kaynakları'])
+    hasWord(n, [
+      'danışmanlık', 'danismanlik', 'consulting', 'consultancy', 'expat', 'solutions', 'insan kaynakları',
+      'yurtdışı eğitim', 'yurtdisi egitim', 'tercüme', 'çeviri bürosu', 'yeminli tercüme', 'simultane',
+      'oturma izni', 'çalışma izni', 'vize danışmanlığı', 'denetim', 'audit', 'müşavirlik', 'koçluk', 'araştırma merkezi'
+    ])
   ) {
     return { key: 'consulting_agency', label: 'Danışmanlık & Kurumsal Hizmetler' };
+  }
+
+  // 0.1 Oto Tamir & Bakım Servisi
+  if (
+    shop === 'car_repair' ||
+    craft === 'car_repair' ||
+    hasWord(n, [
+      'oto tamir', 'oto tamiri', 'oto servis', 'özel servis', 'oto bakım', 'oto mekanik',
+      'kaporta', 'oto boya', 'hasar onarım', 'boyasız onarım', 'oto onarım', 'tamirhane',
+      'bosch car service', 'motor ustası', 'oto şasi', 'egzoz', 'fren servisi', 'oto yedek parça', 'oto yedek',
+      'motor mekanik', 'nissan', 'bmw', 'mercedes', 'mersedes', 'audi', 'volkswagen', 'fiat', 'renault',
+      'ford', 'hyundai', 'honda', 'toyota', 'opel', 'peugeot', 'citroen', 'oto cam', 'otofix',
+      'seçkin oto', 'erden oto', 'güren oto', 'merve oto', 'aydoğan oto', 'referans oto', 'yılmaz oto', 'oto ekspertiz',
+      'mtc oto', 'oto yavuzlar', 'tosunlar oto', 'volda garage', 'garage'
+    ])
+  ) {
+    return { key: 'oto_tamir', label: 'Oto Tamir & Bakım Servisi' };
+  }
+
+  // 0.2 Parfümeri & Kozmetik
+  if (
+    shop === 'perfumery' ||
+    shop === 'cosmetics' ||
+    hasWord(n, [
+      'parfümeri', 'parfumeri', 'parfüm', 'parfum', 'kozmetik', 'watsons', 'gratis', 'rossmann', 'sephora',
+      'lelas', 'loris', 'bargello', 'eyfel', 'd&p', 'flormar', 'golden rose', 'mad parfüm', 'kişisel bakım', 'cosmetics'
+    ])
+  ) {
+    return { key: 'parfumeri', label: 'Parfümeri & Kozmetik' };
+  }
+
+  // 0.3 Ayakkabı & Çanta Mağazası
+  if (
+    shop === 'shoes' ||
+    shop === 'bag' ||
+    hasWord(n, [
+      'ayakkabı', 'ayakkabi', 'ayakkabıcı', 'kundura', 'sneaker', 'çanta', 'canta', 'çantacı', 'flo',
+      'deichmann', 'skechers', 'superstep', 'sport in street', 'derimod', 'kemal tanca', 'elle', 'tergan', 'hotiç', 'greyder', 'iskarpin', 'gezer'
+    ])
+  ) {
+    return { key: 'shoe_store', label: 'Ayakkabı & Çanta Mağazası' };
+  }
+
+  // 0.4 Nalbur & Hırdavat / Yapı Market
+  if (
+    shop === 'hardware' ||
+    shop === 'doityourself' ||
+    hasWord(n, [
+      'nalbur', 'nalburu', 'hırdavat', 'hirdavat', 'hırdavatçı', 'yapı market', 'boya badana', 'alüminyum',
+      'demir çelik', 'tesisat', 'su tesisatı', 'koçtaş', 'bauhaus', 'tekzen', 'bıçakçılık', 'yapı sistemleri',
+      'camcı', 'camcilik', 'cam', 'pimapen', 'winsa', 'fıratpen', 'egepen', 'tente', 'branda', 'sineklik',
+      'yapı malzemeleri', 'inşaat malzemeleri', 'insaat malzemeleri', 'inşat malzemeleri', 'inşşat malzemeleri',
+      'avize', 'aydınlatma', 'boya', 'boyacı', 'elektrik', 'elektirik', 'bobinaj', 'karot', 'çelik cam',
+      'ece pen', 'seven boya', 'mermer', 'duvar kağıdı', 'akan teknik', 'decolight'
+    ])
+  ) {
+    return { key: 'hardware', label: 'Nalbur & Hırdavat' };
+  }
+
+  // 0.5 Züccaciye, Mutfak Eşyaları & Ev Gereçleri
+  if (
+    shop === 'houseware' ||
+    shop === 'kitchen' ||
+    hasWord(n, [
+      'züccaciye', 'zuccaciye', 'mutfak eşyaları', 'paşabahçe', 'pasabahce', 'karaca', 'madame coco',
+      'english home', 'porland', 'kütahya porselen', 'güral porselen', 'güral', 'bernardo', 'hisar', 'emsan',
+      'jumbo', 'çeyiz', 'ev gereçleri', 'kristal', 'mefruşat', 'evidea', 'evkur', 'tedi', 'paspas dünyası',
+      'korkmaz', 'spot', 'ev shop'
+    ])
+  ) {
+    return { key: 'zuccaciye', label: 'Züccaciye & Mutfak Eşyası' };
+  }
+
+  // 0.6 Oyuncakçı & Hobi Mağazası
+  if (
+    shop === 'toys' ||
+    hasWord(n, [
+      'oyuncak', 'oyuncakçı', 'toyzz shop', 'armağan oyuncak', 'toys r us', 'figür', 'figur', 'maket',
+      'hobi mağazası', 'puzzle', 'lego', 'köstebek', 'kostebek', 'gargamel', 'hobby', 'parti outlet',
+      'toys', 'hediye', 'hediyelik'
+    ])
+  ) {
+    return { key: 'toy_store', label: 'Oyuncakçı & Hobi Mağazası' };
+  }
+
+  // 0.7 Aktar & Şifalı Bitkiler
+  if (
+    shop === 'herbalist' ||
+    hasWord(n, [
+      'aktar', 'aktarı', 'şifalı bitkiler', 'baharatçı', 'baharat', 'doğal ürünler', 'bitkisel ürünler',
+      'organik aktar', 'derman', 'tarçın', 'tarcin', 'safran', 'nane', 'doğal', 'dogal', 'organik', 'deva', 'saraçoğlu', 'saracoglu'
+    ])
+  ) {
+    return { key: 'aktar', label: 'Aktar & Şifalı Bitkiler' };
+  }
+
+  // 0.8 Matbaa, Ozalit & Dijital Baskı
+  if (
+    shop === 'copyshop' ||
+    craft === 'printer' ||
+    hasWord(n, [
+      'matbaa', 'matbaası', 'dijital baskı', 'tabela', 'ozalit', 'ozalitçi', 'plaket', 'etiket baskı',
+      'baskı merkezi', 'copy center', 'fotokopi merkezi', 'copy', 'print'
+    ])
+  ) {
+    return { key: 'printing', label: 'Matbaa & Dijital Baskı' };
+  }
+
+  // 0.9 Temizlik & Ambalaj Malzemeleri
+  if (
+    shop === 'chemist' ||
+    hasWord(n, [
+      'temizlik ürünleri', 'temizlik malzemeleri', 'temizlik', 'deterjan', 'ambalaj', 'ambalaj sanayi', 'koli',
+      'kutu ambalaj', 'plastik ambalaj', 'hijyen'
+    ])
+  ) {
+    return { key: 'cleaning_products', label: 'Temizlik & Ambalaj Malzemeleri' };
+  }
+
+  // 0.10 Beyaz Eşya Servisi & Kombi / Klima
+  if (
+    hasWord(n, [
+      'beyaz eşya servisi', 'beyaz eşya tamiri', 'kombi servisi', 'kombi tamiri', 'klima servisi',
+      'yetkili servis', 'arçelik servisi', 'beko servisi', 'bosch servisi', 'siemens servisi',
+      'vestel servisi', 'arçelik', 'arcelik', 'beko', 'profilo', 'viessmann', 'termodinamik',
+      'vaillant', 'demirdöküm', 'baymak', 'daikin', 'su arıtma', 'singer', 'bosch', 'siemens'
+    ])
+  ) {
+    return { key: 'appliance_repair', label: 'Beyaz Eşya & Kombi Servisi' };
+  }
+
+  // 0.11 Tüp Bayisi & Su Dağıtım
+  if (
+    shop === 'gas' ||
+    hasWord(n, [
+      'tüp bayisi', 'tup bayisi', 'tüpçü', 'aygaz', 'ipragaz', 'milangaz', 'bizimgaz', 'likidgaz', 'mutfak tüpü',
+      'sucu', 'su bayisi', 'kuvar su', 'kuvars su', 'kardelen su', 'damacana', 'erikli', 'sırma', 'hayat su', 'pınar su', 'hamidiye', 'kaynak suyu'
+    ])
+  ) {
+    return { key: 'tup_bayisi', label: 'Tüp Bayisi' };
+  }
+
+  // 0.12 Kuruyemiş & Şekerleme
+  if (
+    shop === 'nuts' ||
+    hasWord(n, [
+      'kuruyemiş', 'kuruyemis', 'kuruyemişçi', 'çerez', 'leblebi', 'fındık', 'fıstık', 'tuğba kuruyemiş',
+      'malatya pazarı', 'şekerci', 'lokumcu', 'helvacı', 'çerezci', 'ecleristan'
+    ])
+  ) {
+    return { key: 'kuruyemis', label: 'Kuruyemiş & Şekerleme' };
+  }
+
+  // 0.13 Halı Yıkama & Koltuk Temizleme
+  if (
+    hasWord(n, ['halı yıkama', 'hali yikama', 'koltuk yıkama', 'koltuk temizleme', 'halı temizleme', 'halıflex'])
+  ) {
+    return { key: 'hali_yikama', label: 'Halı Yıkama & Koltuk Temizleme' };
+  }
+
+  // 0.14 Fotoğrafçı & Stüdyo
+  if (
+    shop === 'photo' ||
+    hasWord(n, [
+      'fotoğrafçı', 'fotografci', 'fotoğraf stüdyosu', 'vesikalık', 'biyometrik', 'foto stüdyo',
+      'düğün fotoğrafçısı', 'stüdyo fotoğraf', 'fotograf', 'kodak', 'kodak express', 'fujifilm'
+    ])
+  ) {
+    return { key: 'photographer', label: 'Fotoğrafçı & Stüdyo' };
+  }
+
+  // 0.15 Bisiklet Satış & Servis
+  if (
+    shop === 'bicycle' ||
+    hasWord(n, [
+      'bisiklet', 'bisikletçi', 'bisiklet tamiri', 'salcano', 'carraro', 'kron', 'scooter tamir',
+      'elektrikli scooter servisi'
+    ])
+  ) {
+    return { key: 'bicycle_repair', label: 'Bisiklet Satış & Servis' };
+  }
+
+  // 0.16 Perde & Ev Tekstili
+  if (
+    shop === 'curtain' ||
+    shop === 'fabric' ||
+    hasWord(n, [
+      'perde', 'perdeci', 'tül perde', 'stor perde', 'ev tekstili', 'döşemelik', 'mefruşat',
+      'taç', 'brillant', 'linens', 'yatak örtüsü', 'halı', 'hali', 'halıcı'
+    ])
+  ) {
+    return { key: 'perde', label: 'Perde & Ev Tekstili' };
   }
 
   // 1. Kuru Temizleme, Terzi & Lostra
@@ -293,7 +514,11 @@ export function classifyPoi(
   if (
     shop === 'butcher' ||
     shop === 'deli' ||
-    hasWord(n, ['kasap', 'kasabı', 'şarküteri', 'sarkuteri', 'et pazarı', 'et reyonu', 'tavukçu', 'et tavuk'])
+    hasWord(n, [
+      'kasap', 'kasabı', 'şarküteri', 'sarkuteri', 'et pazarı', 'et reyonu', 'tavukçu', 'et tavuk',
+      'peynirci', 'peynirci baba', 'çiftliği', 'ciftligi', 'mandıra', 'mandira', 'kaya çiftliği', 'ovacık çiftliği',
+      'sütçü', 'yoğurthane', 'süt ürünleri', 'sut urunleri'
+    ])
   ) {
     return { key: 'butcher', label: 'Kasap & Şarküteri' };
   }
@@ -316,7 +541,11 @@ export function classifyPoi(
     shop === 'hairdresser' ||
     shop === 'beauty' ||
     shop === 'cosmetics' ||
-    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'güzellik salonu', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım', 'cosmetics', 'kozmetik', 'parfümeri'])
+    hasWord(n, [
+      'kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'güzellik salonu',
+      'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım', 'cosmetics', 'kozmetik', 'parfümeri',
+      'hair', 'esthetic', 'kalıcı makyaj', 'dövme silme'
+    ])
   ) {
     return { key: 'hairdresser', label: 'Kuaför & Güzellik' };
   }
@@ -372,7 +601,7 @@ export function classifyPoi(
   }
 
   // 16. Tatlıcı & Baklavacı
-  if (hasWord(n, ['tatlı', 'tatlıcı', 'tatlicisi', 'baklava', 'baklavacı', 'künefe', 'kadayıf', 'güllüoğlu', 'lokum', 'hafız mustafa', 'helvacı', 'trileçe'])) {
+  if (hasWord(n, ['tatlı', 'tatlıcı', 'tatlicisi', 'baklava', 'baklavacı', 'künefe', 'kadayıf', 'güllüoğlu', 'lokum', 'hafız mustafa', 'helvacı', 'trileçe', 'tatbak', 'seyidoğlu', 'hacı sayid', 'profiterol'])) {
     return { key: 'tatlici', label: 'Tatlıcı & Baklavacı' };
   }
 
@@ -380,7 +609,7 @@ export function classifyPoi(
   if (
     amenity === 'cafe' ||
     amenity === 'coffee_shop' ||
-    hasWord(n, ['kahve', 'kahvesi', 'cafe', 'coffee', 'kafe', 'espresso', 'roaster', 'roastery', 'starbucks', 'kahve dünyası', 'espresso lab', 'çay bahçesi', 'çay ocağı', 'hookah', 'nargile', 'bistro'])
+    hasWord(n, ['kahve', 'kahvesi', 'cafe', 'coffee', 'kafe', 'espresso', 'roaster', 'roastery', 'starbucks', 'kahve dünyası', 'espresso lab', 'çay bahçesi', 'çay ocağı', 'hookah', 'nargile', 'bistro', 'kıraathane', 'kiraathane', 'kıraathanesi', 'kıraathene', 'kiraathene', 'kahvehane', 'gazozcu', 'gazozcusu'])
   ) {
     return { key: 'cafe', label: 'Kafe & Kahve Dükkanı' };
   }
@@ -415,7 +644,7 @@ export function classifyPoi(
     shop === 'clothes' ||
     shop === 'boutique' ||
     shop === 'fashion' ||
-    hasWord(n, ['butik', 'giyim', 'moda', 'tekstil', 'boutique', 'lingerie', 'ayakkabı', 'çanta', 'abiye', 'tasarım'])
+    hasWord(n, ['butik', 'giyim', 'moda', 'tekstil', 'boutique', 'lingerie', 'ayakkabı', 'çanta', 'abiye', 'tasarım', 'tuhafiye', 'bijuteri', 'taki', 'takı', 'outlet'])
   ) {
     return { key: 'boutique', label: 'Butik & Giyim Mağazası' };
   }
@@ -450,12 +679,12 @@ export function classifyPoi(
   }
 
   // 27. Mobilya & Ev Dekorasyon
-  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek', 'perde', 'perdeci'])) {
+  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek', 'perde', 'perdeci', 'enza home', 'enza', 'mondi', 'modalife', 'yataş', 'çilek mobilya', 'puffy'])) {
     return { key: 'furniture', label: 'Mobilya & Ev Dekorasyon' };
   }
 
   // 28. Elektronik & GSM
-  if (shop === 'electronics' || hasWord(n, ['elektronik', 'telefon', 'bilgisayar', 'teknoloji', 'gsm', 'tamir', 'turkcell', 'vodafone', 'türk telekom', 'teknik servis'])) {
+  if (shop === 'electronics' || hasWord(n, ['elektronik', 'telefon', 'bilgisayar', 'teknoloji', 'gsm', 'tamir', 'turkcell', 'vodafone', 'türk telekom', 'teknik servis', 'iletişim', 'iletisim', 'marmara iletişim', 'cep telefonu', 'mobil', 'cep aksesuar', 'tekno cep'])) {
     return { key: 'electronics', label: 'Elektronik & GSM' };
   }
 
@@ -475,7 +704,7 @@ export function classifyPoi(
   }
 
   // 32. Turizm & Seyahat Acentesi
-  if (shop === 'travel_agency' || office === 'travel_agent' || hasWord(n, ['turizm', 'seyahat', 'turizm acentesi', 'bilet', 'uçak bileti', 'tur', 'turizm seyahat'])) {
+  if (shop === 'travel_agency' || office === 'travel_agent' || hasWord(n, ['turizm', 'seyahat', 'turizm acentesi', 'bilet', 'uçak bileti', 'tur', 'turizm seyahat', 'otel', 'oteli', 'hotel', 'pansiyon', 'konaklama'])) {
     return { key: 'travel_agency', label: 'Turizm & Seyahat Acentesi' };
   }
 
@@ -510,7 +739,7 @@ export function classifyPoi(
   // 38. Kargo Şubesi & Dağıtım
   if (
     amenity === 'post_office' ||
-    hasWord(n, ['kargo', 'kargosu', 'kargo şubesi', 'yurtiçi kargo', 'yurtici kargo', 'aras kargo', 'mng kargo', 'sürat kargo', 'surat kargo', 'ptt kargo', 'trendyol express', 'hepsijet', 'kolay gelsin', 'ups kargo', 'dhl', 'fedex', 'scotty'])
+    hasWord(n, ['kargo', 'kargosu', 'kargo şubesi', 'yurtiçi kargo', 'yurtici kargo', 'aras kargo', 'mng kargo', 'sürat kargo', 'surat kargo', 'ptt kargo', 'ptt şubesi', 'ptt', 'posta', 'trendyol express', 'hepsijet', 'kolay gelsin', 'ups kargo', 'ups', 'dhl', 'fedex', 'scotty'])
   ) {
     return { key: 'kargo_subesi', label: 'Kargo Şubesi & Dağıtım' };
   }
@@ -600,7 +829,10 @@ export function classifyPoi(
   // 50. Büfe & Tost Sandviç
   if (
     amenity === 'kiosk' ||
-    hasWord(n, ['büfe', 'bufe', 'tostçu', 'tost salonu', 'sandviç', 'kumrucu', 'patso', 'marmaris büfe'])
+    hasWord(n, [
+      'büfe', 'bufe', 'tostçu', 'tost salonu', 'sandviç', 'kumrucu', 'patso', 'marmaris büfe',
+      'iddaa', 'iddia', 'sayısal loto', 'ganyan', 'şans oyunları'
+    ])
   ) {
     return { key: 'bufe_tost', label: 'Büfe & Tost Sandviç' };
   }
@@ -629,14 +861,17 @@ export function classifyPoi(
   // 54. Motosiklet Servis & Ekipman
   if (
     shop === 'motorcycle' ||
-    hasWord(n, ['motosiklet', 'motor servisi', 'motosiklet tamir', 'motor tamiri', 'motul', 'kask mont', 'scooter servisi'])
+    hasWord(n, [
+      'motosiklet', 'motor servisi', 'motosiklet tamir', 'motor tamiri', 'motul', 'kask mont',
+      'scooter servisi', 'motorcycle', 'motor garage', 'garage motorcycle', 'redline', 'karla motor'
+    ])
   ) {
     return { key: 'motosiklet_servis', label: 'Motosiklet Servis & Ekipman' };
   }
 
   // 55. Oto Aksesuar & Tuning
   if (
-    hasWord(n, ['oto tuning', 'tuning', 'cam filmi', 'ppf kaplama', 'ses sistemi', 'oto ses ve görüntü', 'body kit', 'chip tuning'])
+    hasWord(n, ['oto tuning', 'tuning', 'tunning', 'cam filmi', 'ppf kaplama', 'ses sistemi', 'oto ses ve görüntü', 'body kit', 'chip tuning'])
   ) {
     return { key: 'oto_tuning', label: 'Oto Aksesuar & Tuning' };
   }
@@ -680,7 +915,7 @@ export function classifyPoi(
 
   // 61. Çocuk Parti & Oyun Evi
   if (
-    hasWord(n, ['parti evi', 'oyun evi', 'çocuk parti', 'soft play', 'doğum günü parti evi'])
+    hasWord(n, ['parti evi', 'oyun evi', 'çocuk parti', 'soft play', 'doğum günü parti evi', 'düğün salonu', 'dugun salonu'])
   ) {
     return { key: 'parti_evi', label: 'Çocuk Parti & Oyun Evi' };
   }
@@ -712,7 +947,10 @@ export function classifyPoi(
   // 65. Medikal, Ortopedi & İlaç / Biyoteknoloji
   if (
     shop === 'medical_supply' ||
-    hasWord(n, ['medikal', 'ortopedi', 'tıbbi malzeme', 'hasta bezi', 'medikal market', 'tekerlekli sandalye', 'pharma', 'ilaç', 'ilaç şirketi', 'biotech'])
+    hasWord(n, [
+      'medikal', 'ortopedi', 'tıbbi malzeme', 'hasta bezi', 'medikal market', 'tekerlekli sandalye',
+      'pharma', 'ilaç', 'ilaç şirketi', 'biotech', 'safe medical', 'ecza deposu', 'hacettepe ecza deposu'
+    ])
   ) {
     return { key: 'medikal_ortopedi', label: 'Medikal & Ortopedi Ürünleri' };
   }
@@ -735,7 +973,7 @@ export function classifyPoi(
 
   // 68. Müzik Kursu & Enstrüman
   if (
-    hasWord(n, ['müzik kursu', 'gitar kursu', 'piyano kursu', 'müzik aletleri', 'enstrüman'])
+    hasWord(n, ['müzik kursu', 'gitar kursu', 'piyano kursu', 'müzik aletleri', 'enstrüman', 'müzik merkezi', 'muzik merkezi'])
   ) {
     return { key: 'muzik_kursu', label: 'Müzik Kursu & Enstrüman' };
   }
@@ -750,7 +988,7 @@ export function classifyPoi(
 
   // 70. Outdoor & Kamp Malzemeleri
   if (
-    hasWord(n, ['kamp malzemeleri', 'outdoor', 'avcılık', 'balık av malzemeleri', 'olta'])
+    hasWord(n, ['kamp malzemeleri', 'outdoor', 'avcılık', 'balık av malzemeleri', 'olta', 'spor malzemeleri'])
   ) {
     return { key: 'outdoor_kamp', label: 'Outdoor & Kamp Malzemeleri' };
   }
@@ -1288,6 +1526,18 @@ export async function fetchOverpassCompetitorPois(
           if (dist > radiusMeters) continue;
 
           const rawName = (tags.name || tags.brand || tags.operator || tags['name:tr'] || tags.description || '').trim();
+          // Discard unnamed bare building footprints with no specific commercial tags
+          if (!rawName && !tags.brand && !tags.operator && !tags.shop && !tags.amenity && !tags.office && !tags.craft && !tags.healthcare && !tags.tourism) continue;
+
+          // Discard pure residential buildings that have no commercial tags or keywords
+          if (
+            hasWord(rawName, ['apartmanı', 'apartman', 'konutları', 'sitesi']) &&
+            !tags.shop && !tags.amenity && !tags.office && !tags.craft && !tags.healthcare &&
+            !hasWord(rawName, ['eczane', 'market', 'kafe', 'cafe', 'restoran', 'lokanta', 'kuaför', 'berber', 'butik', 'iş merkezi', 'avm', 'plaza', 'ofis', 'hukuk', 'klinik'])
+          ) {
+            continue;
+          }
+
           const classified = classifyPoi(rawName, tags);
           const finalName = rawName || tags.brand || tags.operator || classified.label;
 

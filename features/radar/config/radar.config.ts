@@ -160,6 +160,18 @@ export const RADAR_CATEGORIES: Record<string, RadarCategoryMeta> = {
     isPopularTop8: false,
     searchKeywords: ['oto yıkama', 'yıkama', 'detailing', 'pasta cila', 'seramik kaplama', 'lastik'],
   },
+  oto_tamir: {
+    key: 'oto_tamir',
+    label: 'Oto Tamir, Bakım & Özel Servis',
+    emoji: '🔧',
+    iconName: 'Wrench',
+    accent: '#EA580C',
+    overpassFilter: '[shop=car_repair]',
+    averageCatchmentRadius: 1500,
+    idealDensityPerKm2: 5,
+    isPopularTop8: false,
+    searchKeywords: ['oto tamir', 'oto servis', 'özel servis', 'tamirhane', 'motor mekanik', 'kaporta', 'oto bakım', 'oto onarım'],
+  },
   restaurant: {
     key: 'restaurant',
     label: 'Restoran & Lokanta',
