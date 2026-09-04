@@ -24,6 +24,10 @@ export type RadarCategoryKey =
   | 'software_agency'
   | 'furniture'
   | 'electronics'
+  | 'corporate_office'
+  | 'medical_clinic'
+  | 'consulting_agency'
+  | 'other_commercial'
   | (string & {});
 
 export interface RadarCategoryMeta {

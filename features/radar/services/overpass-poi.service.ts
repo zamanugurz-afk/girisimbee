@@ -194,6 +194,10 @@ const NOMINATIM_SECTOR_KEYWORDS: Record<string, string[]> = {
   isitme_cihazi: ['işitme cihazı merkezi', 'işitme cihazları'],
   pub_meyhane: ['pub', 'meyhane', 'bira evi', 'gastropub'],
   waffle_cikolata: ['waffle', 'çikolata dükkanı', 'el yapımı çikolata'],
+  corporate_office: ['şirket', 'holding', 'genel müdürlük', 'plaza ofis', 'limited şirketi'],
+  medical_clinic: ['klinik', 'muayenehane', 'doktor', 'poliklinik', 'özel klinik', 'tıp merkezi'],
+  consulting_agency: ['danışmanlık', 'consulting', 'solutions', 'insan kaynakları', 'müşavirlik'],
+  other_commercial: ['işletme', 'ticari', 'şube', 'merkez'],
 };
 
 function hasWord(text: string | undefined, words: string[]): boolean {
@@ -213,6 +217,37 @@ export function classifyPoi(
   const office = (tags?.office || '').toLowerCase();
   const leisure = (tags?.leisure || '').toLowerCase();
   const craft = (tags?.craft || '').toLowerCase();
+
+  // 0. Öncelikli Kurumsal, Medikal, Hukuk ve Danışmanlık Taraması
+  if (
+    hasWord(n, ['genel müdürlük', 'genel müdürlüğü', 'holding', 'holdingi', 'headquarters', 'bölge müdürlüğü'])
+  ) {
+    return { key: 'corporate_office', label: 'Kurumsal Şirket & Genel Müdürlük' };
+  }
+
+  if (
+    hasWord(n, [
+      'prof dr', 'op dr', 'uzm dr', 'doktor', 'doktoru', 'plastik cerrahi', 'estetik cerrah',
+      'cerrahi', 'klinik', 'kliniği', 'muayenehane', 'muayenehanesi', 'poliklinik', 'polikliniği', 'tıp merkezi'
+    ])
+  ) {
+    return { key: 'medical_clinic', label: 'Doktor & Özel Muayenehane' };
+  }
+
+  if (
+    office === 'lawyer' ||
+    hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'legal', 'law', 'arabulucu', 'arabuluculuk', 'attorney', 'hukuk bürosu']) ||
+    n.toLowerCase().includes('legal') ||
+    n.toLowerCase().includes('law')
+  ) {
+    return { key: 'law_firm', label: 'Hukuk & Avukatlık Bürosu' };
+  }
+
+  if (
+    hasWord(n, ['danışmanlık', 'danismanlik', 'consulting', 'consultancy', 'expat', 'solutions', 'insan kaynakları'])
+  ) {
+    return { key: 'consulting_agency', label: 'Danışmanlık & Kurumsal Hizmetler' };
+  }
 
   // 1. Kuru Temizleme, Terzi & Lostra
   if (
@@ -276,11 +311,12 @@ export function classifyPoi(
     return { key: 'market', label: 'Süpermarket & Bakkal' };
   }
 
-  // 7. Kuaför & Berber & Güzellik
+  // 7. Kuaför & Berber & Güzellik / Kozmetik
   if (
     shop === 'hairdresser' ||
     shop === 'beauty' ||
-    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'güzellik salonu', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım'])
+    shop === 'cosmetics' ||
+    hasWord(n, ['kuaför', 'kuafor', 'kuaförü', 'berber', 'berberi', 'güzellik', 'güzellik merkezi', 'güzellik salonu', 'barber', 'barbershop', 'nail', 'estetik', 'saç tasarım', 'cosmetics', 'kozmetik', 'parfümeri'])
   ) {
     return { key: 'hairdresser', label: 'Kuaför & Güzellik' };
   }
@@ -424,7 +460,7 @@ export function classifyPoi(
   }
 
   // 29. Avukat & Hukuk Bürosu
-  if (office === 'lawyer' || hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'arabulucu', 'arabuluculuk', 'law', 'danışmanlık ve hukuk', 'hukuk bürosu'])) {
+  if (office === 'lawyer' || hasWord(n, ['avukat', 'avukatlık', 'hukuk', 'arabulucu', 'arabuluculuk', 'law', 'legal', 'attorney', 'danışmanlık ve hukuk', 'hukuk bürosu'])) {
     return { key: 'law_firm', label: 'Hukuk & Avukatlık Bürosu' };
   }
 
@@ -444,7 +480,7 @@ export function classifyPoi(
   }
 
   // 33. Yazılım & Dijital Ajans
-  if (office === 'it' || office === 'company' || hasWord(n, ['yazılım', 'dijital ajans', 'reklam ajansı', 'bilişim', 'web tasarım', 'ajans', 'yazilim', 'ajansı'])) {
+  if (office === 'it' || hasWord(n, ['yazılım', 'dijital ajans', 'reklam ajansı', 'bilişim', 'web tasarım', 'ajans', 'yazilim', 'ajansı', 'software', 'bilgisayar'])) {
     return { key: 'software_agency', label: 'Yazılım & Dijital Ajans' };
   }
 
@@ -673,10 +709,10 @@ export function classifyPoi(
     return { key: 'mimarlik_ofisi', label: 'Mimarlık & Tasarım Ofisi' };
   }
 
-  // 65. Medikal & Ortopedi Ürünleri
+  // 65. Medikal, Ortopedi & İlaç / Biyoteknoloji
   if (
     shop === 'medical_supply' ||
-    hasWord(n, ['medikal', 'ortopedi', 'tıbbi malzeme', 'hasta bezi', 'medikal market', 'tekerlekli sandalye'])
+    hasWord(n, ['medikal', 'ortopedi', 'tıbbi malzeme', 'hasta bezi', 'medikal market', 'tekerlekli sandalye', 'pharma', 'ilaç', 'ilaç şirketi', 'biotech'])
   ) {
     return { key: 'medikal_ortopedi', label: 'Medikal & Ortopedi Ürünleri' };
   }
@@ -719,16 +755,61 @@ export function classifyPoi(
     return { key: 'outdoor_kamp', label: 'Outdoor & Kamp Malzemeleri' };
   }
 
-  // Fallbacks based on verified commercial OSM tag
-  if (shop) return { key: 'market', label: 'Perakende & Mağaza' };
-  if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
-  if (office) return { key: 'real_estate', label: 'Hizmet & Ofis' };
-  if (craft) return { key: 'terzi', label: 'Zanaat & Atölye' };
-  if (tags?.healthcare) return { key: 'pharmacy', label: 'Sağlık & Medikal' };
-  if (tags?.tourism) return { key: 'cafe', label: 'Turizm & Konaklama' };
-  if (tags?.leisure) return { key: 'gym', label: 'Spor & Eğlence' };
+  // 71. Doktor, Poliklinik & Özel Muayenehane
+  if (
+    amenity === 'clinic' ||
+    amenity === 'doctors' ||
+    tags?.healthcare === 'doctor' ||
+    tags?.healthcare === 'clinic' ||
+    hasWord(n, [
+      'doktor', 'doktoru', 'dr', 'prof dr', 'op dr', 'uzm dr', 'klinik', 'kliniği',
+      'muayenehane', 'muayenehanesi', 'poliklinik', 'polikliniği', 'tıp merkezi',
+      'cerrahi', 'plastik cerrahi', 'estetik cerrahi', 'dermatoloji', 'göz kliniği',
+      'fizik tedavi', 'sağlık merkezi', 'ortopedi kliniği', 'kardiyoloji', 'dahiliye', 'estetik plastik'
+    ])
+  ) {
+    return { key: 'medical_clinic', label: 'Doktor & Özel Muayenehane' };
+  }
 
-  return { key: 'market', label: 'Ticari İşletme' };
+  // 72. Danışmanlık & Kurumsal Hizmetler
+  if (
+    office === 'consulting' ||
+    office === 'advisor' ||
+    hasWord(n, [
+      'danışmanlık', 'danismanlik', 'danışmanlığı', 'consulting', 'consultancy', 'solutions',
+      'expat', 'insan kaynakları', 'ik danışmanlık', 'yönetim danışmanlığı', 'finansal danışmanlık',
+      'gümrük müşavirliği', 'denetim', 'audit', 'advisory', 'belgelendirme', 'hizmetleri'
+    ])
+  ) {
+    return { key: 'consulting_agency', label: 'Danışmanlık & Kurumsal Hizmetler' };
+  }
+
+  // 73. Kurumsal Şirket, Ofis & Genel Müdürlük
+  if (
+    office === 'company' ||
+    office === 'corporate' ||
+    office === 'headquarters' ||
+    office === 'commercial' ||
+    hasWord(n, [
+      'genel müdürlük', 'genel müdürlüğü', 'holding', 'holdingi', 'şirket', 'şirketi',
+      'a ş', 'aş', 'ltd şti', 'sanayi ve ticaret', 'san ve tic', 'plaza', 'ofis',
+      'merkez ofis', 'bölge müdürlüğü', 'headquarters', 'group', 'grup', 'lojistik',
+      'pazarlama', 'ithalat', 'ihracat', 'endüstriyel'
+    ])
+  ) {
+    return { key: 'corporate_office', label: 'Kurumsal Şirket & Genel Müdürlük' };
+  }
+
+  // Fallbacks based on verified commercial OSM tag
+  if (shop) return { key: 'other_commercial', label: 'Perakende & Mağaza' };
+  if (amenity) return { key: 'restaurant', label: 'Yeme & İçme' };
+  if (office) return { key: 'corporate_office', label: 'Kurumsal Ofis & Şirket' };
+  if (craft) return { key: 'terzi', label: 'Zanaat & Atölye' };
+  if (tags?.healthcare) return { key: 'medical_clinic', label: 'Sağlık & Medikal Klinik' };
+  if (tags?.tourism) return { key: 'travel_agency', label: 'Turizm & Seyahat' };
+  if (tags?.leisure) return { key: 'gym', label: 'Spor & Aktivite' };
+
+  return { key: 'other_commercial', label: 'Genel Ticari İşletme & Ofis' };
 }
 
 /* ========================================================================= */
@@ -826,6 +907,10 @@ export const GOOGLE_CATEGORY_MAPPING: Record<
   isitme_cihazi: { keyword: 'işitme cihazı OR işitme merkezi OR odyometri işitme cihazları', fallbackLabel: 'İşitme Cihazları Satış & Uygulama Merkezi' },
   pub_meyhane: { keyword: 'meyhane OR pub OR bar OR birahane OR canlı müzik pub', fallbackLabel: 'Pub, Meyhane & Butik Bar' },
   waffle_cikolata: { keyword: 'wafflecı OR waffle salonu OR çikolata butiği OR el yapımı çikolata', fallbackLabel: 'Waffle & Butik Çikolatacı' },
+  corporate_office: { keyword: 'şirket OR genel müdürlük OR holding OR plaza ofis OR limited şirketi', fallbackLabel: 'Kurumsal Şirket & Genel Müdürlük' },
+  medical_clinic: { keyword: 'doktor OR muayenehane OR poliklinik OR özel klinik OR cerrahi', fallbackLabel: 'Doktor & Özel Muayenehane' },
+  consulting_agency: { keyword: 'danışmanlık OR consulting OR kurumsal hizmetler OR solutions', fallbackLabel: 'Danışmanlık & Kurumsal Hizmetler' },
+  other_commercial: { keyword: 'ticari işletme OR ofis OR firma', fallbackLabel: 'Diğer Ticari İşletmeler' },
 };
 
 export function getGooglePlacesApiKey(): string | null {
@@ -858,6 +943,10 @@ export const CATEGORY_SEARCH_SUBQUERIES: Record<string, string[]> = {
   oto_tamir: ['oto tamir OR oto servis', 'oto mekanik OR araç bakım'],
   kargo_subesi: ['kargo şubesi', 'Yurtiçi Kargo OR Aras Kargo OR MNG Kargo OR PTT Kargo'],
   noter: ['noter OR noterliği'],
+  corporate_office: ['şirket OR holding', 'genel müdürlük OR plaza ofis'],
+  medical_clinic: ['doktor OR muayenehane', 'poliklinik OR özel klinik'],
+  consulting_agency: ['danışmanlık OR consulting', 'kurumsal hizmetler OR solutions'],
+  other_commercial: ['ticari işletme', 'firma OR ofis'],
 };
 
 export async function fetchGooglePublicPois(
@@ -870,22 +959,37 @@ export async function fetchGooglePublicPois(
 
   const searchQueries: string[] = isAll
     ? [
-        'restoran lokanta kafe yeme içme',
-        'market bakkal süpermarket tekel şarküteri',
-        'eczane medikal sağlık poliklinik',
-        'kuaför berber güzellik salonu estetik',
-        'fırın pastane tatlıcı börekçi unlu mamüller',
-        'oto tamir bakım servis oto sanayi kaporta',
-        'oto ekspertiz oto lastik rot balans',
-        'terzi kuru temizleme lostra dikim',
-        'emlak gayrimenkul ofisi danışmanlık',
+        'restoran lokanta burger köfteci',
+        'burger fast food',
+        'kafe kahve tatlıcı',
+        'market bakkal süpermarket',
+        'eczane medikal',
+        'kuaför berber güzellik salonu',
+        'fırın pastane unlu mamül',
+        'şirket',
+        'genel müdürlük',
+        'plaza iş merkezi',
+        'doktor muayenehane klinik',
+        'estetik cerrahi poliklinik',
+        'danışmanlık',
+        'bilişim yazılım teknoloji',
+        'bilgisayar',
+        'avukat hukuk bürosu',
+        'law firm',
+        'arabuluculuk',
+        'kozmetik',
+        'ilaç pharma',
+        'oto tamir servis',
+        'oto ekspertiz lastikçi',
+        'terzi kuru temizleme',
+        'emlak gayrimenkul ofisi',
         'noter noterliği',
-        'avukat hukuk bürosu arabulucu',
-        'mağazalar butik giyim ayakkabı moda',
-        'kırtasiye çiçekçi petshop veteriner',
-        'diş hekimi diş kliniği dental',
-        'kargo şubesi dağıtım',
-        'kuyumcu sarraf altın',
+        'butik giyim mağazası',
+        'kırtasiye çiçekçi petshop',
+        'diş hekimi diş kliniği',
+        'kargo şubesi',
+        'kuyumcu sarraf',
+        'spor salonu fitness pilates',
       ]
     : [
         GOOGLE_CATEGORY_MAPPING[category]?.keyword || category,
@@ -935,7 +1039,7 @@ export async function fetchGooglePublicPois(
             const pLat = coords[2];
             const pLng = coords[3];
             const dist = calculateDistanceMeters(lat, lng, pLat, pLng);
-            if (dist > radiusMeters * 1.08) continue;
+            if (dist > radiusMeters) continue;
 
             const normKey = `${rawName.toLowerCase().trim()}_${Math.round(pLat * 10000)}_${Math.round(pLng * 10000)}`;
             if (seenKeys.has(normKey)) continue;
