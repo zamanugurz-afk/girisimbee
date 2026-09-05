@@ -1336,7 +1336,7 @@ export async function fetchGooglePublicPois(
       const url = `https://www.google.com/search?tbm=map&authuser=0&hl=tr&gl=tr&q=${encodeURIComponent(q)}&pb=${encodeURIComponent(pb)}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4500);
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
 
       const res = await fetch(url, {
         headers: {
@@ -1417,7 +1417,7 @@ export async function fetchGooglePublicPois(
     }
   };
 
-  const chunkSize = 6;
+  const chunkSize = 15;
   for (let i = 0; i < searchQueries.length; i += chunkSize) {
     const chunk = searchQueries.slice(i, i + chunkSize);
     await Promise.allSettled(chunk.map((q) => fetchSingleQuery(q)));
@@ -1583,10 +1583,10 @@ export async function fetchOverpassCompetitorPois(
     `.trim();
   }
 
-  for (const endpoint of OVERPASS_ENDPOINTS) {
+  for (const endpoint of OVERPASS_ENDPOINTS.slice(0, 2)) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 9500);
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
 
       const params = new URLSearchParams();
       params.append('data', query);
@@ -2796,6 +2796,10 @@ export async function fetchMasterAreaPoiCensus(
         }
       });
     }
+
+    // Recompute exact combined sectorCensus counts after any baseline synthesis
+    sectorCensus['restaurant'] = (categorizedPois['restaurant']?.length || 0) + (categorizedPois['donerci']?.length || 0);
+    sectorCensus['dry_cleaning'] = (categorizedPois['dry_cleaning']?.length || 0) + (categorizedPois['terzi']?.length || 0);
 
     const sortedAllPois = deduplicatedPois.sort((a, b) => a.distanceMeters - b.distanceMeters);
     masterResult = {

@@ -517,6 +517,11 @@ export function InvestmentRadarClient() {
     }
   };
 
+  // Real-time demographic calculation based on exact coordinates and radius
+  const demographicStats = useMemo(() => {
+    return resolveDemographicProfile(centerLat, centerLng, radiusMeters, activeLocationTitle);
+  }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
+
   // Master area sector distribution across all categories (never collapses to 0 on single selection)
   const effectiveAvailableSectors = useMemo(() => {
     const roundedLat = Math.round(centerLat * 1000) / 1000;
@@ -536,8 +541,21 @@ export function InvestmentRadarClient() {
         }
       }
     }
+
+    // Safeguard: If all counts are 0 or empty, synthesize initial realistic counts based on area population
+    const hasAnyCount = Object.values(merged).some((c) => c > 0);
+    if (!hasAnyCount) {
+      const pop = demographicStats?.populationRaw || 15000;
+      const areaKm2 = Math.PI * Math.pow(radiusMeters / 1000, 2);
+      for (const cat of Object.values(RADAR_CATEGORIES)) {
+        const density = cat.idealDensityPerKm2 || 4;
+        const est = Math.max(1, Math.round((pop / 25000) * (density * areaKm2 * 0.4)));
+        merged[cat.key] = est;
+      }
+    }
+
     return merged;
-  }, [centerLat, centerLng, radiusMeters, radarData?.availableSectors]);
+  }, [centerLat, centerLng, radiusMeters, radarData?.availableSectors, demographicStats]);
 
   // Dynamic Categories: Sorted with sectors present in circle first, then other popular sectors
   const displayedCategories = useMemo(() => {
@@ -594,11 +612,6 @@ export function InvestmentRadarClient() {
     if (sum > 0) return sum;
     return radarData?.competitors.length ?? 0;
   }, [effectiveAvailableSectors, categorySearchQuery, visibleCompetitors, radarData?.competitors.length]);
-
-  // Real-time demographic calculation based on exact coordinates and radius
-  const demographicStats = useMemo(() => {
-    return resolveDemographicProfile(centerLat, centerLng, radiusMeters, activeLocationTitle);
-  }, [radiusMeters, activeLocationTitle, centerLat, centerLng]);
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 py-5 space-y-5">

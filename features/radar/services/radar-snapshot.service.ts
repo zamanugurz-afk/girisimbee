@@ -7,7 +7,7 @@ import {
   generateDeterministicLocalPois,
   SECTOR_DENSITY_PER_10K,
 } from './overpass-poi.service';
-import { resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
+import { calculateDistanceMeters, resolveDemographicProfile } from '@/features/radar/lib/spatial-calculator';
 import { TURKEY_POPULAR_DISTRICTS } from '@/features/radar/config/radar.config';
 import type { RadarCategoryKey } from '@/types/radar.types';
 
@@ -190,14 +190,85 @@ export async function getOrGenerateDailyAreaCensus(
 
   let masterCensus = snapshot.areas[areaKey];
 
-  // If area is missing or previously corrupted with 0 POIs, fetch fresh
+  // 1. Spatial proximity reuse: Check if another snapshot area overlaps and has POIs
   if (!masterCensus || !masterCensus.allPois || masterCensus.allPois.length === 0) {
-    // Generate clean master census once for this area and lock it into today's snapshot
-    masterCensus = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, 'all');
-    if (masterCensus && masterCensus.allPois && masterCensus.allPois.length > 0) {
-      snapshot.areas[areaKey] = masterCensus;
-      saveDiskSnapshot(snapshot);
+    let bestMatchingArea: AreaPoiCensusResult | null = null;
+    let bestDist = Infinity;
+
+    for (const [key, area] of Object.entries(snapshot.areas)) {
+      if (!area || !area.allPois || area.allPois.length === 0) continue;
+      const parts = key.split('_').map(Number);
+      if (parts.length < 3 || isNaN(parts[0]) || isNaN(parts[1]) || isNaN(parts[2])) continue;
+      const [aLat, aLng, aRadius] = parts;
+      const dist = calculateDistanceMeters(lat, lng, aLat, aLng);
+      // If the existing area center is within overlap range
+      if (dist <= (aRadius + radiusMeters) * 0.75 && dist < bestDist) {
+        bestDist = dist;
+        bestMatchingArea = area;
+      }
     }
+
+    if (bestMatchingArea) {
+      // Re-filter POIs from best matching area within requested radius
+      const nearbyPois = bestMatchingArea.allPois
+        .map((p) => {
+          const d = calculateDistanceMeters(lat, lng, p.lat, p.lng);
+          return { ...p, distanceMeters: Math.round(d) };
+        })
+        .filter((p) => p.distanceMeters <= radiusMeters);
+
+      if (nearbyPois.length >= 15) {
+        const sectorCensus: Record<string, number> = {};
+        for (const p of nearbyPois) {
+          if (p.category) {
+            sectorCensus[p.category] = (sectorCensus[p.category] || 0) + 1;
+          }
+        }
+        masterCensus = {
+          allPois: nearbyPois,
+          sectorCensus,
+        };
+        snapshot.areas[areaKey] = masterCensus;
+        saveDiskSnapshot(snapshot);
+      }
+    }
+  }
+
+  // 2. If still missing or empty, fetch fresh
+  if (!masterCensus || !masterCensus.allPois || masterCensus.allPois.length === 0) {
+    try {
+      masterCensus = await fetchMasterAreaPoiCensus(lat, lng, radiusMeters, locationName, 'all');
+      if (masterCensus && masterCensus.allPois && masterCensus.allPois.length > 0) {
+        snapshot.areas[areaKey] = masterCensus;
+        saveDiskSnapshot(snapshot);
+      }
+    } catch (err) {
+      console.error('[radar-snapshot] Error fetching master census:', err);
+    }
+  }
+
+  // 3. Fallback safeguard: If still empty (e.g. network timeout), synthesize realistic demographic baseline
+  if (!masterCensus || !masterCensus.allPois || masterCensus.allPois.length === 0) {
+    const demographicStats = resolveDemographicProfile(lat, lng, radiusMeters, locationName);
+    const localPopulation = demographicStats?.populationRaw || 2500;
+    const allSyntheticPois: CompetitorPoi[] = [];
+    const syntheticCensus: Record<string, number> = {};
+
+    let catIndex = 0;
+    for (const catKey of Object.keys(SECTOR_DENSITY_PER_10K) as RadarCategoryKey[]) {
+      const density = SECTOR_DENSITY_PER_10K[catKey] || 0.6;
+      const expectedCount = Math.max(1, Math.min(8, Math.round((localPopulation / 10000) * density)));
+      const baselinePois = generateDeterministicLocalPois(lat, lng, radiusMeters, catKey, locationName, expectedCount, catIndex++);
+      allSyntheticPois.push(...baselinePois);
+      syntheticCensus[catKey] = baselinePois.length;
+    }
+
+    masterCensus = {
+      allPois: allSyntheticPois,
+      sectorCensus: syntheticCensus,
+    };
+    snapshot.areas[areaKey] = masterCensus;
+    saveDiskSnapshot(snapshot);
   }
 
   // Filter for specific category if requested
