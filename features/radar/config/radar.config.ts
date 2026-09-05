@@ -447,7 +447,7 @@ export const RADAR_CATEGORIES: Record<string, RadarCategoryMeta> = {
     averageCatchmentRadius: 1500,
     idealDensityPerKm2: 4,
     isPopularTop8: false,
-    searchKeywords: ['mobilya', 'dekorasyon', 'koltuk', 'yatak', 'masa', 'ev eşyası'],
+    searchKeywords: ['mobilya', 'dekorasyon', 'koltuk', 'yatak', 'masa', 'ev eşyası', 'tadilat', 'ev tadilatı', 'iç dekorasyon', 'ahşap dekorasyon'],
   },
   electronics: {
     key: 'electronics',
@@ -475,15 +475,15 @@ export const RADAR_CATEGORIES: Record<string, RadarCategoryMeta> = {
   },
   hardware: {
     key: 'hardware',
-    label: 'Nalburiye & Hırdavat',
+    label: 'Nalbur, Hırdavat & Elektrik',
     emoji: '🔨',
     iconName: 'Hammer',
     accent: '#B45309',
-    overpassFilter: '[shop~hardware|doityourself]',
+    overpassFilter: '[shop~hardware|doityourself|electrical]',
     averageCatchmentRadius: 700,
     idealDensityPerKm2: 6,
     isPopularTop8: false,
-    searchKeywords: ['nalburiye', 'hırdavat', 'yapı market', 'boya', 'vida', 'tesisat', 'tamirat'],
+    searchKeywords: ['nalburiye', 'hırdavat', 'yapı market', 'boya', 'vida', 'tesisat', 'tamirat', 'elektrik', 'elektrikçi', 'aydınlatma', 'alüminyum', 'doğrama', 'cam balkon', 'sineklik'],
   },
   perde: {
     key: 'perde',

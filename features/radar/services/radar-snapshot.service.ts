@@ -14,7 +14,7 @@ import type { RadarCategoryKey } from '@/types/radar.types';
 const SNAPSHOT_DIR = path.join(process.cwd(), 'data', 'radar');
 const SNAPSHOT_FILE = path.join(SNAPSHOT_DIR, 'radar-daily-snapshot.json');
 
-export const CURRENT_SNAPSHOT_VERSION = '2.9-nonzero-sectors';
+export const CURRENT_SNAPSHOT_VERSION = '3.0-trade-craft-sectors';
 
 export interface DailySnapshotPayload {
   version?: string;
@@ -101,17 +101,30 @@ function saveDiskSnapshot(payload: DailySnapshotPayload): void {
     if (!fs.existsSync(SNAPSHOT_DIR)) {
       fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
     }
-    // Clean out any 0 POI entries before saving to disk
-    const cleanAreas: Record<string, AreaPoiCensusResult> = {};
+    // Safely preserve and merge existing pre-warmed areas from disk
+    let existingAreas: Record<string, AreaPoiCensusResult> = {};
+    if (fs.existsSync(SNAPSHOT_FILE)) {
+      try {
+        const raw = fs.readFileSync(SNAPSHOT_FILE, 'utf-8');
+        const disk = JSON.parse(raw);
+        if (disk.areas && typeof disk.areas === 'object') {
+          existingAreas = disk.areas;
+        }
+      } catch {
+        // ignore parse error
+      }
+    }
+
+    const mergedAreas: Record<string, AreaPoiCensusResult> = { ...existingAreas };
     for (const [k, v] of Object.entries(payload.areas || {})) {
       if (v && v.allPois && v.allPois.length > 0) {
-        cleanAreas[k] = v;
+        mergedAreas[k] = v;
       }
     }
     const cleanPayload: DailySnapshotPayload = {
       ...payload,
       version: CURRENT_SNAPSHOT_VERSION,
-      areas: cleanAreas,
+      areas: mergedAreas,
     };
     fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(cleanPayload, null, 2), 'utf-8');
   } catch (err) {
@@ -209,7 +222,7 @@ export async function getOrGenerateDailyAreaCensus(
     if (filteredPois.length === 0) {
       const catKey = targetCategoryArray[0];
       try {
-        const livePois = await fetchGooglePublicPois(lat, lng, radiusMeters, catKey);
+        const livePois = await fetchGooglePublicPois(lat, lng, radiusMeters, catKey, locationName);
         if (livePois && livePois.length > 0) {
           for (const lp of livePois) {
             if (

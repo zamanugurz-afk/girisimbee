@@ -1,5 +1,5 @@
 {
-  "version": "2.9-nonzero-sectors",
+  "version": "3.0-trade-craft-sectors",
   "cycleId": "2026-09-04",
   "syncedAt": "2026-09-04T23:07:21.207Z",
   "nextSyncAt": "2026-09-05T01:00:00.000Z",
@@ -268961,6 +268961,44 @@
         "medical_clinic": 17,
         "consulting_agency": 5,
         "other_commercial": 2
+      }
+    },
+    "40.919_29.156_500": {
+      "allPois": [
+        {
+          "id": "gmap-40.91842_29.15611",
+          "name": "Enginer Dekorasyon",
+          "lat": 40.9184241,
+          "lng": 29.1561076,
+          "category": "furniture",
+          "categoryLabel": "Mobilya & Ev Dekorasyon",
+          "address": "Cevizli, Savaş Sk. 17/A, 34846 Maltepe/İstanbul",
+          "distanceMeters": 65
+        },
+        {
+          "id": "gmap-40.91876_29.15612",
+          "name": "Özcan elektrik",
+          "lat": 40.9187553,
+          "lng": 29.1561172,
+          "category": "hardware",
+          "categoryLabel": "Nalbur, Hırdavat & Elektrik",
+          "address": "Cevizli, Kır Sk. No:24, 34846 Maltepe/İstanbul",
+          "distanceMeters": 29
+        },
+        {
+          "id": "gmap-40.91851_29.15578",
+          "name": "Özcan Alüminyum",
+          "lat": 40.9185115,
+          "lng": 29.1557849,
+          "category": "hardware",
+          "categoryLabel": "Nalbur, Hırdavat & Elektrik",
+          "address": "Cevizli, Savaş Sk. 15/A, 34846 Maltepe/İstanbul",
+          "distanceMeters": 57
+        }
+      ],
+      "sectorCensus": {
+        "furniture": 1,
+        "hardware": 2
       }
     }
   }

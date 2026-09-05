@@ -238,6 +238,7 @@ export function classifyPoi(
 
   // 0. Öncelikli Kurumsal, Medikal, Hukuk, Danışmanlık ve Hizmet Taraması
   if (
+    !hasWord(n, ['dekorasyon', 'mobilya', 'tadilat', 'alüminyum', 'elektrik', 'elektrikçi']) &&
     hasWord(n, [
       'genel müdürlük', 'genel müdürlüğü', 'holding', 'holdingi', 'headquarters',
       'bölge müdürlüğü', 'iş merkezi', 'iş hanı', 'çarşısı', 'pasajı', 'pasaj',
@@ -319,20 +320,22 @@ export function classifyPoi(
     return { key: 'shoe_store', label: 'Ayakkabı & Çanta Mağazası' };
   }
 
-  // 0.4 Nalbur & Hırdavat / Yapı Market
+  // 0.4 Nalbur & Hırdavat / Yapı Market & Elektrik / Tesisat
   if (
     shop === 'hardware' ||
     shop === 'doityourself' ||
+    shop === 'electrical' ||
     hasWord(n, [
-      'nalbur', 'nalburu', 'hırdavat', 'hirdavat', 'hırdavatçı', 'yapı market', 'boya badana', 'alüminyum',
+      'nalbur', 'nalburu', 'hırdavat', 'hirdavat', 'hırdavatçı', 'yapı market', 'boya badana', 'alüminyum', 'aluminyum', 'alüminyumcu',
       'demir çelik', 'tesisat', 'su tesisatı', 'koçtaş', 'bauhaus', 'tekzen', 'bıçakçılık', 'yapı sistemleri',
       'camcı', 'camcilik', 'cam', 'pimapen', 'winsa', 'fıratpen', 'egepen', 'tente', 'branda', 'sineklik',
       'yapı malzemeleri', 'inşaat malzemeleri', 'insaat malzemeleri', 'inşat malzemeleri', 'inşşat malzemeleri',
-      'avize', 'aydınlatma', 'boya', 'boyacı', 'elektrik', 'elektirik', 'bobinaj', 'karot', 'çelik cam',
-      'ece pen', 'seven boya', 'mermer', 'duvar kağıdı', 'akan teknik', 'decolight'
+      'avize', 'aydınlatma', 'boya', 'boyacı', 'elektrik', 'elektirik', 'elektrikçi', 'elektrikcisi', 'elektrik tesisat', 'bobinaj', 'karot', 'çelik cam',
+      'ece pen', 'seven boya', 'mermer', 'duvar kağıdı', 'akan teknik', 'decolight', 'panjur', 'küpeşte', 'korkuluk', 'kepenk', 'demir doğrama', 'ferforje',
+      'cam balkon', 'uydu sistemleri'
     ])
   ) {
-    return { key: 'hardware', label: 'Nalbur & Hırdavat' };
+    return { key: 'hardware', label: 'Nalbur, Hırdavat & Elektrik' };
   }
 
   // 0.5 Züccaciye, Mutfak Eşyaları & Ev Gereçleri
@@ -481,7 +484,7 @@ export function classifyPoi(
     craft === 'laundry' ||
     craft === 'cleaner' ||
     amenity === 'laundry' ||
-    hasWord(n, ['kuru temizleme', 'terzi', 'terzisi', 'lostra', 'lostracı', 'halı yıkama', 'ütüleme', 'dry clean', 'dikim', 'tadilat', 'paça'])
+    hasWord(n, ['kuru temizleme', 'terzi', 'terzisi', 'lostra', 'lostracı', 'halı yıkama', 'ütüleme', 'dry clean', 'dikim', 'giysi tadilat', 'elbise tadilat', 'kıyafet tadilat', 'pantolon tadilat', 'paça'])
   ) {
     return { key: 'dry_cleaning', label: 'Kuru Temizleme & Terzi' };
   }
@@ -679,7 +682,7 @@ export function classifyPoi(
   }
 
   // 27. Mobilya & Ev Dekorasyon
-  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek', 'perde', 'perdeci', 'enza home', 'enza', 'mondi', 'modalife', 'yataş', 'çilek mobilya', 'puffy'])) {
+  if (shop === 'furniture' || hasWord(n, ['mobilya', 'koltuk', 'yatak', 'dekorasyon', 'dekorasyoncu', 'ev tadilatı', 'tadilat dekorasyon', 'iç dekorasyon', 'ahşap dekorasyon', 'mutfak banyo dekorasyon', 'bellona', 'istikbal', 'doğtaş', 'kelebek', 'perde', 'perdeci', 'enza home', 'enza', 'mondi', 'modalife', 'yataş', 'çilek mobilya', 'puffy'])) {
     return { key: 'furniture', label: 'Mobilya & Ev Dekorasyon' };
   }
 
@@ -1192,6 +1195,7 @@ export async function fetchGooglePublicPois(
   lng: number,
   radiusMeters: number,
   category: RadarCategoryKey | 'all' = 'all',
+  locationName?: string,
 ): Promise<CompetitorPoi[]> {
   const isAll = category === 'all' || !category;
 
@@ -1244,6 +1248,13 @@ export async function fetchGooglePublicPois(
         'fotoğrafçı fotoğraf stüdyosu vesikalık düğün',
         'matbaa dijital baskı ozalit fotokopi',
         'bisiklet bisiklet tamiri scooter bisikletçi',
+        // 5.1 Elektrik, Tesisat, Alüminyum, Cam Balkon & Doğrama (Mahalle Esnafı)
+        'elektrikçi elektrik elektrik tesisatı aydınlatma avize',
+        'alüminyum alüminyumcu cam balkon sineklik doğrama pimapen panjur',
+        'dekorasyon ev tadilatı iç dekorasyon boya badana boyacı',
+        'demir doğrama ferforje kepenk çelik kapı tente',
+        'camcı ayna çerçeve cam atölyesi',
+        'su tesisatı sıhhi tesisat tesisatçı',
         // 6. Perakende, Ev, Moda & Alışveriş
         'butik giyim mağazası kıyafet moda',
         'ayakkabıcı ayakkabı çanta kundura tamiri',
@@ -1297,6 +1308,24 @@ export async function fetchGooglePublicPois(
         }
         return [category];
       })();
+
+  if (locationName) {
+    const locClean = extractCleanLocationName(locationName);
+    if (locClean && locClean !== 'Bölge' && locClean.length > 2) {
+      if (isAll) {
+        searchQueries.push(
+          `${locClean} elektrikçi`,
+          `${locClean} alüminyum`,
+          `${locClean} dekorasyon`,
+          `${locClean} esnaf dükkan`,
+        );
+      } else {
+        const catKeywords = RADAR_CATEGORIES[category]?.searchKeywords;
+        const kw = (catKeywords && catKeywords[0]) || category;
+        searchQueries.push(`${locClean} ${kw}`);
+      }
+    }
+  }
 
   const pois: CompetitorPoi[] = [];
   const seenKeys = new Set<string>();
@@ -1402,9 +1431,10 @@ export async function fetchGooglePlacesPois(
   lng: number,
   radiusMeters: number,
   category: RadarCategoryKey,
+  locationName?: string,
 ): Promise<CompetitorPoi[] | null> {
   // Free public Google Maps engine integration ($0 cost)
-  return fetchGooglePublicPois(lat, lng, radiusMeters, category);
+  return fetchGooglePublicPois(lat, lng, radiusMeters, category, locationName);
 }
 
 /* ========================================================================= */
@@ -2638,8 +2668,8 @@ export async function fetchMasterAreaPoiCensus(
 
     const [overpassRes, gmapAllRes, gmapTargetRes] = await Promise.allSettled([
       fetchOverpassCompetitorPois(lat, lng, radiusMeters, 'all'),
-      fetchGooglePublicPois(lat, lng, radiusMeters, 'all'),
-      targetCatKey ? fetchGooglePublicPois(lat, lng, radiusMeters, targetCatKey) : Promise.resolve([]),
+      fetchGooglePublicPois(lat, lng, radiusMeters, 'all', locationName),
+      targetCatKey ? fetchGooglePublicPois(lat, lng, radiusMeters, targetCatKey, locationName) : Promise.resolve([]),
     ]);
 
     const overpassPois = overpassRes.status === 'fulfilled' ? overpassRes.value : [];
